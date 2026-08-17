@@ -20,13 +20,13 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| done | [WP01 Custody Source Of Truth](workpacks/01-custody-source-of-truth.md) | 12/12 | `DATA_CLASSIFICATION.md`, `DECISIONS.md` | `output/data-custody-storage-plan-proof/01-custody-source-of-truth/` |
+| validation / source complete, expected tests open | [WP01 Custody Source Of Truth](workpacks/01-custody-source-of-truth.md) | 12/12 recorded | `DATA_CLASSIFICATION.md`, `DECISIONS.md` | Rust invariant-test family and clean-checkout proof acceptance remain open |
 | validation / source accepted, tests open | [WP02 Encryption Key Custody](workpacks/02-encryption-key-custody.md) | 12/12 recorded | `KEY_CUSTODY_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | historical ignored `output/` root; refresh later |
 | validation / source accepted, tests open | [WP03 Parent Owned Cloud Sync](workpacks/03-parent-owned-cloud-sync.md) | 13/13 recorded | `PARENT_STORAGE_PROVIDER_MATRIX.md`, `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md` | historical ignored `output/` root; refresh later |
 | validation / source accepted, test migration open | [WP04 Retention Delete Tombstone](workpacks/04-retention-delete-tombstone.md) | 13/13 recorded | `DECISIONS.md`, `EVENT_MODEL.md` | historical ignored `output/` root; refresh later |
 | source incomplete | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 12/12 recorded | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | historical ignored `output/` root; refresh later |
 | source edge incomplete / tests open | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 recorded | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | historical ignored `output/` root; refresh later |
-| done | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 12/12 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/` |
+| validation / source incomplete | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 12/12 recorded | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | confirmation authority and reachable Applied/Partial path, expected tests, and clean-checkout proof remain open |
 | blocked / source reachable, Account composition and tests open | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 2/14 | integrated child custody command/effect/tombstone lifecycle | Account WP04/WP05 plus missing clean-checkout aggregate root |
 | source | [Migrated Data And AI UI Plan](workpacks/data and AI Ui plan.md) | 0/0 | source evidence only | n/a |
 

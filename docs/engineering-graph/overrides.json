@@ -2,6 +2,18 @@
   "schemaVersion": 2,
   "workpackReviews": [
     {
+      "id": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
+      "hardDependencies": [],
+      "reason": "Live-code review found the Rust-owned storage settings and preview boundary present but the apply source incomplete: no trusted confirmation receipt or confirmed input can authorize Applied or Partial. This authorizes only the bounded confirmation/replay and reachable decision source packet; expected tests, focused execution, proof, checklist acceptance, PR readiness, adjacent portal/provider composition, and DONE remain open.",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+        "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
+        "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
       "hardDependencies": [],
       "reason": "Independent source review accepted the current bundle/import/preflight/apply boundary through 7a1e1c389 and identified two exact remaining production-source outcomes: backup cadence/manual backup and migration execution/rollback. This authorizes only that bounded source continuation; expected tests, focused execution, proof, checklist acceptance, PR readiness, and DONE remain open.",

@@ -16293,17 +16293,10 @@
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / source complete, expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16527,22 +16520,26 @@
       "path": "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md",
       "parent": "PLAN-data-custody-storage-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / source incomplete",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+            "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
+            "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md",
+            "docs/PLAN_CODE_STATUS_MATRIX.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Live-code review found the Rust-owned storage settings and preview boundary present but the apply source incomplete: no trusted confirmation receipt or confirmed input can authorize Applied or Partial. This authorizes only the bounded confirmation/replay and reachable decision source packet; expected tests, focused execution, proof, checklist acceptance, PR readiness, adjacent portal/provider composition, and DONE remain open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
