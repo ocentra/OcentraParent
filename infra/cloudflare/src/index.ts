@@ -743,18 +743,26 @@ function durableWriteKey(action: string, subject: string, requestId: string): st
   return `${action}:${subject}:${requestId}`;
 }
 
+function canonicalRequestFingerprint(
+  action: string,
+  subject: string | null,
+  requestId: string,
+  details: Readonly<Record<string, unknown>> = {}
+): string {
+  return JSON.stringify({ ...details, action, subject, requestId });
+}
+
 function adminRefundRequestFingerprint(
   actorSubject: string,
   invoiceId: string,
   subject: string,
+  requestId: string,
   amountCents: number,
   currency: string
 ): string {
-  return JSON.stringify({
-    action: 'admin-refund',
+  return canonicalRequestFingerprint('admin-refund', subject, requestId, {
     actorSubject,
     invoiceId,
-    subject,
     amountCents,
     currency,
   });
@@ -764,8 +772,17 @@ function webhookIdempotencyKey(provider: string, eventId: string): string {
   return durableWriteKey('provider-webhook', provider, eventId);
 }
 
-function webhookRequestFingerprint(provider: string, body: string): string {
-  return `${provider}:${body}`;
+function webhookRequestFingerprint(
+  provider: string,
+  body: string,
+  subject: string | null,
+  event: { eventId: string; eventType: string }
+): string {
+  return canonicalRequestFingerprint('provider-webhook', subject, event.eventId, {
+    provider,
+    eventType: event.eventType,
+    body,
+  });
 }
 
 function acceptedWebhookResponse(
@@ -817,7 +834,7 @@ async function executeIdempotentWrite(
   objectName: string,
   envelope: {
     requestKey: string;
-    requestFingerprint?: string;
+    requestFingerprint: string;
     responseStatus: number;
     responseBody: unknown;
     queueMessage: Record<string, unknown> | null;
@@ -1106,7 +1123,7 @@ async function acceptProviderWebhook(
     `billing-control:webhook:${provider}`,
     {
       requestKey: webhookIdempotencyKey(provider, event.eventId),
-      requestFingerprint: webhookRequestFingerprint(provider, body),
+      requestFingerprint: webhookRequestFingerprint(provider, body, subject, event),
       responseStatus: 202,
       responseBody: acceptedWebhookResponse(provider, proofIdFamily, event),
       queueMessage: {
@@ -1255,7 +1272,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${identity.subject}`,
         {
           requestKey: durableWriteKey('checkout-session-create', identity.subject, requestId),
-          requestFingerprint: `checkout-session-create:${planId}:${successPath}:${cancelPath}`,
+          requestFingerprint: canonicalRequestFingerprint('hosted-session', identity.subject, requestId, {
+            sessionKind: 'checkout-session-create',
+            planId,
+            successPath,
+            cancelPath,
+          }),
           responseStatus: 200,
           responseBody: acceptedResponseBody('checkout-session-create', requestId, identity.subject),
           queueMessage: null,
@@ -1325,7 +1347,10 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${identity.subject}`,
         {
           requestKey: durableWriteKey('billing-portal-session-create', identity.subject, requestId),
-          requestFingerprint: `billing-portal-session-create:${returnPath}`,
+          requestFingerprint: canonicalRequestFingerprint('hosted-session', identity.subject, requestId, {
+            sessionKind: 'billing-portal-session-create',
+            returnPath,
+          }),
           responseStatus: 200,
           responseBody: acceptedResponseBody('billing-portal-session-create', requestId, identity.subject),
           queueMessage: null,
@@ -1403,7 +1428,9 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${identity.subject}`,
         {
           requestKey: durableWriteKey('change-plan', identity.subject, requestId),
-          requestFingerprint: `change-plan:${targetPlanId ?? 'invalid'}`,
+          requestFingerprint: canonicalRequestFingerprint('change-plan', identity.subject, requestId, {
+            targetPlanId,
+          }),
           responseStatus: 200,
           responseBody: summary,
           queueMessage:
@@ -1466,7 +1493,9 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${identity.subject}`,
         {
           requestKey: durableWriteKey('cancel', identity.subject, requestId),
-          requestFingerprint: `cancel:${summary.cancellationState}`,
+          requestFingerprint: canonicalRequestFingerprint('cancel', identity.subject, requestId, {
+            cancellationState: summary.cancellationState,
+          }),
           responseStatus: 200,
           responseBody: summary,
           queueMessage: {
@@ -1536,6 +1565,10 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
           `referral-control:${identity.subject}`,
           {
             requestKey: durableWriteKey('referral-invite', identity.subject, requestId),
+            requestFingerprint: canonicalRequestFingerprint('referral-invite', identity.subject, requestId, {
+              invitedIdentifier,
+              referralCode: result.referralCode,
+            }),
             responseStatus: 200,
             responseBody: result,
             queueMessage: {
@@ -1625,6 +1658,9 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${identity.subject}`,
         {
           requestKey: durableWriteKey('manual-invoice', identity.subject, requestId),
+          requestFingerprint: canonicalRequestFingerprint('manual-invoice', identity.subject, requestId, {
+            region: result.region,
+          }),
           responseStatus: 202,
           responseBody: {
             ...result,
@@ -1857,6 +1893,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
               actorSubject,
               refundInvoiceId,
               refundSubject,
+              requestId,
               result.amountCents ?? 0,
               invoice.currency
             ),
@@ -1941,6 +1978,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${identity?.subject ?? 'internal'}`,
         {
           requestKey: durableWriteKey('reconciliation', identity?.subject ?? 'internal', requestId),
+          requestFingerprint: canonicalRequestFingerprint(
+            'reconciliation',
+            identity?.subject ?? 'internal',
+            requestId,
+            { actorRole }
+          ),
           responseStatus: 202,
           responseBody: summary,
           queueMessage: {
@@ -2111,7 +2154,7 @@ class BasePlaceholderDO {
 class IdempotentWriteDO extends BasePlaceholderDO {
   private readonly writes = new Map<
     string,
-    { requestFingerprint: string | null; responseStatus: number; responseBody: unknown }
+    { requestFingerprint: string; responseStatus: number; responseBody: unknown }
   >();
   private auditAppendTail: Promise<void> = Promise.resolve();
 
@@ -2144,7 +2187,7 @@ class IdempotentWriteDO extends BasePlaceholderDO {
     const requestKey = stringOrNull(envelope.requestKey);
     const requestFingerprint = stringOrNull(envelope.requestFingerprint);
     const responseStatus = numberOrNull(envelope.responseStatus);
-    if (requestKey === null || responseStatus === null) {
+    if (requestKey === null || requestFingerprint === null || responseStatus === null) {
       return json(400, {
         error: 'invalid-idempotency-envelope',
       });
@@ -2160,11 +2203,7 @@ class IdempotentWriteDO extends BasePlaceholderDO {
 
     const existing = this.writes.get(requestKey);
     if (existing !== undefined) {
-      if (
-        existing.requestFingerprint !== null &&
-        requestFingerprint !== null &&
-        existing.requestFingerprint !== requestFingerprint
-      ) {
+      if (existing.requestFingerprint !== requestFingerprint) {
         const conflictResponseStatus = numberOrNull(envelope.conflictResponseStatus) ?? 409;
         const conflictResponseBody = envelope.conflictResponseBody ?? {
           error: 'idempotency-conflict',
