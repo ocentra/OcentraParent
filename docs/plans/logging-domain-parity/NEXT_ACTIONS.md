@@ -16,7 +16,7 @@
 
 ## How to use
 
-1. Confirm the active branch matches the assigned branch. For this audit-hardening pass the branch is `codex/plan-harness-update`.
+1. Confirm the active branch matches the assigned branch. For this source-wave reconciliation the branch is `codex/logging-source-wave-repair` at accepted source head `735df89de`.
 2. Confirm claimed proof roots and test-result roots exist before trusting any done claim.
 3. Pick one honest next slice from `WORKPACK_INDEX.md`.
 4. Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
@@ -31,9 +31,14 @@
 Current status:
 
 ```text
-integration head 720609306 contains reviewed canonical redaction, Vite/writer routing, logger sanitization, and query realpath/symlink hardening for WP02/WP03/WP07/WP08
+integration source through 3fec0793a contains reviewed canonical redaction, Vite/writer routing, logger sanitization, portal-fallback sanitization, and query realpath/symlink hardening for WP02/WP03/WP07/WP08
 no test source changed in that packet
 ```
+
+Rust owns the exact 18-key sensitive-key policy and generates the checked-in
+TypeScript artifact. The TypeScript sanitizer, Logger serialization path,
+canonical dev writer, and portal compatibility fallback all consume that one
+policy; no alternate local regex or fail-open policy is accepted.
 
 Expected result after the remaining production-source wave closes:
 
@@ -42,6 +47,10 @@ write the complete redaction/export/writer/query/logger expected-test matrix
 then run only focused logging-domain and portal boundary tests and fix failures
 do not regenerate proof or invoke broad validation before that writing phase is complete
 ```
+
+The source mapping is recorded in the affected workpacks and graph. Focused
+validation, proof, and external composition remain deferred until the complete
+expected-test matrix is written.
 
 ### 1. Remaining Proof-Inventory Restoration / Claim Reduction
 

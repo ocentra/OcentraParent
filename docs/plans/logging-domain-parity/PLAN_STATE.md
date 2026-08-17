@@ -88,6 +88,20 @@ The source docs are routed through workpacks:
 
 ## Current status
 
+### Accepted source-wave truth (2026-08-17)
+
+Accepted source head `735df89de` establishes one redaction authority across
+the logging surfaces: Rust owns the exact 18-key sensitive-field policy and
+generates `packages/logging-domain/src/generated-log-redaction-policy.ts`;
+the TypeScript sanitizer consumes that generated artifact; `Logger` sanitizes
+before serialization; and the portal compatibility fallback sanitizes before
+serializing its JSON body. No alternate local regex or sensitive-key policy is
+part of the accepted source.
+
+This is a source-only reconciliation. Tests, focused validation, proof roots,
+checklist closeout, PR/DONE state, and external portal/agent-service/product
+composition remain deferred and are not claimed by this source wave.
+
 ```text
 Plan route: added
 Workpack route: added
@@ -128,7 +142,7 @@ PR-ready: false
 - Reconcile the remaining WP07/WP10 checklist closeout and keep WP08 scoped to its canonical partial-proof boundary instead of inflating it to repo-wide adoption
 - Decide whether done in this plan means source present, proof present, or both; the current docs mix those states
 - The WP03 Rust-side mapping is source-present: app::health, service_runtime::run_agent_service, and activity_capture call agent-service::dev_log, which converts protocol fields and invokes logging-core::DevLogger. Keep focused validation/proof deferred in this code-only pass, and hand off the separate root dev-log-routing failure before claiming full WP06 focused-validation closure
-- Accepted source through `720609306` centralizes TypeScript redaction, makes unsupported/reflection failures JSON-safe, routes Vite through the canonical writer, and hardens query containment. Independent review found no remaining source defect. No test file changed, so WP02/WP03/WP07/WP08 remain open for their explicit expected-test wave before any focused execution.
+- Accepted source through integration `3fec0793a` materially advances WP02/WP03/WP04/WP07/WP08: Rust owns the exact 18-key sensitive-key policy and generated TypeScript artifact; the TypeScript sanitizer is fail-closed and JSON-safe for unsupported/reflection failures; Vite uses the canonical writer; Logger and the portal compatibility fallback sanitize before serialization; and query reads enforce realpath/symlink containment without absolute-path diagnostics. Independent review found no remaining P0/P1 source defect, but no expected-test source was added or executed; focused validation, proof, external composition, and every DONE claim remain deferred.
 ```
 
 ## No-claim boundaries

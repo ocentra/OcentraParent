@@ -1173,6 +1173,56 @@
   ],
   "completionEvidenceOverrides": [
     {
+      "id": "WP-logging-domain-parity-02-typescript-logging-package-parity",
+      "implementation": [
+        "packages/logging-domain/src/core/log-redaction.ts",
+        "packages/logging-domain/src/generated-log-redaction-policy.ts"
+      ],
+      "reason": "Accepted source head 735df89de records the generated TypeScript edge of the Rust-owned exact 18-key sensitive-key policy. The sanitizer consumes the generated artifact; tests, focused validation, proof, checklist closeout, and DONE remain deferred.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/PLAN_STATE.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+      "implementation": [
+        "packages/portal-domain/src/dev-logger-impl.ts",
+        "packages/logging-domain/src/core/log-redaction.ts"
+      ],
+      "reason": "Accepted source head 735df89de keeps bridge-first portal routing and sanitizes the compatibility fallback before JSON serialization through the generated-policy-backed sanitizer. Route tests, proof, checklist closeout, DONE, and external composition remain deferred.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/PLAN_STATE.md",
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-logging-domain-parity-04-rust-logging-core-crate",
+      "implementation": ["crates/logging-core/src/redaction_policy.rs", "crates/logging-core/src/redaction.rs"],
+      "reason": "Accepted source head 735df89de establishes Rust as the sole sensitive-key policy authority with exactly 18 needles and checked-in TypeScript generation. Cargo/npm parity tests, focused validation, proof, checklist closeout, and DONE remain deferred.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/PLAN_STATE.md",
+        "docs/plans/logging-domain-parity/workpacks/04-rust-logging-core-crate.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-logging-domain-parity-08-logger-instrumentation-and-adoption",
+      "implementation": [
+        "packages/logging-domain/src/core/logger.ts",
+        "packages/logging-domain/src/core/log-redaction.ts",
+        "packages/portal-domain/src/dev-logger-impl.ts"
+      ],
+      "reason": "Accepted source head 735df89de sanitizes Logger data and portal compatibility fallback fields before serialization using the generated Rust-owned policy. Repo-wide adoption, tests, proof, checklist closeout, DONE, and external composition remain deferred.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/PLAN_STATE.md",
+        "docs/plans/logging-domain-parity/workpacks/08-logger-instrumentation-and-adoption.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
       "id": "WP-account-identity-family-plan-01-auth-provider-decision",
       "implementation": ["infra/cloudflare/src/env.ts", "infra/cloudflare/src/storage/account-identity-store.ts"],
       "reason": "Account WP01's Firebase external-provider and custody decision is reviewed as the implementation-phase handoff input for Cloudflare WP05 only. No account login/session runtime, tests, proof, deployment, or completion is claimed.",

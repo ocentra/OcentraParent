@@ -60,6 +60,16 @@ emit small structured fields
 avoid raw dumps in log fields
 ```
 
+## Accepted source-wave reconciliation (2026-08-17)
+
+The accepted source head `735df89de` confirms that `Logger.serializeData`
+sanitizes structured data before JSON serialization, and the portal
+compatibility fallback sanitizes its entry fields before its JSON body is
+serialized. Both paths consume the generated Rust-owned 18-key policy through
+`redactStructuredLogValue`; neither path owns an alternate local regex/policy.
+This does not establish repo-wide instrumentation adoption, test/proof
+closure, or external product/runtime composition.
+
 ## Required proof root
 
 ```text
