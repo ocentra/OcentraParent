@@ -1,4 +1,5 @@
 use super::*;
+use crate::parent_service_health::ParentAgentServiceHealthReason;
 
 #[path = "route_snapshot/dependencies.rs"]
 mod dependencies;
@@ -12,10 +13,13 @@ pub(super) fn build_parent_route_snapshot_impl(
     service_health: Option<&ParentAgentServiceHealth>,
 ) -> ParentRouteSnapshot {
     if let Some(health) = service_health.filter(|health| !health.is_ready()) {
-        return unavailable_parent_route_snapshot(&route, health);
+        return unavailable_parent_route_snapshot(&route, health, None);
     }
     let loaded =
         dependencies::load_parent_route_snapshot_dependencies(&route, network_flow_snapshot);
+    if !loaded.dependency_failures.is_empty() {
+        return route_dependency_failure_snapshot(&route, service_health, &loaded);
+    }
     let lan_add_device_read_model = lan_route_query.read_model();
     let data_source = data_source_for_route(&route, lan_route_query);
     let connection_state = connection_state_for_route(&route, lan_route_query);
@@ -73,11 +77,38 @@ pub(super) fn build_parent_route_snapshot_impl(
     }
 }
 
+fn route_dependency_failure_snapshot(
+    route: &ParentRouteId,
+    service_health: Option<&ParentAgentServiceHealth>,
+    loaded: &dependencies::ParentRouteSnapshotDependencies,
+) -> ParentRouteSnapshot {
+    let dependency_health = service_health
+        .map(|health| {
+            ParentAgentServiceHealth::degraded(
+                ParentAgentServiceHealthReason::RouteDependencyUnavailable,
+                health.trace.clone(),
+            )
+        })
+        .unwrap_or_else(|| {
+            ParentAgentServiceHealth::unavailable_with_reason(
+                ParentAgentServiceHealthReason::RouteDependencyUnavailable,
+            )
+        });
+    let dependency_detail = loaded.dependency_failures.redacted_detail();
+    unavailable_parent_route_snapshot(route, &dependency_health, Some(&dependency_detail))
+}
+
 fn unavailable_parent_route_snapshot(
     route: &ParentRouteId,
     service_health: &ParentAgentServiceHealth,
+    dependency_detail: Option<&str>,
 ) -> ParentRouteSnapshot {
-    let lan_route_query = LanRouteQuery::Unavailable(service_health.redacted_detail());
+    let detail = dependency_detail
+        .map(|dependency_detail| {
+            format!("{}; {dependency_detail}", service_health.redacted_detail())
+        })
+        .unwrap_or_else(|| service_health.redacted_detail());
+    let lan_route_query = LanRouteQuery::Unavailable(detail);
     let data_source = ParentRouteDataSource::Unavailable;
     let connection_state = ParentBridgeConnectionState::Error;
     let summary = summary_for_route(route, &data_source, None);

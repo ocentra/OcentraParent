@@ -12,6 +12,7 @@ use crate::parent_ui_bridge::route_requirements::{
     route_requires_browser_activity_read_model, route_requires_browser_evidence_read_model,
     route_requires_browser_inventory_read_model, route_requires_browser_read_models,
 };
+use crate::parent_ui_bridge::route_snapshot::dependencies::DependencyFailures;
 use crate::parent_ui_bridge::ParentRouteId;
 
 pub(super) struct BrowserStatusDependencies {
@@ -22,9 +23,13 @@ pub(super) struct BrowserStatusDependencies {
 
 pub(super) fn load_activity(
     route: &ParentRouteId,
+    failures: &mut DependencyFailures,
 ) -> Option<BrowserActivityReadModelAgentServiceSnapshot> {
     if route_requires_browser_activity_read_model(route) {
-        load_browser_activity_read_model_snapshot(None).ok()
+        failures.capture(
+            "browser-activity-read-model",
+            load_browser_activity_read_model_snapshot(None),
+        )
     } else {
         None
     }
@@ -32,9 +37,13 @@ pub(super) fn load_activity(
 
 pub(super) fn load_inventory(
     route: &ParentRouteId,
+    failures: &mut DependencyFailures,
 ) -> Option<BrowserInventoryReadModelAgentServiceSnapshot> {
     if route_requires_browser_inventory_read_model(route) {
-        load_browser_inventory_read_model_snapshot(None).ok()
+        failures.capture(
+            "browser-inventory-read-model",
+            load_browser_inventory_read_model_snapshot(None),
+        )
     } else {
         None
     }
@@ -42,23 +51,36 @@ pub(super) fn load_inventory(
 
 pub(super) fn load_evidence(
     route: &ParentRouteId,
+    failures: &mut DependencyFailures,
 ) -> Option<BrowserEvidenceReadModelAgentServiceSnapshot> {
     if route_requires_browser_evidence_read_model(route) {
-        load_browser_evidence_read_model_snapshot(None).ok()
+        failures.capture(
+            "browser-evidence-read-model",
+            load_browser_evidence_read_model_snapshot(None),
+        )
     } else {
         None
     }
 }
 
-pub(super) fn load_status(route: &ParentRouteId) -> BrowserStatusDependencies {
+pub(super) fn load_status(
+    route: &ParentRouteId,
+    failures: &mut DependencyFailures,
+) -> BrowserStatusDependencies {
     let browser_required = route_requires_browser_read_models(route);
     let managed_status_snapshot = if browser_required {
-        load_browser_managed_status_snapshot(None).ok()
+        failures.capture(
+            "browser-managed-status",
+            load_browser_managed_status_snapshot(None),
+        )
     } else {
         None
     };
     let intervention_read_model_snapshot = if browser_required {
-        load_browser_intervention_read_model_snapshot(None).ok()
+        failures.capture(
+            "browser-intervention-read-model",
+            load_browser_intervention_read_model_snapshot(None),
+        )
     } else {
         None
     };

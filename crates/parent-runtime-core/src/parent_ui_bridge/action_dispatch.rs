@@ -84,7 +84,7 @@ pub(super) fn dispatch_parent_ui_action_impl(
     ParentUiActionResult {
         schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
         accepted: state.accepted,
-        connection_state,
+        connection_state: snapshot.connection_state.clone(),
         message: state.message,
         snapshot: Some(snapshot),
         events: state.events,

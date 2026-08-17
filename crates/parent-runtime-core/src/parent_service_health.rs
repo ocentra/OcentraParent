@@ -30,6 +30,7 @@ pub enum ParentAgentServiceAuthenticationState {
 pub enum ParentAgentServiceHealthReason {
     Ready,
     TransportUnavailable,
+    RouteDependencyUnavailable,
     ResponseSchemaMismatch,
     ResponseIdentityMismatch,
     ResponsePayloadMismatch,

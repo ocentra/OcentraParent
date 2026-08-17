@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::transport::{
-    AgentCommandName, AgentEventEnvelope, AgentEventName, AgentPeerRole,
+    AgentCommandName, AgentEventEnvelope, AgentEventName,
 };
 
 use crate::parent_service_health::ParentAgentServiceHealthReason;
@@ -12,11 +12,15 @@ pub(super) fn health_response_mismatch_reason(
     result: &types::AgentServiceCommandResult,
     response: &AgentEventEnvelope,
 ) -> Option<ParentAgentServiceHealthReason> {
+    if let Some(reason) = transport::command_response_validation_reason(
+        &result.command,
+        &result.command_message_id,
+        &result.request_nonce,
+        response,
+    ) {
+        return Some(reason);
+    }
     [
-        (
-            response.schema_version != ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION,
-            ParentAgentServiceHealthReason::ResponseSchemaMismatch,
-        ),
         (
             !health_response_has_expected_identity(result, response),
             ParentAgentServiceHealthReason::ResponseIdentityMismatch,
@@ -43,11 +47,6 @@ fn health_response_has_expected_identity(
     response: &AgentEventEnvelope,
 ) -> bool {
     result.command == AgentCommandName::AgentHealthCheck
-        && response.correlation_id == result.command_message_id
-        && response.source.peer_id == constants::peer::LOCAL_DEV_AGENT
-        && response.source.role == AgentPeerRole::AgentService
-        && response.target.peer_id == constants::peer::PORTAL_DEV
-        && response.target.role == AgentPeerRole::Portal
         && response.event == AgentEventName::AgentHealthReported
 }
 

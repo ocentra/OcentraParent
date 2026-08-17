@@ -12,7 +12,36 @@ use crate::agent_service_client::types::{
 #[path = "dependencies/load.rs"]
 mod load;
 
+#[derive(Default)]
+pub(super) struct DependencyFailures {
+    labels: Vec<&'static str>,
+}
+
+impl DependencyFailures {
+    pub(super) fn capture<T, E>(&mut self, label: &'static str, result: Result<T, E>) -> Option<T> {
+        match result {
+            Ok(value) => Some(value),
+            Err(_) => {
+                self.labels.push(label);
+                None
+            }
+        }
+    }
+
+    pub(super) fn is_empty(&self) -> bool {
+        self.labels.is_empty()
+    }
+
+    pub(super) fn redacted_detail(&self) -> String {
+        format!(
+            "route dependency reads unavailable ({})",
+            self.labels.join(", ")
+        )
+    }
+}
+
 pub(super) struct ParentRouteSnapshotDependencies {
+    pub(super) dependency_failures: DependencyFailures,
     pub(super) network_flow_snapshot: Option<NetworkFlowAgentServiceSnapshot>,
     pub(super) network_runtime_event_chain_snapshot:
         Option<NetworkRuntimeEventChainAgentServiceSnapshot>,

@@ -809,6 +809,7 @@ pub enum ParentServiceHealthAuthenticationState {
 pub enum ParentServiceHealthReason {
     Ready,
     TransportUnavailable,
+    RouteDependencyUnavailable,
     ResponseSchemaMismatch,
     ResponseIdentityMismatch,
     ResponsePayloadMismatch,

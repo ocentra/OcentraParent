@@ -20,12 +20,28 @@ mod envelope;
 mod read;
 #[path = "transport/read_impl.rs"]
 mod read_impl;
+#[path = "transport/response_validation.rs"]
+mod response_validation;
 mod timeouts;
 use self::timeouts::agent_command_timeout_for;
 use self::{connection::*, envelope::*, read::read_agent_event, read_impl::map_websocket_error};
 
 pub(super) fn agent_health_check_timeout_ms() -> u64 {
     timeouts::agent_health_check_timeout_ms()
+}
+
+pub(super) fn command_response_validation_reason(
+    command: &AgentCommandName,
+    command_message_id: &str,
+    request_nonce: &str,
+    response: &AgentEventEnvelope,
+) -> Option<crate::parent_service_health::ParentAgentServiceHealthReason> {
+    response_validation::command_response_mismatch_reason(
+        command,
+        command_message_id,
+        request_nonce,
+        response,
+    )
 }
 
 use super::parent_route_event_snapshot;
@@ -71,6 +87,7 @@ pub(super) fn send_agent_command_to_address(
             serialized_enum_label(&ready_event.event)
         ));
     }
+    response_validation::validate_connection_ready_event(&ready_event)?;
 
     let (command_envelope, request_nonce) = lan_command_envelope(command, payload, context, route)?;
     let command = command_envelope.command.clone();
@@ -84,6 +101,19 @@ pub(super) fn send_agent_command_to_address(
         .map_err(|error| map_websocket_error("command-send", &error, timeout))?;
 
     let response_event = read_agent_event(&mut socket, "command-response", timeout, deadline)?;
+    if let Some(reason) = command_response_validation_reason(
+        &command,
+        &command_message_id,
+        &request_nonce,
+        &response_event,
+    ) {
+        if command != AgentCommandName::AgentHealthCheck {
+            return Err(format!(
+                "agent-service response rejected for {}: {reason:?}",
+                serialized_enum_label(&command)
+            ));
+        }
+    }
 
     Ok(AgentServiceCommandResult {
         command,

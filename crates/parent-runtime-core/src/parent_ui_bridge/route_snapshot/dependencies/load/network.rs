@@ -6,8 +6,8 @@ use crate::parent_ui_bridge::route_requirements::{
     route_requires_network_flow_read_model, route_requires_network_runtime_event_chain_stream,
     route_requires_policy_preview_read_model,
 };
-use crate::parent_ui_bridge::route_snapshot::dependencies::NetworkFlowAgentServiceSnapshot;
 use crate::parent_ui_bridge::route_snapshot::dependencies::{
+    DependencyFailures, NetworkFlowAgentServiceSnapshot,
     NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
 };
 use crate::parent_ui_bridge::ParentRouteId;
@@ -22,10 +22,14 @@ pub(super) struct NetworkDependencies {
 pub(super) fn load(
     route: &ParentRouteId,
     network_flow_snapshot: Option<&NetworkFlowAgentServiceSnapshot>,
+    failures: &mut DependencyFailures,
 ) -> NetworkDependencies {
     let loaded_network_flow_snapshot =
         if network_flow_snapshot.is_none() && route_requires_network_flow_read_model(route) {
-            load_network_flow_read_model_snapshot(None).ok()
+            failures.capture(
+                "network-flow-read-model",
+                load_network_flow_read_model_snapshot(None),
+            )
         } else {
             None
         };
@@ -34,14 +38,20 @@ pub(super) fn load(
     let network_runtime_event_chain_snapshot = if effective_network_flow_snapshot.is_some()
         || route_requires_network_runtime_event_chain_stream(route)
     {
-        load_network_runtime_event_chain_stream_snapshot(None).ok()
+        failures.capture(
+            "network-runtime-event-chain",
+            load_network_runtime_event_chain_stream_snapshot(None),
+        )
     } else {
         None
     };
     let policy_preview_snapshot = if effective_network_flow_snapshot.is_some()
         || route_requires_policy_preview_read_model(route)
     {
-        load_policy_preview_read_model_snapshot(None).ok()
+        failures.capture(
+            "policy-preview-read-model",
+            load_policy_preview_read_model_snapshot(None),
+        )
     } else {
         None
     };

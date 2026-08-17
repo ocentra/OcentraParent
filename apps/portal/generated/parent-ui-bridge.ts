@@ -2143,6 +2143,7 @@ export type ParentServiceHealthAuthenticationState = 'unauthenticated' | 'unavai
 export type ParentServiceHealthReason =
   | 'ready'
   | 'transport-unavailable'
+  | 'route-dependency-unavailable'
   | 'response-schema-mismatch'
   | 'response-identity-mismatch'
   | 'response-payload-mismatch'
