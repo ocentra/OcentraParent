@@ -63,14 +63,15 @@ Current direction from research and the pasted plan set:
 
 ## Production-code reachability audit (2026-08-16)
 
-This source audit is against consolidated root `0a7e8c689`. It does not
-promote tests, proof artifacts, graph topology, or typed DTOs into runtime
-authority. No new production slice was accepted because no missing slice has a
-shipped caller that owns the required cryptographic/device authority.
+This source audit was refreshed on the source-integration branch through
+`d8cd66ae9`. It does not promote tests, proof artifacts, graph topology, or
+typed DTOs into runtime authority. WP01's bounded repository hardening is
+accepted source; no shipped caller yet owns the missing cryptographic/device
+authority.
 
 | Workpack | Reachable production code | Missing production authority / caller |
 | --- | --- | --- |
-| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar, durable local event journal, and a drafted four-file trusted-device/signer-key registration packet. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped ceremony issuer or complete trust-state owner. Independent static review accepted the bounded packet as reviewed implementation evidence only; its tests, focused validation, proof, production caller integration, and completion remain open. |
+| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar, durable local event journal, and the integrated trusted-device/signer-key registration packet. Existing databases are validated without silent schema repair, first-open initialization remains concurrency-tolerant, SQLite uses a busy timeout, and raw enrollment/revoke/reset mutation entrypoints are crate-private. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped ceremony issuer or complete trust-state owner. Independent static review accepted the bounded packet as reviewed implementation evidence only. Focused source-format, architecture, Enforcer, diff, and guard checks passed; expected-test migration, functional validation, proof, production caller integration, and completion remain open. |
 | WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch custody; `crates/parent-runtime-core` has an opaque staged-handle facade. | No registered desktop/native command caller or trusted ceremony issuer reaches the facade; non-Windows custody and end-to-end sealing remain unavailable/manual-required. |
 | WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries and a five-minute lifetime gate. The pushed integration source packet adds atomic challenge/intent and receipt/credential custody, restart reconciliation, and strict linked-challenge lifecycle validation; independent static review accepted the bounded source with no remaining internal P0/P1 in those paths. The graph now authorizes this bounded source packet in the implementation-only phase against reviewed WP01, Account WP08, and Cloudflare WP06 evidence. | The default graph remains blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06 for normal readiness. There is no independently authoritative household/child/device/pairing lookup, passkey/OS-native signature provider, durable sign-counter owner, one-time `RegisterLanSignerAnchor` ceremony, shipped caller, focused test pass, or proof; request-bound identifiers and policy proof consumption are not ceremony authority. Tests, proof, runtime reachability, provider authority, LAN handoff, and DONE remain open. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
@@ -99,22 +100,24 @@ satisfied.
 
 ## WP01 independent static-review disposition — 2026-08-17
 
-The pushed WP01 integration source packet is drafted in the
+The accepted WP01 source packet is integrated at `d8cd66ae9` in the
 `family-identity-core` owner at:
 
 - `crates/family-identity-core/src/device_trust_signer_registration.rs`
 - `crates/family-identity-core/src/device_trust_signer_registration_schema.rs`
 - `crates/family-identity-core/src/device_trust_lifecycle.rs`
+- `crates/family-identity-core/src/device_trust_lifecycle_revocation.rs`
 - `crates/family-identity-core/src/lib.rs`
 
-An independent static review found no P0/P1 findings in that packet and accepts
+An independent source review found no P0/P1 findings in that packet and accepts
 these paths as reviewed implementation evidence for the narrow implementation
-phase only. This is not a commit, merge, production-caller, test, focused-
+phase only. Focused source-format, architecture, Enforcer, diff, and guard
+checks passed. This is not a production-caller, expected-test, functional-
 validation, proof, or product-completion claim.
 
-The tests, focused validation, proof, production caller integration, global
-Enforcer/architecture acceptance, platform custody, broader lifecycle
-composition, and DONE state remain open. The default graph therefore keeps
+The expected-test migration, functional validation, proof, production caller
+integration, repo-wide Enforcer/architecture acceptance, platform custody,
+broader lifecycle composition, and DONE state remain open. The default graph therefore keeps
 WP01 READY (not DONE) and WP03 BLOCKED. WP03's bounded source packet is already
 accepted and is authorized only through the implementation-only phase gates for
 WP01, Account WP08, and Cloudflare WP06; no ceremony, provider, runtime, test,

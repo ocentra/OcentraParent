@@ -1008,9 +1008,10 @@
         "crates/family-identity-core/src/device_trust_signer_registration.rs",
         "crates/family-identity-core/src/device_trust_signer_registration_schema.rs",
         "crates/family-identity-core/src/device_trust_lifecycle.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_revocation.rs",
         "crates/family-identity-core/src/lib.rs"
       ],
-      "reason": "Independent static review accepted the pushed WP01 integration source packet as drafted implementation evidence only; no P0/P1 findings. Tests, focused validation, proof, production caller integration, global Enforcer, and DONE remain open.",
+      "reason": "Independent source review accepted the WP01 repository packet integrated through d8cd66ae9 as implementation evidence only; no P0/P1 findings. Focused source-format, architecture, Enforcer, diff, and guard checks passed. Expected-test migration, functional validation, proof, production caller integration, repo-wide Enforcer, and DONE remain open.",
       "evidence": [
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
         "docs/PLAN_CODE_STATUS_MATRIX.md",

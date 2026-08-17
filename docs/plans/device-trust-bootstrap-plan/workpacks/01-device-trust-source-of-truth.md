@@ -47,20 +47,23 @@ source before it can authorize the one-time `RegisterLanSignerAnchor` step.
 
 ## Independent static-review disposition — 2026-08-17
 
-The current uncommitted WP01 production packet is drafted in these
+The accepted WP01 production packet is integrated at `d8cd66ae9` in these
 `family-identity-core` source paths:
 
 - `crates/family-identity-core/src/device_trust_signer_registration.rs`
 - `crates/family-identity-core/src/device_trust_signer_registration_schema.rs`
 - `crates/family-identity-core/src/device_trust_lifecycle.rs`
+- `crates/family-identity-core/src/device_trust_lifecycle_revocation.rs`
 - `crates/family-identity-core/src/lib.rs`
 
-An independent static review found no P0/P1 findings and accepts these paths as
-reviewed implementation evidence only. This records drafted source, not a
-commit, merge, production caller, test, focused-validation, proof, or product-
-completion claim. Tests, focused validation, proof, production callers, global
-Enforcer/architecture acceptance, platform custody, broader lifecycle
-composition, and DONE remain open.
+An independent source review found no P0/P1 findings and accepts these paths as
+reviewed implementation evidence only. Existing databases are validated
+without silent schema repair, first-open creation remains concurrency-tolerant,
+SQLite uses a busy timeout, and raw enrollment/revoke/reset mutation entrypoints
+are crate-private. Focused source-format, architecture, Enforcer, diff, and
+guard checks passed. Expected-test migration, functional validation, proof,
+production callers, repo-wide Enforcer/architecture acceptance, platform
+custody, broader lifecycle composition, and DONE remain open.
 
 ## Negative cases
 

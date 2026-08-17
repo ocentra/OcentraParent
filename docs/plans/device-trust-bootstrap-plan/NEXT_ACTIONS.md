@@ -15,10 +15,14 @@ before treating any dependency candidate as an adopted trust-root component.
 
 ## Production-code checkpoint (2026-08-16)
 
-WP01 now has crash-safe, process-serialized lifecycle-authority sidecar writes
-with fail-closed corruption and missing-authority handling. Platform custody,
-trusted ceremony issuance, and the broader lifecycle integration remain open;
-tests and proof are deferred.
+WP01 source is integrated through `d8cd66ae9`. It has crash-safe,
+process-serialized lifecycle-authority sidecar writes, fail-closed corruption
+and missing-authority handling, strict no-repair validation for existing
+databases, concurrency-tolerant first-open initialization, a SQLite busy
+timeout, and crate-private raw enrollment/revoke/reset mutation entrypoints.
+Independent source review and focused static gates accepted the bounded packet.
+Platform custody, trusted ceremony issuance, expected-test migration,
+functional validation, proof, and broader lifecycle integration remain open.
 
 The WP02 Windows custody revoke/reset path now refuses local unauthenticated
 removal and preserves manual-required truth until a trusted parent authority
