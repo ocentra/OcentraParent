@@ -103,7 +103,7 @@ fn row_has_manual_required_event(
                 && event
                     .decode::<NetworkRuntimeEventPayload>()
                     .map(|payload| {
-                        payload.payload.intervention_state
+                        payload.payload().intervention_state
                             == ocentra_parent_agent_protocol::network_flow::NetworkInterventionState::ManualRequired
                     })
                     .unwrap_or(false)

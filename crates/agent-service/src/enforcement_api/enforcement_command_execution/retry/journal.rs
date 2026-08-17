@@ -91,7 +91,7 @@ async fn read_audit_journal(
                 .envelope
                 .decode::<EnforcementAuditJournalEvent>()
                 .map_err(recovery_store_error)?
-                .payload;
+                .into_payload();
             Ok(AuditJournalRow {
                 sequence,
                 envelope_event_id,

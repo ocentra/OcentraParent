@@ -46,15 +46,15 @@ impl ScreenRuntimeReport {
                 .decode::<ScreenRuntimeEventPayload>()
                 .map(|envelope| {
                     envelope
-                        .payload
+                        .payload()
                         .claim_boundary
                         .raw_image_available_to_ai_provider
                         || envelope
-                            .payload
+                            .payload()
                             .claim_boundary
                             .raw_image_available_to_policy
                         || envelope
-                            .payload
+                            .payload()
                             .claim_boundary
                             .raw_image_available_to_portal
                 })
