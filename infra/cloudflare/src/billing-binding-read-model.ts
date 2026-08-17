@@ -22,7 +22,16 @@ import {
   PositiveBillingLimitSchema,
 } from '@ocentra-parent/schema-domain/billing-entitlement-values';
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
-import { BillingReferralSummarySchema, type BillingReferralSummary } from './generated/billing-contracts.js';
+import {
+  BillingReferralSummarySchema,
+  BillingSupportAdminAccountSummarySchema,
+  BillingSupportAdminDisputeSummarySchema,
+  BillingSupportAdminInvoiceSummarySchema,
+  BillingSupportAdminReferralSummarySchema,
+  BillingSupportAdminRefundResultSchema,
+  type BillingReferralSummary,
+  type BillingSupportAdminRefundResult,
+} from './generated/billing-contracts.js';
 import type { Env } from './env.js';
 import {
   buildBillingInvoices,
@@ -85,6 +94,9 @@ const SELECT_STATUS_ROW_COUNT_SQL = normalizeSql('SELECT COUNT(*) AS row_count F
 const SELECT_STATUS_BY_SUBJECT_SQL = normalizeSql('SELECT payload_json FROM billing_status WHERE subject = ?1 LIMIT 1');
 const SELECT_INVOICES_BY_SUBJECT_SQL = normalizeSql(
   'SELECT payload_json FROM billing_invoices WHERE subject = ?1 ORDER BY invoice_id'
+);
+const SELECT_INVOICE_BY_ID_SQL = normalizeSql(
+  'SELECT payload_json FROM billing_invoices WHERE invoice_id = ?1 LIMIT 1'
 );
 const SELECT_INVOICE_SUBJECT_SQL = normalizeSql('SELECT subject FROM billing_invoices WHERE invoice_id = ?1 LIMIT 1');
 const SELECT_REFERRAL_BY_SUBJECT_SQL = normalizeSql(
@@ -300,6 +312,67 @@ function decodePricingPlan(value: unknown, scope: string): PricingPlanSummary {
     activeState: decodeCanonicalValue(scope, () => BillingPlanActiveStateSchema.parse(record.activeState)),
     featureSummary: decodeArray(record.featureSummary, decodePricingFeatureSummary, `${scope}-features`),
   };
+}
+
+function decodeBillingInvoiceSummary(value: unknown, scope: string): BillingInvoiceSummary {
+  const record = payloadRecord(value, scope);
+  const generated = decodeCanonicalValue(scope, () =>
+    BillingSupportAdminInvoiceSummarySchema.parse({
+      ...record,
+      manualRequired: Object.prototype.hasOwnProperty.call(record, 'manualRequired') ? record.manualRequired : false,
+    })
+  );
+  const subtotalCents = decodeBillingCount(generated.subtotalCents, `${scope}-subtotal-cents`);
+  const taxCents = decodeBillingCount(generated.taxCents, `${scope}-tax-cents`);
+  const totalCents = decodeBillingCount(generated.totalCents, `${scope}-total-cents`);
+  if (decodeBillingCount(subtotalCents + taxCents, `${scope}-subtotal-tax-total`) !== totalCents) {
+    throw new BillingReadModelUnavailableError(`${scope}-total-mismatch`);
+  }
+
+  return {
+    invoiceId: decodeNonEmptyString(generated.invoiceId, `${scope}-invoice-id`),
+    invoiceNumber: decodeNonEmptyString(generated.invoiceNumber, `${scope}-invoice-number`),
+    parentAccountRef: decodeNonEmptyString(generated.parentAccountRef, `${scope}-parent-account-ref`),
+    familyRef: decodeNonEmptyString(generated.familyRef, `${scope}-family-ref`),
+    planId: decodeCanonicalValue(scope, () => BillingPlanIdSchema.parse(generated.planId)),
+    currency: decodeLiteral(generated.currency, ['USD'] as const, `${scope}-currency`),
+    subtotalCents,
+    taxCents,
+    totalCents,
+    invoiceVisibility: decodeLiteral(
+      generated.invoiceVisibility,
+      ['customer-portal-hosted', 'manual-support-required'] as const,
+      `${scope}-invoice-visibility`
+    ),
+    paymentState: decodeLiteral(
+      generated.paymentState,
+      ['paid', 'grace', 'unpaid', 'refunded'] as const,
+      `${scope}-payment-state`
+    ),
+    provider: decodeLiteral(generated.provider, ['stripe', 'manual-invoice'] as const, `${scope}-provider`),
+    hostedUrl: generated.hostedUrl === null ? null : decodeNonEmptyString(generated.hostedUrl, `${scope}-hosted-url`),
+    periodStart: decodeTimestamp(generated.periodStart, `${scope}-period-start`),
+    periodEnd: decodeTimestamp(generated.periodEnd, `${scope}-period-end`),
+    updatedAt: decodeTimestamp(generated.updatedAt, `${scope}-updated-at`),
+    auditReference: decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(generated.auditReference)),
+  };
+}
+
+function decodeAdminBillingInvoiceSummary(value: unknown, scope: string): AdminBillingInvoiceSummary {
+  const generated = decodeCanonicalValue(scope, () => BillingSupportAdminInvoiceSummarySchema.parse(value));
+  const invoice = decodeBillingInvoiceSummary({ ...generated, manualRequired: false }, scope);
+  return {
+    ...invoice,
+    manualRequired: decodeBoolean(generated.manualRequired, `${scope}-manual-required`),
+  };
+}
+
+function decodeAdminBillingAccountSummary(value: unknown, scope: string): AdminBillingAccountSummary {
+  return decodeCanonicalValue(scope, () => BillingSupportAdminAccountSummarySchema.parse(value));
+}
+
+function decodeAdminBillingDisputeSummary(value: unknown, scope: string): AdminBillingDisputeSummary {
+  return decodeCanonicalValue(scope, () => BillingSupportAdminDisputeSummarySchema.parse(value));
 }
 
 function decodeBillingStatusSummary(value: unknown, scope: string, expectedSubject?: string): BillingStatusSummary {
@@ -590,6 +663,69 @@ function snapshotCanYieldAllowed(
   return signedActiveAuthority || signedGraceAuthority;
 }
 
+type BillingAuthorityState = 'active' | 'grace' | 'manual-review';
+
+function correlateBillingAuthority(
+  status: BillingStatusSummary,
+  snapshot: BillingEntitlementSnapshotSummary,
+  scope: string
+): BillingAuthorityState {
+  if (
+    status.subject !== snapshot.subject ||
+    status.parentAccountRef !== snapshot.parentAccountRef ||
+    status.familyRef !== snapshot.familyRef ||
+    status.plan.planId !== snapshot.planId ||
+    status.plan.deviceLimit !== snapshot.deviceLimit ||
+    status.deviceUsage.activeDevices !== snapshot.activeDevices ||
+    status.deviceUsage.trustedDevices !== snapshot.trustedDevices ||
+    status.subscriptionStatus !== snapshot.subscriptionStatus ||
+    status.source !== snapshot.source ||
+    status.parentVisibleState !== snapshot.parentVisibleState ||
+    status.localSafetyBehavior !== snapshot.localSafetyBehavior ||
+    JSON.stringify(status.failureState) !== JSON.stringify(snapshot.failureState)
+  ) {
+    throw new BillingReadModelUnavailableError(`${scope}-mismatch`);
+  }
+
+  const activeAuthority =
+    status.accountStatus === 'active' &&
+    status.subscriptionStatus === 'active' &&
+    status.source === 'signed-local-snapshot' &&
+    status.parentVisibleState === 'available' &&
+    status.localSafetyBehavior === 'unchanged' &&
+    status.failureState === null &&
+    snapshot.subscriptionStatus === 'active' &&
+    snapshot.source === 'signed-local-snapshot' &&
+    snapshot.signatureState === 'signed' &&
+    snapshot.parentVisibleState === 'available' &&
+    snapshot.localSafetyBehavior === 'unchanged' &&
+    snapshot.failureState === null &&
+    snapshotCanYieldAllowed(snapshot, false);
+  if (activeAuthority) {
+    return 'active';
+  }
+
+  const graceAuthority =
+    status.accountStatus === 'grace' &&
+    status.subscriptionStatus === 'grace' &&
+    status.source === 'signed-local-snapshot' &&
+    status.parentVisibleState === 'grace' &&
+    status.localSafetyBehavior === 'grace-with-local-safety' &&
+    status.failureState?.failureKind === 'payment-required' &&
+    snapshot.subscriptionStatus === 'grace' &&
+    snapshot.source === 'signed-local-snapshot' &&
+    snapshot.signatureState === 'signed' &&
+    snapshot.parentVisibleState === 'grace' &&
+    snapshot.localSafetyBehavior === 'grace-with-local-safety' &&
+    snapshot.failureState?.failureKind === 'payment-required' &&
+    snapshotCanYieldAllowed(snapshot, true);
+  if (graceAuthority) {
+    return 'grace';
+  }
+
+  return 'manual-review';
+}
+
 function decodeBillingStatePair(
   status: BillingStatusSummary,
   snapshot: BillingEntitlementSnapshotSummary,
@@ -611,6 +747,44 @@ function decodeBillingStatePair(
     JSON.stringify(decodedStatus.failureState) !== JSON.stringify(decodedSnapshot.failureState)
   ) {
     throw new BillingReadModelUnavailableError(`${scope}-mismatch`);
+  }
+  const activeStatusSnapshot =
+    decodedStatus.accountStatus === 'active' &&
+    decodedStatus.subscriptionStatus === 'active' &&
+    decodedStatus.source === 'signed-local-snapshot' &&
+    decodedStatus.parentVisibleState === 'available' &&
+    decodedStatus.localSafetyBehavior === 'unchanged' &&
+    decodedStatus.failureState === null &&
+    decodedSnapshot.subscriptionStatus === 'active' &&
+    decodedSnapshot.source === 'signed-local-snapshot' &&
+    decodedSnapshot.signatureState === 'signed' &&
+    decodedSnapshot.parentVisibleState === 'available' &&
+    decodedSnapshot.localSafetyBehavior === 'unchanged' &&
+    decodedSnapshot.failureState === null;
+  const graceStatusSnapshot =
+    decodedStatus.accountStatus === 'grace' &&
+    decodedStatus.subscriptionStatus === 'grace' &&
+    decodedStatus.source === 'signed-local-snapshot' &&
+    decodedStatus.parentVisibleState === 'grace' &&
+    decodedStatus.localSafetyBehavior === 'grace-with-local-safety' &&
+    decodedStatus.failureState?.failureKind === 'payment-required' &&
+    decodedSnapshot.subscriptionStatus === 'grace' &&
+    decodedSnapshot.source === 'signed-local-snapshot' &&
+    decodedSnapshot.signatureState === 'signed' &&
+    decodedSnapshot.parentVisibleState === 'grace' &&
+    decodedSnapshot.localSafetyBehavior === 'grace-with-local-safety' &&
+    decodedSnapshot.failureState?.failureKind === 'payment-required';
+  if (decodedStatus.accountStatus === 'active' && !activeStatusSnapshot) {
+    throw new BillingReadModelUnavailableError(`${scope}-active-authority-mismatch`);
+  }
+  if (decodedStatus.accountStatus === 'grace' && !graceStatusSnapshot) {
+    throw new BillingReadModelUnavailableError(`${scope}-grace-authority-mismatch`);
+  }
+  if (
+    decodedStatus.accountStatus === 'manual-review' &&
+    (decodedSnapshot.source !== 'manual-admin-review' || decodedSnapshot.signatureState !== 'manual-required')
+  ) {
+    throw new BillingReadModelUnavailableError(`${scope}-manual-authority-mismatch`);
   }
   return { status: decodedStatus, snapshot: decodedSnapshot };
 }
@@ -965,6 +1139,16 @@ class LocalD1Statement implements D1PreparedStatement {
           (invoice) => ({ payload_json: JSON.stringify(invoice) }) as T
         );
       }
+      case SELECT_INVOICE_BY_ID_SQL: {
+        const invoiceId = String(this.values[0] ?? '');
+        for (const invoices of this.state.invoicesBySubject.values()) {
+          const invoice = invoices.find((entry) => entry.invoiceId === invoiceId);
+          if (invoice) {
+            return [{ payload_json: JSON.stringify(invoice) } as T];
+          }
+        }
+        return [];
+      }
       case SELECT_REFERRAL_BY_SUBJECT_SQL: {
         const subject = String(this.values[0] ?? '');
         const referral = this.state.referralsBySubject.get(subject);
@@ -1006,7 +1190,10 @@ class LocalD1Statement implements D1PreparedStatement {
       case UPSERT_INVOICE_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[2] ?? '{}');
-        const invoice = parsePayload<BillingInvoiceSummary>(payloadJson);
+        const invoice = decodeBillingInvoiceSummary(
+          parseUnknownPayload(payloadJson, `billing-invoice:${subject}`),
+          `billing-invoice:${subject}`
+        );
         const current = this.state.invoicesBySubject.get(subject) ?? [];
         this.state.invoicesBySubject.set(
           subject,
@@ -1041,19 +1228,28 @@ class LocalD1Statement implements D1PreparedStatement {
       }
       case UPSERT_ADMIN_ACCOUNT_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
-        const nextRow = parsePayload<AdminBillingAccountSummary>(payloadJson);
+        const nextRow = decodeAdminBillingAccountSummary(
+          parseUnknownPayload(payloadJson, 'billing-admin-account'),
+          'billing-admin-account'
+        );
         this.state.adminAccounts = replaceByKey(this.state.adminAccounts, nextRow, (entry) => entry.parentAccountRef);
         return;
       }
       case UPSERT_ADMIN_INVOICE_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
-        const nextRow = parsePayload<AdminBillingInvoiceSummary>(payloadJson);
+        const nextRow = decodeAdminBillingInvoiceSummary(
+          parseUnknownPayload(payloadJson, 'billing-admin-invoice'),
+          'billing-admin-invoice'
+        );
         this.state.adminInvoices = replaceByKey(this.state.adminInvoices, nextRow, (entry) => entry.invoiceId);
         return;
       }
       case UPSERT_ADMIN_DISPUTE_SQL: {
         const payloadJson = String(this.values[1] ?? '{}');
-        const nextRow = parsePayload<AdminBillingDisputeSummary>(payloadJson);
+        const nextRow = decodeAdminBillingDisputeSummary(
+          parseUnknownPayload(payloadJson, 'billing-admin-dispute'),
+          'billing-admin-dispute'
+        );
         this.state.adminDisputes = replaceByKey(this.state.adminDisputes, nextRow, (entry) => entry.disputeId);
         return;
       }
@@ -1153,7 +1349,14 @@ class LocalBillingD1Database implements D1Database {
       this.state.statusBySubject = decodedStatuses;
     }
     if (patch.invoicesBySubject) {
-      this.state.invoicesBySubject = mapFromRecord(patch.invoicesBySubject);
+      this.state.invoicesBySubject = new Map(
+        Object.entries(patch.invoicesBySubject).map(([subject, invoices]) => [
+          subject,
+          invoices.map((invoice, index) =>
+            decodeBillingInvoiceSummary(invoice, `billing-invoice-seed:${subject}-${index}`)
+          ),
+        ])
+      );
     }
     if (patch.referralsBySubject) {
       this.state.referralsBySubject = mapFromRecord(patch.referralsBySubject);
@@ -1162,13 +1365,19 @@ class LocalBillingD1Database implements D1Database {
       this.state.snapshotsBySubject = decodedSnapshots;
     }
     if (patch.adminAccounts) {
-      this.state.adminAccounts = asReadonlyArray(patch.adminAccounts);
+      this.state.adminAccounts = patch.adminAccounts.map((account, index) =>
+        decodeAdminBillingAccountSummary(account, `billing-admin-account-seed-${index}`)
+      );
     }
     if (patch.adminInvoices) {
-      this.state.adminInvoices = asReadonlyArray(patch.adminInvoices);
+      this.state.adminInvoices = patch.adminInvoices.map((invoice, index) =>
+        decodeAdminBillingInvoiceSummary(invoice, `billing-admin-invoice-seed-${index}`)
+      );
     }
     if (patch.adminDisputes) {
-      this.state.adminDisputes = asReadonlyArray(patch.adminDisputes);
+      this.state.adminDisputes = patch.adminDisputes.map((dispute, index) =>
+        decodeAdminBillingDisputeSummary(dispute, `billing-admin-dispute-seed-${index}`)
+      );
     }
     if (patch.adminReferrals) {
       this.state.adminReferrals = asReadonlyArray(patch.adminReferrals);
@@ -1307,40 +1516,64 @@ async function d1All<T>(
   return result.results;
 }
 
-async function upsertBillingStatePair(
+function requireBillingD1Database(env: Env): D1Database {
+  const database = env.BILLING_D1;
+  if (!database) {
+    throw new BillingReadModelUnavailableError('billing-d1-binding-missing');
+  }
+  return database;
+}
+
+async function commitBillingD1Batch(env: Env, statements: ReadonlyArray<D1PreparedStatement>): Promise<void> {
+  if (statements.length === 0) {
+    return;
+  }
+  await requireBillingD1Database(env).batch(statements);
+}
+
+function billingStatePairStatements(
   env: Env,
   status: BillingStatusSummary,
   snapshot: BillingEntitlementSnapshotSummary
-): Promise<void> {
+): ReadonlyArray<D1PreparedStatement> {
   const { status: decodedStatus, snapshot: decodedSnapshot } = decodeBillingStatePair(
     status,
     snapshot,
     `billing-state-write:${status.subject}`
   );
-  const database = env.BILLING_D1;
-  if (!database) {
-    throw new BillingReadModelUnavailableError('billing-d1-binding-missing');
-  }
-  await database.batch([
+  const database = requireBillingD1Database(env);
+  return [
     database.prepare(UPSERT_STATUS_SQL).bind(decodedStatus.subject, JSON.stringify(decodedStatus)),
     database.prepare(UPSERT_SNAPSHOT_SQL).bind(decodedSnapshot.subject, JSON.stringify(decodedSnapshot)),
-  ]);
+  ];
 }
 
-async function upsertAdminBillingAccountSummary(env: Env, account: AdminBillingAccountSummary): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_ADMIN_ACCOUNT_SQL).bind(account.parentAccountRef, JSON.stringify(account)).run();
+function billingAdminAccountStatement(env: Env, account: AdminBillingAccountSummary): D1PreparedStatement {
+  const decoded = decodeAdminBillingAccountSummary(account, 'billing-admin-account-write');
+  return requireBillingD1Database(env)
+    .prepare(UPSERT_ADMIN_ACCOUNT_SQL)
+    .bind(decoded.parentAccountRef, JSON.stringify(decoded));
 }
 
-async function upsertBillingInvoiceSummary(env: Env, subject: string, invoice: BillingInvoiceSummary): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_INVOICE_SQL).bind(subject, invoice.invoiceId, JSON.stringify(invoice)).run();
+function billingInvoiceStatement(env: Env, subject: string, invoice: BillingInvoiceSummary): D1PreparedStatement {
+  const decoded = decodeBillingInvoiceSummary(invoice, `billing-invoice-write:${subject}`);
+  return requireBillingD1Database(env)
+    .prepare(UPSERT_INVOICE_SQL)
+    .bind(subject, decoded.invoiceId, JSON.stringify(decoded));
 }
 
-async function upsertAdminBillingInvoiceSummary(env: Env, invoice: AdminBillingInvoiceSummary): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_ADMIN_INVOICE_SQL).bind(invoice.invoiceId, JSON.stringify(invoice)).run();
+function billingAdminInvoiceStatement(env: Env, invoice: AdminBillingInvoiceSummary): D1PreparedStatement {
+  const decoded = decodeAdminBillingInvoiceSummary(invoice, `billing-admin-invoice-write:${invoice.invoiceId}`);
+  return requireBillingD1Database(env)
+    .prepare(UPSERT_ADMIN_INVOICE_SQL)
+    .bind(decoded.invoiceId, JSON.stringify(decoded));
 }
 
-async function upsertAdminBillingDisputeSummary(env: Env, dispute: AdminBillingDisputeSummary): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_ADMIN_DISPUTE_SQL).bind(dispute.disputeId, JSON.stringify(dispute)).run();
+function billingAdminDisputeStatement(env: Env, dispute: AdminBillingDisputeSummary): D1PreparedStatement {
+  const decoded = decodeAdminBillingDisputeSummary(dispute, `billing-admin-dispute-write:${dispute.disputeId}`);
+  return requireBillingD1Database(env)
+    .prepare(UPSERT_ADMIN_DISPUTE_SQL)
+    .bind(decoded.disputeId, JSON.stringify(decoded));
 }
 
 async function upsertBillingReferralSummary(env: Env, referral: BillingReferralSummary): Promise<void> {
@@ -1368,14 +1601,17 @@ async function appendBillingAuditEvent(env: Env, nextEvent: BillingAuditEventSum
   await env.BILLING_AUDIT_R2.put(AUDIT_EVENTS_KEY, JSON.stringify(next));
 }
 
-async function updateAdminAccountProjection(env: Env, status: BillingStatusSummary): Promise<void> {
+async function adminAccountProjectionStatement(
+  env: Env,
+  status: BillingStatusSummary
+): Promise<D1PreparedStatement | null> {
   const adminAccounts = await loadAdminBillingAccounts(env, null);
   const current = adminAccounts.find((entry) => entry.parentAccountRef === status.parentAccountRef);
   if (!current) {
-    return;
+    return null;
   }
 
-  await upsertAdminBillingAccountSummary(env, {
+  return billingAdminAccountStatement(env, {
     ...current,
     parentVisibleState: status.parentVisibleState,
     subscriptionStatus: status.subscriptionStatus,
@@ -1467,11 +1703,11 @@ function hostedSessionAuditEventType(sessionKind: 'checkout-session-create' | 'b
 }
 
 async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch): Promise<void> {
-  const stateStatements: D1PreparedStatement[] = [];
+  const statements: D1PreparedStatement[] = [];
   if (patch.statusBySubject) {
     for (const [subject, row] of Object.entries(patch.statusBySubject)) {
       const decoded = decodeBillingStatusSummary(row, `billing-status-seed:${subject}`, subject);
-      stateStatements.push(database.prepare(UPSERT_STATUS_SQL).bind(subject, JSON.stringify(decoded)));
+      statements.push(database.prepare(UPSERT_STATUS_SQL).bind(subject, JSON.stringify(decoded)));
     }
   }
   if (patch.snapshotsBySubject) {
@@ -1481,7 +1717,7 @@ async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch
         `billing-entitlement-snapshot-seed:${subject}`,
         subject
       );
-      stateStatements.push(database.prepare(UPSERT_SNAPSHOT_SQL).bind(subject, JSON.stringify(decoded)));
+      statements.push(database.prepare(UPSERT_SNAPSHOT_SQL).bind(subject, JSON.stringify(decoded)));
     }
   }
   if (patch.statusBySubject && patch.snapshotsBySubject) {
@@ -1492,32 +1728,40 @@ async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch
       }
     }
   }
-  if (stateStatements.length > 0) {
-    await database.batch(stateStatements);
-  }
   if (patch.invoicesBySubject) {
     for (const [subject, invoices] of Object.entries(patch.invoicesBySubject)) {
-      for (const invoice of invoices) {
-        await database.prepare(UPSERT_INVOICE_SQL).bind(subject, invoice.invoiceId, JSON.stringify(invoice)).run();
+      for (const [index, invoice] of invoices.entries()) {
+        const decoded = decodeBillingInvoiceSummary(invoice, `billing-invoice-seed:${subject}-${index}`);
+        statements.push(database.prepare(UPSERT_INVOICE_SQL).bind(subject, decoded.invoiceId, JSON.stringify(decoded)));
       }
     }
   }
   if (patch.referralsBySubject) {
     for (const [subject, referral] of Object.entries(patch.referralsBySubject)) {
-      await database.prepare(UPSERT_REFERRAL_SQL).bind(subject, JSON.stringify(referral)).run();
+      const decoded = decodeBillingReferralSummary(referral, `billing-referral-seed:${subject}`);
+      statements.push(database.prepare(UPSERT_REFERRAL_SQL).bind(subject, JSON.stringify(decoded)));
     }
   }
-  for (const row of patch.adminAccounts ?? []) {
-    await database.prepare(UPSERT_ADMIN_ACCOUNT_SQL).bind(row.parentAccountRef, JSON.stringify(row)).run();
+  for (const [index, row] of (patch.adminAccounts ?? []).entries()) {
+    const decoded = decodeAdminBillingAccountSummary(row, `billing-admin-account-seed-${index}`);
+    statements.push(database.prepare(UPSERT_ADMIN_ACCOUNT_SQL).bind(decoded.parentAccountRef, JSON.stringify(decoded)));
   }
-  for (const row of patch.adminInvoices ?? []) {
-    await database.prepare(UPSERT_ADMIN_INVOICE_SQL).bind(row.invoiceId, JSON.stringify(row)).run();
+  for (const [index, row] of (patch.adminInvoices ?? []).entries()) {
+    const decoded = decodeAdminBillingInvoiceSummary(row, `billing-admin-invoice-seed-${index}`);
+    statements.push(database.prepare(UPSERT_ADMIN_INVOICE_SQL).bind(decoded.invoiceId, JSON.stringify(decoded)));
   }
-  for (const row of patch.adminDisputes ?? []) {
-    await database.prepare(UPSERT_ADMIN_DISPUTE_SQL).bind(row.disputeId, JSON.stringify(row)).run();
+  for (const [index, row] of (patch.adminDisputes ?? []).entries()) {
+    const decoded = decodeAdminBillingDisputeSummary(row, `billing-admin-dispute-seed-${index}`);
+    statements.push(database.prepare(UPSERT_ADMIN_DISPUTE_SQL).bind(decoded.disputeId, JSON.stringify(decoded)));
   }
   for (const row of patch.adminReferrals ?? []) {
-    await database.prepare(UPSERT_ADMIN_REFERRAL_SQL).bind(row.referralCode, JSON.stringify(row)).run();
+    const decoded = decodeCanonicalValue('billing-admin-referral-seed', () =>
+      BillingSupportAdminReferralSummarySchema.parse(row)
+    );
+    statements.push(database.prepare(UPSERT_ADMIN_REFERRAL_SQL).bind(decoded.referralCode, JSON.stringify(decoded)));
+  }
+  if (statements.length > 0) {
+    await database.batch(statements);
   }
 }
 
@@ -1639,11 +1883,42 @@ export async function loadBillingStatusSummary(env: Env, subject: string): Promi
 export async function loadBillingInvoices(env: Env, subject: string): Promise<ReadonlyArray<BillingInvoiceSummary>> {
   await ensureReadModelSeed(env);
   requireProductionBinding(env, 'BILLING_D1');
-  const stored = parsePayloadRows<BillingInvoiceSummary>(
-    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_INVOICES_BY_SUBJECT_SQL, subject)
+  const stored = (await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_INVOICES_BY_SUBJECT_SQL, subject)).map(
+    (row, index) =>
+      decodeBillingInvoiceSummary(
+        parseUnknownPayload(row.payload_json, `billing-invoice:${subject}`),
+        `billing-invoice:${subject}-${index}`
+      )
   );
   await recordBindingRead(env, 'billing-invoices', subject);
-  return stored.length > 0 || !isLocalFixtureEnvironment(env) ? stored : buildBillingInvoices(subject);
+  return stored.length > 0 || !isLocalFixtureEnvironment(env)
+    ? stored
+    : buildBillingInvoices(subject).map((invoice, index) =>
+        decodeBillingInvoiceSummary(invoice, `billing-local-invoice:${subject}-${index}`)
+      );
+}
+
+export async function loadBillingInvoiceById(env: Env, invoiceId: string): Promise<BillingInvoiceSummary | null> {
+  await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
+  const stored = parseUnknownPayloadRow(
+    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_INVOICE_BY_ID_SQL, invoiceId),
+    `billing-invoice:${invoiceId}`
+  );
+  await recordBindingRead(env, 'billing-invoice', invoiceId);
+  if (stored !== null) {
+    return decodeBillingInvoiceSummary(stored, `billing-invoice:${invoiceId}`);
+  }
+  if (!isLocalFixtureEnvironment(env)) {
+    return null;
+  }
+  for (const subject of DEFAULT_BILLING_SUBJECTS) {
+    const invoice = (await loadBillingInvoices(env, subject)).find((row) => row.invoiceId === invoiceId);
+    if (invoice) {
+      return invoice;
+    }
+  }
+  return null;
 }
 
 export async function findBillingInvoiceSubject(env: Env, invoiceId: string): Promise<string | null> {
@@ -1710,21 +1985,18 @@ export async function loadBillingLicenseDecision(
   deviceId: string,
   requestedNewDevice: boolean
 ): Promise<BillingLicenseDecisionSummary> {
-  const status = await loadBillingStatusSummary(env, subject);
-  const snapshot = await loadBillingEntitlementSnapshot(env, subject);
-  if (
-    snapshot.subject !== status.subject ||
-    snapshot.parentAccountRef !== status.parentAccountRef ||
-    snapshot.familyRef !== status.familyRef ||
-    snapshot.planId !== status.plan.planId ||
-    snapshot.deviceLimit !== status.seatComposition.effectiveLimit
-  ) {
-    throw new BillingReadModelUnavailableError('billing-entitlement-authority-mismatch');
-  }
+  const paired = decodeBillingStatePair(
+    await loadBillingStatusSummary(env, subject),
+    await loadBillingEntitlementSnapshot(env, subject),
+    `billing-license-authority:${subject}`
+  );
+  const status = paired.status;
+  const snapshot = paired.snapshot;
+  const authority = correlateBillingAuthority(status, snapshot, `billing-license-authority:${subject}`);
   const requestedDeviceAlreadyTrusted = !requestedNewDevice;
   const atDeviceLimit = snapshot.activeDevices >= snapshot.deviceLimit;
 
-  if (snapshot.parentVisibleState === 'manual-review') {
+  if (authority === 'manual-review') {
     return {
       requestId,
       subject,
@@ -1756,11 +2028,7 @@ export async function loadBillingLicenseDecision(
     };
   }
 
-  if (
-    snapshot.subscriptionStatus === 'grace' &&
-    requestedNewDevice &&
-    snapshot.failureState?.failureKind === 'payment-required'
-  ) {
+  if (authority === 'grace' && requestedNewDevice && snapshot.failureState?.failureKind === 'payment-required') {
     return {
       requestId,
       subject,
@@ -1776,7 +2044,10 @@ export async function loadBillingLicenseDecision(
     };
   }
 
-  if (!snapshotCanYieldAllowed(snapshot, requestedDeviceAlreadyTrusted)) {
+  if (
+    authority !== 'active' &&
+    !(authority === 'grace' && !requestedNewDevice && snapshotCanYieldAllowed(snapshot, requestedDeviceAlreadyTrusted))
+  ) {
     return {
       requestId,
       subject,
@@ -1838,17 +2109,66 @@ export async function loadAdminBillingInvoices(
   await ensureReadModelSeed(env);
   requireProductionBinding(env, 'BILLING_D1');
   const loweredQuery = query?.trim().toLowerCase() ?? '';
-  const stored = parsePayloadRows<AdminBillingInvoiceSummary>(
-    await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_INVOICES_SQL)
+  const stored = (await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_INVOICES_SQL)).map((row, index) =>
+    decodeAdminBillingInvoiceSummary(
+      parseUnknownPayload(row.payload_json, 'billing-admin-invoice'),
+      `billing-admin-invoice-${index}`
+    )
   );
   await recordBindingRead(env, 'admin-billing-invoices', null);
-  const rows = stored.length > 0 || !isLocalFixtureEnvironment(env) ? stored : listAdminBillingInvoices(query);
+  const rows =
+    stored.length > 0 || !isLocalFixtureEnvironment(env)
+      ? stored
+      : listAdminBillingInvoices(query).map((invoice, index) =>
+          decodeAdminBillingInvoiceSummary(invoice, `billing-local-admin-invoice-${index}`)
+        );
   if (!loweredQuery) {
     return rows;
   }
   return rows.filter((row) =>
     includesQuery([row.invoiceId, row.invoiceNumber, row.parentAccountRef, row.familyRef, row.planId], loweredQuery)
   );
+}
+
+export function buildBillingRefundResult(
+  requestId: string,
+  invoice: BillingInvoiceSummary | null,
+  amountCents: number | null
+): BillingSupportAdminRefundResult {
+  if (!invoice) {
+    return BillingSupportAdminRefundResultSchema.parse({
+      requestId,
+      status: 'rejected',
+      invoiceId: null,
+      refundState: 'manual-review-required',
+      amountCents: null,
+      auditReference: 'audit:refund:rejected',
+      rejectionReason: 'invoice-not-found',
+    });
+  }
+
+  const decodedAmount = decodeBillingCount(amountCents ?? invoice.totalCents, 'billing-refund-amount');
+  if (decodedAmount > invoice.totalCents) {
+    return BillingSupportAdminRefundResultSchema.parse({
+      requestId,
+      status: 'rejected',
+      invoiceId: invoice.invoiceId,
+      refundState: 'manual-review-required',
+      amountCents: null,
+      auditReference: `${invoice.auditReference}:refund:manual-review`,
+      rejectionReason: null,
+    });
+  }
+
+  return BillingSupportAdminRefundResultSchema.parse({
+    requestId,
+    status: 'accepted',
+    invoiceId: invoice.invoiceId,
+    refundState: decodedAmount < invoice.totalCents ? 'refund-requested' : 'refund-settled',
+    amountCents: decodedAmount,
+    auditReference: `${invoice.auditReference}:refund:${decodedAmount}`,
+    rejectionReason: null,
+  });
 }
 
 export async function loadAdminBillingDisputes(
@@ -1929,7 +2249,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
     case 'change-plan': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       const snapshot = await loadBillingEntitlementSnapshot(env, mutation.subject);
-      const pricingPlans = await loadPricingPlans(env);
+      const pricingPlans = (await loadPricingPlans(env)).filter((plan) => plan.activeState === 'active');
       const targetPlan = pricingPlans.find((plan) => plan.planId === mutation.targetPlanId);
       if (!targetPlan) {
         return;
@@ -1977,8 +2297,12 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         auditReference: `${mutation.auditReference}:snapshot`,
       } as unknown as BillingEntitlementSnapshotSummary;
 
-      await upsertBillingStatePair(env, nextStatus, nextSnapshot);
-      await updateAdminAccountProjection(env, nextStatus);
+      const changePlanStatements = [...billingStatePairStatements(env, nextStatus, nextSnapshot)];
+      const changePlanProjection = await adminAccountProjectionStatement(env, nextStatus);
+      if (changePlanProjection) {
+        changePlanStatements.push(changePlanProjection);
+      }
+      await commitBillingD1Batch(env, changePlanStatements);
       await appendBillingAuditEvent(env, {
         eventId: `billing-change-plan:${mutation.requestId}`,
         eventType: 'billing.change-plan.accepted',
@@ -2040,8 +2364,12 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         auditReference: `${mutation.auditReference}:snapshot`,
       } as unknown as BillingEntitlementSnapshotSummary;
 
-      await upsertBillingStatePair(env, nextStatus, nextSnapshot);
-      await updateAdminAccountProjection(env, nextStatus);
+      const cancellationStatements = [...billingStatePairStatements(env, nextStatus, nextSnapshot)];
+      const cancellationProjection = await adminAccountProjectionStatement(env, nextStatus);
+      if (cancellationProjection) {
+        cancellationStatements.push(cancellationProjection);
+      }
+      await commitBillingD1Batch(env, cancellationStatements);
       await appendBillingAuditEvent(env, {
         eventId: `billing-cancel:${mutation.requestId}`,
         eventType: 'billing.cancel.accepted',
@@ -2171,10 +2499,16 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         auditReference: `${auditReference}:snapshot`,
       } as unknown as BillingEntitlementSnapshotSummary;
 
-      await upsertBillingInvoiceSummary(env, mutation.subject, nextInvoice);
-      await upsertAdminBillingInvoiceSummary(env, nextAdminInvoice);
-      await upsertBillingStatePair(env, nextStatus, nextSnapshot);
-      await updateAdminAccountProjection(env, nextStatus);
+      const manualInvoiceStatements = [
+        ...billingStatePairStatements(env, nextStatus, nextSnapshot),
+        billingInvoiceStatement(env, mutation.subject, nextInvoice),
+        billingAdminInvoiceStatement(env, nextAdminInvoice),
+      ];
+      const manualInvoiceProjection = await adminAccountProjectionStatement(env, nextStatus);
+      if (manualInvoiceProjection) {
+        manualInvoiceStatements.push(manualInvoiceProjection);
+      }
+      await commitBillingD1Batch(env, manualInvoiceStatements);
       await appendBillingAuditEvent(env, {
         eventId: `billing-manual-invoice:${mutation.requestId}`,
         eventType: 'billing.manual-invoice.created',
@@ -2191,40 +2525,44 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const snapshot = await loadBillingEntitlementSnapshot(env, mutation.subject);
       const invoices = await loadBillingInvoices(env, mutation.subject);
       const adminInvoices = await loadAdminBillingInvoices(env, null);
+      const matchedInvoice = invoices.find((invoice) => invoice.invoiceId === mutation.invoiceId);
+      if (!matchedInvoice) {
+        throw new BillingReadModelUnavailableError(`billing-refund-invoice-missing:${mutation.invoiceId}`);
+      }
+      if (mutation.amountCents > matchedInvoice.totalCents) {
+        throw new BillingReadModelUnavailableError(`billing-refund-amount-exceeds-invoice:${mutation.invoiceId}`);
+      }
+      const expectedRefundState =
+        mutation.amountCents < matchedInvoice.totalCents ? 'refund-requested' : 'refund-settled';
+      if (mutation.refundState !== expectedRefundState) {
+        throw new BillingReadModelUnavailableError(`billing-refund-state-mismatch:${mutation.invoiceId}`);
+      }
       const updatedAt = new Date().toISOString();
       const refundSettled = mutation.refundState === 'refund-settled';
       const auditReference = `${mutation.auditReference}:state`;
       const nextFailureState = refundSettled ? manualReviewFailureState() : status.failureState;
-
-      let matchedInvoice = false;
-      for (const invoice of invoices) {
-        if (invoice.invoiceId !== mutation.invoiceId) {
-          continue;
-        }
-
-        matchedInvoice = true;
-        await upsertBillingInvoiceSummary(env, mutation.subject, {
-          ...invoice,
-          paymentState: refundSettled ? 'refunded' : invoice.paymentState,
-          auditReference: `${auditReference}:invoice:${invoice.invoiceId}`,
+      const refundAmountAudit = `amount-cents:${mutation.amountCents}`;
+      const refundStatements = [
+        billingInvoiceStatement(env, mutation.subject, {
+          ...matchedInvoice,
+          paymentState: refundSettled ? 'refunded' : matchedInvoice.paymentState,
+          auditReference: `${auditReference}:invoice:${matchedInvoice.invoiceId}:${refundAmountAudit}`,
           updatedAt,
-        } as unknown as BillingInvoiceSummary);
+        }),
+      ];
+      const matchedAdminInvoice = adminInvoices.find((invoice) => invoice.invoiceId === mutation.invoiceId);
+      if (matchedAdminInvoice) {
+        refundStatements.push(
+          billingAdminInvoiceStatement(env, {
+            ...matchedAdminInvoice,
+            paymentState: refundSettled ? 'refunded' : matchedAdminInvoice.paymentState,
+            auditReference: `${auditReference}:admin-invoice:${matchedAdminInvoice.invoiceId}:${refundAmountAudit}`,
+            updatedAt,
+          })
+        );
       }
 
-      for (const invoice of adminInvoices) {
-        if (invoice.invoiceId !== mutation.invoiceId) {
-          continue;
-        }
-
-        await upsertAdminBillingInvoiceSummary(env, {
-          ...invoice,
-          paymentState: refundSettled ? 'refunded' : invoice.paymentState,
-          auditReference: `${auditReference}:admin-invoice:${invoice.invoiceId}`,
-          updatedAt,
-        } as unknown as AdminBillingInvoiceSummary);
-      }
-
-      if (refundSettled && matchedInvoice) {
+      if (refundSettled) {
         const nextStatus: any = {
           ...status,
           accountStatus: 'manual-review',
@@ -2254,9 +2592,14 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           auditReference: `${auditReference}:snapshot`,
         } as unknown as BillingEntitlementSnapshotSummary;
 
-        await upsertBillingStatePair(env, nextStatus, nextSnapshot);
-        await updateAdminAccountProjection(env, nextStatus);
+        refundStatements.push(...billingStatePairStatements(env, nextStatus, nextSnapshot));
+        const refundProjection = await adminAccountProjectionStatement(env, nextStatus);
+        if (refundProjection) {
+          refundStatements.push(refundProjection);
+        }
       }
+
+      await commitBillingD1Batch(env, refundStatements);
 
       await appendBillingAuditEvent(env, {
         eventId: `billing-refund:${mutation.requestId}`,
@@ -2332,7 +2675,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           auditReference: `${auditReference}:snapshot`,
         } as unknown as BillingEntitlementSnapshotSummary;
 
-        await upsertBillingStatePair(env, nextStatus, nextSnapshot);
+        const activationStatements = [...billingStatePairStatements(env, nextStatus, nextSnapshot)];
         for (const invoice of invoices) {
           const nextInvoice = {
             ...invoice,
@@ -2340,7 +2683,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
             auditReference: `${auditReference}:invoice:${invoice.invoiceId}`,
             updatedAt,
           } as unknown as BillingInvoiceSummary;
-          await upsertBillingInvoiceSummary(env, mutation.subject, nextInvoice);
+          activationStatements.push(billingInvoiceStatement(env, mutation.subject, nextInvoice));
         }
         for (const invoice of adminInvoices.filter((entry) => entry.parentAccountRef === status.parentAccountRef)) {
           const nextInvoice: any = {
@@ -2350,9 +2693,13 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
             auditReference: `${auditReference}:admin-invoice:${invoice.invoiceId}`,
             updatedAt,
           };
-          await upsertAdminBillingInvoiceSummary(env, nextInvoice);
+          activationStatements.push(billingAdminInvoiceStatement(env, nextInvoice));
         }
-        await updateAdminAccountProjection(env, nextStatus);
+        const activationProjection = await adminAccountProjectionStatement(env, nextStatus);
+        if (activationProjection) {
+          activationStatements.push(activationProjection);
+        }
+        await commitBillingD1Batch(env, activationStatements);
       } else if (transition === 'enter-grace') {
         const nextStatus = {
           ...status,
@@ -2387,7 +2734,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           auditReference: `${auditReference}:snapshot`,
         } as unknown as BillingEntitlementSnapshotSummary;
 
-        await upsertBillingStatePair(env, nextStatus, nextSnapshot);
+        const graceStatements = [...billingStatePairStatements(env, nextStatus, nextSnapshot)];
         for (const invoice of invoices) {
           const nextInvoice = {
             ...invoice,
@@ -2395,7 +2742,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
             auditReference: `${auditReference}:invoice:${invoice.invoiceId}`,
             updatedAt,
           } as unknown as BillingInvoiceSummary;
-          await upsertBillingInvoiceSummary(env, mutation.subject, nextInvoice);
+          graceStatements.push(billingInvoiceStatement(env, mutation.subject, nextInvoice));
         }
         for (const invoice of adminInvoices.filter((entry) => entry.parentAccountRef === status.parentAccountRef)) {
           const nextInvoice: any = {
@@ -2405,9 +2752,13 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
             auditReference: `${auditReference}:admin-invoice:${invoice.invoiceId}`,
             updatedAt,
           };
-          await upsertAdminBillingInvoiceSummary(env, nextInvoice);
+          graceStatements.push(billingAdminInvoiceStatement(env, nextInvoice));
         }
-        await updateAdminAccountProjection(env, nextStatus);
+        const graceProjection = await adminAccountProjectionStatement(env, nextStatus);
+        if (graceProjection) {
+          graceStatements.push(graceProjection);
+        }
+        await commitBillingD1Batch(env, graceStatements);
       } else {
         const disputeId = mutation.disputeId ?? `dispute-${mutation.provider}-${mutation.eventId}`;
         const invoiceId =
@@ -2436,7 +2787,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           auditReference: `${auditReference}:dispute:${disputeId}`,
           updatedAt,
         } as unknown as AdminBillingDisputeSummary;
-        await upsertAdminBillingDisputeSummary(env, nextDispute);
+        const disputeStatements = [billingAdminDisputeStatement(env, nextDispute)];
 
         const nextStatus = (transition === 'dispute-won'
           ? {
@@ -2498,8 +2849,12 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
               auditReference: `${auditReference}:snapshot`,
             }) as unknown as BillingEntitlementSnapshotSummary;
 
-        await upsertBillingStatePair(env, nextStatus, nextSnapshot);
-        await updateAdminAccountProjection(env, nextStatus);
+        disputeStatements.push(...billingStatePairStatements(env, nextStatus, nextSnapshot));
+        const disputeProjection = await adminAccountProjectionStatement(env, nextStatus);
+        if (disputeProjection) {
+          disputeStatements.push(disputeProjection);
+        }
+        await commitBillingD1Batch(env, disputeStatements);
       }
 
       await appendBillingAuditEvent(env, {
