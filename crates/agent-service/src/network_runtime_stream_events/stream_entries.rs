@@ -28,7 +28,7 @@ pub(crate) fn stream_entries_from_report(
                 payload: protocol_payload::protocol_payload(
                     event_kind,
                     &event_ref,
-                    &decoded.payload,
+                    decoded.payload(),
                 ),
             })
         })

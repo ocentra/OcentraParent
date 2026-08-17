@@ -54,9 +54,10 @@ pub async fn replay_pending_child_runtime_tombstones(
             "storage-custody-delete:{}",
             action.source_decision_id.as_str()
         );
-        if decoded.payload != *action
-            || decoded.aggregate_key != action.aggregate_key().map_err(std::io::Error::other)?
-            || decoded.idempotency_key != action.idempotency_key().map_err(std::io::Error::other)?
+        if decoded.payload() != action
+            || decoded.aggregate_key() != &action.aggregate_key().map_err(std::io::Error::other)?
+            || decoded.idempotency_key()
+                != &action.idempotency_key().map_err(std::io::Error::other)?
             || record.deletion_ref != expected_deletion_ref
             || record.proof_ref != action.action_plan_id.as_str()
         {

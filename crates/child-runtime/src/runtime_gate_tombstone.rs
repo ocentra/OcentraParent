@@ -82,9 +82,10 @@ pub async fn persist_child_runtime_tombstone_action_with_milestones(
     let journaled = envelope
         .decode::<StorageCustodyActionPlannedEvent>()
         .map_err(std::io::Error::other)?;
-    if journaled.payload != *action
-        || journaled.aggregate_key != action.aggregate_key().map_err(std::io::Error::other)?
-        || journaled.idempotency_key != action.idempotency_key().map_err(std::io::Error::other)?
+    if journaled.payload() != action
+        || journaled.aggregate_key() != &action.aggregate_key().map_err(std::io::Error::other)?
+        || journaled.idempotency_key()
+            != &action.idempotency_key().map_err(std::io::Error::other)?
     {
         return Err(std::io::Error::new(
             std::io::ErrorKind::InvalidInput,

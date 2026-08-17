@@ -83,7 +83,7 @@ where
     }
 
     pub fn payload(&self) -> &E {
-        &self.envelope.payload
+        self.envelope.payload()
     }
 
     pub fn publisher(&self) -> &EventPublisher {

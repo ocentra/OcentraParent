@@ -48,7 +48,7 @@ pub async fn prove_browser_runtime_action_intent_child_status(
         .map(|event| {
             event
                 .decode::<ParentChildRuntimeEventPayload>()
-                .map(|envelope| envelope.payload)
+                .map(|envelope| envelope.into_payload())
         })
         .collect::<Result<Vec<_>, _>>()
         .map_err(BrowserRuntimeActionIntentChildStatusError::PayloadDecode)?;

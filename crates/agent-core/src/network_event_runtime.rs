@@ -114,7 +114,8 @@ impl NetworkRuntimeReport {
             event
                 .decode::<NetworkRuntimeEventPayload>()
                 .map(|envelope| {
-                    envelope.payload.intervention_state == NetworkInterventionState::ManualRequired
+                    envelope.payload().intervention_state
+                        == NetworkInterventionState::ManualRequired
                 })
                 .unwrap_or(false)
         })

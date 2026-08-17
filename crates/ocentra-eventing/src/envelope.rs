@@ -6,6 +6,8 @@ use crate::{
     SourceComponent, SourceService, TargetHandler,
 };
 
+mod accessors;
+
 pub trait DomainEvent: Clone + Send + Sync + Serialize + DeserializeOwned + 'static {
     fn contract(&self) -> Result<EventContract, EventingError>;
     fn aggregate_key(&self) -> Result<AggregateKey, EventingError>;
@@ -137,19 +139,19 @@ impl EventMetadata {
     bound(serialize = "E: Serialize", deserialize = "E: Deserialize<'de>")
 )]
 pub struct EventEnvelope<E: DomainEvent> {
-    pub contract: EventContract,
-    pub event_id: EventId,
-    pub correlation_id: CorrelationId,
-    pub causation_id: Option<CausationId>,
-    pub aggregate_key: AggregateKey,
-    pub idempotency_key: IdempotencyKey,
-    pub source: EventSource,
-    pub observed_at: RecordedAt,
-    pub target_handler: Option<TargetHandler>,
-    pub priority: EventPriority,
+    contract: EventContract,
+    event_id: EventId,
+    correlation_id: CorrelationId,
+    causation_id: Option<CausationId>,
+    aggregate_key: AggregateKey,
+    idempotency_key: IdempotencyKey,
+    source: EventSource,
+    observed_at: RecordedAt,
+    target_handler: Option<TargetHandler>,
+    priority: EventPriority,
     #[serde(default)]
-    pub deadline: Option<EventClockInstant>,
-    pub payload: E,
+    deadline: Option<EventClockInstant>,
+    payload: E,
 }
 
 impl<E> EventEnvelope<E>
@@ -175,7 +177,7 @@ where
 
     pub fn store(&self) -> Result<StoredEventEnvelope, EventingError> {
         validate_payload_identity(
-            &self.payload,
+            self.payload(),
             &self.contract,
             &self.aggregate_key,
             &self.idempotency_key,
@@ -192,7 +194,7 @@ where
             target_handler: self.target_handler.clone(),
             priority: self.priority,
             deadline: self.deadline,
-            payload: StoredEventPayload::from_event(&self.payload)?,
+            payload: StoredEventPayload::from_event(self.payload())?,
         })
     }
 }

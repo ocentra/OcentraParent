@@ -213,14 +213,14 @@ pub(super) async fn subscribe_child_tracking_check_in_request_events(
                 let request = context.payload().clone();
                 let envelope = context.envelope();
                 let metadata = EventMetadata {
-                    event_id: envelope.event_id.clone(),
-                    correlation_id: envelope.correlation_id.clone(),
-                    causation_id: envelope.causation_id.clone(),
-                    source: envelope.source.clone(),
-                    observed_at: envelope.observed_at.clone(),
-                    target_handler: envelope.target_handler.clone(),
-                    priority: envelope.priority,
-                    deadline: envelope.deadline,
+                    event_id: envelope.event_id().clone(),
+                    correlation_id: envelope.correlation_id().clone(),
+                    causation_id: envelope.causation_id().cloned(),
+                    source: envelope.source().clone(),
+                    observed_at: envelope.observed_at().clone(),
+                    target_handler: envelope.target_handler().cloned(),
+                    priority: envelope.priority(),
+                    deadline: envelope.deadline(),
                 };
                 state.record_parent_requested_check_in(request.clone(), metadata.clone());
                 let receipt = tracking_child_check_in_request_receipt(

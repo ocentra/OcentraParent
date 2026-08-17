@@ -179,7 +179,7 @@ fn decode_payloads(
         .map(|event| {
             let envelope: ocentra_eventing::envelope::EventEnvelope<NetworkRuntimeEventPayload> =
                 event.decode()?;
-            Ok(envelope.payload)
+            Ok(envelope.into_payload())
         })
         .collect()
 }

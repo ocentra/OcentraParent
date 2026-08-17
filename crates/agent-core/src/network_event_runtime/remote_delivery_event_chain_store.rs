@@ -168,7 +168,12 @@ fn decode_payloads(
 ) -> Result<Vec<NetworkRuntimeEventPayload>, EventingError> {
     records
         .iter()
-        .map(|record| record.envelope.decode().map(|envelope| envelope.payload))
+        .map(|record| {
+            record
+                .envelope
+                .decode()
+                .map(|envelope| envelope.into_payload())
+        })
         .collect::<Result<Vec<NetworkRuntimeEventPayload>, EventingError>>()
 }
 

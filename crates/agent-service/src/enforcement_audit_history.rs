@@ -70,8 +70,8 @@ pub async fn read_enforcement_audit_history(
             let decoded = record.envelope.decode::<EnforcementAuditJournalEvent>()?;
             Ok(EnforcementAuditHistoryRow {
                 sequence: record.sequence,
-                kind: kind::for_event(&decoded.payload),
-                event: decoded.payload,
+                kind: kind::for_event(decoded.payload()),
+                event: decoded.into_payload(),
             })
         })
         .collect()

@@ -32,9 +32,9 @@ impl HouseholdMeshBridgeReport {
             event
                 .decode::<HouseholdMeshBridgeEventPayload>()
                 .map(|envelope| {
-                    envelope.payload.custody.remote_direct_publish_allowed
-                        || envelope.payload.custody.raw_screenshot_transferred
-                        || envelope.payload.custody.private_local_event_exported
+                    envelope.payload().custody.remote_direct_publish_allowed
+                        || envelope.payload().custody.raw_screenshot_transferred
+                        || envelope.payload().custody.private_local_event_exported
                 })
                 .unwrap_or(true)
         })

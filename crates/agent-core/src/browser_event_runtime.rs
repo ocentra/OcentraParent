@@ -210,7 +210,7 @@ impl BrowserRuntimeReport {
             event
                 .decode::<BrowserRuntimeEventPayload>()
                 .map(|envelope| {
-                    envelope.payload.phase == BrowserRuntimePhase::InterventionCommandIssued
+                    envelope.payload().phase == BrowserRuntimePhase::InterventionCommandIssued
                 })
                 .unwrap_or(false)
         })
