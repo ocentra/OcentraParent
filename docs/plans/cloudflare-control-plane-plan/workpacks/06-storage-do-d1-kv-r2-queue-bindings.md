@@ -29,6 +29,31 @@ can issue the narrow verified mapping. This audit authorizes no production
 code edit; validation, migration, proof, and runtime/deployment claims remain
 deferred.
 
+## Bounded source adapter/auth chain accepted - 2026-08-17
+
+Independent source review accepts the following implementation-phase packet;
+this does not close normal WP06:
+
+- `infra/cloudflare/src/storage/account-identity-authority-store.ts` is the
+  narrow D1 adapter for the Account WP08 `v0.7` handoff. It validates the
+  canonical schema and rejects inactive mappings, mapping/account mismatches,
+  unsafe generations, inactive or revoked bindings, invalid rows, and missing
+  migrations without accepting caller-supplied authority.
+- `infra/cloudflare/src/auth/verifier.ts` calls that adapter only after a
+  provider-verification result. No provider verifier is mounted in the Worker,
+  so the production caller remains `503` / `manual-required` and fixture
+  headers cannot authorize production.
+- `infra/cloudflare/src/env.ts` rejects `local-safe-fixture` outside
+  local/test/development and requires `INTERNAL_QUEUE_SHARED_SECRET` in
+  production. `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql`
+  remains source-only and unapplied.
+- `infra/cloudflare/package.json` builds the canonical schema-domain contract
+  before Cloudflare contract-consuming commands. Generated schema-domain
+  `dist` output is ignored and is not retained proof.
+
+Migration application, focused tests, retained proof, deployment, and runtime
+reachability remain open. Normal WP06 is blocked and is not `DONE`.
+
 ## Goal
 
 Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, and optional R2.
@@ -38,6 +63,9 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - `infra/cloudflare/src/env.ts` for the optional account-identity D1 declaration and ownership boundary; account DO/KV remain absent and manual-required
 - `infra/cloudflare/wrangler.toml` and `wrangler.production.toml` for the selected account-identity D1 binding and binding-specific migration-directory configuration
 - `infra/cloudflare/src/storage/account-identity-store.ts` for the narrow migrated-schema consumer and D1 mapping custody; it currently has no production route caller
+- `infra/cloudflare/src/storage/account-identity-authority-store.ts` for the canonical Account WP08 `v0.7` binding adapter
+- `infra/cloudflare/src/auth/verifier.ts` for the provider-gated Worker-owned caller and fail-closed manual-required path
+- `infra/cloudflare/package.json` for schema-domain contract build ordering before Cloudflare consumers
 - `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql` for the isolated account-identity D1 schema/migration
 - `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts` remains the deferred migration/store integration surface
 
@@ -53,6 +81,9 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - `infra/cloudflare/wrangler.toml`
 - `infra/cloudflare/wrangler.production.toml`
 - `infra/cloudflare/src/storage/account-identity-store.ts`
+- `infra/cloudflare/src/storage/account-identity-authority-store.ts`
+- `infra/cloudflare/src/auth/verifier.ts`
+- `infra/cloudflare/package.json`
 - `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql`
 - `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts` (deferred)
 - [STORAGE_BINDING_MODEL.md](../STORAGE_BINDING_MODEL.md)
@@ -63,7 +94,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - Each binding has one owner and one purpose.
 - No child-data storage drift is allowed.
 - Queue and dead-letter ownership is explicit.
-- The account-identity D1 binding, isolated migration, and narrow store preserve the Account WP08 handoff boundary without redefining family authority; no provider verification or runtime store caller exists, while account DO/KV remain manual-required.
+- The account-identity D1 binding, isolated migration, narrow adapter, and provider-gated caller preserve the Account WP08 handoff boundary without redefining family authority; provider verification is absent and the Worker caller remains manual-required, while account DO/KV remain manual-required.
 - The account D1 migration directory is binding-specific, so account migration application cannot target `BILLING_D1`.
 - The retained storage result or exact blocker is linked for Cloudflare WP08 runner proof and Account WP06 aggregation.
 
@@ -97,11 +128,12 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Completion
 
-- Status: production code drafted / validation and retained proof deferred; no Cloudflare runtime-ready, deployment-ready, provider-authenticated, or payment-ready claim is made.
+- Status: bounded source adapter/auth chain independently accepted; migration, focused validation, retained proof, provider verification, deployment, and runtime reachability remain deferred. No Cloudflare runtime-ready, deployment-ready, provider-authenticated, payment-ready, or `DONE` claim is made.
 - Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 - Runtime/source owner: `infra/cloudflare/src/env.ts`
-- Account D1 and isolated migration configuration: `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, and `src/env.ts`; account DO/KV declarations remain absent and no `BILLING_D1` substitution is allowed
-- Owned migrated-schema surfaces: `infra/cloudflare/src/storage/account-identity-store.ts`; `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql`
+- Account D1 and isolated migration configuration: `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, `src/env.ts`, and `package.json`; account DO/KV declarations remain absent and no `BILLING_D1` substitution is allowed
+- Owned migrated-schema surfaces: `infra/cloudflare/src/storage/account-identity-authority-store.ts`, `infra/cloudflare/src/storage/account-identity-store.ts`; `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql`
+- Owned auth handoff surface: `infra/cloudflare/src/auth/verifier.ts`; provider verification remains an external/manual-required seam.
 - Owned test surfaces: `infra/cloudflare/tests/unit/env-bindings.test.ts`; `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
 ## What is actually proved
@@ -117,7 +149,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 ## Blocked truth
 
 - Independent source review accepts WP01's current module dependency/runtime scaffold as implementation-phase evidence. This does not substitute for rerunning module tests or retaining proof in the later validation phase.
-- Account WP08's `v0.7` Rust/TypeScript contract is independently accepted as bounded source evidence, but no Cloudflare adapter consumes its sealed binding and no production caller reaches the store. WP06's next source packet owns that durable adapter/caller. Provider verification, migration execution, direct integration-test artifacts, and runtime storage handoff remain open.
+- Account WP08's `v0.7` Rust/TypeScript contract and the bounded Cloudflare adapter/auth chain are independently accepted as source evidence. No provider verifier reaches the store in the Worker, so provider verification, migration execution, direct integration-test artifacts, retained proof, and runtime storage handoff remain open.
 - `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, and `src/env.ts` declare the optional account D1 binding with a binding-specific `migrations_dir`; account DO/KV are intentionally not declared. WP06 must not run the account migration command against `BILLING_D1`.
 - The store no longer creates the account table opportunistically. If the isolated migration has not been applied, reads and writes return `manual-required` for the missing account schema; other D1 errors remain fail-closed errors.
 - `infra/cloudflare/src/index.ts` imports `./generated/billing-contracts.js`, backed by the checked-in module-local generated artifact. Obsolete `packages/billing-domain/src/*` imports are not WP06 blockers and must not be revived.
@@ -143,4 +175,4 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - No claim is made that the Cloudflare worker boots successfully in this worktree.
 - No claim is made that queue retries, dead-letter replay, D1 writes, KV writes, or R2 writes executed live.
 - No claim is made that Account WP08 or this packet alone completes account authority; Cloudflare WP08 runner proof and Account WP06 aggregation remain separate required handoffs.
-- The account-identity focused integration test, migration command, and proof remain deferred. The D1 store remains an uncalled, narrow mapping boundary; provider verification and a runtime-owned caller are manual-required.
+- The account-identity focused integration test, migration command, and proof remain deferred. The D1 adapter/caller remains provider-gated and unreachable without a provider verifier; provider verification and runtime authority are manual-required.

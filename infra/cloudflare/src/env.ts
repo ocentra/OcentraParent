@@ -209,6 +209,13 @@ export function resolveAuthAdapterMode(env: Env): string {
   return env.AUTH_ADAPTER_MODE?.trim() || 'local-safe-fixture';
 }
 
+export function isLocalFixtureEnvironment(env: Pick<Env, 'ENVIRONMENT'>): boolean {
+  const environment = String(env.ENVIRONMENT ?? '')
+    .trim()
+    .toLowerCase();
+  return environment === 'local' || environment === 'test' || environment === 'development';
+}
+
 export function getMissingBindings(env: Env): ReadonlyArray<RequiredBindingKey> {
   return REQUIRED_BINDING_KEYS.filter((key) => !env[key]);
 }
@@ -249,6 +256,19 @@ export function validateEnv(env: Env): string[] {
 
   if (!env.ENTITLEMENT_SIGNING_KEY_REF) {
     errors.push('missing required env: ENTITLEMENT_SIGNING_KEY_REF');
+  }
+
+  if (!isLocalFixtureEnvironment(env) && resolveAuthAdapterMode(env) === 'local-safe-fixture') {
+    errors.push('AUTH_ADAPTER_MODE local-safe-fixture is not permitted outside local/test/development');
+  }
+
+  if (
+    String(env.ENVIRONMENT ?? '')
+      .trim()
+      .toLowerCase() === 'production' &&
+    !env.INTERNAL_QUEUE_SHARED_SECRET?.trim()
+  ) {
+    errors.push('missing required env: INTERNAL_QUEUE_SHARED_SECRET');
   }
 
   if (env.ENVIRONMENT !== 'test' && !env.INTERACTIVE_CSRF_TOKEN) {

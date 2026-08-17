@@ -1,4 +1,9 @@
-import { resolveAuthAdapterMode, type Env } from '../env.js';
+import { isLocalFixtureEnvironment, resolveAuthAdapterMode, type Env } from '../env.js';
+import {
+  createAccountIdentityAuthorityStore,
+  type AccountIdentityBindingLookup,
+  type AccountIdentityProvider,
+} from '../storage/account-identity-authority-store.js';
 import { getAuthStateModel, type AuthState } from './model.js';
 
 export interface VerifiedIdentity {
@@ -11,6 +16,15 @@ export interface VerifiedIdentity {
 export type AuthFailureResult = { ok: false; response: Response };
 export type AuthResult = { ok: true; identity: VerifiedIdentity } | AuthFailureResult;
 type BearerIdentityResult = { ok: true; token: string; trustedDevice: boolean } | AuthFailureResult;
+
+export interface VerifiedProviderIdentity {
+  provider: AccountIdentityProvider;
+  providerSubject: string;
+}
+
+export interface ProviderVerificationPort {
+  verify(request: Request): Promise<VerifiedProviderIdentity | null>;
+}
 
 export interface AuthVerifier {
   verifyPublic(): AuthResult;
@@ -25,6 +39,8 @@ export interface AuthVerifier {
 export const INTERNAL_SECRET_HEADER = 'x-ocentra-internal-secret';
 export const ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER = 'account-auth-adapter-manual-required';
 export const UNSUPPORTED_AUTH_ADAPTER_MODE_BLOCKER = 'unsupported-auth-adapter-mode';
+export const PROVIDER_VERIFICATION_UNAVAILABLE_BLOCKER = 'provider-verification-unavailable';
+export const ACCOUNT_IDENTITY_BINDING_REJECTED_BLOCKER = 'account-identity-binding-rejected';
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body, null, 2), {
@@ -180,15 +196,71 @@ function isManualRequiredAdapterMode(mode: string): boolean {
   return mode === ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER || mode.startsWith('account-auth-adapter');
 }
 
-function authAdapterBlocker(env: Env): string | null {
+function authAdapterBlocker(env: Env, providerVerifier: ProviderVerificationPort | undefined): string | null {
   const mode = resolveAuthAdapterMode(env);
   if (mode === 'local-safe-fixture') {
-    return null;
+    return isLocalFixtureEnvironment(env) ? null : ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER;
   }
   if (isManualRequiredAdapterMode(mode)) {
     return ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER;
   }
+  if (mode === 'provider-verified') {
+    return providerVerifier === undefined ? PROVIDER_VERIFICATION_UNAVAILABLE_BLOCKER : null;
+  }
   return UNSUPPORTED_AUTH_ADAPTER_MODE_BLOCKER;
+}
+
+function bindingLookupFromRequest(
+  request: Request,
+  verifiedIdentity: VerifiedProviderIdentity
+): AccountIdentityBindingLookup | null {
+  const householdId = request.headers.get('x-ocentra-household-id')?.trim();
+  const childProfileId = request.headers.get('x-ocentra-child-profile-id')?.trim();
+  const childDeviceId = request.headers.get('x-ocentra-child-device-id')?.trim();
+  if (!householdId || !childProfileId || !childDeviceId) {
+    return null;
+  }
+  return {
+    provider: verifiedIdentity.provider,
+    providerSubject: verifiedIdentity.providerSubject,
+    householdId,
+    childProfileId,
+    childDeviceId,
+  };
+}
+
+async function verifyProviderBoundRequest(
+  request: Request,
+  env: Env,
+  authState: AuthState,
+  providerVerifier: ProviderVerificationPort
+): Promise<AuthResult> {
+  let verifiedIdentity: VerifiedProviderIdentity | null;
+  try {
+    verifiedIdentity = await providerVerifier.verify(request);
+  } catch {
+    verifiedIdentity = null;
+  }
+  if (verifiedIdentity === null) {
+    return manualRequired(authState, PROVIDER_VERIFICATION_UNAVAILABLE_BLOCKER);
+  }
+
+  const lookup = bindingLookupFromRequest(request, verifiedIdentity);
+  if (lookup === null) {
+    return manualRequired(authState, 'account-identity-binding-selector-missing');
+  }
+
+  const result = await createAccountIdentityAuthorityStore(env.ACCOUNT_IDENTITY_D1).readCurrentBinding(lookup);
+  if (result.status === 'trusted') {
+    return authStateIdentity(result.handoff.binding.accountId, authState, 'parent', false);
+  }
+  if (result.status === 'manual-required') {
+    return manualRequired(authState, result.reason);
+  }
+  if (result.status === 'not-found' || result.status === 'rejected') {
+    return forbidden(ACCOUNT_IDENTITY_BINDING_REJECTED_BLOCKER, authState);
+  }
+  return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_REJECTED_BLOCKER);
 }
 
 function extractBearerIdentity(request: Request, authState: AuthState): BearerIdentityResult {
@@ -208,10 +280,19 @@ function extractBearerIdentity(request: Request, authState: AuthState): BearerId
   };
 }
 
-function verifyParentSessionRequest(request: Request, env: Env, authState: AuthState): AuthResult {
-  const blocker = authAdapterBlocker(env);
+async function verifyParentSessionRequest(
+  request: Request,
+  env: Env,
+  authState: AuthState,
+  providerVerifier: ProviderVerificationPort | undefined
+): Promise<AuthResult> {
+  const blocker = authAdapterBlocker(env, providerVerifier);
   if (blocker) {
     return manualRequired(authState, blocker);
+  }
+
+  if (resolveAuthAdapterMode(env) !== 'local-safe-fixture') {
+    return verifyProviderBoundRequest(request, env, authState, providerVerifier!);
   }
 
   const bearerIdentity = extractBearerIdentity(request, authState);
@@ -222,51 +303,59 @@ function verifyParentSessionRequest(request: Request, env: Env, authState: AuthS
   return authStateIdentity(normalizeSubject(bearerIdentity.token), authState, 'parent', bearerIdentity.trustedDevice);
 }
 
-function verifyTrustedParentDeviceRequest(request: Request, env: Env, authState: AuthState): AuthResult {
-  const blocker = authAdapterBlocker(env);
-  if (blocker) {
-    return manualRequired(authState, blocker);
+async function verifyTrustedParentDeviceRequest(
+  request: Request,
+  env: Env,
+  authState: AuthState,
+  providerVerifier: ProviderVerificationPort | undefined
+): Promise<AuthResult> {
+  const identity = await verifyParentSessionRequest(request, env, authState, providerVerifier);
+  if (!identity.ok) {
+    return identity;
   }
 
-  const bearerIdentity = extractBearerIdentity(request, authState);
-  if (!bearerIdentity.ok) {
-    return bearerIdentity;
-  }
-
-  if (!bearerIdentity.trustedDevice) {
+  if (!identity.identity.trustedDevice) {
     return forbidden('trusted-parent-device-required', authState);
   }
 
-  return authStateIdentity(normalizeSubject(bearerIdentity.token), authState, 'parent', bearerIdentity.trustedDevice);
+  return identity;
 }
 
-function verifyAdminRequest(request: Request, env: Env, authState: AuthState): AuthResult {
-  const blocker = authAdapterBlocker(env);
-  if (blocker) {
-    return manualRequired(authState, blocker);
+async function verifyAdminRequest(
+  request: Request,
+  env: Env,
+  authState: AuthState,
+  providerVerifier: ProviderVerificationPort | undefined
+): Promise<AuthResult> {
+  const identity = await verifyParentSessionRequest(request, env, authState, providerVerifier);
+  if (!identity.ok) {
+    return identity;
   }
 
-  const bearerIdentity = extractBearerIdentity(request, authState);
-  if (!bearerIdentity.ok) {
-    return bearerIdentity;
+  if (resolveAuthAdapterMode(env) !== 'local-safe-fixture') {
+    return manualRequired(authState, 'admin-authorization-unavailable');
   }
 
   if (request.headers.get('x-ocentra-role') !== 'admin') {
     return forbidden('admin-role-required', authState);
   }
 
-  return authStateIdentity(normalizeSubject(bearerIdentity.token), authState, 'admin', bearerIdentity.trustedDevice);
+  return authStateIdentity(identity.identity.subject, authState, 'admin', identity.identity.trustedDevice);
 }
 
-function verifySupportRequest(request: Request, env: Env, authState: AuthState): AuthResult {
-  const blocker = authAdapterBlocker(env);
-  if (blocker) {
-    return manualRequired(authState, blocker);
+async function verifySupportRequest(
+  request: Request,
+  env: Env,
+  authState: AuthState,
+  providerVerifier: ProviderVerificationPort | undefined
+): Promise<AuthResult> {
+  const identity = await verifyParentSessionRequest(request, env, authState, providerVerifier);
+  if (!identity.ok) {
+    return identity;
   }
 
-  const bearerIdentity = extractBearerIdentity(request, authState);
-  if (!bearerIdentity.ok) {
-    return bearerIdentity;
+  if (resolveAuthAdapterMode(env) !== 'local-safe-fixture') {
+    return manualRequired(authState, 'support-authorization-unavailable');
   }
 
   const roleHeader = request.headers.get('x-ocentra-role');
@@ -275,15 +364,15 @@ function verifySupportRequest(request: Request, env: Env, authState: AuthState):
   }
 
   return authStateIdentity(
-    normalizeSubject(bearerIdentity.token),
+    identity.identity.subject,
     authState,
     roleHeader === 'admin' ? 'admin' : 'support',
-    bearerIdentity.trustedDevice
+    identity.identity.trustedDevice
   );
 }
 
 function verifyProviderWebhookRequest(provider: string, request: Request, env: Env, authState: AuthState): AuthResult {
-  const blocker = authAdapterBlocker(env);
+  const blocker = authAdapterBlocker(env, undefined);
   if (blocker) {
     return manualRequired(authState, blocker);
   }
@@ -308,35 +397,35 @@ function verifyInternalQueueRequest(request: Request, env: Env, authState: AuthS
   if (request.headers.get('x-ocentra-internal-call') !== 'true') {
     return forbidden('missing-internal-queue-signal', authState);
   }
-  if (
-    env.INTERNAL_QUEUE_SHARED_SECRET &&
-    request.headers.get(INTERNAL_SECRET_HEADER) !== env.INTERNAL_QUEUE_SHARED_SECRET
-  ) {
+  if (!env.INTERNAL_QUEUE_SHARED_SECRET?.trim()) {
+    return manualRequired(authState, 'internal-queue-secret-unavailable');
+  }
+  if (request.headers.get(INTERNAL_SECRET_HEADER) !== env.INTERNAL_QUEUE_SHARED_SECRET) {
     return forbidden('internal-queue-secret-mismatch', authState);
   }
   return authStateIdentity('internal-queue', authState, 'internal', false);
 }
 
-export function createAuthVerifier(env: Env): AuthVerifier {
+export function createAuthVerifier(env: Env, providerVerifier?: ProviderVerificationPort): AuthVerifier {
   return {
     verifyPublic(): AuthResult {
       return authStateIdentity('public', 'public', 'public', false);
     },
 
     async verifyParentSession(request: Request): Promise<AuthResult> {
-      return verifyParentSessionRequest(request, env, 'parent-session-required');
+      return verifyParentSessionRequest(request, env, 'parent-session-required', providerVerifier);
     },
 
     async verifyTrustedParentDevice(request: Request): Promise<AuthResult> {
-      return verifyTrustedParentDeviceRequest(request, env, 'trusted-parent-device-required');
+      return verifyTrustedParentDeviceRequest(request, env, 'trusted-parent-device-required', providerVerifier);
     },
 
     async verifyAdmin(request: Request): Promise<AuthResult> {
-      return verifyAdminRequest(request, env, 'admin-required');
+      return verifyAdminRequest(request, env, 'admin-required', providerVerifier);
     },
 
     async verifySupport(request: Request): Promise<AuthResult> {
-      return verifySupportRequest(request, env, 'support-required');
+      return verifySupportRequest(request, env, 'support-required', providerVerifier);
     },
 
     async verifyProviderWebhook(provider: string, request: Request): Promise<AuthResult> {
@@ -392,8 +481,13 @@ export async function verifyStripeWebhookSignature(
   return parsed.signatures.some((expected) => safeEqualHex(expected, actualSignature));
 }
 
-export async function verifyAuthState(authState: AuthState, request: Request, env: Env): Promise<AuthResult> {
-  const verifier = createAuthVerifier(env);
+export async function verifyAuthState(
+  authState: AuthState,
+  request: Request,
+  env: Env,
+  providerVerifier?: ProviderVerificationPort
+): Promise<AuthResult> {
+  const verifier = createAuthVerifier(env, providerVerifier);
   const authModel = getAuthStateModel(authState);
 
   switch (authModel.adapterMethod) {

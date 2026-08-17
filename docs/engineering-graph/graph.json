@@ -15978,11 +15978,11 @@
         "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
       ],
       "state": "blocked",
-      "lifecycleState": "planned",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "implementation-phase authorized / durable adapter-caller source next",
+        "statusText": "bounded source adapter/auth chain accepted / normal WP06 blocked / migration-tests-proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,

@@ -26,7 +26,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | source-present / retained-proof-absent | [WP03 Worker Entrypoint Runtime Guards](workpacks/03-worker-entrypoint-runtime-guards.md) | 0/11 | `SECURITY_PRIVACY_OBSERVABILITY.md`; `DEPLOYMENT_MODEL.md` | no tracked root |
 | source-present / retained-proof-absent | [WP04 Route Manifest And Domain Contracts](workpacks/04-route-manifest-and-domain-contracts.md) | 0/11 | `ROUTE_MANIFEST_MODEL.md`; `AUTH_BOUNDARY_MODEL.md` | no tracked root |
 | source-present / retained-proof-absent | [WP05 Auth Admin Support Boundary](workpacks/05-auth-admin-support-boundary.md) | 0/11 | `AUTH_BOUNDARY_MODEL.md`; `ROUTE_MANIFEST_MODEL.md` | no tracked root |
-| implementation-phase authorized / durable adapter-caller source next | [WP06 Storage DO D1 KV R2 Queue Bindings](workpacks/06-storage-do-d1-kv-r2-queue-bindings.md) | current source partial; tests/proof open | `STORAGE_BINDING_MODEL.md`; Account WP08 `v0.7`; isolated account D1 migration/config | no tracked root |
+| bounded source adapter/auth chain accepted / normal WP06 blocked / migration-tests-proof deferred | [WP06 Storage DO D1 KV R2 Queue Bindings](workpacks/06-storage-do-d1-kv-r2-queue-bindings.md) | bounded source partial; migration/tests/proof open | `STORAGE_BINDING_MODEL.md`; Account WP08 `v0.7`; isolated account D1 migration/config | no tracked root |
 | source-present / retained-proof-absent | [WP07 Local Dev Seeding And Fixtures](workpacks/07-local-dev-seeding-and-fixtures.md) | 0/10 | `LOCAL_DEV_AND_SEEDING_MODEL.md`; `TESTING_STRATEGY.md` | no tracked root |
 | blocked / proof-deferred | [WP08 Testing Runner And Test Pyramid](workpacks/08-testing-runner-and-test-pyramid.md) | 0/12 | `REQUIRED_TEST_ASSERTION_MATRIX.md`; WP06 typed account-storage handoff | no tracked root |
 | source-present / retained-proof-absent | [WP09 Portal To Worker E2E Smoke](workpacks/09-portal-to-worker-e2e-smoke.md) | 0/10 | `TESTING_STRATEGY.md`; `REQUIRED_TEST_ASSERTION_MATRIX.md` | no tracked root |
@@ -50,7 +50,7 @@ WP00 prevents copying game-only concerns into Parent.
 WP01 establishes the module scaffold and must retain a clean Wrangler/Workers-types dependency graph before WP07 can be selected; WP02 establishes environment/binding scaffold.
 WP03/WP04 establish entrypoint and routes.
 WP05 blocks private/admin/support/webhook readiness claims.
-WP06 blocks storage/coordination/queue claims and owns the account-identity D1/DO/KV binding, isolated migration, and narrow D1 store after Account WP08 supplies the Rust contract handoff. Provider verification and any runtime-owned store caller remain manual-required.
+WP06 blocks storage/coordination/queue claims and owns the account-identity D1/DO/KV binding, isolated migration, and narrow D1 adapter/caller after Account WP08 supplies the Rust contract handoff. The source caller is provider-gated, but provider verification is absent, so Worker reachability remains manual-required; migration, tests, proof, deployment, and normal DONE semantics remain open.
 WP08 establishes the Cloudflare test-runner/pyramid proof after WP06; it uses module-scoped scripts and does not redefine the account/family contract.
 WP09 is the first consumer smoke.
 WP10 hardens negative/security/observability coverage.
