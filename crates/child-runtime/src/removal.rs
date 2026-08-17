@@ -106,8 +106,10 @@ pub struct ChildAgentRemovalStatus {
 
 /// A removal authorization can only be created from a proof already accepted
 /// by the family-identity verifier. The reference is retained as audit
-/// evidence, never treated as the authority itself.
-#[derive(Clone, Debug, PartialEq, Eq)]
+/// evidence, never treated as the authority itself. It is consumed by each
+/// transition so a caller cannot replay the same removal capability through a
+/// borrow or clone.
+#[derive(Debug, PartialEq, Eq)]
 pub struct VerifiedParentRemovalAuthorization {
     reference: String,
     action: ChildAgentRemovalAuthorizationAction,
@@ -116,7 +118,7 @@ pub struct VerifiedParentRemovalAuthorization {
 
 impl VerifiedParentRemovalAuthorization {
     pub fn for_revocation(
-        authority: &VerifiedHouseholdAuthority,
+        authority: VerifiedHouseholdAuthority,
         reference: impl Into<String>,
     ) -> io::Result<Self> {
         Self::from_verified_authority(
@@ -128,7 +130,7 @@ impl VerifiedParentRemovalAuthorization {
     }
 
     pub fn for_reauthorization(
-        authority: &VerifiedHouseholdAuthority,
+        authority: VerifiedHouseholdAuthority,
         reference: impl Into<String>,
     ) -> io::Result<Self> {
         Self::from_verified_authority(
@@ -140,7 +142,7 @@ impl VerifiedParentRemovalAuthorization {
     }
 
     fn from_verified_authority(
-        authority: &VerifiedHouseholdAuthority,
+        authority: VerifiedHouseholdAuthority,
         reference: impl Into<String>,
         required_action: HouseholdAuthorityAction,
         action: ChildAgentRemovalAuthorizationAction,
@@ -256,7 +258,7 @@ impl ChildAgentRemovalBoundary {
     /// supplied by the parent/control plane, never self-issued by the child.
     pub fn revoke_with_parent_authorization(
         &self,
-        authorization: &VerifiedParentRemovalAuthorization,
+        authorization: VerifiedParentRemovalAuthorization,
     ) -> io::Result<ChildAgentRemovalStatus> {
         self.with_locked_record(|record| {
             self.require_identity(authorization, ChildAgentRemovalAuthorizationAction::Revoke)?;
@@ -279,7 +281,7 @@ impl ChildAgentRemovalBoundary {
     /// audit. This does not reinstall packages or claim platform cleanup.
     pub fn reauthorize_with_parent_authorization(
         &self,
-        authorization: &VerifiedParentRemovalAuthorization,
+        authorization: VerifiedParentRemovalAuthorization,
     ) -> io::Result<ChildAgentRemovalStatus> {
         self.with_locked_record(|record| {
             self.require_identity(

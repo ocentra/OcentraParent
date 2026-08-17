@@ -15,7 +15,11 @@ impl ChildAgentService {
             .removal
             .status()
             .map_err(ChildAgentServiceError::Storage)?;
-        let readiness = readiness_from_state(&removal, self.recovery_pending.as_deref());
+        let readiness = readiness_from_state(
+            &removal,
+            self.recovery_pending.as_deref(),
+            self.paths.identity().is_some(),
+        );
         validate_readiness(&readiness)?;
         match command {
             ChildAgentCommand::Observe(event) => {
@@ -36,6 +40,9 @@ fn validate_readiness(readiness: &ChildAgentReadiness) -> Result<(), ChildAgentS
         ChildAgentReadiness::RecoveryPending { .. } => Err(
             ChildAgentServiceError::RecoveryPending(Box::new(readiness.clone())),
         ),
+        ChildAgentReadiness::TrustBindingManualRequired => {
+            Err(ChildAgentServiceError::TrustBindingManualRequired)
+        }
         ChildAgentReadiness::TamperManualRequired { signal_ref } => {
             Err(ChildAgentServiceError::TamperManualRequired {
                 signal_ref: signal_ref.clone(),

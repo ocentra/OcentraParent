@@ -61,6 +61,7 @@ pub struct ChildAgentServicePaths {
 pub enum ChildAgentReadiness {
     Ready,
     RecoveryPending { correlation_ids: Vec<CorrelationId> },
+    TrustBindingManualRequired,
     TamperManualRequired { signal_ref: Option<String> },
     Revoked { audit_ref: Option<String> },
 }
@@ -80,6 +81,7 @@ pub enum ChildAgentServiceError {
     Storage(std::io::Error),
     Shutdown(std::io::Error),
     RecoveryPending(Box<ChildAgentReadiness>),
+    TrustBindingManualRequired,
     TamperManualRequired { signal_ref: Option<String> },
     TrustRevoked { audit_ref: Option<String> },
     UnknownDomain(ChildRuntimeDomain),
