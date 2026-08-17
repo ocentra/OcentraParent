@@ -11,6 +11,7 @@ const PositiveSafeAuthorityGenerationSchema = Schema.Number.pipe(
 
 export const AccountIdentityProviderSchema = withParser(Schema.Literal('authjs', 'firebase'));
 export const AccountIdentityAuthoritySchemaVersionSchema = withParser(Schema.Literal('v0.7'));
+export const AccountIdentityMemberAuthoritySchemaVersionSchema = withParser(Schema.Literal('v0.1'));
 export const AccountIdentityMappingStatusSchema = withParser(Schema.Literal('active', 'revoked'));
 export const AccountIdentityAccountStateSchema = withParser(Schema.Literal('active', 'suspended', 'disabled'));
 export const AccountIdentityMembershipStateSchema = withParser(
@@ -47,6 +48,7 @@ export const AccountIdentityChildDeviceIdSchema = brandedNonEmptyStringSchema('A
 export const AccountIdentityPairingIdSchema = brandedNonEmptyStringSchema('AccountIdentityPairingId');
 export const AccountIdentityInstallationIdSchema = brandedNonEmptyStringSchema('AccountIdentityInstallationId');
 export const AccountIdentityRouteIdSchema = brandedNonEmptyStringSchema('AccountIdentityRouteId');
+export const AccountIdentityDeviceIdSchema = brandedNonEmptyStringSchema('AccountIdentityDeviceId');
 
 export const AccountIdentityProviderSubjectMappingSchema = withParser(
   Schema.Struct({
@@ -83,8 +85,35 @@ export const AccountIdentityAuthorityHandoffSchema = withParser(
   })
 );
 
+export const AccountIdentityCurrentMemberDeviceAuthoritySchema = withParser(
+  Schema.Struct({
+    accountId: ParentAccountIdSchema,
+    householdId: FamilyIdSchema,
+    memberId: AccountIdentityMemberIdSchema,
+    role: AccountIdentityRoleSchema,
+    accountState: AccountIdentityAccountStateSchema,
+    membershipState: AccountIdentityMembershipStateSchema,
+    deviceId: AccountIdentityDeviceIdSchema,
+    deviceTrustState: AccountIdentityDeviceTrustStateSchema,
+    sessionFreshnessState: AccountIdentitySessionFreshnessStateSchema,
+    authorityGeneration: PositiveSafeAuthorityGenerationSchema,
+  })
+);
+
+export const AccountIdentityCurrentMemberDeviceAuthorityHandoffSchema = withParser(
+  Schema.Struct({
+    schemaVersion: AccountIdentityMemberAuthoritySchemaVersionSchema,
+    mapping: AccountIdentityProviderSubjectMappingSchema,
+    member: AccountIdentityCurrentMemberDeviceAuthoritySchema,
+    binding: AccountIdentityHouseholdChildDeviceBindingSchema,
+  })
+);
+
 export type AccountIdentityProvider = Infer<typeof AccountIdentityProviderSchema>;
 export type AccountIdentityAuthoritySchemaVersion = Infer<typeof AccountIdentityAuthoritySchemaVersionSchema>;
+export type AccountIdentityMemberAuthoritySchemaVersion = Infer<
+  typeof AccountIdentityMemberAuthoritySchemaVersionSchema
+>;
 export type AccountIdentityMappingStatus = Infer<typeof AccountIdentityMappingStatusSchema>;
 export type AccountIdentityAccountState = Infer<typeof AccountIdentityAccountStateSchema>;
 export type AccountIdentityMembershipState = Infer<typeof AccountIdentityMembershipStateSchema>;
@@ -103,6 +132,13 @@ export type AccountIdentityChildDeviceId = typeof AccountIdentityChildDeviceIdSc
 export type AccountIdentityPairingId = typeof AccountIdentityPairingIdSchema.Type;
 export type AccountIdentityInstallationId = typeof AccountIdentityInstallationIdSchema.Type;
 export type AccountIdentityRouteId = typeof AccountIdentityRouteIdSchema.Type;
+export type AccountIdentityDeviceId = typeof AccountIdentityDeviceIdSchema.Type;
 export type AccountIdentityProviderSubjectMapping = Infer<typeof AccountIdentityProviderSubjectMappingSchema>;
 export type AccountIdentityHouseholdChildDeviceBinding = Infer<typeof AccountIdentityHouseholdChildDeviceBindingSchema>;
 export type AccountIdentityAuthorityHandoff = Infer<typeof AccountIdentityAuthorityHandoffSchema>;
+export type AccountIdentityCurrentMemberDeviceAuthority = Infer<
+  typeof AccountIdentityCurrentMemberDeviceAuthoritySchema
+>;
+export type AccountIdentityCurrentMemberDeviceAuthorityHandoff = Infer<
+  typeof AccountIdentityCurrentMemberDeviceAuthorityHandoffSchema
+>;
