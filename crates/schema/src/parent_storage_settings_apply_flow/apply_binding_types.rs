@@ -29,15 +29,19 @@ impl Display for ParentStorageHouseholdRef {
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
-pub struct ParentStorageConfirmationRef(String);
+pub struct ParentStorageApplyIntentDigest(String);
 
-impl ParentStorageConfirmationRef {
+impl ParentStorageApplyIntentDigest {
     pub fn parse(value: impl Into<String>) -> Option<Self> {
         let value = value.into();
-        if value.trim().is_empty() {
-            None
-        } else {
+        if value.len() == 64
+            && value
+                .bytes()
+                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+        {
             Some(Self(value))
+        } else {
+            None
         }
     }
 
@@ -46,7 +50,7 @@ impl ParentStorageConfirmationRef {
     }
 }
 
-impl Display for ParentStorageConfirmationRef {
+impl Display for ParentStorageApplyIntentDigest {
     fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
         formatter.write_str(self.as_str())
     }

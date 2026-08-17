@@ -19,6 +19,9 @@ export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentStorageSettingsRowIdSchema = brandedNonEmptyStringSchema('ParentStorageSettingsRowId');
 export const GeneratedParentStoragePreviewIdSchema = brandedNonEmptyStringSchema('ParentStoragePreviewId');
 export const GeneratedParentStorageHouseholdRefSchema = brandedNonEmptyStringSchema('ParentStorageHouseholdRef');
+export const GeneratedParentStorageApplyIntentDigestSchema = brandedNonEmptyStringSchema(
+  'ParentStorageApplyIntentDigest'
+);
 export const GeneratedParentStorageApplyIdSchema = brandedNonEmptyStringSchema('ParentStorageApplyId');
 export const GeneratedParentStorageActionIdSchema = brandedNonEmptyStringSchema('ParentStorageActionId');
 export const GeneratedParentStorageTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
@@ -26,6 +29,7 @@ export const GeneratedParentStorageTimestampSchema = brandedNonEmptyStringSchema
 export type GeneratedParentStorageSettingsRowId = typeof GeneratedParentStorageSettingsRowIdSchema.Type;
 export type GeneratedParentStoragePreviewId = typeof GeneratedParentStoragePreviewIdSchema.Type;
 export type GeneratedParentStorageHouseholdRef = typeof GeneratedParentStorageHouseholdRefSchema.Type;
+export type GeneratedParentStorageApplyIntentDigest = typeof GeneratedParentStorageApplyIntentDigestSchema.Type;
 export type GeneratedParentStorageApplyId = typeof GeneratedParentStorageApplyIdSchema.Type;
 export type GeneratedParentStorageActionId = typeof GeneratedParentStorageActionIdSchema.Type;
 export type GeneratedParentStorageTimestamp = typeof GeneratedParentStorageTimestampSchema.Type;
@@ -59,10 +63,7 @@ export type GeneratedParentStorageUiState =
   | 'ocentraHostedStorageNotUsed'
   | 'ready';
 export type GeneratedParentStorageEncryptionStatus =
-  | 'encrypted-before-upload'
-  | 'human-readable-parent-authorized'
-  | 'not-applicable'
-  | 'manual-required';
+  'encrypted-before-upload' | 'human-readable-parent-authorized' | 'not-applicable' | 'manual-required';
 export type GeneratedParentStorageKeyStatus = 'keyAvailable' | 'keyUnavailable' | 'keyRevoked' | 'manualRequired';
 export type GeneratedParentStoragePreviewState =
   | 'importPreviewPassed'
@@ -250,6 +251,7 @@ export interface GeneratedParentStorageRestorePreview {{
 
 export interface GeneratedParentStorageApplyDecision {{
   readonly applyId: GeneratedParentStorageApplyId;
+  readonly applyIntentDigest: GeneratedParentStorageApplyIntentDigest;
   readonly applyState: GeneratedParentStorageApplyState;
   readonly confirmationRequired: boolean;
   readonly willChange: readonly GeneratedParentOwnedSyncExportDataClass[];

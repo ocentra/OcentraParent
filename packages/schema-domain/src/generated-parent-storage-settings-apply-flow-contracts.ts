@@ -19,6 +19,9 @@ export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentStorageSettingsRowIdSchema = brandedNonEmptyStringSchema('ParentStorageSettingsRowId');
 export const GeneratedParentStoragePreviewIdSchema = brandedNonEmptyStringSchema('ParentStoragePreviewId');
 export const GeneratedParentStorageHouseholdRefSchema = brandedNonEmptyStringSchema('ParentStorageHouseholdRef');
+export const GeneratedParentStorageApplyIntentDigestSchema = brandedNonEmptyStringSchema(
+  'ParentStorageApplyIntentDigest'
+);
 export const GeneratedParentStorageApplyIdSchema = brandedNonEmptyStringSchema('ParentStorageApplyId');
 export const GeneratedParentStorageActionIdSchema = brandedNonEmptyStringSchema('ParentStorageActionId');
 export const GeneratedParentStorageTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
@@ -26,6 +29,7 @@ export const GeneratedParentStorageTimestampSchema = brandedNonEmptyStringSchema
 export type GeneratedParentStorageSettingsRowId = typeof GeneratedParentStorageSettingsRowIdSchema.Type;
 export type GeneratedParentStoragePreviewId = typeof GeneratedParentStoragePreviewIdSchema.Type;
 export type GeneratedParentStorageHouseholdRef = typeof GeneratedParentStorageHouseholdRefSchema.Type;
+export type GeneratedParentStorageApplyIntentDigest = typeof GeneratedParentStorageApplyIntentDigestSchema.Type;
 export type GeneratedParentStorageApplyId = typeof GeneratedParentStorageApplyIdSchema.Type;
 export type GeneratedParentStorageActionId = typeof GeneratedParentStorageActionIdSchema.Type;
 export type GeneratedParentStorageTimestamp = typeof GeneratedParentStorageTimestampSchema.Type;
@@ -247,6 +251,7 @@ export interface GeneratedParentStorageRestorePreview {
 
 export interface GeneratedParentStorageApplyDecision {
   readonly applyId: GeneratedParentStorageApplyId;
+  readonly applyIntentDigest: GeneratedParentStorageApplyIntentDigest;
   readonly applyState: GeneratedParentStorageApplyState;
   readonly confirmationRequired: boolean;
   readonly willChange: readonly GeneratedParentOwnedSyncExportDataClass[];
@@ -342,6 +347,7 @@ export const GeneratedParentStorageSettingsApplyFlowContractProof = {
   },
   applyDecision: {
     applyId: 'apply-decision-proof-1',
+    applyIntentDigest: 'd21a05fd04a3e1f8a18b8d4131683513b898d8642d38a65a55ce9d6cc30799f2',
     applyState: 'applyRequiresConfirmation',
     confirmationRequired: true,
     willChange: ['encrypted-journal-segment', 'generated-summary'],

@@ -7,8 +7,8 @@ mod parent_storage_settings_apply_flow_actions;
 mod parent_storage_settings_apply_flow_apply;
 #[path = "parent_storage_settings_apply_flow_card.rs"]
 mod parent_storage_settings_apply_flow_card;
-#[path = "parent_storage_settings_apply_flow_confirmation.rs"]
-mod parent_storage_settings_apply_flow_confirmation;
+#[path = "parent_storage_settings_apply_flow_intent_digest.rs"]
+mod parent_storage_settings_apply_flow_intent_digest;
 #[path = "parent_storage_settings_apply_flow_preview.rs"]
 mod parent_storage_settings_apply_flow_preview;
 #[path = "parent_storage_settings_apply_flow_proof.rs"]
@@ -43,62 +43,17 @@ pub struct ParentStorageRestorePreviewInput {
     pub manual_required_note: Option<String>,
 }
 
-/// The confirmation receipt is an opaque result from the trusted authority
-/// resolver.  This crate only binds it to the preview and household and
-/// refuses non-issued or malformed receipts; it never mints authority or
-/// applies provider data.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParentStorageConfirmationReceipt {
-    confirmation_ref: contracts::ParentStorageConfirmationRef,
-    preview_id: contracts::ParentStoragePreviewId,
-    household_ref: contracts::ParentStorageHouseholdRef,
-    issued_at: contracts::ParentStorageTimestamp,
-    expires_at: contracts::ParentStorageTimestamp,
-    status: ParentStorageConfirmationReceiptStatus,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ParentStorageConfirmationReceiptStatus {
-    Issued,
-    Expired,
-    Replayed,
-    WrongHousehold,
-}
-
-impl ParentStorageConfirmationReceipt {
-    /// Accept an opaque receipt resolved by the authority owner.  The caller
-    /// cannot provide an authorization claim; this value is only a binding
-    /// that the apply flow validates before deriving a terminal decision.
-    pub fn from_resolved_opaque(
-        confirmation_ref: contracts::ParentStorageConfirmationRef,
-        preview_id: contracts::ParentStoragePreviewId,
-        household_ref: contracts::ParentStorageHouseholdRef,
-        issued_at: contracts::ParentStorageTimestamp,
-        expires_at: contracts::ParentStorageTimestamp,
-        status: ParentStorageConfirmationReceiptStatus,
-    ) -> Self {
-        Self {
-            confirmation_ref,
-            preview_id,
-            household_ref,
-            issued_at,
-            expires_at,
-            status,
-        }
-    }
-}
-
+/// Contract-only apply intent. It contains no authority, confirmation state,
+/// executor result, or provider-side effect claim.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParentStorageApplyDecisionInput {
     pub apply_id: contracts::ParentStorageApplyId,
-    pub apply_state: contracts::ParentStorageApplyState,
     pub will_change: Vec<sync_contracts::ParentOwnedSyncExportDataClass>,
     pub will_not_change: Vec<sync_contracts::ParentOwnedSyncExportDataClass>,
     pub preserved_tombstones: Vec<sync_contracts::ParentOwnedSyncExportDataClass>,
     pub manual_review_required: Vec<String>,
     pub rollback_available: bool,
     pub manual_required_note: Option<String>,
-    pub confirmation_receipt: Option<ParentStorageConfirmationReceipt>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -124,15 +79,8 @@ pub enum ParentStorageSettingsApplyFlowError {
     PartialRestoreMustNameRejectedSections,
     WrongHouseholdPreviewMustNotMatch,
     WrongDevicePreviewMustNotMatch,
-    ApplyMustStayConfirmationGated,
     ApplyCannotProceedWithoutPreview,
-    ConfirmationRequired,
-    ConfirmationExpired,
-    ConfirmationReplayed,
-    ConfirmationHouseholdMismatch,
-    ConfirmationPreviewMismatch,
-    ConfirmationReceiptInvalid,
-    ConfirmationWindowInvalid,
+    ApplyIntentDigestUnavailable,
     DisconnectCannotDeleteProviderData,
     DeleteActionMustStaySeparateFromDisconnect,
     DuplicateDeleteActionKind(contracts::ParentStorageDeleteActionKind),
@@ -152,6 +100,9 @@ pub fn derive_parent_storage_restore_preview(
     parent_storage_settings_apply_flow_preview::derive_parent_storage_restore_preview(input)
 }
 
+/// Derive confirmation readiness only. Terminal Applied/Partial states require
+/// a future digest-bound household authority and post-side-effect executor
+/// receipt; neither can be supplied through this public contract boundary.
 pub fn derive_parent_storage_apply_decision(
     preview: &contracts::ParentStorageRestorePreview,
     input: ParentStorageApplyDecisionInput,

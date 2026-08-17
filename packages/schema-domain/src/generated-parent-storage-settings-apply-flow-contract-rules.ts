@@ -40,7 +40,13 @@ export function parentStorageRestorePreviewIsHonestGenerated(preview: GeneratedP
 }
 
 export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedParentStorageApplyDecision): boolean {
-  if (!decision.confirmationRequired && decision.applyState !== 'applied' && decision.applyState !== 'partial') {
+  if (
+    !decision.confirmationRequired ||
+    !/^[0-9a-f]{64}$/.test(decision.applyIntentDigest) ||
+    decision.applyState === 'applyPending' ||
+    decision.applyState === 'applied' ||
+    decision.applyState === 'partial'
+  ) {
     return false;
   }
   const check = parentStorageApplyDecisionChecksGenerated[decision.applyState];
