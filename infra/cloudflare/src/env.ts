@@ -21,6 +21,7 @@ export interface Env {
   INTERNAL_QUEUE_SHARED_SECRET?: string;
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_WEBHOOK_TOLERANCE_SECONDS?: string;
   RAZORPAY_KEY_ID?: string;
   RAZORPAY_KEY_SECRET?: string;
   PAYPAL_CLIENT_ID?: string;
@@ -67,6 +68,7 @@ const OPTIONAL_ENV_KEYS = [
   'INTERNAL_QUEUE_SHARED_SECRET',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
+  'STRIPE_WEBHOOK_TOLERANCE_SECONDS',
   'RAZORPAY_KEY_ID',
   'RAZORPAY_KEY_SECRET',
   'PAYPAL_CLIENT_ID',
@@ -259,6 +261,15 @@ export function validateEnv(env: Env): string[] {
 
   if (env.REQUEST_MAX_BYTES && (!/^\d+$/.test(env.REQUEST_MAX_BYTES) || Number(env.REQUEST_MAX_BYTES) <= 0)) {
     errors.push('REQUEST_MAX_BYTES must be a positive integer when provided');
+  }
+
+  if (
+    !env.STRIPE_WEBHOOK_TOLERANCE_SECONDS ||
+    !/^\d+$/.test(env.STRIPE_WEBHOOK_TOLERANCE_SECONDS) ||
+    Number(env.STRIPE_WEBHOOK_TOLERANCE_SECONDS) <= 0 ||
+    Number(env.STRIPE_WEBHOOK_TOLERANCE_SECONDS) > 86_400
+  ) {
+    errors.push('STRIPE_WEBHOOK_TOLERANCE_SECONDS must be a positive integer no greater than 86400');
   }
 
   if (!env.ENTITLEMENT_SIGNING_KEY_REF) {

@@ -421,10 +421,27 @@ function hasWebhookSignatureSyntax(pathname: string, signatureValue: string | nu
 export async function verifyStripeWebhookSignature(
   payload: string,
   signatureHeader: string,
-  secret: string
+  secret: string,
+  timestampToleranceSeconds: string | undefined
 ): Promise<boolean> {
   const parsed = parseStripeSignatureHeader(signatureHeader);
   if (!parsed) {
+    return false;
+  }
+  if (
+    timestampToleranceSeconds === undefined ||
+    !/^\d+$/.test(timestampToleranceSeconds) ||
+    Number(timestampToleranceSeconds) <= 0 ||
+    Number(timestampToleranceSeconds) > 86_400
+  ) {
+    return false;
+  }
+  const timestampSeconds = Number(parsed.timestamp);
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (
+    !Number.isSafeInteger(timestampSeconds) ||
+    Math.abs(nowSeconds - timestampSeconds) > Number(timestampToleranceSeconds)
+  ) {
     return false;
   }
 

@@ -1,18 +1,15 @@
-import type { DurableObjectState } from '@cloudflare/workers-types';
+import type { DurableObjectState, MessageBatch } from '@cloudflare/workers-types';
 import { NonNegativeBillingCountSchema } from '@ocentra-parent/schema-domain/billing-entitlement-values';
-import {
-  buildBillingCancellationSummaryFromStatus,
-  buildBillingPlanChangeSummaryFromStatus,
-  buildManualInvoiceResult,
-  buildReconciliationSummary,
-  buildReferralInviteResult,
-} from './fixtures.js';
+import { buildBillingCancellationSummaryFromStatus, buildBillingPlanChangeSummaryFromStatus } from './fixtures.js';
 import {
   appendBillingAuditEventAtOwner,
   applyBillingStateMutation,
   BILLING_AUDIT_APPEND_PATH,
   buildBillingRefundResult,
   BillingReadModelUnavailableError,
+  buildBillingReferralInviteResultFromD1,
+  buildManualInvoiceResultFromD1,
+  buildReconciliationSummaryFromD1,
   drainPendingBillingMutationOutbox,
   findBillingInvoiceSubject,
   loadAdminBillingAccounts,
@@ -25,12 +22,21 @@ import {
   loadBillingInvoiceById,
   loadBillingInvoices,
   loadBillingLicenseDecision,
+  loadBillingProviderEventReceipt,
   loadBillingReferralSummary,
   loadBillingStatusSummary,
   loadLocalSeedSummary,
   loadPricingPlans,
+  isIgnoredProviderWebhookEvent,
+  markBillingProviderEventQueue,
+  registerBillingProviderEvent,
   type BillingStateMutation,
+  type ProviderEventReceipt,
 } from './billing-binding-read-model.js';
+import {
+  resolveProviderBillingAuthority,
+  type ProviderBillingReferenceHints,
+} from './storage/account-identity-billing-store.js';
 import {
   BillingHostedReturnRoute,
   BillingCheckoutSessionRequestSchema,
@@ -196,7 +202,11 @@ type IdempotentWriteResult = {
   responseBody: unknown;
   queued: boolean;
 };
-type QueueFailureReason = 'reconciliation-queue-missing' | 'reconciliation-queue-send-failed';
+type QueueFailureReason =
+  | 'reconciliation-queue-missing'
+  | 'reconciliation-queue-send-failed'
+  | 'queue-consumer-invalid-message'
+  | 'queue-consumer-manual-required';
 
 const CHECKOUT_SUCCESS_PATH = BillingHostedReturnRoute.CheckoutSuccess.relativePath;
 const CHECKOUT_CANCEL_PATH = BillingHostedReturnRoute.CheckoutCancel.relativePath;
@@ -718,24 +728,6 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     };
   }
 
-  if (kind === 'provider-webhook') {
-    const provider = stringOrNull(value.provider);
-    const eventId = stringOrNull(value.eventId);
-    const eventType = stringOrNull(value.eventType);
-    if (!provider || !eventId || !eventType) {
-      return null;
-    }
-    return {
-      kind,
-      provider,
-      subject,
-      eventId,
-      eventType,
-      disputeId: stringOrNull(value.disputeId),
-      invoiceId: stringOrNull(value.invoiceId),
-    };
-  }
-
   return null;
 }
 
@@ -775,10 +767,9 @@ function webhookIdempotencyKey(provider: string, eventId: string): string {
 function webhookRequestFingerprint(
   provider: string,
   body: string,
-  subject: string | null,
   event: { eventId: string; eventType: string }
 ): string {
-  return canonicalRequestFingerprint('provider-webhook', subject, event.eventId, {
+  return canonicalRequestFingerprint('provider-webhook', null, event.eventId, {
     provider,
     eventType: event.eventType,
     body,
@@ -1002,8 +993,11 @@ async function verifyHexHmac(payload: string, signature: string, secret: string)
   return safeEqual(signature.toLowerCase(), expected.toLowerCase());
 }
 
-function providerEventDetails(provider: string, payload: unknown): { eventId: string; eventType: string } {
-  const fallbackId = `${provider}_evt_local_unknown`;
+function providerEventDetails(
+  provider: string,
+  payload: unknown,
+  fallbackId: string
+): { eventId: string; eventType: string } {
   const fallbackType = `${provider}.unknown`;
   if (typeof payload !== 'object' || payload === null) {
     return {
@@ -1019,50 +1013,28 @@ function providerEventDetails(provider: string, payload: unknown): { eventId: st
   };
 }
 
-function providerWebhookSubject(payload: unknown): string | null {
-  if (!isPlainObject(payload)) {
-    return null;
-  }
-
-  const directSubject =
-    stringOrNull(payload.subject) ?? stringOrNull(payload.ownerSubject) ?? stringOrNull(payload.parentSubject);
-  if (directSubject) {
-    return directSubject;
-  }
-
-  const metadata = isPlainObject(payload.metadata) ? payload.metadata : null;
-  const metadataSubject =
-    stringOrNull(metadata?.subject) ??
-    stringOrNull(metadata?.ownerSubject) ??
-    stringOrNull(metadata?.ocentraParentSubject);
-  if (metadataSubject) {
-    return metadataSubject;
-  }
-
-  const data = isPlainObject(payload.data) ? payload.data : null;
-  const object = isPlainObject(data?.object) ? data.object : null;
-  const objectMetadata = isPlainObject(object?.metadata) ? object.metadata : null;
-  return (
-    stringOrNull(object?.subject) ??
-    stringOrNull(objectMetadata?.subject) ??
-    stringOrNull(objectMetadata?.ownerSubject) ??
-    stringOrNull(objectMetadata?.ocentraParentSubject)
-  );
+async function providerWebhookBodyId(provider: string, body: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body));
+  const hex = Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, '0')).join('');
+  return `${provider}_evt_body_${hex}`;
 }
 
-function providerWebhookInvoiceId(payload: unknown): string | null {
+function providerWebhookReferences(payload: unknown): ProviderBillingReferenceHints {
   if (!isPlainObject(payload)) {
-    return null;
+    return { customerId: null, subscriptionId: null, invoiceId: null };
   }
-
-  const directInvoiceId = stringOrNull(payload.invoiceId) ?? stringOrNull(payload.invoice_id);
-  if (directInvoiceId) {
-    return directInvoiceId;
-  }
-
   const data = isPlainObject(payload.data) ? payload.data : null;
-  const object = isPlainObject(data?.object) ? data.object : null;
-  return stringOrNull(object?.invoice) ?? stringOrNull(object?.invoiceId) ?? stringOrNull(object?.invoice_id);
+  const object = isPlainObject(data?.object) ? data.object : payload;
+  const customerId =
+    stringOrNull(object.customer) ?? stringOrNull(object.customer_id) ?? stringOrNull(payload.customer);
+  const subscriptionId =
+    stringOrNull(object.subscription) ?? stringOrNull(object.subscription_id) ?? stringOrNull(payload.subscription);
+  const invoiceId =
+    stringOrNull(object.invoice) ??
+    stringOrNull(object.invoice_id) ??
+    stringOrNull(payload.invoice) ??
+    stringOrNull(payload.invoice_id);
+  return { customerId, subscriptionId, invoiceId };
 }
 
 function providerWebhookDisputeId(payload: unknown, eventType: string, fallbackDisputeId: string): string | null {
@@ -1114,40 +1086,98 @@ async function acceptProviderWebhook(
     });
   }
 
-  const event = providerEventDetails(provider, payload);
-  const subject = providerWebhookSubject(payload);
-  const invoiceId = providerWebhookInvoiceId(payload);
+  const event = providerEventDetails(provider, payload, await providerWebhookBodyId(provider, body));
+  const providerReferences = providerWebhookReferences(payload);
+  const authority = await resolveProviderBillingAuthority(env.ACCOUNT_IDENTITY_D1, provider, providerReferences);
+  const subject = authority.status === 'trusted' ? authority.authority.billingSubject : null;
+  const invoiceId = authority.status === 'trusted' ? authority.authority.billingInvoiceId : null;
   const disputeId = providerWebhookDisputeId(payload, event.eventType, `dispute-${provider}-${event.eventId}`);
-  return executeIdempotentWrite(
+  const requestFingerprint = webhookRequestFingerprint(provider, body, event);
+  const processingState =
+    authority.status === 'trusted'
+      ? isIgnoredProviderWebhookEvent(event.eventType)
+        ? 'ignored'
+        : 'received'
+      : 'manual-required';
+  const registration = await registerBillingProviderEvent(env, {
+    provider,
+    eventId: event.eventId,
+    eventFingerprint: requestFingerprint,
+    eventType: event.eventType,
+    accountId: authority.status === 'trusted' ? authority.authority.accountId : null,
+    providerCustomerId:
+      authority.status === 'trusted' ? authority.authority.providerCustomerId : providerReferences.customerId,
+    providerSubscriptionId:
+      authority.status === 'trusted' ? authority.authority.providerSubscriptionId : providerReferences.subscriptionId,
+    providerInvoiceId:
+      authority.status === 'trusted' ? authority.authority.providerInvoiceId : providerReferences.invoiceId,
+    billingSubject: subject,
+    parentAccountRef: authority.status === 'trusted' ? authority.authority.parentAccountRef : null,
+    familyRef: authority.status === 'trusted' ? authority.authority.familyRef : null,
+    billingInvoiceId: invoiceId,
+    processingState,
+  });
+  if (registration.status === 'conflict') {
+    return json(409, conflictingWebhookResponse(provider, proofIdFamily, event));
+  }
+  const receipt = registration.receipt;
+  if (
+    registration.status === 'replay' &&
+    (receipt.queueState === 'queued' || receipt.queueState === 'delivered' || receipt.queueState === 'dead-letter')
+  ) {
+    return json(202, {
+      ...acceptedWebhookResponse(provider, proofIdFamily, event),
+      queued: receipt.queueState === 'queued' || receipt.queueState === 'delivered',
+    });
+  }
+  const response = await executeIdempotentWrite(
     env.BILLING_DO,
     subject ? `billing-control:${subject}` : `billing-control:webhook:${provider}`,
     {
       requestKey: webhookIdempotencyKey(provider, event.eventId),
-      requestFingerprint: webhookRequestFingerprint(provider, body, subject, event),
+      requestFingerprint,
       responseStatus: 202,
       responseBody: acceptedWebhookResponse(provider, proofIdFamily, event),
-      queueMessage: {
-        provider,
-        ...event,
-        subject,
-        receivedAt: new Date().toISOString(),
-      },
-      stateMutation: subject
-        ? {
-            kind: 'provider-webhook',
-            provider,
-            subject,
-            eventId: event.eventId,
-            eventType: event.eventType,
-            disputeId,
-            invoiceId,
-          }
-        : null,
+      queueMessage: null,
+      stateMutation: null,
       conflictResponseStatus: 409,
       conflictResponseBody: conflictingWebhookResponse(provider, proofIdFamily, event),
     },
     env
   );
+  const queued = await queueProviderWebhookEvent(
+    env,
+    {
+      action: 'provider-webhook',
+      provider,
+      ...event,
+      disputeId,
+      receivedAt: new Date().toISOString(),
+    },
+    receipt,
+    receipt.billingSubject !== null
+  );
+  const responseBody = await response.json();
+  return json(response.status, withQueuedFlag(responseBody, queued));
+}
+
+async function queueProviderWebhookEvent(
+  env: Env,
+  payload: Record<string, unknown>,
+  receipt: ProviderEventReceipt,
+  hasTrustedAuthority: boolean
+): Promise<boolean> {
+  const queued = await queueReconciliationEvent(env, payload);
+  const failedQueueState = env.BILLING_DEAD_LETTER_QUEUE ? 'dead-letter' : 'manual-required';
+  await markBillingProviderEventQueue(
+    env,
+    receipt.provider,
+    receipt.eventId,
+    queued ? 'queued' : failedQueueState,
+    queued ? (hasTrustedAuthority ? 'queued' : 'manual-required') : failedQueueState,
+    queued ? null : 'provider-event-queue-delivery-failed'
+  );
+  return queued;
 }
 
 async function queueReconciliationEvent(env: Env, payload: Record<string, unknown>): Promise<boolean> {
@@ -1170,6 +1200,23 @@ async function queueReconciliationEvent(env: Env, payload: Record<string, unknow
       return false;
     }
 
+    return false;
+  }
+}
+
+async function sendBillingDeadLetter(
+  env: Env,
+  payload: Record<string, unknown>,
+  reason: QueueFailureReason,
+  error: unknown
+): Promise<boolean> {
+  if (!env.BILLING_DEAD_LETTER_QUEUE) {
+    return false;
+  }
+  try {
+    await env.BILLING_DEAD_LETTER_QUEUE.send(deadLetterPayload(payload, reason, error));
+    return true;
+  } catch {
     return false;
   }
 }
@@ -1556,7 +1603,13 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const result = buildReferralInviteResult(identity.subject, requestId, stringOrNull(body.invitee));
+      const invitee = stringOrNull(body.invitee)?.trim();
+      if (!invitee) {
+        return json(400, {
+          error: 'invitee-required',
+        });
+      }
+      const result = await buildBillingReferralInviteResultFromD1(env, identity.subject, requestId, invitee);
       if (result.status === 'accepted') {
         const invitedIdentifier = stringOrNull(body.invitee)?.trim().toLowerCase();
         const actorRole = billingActorRoleForSubject(identity.subject);
@@ -1652,7 +1705,13 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('manual-invoice', identity.subject, body.requestId);
-      const result = buildManualInvoiceResult(identity.subject, requestId, stringOrNull(body.region));
+      const region = stringOrNull(body.region)?.trim();
+      if (!region) {
+        return json(400, {
+          error: 'region-required',
+        });
+      }
+      const result = await buildManualInvoiceResultFromD1(env, identity.subject, requestId, region);
       return executeIdempotentWrite(
         env.BILLING_DO,
         `billing-control:${identity.subject}`,
@@ -1705,7 +1764,14 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const body = await request.text();
-      if (!(await verifyStripeWebhookSignature(body, signatureHeader, env.STRIPE_WEBHOOK_SECRET))) {
+      if (
+        !(await verifyStripeWebhookSignature(
+          body,
+          signatureHeader,
+          env.STRIPE_WEBHOOK_SECRET,
+          env.STRIPE_WEBHOOK_TOLERANCE_SECONDS
+        ))
+      ) {
         return json(400, {
           error: 'invalid-stripe-signature',
         });
@@ -1971,7 +2037,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('reconciliation', identity?.subject ?? 'internal', body.requestId);
-      const summary = buildReconciliationSummary(requestId, true);
+      const summary = await buildReconciliationSummaryFromD1(env, requestId);
       const actorRole = identity?.role === 'support' ? 'support' : identity?.role === 'admin' ? 'admin' : 'system';
       return executeIdempotentWrite(
         env.BILLING_DO,
@@ -2252,6 +2318,122 @@ export class ReferralControlDO extends IdempotentWriteDO {}
 
 export class EntitlementSnapshotDO extends BasePlaceholderDO {}
 
+async function processBillingQueueMessage(env: Env, payload: Record<string, unknown>): Promise<void> {
+  const action = stringOrNull(payload.action);
+  if (!action) {
+    throw new Error('queue-consumer-invalid-message');
+  }
+  if (action === 'provider-webhook') {
+    const provider = stringOrNull(payload.provider);
+    const eventId = stringOrNull(payload.eventId);
+    const eventType = stringOrNull(payload.eventType);
+    if (!provider || !eventId || !eventType) {
+      throw new Error('queue-consumer-invalid-provider-event');
+    }
+    const receipt = await loadBillingProviderEventReceipt(env, provider, eventId);
+    if (!receipt) {
+      throw new Error(`queue-consumer-provider-receipt-missing:${provider}:${eventId}`);
+    }
+    if (!receipt.billingSubject) {
+      await markBillingProviderEventQueue(
+        env,
+        provider,
+        eventId,
+        'manual-required',
+        'manual-required',
+        'provider-event-authority-unresolved'
+      );
+      return;
+    }
+    await applyBillingStateMutation(env, {
+      kind: 'provider-webhook',
+      provider,
+      subject: receipt.billingSubject,
+      eventId,
+      eventType: receipt.eventType,
+      disputeId: stringOrNull(payload.disputeId),
+      invoiceId: receipt.billingInvoiceId,
+      parentAccountRef: receipt.parentAccountRef,
+      familyRef: receipt.familyRef,
+    });
+    await markBillingProviderEventQueue(
+      env,
+      provider,
+      eventId,
+      'delivered',
+      isIgnoredProviderWebhookEvent(receipt.eventType) ? 'ignored' : 'applied',
+      null
+    );
+    return;
+  }
+  if (
+    action === 'reconciliation' ||
+    action === 'referral-invite' ||
+    action === 'manual-invoice' ||
+    action === 'admin-refund' ||
+    action === 'change-plan' ||
+    action === 'cancel'
+  ) {
+    const summary = await drainPendingBillingMutationOutbox(env);
+    if (summary.failed > 0) {
+      throw new Error(`queue-consumer-outbox-failures:${summary.failed}`);
+    }
+    return;
+  }
+  throw new Error(`queue-consumer-unsupported-action:${action}`);
+}
+
+async function consumeBillingQueue(batch: MessageBatch<unknown>, env: Env): Promise<void> {
+  for (const message of batch.messages) {
+    const payload = isPlainObject(message.body) ? message.body : null;
+    if (!payload) {
+      if (message.attempts >= 5) {
+        if (
+          await sendBillingDeadLetter(
+            env,
+            { body: cloneJsonValue(message.body) },
+            'queue-consumer-invalid-message',
+            null
+          )
+        ) {
+          message.ack();
+        } else {
+          message.retry({ delaySeconds: 900 });
+        }
+      } else {
+        message.retry({ delaySeconds: Math.min(900, 30 * (message.attempts + 1)) });
+      }
+      continue;
+    }
+    try {
+      await processBillingQueueMessage(env, payload);
+      message.ack();
+    } catch (error) {
+      if (message.attempts >= 5) {
+        const provider = stringOrNull(payload.provider);
+        const eventId = stringOrNull(payload.eventId);
+        if (payload.action === 'provider-webhook' && provider && eventId) {
+          await markBillingProviderEventQueue(
+            env,
+            provider,
+            eventId,
+            'dead-letter',
+            'dead-letter',
+            queueFailureMessage(error) ?? 'queue-consumer-manual-required'
+          );
+        }
+        if (await sendBillingDeadLetter(env, payload, 'queue-consumer-manual-required', error)) {
+          message.ack();
+        } else {
+          message.retry({ delaySeconds: 900 });
+        }
+      } else {
+        message.retry({ delaySeconds: Math.min(900, 30 * (message.attempts + 1)) });
+      }
+    }
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     return withCors(await handleRequest(request, env), request, env);
@@ -2267,5 +2449,9 @@ export default {
         doubles: [1],
       });
     }
+  },
+
+  async queue(batch: MessageBatch<unknown>, env: Env): Promise<void> {
+    await consumeBillingQueue(batch, env);
   },
 };

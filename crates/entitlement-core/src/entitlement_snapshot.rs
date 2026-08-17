@@ -107,26 +107,73 @@ pub struct EntitlementSnapshotDerivationInput {
     pub signature: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EntitlementSnapshotContext {
-    pub signature_state: EntitlementSnapshotSignatureState,
-    pub freshness_state: EntitlementSnapshotFreshnessState,
-    pub household_binding_state: EntitlementSnapshotBindingState,
-    pub device_binding_state: EntitlementSnapshotBindingState,
-    pub device_trust_requirement_state: EntitlementDeviceTrustRequirementState,
-    pub device_trust_state: EntitlementDeviceTrustState,
-    pub package_build_state: EntitlementPackageBuildState,
+    pub(crate) signature_state: EntitlementSnapshotSignatureState,
+    pub(crate) freshness_state: EntitlementSnapshotFreshnessState,
+    pub(crate) household_binding_state: EntitlementSnapshotBindingState,
+    pub(crate) device_binding_state: EntitlementSnapshotBindingState,
+    pub(crate) device_trust_requirement_state: EntitlementDeviceTrustRequirementState,
+    pub(crate) device_trust_state: EntitlementDeviceTrustState,
+    pub(crate) package_build_state: EntitlementPackageBuildState,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct EntitlementSnapshotVerificationContext {
-    pub signature_state: EntitlementSnapshotSignatureState,
-    pub freshness_state: EntitlementSnapshotFreshnessState,
-    pub household_binding_state: EntitlementSnapshotBindingState,
-    pub device_binding_state: EntitlementSnapshotBindingState,
-    pub device_trust_state: EntitlementDeviceTrustState,
-    pub package_build_state: EntitlementPackageBuildState,
+impl Serialize for EntitlementSnapshotContext {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+
+        let mut state = serializer.serialize_struct("EntitlementSnapshotContext", 7)?;
+        state.serialize_field("signatureState", &self.signature_state)?;
+        state.serialize_field("freshnessState", &self.freshness_state)?;
+        state.serialize_field("householdBindingState", &self.household_binding_state)?;
+        state.serialize_field("deviceBindingState", &self.device_binding_state)?;
+        state.serialize_field(
+            "deviceTrustRequirementState",
+            &self.device_trust_requirement_state,
+        )?;
+        state.serialize_field("deviceTrustState", &self.device_trust_state)?;
+        state.serialize_field("packageBuildState", &self.package_build_state)?;
+        state.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for EntitlementSnapshotContext {
+    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        Err(serde::de::Error::custom(
+            "entitlement snapshot context must come from verifier authority",
+        ))
+    }
+}
+
+/// Opaque evidence issued only by the entitlement verifier inside this crate.
+/// Callers cannot construct trusted states across this boundary.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct EntitlementSnapshotVerificationAuthority {
+    snapshot_id: EntitlementSnapshotId,
+    context: EntitlementSnapshotContext,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum EntitlementSnapshotAuthorityError {
+    SnapshotMismatch,
+}
+
+impl EntitlementSnapshotVerificationAuthority {
+    pub(crate) fn issue_verified(
+        snapshot_id: EntitlementSnapshotId,
+        context: EntitlementSnapshotContext,
+    ) -> Self {
+        Self {
+            snapshot_id,
+            context,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -194,21 +241,24 @@ pub fn derive_signed_entitlement_snapshot(
     })
 }
 
-pub fn snapshot_context_from_signed_snapshot(
+pub(crate) fn snapshot_context_from_verified_authority(
     snapshot: &SignedEntitlementSnapshot,
-    verification: EntitlementSnapshotVerificationContext,
-) -> EntitlementSnapshotContext {
-    EntitlementSnapshotContext {
-        signature_state: verification.signature_state,
-        freshness_state: verification.freshness_state,
-        household_binding_state: verification.household_binding_state,
-        device_binding_state: verification.device_binding_state,
+    authority: &EntitlementSnapshotVerificationAuthority,
+) -> Result<EntitlementSnapshotContext, EntitlementSnapshotAuthorityError> {
+    if authority.snapshot_id != snapshot.snapshot_id {
+        return Err(EntitlementSnapshotAuthorityError::SnapshotMismatch);
+    }
+    Ok(EntitlementSnapshotContext {
+        signature_state: authority.context.signature_state,
+        freshness_state: authority.context.freshness_state,
+        household_binding_state: authority.context.household_binding_state,
+        device_binding_state: authority.context.device_binding_state,
         device_trust_requirement_state: if snapshot.device_trust_required {
             EntitlementDeviceTrustRequirementState::Required
         } else {
             EntitlementDeviceTrustRequirementState::NotRequired
         },
-        device_trust_state: verification.device_trust_state,
-        package_build_state: verification.package_build_state,
-    }
+        device_trust_state: authority.context.device_trust_state,
+        package_build_state: authority.context.package_build_state,
+    })
 }
