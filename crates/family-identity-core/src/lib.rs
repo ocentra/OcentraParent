@@ -58,6 +58,7 @@ pub mod parent_step_up_proof;
 pub mod phone_qr_approval_authority;
 pub mod recovery_lifecycle;
 pub mod session_lifecycle;
+pub mod session_lifecycle_custody;
 pub mod session_lifecycle_record;
 pub mod setup_invite_lifecycle;
 pub mod setup_lifecycle;
