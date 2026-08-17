@@ -2,6 +2,9 @@ use ocentra_schema::export_import_backup_recovery as contracts;
 
 use super::ImportBundleContext;
 
+#[path = "export_import_backup_recovery_import_integrity.rs"]
+mod export_import_backup_recovery_import_integrity;
+
 pub(super) struct RejectedPreflightInput {
     pub state: contracts::ExportImportPreflightState,
     pub migration_state: contracts::ExportImportMigrationState,
@@ -91,11 +94,14 @@ fn reject_wrong_key(
 }
 
 fn reject_corrupt_bundle(
-    _bundle: &contracts::ExportImportRecoveryBundle,
+    bundle: &contracts::ExportImportRecoveryBundle,
     context: &ImportBundleContext,
 ) -> Option<RejectedPreflightInput> {
     let payload_integrity_verified = context.payload_integrity_failures.is_empty();
-    if context.manifest_integrity_ok && payload_integrity_verified {
+    if context.manifest_integrity_ok
+        && payload_integrity_verified
+        && export_import_backup_recovery_import_integrity::bundle_structure_is_honest(bundle)
+    {
         return None;
     }
     Some(RejectedPreflightInput {
