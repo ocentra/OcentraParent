@@ -7,16 +7,43 @@ use ocentra_parent_agent_protocol::activity_capture::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use sysinfo::Pid;
 
+use crate::process_capture::{generation_process_subject_id, ProcessSnapshotSystem};
 use crate::window_capture::{collect_foreground_window_observation, ForegroundWindowObservation};
 
 pub fn foreground_window_event(observed_at: &str) -> ActivityEvent {
-    foreground_window_observation_event(collect_foreground_window_observation(), observed_at)
+    foreground_window_observation_event_with_process_identity(
+        collect_foreground_window_observation(),
+        observed_at,
+        None,
+    )
+}
+
+pub fn foreground_window_event_from_system(
+    observed_at: &str,
+    system: &ProcessSnapshotSystem,
+) -> ActivityEvent {
+    let observation = collect_foreground_window_observation();
+    let process_identity = process_identity_from_system(&observation, system);
+    foreground_window_observation_event_with_process_identity(
+        observation,
+        observed_at,
+        process_identity,
+    )
 }
 
 pub fn foreground_window_observation_event(
     observation: ForegroundWindowObservation,
     observed_at: &str,
+) -> ActivityEvent {
+    foreground_window_observation_event_with_process_identity(observation, observed_at, None)
+}
+
+fn foreground_window_observation_event_with_process_identity(
+    observation: ForegroundWindowObservation,
+    observed_at: &str,
+    process_identity: Option<String>,
 ) -> ActivityEvent {
     let ForegroundWindowObservation {
         status,
@@ -36,6 +63,11 @@ pub fn foreground_window_observation_event(
     };
     let mut fields = base_fields(&observation);
     insert_optional_number(&mut fields, constants::field::PID, observation.pid);
+    insert_optional_text(
+        &mut fields,
+        constants::field::PROCESS_IDENTITY,
+        &process_identity,
+    );
     insert_optional_text(
         &mut fields,
         constants::field::APP_NAME,
@@ -59,7 +91,7 @@ pub fn foreground_window_observation_event(
 
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
-        event_id: window_event_id(&observation, observed_at),
+        event_id: window_event_id(&observation, process_identity.as_deref(), observed_at),
         observed_at: observed_at.to_string(),
         source: ActivitySource {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
@@ -118,7 +150,20 @@ fn insert_optional_text(fields: &mut LogFields, key: &str, value: &Option<String
     }
 }
 
-fn window_event_id(observation: &ForegroundWindowObservation, observed_at: &str) -> String {
+fn process_identity_from_system(
+    observation: &ForegroundWindowObservation,
+    system: &ProcessSnapshotSystem,
+) -> Option<String> {
+    let pid = observation.pid?;
+    let start_time = system.process(Pid::from_u32(pid))?.start_time();
+    (start_time != 0).then(|| generation_process_subject_id(pid, start_time))
+}
+
+fn window_event_id(
+    observation: &ForegroundWindowObservation,
+    process_identity: Option<&str>,
+    observed_at: &str,
+) -> String {
     let mut event_id = String::from(constants::activity_capture::WINDOW_EVENT_ID_PREFIX);
     event_id.push_str(observation.status.as_protocol_str());
     event_id.push(constants::delimiter::HYPHEN);
@@ -128,6 +173,10 @@ fn window_event_id(observation: &ForegroundWindowObservation, observed_at: &str)
             .as_deref()
             .unwrap_or_else(|| observation.status.as_protocol_str()),
     );
+    if let Some(process_identity) = process_identity {
+        event_id.push(constants::delimiter::HYPHEN);
+        event_id.push_str(process_identity);
+    }
     event_id.push(constants::delimiter::HYPHEN);
     event_id.push_str(observed_at);
     event_id

@@ -516,6 +516,7 @@ pub const DELETED_AT: &str = "deletedAt";
 pub const REPAIR_REASON: &str = "repairReason";
 pub const QUERY_VISIBILITY: &str = "queryVisibility";
 pub const PROCESS_ATTRIBUTION_STATUS: &str = "processAttributionStatus";
+pub const PROCESS_IDENTITY: &str = "processIdentity";
 pub const PROCESS_NAME: &str = "processName";
 pub const PROCESS_PATH: &str = "processPath";
 pub const PUBLISHER_SIGNATURE_REF: &str = "publisherSignatureRef";

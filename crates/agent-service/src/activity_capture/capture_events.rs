@@ -2,7 +2,7 @@ use ocentra_parent_agent_core::{
     network_capture::NetworkObservation,
     network_capture_event::network_snapshot_capture_results,
     process_capture::{live_process_snapshot_system, process_snapshot_events_from_system},
-    window_capture_event::foreground_window_event,
+    window_capture_event::foreground_window_event_from_system,
 };
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::constants;
@@ -126,7 +126,10 @@ fn activity_capture_batch_with_inventory_sources(
     let process_system = live_process_snapshot_system();
     let mut events =
         process_snapshot_events_from_system(observed_at.0, process_limit.0, &process_system);
-    events.push(foreground_window_event(observed_at.0));
+    events.push(foreground_window_event_from_system(
+        observed_at.0,
+        &process_system,
+    ));
     let mut network_observations = Vec::new();
     let mut network_events = Vec::new();
     for capture in network_snapshot_capture_results(observed_at.0, network_limit.0) {

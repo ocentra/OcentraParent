@@ -14,6 +14,13 @@ mod helpers;
 use self::helpers::boolean_field;
 
 pub(crate) fn process_identity(row: &AppGameStoreRow) -> String {
+    if row.kind == constants::activity_event_kind::WINDOW_FOCUSED {
+        if let Some(process_identity) =
+            helpers::string_field(&row.fields, constants::field::PROCESS_IDENTITY)
+        {
+            return process_identity;
+        }
+    }
     row.subject_id.clone()
 }
 

@@ -232,7 +232,7 @@ fn process_subject_id(pid: u32) -> String {
     subject_id
 }
 
-fn generation_process_subject_id(pid: u32, start_time: u64) -> String {
+pub(crate) fn generation_process_subject_id(pid: u32, start_time: u64) -> String {
     let mut subject_id = String::from(constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX);
     subject_id.push_str(&pid.to_string());
     subject_id.push(constants::delimiter::HYPHEN);
