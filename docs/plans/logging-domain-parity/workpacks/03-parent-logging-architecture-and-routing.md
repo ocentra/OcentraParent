@@ -49,6 +49,15 @@ Agent-service dev logs must delegate to `crates/logging-core`; the current sourc
 
 `/api/dev/log-snapshot` must be documented as a snapshot/status endpoint, not the primary local log store.
 
+## Accepted source-wave reconciliation (2026-08-17)
+
+The accepted source head `735df89de` keeps portal routing bridge-first and
+sanitizes the compatibility fallback before its JSON body is serialized.
+The fallback therefore uses the same generated-policy-backed sanitizer as the
+shared `Logger`; it does not introduce a local regex or alternate sensitive-key
+policy. This records source routing only. Route tests, focused validation,
+proof, and any external portal/service composition remain deferred.
+
 ## Required decisions
 
 Choose and implement one portal route strategy:

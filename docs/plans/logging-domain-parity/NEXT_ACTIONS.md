@@ -16,7 +16,7 @@
 
 ## How to use
 
-1. Confirm the active branch matches the assigned branch. For this audit-hardening pass the branch is `codex/plan-harness-update`.
+1. Confirm the active branch matches the assigned branch. For this source-wave reconciliation the branch is `codex/logging-source-wave-repair` at accepted source head `735df89de`.
 2. Confirm claimed proof roots and test-result roots exist before trusting any done claim.
 3. Pick one honest next slice from `WORKPACK_INDEX.md`.
 4. Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
@@ -25,6 +25,20 @@
 7. Implement or reconcile, test, run, proof, then update docs.
 
 ## Highest-priority queue
+
+### 0. Accepted source-wave redaction truth sync
+
+Status:
+
+```text
+Rust owns the exact 18-key sensitive-key policy and generates the checked-in
+TypeScript artifact. The TypeScript sanitizer, Logger serialization path, and
+portal compatibility fallback all use that policy; no alternate local policy
+is accepted.
+```
+
+The source mapping is recorded in the affected workpacks and graph. Tests,
+focused validation, proof, and external composition remain deferred.
 
 ### 1. Remaining Proof-Inventory Restoration / Claim Reduction
 

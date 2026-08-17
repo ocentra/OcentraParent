@@ -49,6 +49,13 @@ Current audit note:
 WP03, WP06, WP07, WP08, and WP10 now have canonical proof roots in this checkout. WP03 is still only partial-proof because focused validation/proof closeout remains deferred and one root routing check is outside this delegated boundary; source inspection confirms its agent-service-to-logging-core mapping is live through app::health, service_runtime::run_agent_service, and activity_capture. WP06 is partial-proof because logging-owned proof-inventory checker/query behavior is real, but one root routing check still fails outside this delegated boundary. WP08 is honest partial-proof because its canonical root proves the portal dev logger path, the logging-domain source/context storage/query path, and the agent-service startup/dev-log path without claiming repo-wide instrumentation adoption. WP07 and WP10 have proof roots, but checklist closeout remains intentionally open.
 ```
 
+Accepted source-wave note (2026-08-17): WP02 and WP04 retain
+`source-present`; WP03 and WP08 retain `partial-proof`. The accepted source
+head `735df89de` records the Rust-owned exact 18-key sensitive-key policy,
+generated TypeScript artifact, generated-policy sanitizer consumption, Logger
+pre-serialization sanitization, and portal fallback pre-serialization
+sanitization. No test, proof, DONE, or external composition claim is implied.
+
 Default order:
 
 ```text

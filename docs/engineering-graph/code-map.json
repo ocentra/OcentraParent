@@ -5931,6 +5931,8 @@
       "planSlug": "logging-domain-parity",
       "roots": [
         "packages/logging-domain/src/core",
+        "packages/logging-domain/src/core/log-redaction.ts",
+        "packages/logging-domain/src/generated-log-redaction-policy.ts",
         "packages/logging-domain/src/test-log",
         "packages/logging-domain/src/transport",
         "packages/logging-domain/src/app-log",
@@ -5963,6 +5965,8 @@
       "roots": [
         "packages/portal-domain/src/dev-logger.ts",
         "packages/portal-domain/src/dev-logger-impl.ts",
+        "packages/logging-domain/src/core/log-redaction.ts",
+        "packages/logging-domain/src/generated-log-redaction-policy.ts",
         "apps/portal/src/dev-logger.ts",
         "packages/logging-domain/src/transport/bridgeServer.ts",
         "crates/agent-service/src/dev_log.rs",
@@ -5978,6 +5982,9 @@
       "planSlug": "logging-domain-parity",
       "roots": [
         "crates/logging-core",
+        "crates/logging-core/src/redaction_policy.rs",
+        "crates/logging-core/src/redaction.rs",
+        "packages/logging-domain/src/generated-log-redaction-policy.ts",
         "crates/agent-service/src/dev_log.rs",
         "crates/agent-service/src/dev_log",
         "crates/agent-service/tests/unit/dev_log.rs",
@@ -6029,6 +6036,8 @@
       "planSlug": "logging-domain-parity",
       "roots": [
         "packages/logging-domain/src/core/logger.ts",
+        "packages/logging-domain/src/core/log-redaction.ts",
+        "packages/logging-domain/src/generated-log-redaction-policy.ts",
         "packages/logging-domain/src/core/stackTrace.ts",
         "packages/logging-domain/src/core/stackTraceParser.ts",
         "packages/portal-domain/src/dev-logger.ts",

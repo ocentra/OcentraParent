@@ -56,6 +56,18 @@ Agent-service delegates dev logging to it.
 
 TS/Rust JSON fixture parity exists.
 
+## Accepted source-wave reconciliation (2026-08-17)
+
+The accepted source head `735df89de` makes Rust the sole sensitive-key policy
+authority. `crates/logging-core/src/redaction_policy.rs` owns exactly 18
+needles and renders the checked-in TypeScript artifact consumed by the logging
+domain sanitizer. `crates/logging-core/src/redaction.rs` applies that policy
+for Rust fields. No alternate local Rust or TypeScript policy is authorized.
+
+This is an implementation/source mapping only. Rust/TypeScript parity tests,
+focused cargo/npm validation, proof artifacts, checklist rows, and completion
+remain deferred.
+
 ## Required crate layout
 
 ```text

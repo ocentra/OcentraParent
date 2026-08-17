@@ -28,6 +28,7 @@ pushed.
 | `E:/OcentraWorktrees/lanes/eventing-wp11-source-wave` | `codex/eventing-wp11-source-wave` / `699adfd76` | Pushed Eventing WP11 production-source packet under root review; tests remain intentionally deferred. |
 | `E:/OcentraWorktrees/lanes/account-wp02-wp05-source-wave` | `codex/account-wp02-wp05-source-wave` / `8e9a6622a` base | Active Luna production-source lane for implementation-authorized Account WP02-WP05. |
 | `E:/OcentraWorktrees/lanes/device-trust-wp02-key-custody-source` | `codex/device-trust-wp02-key-custody-source` / `e4272372b` | Completed no-change source audit: existing Windows custody is real, but shipped ceremony authority/composition is missing; clean worktree pending removal. |
+| `E:/OcentraWorktrees/lanes/logging-source-wave-repair` | `codex/logging-source-wave-repair` / `735df89de` | Accepted logging source wave: Rust-owned exact 18-key sensitive-key policy, generated TypeScript artifact, generated-policy sanitizer consumption, and pre-serialization Logger/portal fallback sanitization. Docs/graph reconciliation is source-only; tests, proof, CI, PR/DONE, and external composition remain deferred. |
 
 No Ocentra Parent worktree is authorized on `C:`. Old Codex ledger records are
 append-only history and are not proof that a task, process, or checkout is

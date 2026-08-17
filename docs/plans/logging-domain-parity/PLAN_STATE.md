@@ -88,6 +88,20 @@ The source docs are routed through workpacks:
 
 ## Current status
 
+### Accepted source-wave truth (2026-08-17)
+
+Accepted source head `735df89de` establishes one redaction authority across
+the logging surfaces: Rust owns the exact 18-key sensitive-field policy and
+generates `packages/logging-domain/src/generated-log-redaction-policy.ts`;
+the TypeScript sanitizer consumes that generated artifact; `Logger` sanitizes
+before serialization; and the portal compatibility fallback sanitizes before
+serializing its JSON body. No alternate local regex or sensitive-key policy is
+part of the accepted source.
+
+This is a source-only reconciliation. Tests, focused validation, proof roots,
+checklist closeout, PR/DONE state, and external portal/agent-service/product
+composition remain deferred and are not claimed by this source wave.
+
 ```text
 Plan route: added
 Workpack route: added
@@ -128,6 +142,7 @@ PR-ready: false
 - Reconcile the remaining WP07/WP10 checklist closeout and keep WP08 scoped to its canonical partial-proof boundary instead of inflating it to repo-wide adoption
 - Decide whether done in this plan means source present, proof present, or both; the current docs mix those states
 - The WP03 Rust-side mapping is source-present: app::health, service_runtime::run_agent_service, and activity_capture call agent-service::dev_log, which converts protocol fields and invokes logging-core::DevLogger. Keep focused validation/proof deferred in this code-only pass, and hand off the separate root dev-log-routing failure before claiming full WP06 focused-validation closure
+- The accepted logging source wave now also owns one Rust sensitive-key policy and generated TypeScript artifact; retain parity-test and proof deferral, and do not treat redaction source presence as repo-wide runtime composition.
 ```
 
 ## No-claim boundaries
