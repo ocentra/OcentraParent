@@ -174,8 +174,8 @@ pub(crate) fn apply_restore_with_parent_authority_and_executor(
     if !export_import_backup_recovery_restore::preflight_is_applicable(preflight)
         || !request.confirmed
         || authority.input().action != HouseholdAuthorityAction::PairChildDevice
-        || identity_binding.household_id != context.local_household_id.as_str()
-        || identity_binding.target_device_id != target_device_id.as_str()
+        || identity_binding.household_id() != context.local_household_id.as_str()
+        || identity_binding.target_device_id() != target_device_id.as_str()
     {
         return export_import_backup_recovery_restore::blocked_restore(preflight, request);
     }

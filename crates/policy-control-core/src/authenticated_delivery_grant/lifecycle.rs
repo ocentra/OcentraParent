@@ -1,12 +1,8 @@
 use chrono::{DateTime, FixedOffset, SecondsFormat, Utc};
 use ed25519_dalek::Signer;
 use ocentra_eventing::ids::{CorrelationId, EventId};
-use ocentra_family_identity_core::parent_step_up_proof::{
-    authorization_digest, ParentStepUpAuthorizationBinding,
-};
 use ocentra_schema::authenticated_delivery_grant::{
-    AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantCapabilityAssertion,
-    AuthenticatedDeliveryGrantEvidenceAssertion, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
+    AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 
 use super::issuance_milestone::{
@@ -15,8 +11,7 @@ use super::issuance_milestone::{
 };
 use super::{
     validation, AuthenticatedDeliveryGrantIssuance, AuthenticatedDeliveryGrantIssuanceError,
-    AuthenticatedDeliveryGrantIssuer, DeliveryGrantBindings, DeliveryGrantCapabilityState,
-    DeliveryGrantEvidenceState, GrantTargetDeviceId,
+    AuthenticatedDeliveryGrantIssuer, DeliveryGrantBindings,
 };
 use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
 
@@ -51,7 +46,7 @@ impl AuthenticatedDeliveryGrantIssuer {
 
     fn verify_and_bind_request<'a>(
         &self,
-        mut request: AuthenticatedDeliveryGrantIssuance<'a>,
+        request: AuthenticatedDeliveryGrantIssuance<'a>,
         trusted_now: &str,
     ) -> Result<
         (
@@ -62,66 +57,8 @@ impl AuthenticatedDeliveryGrantIssuer {
         ),
         AuthenticatedDeliveryGrantIssuanceError,
     > {
-        let household_authority_current_state = (self.household_authority_current_state_resolver)();
-        let (bindings, assertions, household_authority, resolved_decision, policy_authority) =
-            self.authority_verifier.verify_against_current_state(
-                &request.signed_authority_bindings,
-                &household_authority_current_state,
-                trusted_now,
-            )?;
-        let correlation_id = request
-            .signed_authority_bindings
-            .trusted_issuance_correlation_id()?;
-        let parent_device_trust_current_state = (self.parent_device_trust_current_state_resolver)();
-        let (step_up_validation, target_device_id, step_up_assertions) = self
-            .step_up_verifier
-            .verify_against_current_device_trust_state(
-                &request.verified_parent_step_up_proof,
-                &parent_device_trust_current_state,
-            )
-            .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
-        if assertions != step_up_assertions {
-            return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
-        }
-        let expected_step_up_digest = authorization_digest(ParentStepUpAuthorizationBinding {
-            household_id: &bindings.household_id,
-            parent_actor_id: &bindings.issuer_actor_id,
-            parent_device_id: &bindings.parent_device_id,
-            child_profile_id: &bindings.child_profile_id,
-            target_device_id: &bindings.target_device_id,
-            action_id: &bindings.action_id,
-            capability_id: &bindings.capability_id,
-            evidence_digest: &bindings.evidence_digest,
-            payload_digest: &bindings.payload_digest,
-        });
-        if request.verified_parent_step_up_proof.authorization_digest != expected_step_up_digest {
-            return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
-        }
-        if resolved_decision.decision_id.as_str() != bindings.policy_decision_id {
-            return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
-        }
-        request.bindings = bindings;
-        request.household_authority = household_authority.input();
-        request.parent_step_up.validation = step_up_validation;
-        request.parent_step_up.target_device_id = GrantTargetDeviceId::parse(target_device_id)
-            .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
-        request.capability_state = match assertions.capability {
-            AuthenticatedDeliveryGrantCapabilityAssertion::Available => {
-                DeliveryGrantCapabilityState::Available
-            }
-            AuthenticatedDeliveryGrantCapabilityAssertion::Unavailable => {
-                DeliveryGrantCapabilityState::Unavailable
-            }
-        };
-        request.evidence_state = match assertions.evidence {
-            AuthenticatedDeliveryGrantEvidenceAssertion::Stable => {
-                DeliveryGrantEvidenceState::Stable
-            }
-            AuthenticatedDeliveryGrantEvidenceAssertion::Unstable => {
-                DeliveryGrantEvidenceState::Unstable
-            }
-        };
-        Ok((request, resolved_decision, policy_authority, correlation_id))
+        let _ = (request, trusted_now);
+        Err(AuthenticatedDeliveryGrantIssuanceError::ManualReviewRequired)
     }
 
     fn sign_grant(&self, bindings: DeliveryGrantBindings) -> AuthenticatedDeliveryGrant {
