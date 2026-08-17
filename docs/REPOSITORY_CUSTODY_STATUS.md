@@ -8,16 +8,16 @@ not plan completion, test proof, or release approval.
 
 | Surface | Verified state |
 | --- | --- |
-| Consolidated source | The current integration lane is `codex/eventing-wp09-production`. Its reviewed Device Trust WP01/WP03, Eventing WP11, Account WP08, Cloudflare WP06, and graph-routing checkpoint is pushed at `c970ce89690170d61c380bfc7be3fa8dae290191`; this custody-only record follows that checkpoint. The batch is remote-safe and no longer exists only on this machine. The older coordination lane `codex/app-game-plan-code-audit` remains at pushed ancestor `b730a3f6a63515666e2a8f3c87812f1584dc1a49`. |
-| Protected bases | `main` is `eb4e66a791`; `develop` is `4ece515282`; `production` is `683a07c`. `develop` is 3 commits ahead of `main`; integration checkpoint `c970ce896` is 209 commits ahead of `main` and 206 ahead of `develop`, with neither protected base containing a unique commit outside its ancestry. |
+| Consolidated source | The current integration lane is `codex/eventing-wp09-production`, pushed at `37122d94f169f7f73dd018de835dd9dded13d5bf`. Since the earlier `c970ce896` custody checkpoint it has integrated reviewed Device Trust WP01 current-signer accessors, the Eventing WP11 generic-envelope type repair, and the Account WP01 / Cloudflare WP05 Firebase subject-verification packet. The Firebase path fails closed on expired JWKS cache and remains `manual-required` until WP06 supplies server-derived family/device binding context. The batch is remote-safe and no longer exists only on this machine. The older coordination lane `codex/app-game-plan-code-audit` remains at pushed ancestor `b730a3f6a63515666e2a8f3c87812f1584dc1a49`. |
+| Protected bases | `main` is `eb4e66a791`; `develop` is `4ece515282`; `production` is `683a07c`. `develop` is 3 commits ahead of `main`; integration checkpoint `37122d94f` is 219 commits ahead of `main` and 216 ahead of `develop`, with neither protected base containing a unique commit outside its ancestry. |
 | Pull requests | Zero open pull requests. No current CI or merge claim exists for the integration checkpoint; PR CI starts only after a scoped promotion PR is opened. |
 | Local work branches | `codex/app-game-plan-code-audit` and `codex/eventing-wp09-production` only. |
-| Registered worktrees | `E:/OcentraParent` at `b730a3f6a` and `E:/OcentraWorktrees/lanes/eventing-wp09-production` after pushed integration checkpoint `c970ce896`. No registered OcentraParent worktree exists on C:. |
+| Registered worktrees | `E:/OcentraParent` at `b730a3f6a` and `E:/OcentraWorktrees/lanes/eventing-wp09-production` at pushed integration checkpoint `37122d94f`. The Device Trust, Eventing WP11, and Account/Firebase temporary E: worktrees were removed only after push and exact-path patch-equivalence checks. No registered OcentraParent worktree exists on C:. |
 | C drive | No OcentraParent worktree remains under `C:/Users/sujan/.codex/worktrees`; only unrelated Enforcer and Ocentra Games entries remain there. |
-| Remote work branches | `origin/codex/app-game-plan-code-audit` is `b730a3f6a`; `origin/codex/eventing-wp09-production` contains integration checkpoint `c970ce896` plus this custody record. Both local branches match their remote checkpoints after this record is pushed. |
+| Remote work branches | `origin/codex/app-game-plan-code-audit` is `b730a3f6a`; `origin/codex/eventing-wp09-production` is `37122d94f` before this custody-record commit. The temporary Device Trust, Eventing WP11, and Account/Firebase remote branches were deleted after their reviewed source became patch-equivalent in the integration branch. Both surviving local branches match their remote checkpoints after this record is pushed. |
 | Remote safety archives | Protected `codex/archive/all-remote-tips-20260815` plus protected complete archive `codex/archive/all-local-remote-tips-20260816` at `ac9f65bb4`. |
 | Stashes | One local stash remains: the intentional Eventing WP09 draft. The 129 rejected historical entries were dropped locally only after all 130 commits were made reachable from the complete 2026-08-16 remote archive. |
-| Executable graph | Valid at 705 nodes / 744 edges, 23 plans / 681 workpacks, with states 366 planned, 21 blocked, 2 ready, 2 active, 289 validation, and 1 done. It maps 2,962 implementation files and 1,145 test files across 680 reviewed workpack maps; mapping is not semantic completion. |
+| Executable graph | Valid at 705 nodes / 745 edges, 23 plans / 681 workpacks, with states 366 planned, 21 blocked, 2 ready, 2 active, 289 validation, and 1 done. The new Firebase provider files are mapped to Cloudflare WP05. Mapping remains topology, not semantic completion. |
 
 ## Safety archive
 
@@ -43,15 +43,17 @@ local-only tracking tip was an ancestor of the consolidated head.
 
 No short-lived audit checkout or stale physical OcentraParent copy remains.
 The Eventing lane is intentionally retained as the single integration lane.
-WP09 is now in validation; Device Trust WP01 and Eventing WP11 are READY.
-Account Identity WP08 and Cloudflare WP01 are in validation with independently
-reviewed implementation-only evidence. Cloudflare WP06's bounded source packet
-is reviewed while normal readiness remains dependency-blocked; Device Trust
-WP03 is authorized only for implementation-phase source continuation. The lane's
-reviewed integration checkpoint `c970ce896` is remote-safe; the Device Trust,
-Eventing, Account, Cloudflare WP06, and graph-routing batch is no longer
-local-only. It remains source-only and must complete its test and validation
-phases before any promotion. The older WP09 draft stash remains at
+WP09 is now in validation; Device Trust WP01 and Eventing WP11 remain READY
+because their new source slices have not completed expected tests, focused
+validation, proof, or acceptance. Account Identity WP08 and Cloudflare WP01 are
+in validation with independently reviewed implementation-only evidence.
+Cloudflare WP05 now contains a reviewed Firebase subject-verification adapter,
+but the family/device authorization handoff stays `manual-required` pending
+WP06 server-derived binding context; no runtime/DONE claim was made. Device
+Trust WP03 is authorized only for implementation-phase source continuation.
+The lane's reviewed integration checkpoint `37122d94f` is remote-safe. It
+remains a code-first checkpoint and must complete expected tests and validation
+before any promotion. The older WP09 draft stash remains at
 `3f785b7f5832c303ac759fa15b4e1625e58296e5` and is also remote-archived.
 
 ## Stash semantic decision
