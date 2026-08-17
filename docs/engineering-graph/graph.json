@@ -17470,7 +17470,7 @@
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "ready — production source integrated; tests/proof open",
+        "statusText": "ready — production source accepted; tests/proof open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,

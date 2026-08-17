@@ -113,13 +113,17 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   open; its proof root is absent and the `contract` harness must be included.
 - WP12 is open: `scripts/test/eventing-rollout-proof.mjs` and its canonical
   route-proof root are absent.
-- WP11 production source is integrated at `4aaddb425`: live `EventEnvelope<E>`
-  fields are private, immutable borrowing accessors plus consuming
-  `into_payload()` form the public boundary, `store()` and stored `decode()`
-  revalidate payload-derived identity, and every reviewed reachable production
-  caller was migrated. Required negative/audit test source still needs to be
-  written in the later test phase; no build, test, proof, precommit, CI, or
-  completion claim is attached to this source checkpoint.
+- WP11 production source is independently accepted and integrated through
+  `fa1230661`: live `EventEnvelope<E>` fields remain private; live decode,
+  `store()`, and stored `decode()` revalidate contract, aggregate, and
+  idempotency identity; pending requests bind their associated response type;
+  journal event-id/phase idempotency fails closed when unsupported; and only a
+  journal-created, non-cloneable, consuming `ReplayActionReport` can authorize
+  action replay. Existing journal-replay tests still call the retired
+  records/mode API, and the required malformed/tamper/type-mismatch/replay
+  negative families remain for the later test-writing phase. No build, test,
+  proof, precommit, CI, or completion claim is attached to this source
+  checkpoint.
 
 ## Open gaps / missing product runtime
 
@@ -195,8 +199,8 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent.
 - Shared TypeScript contract mirror validation passes in this checkout: `npm run test --workspace @ocentra-parent/event-domain` and `npm run type-check --workspace @ocentra-parent/event-domain`.
 - Focused downstream mirror validation also passes: `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts` and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
-- WP11 expected-test writing and proof regeneration are required for the
-  reusable Eventing envelope/type
+- WP11 expected-test migration/writing and proof regeneration are required for
+  the reusable Eventing envelope/request/journal/replay authority
   surface; the cited `63-type-safety-source-gate`, `66-76-source-safety`,
   `67-lock-await`, and `68-fixture-parity` roots are not retained here. The
   policy-control TypeScript checks are not Eventing WP11 closure evidence.

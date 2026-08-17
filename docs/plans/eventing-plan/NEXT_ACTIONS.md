@@ -43,12 +43,15 @@ This file is the short resume list for the next worker. It is derived from open 
   `00-enforcement-wp11-handoff.md`, journal/replay proof, topology/lineage
   proof, and compact validation log are retained. This is a generic Eventing
   prerequisite only; enforcement retains authority/action/rollback proof.
-- WP11 production source is integrated at `4aaddb425`: live-envelope fields are
-  private, immutable/consuming accessors are the only public read boundary,
-  store/decode identity is revalidated, and reviewed reachable production
-  callers use the new API. Keep it open: write the required negative/audit test
-  source only after the production-source wave closes, then run focused tests
-  and regenerate proof in the later phases.
+- WP11 production source is independently accepted and integrated through
+  `fa1230661`: envelope identity is revalidated at every live/stored decode
+  boundary, request completions are associated-response typed, unsupported
+  journal idempotency fails closed, and action replay consumes a journal-minted
+  non-cloneable authority. Keep it open: after the production-source wave,
+  migrate `tests/journal_replay/replay.rs` from the retired records/mode API and
+  write the malformed envelope, aggregate/idempotency tamper, response-type
+  mismatch, unsupported-journal, and replay single-use negatives before focused
+  execution and proof regeneration.
 - WP12 is open because `scripts/test/eventing-rollout-proof.mjs` and
   `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent.
 - WP13 is code-complete for the moved test layout, but current validation/proof

@@ -44,21 +44,33 @@ Expected proof artifacts:
 
 Current source audit (production source integrated; not closure evidence):
 
-- The accepted source packet at `4aaddb425` keeps `EventEnvelope<E>` bounded by
+- The accepted source packet through integration commit `fa1230661` keeps
+  `EventEnvelope<E>` bounded by
   `DomainEvent`, makes every live-envelope field private, and exposes immutable
   borrowing accessors plus consuming `into_payload()` from
   `crates/ocentra-eventing/src/envelope/accessors.rs`.
 - `StoredEventEnvelope::decode` now reuses the same validation helper after
   payload decoding, revalidating the decoded payload's contract, aggregate key,
   and idempotency key against the stored envelope metadata.
+- Live `EventEnvelope<E>` deserialization performs the same contract,
+  aggregate, and idempotency revalidation instead of trusting serde field
+  shape. Pending request entries retain the `RequestEvent` response `TypeId`,
+  so a mismatched completion cannot satisfy the request.
+- `NdjsonEventJournal` owns event-id/phase idempotent append behavior and the
+  generic journal default fails closed when an implementation does not support
+  it. Action replay accepts only a private, journal-created,
+  non-cloneable/non-serde `ReplayActionReport` and consumes it on dispatch;
+  projection replay remains non-authorizing.
 - Reviewed reachable production consumers in `agent-core`, `agent-service`,
   `app-game-core`, `child-runtime`, and `ocentra-eventing` now use the bounded
   accessor/consuming API; an independent review found and repaired three missed
   callers before integration.
-- Existing tests still use parts of the old public-field API and do not retain
-  the required
-  malformed payload, aggregate/idempotency tamper, payload-mutation, and
-  lock/await audit negatives for the accepted helper.
+- Existing tests still use parts of the old public-field API, and
+  `crates/ocentra-eventing/tests/journal_replay/replay.rs` still calls the
+  retired records/mode replay API. The later test-writing phase must migrate
+  those callers and add malformed live/stored payload,
+  aggregate/idempotency tamper, response-type mismatch, unsupported-journal,
+  replay single-use, payload-mutation, and lock/await audit negatives.
 - The cited `63`, `66-76`, `67`, and `68` proof roots are absent; unrelated
   policy-control TypeScript checks do not close this Eventing workpack.
 

@@ -31,10 +31,12 @@ This file records documentation health and consistency checks for the plan. It i
 - Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`.
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match the current proof.
 - Historical proof and rollout rows currently overclaim checkout state; cited `output/eventing-plan-proof/*` roots outside WP06/WP11/WP12/WP13 are still incomplete for open workpacks. WP06 is locally evidenced as the generic enforcement prerequisite; WP10 remains open.
-- WP11 production source is integrated: `EventEnvelope<E>` is externally
-  immutable, payload-derived identity is revalidated across store/decode, and
-  reviewed production consumers use the accessor boundary. Expected negative
-  and audit test source, focused execution, and retained proof remain open.
+- WP11 production source is independently accepted through `fa1230661`:
+  envelopes revalidate identity at live/stored boundaries, request completion
+  is response-type bound, journal idempotency fails closed, and action replay
+  requires a non-cloneable journal-minted authority. Existing replay tests need
+  migration and the expected negative/audit families, focused execution, and
+  retained proof remain open.
 - WP12 lacks its declared harness and canonical root. WP13's moved test layout
   is code-complete, but current validation/proof remains open and must include
   the `contract` harness.
@@ -60,8 +62,8 @@ This file records documentation health and consistency checks for the plan. It i
 
 ## Current rollout note
 
-- WP11 source-boundary implementation and production-caller migration are
-  present, but expected test writing and proof are open. WP12 route
+- WP11 source-boundary, request, journal, and replay-authority implementation is
+  present, but expected test migration/writing and proof are open. WP12 route
   reconciliation is blocked by its missing harness/root, and WP13 requires
   current revalidation/proof.
 - WP06 retains a hand-authored durable manifest for generic journal/topology/
