@@ -1,3 +1,5 @@
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
+
 use super::*;
 
 pub(super) fn browser_route_panels_snapshot(
@@ -145,66 +147,135 @@ const SETUP_FIRST_RUN_PRODUCT_CLAIM: &str = "This panel reports only whether the
 
 pub(super) fn setup_first_run_panel_snapshot(
     route: &ParentRouteId,
+    lan_read_model: Option<&LanBrowserAddDeviceReadModel>,
 ) -> Option<ParentSetupFirstRunPanelSnapshot> {
     if !matches!(route, ParentRouteId::Start) {
         return None;
     }
 
+    let runtime = crate::setup_first_run::load_setup_first_run_runtime_snapshot(lan_read_model);
     Some(ParentSetupFirstRunPanelSnapshot {
         eyebrow: "Setup route".to_string(),
         title: "Setup-first-run boundary status".to_string(),
-        body: "The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot. This panel reports that gap honestly instead of inventing onboarding progress.".to_string(),
+        body: "The Start route now evaluates the Rust-owned provisioning state machine. Missing sibling authorities remain unavailable and fail closed to manual-required setup.".to_string(),
         summary_card_title: "Current boundary status".to_string(),
-        summary: "Portal rendering and the Rust-owned route snapshot exist, but live setup/account/trust/custody state is unavailable here today.".to_string(),
-        summary_details: setup_first_run_summary_details(),
-        cards: setup_first_run_cards(),
+        summary: format!(
+            "Provisioning evaluation is {} with {} manual follow-up; the first blocking state is {}.",
+            crate::setup_first_run::serialized_label(&runtime.decision.overall_state),
+            crate::setup_first_run::serialized_label(&runtime.decision.manual_step_state),
+            runtime
+                .decision
+                .blocker_reason
+                .as_ref()
+                .map(|reason| crate::setup_first_run::serialized_label(reason))
+                .unwrap_or_else(|| "none".to_string()),
+        ),
+        summary_details: setup_first_run_summary_details(&runtime),
+        cards: setup_first_run_cards(&runtime),
         product_claim: SETUP_FIRST_RUN_PRODUCT_CLAIM.to_string(),
     })
 }
 
-fn setup_first_run_summary_details() -> Vec<ParentSetupFirstRunPanelDetailSnapshot> {
+fn setup_first_run_summary_details(
+    runtime: &crate::setup_first_run::SetupFirstRunRuntimeSnapshot,
+) -> Vec<ParentSetupFirstRunPanelDetailSnapshot> {
     vec![
         setup_first_run_detail("Route", "start"),
-        setup_first_run_detail("Runtime state", "unavailable"),
+        setup_first_run_detail(
+            "Overall state",
+            &crate::setup_first_run::serialized_label(&runtime.decision.overall_state),
+        ),
+        setup_first_run_detail(
+            "Manual step",
+            &crate::setup_first_run::serialized_label(&runtime.decision.manual_step_state),
+        ),
+        setup_first_run_detail("LAN source", runtime.lan_source_state),
         setup_first_run_detail("Snapshot owner", "Rust parent runtime host bridge"),
         setup_first_run_detail("Product claim", SETUP_FIRST_RUN_PRODUCT_CLAIM),
     ]
 }
 
-fn setup_first_run_cards() -> Vec<ParentSetupFirstRunPanelCardSnapshot> {
+fn setup_first_run_cards(
+    runtime: &crate::setup_first_run::SetupFirstRunRuntimeSnapshot,
+) -> Vec<ParentSetupFirstRunPanelCardSnapshot> {
     vec![
-        setup_first_run_current_truth_card(),
-        setup_first_run_missing_runtime_card(),
+        setup_first_run_current_truth_card(runtime),
+        setup_first_run_missing_runtime_card(runtime),
         setup_first_run_ownership_card(),
     ]
 }
 
-fn setup_first_run_current_truth_card() -> ParentSetupFirstRunPanelCardSnapshot {
+fn setup_first_run_current_truth_card(
+    runtime: &crate::setup_first_run::SetupFirstRunRuntimeSnapshot,
+) -> ParentSetupFirstRunPanelCardSnapshot {
     setup_first_run_card(
         "What is real now",
-        "The Start route can render an honest Rust-owned boundary panel without inventing setup progress.",
+        "The Start route evaluates real Rust-owned provisioning contracts and exposes the resulting readiness state without inventing authority.",
         vec![
             setup_first_run_detail("Route shell", "Start route is visible in the portal shell"),
             setup_first_run_detail(
                 "Snapshot transport",
                 "Host bridge snapshot reaches TS presentation",
             ),
+            setup_first_run_detail(
+                "Provisioning decision",
+                &crate::setup_first_run::serialized_label(&runtime.decision.overall_state),
+            ),
+            setup_first_run_detail(
+                "Recovery action",
+                &crate::setup_first_run::serialized_label(&runtime.action_plan.recovery_action),
+            ),
+            setup_first_run_detail(
+                "Child runtime action",
+                &crate::setup_first_run::serialized_label(
+                    &runtime.action_plan.child_runtime_start_action,
+                ),
+            ),
             setup_first_run_detail("Evidence boundary", "Route-contract projection only"),
         ],
     )
 }
 
-fn setup_first_run_missing_runtime_card() -> ParentSetupFirstRunPanelCardSnapshot {
+fn setup_first_run_missing_runtime_card(
+    runtime: &crate::setup_first_run::SetupFirstRunRuntimeSnapshot,
+) -> ParentSetupFirstRunPanelCardSnapshot {
     setup_first_run_card(
-        "What is missing",
-        "No live setup-first-run read model is wired here yet, so the panel must stay explicit about the missing runtime state.",
+        "Authority and handoff state",
+        "Only the selected LAN read model can contribute live data here. Account, device registration, package, permission, custody, policy, and entitlement authorities remain explicit manual-required inputs.",
         vec![
-            setup_first_run_detail("Account/provider state", "not wired"),
-            setup_first_run_detail("Pairing/trust state", "not wired"),
-            setup_first_run_detail("Data-custody/readiness state", "not wired"),
+            setup_first_run_detail(
+                "Household membership",
+                &crate::setup_first_run::serialized_label(&runtime.input.membership_state),
+            ),
+            setup_first_run_detail(
+                "Account authority",
+                &crate::setup_first_run::serialized_label(&runtime.input.account_readiness_state),
+            ),
+            setup_first_run_detail(
+                "Parent device registration",
+                &crate::setup_first_run::serialized_label(
+                    &runtime.input.parent_device_registration_state,
+                ),
+            ),
+            setup_first_run_detail(
+                "Pairing lifecycle",
+                &crate::setup_first_run::serialized_label(&runtime.input.pairing_lifecycle_state),
+            ),
+            setup_first_run_detail(
+                "Device trust",
+                &crate::setup_first_run::serialized_label(&runtime.input.device_trust_state),
+            ),
+            setup_first_run_detail(
+                "Policy baseline",
+                &crate::setup_first_run::serialized_label(&runtime.input.policy_baseline_state),
+            ),
+            setup_first_run_detail(
+                "Data custody",
+                &crate::setup_first_run::serialized_label(&runtime.input.data_custody_sync_state),
+            ),
             setup_first_run_detail(
                 "Completion claim",
-                "withheld until a live Rust snapshot exists",
+                "withheld until all required authorities provide trusted state",
             ),
         ],
     )
