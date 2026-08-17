@@ -1,14 +1,10 @@
 use std::io::{self, Write};
 
-use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use ocentra_eventing::ids::CorrelationId;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-use ocentra_family_identity_core::household_authority_proof::{
-    CurrentVerifiedHouseholdAuthority, HouseholdAuthorityCurrentState, HouseholdAuthorityProof,
-    HouseholdAuthorityProofVerifier, VerifiedHouseholdAuthority,
-};
+use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProof;
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
@@ -49,7 +45,7 @@ impl Write for BoundedWireLenWriter {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SignedAuthorityBindings {
+pub(crate) struct SignedAuthorityBindings {
     pub bindings: DeliveryGrantBindings,
     pub assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
     /// Household authority is minted and signed by family identity. Policy only
@@ -77,156 +73,6 @@ impl SignedAuthorityBindings {
             hasher.finalize()
         ))
         .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
-    }
-}
-
-pub struct AuthenticatedDeliveryGrantAuthorityVerifier {
-    verifying_key: VerifyingKey,
-    household_authority_verifier: HouseholdAuthorityProofVerifier,
-}
-
-impl AuthenticatedDeliveryGrantAuthorityVerifier {
-    pub fn new(verifying_key: VerifyingKey, household_authority_key: VerifyingKey) -> Self {
-        Self {
-            verifying_key,
-            household_authority_verifier: HouseholdAuthorityProofVerifier::new(
-                household_authority_key,
-            ),
-        }
-    }
-
-    pub fn verify(
-        &self,
-        signed: &SignedAuthorityBindings,
-    ) -> Result<
-        (
-            DeliveryGrantBindings,
-            AuthenticatedDeliveryGrantAssertionSnapshot,
-            VerifiedHouseholdAuthority,
-            ResolvedPolicyDecision,
-            PolicyContractAuthorityDecision,
-        ),
-        AuthenticatedDeliveryGrantIssuanceError,
-    > {
-        validate_signed_shape(signed)?;
-        let signature = Signature::from_slice(&signed.signature).map_err(|_error| {
-            AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
-        })?;
-        let bytes = signing_bytes(signed)?;
-        self.verifying_key
-            .verify_strict(&bytes, &signature)
-            .map_err(|_error| {
-                AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
-            })?;
-        let household_authority = self
-            .household_authority_verifier
-            .verify(&signed.household_authority_proof)
-            .map_err(|_error| {
-                AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
-            })?;
-        let identity_binding = household_authority
-            .identity_binding()
-            .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
-        let bindings = &signed.bindings;
-        (identity_binding.household_id == bindings.household_id
-            && identity_binding.parent_actor_id == bindings.issuer_actor_id
-            && identity_binding.parent_device_id == bindings.parent_device_id
-            && identity_binding.child_profile_id == bindings.child_profile_id
-            && identity_binding.target_device_id == bindings.target_device_id)
-            .then_some(())
-            .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
-        Ok((
-            signed.bindings.clone(),
-            signed.assertions.clone(),
-            household_authority,
-            signed.resolved_policy_decision.clone(),
-            signed.policy_authority.clone(),
-        ))
-    }
-
-    pub fn verify_against_current_state(
-        &self,
-        signed: &SignedAuthorityBindings,
-        current_state: &HouseholdAuthorityCurrentState,
-        trusted_now: &str,
-    ) -> Result<
-        (
-            DeliveryGrantBindings,
-            AuthenticatedDeliveryGrantAssertionSnapshot,
-            CurrentVerifiedHouseholdAuthority,
-            ResolvedPolicyDecision,
-            PolicyContractAuthorityDecision,
-        ),
-        AuthenticatedDeliveryGrantIssuanceError,
-    > {
-        let (bindings, assertions, _, resolved_decision, policy_authority) = self.verify(signed)?;
-        let household_authority = self
-            .household_authority_verifier
-            .verify_against_current_state(
-                &signed.household_authority_proof,
-                current_state,
-                trusted_now,
-            )
-            .map_err(|_error| {
-                AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
-            })?;
-        Ok((
-            bindings,
-            assertions,
-            household_authority,
-            resolved_decision,
-            policy_authority,
-        ))
-    }
-}
-
-pub struct AuthenticatedDeliveryGrantAuthoritySigner {
-    signing_key: SigningKey,
-}
-
-impl AuthenticatedDeliveryGrantAuthoritySigner {
-    pub fn from_platform_key(platform_protected_key: [u8; 32]) -> Self {
-        Self {
-            signing_key: SigningKey::from_bytes(&platform_protected_key),
-        }
-    }
-
-    pub fn verifying_key(&self) -> VerifyingKey {
-        self.signing_key.verifying_key()
-    }
-
-    pub fn sign(
-        &self,
-        bindings: DeliveryGrantBindings,
-        assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
-        household_authority_proof: HouseholdAuthorityProof,
-        resolved_policy_decision: ResolvedPolicyDecision,
-        policy_authority: PolicyContractAuthorityDecision,
-    ) -> Result<SignedAuthorityBindings, AuthenticatedDeliveryGrantIssuanceError> {
-        let unsigned = SignedAuthorityBindings {
-            bindings,
-            assertions,
-            household_authority_proof,
-            resolved_policy_decision,
-            policy_authority,
-            signature: Vec::new(),
-        };
-        validate_signed_shape(&unsigned)?;
-        let bytes = signing_bytes(&unsigned)?;
-        let signature = self.signing_key.sign(&bytes).to_bytes().to_vec();
-        let signed = SignedAuthorityBindings {
-            bindings: unsigned.bindings,
-            assertions: unsigned.assertions,
-            household_authority_proof: unsigned.household_authority_proof,
-            resolved_policy_decision: unsigned.resolved_policy_decision,
-            policy_authority: unsigned.policy_authority,
-            signature,
-        };
-        // The signature is JSON encoded as part of the signed envelope.  Check
-        // the completed value, rather than only its unsigned precursor, so a
-        // producer cannot mint an envelope a verifier must reject as oversized.
-        validate_signed_shape(&signed)?;
-        Ok(signed)
     }
 }
 

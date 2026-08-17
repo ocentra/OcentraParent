@@ -60,9 +60,9 @@ impl VerifiedParentRemovalAuthorization {
         }
         let binding = authority.identity_binding();
         let identity = ChildAgentServiceIdentity {
-            household_id: non_empty_ref(&binding.household_id)?,
-            child_profile_id: non_empty_ref(&binding.child_profile_id)?,
-            target_device_id: non_empty_ref(&binding.target_device_id)?,
+            household_id: non_empty_ref(binding.household_id())?,
+            child_profile_id: non_empty_ref(binding.child_profile_id())?,
+            target_device_id: non_empty_ref(binding.target_device_id())?,
         };
         let reference = non_empty_ref(&reference.into())?;
         Ok(Self {
