@@ -109,26 +109,32 @@ pub struct EntitlementSnapshotDerivationInput {
     pub signature: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+/// A verified, device-bound snapshot context.
+///
+/// The state is crate-owned: callers may carry a context returned by the
+/// verifier, but cannot deserialize or construct one with trusted states.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct EntitlementSnapshotContext {
-    pub signature_state: EntitlementSnapshotSignatureState,
-    pub freshness_state: EntitlementSnapshotFreshnessState,
-    pub household_binding_state: EntitlementSnapshotBindingState,
-    pub device_binding_state: EntitlementSnapshotBindingState,
-    pub device_trust_requirement_state: EntitlementDeviceTrustRequirementState,
-    pub device_trust_state: EntitlementDeviceTrustState,
-    pub package_build_state: EntitlementPackageBuildState,
+    pub(crate) signature_state: EntitlementSnapshotSignatureState,
+    pub(crate) freshness_state: EntitlementSnapshotFreshnessState,
+    pub(crate) household_binding_state: EntitlementSnapshotBindingState,
+    pub(crate) device_binding_state: EntitlementSnapshotBindingState,
+    pub(crate) device_trust_requirement_state: EntitlementDeviceTrustRequirementState,
+    pub(crate) device_trust_state: EntitlementDeviceTrustState,
+    pub(crate) package_build_state: EntitlementPackageBuildState,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+/// Verification output remains opaque until the entitlement owner projects it
+/// into a capability context.  In particular, a downstream verifier cannot
+/// manufacture a trusted result by deserializing this DTO.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EntitlementSnapshotVerificationContext {
-    pub signature_state: EntitlementSnapshotSignatureState,
-    pub freshness_state: EntitlementSnapshotFreshnessState,
-    pub household_binding_state: EntitlementSnapshotBindingState,
-    pub device_binding_state: EntitlementSnapshotBindingState,
-    pub device_trust_state: EntitlementDeviceTrustState,
-    pub package_build_state: EntitlementPackageBuildState,
+    pub(crate) signature_state: EntitlementSnapshotSignatureState,
+    pub(crate) freshness_state: EntitlementSnapshotFreshnessState,
+    pub(crate) household_binding_state: EntitlementSnapshotBindingState,
+    pub(crate) device_binding_state: EntitlementSnapshotBindingState,
+    pub(crate) device_trust_state: EntitlementDeviceTrustState,
+    pub(crate) package_build_state: EntitlementPackageBuildState,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -173,6 +179,20 @@ impl EntitlementSnapshotAuthorityVerifier for UnavailableEntitlementSnapshotAuth
     ) -> Result<EntitlementSnapshotVerificationContext, EntitlementSnapshotVerificationFailure>
     {
         Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
+    }
+}
+
+impl EntitlementSnapshotContext {
+    pub(crate) fn unavailable() -> Self {
+        Self {
+            signature_state: EntitlementSnapshotSignatureState::Missing,
+            freshness_state: EntitlementSnapshotFreshnessState::Revoked,
+            household_binding_state: EntitlementSnapshotBindingState::Mismatched,
+            device_binding_state: EntitlementSnapshotBindingState::Mismatched,
+            device_trust_requirement_state: EntitlementDeviceTrustRequirementState::Required,
+            device_trust_state: EntitlementDeviceTrustState::Missing,
+            package_build_state: EntitlementPackageBuildState::Invalid,
+        }
     }
 }
 
@@ -284,7 +304,7 @@ pub fn derive_signed_entitlement_snapshot(
     }
 }
 
-pub fn snapshot_context_from_signed_snapshot(
+pub(crate) fn snapshot_context_from_signed_snapshot(
     snapshot: &SignedEntitlementSnapshot,
     verification: EntitlementSnapshotVerificationContext,
 ) -> EntitlementSnapshotContext {
