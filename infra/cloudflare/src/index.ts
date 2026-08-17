@@ -2202,6 +2202,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
 
     async 'admin-billing-refunds'({ request, env, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
+      const actorSubject = verifiedIdentity.subject;
       const body = await readJsonObject<AdminRefundRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -2229,7 +2230,6 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
             blocker: 'billing-invoice-subject-missing',
           });
         }
-        const actorSubject = verifiedIdentity.subject;
         return executeIdempotentWrite(
           env.BILLING_DO,
           `billing-control:${refundSubject}`,
