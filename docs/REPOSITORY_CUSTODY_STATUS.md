@@ -30,7 +30,7 @@ precommit, or CI merely because it is pushed.
 | Worktree | Branch/head | Current disposition |
 | --- | --- | --- |
 | `E:/OcentraParent` | `develop` / `4ece51528` | Tracked checkout with the user-owned untracked `.codex/config.toml`; do not use for parallel feature edits. |
-| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / source through `3fec0793a` plus pending Logging status/graph reconciliation | Root integration/review lane; accepted Payment, Device Trust, Account, and Logging production source are consolidated here. |
+| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / Logging reconciliation checkpoint `b5f81376e` | Root integration/review lane; accepted Payment, Device Trust, Account, and Logging production source are consolidated here. |
 | `E:/OcentraWorktrees/lanes/account-wp02-source-wave` | `codex/account-wp02-source-wave` / `35edb2830` | Clean accepted Account source lane; retained for expected-test writing and custody comparison. |
 | `E:/OcentraWorktrees/lanes/payment-source-wave` | `codex/payment-source-wave` / `63305016f` | Clean accepted Payment source lane; retained for expected-test writing and custody comparison. |
 | `E:/OcentraWorktrees/lanes/data-custody-source-wave` | `codex/data-custody-source-wave` / `78f01911f` | Clean accepted Data Custody source lane; retained for integration comparison and the later expected-test wave. |
