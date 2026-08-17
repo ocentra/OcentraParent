@@ -1,23 +1,19 @@
 #![forbid(unsafe_code)]
 
-//! Unsigned entitlement projection and verifier-owned signed context.
+//! Unsigned entitlement snapshot projection and verifier-owned context.
 
 use crate::entitlement_access::{EntitlementCapability, SubscriptionState};
 use crate::entitlement_snapshot_values::{
     EntitlementAccountAuthorityState, EntitlementAccountRef,
     EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState, EntitlementHouseholdRef,
     EntitlementPackageBuildRef, EntitlementPackageBuildState, EntitlementProviderStateBoundary,
-    EntitlementRevocationCursor, EntitlementSafetyFeatureState, EntitlementSignatureKeyId,
-    EntitlementSnapshotBindingState, EntitlementSnapshotFreshnessState, EntitlementSnapshotId,
-    EntitlementSnapshotPlanTier, EntitlementSnapshotSignatureState, EntitlementTrustedDeviceRef,
+    EntitlementRevocationCursor, EntitlementSafetyFeatureState, EntitlementSnapshotBindingState,
+    EntitlementSnapshotFreshnessState, EntitlementSnapshotId, EntitlementSnapshotPlanTier,
+    EntitlementSnapshotSignatureState, EntitlementTrustedDeviceRef,
 };
 use serde::{Deserialize, Serialize};
 
 const ENTITLEMENT_SNAPSHOT_SCHEMA_VERSION: u16 = 1;
-
-mod entitlement_snapshot_authority;
-mod entitlement_snapshot_context;
-mod entitlement_snapshot_validation;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -113,32 +109,6 @@ pub struct EntitlementSnapshotDerivationInput {
     pub grace_until: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SignedEntitlementSnapshot {
-    schema_version: u16,
-    snapshot_id: EntitlementSnapshotId,
-    account_ref: EntitlementAccountRef,
-    household_ref: EntitlementHouseholdRef,
-    trusted_device_ref: EntitlementTrustedDeviceRef,
-    plan_tier: EntitlementSnapshotPlanTier,
-    feature_flags: Vec<EntitlementSnapshotFeatureFlag>,
-    limits: EntitlementSnapshotLimitBundle,
-    base_child_device_limit: u32,
-    active_referral_credits: u32,
-    paid_extra_child_device_seats: u32,
-    effective_child_device_limit: u32,
-    issued_at: String,
-    expires_at: String,
-    grace_until: Option<String>,
-    livemode: bool,
-    revocation_cursor: EntitlementRevocationCursor,
-    device_trust_required: bool,
-    package_build_ref: EntitlementPackageBuildRef,
-    signature_key_id: EntitlementSignatureKeyId,
-    signature: String,
-}
-
 /// Capability context held by the entitlement owner.
 ///
 /// Its state is crate-private, deserialization always fails, and serialization
@@ -163,66 +133,6 @@ impl Serialize for EntitlementSnapshotContext {
         Err(serde::ser::Error::custom(
             "entitlement snapshot context is verifier-owned and cannot be serialized",
         ))
-    }
-}
-
-/// Verification output remains opaque until the entitlement owner projects it
-/// into a capability context.  In particular, a downstream verifier cannot
-/// manufacture a trusted result by deserializing this DTO.
-#[derive(Debug, PartialEq, Eq)]
-pub struct EntitlementSnapshotVerificationContext {
-    pub(crate) signature_state: EntitlementSnapshotSignatureState,
-    pub(crate) freshness_state: EntitlementSnapshotFreshnessState,
-    pub(crate) household_binding_state: EntitlementSnapshotBindingState,
-    pub(crate) device_binding_state: EntitlementSnapshotBindingState,
-    pub(crate) device_trust_state: EntitlementDeviceTrustState,
-    pub(crate) package_build_state: EntitlementPackageBuildState,
-    pub(crate) authority_binding:
-        entitlement_snapshot_authority::EntitlementSnapshotAuthorityBinding,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EntitlementSnapshotVerificationRequest {
-    pub account_ref: EntitlementAccountRef,
-    pub household_ref: EntitlementHouseholdRef,
-    pub trusted_device_ref: EntitlementTrustedDeviceRef,
-    pub package_build_ref: EntitlementPackageBuildRef,
-    pub observed_at: String,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum EntitlementSnapshotVerificationFailure {
-    InvalidSnapshotShape,
-    MissingSignature,
-    InvalidSignature,
-    WrongAccount,
-    WrongHousehold,
-    WrongDevice,
-    WrongPackageBuild,
-    Expired,
-    TimestampInvalid,
-    AuthorityUnavailable,
-}
-
-pub trait EntitlementSnapshotAuthorityVerifier {
-    fn verify_signature_and_revocation(
-        &mut self,
-        snapshot: &SignedEntitlementSnapshot,
-        request: &EntitlementSnapshotVerificationRequest,
-    ) -> Result<EntitlementSnapshotVerificationContext, EntitlementSnapshotVerificationFailure>;
-}
-
-#[derive(Debug, Default)]
-pub struct UnavailableEntitlementSnapshotAuthorityVerifier;
-
-impl EntitlementSnapshotAuthorityVerifier for UnavailableEntitlementSnapshotAuthorityVerifier {
-    fn verify_signature_and_revocation(
-        &mut self,
-        _snapshot: &SignedEntitlementSnapshot,
-        _request: &EntitlementSnapshotVerificationRequest,
-    ) -> Result<EntitlementSnapshotVerificationContext, EntitlementSnapshotVerificationFailure>
-    {
-        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
     }
 }
 
@@ -312,29 +222,4 @@ pub fn derive_unsigned_entitlement_snapshot(
         device_trust_required: input.entitlement_ledger_state.device_trust_required,
         package_build_ref: input.entitlement_ledger_state.package_build_ref,
     })
-}
-
-pub fn verify_device_bound_entitlement_snapshot(
-    verifier: &mut impl EntitlementSnapshotAuthorityVerifier,
-    snapshot: &SignedEntitlementSnapshot,
-    request: &EntitlementSnapshotVerificationRequest,
-) -> Result<EntitlementSnapshotContext, EntitlementSnapshotVerificationFailure> {
-    entitlement_snapshot_validation::validate_snapshot_shape(snapshot, request)?;
-    let verification = verifier.verify_signature_and_revocation(snapshot, request)?;
-    entitlement_snapshot_authority::validate_verifier_owned_binding(
-        snapshot,
-        request,
-        &verification,
-    )?;
-    match &verification.signature_state {
-        EntitlementSnapshotSignatureState::Missing => {
-            return Err(EntitlementSnapshotVerificationFailure::MissingSignature);
-        }
-        EntitlementSnapshotSignatureState::Invalid => {
-            return Err(EntitlementSnapshotVerificationFailure::InvalidSignature);
-        }
-        EntitlementSnapshotSignatureState::Trusted => {}
-    }
-
-    Ok(entitlement_snapshot_context::snapshot_context_from_signed_snapshot(snapshot, verification))
 }
