@@ -19,6 +19,9 @@ pub(super) fn decrypt_attempt_outcome(
     platform_row: &contracts::PlatformKeyCustodyRow,
     input: &DecryptAttemptInput,
 ) -> DecryptAttemptOutcome {
+    if platform_row.surface != input.surface {
+        return encryption_key_custody_scope::surface_mismatch_outcome();
+    }
     if !input.household_match || input.key_state == contracts::KeyCustodyState::WrongHousehold {
         return wrong_household_outcome();
     }
