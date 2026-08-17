@@ -28,7 +28,7 @@
     },
     {
       "id": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
-      "hardDependencies": [],
+      "hardDependencies": ["WP-account-identity-family-plan-01-auth-provider-decision"],
       "evidence": [
         "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",
@@ -216,6 +216,19 @@
     }
   ],
   "edges": [
+    {
+      "from": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "to": "WP-account-identity-family-plan-01-auth-provider-decision",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md"
+      ],
+      "reason": "Cloudflare WP05 may implement the Firebase provider adapter only after Account WP01 records the external-provider and custody decision. This reviewed implementation edge does not promote normal READY, tests, proof, deployment, runtime, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
     {
       "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
       "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
@@ -746,6 +759,16 @@
     }
   ],
   "completionEvidenceOverrides": [
+    {
+      "id": "WP-account-identity-family-plan-01-auth-provider-decision",
+      "implementation": ["infra/cloudflare/src/env.ts", "infra/cloudflare/src/storage/account-identity-store.ts"],
+      "reason": "Account WP01's Firebase external-provider and custody decision is reviewed as the implementation-phase handoff input for Cloudflare WP05 only. No account login/session runtime, tests, proof, deployment, or completion is claimed.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
+        "docs/plans/account-identity-family-plan/workpacks/01-auth-provider-decision.md",
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md"
+      ]
+    },
     {
       "id": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
       "implementation": [

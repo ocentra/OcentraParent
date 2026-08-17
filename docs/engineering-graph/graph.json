@@ -384,14 +384,26 @@
         "statusText": "partial",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Account WP01's Firebase external-provider and custody decision is reviewed as the implementation-phase handoff input for Cloudflare WP05 only. No account login/session runtime, tests, proof, deployment, or completion is claimed.",
+          "evidence": [
+            "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
+            "docs/plans/account-identity-family-plan/workpacks/01-auth-provider-decision.md",
+            "docs/plans/account-identity-family-plan/PLAN_STATE.md"
+          ],
+          "requirements": ["implementation"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/account-identity-family-plan/workpacks/01-auth-provider-decision.md"
+            "infra/cloudflare/src/env.ts",
+            "infra/cloudflare/src/storage/account-identity-store.ts"
           ],
           "tests": [
             "docs/plans/account-identity-family-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -15938,8 +15950,10 @@
       "title": "WP05 Auth Admin Support Boundary",
       "path": "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
       "parent": "PLAN-cloudflare-control-plane-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-account-identity-family-plan-01-auth-provider-decision"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
@@ -15949,7 +15963,9 @@
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "dependencyReview": {
-          "hardDependencies": [],
+          "hardDependencies": [
+            "WP-account-identity-family-plan-01-auth-provider-decision"
+          ],
           "evidence": [
             "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
             "docs/plans/account-identity-family-plan/PLAN_STATE.md",
@@ -30102,6 +30118,19 @@
       "to": "WP-v0-8-enforcement-control-plan-20-rollout-docs-ci-pr-gate",
       "kind": "contains",
       "confidence": "structural"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "to": "WP-account-identity-family-plan-01-auth-provider-decision",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md"
+      ],
+      "reason": "Cloudflare WP05 may implement the Firebase provider adapter only after Account WP01 records the external-provider and custody decision. This reviewed implementation edge does not promote normal READY, tests, proof, deployment, runtime, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
