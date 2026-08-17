@@ -25,5 +25,6 @@ pub(super) fn is_lan_surface_route_impl(route: &ParentRouteId) -> bool {
 }
 
 pub(super) fn requires_lan_read_model(route: &ParentRouteId) -> bool {
-    is_lan_surface_route_impl(route) || matches!(route, ParentRouteId::PolicyNetwork)
+    is_lan_surface_route_impl(route)
+        || matches!(route, ParentRouteId::PolicyNetwork | ParentRouteId::Start)
 }

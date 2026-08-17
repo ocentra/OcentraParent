@@ -152,8 +152,9 @@ pub(super) fn browser_route_panels_snapshot(
 
 pub(super) fn setup_first_run_panel_snapshot(
     route: &ParentRouteId,
+    lan_add_device_read_model: Option<&LanBrowserAddDeviceReadModel>,
 ) -> Option<ParentSetupFirstRunPanelSnapshot> {
-    browser::setup_first_run_panel_snapshot(route)
+    browser::setup_first_run_panel_snapshot(route, lan_add_device_read_model)
 }
 
 pub(super) fn live_activity_snapshot(

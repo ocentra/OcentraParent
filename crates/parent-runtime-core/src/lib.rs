@@ -12,6 +12,7 @@ pub mod device_trust_bootstrap_runtime;
 pub mod parent_ui_bridge;
 pub mod policy_control_dispatch;
 pub mod policy_control_update_flow;
+pub(crate) mod setup_first_run;
 pub mod tracking_child_check_in_request_flow;
 pub mod tracking_config_update_flow;
 pub mod tracking_dispatch;
