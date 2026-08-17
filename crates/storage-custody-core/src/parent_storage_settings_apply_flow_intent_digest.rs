@@ -61,7 +61,7 @@ pub(super) fn derive_parent_storage_apply_intent_digest(
         will_not_change: &input.will_not_change,
         preserved_tombstones: &input.preserved_tombstones,
         manual_review_required: &input.manual_review_required,
-        rollback_available: input.rollback_available,
+        rollback_available: false,
         apply_manual_required_note: input.manual_required_note.as_deref(),
     };
     let canonical = serde_json::to_vec(&intent)

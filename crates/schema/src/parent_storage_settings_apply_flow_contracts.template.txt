@@ -1,6 +1,6 @@
 /* generated from crates/schema/src/parent_storage_settings_apply_flow.rs */
 
-import {{ brandedNonEmptyStringSchema }} from './effect';
+import {{ Schema, brandedNonEmptyStringSchema }} from './effect';
 
 import type {{
   GeneratedParentOwnedSyncDeleteVisibilityState,
@@ -19,8 +19,11 @@ export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentStorageSettingsRowIdSchema = brandedNonEmptyStringSchema('ParentStorageSettingsRowId');
 export const GeneratedParentStoragePreviewIdSchema = brandedNonEmptyStringSchema('ParentStoragePreviewId');
 export const GeneratedParentStorageHouseholdRefSchema = brandedNonEmptyStringSchema('ParentStorageHouseholdRef');
-export const GeneratedParentStorageApplyIntentDigestSchema = brandedNonEmptyStringSchema(
-  'ParentStorageApplyIntentDigest'
+export const GeneratedParentStorageApplyIntentDigestSchema = Schema.String.pipe(
+  Schema.filter(
+    (value) => /^[0-9a-f]{{64}}$/.test(value) || 'Expected a 64-character lowercase hexadecimal apply intent digest'
+  ),
+  Schema.brand('ParentStorageApplyIntentDigest')
 );
 export const GeneratedParentStorageApplyIdSchema = brandedNonEmptyStringSchema('ParentStorageApplyId');
 export const GeneratedParentStorageActionIdSchema = brandedNonEmptyStringSchema('ParentStorageActionId');

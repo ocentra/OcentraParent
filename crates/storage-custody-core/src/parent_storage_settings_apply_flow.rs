@@ -52,7 +52,6 @@ pub struct ParentStorageApplyDecisionInput {
     pub will_not_change: Vec<sync_contracts::ParentOwnedSyncExportDataClass>,
     pub preserved_tombstones: Vec<sync_contracts::ParentOwnedSyncExportDataClass>,
     pub manual_review_required: Vec<String>,
-    pub rollback_available: bool,
     pub manual_required_note: Option<String>,
 }
 
