@@ -14,6 +14,9 @@ export interface Env {
   REQUEST_MAX_BYTES?: string;
   BILLING_ROUTE_KILL_SWITCH?: string;
   AUTH_ADAPTER_MODE?: string;
+  FIREBASE_PROJECT_ID?: string;
+  FIREBASE_CLOCK_SKEW_SECONDS?: string;
+  FIREBASE_JWKS_CACHE_SECONDS?: string;
   INTERACTIVE_CSRF_TOKEN?: string;
   INTERNAL_QUEUE_SHARED_SECRET?: string;
   STRIPE_SECRET_KEY?: string;
@@ -56,6 +59,9 @@ const OPTIONAL_ENV_KEYS = [
   'REQUEST_MAX_BYTES',
   'BILLING_ROUTE_KILL_SWITCH',
   'AUTH_ADAPTER_MODE',
+  'FIREBASE_PROJECT_ID',
+  'FIREBASE_CLOCK_SKEW_SECONDS',
+  'FIREBASE_JWKS_CACHE_SECONDS',
   'INTERACTIVE_CSRF_TOKEN',
   'INTERNAL_QUEUE_SHARED_SECRET',
   'STRIPE_SECRET_KEY',
@@ -260,6 +266,23 @@ export function validateEnv(env: Env): string[] {
 
   if (!isLocalFixtureEnvironment(env) && resolveAuthAdapterMode(env) === 'local-safe-fixture') {
     errors.push('AUTH_ADAPTER_MODE local-safe-fixture is not permitted outside local/test/development');
+  }
+
+  if (resolveAuthAdapterMode(env) === 'provider-verified') {
+    const projectId = env.FIREBASE_PROJECT_ID?.trim();
+    if (!projectId) errors.push('missing required env: FIREBASE_PROJECT_ID');
+    else if (!/^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(projectId)) {
+      errors.push('FIREBASE_PROJECT_ID must be 3-30 lowercase ASCII letters, digits, or hyphens');
+    }
+    for (const [name, maximum] of [
+      ['FIREBASE_CLOCK_SKEW_SECONDS', 300],
+      ['FIREBASE_JWKS_CACHE_SECONDS', 3600],
+    ] as const) {
+      const value = env[name];
+      if (value !== undefined && (!/^\d+$/.test(value) || Number(value) <= 0 || Number(value) > maximum)) {
+        errors.push(`${name} must be a positive integer no greater than ${maximum}`);
+      }
+    }
   }
 
   if (

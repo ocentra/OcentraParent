@@ -10,6 +10,8 @@ CORS_ALLOWED_ORIGINS = "https://parent.ocentra.com"
 REQUEST_MAX_BYTES = "1048576"
 BILLING_ROUTE_KILL_SWITCH = "false"
 AUTH_ADAPTER_MODE = "account-auth-adapter-manual-required"
+FIREBASE_CLOCK_SKEW_SECONDS = "60"
+FIREBASE_JWKS_CACHE_SECONDS = "300"
 ENTITLEMENT_SIGNING_KEY_REF = "manual-required-production-ref"
 
 [[d1_databases]]

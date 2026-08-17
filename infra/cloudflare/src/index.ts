@@ -43,6 +43,7 @@ import {
   verifyStripeWebhookSignature,
   type VerifiedIdentity,
 } from './auth/verifier.js';
+import { createFirebaseProviderVerificationPort } from './providers/firebase-auth.js';
 import { validateAuthBoundaryRoute } from './auth/model.js';
 import {
   getMissingBindings,
@@ -1984,7 +1985,8 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     }
   }
 
-  const authResult = await verifyAuthState(route.authState, request, env);
+  const providerVerifier = createFirebaseProviderVerificationPort(env);
+  const authResult = await verifyAuthState(route.authState, request, env, providerVerifier);
   if (!authResult.ok) {
     return authResult.response;
   }
