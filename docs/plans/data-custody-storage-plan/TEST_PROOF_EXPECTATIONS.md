@@ -230,4 +230,30 @@ report/query claim without source/citation proof
 assistant/report output includes disallowed private payload
 parent settings UI claim without apply confirmation proof
 automatic Ocentra fallback store without explicit product decision and proof
+
+## WP09 Parent Local Bundle Provider Runtime
+
+Expected coverage:
+
+```text
+encrypted-before-persistence/provider handoff
+exact byte hash/signature and household/key/source binding
+atomic write/replace, interruption, restart, quarantine, and recovery
+manual/scheduled retry, restart, and duplicate-job idempotency
+provider-neutral opaque status and unsupported-provider/manual-required state
+payload/key/provider/path redaction and no-fallback-store negative
+```
+
+## WP10 Restore Orchestration And Producer Handoffs
+
+Expected coverage:
+
+```text
+non-mutating preflight bound to bundle, household, authority, key, tombstone, schema, and migration
+trusted confirmation expiry/replay/wrong-operation/wrong-household negatives
+monotonic apply/migration/rollback/idempotency under retry and restart
+missing/failed/partial data-class producer handoffs and manual-required outcomes
+tombstone/no-resurrection and migration rollback boundaries
+receipt provenance, owner result requirement, redaction, and no-fake-success
+```
 ```

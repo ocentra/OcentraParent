@@ -39,6 +39,17 @@
 7. Record any adjacent-plan handoff in the selected workpack before opening that adjacent plan.
 8. Keep overall plan status open until the remaining source, expected tests, focused gates, and proof roots are complete.
 
+## 2026-08-17 routing correction
+
+Before the expected-test wave, implement the two missing runtime owners in
+order: WP09 parent-local/provider-neutral bundle byte custody, then WP10
+restore orchestration and producer handoffs. WP09 must consume the existing
+bundle/key/retention contracts and never fake a cloud provider. WP10 must
+consume WP09 plus Account authority/confirmation and data-class owner results;
+it may coordinate and record outcomes but cannot mint receipts or mutate data
+classes itself. Account WP02's target-aware authority correction remains a
+separate prerequisite for action-bound custody composition.
+
 ## Production-code audit boundary
 
 WP02/WP03/WP04/WP05/WP06 now carry the accepted source-wave deltas recorded in

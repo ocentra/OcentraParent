@@ -170,3 +170,26 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 Continue execution from: [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md).
 Update this plan only via the blueprint and matching workpack proof rows.
+
+## 2026-08-17 runtime ownership correction
+
+Live-code review confirms WP05's bundle/preflight/integrity/manual readiness is
+not a storage or restore runtime. No production local/provider writer or
+retriever, scheduler, byte-level verifier, restore/migration/apply/rollback,
+or idempotency executor is currently owned. Child-runtime owns local
+data/tombstone durability; Account owns authority. Two source-only routes were
+added to make the missing ownership explicit:
+
+- `WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime` owns
+  parent-local encrypted bytes, cryptographic verification, atomic
+  persistence/retrieval, job retry/restart custody, and a provider-neutral
+  adapter boundary.
+- `WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs`
+  owns durable preflight/apply/migration/rollback/idempotency orchestration,
+  Account confirmation/authority handoffs, tombstone/no-resurrection, and
+  crash/restart coordination. It cannot mint receipts or perform data-class
+  mutation.
+
+Both are `source route only / not implemented`; expected tests, focused
+validation, proof, and completion remain open. No provider fake or source
+completion is implied.
