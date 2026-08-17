@@ -1,3 +1,4 @@
+use super::apply_binding_types::ParentStorageApplyIntentDigest;
 use super::constants::*;
 use super::enums::{
     ParentStorageApplyState, ParentStorageCopyKey, ParentStorageDeleteActionKind,
@@ -149,6 +150,10 @@ fn sample_restore_preview() -> ParentStorageRestorePreview {
 fn sample_apply_decision() -> ParentStorageApplyDecision {
     ParentStorageApplyDecision {
         apply_id: apply_id(PARENT_STORAGE_APPLY_DECISION_ID_VALUE),
+        apply_intent_digest: crate::schema_option_or_unreachable(
+            ParentStorageApplyIntentDigest::parse(PARENT_STORAGE_APPLY_INTENT_DIGEST_VALUE),
+            PARENT_STORAGE_EXPECT_APPLY_INTENT_DIGEST,
+        ),
         apply_state: ParentStorageApplyState::ApplyRequiresConfirmation,
         confirmation_required: true,
         will_change: vec![

@@ -1,4 +1,4 @@
-use super::confirmation_types::ParentStorageHouseholdRef;
+use super::apply_binding_types::ParentStorageHouseholdRef;
 use super::constants::{
     PARENT_STORAGE_EXPECT_ACTION_ID, PARENT_STORAGE_EXPECT_APPLY_ID,
     PARENT_STORAGE_EXPECT_CONTRACT_VERSION, PARENT_STORAGE_EXPECT_HOUSEHOLD_REF,
