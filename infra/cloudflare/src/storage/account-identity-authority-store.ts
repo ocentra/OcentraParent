@@ -5,15 +5,35 @@ import {
   type AccountIdentityProvider,
 } from '@ocentra-parent/schema-domain/account-identity-authority';
 
-const VERIFIED_AUTHORITY_BRAND = Symbol('account-identity-verified-authority');
+const VERIFIED_AUTHORITY_CAPABILITIES = new WeakSet<object>();
 
 /**
  * Non-serde capability minted only after the Account-owned D1 row has passed
  * currentness, session, target, and support-receipt validation. The DTO is
  * available only as an explicit evidence JSON string.
  */
-export class VerifiedAccountIdentityAuthorityCapability {
-  readonly [VERIFIED_AUTHORITY_BRAND] = true;
+export interface VerifiedAccountIdentityAuthorityCapability {
+  readonly provider: AccountIdentityProvider;
+  readonly providerSubject: string;
+  readonly accountId: string;
+  readonly householdId: string;
+  readonly memberId: string;
+  readonly role: AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['role'];
+  readonly deviceId: string;
+  readonly childProfileId: string;
+  readonly childDeviceId: string;
+  readonly sessionId: string;
+  readonly sessionGeneration: number;
+  readonly authorityGeneration: number;
+  readonly supportScope: NonNullable<
+    AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']
+  >['scope'] | null;
+  readonly supportIssuer: string | null;
+  readonly supportAuditIdentity: string | null;
+  toEvidenceJson(): string;
+}
+
+class VerifiedAccountIdentityAuthorityCapabilityImpl implements VerifiedAccountIdentityAuthorityCapability {
   readonly #evidenceJson: string;
   readonly #provenance: {
     provider: AccountIdentityProvider;
@@ -54,6 +74,7 @@ export class VerifiedAccountIdentityAuthorityCapability {
       supportIssuer: evidence.member.supportReceipt?.issuer ?? null,
       supportAuditIdentity: evidence.member.supportReceipt?.auditIdentity ?? null,
     });
+    Object.freeze(this);
   }
 
   get provider(): AccountIdentityProvider {
@@ -121,13 +142,20 @@ export class VerifiedAccountIdentityAuthorityCapability {
   toEvidenceJson(): string {
     return this.#evidenceJson;
   }
+}
 
+export function isVerifiedAccountIdentityAuthorityCapability(
+  value: unknown
+): value is VerifiedAccountIdentityAuthorityCapability {
+  return typeof value === 'object' && value !== null && VERIFIED_AUTHORITY_CAPABILITIES.has(value);
 }
 
 function mintVerifiedAuthorityCapability(
   evidence: AccountIdentityCurrentMemberDeviceAuthorityHandoff
 ): VerifiedAccountIdentityAuthorityCapability {
-  return new VerifiedAccountIdentityAuthorityCapability(evidence);
+  const capability = new VerifiedAccountIdentityAuthorityCapabilityImpl(evidence);
+  VERIFIED_AUTHORITY_CAPABILITIES.add(capability);
+  return capability;
 }
 
 export type AccountIdentityAuthorityReadResult =

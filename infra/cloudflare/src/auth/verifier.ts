@@ -2,6 +2,7 @@ import { isLocalFixtureEnvironment, resolveAuthAdapterMode, type Env } from '../
 import type { AccountIdentityProvider } from '@ocentra-parent/schema-domain/account-identity-authority';
 import {
   createAccountIdentityAuthorityStore,
+  isVerifiedAccountIdentityAuthorityCapability,
   type VerifiedAccountIdentityAuthorityCapability,
 } from '../storage/account-identity-authority-store.js';
 import { getAuthStateModel, type AuthState } from './model.js';
@@ -106,6 +107,21 @@ function authStateIdentity(
       authority,
     },
   };
+}
+
+function requireParentRoleCapability(result: AuthResult, authState: AuthState): AuthResult {
+  if (!result.ok) {
+    return result;
+  }
+
+  const authority = result.identity.authority;
+  if (!isVerifiedAccountIdentityAuthorityCapability(authority)) {
+    return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
+  }
+  if (authority.role !== 'parent-owner' && authority.role !== 'co-parent-guardian') {
+    return forbidden('parent-role-capability-required', authState);
+  }
+  return result;
 }
 
 function normalizeSubject(token: string): string {
@@ -288,7 +304,10 @@ async function verifyParentSessionRequest(
   }
 
   if (resolveAuthAdapterMode(env) !== 'local-safe-fixture') {
-    return verifyProviderBoundRequest(request, env, authState, providerVerifier!);
+    return requireParentRoleCapability(
+      await verifyProviderBoundRequest(request, env, authState, providerVerifier!),
+      authState
+    );
   }
 
   const bearerIdentity = extractBearerIdentity(request, authState);
@@ -296,7 +315,10 @@ async function verifyParentSessionRequest(
     return bearerIdentity;
   }
 
-  return authStateIdentity(normalizeSubject(bearerIdentity.token), authState, 'parent', bearerIdentity.trustedDevice);
+  return requireParentRoleCapability(
+    authStateIdentity(normalizeSubject(bearerIdentity.token), authState, 'parent', bearerIdentity.trustedDevice),
+    authState
+  );
 }
 
 async function verifyTrustedParentDeviceRequest(
@@ -345,26 +367,26 @@ async function verifySupportRequest(
   authState: AuthState,
   providerVerifier: ProviderVerificationPort | undefined
 ): Promise<AuthResult> {
-  const identity = await verifyParentSessionRequest(request, env, authState, providerVerifier);
+  const blocker = authAdapterBlocker(env, providerVerifier);
+  if (blocker) {
+    return manualRequired(authState, blocker);
+  }
+  if (resolveAuthAdapterMode(env) === 'local-safe-fixture') {
+    return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
+  }
+
+  const identity = await verifyProviderBoundRequest(request, env, authState, providerVerifier!);
   if (!identity.ok) {
     return identity;
   }
-
-  if (resolveAuthAdapterMode(env) !== 'local-safe-fixture') {
-    return manualRequired(authState, 'support-authorization-unavailable');
+  const authority = identity.identity.authority;
+  if (!isVerifiedAccountIdentityAuthorityCapability(authority)) {
+    return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
   }
-
-  const roleHeader = request.headers.get('x-ocentra-role');
-  if (roleHeader !== 'support' && roleHeader !== 'admin') {
-    return forbidden('support-role-required', authState);
+  if (authority.role !== 'support-admin') {
+    return forbidden('support-admin-capability-required', authState);
   }
-
-  return authStateIdentity(
-    identity.identity.subject,
-    authState,
-    roleHeader === 'admin' ? 'admin' : 'support',
-    identity.identity.trustedDevice
-  );
+  return authStateIdentity(authority.providerSubject, authState, 'support', true, authority);
 }
 
 function verifyProviderWebhookRequest(provider: string, request: Request, env: Env, authState: AuthState): AuthResult {
