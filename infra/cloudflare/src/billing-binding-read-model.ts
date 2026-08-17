@@ -123,7 +123,10 @@ const SELECT_MUTATION_OUTBOX_SQL = normalizeSql(
   'SELECT request_key, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE request_key = ?1 LIMIT 1'
 );
 const SELECT_PENDING_MUTATION_OUTBOX_SQL = normalizeSql(
-  "SELECT request_key, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE audit_state = 'pending' ORDER BY created_at, request_key LIMIT ?1"
+  "SELECT request_key, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE audit_state = 'pending' AND attempt_count < ?2 ORDER BY created_at, request_key LIMIT ?1"
+);
+const SELECT_MANUAL_REVIEW_MUTATION_OUTBOX_SQL = normalizeSql(
+  "SELECT COUNT(*) AS manual_review_count FROM billing_mutation_outbox WHERE audit_state = 'pending' AND attempt_count >= ?1"
 );
 const SELECT_MUTATION_OUTBOX_COLUMNS_SQL = 'PRAGMA table_info(billing_mutation_outbox)';
 const SELECT_REFERRAL_BY_SUBJECT_SQL = normalizeSql(
@@ -213,6 +216,10 @@ interface MutationOutboxRow {
 
 interface MutationOutboxColumnRow {
   name: string;
+}
+
+interface ManualReviewOutboxCountRow {
+  manual_review_count: number | string;
 }
 
 export class BillingReadModelUnavailableError extends Error {
@@ -1264,7 +1271,11 @@ class LocalD1Statement implements D1PreparedStatement {
         const entries =
           this.normalizedQuery === SELECT_PENDING_MUTATION_OUTBOX_SQL
             ? Array.from(this.state.mutationOutbox.values())
-                .filter((entry) => entry.auditState === 'pending')
+                .filter(
+                  (entry) =>
+                    entry.auditState === 'pending' &&
+                    entry.attemptCount < Number(this.values[1] ?? MAX_BILLING_OUTBOX_ATTEMPTS)
+                )
                 .sort((left, right) =>
                   `${left.createdAt}:${left.requestKey}`.localeCompare(`${right.createdAt}:${right.requestKey}`)
                 )
@@ -1287,6 +1298,16 @@ class LocalD1Statement implements D1PreparedStatement {
               updated_at: entry.updatedAt,
             }) as T
         );
+      }
+      case SELECT_MANUAL_REVIEW_MUTATION_OUTBOX_SQL: {
+        const maxAttempts = Number(this.values[0] ?? MAX_BILLING_OUTBOX_ATTEMPTS);
+        return [
+          {
+            manual_review_count: Array.from(this.state.mutationOutbox.values()).filter(
+              (entry) => entry.auditState === 'pending' && entry.attemptCount >= maxAttempts
+            ).length,
+          } as T,
+        ];
       }
       case SELECT_REFERRAL_BY_SUBJECT_SQL: {
         const subject = String(this.values[0] ?? '');
@@ -1839,6 +1860,28 @@ function mutationFingerprint(mutation: BillingStateMutation): string {
   return JSON.stringify(stableMutationValue(mutation));
 }
 
+function canonicalMutationEventId(mutation: BillingStateMutation): string {
+  switch (mutation.kind) {
+    case 'hosted-session':
+      return `billing-hosted-session:${mutation.subject}:${mutation.sessionKind}:${mutation.requestId}`;
+    case 'change-plan':
+      return `billing-change-plan:${mutation.subject}:${mutation.requestId}`;
+    case 'cancel':
+      return `billing-cancel:${mutation.subject}:${mutation.requestId}`;
+    case 'referral-invite':
+      return `billing-referral-invite:${mutation.subject}:${mutation.requestId}`;
+    case 'manual-invoice':
+      return `billing-manual-invoice:${mutation.subject}:${mutation.requestId}`;
+    case 'admin-refund':
+      return `billing-admin-refund:${mutation.subject}:${mutation.invoiceId}:${mutation.actorSubject}:${mutation.requestId}`;
+    case 'reconciliation':
+      return `billing-reconciliation:${mutation.subject}:${mutation.requestId}`;
+    case 'provider-webhook':
+      return `billing-provider-webhook:${mutation.subject}:${mutation.provider}:${mutation.eventId}`;
+  }
+  throw new BillingReadModelUnavailableError(`billing-event-id-unhandled:${mutation.kind}`);
+}
+
 function billingMutationOutboxStatement(
   env: Env,
   mutation: BillingStateMutation,
@@ -2067,7 +2110,7 @@ async function billingAuditEventForMutation(
     case 'hosted-session': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       return {
-        eventId: hostedSessionAuditEventId(mutation.sessionKind, mutation.requestId),
+        eventId: canonicalMutationEventId(mutation),
         eventType: hostedSessionAuditEventType(mutation.sessionKind),
         actorRole: mutation.actorRole,
         parentAccountRef: status.parentAccountRef,
@@ -2079,7 +2122,7 @@ async function billingAuditEventForMutation(
     case 'change-plan': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       return {
-        eventId: `billing-change-plan:${mutation.requestId}`,
+        eventId: canonicalMutationEventId(mutation),
         eventType: 'billing.change-plan.accepted',
         actorRole: 'parent',
         parentAccountRef: status.parentAccountRef,
@@ -2091,7 +2134,7 @@ async function billingAuditEventForMutation(
     case 'cancel': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       return {
-        eventId: `billing-cancel:${mutation.requestId}`,
+        eventId: canonicalMutationEventId(mutation),
         eventType: 'billing.cancel.accepted',
         actorRole: 'parent',
         parentAccountRef: status.parentAccountRef,
@@ -2103,7 +2146,7 @@ async function billingAuditEventForMutation(
     case 'referral-invite': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       return {
-        eventId: `billing-referral-invite:${mutation.requestId}`,
+        eventId: canonicalMutationEventId(mutation),
         eventType: 'billing.referral.invite-created',
         actorRole: mutation.actorRole,
         parentAccountRef: status.parentAccountRef,
@@ -2115,7 +2158,7 @@ async function billingAuditEventForMutation(
     case 'manual-invoice': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       return {
-        eventId: `billing-manual-invoice:${mutation.requestId}`,
+        eventId: canonicalMutationEventId(mutation),
         eventType: 'billing.manual-invoice.created',
         actorRole: mutation.actorRole,
         parentAccountRef: status.parentAccountRef,
@@ -2127,7 +2170,7 @@ async function billingAuditEventForMutation(
     case 'admin-refund': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       return {
-        eventId: `billing-refund:${mutationReplayKey(mutation)}`,
+        eventId: canonicalMutationEventId(mutation),
         eventType: `billing.refund.${mutation.refundState}`,
         actorRole: mutation.actorRole,
         parentAccountRef: status.parentAccountRef,
@@ -2138,7 +2181,7 @@ async function billingAuditEventForMutation(
     }
     case 'reconciliation':
       return {
-        eventId: `billing-reconciliation:${mutation.requestId}`,
+        eventId: canonicalMutationEventId(mutation),
         eventType: 'billing.reconciliation.accepted',
         actorRole: mutation.actorRole,
         parentAccountRef: RECONCILIATION_PARENT_ACCOUNT_REF,
@@ -2149,7 +2192,7 @@ async function billingAuditEventForMutation(
     case 'provider-webhook': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       return {
-        eventId: `billing-webhook:${mutation.provider}:${mutation.eventId}`,
+        eventId: canonicalMutationEventId(mutation),
         eventType: `billing.webhook.${mutation.provider}.${mutation.eventType}`,
         actorRole: 'system',
         parentAccountRef: status.parentAccountRef,
@@ -2229,13 +2272,22 @@ export async function drainPendingBillingMutationOutbox(env: Env): Promise<Billi
   const rows = await d1All<MutationOutboxRow>(
     requireBillingD1Database(env),
     SELECT_PENDING_MUTATION_OUTBOX_SQL,
-    MAX_BILLING_OUTBOX_DRAIN_ROWS
+    MAX_BILLING_OUTBOX_DRAIN_ROWS,
+    MAX_BILLING_OUTBOX_ATTEMPTS
+  );
+  const manualReviewRow = await d1First<ManualReviewOutboxCountRow>(
+    requireBillingD1Database(env),
+    SELECT_MANUAL_REVIEW_MUTATION_OUTBOX_SQL,
+    MAX_BILLING_OUTBOX_ATTEMPTS
   );
   const summary: BillingMutationOutboxDrainSummary = {
     scanned: rows.length,
     delivered: 0,
     failed: 0,
-    manualReview: 0,
+    manualReview: decodeBillingCount(
+      manualReviewRow?.manual_review_count ?? 0,
+      'billing-mutation-outbox-manual-review-count'
+    ),
   };
   for (const row of rows) {
     try {
@@ -2331,6 +2383,61 @@ function providerWebhookTransition(eventType: string): ProviderWebhookTransition
   return 'ignore';
 }
 
+function hasManualReviewAuthority(status: BillingStatusSummary, snapshot: BillingEntitlementSnapshotSummary): boolean {
+  return (
+    status.accountStatus === 'manual-review' ||
+    status.portalVisibleState === 'manual-required' ||
+    status.parentVisibleState === 'manual-review' ||
+    status.localSafetyBehavior === 'manual-review-with-local-safety' ||
+    status.source === 'manual-admin-review' ||
+    status.failureState?.retryAllowed === false ||
+    snapshot.signatureState === 'manual-required' ||
+    snapshot.parentVisibleState === 'manual-review' ||
+    snapshot.localSafetyBehavior === 'manual-review-with-local-safety' ||
+    snapshot.source === 'manual-admin-review' ||
+    snapshot.failureState?.retryAllowed === false
+  );
+}
+
+async function providerRecoveryBlocker(
+  env: Env,
+  status: BillingStatusSummary,
+  snapshot: BillingEntitlementSnapshotSummary,
+  invoices: ReadonlyArray<BillingInvoiceSummary>,
+  adminInvoices: ReadonlyArray<AdminBillingInvoiceSummary>
+): Promise<string | null> {
+  let settledRefund = false;
+  const invoiceIds = new Set([
+    ...invoices.map((invoice) => invoice.invoiceId),
+    ...adminInvoices.map((invoice) => invoice.invoiceId),
+  ]);
+  for (const invoiceId of invoiceIds) {
+    const ledger = await loadRefundLedgerSummary(env, invoiceId);
+    const relatedInvoices = [
+      ...invoices.filter((invoice) => invoice.invoiceId === invoiceId),
+      ...adminInvoices.filter((invoice) => invoice.invoiceId === invoiceId),
+    ];
+    const hasRefundedInvoice = relatedInvoices.some((entry) => entry.paymentState === 'refunded');
+    const hasUnrefundedInvoice = relatedInvoices.some((entry) => entry.paymentState !== 'refunded');
+    if (ledger.finalRefundState === 'refund-settled') {
+      if (!hasRefundedInvoice || hasUnrefundedInvoice) {
+        throw new BillingReadModelUnavailableError(`billing-refund-final-state-mismatch:${invoiceId}`);
+      }
+      settledRefund = true;
+    } else if (hasRefundedInvoice) {
+      throw new BillingReadModelUnavailableError(`billing-refund-final-state-missing:${invoiceId}`);
+    }
+  }
+
+  if (settledRefund) {
+    return 'billing-refund-settled-manual-review';
+  }
+  if (hasManualReviewAuthority(status, snapshot)) {
+    return 'billing-manual-review-authority';
+  }
+  return null;
+}
+
 function graceFailureState(): BillingStatusSummary['failureState'] {
   return {
     failureKind: 'payment-required',
@@ -2355,15 +2462,6 @@ function manualInvoiceSummaryId(subject: string, requestId: string): string {
 
 function referralInviteSummaryId(referralCode: string, requestId: string): string {
   return `${referralCode}-invite-${requestId}`;
-}
-
-function hostedSessionAuditEventId(
-  sessionKind: 'checkout-session-create' | 'billing-portal-session-create',
-  requestId: string
-): string {
-  return sessionKind === 'checkout-session-create'
-    ? `billing-checkout-session:${requestId}`
-    : `billing-portal-session:${requestId}`;
 }
 
 function hostedSessionAuditEventType(sessionKind: 'checkout-session-create' | 'billing-portal-session-create'): string {
@@ -3305,6 +3403,20 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const updatedAt = new Date().toISOString();
       const auditReference = `${status.auditReference}:provider-webhook:${mutation.provider}`;
       const auditEvent = await billingAuditEventForMutation(env, mutation);
+      const recoveryBlocker =
+        transition === 'activate-subscription' || transition === 'enter-grace' || transition === 'dispute-won'
+          ? await providerRecoveryBlocker(env, status, snapshot, invoices, adminInvoices)
+          : null;
+      if (recoveryBlocker) {
+        env.ANALYTICS?.writeDataPoint({
+          indexes: ['billing-provider-recovery-blocked'],
+          blobs: [recoveryBlocker],
+          doubles: [1],
+        });
+        await commitBillingMutationD1Batch(env, mutation, [], auditEvent);
+        await completeBillingMutation(env, mutation);
+        return;
+      }
 
       if (transition === 'activate-subscription') {
         const nextStatus: any = {
