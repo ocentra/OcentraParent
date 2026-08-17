@@ -22,7 +22,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | --- | --- | ---: | --- | --- |
 | ready / implementation route | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | parent-presence slice proved; broader lifecycle remains partial; READY route is drafted and independently static-reviewed for the missing persistent trusted-device/signer-key registration implementation; tests, proof, validation, caller integration, and completion remain open; not a completion claim | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
 | partial / Windows-only merged custody slice | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | custody and authority-boundary code present; no desktop command-path or end-to-end sealing proof; workpack remains open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
-| blocked / bounded source accepted | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; the WP01 reviewed-implementation gate does not satisfy the two strict authority dependencies; atomic ceremony custody/recovery and linked-challenge lifecycle validation are independently static-reviewed with no remaining internal P0/P1; authoritative target resolution, platform/passkey provider, durable sign counter, tests, proof, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
+| blocked / implementation-only source authorized | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; reviewed-implementation gates authorize only the bounded source packet; atomic ceremony custody/recovery and linked-challenge lifecycle validation are independently static-reviewed with no remaining internal P0/P1; authoritative target resolution, platform/passkey provider, durable sign counter, tests, proof, runtime, LAN handoff, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
 | partial | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | device-bound verifier boundary drafted; signature, revocation, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
 | partial | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | confirmation-only restore blocked; verified parent and execution-receipt gates drafted; encryption, revocation, and proof remain open | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
@@ -55,7 +55,7 @@ implementation and dependency evidence without changing any DONE state.
 
 ## Current implementation-phase disposition — 2026-08-17
 
-The current uncommitted WP01 production packet is drafted and independently
+The pushed WP01 integration source packet is drafted and independently
 static-reviewed with no P0/P1 findings. The graph records only its four reviewed
 `family-identity-core` source paths as implementation evidence; WP01 remains
 READY, not DONE. Tests, focused validation, proof, production caller
@@ -63,10 +63,11 @@ integration, global Enforcer/architecture acceptance, platform custody, and
 broader lifecycle composition remain open.
 
 WP03 remains BLOCKED in the default graph on WP01, Account WP08, and Cloudflare
-WP06. The graph has a phase-only `reviewed-implementation` gate on WP03 -> WP01,
-but the two new authority-owner edges remain strict and therefore keep WP03 out
-of the implementation-only queue. The gate does not provide ceremony authority,
-tests, proof, or completion. No WP26 edge is opted into it.
+WP06. Reviewed-implementation gates now authorize only the bounded WP03 source
+packet against all three reviewed source owners; the default dependency state
+does not change and the route does not provide ceremony authority, provider
+authority, tests, proof, runtime reachability, or completion. No WP26 edge is
+opted into it.
 
 ## Default execution order
 

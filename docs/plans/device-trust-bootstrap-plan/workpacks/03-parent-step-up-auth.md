@@ -33,7 +33,7 @@ Purpose: define parent step-up auth with passkeys, biometrics, and OS-native app
   lifetime exceeds five minutes before consulting an authority verifier. The
   verifier remains unavailable/manual-required until a real passkey or
   OS-native authority owns signature verification and one-time nonce consume.
-- A local, uncommitted Rust source packet adds atomic challenge/intent issuance,
+- The pushed integration Rust source packet adds atomic challenge/intent issuance,
   atomic receipt/credential consumption, restart reconciliation, and strict
   intent-to-linked-challenge lifecycle validation. Independent static review
   accepted this bounded source shape with no remaining internal P0/P1 in the
@@ -65,13 +65,13 @@ service caller must not advance WP26.
 
 ## Implementation-phase routing disposition — 2026-08-17
 
-The graph keeps the existing WP03 -> WP01 edge with the narrow
-`reviewed-implementation` phase gate, but the new Account WP08 and Cloudflare
-WP06 dependencies remain strict. Therefore WP03 is not currently authorized in
-the implementation-only queue. The independently accepted bounded source may
-be preserved, but it cannot be extended into target authority, a production
-ceremony, or LAN handoff until those strict owners land. No phase gate provides
-tests, proof, completion, or authority, and no WP26 edge is opted into one.
+The graph now applies narrow `reviewed-implementation` phase gates from WP03 to
+Device Trust WP01, Account WP08, and Cloudflare WP06. WP03's bounded source
+packet is authorized for implementation-only continuation against those
+reviewed source owners. The default graph remains blocked and normal READY,
+tests, proof, runtime reachability, provider/native authority, LAN handoff,
+and DONE remain unchanged. No phase gate provides ceremony authority, tests,
+proof, completion, or runtime authority, and no WP26 edge is opted into one.
 
 ## Negative cases
 

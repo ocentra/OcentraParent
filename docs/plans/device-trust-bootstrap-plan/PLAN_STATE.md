@@ -72,7 +72,7 @@ shipped caller that owns the required cryptographic/device authority.
 | --- | --- | --- |
 | WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar, durable local event journal, and a drafted four-file trusted-device/signer-key registration packet. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped ceremony issuer or complete trust-state owner. Independent static review accepted the bounded packet as reviewed implementation evidence only; its tests, focused validation, proof, production caller integration, and completion remain open. |
 | WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch custody; `crates/parent-runtime-core` has an opaque staged-handle facade. | No registered desktop/native command caller or trusted ceremony issuer reaches the facade; non-Windows custody and end-to-end sealing remain unavailable/manual-required. |
-| WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries and a five-minute lifetime gate. A local uncommitted source packet adds atomic challenge/intent and receipt/credential custody, restart reconciliation, and strict linked-challenge lifecycle validation; independent static review accepted the bounded source with no remaining internal P0/P1 in those paths. | Depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06. There is no independently authoritative household/child/device/pairing lookup, passkey/OS-native signature provider, durable sign-counter owner, one-time `RegisterLanSignerAnchor` ceremony, shipped caller, focused test pass, or proof; request-bound identifiers and policy proof consumption are not ceremony authority. |
+| WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries and a five-minute lifetime gate. The pushed integration source packet adds atomic challenge/intent and receipt/credential custody, restart reconciliation, and strict linked-challenge lifecycle validation; independent static review accepted the bounded source with no remaining internal P0/P1 in those paths. The graph now authorizes this bounded source packet in the implementation-only phase against reviewed WP01, Account WP08, and Cloudflare WP06 evidence. | The default graph remains blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06 for normal readiness. There is no independently authoritative household/child/device/pairing lookup, passkey/OS-native signature provider, durable sign-counter owner, one-time `RegisterLanSignerAnchor` ceremony, shipped caller, focused test pass, or proof; request-bound identifiers and policy proof consumption are not ceremony authority. Tests, proof, runtime reachability, provider authority, LAN handoff, and DONE remain open. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
 | WP05 | `crates/entitlement-core` validates snapshot bindings and `child-runtime` evaluates the resulting input. | Signature/revocation authority is unavailable by default; no device-trust-bound capability unlock caller. |
 | WP06 | `crates/storage-custody-core` provides restore preflight and a parent-authority gate plus an unavailable executor port. | No encrypted bundle/key-custody runtime, revocation-preserving executor, or shipped restore caller. |
@@ -84,12 +84,13 @@ The smallest honest result is therefore a durable gap map, not a synthetic
 issuer, test bridge, proof adapter, or dead DTO caller. WP01 owns the persistent
 trusted-device/signer-key lifecycle source. Account Identity WP08 must define
 the canonical household/child/device/pairing binding, and Cloudflare WP06 must
-persist and resolve it from a real production caller. WP03 remains blocked
-until those sources and a real platform/passkey ceremony issuer provide the
-one-time `RegisterLanSignerAnchor` authorization. WP02 is conditional only if
-the implementation demonstrates a private-key/install custody need; it is not
-added as a blanket WP26 dependency. Subsequent WP04-WP07 work remains dependent
-on its authority and platform owners.
+persist and resolve it from a real production caller. The graph authorizes only
+the bounded WP03 source packet in its implementation-only phase; normal WP03
+readiness remains blocked until those sources and a real platform/passkey
+ceremony issuer provide the one-time `RegisterLanSignerAnchor` authorization.
+WP02 is conditional only if the implementation demonstrates a private-key/install
+custody need; it is not added as a blanket WP26 dependency. Subsequent WP04-WP07
+work remains dependent on its authority and platform owners.
 
 The repository graph records the bounded WP01 packet as reviewed implementation
 evidence only. Graph state remains non-authoritative for completion until its
@@ -98,7 +99,7 @@ satisfied.
 
 ## WP01 independent static-review disposition — 2026-08-17
 
-The current uncommitted WP01 production packet is drafted in the
+The pushed WP01 integration source packet is drafted in the
 `family-identity-core` owner at:
 
 - `crates/family-identity-core/src/device_trust_signer_registration.rs`
@@ -115,10 +116,11 @@ The tests, focused validation, proof, production caller integration, global
 Enforcer/architecture acceptance, platform custody, broader lifecycle
 composition, and DONE state remain open. The default graph therefore keeps
 WP01 READY (not DONE) and WP03 BLOCKED. WP03's bounded source packet is already
-accepted, so its WP01 dependency is strict again; no additional WP03 source
-work is authorized through that edge. The Account WP08 implementation input is
-reviewed, while Cloudflare WP06 remains the next upstream source packet. WP26
-remains completion-gated on both WP01 and WP03.
+accepted and is authorized only through the implementation-only phase gates for
+WP01, Account WP08, and Cloudflare WP06; no ceremony, provider, runtime, test,
+proof, or completion claim follows. The Account WP08 implementation input and
+Cloudflare WP06 bounded source packet are reviewed, while their normal runtime
+gates remain open. WP26 remains completion-gated on both WP01 and WP03.
 
 ## WP03 target-authority owner correction — 2026-08-17
 
@@ -135,8 +137,9 @@ Identity WP08, and Cloudflare WP06. The local LAN registry cannot substitute
 for account/household authority. The current WP03 Rust draft may retain its
 atomic custody and recovery work, but target identifiers remain untrusted until
 the Account WP08 contract and Cloudflare WP06 repository/caller are real. A
-native/passkey provider and durable sign-counter owner also remain absent. This
-is a blocker correction, not a code, test, proof, or completion claim.
+native/passkey provider and durable sign-counter owner also remain absent. The
+implementation-only routing is authorization only, not a runtime, test, proof,
+or completion claim.
 
 ## Current ownership interpretation
 

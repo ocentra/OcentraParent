@@ -25,7 +25,7 @@ removal and preserves manual-required truth until a trusted parent authority
 provider and ceremony issuer are owned by the correct runtime.
 
 WP03 now has a bounded receipt lifetime gate and an independently static-reviewed
-uncommitted source packet for atomic ceremony custody/recovery plus strict
+remote-safe integration source packet for atomic ceremony custody/recovery plus strict
 linked-challenge lifecycle validation. It remains blocked on Device Trust WP01,
 the Account WP08 canonical household/child/device/pairing contract, the
 Cloudflare WP06 durable repository/caller, a real passkey/OS-native authority
@@ -57,15 +57,17 @@ WP06 must extend its durable store and production caller to persist and resolve
 that binding. The existing provider-subject mapping, Account WP05 pure
 evaluator, and local LAN registry are not substitutes.
 
-Device Trust WP03 depends on all three owners and remains blocked until a real
-parent ceremony resolves the target authoritatively, provides one-time
+Device Trust WP03 remains blocked in the default graph on all three owners, but
+its bounded source packet is now authorized in the implementation-only phase by
+reviewed-implementation gates for WP01, Account WP08, and Cloudflare WP06. This
+does not authorize a real parent ceremony, provider, runtime caller, tests,
+proof, or completion. Normal WP03 readiness remains blocked until a real parent
+ceremony resolves the target authoritatively, provides one-time
 `RegisterLanSignerAnchor` authorization, verifies the signature, owns the
-durable sign counter, and consumes the nonce/receipt. The existing WP03 -> WP01
-implementation gate does not bypass the new strict Account WP08 and Cloudflare
-WP06 dependencies. LAN WP26 must remain blocked on WP01 and WP03; it has no
-shipped service route that can legally register a signer anchor today. WP02 is
-conditional only when a demonstrated private-key/install custody requirement
-exists.
+durable sign counter, and consumes the nonce/receipt. LAN WP26 must remain
+blocked on WP01 and WP03; it has no shipped service route that can legally
+register a signer anchor today. WP02 is conditional only when a demonstrated
+private-key/install custody requirement exists.
 
 The consolidated source audit found no legal production-code slice to add:
 

@@ -10,11 +10,12 @@ contents. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
-The current integration checkpoint is pushed head `117e18603` on
-`codex/eventing-wp09-production`. It is 204 commits ahead of `main` and 201
-commits ahead of `develop` without branch divergence. Its E-drive worktree also
-contains an uncommitted Device Trust WP03 and Eventing WP11 batch, so the batch
-is **not** merged, remote-safe, or PR-ready yet. Current branch, worktree,
+The latest source checkpoint covered here is pushed head `e01931650` on
+`codex/eventing-wp09-production`. It is 208 commits ahead of `main` and 205
+commits ahead of `develop` without branch divergence. That remote-safe
+integration line contains the reviewed Device Trust WP01/WP03, Eventing WP11,
+Account WP08, and Cloudflare WP06 source packets; none is thereby merged to
+`develop`/`main`, fully validated, or PR-ready. Current branch, worktree,
 archive, stash, and promotion custody is recorded in
 `docs/REPOSITORY_CUSTODY_STATUS.md`.
 
@@ -45,7 +46,7 @@ validation / done.
 | Child-agent runtime distribution | 11 | 10/0/0/1/0 | 79/17 | 8/0/0/0/3/0 | Distribution/runtime proof remains unreferenced across the plan. |
 | Cloudflare control plane | 13 | 9/0/1/3/0 | 186/63 | 10/2/0/1/0/0 | WP01's bounded scaffold is in validation. WP06's bounded durable adapter/auth source packet is independently accepted, but provider verification, migration, tests, proof, and deployment remain open; normal WP06 is blocked and not DONE. |
 | Data custody/storage | 9 | 8/0/0/1/0 | 128/19 | 1/0/0/1/7/0 | All nine lack reviewed completion evidence; aggregate/runtime custody remains open. |
-| Device trust bootstrap | 9 | 6/0/3/0/0 | 86/41 | 0/2/1/0/6/0 | WP01 is READY; WP03's bounded custody/recovery source is independently accepted and mapped, but strict Account WP08/Cloudflare WP06/native-provider dependencies keep it blocked. |
+| Device trust bootstrap | 9 | 6/0/3/0/0 | 86/41 | 0/2/1/0/6/0 | WP01 is READY; WP03's bounded custody/recovery source is independently accepted and implementation-only authorized against WP01, Account WP08, and Cloudflare WP06, while normal readiness, native-provider, tests, proof, runtime, and completion remain blocked. |
 | LAN | 26 | 22/1/2/1/0 | 305/63 | 0/1/0/0/25/0 | WP26 is source-only with zero mapped tests and is blocked on Device Trust WP01/WP03. |
 | Logging domain parity | 10 | 9/0/0/1/0 | 141/59 | 5/0/0/0/5/0 | Completion proof remains unreferenced across the plan. |
 | App | 95 | 88/1/0/6/0 | 258/115 | 13/0/0/0/82/0 | One source-only mismatch and remaining compiler/runtime/native gaps. |
@@ -653,7 +654,7 @@ passing until the Phase 2 rerun.
 | --- | --- | --- | --- |
 | WP01 Device Trust Source Of Truth | Twenty-eight mapped implementation files and twelve tests cover a typed durable lifecycle repository, platform-authority sidecar generations, pending/trusted/revoked/reset/re-pair transitions, redacted outbox events, explicit-path parent-presence custody, concurrency, restart/replay, schema/path integrity, opaque CSPRNG references, and fail-closed Eventing delivery. The current four-file registration/lifecycle packet is drafted and independently static-reviewed with no P0/P1 findings. | **READY route; implementation reviewed, tests open** | The lifecycle and parent-presence APIs have no production caller outside their crates/tests. Production parent-presence custody intentionally returns unavailable on every platform, and no live product composition owns bootstrap-through-revoke/reset/re-pair state. The four reviewed source refs are implementation evidence only; tests, focused validation, proof, caller integration, and full trust-source composition remain open. |
 | WP02 Local Key Sealing | Fourteen mapped implementation files and six tests cover a Windows DPAPI/current-user registry epoch, atomic sealed-record custody, wrong binding/revoked/generation negatives, an opaque one-shot staged-ceremony facade, and unsupported-platform behavior. | **Incomplete** | The parent-runtime facade is not registered in a desktop/native command path and no operational ceremony issuer exists. Android, Linux, iOS, and macOS custody plus encrypted recovery fallback are absent; the current slice is Windows-only and cannot close wrong-user/device/key/reinstall behavior across supported platforms. |
-| WP03 Parent Step-Up Auth | Three mapped implementation files and four tests cover signed action/household/device/target-bound receipts, expiry, replay, trust-epoch changes, tampering, and schema round trips. | **Incomplete; normal dependency blocked** | The only production verifier is the fail-closed unavailable verifier. No passkey/WebAuthn, biometric, or OS-native ceremony acquires the proof, no runtime caller consumes it as a live high-risk action boundary, and no durable one-shot replay owner exists. A reviewed-implementation phase-only edge may authorize WP03 source work against WP01's reviewed implementation evidence; it does not provide ceremony authority, tests, proof, or completion. |
+| WP03 Parent Step-Up Auth | Twelve mapped implementation files and four tests cover signed action/household/device/target-bound receipts, atomic ceremony custody, linked lifecycle validation, restart reconciliation, expiry, replay, trust-epoch changes, tampering, and schema round trips. | **Implementation-only authorized; normal dependency blocked** | The only production verifier is the fail-closed unavailable verifier. No passkey/WebAuthn, biometric, or OS-native ceremony acquires the proof, no runtime caller consumes it as a live high-risk action boundary, and no durable one-shot replay owner exists. Reviewed-implementation gates authorize only the bounded WP03 source packet against WP01, Account WP08, and Cloudflare WP06; they do not provide ceremony authority, tests, proof, runtime reachability, or completion. |
 | WP04 Phone QR Approval Bridge | The sole mapped test asserts wording in the plan model. | **Incomplete** | There is no typed QR challenge/response contract, phone or desktop runtime bridge, one-shot/expiry store, audit append, or executable wrong-household/action/target/device/replay test. This is document coverage only. |
 | WP05 Entitlement Device License | Eight mapped implementation files and six tests cover entitlement access decisions, signed-snapshot/runtime-proof shapes, limits, freshness/expiry/revocation labels, generated contracts, and selected capability denials. | **Incomplete** | Snapshot derivation copies caller-supplied signature/key text and trusts a caller-supplied verification enum; it neither signs nor verifies a device/household binding and has no production consumer. Revocation-over-stale-cache and copied-binary/config rejection are not proved through a trusted device runtime. |
 | WP06 Recovery Reset Re-Pair | Sixteen mapped implementation files and five tests cover durable lifecycle reset/revoke/re-pair generations, copied-database authority failure, encrypted versioned bundle construction, wrong household/key/corruption/migration preflight, tombstone preservation, confirmation labels, and idempotent result derivation. | **Incomplete** | `apply_restore` only returns a result object; it does not mutate or roll back product state. The generic export/import bundle has no device-trust runtime caller and is not joined to lifecycle authority, so no encrypted restore followed by explicit audited re-pair exists. |
@@ -667,7 +668,8 @@ WP01-WP07 and WP09 retain concrete runtime or expected-test gaps. WP01 now has
 reviewed implementation evidence for its bounded four-file packet, but tests,
 focused validation, proof, production caller integration, and DONE remain open.
 WP03 remains blocked in the default graph; its implementation-only phase route
-does not alter normal READY/DONE state. The plan's real Windows custody,
+is authorized against the reviewed WP01, Account WP08, and Cloudflare WP06
+source owners and does not alter normal READY/DONE state. The plan's real Windows custody,
 lifecycle, step-up-proof, entitlement, recovery-contract, and tamper-status
 libraries materially reduce the remaining work, but none is a live end-to-end
 trusted-device product path. No Phase 2 passing-test, platform, or Phase 3 proof

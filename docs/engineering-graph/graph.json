@@ -15999,14 +15999,28 @@
             "docs/engineering-graph/code-map.json"
           ],
           "reason": "Reviewed as the next bounded source-only Cloudflare packet after Account WP08's sealed v0.7 authority contract and WP01's module scaffold. WP06 must add the durable adapter and Worker-owned caller without inventing provider or household authority. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent source review accepted the bounded WP06 adapter/auth packet as implementation evidence only. Provider verification, migration execution, focused tests, retained proof, deployment, runtime reachability, Durable Object/KV durability, and DONE remain open.",
+          "evidence": [
+            "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
+            "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+            "docs/engineering-graph/code-map.json",
+            "docs/PLAN_CODE_STATUS_MATRIX.md"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+            "infra/cloudflare/src/auth/verifier.ts",
+            "infra/cloudflare/src/env.ts",
+            "infra/cloudflare/src/storage/account-identity-authority-store.ts"
           ],
           "tests": [
             "docs/plans/cloudflare-control-plane-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -16622,7 +16636,7 @@
           "reason": "Reviewed as the dependency-free READY implementation route for the missing family-owned persistent trusted-device/signer-key registration source. The existing WP01 lifecycle foundation remains partial; tests, validation, proof, and completion are not claimed. WP03 remains blocked on this source and WP26 remains blocked on WP01 plus WP03."
         },
         "completionEvidenceOverride": {
-          "reason": "Independent static review accepted the current uncommitted WP01 production packet as drafted implementation evidence only; no P0/P1 findings. Tests, focused validation, proof, production caller integration, global Enforcer, and DONE remain open.",
+          "reason": "Independent static review accepted the pushed WP01 integration source packet as drafted implementation evidence only; no P0/P1 findings. Tests, focused validation, proof, production caller integration, global Enforcer, and DONE remain open.",
           "evidence": [
             "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md",
@@ -16711,11 +16725,11 @@
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
       ],
       "state": "blocked",
-      "lifecycleState": "blocked",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked / bounded source accepted",
+        "statusText": "Blocked / implementation-only source authorized; normal READY, tests, proof, runtime, LAN handoff, and DONE remain blocked.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -16733,6 +16747,15 @@
             "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
           ],
           "reason": "Device Trust WP03 cannot authorize a high-risk parent action until WP01 owns the persistent trusted-device/signer-key lifecycle source, Account Identity WP08 defines the canonical household/child/device/pairing authority contract, and Cloudflare WP06 persists and resolves that contract from a production caller. Its real passkey/OS ceremony must resolve the target independently, verify and consume the one-time RegisterLanSignerAnchor authorization, and own durable sign-count state; caller-supplied identifiers, typed receipts, pure evaluators, LAN pairing state, and unavailable verifiers do not satisfy these dependencies."
+        },
+        "stateOverride": {
+          "reason": "Authorize only the independently reviewed WP03 source packet against the WP01, Account WP08, and Cloudflare WP06 implementation-phase gates. Normal dependency derivation remains blocked; tests, proof, runtime reachability, provider authority, LAN handoff, and DONE remain open.",
+          "evidence": [
+            "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
+            "docs/plans/device-trust-bootstrap-plan/NEXT_ACTIONS.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+            "docs/engineering-graph/code-map.json"
+          ]
         }
       },
       "completion": {
@@ -30078,7 +30101,8 @@
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
       ],
-      "reason": "WP03 requires WP01's persistent trusted-device/signer-key registration source before a parent ceremony can authorize a one-time RegisterLanSignerAnchor action. WP03's bounded source is already accepted, so further WP03 source work remains strict-completion gated on this dependency."
+      "reason": "WP03 requires WP01's persistent trusted-device/signer-key registration source before a parent ceremony can authorize a one-time RegisterLanSignerAnchor action. WP03's bounded source is already accepted; this reviewed-implementation gate authorizes only the bounded source phase and does not change normal READY, tests, proof, runtime, or DONE state.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
@@ -30103,7 +30127,8 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
       ],
-      "reason": "WP03 requires Cloudflare WP06's durable authoritative repository and production caller to persist and resolve the Account WP08 binding; the current provider-subject mapping and local LAN registry are insufficient."
+      "reason": "WP03 requires Cloudflare WP06's durable authoritative repository and production caller to persist and resolve the Account WP08 binding; the current provider-subject mapping and local LAN registry are insufficient. WP06's bounded source packet is independently accepted; this reviewed-implementation gate authorizes only the bounded WP03 source phase and does not change normal READY, tests, proof, runtime, or DONE state.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
