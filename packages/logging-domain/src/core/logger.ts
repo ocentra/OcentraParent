@@ -18,6 +18,7 @@ import {
   type TestSuiteType,
 } from '../test-log/types';
 import { createParentLogDecisionProvider } from './logDecisionProvider';
+import { redactStructuredLogValue } from './log-redaction';
 import { resolveBridgeEndpoint, sendToBridge } from '../transport/bridgeTransport';
 import type { BridgeEntry } from '../transport/bridgeLogPayload';
 import { parseStackTrace, type StackFrame } from './stackTraceParser';
@@ -263,7 +264,7 @@ export class Logger {
   }
 
   private serializeData(data: unknown): string | null {
-    return data == null ? null : JSON.stringify(data);
+    return data == null ? null : JSON.stringify(redactStructuredLogValue(data));
   }
 
   private logIfEnabled(

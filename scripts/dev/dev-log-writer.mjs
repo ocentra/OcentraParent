@@ -13,14 +13,35 @@ import {
   GeneratedLogSource as LogSource,
 } from '@ocentra-parent/logging-domain/generated/logging-contracts';
 
+export const DevLogField = {
+  Port: 'port',
+};
+
+export const DevLogMessage = {
+  DevServerStarted: 'Vite dev server started.',
+};
+
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const requestBodyLimitBytes = 1024 * 256;
+const sensitiveFieldPattern =
+  /(authorization|clipboard|cookie|keystroke|password|screenshot|secret|token|url|child.?name|account.?name|full.?name|command.?line)/iu;
+const redactedFieldValue = '[REDACTED]';
 
 export async function appendDevLog(entry) {
   const parsed = DevLogEntrySchema.parse(entry);
+  const sanitized = {
+    ...parsed,
+    fields: redactDevLogFields(parsed.fields),
+  };
   const filePath = resolveDevLogFile(parsed.source);
   await mkdir(dirname(filePath), { recursive: true });
-  await appendFile(filePath, `${JSON.stringify(parsed)}\n`, 'utf8');
+  await appendFile(filePath, `${JSON.stringify(sanitized)}\n`, 'utf8');
+}
+
+function redactDevLogFields(fields) {
+  return Object.fromEntries(
+    Object.entries(fields).map(([key, value]) => [key, sensitiveFieldPattern.test(key) ? redactedFieldValue : value])
+  );
 }
 
 export async function writeDevServerLog(message, fields = {}) {
