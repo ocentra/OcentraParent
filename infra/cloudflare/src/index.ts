@@ -1080,7 +1080,7 @@ async function acceptProviderWebhook(
   const disputeId = providerWebhookDisputeId(payload, event.eventType, `dispute-${provider}-${event.eventId}`);
   return executeIdempotentWrite(
     env.BILLING_DO,
-    `billing-control:webhook:${provider}`,
+    subject ? `billing-control:${subject}` : `billing-control:webhook:${provider}`,
     {
       requestKey: webhookIdempotencyKey(provider, event.eventId),
       requestFingerprint: webhookRequestFingerprint(provider, body),
@@ -1506,8 +1506,8 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         const invitedIdentifier = stringOrNull(body.invitee)?.trim().toLowerCase();
         const actorRole = billingActorRoleForSubject(identity.subject);
         return executeIdempotentWrite(
-          env.REFERRAL_DO,
-          `referral-control:${identity.subject}`,
+          env.BILLING_DO,
+          `billing-control:${identity.subject}`,
           {
             requestKey: durableWriteKey('referral-invite', identity.subject, requestId),
             responseStatus: 200,
@@ -1806,7 +1806,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         const refundSubject = result.invoiceId ? await findBillingInvoiceSubject(env, result.invoiceId) : null;
         return executeIdempotentWrite(
           env.BILLING_DO,
-          `billing-control:${identity?.subject ?? 'admin'}`,
+          `billing-control:${refundSubject}`,
           {
             requestKey: durableWriteKey('admin-refund', identity?.subject ?? 'admin', requestId),
             responseStatus: 200,
