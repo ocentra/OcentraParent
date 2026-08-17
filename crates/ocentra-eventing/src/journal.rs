@@ -37,14 +37,20 @@ pub trait EventJournal: Send + Sync {
     /// already persisted with the exact same envelope, implementations return
     /// its existing append acknowledgement. A different phase for the same
     /// event id may be persisted separately, while any conflicting envelope
-    /// for the event id must be rejected. The default preserves historical
-    /// behavior for journals that do not provide idempotent storage.
+    /// for the event id must be rejected. A journal that cannot provide this
+    /// contract fails closed rather than silently downgrading to append.
     fn append_phase_idempotent<'a>(
         &'a self,
         envelope: &'a StoredEventEnvelope,
         phase: JournalDispatchPhase,
     ) -> JournalAppendFuture<'a> {
-        self.append_phase(envelope, phase)
+        let _ = (envelope, phase);
+        Box::pin(async {
+            Err(EventingError::invalid_value(
+                "journal_append_phase_idempotent",
+                "journal implementation must provide idempotent append",
+            ))
+        })
     }
 }
 
