@@ -1120,7 +1120,7 @@ async function acceptProviderWebhook(
   const disputeId = providerWebhookDisputeId(payload, event.eventType, `dispute-${provider}-${event.eventId}`);
   return executeIdempotentWrite(
     env.BILLING_DO,
-    `billing-control:webhook:${provider}`,
+    subject ? `billing-control:${subject}` : `billing-control:webhook:${provider}`,
     {
       requestKey: webhookIdempotencyKey(provider, event.eventId),
       requestFingerprint: webhookRequestFingerprint(provider, body, subject, event),
@@ -1561,8 +1561,8 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         const invitedIdentifier = stringOrNull(body.invitee)?.trim().toLowerCase();
         const actorRole = billingActorRoleForSubject(identity.subject);
         return executeIdempotentWrite(
-          env.REFERRAL_DO,
-          `referral-control:${identity.subject}`,
+          env.BILLING_DO,
+          `billing-control:${identity.subject}`,
           {
             requestKey: durableWriteKey('referral-invite', identity.subject, requestId),
             requestFingerprint: canonicalRequestFingerprint('referral-invite', identity.subject, requestId, {
@@ -1886,7 +1886,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         const actorSubject = verifiedIdentity.subject;
         return executeIdempotentWrite(
           env.BILLING_DO,
-          `billing-control:${actorSubject}`,
+          `billing-control:${refundSubject}`,
           {
             requestKey: durableWriteKey('admin-refund', actorSubject, requestId),
             requestFingerprint: adminRefundRequestFingerprint(
