@@ -4,7 +4,7 @@ use std::time::{Duration, Instant};
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use tungstenite::{Error as WebSocketError, Message, WebSocket};
 
-use super::connection::DeadlineTcpStream;
+use super::connection::deadline_stream::DeadlineTcpStream;
 
 pub(super) fn read_agent_event(
     socket: &mut WebSocket<DeadlineTcpStream>,

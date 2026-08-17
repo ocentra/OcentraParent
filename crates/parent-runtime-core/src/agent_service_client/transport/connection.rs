@@ -4,9 +4,9 @@ use std::time::{Duration, Instant};
 #[path = "connection_resolution.rs"]
 mod connection_resolution;
 #[path = "deadline_stream.rs"]
-mod deadline_stream;
+pub(super) mod deadline_stream;
 use self::connection_resolution::resolve_socket_addrs;
-pub(super) use self::deadline_stream::DeadlineTcpStream;
+use self::deadline_stream::DeadlineTcpStream;
 use super::read_impl::is_io_timeout;
 
 pub(super) fn connect_agent_stream(

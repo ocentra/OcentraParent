@@ -2,21 +2,30 @@ use std::io::{self, Read, Write};
 use std::net::TcpStream;
 use std::time::{Duration, Instant};
 
-pub(super) struct DeadlineTcpStream {
+pub(in crate::agent_service_client::transport) struct DeadlineTcpStream {
     stream: TcpStream,
     deadline: Instant,
 }
 
 impl DeadlineTcpStream {
-    pub(super) fn new(stream: TcpStream, deadline: Instant) -> Self {
+    pub(in crate::agent_service_client::transport) fn new(
+        stream: TcpStream,
+        deadline: Instant,
+    ) -> Self {
         Self { stream, deadline }
     }
 
-    pub(super) fn set_read_timeout(&self, timeout: Option<Duration>) -> io::Result<()> {
+    pub(in crate::agent_service_client::transport) fn set_read_timeout(
+        &self,
+        timeout: Option<Duration>,
+    ) -> io::Result<()> {
         self.stream.set_read_timeout(timeout)
     }
 
-    pub(super) fn set_write_timeout(&self, timeout: Option<Duration>) -> io::Result<()> {
+    pub(in crate::agent_service_client::transport) fn set_write_timeout(
+        &self,
+        timeout: Option<Duration>,
+    ) -> io::Result<()> {
         self.stream.set_write_timeout(timeout)
     }
 
