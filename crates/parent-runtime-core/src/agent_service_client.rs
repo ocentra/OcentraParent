@@ -30,6 +30,8 @@ pub(crate) mod app_game_loaders;
 mod command_result_projection;
 #[path = "agent_service_client/health.rs"]
 pub(crate) mod health;
+#[path = "agent_service_client/health_validation.rs"]
+mod health_validation;
 pub(crate) mod loaders;
 mod payload_fields;
 #[path = "agent_service_client/read_model_loaders.rs"]

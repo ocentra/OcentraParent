@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use ocentra_schema::parent_ui_bridge::{ParentRouteContext, ParentRoutePeerRole};
 use serde_json::Value;
+use sha2::{Digest, Sha256};
 use tungstenite::client::{client as websocket_client, IntoClientRequest};
 use tungstenite::http::header::ORIGIN;
 use tungstenite::Message;
@@ -68,9 +69,10 @@ pub(super) fn send_agent_command_to_address(
         ));
     }
 
-    let command_envelope = lan_command_envelope(command, payload, context, route);
+    let (command_envelope, request_nonce) = lan_command_envelope(command, payload, context, route)?;
     let command = command_envelope.command.clone();
     let command_message_id = command_envelope.message_id.clone();
+    let request_sent_at = command_envelope.sent_at.clone();
     let body = serde_json::to_string(&command_envelope)
         .map_err(|error| format!("agent-service command serialization failed: {error}"))?;
     socket
@@ -82,12 +84,18 @@ pub(super) fn send_agent_command_to_address(
     Ok(AgentServiceCommandResult {
         command,
         command_message_id,
+        request_nonce,
+        request_sent_at,
         events: vec![
             parent_route_event_snapshot(&ready_event),
             parent_route_event_snapshot(&response_event),
         ],
         response_event,
     })
+}
+
+pub(super) fn request_nonce_digest(request_nonce: &str) -> String {
+    format!("{:x}", Sha256::digest(request_nonce.as_bytes()))
 }
 
 fn agent_addr() -> String {

@@ -17,8 +17,9 @@ use ocentra_parent_agent_protocol::{
     transport::{AgentCommandName, AgentEventName},
 };
 use ocentra_schema::parent_ui_bridge::{
-    ParentPortalParentAccessState, ParentRouteContext, ParentRouteId, ParentRouteSnapshot,
-    ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind, ParentUiActionResult,
+    ParentBridgeConnectionState, ParentPortalParentAccessState, ParentRouteContext, ParentRouteId,
+    ParentRouteSnapshot, ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind,
+    ParentUiActionResult,
 };
 use serde_json::Value;
 
@@ -111,7 +112,20 @@ pub fn load_parent_route_snapshot(
     context: Option<&ParentRouteContext>,
 ) -> ParentRouteSnapshot {
     let lan_route_query = lan_route_query_for_load(&route, context);
-    build_parent_route_snapshot(route, &lan_route_query, None, None)
+    build_parent_route_snapshot(route, &lan_route_query, None, None, None)
+}
+
+pub fn load_parent_route_snapshot_with_service_health(
+    route: ParentRouteId,
+    context: Option<&ParentRouteContext>,
+    service_health: &ParentAgentServiceHealth,
+) -> ParentRouteSnapshot {
+    let lan_route_query = if service_health.is_ready() {
+        lan_route_query_for_load(&route, context)
+    } else {
+        LanRouteQuery::Unavailable(service_health.redacted_detail())
+    };
+    build_parent_route_snapshot(route, &lan_route_query, None, None, Some(service_health))
 }
 
 pub fn parent_agent_service_health_for_address(agent_addr: &str) -> ParentAgentServiceHealth {
@@ -129,12 +143,28 @@ pub fn load_parent_subscription_event(
     ParentRouteSubscriptionLoadState::default().load(route, context)
 }
 
+pub fn load_parent_subscription_event_with_service_health(
+    route: ParentRouteId,
+    context: Option<&ParentRouteContext>,
+    service_health: &ParentAgentServiceHealth,
+) -> ParentSubscriptionEvent {
+    ParentRouteSubscriptionLoadState::default().load_with_service_health(
+        route,
+        context,
+        service_health,
+    )
+}
+
 fn load_parent_subscription_event_with_state(
     state: &mut ParentRouteSubscriptionLoadState,
     route: ParentRouteId,
     context: Option<&ParentRouteContext>,
+    service_health: Option<&ParentAgentServiceHealth>,
 ) -> ParentSubscriptionEvent {
-    let lan_route_query = lan_route_query_for_load(&route, context);
+    let lan_route_query = service_health
+        .filter(|health| !health.is_ready())
+        .map(|health| LanRouteQuery::Unavailable(health.redacted_detail()))
+        .unwrap_or_else(|| lan_route_query_for_load(&route, context));
     let replay_attempted = matches!(&lan_route_query, LanRouteQuery::Available(_));
     let (mut events, replay_rejected) = if replay_attempted {
         match load_lan_runtime_event_chain_replay_events() {
@@ -154,7 +184,8 @@ fn load_parent_subscription_event_with_state(
         state.complete_replay_rejection_episode();
     }
     let events = dedupe_route_events_by_event_id(&events);
-    let snapshot = build_parent_route_snapshot(route.clone(), &lan_route_query, None, None);
+    let snapshot =
+        build_parent_route_snapshot(route.clone(), &lan_route_query, None, None, service_health);
     ParentSubscriptionEvent {
         schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
         route,
@@ -180,7 +211,14 @@ fn lan_replay_is_bound_to_status(
 }
 
 pub fn dispatch_parent_ui_action(action: &ParentUiAction) -> ParentUiActionResult {
-    action_dispatch::dispatch_parent_ui_action_impl(action)
+    action_dispatch::dispatch_parent_ui_action_impl(action, None)
+}
+
+pub fn dispatch_parent_ui_action_with_service_health(
+    action: &ParentUiAction,
+    service_health: &ParentAgentServiceHealth,
+) -> ParentUiActionResult {
+    action_dispatch::dispatch_parent_ui_action_impl(action, Some(service_health))
 }
 
 fn dedupe_route_events_by_event_id(
@@ -208,11 +246,13 @@ fn build_parent_route_snapshot(
     lan_route_query: &LanRouteQuery,
     network_flow_snapshot: Option<&NetworkFlowAgentServiceSnapshot>,
     snapshot_overlay: Option<&ParentRouteSnapshotOverlay>,
+    service_health: Option<&ParentAgentServiceHealth>,
 ) -> ParentRouteSnapshot {
     build_parent_route_snapshot_impl(
         route,
         lan_route_query,
         network_flow_snapshot,
         snapshot_overlay,
+        service_health,
     )
 }

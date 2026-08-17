@@ -774,6 +774,74 @@ pub struct ParentPortalShellStatusSnapshot {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthState {
+    Ready,
+    Degraded,
+    Unavailable,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthRoute {
+    Localhost,
+    LocalNetwork,
+    CloudRelay,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthTransport {
+    #[serde(rename = "websocket")]
+    WebSocket,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthAuthenticationState {
+    Unauthenticated,
+    Unavailable,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthReason {
+    Ready,
+    TransportUnavailable,
+    ResponseSchemaMismatch,
+    ResponseIdentityMismatch,
+    ResponsePayloadMismatch,
+    ResponseNonceMismatch,
+    ResponseEventIdMismatch,
+    ResponseTimestampMissing,
+    ResponseTimestampStale,
+    ServiceVersionMissing,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentServiceHealthTraceSnapshot {
+    pub request_id: Option<String>,
+    pub correlation_id: Option<String>,
+    pub response_event_id: Option<String>,
+    pub request_sent_at: Option<String>,
+    pub response_sent_at: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentServiceHealthSnapshot {
+    pub state: ParentServiceHealthState,
+    pub route: Option<ParentServiceHealthRoute>,
+    pub protocol_schema_version: Option<u16>,
+    pub service_version: Option<String>,
+    pub transport: Option<ParentServiceHealthTransport>,
+    pub authentication_state: ParentServiceHealthAuthenticationState,
+    pub reason: ParentServiceHealthReason,
+    pub trace: ParentServiceHealthTraceSnapshot,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentCommandResultDetailSnapshot {
     pub label: String,
@@ -1708,6 +1776,8 @@ pub struct ParentRouteSnapshot {
     pub agent_endpoint: String,
     pub data_source: ParentRouteDataSource,
     pub summary: ParentRouteSummary,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_health: Option<ParentServiceHealthSnapshot>,
     pub diagnostic_panels_enabled: bool,
     pub parent_portal_rows: Option<Vec<ParentPortalRowSnapshot>>,
     pub parent_portal_shell_status: Option<ParentPortalShellStatusSnapshot>,

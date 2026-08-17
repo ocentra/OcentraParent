@@ -11,7 +11,29 @@ use self::rust_owned_command::dispatch_parent_ui_action_rust_owned_command;
 use self::state::ActionDispatchState;
 use super::*;
 
-pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentUiActionResult {
+pub(super) fn dispatch_parent_ui_action_impl(
+    action: &ParentUiAction,
+    service_health: Option<&ParentAgentServiceHealth>,
+) -> ParentUiActionResult {
+    if let Some(health) = service_health.filter(|health| !health.is_ready()) {
+        let lan_route_query = LanRouteQuery::Unavailable(health.redacted_detail());
+        let message = health.redacted_detail();
+        let snapshot = build_parent_route_snapshot(
+            action.route.clone(),
+            &lan_route_query,
+            None,
+            None,
+            Some(health),
+        );
+        return ParentUiActionResult {
+            schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
+            accepted: false,
+            connection_state: ParentBridgeConnectionState::Error,
+            message,
+            snapshot: Some(snapshot),
+            events: Vec::new(),
+        };
+    }
     let action_owned = matches!(
         action.action,
         ParentUiActionKind::RefreshRoute
@@ -56,6 +78,7 @@ pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentU
         &lan_route_query,
         state.network_flow_snapshot.as_ref(),
         Some(&state.snapshot_overlay),
+        service_health,
     );
 
     ParentUiActionResult {

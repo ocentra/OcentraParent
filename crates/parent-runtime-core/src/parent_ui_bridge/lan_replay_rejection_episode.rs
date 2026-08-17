@@ -24,7 +24,16 @@ impl ParentRouteSubscriptionLoadState {
         route: ParentRouteId,
         context: Option<&ParentRouteContext>,
     ) -> ParentSubscriptionEvent {
-        super::load_parent_subscription_event_with_state(self, route, context)
+        super::load_parent_subscription_event_with_state(self, route, context, None)
+    }
+
+    pub fn load_with_service_health(
+        &mut self,
+        route: ParentRouteId,
+        context: Option<&ParentRouteContext>,
+        service_health: &super::ParentAgentServiceHealth,
+    ) -> ParentSubscriptionEvent {
+        super::load_parent_subscription_event_with_state(self, route, context, Some(service_health))
     }
 
     pub(super) fn replay_rejection_diagnostic(&mut self) -> ParentRouteEventSnapshot {

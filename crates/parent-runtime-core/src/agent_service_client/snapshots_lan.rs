@@ -46,6 +46,7 @@ pub(super) fn lan_runtime_replay_events_from_result(
         command,
         command_message_id,
         response_event,
+        ..
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));

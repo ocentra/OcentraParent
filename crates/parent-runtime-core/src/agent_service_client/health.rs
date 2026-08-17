@@ -1,14 +1,13 @@
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
-use ocentra_parent_agent_protocol::transport::{
-    AgentCommandName, AgentEventEnvelope, AgentEventName, AgentPeerRole, AgentRoute,
-};
-use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::{AgentCommandName, AgentEventEnvelope, AgentRoute};
 
 use crate::parent_service_health::{
-    ParentAgentServiceAuthenticationState, ParentAgentServiceHealth, ParentAgentServiceHealthState,
+    response_timestamp_is_fresh, ParentAgentServiceAuthenticationState, ParentAgentServiceHealth,
+    ParentAgentServiceHealthReason, ParentAgentServiceHealthState, ParentAgentServiceHealthTrace,
 };
 
+use super::health_validation::health_response_mismatch_reason;
 use super::{transport, types};
 
 pub(crate) fn health_check_for_address(agent_addr: &str) -> ParentAgentServiceHealth {
@@ -22,11 +21,20 @@ pub(crate) fn health_check_for_address(agent_addr: &str) -> ParentAgentServiceHe
         Ok(result) => result,
         Err(_) => return ParentAgentServiceHealth::unavailable(),
     };
-    let response = result.response_event;
-    if !health_response_has_expected_identity(&result, &response)
-        || !health_response_has_expected_payload(&response)
-    {
-        return ParentAgentServiceHealth::unavailable();
+    let response = &result.response_event;
+    let trace = health_trace(&result, response);
+
+    if let Some(reason) = health_response_mismatch_reason(&result, response) {
+        return ParentAgentServiceHealth::degraded(reason, trace);
+    }
+    if result.request_sent_at.trim().is_empty() || response.sent_at.trim().is_empty() {
+        return ParentAgentServiceHealth::degraded(
+            ParentAgentServiceHealthReason::ResponseTimestampMissing,
+            trace,
+        );
+    }
+    if let Err(reason) = response_timestamp_is_fresh(&result.request_sent_at, &response.sent_at) {
+        return ParentAgentServiceHealth::degraded(reason, trace);
     }
 
     let service_version = response
@@ -35,7 +43,10 @@ pub(crate) fn health_check_for_address(agent_addr: &str) -> ParentAgentServiceHe
         .map(|snapshot| snapshot.agent.service_version.clone())
         .filter(|value| !value.is_empty());
     let Some(service_version) = service_version else {
-        return ParentAgentServiceHealth::unavailable();
+        return ParentAgentServiceHealth::degraded(
+            ParentAgentServiceHealthReason::ServiceVersionMissing,
+            trace,
+        );
     };
 
     ParentAgentServiceHealth {
@@ -45,6 +56,8 @@ pub(crate) fn health_check_for_address(agent_addr: &str) -> ParentAgentServiceHe
         service_version: Some(service_version),
         transport: Some(constants::value::TRANSPORT_WEBSOCKET.to_string()),
         authentication_state: ParentAgentServiceAuthenticationState::Unauthenticated,
+        reason: ParentAgentServiceHealthReason::Ready,
+        trace,
     }
 }
 
@@ -52,35 +65,19 @@ pub(crate) fn health_check_timeout_ms() -> u64 {
     transport::agent_health_check_timeout_ms()
 }
 
-fn health_response_has_expected_identity(
+fn health_trace(
     result: &types::AgentServiceCommandResult,
     response: &AgentEventEnvelope,
-) -> bool {
-    result.command == AgentCommandName::AgentHealthCheck
-        && response.schema_version == AGENT_PROTOCOL_SCHEMA_VERSION
-        && response.correlation_id == result.command_message_id
-        && response.source.peer_id == constants::peer::LOCAL_DEV_AGENT
-        && response.source.role == AgentPeerRole::AgentService
-        && response.target.peer_id == constants::peer::PORTAL_DEV
-        && response.target.role == AgentPeerRole::Portal
-        && response.event == AgentEventName::AgentHealthReported
+) -> ParentAgentServiceHealthTrace {
+    ParentAgentServiceHealthTrace {
+        request_id: non_empty(result.command_message_id.clone()),
+        correlation_id: non_empty(response.correlation_id.clone()),
+        response_event_id: non_empty(response.event_id.clone()),
+        request_sent_at: non_empty(result.request_sent_at.clone()),
+        response_sent_at: non_empty(response.sent_at.clone()),
+    }
 }
 
-fn health_response_has_expected_payload(response: &AgentEventEnvelope) -> bool {
-    matches!(
-        response.payload.get(constants::field::ONLINE),
-        Some(LogFieldValue::Boolean(true))
-    ) && matches!(
-        response.payload.get(constants::field::TRANSPORT),
-        Some(LogFieldValue::String(value))
-            if value == constants::value::TRANSPORT_WEBSOCKET
-    ) && matches!(
-        response.payload.get(constants::field::COMMAND_TARGET_ROUTE),
-        Some(LogFieldValue::String(value))
-            if value == constants::value::DEVICE_RUNTIME_ROUTE_LOCALHOST
-    ) && matches!(
-        response.payload.get(constants::field::LAN_AUTHENTICATION_STATE),
-        Some(LogFieldValue::String(value))
-            if value == constants::value::LAN_AUTH_UNAUTHENTICATED
-    )
+fn non_empty(value: String) -> Option<String> {
+    (!value.trim().is_empty()).then_some(value)
 }

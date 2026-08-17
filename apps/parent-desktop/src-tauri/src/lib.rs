@@ -19,8 +19,8 @@ use ocentra_parent_agent_protocol::{
 use ocentra_parent_runtime_core::parent_service_health::ParentAgentServiceHealth;
 use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use ocentra_parent_runtime_core::parent_ui_bridge::{
-    dispatch_parent_ui_action, load_parent_route_snapshot, parent_agent_service_health_for_address,
-    parent_agent_service_health_timeout_ms,
+    dispatch_parent_ui_action_with_service_health, load_parent_route_snapshot_with_service_health,
+    parent_agent_service_health_for_address, parent_agent_service_health_timeout_ms,
 };
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteContext, ParentRouteId, ParentRouteSnapshot, ParentSubscriptionEvent,
@@ -73,7 +73,7 @@ impl std::error::Error for ParentDesktopCommandError {}
 pub struct ParentDesktopPlatformProofState {
     service_state: String,
     agent_address: String,
-    service_health_endpoint: String,
+    service_transport_endpoint: String,
     service_protocol_schema_version: Option<u16>,
     service_version: Option<String>,
     service_transport: Option<String>,
@@ -177,12 +177,16 @@ fn parent_load_route(
     route: ParentRouteId,
     context: Option<ParentRouteContext>,
 ) -> ParentRouteSnapshot {
-    load_parent_route_snapshot(route, context.as_ref())
+    let agent_address = configured_agent_address();
+    let service_health = parent_agent_service_health_for_address(&agent_address.0);
+    load_parent_route_snapshot_with_service_health(route, context.as_ref(), &service_health)
 }
 
 #[tauri::command]
 fn parent_dispatch(action: ParentUiAction) -> ParentUiActionResult {
-    dispatch_parent_ui_action(&action)
+    let agent_address = configured_agent_address();
+    let service_health = parent_agent_service_health_for_address(&agent_address.0);
+    dispatch_parent_ui_action_with_service_health(&action, &service_health)
 }
 
 #[tauri::command]
@@ -237,8 +241,14 @@ fn spawn_parent_route_subscription(
 ) {
     thread::spawn(move || {
         let mut load_state = ParentRouteSubscriptionLoadState::default();
+        let agent_address = configured_agent_address();
+        let service_health = parent_agent_service_health_for_address(&agent_address.0);
         let mut delivery_state = ParentRouteSubscriptionDeliveryState::new(
-            load_parent_route_snapshot(route.clone(), context.as_ref()),
+            load_parent_route_snapshot_with_service_health(
+                route.clone(),
+                context.as_ref(),
+                &service_health,
+            ),
         );
         while active.load(Ordering::SeqCst) {
             thread::sleep(Duration::from_millis(
@@ -247,7 +257,13 @@ fn spawn_parent_route_subscription(
             if !active.load(Ordering::SeqCst) {
                 break;
             }
-            let event = load_state.load(route.clone(), context.as_ref());
+            let agent_address = configured_agent_address();
+            let service_health = parent_agent_service_health_for_address(&agent_address.0);
+            let event = load_state.load_with_service_health(
+                route.clone(),
+                context.as_ref(),
+                &service_health,
+            );
             if deliver_parent_route_subscription_event(&mut delivery_state, &event, |event| {
                 emit_parent_route_subscription_event(&app, &subscription_id, event)
             })
@@ -289,6 +305,8 @@ fn parent_platform_proof_state_for_connection(
     service_health: ParentAgentServiceHealth,
 ) -> ParentDesktopPlatformProofState {
     let agent_address = agent_address.0;
+    let service_transport_endpoint =
+        format!("ws://{}{}", agent_address, constants::endpoint::DEV_WS);
     let service_state = if service_health.is_ready() {
         constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
     } else {
@@ -303,7 +321,7 @@ fn parent_platform_proof_state_for_connection(
     ParentDesktopPlatformProofState {
         service_state: service_state.to_string(),
         agent_address,
-        service_health_endpoint: constants::endpoint::DEV_WS.to_string(),
+        service_transport_endpoint,
         service_protocol_schema_version: service_health.protocol_schema_version,
         service_version: service_health.service_version,
         service_transport: service_health.transport,

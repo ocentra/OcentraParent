@@ -32,6 +32,8 @@ mod command_dispatch;
 mod command_entry;
 #[path = "websocket/enforcement_command_reports.rs"]
 mod enforcement_command_reports;
+#[path = "websocket/health_nonce.rs"]
+mod health_nonce;
 #[path = "websocket/lan_command_reports.rs"]
 mod lan_command_reports;
 #[path = "websocket/network_command_reports.rs"]

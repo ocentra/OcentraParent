@@ -30,6 +30,7 @@ ocentra-schema = { path = "../schema" }
 ocentra-storage-custody-core = { path = "../storage-custody-core" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
+sha2 = "0.10.9"
 tungstenite = "0.24.0"
 
 [dev-dependencies]

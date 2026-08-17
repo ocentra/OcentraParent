@@ -2135,6 +2135,41 @@ export interface ParentRouteSummary {
   readonly childDevice: string;
 }
 
+export type ParentServiceHealthState = 'ready' | 'degraded' | 'unavailable';
+export type ParentServiceHealthRoute = 'localhost' | 'local-network' | 'cloud-relay';
+export type ParentServiceHealthTransport = 'websocket';
+export type ParentServiceHealthAuthenticationState = 'unauthenticated' | 'unavailable';
+export type ParentServiceHealthReason =
+  | 'ready'
+  | 'transport-unavailable'
+  | 'response-schema-mismatch'
+  | 'response-identity-mismatch'
+  | 'response-payload-mismatch'
+  | 'response-nonce-mismatch'
+  | 'response-event-id-mismatch'
+  | 'response-timestamp-missing'
+  | 'response-timestamp-stale'
+  | 'service-version-missing';
+
+export interface ParentServiceHealthTraceSnapshot {
+  readonly requestId?: string | null;
+  readonly correlationId?: string | null;
+  readonly responseEventId?: string | null;
+  readonly requestSentAt?: string | null;
+  readonly responseSentAt?: string | null;
+}
+
+export interface ParentServiceHealthSnapshot {
+  readonly state: ParentServiceHealthState;
+  readonly route?: ParentServiceHealthRoute | null;
+  readonly protocolSchemaVersion?: number | null;
+  readonly serviceVersion?: string | null;
+  readonly transport?: ParentServiceHealthTransport | null;
+  readonly authenticationState: ParentServiceHealthAuthenticationState;
+  readonly reason: ParentServiceHealthReason;
+  readonly trace: ParentServiceHealthTraceSnapshot;
+}
+
 export interface ParentRouteSnapshot {
   readonly schemaVersion: number;
   readonly route: ParentRouteId;
@@ -2146,6 +2181,7 @@ export interface ParentRouteSnapshot {
   readonly agentEndpoint: string;
   readonly dataSource: ParentRouteDataSource;
   readonly summary: ParentRouteSummary;
+  readonly serviceHealth?: ParentServiceHealthSnapshot | null;
   readonly diagnosticPanelsEnabled: boolean;
   readonly parentPortalRows?: readonly ParentPortalRowSnapshot[] | null;
   readonly parentPortalShellStatus?: ParentPortalShellStatusSnapshot | null;
