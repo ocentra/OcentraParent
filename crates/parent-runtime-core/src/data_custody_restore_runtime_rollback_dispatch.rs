@@ -54,7 +54,14 @@ impl ParentRestoreRuntime {
         )
         .map_err(RestoreRuntimeError::Plan)?;
         self.revalidate_authority(plan, mount)?;
-        if existing_restore.provider_operation_ref.is_none() {
+        // A partial restore reaches this path immediately after the provider
+        // observation, before that observation has been durably attached to
+        // the pending receipt. Accept either the already-recorded reference
+        // (restart/retry) or the current observation, but never dispatch a
+        // rollback without one.
+        if existing_restore.provider_operation_ref.is_none()
+            && observed_provider_operation_ref.is_none()
+        {
             return Err(RestoreRuntimeError::Executor(RestoreExecutorError::Failed));
         }
         if existing_restore.compensation_applied
