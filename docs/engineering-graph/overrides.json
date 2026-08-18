@@ -84,6 +84,22 @@
       "reason": "Independent source review accepted the Cloudflare WP06 authority packet after Account WP08's canonical identities, Account WP02's target-aware identity, and WP01's module scaffold. The runtime is now explicitly mapped as a safe verified-provider read/manual boundary: the verifier reaches current-authority resolution, while parameterless mutation readiness remains manual-required and no caller-scalar mutation API exists. Writer create/currentness/compare-and-swap/revoke remains gated by the unconstructible AccountOwnedAuthorityProducer. The exact missing production owner is Account WP02/WP08 signed/sealed current-authority producer transport plus Worker verifier. Runtime mutation composition, higher authority, expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
     },
     {
+      "id": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
+      "evidence": [
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/plans/account-identity-family-plan/NEXT_ACTIONS.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Candidate WP03 source now composes browser login, refresh, refresh-bound logout/global revoke, strict digest-only custody, current-authority revalidation, and redacted audit outcomes through Cloudflare WP06's final provider caller/verifier result seam. Trusted store time and runtime D1 row validation fail closed. Independent review remains open; the exact route/store/request-safety/integration tests, migration execution, live D1/Worker validation, proof, deployment, and DONE remain open."
+    },
+    {
       "id": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
       "hardDependencies": ["WP-account-identity-family-plan-01-auth-provider-decision"],
       "evidence": [
@@ -1503,6 +1519,20 @@
         "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
       ],
       "reason": "WP03 durable sessions and refresh families require server-derived account, household, membership, and role identity from WP02.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts"
+      ],
+      "reason": "WP03 browser login and current-authority composition must consume Cloudflare WP06's final discriminated provider verification caller and parameterless mutation-readiness boundary; it must not duplicate provider/store reads or mint authority. WP06 remains a reviewed read/manual seam, so WP03 tests, migration execution, live Worker/D1 validation, proof, deployment, and DONE remain open.",
       "implementationGate": "reviewed-implementation"
     },
     {

@@ -168,7 +168,7 @@ export async function loginBrowserSession(
     return withCorrelation(json(403, { error: 'browser-session-role-ineligible' }), correlation);
   }
   const nowMs = Date.now();
-  const created = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).create(authority, nowMs, correlation);
+  const created = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).create(authority, correlation);
   if (created.status !== 'accepted') {
     milestone(
       'login',
@@ -247,7 +247,7 @@ export async function refreshBrowserSession(request: Request, env: Env, identity
     );
   }
   const nowMs = Date.now();
-  const rotated = await store.rotate(refreshToken, nowMs, correlation);
+  const rotated = await store.rotate(refreshToken, correlation);
   if (rotated.status !== 'accepted') {
     milestone(
       'refresh',
@@ -317,7 +317,7 @@ export async function logoutBrowserSession(request: Request, env: Env, _identity
       correlation
     );
   }
-  const result = await store.logoutRefresh(refreshToken, Date.now(), correlation);
+  const result = await store.logoutRefresh(refreshToken, correlation);
   if (result.status !== 'accepted') {
     milestone(
       'logout',
@@ -368,7 +368,7 @@ export async function revokeBrowserSessions(request: Request, env: Env, identity
       correlation
     );
   }
-  const result = await store.revokeAll(identity.authority, Date.now(), correlation);
+  const result = await store.revokeAll(identity.authority, correlation);
   if (result.status !== 'accepted') {
     milestone(
       'global-revoke',

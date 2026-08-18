@@ -8,7 +8,10 @@ import {
 import {
   browserSessionRole,
   constantTimeEqual,
+  isBrowserSessionRow,
+  isBrowserSessionTimestamp,
   isDigest,
+  isSessionId,
   newOpaqueValue,
   newSessionId,
   nowIso,
@@ -24,6 +27,7 @@ import {
 const ACCESS_LIFETIME_MS = 30 * 60 * 1000;
 // Refresh rotation renews access only; this fixed family lifetime is never extended.
 const REFRESH_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+const SESSION_CUSTODY_SCHEMA_VERSION = 7;
 const log = Logger.instance;
 log.register(import.meta.url);
 
@@ -83,7 +87,7 @@ export type BrowserSessionReadResult =
   | { status: 'active'; identity: BrowserSessionIdentity; row: BrowserSessionRow }
   | { status: 'missing' }
   | { status: 'rejected'; reason: 'malformed' | 'invalid' | 'expired' | 'revoked' | 'role-ineligible' }
-  | { status: 'manual-required'; reason: 'binding-missing' | 'schema-missing' | 'd1-unavailable' };
+  | { status: 'manual-required'; reason: 'binding-missing' | 'schema-missing' | 'schema-invalid' | 'd1-unavailable' };
 
 export type BrowserSessionMutationResult =
   | { status: 'accepted'; identity: BrowserSessionIdentity | null; secrets: BrowserSessionSecrets }
@@ -91,55 +95,29 @@ export type BrowserSessionMutationResult =
       status: 'rejected';
       reason: 'missing' | 'malformed' | 'invalid' | 'expired' | 'revoked' | 'replay' | 'conflict' | 'role-ineligible';
     }
-  | { status: 'manual-required'; reason: 'binding-missing' | 'schema-missing' | 'd1-unavailable' };
+  | {
+      status: 'manual-required';
+      reason: 'binding-missing' | 'schema-missing' | 'schema-invalid' | 'd1-unavailable';
+    };
 
 export interface BrowserSessionStore {
   create(
     authority: VerifiedAccountIdentityAuthorityCapability,
-    nowMs?: number,
     requestCorrelation?: string
   ): Promise<BrowserSessionMutationResult>;
-  read(sessionToken: string | null, nowMs?: number): Promise<BrowserSessionReadResult>;
-  readBinding(sessionToken: string | null, nowMs?: number): Promise<BrowserSessionReadResult>;
-  readRefresh(refreshToken: string | null, nowMs?: number): Promise<BrowserSessionReadResult>;
-  rotate(
-    refreshToken: string | null,
-    nowMs?: number,
-    requestCorrelation?: string
-  ): Promise<BrowserSessionMutationResult>;
-  verifyCsrf(sessionToken: string | null, csrfToken: string | null, nowMs?: number): Promise<boolean>;
-  verifyRefreshCsrf(refreshToken: string | null, csrfToken: string | null, nowMs?: number): Promise<boolean>;
-  logoutRefresh(
-    refreshToken: string | null,
-    nowMs?: number,
-    requestCorrelation?: string
-  ): Promise<BrowserSessionMutationResult>;
-  logout(
-    sessionToken: string | null,
-    nowMs?: number,
-    requestCorrelation?: string
-  ): Promise<BrowserSessionMutationResult>;
+  read(sessionToken: string | null): Promise<BrowserSessionReadResult>;
+  readBinding(sessionToken: string | null): Promise<BrowserSessionReadResult>;
+  readRefresh(refreshToken: string | null): Promise<BrowserSessionReadResult>;
+  rotate(refreshToken: string | null, requestCorrelation?: string): Promise<BrowserSessionMutationResult>;
+  verifyCsrf(sessionToken: string | null, csrfToken: string | null): Promise<boolean>;
+  verifyRefreshCsrf(refreshToken: string | null, csrfToken: string | null): Promise<boolean>;
+  logoutRefresh(refreshToken: string | null, requestCorrelation?: string): Promise<BrowserSessionMutationResult>;
+  logout(sessionToken: string | null, requestCorrelation?: string): Promise<BrowserSessionMutationResult>;
   revokeAll(
     authority: VerifiedAccountIdentityAuthorityCapability,
-    nowMs?: number,
     requestCorrelation?: string
   ): Promise<BrowserSessionMutationResult>;
 }
-
-const SELECT_BY_ID_SQL = `
-SELECT session.session_id, session.session_token_digest, session.refresh_token_digest, session.csrf_token_digest,
-       session.provider, session.provider_subject, session.role, session.account_id,
-       session.household_id, session.member_id, session.device_id, session.child_profile_id, session.child_device_id,
-       session.authority_session_id, session.authority_session_generation, session.authority_generation,
-       session.support_receipt_id, session.support_provider_subject, session.support_account_id,
-       session.support_member_id, session.support_household_id, session.support_device_id,
-       session.support_child_profile_id, session.support_child_device_id, session.support_scope,
-       session.support_issuer, session.support_issued_at, session.support_expires_at,
-       session.support_revocation_state, session.support_audit_identity, session.issued_at,
-       session.access_expires_at, session.refresh_expires_at, session.revoke_generation,
-       session.refresh_generation, session.status, session.last_seen_at, session.revoked_at,
-       session.created_at, session.updated_at
-FROM ocentra_account_browser_sessions AS session WHERE session.session_id = ? LIMIT 1`;
 
 const SELECT_CURRENT_BY_ID_SQL = `
 SELECT session.session_id, session.session_token_digest, session.refresh_token_digest, session.csrf_token_digest,
@@ -175,12 +153,24 @@ SELECT session.session_id, session.session_token_digest, session.refresh_token_d
        session.refresh_generation, session.status, session.last_seen_at, session.revoked_at,
        session.created_at, session.updated_at
 FROM ocentra_account_browser_sessions AS session
+JOIN ocentra_account_identity_current_authority AS authority
+  ON authority.provider = session.provider AND authority.provider_subject = session.provider_subject
 WHERE session.provider = ? AND session.provider_subject = ?
-  AND session.status = 'active' AND session.revoke_generation = ?`;
+  AND session.status = 'active' AND session.revoke_generation = ?
+  AND ${CURRENT_AUTHORITY_CONDITIONS_SQL}`;
 
 const SELECT_FENCE_SQL = `
-SELECT revoke_generation FROM ocentra_account_browser_session_fences
+SELECT revoke_generation, updated_at FROM ocentra_account_browser_session_fences
 WHERE provider = ? AND provider_subject = ? LIMIT 1`;
+
+const SELECT_CUSTODY_SCHEMA_SQL = `
+SELECT schema_name, schema_version, applied_at
+FROM ocentra_account_browser_session_schema
+WHERE schema_name = 'browser-session-custody' LIMIT 1`;
+
+const SELECT_CUSTODY_SCHEMA_DDL_SQL = `
+SELECT sql FROM sqlite_schema
+WHERE type = 'table' AND name = 'ocentra_account_browser_session_schema' LIMIT 1`;
 
 const ENSURE_FENCE_SQL = `
 INSERT INTO ocentra_account_browser_session_fences
@@ -235,8 +225,19 @@ WHERE fence.provider = authority.provider AND fence.provider_subject = authority
   AND authority.install_state = 'installed'
   AND authority.lifecycle_state = 'active'
   AND authority.revocation_state = 'active'
+  AND authority.support_receipt_id IS ?
+  AND authority.support_provider_subject IS ?
+  AND authority.support_account_id IS ?
+  AND authority.support_member_id IS ?
+  AND authority.support_household_id IS ?
+  AND authority.support_device_id IS ?
+  AND authority.support_child_profile_id IS ?
+  AND authority.support_child_device_id IS ?
   AND authority.support_scope IS ?
   AND authority.support_issuer IS ?
+  AND authority.support_issued_at IS ?
+  AND authority.support_expires_at IS ?
+  AND authority.support_revocation_state IS ?
   AND authority.support_audit_identity IS ?
   AND (
     (authority.role <> 'support-admin' AND authority.support_receipt_id IS NULL)
@@ -292,8 +293,19 @@ WHERE provider = ? AND provider_subject = ? AND revoke_generation = ?
       AND authority.install_state = 'installed'
       AND authority.lifecycle_state = 'active'
       AND authority.revocation_state = 'active'
+      AND authority.support_receipt_id IS ?
+      AND authority.support_provider_subject IS ?
+      AND authority.support_account_id IS ?
+      AND authority.support_member_id IS ?
+      AND authority.support_household_id IS ?
+      AND authority.support_device_id IS ?
+      AND authority.support_child_profile_id IS ?
+      AND authority.support_child_device_id IS ?
       AND authority.support_scope IS ?
       AND authority.support_issuer IS ?
+      AND authority.support_issued_at IS ?
+      AND authority.support_expires_at IS ?
+      AND authority.support_revocation_state IS ?
       AND authority.support_audit_identity IS ?
       AND (
         (authority.role <> 'support-admin' AND authority.support_receipt_id IS NULL)
@@ -352,12 +364,11 @@ INSERT INTO ocentra_account_browser_session_consumed_refresh
   (refresh_token_digest, session_id, refresh_generation, consumed_at)
 SELECT ?, ?, refresh_generation - 1, ?
 FROM ocentra_account_browser_sessions
-WHERE changes() = 1 AND session_id = ? AND refresh_token_digest = ? AND status = 'active'
+WHERE session_id = ? AND refresh_token_digest = ? AND status = 'active'
   AND refresh_generation = ? AND updated_at = ?
 UNION ALL
 SELECT NULL, NULL, NULL, NULL
-WHERE changes() = 1
-  AND NOT EXISTS (
+WHERE NOT EXISTS (
     SELECT 1 FROM ocentra_account_browser_sessions
     WHERE session_id = ? AND refresh_token_digest = ? AND status = 'active'
       AND refresh_generation = ? AND updated_at = ?
@@ -373,11 +384,10 @@ INSERT INTO ocentra_account_browser_session_audit
   (audit_id, session_ref_digest, provider, actor_ref_digest, action, result, reason, correlation_id, occurred_at)
 SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?
 FROM ocentra_account_browser_sessions
-WHERE changes() = 1 AND session_id = ? AND status = 'active' AND updated_at = ? AND refresh_generation = ?
+WHERE session_id = ? AND status = 'active' AND updated_at = ? AND refresh_generation = ?
 UNION ALL
 SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-WHERE changes() = 1
-  AND NOT EXISTS (
+WHERE NOT EXISTS (
     SELECT 1 FROM ocentra_account_browser_sessions
     WHERE session_id = ? AND status = 'active' AND updated_at = ? AND refresh_generation = ?
   )`;
@@ -387,12 +397,11 @@ INSERT INTO ocentra_account_browser_session_audit
   (audit_id, session_ref_digest, provider, actor_ref_digest, action, result, reason, correlation_id, occurred_at)
 SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?
 FROM ocentra_account_browser_sessions
-WHERE changes() = 1 AND session_id = ? AND status = 'active' AND updated_at = ? AND refresh_generation = ?
+WHERE session_id = ? AND status = 'active' AND updated_at = ? AND refresh_generation = ?
   AND refresh_token_digest = ?
 UNION ALL
 SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-WHERE changes() = 1
-  AND NOT EXISTS (
+WHERE NOT EXISTS (
     SELECT 1 FROM ocentra_account_browser_sessions
     WHERE session_id = ? AND status = 'active' AND updated_at = ? AND refresh_generation = ?
       AND refresh_token_digest = ?
@@ -430,12 +439,11 @@ INSERT INTO ocentra_account_browser_session_audit
   (audit_id, session_ref_digest, provider, actor_ref_digest, action, result, reason, correlation_id, occurred_at)
 SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?
 FROM ocentra_account_browser_sessions
-WHERE changes() = 1 AND session_id = ? AND status = 'revoked' AND revoked_at = ? AND updated_at = ?
+WHERE session_id = ? AND status = 'revoked' AND revoked_at = ? AND updated_at = ?
   AND revoke_generation = ?
 UNION ALL
 SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-WHERE changes() = 1
-  AND NOT EXISTS (
+WHERE NOT EXISTS (
     SELECT 1 FROM ocentra_account_browser_sessions
     WHERE session_id = ? AND status = 'revoked' AND revoked_at = ? AND updated_at = ?
       AND revoke_generation = ?
@@ -450,14 +458,14 @@ FROM ocentra_account_browser_session_fences
 WHERE changes() = 1 AND provider = ? AND provider_subject = ? AND revoke_generation = ?
 UNION ALL
 SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-WHERE changes() = 1
-  AND NOT EXISTS (
+WHERE changes() <> 1 OR NOT EXISTS (
     SELECT 1 FROM ocentra_account_browser_session_fences
     WHERE provider = ? AND provider_subject = ? AND revoke_generation = ?
   )`;
 
 interface FenceRow {
   revoke_generation: number;
+  updated_at: string;
 }
 
 interface ConsumedRefreshRow {
@@ -465,6 +473,27 @@ interface ConsumedRefreshRow {
   session_id: string;
   refresh_generation: number;
   consumed_at: string;
+}
+
+class InvalidBrowserSessionRowError extends Error {
+  constructor(table: string) {
+    super(`invalid ${table} row`);
+    this.name = 'InvalidBrowserSessionRowError';
+  }
+}
+
+class MissingBrowserSessionSchemaError extends Error {
+  constructor() {
+    super('browser session custody schema is not migrated');
+    this.name = 'MissingBrowserSessionSchemaError';
+  }
+}
+
+class InvalidBrowserSessionSchemaError extends Error {
+  constructor() {
+    super('browser session custody schema version is invalid');
+    this.name = 'InvalidBrowserSessionSchemaError';
+  }
 }
 
 interface CurrentAuthorityBinding {
@@ -480,18 +509,75 @@ interface CurrentAuthorityBinding {
   authoritySessionId: string;
   authoritySessionGeneration: number;
   authorityGeneration: number;
+  supportReceiptId: string | null;
+  supportProviderSubject: string | null;
+  supportAccountId: string | null;
+  supportMemberId: string | null;
+  supportHouseholdId: string | null;
+  supportDeviceId: string | null;
+  supportChildProfileId: string | null;
+  supportChildDeviceId: string | null;
   supportScope: string | null;
   supportIssuer: string | null;
+  supportIssuedAt: string | null;
+  supportExpiresAt: string | null;
+  supportRevocationState: string | null;
   supportAuditIdentity: string | null;
 }
 
 function missingSchema(error: unknown): boolean {
+  if (error instanceof MissingBrowserSessionSchemaError) return true;
   const message = String(error instanceof Error ? error.message : error).toLowerCase();
   return message.includes('no such table') || message.includes('no such column') || message.includes('does not exist');
 }
 
+function invalidSchema(error: unknown): boolean {
+  return error instanceof InvalidBrowserSessionRowError || error instanceof InvalidBrowserSessionSchemaError;
+}
+
 function changes(result: { meta?: { changes?: number } }): number {
   return typeof result.meta?.changes === 'number' ? result.meta.changes : 0;
+}
+
+function decodeSessionRow(value: unknown): BrowserSessionRow | null {
+  if (value === null) return null;
+  if (!isBrowserSessionRow(value)) throw new InvalidBrowserSessionRowError('browser session');
+  return value;
+}
+
+function decodeFenceRow(value: unknown): FenceRow | null {
+  if (value === null) return null;
+  if (
+    typeof value !== 'object' ||
+    Array.isArray(value) ||
+    typeof (value as { revoke_generation?: unknown }).revoke_generation !== 'number' ||
+    !Number.isSafeInteger((value as { revoke_generation: number }).revoke_generation) ||
+    (value as { revoke_generation: number }).revoke_generation <= 0 ||
+    !isBrowserSessionTimestamp((value as { updated_at?: unknown }).updated_at)
+  ) {
+    throw new InvalidBrowserSessionRowError('browser session fence');
+  }
+  return value as FenceRow;
+}
+
+function decodeConsumedRefreshRow(value: unknown): ConsumedRefreshRow | null {
+  if (value === null) return null;
+  const row = value as Record<string, unknown>;
+  if (
+    typeof value !== 'object' ||
+    Array.isArray(value) ||
+    typeof row.refresh_token_digest !== 'string' ||
+    !isDigest(row.refresh_token_digest) ||
+    !isSessionId(row.session_id) ||
+    typeof row.refresh_generation !== 'number' ||
+    !Number.isSafeInteger(row.refresh_generation) ||
+    row.refresh_generation <= 0 ||
+    typeof row.consumed_at !== 'string' ||
+    !isBrowserSessionTimestamp(row.consumed_at)
+  ) {
+    throw new InvalidBrowserSessionRowError('consumed refresh');
+  }
+  return value as ConsumedRefreshRow;
 }
 
 function safeCorrelation(value: string | undefined, action: string): string {
@@ -501,16 +587,19 @@ function safeCorrelation(value: string | undefined, action: string): string {
 
 function manualStorageFailure(error: unknown): {
   status: 'manual-required';
-  reason: 'schema-missing' | 'd1-unavailable';
+  reason: 'schema-missing' | 'schema-invalid' | 'd1-unavailable';
 } {
   log.logWarn('account browser session storage unavailable', getStackTrace(), {
     owner: 'account-identity-family-plan',
     boundary: 'browser-session-custody',
     result: 'blocked',
-    reason: missingSchema(error) ? 'schema-missing' : 'd1-unavailable',
+    reason: missingSchema(error) ? 'schema-missing' : invalidSchema(error) ? 'schema-invalid' : 'd1-unavailable',
     redactionState: 'tokens-and-storage-error-omitted',
   });
-  return { status: 'manual-required', reason: missingSchema(error) ? 'schema-missing' : 'd1-unavailable' };
+  return {
+    status: 'manual-required',
+    reason: missingSchema(error) ? 'schema-missing' : invalidSchema(error) ? 'schema-invalid' : 'd1-unavailable',
+  };
 }
 
 async function auditBindings(
@@ -538,6 +627,29 @@ async function auditBindings(
   ];
 }
 
+async function requireCustodySchema(database: D1Database): Promise<void> {
+  const value = await database.prepare(SELECT_CUSTODY_SCHEMA_SQL).first<unknown>();
+  if (value === null) throw new MissingBrowserSessionSchemaError();
+  const ddl = await database.prepare(SELECT_CUSTODY_SCHEMA_DDL_SQL).first<unknown>();
+  const ddlText =
+    typeof ddl === 'object' && ddl !== null && !Array.isArray(ddl) && typeof (ddl as { sql?: unknown }).sql === 'string'
+      ? (ddl as { sql: string }).sql.replace(/\s+/g, ' ').trim().toUpperCase()
+      : null;
+  if (
+    typeof value !== 'object' ||
+    Array.isArray(value) ||
+    (value as { schema_name?: unknown }).schema_name !== 'browser-session-custody' ||
+    (value as { schema_version?: unknown }).schema_version !== SESSION_CUSTODY_SCHEMA_VERSION ||
+    !isBrowserSessionTimestamp((value as { applied_at?: unknown }).applied_at) ||
+    ddlText === null ||
+    !ddlText.includes('STRICT') ||
+    !ddlText.includes("SCHEMA_NAME TEXT NOT NULL PRIMARY KEY CHECK (SCHEMA_NAME = 'BROWSER-SESSION-CUSTODY')") ||
+    !ddlText.includes('SCHEMA_VERSION INTEGER NOT NULL CHECK (SCHEMA_VERSION = 7)')
+  ) {
+    throw new InvalidBrowserSessionSchemaError();
+  }
+}
+
 async function scopeDigest(provider: string, providerSubject: string): Promise<string> {
   return sha256Hex(`ocentra/account-browser-session/audit/scope:${provider}:${providerSubject}`);
 }
@@ -551,28 +663,30 @@ function expired(row: BrowserSessionRow, nowMs: number, credential: 'access' | '
   return !Number.isFinite(expiry) || expiry <= nowMs;
 }
 
-async function rowById(database: D1Database, sessionId: string): Promise<BrowserSessionRow | null> {
-  return database.prepare(SELECT_BY_ID_SQL).bind(sessionId).first<BrowserSessionRow>();
-}
-
 async function currentRowById(
   database: D1Database,
   sessionId: string,
   nowMs: number
 ): Promise<BrowserSessionRow | null> {
   const now = nowIso(nowMs);
-  return database.prepare(SELECT_CURRENT_BY_ID_SQL).bind(sessionId, now, now, now).first<BrowserSessionRow>();
+  return decodeSessionRow(
+    await database.prepare(SELECT_CURRENT_BY_ID_SQL).bind(sessionId, now, now, now).first<unknown>()
+  );
 }
 
 async function consumedRefreshByDigest(
   database: D1Database,
   refreshTokenDigest: string
 ): Promise<ConsumedRefreshRow | null> {
-  return database.prepare(SELECT_CONSUMED_REFRESH_SQL).bind(refreshTokenDigest).first<ConsumedRefreshRow>();
+  return decodeConsumedRefreshRow(
+    await database.prepare(SELECT_CONSUMED_REFRESH_SQL).bind(refreshTokenDigest).first<unknown>()
+  );
 }
 
 async function isCurrentFence(database: D1Database, row: BrowserSessionRow): Promise<boolean> {
-  const fence = await database.prepare(SELECT_FENCE_SQL).bind(row.provider, row.provider_subject).first<FenceRow>();
+  const fence = decodeFenceRow(
+    await database.prepare(SELECT_FENCE_SQL).bind(row.provider, row.provider_subject).first<unknown>()
+  );
   return fence !== null && fence.revoke_generation === row.revoke_generation;
 }
 
@@ -581,6 +695,7 @@ function mutationFromRow(row: BrowserSessionRow, secrets: BrowserSessionSecrets)
 }
 
 function authorityBindingFromRow(row: BrowserSessionRow): CurrentAuthorityBinding | null {
+  if (browserSessionRole(row.role) === null) return null;
   if (
     row.household_id === null ||
     row.member_id === null ||
@@ -603,8 +718,19 @@ function authorityBindingFromRow(row: BrowserSessionRow): CurrentAuthorityBindin
     authoritySessionId: row.authority_session_id,
     authoritySessionGeneration: row.authority_session_generation,
     authorityGeneration: row.authority_generation,
+    supportReceiptId: row.support_receipt_id,
+    supportProviderSubject: row.support_provider_subject,
+    supportAccountId: row.support_account_id,
+    supportMemberId: row.support_member_id,
+    supportHouseholdId: row.support_household_id,
+    supportDeviceId: row.support_device_id,
+    supportChildProfileId: row.support_child_profile_id,
+    supportChildDeviceId: row.support_child_device_id,
     supportScope: row.support_scope,
     supportIssuer: row.support_issuer,
+    supportIssuedAt: row.support_issued_at,
+    supportExpiresAt: row.support_expires_at,
+    supportRevocationState: row.support_revocation_state,
     supportAuditIdentity: row.support_audit_identity,
   };
 }
@@ -625,8 +751,19 @@ function authorityBindingFromCapability(
     authoritySessionId: authority.sessionId,
     authoritySessionGeneration: authority.sessionGeneration,
     authorityGeneration: authority.authorityGeneration,
+    supportReceiptId: authority.supportReceiptId,
+    supportProviderSubject: authority.supportProviderSubject,
+    supportAccountId: authority.supportAccountId,
+    supportMemberId: authority.supportMemberId,
+    supportHouseholdId: authority.supportHouseholdId,
+    supportDeviceId: authority.supportDeviceId,
+    supportChildProfileId: authority.supportChildProfileId,
+    supportChildDeviceId: authority.supportChildDeviceId,
     supportScope: authority.supportScope,
     supportIssuer: authority.supportIssuer,
+    supportIssuedAt: authority.supportIssuedAt,
+    supportExpiresAt: authority.supportExpiresAt,
+    supportRevocationState: authority.supportRevocationState,
     supportAuditIdentity: authority.supportAuditIdentity,
   };
 }
@@ -694,13 +831,18 @@ async function activeRowsForGeneration(
   database: D1Database,
   provider: string,
   providerSubject: string,
-  revokeGeneration: number
+  revokeGeneration: number,
+  nowMs: number
 ): Promise<BrowserSessionRow[]> {
   const result = await database
     .prepare(SELECT_ACTIVE_BY_SUBJECT_SQL)
-    .bind(provider, providerSubject, revokeGeneration)
-    .all<BrowserSessionRow>();
-  return result.results ?? [];
+    .bind(provider, providerSubject, revokeGeneration, nowIso(nowMs), nowIso(nowMs), nowIso(nowMs))
+    .all<unknown>();
+  return (result.results ?? []).map((row) => {
+    const decoded = decodeSessionRow(row);
+    if (decoded === null) throw new InvalidBrowserSessionRowError('browser session');
+    return decoded;
+  });
 }
 
 async function revokeFamilyAtomic(
@@ -721,7 +863,17 @@ async function revokeFamilyAtomic(
   if (!Number.isSafeInteger(nextGeneration)) {
     return { status: 'manual-required', reason: 'd1-unavailable' };
   }
-  const rows = await activeRowsForGeneration(database, binding.provider, binding.providerSubject, expectedGeneration);
+  const nowMs = Date.parse(now);
+  if (!Number.isFinite(nowMs)) {
+    return { status: 'manual-required', reason: 'd1-unavailable' };
+  }
+  const rows = await activeRowsForGeneration(
+    database,
+    binding.provider,
+    binding.providerSubject,
+    expectedGeneration,
+    nowMs
+  );
   const correlation = safeCorrelation(
     requestCorrelation,
     action === 'global-revoke' ? 'session-revoke' : 'session-replay'
@@ -750,8 +902,19 @@ async function revokeFamilyAtomic(
         binding.authoritySessionGeneration,
         now,
         binding.authorityGeneration,
+        binding.supportReceiptId,
+        binding.supportProviderSubject,
+        binding.supportAccountId,
+        binding.supportMemberId,
+        binding.supportHouseholdId,
+        binding.supportDeviceId,
+        binding.supportChildProfileId,
+        binding.supportChildDeviceId,
         binding.supportScope,
         binding.supportIssuer,
+        binding.supportIssuedAt,
+        binding.supportExpiresAt,
+        binding.supportRevocationState,
         binding.supportAuditIdentity,
         now,
         now
@@ -845,11 +1008,12 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
   }
 
   return {
-    async create(authority, nowMs = Date.now(), requestCorrelation) {
+    async create(authority, requestCorrelation) {
       if (!isVerifiedAccountIdentityAuthorityCapability(authority)) {
         return { status: 'rejected', reason: 'invalid' };
       }
       if (browserSessionRole(authority.role) === null) return { status: 'rejected', reason: 'role-ineligible' };
+      const nowMs = Date.now();
       const issuedAt = nowIso(nowMs);
       const accessExpiresAt = nowIso(nowMs + ACCESS_LIFETIME_MS);
       const refreshExpiresAt = nowIso(nowMs + REFRESH_LIFETIME_MS);
@@ -860,6 +1024,7 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
         csrfToken: sessionCookieValue(sessionId, newOpaqueValue()),
       } satisfies BrowserSessionSecrets;
       try {
+        await requireCustodySchema(database);
         const correlation = safeCorrelation(requestCorrelation, 'session-create');
         const sessionTokenDigest = await sha256Hex(secrets.sessionToken);
         const refreshTokenDigest = await sha256Hex(secrets.refreshToken);
@@ -904,8 +1069,19 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
               authority.sessionGeneration,
               issuedAt,
               authority.authorityGeneration,
+              authority.supportReceiptId,
+              authority.supportProviderSubject,
+              authority.supportAccountId,
+              authority.supportMemberId,
+              authority.supportHouseholdId,
+              authority.supportDeviceId,
+              authority.supportChildProfileId,
+              authority.supportChildDeviceId,
               authority.supportScope,
               authority.supportIssuer,
+              authority.supportIssuedAt,
+              authority.supportExpiresAt,
+              authority.supportRevocationState,
               authority.supportAuditIdentity,
               issuedAt,
               issuedAt
@@ -914,7 +1090,7 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
         ]);
         if (changes(results[1]) !== 1) return { status: 'rejected', reason: 'invalid' };
         if (changes(results[2]) !== 1) return { status: 'manual-required', reason: 'd1-unavailable' };
-        const row = await rowById(database, sessionId);
+        const row = await currentRowById(database, sessionId, nowMs);
         if (row === null) return { status: 'rejected', reason: 'conflict' };
         return mutationFromRow(row, secrets);
       } catch (error) {
@@ -922,8 +1098,10 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
       }
     },
 
-    async read(sessionToken, nowMs = Date.now()) {
+    async read(sessionToken) {
+      const nowMs = Date.now();
       try {
+        await requireCustodySchema(database);
         const result = await readWithSecret(database, sessionToken, 'session_token_digest', nowMs, 'access');
         if ('row' in result) return { status: 'active', identity: sessionIdentity(result.row), row: result.row };
         return result;
@@ -932,8 +1110,10 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
       }
     },
 
-    async readBinding(sessionToken, nowMs = Date.now()) {
+    async readBinding(sessionToken) {
+      const nowMs = Date.now();
       try {
+        await requireCustodySchema(database);
         const result = await readWithSecret(database, sessionToken, 'session_token_digest', nowMs, 'binding');
         if ('row' in result) return { status: 'active', identity: sessionIdentity(result.row), row: result.row };
         return result;
@@ -942,8 +1122,10 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
       }
     },
 
-    async readRefresh(refreshToken, nowMs = Date.now()) {
+    async readRefresh(refreshToken) {
+      const nowMs = Date.now();
       try {
+        await requireCustodySchema(database);
         const result = await readWithSecret(database, refreshToken, 'refresh_token_digest', nowMs, 'refresh');
         if ('row' in result) return { status: 'active', identity: sessionIdentity(result.row), row: result.row };
         return result;
@@ -952,12 +1134,18 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
       }
     },
 
-    async rotate(refreshToken, nowMs = Date.now(), requestCorrelation) {
+    async rotate(refreshToken, requestCorrelation) {
+      const nowMs = Date.now();
       const now = nowIso(nowMs);
       try {
+        await requireCustodySchema(database);
         const session = await readRefreshForRotation(database, refreshToken, nowMs);
         if (session.status === 'consumed') {
-          if (session.row === null || session.row.session_id !== session.consumed.session_id) {
+          if (
+            session.row === null ||
+            session.row.session_id !== session.consumed.session_id ||
+            session.consumed.refresh_generation >= session.row.refresh_generation
+          ) {
             return { status: 'manual-required', reason: 'd1-unavailable' };
           }
           const binding = authorityBindingFromRow(session.row);
@@ -1061,7 +1249,7 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
         if (changes(results[1]) !== 1 || changes(results[2]) !== 1) {
           return { status: 'manual-required', reason: 'd1-unavailable' };
         }
-        const current = await rowById(database, row.session_id);
+        const current = await currentRowById(database, row.session_id, nowMs);
         if (current === null) return { status: 'rejected', reason: 'conflict' };
         return mutationFromRow(current, secrets);
       } catch (error) {
@@ -1069,8 +1257,10 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
       }
     },
 
-    async verifyCsrf(sessionToken, csrfToken, nowMs = Date.now()) {
+    async verifyCsrf(sessionToken, csrfToken) {
+      const nowMs = Date.now();
       try {
+        await requireCustodySchema(database);
         const session = await readWithSecret(database, sessionToken, 'session_token_digest', nowMs, 'access');
         if (!('row' in session)) return false;
         const parsed = parseSessionCookie(csrfToken);
@@ -1083,8 +1273,10 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
       }
     },
 
-    async verifyRefreshCsrf(refreshToken, csrfToken, nowMs = Date.now()) {
+    async verifyRefreshCsrf(refreshToken, csrfToken) {
+      const nowMs = Date.now();
       try {
+        await requireCustodySchema(database);
         const session = await readWithSecret(database, refreshToken, 'refresh_token_digest', nowMs, 'refresh');
         if (!('row' in session)) return false;
         const parsed = parseSessionCookie(csrfToken);
@@ -1097,8 +1289,17 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
       }
     },
 
-    async logout(sessionToken, nowMs = Date.now(), requestCorrelation) {
-      const session = await this.read(sessionToken, nowMs);
+    async logout(sessionToken, requestCorrelation) {
+      const nowMs = Date.now();
+      let session: BrowserSessionReadResult;
+      try {
+        await requireCustodySchema(database);
+        const result = await readWithSecret(database, sessionToken, 'session_token_digest', nowMs, 'access');
+        session =
+          'row' in result ? { status: 'active', identity: sessionIdentity(result.row), row: result.row } : result;
+      } catch (error) {
+        return manualStorageFailure(error);
+      }
       if (session.status === 'manual-required') return session;
       if (session.status === 'missing') return { status: 'rejected', reason: 'missing' };
       if (session.status === 'rejected') return { status: 'rejected', reason: session.reason };
@@ -1134,8 +1335,17 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
       }
     },
 
-    async logoutRefresh(refreshToken, nowMs = Date.now(), requestCorrelation) {
-      const session = await this.readRefresh(refreshToken, nowMs);
+    async logoutRefresh(refreshToken, requestCorrelation) {
+      const nowMs = Date.now();
+      let session: BrowserSessionReadResult;
+      try {
+        await requireCustodySchema(database);
+        const result = await readWithSecret(database, refreshToken, 'refresh_token_digest', nowMs, 'refresh');
+        session =
+          'row' in result ? { status: 'active', identity: sessionIdentity(result.row), row: result.row } : result;
+      } catch (error) {
+        return manualStorageFailure(error);
+      }
       if (session.status === 'manual-required') return session;
       if (session.status === 'missing') return { status: 'rejected', reason: 'missing' };
       if (session.status === 'rejected') return { status: 'rejected', reason: session.reason };
@@ -1171,19 +1381,27 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
       }
     },
 
-    async revokeAll(authority, nowMs = Date.now(), requestCorrelation) {
+    async revokeAll(authority, requestCorrelation) {
       if (!isVerifiedAccountIdentityAuthorityCapability(authority)) {
         return { status: 'rejected', reason: 'invalid' };
       }
       if (authority.role !== 'parent-owner') {
         return { status: 'rejected', reason: 'role-ineligible' };
       }
+      if (
+        authority.supportScope !== null ||
+        authority.supportIssuer !== null ||
+        authority.supportAuditIdentity !== null
+      ) {
+        return { status: 'rejected', reason: 'invalid' };
+      }
+      const nowMs = Date.now();
       const now = nowIso(nowMs);
       try {
-        const fence = await database
-          .prepare(SELECT_FENCE_SQL)
-          .bind(authority.provider, authority.providerSubject)
-          .first<FenceRow>();
+        await requireCustodySchema(database);
+        const fence = decodeFenceRow(
+          await database.prepare(SELECT_FENCE_SQL).bind(authority.provider, authority.providerSubject).first<unknown>()
+        );
         const binding = authorityBindingFromCapability(authority);
         return await revokeFamilyAtomic(
           database,

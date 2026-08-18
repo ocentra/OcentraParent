@@ -166,16 +166,17 @@ deserializable session record accepted caller-provided replay/freshness state,
 had no token custody or durable repository, and allowed terminal/backdated
 rewrites. It is not WP03 progress.
 
-## 2026-08-18 production source completion boundary
+## 2026-08-18 candidate production source boundary
 
-The accepted Cloudflare source packet now supplies the WP03 production/runtime
-composition, without reviving caller-minted session facts or evaluators. The
-reachable source is:
+The candidate Cloudflare source packet supplies the WP03 production/runtime
+composition, without reviving caller-minted session facts or evaluators.
+Independent review remains open; the reachable source is:
 
 - `infra/cloudflare/migrations/account-identity/0005_account_browser_session_custody.sql`
-  and `0006_account_browser_session_refresh_custody.sql` for digest-only
-  browser-session custody, revocation generations, consumed-refresh replay
-  custody, and durable revoke outcomes;
+  and `0006_account_browser_session_refresh_custody.sql` remain historical
+  custody definitions; forward `0007_account_browser_session_custody_hardening.sql`
+  rebuilds them as STRICT, quarantines and aborts on invalid legacy rows, and
+  publishes the runtime schema-version sentinel only after the full copy;
 - `infra/cloudflare/src/storage/account-browser-session-codec.ts` and
   `account-browser-session-store.ts` for opaque cookies, non-forgeable
   Account authority capabilities, same-boundary currentness revalidation,
@@ -199,6 +200,17 @@ successful mutation without its audit outcome rolls back. Access expiry does
 not block refresh-bound logout or global revoke, while an optional access
 cookie must still bind to the same session.
 
+Every public store operation captures trusted `Date.now()` inside the store;
+callers may provide only bounded request correlation. The forward `0007`
+custody rebuild is SQLite `STRICT` with digest, timestamp, generation,
+lifetime, status, and correlation checks; the store requires its exact version
+sentinel before any authority-bearing read or mutation. D1 rows are decoded
+through an exact runtime validator that rejects malformed types, digest reuse,
+timestamp or generation violations, inconsistent revocation state, and
+incomplete or mismatched support receipt bindings before any identity or
+mutation is accepted. The verified capability carries the complete support
+receipt provenance and the create CAS compares every field.
+
 The expected runtime test source is still absent and must be added by the
 test/proof phase:
 
@@ -207,15 +219,20 @@ test/proof phase:
 - `infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts`
 - `infra/cloudflare/tests/integration/account-browser-session-real.test.ts`
 
-The source is rebased onto Cloudflare WP06 final head `56a4faa37`. It does not
-claim applied D1 migrations, live Worker deployment, tests, retained proof,
+The candidate is rebased onto Cloudflare WP06 final head `56a4faa37`. It does
+not claim applied D1 migrations, live Worker deployment, tests, retained proof,
 precommit, CI, PR, or DONE. The final WP06 mutation-readiness seam remains
 parameterless/manual-required; no caller-side authority is fabricated.
 
-## Fill before DONE
+## Superseded historical record (not current status)
+
+> Everything in this historical block predates the Cloudflare runtime packet.
+> Its artifact list, command results, and completion wording are provenance
+> only; they do not establish current WP03 acceptance, production reachability,
+> retained proof, or DONE status. The candidate boundary above is authoritative.
 
 - Workpack id and branch: `WP03 Session Token Lifecycle`; `codex/tracking-plan-full-continuation-a`.
-- Current status: complete for the local contract/proof slice. `00-credential-type-matrix.md`, `01-session-lifecycle-proof.md`, `02-token-expiry-replay-proof.md`, `03-refresh-revocation-proof.md`, `04-session-freshness-proof.md`, `05-csrf-origin-proof.md`, `06-token-redaction-proof.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/03-session-token-lifecycle/`.
+- Historical status (superseded): it claimed completion for a local contract/proof slice and listed prior output artifacts; that claim is not current WP03 source or proof status.
 - Contract/source changes in this slice: no new WP03-owned production TypeScript or Rust logic was required. The owned session contract was already present in `packages/family-domain/src/session-lifecycle.ts`, and the proof closure is derived from existing TypeScript and Rust session/token coverage plus an explicit blocker note where this slice does not own a real browser request surface.
 - Touched files:
   - `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`

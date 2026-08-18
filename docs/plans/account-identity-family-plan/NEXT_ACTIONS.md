@@ -108,14 +108,18 @@ sensitive-action freshness gate
 proof root and command log
 ```
 
-2026-08-18 source boundary: the Cloudflare runtime composition is now
+2026-08-18 candidate source boundary: the Cloudflare runtime composition is
 reachable through the final WP06 provider caller and Account current-authority
-capability. Migrations `0005_account_browser_session_custody.sql` and
-`0006_account_browser_session_refresh_custody.sql`, the opaque session store,
+capability. Historical migrations `0005_account_browser_session_custody.sql`
+and `0006_account_browser_session_refresh_custody.sql`, plus forward
+`0007_account_browser_session_custody_hardening.sql`, the opaque session store,
 refresh-family CAS/replay custody, refresh-bound logout/revoke routes, exact
 CSRF plus origin/fetch-metadata checks, redacted milestones, and `__Host-`
-cookies are source-present. The expected route/store/request-safety tests are
-not present yet and remain deferred to the test/proof phase:
+cookies are source-present. The store captures trusted time internally and the
+forward migration sentinel/row decoder fail closed on malformed schema values
+or an unapplied/mismatched custody version. Independent review remains open.
+The expected route/store/request-safety tests are not
+present yet and remain deferred to the test/proof phase:
 `infra/cloudflare/tests/unit/account-browser-session-store.test.ts`,
 `infra/cloudflare/tests/unit/account-browser-session-routes.test.ts`,
 `infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts`,

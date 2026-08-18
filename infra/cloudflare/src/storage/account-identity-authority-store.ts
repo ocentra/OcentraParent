@@ -6,6 +6,9 @@ import {
 } from '@ocentra-parent/schema-domain/account-identity-authority';
 
 const VERIFIED_AUTHORITY_CAPABILITIES = new WeakSet<object>();
+type VerifiedSupportReceipt = NonNullable<
+  AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']
+>;
 
 /**
  * Non-serde capability minted only after the Account-owned D1 row has passed
@@ -25,11 +28,20 @@ export interface VerifiedAccountIdentityAuthorityCapability {
   readonly sessionId: string;
   readonly sessionGeneration: number;
   readonly authorityGeneration: number;
-  readonly supportScope:
-    | NonNullable<AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']>['scope']
-    | null;
-  readonly supportIssuer: string | null;
-  readonly supportAuditIdentity: string | null;
+  readonly supportReceiptId: VerifiedSupportReceipt['receiptId'] | null;
+  readonly supportProviderSubject: VerifiedSupportReceipt['providerSubject'] | null;
+  readonly supportAccountId: VerifiedSupportReceipt['accountId'] | null;
+  readonly supportMemberId: VerifiedSupportReceipt['memberId'] | null;
+  readonly supportHouseholdId: VerifiedSupportReceipt['householdId'] | null;
+  readonly supportDeviceId: VerifiedSupportReceipt['deviceId'] | null;
+  readonly supportChildProfileId: VerifiedSupportReceipt['childProfileId'] | null;
+  readonly supportChildDeviceId: VerifiedSupportReceipt['childDeviceId'] | null;
+  readonly supportScope: VerifiedSupportReceipt['scope'] | null;
+  readonly supportIssuer: VerifiedSupportReceipt['issuer'] | null;
+  readonly supportIssuedAt: VerifiedSupportReceipt['issuedAt'] | null;
+  readonly supportExpiresAt: VerifiedSupportReceipt['expiresAt'] | null;
+  readonly supportRevocationState: VerifiedSupportReceipt['revocationState'] | null;
+  readonly supportAuditIdentity: VerifiedSupportReceipt['auditIdentity'] | null;
   toEvidenceJson(): string;
 }
 
@@ -48,11 +60,20 @@ class VerifiedAccountIdentityAuthorityCapabilityImpl implements VerifiedAccountI
     sessionId: string;
     sessionGeneration: number;
     authorityGeneration: number;
-    supportScope:
-      | NonNullable<AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']>['scope']
-      | null;
-    supportIssuer: string | null;
-    supportAuditIdentity: string | null;
+    supportReceiptId: VerifiedSupportReceipt['receiptId'] | null;
+    supportProviderSubject: VerifiedSupportReceipt['providerSubject'] | null;
+    supportAccountId: VerifiedSupportReceipt['accountId'] | null;
+    supportMemberId: VerifiedSupportReceipt['memberId'] | null;
+    supportHouseholdId: VerifiedSupportReceipt['householdId'] | null;
+    supportDeviceId: VerifiedSupportReceipt['deviceId'] | null;
+    supportChildProfileId: VerifiedSupportReceipt['childProfileId'] | null;
+    supportChildDeviceId: VerifiedSupportReceipt['childDeviceId'] | null;
+    supportScope: VerifiedSupportReceipt['scope'] | null;
+    supportIssuer: VerifiedSupportReceipt['issuer'] | null;
+    supportIssuedAt: VerifiedSupportReceipt['issuedAt'] | null;
+    supportExpiresAt: VerifiedSupportReceipt['expiresAt'] | null;
+    supportRevocationState: VerifiedSupportReceipt['revocationState'] | null;
+    supportAuditIdentity: VerifiedSupportReceipt['auditIdentity'] | null;
   };
 
   private constructor(evidence: AccountIdentityCurrentMemberDeviceAuthorityHandoff) {
@@ -70,8 +91,19 @@ class VerifiedAccountIdentityAuthorityCapabilityImpl implements VerifiedAccountI
       sessionId: evidence.member.sessionId,
       sessionGeneration: evidence.member.sessionGeneration,
       authorityGeneration: evidence.member.authorityGeneration,
+      supportReceiptId: evidence.member.supportReceipt?.receiptId ?? null,
+      supportProviderSubject: evidence.member.supportReceipt?.providerSubject ?? null,
+      supportAccountId: evidence.member.supportReceipt?.accountId ?? null,
+      supportMemberId: evidence.member.supportReceipt?.memberId ?? null,
+      supportHouseholdId: evidence.member.supportReceipt?.householdId ?? null,
+      supportDeviceId: evidence.member.supportReceipt?.deviceId ?? null,
+      supportChildProfileId: evidence.member.supportReceipt?.childProfileId ?? null,
+      supportChildDeviceId: evidence.member.supportReceipt?.childDeviceId ?? null,
       supportScope: evidence.member.supportReceipt?.scope ?? null,
       supportIssuer: evidence.member.supportReceipt?.issuer ?? null,
+      supportIssuedAt: evidence.member.supportReceipt?.issuedAt ?? null,
+      supportExpiresAt: evidence.member.supportReceipt?.expiresAt ?? null,
+      supportRevocationState: evidence.member.supportReceipt?.revocationState ?? null,
       supportAuditIdentity: evidence.member.supportReceipt?.auditIdentity ?? null,
     });
     Object.freeze(this);
@@ -125,17 +157,59 @@ class VerifiedAccountIdentityAuthorityCapabilityImpl implements VerifiedAccountI
     return this.#provenance.authorityGeneration;
   }
 
-  get supportScope():
-    | NonNullable<AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']>['scope']
-    | null {
+  get supportReceiptId(): VerifiedSupportReceipt['receiptId'] | null {
+    return this.#provenance.supportReceiptId;
+  }
+
+  get supportProviderSubject(): VerifiedSupportReceipt['providerSubject'] | null {
+    return this.#provenance.supportProviderSubject;
+  }
+
+  get supportAccountId(): VerifiedSupportReceipt['accountId'] | null {
+    return this.#provenance.supportAccountId;
+  }
+
+  get supportMemberId(): VerifiedSupportReceipt['memberId'] | null {
+    return this.#provenance.supportMemberId;
+  }
+
+  get supportHouseholdId(): VerifiedSupportReceipt['householdId'] | null {
+    return this.#provenance.supportHouseholdId;
+  }
+
+  get supportDeviceId(): VerifiedSupportReceipt['deviceId'] | null {
+    return this.#provenance.supportDeviceId;
+  }
+
+  get supportChildProfileId(): VerifiedSupportReceipt['childProfileId'] | null {
+    return this.#provenance.supportChildProfileId;
+  }
+
+  get supportChildDeviceId(): VerifiedSupportReceipt['childDeviceId'] | null {
+    return this.#provenance.supportChildDeviceId;
+  }
+
+  get supportScope(): VerifiedSupportReceipt['scope'] | null {
     return this.#provenance.supportScope;
   }
 
-  get supportIssuer(): string | null {
+  get supportIssuer(): VerifiedSupportReceipt['issuer'] | null {
     return this.#provenance.supportIssuer;
   }
 
-  get supportAuditIdentity(): string | null {
+  get supportIssuedAt(): VerifiedSupportReceipt['issuedAt'] | null {
+    return this.#provenance.supportIssuedAt;
+  }
+
+  get supportExpiresAt(): VerifiedSupportReceipt['expiresAt'] | null {
+    return this.#provenance.supportExpiresAt;
+  }
+
+  get supportRevocationState(): VerifiedSupportReceipt['revocationState'] | null {
+    return this.#provenance.supportRevocationState;
+  }
+
+  get supportAuditIdentity(): VerifiedSupportReceipt['auditIdentity'] | null {
     return this.#provenance.supportAuditIdentity;
   }
 
