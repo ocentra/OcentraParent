@@ -292,12 +292,14 @@ retained proof remain missing/open and must be updated in the later test wave:
 - `crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs`
   still expects caller-built encrypted bundles and context literals without a
   current tombstone cursor; it must cover `EncryptionCustodyUnavailable`,
-  missing/mismatched cursor rejection, and apply-time currentness revalidation.
+  missing/mismatched cursor rejection, and the unconditionally blocked apply
+  seam. A future owner-bound cursor token must be tested for reread/consume
+  semantics before any positive apply test is legal.
 - `tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs`
   and `tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
   must remain open until a real encrypted key-custody owner, parent
-  authorization, durable revocation owner, restore executor, and startup caller
-  are mounted.
+  authorization, durable revocation owner, restore executor, startup caller,
+  and an owner-bound apply-time cursor token are mounted.
 
 No WP06 tests, build/check, proof, precommit, CI, or runtime execution were run
 in this source wave. The proof root remains

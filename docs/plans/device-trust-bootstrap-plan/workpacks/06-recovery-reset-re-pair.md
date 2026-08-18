@@ -23,13 +23,11 @@ Purpose: define encrypted recovery bundles, reset, revoke, and re-pair flows.
 
 - No proof root currently exists on disk for this workpack.
 - Recovery authorization and handoff rules exist in `packages/family-domain`, but encrypted recovery bundle handling and re-pair runtime proof are still missing.
-- The storage restore boundary now blocks the legacy confirmation-only entry
-  point. Applying a preview requires a verified parent `PairChildDevice`
-  authority bound to the local household and target device, plus an available
-  restore executor receipt. The default executor remains unavailable, and an
-  incomplete or incoherent receipt is blocked, so authority confirmation
-  alone cannot claim applied/partial restore; bundle encryption, key custody,
-  revocation preservation, and runtime proof remain open.
+- The storage restore boundary blocks the legacy confirmation-only entry point.
+  The current crate has no owner-bound durable cursor token, so its dead apply
+  seam is unconditionally blocked; a caller-held `ImportBundleContext` cannot
+  authorize side effects. Bundle encryption, key custody, revocation
+  preservation, re-pair ownership, and runtime proof remain open.
 
 ## Accepted source checkpoint — 2026-08-17
 
@@ -41,7 +39,7 @@ composition caller, expected tests, focused execution, and proof remain open.
 
 ## Source repair candidate — 2026-08-18 (tests open)
 
-The WP06 source wave is pushed at `8a3ed84d3` on
+The WP06 source wave is pushed at `4ad484197` on
 `codex/device-trust-wp06-source-wave`, based on `31e4a7c55`; it is a candidate
 source packet, not a completion or acceptance claim:
 
@@ -53,12 +51,14 @@ source packet, not a completion or acceptance claim:
   key/envelope custody owner is present.
 - Import preflight accepts currentness only when a non-empty bundle cursor
   exactly matches the storage-owner current cursor. Missing or mismatched
-  currentness is a `TombstoneConflict` with tombstones not preserved; the
-  crate-private apply path re-runs preflight against the bundle/context in the
-  same operation so an old preview cannot survive a cursor advance.
-- `RestoreApplyRequest`, restore application, and migration readiness are
-  crate-private. No external caller can submit serde-shaped preflight data as
-  restore authority; the default executor still returns unavailable.
+  currentness is a `TombstoneConflict` with tombstones not preserved. Because
+  the current context is only a caller-held snapshot, the apply seam is now
+  unconditionally blocked and cannot invoke an executor; an owner-bound
+  cursor token must be reread and consumed at apply time before this can open.
+- `RestoreApplyRequest`, restore application, and migration readiness remain
+  non-public; the parent-authority/custom-executor path was removed. No
+  external caller can submit serde-shaped preflight data as restore authority,
+  and the blocked result does not copy caller-provided custody facts.
 
 The actual source has no legal producer for the import context or verified
 parent authority, no encrypted key custody, durable current revocation/tombstone

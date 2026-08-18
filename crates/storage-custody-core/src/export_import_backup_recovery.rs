@@ -92,46 +92,6 @@ pub(crate) struct RestoreApplyRequest {
     pub confirmed: bool,
 }
 
-/// An executor receipt is an internal post-side-effect result. Keeping it
-/// non-cloneable and crate-private prevents callers from manufacturing or
-/// replaying a restore result outside the owner boundary.
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct RestoreExecutorReceipt {
-    pub(crate) execution_ref: String,
-    pub(crate) state: contracts::ExportImportRestoreApplyState,
-    pub(crate) applied_sections: Vec<contracts::ExportImportSectionDecision>,
-    pub(crate) rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-    pub(crate) idempotent: bool,
-    pub(crate) tombstones_preserved: bool,
-    pub(crate) duplicates_created: bool,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum RestoreExecutorFailure {
-    Unavailable,
-}
-
-pub(crate) trait RestoreExecutor {
-    fn execute_restore(
-        &mut self,
-        preflight: &contracts::ExportImportImportPreflight,
-        request: &RestoreApplyRequest,
-    ) -> Result<RestoreExecutorReceipt, RestoreExecutorFailure>;
-}
-
-#[derive(Debug, Default)]
-pub(crate) struct UnavailableRestoreExecutor;
-
-impl RestoreExecutor for UnavailableRestoreExecutor {
-    fn execute_restore(
-        &mut self,
-        _preflight: &contracts::ExportImportImportPreflight,
-        _request: &RestoreApplyRequest,
-    ) -> Result<RestoreExecutorReceipt, RestoreExecutorFailure> {
-        Err(RestoreExecutorFailure::Unavailable)
-    }
-}
-
 pub(crate) fn derive_export_bundle(
     request: ExportBundleBuildRequest,
     sections: Vec<ExportPayloadSectionInput>,
@@ -181,71 +141,14 @@ pub fn authorize_backup_request(
     })
 }
 
-/// Restore application is an internal owner operation. A public function
-/// accepting the serde-shaped preflight would let an external caller mint
-/// integrity, household, key, and tombstone decisions by constructing the
-/// contract directly. Parent/runtime callers must receive an opaque,
-/// owner-bound restore plan once the scheduler/ledger route is mounted.
+/// Restore application is unavailable until a storage owner can bind the
+/// operation to a durable, reread-at-apply tombstone cursor. The serde-shaped
+/// preflight and caller-held [`ImportBundleContext`] are deliberately ignored:
+/// neither is currentness authority, and no restore side effect is permitted
+/// through this dead seam.
 pub(crate) fn apply_restore(
-    preflight: &contracts::ExportImportImportPreflight,
-    request: &RestoreApplyRequest,
+    _preflight: &contracts::ExportImportImportPreflight,
+    _request: &RestoreApplyRequest,
 ) -> contracts::ExportImportRestoreApplyResult {
-    export_import_backup_recovery_restore::blocked_restore(preflight, request)
-}
-
-pub(crate) fn apply_restore_with_parent_authority(
-    bundle: &contracts::ExportImportRecoveryBundle,
-    preflight: &contracts::ExportImportImportPreflight,
-    context: &ImportBundleContext,
-    request: &RestoreApplyRequest,
-    authority: CurrentVerifiedHouseholdAuthority,
-) -> contracts::ExportImportRestoreApplyResult {
-    let mut executor = UnavailableRestoreExecutor;
-    apply_restore_with_parent_authority_and_executor(
-        bundle,
-        preflight,
-        context,
-        request,
-        authority,
-        &mut executor,
-    )
-}
-
-pub(crate) fn apply_restore_with_parent_authority_and_executor(
-    bundle: &contracts::ExportImportRecoveryBundle,
-    preflight: &contracts::ExportImportImportPreflight,
-    context: &ImportBundleContext,
-    request: &RestoreApplyRequest,
-    authority: CurrentVerifiedHouseholdAuthority,
-    executor: &mut impl RestoreExecutor,
-) -> contracts::ExportImportRestoreApplyResult {
-    // Re-read the owner-supplied current cursor in the same operation.  A
-    // preview is not an authorization to apply after revocation advances.
-    let current_preflight = run_import_preflight(bundle, context);
-    if current_preflight != *preflight {
-        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
-    }
-    let identity_binding = authority.identity_binding();
-    let Some(target_device_id) = context.target_device_id.as_ref() else {
-        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
-    };
-    if !export_import_backup_recovery_restore::preflight_is_applicable(&current_preflight)
-        || !request.confirmed
-        || authority.input().action != HouseholdAuthorityAction::PairChildDevice
-        || identity_binding.household_id() != context.local_household_id.as_str()
-        || identity_binding.target_device_id() != target_device_id.as_str()
-    {
-        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
-    }
-
-    let Ok(receipt) = executor.execute_restore(&current_preflight, request) else {
-        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
-    };
-    let Some(result) = export_import_backup_recovery_restore::apply_restore_after_execution(
-        &current_preflight,
-        receipt,
-    ) else {
-        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
-    };
-    result
+    export_import_backup_recovery_restore::blocked_restore()
 }
