@@ -1,12 +1,15 @@
 use ocentra_family_identity_core::{
     account_identity_authority::{
-        authorize_household_action_from_verified_authority, VerifiedAccountIdentityAuthority,
+        VerifiedAccountIdentityAuthority, authorize_household_action_from_verified_authority,
     },
     household_authority::{HouseholdAuthorityAction, HouseholdAuthorizationState},
 };
 use ocentra_schema::report_query_custody as contracts;
 
 use super::ReportQueryCustodyDerivationError;
+
+#[path = "report_query_custody_page_size_validate.rs"]
+mod report_query_custody_page_size_validate;
 
 pub(super) fn validate_report_query_custody_request(
     request: &contracts::ReportQueryCustodyRequest,
@@ -27,9 +30,9 @@ pub(super) fn validate_report_query_custody_request(
     if request.raw_child_evidence_requested {
         return Err(ReportQueryCustodyDerivationError::RawChildEvidenceRequested);
     }
-    if request.page_size == 0 {
-        return Err(ReportQueryCustodyDerivationError::NonPositivePageSize);
-    }
+    report_query_custody_page_size_validate::validate_report_query_custody_page_size(
+        request.page_size,
+    )?;
     if request.requested_data_classes.is_empty() || request.allowed_source_data_classes.is_empty() {
         return Err(ReportQueryCustodyDerivationError::EmptyRequestScope);
     }

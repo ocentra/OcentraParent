@@ -15,7 +15,7 @@ mod report_query_custody_row_validate;
 pub mod report_query_custody_source;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ReportQueryCustodySignal {
+pub(crate) enum ReportQueryCustodySignal {
     Fresh,
     Stale,
     PartiallyRedacted,
@@ -26,22 +26,22 @@ pub enum ReportQueryCustodySignal {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ReportQueryCustodyDerivationInput {
-    pub row_id: contracts::ReportQueryCustodySourceRef,
-    pub source_data_class: contracts::ReportQueryCustodySourceDataClass,
-    pub signal: ReportQueryCustodySignal,
-    pub cursor_ref: contracts::ReportQueryCustodyCursorRef,
-    pub source_cursor_ref: contracts::ReportQueryCustodyCursorRef,
-    pub next_cursor_ref: Option<contracts::ReportQueryCustodyCursorRef>,
-    pub page_index: u32,
-    pub stable_sort_key: contracts::ReportQueryCustodySortKey,
-    pub deleted_source_ref: Option<contracts::ReportQueryCustodyDeletedSourceRef>,
-    pub deleted_source_at: Option<contracts::ParentTimestamp>,
-    pub conflict_ref: Option<contracts::ReportQueryCustodyConflictRef>,
-    pub cursor_expired_at: Option<contracts::ParentTimestamp>,
-    pub rate_limited_until_at: Option<contracts::ParentTimestamp>,
-    pub raw_child_evidence_included: bool,
-    pub tombstone_confirmed: bool,
+pub(crate) struct ReportQueryCustodyDerivationInput {
+    pub(crate) row_id: contracts::ReportQueryCustodySourceRef,
+    pub(crate) source_data_class: contracts::ReportQueryCustodySourceDataClass,
+    pub(crate) signal: ReportQueryCustodySignal,
+    pub(crate) cursor_ref: contracts::ReportQueryCustodyCursorRef,
+    pub(crate) source_cursor_ref: contracts::ReportQueryCustodyCursorRef,
+    pub(crate) next_cursor_ref: Option<contracts::ReportQueryCustodyCursorRef>,
+    pub(crate) page_index: u32,
+    pub(crate) stable_sort_key: contracts::ReportQueryCustodySortKey,
+    pub(crate) deleted_source_ref: Option<contracts::ReportQueryCustodyDeletedSourceRef>,
+    pub(crate) deleted_source_at: Option<contracts::ParentTimestamp>,
+    pub(crate) conflict_ref: Option<contracts::ReportQueryCustodyConflictRef>,
+    pub(crate) cursor_expired_at: Option<contracts::ParentTimestamp>,
+    pub(crate) rate_limited_until_at: Option<contracts::ParentTimestamp>,
+    pub(crate) raw_child_evidence_included: bool,
+    pub(crate) tombstone_confirmed: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -68,7 +68,13 @@ pub enum ReportQueryCustodyDerivationError {
     MissingConflictRef,
     MissingCursorExpiredAt,
     MissingRateLimitedUntilAt,
+    PageSizeExceedsLimit,
     DuplicateCursorRef,
+    DuplicateSourceRef,
+    DuplicateStableSortKey,
+    NonMonotonicStableSortKey,
+    CursorContinuityMismatch,
+    SourceCursorContinuityMismatch,
     NonSequentialPageIndex,
     InvalidContractVersion,
 }
@@ -76,7 +82,7 @@ pub enum ReportQueryCustodyDerivationError {
 pub fn derive_report_query_custody_row(
     request: &contracts::ReportQueryCustodyRequest,
     source: report_query_custody_source::ReportQueryCustodySourceResolution,
-    authority: VerifiedAccountIdentityAuthority,
+    authority: &VerifiedAccountIdentityAuthority,
 ) -> Result<contracts::ReportQueryCustodyRow, ReportQueryCustodyDerivationError> {
     report_query_custody_row::derive_report_query_custody_row(request, source, authority)
 }
@@ -85,7 +91,7 @@ pub fn build_report_query_custody_proof(
     request: &contracts::ReportQueryCustodyRequest,
     sources: Vec<report_query_custody_source::ReportQueryCustodySourceResolution>,
     updated_at: contracts::ParentTimestamp,
-    authority: VerifiedAccountIdentityAuthority,
+    authority: &VerifiedAccountIdentityAuthority,
 ) -> Result<contracts::ReportQueryCustodyContractProof, ReportQueryCustodyDerivationError> {
     report_query_custody_proof::build_report_query_custody_proof(
         request, sources, updated_at, authority,
