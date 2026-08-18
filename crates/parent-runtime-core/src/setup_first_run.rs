@@ -5,7 +5,7 @@ use ocentra_schema::parent_ui_bridge::{
 };
 use serde::Serialize;
 
-const SETUP_FIRST_RUN_PRODUCT_CLAIM: &str = "This Start-route panel projects only Rust-owned setup inputs. Account, household, session, invite, recovery, and trusted-device actions stay manual-required until their owning runtime is reachable.";
+const SETUP_FIRST_RUN_PRODUCT_CLAIM: &str = "This panel reports only whether the Start route has a live Rust-owned setup-first-run snapshot. It does not claim live account readiness, signed installer readiness, pairing trust, data-custody execution, or onboarding completion.";
 const MANUAL_REQUIRED: &str = "manual-required";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -91,22 +91,15 @@ pub(crate) fn setup_first_run_panel_snapshot(
     let runtime = load_runtime_snapshot(lan_input);
     Some(ParentSetupFirstRunPanelSnapshot {
         eyebrow: "Setup route".to_string(),
-        title: "First-run account and family status".to_string(),
-        body: "The Start route is reachable, but setup actions are withheld until Account, session, household, invite/recovery, and trusted-device owners provide typed runtime state.".to_string(),
-        summary_card_title: "Current setup boundary".to_string(),
-        summary: format!(
-            "First-run evaluation is {}. Account and family mutation remains unavailable; the panel reports the reachable LAN observation without promoting it to authority.",
-            runtime.evaluation_state.label(),
-        ),
+        title: "Setup-first-run boundary status".to_string(),
+        body: "The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot. This panel reports that gap honestly instead of inventing onboarding progress.".to_string(),
+        summary_card_title: "Current boundary status".to_string(),
+        summary: "Portal rendering and the Rust-owned route snapshot exist, but live setup/account/trust/custody state is unavailable here today.".to_string(),
         summary_details: summary_details(&runtime),
         cards: vec![
-            first_run_state_machine_card(&runtime),
-            account_family_status_card(&runtime),
-            device_authority_card(&runtime),
-            invite_recovery_card(&runtime),
-            source_custody_card(&runtime),
-            lan_observation_card(&runtime.lan_observation),
-            execution_boundary_card(&runtime),
+            what_is_real_now_card(&runtime),
+            what_is_missing_card(&runtime),
+            where_it_belongs_card(&runtime),
         ],
         product_claim: SETUP_FIRST_RUN_PRODUCT_CLAIM.to_string(),
     })
@@ -201,144 +194,105 @@ fn selected_device_status(read_model: &LanBrowserAddDeviceReadModel) -> String {
 }
 
 fn summary_details(
-    runtime: &SetupFirstRunRuntimeSnapshot,
+    _runtime: &SetupFirstRunRuntimeSnapshot,
 ) -> Vec<ParentSetupFirstRunPanelDetailSnapshot> {
     vec![
         detail("Route", "start"),
-        detail("First-run state", runtime.evaluation_state.label()),
-        detail("Account identity", runtime.account_state.state),
-        detail("Household membership", runtime.household_state.state),
-        detail("Session lifecycle", runtime.session_state.state),
-        detail("Device authority", runtime.device_authority_state.state),
-        detail("LAN source", runtime.lan_observation.source),
+        detail("Runtime state", "unavailable"),
         detail("Snapshot owner", "Rust parent runtime host bridge"),
+        detail("Product claim", SETUP_FIRST_RUN_PRODUCT_CLAIM),
     ]
 }
 
-fn first_run_state_machine_card(
+fn what_is_real_now_card(
     runtime: &SetupFirstRunRuntimeSnapshot,
 ) -> ParentSetupFirstRunPanelCardSnapshot {
     card(
-        "First-run state machine",
-        "No state transition is inferred from login, route selection, or LAN discovery. Each next step remains blocked until its owner supplies a typed state.",
+        "What is real now",
+        "The Start route can render an honest Rust-owned boundary panel without inventing setup progress.",
         vec![
-            detail("Welcome / sign-in", runtime.account_state.state),
-            detail("Signed-in, no household", runtime.household_state.state),
-            detail("Create or join household", runtime.household_state.state),
-            detail("Create child profile", runtime.household_state.state),
-            detail("Add or pair child device", runtime.device_authority_state.state),
-            detail("Invite co-parent / observer", runtime.invite_state.state),
-            detail("Recovery", runtime.recovery_state.state),
-            detail("Next transition", "manual-required — no trusted owner input"),
+            detail("Route shell", "Start route is visible in the portal shell"),
+            detail("Snapshot transport", "Host bridge snapshot reaches TS presentation"),
+            detail("Evidence boundary", "Route-contract projection only"),
+            detail("LAN source", runtime.lan_observation.source),
+            detail("LAN query state", runtime.lan_observation.query_state),
+            detail("Selected device", runtime.lan_observation.selected_device),
+            detail("Selected device status", &runtime.lan_observation.selected_device_state),
+            detail("Pairing observation", &runtime.lan_observation.pairing_observation),
+            detail(
+                "Reachability observation",
+                &runtime.lan_observation.reachability_observation,
+            ),
+            detail(
+                "LAN authority",
+                "observation only; ownership and trust remain unavailable",
+            ),
+            detail(
+                "Canonical household rows",
+                &runtime.lan_observation.canonical_device_count.to_string(),
+            ),
+            detail(
+                "Trusted registry rows",
+                &runtime.lan_observation.trusted_device_count.to_string(),
+            ),
+            detail(
+                "Revoked device rows",
+                &runtime.lan_observation.revoked_device_count.to_string(),
+            ),
+            detail("Diagnostic detail", runtime.lan_observation.diagnostic_state),
         ],
     )
 }
 
-fn account_family_status_card(
+fn what_is_missing_card(
     runtime: &SetupFirstRunRuntimeSnapshot,
 ) -> ParentSetupFirstRunPanelCardSnapshot {
     card(
-        "Account and household authority",
-        "The parent UI may display these boundaries, but it cannot create membership, roles, profiles, or sessions without the Account authority caller.",
+        "What is missing",
+        "No live setup-first-run read model is wired here yet, so the panel must stay explicit about the missing runtime state.",
         vec![
+            detail("Account/provider state", "not wired"),
+            detail("Pairing/trust state", "not wired"),
+            detail("Data-custody/readiness state", "not wired"),
+            detail("Completion claim", "withheld until a live Rust snapshot exists"),
+            detail("Setup state", runtime.evaluation_state.label()),
             detail("Account identity", runtime.account_state.state),
             detail("Account boundary", runtime.account_state.detail),
             detail("Household membership", runtime.household_state.state),
             detail("Household boundary", runtime.household_state.detail),
             detail("Session lifecycle", runtime.session_state.state),
             detail("Session boundary", runtime.session_state.detail),
-            detail("Child profile", "manual-required — no account-owned profile read model"),
-            detail("Role visibility", "manual-required — no membership role read model"),
-        ],
-    )
-}
-
-fn device_authority_card(
-    runtime: &SetupFirstRunRuntimeSnapshot,
-) -> ParentSetupFirstRunPanelCardSnapshot {
-    card(
-        "Child-device authority",
-        "LAN may report discovery, pairing, and reachability observations. It does not mint household membership, device ownership, trust, controller lease, or child capability authority.",
-        vec![
-            detail("Device authority", runtime.device_authority_state.state),
-            detail("Authority boundary", runtime.device_authority_state.detail),
-            detail("Selected device", runtime.lan_observation.selected_device),
-            detail("Selected device status", &runtime.lan_observation.selected_device_state),
-            detail("Canonical household rows", &runtime.lan_observation.canonical_device_count.to_string()),
-            detail("Trusted registry rows", &runtime.lan_observation.trusted_device_count.to_string()),
-            detail("Revoked device rows", &runtime.lan_observation.revoked_device_count.to_string()),
-            detail("Physical pairing proof", "manual-required — device-trust and LAN owners"),
-        ],
-    )
-}
-
-fn invite_recovery_card(
-    runtime: &SetupFirstRunRuntimeSnapshot,
-) -> ParentSetupFirstRunPanelCardSnapshot {
-    card(
-        "Invites, observer access, and recovery",
-        "Invite, support, and recovery states remain visible as blocked boundaries until identity, membership, rate/replay custody, and owner receipts are composed.",
-        vec![
-            detail("Co-parent invite", runtime.invite_state.state),
-            detail("Observer invite", runtime.invite_state.state),
-            detail("Observer write authority", "unavailable — observer remains read-only"),
-            detail("Recovery state", runtime.recovery_state.state),
+            detail("Invite / observer access", runtime.invite_state.state),
+            detail("Invite boundary", runtime.invite_state.detail),
+            detail("Recovery", runtime.recovery_state.state),
             detail("Recovery boundary", runtime.recovery_state.detail),
-            detail("Support access", "manual-required — separate audited support owner"),
+            detail("Device authority", runtime.device_authority_state.state),
+            detail("Device authority boundary", runtime.device_authority_state.detail),
         ],
     )
 }
 
-fn source_custody_card(
+fn where_it_belongs_card(
     runtime: &SetupFirstRunRuntimeSnapshot,
 ) -> ParentSetupFirstRunPanelCardSnapshot {
     card(
-        "Source and custody",
-        "The panel labels where setup status came from and keeps unavailable custody explicit. It does not present hosted child activity or parent cache as available.",
+        "Where it belongs",
+        "When first-run becomes live, Rust must own the setup state and TS must remain pure rendering.",
         vec![
+            detail("Rust owner", "parent runtime + setup read model"),
+            detail("TS role", "presentation only"),
+            detail("Proof rule", "claim only what the live Rust snapshot can prove"),
+            detail("Source and custody", "Rust-owned boundary; unavailable owners stay explicit"),
             detail("Live local", "unavailable"),
             detail("LAN", runtime.lan_observation.source),
             detail("Parent cache", "unavailable"),
-            detail("Parent-owned storage", "unavailable — Account custody caller not bound"),
+            detail("Parent-owned storage", "unavailable — data-custody owner not bound"),
             detail("Cloud relay", "unavailable"),
             detail("Child activity custody", "unavailable — data-custody owner"),
             detail("Degraded/manual state", MANUAL_REQUIRED),
-        ],
-    )
-}
-
-fn lan_observation_card(
-    observation: &SetupFirstRunLanObservation,
-) -> ParentSetupFirstRunPanelCardSnapshot {
-    card(
-        "LAN observation (non-authoritative)",
-        "LAN discovery may describe a selected endpoint, pairing observation, and reachability. It never establishes household ownership, device trust, pairing authority, or setup readiness.",
-        vec![
-            detail("Source", observation.source),
-            detail("Query state", observation.query_state),
-            detail("Selected endpoint", observation.selected_device),
-            detail("Pairing observation", &observation.pairing_observation),
-            detail("Reachability observation", &observation.reachability_observation),
-            detail("Diagnostic detail", observation.diagnostic_state),
-            detail("Authority boundary", "observation only; ownership and trust remain unavailable"),
-        ],
-    )
-}
-
-fn execution_boundary_card(
-    _runtime: &SetupFirstRunRuntimeSnapshot,
-) -> ParentSetupFirstRunPanelCardSnapshot {
-    card(
-        "Execution boundary",
-        "The shipped Start route reaches this Rust snapshot through the host bridge. No setup mutation or provisioning evaluation is dispatched from this panel.",
-        vec![
-            detail("Reachable path", "parent_load_route -> parent runtime -> setup-first-run panel"),
-            detail("Current effect", "render account/family status and manual-required boundaries"),
             detail("Provisioning evaluator", "not invoked"),
             detail("Account mutation", "not invoked"),
             detail("Action planning", "not invoked"),
-            detail("TS ownership", "presentation only"),
-            detail("Product claim", SETUP_FIRST_RUN_PRODUCT_CLAIM),
         ],
     )
 }
