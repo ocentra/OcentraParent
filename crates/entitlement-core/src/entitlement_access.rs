@@ -7,6 +7,7 @@
 //! this crate.
 
 use crate::entitlement_snapshot::EntitlementSnapshotContext;
+use crate::entitlement_snapshot_values::EntitlementSnapshotId;
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
@@ -168,6 +169,52 @@ pub struct EntitlementDecision {
     pub access_state: EntitlementCapabilityAccessState,
     pub manual_review_state: EntitlementManualReviewState,
     pub rejection_reason: Option<EntitlementCapabilityRejectionReason>,
+}
+
+/// Opaque capability grant emitted only after the signed snapshot authority
+/// verifies current account/device binding, revocation state, and the local
+/// entitlement gate.  It is intentionally not serde-capable: callers cannot
+/// mint or replay an unlock by sending a wire projection back to the runtime.
+#[derive(PartialEq, Eq)]
+pub struct EntitlementCapabilityGrant {
+    capability: EntitlementCapability,
+    snapshot_id: EntitlementSnapshotId,
+    authority_generation: u64,
+}
+
+impl std::fmt::Debug for EntitlementCapabilityGrant {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("EntitlementCapabilityGrant")
+            .field("authority", &"opaque")
+            .finish()
+    }
+}
+
+impl EntitlementCapabilityGrant {
+    pub fn capability(&self) -> EntitlementCapability {
+        self.capability
+    }
+
+    pub fn snapshot_id(&self) -> &EntitlementSnapshotId {
+        &self.snapshot_id
+    }
+
+    pub(crate) fn authority_generation(&self) -> u64 {
+        self.authority_generation
+    }
+
+    pub(crate) fn from_verified(
+        capability: EntitlementCapability,
+        snapshot_id: EntitlementSnapshotId,
+        authority_generation: u64,
+    ) -> Self {
+        Self {
+            capability,
+            snapshot_id,
+            authority_generation,
+        }
+    }
 }
 
 entitlement_text_id!(EntitlementEvaluationId, "entitlement.evaluation_id");

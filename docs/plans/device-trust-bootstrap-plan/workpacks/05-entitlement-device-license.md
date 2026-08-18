@@ -28,7 +28,7 @@ Purpose: define signed entitlement snapshots and device-bound license unlock.
   Signature verification and revocation remain unavailable/manual-required;
   the default verifier cannot unlock a capability.
 
-## Accepted source checkpoint — 2026-08-17
+## Historical accepted source checkpoint (pre-candidate wave) — 2026-08-17
 
 The integration branch at `68717b5b7` preserves the Payment-owned unsigned
 entitlement projection and a crate-private fail-closed snapshot context. Wire
@@ -36,6 +36,68 @@ input discards caller-supplied trust context, and the incompatible public signed
 snapshot/verifier modules from the Device branch were removed during review.
 No real issuer, signature/revocation provider, or shipped capability-unlock
 caller exists. Expected tests, focused execution, and proof remain open.
+
+## Candidate source wave — 2026-08-18 (unreviewed)
+
+The source-only WP05 packet now contains a signed transport envelope and an
+authority-owned verification path in `crates/entitlement-core`:
+
+- `entitlement_snapshot_issuer.rs` is crate-internal and accepts only an
+  opaque, owner-produced issuance projection. A caller cannot provide the
+  signed projection, key identifier, clock values, TTL, or signing receipt.
+  The signing provider and its owner composer remain unavailable outside the
+  crate; the shipped provider is manual-required.
+- `entitlement_snapshot_authority.rs` performs strict Ed25519 verification,
+  binds the key identifier to the SHA-256 key identity, resolves package build
+  plus bounded release-channel identity from a trusted installed-package
+  authority, and resolves billing, grace, family-setup, and policy state from
+  a currentness authority. Missing providers fail closed; no positive gate is
+  fabricated in the entitlement owner. A live identity re-resolution method
+  and owner-held generation fence are required at both grant and consumption.
+  Its raw dependency-injection constructor and typed owner ports are
+  crate-private; the only public construction path is the manual-required
+  fallback until a concrete owner repository composition is mounted.
+- `entitlement_snapshot_cache.rs` persists signed wire data with atomic writes,
+  locked replacement, parent-chain symlink/error rejection, timestamp-monotonic
+  snapshot replacement, signed revocation generations, and non-shrinking
+  revocation membership. Every read remains subject to signature/currentness
+  verification. Snapshot authority generation is signed and must exactly match
+  the current revocation generation; a separate owner-held monotonic fence is
+  required so rolling back both local JSON files cannot restore an old pair.
+- `crates/child-runtime/src/runtime_entitlement_license.rs` exposes the real library consumer
+  seam `ChildRuntimeEntitlementLicenseStore`; its public startup constructor
+  is manual-required only. Its grant is non-cloneable and consumed by value;
+  consumption revalidates expiry, revocation generation, installed package,
+  account/device binding, live identity generations, and owner-provided gate
+  state. No shipped child-agent service startup caller is mounted yet.
+
+Signed grace is explicit: after `expires_at` and before the signed bounded
+`grace_until`, the verifier reports `Grace`; the owner must report active
+offline grace, and only the low-risk Tracking capability can pass. Other
+capabilities and missing owner grace state fail closed. Grace is not treated as
+full entitlement freshness.
+
+This is a candidate source reachability packet, not an accepted/reviewed
+completion claim. A concrete owner repository composition is not present, so
+the raw authority/issuer DI path stays crate-private and public startup stays
+manual-required. A real issuer/HSM or platform key provider,
+installed-package authority, billing/currentness owner, and signed revocation
+delivery caller are still external dependencies. No entitlement
+activation or broad product capability completion is claimed. The expected
+WP05 tests, focused execution, retained proof, CI, and independent review
+remain open.
+
+### Required owner route before unlock composition
+
+The next owner packet must be routed through the Account/Billing authority for
+the opaque issuance projection and subscription/policy state, the package
+release authority for the installed build and release channel, the Device Trust
+and Account authorities for live identity/session/generation re-resolution, and
+the revocation owner for signed updates plus a restart-safe generation fence.
+The child-agent service owner must then mount that single composed authority at
+startup. Until those ownership edges are present in the graph and backed by
+real adapters, `open_manual_required` is the only public startup route and no
+capability unlock is available.
 
 ## Negative cases
 
