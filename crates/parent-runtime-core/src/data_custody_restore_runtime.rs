@@ -3,17 +3,14 @@ use std::collections::BTreeSet;
 use ocentra_eventing::{error::EventingError, journal::policy::JournalDispatchPhase};
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
-    export_import_backup_recovery_bundle_preflight_binding::bind_import_preflight,
     export_import_backup_recovery_bundle_preflight_binding::custody_port::ImportBindingError,
     export_import_backup_recovery_migration_execution::MigrationExecutionError,
-    export_import_backup_recovery_restore_execution_plan::{
-        build_restore_execution_plan, RestoreExecutionPlan, RestoreExecutionPlanError,
-    },
+    export_import_backup_recovery_restore_execution_plan::RestoreExecutionPlanError,
 };
 
+use super::data_custody_parent_runtime_clock::{clock_error, RuntimeClockError};
 use super::data_custody_restore_runtime_executor::{
-    RestoreAuthorityUnavailable, RestoreExecutorError, RestoreExecutorMount,
-    RestoreExecutorOperationError,
+    RestoreAuthorityUnavailable, RestoreExecutorError, RestoreExecutorOperationError,
 };
 use super::data_custody_restore_runtime_ledger::{RestoreLedger, RestoreLedgerError};
 use super::data_custody_restore_runtime_rollback::RestoreRollbackError;
@@ -37,6 +34,7 @@ pub enum RestoreRuntimeError {
     Ledger(RestoreLedgerError),
     PlanNotDurablyPending,
     RestartReconciliationRequired,
+    RuntimeNotRecovered,
 }
 
 impl From<EventingError> for RestoreRuntimeError {
@@ -87,6 +85,12 @@ impl From<RestoreLedgerError> for RestoreRuntimeError {
     }
 }
 
+impl From<RuntimeClockError> for RestoreRuntimeError {
+    fn from(error: RuntimeClockError) -> Self {
+        Self::Eventing(clock_error(error))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RestoreRuntimeReceipts {
     pub restore: contracts::ExportImportRestoreReceipt,
@@ -104,6 +108,7 @@ pub struct ParentRestoreRuntime {
     pub(crate) dispatch_started_restore: BTreeSet<String>,
     pub(crate) dispatch_started_migration: BTreeSet<String>,
     pub(crate) dispatch_started_rollback: BTreeSet<String>,
+    pub(crate) recovered: bool,
 }
 
 impl ParentRestoreRuntime {
@@ -117,24 +122,8 @@ impl ParentRestoreRuntime {
             dispatch_started_restore: BTreeSet::new(),
             dispatch_started_migration: BTreeSet::new(),
             dispatch_started_rollback: BTreeSet::new(),
+            recovered: false,
         }
-    }
-
-    pub(crate) fn bind_plan(
-        &self,
-        bundle: &contracts::ExportImportRecoveryBundle,
-        mount: &RestoreExecutorMount<'_>,
-        plan_ref: impl Into<String>,
-        operation_ref: impl Into<String>,
-        execution_ref: impl Into<String>,
-    ) -> Result<RestoreExecutionPlan, RestoreRuntimeError> {
-        let authority = mount
-            .account()
-            .current_restore_authority(&bundle.manifest.source_household_id)
-            .map_err(RestoreRuntimeError::Authority)?;
-        let bound = bind_import_preflight(bundle, authority, mount.custody())?;
-        build_restore_execution_plan(bundle, bound, plan_ref, operation_ref, execution_ref)
-            .map_err(RestoreRuntimeError::Plan)
     }
 
     pub fn pending_operation_count(&self) -> usize {

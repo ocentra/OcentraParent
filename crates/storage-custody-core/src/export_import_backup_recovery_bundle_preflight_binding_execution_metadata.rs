@@ -39,6 +39,10 @@ impl RestoreExecutionBinding {
         &self.manifest_integrity_ref
     }
 
+    pub fn target_device_id(&self) -> &contracts::ExportImportDeviceId {
+        &self.target_device_id
+    }
+
     pub fn payload_integrity_refs(
         &self,
     ) -> &[(

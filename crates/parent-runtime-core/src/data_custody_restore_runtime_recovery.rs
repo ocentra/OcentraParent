@@ -8,6 +8,7 @@ use super::data_custody_runtime_eventing::{
 
 impl ParentRestoreRuntime {
     pub async fn recover(&mut self) -> Result<(), RestoreRuntimeError> {
+        self.recovered = false;
         self.ledger = RestoreLedger::default();
         self.restart_pending_restore.clear();
         self.restart_pending_migration.clear();
@@ -37,6 +38,7 @@ impl ParentRestoreRuntime {
         self.dispatch_started_restore.clear();
         self.dispatch_started_migration.clear();
         self.dispatch_started_rollback.clear();
+        self.recovered = true;
         Ok(())
     }
 }

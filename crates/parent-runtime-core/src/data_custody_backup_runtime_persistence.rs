@@ -46,6 +46,9 @@ impl ParentBackupRuntime {
         {
             return Err(BackupRuntimeError::DispatchReservation);
         }
-        Ok(BackupDispatchReservation::new(execution_ref))
+        Ok(BackupDispatchReservation::new(
+            execution_ref,
+            job.bundle_id.clone(),
+        ))
     }
 }

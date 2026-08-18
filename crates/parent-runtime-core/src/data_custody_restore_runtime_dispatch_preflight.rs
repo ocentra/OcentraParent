@@ -1,9 +1,7 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
     export_import_backup_recovery_compensation::PartialWriteCompensation,
-    export_import_backup_recovery_restore_execution_plan::{
-        complete_restore_receipt, RestoreExecutionPlan,
-    },
+    export_import_backup_recovery_restore_execution_plan::RestoreExecutionPlan,
 };
 
 use super::data_custody_restore_runtime::{
@@ -13,6 +11,7 @@ use super::data_custody_restore_runtime_executor::{
     ProviderNeutralRestorePort, RestoreExecutorMount,
 };
 use super::data_custody_restore_runtime_ledger::RestoreLedgerError;
+use super::data_custody_restore_runtime_receipts::restore_receipt_from_dispatch;
 use super::data_custody_restore_runtime_reconciliation_validation::restore_receipt_matches_plan;
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEventKind;
 
@@ -32,6 +31,7 @@ impl ParentRestoreRuntime {
         mount: &'a RestoreExecutorMount<'a>,
     ) -> Result<RestorePreparation<'a>, RestoreRuntimeError> {
         let existing_restore = self.durable_restore(plan)?;
+        self.revalidate_authority(plan, mount)?;
         if self
             .restart_pending_restore
             .contains(plan.operation_ref().as_str())
@@ -57,7 +57,7 @@ impl ParentRestoreRuntime {
             return self.block_restore_without_provider(plan).await;
         };
         let migration = self
-            .execute_pending_migration_if_required(plan, provider)
+            .execute_pending_migration_if_required(plan, mount, provider)
             .await?;
         if migration.as_ref().is_some_and(|receipt| {
             receipt.outcome != contracts::ExportImportMigrationOutcome::Applied
@@ -124,7 +124,7 @@ impl ParentRestoreRuntime {
         &mut self,
         plan: &RestoreExecutionPlan,
     ) -> Result<RestorePreparation<'static>, RestoreRuntimeError> {
-        let blocked = blocked_restore_after_restart(plan)?;
+        let blocked = blocked_restore_after_restart(self, plan)?;
         self.persist_restore(
             &blocked,
             DataCustodyRuntimeEventKind::Reconciliation,
@@ -143,7 +143,7 @@ impl ParentRestoreRuntime {
         &mut self,
         plan: &RestoreExecutionPlan,
     ) -> Result<RestorePreparation<'static>, RestoreRuntimeError> {
-        let blocked = blocked_restore_without_provider(plan)?;
+        let blocked = blocked_restore_without_provider(self, plan)?;
         self.persist_restore(
             &blocked,
             DataCustodyRuntimeEventKind::Reconciliation,
@@ -158,9 +158,10 @@ impl ParentRestoreRuntime {
 }
 
 fn blocked_restore_after_restart(
+    runtime: &ParentRestoreRuntime,
     plan: &RestoreExecutionPlan,
 ) -> Result<contracts::ExportImportRestoreReceipt, RestoreRuntimeError> {
-    complete_restore_receipt(
+    restore_receipt_from_dispatch(
         plan,
         contracts::ExportImportRestoreApplyState::Blocked,
         Vec::new(),
@@ -168,6 +169,7 @@ fn blocked_restore_after_restart(
         PartialWriteCompensation::NotRequired,
         None,
         None,
+        runtime.next_recorded_at()?,
         Some(
             "Restore was pending before restart; provider status reconciliation is required."
                 .to_owned(),
@@ -177,9 +179,10 @@ fn blocked_restore_after_restart(
 }
 
 fn blocked_restore_without_provider(
+    runtime: &ParentRestoreRuntime,
     plan: &RestoreExecutionPlan,
 ) -> Result<contracts::ExportImportRestoreReceipt, RestoreRuntimeError> {
-    complete_restore_receipt(
+    restore_receipt_from_dispatch(
         plan,
         contracts::ExportImportRestoreApplyState::Blocked,
         Vec::new(),
@@ -187,6 +190,7 @@ fn blocked_restore_without_provider(
         PartialWriteCompensation::NotRequired,
         None,
         None,
+        runtime.next_recorded_at()?,
         Some("Restore executor is not mounted; local truth remains unchanged.".to_owned()),
     )
     .map_err(RestoreRuntimeError::Plan)

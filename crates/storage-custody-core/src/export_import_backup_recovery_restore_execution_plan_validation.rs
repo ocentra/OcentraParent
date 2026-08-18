@@ -36,7 +36,9 @@ fn sections_are_safe(
         }
         seen.push(section.data_class);
     }
-    true
+    rejected_sections
+        .iter()
+        .all(|section| section.state != contracts::ExportImportSectionDecisionState::Accepted)
 }
 
 pub(super) fn sections_match_plan(
@@ -53,6 +55,10 @@ pub(super) fn sections_match_plan(
         || rejected_sections
             .iter()
             .any(|section| !plan.rejected_sections().contains(section))
+        || plan
+            .accepted_sections()
+            .iter()
+            .any(|section| !applied_sections.contains(section))
         || plan
             .rejected_sections()
             .iter()

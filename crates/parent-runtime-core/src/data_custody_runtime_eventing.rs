@@ -16,11 +16,14 @@ use ocentra_eventing::{
 use ocentra_schema::export_import_backup_recovery as contracts;
 use serde::{Deserialize, Serialize};
 
+use super::data_custody_parent_runtime_clock::{
+    clock_error, DataCustodyRuntimeClock, RuntimeClockError, SharedDataCustodyRuntimeClock,
+};
 use super::data_custody_runtime_eventing_identity::execution_idempotency_ref;
 use super::data_custody_runtime_eventing_identity_backup::backup_job_event_idempotency_ref;
 
 const DATA_CUSTODY_EVENT_TYPE: &str = "parent-runtime.data-custody.transition";
-const DATA_CUSTODY_SCHEMA_VERSION: u16 = 2;
+const DATA_CUSTODY_SCHEMA_VERSION: u16 = 3;
 const DATA_CUSTODY_EVENT_CUSTODY: &str = "parent-runtime";
 const DATA_CUSTODY_RUNTIME_ROLE: &str = "parent";
 const DATA_CUSTODY_SOURCE_SERVICE: &str = "parent-runtime-core";
@@ -61,6 +64,7 @@ pub struct DataCustodyRuntimeEvent {
     pub kind: DataCustodyRuntimeEventKind,
     pub operation_ref: String,
     pub idempotency_ref: String,
+    pub recorded_at: String,
     pub record: DataCustodyRuntimeRecord,
     pub note: Option<String>,
 }
@@ -70,11 +74,13 @@ impl DataCustodyRuntimeEvent {
         schedule: contracts::ExportImportBackupSchedule,
         job: contracts::ExportImportBackupJobRecord,
         idempotency_ref: impl Into<String>,
+        recorded_at: String,
     ) -> Self {
         Self {
             kind: DataCustodyRuntimeEventKind::BackupScheduled,
             operation_ref: schedule.schedule_ref.as_str().to_owned(),
             idempotency_ref: idempotency_ref.into(),
+            recorded_at,
             record: DataCustodyRuntimeRecord::ScheduleAndJob { schedule, job },
             note: None,
         }
@@ -90,6 +96,7 @@ impl DataCustodyRuntimeEvent {
             kind,
             operation_ref: job.job_ref.as_str().to_owned(),
             idempotency_ref,
+            recorded_at: job.updated_at.as_str().to_owned(),
             record: DataCustodyRuntimeRecord::BackupJob(job),
             note,
         }
@@ -105,6 +112,7 @@ impl DataCustodyRuntimeEvent {
             kind,
             operation_ref: receipt.operation_ref.as_str().to_owned(),
             idempotency_ref,
+            recorded_at: receipt.recorded_at.as_str().to_owned(),
             record: DataCustodyRuntimeRecord::MigrationReceipt(receipt),
             note,
         }
@@ -120,6 +128,7 @@ impl DataCustodyRuntimeEvent {
             kind,
             operation_ref: receipt.operation_ref.as_str().to_owned(),
             idempotency_ref,
+            recorded_at: receipt.recorded_at.as_str().to_owned(),
             record: DataCustodyRuntimeRecord::RestoreReceipt(receipt),
             note,
         }
@@ -147,6 +156,7 @@ impl DomainEvent for DataCustodyRuntimeEvent {
 pub struct DataCustodyRuntimeEventJournal {
     journal: ProductionFileEventJournal,
     source: EventSource,
+    clock: SharedDataCustodyRuntimeClock,
 }
 
 impl DataCustodyRuntimeEventJournal {
@@ -164,11 +174,31 @@ impl DataCustodyRuntimeEventJournal {
         Ok(Self {
             journal: ProductionFileEventJournal::new(path),
             source,
+            clock: DataCustodyRuntimeClock::shared(),
         })
     }
 
     pub async fn recover(&self) -> Result<(), EventingError> {
-        self.journal.recover().await
+        DataCustodyRuntimeClock::begin_recovery(&self.clock).map_err(clock_error)?;
+        self.journal.recover().await?;
+        let report = self.replay().await?;
+        if report.skipped_count != 0 {
+            return Err(EventingError::InvalidValue {
+                field: "data_custody_runtime_replay",
+                value: "replay contained skipped records".to_owned(),
+            });
+        }
+        for record in report.records {
+            let event = Self::decode(&record.envelope)?;
+            DataCustodyRuntimeClock::commit_timestamp(&self.clock, &event.recorded_at)
+                .map_err(clock_error)?;
+        }
+        DataCustodyRuntimeClock::mark_recovered(&self.clock).map_err(clock_error)?;
+        Ok(())
+    }
+
+    pub(crate) fn next_recorded_at(&self) -> Result<String, RuntimeClockError> {
+        DataCustodyRuntimeClock::next_timestamp(&self.clock)
     }
 
     pub(crate) async fn append_record(
@@ -176,10 +206,12 @@ impl DataCustodyRuntimeEventJournal {
         event: DataCustodyRuntimeEvent,
         phase: JournalDispatchPhase,
     ) -> Result<JournalAppend, EventingError> {
+        DataCustodyRuntimeClock::ensure_recovered(&self.clock).map_err(clock_error)?;
         super::data_custody_runtime_eventing_validation::validate_event_identity(&event)?;
         let correlation_id = CorrelationId::parse(format!("data-custody:{}", event.operation_ref))?;
         let event_id = EventId::parse(format!("data-custody-event-{}", event.idempotency_ref))?;
-        let observed_at = RecordedAt::parse(event_observed_at(&event))?;
+        let observed_at = RecordedAt::parse(event.recorded_at.clone())?;
+        let recorded_at = event.recorded_at.clone();
         let envelope = EventEnvelope::from_event(
             event,
             EventMetadata::from_parts(
@@ -191,7 +223,10 @@ impl DataCustodyRuntimeEventJournal {
             ),
         )?;
         let stored = envelope.store()?;
-        self.journal.append_phase_idempotent(&stored, phase).await
+        let append = self.journal.append_phase_idempotent(&stored, phase).await?;
+        DataCustodyRuntimeClock::commit_timestamp(&self.clock, &recorded_at)
+            .map_err(clock_error)?;
+        Ok(append)
     }
 
     pub async fn replay(&self) -> Result<ReplayReadReport, EventingError> {
@@ -215,15 +250,5 @@ impl DataCustodyRuntimeEventJournal {
                 super::data_custody_runtime_eventing_validation::validate_event_identity(&event)?;
                 Ok(event)
             })
-    }
-}
-
-fn event_observed_at(event: &DataCustodyRuntimeEvent) -> &str {
-    match &event.record {
-        DataCustodyRuntimeRecord::Schedule(schedule) => schedule.next_run_at.as_str(),
-        DataCustodyRuntimeRecord::ScheduleAndJob { schedule, .. } => schedule.next_run_at.as_str(),
-        DataCustodyRuntimeRecord::BackupJob(job) => job.updated_at.as_str(),
-        DataCustodyRuntimeRecord::MigrationReceipt(receipt) => receipt.recorded_at.as_str(),
-        DataCustodyRuntimeRecord::RestoreReceipt(receipt) => receipt.recorded_at.as_str(),
     }
 }

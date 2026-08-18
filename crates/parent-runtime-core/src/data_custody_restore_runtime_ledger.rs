@@ -9,14 +9,13 @@ mod event_apply;
 use super::data_custody_restore_runtime_ledger_validation::{
     validate_migration_receipt, validate_restore_receipt,
 };
+use super::data_custody_restore_runtime_receipts::restore_receipt_from_dispatch;
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEvent;
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEventKind;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
     export_import_backup_recovery_compensation::PartialWriteCompensation,
     export_import_backup_recovery_migration_execution::{plan_migration, MigrationExecutionError},
-    export_import_backup_recovery_restore_execution_plan::{
-        complete_restore_receipt, RestoreExecutionPlan,
-    },
+    export_import_backup_recovery_restore_execution_plan::RestoreExecutionPlan,
 };
 
 #[derive(Debug)]
@@ -164,8 +163,11 @@ impl ParentRestoreRuntime {
         ),
         RestoreRuntimeError,
     > {
+        if !self.recovered {
+            return Err(RestoreRuntimeError::RuntimeNotRecovered);
+        }
         let plan = self.bind_plan(bundle, mount, plan_ref, operation_ref, execution_ref)?;
-        let pending_restore = complete_restore_receipt(
+        let pending_restore = restore_receipt_from_dispatch(
             &plan,
             contracts::ExportImportRestoreApplyState::ApplyPending,
             Vec::new(),
@@ -173,6 +175,7 @@ impl ParentRestoreRuntime {
             PartialWriteCompensation::NotRequired,
             None,
             None,
+            self.next_recorded_at()?,
             Some("Restore plan is bound; apply remains parent-runtime-owned.".to_owned()),
         )?;
         self.persist_restore(
@@ -182,7 +185,8 @@ impl ParentRestoreRuntime {
         )
         .await?;
         let migration = match plan_migration(&plan) {
-            Ok(receipt) => {
+            Ok(mut receipt) => {
+                receipt.recorded_at = self.next_recorded_at()?;
                 self.persist_migration(
                     &receipt,
                     DataCustodyRuntimeEventKind::MigrationPlanned,

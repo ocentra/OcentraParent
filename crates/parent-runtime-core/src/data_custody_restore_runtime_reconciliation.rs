@@ -1,10 +1,10 @@
 use super::data_custody_restore_runtime::{ParentRestoreRuntime, RestoreRuntimeError};
 use super::data_custody_restore_runtime_ledger::RestoreLedger;
+use super::data_custody_restore_runtime_receipts::migration_receipt_from_dispatch;
 use super::data_custody_runtime_eventing::DataCustodyRuntimeEventKind;
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
     export_import_backup_recovery_compensation::PartialWriteCompensation,
-    export_import_backup_recovery_migration_execution::complete_migration,
     export_import_backup_recovery_restore_execution_plan::RestoreExecutionPlan,
 };
 
@@ -17,6 +17,9 @@ impl ParentRestoreRuntime {
         &mut self,
         plan: &RestoreExecutionPlan,
     ) -> Result<usize, RestoreRuntimeError> {
+        if !self.recovered {
+            return Err(RestoreRuntimeError::RuntimeNotRecovered);
+        }
         if pending_operation_count(&self.ledger) == 0 {
             return Ok(0);
         }
@@ -31,23 +34,21 @@ impl ParentRestoreRuntime {
         ) {
             return Ok(0);
         }
-        let reconciled = complete_migration(
+        let reconciled = migration_receipt_from_dispatch(
             plan,
             contracts::ExportImportMigrationOutcome::Reconciled,
             receipt.applied_sections,
             receipt.rejected_sections,
             PartialWriteCompensation::NotRequired,
-            receipt
-                .provider_operation_ref
-                .map(|reference| reference.as_str().to_owned()),
-            receipt
-                .rollback_provider_operation_ref
-                .map(|reference| reference.as_str().to_owned()),
+            receipt.provider_operation_ref.as_ref(),
+            receipt.rollback_provider_operation_ref.as_ref(),
+            self.next_recorded_at()?,
             Some(
                 "Restore or migration receipt requires parent-runtime restart reconciliation."
                     .to_owned(),
             ),
-        )?;
+        )
+        .map_err(RestoreRuntimeError::Migration)?;
         self.persist_migration(
             &reconciled,
             DataCustodyRuntimeEventKind::Reconciliation,

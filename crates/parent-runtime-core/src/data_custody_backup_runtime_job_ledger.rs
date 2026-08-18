@@ -64,7 +64,10 @@ impl BackupJobLedger {
                     && self
                         .schedules
                         .get(job.schedule_ref.as_str())
-                        .is_some_and(|schedule| schedule.enabled)
+                        .is_some_and(|schedule| {
+                            schedule.cadence == contracts::ExportImportBackupCadence::Manual
+                                && !schedule.enabled
+                        })
             })
             .cloned()
     }

@@ -114,6 +114,7 @@ schema contracts
 
 The exact production and deferred expected-test roots are recorded in
 `workpacks/05-export-import-backup-recovery.md` and
-`docs/engineering-graph/code-map.json`. The new parent-runtime paths are
-planned and absent; this route does not mark source, tests, proof, or plan
-completion.
+`docs/engineering-graph/code-map.json`. The parent-runtime source paths are
+now present in the bounded source packet, while dependency-owned mounts,
+tests, proof, and runtime composition remain open; this route does not mark
+source or plan completion.

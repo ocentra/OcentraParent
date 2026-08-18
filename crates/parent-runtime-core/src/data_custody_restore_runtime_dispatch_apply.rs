@@ -4,7 +4,7 @@ use ocentra_storage_custody_core::export_import_backup_recovery::
     export_import_backup_recovery_migration_execution::plan_migration;
 
 use super::data_custody_restore_runtime::{ParentRestoreRuntime, RestoreRuntimeError};
-use super::data_custody_restore_runtime_executor::ProviderNeutralRestorePort;
+use super::data_custody_restore_runtime_executor::{ProviderNeutralRestorePort, RestoreExecutorMount};
 use super::data_custody_restore_runtime_ledger::RestoreLedgerError;
 use super::data_custody_restore_runtime_reconciliation_validation::{
     migration_receipt_matches_plan, plan_migration_manual_required,
@@ -19,6 +19,7 @@ impl ParentRestoreRuntime {
     pub(crate) async fn execute_pending_migration_if_required(
         &mut self,
         plan: &RestoreExecutionPlan,
+        mount: &RestoreExecutorMount<'_>,
         provider: &dyn ProviderNeutralRestorePort,
     ) -> Result<Option<contracts::ExportImportMigrationReceipt>, RestoreRuntimeError> {
         if plan.migration_ref().is_none() {
@@ -38,7 +39,7 @@ impl ParentRestoreRuntime {
             let Some(receipt) = existing.as_ref() else {
                 return Err(RestoreRuntimeError::PlanNotDurablyPending);
             };
-            let manual = plan_migration_manual_required(plan, receipt)?;
+            let manual = plan_migration_manual_required(plan, receipt, self.next_recorded_at()?)?;
             self.persist_migration(
                 &manual,
                 DataCustodyRuntimeEventKind::Reconciliation,
@@ -55,10 +56,11 @@ impl ParentRestoreRuntime {
         {
             return Err(RestoreRuntimeError::RestartReconciliationRequired);
         }
-        let planned = match existing {
+        let mut planned = match existing {
             Some(receipt) => receipt,
             None => plan_migration(plan)?,
         };
+        planned.recorded_at = self.next_recorded_at()?;
         self.persist_migration_phase(
             &planned,
             DataCustodyRuntimeEventKind::MigrationBeforeDispatch,
@@ -66,9 +68,10 @@ impl ParentRestoreRuntime {
             JournalDispatchPhase::BeforeDispatch,
         )
         .await?;
+        self.revalidate_authority(plan, mount)?;
         self.dispatch_started_migration
             .insert(plan.operation_ref().as_str().to_owned());
-        let migration = execute_migration_operation(plan, provider)?;
+        let migration = execute_migration_operation(plan, provider, self.next_recorded_at()?)?;
         self.persist_migration(
             &migration,
             DataCustodyRuntimeEventKind::MigrationReceipt,
