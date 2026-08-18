@@ -1,7 +1,7 @@
 import UIKit
 
 @main
-final class AppDelegate: UIResponder, UIApplicationDelegate {
+final class ChildAgentAppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(

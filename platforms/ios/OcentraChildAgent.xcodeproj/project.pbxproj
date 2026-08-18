@@ -12,7 +12,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-    0C0F4B302C00000100A00001 /* OcentraParentAgent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OcentraParentAgent.app; sourceTree = BUILT_PRODUCTS_DIR; };
+    0C0F4B302C00000100A00001 /* OcentraChildAgent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OcentraChildAgent.app; sourceTree = BUILT_PRODUCTS_DIR; };
     0C0F4B342C00000100A00001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
     0C0F4B352C00000100A00001 /* AgentStatusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentStatusViewController.swift; sourceTree = "<group>"; };
     0C0F4B382C00000100A00001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -32,7 +32,7 @@
     0C0F4B272C00000100A00001 = {
       isa = PBXGroup;
       children = (
-        0C0F4B332C00000100A00001 /* OcentraParentAgent */,
+        0C0F4B332C00000100A00001 /* OcentraChildAgent */,
         0C0F4B312C00000100A00001 /* Products */,
       );
       sourceTree = "<group>";
@@ -40,27 +40,27 @@
     0C0F4B312C00000100A00001 /* Products */ = {
       isa = PBXGroup;
       children = (
-        0C0F4B302C00000100A00001 /* OcentraParentAgent.app */,
+        0C0F4B302C00000100A00001 /* OcentraChildAgent.app */,
       );
       name = Products;
       sourceTree = "<group>";
     };
-    0C0F4B332C00000100A00001 /* OcentraParentAgent */ = {
+    0C0F4B332C00000100A00001 /* OcentraChildAgent */ = {
       isa = PBXGroup;
       children = (
         0C0F4B342C00000100A00001 /* AppDelegate.swift */,
         0C0F4B352C00000100A00001 /* AgentStatusViewController.swift */,
         0C0F4B382C00000100A00001 /* Info.plist */,
       );
-      path = OcentraParentAgent;
+      path = OcentraChildAgent;
       sourceTree = "<group>";
     };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-    0C0F4B2F2C00000100A00001 /* OcentraParentAgent */ = {
+    0C0F4B2F2C00000100A00001 /* OcentraChildAgent */ = {
       isa = PBXNativeTarget;
-      buildConfigurationList = 0C0F4B412C00000100A00001 /* Build configuration list for PBXNativeTarget "OcentraParentAgent" */;
+      buildConfigurationList = 0C0F4B412C00000100A00001 /* Build configuration list for PBXNativeTarget "OcentraChildAgent" */;
       buildPhases = (
         0C0F4B2C2C00000100A00001 /* Sources */,
         0C0F4B2D2C00000100A00001 /* Frameworks */,
@@ -70,9 +70,9 @@
       );
       dependencies = (
       );
-      name = OcentraParentAgent;
-      productName = OcentraParentAgent;
-      productReference = 0C0F4B302C00000100A00001 /* OcentraParentAgent.app */;
+      name = OcentraChildAgent;
+      productName = OcentraChildAgent;
+      productReference = 0C0F4B302C00000100A00001 /* OcentraChildAgent.app */;
       productType = "com.apple.product-type.application";
     };
 /* End PBXNativeTarget section */
@@ -90,7 +90,7 @@
           };
         };
       };
-      buildConfigurationList = 0C0F4B2B2C00000100A00001 /* Build configuration list for PBXProject "OcentraParentAgent" */;
+      buildConfigurationList = 0C0F4B2B2C00000100A00001 /* Build configuration list for PBXProject "OcentraChildAgent" */;
       compatibilityVersion = "Xcode 14.0";
       developmentRegion = en;
       hasScannedForEncodings = 0;
@@ -103,7 +103,7 @@
       projectDirPath = "";
       projectRoot = "";
       targets = (
-        0C0F4B2F2C00000100A00001 /* OcentraParentAgent */,
+        0C0F4B2F2C00000100A00001 /* OcentraChildAgent */,
       );
     };
 /* End PBXProject section */
@@ -238,14 +238,14 @@
         CURRENT_PROJECT_VERSION = 2;
         DEVELOPMENT_ASSET_PATHS = "";
         GENERATE_INFOPLIST_FILE = NO;
-        INFOPLIST_FILE = OcentraParentAgent/Info.plist;
+        INFOPLIST_FILE = OcentraChildAgent/Info.plist;
         LD_RUNPATH_SEARCH_PATHS = (
           "$(inherited)",
           "@executable_path/Frameworks",
         );
         MARKETING_VERSION = 0.1.1;
-        PRODUCT_BUNDLE_IDENTIFIER = ca.ocentra.parent.agent;
-        PRODUCT_NAME = OcentraParentAgent;
+        PRODUCT_BUNDLE_IDENTIFIER = ca.ocentra.child.agent;
+        PRODUCT_NAME = OcentraChildAgent;
         SWIFT_VERSION = 5.0;
         TARGETED_DEVICE_FAMILY = "1,2";
       };
@@ -258,14 +258,14 @@
         CURRENT_PROJECT_VERSION = 2;
         DEVELOPMENT_ASSET_PATHS = "";
         GENERATE_INFOPLIST_FILE = NO;
-        INFOPLIST_FILE = OcentraParentAgent/Info.plist;
+        INFOPLIST_FILE = OcentraChildAgent/Info.plist;
         LD_RUNPATH_SEARCH_PATHS = (
           "$(inherited)",
           "@executable_path/Frameworks",
         );
         MARKETING_VERSION = 0.1.1;
-        PRODUCT_BUNDLE_IDENTIFIER = ca.ocentra.parent.agent;
-        PRODUCT_NAME = OcentraParentAgent;
+        PRODUCT_BUNDLE_IDENTIFIER = ca.ocentra.child.agent;
+        PRODUCT_NAME = OcentraChildAgent;
         SWIFT_VERSION = 5.0;
         TARGETED_DEVICE_FAMILY = "1,2";
       };
@@ -274,7 +274,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-    0C0F4B2B2C00000100A00001 /* Build configuration list for PBXProject "OcentraParentAgent" */ = {
+    0C0F4B2B2C00000100A00001 /* Build configuration list for PBXProject "OcentraChildAgent" */ = {
       isa = XCConfigurationList;
       buildConfigurations = (
         0C0F4B3D2C00000100A00001 /* Debug */,
@@ -283,7 +283,7 @@
       defaultConfigurationIsVisible = 0;
       defaultConfigurationName = Release;
     };
-    0C0F4B412C00000100A00001 /* Build configuration list for PBXNativeTarget "OcentraParentAgent" */ = {
+    0C0F4B412C00000100A00001 /* Build configuration list for PBXNativeTarget "OcentraChildAgent" */ = {
       isa = XCConfigurationList;
       buildConfigurations = (
         0C0F4B3F2C00000100A00001 /* Debug */,
