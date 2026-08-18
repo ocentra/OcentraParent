@@ -48,9 +48,9 @@ gate, or whole-plan completion.
 Current production-handoff overlay (the checked historical packet below does
 not satisfy these rows):
 
-- [ ] WP02 resolves actor parent-controller and target child/profile/device
+- [x] WP02 resolves actor parent-controller and target child/profile/device
   separately and derives same-family, capability, lease, and step-up authority
-  from owned state.
+  from owned state. Reviewed source: `86caae334` and `7934fb41b`.
 - [ ] Cloudflare WP06 owns authoritative Account D1
   write/update/revocation/CAS and a shipped Firebase/provider-to-sealed-
   authority caller; its current read adapter is not closure.
@@ -72,12 +72,14 @@ not satisfy these rows):
 Current production-closure overlay (the checked rows below retain historical
 contract/proof evidence and do not satisfy these rows):
 
-- [ ] A target-aware Account resolver keeps the actor parent-controller device
+- [x] A target-aware Account resolver keeps the actor parent-controller device
   distinct from the target child/profile/device for Pair, Register, Revoke,
   View, ChangePolicy, and Remote actions; callers cannot supply `same_family`,
   capability, controller lease, step-up, support, or lifecycle authority.
-- [ ] ParentOwner, CoParent, and Observer `ViewChildStatus` is evaluated as a
+  Reviewed source: `86caae334` and `7934fb41b`.
+- [x] ParentOwner, CoParent, and Observer `ViewChildStatus` is evaluated as a
   parent action over an independently resolved child/profile/device target.
+  Reviewed source: `86caae334` and `7934fb41b`.
 - [ ] Cloudflare WP06 supplies the authoritative D1 writer/currentness/
   revocation/CAS owner and provider-to-sealed-authority production caller.
 - [ ] Expected tests cover actor/target mismatch, cross-child/cross-household

@@ -5,8 +5,8 @@ Purpose: prove the child iOS capability package and provisioning/manual-required
 ## Live source state
 
 - Rust capability/limit contracts and their contract tests exist.
-- The actual Xcode project, target, scheme, app/product name, bundle id, release artifacts, smoke defaults, and CI paths remain parent-labelled.
-- WP06 is an independent first source correction; it is not complete until the canonical child identity exists end to end.
+- Reviewed source at `c71becbcfd4f07eb98a118f10dbf261320f6b54e` gives the Xcode project, target, scheme, app/product name, bundle id, release inputs, and simulator artifact the canonical child identity.
+- Smoke/workflow expectations, Apple signing/provisioning, physical-device launch, TestFlight/App Store ownership, expected tests, and retained proof remain open, so WP06 is not complete.
 
 ## Validation anchors
 

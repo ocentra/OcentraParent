@@ -11,7 +11,7 @@ Status: source routing reconciled; implementation and test rows open.
 - [ ] WP03 macOS package identity, signing/notarization ownership, trusted startup, health, and lifecycle source exist.
 - [ ] WP04 Linux package identity, fail-closed lifecycle, trusted startup, health, signing/feed, and cleanup source exist.
 - [ ] WP05 Android JNI startup consumes current trust and owns authenticated ingress, usable health, platform authority, and removal integration.
-- [ ] WP06 actual iOS app/project/bundle/scheme/release identity is the canonical child identity while capability limits remain explicit.
+- [x] WP06 actual iOS app/project/bundle/scheme/release identity is the canonical child identity while capability limits remain explicit. Reviewed source: `c71becbcfd4f07eb98a118f10dbf261320f6b54e`.
 - [ ] WP07 health-aware cross-platform supervision, bounded restart/backoff, deliberate stop, and teardown source exist.
 - [ ] WP08 a production Account-authority caller and platform cleanup callbacks/receipts exist without child-minted authority.
 - [ ] WP09 live handoff/update composition and platform signing/store/update owners exist.

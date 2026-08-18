@@ -19,7 +19,7 @@
 ```text
 Plan route: upgraded
 Execution-grade workpacks: WP01 has a provider/custody proof pack plus the retained narrow D1 storage-adapter proof at `docs/proof/account-identity-family-plan/01-auth-provider-decision/06-account-identity-storage-adapter-proof.md`; WP08 has a tracked durable Rust-authority manifest under `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk; WP06 is reopened for final aggregation after WP08 plus Cloudflare WP06/WP08 handoffs
-Implementation: the accepted Account source wave at `35edb2830`, reconciled into the integration line through `e69acf279`, provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, a local SQLite repository/CAS/invariant owner, session and invite/recovery lifecycle records, and a Cloudflare D1 current-authority read adapter plus ordered `0001`-`0004` Account/Payment migration source. Live review reopened WP02 because the action evaluator still conflates the actor parent-controller device with the target child/profile/device, hard-codes same-family authority, derives device scope from the actor role, and accepts capability/lease facts from its caller. The authoritative Cloudflare D1 writer/update/revocation/CAS path, shipped Firebase/provider-to-Account caller, live Device Trust binding, expected tests, route composition, deployment/migration execution, proof, and DONE remain open
+Implementation: the accepted Account source wave at `35edb2830`, reconciled into the integration line through `e69acf279`, provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, a local SQLite repository/CAS/invariant owner, session and invite/recovery lifecycle records, and a Cloudflare D1 current-authority read adapter plus ordered `0001`-`0004` Account/Payment migration source. Reviewed commits `86caae334` and `7934fb41b` add the bounded target-aware WP02 resolver and migrate the storage-custody consumer without accepting caller-minted authority. The authoritative Cloudflare D1 writer/update/revocation/CAS path, shipped Firebase/provider-to-Account caller, live Device Trust binding, expected tests, route composition, deployment/migration execution, proof, and DONE remain open
 Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP08 uses its tracked durable manifest rather than ignored raw output; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent unless a selected workpack explicitly requires them
 PR-ready: false
 ```
@@ -34,11 +34,12 @@ not establish Rust schema authority or any Cloudflare runtime/migration proof.
 
 WP02-WP05 are not production complete. Their Rust evaluators and focused tests
 are real, and bounded provisioning, policy, and child-runtime consumers exist.
-Those consumers still receive caller-assembled authority/lifecycle flags. A
-sealed WP08 boundary and local SQLite repository/CAS exist, and Cloudflare has
-a D1 read adapter, but there is no target-aware action resolver, authoritative
-Cloudflare writer/update/revocation/CAS owner, or shipped provider-to-Account
-caller. Historical checked rows prove contract/proof slices, not durable
+Legacy evaluators still accept caller-assembled authority/lifecycle flags, but
+reviewed source at `86caae334` and `7934fb41b` now places the real
+storage-custody consumer behind a target-aware resolver over the sealed WP08
+boundary and current Account authority. The authoritative Cloudflare
+writer/update/revocation/CAS owner and shipped provider-to-Account caller are
+still absent. Historical checked rows prove contract/proof slices, not durable
 account, session, invite/recovery, or device-authorization execution.
 
 The attempted source packet at remote commit `ac03afee3a` was independently
@@ -93,9 +94,8 @@ What is now real:
 
 What remains before product completion:
 
-- a target-aware WP02 action authority that removes `same_family` and
-  capability/controller-lease/step-up trust from caller input and maps parent
-  `ViewChildStatus` correctly;
+- the complete WP02 expected-test packet for the reviewed target-aware action
+  authority, including actor/target substitution and parent observer cases;
 - a shipped Cloudflare authoritative writer/currentness/revocation/CAS owner,
   Firebase/provider-to-Account caller, and account/session route composition;
 - complete atomic invite/recovery runtime orchestration and typed custody
@@ -237,14 +237,14 @@ until the relevant workpack proof root and checklist rows prove the claim.
 
 ## 2026-08-17 live-code review correction
 
-Account WP02 remains open for implementation review. The reviewed evaluator
-still conflates the actor's parent-controller device with the target
-child/device for Pair, Register, Revoke, View, ChangePolicy, and Remote
-actions. A target-aware resolver, capability/lease/step-up binding, and a
-provider-to-authority production caller are missing; the raw evaluator is
-diagnostic/legacy risk when fed caller-assembled facts. Route a bounded
-authorized source correction through the sealed WP08 authority boundary and
-retain all expected-test, focused validation, proof, PR, and DONE gates.
+Account WP02 remains open for expected tests and production composition, not
+for the bounded target-aware resolver source. Reviewed commits `86caae334` and
+`7934fb41b` keep the parent actor separate from the target child/profile/device,
+derive authorization from opaque current Account authority, preserve observer
+read-only scope, and migrate the real storage-custody consumer. The raw legacy
+evaluator remains diagnostic risk if fed caller-assembled facts, and the
+Cloudflare provider-to-authority caller is still missing. Retain all expected-
+test, focused validation, proof, PR, and DONE gates.
 
 ## Default execution order
 

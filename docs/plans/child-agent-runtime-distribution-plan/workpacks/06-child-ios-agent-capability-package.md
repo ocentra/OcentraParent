@@ -11,7 +11,7 @@
 
 Purpose: own the canonical child iOS capability-package identity, provisioning limits, and manual-required boundary.
 
-Status: source correction pending; not complete.
+Status: canonical source identity corrected; expected tests, workflows, signing, device/store authority, and proof remain open; not complete.
 
 ## Owns
 
@@ -24,7 +24,7 @@ Status: source correction pending; not complete.
 
 Rust-owned capability/limit contracts, generated/thin TypeScript edges, contract tests, and a focused proof runner exist. They correctly model capability-only, no-daemon, no-parity, provisioning/signing/supervision/manual-required states.
 
-The shipped iOS source does not yet match that child route. The checked-in project, target, scheme, app folder/name, product name, bundle identifier, release artifact names, build inputs, smoke defaults, and CI paths still use `OcentraParentAgent` or `ca.ocentra.parent.agent`. A valid capability contract cannot make a parent-labelled application the canonical child package.
+Reviewed source at `c71becbcfd4f07eb98a118f10dbf261320f6b54e` now matches the child route: the checked-in project, target, scheme, app folder/name, product name, bundle identifier, release input, and simulator artifact use `OcentraChildAgent`, `ca.ocentra.child.agent`, and child-owned artifact names. Smoke/workflow consumers, Apple signing/provisioning, physical-device launch, TestFlight/App Store authority, expected tests, and retained proof have not been completed.
 
 ## Required production source outcome
 
@@ -33,7 +33,7 @@ The shipped iOS source does not yet match that child route. The checked-in proje
 - preserved capability-only, no-daemon, no-persistent-service, recovery-not-implemented, provisioning/signing/supervision/device-proof-required boundaries;
 - no reuse of parent-client identity or proof.
 
-WP06 has no implementation dependency and is an independent first source packet. Its normal READY/DONE gates remain open.
+WP06 has no implementation dependency. Its first source packet is reviewed, while its expected-test, validation, proof, PR, and normal DONE gates remain open.
 
 ## Expected test-source gap
 

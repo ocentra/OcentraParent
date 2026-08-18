@@ -17,7 +17,7 @@
 - Shipped desktop and Android startup do not supply a current Device Trust source.
 - Current child ingress is in-process only; no authenticated product ingress or external health endpoint is composed.
 - Public removal APIs and the setup-handoff projection have no production caller.
-- Actual iOS application/release identity remains parent-labelled.
+- The iOS source identity is child-owned; its smoke/workflow consumers, Apple signing/provisioning, device/store proof, and expected tests remain open.
 - Static service-manager restart declarations are not a live lifecycle implementation.
 - WP11 has documentation/proof aggregation but no executable aggregate gate.
 - Current proof-root routing is `output/child-agent-runtime-distribution-plan-proof/<workpack-file-stem>/`; stale legacy proof paths must not raise status.

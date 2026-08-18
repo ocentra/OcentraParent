@@ -20,7 +20,7 @@ Use this index to select exactly one workpack.
 | --- | --- | ---: | --- | --- |
 | partial | [WP01 Auth Provider Decision](workpacks/01-auth-provider-decision.md) | 10/10 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/cloud.md` | `output/account-identity-family-plan-proof/01-auth-provider-decision/` |
 | validation / replacement source accepted / tests deferred | [WP08 Rust Schema And Account Authority](workpacks/08-rust-schema-workers-d1-runtime-migration.md) | 9/9 prior packet; replacement schema/repository source reviewed, current test/proof rows open | `PLAN_STATE.md`, accepted WP01 custody decision, canonical Rust contract boundary | `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/` |
-| reopened / target-aware correction pending / tests and composition open | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 13/13 historical proof; sealed capability/repository source retained, actor-versus-target correction and current tests/proof open | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
+| target-aware source reviewed / tests and composition open | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 13/13 historical proof plus reviewed target-aware resolver/storage-custody consumer source; expected tests, Cloudflare provider composition, and current proof open | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
 | validation / currentness source accepted / routes and tests open | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) + [current boundary addendum](workpacks/03-current-boundary-addendum.md) | 14/14 historical proof; persisted session currentness source accepted, browser route/tests open | `RESEARCH_AND_DECISIONS.md`, `crates/family-identity-core/src/session_lifecycle.rs` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
 | validation / lifecycle source accepted / orchestration and tests open | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 historical proof; owner-derived lifecycle records accepted, atomic runtime/custody/tests open | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
 | validation / authority consumers accepted / handoffs and tests open | [WP05 Device Ownership AuthZ](workpacks/05-device-ownership-authz.md) | 13/13 historical proof; current Account-bound billing/support source accepted, remaining consumers/tests open | `docs/features/family-setup-device-roles.md`, `docs/expectations/platforms.md` | `output/account-identity-family-plan-proof/05-device-ownership-authz/` |
@@ -45,9 +45,10 @@ household/child/device binding with pairing, installation, selected route,
 lifecycle, revocation, bounded generation, guarded identifiers, active provider
 mapping, exact account consistency, and a crate-private fail-closed read port.
 It does not authorize completion, tests, proof, Cloudflare runtime, or a
-production authority claim. WP02's target-aware action owner, Cloudflare
-WP06's authoritative writer/provider caller, Device Trust WP03's live binding,
-and Cloudflare WP08 proof remain open.
+production authority claim. WP02's target-aware action source is reviewed, but
+its expected tests and normal completion remain open. Cloudflare WP06's
+authoritative writer/provider caller, Device Trust WP03's live binding, and
+Cloudflare WP08 proof remain open.
 
 ## WP02-WP05 live production correction
 
@@ -71,7 +72,7 @@ legal replacement is the accepted `35edb2830` packet now integrated through
 ```text
 WP01 blocks runtime provider/session implementation.
 WP08 owns only the Rust-owned account/family contract authority and account-authority parity. It is not WP01 provider-decision work and it does not own any Cloudflare binding, adapter, migration, or worker test runner.
-WP02 consumes WP08 and must first provide target-aware actor/action authority without caller-supplied same-family, capability, lease, or step-up trust. It blocks Cloudflare WP06 and most authorization, UI, policy, payment, remote-access, and Device Trust handoffs.
+WP02 consumes WP08. Its target-aware actor/action source now rejects caller-supplied same-family, capability, lease, and step-up trust, but expected tests and normal completion remain open. Cloudflare WP06 still owns authoritative provider composition and remains the next source dependency before most downstream authorization, UI, policy, payment, remote-access, and Device Trust handoffs.
 Cloudflare WP06 consumes WP02 and owns the authoritative D1 writer/update/revocation/CAS surface, provider-to-sealed-authority caller, migration execution, and storage-proof packet. Its existing D1 read adapter is not sufficient. Cloudflare WP08 owns the Cloudflare runner/pyramid proof after WP06. Neither packet redefines account/family authority.
 WP03 blocks secure-login/session claims and must be read with workpacks/03-current-boundary-addendum.md.
 WP04 may run after WP02 but must not implement data-custody side effects itself.

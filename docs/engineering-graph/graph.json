@@ -483,17 +483,10 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "reopened / target-aware correction pending / tests and composition open",
+        "statusText": "target-aware source reviewed / tests and composition open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
-        "plannedSourceExpectation": {
-          "source": "docs/engineering-graph/code-map.json",
-          "roots": [
-            "crates/family-identity-core/src/account_identity_target_authority.rs"
-          ],
-          "testRoots": []
-        },
         "dependencyReview": {
           "hardDependencies": [
             "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
@@ -505,14 +498,34 @@
             "docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md"
           ],
-          "reason": "Live-code review reopened WP02: the current Account adapter hard-codes same-family authority, maps device scope from the actor role, and accepts capability and controller-lease facts from the caller. Pair, Register, Revoke, View, ChangePolicy, and Remote actions therefore do not have an independently resolved target child/profile/device, and parent ViewChildStatus is mapped through child-device scope. The missing target-aware source owner must preserve the sealed WP08 boundary and server-derived capability, lease, and step-up state. Cloudflare WP06 separately owns provider composition. Normal expected-test, proof, PR, and DONE gates remain unchanged."
+          "reason": "Independent source review accepted WP02 target-aware authority at 86caae334 and 7934fb41b. The resolver preserves the sealed WP08 boundary, keeps the parent actor distinct from the target child/profile/device, derives action authority from opaque current Account state, and migrates the storage-custody consumer. Cloudflare WP06 separately owns provider composition. Expected tests, focused validation, proof, PR, and DONE remain open."
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent source review accepted the target-aware Account authority packet at 86caae334 and 7934fb41b. The resolver consumes opaque current Account authority, keeps the parent actor distinct from the target child/profile/device, preserves observer read-only scope, and does not accept same-family, capability, controller-lease, or step-up authority from the request. The real storage-custody consumer uses this boundary. Expected tests, the Cloudflare provider-to-authority composition, focused validation, proof, PR readiness, and DONE remain open.",
+          "evidence": [
+            "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+            "docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md",
+            "docs/PLAN_CODE_STATUS_MATRIX.md"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
-          "implementation": [],
+          "implementation": [
+            "crates/family-identity-core/src/account_identity_target_authority.rs",
+            "crates/family-identity-core/src/account_identity_authority.rs",
+            "crates/family-identity-core/src/account_identity_authority_role_mapping.rs",
+            "crates/family-identity-core/src/account_identity_authority_value_mapping.rs",
+            "crates/family-identity-core/src/household_authority.rs",
+            "crates/family-identity-core/src/household_authority_validation.rs",
+            "crates/storage-custody-core/src/report_query_custody_request_validate.rs"
+          ],
           "tests": [
             "docs/plans/account-identity-family-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
@@ -521,11 +534,6 @@
             "docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
-        },
-        "expected": {
-          "implementation": [
-            "crates/family-identity-core/src/account_identity_target_authority.rs"
-          ]
         }
       }
     },
@@ -15581,7 +15589,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "source correction pending",
+        "statusText": "source identity corrected / tests and release authority open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true,
@@ -16130,11 +16138,11 @@
         "WP-account-identity-family-plan-02-identity-household-role-model"
       ],
       "state": "blocked",
-      "lifecycleState": "blocked",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked on Account WP02 / read adapter accepted / authoritative writer-caller and tests open",
+        "statusText": "implementation-only source authorized / Account WP02 reviewed / authoritative writer-caller and tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -16160,7 +16168,7 @@
             "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Reviewed as the Cloudflare production authority packet after Account WP08's canonical identities, Account WP02's target-aware sealed authority, and WP01's module scaffold. The existing D1 surface reads current authority but does not own authoritative writes, updates, revocation, compare-and-swap, or a shipped Firebase/provider-to-Account caller. Those missing planned source owners must land before the implementation-only gate can clear. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
+          "reason": "Reviewed as the Cloudflare production authority packet after Account WP08's canonical identities, Account WP02's target-aware sealed authority, and WP01's module scaffold. The existing D1 surface reads current authority but does not own authoritative writes, updates, revocation, compare-and-swap, or a shipped Firebase/provider-to-Account caller. Those missing planned owners are the bounded implementation-only source target once dependencies are reviewed. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
         }
       },
       "completion": {

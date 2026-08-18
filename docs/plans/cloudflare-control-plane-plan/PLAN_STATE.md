@@ -43,8 +43,9 @@
   verification, account authority, production storage, runtime readiness,
   proof freshness, or DONE.
 - Account WP08's independently accepted `v0.7` contract and local repository
-  are necessary but not sufficient. Account WP02 must first supply target-aware
-  action authority. WP06 then owns the authoritative D1
+  are necessary but not sufficient. Account WP02's target-aware action
+  authority is now independently reviewed source. WP06 now owns the
+  implementation-only source packet for the authoritative D1
   writer/currentness/revocation/CAS path and shipped Firebase/provider caller
   that consumes the sealed boundary. Live deployment remains fail-closed/
   manual-required. WP08 remains test/proof work after WP06; WP07 remains
@@ -89,13 +90,13 @@
   canonical schema-domain contract before contract-consuming Cloudflare
   commands; generated `packages/schema-domain/dist` remains ignored and is not
   a retained proof artifact.
-- Account WP02 target-aware authority, the authoritative D1 writer/currentness/
-  revocation/CAS owner, the shipped provider-to-Account caller, migration
+- Account WP02 target-aware authority is reviewed source. The authoritative D1
+  writer/currentness/revocation/CAS owner, the shipped provider-to-Account caller, migration
   application, expected tests, retained proof, deployment, and runtime
   reachability remain open. Normal WP06 is blocked and is not `DONE` or
   runtime-ready.
 
-Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 has an accepted read-side D1 adapter/auth boundary and Firebase verifier source, but Account WP02 target-aware authority, authoritative D1 write/update/revocation/CAS, and the shipped provider-to-Account caller are absent. Provider-bound Account authority therefore remains `503` / `manual-required`; caller-supplied authority headers cannot authorize production. Migration application, tests, validation, proof, deployment, and runtime reachability remain open, so normal WP06 is blocked and not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
+Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 has an accepted read-side D1 adapter/auth boundary and Firebase verifier source, and Account WP02 target-aware authority is independently reviewed source. WP06 is therefore implementation-only source authorized for the still-absent authoritative D1 write/update/revocation/CAS owner and shipped provider-to-Account caller. Provider-bound Account authority remains `503` / `manual-required` until that packet is implemented; caller-supplied authority headers cannot authorize production. Migration application, tests, validation, proof, deployment, and runtime reachability remain open, so normal WP06 remains blocked and is not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 

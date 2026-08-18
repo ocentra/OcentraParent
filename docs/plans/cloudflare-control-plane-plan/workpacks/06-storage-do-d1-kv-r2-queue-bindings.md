@@ -21,8 +21,9 @@ ordered migrations, Firebase verification, and the read adapter are real
 source, but the Worker has no authoritative Account create/update/revoke/
 currentness/CAS owner or shipped provider-to-sealed-authority caller.
 Placeholder database IDs are not deployed authority. Account WP08 supplies the
-sealed contract and local repository; Account WP02 must first correct target-
-aware action authority. This audit authorizes the subsequent WP06 source route,
+sealed contract and local repository; Account WP02 target-aware action authority
+is now independently reviewed source. This audit authorizes the WP06
+implementation-only source route,
 not validation, migration execution, proof, or runtime/deployment claims.
 
 ## Bounded source adapter/auth chain accepted - 2026-08-17
@@ -48,7 +49,7 @@ this does not close normal WP06:
   before Cloudflare contract-consuming commands. Generated schema-domain
   `dist` output is ignored and is not retained proof.
 
-Account WP02 target-aware authority, authoritative write/update/revocation/CAS,
+Account WP02 target-aware authority is reviewed source. Authoritative write/update/revocation/CAS,
 the shipped provider caller, migration application, focused tests, retained
 proof, deployment, and runtime reachability remain open. Normal WP06 is blocked
 and is not `DONE`.
@@ -144,7 +145,7 @@ after this bridge is real. This route has no reverse dependency on WP03.
 
 ## Completion
 
-- Status: read-side adapter/auth source retained; blocked on Account WP02 target authority and the missing authoritative writer/provider caller. Migration execution, expected tests, focused validation, retained proof, deployment, and runtime reachability remain deferred. No Cloudflare runtime-ready, deployment-ready, provider-authenticated, payment-ready, or `DONE` claim is made.
+- Status: read-side adapter/auth source retained; Account WP02 target authority reviewed; implementation-only source authorized for the missing authoritative writer/provider caller. Migration execution, expected tests, focused validation, retained proof, deployment, and runtime reachability remain deferred. Normal workpack readiness remains blocked. No Cloudflare runtime-ready, deployment-ready, provider-authenticated, payment-ready, or `DONE` claim is made.
 - Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 - Runtime/source owner: `infra/cloudflare/src/env.ts`
 - Account D1 and isolated migration configuration: `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, `src/env.ts`, and `package.json`; account DO/KV declarations remain absent and no `BILLING_D1` substitution is allowed
@@ -165,7 +166,7 @@ after this bridge is real. This route has no reverse dependency on WP03.
 ## Blocked truth
 
 - Independent source review accepts WP01's current module dependency/runtime scaffold as implementation-phase evidence. This does not substitute for rerunning module tests or retaining proof in the later validation phase.
-- Account WP08's `v0.7` Rust/TypeScript contract, local repository, Firebase verifier, and bounded Cloudflare read adapter are source evidence. Account WP02 target-aware authority and the planned Cloudflare writer/provider caller remain missing, so migration execution, direct integration-test artifacts, retained proof, and runtime storage handoff remain open.
+- Account WP08's `v0.7` Rust/TypeScript contract, local repository, Firebase verifier, bounded Cloudflare read adapter, and Account WP02 target-aware authority are reviewed source evidence. The planned Cloudflare writer/provider caller remains missing, so migration execution, direct integration-test artifacts, retained proof, and runtime storage handoff remain open.
 - `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, and `src/env.ts` declare the optional account D1 binding with a binding-specific `migrations_dir`; account DO/KV are intentionally not declared. WP06 must not run the account migration command against `BILLING_D1`.
 - The store no longer creates the account table opportunistically. If the isolated migration has not been applied, reads and writes return `manual-required` for the missing account schema; other D1 errors remain fail-closed errors.
 - `infra/cloudflare/src/index.ts` imports `./generated/billing-contracts.js`, backed by the checked-in module-local generated artifact. Obsolete `packages/billing-domain/src/*` imports are not WP06 blockers and must not be revived.
@@ -191,4 +192,4 @@ after this bridge is real. This route has no reverse dependency on WP03.
 - No claim is made that the Cloudflare worker boots successfully in this worktree.
 - No claim is made that queue retries, dead-letter replay, D1 writes, KV writes, or R2 writes executed live.
 - No claim is made that Account WP08 or this packet alone completes account authority; Cloudflare WP08 runner proof and Account WP06 aggregation remain separate required handoffs.
-- The account-identity focused integration test, migration command, and proof remain deferred. The D1 read adapter is not authoritative without Account WP02 target resolution, the planned writer/currentness owner, and the provider-to-Account caller; production configuration and runtime authority are manual-required.
+- The account-identity focused integration test, migration command, and proof remain deferred. Account WP02 target resolution is reviewed source, but the D1 read adapter is not authoritative without the planned writer/currentness owner and provider-to-Account caller; production configuration and runtime authority are manual-required.
