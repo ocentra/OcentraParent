@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use crate::activity_capture::ActivityCaptureCapabilityStatus;
 use crate::screen_settings::ScreenAnalysisParentSetting;
@@ -10,7 +10,7 @@ use copy::copy_for_state;
 
 const CHILD_SURFACE_REQUIRED: bool = true;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 pub enum ActivityScreenChildDisclosureState {
     #[serde(rename = "enabled")]
     Enabled,
@@ -30,8 +30,8 @@ pub enum ActivityScreenChildDisclosureState {
     SummaryReady,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ActivityScreenChildDisclosure {
     schema_version: u16,
     state: ActivityScreenChildDisclosureState,
@@ -56,7 +56,15 @@ impl ActivityScreenChildDisclosure {
         )
     }
 
-    pub fn from_current_authority(
+    pub fn manual_required(schema_version: u16) -> Self {
+        Self::from_owner_state(
+            schema_version,
+            ActivityScreenChildDisclosureState::ManualRequired,
+            None,
+        )
+    }
+
+    fn from_current_authority(
         schema_version: u16,
         setting: &ScreenAnalysisParentSetting,
         capability_status: ActivityCaptureCapabilityStatus,

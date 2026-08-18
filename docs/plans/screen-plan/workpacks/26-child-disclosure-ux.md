@@ -22,14 +22,18 @@ Child-visible/local disclosure, parent-enabled status, calm wording, and no hidd
 
 Rust production source owns the disclosure projection in
 `crates/agent-protocol/src/screen_child_disclosure.rs` and its calm copy table
-in `screen_child_disclosure_copy.rs`. Its owner factory consumes the typed
-`ScreenAnalysisParentSetting` and `ActivityCaptureCapabilityStatus` authority:
-`available` maps to enabled, a disabled parent setting maps to disabled, and
-all other typed capability outcomes fail closed to unavailable. It does not
-derive current disclosure from historical `ScreenAnalysisResult` rows or image
-deletion states. Paused, manual-required, capture-active, protected-surface,
-and summary-ready remain unreachable until an authoritative current owner
-supplies those lifecycle states.
+in `screen_child_disclosure_copy.rs`. A private, owner-only mapping accepts the
+typed `ScreenAnalysisParentSetting` and `ActivityCaptureCapabilityStatus`
+authority: `available` maps to enabled, a disabled parent setting maps to
+disabled, and all other typed capability outcomes fail closed to unavailable.
+No opaque owner-issued current authority exists yet, so that mapping is not
+cross-crate reachable and no owner snapshot is invented. The public projection
+exposes only `unavailable` and `manual_required` fail-closed diagnostic
+factories. It does not derive current disclosure from historical
+`ScreenAnalysisResult` rows or image deletion states. Paused, capture-active,
+protected-surface, and summary-ready remain unreachable until an authoritative
+current owner supplies those lifecycle states; manual-required is diagnostic
+copy, not current-owner authority.
 
 The parent runtime uses an unavailable projection only for a diagnostic,
 proposed, not-delivered status label; it does not consume the historical row
