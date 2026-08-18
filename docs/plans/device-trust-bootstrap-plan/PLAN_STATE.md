@@ -81,7 +81,7 @@ authority.
 | WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch source, `crates/family-identity-core` has current-authority and lifecycle-activation seams, and `crates/parent-runtime-core` plus the parent desktop have an opaque staged-handle facade and mounted custody-sealing command. | `require_authenticated_parent_authority()` is permanently unavailable before custody mutation; no ceremony issuer or custody-to-lifecycle startup composition reaches the source. Windows custody-open platform failures are typed unavailable; unsupported non-Windows startup is typed manual-required; the later authenticated-parent gate remains manual-required. The command does not perform lifecycle activation. Non-Windows custody and end-to-end sealing remain unavailable/manual-required; stale lifecycle/custody tests are not proof. |
 | WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries, a five-minute lifetime gate, and bounded atomic challenge/intent plus receipt/credential custody. | The graph is blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Planned `parent_step_up_target_authority.rs` and `parent_step_up_runtime.rs` do not exist. Actor parent-controller and target child/profile/device are not authoritatively separated for `RegisterLanSignerAnchor`; the authoritative Account writer/provider caller, passkey/OS-native signature provider, durable sign counter, shipped parent runtime, expected tests, proof, LAN handoff, and DONE remain open. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
-| WP05 | The candidate source wave on `codex/device-trust-wp05-source-wave` adds `crates/entitlement-core` signed transport, bound authority generation/channel, strict weak-key-rejecting verifier, durable monotonic snapshot/revocation custody, and an opaque account/device-bound unlock authority; `crates/child-runtime` exposes `ChildRuntimeEntitlementLicenseStore` as a library consumer seam with manual-required public startup only. Active-window/session decisions route through a crate-private owner-controlled trusted-time/currentness boundary, and cache mutation requires a verifier receipt. | No concrete owner repository composition is present: real issuer/HSM or platform key provider, installed-package authority, billing/currentness owner, trusted-time/configured-grace policy, live Account/Device Trust re-resolution caller, handle-safe cache custody, signed revocation delivery caller, child-agent startup mount, expected tests, focused execution, proof, CI, independent review, and completion remain open; raw authority/issuer DI stays crate-private and no activation is claimed. |
+| WP05 | The candidate source wave on `codex/device-trust-wp05-source-wave` adds `crates/entitlement-core` signed transport, bound authority generation/channel, strict weak-key-rejecting verifier, and fail-closed durable snapshot/revocation custody. Authority verification is crate-private and the child-runtime entitlement module is not exported; there is no public capability selector, unlock, or final-consumption route. Active-window/session decisions remain behind a crate-private owner-controlled trusted-time/currentness boundary, and no snapshot-cache writer is present until a real owner custody path exists. | No concrete owner repository composition is present: real issuer/HSM or platform key provider, installed-package authority, billing/currentness owner, trusted-time/configured-grace policy, live Account/Device Trust re-resolution caller, handle-safe cache custody, signed revocation delivery caller, child entitlement action owner/startup mount, expected tests, focused execution, proof, CI, independent review, and completion remain open; raw authority/issuer DI stays crate-private and no activation is claimed. |
 | WP06 | `crates/storage-custody-core` provides restore preflight and a verified-parent gate plus an unavailable executor port; caller-minted restore authority was removed. | No encrypted bundle/key-custody runtime, revocation-preserving executor, or shipped restore caller. |
 | WP07 | `crates/child-runtime` durably records tamper/removal evidence, binds readiness to current trust, and keeps ingress blocked across restart while unresolved; the Android bridge carries the fail-closed health state. | Package/device-owner removal, attestation, parent transport, and a real platform removal caller are absent; state remains manual-required. |
 | WP08 | Research/dependency review only. | No runtime dependency adoption owner or trust-root caller. |
@@ -163,25 +163,29 @@ reviewed completion claim:
   `entitlement_snapshot_authority_revocation.rs`: Ed25519 verification,
   weak-key rejection, pinned key-id and authority-generation binding,
   installed-package/currentness seams, live Account/Device Trust re-resolution,
-  current account/device binding, and by-value grant consumption. Active-window
-  and session expiry decisions belong to the crate-private owner-controlled
-  trusted-time/currentness port; no caller-injected clock is exposed. The typed
-  ports and raw dependency-injection constructor are crate-private; public
-  startup is manual-required only until an owner composer exists.
+  current account/device binding, and a crate-private verifier result.
+  Active-window and session expiry decisions belong to the crate-private
+  owner-controlled trusted-time/currentness port; no caller-injected clock is
+  exposed. The typed ports and raw dependency-injection constructor are
+  crate-private. No concrete owner currently reaches the verifier, so no
+  capability selector or positive unlock/consume operation is production
+  reachable.
 - `crates/entitlement-core/src/entitlement_snapshot_cache.rs` plus
   `entitlement_snapshot_cache_path.rs`,
   `entitlement_snapshot_cache_storage.rs`, and
-  `entitlement_snapshot_cache_revocation.rs`: atomic durable
-  snapshot/revocation stores with secure path checks and locked monotonic
-  replacement. Raw transport cannot call cache replacement: the remaining
-  crate-private writer accepts only a verifier receipt. The current path-based
-  implementation is not a platform handle-safe reparse defense and remains
-  manual-required until a platform custody owner mounts that adapter.
-- `crates/child-runtime/src/runtime_entitlement_license.rs`:
-  `ChildRuntimeEntitlementLicenseStore` is a library consumer seam that reads
-  and consumes the authority; it does not accept caller snapshots, package
-  strings, positive gate facts, or serialized grants. No child-agent service
-  startup caller reaches it.
+  `entitlement_snapshot_cache_revocation.rs`: atomic durable revocation state
+  custody with secure path checks and locked monotonic replacement. Snapshot
+  transport has no mutation writer in this
+  packet; the removed receipt path had no real owner ingestion caller. The
+  current path-based implementation is not a platform handle-safe reparse
+  defense and remains manual-required until a platform custody owner mounts
+  that adapter.
+- `crates/child-runtime/src/service.rs` and `service_recovery.rs`: the shipped
+  child service owner does not construct an entitlement authority or own the
+  Account/Billing/package/currentness composition. The candidate
+  `runtime_entitlement_license.rs` wrapper and its public authorize/consume
+  APIs were removed, so no child entitlement action owner or startup caller
+  reaches this source wave.
 
 This does not promote the candidate packet to DONE or accepted source.
 External key custody/signing,
@@ -329,10 +333,11 @@ remote-access-plan and policy-control-plane-plan:
 - WP04 binds the response to a trusted expected approving-device identity and
   requires response timestamps to remain inside the issued challenge interval;
   a response `Fresh` field remains an untrusted claim until nonce consumption.
-- WP05 now validates entitlement account, household, trusted-device, package,
-  timestamp, and grace-shape bindings before any authority result is consumed.
-  Signature verification and revocation authority remain unavailable and
-  manual-required, so this path cannot unlock capabilities by itself.
+- WP05 now contains crate-private entitlement account, household,
+  trusted-device, package, signature, generation, and grace-shape verifier
+  boundaries. The real key/revocation/currentness owners and child-runtime
+  action consumer are absent, so no positive entitlement path is exported or
+  reachable and no capability unlock is claimed.
 - WP06 now blocks confirmation-only restore and requires a verified parent
   `PairChildDevice` authority bound to the local household and target device
   before applying a recovery preview. An unavailable-by-default restore

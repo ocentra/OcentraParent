@@ -5,7 +5,7 @@
 //! These are intentionally not exported as a public dependency-injection
 //! surface. A future owner repository composer must construct the opaque
 //! values inside this crate after authenticating its durable owners; until
-//! then the only public authority startup path is manual-required.
+//! then no entitlement startup or positive consumer route is exported.
 
 use ed25519_dalek::VerifyingKey;
 use ocentra_family_identity_core::{
@@ -14,9 +14,6 @@ use ocentra_family_identity_core::{
 };
 
 use crate::{
-    entitlement_access::{
-        EntitlementPolicyState, FamilySetupState, OfflineGraceState, SubscriptionState,
-    },
     entitlement_snapshot::SignedEntitlementSnapshot,
     entitlement_snapshot_cache::SignedEntitlementRevocationUpdate,
     entitlement_snapshot_values::{
@@ -116,9 +113,10 @@ impl EntitlementInstalledPackageAuthority for ManualRequiredEntitlementInstalled
     }
 }
 
-/// Reads current billing/account/policy state from the owning authorities.
-/// Every method is queried for both grant preparation and final consumption;
-/// missing ownership fails closed instead of manufacturing a positive state.
+/// Re-resolves current account/device and trusted-time state from owning
+/// authorities. Missing ownership fails closed instead of manufacturing a
+/// positive consumer decision. Billing/policy gate composition is absent
+/// until a concrete child-runtime action owner exists.
 pub trait EntitlementCurrentnessAuthority: Send + Sync {
     /// Check the signed generation against a monotonic owner-held fence that
     /// survives rollback of both local snapshot and revocation files.
@@ -153,30 +151,6 @@ pub trait EntitlementCurrentnessAuthority: Send + Sync {
         snapshot: &SignedEntitlementSnapshot,
         revocation_update: &SignedEntitlementRevocationUpdate,
     ) -> Result<EntitlementSnapshotFreshnessState, EntitlementSnapshotVerificationFailure>;
-
-    fn subscription_state(
-        &self,
-        account_authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<SubscriptionState, EntitlementSnapshotVerificationFailure>;
-
-    fn offline_grace_state(
-        &self,
-        account_authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<OfflineGraceState, EntitlementSnapshotVerificationFailure>;
-
-    fn family_setup_state(
-        &self,
-        account_authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<FamilySetupState, EntitlementSnapshotVerificationFailure>;
-
-    fn policy_state(
-        &self,
-        account_authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<EntitlementPolicyState, EntitlementSnapshotVerificationFailure>;
 }
 
 #[derive(Debug, Default)]

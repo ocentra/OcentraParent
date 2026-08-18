@@ -50,35 +50,38 @@ authority-owned verification path in `crates/entitlement-core`:
 - `entitlement_snapshot_authority.rs` performs strict Ed25519 verification,
   binds the key identifier to the SHA-256 key identity, resolves package build
   plus bounded release-channel identity from a trusted installed-package
-  authority, and resolves billing, grace, family-setup, and policy state from
-  a currentness authority. Missing providers fail closed; no positive gate is
-  fabricated in the entitlement owner. A live identity re-resolution method
-  and owner-held generation fence are required at both grant and consumption.
+  authority, and requires current account/device identity plus trusted-time
+  state from the currentness owner. Billing, family-setup, and policy gate
+  composition is not present without a concrete action owner. Missing
+  providers fail closed; no positive gate is fabricated in the entitlement
+  owner. A live identity re-resolution method, trusted monotonic time, bounded
+  grace policy, and owner-held generation fence are required before any future
+  action owner can authorize or consume.
   Session expiry and the signed active window are evaluated only by the
   crate-private owner-controlled trusted-time/currentness boundary; no caller
   clock is accepted.
   Its raw dependency-injection constructor and typed owner ports are
-  crate-private; the only public construction path is the manual-required
-  fallback until a concrete owner repository composition is mounted.
-- `entitlement_snapshot_cache.rs` persists signed wire data with atomic writes,
-  locked replacement, parent-chain symlink/error rejection, timestamp-monotonic
-  snapshot replacement, signed revocation generations, and non-shrinking
-  revocation membership. Raw transport has no public cache mutation API;
-  crate-private replacement requires a verifier receipt, so an unverified
-  higher generation cannot poison durable state. The current path checks are
-  not a platform handle-safe reparse defense; an owner-controlled custody
-  adapter must replace this manual-required path before production reachability.
+  crate-private, and no public unlock, capability-selector, or final-consume
+  method exists. The verifier is a future owner primitive only; no concrete
+  child-runtime action owner currently reaches it.
+- `entitlement_snapshot_cache.rs` persists signed revocation state with atomic
+  writes, parent-chain symlink/error rejection, signed revocation generations,
+  and non-shrinking revocation membership. Snapshot transport has no cache
+  mutation writer in this packet: the prior receipt API had no narrowly typed
+  owner ingestion caller and was removed. The current path checks are not a
+  platform handle-safe reparse defense; an owner-controlled custody adapter
+  must replace this manual-required path before production reachability.
   Every read remains subject to signature/currentness verification. Snapshot
   authority generation is signed and must exactly match the current revocation
   generation; a separate owner-held monotonic fence is required so rolling
-  back both local JSON files cannot restore an old pair.
-- `crates/child-runtime/src/runtime_entitlement_license.rs` exposes the real library consumer
-  seam `ChildRuntimeEntitlementLicenseStore`; its public startup constructor
-  is manual-required only. Its grant is non-cloneable and consumed by value;
-  no public grant accessor exposes capability or snapshot identity, and final
-  consumption revalidates expiry, revocation generation, installed package,
-  account/device binding, live identity generations, and owner-provided gate
-  state. No shipped child-agent service startup caller is mounted yet.
+  back both local JSON files cannot restore an old pair. Revocation reads are
+  signature-checked before they influence currentness.
+- No child-runtime entitlement consumer is exported in this packet. The
+  previous `runtime_entitlement_license.rs` wrapper and its public
+  authorize/consume APIs were removed because no concrete child-runtime action
+  owner exists. The child-agent service owner in `service.rs` and
+  `service_recovery.rs` does not mount an entitlement authority or provide the
+  Account/Device/package/billing/currentness composition.
 
 Signed grace is explicit but not self-authorizing: after `expires_at`, the
 owner-controlled trusted-time/currentness boundary may return `Grace` only when
@@ -91,8 +94,8 @@ freshness.
 
 This is a candidate source reachability packet, not an accepted/reviewed
 completion claim. A concrete owner repository composition is not present, so
-the raw authority/issuer DI path stays crate-private and public startup stays
-manual-required. A real issuer/HSM or platform key provider,
+the raw authority/issuer DI path stays crate-private and no entitlement
+startup route is exported. A real issuer/HSM or platform key provider,
 installed-package authority, billing/currentness owner, and signed revocation
 delivery caller are still external dependencies. No entitlement
 activation or broad product capability completion is claimed. The expected
@@ -110,9 +113,11 @@ and the revocation owner for signed updates plus a restart-safe generation
 fence. A platform custody owner must also replace the path-based mutation with
 handle-safe reparse-resistant replacement. The child-agent service owner must
 then mount that single composed authority at startup. Until those ownership
-edges are present in the graph and backed by real adapters,
-`open_manual_required` is the only public startup route and no capability
-unlock is available.
+edges are present in the graph and backed by real adapters, no entitlement
+startup or capability unlock route is exported. The account/device
+generations, NotYetValid, trusted monotonic time, configured grace, and
+rollback-fence contracts remain fail-closed owner boundaries; they are not
+claimed as concrete runtime enforcement while those owners are absent.
 
 ## Negative cases
 

@@ -5,9 +5,6 @@ use ocentra_family_identity_core::{
     device_trust_current_binding::CurrentChildDeviceTrustBinding,
 };
 
-use crate::entitlement_access::{
-    EntitlementPolicyState, FamilySetupState, OfflineGraceState, SubscriptionState,
-};
 use crate::entitlement_snapshot::SignedEntitlementSnapshot;
 use crate::entitlement_snapshot_cache::SignedEntitlementRevocationUpdate;
 use crate::entitlement_snapshot_values::EntitlementSnapshotFreshnessState;
@@ -38,38 +35,6 @@ impl EntitlementCurrentnessAuthority for ManualRequiredEntitlementCurrentnessAut
         _snapshot: &SignedEntitlementSnapshot,
         _revocation_update: &SignedEntitlementRevocationUpdate,
     ) -> Result<EntitlementSnapshotFreshnessState, EntitlementSnapshotVerificationFailure> {
-        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
-    }
-
-    fn subscription_state(
-        &self,
-        _account_authority: &VerifiedAccountIdentityAuthority,
-        _device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<SubscriptionState, EntitlementSnapshotVerificationFailure> {
-        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
-    }
-
-    fn offline_grace_state(
-        &self,
-        _account_authority: &VerifiedAccountIdentityAuthority,
-        _device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<OfflineGraceState, EntitlementSnapshotVerificationFailure> {
-        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
-    }
-
-    fn family_setup_state(
-        &self,
-        _account_authority: &VerifiedAccountIdentityAuthority,
-        _device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<FamilySetupState, EntitlementSnapshotVerificationFailure> {
-        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
-    }
-
-    fn policy_state(
-        &self,
-        _account_authority: &VerifiedAccountIdentityAuthority,
-        _device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<EntitlementPolicyState, EntitlementSnapshotVerificationFailure> {
         Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
     }
 }

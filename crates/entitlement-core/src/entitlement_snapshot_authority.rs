@@ -2,9 +2,10 @@
 
 //! Device-bound entitlement authority.
 //!
-//! This module owns the durable snapshot handoff and composes focused ports,
-//! verifier, currentness, and revocation modules. A signed wire value is never
-//! authority until a concrete owner composition and local checks succeed.
+//! This module provides the crate-private verifier composition for a future
+//! entitlement owner. A signed wire value is never authority until a concrete
+//! owner composition and local checks succeed. No public unlock, capability
+//! selector, or final action-consumption route is exposed in this packet.
 
 use std::sync::Arc;
 
@@ -15,14 +16,8 @@ use ocentra_family_identity_core::{
 };
 
 use crate::{
-    entitlement_access::{
-        evaluate_entitlement_capability, EntitlementCapability, EntitlementCapabilityAccessState,
-        EntitlementCapabilityGrant, EntitlementCapabilityInput, EntitlementCapabilityScope,
-        OfflineGraceState,
-    },
     entitlement_snapshot::SignedEntitlementSnapshot,
     entitlement_snapshot_cache::revocation_state::EntitlementRevocationStateStore,
-    entitlement_snapshot_cache::{EntitlementSnapshotCache, SignedEntitlementRevocationUpdate},
 };
 
 #[path = "entitlement_snapshot_authority_currentness.rs"]
@@ -61,17 +56,12 @@ pub enum EntitlementSnapshotVerificationFailure {
     AuthorityUnavailable,
     RevocationStateCorrupt,
     StaleAuthorityState,
-    CapabilityNotEntitled,
-    CapabilityGateRejected,
-    CapabilityGrantStale,
-    GraceRestricted,
 }
 
 pub struct EntitlementSnapshotAuthority {
     pub(crate) key_provider: Arc<dyn ports::EntitlementSnapshotVerificationKeyProvider>,
     pub(crate) installed_package: Arc<dyn ports::EntitlementInstalledPackageAuthority>,
     pub(crate) currentness: Arc<dyn ports::EntitlementCurrentnessAuthority>,
-    pub(crate) snapshot_cache: EntitlementSnapshotCache,
     pub(crate) revocation_state: EntitlementRevocationStateStore,
 }
 
@@ -82,39 +72,25 @@ impl EntitlementSnapshotAuthority {
     /// owner repository composer in this crate may call this after it has
     /// obtained the private port implementations from their owners.
     pub(crate) fn open(
-        snapshot_path: impl Into<std::path::PathBuf>,
         revocation_state_path: impl Into<std::path::PathBuf>,
         key_provider: Arc<dyn ports::EntitlementSnapshotVerificationKeyProvider>,
         installed_package: Arc<dyn ports::EntitlementInstalledPackageAuthority>,
         currentness: Arc<dyn ports::EntitlementCurrentnessAuthority>,
     ) -> Result<Self, EntitlementSnapshotVerificationFailure> {
-        let snapshot_cache =
-            EntitlementSnapshotCache::open(snapshot_path).map_err(revocation::map_cache_error)?;
         let revocation_state = EntitlementRevocationStateStore::open(revocation_state_path)
             .map_err(revocation::map_cache_error)?;
         Ok(Self {
             key_provider,
             installed_package,
             currentness,
-            snapshot_cache,
             revocation_state,
         })
     }
 
-    pub fn open_manual_required(
-        snapshot_path: impl Into<std::path::PathBuf>,
-        revocation_state_path: impl Into<std::path::PathBuf>,
-    ) -> Result<Self, EntitlementSnapshotVerificationFailure> {
-        Self::open(
-            snapshot_path,
-            revocation_state_path,
-            Arc::new(ports::ManualRequiredEntitlementSnapshotVerificationKeyProvider),
-            Arc::new(ports::ManualRequiredEntitlementInstalledPackageAuthority),
-            Arc::new(ports::ManualRequiredEntitlementCurrentnessAuthority),
-        )
-    }
-
-    fn verify_current_account_and_device(
+    /// Future owner-composed verifier entry point. It accepts only a signed
+    /// transport value already obtained by the owner and returns an opaque
+    /// verification result; no public unlock or capability handoff is exposed.
+    pub(crate) fn verify_current_account_and_device(
         &self,
         snapshot: &SignedEntitlementSnapshot,
         account_authority: &VerifiedAccountIdentityAuthority,
@@ -142,121 +118,5 @@ impl EntitlementSnapshotAuthority {
             return Err(EntitlementSnapshotVerificationFailure::WrongDevice);
         }
         verifier::verify(self, snapshot, &request)
-    }
-
-    pub fn unlock_capability(
-        &self,
-        account_authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-        capability: EntitlementCapability,
-    ) -> Result<EntitlementCapabilityGrant, EntitlementSnapshotVerificationFailure> {
-        let snapshot = self
-            .snapshot_cache
-            .read()
-            .map_err(revocation::map_cache_error)?
-            .ok_or(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)?;
-        let verified =
-            self.verify_current_account_and_device(&snapshot, account_authority, device_binding)?;
-        if !verified.enables(capability) {
-            return Err(EntitlementSnapshotVerificationFailure::CapabilityNotEntitled);
-        }
-        self.evaluate_current_gate(
-            capability,
-            account_authority,
-            device_binding,
-            verified.context(),
-        )?;
-        Ok(EntitlementCapabilityGrant::from_verified(
-            capability,
-            verified.snapshot_id().clone(),
-            verified.authority_generation(),
-        ))
-    }
-
-    /// Consume a non-cloneable grant only after re-reading and re-verifying the
-    /// durable snapshot, current revocation generation, package identity,
-    /// account/device binding, and owner-provided billing/policy states.
-    pub fn consume_capability_grant(
-        &self,
-        grant: EntitlementCapabilityGrant,
-        account_authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<EntitlementCapability, EntitlementSnapshotVerificationFailure> {
-        let capability = grant.capability();
-        let snapshot = self
-            .snapshot_cache
-            .read()
-            .map_err(revocation::map_cache_error)?
-            .ok_or(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)?;
-        let verified =
-            self.verify_current_account_and_device(&snapshot, account_authority, device_binding)?;
-        if verified.snapshot_id() != grant.snapshot_id()
-            || verified.authority_generation() != grant.authority_generation()
-        {
-            return Err(EntitlementSnapshotVerificationFailure::CapabilityGrantStale);
-        }
-        if !verified.enables(capability) {
-            return Err(EntitlementSnapshotVerificationFailure::CapabilityNotEntitled);
-        }
-        self.evaluate_current_gate(
-            capability,
-            account_authority,
-            device_binding,
-            verified.context(),
-        )?;
-        Ok(capability)
-    }
-
-    pub fn apply_revocation_update(
-        &self,
-        update: &SignedEntitlementRevocationUpdate,
-    ) -> Result<(), EntitlementSnapshotVerificationFailure> {
-        revocation::verify_revocation_update(update, self.key_provider.as_ref())?;
-        self.currentness
-            .validate_revocation_generation(update.authority_generation)?;
-        self.revocation_state
-            .replace_signed(update)
-            .map_err(revocation::map_cache_error)
-    }
-
-    fn evaluate_current_gate(
-        &self,
-        capability: EntitlementCapability,
-        account_authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-        snapshot_context: crate::entitlement_snapshot::EntitlementSnapshotContext,
-    ) -> Result<(), EntitlementSnapshotVerificationFailure> {
-        let subscription_state = self
-            .currentness
-            .subscription_state(account_authority, device_binding)?;
-        let offline_grace_state = self
-            .currentness
-            .offline_grace_state(account_authority, device_binding)?;
-        let family_setup_state = self
-            .currentness
-            .family_setup_state(account_authority, device_binding)?;
-        let policy_state = self
-            .currentness
-            .policy_state(account_authority, device_binding)?;
-        if snapshot_context.freshness_state
-            == crate::entitlement_snapshot_values::EntitlementSnapshotFreshnessState::Grace
-            && (capability != EntitlementCapability::Tracking
-                || offline_grace_state != OfflineGraceState::Active)
-        {
-            return Err(EntitlementSnapshotVerificationFailure::GraceRestricted);
-        }
-        let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
-            capability,
-            subscription_state,
-            offline_grace_state,
-            family_setup_state,
-            policy_state,
-            capability_scope: EntitlementCapabilityScope::LocalChildRuntime,
-            snapshot_context,
-        });
-        if decision.access_state != EntitlementCapabilityAccessState::Allowed {
-            return Err(EntitlementSnapshotVerificationFailure::CapabilityGateRejected);
-        }
-        Ok(())
     }
 }

@@ -213,9 +213,9 @@ pub struct EntitlementSnapshotDerivationInput {
 /// Capability context held by the entitlement owner.
 ///
 /// Its state is crate-private, deserialization always fails, and serialization
-/// is deliberately unavailable. The authority module is the only shipped
+/// is deliberately unavailable. The crate-private verifier is the only
 /// producer of trusted context, and it requires external key, package, and
-/// currentness authorities before returning a capability handoff.
+/// currentness authorities before any future action owner can use it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EntitlementSnapshotContext {
     pub(crate) signature_state: EntitlementSnapshotSignatureState,
