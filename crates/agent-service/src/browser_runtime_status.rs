@@ -22,6 +22,45 @@ pub struct BrowserRuntimeText(String);
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BrowserRuntimeOptionalText(Option<String>);
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct BrowserManagedLaunchStatus {
+    process_id: u32,
+    browser_family: BrowserFamily,
+    browser_channel: BrowserChannel,
+    profile_path_ref: String,
+    bridge_endpoint_ref: String,
+}
+
+impl BrowserManagedLaunchStatus {
+    pub fn new(
+        process_id: u32,
+        browser_family: BrowserFamily,
+        browser_channel: BrowserChannel,
+        profile_path_ref: BrowserRuntimeText,
+        bridge_endpoint_ref: BrowserRuntimeText,
+    ) -> Self {
+        Self {
+            process_id,
+            browser_family,
+            browser_channel,
+            profile_path_ref: profile_path_ref.0,
+            bridge_endpoint_ref: bridge_endpoint_ref.0,
+        }
+    }
+}
+
+impl From<BrowserManagedLaunch> for BrowserManagedLaunchStatus {
+    fn from(launch: BrowserManagedLaunch) -> Self {
+        Self::new(
+            launch.process_id(),
+            launch.browser_family(),
+            launch.browser_channel(),
+            BrowserRuntimeText::from(launch.profile_path_ref()),
+            BrowserRuntimeText::from(launch.bridge_endpoint_ref()),
+        )
+    }
+}
+
 impl<T> From<T> for BrowserRuntimeText
 where
     T: Into<String>,
@@ -124,23 +163,24 @@ pub fn managed_profile_ready_status(
 
 pub fn running_managed_status(
     checked_at: impl Into<BrowserRuntimeText>,
-    launch: BrowserManagedLaunch,
+    launch: impl Into<BrowserManagedLaunchStatus>,
     profile_store_entry: BrowserManagedProfileStoreEntry,
     started_at: impl Into<BrowserRuntimeText>,
 ) -> BrowserManagedSessionStatus {
+    let launch = launch.into();
     let started_at = started_at.into();
     let mut status = base_managed_status(checked_at);
-    status.browser_family = Some(launch.browser_family());
-    status.browser_channel = Some(launch.browser_channel());
-    status.profile_path_ref = Some(launch.profile_path_ref().to_owned());
-    status.process_id = Some(launch.process_id());
+    status.browser_family = Some(launch.browser_family);
+    status.browser_channel = Some(launch.browser_channel);
+    status.profile_path_ref = Some(launch.profile_path_ref);
+    status.process_id = Some(launch.process_id);
     status.managed_state = BrowserManagedState::RunningManaged;
     status.capability_status = BrowserCapabilityStatus::BridgeMissing;
     status.degraded_reason =
         Some(constants::value::MANAGED_BROWSER_BRIDGE_CONNECT_PENDING.to_string());
     status.started_at = Some(started_at.0);
     apply_profile_store_entry(&mut status, profile_store_entry);
-    status.bridge_endpoint_ref = Some(launch.bridge_endpoint_ref().to_owned());
+    status.bridge_endpoint_ref = Some(launch.bridge_endpoint_ref);
     status
 }
 

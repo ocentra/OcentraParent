@@ -49,11 +49,12 @@ fn validate_crop_mode(
     let Some(crop) = request.crop.as_ref() else {
         return Err(ManagedBrowserCdpCaptureRequestError::CropRequired);
     };
-    validate_crop(
-        crop,
-        request.viewport_width.unwrap(),
-        request.viewport_height.unwrap(),
-    )
+    let (Some(viewport_width), Some(viewport_height)) =
+        (request.viewport_width, request.viewport_height)
+    else {
+        return Err(ManagedBrowserCdpCaptureRequestError::DimensionsRequired);
+    };
+    validate_crop(crop, viewport_width, viewport_height)
 }
 
 fn validate_dimensions(

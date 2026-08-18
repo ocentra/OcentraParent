@@ -7,10 +7,7 @@ mod browser_runtime_status;
 #[path = "../../src/fields.rs"]
 mod fields;
 
-use ocentra_parent_agent_core::{
-    browser_managed_discovery::BrowserUnmanagedProcessObservation,
-    browser_managed_session::BrowserManagedLaunch,
-};
+use ocentra_parent_agent_core::browser_managed_discovery::BrowserUnmanagedProcessObservation;
 use ocentra_parent_agent_protocol::{
     browser::{
         BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
@@ -191,13 +188,16 @@ fn profile_store_entry() -> BrowserManagedProfileStoreEntry {
     }
 }
 
-fn managed_launch() -> BrowserManagedLaunch {
-    BrowserManagedLaunch {
-        process_id: 418,
-        bridge_port: 9222,
-        browser_family: BrowserFamily::UnknownChromium,
-        browser_channel: BrowserChannel::Unknown,
-        profile_path_ref: constants::browser::PROFILE_PATH_REF_MANAGED.to_string(),
-        bridge_endpoint_ref: constants::browser::BRIDGE_ENDPOINT_REF_LOOPBACK_DEVTOOLS.to_string(),
-    }
+fn managed_launch() -> browser_runtime_status::BrowserManagedLaunchStatus {
+    browser_runtime_status::BrowserManagedLaunchStatus::new(
+        418,
+        BrowserFamily::UnknownChromium,
+        BrowserChannel::Unknown,
+        browser_runtime_status::BrowserRuntimeText::from(
+            constants::browser::PROFILE_PATH_REF_MANAGED,
+        ),
+        browser_runtime_status::BrowserRuntimeText::from(
+            constants::browser::BRIDGE_ENDPOINT_REF_LOOPBACK_DEVTOOLS,
+        ),
+    )
 }
