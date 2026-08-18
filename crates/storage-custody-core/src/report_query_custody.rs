@@ -3,8 +3,16 @@ use ocentra_schema::report_query_custody as contracts;
 
 #[path = "report_query_custody_proof.rs"]
 mod report_query_custody_proof;
+#[path = "report_query_custody_request_validate.rs"]
+mod report_query_custody_request_validate;
 #[path = "report_query_custody_row.rs"]
 mod report_query_custody_row;
+#[path = "report_query_custody_row_state.rs"]
+mod report_query_custody_row_state;
+#[path = "report_query_custody_row_validate.rs"]
+mod report_query_custody_row_validate;
+#[path = "report_query_custody_source.rs"]
+pub mod report_query_custody_source;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReportQueryCustodySignal {
@@ -67,19 +75,19 @@ pub enum ReportQueryCustodyDerivationError {
 
 pub fn derive_report_query_custody_row(
     request: &contracts::ReportQueryCustodyRequest,
-    input: ReportQueryCustodyDerivationInput,
+    source: report_query_custody_source::ReportQueryCustodySourceResolution,
     authority: VerifiedAccountIdentityAuthority,
 ) -> Result<contracts::ReportQueryCustodyRow, ReportQueryCustodyDerivationError> {
-    report_query_custody_row::derive_report_query_custody_row(request, input, authority)
+    report_query_custody_row::derive_report_query_custody_row(request, source, authority)
 }
 
 pub fn build_report_query_custody_proof(
     request: &contracts::ReportQueryCustodyRequest,
-    inputs: Vec<ReportQueryCustodyDerivationInput>,
+    sources: Vec<report_query_custody_source::ReportQueryCustodySourceResolution>,
     updated_at: contracts::ParentTimestamp,
     authority: VerifiedAccountIdentityAuthority,
 ) -> Result<contracts::ReportQueryCustodyContractProof, ReportQueryCustodyDerivationError> {
     report_query_custody_proof::build_report_query_custody_proof(
-        request, inputs, updated_at, authority,
+        request, sources, updated_at, authority,
     )
 }
