@@ -17,11 +17,22 @@
 
 Child package/runtime work stays separate from parent-client distribution and setup journey proof.
 
-Use this loop:
+Use this source-first loop:
 
 ```text
-AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+AGENTS.md
+  -> PLAN_STATE.md
+  -> NEXT_ACTIONS.md
+  -> WORKPACK_INDEX.md
+  -> graph inspect/why for one workpack
+  -> complete that coherent production-source packet
+  -> write its complete expected test-source packet
+  -> focused validation
+  -> proof regeneration
+  -> PROOF_INDEX.md
 ```
+
+Do not alternate one production line and one test run. Do not run broad validation while the selected source/test packet is structurally incomplete.
 
 ## Deterministic proof root
 
@@ -29,18 +40,17 @@ AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one workpa
 output/child-agent-runtime-distribution-plan-proof/<workpack-file-stem>/
 ```
 
-## Focused commands
+## Focused command families after source and test source exist
 
 ```bash
-cargo test -p ocentra-parent-agent-service
-cargo test -p ocentra-parent-agent-protocol
-npm run test:child-android-protocol-package-lifecycle-proof
-npm run test:child-android-permission-capability-proof
-npm run test:child-android-device-proof-artifact-gate
-npm run lint:architecture -- --files crates/agent-service crates/agent-protocol scripts/release docs/plans/child-agent-runtime-distribution-plan
+ocentra-child-runtime focused tests
+ocentra-child-runtime-android-bridge focused tests plus Android instrumentation
+ocentra-parent-agent-maintenance focused updater/handoff tests
+selected child-labelled platform package/lifecycle harness
+selected child workpack architecture/Enforcer/graph gates
 ```
 
-If a command/test path does not exist, record the blocker and keep rows open.
+Exact expected coverage is in `TEST_PROOF_EXPECTATIONS.md`. If required source or test source does not exist, keep the row open; do not replace it with a broad unrelated command.
 
 ## Universal proof files
 
@@ -54,3 +64,5 @@ If a command/test path does not exist, record the blocker and keep rows open.
 ## No-claim boundaries
 
 Do not claim package/platform/service/readiness for a child runtime unless the selected proof root proves that exact platform and artifact state.
+
+Implementation-only graph edges order source packets. They do not promote normal READY/DONE or bypass tests, proof, checklist, CI, review, or merge.

@@ -33,32 +33,29 @@ Purpose: define the child Windows package, service lifecycle, and respawn proof 
 - package proof is used to claim parent-client readiness
 - manual-required states are hidden
 
-## Execution truth
+## Live source truth
 
-Current WP02 execution state is `production code drafted / test-deferred`.
+Status: source partial; implementation correction and all test/validation/proof gates remain open.
 
-Production code drafted in this pass:
-- `ocentra-child-runtime` now exposes the `ocentra-child-agent-service` executable composition boundary.
-- The composition boundary owns durable journal/tombstone paths, startup recovery, typed readiness, and a bounded observed-event ingress API; network transport remains out of scope.
-- The Windows builder, WiX manifest, WinSW service configuration, updater service naming, and bootstrap temp identity target the child artifact and child service identity.
-- The Windows WinSW service manifest now provides only the child-owned durable data path; unused parent transport/origin environment variables are absent because this service has no transport owner.
+Committed source includes the `ocentra-child-agent-service` binary, durable journal/tombstone/removal paths, startup recovery, typed readiness, bounded in-process ingress, the Windows builder, MSI authoring, and WinSW definitions with child artifact/service values.
 
-Tests, lifecycle validation, proof, and elevated-host execution remain deferred. This pass does not claim installed runtime health, respawn, uninstall, or release readiness.
+The installed binary still calls default startup, which supplies no `ChildAgentTrustBindingSource`. It therefore remains fail-closed at `TrustBindingManualRequired`. `ChildAgentIngress` is an in-process queue, not an authenticated product transport, and health is not exposed through a shipped external endpoint. The package source/config filenames and deferred lifecycle harness/workflow inputs also retain parent-era identities even where their current contents use child values.
 
-Deferred validation references:
-- The package/proof commands and retained proof paths remain inputs for the later validation phase; they were not run or used as completion evidence here.
-- Respawn remains a later service-manager validation boundary and is not inferred from package build, WiX authoring, or WinSW XML alone.
+## Required production source outcome
 
-What is blocked/manual-required on this host:
-- Install, start, stop, restart, uninstall, and live respawn execution remain blocked by `admin-required`.
-- The host proof run was non-elevated, so the lifecycle harness correctly left those states at `not-run` instead of inventing success.
-- Reboot recovery remains manual-required and unproved in this workpack.
+- consume WP10's reviewed trusted-startup, authenticated-ingress, and external-health boundary;
+- use canonical child-owned Windows package/service/updater source identities end to end;
+- preserve durable custody and explicit removal/audit semantics across install/update/remove;
+- keep service-manager lifecycle failure states observable rather than inferred from static MSI/WinSW declarations.
 
-Non-claims that remain explicit:
-- Parent-client parity is not claimed from this slice.
-- Parent-authorized revoke parity is not claimed from this slice; that remains separate uninstall/revocation scope.
+Implementation dependency: Child WP10 reviewed implementation. Normal READY/DONE remains blocked by strict completion gates.
 
-Deferred proof root:
-- `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/`
-- Current blocked install-attempt proof: `test-results/windows-package-lifecycle-proof/2026-06-28T20-18-36-351Z/proof.json`
-- Current artifact-only proof: `test-results/windows-package-lifecycle-proof/2026-06-28T20-18-36-351Z/proof.json`
+## Expected test-source gap
+
+- current, missing, stale, and revoked trust startup behavior;
+- authenticated command ingress and external health reachability;
+- child-labelled elevated install/start/stop/restart/uninstall/respawn and reboot recovery;
+- durable custody/removal-state preservation and cleanup boundaries;
+- negative identity, stale legacy artifact, and service-manager failure cases.
+
+Historical proof under `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/` and `test-results/windows-package-lifecycle-proof/...` is review input only. It does not close this source gap.

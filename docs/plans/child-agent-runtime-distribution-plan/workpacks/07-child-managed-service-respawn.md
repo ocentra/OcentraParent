@@ -9,18 +9,32 @@
 
 <!-- /agent-capsule -->
 
-Purpose: define managed respawn and restart-survival behavior for the supported child platforms.
+Purpose: own health-aware managed respawn, bounded restart, deliberate-stop, and teardown behavior for supported child platforms.
 
-Status: production manager configuration drafted; tests, validation, and proof deferred.
+Status: source incomplete; static manager declarations exist, but the production lifecycle boundary does not.
 
-The Windows, macOS, and Linux manager declarations now target the child composition package identity. This pass does not claim managed respawn or live-agent readiness until the later platform lifecycle validation and transport phases.
+## Live source truth
 
-Deferred proof boundary:
+Windows WinSW, macOS launchd, and Linux systemd declarations contain child binary/service values and restart settings. Android owns a foreground composition service. iOS remains capability-only and unsupported for managed-service respawn.
 
-- Windows WinSW, macOS launchd, and Linux systemd declarations now target the child identity, but managed respawn for kill, reboot, and service-manager restart paths is unvalidated.
-- Deliberate stop, teardown, and stop-path behavior remain deferred to the later lifecycle-proof phase.
-- Android remains manual-required until real device lifecycle artifacts exist.
-- iOS remains unsupported for managed-service respawn and does not reuse desktop or Android proof.
+No production component joins manager callbacks, child startup/readiness/health, restart attempts, bounded backoff/loop guard, deliberate stop, reboot recovery, disable/removal, and teardown into one inspectable lifecycle state. Static `restart`, `KeepAlive`, or `Restart=always` values are not that implementation.
+
+## Required production source outcome
+
+- consume canonical platform package/runtime source from WP02-WP06 and trusted health/startup from WP10;
+- expose platform-specific start, steady, degraded, restarting, deliberately stopped, disabled, removed, and manual-required states;
+- bound retries/backoff and distinguish crash recovery from operator stop or removal;
+- preserve iOS unsupported truth and Android platform limits.
+
+Implementation dependencies: Child WP02-WP06 and WP10 reviewed implementation. Normal READY/DONE remains strict.
+
+## Expected test-source gap
+
+- kill, crash, reboot, service-manager restart, deliberate stop, disable, removal, and teardown by supported platform;
+- bounded retry/backoff and restart-loop rejection;
+- health transition and stale/unreachable service behavior;
+- Android foreground-service lifecycle/manual-required cases;
+- explicit iOS unsupported result.
 
 ## Owns
 
@@ -42,3 +56,5 @@ Deferred proof boundary:
 - unsupported platforms are shown as supported
 - manual-required states are hidden
 - the slice reuses parent-client proof instead of child proof
+- static manager configuration is counted as runtime respawn implementation
+- deliberate stop or removal is mistaken for a crash that should restart
