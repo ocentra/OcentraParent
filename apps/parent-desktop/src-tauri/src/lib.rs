@@ -16,6 +16,10 @@ use ocentra_parent_agent_protocol::{
     DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState,
     DeviceRuntimeSurface,
 };
+use ocentra_parent_runtime_core::device_trust_bootstrap_runtime::{
+    ParentDeviceTrustCommandError, ParentDeviceTrustCommandFacade,
+};
+use ocentra_parent_runtime_core::device_trust_bootstrap_runtime_status::command_error_is_manual_required;
 use ocentra_parent_runtime_core::parent_service_health::ParentAgentServiceHealth;
 use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use ocentra_parent_runtime_core::parent_ui_bridge::{
@@ -27,8 +31,8 @@ use ocentra_schema::parent_ui_bridge::{
     ParentUiAction, ParentUiActionResult, PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX,
     PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS,
 };
-use serde::Serialize;
-use tauri::{AppHandle, Emitter, State as TauriState};
+use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Emitter, Manager, State as TauriState};
 
 use self::parent_route_subscription_delivery::{
     deliver_parent_route_subscription_event, ParentRouteSubscriptionDeliveryState,
@@ -38,6 +42,7 @@ pub mod parent_route_subscription_delivery;
 
 // Compatibility/test-only raw socket probe; production readiness uses the typed health handshake.
 const LEGACY_SOCKET_CONNECT_TIMEOUT_MS: u64 = 250;
+const PARENT_DEVICE_TRUST_STORAGE_DIRECTORY: &str = "device-trust";
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, serde::Deserialize)]
 #[serde(transparent)]
 pub struct ParentRouteSubscriptionId(pub String);
@@ -49,6 +54,50 @@ pub struct ParentDesktopAgentAddress(pub String);
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, serde::Deserialize)]
 #[serde(transparent)]
 pub struct ParentRouteSubscriptionEventName(pub String);
+
+pub enum ParentDeviceTrustCommandState {
+    Available(ParentDeviceTrustCommandFacade),
+    ManualRequired,
+    Unavailable,
+}
+
+impl ParentDeviceTrustCommandState {
+    fn facade(&self) -> Option<&ParentDeviceTrustCommandFacade> {
+        match self {
+            Self::Available(facade) => Some(facade),
+            Self::ManualRequired => None,
+            Self::Unavailable => None,
+        }
+    }
+
+    fn manual_required(&self) -> bool {
+        matches!(self, Self::ManualRequired)
+    }
+
+    fn unavailable(&self) -> bool {
+        matches!(self, Self::Unavailable)
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
+#[serde(transparent)]
+pub struct ParentDeviceTrustCeremonyRef(String);
+
+impl ParentDeviceTrustCeremonyRef {
+    fn is_empty(&self) -> bool {
+        self.0.trim().is_empty()
+    }
+
+    fn seal(
+        &self,
+        facade: &ParentDeviceTrustCommandFacade,
+    ) -> Result<
+        ocentra_parent_runtime_core::device_trust_bootstrap_runtime::ParentDeviceTrustBootstrapResult,
+        ParentDeviceTrustCommandError,
+    >{
+        facade.seal_staged_parent_device_trust(&self.0)
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, serde::Deserialize)]
 #[serde(transparent)]
@@ -189,6 +238,55 @@ fn parent_dispatch(action: ParentUiAction) -> ParentUiActionResult {
     dispatch_parent_ui_action_with_service_health(&action, &service_health)
 }
 
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentDeviceTrustSealResult {
+    pub accepted: bool,
+    pub device_trust_ref: Option<String>,
+    pub manual_required: bool,
+    pub unavailable: bool,
+}
+
+#[tauri::command]
+fn parent_device_trust_seal_staged_ceremony(
+    ceremony_ref: ParentDeviceTrustCeremonyRef,
+    device_trust: TauriState<'_, ParentDeviceTrustCommandState>,
+) -> ParentDeviceTrustSealResult {
+    if ceremony_ref.is_empty() {
+        return ParentDeviceTrustSealResult {
+            accepted: false,
+            device_trust_ref: None,
+            manual_required: false,
+            unavailable: true,
+        };
+    }
+    let Some(facade) = device_trust.facade() else {
+        return ParentDeviceTrustSealResult {
+            accepted: false,
+            device_trust_ref: None,
+            manual_required: device_trust.manual_required(),
+            unavailable: device_trust.unavailable(),
+        };
+    };
+    match ceremony_ref.seal(facade) {
+        Ok(result) => ParentDeviceTrustSealResult {
+            accepted: true,
+            device_trust_ref: Some(result.device_trust_ref.as_str().to_owned()),
+            manual_required: false,
+            unavailable: false,
+        },
+        Err(error) => {
+            let manual_required = command_error_is_manual_required(&error);
+            ParentDeviceTrustSealResult {
+                accepted: false,
+                device_trust_ref: None,
+                manual_required,
+                unavailable: !manual_required,
+            }
+        }
+    }
+}
+
 #[tauri::command]
 fn parent_subscribe_route(
     app: AppHandle,
@@ -219,11 +317,28 @@ fn parent_unsubscribe_route(
 
 pub fn run() -> Result<(), ParentDesktopCommandError> {
     tauri::Builder::default()
+        .setup(|app| {
+            let root = app
+                .path()
+                .app_data_dir()
+                .map_err(|error| Box::new(error) as Box<dyn std::error::Error>)?
+                .join(PARENT_DEVICE_TRUST_STORAGE_DIRECTORY);
+            let state = match ParentDeviceTrustCommandFacade::open(root) {
+                Ok(facade) => ParentDeviceTrustCommandState::Available(facade),
+                Err(error) if command_error_is_manual_required(&error) => {
+                    ParentDeviceTrustCommandState::ManualRequired
+                }
+                Err(_error) => ParentDeviceTrustCommandState::Unavailable,
+            };
+            app.manage(state);
+            Ok(())
+        })
         .manage(ParentRouteSubscriptionRegistry::default())
         .invoke_handler(tauri::generate_handler![
             parent_platform_proof_state,
             parent_load_route,
             parent_dispatch,
+            parent_device_trust_seal_staged_ceremony,
             parent_subscribe_route,
             parent_unsubscribe_route
         ])

@@ -86,10 +86,12 @@ Trust sealing must remain manual-required until the authority contract exposes a
 
 Windows DPAPI adapter validation:
 
-**No current DPAPI proof command is authorized.** The Windows source is
-present, but the authenticated-parent requirement is permanently unavailable
-before custody mutation and no ceremony issuer, desktop/native mount, or
-custody-to-lifecycle startup caller exists. A future selected platform route
+**No current DPAPI proof command is authorized.** The Windows source and native
+desktop command mount are present, but the authenticated-parent requirement is
+permanently unavailable before custody mutation and no record-backed ceremony
+issuer or custody-to-lifecycle startup caller exists. The command accepts only
+an opaque staged handle and returns rejected/manual-required state; it does not
+prove a seal. A future selected platform route
 must add a real Windows caller and retain proof for the exact authority,
 current binding, registry epoch, ciphertext, activation, unseal, revocation,
 wrong-user, wrong-device, and restart states. On non-Windows hosts, record
