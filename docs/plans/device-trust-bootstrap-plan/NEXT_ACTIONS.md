@@ -98,17 +98,17 @@ remains blocked on the real signature/revocation provider, child-runtime action
 owner/startup mount, and retained runtime proof; no entitlement startup or
 capability unlock route is exported in the reviewed source-repair wave.
 
-WP06 now blocks the untrusted confirmation-only restore path and exposes a
-verified-parent re-pair gate plus an unavailable-by-default restore executor;
-only a coherent execution receipt can project applied/partial state.
-The source-only WP06 candidate now removes the raw installation-generation
-repair stub, refuses to construct encrypted bundle metadata without a real key
-custody owner, and requires a current tombstone cursor with same-operation
-revalidation before executor dispatch. Encrypted bundle/key custody, durable
-revocation currentness, authorized re-pair, a real executor, production
-callers, expected tests, and runtime proof remain open. Its storage files
-overlap Data WP05 candidate `3def622df`; rebase/reconciliation waits for Data
-acceptance.
+WP06 now blocks the untrusted confirmation-only restore path. The source-only
+WP06 candidate removes the raw installation-generation repair stub, refuses to
+construct encrypted bundle metadata without a real key-custody owner, and
+requires an exact current tombstone cursor for preflight. Because the current
+context is only a caller-held snapshot, the apply seam is now unconditionally
+blocked and cannot dispatch an executor; a future owner must provide an
+opaque cursor token that is reread and consumed at apply time. Encrypted
+bundle/key custody, durable revocation currentness, authorized re-pair, a real
+executor, production callers, expected tests, and runtime proof remain open.
+Its storage files overlap Data WP05 candidate `3def622df`; rebase/reconciliation
+waits for Data acceptance.
 
 ## Production-code audit boundary (2026-08-16)
 

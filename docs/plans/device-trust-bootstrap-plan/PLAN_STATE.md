@@ -82,7 +82,7 @@ authority.
 | WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries, a five-minute lifetime gate, and bounded atomic challenge/intent plus receipt/credential custody. | The graph is blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Planned `parent_step_up_target_authority.rs` and `parent_step_up_runtime.rs` do not exist. Actor parent-controller and target child/profile/device are not authoritatively separated for `RegisterLanSignerAnchor`; the authoritative Account writer/provider caller, passkey/OS-native signature provider, durable sign counter, shipped parent runtime, expected tests, proof, LAN handoff, and DONE remain open. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
 | WP05 | The independently reviewed source-repair wave on `codex/device-trust-wp05-source-wave` adds `crates/entitlement-core` signed transport, bound authority generation/channel, strict weak-key-rejecting verifier, typed Grace rejection, and fail-closed read-only signed revocation custody. Authority verification is crate-private and the child-runtime entitlement module is not exported; there is no public capability selector, unlock, or final-consumption route. Active-window/session decisions remain behind a crate-private owner-controlled trusted-time/currentness boundary, and no snapshot or revocation mutation writer is present without a verified owner transition. | No concrete owner repository composition is present: real issuer/HSM or platform key provider, installed-package authority, billing/currentness owner, trusted-time/configured-grace policy, live Account/Device Trust re-resolution caller, handle-safe cache custody, signed revocation delivery caller, child entitlement action owner/startup mount, expected tests, runtime execution, proof, CI, and completion remain open; raw authority/issuer DI stays crate-private and no activation is claimed. |
-| WP06 | `crates/storage-custody-core` provides restore preflight and a verified-parent gate plus an unavailable executor port; the public raw installation-generation repair stub is removed, bundle construction is fail-closed without encryption custody, and preflight requires an exact owner-supplied tombstone cursor. | No encrypted bundle/key-custody runtime, durable current tombstone owner, revocation-preserving executor, authorized re-pair producer, or shipped restore caller. The storage source overlaps the Data WP05 candidate and requires post-acceptance rebase/reconciliation. |
+| WP06 | `crates/storage-custody-core` provides restore preflight; the public raw installation-generation repair stub is removed, bundle construction is fail-closed without encryption custody, preflight requires an exact owner-supplied tombstone cursor, and the dead apply/authority seam is unconditionally blocked until an owner-bound cursor token exists. | No encrypted bundle/key-custody runtime, durable current tombstone owner, authorized re-pair producer, real executor, or shipped restore caller. The storage source overlaps the Data WP05 candidate and requires post-acceptance rebase/reconciliation. |
 | WP07 | `crates/child-runtime` durably records tamper/removal evidence, binds readiness to current trust, and keeps ingress blocked across restart while unresolved; the Android bridge carries the fail-closed health state. | Package/device-owner removal, attestation, parent transport, and a real platform removal caller are absent; state remains manual-required. |
 | WP08 | Research/dependency review only. | No runtime dependency adoption owner or trust-root caller. |
 | WP09 | Route aggregation/documentation only. | No runtime trust behavior; completion remains downstream of WP01-WP08 evidence and authority. |
@@ -213,7 +213,7 @@ before the consumer route can proceed.
 ## WP06 source-wave reachability — 2026-08-18 (source repair candidate; tests open)
 
 The WP06 source packet is pushed on `codex/device-trust-wp06-source-wave` at
-`8a3ed84d3`, based on consolidation head `31e4a7c55`. This is a source-only
+`4ad484197`, based on consolidation head `31e4a7c55`. This is a source-only
 candidate; expected tests, runtime execution, proof, and acceptance remain
 open:
 
@@ -225,12 +225,13 @@ open:
   refuses to construct the encrypted wire bundle with
   `EncryptionCustodyUnavailable`. The prior caller-supplied encryption and
   support-decrypt flags cannot create metadata that claims ciphertext.
-- The import path requires the bundle tombstone cursor to exactly equal the
-  owner-supplied current cursor. Missing or mismatched currentness returns a
-  `TombstoneConflict` with `tombstones_preserved: false`; the internal apply
-  path re-runs that check against the bundle/context before invoking an
-  executor. Public serde-shaped restore/readiness entrypoints are crate-private
-  and the default executor remains unavailable.
+- The import preflight requires the bundle tombstone cursor to exactly equal
+  the owner-supplied current cursor. Missing or mismatched currentness returns
+  a `TombstoneConflict` with `tombstones_preserved: false`; apply is now
+  unconditionally blocked because the caller-held context is not a durable
+  currentness authority. The removed parent-authority/custom-executor path
+  cannot invoke side effects until an owner-bound cursor token is reread and
+  consumed at apply time.
 
 No production caller constructs `ImportBundleContext` or
 `CurrentVerifiedHouseholdAuthority`; no encrypted key-custody owner, durable
@@ -367,13 +368,12 @@ remote-access-plan and policy-control-plane-plan:
   boundaries. The real key/revocation/currentness owners and child-runtime
   action consumer are absent, so no positive entitlement path is exported or
   reachable and no capability unlock is claimed.
-- WP06 now blocks confirmation-only restore and requires a verified parent
-  `PairChildDevice` authority bound to the local household and target device
-  before applying a recovery preview. An unavailable-by-default restore
-  executor receipt must prove execution identity, section outcomes,
-  idempotence, tombstone preservation, and no duplicates before applied/
-  partial state can be projected; encryption/key custody, revocation
-  preservation, and runtime proof remain manual-required.
+- WP06 now blocks confirmation-only restore and the dead apply/authority seam
+  unconditionally. A caller-held preflight/context cannot provide durable
+  currentness or project applied/partial state; a future owner-bound cursor
+  token must be reread and consumed at apply time. Encryption/key custody,
+  revocation preservation, authorized re-pair, a real executor, and runtime
+  proof remain manual-required.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall now has a code-drafted child-runtime boundary: durable
   tamper evidence forces a separate manual-required readiness state, while durable revocation
