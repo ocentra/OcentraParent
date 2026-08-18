@@ -27,7 +27,7 @@ pub(super) fn validate_report_query_custody_request_at(
     authority: &VerifiedAccountIdentityAuthority,
     now: DateTime<Utc>,
 ) -> Result<(), ReportQueryCustodyDerivationError> {
-    validate_current_parent_authority(request, authority, now)?;
+    validate_parent_authority_snapshot(request, authority, now)?;
     let authority_reference = &request.parent_authority;
     if authority_reference.authority_generation == 0 {
         return Err(ReportQueryCustodyDerivationError::InvalidParentAuthority);
@@ -100,7 +100,10 @@ pub(super) fn validate_report_query_custody_request_at(
     Ok(())
 }
 
-fn validate_current_parent_authority(
+/// Validates the supplied opaque authority snapshot and its expiry. This does
+/// not re-read the Account repository or claim revocation-linearized
+/// currentness after the snapshot was issued.
+fn validate_parent_authority_snapshot(
     request: &contracts::ReportQueryCustodyRequest,
     authority: &VerifiedAccountIdentityAuthority,
     now: DateTime<Utc>,

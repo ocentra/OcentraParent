@@ -6,24 +6,23 @@ use ocentra_schema::report_query_custody as contracts;
 
 use super::{
     report_query_custody_source::ReportQueryCustodySourceResolution,
+    report_query_custody_verified_proof::ValidatedReportQueryCustodyProofSnapshot,
     ReportQueryCustodyDerivationError,
 };
-
-#[path = "report_query_custody_proof_validate.rs"]
-mod report_query_custody_proof_validate;
 
 pub(super) fn build_report_query_custody_proof(
     request: &contracts::ReportQueryCustodyRequest,
     sources: Vec<ReportQueryCustodySourceResolution>,
     updated_at: contracts::ParentTimestamp,
     authority: &VerifiedAccountIdentityAuthority,
-) -> Result<contracts::ReportQueryCustodyContractProof, ReportQueryCustodyDerivationError> {
+) -> Result<ValidatedReportQueryCustodyProofSnapshot, ReportQueryCustodyDerivationError> {
     let resolved_at = Utc::now();
     super::report_query_custody_request_validate::validate_report_query_custody_request_at(
         request,
         authority,
         resolved_at,
     )?;
+    super::report_query_custody_proof_validate::validate_page_result_limit(request, sources.len())?;
 
     let mut rows = Vec::with_capacity(sources.len());
     let mut seen_cursor_refs: BTreeSet<contracts::ReportQueryCustodyCursorRef> = BTreeSet::new();
@@ -69,9 +68,9 @@ pub(super) fn build_report_query_custody_proof(
         rows.push(row);
     }
 
-    report_query_custody_proof_validate::validate_required_states(&rows)?;
+    super::report_query_custody_proof_validate::validate_required_states(&rows)?;
 
-    Ok(contracts::ReportQueryCustodyContractProof {
+    let contract = contracts::ReportQueryCustodyContractProof {
         schema_version: contracts::REPORT_QUERY_CUSTODY_SCHEMA_VERSION.to_string(),
         contract_version: contracts::ParentContractSchemaVersion::parse("v0.6")
             .ok_or(ReportQueryCustodyDerivationError::InvalidContractVersion)?,
@@ -85,5 +84,8 @@ pub(super) fn build_report_query_custody_proof(
         second_truth_store_claimed: false,
         raw_child_evidence_claimed: false,
         updated_at,
-    })
+    };
+    Ok(ValidatedReportQueryCustodyProofSnapshot::from_contract(
+        contract,
+    ))
 }

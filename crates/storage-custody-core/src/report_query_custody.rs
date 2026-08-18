@@ -3,6 +3,8 @@ use ocentra_schema::report_query_custody as contracts;
 
 #[path = "report_query_custody_proof.rs"]
 mod report_query_custody_proof;
+#[path = "report_query_custody_proof_validate.rs"]
+mod report_query_custody_proof_validate;
 #[path = "report_query_custody_request_validate.rs"]
 mod report_query_custody_request_validate;
 #[path = "report_query_custody_row.rs"]
@@ -13,6 +15,8 @@ mod report_query_custody_row_state;
 mod report_query_custody_row_validate;
 #[path = "report_query_custody_source.rs"]
 pub mod report_query_custody_source;
+#[path = "report_query_custody_verified_proof.rs"]
+pub mod report_query_custody_verified_proof;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ReportQueryCustodySignal {
@@ -79,6 +83,7 @@ pub enum ReportQueryCustodyDerivationError {
     NonSequentialPageIndex,
     InvalidContractVersion,
     MissingRequiredState(contracts::ReportQueryCustodyState),
+    PageResultExceedsRequestLimit,
 }
 
 pub fn derive_report_query_custody_row(
@@ -94,7 +99,10 @@ pub fn build_report_query_custody_proof(
     sources: Vec<report_query_custody_source::ReportQueryCustodySourceResolution>,
     updated_at: contracts::ParentTimestamp,
     authority: &VerifiedAccountIdentityAuthority,
-) -> Result<contracts::ReportQueryCustodyContractProof, ReportQueryCustodyDerivationError> {
+) -> Result<
+    report_query_custody_verified_proof::ValidatedReportQueryCustodyProofSnapshot,
+    ReportQueryCustodyDerivationError,
+> {
     report_query_custody_proof::build_report_query_custody_proof(
         request, sources, updated_at, authority,
     )

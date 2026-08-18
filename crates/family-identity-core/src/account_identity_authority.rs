@@ -48,9 +48,12 @@ pub(crate) trait AccountIdentityAuthorityRepository {
     >;
 }
 
-/// Opaque authority minted only by the family-owned producer after the
-/// durable repository has established currentness. It intentionally does not
-/// implement serde: a JSON/TS handoff is evidence, never authority.
+/// Opaque authority snapshot minted only by the family-owned producer after a
+/// durable repository read established currentness at issuance. It does not
+/// claim race-safe currentness after that read; a runtime that requires
+/// revocation-linearized authority must re-read in its owning transaction. It
+/// intentionally does not implement serde: a JSON/TS handoff is evidence,
+/// never authority.
 pub struct VerifiedAccountIdentityAuthority {
     handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff,
     provenance: account_identity_authority_capability::AccountIdentityAuthorityProvenance,
