@@ -4400,11 +4400,24 @@
       "roots": [
         "crates/schema/src/managed_browser_cdp_capture.rs",
         "crates/schema/src/managed_browser_cdp_capture/validation.rs",
+        "crates/agent-core/src/browser_managed_session.rs",
+        "crates/agent-core/src/browser_managed_session/launch.rs",
+        "crates/agent-core/src/browser_managed_session/capability.rs",
         "crates/agent-core/src/browser_bridge_capture.rs",
+        "crates/agent-core/src/browser_bridge_capture/authority.rs",
+        "crates/agent-core/src/browser_bridge_capture/binding.rs",
+        "crates/agent-core/src/browser_bridge_capture/identity.rs",
+        "crates/agent-core/src/browser_bridge_capture/identity_match.rs",
+        "crates/agent-core/src/browser_bridge_capture/process.rs",
+        "crates/agent-core/src/browser_bridge_capture/target.rs",
         "crates/agent-core/src/browser_bridge_capture/transport.rs",
         "crates/screen-capture-adapter/src/managed_browser_cdp.rs",
+        "crates/screen-capture-adapter/src/managed_browser_cdp/decoder.rs",
+        "crates/screen-capture-adapter/src/managed_browser_cdp/structure.rs",
+        "crates/screen-capture-adapter/src/managed_browser_cdp/chunks.rs",
         "crates/agent-service/src/screen_managed_browser_cdp_runtime.rs"
-      ]
+      ],
+      "note": "Rust production source is present and mapped; all seven checklist rows, browser-owner trigger wiring, focused tests, live browser proof, deletion proof, and CI remain deferred. No proof/test roots are treated as implementation roots."
     },
     "WP-screen-plan-34-ocr-tesseract-baseline": {
       "planSlug": "screen-plan",

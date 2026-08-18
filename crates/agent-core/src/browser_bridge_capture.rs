@@ -1,42 +1,49 @@
 //! Browser-owned authority and bounded CDP screenshot transport.
 //!
-//! The screen adapter receives an authority produced here. It cannot provide a
-//! debugger endpoint or arbitrary target to the transport, and the authority
-//! is created only after a fresh, custody-validated managed target inventory.
+//! A capture authority is minted only from the private evidence carried by a
+//! real managed-browser launch. The authority re-authenticates the owned
+//! process and bridge, then re-polls the exact target immediately before the
+//! screenshot command. URLs, titles, debugger endpoints, and image bytes stay
+//! inside this boundary and are never represented by public Debug output.
 
-use std::net::SocketAddr;
+use std::fmt;
 
-use ocentra_parent_agent_protocol::constants;
+use crate::{
+    browser_bridge_poll::BrowserBridgePollError, browser_managed_session::BrowserManagedLaunch,
+};
 use ocentra_schema::managed_browser_cdp_capture::{
     ManagedBrowserCdpCaptureMode, ManagedBrowserCdpCaptureReceipt, ManagedBrowserCdpCaptureRequest,
     ManagedBrowserCdpEvidenceRefs, MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION,
-    MANAGED_BROWSER_CDP_TARGET_REF_PREFIX, MANAGED_BROWSER_CDP_TITLE_REF_PREFIX,
-    MANAGED_BROWSER_CDP_URL_REF_PREFIX,
-};
-use serde_json::Value;
-use sha2::{Digest, Sha256};
-
-use crate::{
-    browser_bridge_http::read_devtools_body,
-    browser_bridge_poll::{
-        validate_bridge_custody, BrowserBridgePollConfig, BrowserBridgePollError,
-    },
 };
 
 const CDP_MAX_IMAGE_BYTES: usize = 32 * 1024 * 1024;
+const PNG_SIGNATURE: &[u8; 8] = b"\x89PNG\r\n\x1a\n";
 
+#[path = "browser_bridge_capture/authority.rs"]
+mod authority;
+#[path = "browser_bridge_capture/binding.rs"]
+mod binding;
+#[path = "browser_bridge_capture/identity.rs"]
+mod identity;
+#[path = "browser_bridge_capture/identity_match.rs"]
+mod identity_match;
+#[path = "browser_bridge_capture/process.rs"]
+mod process;
+#[path = "browser_bridge_capture/target.rs"]
+mod target;
 #[path = "browser_bridge_capture/transport.rs"]
 mod transport;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ManagedBrowserCdpTargetAuthority {
-    endpoint: SocketAddr,
+    pub(super) endpoint: std::net::SocketAddr,
     target_id: String,
-    websocket_url: String,
+    verified_snapshot: target::TargetSnapshot,
     evidence_refs: ManagedBrowserCdpEvidenceRefs,
+    launch_authority: authority::LaunchBinding,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct ManagedBrowserCdpCaptureBytes {
     png_bytes: Vec<u8>,
     evidence_refs: ManagedBrowserCdpEvidenceRefs,
@@ -45,6 +52,7 @@ pub struct ManagedBrowserCdpCaptureBytes {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ManagedBrowserCdpCaptureError {
     Bridge(BrowserBridgePollError),
+    AuthorityExpired,
     TargetNotFound,
     TargetNotPage,
     TargetNotObservable,
@@ -63,34 +71,47 @@ impl From<BrowserBridgePollError> for ManagedBrowserCdpCaptureError {
     }
 }
 
-pub fn authorize_managed_browser_cdp_target(
-    config: &BrowserBridgePollConfig,
-    target_id: &str,
-    observed_at: &str,
-) -> Result<ManagedBrowserCdpTargetAuthority, ManagedBrowserCdpCaptureError> {
-    if !config.endpoint.ip().is_loopback() {
-        return Err(BrowserBridgePollError::NonLoopbackEndpoint.into());
+impl fmt::Debug for ManagedBrowserCdpTargetAuthority {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("ManagedBrowserCdpTargetAuthority")
+            .field("target_id", &self.target_id)
+            .field("evidence_refs", &self.evidence_refs)
+            .field("generation", &self.launch_authority.generation)
+            .field(
+                "expires_at_epoch_ms",
+                &self.launch_authority.expires_at_epoch_ms,
+            )
+            .field("verified_snapshot", &"opaque")
+            .finish()
     }
-    validate_bridge_custody(config, observed_at)?;
-    let body = read_devtools_body(&config.endpoint, constants::browser::HTTP_GET_JSON_LIST)?;
-    let target = target_from_list(&body, target_id)?;
-    let websocket_url = target
-        .get(constants::browser::DEVTOOLS_FIELD_WEBSOCKET_DEBUGGER_URL)
-        .and_then(Value::as_str)
-        .ok_or(ManagedBrowserCdpCaptureError::InvalidWebSocketEndpoint)?;
-    validate_websocket_endpoint(websocket_url, config.endpoint)?;
+}
 
-    let evidence_refs = ManagedBrowserCdpEvidenceRefs {
-        target_ref: opaque_ref(MANAGED_BROWSER_CDP_TARGET_REF_PREFIX, config, target_id),
-        url_ref: opaque_ref(MANAGED_BROWSER_CDP_URL_REF_PREFIX, config, target_id),
-        title_ref: opaque_ref(MANAGED_BROWSER_CDP_TITLE_REF_PREFIX, config, target_id),
-    };
+impl fmt::Debug for ManagedBrowserCdpCaptureBytes {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("ManagedBrowserCdpCaptureBytes")
+            .field("png_byte_size", &self.png_bytes.len())
+            .field("evidence_refs", &self.evidence_refs)
+            .finish()
+    }
+}
 
+pub fn authorize_managed_browser_cdp_target(
+    launch: &BrowserManagedLaunch,
+    target_id: &str,
+) -> Result<ManagedBrowserCdpTargetAuthority, ManagedBrowserCdpCaptureError> {
+    let launch_authority = authority::from_launch(launch)?;
+    process::revalidate(&launch_authority)?;
+    let live_target = target::poll_and_verify(&launch_authority, target_id, None)?;
+    let evidence_refs =
+        target::opaque_evidence_refs(&launch_authority, target_id, &live_target.snapshot);
     Ok(ManagedBrowserCdpTargetAuthority {
-        endpoint: config.endpoint,
+        endpoint: launch_authority.endpoint,
         target_id: target_id.to_owned(),
-        websocket_url: websocket_url.to_owned(),
+        verified_snapshot: live_target.snapshot,
         evidence_refs,
+        launch_authority,
     })
 }
 
@@ -105,11 +126,21 @@ impl ManagedBrowserCdpTargetAuthority {
         if request.target_id != self.target_id {
             return Err(ManagedBrowserCdpCaptureError::TargetAuthorityMismatch);
         }
-        let png_bytes = transport::capture_screenshot(self, request)?;
+        process::revalidate(&self.launch_authority)?;
+        let live_target = target::poll_and_verify(
+            &self.launch_authority,
+            &self.target_id,
+            Some(&self.verified_snapshot),
+        )?;
+        let png_bytes = transport::capture_screenshot(
+            self.endpoint,
+            &live_target.snapshot.websocket_url,
+            request,
+        )?;
         if png_bytes.is_empty() || png_bytes.len() > CDP_MAX_IMAGE_BYTES {
             return Err(ManagedBrowserCdpCaptureError::ResponseTooLarge);
         }
-        if png_bytes.get(0..8) != Some(&[137, 80, 78, 71, 13, 10, 26, 10]) {
+        if png_bytes.get(0..8) != Some(PNG_SIGNATURE.as_slice()) {
             return Err(ManagedBrowserCdpCaptureError::InvalidImage);
         }
         Ok(ManagedBrowserCdpCaptureBytes {
@@ -117,21 +148,15 @@ impl ManagedBrowserCdpTargetAuthority {
             evidence_refs: self.evidence_refs.clone(),
         })
     }
+}
 
-    pub fn evidence_refs(&self) -> &ManagedBrowserCdpEvidenceRefs {
-        &self.evidence_refs
-    }
-
+impl ManagedBrowserCdpCaptureBytes {
     pub fn png_bytes(&self) -> &[u8] {
         &self.png_bytes
     }
 
-    pub(crate) fn endpoint(&self) -> SocketAddr {
-        self.endpoint
-    }
-
-    pub(crate) fn websocket_url(&self) -> &str {
-        &self.websocket_url
+    pub fn evidence_refs(&self) -> &ManagedBrowserCdpEvidenceRefs {
+        &self.evidence_refs
     }
 }
 
@@ -159,80 +184,4 @@ pub fn capture_receipt(
             .to_owned(),
         raw_image_retained: false,
     }
-}
-
-fn target_from_list(body: &str, target_id: &str) -> Result<Value, ManagedBrowserCdpCaptureError> {
-    let value: Value = serde_json::from_str(body)
-        .map_err(|_error| ManagedBrowserCdpCaptureError::InvalidResponse)?;
-    let targets = value
-        .as_array()
-        .ok_or(ManagedBrowserCdpCaptureError::InvalidResponse)?;
-    let target = targets
-        .iter()
-        .find(|target| {
-            target
-                .get(constants::browser::DEVTOOLS_FIELD_ID)
-                .and_then(Value::as_str)
-                == Some(target_id)
-        })
-        .ok_or(ManagedBrowserCdpCaptureError::TargetNotFound)?
-        .clone();
-    if target
-        .get(constants::browser::DEVTOOLS_FIELD_TYPE)
-        .and_then(Value::as_str)
-        != Some(constants::browser::DEVTOOLS_TARGET_TYPE_PAGE)
-    {
-        return Err(ManagedBrowserCdpCaptureError::TargetNotPage);
-    }
-    let url = target
-        .get(constants::browser::DEVTOOLS_FIELD_URL)
-        .and_then(Value::as_str)
-        .ok_or(ManagedBrowserCdpCaptureError::TargetNotObservable)?;
-    if url.is_empty()
-        || url == constants::browser::CHROMIUM_DEFAULT_URL
-        || url.starts_with(constants::browser::CHROMIUM_INTERNAL_CHROME_PREFIX)
-        || url.starts_with(constants::browser::CHROMIUM_INTERNAL_DEVTOOLS_PREFIX)
-        || url.starts_with(constants::browser::CHROMIUM_INTERNAL_EDGE_PREFIX)
-    {
-        return Err(ManagedBrowserCdpCaptureError::TargetNotObservable);
-    }
-    Ok(target)
-}
-
-fn validate_websocket_endpoint(
-    url: &str,
-    endpoint: SocketAddr,
-) -> Result<(), ManagedBrowserCdpCaptureError> {
-    let remainder = url
-        .strip_prefix("ws://")
-        .ok_or(ManagedBrowserCdpCaptureError::InvalidWebSocketEndpoint)?;
-    let (authority, path) = remainder
-        .split_once('/')
-        .ok_or(ManagedBrowserCdpCaptureError::InvalidWebSocketEndpoint)?;
-    if path.is_empty() {
-        return Err(ManagedBrowserCdpCaptureError::InvalidWebSocketEndpoint);
-    }
-    let websocket_endpoint: SocketAddr = authority
-        .parse()
-        .map_err(|_error| ManagedBrowserCdpCaptureError::InvalidWebSocketEndpoint)?;
-    if websocket_endpoint != endpoint || !websocket_endpoint.ip().is_loopback() {
-        return Err(ManagedBrowserCdpCaptureError::InvalidWebSocketEndpoint);
-    }
-    Ok(())
-}
-
-fn opaque_ref(prefix: &str, config: &BrowserBridgePollConfig, target_id: &str) -> String {
-    let mut digest = Sha256::new();
-    digest.update(config.managed_browser_session_id.as_bytes());
-    digest.update([0]);
-    digest.update(config.profile_id.as_bytes());
-    digest.update([0]);
-    digest.update(target_id.as_bytes());
-    let digest = digest.finalize();
-    let mut reference = String::from(prefix);
-    reference.push('-');
-    for byte in digest {
-        reference.push_str(&format!("{byte:02x}"));
-    }
-    reference
 }

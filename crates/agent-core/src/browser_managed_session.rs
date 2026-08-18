@@ -1,9 +1,15 @@
-use std::{net::SocketAddr, path::PathBuf};
+use std::{
+    fmt,
+    net::SocketAddr,
+    path::{Path, PathBuf},
+};
 
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
 use ocentra_parent_agent_protocol::browser_managed::{
     BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
 };
+#[path = "browser_managed_session/capability.rs"]
+mod capability;
 #[path = "browser_managed_session/launch.rs"]
 mod launch;
 #[path = "browser_managed_session/store.rs"]
@@ -52,7 +58,7 @@ pub struct BrowserManagedLaunchPlan {
     pub bridge_endpoint_ref: String,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct BrowserManagedLaunch {
     pub process_id: u32,
     pub bridge_port: u16,
@@ -60,6 +66,46 @@ pub struct BrowserManagedLaunch {
     pub browser_channel: BrowserChannel,
     pub profile_path_ref: String,
     pub bridge_endpoint_ref: String,
+    pub(crate) cdp_authority: ManagedBrowserLaunchAuthority,
+}
+
+/// Private launch evidence carried only by a real managed-browser launch.
+///
+/// The public launch fields are status data and are intentionally insufficient
+/// to mint a CDP capture authority. The random secret and binding digests are
+/// created after the owned process is spawned and are never serialized or
+/// exposed through Debug.
+#[derive(Clone, PartialEq, Eq)]
+pub(crate) struct ManagedBrowserLaunchAuthority {
+    pub(crate) managed_browser_session_id: String,
+    pub(crate) profile_id: String,
+    pub(crate) session_secret: [u8; 32],
+    pub(crate) generation: u64,
+    pub(crate) created_at_epoch_ms: u64,
+    pub(crate) expires_at_epoch_ms: u64,
+    pub(crate) executable_binding: String,
+    pub(crate) profile_binding: String,
+}
+
+impl fmt::Debug for BrowserManagedLaunch {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("BrowserManagedLaunch")
+            .field("process_id", &self.process_id)
+            .field("bridge_port", &self.bridge_port)
+            .field("browser_family", &self.browser_family)
+            .field("browser_channel", &self.browser_channel)
+            .field("profile_path_ref", &self.profile_path_ref)
+            .field("bridge_endpoint_ref", &self.bridge_endpoint_ref)
+            .field("cdp_authority", &"opaque")
+            .finish()
+    }
+}
+
+impl BrowserManagedLaunch {
+    pub(crate) fn cdp_authority(&self) -> &ManagedBrowserLaunchAuthority {
+        &self.cdp_authority
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -124,6 +170,10 @@ pub fn launch_managed_browser(
     config: BrowserManagedLaunchConfig,
 ) -> Result<BrowserManagedLaunch, BrowserManagedLaunchError> {
     launch::launch_managed_browser(config)
+}
+
+pub(crate) fn managed_path_binding(path: &Path) -> String {
+    capability::managed_path_binding(path)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

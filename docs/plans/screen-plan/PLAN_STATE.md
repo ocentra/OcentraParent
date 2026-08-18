@@ -147,7 +147,7 @@ screen-AI service runtime and several platform owners are absent.
 | 30 Test Suite Playwright Rollout PR Gate | Tests/scripts only | Validation-only; deferred from code pass. |
 | 31 Screen Intelligence Router | `screen-ai-core` routing modules | AI routing only; no non-AI capture/provider caller. |
 | 32 Browser Structured Extraction Before Screenshot | AI router with browser source handoff | Browser/AI source handoff only; browser owner and non-AI capture path remain separate. |
-| 33 Managed Browser CDP Screenshot Capture Path | Rust source packet present: `crates/schema/src/managed_browser_cdp_capture.rs`, `crates/agent-core/src/browser_bridge_capture.rs`, `crates/screen-capture-adapter/src/managed_browser_cdp.rs`, and `crates/agent-service/src/screen_managed_browser_cdp_runtime.rs` | Source-first/test-deferred: browser-owner trigger wiring, focused contract/security/runtime tests, live browser proof, deletion proof, and CI remain open; no product completion claim. |
+| 33 Managed Browser CDP Screenshot Capture Path | Rust source packet present across the managed launch capability, schema, browser authority/transport, screen adapter, and encrypted queue handoff | Source-first/test-deferred: 0/7 checklist rows are checked; browser-owner trigger wiring, focused contract/security/runtime tests, live browser proof, deletion proof, and CI remain open; no product completion claim. |
 | 34 OCR Tesseract Baseline | Tests/proof only | Validation-only; no runtime implementation. |
 | 35 OCR PaddleOCR PP-OCR Evaluation | Tests/proof only | Validation-only; no runtime implementation. |
 | 36 Small VLM Guided Classifier Evaluation | AI analysis/runtime modules | AI evaluation/runtime only; outside this non-AI pass. |
@@ -190,8 +190,8 @@ remain open. No tests, builds, proof, or CI were run in this code phase.
 ## Workpack summary
 
 - Workpacks indexed: 40.
-- Workpacks with open checkboxes: 22.
-- Workpacks with all detected boxes checked: 18.
+- Workpacks with open checkboxes: 23.
+- Workpacks with all detected boxes checked: 17.
 - Workpacks with no checkbox status: 0.
 
 ### Active/open workpacks
@@ -212,6 +212,7 @@ remain open. No tests, builds, proof, or CI were run in this code phase.
 - [21 Journal And SQLite Ingest](workpacks/21-journal-and-sqlite-ingest.md) - 0/6 checked, 6 open.
 - [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md) - 0/6 checked, 6 open (independent production-path review rejected prior proof).
 - [23 Policy Compiler For Screen Derived Evidence](workpacks/23-policy-compiler-for-screen-derived-evidence.md) - 0/6 checked, 6 open.
+- [33 Managed Browser CDP Screenshot Capture Path](workpacks/33-managed-browser-cdp-screenshot-capture-path.md) - 0/7 checked, 7 open (source present; tests/proof/trigger deferred).
 - [29 Proof Tiers And Proof Packs](workpacks/29-proof-tiers-and-proof-packs.md) - 0/6 checked, 6 open.
 - [12 Android MediaProjection Adapter Plan Proof](workpacks/12-android-mediaprojection-adapter-plan-proof.md) - 7/9 checked, 2 open.
 - [13 iOS ReplayKit Adapter Plan Proof](workpacks/13-ios-replaykit-adapter-plan-proof.md) - 5/7 checked, 2 open.

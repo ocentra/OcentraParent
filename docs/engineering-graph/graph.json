@@ -23028,15 +23028,15 @@
       "path": "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
-        "statusText": "checked",
+        "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

@@ -18,18 +18,18 @@ use tungstenite::{
     Message,
 };
 
-use super::{ManagedBrowserCdpCaptureError, ManagedBrowserCdpTargetAuthority, CDP_MAX_IMAGE_BYTES};
+use super::{ManagedBrowserCdpCaptureError, CDP_MAX_IMAGE_BYTES};
 
 pub(super) fn capture_screenshot(
-    authority: &ManagedBrowserCdpTargetAuthority,
+    endpoint: std::net::SocketAddr,
+    websocket_url: &str,
     request: &ManagedBrowserCdpCaptureRequest,
 ) -> Result<Vec<u8>, ManagedBrowserCdpCaptureError> {
-    let mut websocket_request = authority
-        .websocket_url()
+    let mut websocket_request = websocket_url
         .into_client_request()
         .map_err(|_error| ManagedBrowserCdpCaptureError::Transport)?;
     let stream = TcpStream::connect_timeout(
-        &authority.endpoint(),
+        &endpoint,
         Duration::from_millis(constants::browser::DEVTOOLS_TIMEOUT_MS),
     )
     .map_err(|_error| ManagedBrowserCdpCaptureError::Transport)?;
@@ -70,6 +70,9 @@ pub(super) fn capture_screenshot(
             .and_then(|result| result.get(MANAGED_BROWSER_CDP_FIELD_DATA))
             .and_then(Value::as_str)
             .ok_or(ManagedBrowserCdpCaptureError::InvalidResponse)?;
+        if data.len() > ((CDP_MAX_IMAGE_BYTES + 2) / 3) * 4 {
+            return Err(ManagedBrowserCdpCaptureError::ResponseTooLarge);
+        }
         return base64::engine::general_purpose::STANDARD
             .decode(data)
             .map_err(|_error| ManagedBrowserCdpCaptureError::InvalidImage);
@@ -92,13 +95,26 @@ fn screenshot_params(request: &ManagedBrowserCdpCaptureRequest) -> Value {
         (MANAGED_BROWSER_CDP_PARAM_FROM_SURFACE): true,
         (MANAGED_BROWSER_CDP_PARAM_CAPTURE_BEYOND_VIEWPORT): matches!(request.mode, ManagedBrowserCdpCaptureMode::Page),
     });
-    if let Some(crop) = request.crop.as_ref() {
+    let clip = match request.mode {
+        ManagedBrowserCdpCaptureMode::Page => None,
+        ManagedBrowserCdpCaptureMode::Viewport => Some((
+            0,
+            0,
+            request.viewport_width.unwrap_or_default(),
+            request.viewport_height.unwrap_or_default(),
+        )),
+        ManagedBrowserCdpCaptureMode::Crop => request
+            .crop
+            .as_ref()
+            .map(|crop| (crop.x, crop.y, crop.width, crop.height)),
+    };
+    if let Some((x, y, width, height)) = clip {
         params[MANAGED_BROWSER_CDP_PARAM_CLIP] = json!({
-                (MANAGED_BROWSER_CDP_PARAM_X): crop.x,
-                (MANAGED_BROWSER_CDP_PARAM_Y): crop.y,
-                (MANAGED_BROWSER_CDP_PARAM_WIDTH): crop.width,
-                (MANAGED_BROWSER_CDP_PARAM_HEIGHT): crop.height,
-                (MANAGED_BROWSER_CDP_PARAM_SCALE): 1,
+            (MANAGED_BROWSER_CDP_PARAM_X): x,
+            (MANAGED_BROWSER_CDP_PARAM_Y): y,
+            (MANAGED_BROWSER_CDP_PARAM_WIDTH): width,
+            (MANAGED_BROWSER_CDP_PARAM_HEIGHT): height,
+            (MANAGED_BROWSER_CDP_PARAM_SCALE): 1,
         });
     }
     params
