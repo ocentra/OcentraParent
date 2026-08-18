@@ -2,8 +2,6 @@
 
 //! Durable revocation-generation and active-time checks for snapshots.
 
-use chrono::{DateTime, Utc};
-
 use crate::{
     entitlement_snapshot::SignedEntitlementSnapshot,
     entitlement_snapshot_values::EntitlementSnapshotFreshnessState,
@@ -50,48 +48,12 @@ pub(crate) fn currentness(
             authority_generation: update.authority_generation,
         });
     }
-    let issued_at = parse_timestamp(&snapshot.issued_at)?;
-    let expires_at = parse_timestamp(&snapshot.expires_at)?;
-    let now = Utc::now();
-    if now < issued_at {
-        return Err(EntitlementSnapshotVerificationFailure::NotYetValid);
-    }
-    if now >= expires_at {
-        return expired_or_grace(
-            now,
-            snapshot.grace_until.as_deref(),
-            update.authority_generation,
-        );
-    }
+
+    let freshness = authority
+        .currentness
+        .evaluate_snapshot_freshness(snapshot, &update)?;
     Ok(SnapshotCurrentness {
-        freshness: EntitlementSnapshotFreshnessState::Fresh,
+        freshness,
         authority_generation: update.authority_generation,
     })
-}
-
-fn expired_or_grace(
-    now: DateTime<Utc>,
-    grace_until: Option<&str>,
-    authority_generation: u64,
-) -> Result<SnapshotCurrentness, EntitlementSnapshotVerificationFailure> {
-    if grace_until
-        .map(parse_timestamp)
-        .transpose()?
-        .is_some_and(|grace_until| now < grace_until)
-    {
-        return Ok(SnapshotCurrentness {
-            freshness: EntitlementSnapshotFreshnessState::Grace,
-            authority_generation,
-        });
-    }
-    Ok(SnapshotCurrentness {
-        freshness: EntitlementSnapshotFreshnessState::Expired,
-        authority_generation,
-    })
-}
-
-fn parse_timestamp(value: &str) -> Result<DateTime<Utc>, EntitlementSnapshotVerificationFailure> {
-    DateTime::parse_from_rfc3339(value)
-        .map(|timestamp| timestamp.with_timezone(&Utc))
-        .map_err(|_error| EntitlementSnapshotVerificationFailure::InvalidSnapshotShape)
 }

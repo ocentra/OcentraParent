@@ -8,6 +8,9 @@ use ocentra_family_identity_core::{
 use crate::entitlement_access::{
     EntitlementPolicyState, FamilySetupState, OfflineGraceState, SubscriptionState,
 };
+use crate::entitlement_snapshot::SignedEntitlementSnapshot;
+use crate::entitlement_snapshot_cache::SignedEntitlementRevocationUpdate;
+use crate::entitlement_snapshot_values::EntitlementSnapshotFreshnessState;
 
 use super::{
     EntitlementCurrentnessAuthority, EntitlementSnapshotVerificationFailure,
@@ -27,6 +30,14 @@ impl EntitlementCurrentnessAuthority for ManualRequiredEntitlementCurrentnessAut
         _account_authority: &VerifiedAccountIdentityAuthority,
         _device_binding: &CurrentChildDeviceTrustBinding,
     ) -> Result<(), EntitlementSnapshotVerificationFailure> {
+        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
+    }
+
+    fn evaluate_snapshot_freshness(
+        &self,
+        _snapshot: &SignedEntitlementSnapshot,
+        _revocation_update: &SignedEntitlementRevocationUpdate,
+    ) -> Result<EntitlementSnapshotFreshnessState, EntitlementSnapshotVerificationFailure> {
         Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
     }
 

@@ -30,6 +30,21 @@ impl SignedEntitlementSnapshot {
             return Err(EntitlementSnapshotShapeError::InvalidAuthorityGeneration);
         }
 
+        if self.base_child_device_limit == 0 {
+            return Err(EntitlementSnapshotShapeError::InvalidEffectiveChildDeviceLimit);
+        }
+        let expected_effective_child_device_limit = self
+            .base_child_device_limit
+            .checked_add(self.active_referral_credits)
+            .and_then(|subtotal| subtotal.checked_add(self.paid_extra_child_device_seats))
+            .filter(|limit| *limit > 0)
+            .ok_or(EntitlementSnapshotShapeError::InvalidEffectiveChildDeviceLimit)?;
+        if self.effective_child_device_limit != expected_effective_child_device_limit
+            || self.limits.child_device_limit != expected_effective_child_device_limit
+        {
+            return Err(EntitlementSnapshotShapeError::InvalidEffectiveChildDeviceLimit);
+        }
+
         let issued_at = parse_snapshot_timestamp(&self.issued_at)?;
         let expires_at = parse_snapshot_timestamp(&self.expires_at)?;
         if issued_at >= expires_at {

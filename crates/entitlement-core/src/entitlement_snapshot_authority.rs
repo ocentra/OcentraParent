@@ -32,7 +32,7 @@ pub(crate) mod ports;
 #[path = "entitlement_snapshot_authority_revocation.rs"]
 mod revocation;
 #[path = "entitlement_snapshot_authority_verifier.rs"]
-mod verifier;
+pub(crate) mod verifier;
 #[path = "entitlement_snapshot_authority_verifier_binding.rs"]
 mod verifier_binding;
 #[path = "entitlement_snapshot_authority_verifier_currentness.rs"]

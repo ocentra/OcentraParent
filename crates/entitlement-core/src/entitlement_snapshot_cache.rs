@@ -14,6 +14,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 
 use crate::entitlement_snapshot::SignedEntitlementSnapshot;
+use crate::entitlement_snapshot_authority::verifier::SnapshotVerificationReceipt;
 use crate::entitlement_snapshot_values::{
     EntitlementRevocationCursor, EntitlementSignatureKeyId, EntitlementSnapshotId,
 };
@@ -30,7 +31,7 @@ const REVOCATION_SIGNATURE_BYTES: usize = 64;
 const MAX_REVOCATION_ENTRIES: usize = 16_384;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum EntitlementSnapshotCacheError {
+pub(crate) enum EntitlementSnapshotCacheError {
     StorageUnavailable,
     CorruptState,
     InvalidPath,
@@ -38,18 +39,20 @@ pub enum EntitlementSnapshotCacheError {
 }
 
 #[derive(Clone, Debug)]
-pub struct EntitlementSnapshotCache {
+pub(crate) struct EntitlementSnapshotCache {
     path: PathBuf,
 }
 
 impl EntitlementSnapshotCache {
-    pub fn open(path: impl Into<PathBuf>) -> Result<Self, EntitlementSnapshotCacheError> {
+    pub(crate) fn open(path: impl Into<PathBuf>) -> Result<Self, EntitlementSnapshotCacheError> {
         let path = path.into();
         path::prepare_path(&path)?;
         Ok(Self { path })
     }
 
-    pub fn read(&self) -> Result<Option<SignedEntitlementSnapshot>, EntitlementSnapshotCacheError> {
+    pub(crate) fn read(
+        &self,
+    ) -> Result<Option<SignedEntitlementSnapshot>, EntitlementSnapshotCacheError> {
         path::ensure_secure_path(&self.path)?;
         let bytes = match std::fs::read(&self.path) {
             Ok(bytes) => bytes,
@@ -64,10 +67,17 @@ impl EntitlementSnapshotCache {
         Ok(Some(snapshot))
     }
 
-    pub fn replace(
+    /// Persist only a snapshot that already carries the authority's
+    /// signature/currentness receipt. Raw transport values have no mutation
+    /// API, so they cannot pin a higher generation or poison the cache before
+    /// verification. The owner-composed platform custody still must provide a
+    /// handle-safe replacement implementation before this path is production
+    /// reachable; this packet keeps it crate-private/manual-required.
+    pub(crate) fn replace_verified(
         &self,
-        snapshot: &SignedEntitlementSnapshot,
+        receipt: &SnapshotVerificationReceipt,
     ) -> Result<(), EntitlementSnapshotCacheError> {
+        let snapshot = receipt.snapshot();
         snapshot
             .validate_shape()
             .map_err(|_error| EntitlementSnapshotCacheError::CorruptState)?;
@@ -80,7 +90,7 @@ impl EntitlementSnapshotCache {
         })
     }
 
-    pub fn path(&self) -> &Path {
+    pub(crate) fn path(&self) -> &Path {
         &self.path
     }
 

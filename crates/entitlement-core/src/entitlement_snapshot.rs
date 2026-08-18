@@ -160,6 +160,7 @@ pub enum EntitlementSnapshotShapeError {
     InvalidGraceWindow,
     DuplicateCapability,
     InvalidAuthorityGeneration,
+    InvalidEffectiveChildDeviceLimit,
 }
 
 impl SignedEntitlementSnapshot {

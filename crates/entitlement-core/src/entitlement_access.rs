@@ -175,7 +175,6 @@ pub struct EntitlementDecision {
 /// verifies current account/device binding, revocation state, and the local
 /// entitlement gate.  It is intentionally not serde-capable: callers cannot
 /// mint or replay an unlock by sending a wire projection back to the runtime.
-#[derive(PartialEq, Eq)]
 pub struct EntitlementCapabilityGrant {
     capability: EntitlementCapability,
     snapshot_id: EntitlementSnapshotId,
@@ -192,11 +191,11 @@ impl std::fmt::Debug for EntitlementCapabilityGrant {
 }
 
 impl EntitlementCapabilityGrant {
-    pub fn capability(&self) -> EntitlementCapability {
+    pub(crate) fn capability(&self) -> EntitlementCapability {
         self.capability
     }
 
-    pub fn snapshot_id(&self) -> &EntitlementSnapshotId {
+    pub(crate) fn snapshot_id(&self) -> &EntitlementSnapshotId {
         &self.snapshot_id
     }
 
