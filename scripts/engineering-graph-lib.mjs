@@ -290,12 +290,12 @@ function assertPlannedExecutableRoots(
     const problem = plannedExecutablePathProblem(root, reference, requirement);
     if (problem) throw new Error(`${codeMapPath} workpack ${workpackId} ${field}: ${problem}`);
   }
-  const normalizedRoots = new Set(entry.roots.map(normalizeRepoPath));
   const normalizedValues = values.map(normalizeRepoPath);
   if (new Set(normalizedValues).size !== normalizedValues.length) {
     throw new Error(`${codeMapPath} workpack ${workpackId} ${field} must not contain duplicates`);
   }
-  if (normalizedValues.some((reference) => !normalizedRoots.has(reference))) {
+  const normalizedRoots = new Set(entry.roots.map(normalizeRepoPath));
+  if (field !== 'expectedTestRoots' && normalizedValues.some((reference) => !normalizedRoots.has(reference))) {
     throw new Error(`${codeMapPath} workpack ${workpackId} ${field} must be a subset of roots`);
   }
 }
@@ -402,7 +402,13 @@ function isTestPath(relativePath) {
   );
 }
 
-function workpackCodeExpectationSatisfied(codeExpectation, implementationFiles, testFiles) {
+function workpackCodeExpectationSatisfied(
+  codeExpectation,
+  implementationFiles,
+  testFiles,
+  missingExpectedTestRoots = []
+) {
+  if (missingExpectedTestRoots.length > 0) return false;
   if (codeExpectation === 'no-code-required') {
     return implementationFiles.length === 0 && testFiles.length === 0;
   }
@@ -493,6 +499,8 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
     const codeExpectation = entry.codeExpectation ?? 'code-and-tests';
     if (!rootScope && planSlug && planId(planSlug) !== scope && planSlug !== scope) continue;
     if (!rootScope && !planSlug && !workpackId.startsWith(`WP-${String(scope).replace(/^PLAN-/u, '')}-`)) continue;
+    const expectedTestRoots = [...new Set((entry.expectedTestRoots ?? []).map(normalizeRepoPath))];
+    const missingExpectedTestRoots = expectedTestRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
     const uniqueRoots = [...new Set(entry.roots.map(normalizeRepoPath))];
     const missingRoots = uniqueRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
     const files = [];
@@ -506,9 +514,16 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
       workpackId,
       planSlug,
       codeExpectation,
-      codeExpectationSatisfied: workpackCodeExpectationSatisfied(codeExpectation, implementationFiles, testFiles),
+      codeExpectationSatisfied: workpackCodeExpectationSatisfied(
+        codeExpectation,
+        implementationFiles,
+        testFiles,
+        missingExpectedTestRoots
+      ),
       roots: uniqueRoots,
       missingRoots,
+      expectedTestRoots,
+      missingExpectedTestRoots,
       state: codeTopologyState(implementationFiles, testFiles),
       codeFiles: uniqueFiles.length,
       implementationFiles: implementationFiles.length,
