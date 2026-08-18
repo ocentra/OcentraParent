@@ -12,7 +12,7 @@ pub mod data_custody_backup_runtime;
 pub(crate) mod data_custody_backup_runtime_job_ledger;
 pub(crate) mod data_custody_backup_runtime_lifecycle;
 pub(crate) mod data_custody_backup_runtime_persistence;
-pub(crate) mod data_custody_backup_runtime_ports;
+pub mod data_custody_backup_runtime_ports;
 pub(crate) mod data_custody_backup_runtime_reconciliation;
 pub(crate) mod data_custody_backup_runtime_schedule;
 pub(crate) mod data_custody_backup_runtime_schedule_execute;

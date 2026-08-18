@@ -15,22 +15,21 @@ pub struct RestoreExecutorReceipt {
 }
 
 impl RestoreExecutorReceipt {
-    pub(crate) fn new(
+    /// Creates a provider receipt only when the plan and owner-issued binding
+    /// are the same non-serializable capability instance.
+    pub fn new(
         plan: &RestoreExecutionPlan,
         binding: &RestoreExecutionBinding,
         state: contracts::ExportImportRestoreApplyState,
         applied_sections: Vec<contracts::ExportImportSectionDecision>,
         rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-        provider_operation_ref: Option<String>,
+        provider_operation_ref: Option<contracts::ExportImportProviderOperationRef>,
     ) -> Option<Self> {
         if plan.execution_binding() != binding
             || !plan.execution_binding().is_same_capability(binding)
         {
             return None;
         }
-        let provider_operation_ref = provider_operation_ref
-            .map(|value| contracts::ExportImportProviderOperationRef::parse(value))
-            .transpose()?;
         if matches!(
             state,
             contracts::ExportImportRestoreApplyState::Applied
@@ -48,25 +47,23 @@ impl RestoreExecutorReceipt {
         })
     }
 
-    pub(crate) fn execution_ref(&self) -> &contracts::ExportImportExecutionRef {
+    pub fn execution_ref(&self) -> &contracts::ExportImportExecutionRef {
         &self.execution_ref
     }
 
-    pub(crate) fn state(&self) -> contracts::ExportImportRestoreApplyState {
+    pub fn state(&self) -> contracts::ExportImportRestoreApplyState {
         self.state
     }
 
-    pub(crate) fn applied_sections(&self) -> &[contracts::ExportImportSectionDecision] {
+    pub fn applied_sections(&self) -> &[contracts::ExportImportSectionDecision] {
         &self.applied_sections
     }
 
-    pub(crate) fn rejected_sections(&self) -> &[contracts::ExportImportSectionDecision] {
+    pub fn rejected_sections(&self) -> &[contracts::ExportImportSectionDecision] {
         &self.rejected_sections
     }
 
-    pub(crate) fn provider_operation_ref(
-        &self,
-    ) -> Option<&contracts::ExportImportProviderOperationRef> {
+    pub fn provider_operation_ref(&self) -> Option<&contracts::ExportImportProviderOperationRef> {
         self.provider_operation_ref.as_ref()
     }
 }
@@ -78,10 +75,12 @@ pub struct RestoreProviderOperationReceipt {
 }
 
 impl RestoreProviderOperationReceipt {
-    pub(crate) fn new(
+    /// Creates a migration or rollback receipt only from the matching
+    /// owner-issued plan/binding pair.
+    pub fn new(
         plan: &RestoreExecutionPlan,
         binding: &RestoreExecutionBinding,
-        provider_operation_ref: impl Into<String>,
+        provider_operation_ref: contracts::ExportImportProviderOperationRef,
     ) -> Option<Self> {
         if plan.execution_binding() != binding
             || !plan.execution_binding().is_same_capability(binding)
@@ -90,17 +89,15 @@ impl RestoreProviderOperationReceipt {
         }
         Some(Self {
             execution_ref: plan.execution_ref().clone(),
-            provider_operation_ref: contracts::ExportImportProviderOperationRef::parse(
-                provider_operation_ref,
-            )?,
+            provider_operation_ref,
         })
     }
 
-    pub(crate) fn execution_ref(&self) -> &contracts::ExportImportExecutionRef {
+    pub fn execution_ref(&self) -> &contracts::ExportImportExecutionRef {
         &self.execution_ref
     }
 
-    pub(crate) fn provider_operation_ref(&self) -> &contracts::ExportImportProviderOperationRef {
+    pub fn provider_operation_ref(&self) -> &contracts::ExportImportProviderOperationRef {
         &self.provider_operation_ref
     }
 }

@@ -3,15 +3,11 @@ use ocentra_schema::export_import_backup_recovery as contracts;
 
 use super::execution_binding::RestoreExecutionCapability;
 
-mod sealed {
-    pub trait Port {}
-}
-
 /// Capability port owned by the account/key custody runtime. Implementations
 /// are external to storage-custody-core; this crate consumes only successful
 /// capability operations and never accepts caller-supplied integrity or
 /// authority booleans.
-pub trait ImportCustodyCapabilityPort: sealed::Port + Send + Sync {
+pub trait ImportCustodyCapabilityPort: Send + Sync {
     /// Atomically verifies the current authority binding, local target, key,
     /// manifest/payload integrity, migration path, and section decisions. The
     /// returned snapshot carries one opaque custody capability; callers cannot
@@ -19,7 +15,7 @@ pub trait ImportCustodyCapabilityPort: sealed::Port + Send + Sync {
     fn verify_import_bundle(
         &self,
         bundle: &contracts::ExportImportRecoveryBundle,
-        authority: &HouseholdAuthorityRuntimeEffectAuthorization,
+        authority: HouseholdAuthorityRuntimeEffectAuthorization,
     ) -> Result<VerifiedImportCustody, ImportBindingError>;
 }
 
@@ -41,6 +37,7 @@ pub struct VerifiedImportCustody {
     migration_ref: Option<contracts::ExportImportMigrationRef>,
     preflight: contracts::ExportImportImportPreflight,
     capability: Box<dyn RestoreExecutionCapability>,
+    authority: Option<HouseholdAuthorityRuntimeEffectAuthorization>,
 }
 
 impl std::fmt::Debug for VerifiedImportCustody {
@@ -53,6 +50,7 @@ impl std::fmt::Debug for VerifiedImportCustody {
             .field("payload_integrity_refs", &self.payload_integrity_refs)
             .field("household_id", &self.household_id)
             .field("target_device_id", &self.target_device_id)
+            .field("authority_generation", &self.authority_generation)
             .field("migration_ref", &self.migration_ref)
             .field("preflight", &self.preflight)
             .finish_non_exhaustive()
@@ -61,10 +59,9 @@ impl std::fmt::Debug for VerifiedImportCustody {
 
 impl VerifiedImportCustody {
     pub(crate) fn validate_for_binding(
-        &self,
+        mut self,
         bundle: &contracts::ExportImportRecoveryBundle,
-        authority: HouseholdAuthorityRuntimeEffectAuthorization,
-    ) -> Result<(), ImportBindingError> {
+    ) -> Result<Self, ImportBindingError> {
         if self.bundle_id != bundle.manifest.bundle_id
             || self.household_id != bundle.manifest.source_household_id
         {
@@ -74,7 +71,9 @@ impl VerifiedImportCustody {
             .target_device_id
             .as_ref()
             .ok_or(ImportBindingError::MissingLocalContext)?;
-        authority
+        self.authority
+            .take()
+            .ok_or(ImportBindingError::AuthorityProofMismatch)?
             .consume_for_data_custody(
                 ocentra_family_identity_core::household_authority::HouseholdAuthorityAction::ImportRestoreData,
                 self.household_id.as_str(),
@@ -108,10 +107,14 @@ impl VerifiedImportCustody {
         {
             return Err(ImportBindingError::SectionBindingMismatch);
         }
-        Ok(())
+        Ok(self)
     }
 
-    pub(crate) fn from_verified_parts(
+    /// Creates the non-serializable custody result owned by an Account/key
+    /// implementation. The authorization is consumed exactly once during
+    /// binding; callers cannot substitute a serialized or caller-minted
+    /// authority value.
+    pub fn from_owner_parts(
         bundle_id: contracts::ExportImportBundleId,
         key_ref: contracts::ExportImportKeyRef,
         manifest_integrity_ref: contracts::ExportImportIntegrityRef,
@@ -121,10 +124,10 @@ impl VerifiedImportCustody {
         )>,
         household_id: contracts::ExportImportHouseholdId,
         target_device_id: Option<contracts::ExportImportDeviceId>,
-        authority_generation: u64,
         migration_ref: Option<contracts::ExportImportMigrationRef>,
         preflight: contracts::ExportImportImportPreflight,
         capability: Box<dyn RestoreExecutionCapability>,
+        authority: HouseholdAuthorityRuntimeEffectAuthorization,
     ) -> Self {
         Self {
             bundle_id,
@@ -133,10 +136,11 @@ impl VerifiedImportCustody {
             payload_integrity_refs,
             household_id,
             target_device_id,
-            authority_generation,
+            authority_generation: authority.account_authority_generation(),
             migration_ref,
             preflight,
             capability,
+            authority: Some(authority),
         }
     }
 
