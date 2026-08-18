@@ -16,7 +16,9 @@ use ocentra_storage_custody_core::export_import_backup_recovery::{
 
 #[path = "data_custody_restore_runtime_executor_receipts.rs"]
 pub mod receipts;
-use self::receipts::{RestoreExecutorReceipt, RestoreProviderOperationReceipt};
+use self::receipts::{
+    RestoreExecutorReceipt, RestoreProviderOperationReceipt, RestoreRollbackBinding,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RestoreAuthorityUnavailable {
@@ -53,20 +55,21 @@ mod restore_provider_sealed {
 pub(crate) trait ProviderNeutralRestorePort:
     restore_provider_sealed::Port + Send + Sync
 {
-    fn execute_restore(
+    fn execute_restore<'a>(
         &self,
         plan: &RestoreExecutionPlan,
-        reservation: RestoreDispatchReservation<'_>,
-    ) -> Result<RestoreExecutorReceipt, RestoreExecutorError>;
+        reservation: RestoreDispatchReservation<'a>,
+    ) -> Result<RestoreExecutorReceipt<'a>, RestoreExecutorError>;
     fn execute_migration(
         &self,
         plan: &RestoreExecutionPlan,
         reservation: RestoreDispatchReservation<'_>,
     ) -> Result<RestoreProviderOperationReceipt, RestoreExecutorError>;
-    fn rollback_restore(
+    fn rollback_restore<'a>(
         &self,
         plan: &RestoreExecutionPlan,
-        reservation: RestoreDispatchReservation<'_>,
+        reservation: RestoreDispatchReservation<'a>,
+        rollback_binding: RestoreRollbackBinding<'a>,
     ) -> Result<RestoreProviderOperationReceipt, RestoreExecutorError>;
 }
 
@@ -81,15 +84,15 @@ pub struct RestoreExecutorMount<'a> {
 }
 
 #[derive(Debug)]
-pub(crate) struct RestoreExecutionObservation {
+pub(crate) struct RestoreExecutionObservation<'a> {
     state: contracts::ExportImportRestoreApplyState,
     applied_sections: Vec<contracts::ExportImportSectionDecision>,
     rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-    provider_operation_ref: Option<contracts::ExportImportProviderOperationRef>,
+    rollback_binding: Option<RestoreRollbackBinding<'a>>,
     compensation: PartialWriteCompensation,
 }
 
-impl RestoreExecutionObservation {
+impl<'a> RestoreExecutionObservation<'a> {
     pub(crate) fn state(&self) -> contracts::ExportImportRestoreApplyState {
         self.state
     }
@@ -105,11 +108,27 @@ impl RestoreExecutionObservation {
     pub(crate) fn provider_operation_ref(
         &self,
     ) -> Option<&contracts::ExportImportProviderOperationRef> {
-        self.provider_operation_ref.as_ref()
+        self.rollback_binding
+            .as_ref()
+            .map(RestoreRollbackBinding::provider_operation_ref)
     }
 
     pub(crate) fn compensation(&self) -> PartialWriteCompensation {
         self.compensation
+    }
+
+    pub(crate) fn into_rollback_observation(
+        self,
+    ) -> (
+        Vec<contracts::ExportImportSectionDecision>,
+        Vec<contracts::ExportImportSectionDecision>,
+        Option<RestoreRollbackBinding<'a>>,
+    ) {
+        (
+            self.applied_sections,
+            self.rejected_sections,
+            self.rollback_binding,
+        )
     }
 }
 
@@ -139,10 +158,10 @@ impl<'a> RestoreExecutorMount<'a> {
     }
 }
 
-pub(crate) fn execute_restore_operation(
-    plan: &RestoreExecutionPlan,
+pub(crate) fn execute_restore_operation<'a>(
+    plan: &'a RestoreExecutionPlan,
     provider: &dyn ProviderNeutralRestorePort,
-) -> Result<RestoreExecutionObservation, RestoreExecutorOperationError> {
+) -> Result<RestoreExecutionObservation<'a>, RestoreExecutorOperationError> {
     let reservation = plan
         .execution_binding()
         .reserve_dispatch(plan.execution_ref(), RestoreExecutionStage::Restore)
@@ -162,9 +181,11 @@ pub(crate) fn execute_restore_operation(
         receipt.rejected_sections(),
     )
     .map_err(RestoreExecutorOperationError::Receipt)?;
+    let (receipt_state, applied_sections, rejected_sections, rollback_binding) =
+        receipt.into_observation_parts();
     let observation = PartialWriteObservation {
-        applied_sections: receipt.applied_sections.clone(),
-        rejected_sections: receipt.rejected_sections.clone(),
+        applied_sections: applied_sections.clone(),
+        rejected_sections: rejected_sections.clone(),
     };
     let compensation = decide_partial_write_compensation(plan, &observation);
     let state = match compensation {
@@ -172,14 +193,14 @@ pub(crate) fn execute_restore_operation(
         PartialWriteCompensation::ManualRequired => {
             contracts::ExportImportRestoreApplyState::Blocked
         }
-        PartialWriteCompensation::NotRequired => receipt.state,
-        PartialWriteCompensation::Applied => receipt.state,
+        PartialWriteCompensation::NotRequired => receipt_state,
+        PartialWriteCompensation::Applied => receipt_state,
     };
     Ok(RestoreExecutionObservation {
         state,
-        applied_sections: receipt.applied_sections,
-        rejected_sections: receipt.rejected_sections,
-        provider_operation_ref: receipt.provider_operation_ref,
+        applied_sections,
+        rejected_sections,
+        rollback_binding,
         compensation,
     })
 }

@@ -1,41 +1,89 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::
     export_import_backup_recovery_bundle_preflight_binding::execution_binding::
-        RestoreExecutionBinding;
+        {RestoreDispatchReservation, RestoreExecutionBinding, RestoreExecutionStage};
 
 use super::RestoreExecutionPlan;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RestoreExecutorReceipt {
+/// Non-serializable provider operation identity issued only from a reserved
+/// restore dispatch. The binding and execution reference are retained by
+/// reference so rollback cannot be authorized from a persisted provider ref.
+#[derive(Debug)]
+pub(crate) struct RestoreRollbackBinding<'a> {
+    binding: &'a RestoreExecutionBinding,
+    execution_ref: &'a contracts::ExportImportExecutionRef,
+    provider_operation_ref: contracts::ExportImportProviderOperationRef,
+}
+
+impl<'a> RestoreRollbackBinding<'a> {
+    fn from_reservation(
+        reservation: &RestoreDispatchReservation<'a>,
+        provider_operation_ref: impl Into<String>,
+    ) -> Option<Self> {
+        if reservation.stage() != RestoreExecutionStage::Restore {
+            return None;
+        }
+        Some(Self {
+            binding: reservation.binding(),
+            execution_ref: reservation.execution_ref(),
+            provider_operation_ref: contracts::ExportImportProviderOperationRef::parse(
+                provider_operation_ref,
+            )?,
+        })
+    }
+
+    pub(crate) fn is_bound_to(
+        &self,
+        binding: &RestoreExecutionBinding,
+        execution_ref: &contracts::ExportImportExecutionRef,
+    ) -> bool {
+        std::ptr::eq(self.binding, binding) && self.execution_ref == execution_ref
+    }
+
+    pub(crate) fn provider_operation_ref(&self) -> &contracts::ExportImportProviderOperationRef {
+        &self.provider_operation_ref
+    }
+}
+
+#[derive(Debug)]
+pub(super) struct RestoreExecutorReceipt<'a> {
     execution_ref: contracts::ExportImportExecutionRef,
     state: contracts::ExportImportRestoreApplyState,
     applied_sections: Vec<contracts::ExportImportSectionDecision>,
     rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-    provider_operation_ref: Option<contracts::ExportImportProviderOperationRef>,
+    rollback_binding: Option<RestoreRollbackBinding<'a>>,
 }
 
-impl RestoreExecutorReceipt {
-    pub(crate) fn new(
+impl<'a> RestoreExecutorReceipt<'a> {
+    pub(super) fn new(
         plan: &RestoreExecutionPlan,
-        binding: &RestoreExecutionBinding,
+        reservation: &RestoreDispatchReservation<'a>,
         state: contracts::ExportImportRestoreApplyState,
         applied_sections: Vec<contracts::ExportImportSectionDecision>,
         rejected_sections: Vec<contracts::ExportImportSectionDecision>,
         provider_operation_ref: Option<String>,
     ) -> Option<Self> {
-        if plan.execution_binding() != binding
-            || !plan.execution_binding().is_same_capability(binding)
+        if plan.execution_binding() != reservation.binding()
+            || !plan
+                .execution_binding()
+                .is_same_capability(reservation.binding())
+            || reservation.execution_ref() != plan.execution_ref()
+            || reservation.stage() != RestoreExecutionStage::Restore
         {
             return None;
         }
-        let provider_operation_ref = provider_operation_ref
-            .map(|value| contracts::ExportImportProviderOperationRef::parse(value))
-            .transpose()?;
+        let rollback_binding = match provider_operation_ref {
+            Some(value) => Some(RestoreRollbackBinding::from_reservation(
+                reservation,
+                value,
+            )?),
+            None => None,
+        };
         if matches!(
             state,
             contracts::ExportImportRestoreApplyState::Applied
                 | contracts::ExportImportRestoreApplyState::Partial
-        ) && provider_operation_ref.is_none()
+        ) && rollback_binding.is_none()
         {
             return None;
         }
@@ -44,7 +92,7 @@ impl RestoreExecutorReceipt {
             state,
             applied_sections,
             rejected_sections,
-            provider_operation_ref,
+            rollback_binding,
         })
     }
 
@@ -67,7 +115,25 @@ impl RestoreExecutorReceipt {
     pub(crate) fn provider_operation_ref(
         &self,
     ) -> Option<&contracts::ExportImportProviderOperationRef> {
-        self.provider_operation_ref.as_ref()
+        self.rollback_binding
+            .as_ref()
+            .map(RestoreRollbackBinding::provider_operation_ref)
+    }
+
+    pub(crate) fn into_observation_parts(
+        self,
+    ) -> (
+        contracts::ExportImportRestoreApplyState,
+        Vec<contracts::ExportImportSectionDecision>,
+        Vec<contracts::ExportImportSectionDecision>,
+        Option<RestoreRollbackBinding<'a>>,
+    ) {
+        (
+            self.state,
+            self.applied_sections,
+            self.rejected_sections,
+            self.rollback_binding,
+        )
     }
 }
 

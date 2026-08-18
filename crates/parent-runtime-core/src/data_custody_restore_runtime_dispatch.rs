@@ -55,14 +55,16 @@ impl ParentRestoreRuntime {
 
         let observation = execute_restore_operation(plan, provider)?;
         if observation.compensation() == PartialWriteCompensation::Required {
+            let (applied_sections, rejected_sections, rollback_binding) =
+                observation.into_rollback_observation();
             return self
                 .rollback_after_observation(
                     plan,
                     mount,
                     provider,
-                    observation.applied_sections().to_vec(),
-                    observation.rejected_sections().to_vec(),
-                    observation.provider_operation_ref().cloned(),
+                    applied_sections,
+                    rejected_sections,
+                    rollback_binding,
                 )
                 .await;
         }

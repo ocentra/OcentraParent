@@ -2,12 +2,12 @@ use ocentra_schema::export_import_backup_recovery as contracts;
 
 use super::{RestoreDispatchReservation, RestoreExecutionBinding, RestoreExecutionStage};
 
-impl RestoreDispatchReservation<'_> {
-    pub fn binding(&self) -> &RestoreExecutionBinding {
+impl<'a> RestoreDispatchReservation<'a> {
+    pub fn binding(&self) -> &'a RestoreExecutionBinding {
         self.binding
     }
 
-    pub fn execution_ref(&self) -> &contracts::ExportImportExecutionRef {
+    pub fn execution_ref(&self) -> &'a contracts::ExportImportExecutionRef {
         self.execution_ref
     }
 
