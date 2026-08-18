@@ -41,6 +41,7 @@ impl SqliteAccountIdentityAuthorityRepository {
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
         let (now, _) = trusted_now_in_transaction(&transaction)?;
+        ensure_current_authority(&transaction, authority, now)?;
         enforce_invite_rate_limit(
             &transaction,
             &format!(
@@ -54,7 +55,6 @@ impl SqliteAccountIdentityAuthorityRepository {
         )?;
         let expires_at_epoch_millis = invite_expiry(now, ttl)?;
         let expires_at = timestamp(expires_at_epoch_millis)?;
-        ensure_current_authority(&transaction, authority, now)?;
         persist_setup_invite(
             &transaction,
             authority,
