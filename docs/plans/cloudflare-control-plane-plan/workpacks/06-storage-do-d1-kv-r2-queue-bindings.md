@@ -69,8 +69,9 @@ not `DONE`.
   not accept caller-provided household, role, device, session, capability,
   controller-lease, or step-up authority.
 - `infra/cloudflare/src/auth/verifier.ts` reaches the provider/current-authority
-  read path. `infra/cloudflare/src/index.ts` does not import the Account-owned
-  mutation API, so create/CAS/revoke are not claimed runtime-reachable.
+  read path. The runtime exposes no create/CAS/revoke API; its parameterless
+  mutation-readiness result remains manual-required until the Account-owned
+  producer transport is verified.
 - Commits `f9cfc9070` and `dfa8181b1` close the missing source-owner gap only.
   The complete expected-test packet, focused execution, migration application,
   retained proof, deployment, and runtime-composition gate are still open.
@@ -89,9 +90,11 @@ closure.
 
 `infra/cloudflare/src/auth/account-identity-authority-runtime.ts` now routes
 verified-provider reads through the existing bounded D1 read adapter, while
-create/compare-and-swap/revoke return
-`account-identity-authority-source-unavailable` and emit no mutation. The
-exact owner route that must be supplied before mutation can be mounted is:
+its parameterless `getMutationAuthorityReadiness()` returns
+`account-identity-authority-source-unavailable` and emits no mutation. The
+writer's create/compare-and-swap/revoke methods remain gated by the
+unconstructible `AccountOwnedAuthorityProducer`; the exact owner route that
+must be supplied before mutation can be mounted is:
 `account-identity-family-plan` WP02/WP08 -> Account-owned signed/sealed
 current-authority transport and Worker verifier -> Cloudflare WP06 runtime.
 Until that route exists, D1 evidence, provider claims, request headers, and
@@ -123,7 +126,7 @@ after this bridge is real. This route has no reverse dependency on WP03.
 - `infra/cloudflare/src/storage/account-identity-authority-store.ts` for the canonical Account WP08 `v0.7` binding adapter
 - `infra/cloudflare/src/storage/account-identity-authority-writer.ts` for authoritative create/update/revoke/currentness/CAS ownership; source exists, mutation runtime composition does not
 - `infra/cloudflare/src/auth/account-identity-authority-caller.ts` for verified Firebase/provider-to-sealed-authority composition; current-authority resolution is reachable through the verifier
-- planned `infra/cloudflare/src/auth/account-identity-authority-runtime.ts` for the Account-owned mutation composition without raw public authority inputs
+- `infra/cloudflare/src/auth/account-identity-authority-runtime.ts` for the safe verified-provider read/manual boundary; no mutation scalar API is exposed before the trusted producer route exists
 - `infra/cloudflare/src/auth/verifier.ts` for the provider-gated Worker-owned caller and fail-closed manual-required path
 - `infra/cloudflare/package.json` for schema-domain contract build ordering before Cloudflare consumers
 - `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql` for the isolated account-identity D1 schema/migration
@@ -144,7 +147,7 @@ after this bridge is real. This route has no reverse dependency on WP03.
 - `infra/cloudflare/src/storage/account-identity-authority-store.ts`
 - `infra/cloudflare/src/storage/account-identity-authority-writer.ts`
 - `infra/cloudflare/src/auth/account-identity-authority-caller.ts`
-- `infra/cloudflare/src/auth/account-identity-authority-runtime.ts` (planned)
+- `infra/cloudflare/src/auth/account-identity-authority-runtime.ts`
 - `infra/cloudflare/src/auth/verifier.ts`
 - `infra/cloudflare/package.json`
 - `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql`
@@ -157,7 +160,7 @@ after this bridge is real. This route has no reverse dependency on WP03.
 - Each binding has one owner and one purpose.
 - No child-data storage drift is allowed.
 - Queue and dead-letter ownership is explicit.
-- The account-identity D1 binding, isolated migrations, read adapter, authoritative writer, and provider caller preserve the Account WP08/WP02 handoff boundary without redefining family authority. The provider caller consumes verified Firebase identity and Account-owned authority; caller trust facts remain rejected. Current-authority resolution is reachable, while create/CAS/revoke remain manual-required until an owning runtime route mounts the mutation producer. Account DO/KV remain manual-required.
+- The account-identity D1 binding, isolated migrations, read adapter, authoritative writer, and provider caller preserve the Account WP08/WP02 handoff boundary without redefining family authority. The provider caller consumes verified Firebase identity and Account-owned authority; caller trust facts remain rejected. Current-authority resolution is reachable, while the runtime exposes only parameterless mutation readiness and no create/CAS/revoke scalar seam. The writer operations remain gated by an unconstructible `AccountOwnedAuthorityProducer` until Account WP02/WP08 supplies the signed/sealed producer transport and Worker verifier. Account DO/KV remain manual-required.
 - The account D1 migration directory is binding-specific, so account migration application cannot target `BILLING_D1`.
 - The retained storage result or exact blocker is linked for Cloudflare WP08 runner proof and Account WP06 aggregation.
 

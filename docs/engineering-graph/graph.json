@@ -16142,7 +16142,7 @@
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "reviewed source present / mutation mount and expected tests open",
+        "statusText": "reviewed safe read/manual boundary; trusted producer verifier/transport and expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -16167,10 +16167,10 @@
             "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Independent source review accepted the Cloudflare WP06 authority packet at f9cfc9070 and dfa8181b1 after Account WP08's canonical identities, Account WP02's target-aware identity, and WP01's module scaffold. D1 read/current-authority resolution, Account-owned create/currentness/compare-and-swap/revoke source, and the verified-provider caller now exist. The verifier reaches current-authority resolution; the mutation producer is not mounted in the Worker entrypoint. Runtime mutation composition, higher authority, expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
+          "reason": "Independent source review accepted the Cloudflare WP06 authority packet after Account WP08's canonical identities, Account WP02's target-aware identity, and WP01's module scaffold. The runtime is now explicitly mapped as a safe verified-provider read/manual boundary: the verifier reaches current-authority resolution, while parameterless mutation readiness remains manual-required and no caller-scalar mutation API exists. Writer create/currentness/compare-and-swap/revoke remains gated by the unconstructible AccountOwnedAuthorityProducer. The exact missing production owner is Account WP02/WP08 signed/sealed current-authority producer transport plus Worker verifier. Runtime mutation composition, higher authority, expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
         },
         "completionEvidenceOverride": {
-          "reason": "Independent source review accepted the Cloudflare WP06 authority packet at f9cfc9070 and dfa8181b1. The verifier reaches bounded verified-provider current-authority resolution; the Account-owned writer owns create, currentness, compare-and-swap, and revoke source without accepting caller-minted authority. The mutation producer is not mounted in the Worker entrypoint. Expected tests, runtime mutation composition, migration execution, proof, deployment, PR readiness, and DONE remain open.",
+          "reason": "Reviewed WP06 source is limited to the reachable verified-provider read/manual boundary. Runtime mutation readiness is parameterless and manual-required; writer mutations remain gated by the unconstructible AccountOwnedAuthorityProducer. The Account WP02/WP08 signed/sealed current-authority producer transport and Worker verifier are missing, so tests, migration execution, proof, deployment, and DONE remain open.",
           "evidence": [
             "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
             "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
@@ -16186,6 +16186,7 @@
         },
         "references": {
           "implementation": [
+            "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
             "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
             "infra/cloudflare/src/auth/verifier.ts",
             "infra/cloudflare/src/storage/account-identity-authority-store.ts",
