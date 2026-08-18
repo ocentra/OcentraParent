@@ -71,6 +71,8 @@ pub enum HouseholdAuthorizationFailureReason {
     WrongDeviceScope,
     #[serde(rename = "missing-capability-grant")]
     MissingCapabilityGrant,
+    #[serde(rename = "missing-parent-step-up")]
+    MissingParentStepUp,
     #[serde(rename = "controller-lease-required")]
     ControllerLeaseRequired,
     #[serde(rename = "controller-lease-expired")]
@@ -104,6 +106,20 @@ pub struct HouseholdAuthorityInput {
     pub capability_granted: bool,
     pub controller_lease_state: Option<ParentControllerLeaseState>,
     pub action: HouseholdAuthorityAction,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct HouseholdActorTargetAuthorityInput {
+    pub(crate) actor_role: HouseholdRole,
+    pub(crate) same_family: bool,
+    pub(crate) actor_account_state: ActorAccountState,
+    pub(crate) membership_state: HouseholdMembershipState,
+    pub(crate) child_profile_binding_state: ChildProfileBindingState,
+    pub(crate) actor_device_ownership_scope: DeviceOwnershipScope,
+    pub(crate) target_device_ownership_scope: Option<DeviceOwnershipScope>,
+    pub(crate) device_trust_state: DeviceTrustState,
+    pub(crate) session_freshness_state: SessionFreshnessState,
+    pub(crate) action: HouseholdAuthorityAction,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -168,6 +184,28 @@ pub struct ParentStepUpValidationDecision {
 pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAuthorityDecision {
     if let Some(failure_reason) =
         crate::household_authority_validation::household_authority_failure_reason(&input)
+    {
+        return rejected(failure_reason, input.action);
+    }
+
+    HouseholdAuthorityDecision {
+        authorization_state: HouseholdAuthorizationState::Authorized,
+        audit_requirement_state: crate::household_authority_validation::audit_requirement_state(
+            input.action,
+        ),
+        elevated_confirmation_state:
+            crate::household_authority_validation::elevated_confirmation_state(input.action),
+        failure_reason: None,
+    }
+}
+
+pub(crate) fn authorize_household_actor_target_action(
+    input: HouseholdActorTargetAuthorityInput,
+) -> HouseholdAuthorityDecision {
+    if let Some(failure_reason) =
+        crate::household_authority_validation::household_actor_target_authority_failure_reason(
+            &input,
+        )
     {
         return rejected(failure_reason, input.action);
     }

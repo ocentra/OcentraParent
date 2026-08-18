@@ -1,7 +1,9 @@
 use chrono::{DateTime, Utc};
 use ocentra_family_identity_core::{
-    account_identity_authority::{
-        authorize_household_action_from_verified_authority, VerifiedAccountIdentityAuthority,
+    account_identity_authority::VerifiedAccountIdentityAuthority,
+    account_identity_target_authority::{
+        resolve_target_action_from_verified_authority, AccountIdentityTarget,
+        AccountIdentityTargetActionRequest,
     },
     household_authority::{HouseholdAuthorityAction, HouseholdAuthorizationState},
 };
@@ -103,21 +105,24 @@ fn validate_current_parent_authority(
     authority: &VerifiedAccountIdentityAuthority,
     now: DateTime<Utc>,
 ) -> Result<(), ReportQueryCustodyDerivationError> {
-    let action_decision = authorize_household_action_from_verified_authority(
-        authority,
-        HouseholdAuthorityAction::ViewChildStatus,
-        false,
-        None,
-    );
-    (action_decision.authorization_state == HouseholdAuthorizationState::Authorized)
-        .then_some(())
-        .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityActionRejected)?;
-
     let child_profile_id = request
         .device
         .child_profile_id
         .as_ref()
         .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityIdentityMismatch)?;
+    let target_request = AccountIdentityTargetActionRequest::new(
+        HouseholdAuthorityAction::ViewChildStatus,
+        Some(AccountIdentityTarget::child_profile(
+            child_profile_id.clone(),
+        )),
+    );
+    let action_decision = resolve_target_action_from_verified_authority(authority, &target_request)
+        .map(|resolution| resolution.decision())
+        .map_err(|_| ReportQueryCustodyDerivationError::ParentAuthorityActionRejected)?;
+    (action_decision.authorization_state == HouseholdAuthorizationState::Authorized)
+        .then_some(())
+        .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityActionRejected)?;
+
     let request_actor_id = request.parent_action.actor.actor_id.to_string();
     let request_device_id = request.device.device_id.to_string();
     let current_identity = (
