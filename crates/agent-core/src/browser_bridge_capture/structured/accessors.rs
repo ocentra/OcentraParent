@@ -51,10 +51,6 @@ impl ManagedBrowserCdpStructuredExtraction {
         self.freshness == Freshness::Fresh
     }
 
-    pub fn is_stale(&self) -> bool {
-        self.freshness == Freshness::Stale
-    }
-
     pub fn has_structured_evidence(&self) -> bool {
         matches!(&self.outcome, Outcome::StructuredEvidenceAvailable)
     }

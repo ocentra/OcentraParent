@@ -8,7 +8,9 @@ use sha2::{Digest, Sha256};
 
 use super::{Freshness, Outcome, Payload};
 use crate::browser_bridge_capture::{
-    authority::LaunchBinding, target::TargetSnapshot, ManagedBrowserCdpStructuredExtraction,
+    authority::LaunchBinding,
+    target::{document_identity_digest, DocumentIdentity, TargetSnapshot},
+    ManagedBrowserCdpStructuredExtraction,
 };
 
 // The producer does not claim child delivery or enforcement authority. A
@@ -23,6 +25,7 @@ pub(super) fn bind_extraction(
     snapshot: &TargetSnapshot,
     captured_at_epoch_ms: u64,
     captured_at_monotonic: Duration,
+    document_identity: Option<&DocumentIdentity>,
     payload: Payload,
 ) -> ManagedBrowserCdpStructuredExtraction {
     let Payload {
@@ -31,12 +34,15 @@ pub(super) fn bind_extraction(
         dom_overflow_redacted,
         private_content_redacted,
         signal_digest,
+        sensitivity_digest: _,
+        capture_safe: _,
+        document_url_digest: _,
         outcome,
     } = payload;
     let redact_page_identity = matches!(
         &outcome,
-        Outcome::ProtectedContentSkipped | Outcome::Unavailable
-    );
+        Outcome::ProtectedContentSkipped | Outcome::ReviewRequired | Outcome::Unavailable
+    ) || private_content_redacted;
     let evidence_refs = if redact_page_identity {
         crate::browser_bridge_capture::target::opaque_redacted_evidence_refs(
             binding, target_id, snapshot,
@@ -50,6 +56,7 @@ pub(super) fn bind_extraction(
         snapshot,
         captured_at_epoch_ms,
         &signal_digest,
+        document_identity,
         redact_page_identity,
     );
     let extraction_id = format!("{STRUCTURED_EXTRACTION_ID_PREFIX}{evidence_digest}");
@@ -58,6 +65,7 @@ pub(super) fn bind_extraction(
         .authority_started_epoch_ms
         .saturating_add(u64::try_from(captured_at_monotonic.as_millis()).unwrap_or(u64::MAX));
     let freshness = if captured_at_epoch_ms >= binding.created_at_epoch_ms
+        && binding.created_at_epoch_ms <= captured_at_epoch_ms
         && captured_at_epoch_ms <= binding.expires_at_epoch_ms
         && captured_at_epoch_ms >= monotonic_lower_bound
         && captured_at_monotonic.as_millis()
@@ -94,11 +102,15 @@ fn extraction_digest(
     snapshot: &TargetSnapshot,
     captured_at_epoch_ms: u64,
     signal_digest: &str,
+    document_identity: Option<&DocumentIdentity>,
     redact_page_identity: bool,
 ) -> String {
     let generation = binding.generation.to_string();
     let process_id = binding.process_id.to_string();
     let captured_at = captured_at_epoch_ms.to_string();
+    let document_identity = document_identity
+        .map(document_identity_digest)
+        .unwrap_or_else(|| String::from("document-identity-unavailable-v1"));
     let page_identity = if redact_page_identity {
         "protected-content-redacted-v1"
     } else {
@@ -120,6 +132,7 @@ fn extraction_digest(
         &generation,
         &process_id,
         &captured_at,
+        &document_identity,
         signal_digest,
     ])
 }

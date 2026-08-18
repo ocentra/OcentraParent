@@ -4,14 +4,15 @@
 //! real managed-browser launch. The authority re-authenticates the owned
 //! process and bridge, then re-polls the exact target before any owner action.
 //! URLs, titles, debugger endpoints, and image bytes stay inside this boundary
-//! and are never represented by public Debug output. Screenshot capture is
-//! fail-closed until the owner proves an atomic or frozen-page guard.
+//! and are never represented by public Debug output. Screenshot capture stays
+//! inside the owner-controlled frozen-page guard and is discarded on any
+//! identity, sensitivity, authority, or guard-restoration mismatch.
 
 use std::{
     fmt,
     path::Path,
     sync::{
-        atomic::{AtomicU64, Ordering},
+        atomic::{AtomicBool, AtomicU64, Ordering},
         Arc,
     },
 };
@@ -28,6 +29,8 @@ use ocentra_schema::managed_browser_cdp_capture::{
 mod authority;
 #[path = "browser_bridge_capture/binding.rs"]
 mod binding;
+#[path = "browser_bridge_capture/capture.rs"]
+mod capture;
 #[path = "browser_bridge_capture/identity.rs"]
 mod identity;
 #[path = "browser_bridge_capture/identity_match.rs"]
@@ -40,6 +43,8 @@ mod process;
 mod structured;
 #[path = "browser_bridge_capture/target.rs"]
 mod target;
+#[path = "browser_bridge_capture/transport.rs"]
+mod transport;
 
 #[derive(Clone)]
 pub struct ManagedBrowserCdpTargetAuthority {
@@ -49,6 +54,7 @@ pub struct ManagedBrowserCdpTargetAuthority {
     evidence_refs: ManagedBrowserCdpEvidenceRefs,
     launch_authority: authority::LaunchBinding,
     last_observed_epoch_ms: Arc<AtomicU64>,
+    capture_safety_revoked: Arc<AtomicBool>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -71,6 +77,7 @@ pub enum ManagedBrowserCdpCaptureError {
     ResponseTooLarge,
     InvalidResponse,
     InvalidImage,
+    ProtectedSurfaceRejected,
     ScreenshotSafetyGuardUnavailable,
 }
 
@@ -134,6 +141,7 @@ pub fn authorize_managed_browser_cdp_target(
         evidence_refs,
         launch_authority,
         last_observed_epoch_ms: Arc::new(AtomicU64::new(created_at_epoch_ms)),
+        capture_safety_revoked: Arc::new(AtomicBool::new(false)),
     })
 }
 
@@ -147,6 +155,16 @@ impl ManagedBrowserCdpTargetAuthority {
             &self.target_id,
             Some(&self.verified_snapshot),
         )?;
+        let evaluation = structured::extract(self.endpoint, &live_target.snapshot.websocket_url);
+        let post_target = target::poll_and_verify(
+            &self.launch_authority,
+            &self.target_id,
+            Some(&live_target.snapshot),
+        );
+        let authority_is_fresh = binding::validate(&self.launch_authority).is_ok()
+            && process::revalidate(&self.launch_authority).is_ok();
+        // Sample authoritative wall time only after evaluation and all
+        // document/target/authority revalidation have returned.
         let captured_at_epoch_ms = binding::unix_epoch_millis()?;
         let captured_at_monotonic = self.launch_authority.authority_started_at.elapsed();
         let monotonic_lower_bound = self
@@ -154,15 +172,25 @@ impl ManagedBrowserCdpTargetAuthority {
             .authority_started_epoch_ms
             .saturating_add(u64::try_from(captured_at_monotonic.as_millis()).unwrap_or(u64::MAX));
         let previous_epoch_ms = self.last_observed_epoch_ms.load(Ordering::Acquire);
-        let clock_rolled_back = captured_at_epoch_ms < previous_epoch_ms
-            || captured_at_epoch_ms < monotonic_lower_bound;
+        let timestamp_is_trusted = captured_at_epoch_ms >= previous_epoch_ms
+            && captured_at_epoch_ms >= self.launch_authority.created_at_epoch_ms
+            && captured_at_epoch_ms <= self.launch_authority.expires_at_epoch_ms
+            && captured_at_epoch_ms >= monotonic_lower_bound;
         self.last_observed_epoch_ms
             .fetch_max(captured_at_epoch_ms, Ordering::AcqRel);
-        let payload = if clock_rolled_back {
-            structured::Payload::unavailable()
-        } else {
-            structured::extract(self.endpoint, &live_target.snapshot.websocket_url)
-                .unwrap_or_else(|_error| structured::Payload::unavailable())
+        let (payload, document_identity) = match evaluation {
+            Ok(evaluated)
+                if timestamp_is_trusted
+                    && authority_is_fresh
+                    && post_target.is_ok()
+                    && target::document_identity_matches_snapshot(
+                        &live_target.snapshot,
+                        &evaluated.document_identity,
+                    ) =>
+            {
+                (evaluated.payload, Some(evaluated.document_identity))
+            }
+            _ => (structured::Payload::unavailable(), None),
         };
         Ok(structured::bind_extraction(
             &self.launch_authority,
@@ -170,6 +198,7 @@ impl ManagedBrowserCdpTargetAuthority {
             &live_target.snapshot,
             captured_at_epoch_ms,
             captured_at_monotonic,
+            document_identity.as_ref(),
             payload,
         ))
     }
@@ -178,16 +207,10 @@ impl ManagedBrowserCdpTargetAuthority {
         &self,
         request: &ManagedBrowserCdpCaptureRequest,
     ) -> Result<ManagedBrowserCdpCaptureBytes, ManagedBrowserCdpCaptureError> {
-        request
-            .validate()
-            .map_err(|_error| ManagedBrowserCdpCaptureError::RequestRejected)?;
-        if request.target_id != self.target_id {
-            return Err(ManagedBrowserCdpCaptureError::TargetAuthorityMismatch);
+        if self.capture_safety_revoked.load(Ordering::Acquire) {
+            return Err(ManagedBrowserCdpCaptureError::ScreenshotSafetyGuardUnavailable);
         }
-        // A separate probe followed by an image command is not an atomic or
-        // frozen-page guarantee. Until the managed-browser owner supplies
-        // that guard, screenshots remain unavailable by design.
-        Err(ManagedBrowserCdpCaptureError::ScreenshotSafetyGuardUnavailable)
+        capture::capture(self, request)
     }
 }
 

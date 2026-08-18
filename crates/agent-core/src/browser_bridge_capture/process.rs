@@ -24,6 +24,23 @@ pub(super) fn revalidate(binding: &LaunchBinding) -> Result<(), ManagedBrowserCd
     Ok(())
 }
 
+pub(super) fn retire(binding: &LaunchBinding) -> bool {
+    let Ok(system) = refreshed_process(binding.process_id) else {
+        return true;
+    };
+    let pid = Pid::from_u32(binding.process_id);
+    let Some(process) = system.process(pid) else {
+        return true;
+    };
+    let executable_matches = process
+        .exe()
+        .is_some_and(|path| paths_match(path, &binding.executable_path));
+    if !executable_matches || !profile_argument_matches(process, binding) {
+        return false;
+    }
+    process.kill()
+}
+
 pub(super) fn verify_process_executable(
     process_id: u32,
     expected_path: &Path,

@@ -1,9 +1,5 @@
 use super::capture::ScreenEvidenceCustodyState;
-use ocentra_parent_screen_capture_adapter::managed_browser_cdp::structured_extraction::ManagedBrowserStructuredExtraction;
 use serde::{Deserialize, Serialize};
-
-#[path = "extraction/owner_adapter.rs"]
-mod owner_adapter;
 
 pub(crate) const MANAGED_BROWSER_STRUCTURED_SOURCE_ID: &str = "managed-browser-cdp";
 pub(crate) const MANAGED_BROWSER_SESSION_REF_PREFIX: &str = "managed-browser-session-";
@@ -26,9 +22,7 @@ pub struct ActivityEvidenceRef {
 pub enum ScreenStructuredExtractionFallbackState {
     NotAttempted,
     NotRequired,
-    ScreenshotRequired,
     AuthorityUnavailable,
-    Stale,
     RedactedEvidenceInsufficient,
 }
 
@@ -43,29 +37,14 @@ enum ScreenStructuredExtractionRedactionState {
 #[derive(PartialEq, Eq)]
 enum ScreenStructuredExtractionFreshness {
     Fresh,
-    Stale,
     Unavailable,
 }
 
 enum VerifiedStructuredExtractionOutcome {
-    PolicySufficient {
-        category_candidate: String,
-        risk_signals: Vec<String>,
-        confidence_basis: String,
-    },
-    NeedsScreenshot {
-        reason: String,
-    },
-    StructuredEvidenceAvailable {
-        reason: String,
-    },
-    ReviewRequired {
-        reason: String,
-    },
+    StructuredEvidenceAvailable { reason: String },
+    ReviewRequired { reason: String },
     ProtectedContentSkipped,
-    Unavailable {
-        reason: String,
-    },
+    Unavailable { reason: String },
 }
 
 struct VerifiedManagedBrowserStructuredExtractionAuthority {
@@ -99,12 +78,6 @@ pub struct ScreenManagedBrowserStructuredExtraction {
 }
 
 impl ScreenManagedBrowserStructuredExtraction {
-    pub fn from_managed_browser_structured_extraction(
-        extraction: ManagedBrowserStructuredExtraction,
-    ) -> Self {
-        owner_adapter::from_owner_extraction(extraction)
-    }
-
     pub(crate) fn is_verified(&self) -> bool {
         receipt_is_bound_and_redacted(&self.receipt)
     }
@@ -123,16 +96,6 @@ impl ScreenManagedBrowserStructuredExtraction {
 
     pub(crate) fn custody_state(&self) -> ScreenEvidenceCustodyState {
         self.receipt.custody_state.clone()
-    }
-
-    pub(crate) fn can_answer_policy(&self) -> bool {
-        self.receipt.freshness == ScreenStructuredExtractionFreshness::Fresh
-            && self.receipt.redaction_state
-                != ScreenStructuredExtractionRedactionState::ProtectedContentSkipped
-            && matches!(
-                &self.receipt.outcome,
-                VerifiedStructuredExtractionOutcome::PolicySufficient { .. }
-            )
     }
 
     pub(crate) fn protected_content_skipped(&self) -> bool {
@@ -154,13 +117,6 @@ impl ScreenManagedBrowserStructuredExtraction {
                 .starts_with(MANAGED_BROWSER_TARGET_REF_PREFIX)
     }
 
-    pub(crate) fn requires_screenshot(&self) -> bool {
-        matches!(
-            &self.receipt.outcome,
-            VerifiedStructuredExtractionOutcome::NeedsScreenshot { .. }
-        )
-    }
-
     pub(crate) fn has_structured_evidence(&self) -> bool {
         matches!(
             &self.receipt.outcome,
@@ -173,10 +129,6 @@ impl ScreenManagedBrowserStructuredExtraction {
             &self.receipt.outcome,
             VerifiedStructuredExtractionOutcome::ReviewRequired { .. }
         )
-    }
-
-    pub(crate) fn is_stale(&self) -> bool {
-        self.receipt.freshness == ScreenStructuredExtractionFreshness::Stale
     }
 
     pub(crate) fn is_fresh(&self) -> bool {

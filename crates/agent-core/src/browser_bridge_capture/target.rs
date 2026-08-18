@@ -21,6 +21,27 @@ pub(super) struct TargetSnapshot {
     pub(super) browser_identity_digest: String,
 }
 
+#[derive(Clone, PartialEq, Eq)]
+pub(super) struct DocumentIdentity {
+    pub(super) frame_id: String,
+    pub(super) loader_id: String,
+    pub(super) url_digest: String,
+}
+
+pub(super) fn document_identity_matches_snapshot(
+    snapshot: &TargetSnapshot,
+    identity: &DocumentIdentity,
+) -> bool {
+    identity.url_digest == snapshot.url_digest
+}
+
+pub(super) fn document_identity_digest(identity: &DocumentIdentity) -> String {
+    text_digest(&format!(
+        "{}\0{}\0{}",
+        identity.frame_id, identity.loader_id, identity.url_digest
+    ))
+}
+
 pub(super) struct LiveTarget {
     pub(super) snapshot: TargetSnapshot,
 }

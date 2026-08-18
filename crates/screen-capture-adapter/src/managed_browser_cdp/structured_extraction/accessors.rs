@@ -36,10 +36,6 @@ impl ManagedBrowserStructuredExtraction {
         self.extraction.is_fresh()
     }
 
-    pub fn is_stale(&self) -> bool {
-        self.extraction.is_stale()
-    }
-
     pub fn custody_state(&self) -> &str {
         self.extraction.custody_state()
     }

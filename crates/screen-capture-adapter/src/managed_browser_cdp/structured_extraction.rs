@@ -1,4 +1,6 @@
-//! Neutral service-layer handoff for browser-owned structured evidence.
+//! Neutral service-layer handoff for browser-owned structured evidence. The
+//! browser owner retains capture safety and screenshot authority; this port
+//! cannot mint either one.
 
 use ocentra_parent_agent_core::browser_bridge_capture::{
     ManagedBrowserCdpCaptureError, ManagedBrowserCdpStructuredExtraction,

@@ -12,12 +12,6 @@ pub(super) fn screen_managed_browser_structured_extraction_is_consistent(
     extraction_consistency::is_consistent(value)
 }
 
-pub(super) fn screen_managed_browser_structured_extraction_can_answer_policy(
-    value: &ScreenManagedBrowserStructuredExtraction,
-) -> bool {
-    extraction_consistency::can_answer_policy(value)
-}
-
 pub(super) fn screen_managed_browser_structured_extraction_is_ready_for_route(
     value: &ScreenManagedBrowserStructuredExtraction,
 ) -> bool {
@@ -33,8 +27,7 @@ pub(super) fn managed_browser_structured_extraction_producer_is_unavailable(
             .structured_extraction
             .as_ref()
             .is_none_or(|extraction| {
-                !screen_managed_browser_structured_extraction_can_answer_policy(extraction)
-                    && !screen_managed_browser_structured_extraction_is_ready_for_route(extraction)
+                !screen_managed_browser_structured_extraction_is_ready_for_route(extraction)
             })
 }
 
@@ -68,7 +61,6 @@ pub(super) fn screen_intelligence_route_decision_is_consistent(
     value: &ScreenIntelligenceRouteDecision,
 ) -> bool {
     screen_intelligence_base_flags_are_consistent(value)
-        && screen_skipped_fallback_is_consistent(value)
         && screen_intelligence_route_decision_matches_route_kind(value)
 }
 
@@ -80,12 +72,6 @@ fn screen_intelligence_base_flags_are_consistent(value: &ScreenIntelligenceRoute
     ]
     .into_iter()
     .all(|value| value)
-}
-
-fn screen_skipped_fallback_is_consistent(value: &ScreenIntelligenceRouteDecision) -> bool {
-    !value.screenshot_skipped
-        || value.structured_extraction_fallback_state
-            != ScreenStructuredExtractionFallbackState::ScreenshotRequired
 }
 
 fn screen_intelligence_route_decision_matches_route_kind(
@@ -141,8 +127,6 @@ fn screen_intelligence_route_decision_matches_route_kind(
             value.screenshot_skipped,
             value.capture_scope.is_none(),
             value.unavailable_reason.is_some(),
-            value.structured_extraction_fallback_state
-                != ScreenStructuredExtractionFallbackState::ScreenshotRequired,
         ]
         .into_iter()
         .all(|value| value),

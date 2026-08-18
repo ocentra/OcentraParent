@@ -5,9 +5,14 @@ use super::{ExtractionError, Outcome, Payload};
 
 const MAX_STRUCTURED_TEXT: usize = 480;
 const MAX_SIGNAL_TEXT: usize = 480;
+const MAX_DOCUMENT_URL: usize = 4096;
 const CDP_FIELD_EXCEPTION_DETAILS: &str = "exceptionDetails";
 const CDP_FIELD_VALUE: &str = "value";
 const CDP_FIELD_RESULT: &str = "result";
+const SENSITIVITY_STRUCTURAL_SAFE: &str = "managed-browser-sensitivity-structural-safe-v1";
+const SENSITIVITY_PROTECTED: &str = "managed-browser-sensitivity-protected-v1";
+const SENSITIVITY_UNKNOWN: &str = "managed-browser-sensitivity-unknown-v1";
+const BODY_DIGEST_PREFIX: &str = "managed-browser-body-sha256-v1-";
 
 pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
     let result = value
@@ -32,6 +37,8 @@ pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
     {
         return Err(ExtractionError::InvalidResponse);
     }
+    let document_url = bounded_string(value, "documentUrl", MAX_DOCUMENT_URL)?;
+    let document_url_digest = digest(&[&document_url]);
     let dom_overflow_redacted = value
         .get("domOverflowRedacted")
         .and_then(Value::as_bool)
@@ -46,30 +53,59 @@ pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
         .ok_or(ExtractionError::InvalidResponse)?;
     let meta_values = bounded_string(value, "metaValues", MAX_SIGNAL_TEXT)?;
     let accessibility_values = bounded_string(value, "accessibilityValues", MAX_SIGNAL_TEXT)?;
-    if private_content_redacted || protected_content_skipped {
-        return Ok(Payload::protected_content_skipped());
+    let body_digest = bounded_string(value, "bodyDigest", MAX_SIGNAL_TEXT)?;
+    let (capture_safe, sensitivity_digest) = parse_sensitivity(value)?;
+    // No page-provided value is allowed to authorize raw text. The current
+    // owner has no affirmative safe-classification capability, so every page
+    // remains redacted; the structural marker is used only for the frozen
+    // screenshot guard.
+    if !visible_text.is_empty()
+        || visible_text_character_count != 0
+        || !meta_values.is_empty()
+        || !accessibility_values.is_empty()
+        || !private_content_redacted
+    {
+        return Err(ExtractionError::InvalidResponse);
     }
-    let signal_digest = signal_digest(
-        &visible_text,
-        &meta_values,
-        &accessibility_values,
-        visible_text_character_count,
-        dom_overflow_redacted,
-    );
-    let has_structured_signals = !meta_values.is_empty() || !accessibility_values.is_empty();
-    let outcome = if dom_overflow_redacted || (visible_text.is_empty() && !has_structured_signals) {
-        Outcome::ReviewRequired
+    let protected = protected_content_skipped || sensitivity_digest == SENSITIVITY_PROTECTED;
+    if !protected && !body_digest_is_valid(&body_digest) {
+        return Err(ExtractionError::InvalidResponse);
+    }
+    let outcome = if protected {
+        Outcome::ProtectedContentSkipped
     } else {
-        Outcome::StructuredEvidenceAvailable
+        Outcome::ReviewRequired
     };
     Ok(Payload {
-        visible_text_summary: (!visible_text.is_empty()).then_some(visible_text),
-        visible_text_character_count,
+        visible_text_summary: None,
+        visible_text_character_count: 0,
         dom_overflow_redacted,
-        private_content_redacted,
-        signal_digest,
+        private_content_redacted: true,
+        signal_digest: if protected {
+            String::from("protected-content-redacted-v1")
+        } else {
+            digest(&["unknown-static-sensitivity-redacted-v1", &body_digest])
+        },
+        sensitivity_digest,
+        capture_safe: capture_safe && !protected,
+        document_url_digest,
         outcome,
     })
+}
+
+fn parse_sensitivity(value: &Value) -> Result<(bool, String), ExtractionError> {
+    let capture_safe = value
+        .get("captureSafe")
+        .and_then(Value::as_bool)
+        .ok_or(ExtractionError::InvalidResponse)?;
+    let sensitivity_digest = bounded_string(value, "sensitivityDigest", MAX_SIGNAL_TEXT)?;
+    if !matches!(
+        sensitivity_digest.as_str(),
+        SENSITIVITY_STRUCTURAL_SAFE | SENSITIVITY_PROTECTED | SENSITIVITY_UNKNOWN
+    ) {
+        return Err(ExtractionError::InvalidResponse);
+    }
+    Ok((capture_safe, sensitivity_digest))
 }
 
 fn bounded_string(value: &Value, field: &str, limit: usize) -> Result<String, ExtractionError> {
@@ -83,24 +119,12 @@ fn bounded_string(value: &Value, field: &str, limit: usize) -> Result<String, Ex
     Ok(value.to_owned())
 }
 
-fn signal_digest(
-    visible_text: &str,
-    meta_values: &str,
-    accessibility_values: &str,
-    visible_text_character_count: usize,
-    dom_overflow_redacted: bool,
-) -> String {
-    digest(&[
-        visible_text,
-        meta_values,
-        accessibility_values,
-        &visible_text_character_count.to_string(),
-        if dom_overflow_redacted {
-            "overflow"
-        } else {
-            "bounded"
-        },
-    ])
+fn body_digest_is_valid(value: &str) -> bool {
+    value
+        .strip_prefix(BODY_DIGEST_PREFIX)
+        .is_some_and(|suffix| {
+            suffix.len() == 64 && suffix.bytes().all(|byte| byte.is_ascii_hexdigit())
+        })
 }
 
 fn digest(parts: &[&str]) -> String {
