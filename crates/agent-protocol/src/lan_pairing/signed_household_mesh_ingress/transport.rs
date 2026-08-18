@@ -10,8 +10,8 @@ use crate::{
 mod validation;
 
 use validation::{
-    deserialize_schema_version, deserialize_sequence, validate_transport_message_type,
-    validate_transport_sha256, validate_transport_text,
+    deserialize_schema_version, deserialize_sequence, invalid_transport_value,
+    validate_transport_message_type, validate_transport_sha256, validate_transport_text,
 };
 
 // BOUNDARY-INVARIANT: every externally decoded identifier, digest, timestamp,
