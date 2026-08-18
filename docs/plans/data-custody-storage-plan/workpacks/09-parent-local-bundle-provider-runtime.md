@@ -8,10 +8,12 @@
 
 ## Intent
 
-Close the missing parent-local/provider-neutral runtime boundary for encrypted
-data bundles. This workpack owns real byte custody and restart-safe job state;
-it does not invent a cloud provider or move data-class authority into the
-storage layer.
+Close the missing parent-local/provider-neutral byte-custody boundary for
+encrypted data bundles. This downstream route owns pure byte-custody
+decisions, verification, atomic-operation planning, and opaque adapter ports.
+The WP05 parent-runtime owner owns durable scheduler/job state and restart
+reconciliation; this workpack does not duplicate that ledger or invent a cloud
+provider or move data-class authority into the storage layer.
 
 ## Scope and ownership
 
@@ -20,7 +22,8 @@ In scope:
 - parent-local encrypted bundle byte persistence and retrieval;
 - cryptographic byte-level hash/signature verification before acceptance;
 - atomic write, replace, recovery, and corruption quarantine semantics;
-- manual and scheduled backup job custody, retry, restart, and idempotency;
+- manual and scheduled backup operation planning, retry, and idempotency
+  decisions consumed by the parent-runtime durable job owner;
 - a provider-neutral adapter boundary that returns opaque custody status and
   never exposes readable child payloads;
 - explicit no-provider, no-fallback, and manual-required states.
@@ -30,16 +33,21 @@ Out of scope:
 - cloud SDK/OAuth/provider implementation or provider credentials;
 - Account household/device authority or Device Trust key ownership;
 - data-class mutation, restore/apply/rollback orchestration, or receipt minting;
+- durable scheduler/job persistence, restore/migration ledgers, restart
+  reconciliation, or executor mounting (owned by WP05 parent-runtime-core);
 - portal/desktop UI and proof artifact publication.
 
 ## Reviewed planned source and test roots
 
-- Production owner: `crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs`.
+- Pure decision/port owner: `crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs`.
 - Expected test owner: `crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs`.
 
 Both paths are intentionally absent at this routing checkpoint. They declare
-the future Rust ownership boundary; this workpack Markdown cannot satisfy the
-implementation requirement, and no placeholder source is accepted.
+the downstream pure decision/port boundary; this workpack Markdown cannot
+satisfy the implementation requirement, and no placeholder source is
+accepted. Durable scheduler/job persistence and restart reconciliation are
+owned by the WP05 `crates/parent-runtime-core` route listed in
+`05-export-import-backup-recovery.md`.
 
 ## Required handoffs and dependencies
 
@@ -49,6 +57,9 @@ implementation requirement, and no placeholder source is accepted.
 - Data WP04 supplies retention/delete/tombstone ordering and no-resurrection
   constraints.
 - Data WP05 supplies bundle manifest/preflight/integrity contracts.
+- Data WP05 parent-runtime-core supplies the durable scheduler/job ledger and
+  restart reconciliation seam; WP09 returns owner-bound operation outcomes to
+  that runtime and does not persist a second ledger.
 - Account WP05 supplies the current household/member/device/session/capability/
   lease composer when a job requires authority.
 - Conditional handoffs only: if the selected implementation requires a
@@ -72,6 +83,14 @@ implementation requirement, and no placeholder source is accepted.
   manual-required state when no supported provider exists.
 - No runtime path accepts authority selectors, keys, or provider identities
   from request/JSON data.
+
+## Ownership correction (2026-08-18)
+
+WP09 is a downstream pure storage/adapter-port route. The durable parent
+scheduler/job lifecycle, restart reconciliation, and Eventing/outbox
+composition are WP05 `parent-runtime-core` responsibilities. No provider SDK,
+OAuth flow, filesystem adapter, caller-supplied authority, or duplicate
+ledger is permitted here.
 
 ## Expected tests and proof (deferred until source wave is complete)
 

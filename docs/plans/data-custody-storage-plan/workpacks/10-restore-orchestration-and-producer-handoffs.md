@@ -8,22 +8,24 @@
 
 ## Intent
 
-Close the missing orchestration boundary between bundle preflight and the
-data-class owners that perform durable restore, migration, and rollback.
-Restore orchestration coordinates; it does not become a data-class producer
-and cannot mint success receipts for work it did not observe.
+Close the missing pure orchestration boundary between bundle preflight and the
+data-class owners that perform durable restore, migration, and rollback. The
+WP05 parent-runtime owner persists the restore/migration ledger, mounts the
+executor/rollback seam, and reconciles restarts; this downstream route derives
+safe plans and producer handoffs without duplicating that owner.
 
 ## Scope and ownership
 
 In scope:
 
-- durable preflight, apply, migration, rollback, and idempotency receipts;
+- preflight, apply, migration, rollback, and idempotency plan derivation for
+  the WP05 parent-runtime ledger;
 - orchestration of data-class producer/consumer handoffs with explicit owner
   identity, version, household, and tombstone context;
 - Account authority/confirmation and session/device freshness checks at the
   orchestration boundary;
-- crash/restart recovery, monotonic state transitions, retry, partial restore,
-  and manual-required outcomes;
+- monotonic state transitions, retry, partial restore, and manual-required
+  outcomes consumed by the parent-runtime restart reconciler;
 - no-resurrection enforcement for deleted/tombstoned data.
 
 Out of scope:
@@ -31,17 +33,22 @@ Out of scope:
 - parent-local/provider byte storage (WP09);
 - data-class mutation logic, child-runtime filesystem ownership, or event-bus
   implementation;
+- durable restore/migration ledgers, restart reconciliation, executor/rollback
+  mounting, or Eventing/outbox composition (owned by WP05 parent-runtime-core);
 - Account authority implementation, Device Trust key material, provider SDKs,
   portal/desktop UI, or proof publication.
 
 ## Reviewed planned source and test roots
 
-- Production owner: `crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs`.
+- Pure orchestration owner: `crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs`.
 - Expected test owner: `crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs`.
 
 Both paths are intentionally absent at this routing checkpoint. They declare
-the future Rust ownership boundary; this workpack Markdown cannot satisfy the
-implementation requirement, and no placeholder source is accepted.
+the downstream pure orchestration boundary; this workpack Markdown cannot
+satisfy the implementation requirement, and no placeholder source is
+accepted. Durable ledgers, restart reconciliation, and executor/rollback
+mounting are owned by the WP05 `crates/parent-runtime-core` route listed in
+`05-export-import-backup-recovery.md`.
 
 ## Required handoffs and dependencies
 
@@ -59,6 +66,14 @@ implementation requirement, and no placeholder source is accepted.
 - Data-class owners must expose typed producer/consumer handoffs and return
   owner-derived outcomes; WP10 records/coordinates them but does not fabricate
   them.
+
+## Ownership correction (2026-08-18)
+
+WP10 is a downstream pure storage-custody orchestration route. The WP05
+`parent-runtime-core` owner persists the operation ledger, composes the real
+Eventing journal/outbox seam, and mounts only opaque executor, Account/key,
+provider, and producer ports. No caller-supplied authority/integrity boolean,
+provider SDK, filesystem adapter, or fake producer result is permitted here.
 
 ## Acceptance criteria
 
