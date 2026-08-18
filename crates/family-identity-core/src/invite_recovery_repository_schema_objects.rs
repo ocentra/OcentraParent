@@ -82,7 +82,7 @@ fn canonical_definition_matches(object_type: &str, name: &str, actual: &str) -> 
     };
     let actual = compact_sql(actual);
     let actual = actual.trim_end_matches(';');
-    actual == expected || without_if_not_exists(actual) == without_if_not_exists(&expected)
+    actual == expected.as_str() || without_if_not_exists(actual) == without_if_not_exists(&expected)
 }
 
 fn canonical_definition(object_type: &str, name: &str) -> Option<String> {
