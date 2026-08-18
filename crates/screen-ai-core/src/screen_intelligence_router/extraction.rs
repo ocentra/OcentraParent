@@ -29,7 +29,7 @@ pub enum ScreenStructuredExtractionFallbackState {
 }
 
 #[derive(PartialEq, Eq)]
-pub(crate) enum ScreenStructuredExtractionRedactionState {
+enum ScreenStructuredExtractionRedactionState {
     None,
     PrivateTextRedacted,
     OverflowRedacted,
@@ -37,13 +37,13 @@ pub(crate) enum ScreenStructuredExtractionRedactionState {
 }
 
 #[derive(PartialEq, Eq)]
-pub(crate) enum ScreenStructuredExtractionFreshness {
+enum ScreenStructuredExtractionFreshness {
     Fresh,
     Stale,
     Unavailable,
 }
 
-pub(crate) enum VerifiedStructuredExtractionOutcome {
+enum VerifiedStructuredExtractionOutcome {
     PolicySufficient {
         category_candidate: String,
         risk_signals: Vec<String>,
@@ -57,41 +57,40 @@ pub(crate) enum VerifiedStructuredExtractionOutcome {
     },
 }
 
-pub(crate) struct VerifiedManagedBrowserStructuredExtractionAuthority {
-    pub(crate) source_id: String,
-    pub(crate) managed_browser_session_ref: String,
-    pub(crate) target_ref: String,
+struct VerifiedManagedBrowserStructuredExtractionAuthority {
+    source_id: String,
+    managed_browser_session_ref: String,
+    target_ref: String,
 }
 
-pub(crate) struct VerifiedManagedBrowserStructuredExtractionReceipt {
-    pub(crate) schema_version: u16,
-    pub(crate) extraction_id: String,
-    pub(crate) captured_at: String,
-    pub(crate) authority: VerifiedManagedBrowserStructuredExtractionAuthority,
-    pub(crate) evidence_refs: Vec<ActivityEvidenceRef>,
-    pub(crate) freshness: ScreenStructuredExtractionFreshness,
-    pub(crate) visible_text_summary: Option<String>,
-    pub(crate) visible_text_character_count: usize,
-    pub(crate) dom_overflow_redacted: bool,
-    pub(crate) private_content_redacted: bool,
-    pub(crate) raw_dom_included: bool,
-    pub(crate) redaction_state: ScreenStructuredExtractionRedactionState,
-    pub(crate) outcome: VerifiedStructuredExtractionOutcome,
-    pub(crate) custody_state: ScreenEvidenceCustodyState,
+struct VerifiedManagedBrowserStructuredExtractionReceipt {
+    schema_version: u16,
+    extraction_id: String,
+    captured_at: String,
+    authority: VerifiedManagedBrowserStructuredExtractionAuthority,
+    evidence_refs: Vec<ActivityEvidenceRef>,
+    freshness: ScreenStructuredExtractionFreshness,
+    visible_text_summary: Option<String>,
+    visible_text_character_count: usize,
+    dom_overflow_redacted: bool,
+    private_content_redacted: bool,
+    raw_dom_included: bool,
+    redaction_state: ScreenStructuredExtractionRedactionState,
+    outcome: VerifiedStructuredExtractionOutcome,
+    custody_state: ScreenEvidenceCustodyState,
 }
 
-/// This receipt has no public constructor, serializer, clone, or debug surface.
-/// A managed-browser owner must issue it only after binding the live target,
-/// session, source identity, and freshness at its own authority boundary.
+/// This receipt has no public or crate-wide constructor, serializer, clone, or
+/// debug surface. A managed-browser owner must issue it only after binding the
+/// live target, session, source identity, and freshness at its authority
+/// boundary. No such producer is wired in this crate yet.
 pub struct ScreenManagedBrowserStructuredExtraction {
     receipt: VerifiedManagedBrowserStructuredExtractionReceipt,
 }
 
 impl ScreenManagedBrowserStructuredExtraction {
-    pub(crate) fn from_verified_receipt(
-        receipt: VerifiedManagedBrowserStructuredExtractionReceipt,
-    ) -> Option<Self> {
-        receipt_is_bound_and_redacted(&receipt).then_some(Self { receipt })
+    pub(crate) fn is_verified(&self) -> bool {
+        receipt_is_bound_and_redacted(&self.receipt)
     }
 
     pub(crate) fn extraction_id(&self) -> &str {
@@ -148,6 +147,10 @@ impl ScreenManagedBrowserStructuredExtraction {
 
     pub(crate) fn is_stale(&self) -> bool {
         self.receipt.freshness == ScreenStructuredExtractionFreshness::Stale
+    }
+
+    pub(crate) fn is_fresh(&self) -> bool {
+        self.receipt.freshness == ScreenStructuredExtractionFreshness::Fresh
     }
 
     pub(crate) fn is_unavailable(&self) -> bool {

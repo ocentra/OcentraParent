@@ -91,6 +91,14 @@ fn unavailable_reason_for(request: &ScreenIntelligenceRouteRequest) -> &'static 
             .is_some_and(|value| value.protected_content_skipped())
     {
         crate::screen_intelligence_router::UNAVAILABLE_PROTECTED_SURFACE
+    } else if request.credential_prompt_suspected
+        || request.policy_sensitivity == ScreenIntelligencePolicySensitivity::CredentialRisk
+    {
+        crate::screen_intelligence_router::UNAVAILABLE_CREDENTIAL_PROMPT
+    } else if super::consistency::managed_browser_structured_extraction_producer_is_unavailable(
+        request,
+    ) {
+        crate::screen_intelligence_router::UNAVAILABLE_MANAGED_BROWSER_STRUCTURED_EXTRACTION
     } else {
         crate::screen_intelligence_router::UNAVAILABLE_CREDENTIAL_PROMPT
     }

@@ -19,7 +19,11 @@ pub(super) fn structured_extraction_for_route(
     request: &ScreenIntelligenceRouteRequest,
     route_kind: &ScreenIntelligenceRouteKind,
 ) -> Option<String> {
-    if !matches!(route_kind, ScreenIntelligenceRouteKind::NoScreenNeeded) {
+    if !matches!(
+        route_kind,
+        ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction
+            | ScreenIntelligenceRouteKind::NoScreenNeeded
+    ) {
         return None;
     }
     request

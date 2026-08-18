@@ -20,14 +20,20 @@ pub(super) fn route_kind_for(
     }
     if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
         && request.parent_allows_managed_browser_structured_extraction
-        && request.structured_extraction.as_ref().is_some_and(|value| {
-            consistency::screen_managed_browser_structured_extraction_can_answer_policy(value)
-        })
     {
-        return ScreenIntelligenceRouteKind::NoScreenNeeded;
-    }
-    if managed_browser_structured_extraction_should_precede_capture(request) {
-        return ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction;
+        if request.structured_extraction.as_ref().is_some_and(|value| {
+            consistency::screen_managed_browser_structured_extraction_can_answer_policy(value)
+        }) {
+            return ScreenIntelligenceRouteKind::NoScreenNeeded;
+        }
+        if request.structured_extraction.as_ref().is_some_and(|value| {
+            consistency::screen_managed_browser_structured_extraction_is_ready_for_route(value)
+        }) {
+            return ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction;
+        }
+        // No owner-issued receipt means the browser producer boundary is
+        // unavailable; never advertise a structured route without evidence.
+        return ScreenIntelligenceRouteKind::Unavailable;
     }
     if !request.parent_allows_screen_capture {
         return ScreenIntelligenceRouteKind::ManualRequired;
@@ -41,14 +47,4 @@ pub(super) fn route_kind_for(
         }
         _ => ScreenIntelligenceRouteKind::ManualRequired,
     }
-}
-
-fn managed_browser_structured_extraction_should_precede_capture(
-    request: &ScreenIntelligenceRouteRequest,
-) -> bool {
-    // With no owner-issued receipt, this is only the extraction-first handoff;
-    // the no-screen route requires a verified receipt above.
-    request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
-        && request.parent_allows_managed_browser_structured_extraction
-        && request.structured_extraction.is_none()
 }

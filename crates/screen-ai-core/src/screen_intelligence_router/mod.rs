@@ -8,9 +8,11 @@ pub(crate) const UNAVAILABLE_PROTECTED_SURFACE: &str =
     "protected surface is not eligible for screen capture or model analysis";
 pub(crate) const UNAVAILABLE_CREDENTIAL_PROMPT: &str =
     "credential prompt risk is not eligible for screen capture or model analysis";
+pub(crate) const UNAVAILABLE_MANAGED_BROWSER_STRUCTURED_EXTRACTION: &str =
+    "managed-browser structured extraction producer authority is unavailable";
 
 mod capture;
-pub(crate) mod extraction;
+mod extraction;
 mod policy;
 mod route;
 

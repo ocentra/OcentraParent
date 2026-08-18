@@ -3,11 +3,16 @@ use crate::screen_intelligence_router::{
     ScreenStructuredExtractionFallbackState,
 };
 
+use super::consistency;
+
 pub(super) fn structured_extraction_fallback_state_for(
     request: &ScreenIntelligenceRouteRequest,
     route_kind: &ScreenIntelligenceRouteKind,
 ) -> ScreenStructuredExtractionFallbackState {
     let Some(extraction) = request.structured_extraction.as_ref() else {
+        if consistency::managed_browser_structured_extraction_producer_is_unavailable(request) {
+            return ScreenStructuredExtractionFallbackState::AuthorityUnavailable;
+        }
         return ScreenStructuredExtractionFallbackState::NotAttempted;
     };
 
@@ -22,11 +27,13 @@ pub(super) fn structured_extraction_fallback_state_for(
     if extraction.is_stale() {
         return ScreenStructuredExtractionFallbackState::Stale;
     }
+    if extraction.is_unavailable()
+        || consistency::managed_browser_structured_extraction_producer_is_unavailable(request)
+    {
+        return ScreenStructuredExtractionFallbackState::AuthorityUnavailable;
+    }
     if extraction.requires_screenshot() {
         return ScreenStructuredExtractionFallbackState::ScreenshotRequired;
-    }
-    if extraction.is_unavailable() {
-        return ScreenStructuredExtractionFallbackState::AuthorityUnavailable;
     }
     ScreenStructuredExtractionFallbackState::ScreenshotRequired
 }

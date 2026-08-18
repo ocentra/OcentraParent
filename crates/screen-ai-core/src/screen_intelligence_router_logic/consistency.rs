@@ -18,6 +18,26 @@ pub(super) fn screen_managed_browser_structured_extraction_can_answer_policy(
     extraction_consistency::can_answer_policy(value)
 }
 
+pub(super) fn screen_managed_browser_structured_extraction_is_ready_for_route(
+    value: &ScreenManagedBrowserStructuredExtraction,
+) -> bool {
+    extraction_consistency::is_ready_for_structured_route(value)
+}
+
+pub(super) fn managed_browser_structured_extraction_producer_is_unavailable(
+    value: &ScreenIntelligenceRouteRequest,
+) -> bool {
+    value.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
+        && value.parent_allows_managed_browser_structured_extraction
+        && value
+            .structured_extraction
+            .as_ref()
+            .is_none_or(|extraction| {
+                !screen_managed_browser_structured_extraction_can_answer_policy(extraction)
+                    && !screen_managed_browser_structured_extraction_is_ready_for_route(extraction)
+            })
+}
+
 pub(super) fn screen_capture_is_unsafe(value: &ScreenIntelligenceRouteRequest) -> bool {
     [
         value.protected_surface_suspected,
@@ -81,9 +101,9 @@ fn screen_intelligence_route_decision_matches_route_kind(
             value.screenshot_skipped,
             value.managed_browser_structured_extraction_first,
             value.capture_scope.is_none(),
-            value.structured_extraction_id.is_none(),
+            value.structured_extraction_id.is_some(),
             value.structured_extraction_fallback_state
-                == ScreenStructuredExtractionFallbackState::NotAttempted,
+                == ScreenStructuredExtractionFallbackState::ScreenshotRequired,
         ]
         .into_iter()
         .all(|value| value),
