@@ -15,6 +15,10 @@ pub(crate) const SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT: usize = 480;
 const MANAGED_BROWSER_STRUCTURED_SIGNAL_PROTECTED: &str = "protected-content-redacted-v1";
 const MANAGED_BROWSER_STRUCTURED_SIGNAL_UNAVAILABLE: &str =
     "managed-browser-structured-unavailable-v1";
+const MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE: &str =
+    "managed-browser-structured-evidence-unavailable-v1";
+const MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_UNAVAILABLE: &str =
+    "browser-extraction-unavailable-v1";
 const MANAGED_BROWSER_SENSITIVITY_STRUCTURAL_SAFE: &str =
     "managed-browser-sensitivity-structural-safe-v1";
 const MANAGED_BROWSER_SENSITIVITY_UNKNOWN: &str = "managed-browser-sensitivity-unknown-v1";
@@ -187,7 +191,7 @@ fn receipt_is_bound_and_redacted(
                 && !reference.digest.trim().is_empty()
                 && reference.uri.is_none()
         })
-        && digest_validation::valid_digest(&receipt.structured_evidence_digest)
+        && extraction_identity_is_consistent(receipt)
         && digest_validation::valid_signal_digest(receipt)
         && ((receipt.redaction_state
             == ScreenStructuredExtractionRedactionState::ProtectedContentSkipped
@@ -251,6 +255,22 @@ fn document_identity_is_consistent(
             .is_some_and(digest_validation::valid_digest)
 }
 
+fn extraction_identity_is_consistent(
+    receipt: &VerifiedManagedBrowserStructuredExtractionReceipt,
+) -> bool {
+    match &receipt.outcome {
+        VerifiedStructuredExtractionOutcome::Unavailable => {
+            receipt.extraction_id == MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_UNAVAILABLE
+                && receipt.structured_evidence_digest
+                    == MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE
+        }
+        VerifiedStructuredExtractionOutcome::ProtectedContentSkipped
+        | VerifiedStructuredExtractionOutcome::ReviewRequired => {
+            digest_validation::valid_digest(&receipt.structured_evidence_digest)
+        }
+    }
+}
+
 fn redaction_flags_are_consistent(
     receipt: &VerifiedManagedBrowserStructuredExtractionReceipt,
 ) -> bool {
@@ -271,7 +291,6 @@ fn redaction_flags_are_consistent(
             receipt.private_content_redacted
                 && receipt.visible_text_summary.is_none()
                 && receipt.visible_text_character_count == 0
-                && !receipt.dom_overflow_redacted
         }
     }
 }

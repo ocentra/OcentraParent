@@ -1,5 +1,8 @@
 use super::super::super::{
-    MANAGED_BROWSER_SENSITIVITY_UNAVAILABLE, MANAGED_BROWSER_STRUCTURED_SIGNAL_UNAVAILABLE,
+    MANAGED_BROWSER_SENSITIVITY_UNAVAILABLE,
+    MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE,
+    MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_UNAVAILABLE,
+    MANAGED_BROWSER_STRUCTURED_SIGNAL_UNAVAILABLE,
 };
 use super::super::ManagedBrowserStructuredExtractionObservation;
 
@@ -8,6 +11,12 @@ pub(super) fn normalize(
 ) -> ManagedBrowserStructuredExtractionObservation {
     if !observation.unavailable {
         return observation;
+    }
+    observation.extraction_id = String::from(MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_UNAVAILABLE);
+    observation.structured_evidence_digest =
+        String::from(MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE);
+    for evidence_ref in &mut observation.evidence_refs {
+        evidence_ref.digest = String::from(MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE);
     }
     observation.structured_signal_digest =
         String::from(MANAGED_BROWSER_STRUCTURED_SIGNAL_UNAVAILABLE);
