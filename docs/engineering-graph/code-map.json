@@ -1866,7 +1866,7 @@
         "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts"
       ],
       "plannedImplementationRoots": ["infra/cloudflare/src/auth/account-identity-authority-runtime.ts"],
-      "note": "Reviewed source now includes verified-provider current-authority resolution plus Account-owned create, currentness, compare-and-swap, and revoke operations. The verifier reaches the read/current-authority path, but the mutation producer is not mounted in the Worker entrypoint. The planned authority-runtime owner must compose mutations without exposing raw authority inputs. Expected tests, migration execution, proof, deployment, and DONE remain open."
+      "note": "Reviewed source maps the authority runtime as a safe verified-provider read/manual boundary. The verifier reaches current-authority resolution; the runtime exposes no mutation method or caller-supplied provider, subject, generation, or session scalar and reports parameterless mutation readiness as manual-required. Writer create/currentness/compare-and-swap/revoke remain gated by the unconstructible AccountOwnedAuthorityProducer. The exact missing production owner is Account WP02/WP08 signed/sealed current-authority producer transport plus Worker verifier. Expected tests, migration execution, proof, deployment, runtime mutation composition, and DONE remain open."
     },
     "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures": {
       "planSlug": "cloudflare-control-plane-plan",

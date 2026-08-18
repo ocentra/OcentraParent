@@ -7,14 +7,13 @@ import {
   type VerifiedProviderAuthorityResult,
 } from './account-identity-authority-caller.js';
 import type { ProviderVerificationPort } from './verifier.js';
-import type { AccountIdentityProvider } from '@ocentra-parent/schema-domain/account-identity-authority';
 
 const log = Logger.instance;
 log.register(import.meta.url);
 
 export const ACCOUNT_IDENTITY_AUTHORITY_SOURCE_UNAVAILABLE = 'account-identity-authority-source-unavailable' as const;
 
-export type AccountIdentityAuthorityMutationResult = {
+export type AccountIdentityAuthorityMutationReadiness = {
   status: 'manual-required';
   reason: typeof ACCOUNT_IDENTITY_AUTHORITY_SOURCE_UNAVAILABLE;
 };
@@ -24,27 +23,10 @@ export interface AccountIdentityAuthorityRuntime {
     request: Request,
     providerVerifier: ProviderVerificationPort | undefined
   ): Promise<VerifiedProviderAuthorityResult>;
-  createCurrentAuthority(
-    provider: AccountIdentityProvider,
-    providerSubject: string
-  ): Promise<AccountIdentityAuthorityMutationResult>;
-  compareAndSwapCurrentAuthority(
-    provider: AccountIdentityProvider,
-    providerSubject: string,
-    expectedAuthorityGeneration: number,
-    expectedSessionGeneration: number,
-    expectedSessionId: string
-  ): Promise<AccountIdentityAuthorityMutationResult>;
-  revokeCurrentAuthority(
-    provider: AccountIdentityProvider,
-    providerSubject: string,
-    expectedAuthorityGeneration: number,
-    expectedSessionGeneration: number,
-    expectedSessionId: string
-  ): Promise<AccountIdentityAuthorityMutationResult>;
+  getMutationAuthorityReadiness(): AccountIdentityAuthorityMutationReadiness;
 }
 
-function mutationSourceUnavailable(): AccountIdentityAuthorityMutationResult {
+function mutationAuthorityUnavailable(): AccountIdentityAuthorityMutationReadiness {
   log.logWarn(
     'account identity authority mutation blocked: Account-owned producer transport is unavailable',
     getStackTrace(),
@@ -71,29 +53,8 @@ export function createAccountIdentityAuthorityRuntime(
     ): Promise<VerifiedProviderAuthorityResult> {
       return caller.resolveVerifiedProviderAuthority(request, providerVerifier);
     },
-    createCurrentAuthority(
-      _provider: AccountIdentityProvider,
-      _providerSubject: string
-    ): Promise<AccountIdentityAuthorityMutationResult> {
-      return Promise.resolve(mutationSourceUnavailable());
-    },
-    compareAndSwapCurrentAuthority(
-      _provider: AccountIdentityProvider,
-      _providerSubject: string,
-      _expectedAuthorityGeneration: number,
-      _expectedSessionGeneration: number,
-      _expectedSessionId: string
-    ): Promise<AccountIdentityAuthorityMutationResult> {
-      return Promise.resolve(mutationSourceUnavailable());
-    },
-    revokeCurrentAuthority(
-      _provider: AccountIdentityProvider,
-      _providerSubject: string,
-      _expectedAuthorityGeneration: number,
-      _expectedSessionGeneration: number,
-      _expectedSessionId: string
-    ): Promise<AccountIdentityAuthorityMutationResult> {
-      return Promise.resolve(mutationSourceUnavailable());
+    getMutationAuthorityReadiness(): AccountIdentityAuthorityMutationReadiness {
+      return mutationAuthorityUnavailable();
     },
   });
 }

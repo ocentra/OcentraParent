@@ -92,10 +92,11 @@
 - Account WP02 target-aware authority is reviewed source. The authoritative D1
   writer/currentness/revocation/CAS owner and verified-provider current-
   authority caller now exist as reviewed source. The verifier reaches the
-  bounded read/current-authority path. Account-owned create/CAS/revoke methods
-  are not mounted in the Worker entrypoint, so write-side runtime reachability,
-  migration application, expected tests, retained proof, deployment, and
-  runtime readiness remain open. Normal WP06 is blocked and is not `DONE`.
+  bounded read/current-authority path. The runtime exposes no mutation methods
+  or caller-supplied authority scalars; its parameterless mutation-readiness
+  result remains manual-required until the Account-owned producer transport is
+  verified. Migration application, expected tests, retained proof, deployment,
+  and runtime readiness remain open. Normal WP06 is blocked and is not `DONE`.
 
 ## WP06 authoritative source packet reviewed - 2026-08-18
 
@@ -108,10 +109,10 @@
   Account composition boundary. The reachable verifier uses it after Firebase
   verification to resolve current authority; it does not accept caller-minted
   household, role, device, session, capability, lease, or step-up authority.
-- The Account-owned mutation producer is source-present but not imported by
-  `infra/cloudflare/src/index.ts`. Therefore create/CAS/revoke are not claimed
-  runtime-reachable. The source packet closes the missing-file/code-design gap,
-  not the migration, test, proof, deployment, or runtime-composition gates.
+- The writer retains create/CAS/revoke methods gated by the unconstructible
+  `AccountOwnedAuthorityProducer`, but no exported constructor or closure seam
+  can mint that producer. The source packet closes the missing-file/code-design
+  gap, not the migration, test, proof, deployment, or runtime-composition gates.
 - Reviewed source commits are `f9cfc9070` and `dfa8181b1`. Expected tests are
   deliberately deferred to the plan-wide test-writing phase; no test result,
   proof artifact, deployment, or `DONE` state is inferred.
@@ -124,17 +125,34 @@
   exposed to Cloudflare. The old exported closure-wrapping factory was removed
   because its private symbol did not stop arbitrary callers from minting a
   producer.
-- Cloudflare runtime source now has a read-only provider/current-authority
-  path and explicit fail-closed mutation methods. Create/CAS/revoke return
-  `account-identity-authority-source-unavailable`; no mutation composition or
-  runtime authority claim is made.
+- Cloudflare runtime source is a reachable read-only provider/current-authority
+  path plus a parameterless typed mutation-authority readiness result. It
+  returns `account-identity-authority-source-unavailable`; no mutation method
+  accepts provider, subject, generation, or session scalars, and no runtime
+  authority claim is made.
 - Required dependency route before mounting mutations:
   `account-identity-family-plan` WP02/WP08 -> Account-owned signed/sealed
   current-authority transport and Worker verifier -> Cloudflare WP06 runtime.
   D1 rows, provider claims, request headers, and serialized handoffs cannot
   substitute for this owner route.
 
-Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 now has reviewed D1 read/current-authority, authoritative create/CAS/revoke, and verified-provider caller source. The verifier reaches current-authority resolution, while the Account-owned mutation producer is not mounted in the Worker entrypoint. Caller-supplied authority headers still cannot authorize production, and capability, controller-lease, and step-up authority remain unavailable. Migration application, expected tests, focused validation, retained proof, deployment, and full runtime reachability remain open, so normal WP06 remains blocked and is not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
+## WP06 runtime API narrowing - 2026-08-18
+
+- `infra/cloudflare/src/auth/account-identity-authority-runtime.ts` is mapped
+  as the safe read/manual boundary: verified-provider current-authority reads
+  are reachable, while `getMutationAuthorityReadiness()` is parameterless and
+  returns `manual-required` until a trusted producer is available.
+- The exact missing production owner is the Account WP02/WP08 route to a
+  non-forgeable signed/sealed current-authority producer transport and its
+  Worker-side verifier. Only that verified boundary may later compose writer
+  mutations. D1 rows, request claims, serialized handoffs, or caller closures
+  cannot substitute for it.
+- The writer's create/CAS/revoke methods remain gated by the unconstructible
+  `AccountOwnedAuthorityProducer`; no exported constructor/factory exists.
+  WP02/WP08 dependencies, migration execution, expected tests, proof,
+  deployment, and normal WP06 `DONE` semantics remain open.
+
+Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 now has reviewed D1 read/current-authority, authoritative writer, and verified-provider caller source. The verifier reaches current-authority resolution, while the Account WP02/WP08 signed/sealed producer transport and Worker verifier are missing; runtime mutation composition is therefore not exposed. Caller-supplied authority headers still cannot authorize production, and capability, controller-lease, and step-up authority remain unavailable. Migration application, expected tests, focused validation, retained proof, deployment, and full runtime reachability remain open, so normal WP06 remains blocked and is not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 
