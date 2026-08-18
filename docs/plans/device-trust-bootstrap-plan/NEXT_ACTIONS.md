@@ -42,8 +42,9 @@ to WP03.
 
 ## Accepted source checkpoint (2026-08-17)
 
-The independently accepted Device Trust branch `914d06b6a` is integrated
-through `68717b5b7`. WP01 now preserves owner-resolved current device/signer
+The independently reviewed branch `914d06b6a` is superseded/rejected and is
+not integrated because its authority path was forgeable. The canonical
+reconciled source preserves owner-resolved current device/signer
 authority without a public household-authority mint path. The integration
 reconciliation keeps WP05's entitlement state unsigned and fail-closed, removes
 caller-minted restore authority from WP06, and binds WP07 durable removal state
@@ -62,7 +63,7 @@ before treating any dependency candidate as an adopted trust-root component.
 
 ## Production-code checkpoint (2026-08-16)
 
-WP01 source is integrated through `68717b5b7`. It has crash-safe,
+The canonical WP01 source has crash-safe,
 process-serialized lifecycle-authority sidecar writes, fail-closed corruption
 and missing-authority handling, strict no-repair validation for existing
 databases, concurrency-tolerant first-open initialization, a SQLite busy

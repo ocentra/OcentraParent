@@ -20,7 +20,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| partial / foundation-source only; expected tests, authority bridge, and caller open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | accepted continuation is integrated through `68717b5b7`: durable lifecycle/current-binding source is present, but no shipped authority issuer, platform ceremony, production caller, expected-test wave, proof, or completion exists | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
+| partial / foundation-source only; expected tests, authority bridge, and caller open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | stale branch `914d06b6a` is superseded/rejected; canonical reconciled durable lifecycle/current-binding source is present, but no shipped authority issuer, platform ceremony, production caller, expected-test wave, proof, or completion exists | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
 | partial / Windows custody source with desktop mount; downstream of WP01 | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | DPAPI/registry and opaque runtime seams exist, and the parent desktop custody-sealing command is mounted; its success is custody-sealed-only, `require_authenticated_parent_authority()` remains permanently unavailable, no ceremony issuer or custody-to-lifecycle startup composition reaches it, and current tests/end-to-end sealing proof remain open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
 | blocked / bounded custody retained / target authority and runtime missing | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Atomic ceremony custody/recovery and linked-challenge lifecycle source are retained, but planned target-authority and parent-runtime owners, platform/passkey provider, durable sign counter, expected tests, proof, LAN handoff, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
@@ -58,8 +58,9 @@ implementation and dependency evidence without changing any DONE state.
 
 ## Current implementation-phase disposition — 2026-08-17
 
-The accepted Device Trust continuation is integrated through `68717b5b7` and independently reviewed
-with no P0/P1 findings. The graph records its five reviewed
+The stale Device Trust WP01 branch is not integrated: its two unique commits
+at `914d06b6a` are superseded/rejected. The graph records only the canonical
+reconciled
 `family-identity-core` source paths as implementation evidence; WP01 remains a
 foundation/source-only validation route, not a shipped authority or production
 caller. Focused source-format, architecture, Enforcer, diff, and guard checks

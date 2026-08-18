@@ -69,8 +69,9 @@ Current direction from research and the pasted plan set:
 
 ## Production-code reachability audit (2026-08-16)
 
-This source audit was refreshed on the source-integration branch through
-`68717b5b7`. It does not promote tests, proof artifacts, graph topology, or
+This source audit is refreshed against the canonical reconciled tree. The
+two patch-unique commits on remote `codex/device-trust-wp01-source-wave` at
+`914d06b6a` are superseded/rejected and are not integrated. It does not promote tests, proof artifacts, graph topology, or
 typed DTOs into runtime authority. WP01's bounded repository hardening is
 accepted source; no shipped caller yet owns the missing cryptographic/device
 authority.
@@ -109,8 +110,9 @@ satisfied.
 
 ## Accepted source consolidation — 2026-08-17
 
-The independently accepted Device Trust continuation is preserved at source
-branch `914d06b6a` and integrated through `68717b5b7`. The integration review
+The independently reviewed Device Trust continuation at source branch
+`914d06b6a` is superseded/rejected and is not integrated. The canonical
+reconciliation review
 also reconciled the overlapping Payment entitlement boundary: it retained the
 unsigned entitlement projection and fail-closed crate-owned context and removed
 the incompatible public signed snapshot/verifier modules. This is accepted

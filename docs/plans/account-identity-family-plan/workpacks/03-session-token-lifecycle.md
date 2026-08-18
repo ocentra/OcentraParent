@@ -154,7 +154,7 @@ Expected test source still required:
 
 ### Accepted replacement source delta
 
-The accepted `35edb2830` source stores session identity, generation, expiry,
+The canonical reconciled Account source stores session identity, generation, expiry,
 freshness, and revocation in the current Account authority repository and adds
 an owner-derived session lifecycle record. Callers no longer supply freshness
 or replay authority as trusted booleans. A shipped provider/account session

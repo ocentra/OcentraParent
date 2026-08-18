@@ -54,6 +54,11 @@
 ## 2026-08-17 routing correction
 
 The WP05 owner route above is now source-present before the expected-test wave.
+The Account-authority handoff is the typed
+`household_authority_runtime_authorization.rs` boundary from the reviewed
+Account/Data packet (`1d2e3d98c`/`b3c47fd3d`); it is not a mounted producer or
+runtime caller. Local-only Data WP05 `bfb85f51` is fully superseded and must
+not be revived.
 WP09 supplies only downstream pure provider-neutral byte custody/adapter-port
 composition, and WP10 supplies only downstream pure producer-handoff
 orchestration after their graph dependencies are legal. Neither may duplicate

@@ -18,6 +18,13 @@
 
 This plan owns data custody guarantees, encrypted storage, evidence retention, export/import/restore, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, report/query custody, and parent storage settings/apply flow.
 
+Canonical custody note (2026-08-18): the reviewed Account/Data handoff is the
+typed `crates/family-identity-core/src/household_authority_runtime_authorization.rs`
+boundary from packets `1d2e3d98c`/`b3c47fd3d`; it is not an external producer or
+runtime caller. Local-only Data WP05 branch `bfb85f51` is fully superseded and is
+not integration evidence. Provider, key, producer, caller, expected-test,
+focused-validation, proof, and DONE gaps remain open.
+
 Route status: execution-grade architecture and an integrated production-source wave now exist. Current source closes the WP02 cross-scope decrypt-authority gap, WP03 manifest-custody gap, WP05's bounded schema/storage/parent-runtime source packet, WP06's full Rust request/row plus generated TypeScript custody boundary, and places the WP04/WP07 durable effect/tombstone lifecycle in its child-runtime owner. WP06 now derives an opaque query-source capability from current Account authority, enforces session expiry, exact role binding, bounded page size, and cursor/source/stable-sort continuity; no report/query runtime consumer reaches it. WP05's external Account/key/provider/producer composition, production caller reachability, expected tests, focused execution, proof, precommit/CI, and PR remain open; unavailable provider-backed paths stay manual-required. This source wave deliberately did not write or run tests, regenerate proof, run precommit/CI, or claim DONE or PR_READY. Older checked rows and ignored `output/` roots remain historical until the later test/proof waves re-accept them from a clean checkout.
 
 ## Current ownership interpretation

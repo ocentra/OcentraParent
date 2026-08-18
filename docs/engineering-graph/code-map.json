@@ -854,6 +854,7 @@
       "planSlug": "account-identity-family-plan",
       "roots": [
         "crates/schema/src/parent_ui_bridge.rs",
+        "crates/parent-runtime-core/src/setup_first_run.rs",
         "crates/schema/tests/contract/parent_ui_bridge/fixtures.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/browser.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/presentation.rs",
@@ -4388,11 +4389,21 @@
     },
     "WP-screen-plan-32-browser-structured-extraction-before-screenshot": {
       "planSlug": "screen-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
-        "crates/screen-ai-core/src/screen_intelligence_router",
-        "crates/screen-ai-core/src/screen_intelligence_router_logic",
+        "crates/screen-ai-core/src/screen_intelligence_router/extraction.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router/mod.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router/route.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic/consistency.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic/decision_build.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic/extraction_consistency.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic/fallback.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic/mod.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic/route_kind.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic/route_projection.rs",
         "crates/screen-ai-core/tests/unit/pipeline_decision.rs"
-      ]
+      ],
+      "note": "Accepted source-only Screen WP32 packet at canonical b4c3a921b (cc7b0df6d, 484ff4d18, fdc4ccf29, b4c3a921b). The router now prefers structured extraction, seals extraction authority, requires a producer receipt, and blocks unsafe screenshot fallback. Existing pipeline_decision.rs is not revalidated by this packet; extraction/fallback/producer integration tests, real managed-browser producer/caller, proof, and DONE remain open."
     },
     "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path": {
       "planSlug": "screen-plan",
@@ -5368,6 +5379,7 @@
         "crates/parent-runtime-core/tests/integration/data_custody_runtime.rs"
       ],
       "roots": [
+        "crates/family-identity-core/src/household_authority_runtime_authorization.rs",
         "crates/schema/src/export_import_backup_recovery.rs",
         "crates/schema/src/export_import_backup_recovery",
         "crates/schema/tests/contract/export_import_backup_recovery.rs",

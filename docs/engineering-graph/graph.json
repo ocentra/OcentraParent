@@ -433,7 +433,7 @@
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
         "completionEvidenceOverride": {
-          "reason": "Independent source review accepted the Account authority packet at 35edb2830, integrated through e69acf279. Rust-owned schema validation, guarded non-forgeable capability issuance, a local SQLite repository/CAS/invariant owner, and generated TypeScript parity exist. This evidence does not include target-aware action resolution, an authoritative Cloudflare D1 writer/update/revocation/CAS path, a provider-to-Account production caller, or a live Device Trust binding. Expected tests, deployment/migration execution, proof, and DONE remain open.",
+          "reason": "The six patch-unique commits on the remote Account WP02 source-wave (35edb2830) are superseded and are not integrated. The canonical tree retains the reconciled Rust-owned schema/current-authority roots only; this evidence does not attribute those roots to the stale branch. Target-aware action resolution, an authoritative Cloudflare D1 writer/update/revocation/CAS path, a provider-to-Account production caller, and a live Device Trust binding remain separate gaps. Expected tests, deployment/migration execution, proof, and DONE remain open.",
           "evidence": [
             "docs/plans/account-identity-family-plan/PLAN_STATE.md",
             "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
@@ -17223,7 +17223,7 @@
           "reason": "Reviewed as the family-owned foundation/source route for durable trusted-device/signer-key lifecycle state. WP01 is not a shipped authority issuer or production-caller route: tests, validation, proof, platform ceremony, and completion remain open. Account WP08 -> Cloudflare WP06 current-authority resolution must precede WP03's one-time RegisterLanSignerAnchor ceremony; WP02 is conditional for parent-runtime/platform sealing and revocation; LAN WP26 and child consumers follow WP03 and cannot mint signer authority."
         },
         "completionEvidenceOverride": {
-          "reason": "Independent source review accepted the Device Trust continuation at 914d06b6a and root integrated its reconciled WP01 authority/current-binding source through 68717b5b7. Public household signer/verifier mint paths are removed and current authority is owner-resolved. The overlapping entitlement boundary retains Payment's unsigned projection and omits incompatible public signed modules. Focused source-format, architecture, Enforcer, and diff gates passed. Expected-test migration, functional validation, proof, real platform/passkey callers, repo-wide Enforcer, and DONE remain open.",
+          "reason": "The two patch-unique commits on the remote Device Trust WP01 source-wave (914d06b6a) are superseded/rejected: their forgeable authority path is not an integration source. The canonical tree retains only the reconciled owner-resolved current-binding/source roots, and this implementation evidence does not attribute them to that stale branch. Expected-test migration, functional validation, proof, real platform/passkey callers, repo-wide Enforcer, and DONE remain open.",
           "evidence": [
             "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md",
@@ -22876,15 +22876,15 @@
       "path": "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
-        "statusText": "source-reviewed",
+        "statusText": "Validation — source-only disclosure projection; child surface, tests, proof, and runtime delivery open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true,
+        "needsReview": false,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
@@ -22893,6 +22893,14 @@
             "crates/parent-runtime-core/src/parent_ui_bridge/screen_summary.rs"
           ],
           "testRoots": []
+        },
+        "stateOverride": {
+          "reason": "Screen WP26 production disclosure projection source is present and remains fail-closed, but no shipped child surface, owner authority bridge, expected tests, proof, or DONE exists.",
+          "evidence": [
+            "docs/plans/screen-plan/PLAN_STATE.md",
+            "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md",
+            "docs/engineering-graph/code-map.json"
+          ]
         }
       },
       "completion": {
@@ -22997,17 +23005,54 @@
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
-        "statusText": "checked",
+        "statusText": "Validation — canonical source-only structured extraction; producer, tests, proof, and DONE open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/screen-plan/PLAN_STATE.md",
+            "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Canonical Screen WP32 source at b4c3a921b (cc7b0df6d, 484ff4d18, fdc4ccf29, b4c3a921b) routes managed-browser structured extraction before screenshot, seals extraction authority, requires a producer receipt, and blocks unsafe fallback. No real managed-browser producer/caller, focused extraction/fallback/receipt tests, proof, or DONE is claimed."
+        },
+        "stateOverride": {
+          "reason": "Screen WP32 source is accepted at canonical b4c3a921b only for the structured-first router and fail-closed screenshot fallback; producer integration, behavior tests, proof, and DONE remain open.",
+          "evidence": [
+            "docs/plans/screen-plan/PLAN_STATE.md",
+            "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Canonical Screen WP32 source at b4c3a921b is implementation-only evidence for structured-first extraction, sealed authority, producer receipt requirements, and unsafe-fallback rejection. Existing router tests were not rerun or extended; real managed-browser producer/caller, behavior tests, proof, and DONE remain open.",
+          "evidence": [
+            "docs/plans/screen-plan/PLAN_STATE.md",
+            "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md"
+            "crates/screen-ai-core/src/screen_intelligence_router/extraction.rs",
+            "crates/screen-ai-core/src/screen_intelligence_router/mod.rs",
+            "crates/screen-ai-core/src/screen_intelligence_router/route.rs",
+            "crates/screen-ai-core/src/screen_intelligence_router_logic/consistency.rs",
+            "crates/screen-ai-core/src/screen_intelligence_router_logic/decision_build.rs",
+            "crates/screen-ai-core/src/screen_intelligence_router_logic/extraction_consistency.rs",
+            "crates/screen-ai-core/src/screen_intelligence_router_logic/fallback.rs",
+            "crates/screen-ai-core/src/screen_intelligence_router_logic/mod.rs",
+            "crates/screen-ai-core/src/screen_intelligence_router_logic/route_kind.rs",
+            "crates/screen-ai-core/src/screen_intelligence_router_logic/route_projection.rs"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
@@ -23028,15 +23073,23 @@
       "path": "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "Validation — source-only CDP capture path; trigger, tests, proof, and DONE open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "stateOverride": {
+          "reason": "Screen WP33 managed-browser CDP source is present, but browser trigger ownership, integration tests, proof, and DONE remain open.",
+          "evidence": [
+            "docs/plans/screen-plan/PLAN_STATE.md",
+            "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

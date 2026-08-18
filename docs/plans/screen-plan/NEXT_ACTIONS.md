@@ -16,6 +16,16 @@
 
 This file is the short resume list for the next worker. It is derived from open workpack/checklist status and does not replace the assigned workpack.
 
+## Canonical source refresh (2026-08-18)
+
+Screen WP32 source is present at canonical `b4c3a921b` (the four commits
+`cc7b0df6d`, `484ff4d18`, `fdc4ccf29`, and `b4c3a921b`). It only establishes
+structured-first extraction, sealed extraction authority, producer-receipt
+requirements, and fail-closed screenshot fallback. The real managed-browser
+producer/caller and its focused extraction/fallback/receipt tests must be
+written and run before proof or any completion claim. WP26 and WP33 remain
+source-only with their child-delivery/trigger and test/proof gaps unchanged.
+
 ## How to use
 
 1. Confirm the hub assignment and lane.

@@ -44,6 +44,19 @@ portal-ux-household-surfaces-plan owns broader portal shell and visual completio
 sibling plans own account, package, runtime, LAN, device trust, custody, policy, and entitlement readiness.
 ```
 
+## Canonical source-only overlay (2026-08-18)
+
+The Rust owner is the reachable
+`crates/parent-runtime-core/src/setup_first_run.rs` route, carried into the
+canonical `b4c3a921b` tree. It projects the explicit 15-row
+`not-run`/`manual-required` authority matrix, keeps LAN observations separate
+from authority, and rejects LAN commands on non-LAN routes. This is source
+evidence only: authenticated account/session/household, package, child
+permission, pairing/device-trust, custody, policy, network, and recovery
+inputs are not mounted; the evaluator/action planner is not invoked; current
+Rust/portal/E2E expected tests are stale; and proof, precommit, CI, PR, and
+DONE remain open.
+
 ## Required screens/states
 
 ```text

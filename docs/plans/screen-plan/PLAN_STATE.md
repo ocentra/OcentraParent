@@ -146,7 +146,7 @@ screen-AI service runtime and several platform owners are absent.
 | 29 Proof Tiers And Proof Packs | Proof routing only | Validation/proof work; no runtime implementation. |
 | 30 Test Suite Playwright Rollout PR Gate | Tests/scripts only | Validation-only; deferred from code pass. |
 | 31 Screen Intelligence Router | `screen-ai-core` routing modules | AI routing only; no non-AI capture/provider caller. |
-| 32 Browser Structured Extraction Before Screenshot | AI router with browser source handoff | Browser/AI source handoff only; browser owner and non-AI capture path remain separate. |
+| 32 Browser Structured Extraction Before Screenshot | Canonical `screen-ai-core` structured-first router source at `b4c3a921b` | Source-only: extraction authority is sealed, producer receipt is required, and unsafe screenshot fallback is blocked. Existing router tests were not revalidated; real managed-browser producer/caller, extraction/fallback/receipt tests, proof, and DONE remain open. |
 | 33 Managed Browser CDP Screenshot Capture Path | Rust source packet present across the managed launch capability, schema, browser authority/transport, screen adapter, and encrypted queue handoff | Source-first/test-deferred: 0/7 checklist rows are checked; browser-owner trigger wiring, focused contract/security/runtime tests, live browser proof, deletion proof, and CI remain open; no product completion claim. |
 | 34 OCR Tesseract Baseline | Tests/proof only | Validation-only; no runtime implementation. |
 | 35 OCR PaddleOCR PP-OCR Evaluation | Tests/proof only | Validation-only; no runtime implementation. |

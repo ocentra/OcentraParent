@@ -67,8 +67,10 @@ explicit unchecked production-source and expected-test overlays.
 ## 2026-08-17 accepted Account source wave
 
 The replacement packet at `origin/codex/account-wp02-source-wave` head
-`35edb2830` supersedes the rejected `ac03afee3a` design. It is integrated on
-`codex/eventing-wp09-production` through `e69acf279` and passed two independent
+The six patch-unique commits on remote `codex/account-wp02-source-wave` at
+`35edb2830` are superseded/rejected and are not integrated. The canonical
+replacement source is represented by the reconciled WP08/WP02 roots on the
+current consolidation line and passed two independent
 source reviews plus focused formatting, architecture, generated-contract,
 single-source-contract, and Enforcer checks. No tests, build, proof, precommit,
 or CI were run in this source phase.

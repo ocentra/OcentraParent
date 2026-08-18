@@ -197,7 +197,7 @@ Expected test source still required:
 
 ### Accepted replacement source delta
 
-The accepted Account/Payment reconciliation through `e69acf279` now binds
+The canonical Account/Payment reconciliation now binds
 billing and support/admin operations to current repository-derived account,
 household, role, device, session, target, and support-receipt authority.
 Request bodies, provider objects, fixtures, and fallback identity strings

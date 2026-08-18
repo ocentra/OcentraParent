@@ -74,8 +74,7 @@ WP03 can prove local lifecycle semantics and parity for the selected tier. It ca
 
 ## Accepted 2026-08-17 source boundary
 
-The accepted Account replacement at `35edb2830`, integrated through
-`e69acf279`, makes persisted repository session identity, generation, expiry,
+The canonical reconciled Account replacement makes persisted repository session identity, generation, expiry,
 freshness, and revocation the WP03 currentness source. It does not add or prove
 the real browser request route, provider composition, refresh-token custody,
 or the expected negative test matrix. Those remain mandatory before validation

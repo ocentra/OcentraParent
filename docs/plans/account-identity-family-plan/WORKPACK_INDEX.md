@@ -64,8 +64,10 @@ The rejected `codex/account-wp02-wp05-source-wave` packet at `ac03afee3a` is
 quarantined remote evidence only. It added public deserializable lifecycle
 records with caller-mintable proof/replay/freshness state and no production
 caller or durable compare-and-swap owner. Do not revive those DTOs. The first
-legal replacement is the accepted `35edb2830` packet now integrated through
-`e69acf279`; the rejected DTOs remain quarantined and are not implementation.
+replacement is represented by the reconciled current-consolidation roots; the
+six patch-unique commits on remote `codex/account-wp02-source-wave` at
+`35edb2830` are superseded/rejected and are not implementation. The rejected
+DTOs remain quarantined and are not implementation.
 
 ## Dependency rules
 

@@ -31,7 +31,7 @@ and the LAN command-route guard. This is an implementation-only checkpoint; it
 does not refresh proof, close tests, or promote the setup plan.
 
 ```text
-Rust owner: crates/parent-runtime-core/src/setup_first_run.rs, reached through the parent UI bridge route snapshot and Start route.
+Rust owner: `crates/parent-runtime-core/src/setup_first_run.rs`, reached through the parent UI bridge route snapshot and Start route. The canonical source-only overlay is retained on `b4c3a921b`; it does not replace the missing authenticated owner inputs or current expected tests.
 Authority matrix: all 15 required owner inputs are explicit manual-required/unavailable; no fallback readiness value is substituted.
 LAN boundary: selected device, pairing, and reachability are observation-only read-model values; they do not establish ownership, trust, pairing authority, or setup readiness.
 Progression boundary: Start reads status only; the provisioning evaluator and action planner are not invoked.

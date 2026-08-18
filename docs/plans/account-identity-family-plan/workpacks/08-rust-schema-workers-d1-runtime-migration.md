@@ -207,8 +207,9 @@ deployment, or whole-plan readiness.
 
 ## Accepted replacement source delta
 
-Independent review accepts the replacement Account source at `35edb2830`,
-integrated through `e69acf279`. In addition to the prior canonical binding, the
+The six patch-unique commits on remote `codex/account-wp02-source-wave` at
+`35edb2830` are superseded/rejected and are not integrated. In addition to the
+prior canonical binding, the
 current packet adds strict schema validation modules, non-forgeable capability
 issuance, and local durable repository/CAS/invariant/read ownership. Generated
 Account TypeScript remains derived from the Rust template. Cloudflare WP06 now

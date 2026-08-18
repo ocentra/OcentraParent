@@ -22,6 +22,16 @@ Managed-browser URL/title/meta/DOM/accessibility signals answer first when possi
 
 This is part of capture MVP because it prevents unnecessary screenshots.
 
+## Canonical source-only refresh (2026-08-18)
+
+The source packet is present at canonical `b4c3a921b` through commits
+`cc7b0df6d`, `484ff4d18`, `fdc4ccf29`, and `b4c3a921b`. The changed
+`screen-ai-core` router now prefers structured extraction, seals extraction
+authority, requires a producer receipt, and rejects unsafe screenshot
+fallback. This is implementation evidence only: the existing router test was
+not revalidated by this packet, and the real managed-browser producer/caller,
+focused extraction/fallback/receipt tests, proof, and DONE remain open.
+
 ## Checklist
 
 - [ ] Define managed browser structured extraction contract.

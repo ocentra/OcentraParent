@@ -1,7 +1,12 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-18 after independently reviewed Device Trust WP06, Data
-Custody WP05, and Account Identity WP04 source integration at `1101f37f8`.
+Snapshot: 2026-08-18 after the canonical truth refresh at
+`b4c3a921b193c58fb3c3f5ec2707415e3063de03`.
+
+The audited promotion/custody count is 29 registered Ocentra Parent worktrees
+and zero open pull requests. The source-consolidation table below retains the
+23-worktree predecessor inventory; the six post-snapshot or temporary lanes are
+not deletion evidence and must be re-audited before cleanup.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
@@ -11,38 +16,49 @@ claim. Refresh Git ancestry and patch identity before deleting any ref.
 
 | Ref | Head | Custody state |
 | --- | --- | --- |
-| `origin/main` | `eb4e66a791` | Release baseline. It has no commit missing from consolidation and is 398 commits behind it. |
-| `origin/develop` | `4ece515282` | Promotion baseline. It has no commit missing from consolidation and is 395 commits behind it. |
-| `origin/codex/eventing-wp09-production` | `1101f37f8` | Clean pushed source-consolidation line. Device Trust WP06, Data Custody WP05, and Account Identity WP04 reviewed production source plus current graph truth are integrated. Expected tests remain deliberately deferred until the source wave is complete. |
-| `origin/production` | `683a07cf31` | Historical production ref; not the current integration line. |
+| `origin/main` | `eb4e66a791` | Protected release baseline. It has zero commits unique versus canonical `b4c3a921b` and is behind canonical; it is not changed by this docs refresh. |
+| `origin/develop` | `4ece515282` | Protected promotion baseline. It exists, has zero commits unique versus canonical `b4c3a921b`, and is behind canonical; it is not changed by this docs refresh. |
+| `origin/production` | `683a07cf31` | Historical production ref; it has zero commits unique versus canonical and is behind canonical. |
+| `origin/codex/eventing-wp09-production` | `b4c3a921b` | Canonical clean pushed source-consolidation line. Reviewed source and graph truth include Screen WP32 structured extraction, Data WP05 Account-authority handoff, Account/Setup WP07 setup-first-run mapping, and Screen WP26/WP33 source-only truth. Expected tests, focused validation, proof, precommit, CI, PR, and DONE remain deliberately open. |
 | archive refs | `ac9f65bb4a`, `405e7fc77e` | Coverage for historical local/remote tips. Retain through source/test consolidation and promotion. |
 
 Open pull requests at this snapshot: **0**. No source packet is allowed to skip
 independent review, the later expected-test wave, focused validation,
 precommit, or CI merely because it is pushed.
 
+Promotion controls were verified as custody facts, not modified here: remote
+`develop` exists; `main` and `develop` are protected with required checks
+`Format`, `Lint`, `Types`, `Rust Check`, `Full Validation Gate`, and `Package
+Preview Gate`; administrators are enforced; force-push and branch deletion are
+disabled; and conversation resolution is required. `ci.yml` pull requests
+target `main`, `develop`, and `production`. Workflow and branch protection were
+not edited by this refresh.
+
 ## Patch-unique remote branch disposition
 
-The classification uses `git cherry origin/codex/eventing-wp09-production
-<ref>` plus file/commit review. Raw ahead/behind counts alone are not custody
-proof.
+The current classification is anchored to canonical
+`origin/codex/eventing-wp09-production` at `b4c3a921b`; the predecessor
+`1101f37f8` comparison is retained below only as historical custody context.
+Raw ahead/behind counts alone are not custody proof.
 
 | Remote branch | Audited head | Patch state / disposition |
 | --- | --- | --- |
-| `codex/device-trust-wp01-source-wave` | `914d06b6aa` | Two `git cherry`-unique commits were semantically reviewed and are superseded by stronger integrated Device Trust authority/recovery source. Do not merge the stale branch. |
-| `codex/account-wp02-source-wave` | `35edb2830c` | Six `git cherry`-unique commits were semantically reviewed and are superseded or contradict the current sealed authority/runtime boundaries. Do not merge the stale branch. |
+| `codex/device-trust-wp01-source-wave` | `914d06b6aa` | Two patch-unique commits were semantically reviewed and superseded/rejected because the authority path was forgeable. The canonical reconciled Device Trust source is the integration truth; do not merge the stale branch. |
+| `codex/account-wp02-source-wave` | `35edb2830c` | Six patch-unique commits were semantically reviewed and superseded/rejected by the canonical sealed authority/runtime boundaries. Do not merge the stale branch. |
 | `codex/data-custody-source-consolidation` | `8da579cc70` | Superseded stale alternate; its effect ledger was added and later removed. No direct integration. |
 | `codex/data-custody-wp05-source` | `8a92cce1fb` | Two residual patches belong to the old WP05 packet; production meaning is superseded by the repaired source now in consolidation and its docs are stale. No direct integration. |
+| `codex/data-custody-wp05-source` (local-only historical tip) | `bfb85f51` | Fully superseded local-only Data WP05 source branch. No direct integration; retain only as custody history until local/worktree deletion is separately authorized. |
 | `codex/data-custody-source-wave` | `78f01911f1` | Two residual patches remain in a broad stale alternate. Most source meaning is superseded; salvage only if a later narrow review identifies a missing invariant. |
 | `codex/account-wp02-wp05-source-wave` | `ac03afee3a` | One residual patch belongs to a rejected/quarantined old identity lifecycle packet. Do not merge. |
 | `codex/data-custody-plan-code-wave` | `ec129d6681` | Archive-worthy; no direct integration. |
 | `codex/logging-source-wave-repair` | `e0c2d158ab` | Production patches are integrated; remaining unique patch is docs-only. Archive-worthy after custody refresh. |
 | `codex/setup-wp07-source-wave` | `09f7c7c960` | Production patches are integrated; remaining unique patch is docs-only. Archive-worthy after custody refresh. |
 
-The following 23 noncanonical source refs have zero patch-unique commits against
-`1101f37f8`. They are cleanup candidates only after confirming no open PR and no
-unpublished local state; their old tree deltas are ancestry noise, not unique
-patch custody:
+The following list is the predecessor zero-patch inventory measured against
+`1101f37f8`, retained for historical custody only. It is not a current
+`b4c3a921b` deletion authorization. Re-audit current patch identity, open PRs,
+and unpublished local state before deleting any ref; old tree deltas are
+ancestry noise, not unique patch custody:
 
 - `codex/account-cloudflare-authority-routing`
 - `codex/account-data-runtime-routing`
@@ -70,9 +86,10 @@ patch custody:
 
 ## Registered E-drive worktrees
 
-There are 23 registered Ocentra Parent worktrees after opening the Screen WP26
-source lane. All 23 track an upstream and all 23 HEADs equal it exactly at this
-snapshot. Twenty-two are clean; the sole exception is the root checkout's
+There are 29 registered Ocentra Parent worktrees in the audited custody count.
+The predecessor table below lists 23 source-consolidation worktrees; all listed
+entries track an upstream and all listed HEADs equaled it at that snapshot.
+Twenty-two were clean; the sole exception was the root checkout's
 ignored local Codex configuration recorded below. No worktree contains a
 local-only commit.
 

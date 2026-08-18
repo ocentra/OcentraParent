@@ -214,9 +214,10 @@ Expected test source still required:
 
 ### Accepted replacement source delta and reopened review
 
-The independently accepted `35edb2830` packet, integrated through
-`e69acf279`, remains valid for its sealed capability and local SQLite
-repository/CAS/invariant boundary. Live review reopened action composition and
+The six patch-unique commits on remote `codex/account-wp02-source-wave` at
+`35edb2830` are superseded/rejected and are not integrated. The canonical
+reconciled roots retain the sealed capability and local SQLite repository/CAS/
+invariant boundary. Live review reopened action composition and
 the bounded correction is now implemented at `86caae334` and `7934fb41b`:
 the target-aware owner consumes opaque current Account authority, keeps actor
 and target identities separate, and does not accept same-family/capability/

@@ -66,8 +66,10 @@ The current legal order is explicit and non-circular:
 
 ## Accepted source consolidation — 2026-08-17
 
-The accepted Device Trust continuation is retained at source head `914d06b6a`
-and integrated through `68717b5b7`. In addition to the earlier repository
+The two patch-unique commits on remote `codex/device-trust-wp01-source-wave`
+at `914d06b6a` are superseded/rejected because their authority path was
+forgeable and are not an integration source. The canonical reconciled tree
+retains only the owner-resolved current-binding source. In addition to the earlier repository
 packet, the owner now re-resolves the current device/signer binding and no
 public household signer/verifier mint path remains. Current reviewed owner
 paths include:

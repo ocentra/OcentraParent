@@ -103,6 +103,17 @@ Do not edit setup-install-provisioning-plan unless the user explicitly assigns r
 
 This workpack owns parent-visible setup UI state/projection proof. It does not own provider runtime, physical trusted-device bootstrap, LAN pairing, Cloudflare account runtime, data custody execution, payment runtime, or broader portal shell UX.
 
+## Canonical source overlay (2026-08-18)
+
+The current Rust first-run owner is
+`crates/parent-runtime-core/src/setup_first_run.rs`, reached through the
+parent UI bridge and Start route. It projects a fail-closed 15-row
+`not-run`/`manual-required` authority matrix and keeps LAN observations out of
+authority. The historical contract/proof record below must not be read as
+current runtime completion: authenticated owner inputs, real state-machine
+actions/completion guard, refreshed Rust/portal/E2E tests, proof, and DONE remain
+open.
+
 ```text
 schema-domain: canonical shared setup/read-model shapes when cross-boundary.
 family-domain/setup-domain: typed source/helper surfaces only.

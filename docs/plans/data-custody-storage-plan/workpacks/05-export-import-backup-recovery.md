@@ -74,6 +74,14 @@ route is deliberately split by authority and durability; no crate may mint a
 caller-selected Account/family authority, key/decrypt capability, integrity
 decision, or provider identity.
 
+The Account-authority handoff is represented by the canonical
+`crates/family-identity-core/src/household_authority_runtime_authorization.rs`
+boundary and the Account WP05/WP04 source packets (`1d2e3d98c`/
+`b3c47fd3d`). It is a typed dependency boundary only: no external Account
+producer, provider/key adapter, restore producer, or runtime caller is mounted
+in this source wave. The local-only Data WP05 branch `bfb85f51` is fully
+superseded and is not an alternate source of truth.
+
 ### Canonical schema contract owner
 
 - `crates/schema/src/export_import_backup_recovery.rs`
