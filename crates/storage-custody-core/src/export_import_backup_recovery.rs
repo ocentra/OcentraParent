@@ -25,8 +25,7 @@ pub enum BackupRequestError {
     HouseholdMismatch,
 }
 
-const BACKUP_SCHEDULED_MANUAL_REQUIRED_NOTE: &str =
-    "Scheduled backup remains manual-required until a trusted scheduler and provider runtime exist.";
+const BACKUP_SCHEDULED_MANUAL_REQUIRED_NOTE: &str = "Scheduled backup remains manual-required until a trusted scheduler and provider runtime exist.";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExportBundleBuildRequest {
@@ -96,7 +95,7 @@ pub(crate) struct ImportBundleContext {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RestoreApplyRequest {
+pub(crate) struct RestoreApplyRequest {
     pub confirmed: bool,
 }
 
@@ -155,7 +154,7 @@ pub(crate) fn run_import_preflight(
     export_import_backup_recovery_import::run_import_preflight(bundle, context)
 }
 
-pub fn migration_execution_readiness(
+pub(crate) fn migration_execution_readiness(
     bundle: &contracts::ExportImportRecoveryBundle,
     preflight: &contracts::ExportImportImportPreflight,
 ) -> contracts::ExportImportMigrationExecutionReadiness {
@@ -189,7 +188,12 @@ pub fn authorize_backup_request(
     })
 }
 
-pub fn apply_restore(
+/// Restore application is an internal owner operation.  A public function
+/// accepting the serde-shaped preflight would let an external caller mint
+/// integrity, household, key, and tombstone decisions by constructing the
+/// contract directly.  Parent/runtime callers must receive an opaque,
+/// owner-bound restore plan once the scheduler/ledger route is mounted.
+pub(crate) fn apply_restore(
     preflight: &contracts::ExportImportImportPreflight,
     request: &RestoreApplyRequest,
 ) -> contracts::ExportImportRestoreApplyResult {
