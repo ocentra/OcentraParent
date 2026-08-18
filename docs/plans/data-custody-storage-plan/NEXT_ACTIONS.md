@@ -22,12 +22,21 @@
    Account WP08's sealed current authority, Account WP04's correlated
    export/delete handoff, and Account WP05's current
    household/member/device/session/capability/lease authorization composer.
-2. Finish WP05 backup cadence/manual-backup plus migration execution/rollback
-   source and WP08's trusted confirmation receipt plus reachable
-   `Applied`/`Partial` decision path. WP06's generated TypeScript edge is
-   source-present, but no report/query runtime consumer is routed to it; do
-   not invent an agent-service/report caller or substitute proof scripts or
-   synthetic DTO callers for missing product behavior.
+2. Finish the READY WP05 source packet in its reviewed ownership order:
+   schema-owned durable backup cadence/schedule/job and migration/rollback
+   contracts; pure `storage-custody-core` backup/restore/migration/preflight
+   decisions and compensation; then the `parent-runtime-core` durable
+   scheduler/job ledger, restore/migration ledger, restart reconciliation,
+   executor/rollback mount, and real Eventing/outbox composition. Consume only
+   opaque Account/family authority, key/decrypt capability, provider-neutral
+   adapter, and producer ports; leave unavailable external owners
+   manual-required or blocked. WP09/WP10 remain downstream source-only routes
+   and must not duplicate these ledgers. Separately finish WP08's trusted
+   confirmation receipt plus reachable `Applied`/`Partial` decision path.
+   WP06's generated TypeScript edge is source-present, but no report/query
+   runtime consumer is routed to it; do not invent an agent-service/report
+   caller or substitute proof scripts or synthetic DTO callers for missing
+   product behavior.
 3. After the repository-wide source wave is complete, write WP01's missing
    Rust invariant-test family, migrate the stale moved-store tests, and write
    the full expected-test matrix for WP02-WP07, including WP06's stale Rust
@@ -43,14 +52,14 @@
 
 ## 2026-08-17 routing correction
 
-Before the expected-test wave, implement the two missing runtime owners in
-order: WP09 parent-local/provider-neutral bundle byte custody, then WP10
-restore orchestration and producer handoffs. WP09 must consume the existing
-bundle/key/retention contracts and never fake a cloud provider. WP10 must
-consume WP09 plus Account authority/confirmation and data-class owner results;
-it may coordinate and record outcomes but cannot mint receipts or mutate data
-classes itself. Account WP02's target-aware authority correction remains a
-separate prerequisite for action-bound custody composition.
+Before the expected-test wave, implement the READY WP05 owner route above.
+WP09 then supplies only downstream pure provider-neutral byte custody/adapter
+port composition, and WP10 supplies only downstream pure producer-handoff
+orchestration after their graph dependencies are legal. Neither may duplicate
+the WP05 parent-runtime scheduler/job or restore/migration ledger. Account
+WP02's target-aware authority correction remains a separate prerequisite for
+action-bound custody composition; missing Account/key/provider/producer owners
+must remain opaque blockers rather than being fabricated.
 
 ## Production-code audit boundary
 

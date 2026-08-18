@@ -16,13 +16,14 @@
     {
       "id": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
       "hardDependencies": [],
-      "reason": "Independent source review accepted the current bundle/import/preflight/apply boundary through 7a1e1c389 and identified two exact remaining production-source outcomes: backup cadence/manual backup and migration execution/rollback. This authorizes only that bounded source continuation; expected tests, focused execution, proof, checklist acceptance, PR readiness, and DONE remain open.",
+      "reason": "The READY WP05 source route now has a reviewed acyclic ownership split: schema owns durable backup cadence/schedule/job and bundle/plan-bound migration apply/rollback/reconciliation contracts; storage-custody-core owns pure backup/restore/migration/preflight decisions and fail-closed compensation; parent-runtime-core owns durable scheduler/job and restore/migration ledgers, restart reconciliation, executor/rollback mounting, and real Eventing/outbox composition. It consumes only opaque Account/family authority, key/decrypt capability, provider-neutral adapter, and producer ports. This authorizes only the bounded source continuation; expected tests, focused execution, proof, checklist acceptance, PR readiness, and DONE remain open.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
         "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md",
         "docs/PLAN_CODE_STATUS_MATRIX.md",
-        "docs/engineering-graph/code-map.json"
+        "docs/engineering-graph/code-map.json",
+        "docs/engineering-graph/overrides.json"
       ]
     },
     {
@@ -387,7 +388,7 @@
         "WP-data-custody-storage-plan-05-export-import-backup-recovery",
         "WP-account-identity-family-plan-05-device-ownership-authz"
       ],
-      "reason": "WP05 live-code audit found no parent-local/provider writer or retriever, scheduler, cryptographic byte verifier, or job custody runtime. WP09 is a new source-and-test owner with reviewed planned Rust roots that are currently missing; it owns encrypted bytes, atomic persistence/retrieval, retry/restart custody, and a provider-neutral adapter and must not fake a cloud provider or claim tests/proof/DONE.",
+      "reason": "WP05 live-code audit found no parent-local/provider byte owner. WP09 remains a downstream source-and-test route with reviewed pure Rust roots that are currently missing; it owns byte verification, atomic-operation planning, retry/idempotency decisions, and opaque provider-neutral ports only. WP05 parent-runtime-core owns durable scheduler/job persistence and restart reconciliation; WP09 must not fake a cloud provider, duplicate a ledger, or claim tests/proof/DONE.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
@@ -407,7 +408,7 @@
         "WP-account-identity-family-plan-05-device-ownership-authz",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
       ],
-      "reason": "WP05 has no production restore/migration/apply/rollback/idempotency executor. WP10 is the explicit source-and-test orchestration owner with reviewed planned Rust roots that are currently missing; it owns durable receipts, trusted confirmation/authority handoffs, producer outcomes, tombstone/no-resurrection, and crash/restart coordination and cannot mint receipts or mutate data classes.",
+      "reason": "WP05 has no production pure restore/migration/apply/rollback/idempotency orchestration. WP10 remains a downstream source-and-test route with reviewed pure Rust roots that are currently missing; it owns producer-handoff and preflight/apply plan derivation only. WP05 parent-runtime-core owns durable ledgers, restart reconciliation, executor/rollback mounting, and Eventing/outbox composition; WP10 cannot mint receipts or mutate data classes.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
