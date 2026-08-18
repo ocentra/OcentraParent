@@ -1,5 +1,8 @@
+use ocentra_family_identity_core::account_identity_authority_repository::AccountIdentityAuthorityService;
 use ocentra_family_identity_core::household_authority_runtime_composer::{
-    ConsumedParentStorageConfirmation, HouseholdAuthorityRuntimeFailure,
+    HouseholdAuthorityDeviceTrustSource, HouseholdAuthorityParentStorageConfirmationFailure,
+    HouseholdAuthorityParentStorageStoreFailure,
+    HouseholdAuthorityRuntimeParentStorageConfirmation,
 };
 use ocentra_schema::parent_owned_sync_export as sync_contracts;
 use ocentra_schema::parent_storage_settings_apply_flow as contracts;
@@ -85,10 +88,12 @@ pub enum ParentStorageSettingsApplyFlowError {
     WrongDevicePreviewMustNotMatch,
     ApplyCannotProceedWithoutPreview,
     ApplyIntentDigestUnavailable,
-    ParentStorageConfirmationUnavailable,
-    ParentStorageConfirmationExpired,
-    ParentStorageConfirmationReplayRejected,
-    ParentStorageConfirmationBindingMismatch,
+    ParentStorageConfirmationStore(HouseholdAuthorityParentStorageStoreFailure),
+    ParentStorageConfirmationAccountUnavailable,
+    ParentStorageConfirmationAccountNotCurrent,
+    ParentStorageConfirmationDeviceUnavailable,
+    ParentStorageConfirmationDeviceNotCurrent,
+    ParentStorageConfirmationOwnerAuthorizationInvalid,
     DeleteActionNotesMustStayVisible,
     DisconnectNotesMustStayVisible,
     DisconnectCannotDeleteProviderData,
@@ -120,45 +125,87 @@ pub fn derive_parent_storage_apply_decision(
     parent_storage_settings_apply_flow_apply::derive_parent_storage_apply_decision(preview, input)
 }
 
-/// Consume a family-owned confirmation for the exact canonical preview intent.
+/// Resolve the apply decision before touching durable confirmation custody.
 ///
-/// The opaque confirmation is moved into this boundary; callers cannot supply a serialized
-/// receipt or choose an apply state. This validates only confirmation custody. Applied/Partial
-/// remain unavailable until a real WP05 executor owner supplies a separate outcome handoff.
+/// A blocked/manual decision returns the opaque handoff untouched so a manual-required path does
+/// not burn a confirmation. Only the owner-issued `ApplyRequiresConfirmation` path enters the
+/// Account transaction and returns a ready handoff. Applied/Partial outcomes remain unavailable
+/// until a separately owner-issued WP05 executor outcome exists.
+pub struct ParentStorageApplyConfirmedReady {
+    pub decision: contracts::ParentStorageApplyDecision,
+}
+
+pub enum ParentStorageApplyConfirmationOutcome {
+    BlockedManualRequired {
+        pub decision: contracts::ParentStorageApplyDecision,
+        pub confirmation: HouseholdAuthorityRuntimeParentStorageConfirmation,
+    },
+    ConfirmedReady(ParentStorageApplyConfirmedReady),
+}
+
 pub fn consume_parent_storage_apply_confirmation(
     preview: &contracts::ParentStorageRestorePreview,
     input: ParentStorageApplyDecisionInput,
-    confirmation: ConsumedParentStorageConfirmation,
-) -> Result<(), ParentStorageSettingsApplyFlowError> {
+    confirmation: HouseholdAuthorityRuntimeParentStorageConfirmation,
+    account_service: &mut AccountIdentityAuthorityService,
+    device_trust_source: &impl HouseholdAuthorityDeviceTrustSource,
+) -> Result<ParentStorageApplyConfirmationOutcome, ParentStorageSettingsApplyFlowError> {
     let decision = parent_storage_settings_apply_flow_apply::derive_parent_storage_apply_decision(
         preview, input,
     )?;
+    match decision.apply_state {
+        contracts::ParentStorageApplyState::BlockedManualRequired => {
+            return Ok(
+                ParentStorageApplyConfirmationOutcome::BlockedManualRequired {
+                    decision,
+                    confirmation,
+                },
+            );
+        }
+        contracts::ParentStorageApplyState::ApplyRequiresConfirmation => {}
+        contracts::ParentStorageApplyState::NotStarted
+        | contracts::ParentStorageApplyState::ApplyPending
+        | contracts::ParentStorageApplyState::Applied
+        | contracts::ParentStorageApplyState::Partial
+        | contracts::ParentStorageApplyState::RollbackManualRequired => {
+            return Err(
+                ParentStorageSettingsApplyFlowError::
+                    ParentStorageConfirmationOwnerAuthorizationInvalid,
+            );
+        }
+    }
     confirmation
-        .consume_for_storage(
-            &preview.preview_id,
-            &preview.household_ref,
-            &decision.apply_intent_digest,
-        )
+        .consume_for_storage(account_service, device_trust_source)
+        .map(|_consumed| {
+            ParentStorageApplyConfirmationOutcome::ConfirmedReady(
+                ParentStorageApplyConfirmedReady { decision },
+            )
+        })
         .map_err(map_parent_storage_confirmation_failure)
 }
 
 fn map_parent_storage_confirmation_failure(
-    failure: HouseholdAuthorityRuntimeFailure,
+    failure: HouseholdAuthorityParentStorageConfirmationFailure,
 ) -> ParentStorageSettingsApplyFlowError {
     match failure {
-        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationUnavailable => {
-            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationUnavailable
+        HouseholdAuthorityParentStorageConfirmationFailure::Store(store) => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationStore(store)
         }
-        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationExpired => {
-            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationExpired
+        HouseholdAuthorityParentStorageConfirmationFailure::AccountAuthorityUnavailable => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationAccountUnavailable
         }
-        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationReplayRejected => {
-            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationReplayRejected
+        HouseholdAuthorityParentStorageConfirmationFailure::AccountAuthorityNotCurrent => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationAccountNotCurrent
         }
-        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationBindingMismatch => {
-            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationBindingMismatch
+        HouseholdAuthorityParentStorageConfirmationFailure::DeviceTrustUnavailable => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationDeviceUnavailable
         }
-        _ => ParentStorageSettingsApplyFlowError::ParentStorageConfirmationBindingMismatch,
+        HouseholdAuthorityParentStorageConfirmationFailure::DeviceTrustNotCurrent => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationDeviceNotCurrent
+        }
+        HouseholdAuthorityParentStorageConfirmationFailure::OwnerAuthorizationInvalid => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationOwnerAuthorizationInvalid
+        }
     }
 }
 

@@ -39,6 +39,29 @@ mod household_authority_runtime_revalidation;
 mod household_authority_runtime_step_up;
 mod household_authority_runtime_storage_confirmation;
 
+/// Exact Account-owned durable confirmation store failures.
+///
+/// This type is carried by the family runtime and storage-custody error surfaces instead of
+/// being flattened through a wildcard conversion. Every store outcome remains visible at each
+/// boundary while the surrounding modules only need to map the owner category once.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HouseholdAuthorityParentStorageStoreFailure {
+    Unavailable,
+    IntegrityRejected,
+    ClockUnavailable,
+    EntropyUnavailable,
+    Duplicate,
+    Missing,
+    Expired,
+    ReplayRejected,
+    BindingMismatch,
+    Conflict,
+    AccountAuthorityUnavailable,
+    AccountAuthorityNotCurrent,
+    DeviceTrustUnavailable,
+    DeviceTrustNotCurrent,
+}
+
 /// Failure from an owner boundary or from the cross-owner binding checks.
 ///
 /// These outcomes intentionally do not expose a caller-controlled policy decision. A caller can
@@ -66,10 +89,7 @@ pub enum HouseholdAuthorityRuntimeFailure {
     ParentStepUpExpired,
     ParentStepUpReplayRejected,
     ParentStepUpBindingMismatch,
-    ParentStorageConfirmationUnavailable,
-    ParentStorageConfirmationExpired,
-    ParentStorageConfirmationReplayRejected,
-    ParentStorageConfirmationBindingMismatch,
+    ParentStorageConfirmationStore(HouseholdAuthorityParentStorageStoreFailure),
     RuntimeFenceUnavailable,
     EffectTargetMismatch,
     RoleNotAuthorized,
@@ -149,10 +169,38 @@ pub struct ConsumedParentStorageConfirmation {
     pairing_id: String,
     route_id: String,
     authority_generation: u64,
+    receipt_id: String,
+    nonce_id: String,
     preview_id: ParentStoragePreviewId,
     apply_intent_digest: ParentStorageApplyIntentDigest,
     expires_at: DateTime<Utc>,
     receipt_epoch: u64,
+}
+
+/// Family-owned storage confirmation custody failure. The storage crate receives this narrow
+/// error surface only after the Account/Device Trust re-resolution and transactional CAS path.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HouseholdAuthorityParentStorageConfirmationFailure {
+    Store(HouseholdAuthorityParentStorageStoreFailure),
+    AccountAuthorityUnavailable,
+    AccountAuthorityNotCurrent,
+    DeviceTrustUnavailable,
+    DeviceTrustNotCurrent,
+    OwnerAuthorizationInvalid,
+}
+
+/// Opaque owner-issued storage apply handoff. It contains the already-consumed effect
+/// authorization plus the Account-owned staged confirmation identity. The constructor is
+/// private to the family composer; it is neither cloneable nor serializable.
+pub struct HouseholdAuthorityRuntimeParentStorageConfirmation {
+    effect: HouseholdAuthorityRuntimeConsumedEffect,
+    authority: VerifiedAccountIdentityAuthority,
+    preview_id: ParentStoragePreviewId,
+    apply_intent_digest: ParentStorageApplyIntentDigest,
+    receipt_id: String,
+    nonce_id: String,
+    receipt_epoch: u64,
+    expires_at: DateTime<Utc>,
 }
 
 /// The only positive composition result from this module.
@@ -311,19 +359,6 @@ pub trait HouseholdAuthorityParentStepUpSource {
     }
 }
 
-/// One-time parent storage confirmation owner seam. Implementations must bind the durable
-/// consumption to the current Account/Device Trust tuple, preview, and canonical apply digest
-/// before returning the opaque value. Callers do not provide receipt or state fields.
-pub trait HouseholdAuthorityParentStorageConfirmationSource {
-    fn consume_current_parent_storage_confirmation(
-        &mut self,
-        account_authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-        preview_id: &ParentStoragePreviewId,
-        apply_intent_digest: &ParentStorageApplyIntentDigest,
-    ) -> Result<ConsumedParentStorageConfirmation, HouseholdAuthorityRuntimeFailure>;
-}
-
 /// Explicit fail-closed Device Trust adapter for deployments that have not wired the owner.
 #[derive(Debug, Default)]
 pub struct ManualRequiredHouseholdAuthorityDeviceTrustSource;
@@ -339,11 +374,6 @@ pub struct ManualRequiredHouseholdAuthorityControllerLeaseSource;
 /// Explicit fail-closed step-up adapter until a durable one-time receipt owner is integrated.
 #[derive(Debug, Default)]
 pub struct ManualRequiredHouseholdAuthorityParentStepUpSource;
-
-/// Explicit fail-closed storage confirmation adapter until Account/family durable one-time
-/// confirmation custody is integrated.
-#[derive(Debug, Default)]
-pub struct ManualRequiredHouseholdAuthorityParentStorageConfirmationSource;
 
 /// Explicit fail-closed execution fence until a durable owner wires a CAS/revocation store for
 /// the composed nonce and all dependency generations.
@@ -454,5 +484,34 @@ pub fn consume_household_authority(
         parent_step_up_source,
         cas_fence,
         authorization,
+    )
+}
+
+/// Compose the Account-owned durable confirmation for the exact storage preview intent.
+///
+/// This public boundary accepts only the provider-verified Account handle, owner ports, and
+/// intent identifiers. Receipt identity, lifecycle state, currentness, and the opaque effect
+/// handoff are minted inside the family-owned path.
+pub fn compose_parent_storage_apply_confirmation(
+    account_service: &mut AccountIdentityAuthorityService,
+    presented_account_authority: &VerifiedAccountIdentityAuthority,
+    device_trust_source: &impl HouseholdAuthorityDeviceTrustSource,
+    capability_source: &impl HouseholdAuthorityCapabilitySource,
+    controller_lease_source: &impl HouseholdAuthorityControllerLeaseSource,
+    parent_step_up_source: &mut impl HouseholdAuthorityParentStepUpSource,
+    cas_fence: &mut impl HouseholdAuthorityRuntimeCasFence,
+    preview_id: ParentStoragePreviewId,
+    apply_intent_digest: ParentStorageApplyIntentDigest,
+) -> Result<HouseholdAuthorityRuntimeParentStorageConfirmation, HouseholdAuthorityRuntimeFailure> {
+    household_authority_runtime_storage_confirmation::compose_parent_storage_apply_confirmation(
+        account_service,
+        presented_account_authority,
+        device_trust_source,
+        capability_source,
+        controller_lease_source,
+        parent_step_up_source,
+        cas_fence,
+        preview_id,
+        apply_intent_digest,
     )
 }

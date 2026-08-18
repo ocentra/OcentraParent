@@ -30,6 +30,8 @@ mod account_identity_authority_service_error;
 mod account_identity_mutation_authority_repository;
 #[path = "invite_recovery_repository.rs"]
 pub mod invite_recovery_repository;
+#[path = "parent_storage_confirmation_store.rs"]
+pub(crate) mod parent_storage_confirmation_store;
 #[path = "session_lifecycle_repository.rs"]
 pub mod session_lifecycle_repository;
 
@@ -93,10 +95,63 @@ impl SqliteAccountIdentityAuthorityRepository {
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         invite_recovery_repository::validate_schema(&connection)
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        parent_storage_confirmation_store::initialize(&connection)?;
         Ok(Self {
             connection,
             session_policy,
         })
+    }
+
+    pub(crate) fn stage_parent_storage_confirmation(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        device_trust_source: &impl crate::household_authority_runtime_composer::
+            HouseholdAuthorityDeviceTrustSource,
+        binding: parent_storage_confirmation_store::ParentStorageConfirmationBinding<'_>,
+        preview_id: &ocentra_schema::parent_storage_settings_apply_flow::ParentStoragePreviewId,
+        apply_intent_digest:
+            &ocentra_schema::parent_storage_settings_apply_flow::ParentStorageApplyIntentDigest,
+    ) -> Result<
+        parent_storage_confirmation_store::StagedParentStorageConfirmation,
+        parent_storage_confirmation_store::ParentStorageConfirmationStoreError,
+    > {
+        parent_storage_confirmation_store::stage(
+            &mut self.connection,
+            authority,
+            device_trust_source,
+            binding,
+            preview_id,
+            apply_intent_digest,
+        )
+    }
+
+    pub(crate) fn consume_parent_storage_confirmation(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        device_trust_source: &impl crate::household_authority_runtime_composer::
+            HouseholdAuthorityDeviceTrustSource,
+        binding: parent_storage_confirmation_store::ParentStorageConfirmationBinding<'_>,
+        receipt_id: &str,
+        nonce_id: &str,
+        receipt_epoch: u64,
+        preview_id: &ocentra_schema::parent_storage_settings_apply_flow::ParentStoragePreviewId,
+        apply_intent_digest:
+            &ocentra_schema::parent_storage_settings_apply_flow::ParentStorageApplyIntentDigest,
+    ) -> Result<
+        parent_storage_confirmation_store::ConsumedParentStorageConfirmation,
+        parent_storage_confirmation_store::ParentStorageConfirmationStoreError,
+    > {
+        parent_storage_confirmation_store::consume(
+            &mut self.connection,
+            authority,
+            device_trust_source,
+            binding,
+            receipt_id,
+            nonce_id,
+            receipt_epoch,
+            preview_id,
+            apply_intent_digest,
+        )
     }
 }
 
@@ -211,6 +266,56 @@ impl AccountIdentityAuthorityService {
         attempt: &invite_recovery_repository::RecoveryHandoffDeliveryAttempt,
     ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
         self.repository.release_recovery_handoff(authority, attempt)
+    }
+
+    pub(crate) fn stage_parent_storage_confirmation(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        device_trust_source: &impl crate::household_authority_runtime_composer::
+            HouseholdAuthorityDeviceTrustSource,
+        binding: parent_storage_confirmation_store::ParentStorageConfirmationBinding<'_>,
+        preview_id: &ocentra_schema::parent_storage_settings_apply_flow::ParentStoragePreviewId,
+        apply_intent_digest:
+            &ocentra_schema::parent_storage_settings_apply_flow::ParentStorageApplyIntentDigest,
+    ) -> Result<
+        parent_storage_confirmation_store::StagedParentStorageConfirmation,
+        parent_storage_confirmation_store::ParentStorageConfirmationStoreError,
+    > {
+        self.repository.stage_parent_storage_confirmation(
+            authority,
+            device_trust_source,
+            binding,
+            preview_id,
+            apply_intent_digest,
+        )
+    }
+
+    pub(crate) fn consume_parent_storage_confirmation(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        device_trust_source: &impl crate::household_authority_runtime_composer::
+            HouseholdAuthorityDeviceTrustSource,
+        binding: parent_storage_confirmation_store::ParentStorageConfirmationBinding<'_>,
+        receipt_id: &str,
+        nonce_id: &str,
+        receipt_epoch: u64,
+        preview_id: &ocentra_schema::parent_storage_settings_apply_flow::ParentStoragePreviewId,
+        apply_intent_digest:
+            &ocentra_schema::parent_storage_settings_apply_flow::ParentStorageApplyIntentDigest,
+    ) -> Result<
+        parent_storage_confirmation_store::ConsumedParentStorageConfirmation,
+        parent_storage_confirmation_store::ParentStorageConfirmationStoreError,
+    > {
+        self.repository.consume_parent_storage_confirmation(
+            authority,
+            device_trust_source,
+            binding,
+            receipt_id,
+            nonce_id,
+            receipt_epoch,
+            preview_id,
+            apply_intent_digest,
+        )
     }
 }
 

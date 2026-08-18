@@ -1,108 +1,225 @@
 use chrono::{DateTime, Utc};
+use ocentra_schema::parent_storage_settings_apply_flow::{
+    ParentStorageApplyIntentDigest, ParentStoragePreviewId,
+};
+
+use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
+use crate::account_identity_authority_repository::{
+    parent_storage_confirmation_store::{
+        ParentStorageConfirmationBinding, ParentStorageConfirmationStoreError,
+    },
+    AccountIdentityAuthorityService,
+};
+use crate::household_authority::HouseholdAuthorityAction;
 
 use super::{
-    ConsumedParentStorageConfirmation, CurrentChildDeviceTrustBinding,
-    HouseholdAuthorityRuntimeFailure, VerifiedAccountIdentityAuthority,
-};
-use ocentra_schema::parent_storage_settings_apply_flow::{
-    ParentStorageApplyIntentDigest, ParentStorageHouseholdRef, ParentStoragePreviewId,
+    compose_household_authority, consume_household_authority, ConsumedParentStorageConfirmation,
+    HouseholdAuthorityCapabilitySource, HouseholdAuthorityControllerLeaseSource,
+    HouseholdAuthorityDeviceTrustSource, HouseholdAuthorityParentStepUpSource,
+    HouseholdAuthorityParentStorageConfirmationFailure,
+    HouseholdAuthorityParentStorageStoreFailure, HouseholdAuthorityRuntimeCasFence,
+    HouseholdAuthorityRuntimeConsumedEffect, HouseholdAuthorityRuntimeFailure,
+    HouseholdAuthorityRuntimeParentStorageConfirmation,
 };
 
-impl ConsumedParentStorageConfirmation {
-    /// Construct only after the Account/family owner has durably consumed its one-time
-    /// confirmation record for this exact preview and digest.
-    pub(crate) fn from_owner_consumed(
-        authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-        preview_id: ParentStoragePreviewId,
-        apply_intent_digest: ParentStorageApplyIntentDigest,
-        expires_at: DateTime<Utc>,
-        receipt_epoch: u64,
-    ) -> Result<Self, HouseholdAuthorityRuntimeFailure> {
-        if expires_at <= Utc::now() {
-            return Err(HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationExpired);
-        }
-        if receipt_epoch == 0 {
-            return Err(HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationReplayRejected);
-        }
+/// Compose and durably stage the family-owned confirmation for one canonical storage intent.
+///
+/// The only positive path starts with the existing Account/Device Trust/action composer and
+/// consumes its opaque effect authorization by value. The durable Account store then records the
+/// private receipt identity and the exact owner-bound target. Preview and digest are intent-only
+/// inputs; they never carry a receipt, lifecycle state, or currentness snapshot.
+pub fn compose_parent_storage_apply_confirmation(
+    account_service: &mut AccountIdentityAuthorityService,
+    presented_account_authority: &VerifiedAccountIdentityAuthority,
+    device_trust_source: &impl HouseholdAuthorityDeviceTrustSource,
+    capability_source: &impl HouseholdAuthorityCapabilitySource,
+    controller_lease_source: &impl HouseholdAuthorityControllerLeaseSource,
+    parent_step_up_source: &mut impl HouseholdAuthorityParentStepUpSource,
+    cas_fence: &mut impl HouseholdAuthorityRuntimeCasFence,
+    preview_id: ParentStoragePreviewId,
+    apply_intent_digest: ParentStorageApplyIntentDigest,
+) -> Result<HouseholdAuthorityRuntimeParentStorageConfirmation, HouseholdAuthorityRuntimeFailure> {
+    let authorization = compose_household_authority(
+        account_service,
+        presented_account_authority,
+        device_trust_source,
+        capability_source,
+        controller_lease_source,
+        parent_step_up_source,
+        HouseholdAuthorityAction::ImportRestoreData,
+    )?;
+    let effect_authorization = consume_household_authority(
+        account_service,
+        presented_account_authority,
+        device_trust_source,
+        capability_source,
+        controller_lease_source,
+        parent_step_up_source,
+        cas_fence,
+        authorization,
+    )?;
+    let effect = effect_authorization
+        .consume_for_data_custody(
+            HouseholdAuthorityAction::ImportRestoreData,
+            presented_account_authority.household_id().as_str(),
+            Some(presented_account_authority.child_device_id().as_str()),
+            Some(presented_account_authority.authority_generation()),
+        )
+        .map_err(|_| HouseholdAuthorityRuntimeFailure::EffectTargetMismatch)?;
+    let current_authority = super::household_authority_runtime_resolution::account_authority(
+        account_service,
+        presented_account_authority,
+    )?;
+    let staged = {
+        let binding = effect_binding(&effect);
+        account_service
+            .stage_parent_storage_confirmation(
+                &current_authority,
+                device_trust_source,
+                binding,
+                &preview_id,
+                &apply_intent_digest,
+            )
+            .map_err(map_store_failure)?
+    };
+    let expires_at = DateTime::<Utc>::from_timestamp_millis(staged.expires_at_epoch_millis).ok_or(
+        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationStore(
+            HouseholdAuthorityParentStorageStoreFailure::ClockUnavailable,
+        ),
+    )?;
+    Ok(HouseholdAuthorityRuntimeParentStorageConfirmation {
+        effect,
+        authority: current_authority,
+        preview_id,
+        apply_intent_digest,
+        receipt_id: staged.receipt_id,
+        nonce_id: staged.nonce_id,
+        receipt_epoch: staged.receipt_epoch,
+        expires_at,
+    })
+}
 
-        let value = Self {
-            household_id: authority.household_id().to_string(),
-            account_id: authority.account_id().to_string(),
-            parent_device_id: authority.device_id().as_str().to_owned(),
-            child_profile_id: authority.child_profile_id().to_string(),
-            child_device_id: authority.child_device_id().as_str().to_owned(),
-            installation_id: authority
-                .current_binding()
-                .installation_id
-                .as_str()
-                .to_owned(),
-            pairing_id: authority.current_binding().pairing_id.as_str().to_owned(),
-            route_id: authority
-                .current_binding()
-                .selected_route_id
-                .as_str()
-                .to_owned(),
-            authority_generation: authority.authority_generation(),
+impl HouseholdAuthorityRuntimeParentStorageConfirmation {
+    /// Re-resolve Account and Device Trust inside the Account transaction and consume the staged
+    /// row with a compare-and-swap. The returned value is the only family-owned handoff to the
+    /// storage boundary; the input receipt and durable row cannot be reused.
+    pub fn consume_for_storage(
+        self,
+        account_service: &mut AccountIdentityAuthorityService,
+        device_trust_source: &impl HouseholdAuthorityDeviceTrustSource,
+    ) -> Result<ConsumedParentStorageConfirmation, HouseholdAuthorityParentStorageConfirmationFailure>
+    {
+        let Self {
+            effect,
+            authority,
+            preview_id,
+            apply_intent_digest,
+            receipt_id,
+            nonce_id,
+            receipt_epoch,
+            expires_at,
+        } = self;
+        let stored = {
+            let binding = effect_binding(&effect);
+            account_service
+                .consume_parent_storage_confirmation(
+                    &authority,
+                    device_trust_source,
+                    binding,
+                    &receipt_id,
+                    &nonce_id,
+                    receipt_epoch,
+                    &preview_id,
+                    &apply_intent_digest,
+                )
+                .map_err(map_store_consume_failure)?
+        };
+        if stored.receipt_id != receipt_id
+            || stored.nonce_id != nonce_id
+            || stored.receipt_epoch != receipt_epoch
+            || stored.expires_at_epoch_millis != expires_at.timestamp_millis()
+        {
+            return Err(HouseholdAuthorityParentStorageConfirmationFailure::Store(
+                HouseholdAuthorityParentStorageStoreFailure::BindingMismatch,
+            ));
+        }
+        let target = &effect.target;
+        Ok(ConsumedParentStorageConfirmation {
+            household_id: target.household_id.clone(),
+            account_id: target.account_id.clone(),
+            parent_device_id: target.parent_device_id.clone(),
+            child_profile_id: target.child_profile_id.clone(),
+            child_device_id: target.child_device_id.clone(),
+            installation_id: target.installation_id.clone(),
+            pairing_id: target.pairing_id.clone(),
+            route_id: target.route_id.clone(),
+            authority_generation: target.account_authority_generation,
+            receipt_id: stored.receipt_id,
+            nonce_id: stored.nonce_id,
             preview_id,
             apply_intent_digest,
             expires_at,
-            receipt_epoch,
-        };
-        value.validate_for(authority, device_binding)?;
-        Ok(value)
+            receipt_epoch: stored.receipt_epoch,
+        })
     }
+}
 
-    fn validate_for(
-        &self,
-        authority: &VerifiedAccountIdentityAuthority,
-        device_binding: &CurrentChildDeviceTrustBinding,
-    ) -> Result<(), HouseholdAuthorityRuntimeFailure> {
-        if self.expires_at <= Utc::now() {
-            return Err(HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationExpired);
-        }
-        if self.receipt_epoch == 0 {
-            return Err(HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationReplayRejected);
-        }
-        if self.authority_generation != authority.authority_generation()
-            || !super::household_authority_runtime_binding::matches(
-                authority,
-                device_binding,
-                &self.household_id,
-                &self.account_id,
-                &self.parent_device_id,
-                &self.child_profile_id,
-                &self.child_device_id,
-                &self.installation_id,
-                &self.pairing_id,
-                &self.route_id,
-            )
-        {
-            return Err(HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationBindingMismatch);
-        }
-        Ok(())
+fn effect_binding(
+    effect: &HouseholdAuthorityRuntimeConsumedEffect,
+) -> ParentStorageConfirmationBinding<'_> {
+    let target = &effect.target;
+    ParentStorageConfirmationBinding {
+        provider: &target.provider,
+        provider_subject: &target.provider_subject,
+        household_id: &target.household_id,
+        account_id: &target.account_id,
+        parent_device_id: &target.parent_device_id,
+        child_profile_id: &target.child_profile_id,
+        child_device_id: &target.child_device_id,
+        installation_id: &target.installation_id,
+        pairing_id: &target.pairing_id,
+        route_id: &target.route_id,
+        authority_generation: target.account_authority_generation,
+        session_generation: target.session_generation,
+        device_trust_subject: &target.device_trust_subject,
+        device_lifecycle_generation: target.device_lifecycle_generation,
+        device_authority_generation: target.device_authority_generation,
     }
+}
 
-    /// Consume the opaque handoff for the exact preview and canonical digest. Moving the value
-    /// prevents a caller from reusing it; the owner-issued receipt epoch prevents durable replay.
-    pub fn consume_for_storage(
-        self,
-        preview_id: &ParentStoragePreviewId,
-        household_ref: &ParentStorageHouseholdRef,
-        apply_intent_digest: &ParentStorageApplyIntentDigest,
-    ) -> Result<(), HouseholdAuthorityRuntimeFailure> {
-        if self.expires_at <= Utc::now() {
-            return Err(HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationExpired);
+fn map_store_failure(
+    failure: ParentStorageConfirmationStoreError,
+) -> HouseholdAuthorityRuntimeFailure {
+    HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationStore(failure)
+}
+
+fn map_store_consume_failure(
+    failure: ParentStorageConfirmationStoreError,
+) -> HouseholdAuthorityParentStorageConfirmationFailure {
+    match failure {
+        store @ (HouseholdAuthorityParentStorageStoreFailure::Unavailable
+        | HouseholdAuthorityParentStorageStoreFailure::IntegrityRejected
+        | HouseholdAuthorityParentStorageStoreFailure::ClockUnavailable
+        | HouseholdAuthorityParentStorageStoreFailure::EntropyUnavailable
+        | HouseholdAuthorityParentStorageStoreFailure::Duplicate
+        | HouseholdAuthorityParentStorageStoreFailure::Missing
+        | HouseholdAuthorityParentStorageStoreFailure::Expired
+        | HouseholdAuthorityParentStorageStoreFailure::ReplayRejected
+        | HouseholdAuthorityParentStorageStoreFailure::BindingMismatch
+        | HouseholdAuthorityParentStorageStoreFailure::Conflict) => {
+            HouseholdAuthorityParentStorageConfirmationFailure::Store(store)
         }
-        if self.receipt_epoch == 0 {
-            return Err(HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationReplayRejected);
+        HouseholdAuthorityParentStorageStoreFailure::AccountAuthorityUnavailable => {
+            HouseholdAuthorityParentStorageConfirmationFailure::AccountAuthorityUnavailable
         }
-        if self.household_id != household_ref.as_str()
-            || &self.preview_id != preview_id
-            || &self.apply_intent_digest != apply_intent_digest
-        {
-            return Err(HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationBindingMismatch);
+        HouseholdAuthorityParentStorageStoreFailure::AccountAuthorityNotCurrent => {
+            HouseholdAuthorityParentStorageConfirmationFailure::AccountAuthorityNotCurrent
         }
-        Ok(())
+        HouseholdAuthorityParentStorageStoreFailure::DeviceTrustUnavailable => {
+            HouseholdAuthorityParentStorageConfirmationFailure::DeviceTrustUnavailable
+        }
+        HouseholdAuthorityParentStorageStoreFailure::DeviceTrustNotCurrent => {
+            HouseholdAuthorityParentStorageConfirmationFailure::DeviceTrustNotCurrent
+        }
     }
 }

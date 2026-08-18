@@ -1,13 +1,11 @@
 use super::{
-    ConsumedParentStepUp, ConsumedParentStorageConfirmation, CurrentChildDeviceTrustBinding,
-    CurrentHouseholdCapability, CurrentHouseholdControllerLease, HouseholdAuthorityAction,
-    HouseholdAuthorityCapabilitySource, HouseholdAuthorityControllerLeaseSource,
-    HouseholdAuthorityParentStepUpSource, HouseholdAuthorityParentStorageConfirmationSource,
+    ConsumedParentStepUp, CurrentChildDeviceTrustBinding, CurrentHouseholdCapability,
+    CurrentHouseholdControllerLease, HouseholdAuthorityAction, HouseholdAuthorityCapabilitySource,
+    HouseholdAuthorityControllerLeaseSource, HouseholdAuthorityParentStepUpSource,
     HouseholdAuthorityRuntimeCasFence, HouseholdAuthorityRuntimeEffectAuthorization,
     HouseholdAuthorityRuntimeFailure, ManualRequiredHouseholdAuthorityCapabilitySource,
     ManualRequiredHouseholdAuthorityControllerLeaseSource,
     ManualRequiredHouseholdAuthorityParentStepUpSource,
-    ManualRequiredHouseholdAuthorityParentStorageConfirmationSource,
     ManualRequiredHouseholdAuthorityRuntimeCasFence,
 };
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
@@ -44,21 +42,6 @@ impl HouseholdAuthorityParentStepUpSource for ManualRequiredHouseholdAuthorityPa
         _action: HouseholdAuthorityAction,
     ) -> Result<ConsumedParentStepUp, HouseholdAuthorityRuntimeFailure> {
         Err(HouseholdAuthorityRuntimeFailure::ParentStepUpUnavailable)
-    }
-}
-
-impl HouseholdAuthorityParentStorageConfirmationSource
-    for ManualRequiredHouseholdAuthorityParentStorageConfirmationSource
-{
-    fn consume_current_parent_storage_confirmation(
-        &mut self,
-        _account_authority: &crate::account_identity_authority::VerifiedAccountIdentityAuthority,
-        _device_binding: &CurrentChildDeviceTrustBinding,
-        _preview_id: &ocentra_schema::parent_storage_settings_apply_flow::ParentStoragePreviewId,
-        _apply_intent_digest:
-            &ocentra_schema::parent_storage_settings_apply_flow::ParentStorageApplyIntentDigest,
-    ) -> Result<ConsumedParentStorageConfirmation, HouseholdAuthorityRuntimeFailure> {
-        Err(HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationUnavailable)
     }
 }
 
