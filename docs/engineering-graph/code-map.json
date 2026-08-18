@@ -799,6 +799,8 @@
         "crates/family-identity-core/src/account_identity_authority_repository.rs",
         "crates/family-identity-core/src/account_identity_authority_repository_read.rs",
         "crates/family-identity-core/src/family_identity_account.rs",
+        "crates/family-identity-core/src/household_authority_runtime_composer.rs",
+        "crates/family-identity-core/src/lib.rs",
         "crates/family-identity-core/tests/contract/household_authority_handoff.rs",
         "crates/family-identity-core/tests/unit/household_authority.rs",
         "crates/policy-control-core/src/authenticated_delivery_grant.rs",
@@ -810,7 +812,12 @@
         "crates/provisioning-core/src/provisioning_install.rs",
         "crates/provisioning-core/src/provisioning_install/family_context.rs",
         "crates/provisioning-core/tests/unit/readiness_flow.rs"
-      ]
+      ],
+      "plannedImplementationRoots": [
+        "crates/family-identity-core/src/household_authority_runtime_composer.rs",
+        "crates/family-identity-core/src/lib.rs"
+      ],
+      "note": "WP05's existing evaluators and repository-derived billing/support consumers are reviewed, but the general authority API still accepts caller-assembled state and CurrentVerifiedHouseholdAuthority has no production issuer/composer. The next bounded source packet is the family-owned runtime composer that resolves WP08 binding, session freshness, Device Trust current state, capability, lease, and step-up receipt; lib.rs is the exact module-registration root. No production caller root is added because no typed downstream caller exists yet, and no test roots are invented."
     },
     "WP-account-identity-family-plan-06-security-proof-and-route-gate": {
       "planSlug": "account-identity-family-plan",
