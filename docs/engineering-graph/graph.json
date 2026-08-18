@@ -17290,10 +17290,21 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / source accepted, expected tests open",
+        "statusText": "partial / independently reviewed source repair integrated, expected-test rewrites open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/family-identity-core/tests/contract/device_trust_lifecycle.rs",
+            "crates/schema/tests/contract/export_import_backup_recovery.rs",
+            "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs",
+            "tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs",
+            "tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -17314,6 +17325,13 @@
         "expected": {
           "proof": [
             "output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair"
+          ],
+          "tests": [
+            "crates/family-identity-core/tests/contract/device_trust_lifecycle.rs",
+            "crates/schema/tests/contract/export_import_backup_recovery.rs",
+            "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs",
+            "tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs",
+            "tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs"
           ]
         }
       }

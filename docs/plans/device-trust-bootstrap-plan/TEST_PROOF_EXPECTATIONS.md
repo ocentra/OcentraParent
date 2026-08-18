@@ -277,7 +277,7 @@ has no child-runtime entitlement consumer. Expected test debt remains in
 `crates/child-runtime/tests/unit/runtime_gate.rs`; these files are not edited
 in the source wave.
 
-## WP06 expected test and proof debt (source repair candidate; tests open)
+## WP06 expected test and proof debt (source repair integrated; tests open)
 
 The WP06 source candidate is static-reviewed only. Its expected test roots and
 retained proof remain missing/open and must be updated in the later test wave:

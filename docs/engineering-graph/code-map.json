@@ -3339,9 +3339,18 @@
     },
     "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair": {
       "planSlug": "device-trust-bootstrap-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/family-identity-core/tests/contract/device_trust_lifecycle.rs",
+        "crates/schema/tests/contract/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs",
+        "tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs",
+        "tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs"
+      ],
       "roots": [
         "crates/family-identity-core/src/device_trust_lifecycle.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_authority.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_revocation.rs",
         "crates/family-identity-core/tests/contract/device_trust_lifecycle.rs",
         "crates/schema/src/export_import_backup_recovery.rs",
         "crates/schema/src/export_import_backup_recovery",
@@ -3357,7 +3366,8 @@
         "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs",
         "tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs",
         "tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs"
-      ]
+      ],
+      "note": "Independently reviewed fail-closed source repair is integrated: raw generation-only re-pair and caller executor/receipt authority are removed, bundle creation is unavailable without real encryption custody, cursor checks are diagnostic preflight only, and restore apply is unconditionally blocked. Encryption/key custody, durable tombstone authority, authorized producer, executor, shipped caller, current-boundary test rewrites, proof, and DONE remain open."
     },
     "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall": {
       "planSlug": "device-trust-bootstrap-plan",

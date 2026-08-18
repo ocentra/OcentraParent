@@ -37,11 +37,11 @@ verified-parent and unavailable-by-default executor boundaries. This closes a
 source-authority defect only. Encrypted bundle/key custody, a real executor and
 composition caller, expected tests, focused execution, and proof remain open.
 
-## Source repair candidate — 2026-08-18 (tests open)
+## Source repair integrated — 2026-08-18 (tests open)
 
-The WP06 source wave is pushed at `4ad484197` on
-`codex/device-trust-wp06-source-wave`, based on `31e4a7c55`; it is a candidate
-source packet, not a completion or acceptance claim:
+The independently reviewed WP06 source wave is integrated through
+`f656a80a1` on `codex/eventing-wp09-production` from final candidate
+`1b3593319`; it is a source-only repair, not a completion claim:
 
 - The public `repair_with_new_installation` generation-only seam was removed.
   Lifecycle revoke/reset remains durable owner code, but no parent-authorized
@@ -63,9 +63,10 @@ source packet, not a completion or acceptance claim:
 The actual source has no legal producer for the import context or verified
 parent authority, no encrypted key custody, durable current revocation/tombstone
 owner, authorized re-pair ceremony, real restore executor, or shipped
-parent/child recovery caller. Expected tests and proof remain open. The five
-storage recovery files overlap Data WP05 candidate `3def622df`; rebase and
-semantic reconciliation after Data acceptance are required before integration.
+parent/child recovery caller. Expected-test rewrites and proof remain open. The
+storage recovery boundary overlaps Data WP05 candidate `e91bb3de1`; that
+candidate must rebase on this integrated safety boundary and preserve its
+zero-argument blocked restore before Data WP05 integration.
 
 ## Negative cases
 

@@ -210,12 +210,12 @@ does not force WP02 into that route; when a platform sealing/lifecycle-revocatio
 path is selected, its reviewed conditional `WP26 -> WP02` gate must be promoted
 before the consumer route can proceed.
 
-## WP06 source-wave reachability — 2026-08-18 (source repair candidate; tests open)
+## WP06 source-wave reachability — 2026-08-18 (source integrated; tests open)
 
-The WP06 source packet is pushed on `codex/device-trust-wp06-source-wave` at
-`4ad484197`, based on consolidation head `31e4a7c55`. This is a source-only
-candidate; expected tests, runtime execution, proof, and acceptance remain
-open:
+The independently reviewed WP06 source packet is integrated on
+`codex/eventing-wp09-production` through `f656a80a1` from final candidate
+`1b3593319`. This is a source-only fail-closed repair; expected-test rewrites,
+runtime execution, proof, and workpack acceptance remain open:
 
 - `crates/family-identity-core/src/device_trust_lifecycle_revocation.rs` no
   longer exports `repair_with_new_installation`, which accepted raw identity
@@ -238,8 +238,9 @@ No production caller constructs `ImportBundleContext` or
 revocation/tombstone owner, authorized parent re-pair producer, real restore
 executor, or parent/child startup route reaches this source. The five expected
 WP06 test roots and the proof root remain missing/open. These storage files
-overlap Data WP05 candidate `3def622df`; the packet must be rebased and
-semantically reconciled after Data acceptance before any integration claim.
+overlap Data WP05 candidate `e91bb3de1`; that candidate must be rebased and
+semantically reconciled on top of this integrated fail-closed boundary before
+its own integration claim.
 
 ## Conditional WP02 sealing gate — 2026-08-17
 
