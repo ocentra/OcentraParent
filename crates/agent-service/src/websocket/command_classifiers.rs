@@ -34,6 +34,7 @@ pub(super) fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentActivityNetworkReadModelGet
             | AgentCommandName::AgentActivityTrackingReadModelGet
             | AgentCommandName::AgentActivityTrackingRetentionSettingsWrite
+            | AgentCommandName::AgentParentRuntimeIntentIngressPublish
     )
 }
 
