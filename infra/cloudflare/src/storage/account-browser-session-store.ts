@@ -360,6 +360,9 @@ WHERE session.session_id = ? AND session.refresh_token_digest = ? AND session.st
   )`;
 
 const CONSUME_REFRESH_SQL = `
+-- This statement follows ROTATE_SQL in one sequential D1 batch. The INSERT
+-- captures the old digest at refresh_generation - 1, while both the source
+-- row and the fallback probe match the post-rotation digest/generation/clock.
 INSERT INTO ocentra_account_browser_session_consumed_refresh
   (refresh_token_digest, session_id, refresh_generation, consumed_at)
 SELECT ?, ?, refresh_generation - 1, ?

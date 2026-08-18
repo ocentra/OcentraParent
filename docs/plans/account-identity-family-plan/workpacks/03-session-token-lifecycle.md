@@ -170,13 +170,16 @@ rewrites. It is not WP03 progress.
 
 The candidate Cloudflare source packet supplies the WP03 production/runtime
 composition, without reviving caller-minted session facts or evaluators.
-Independent review remains open; the reachable source is:
+Independent review remains open and re-review is required after the rejected
+head repair; the reachable source is:
 
 - `infra/cloudflare/migrations/account-identity/0005_account_browser_session_custody.sql`
   and `0006_account_browser_session_refresh_custody.sql` remain historical
   custody definitions; forward `0007_account_browser_session_custody_hardening.sql`
-  rebuilds them as STRICT, quarantines and aborts on invalid legacy rows, and
-  publishes the runtime schema-version sentinel only after the full copy;
+  rebuilds them as STRICT, fails closed by aborting on invalid legacy rows, and
+  publishes the runtime schema-version sentinel only after the full copy. Its
+  non-sensitive quarantine attempt is not retained when the migration
+  transaction rolls back;
 - `infra/cloudflare/src/storage/account-browser-session-codec.ts` and
   `account-browser-session-store.ts` for opaque cookies, non-forgeable
   Account authority capabilities, same-boundary currentness revalidation,
@@ -200,6 +203,12 @@ successful mutation without its audit outcome rolls back. Access expiry does
 not block refresh-bound logout or global revoke, while an optional access
 cookie must still bind to the same session.
 
+The deliberate NULL guard makes a concurrent rotate CAS loss abort the whole
+D1 batch and surface `manual-required`; it does not attempt a second mutation
+after the transaction has rolled back. A later reuse of the durable consumed
+digest takes the replay-revocation path. This narrow in-flight race remains an
+expected test and operational-reconciliation gap.
+
 Every public store operation captures trusted `Date.now()` inside the store;
 callers may provide only bounded request correlation. The forward `0007`
 custody rebuild is SQLite `STRICT` with digest, timestamp, generation,
@@ -219,10 +228,11 @@ test/proof phase:
 - `infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts`
 - `infra/cloudflare/tests/integration/account-browser-session-real.test.ts`
 
-The candidate is rebased onto Cloudflare WP06 final head `56a4faa37`. It does
-not claim applied D1 migrations, live Worker deployment, tests, retained proof,
-precommit, CI, PR, or DONE. The final WP06 mutation-readiness seam remains
-parameterless/manual-required; no caller-side authority is fabricated.
+The candidate is rebased onto Cloudflare WP06 final head `56a4faa37` and is
+ready only for independent re-review. It does not claim applied D1 migrations,
+live Worker deployment, tests, retained proof, precommit, CI, PR, or DONE. The
+final WP06 mutation-readiness seam remains parameterless/manual-required; no
+caller-side authority is fabricated.
 
 ## Superseded historical record (not current status)
 

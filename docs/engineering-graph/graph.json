@@ -552,10 +552,10 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / candidate production source / independent review open / route-store tests and proof open",
+        "statusText": "Validation — candidate source / re-review required / route-store tests and proof open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
-        "needsReview": false,
+        "needsReview": true,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
@@ -591,6 +591,15 @@
             "docs/engineering-graph/code-map.json"
           ],
           "reason": "Candidate WP03 source now composes browser login, refresh, refresh-bound logout/global revoke, strict digest-only custody, current-authority revalidation, and redacted audit outcomes through Cloudflare WP06's final provider caller/verifier result seam. Trusted store time and runtime D1 row validation fail closed. Independent review remains open; the exact route/store/request-safety/integration tests, migration execution, live D1/Worker validation, proof, deployment, and DONE remain open."
+        },
+        "stateOverride": {
+          "reason": "The rejected-head source repair is a candidate for independent re-review; expected route/store/request-safety tests, migration execution, live D1/Worker validation, proof, CI, PR, and DONE remain open.",
+          "evidence": [
+            "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+            "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+            "docs/PLAN_CODE_STATUS_MATRIX.md",
+            "docs/engineering-graph/code-map.json"
+          ]
         }
       },
       "completion": {

@@ -181,13 +181,13 @@ export function isBrowserSessionRow(value: unknown): value is BrowserSessionRow 
   const supportComplete =
     session.role === 'support-admin' &&
     supportFields.every((field) => field !== null) &&
-    session.supportProviderSubject === session.provider_subject &&
-    session.supportAccountId === session.account_id &&
-    session.supportMemberId === session.member_id &&
-    session.supportHouseholdId === session.household_id &&
-    session.supportDeviceId === session.device_id &&
-    session.supportChildProfileId === session.child_profile_id &&
-    session.supportChildDeviceId === session.child_device_id &&
+    session.support_provider_subject === session.provider_subject &&
+    session.support_account_id === session.account_id &&
+    session.support_member_id === session.member_id &&
+    session.support_household_id === session.household_id &&
+    session.support_device_id === session.device_id &&
+    session.support_child_profile_id === session.child_profile_id &&
+    session.support_child_device_id === session.child_device_id &&
     session.support_revocation_state === 'active' &&
     supportIssuedAt !== null &&
     supportExpiresAt !== null &&

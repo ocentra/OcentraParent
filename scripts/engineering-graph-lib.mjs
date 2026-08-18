@@ -25,7 +25,7 @@ const OVERRIDE_TOP_LEVEL_FIELDS = new Set([
 const OVERRIDE_FIELDS = Object.freeze({
   workpackReviews: new Set(['id', 'hardDependencies', 'evidence', 'reason']),
   edges: new Set(['from', 'to', 'kind', 'confidence', 'evidence', 'reason', 'implementationGate']),
-  stateOverrides: new Set(['id', 'state', 'reason', 'statusText', 'evidence']),
+  stateOverrides: new Set(['id', 'state', 'reason', 'statusText', 'needsReview', 'evidence']),
   proofOverrides: new Set(['id', 'proof', 'reason', 'evidence', 'satisfiesExpected']),
   completionEvidenceOverrides: new Set([
     'id',
@@ -1251,6 +1251,9 @@ function overrideSemanticErrors(overrides, nodeById, repoRoot) {
     if (override.state !== 'validation') errors.push(`${label}.state must be validation`);
     errors.push(...requiredString(override.reason, `${label}.reason`));
     if (override.statusText !== undefined) errors.push(...requiredString(override.statusText, `${label}.statusText`));
+    if (override.needsReview !== undefined && typeof override.needsReview !== 'boolean') {
+      errors.push(`${label}.needsReview must be boolean`);
+    }
     errors.push(...requiredStringArray(override.evidence, `${label}.evidence`, { existing: true, root: repoRoot }));
   });
 
@@ -1413,7 +1416,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     node.metadata = {
       ...node.metadata,
       ...(override.statusText ? { statusText: override.statusText } : {}),
-      needsReview: node.metadata?.dependencyReviewRejected ? true : false,
+      needsReview: override.needsReview === true || node.metadata?.dependencyReviewRejected ? true : false,
     };
   }
   for (const override of overrides.proofOverrides) {
