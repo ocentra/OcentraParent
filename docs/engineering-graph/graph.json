@@ -16899,7 +16899,7 @@
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / source accepted, tests open",
+        "statusText": "validation / sealed source accepted, tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -16919,7 +16919,7 @@
             "docs/PLAN_CODE_STATUS_MATRIX.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "The integrated source checkpoint a78d8f831 now covers the Account-authority-derived opaque WP06 request/row custody boundary, session expiry, exact role binding, bounded page size, cursor/source/stable-sort continuity, and generated TypeScript parity. No report/query runtime consumer is routed; three Rust harnesses are stale and the TypeScript contract test is unwritten. This authorizes only the reviewed source/graph truth mapping; expected tests, focused execution, downstream runtime claims, proof, checklist acceptance, PR readiness, and DONE remain open."
+          "reason": "Canonical commits 9462ce44e and d3c4b64ca cover the Account-issued authority-snapshot-derived opaque WP06 request/row custody boundary, all-seven-state completeness, sealed validated proof snapshot, source/proof page limits, cursor/source/stable-sort continuity, and exact Rust-owned generated scope/citation/generation/pagination parity. The snapshot does not claim race-safe repository currentness. No production report/query consumer or owner adapter is routed; three Rust harnesses need sealed-wrapper and boundary/page-size migration and the TypeScript contract test is absent. This authorizes only reviewed source/graph truth mapping; expected tests, focused execution, downstream runtime claims, proof, checklist acceptance, PR readiness, and DONE remain open."
         }
       },
       "completion": {

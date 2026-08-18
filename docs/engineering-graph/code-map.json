@@ -5493,6 +5493,7 @@
         "crates/storage-custody-core/src/report_query_custody.rs",
         "crates/storage-custody-core/src/report_query_custody_page_size_validate.rs",
         "crates/storage-custody-core/src/report_query_custody_proof.rs",
+        "crates/storage-custody-core/src/report_query_custody_proof_validate.rs",
         "crates/storage-custody-core/src/report_query_custody_request_validate.rs",
         "crates/storage-custody-core/src/report_query_custody_row.rs",
         "crates/storage-custody-core/src/report_query_custody_row_state.rs",
@@ -5502,11 +5503,12 @@
         "crates/storage-custody-core/src/report_query_custody_row_validate.rs",
         "crates/storage-custody-core/src/report_query_custody_source.rs",
         "crates/storage-custody-core/src/report_query_custody_state_projection.rs",
+        "crates/storage-custody-core/src/report_query_custody_verified_proof.rs",
         "crates/storage-custody-core/tests/unit/report_query_custody.rs",
         "packages/schema-domain/src/generated-report-query-custody-contract-rules.ts",
         "packages/schema-domain/src/generated-report-query-custody-contracts.ts"
       ],
-      "note": "The 20 newly integrated production/generated roots are source-integrated at a78d8f831; retained schema module/bin/state and storage row-state roots remain part of complete WP06 ownership. The three checked-in Rust harnesses are stale against the current API or canonical sample, and the TypeScript contract-test root is expected but unwritten; no runtime report/query consumer is mapped or claimed."
+      "note": "Canonical commits 9462ce44e and d3c4b64ca add the all-seven-state proof gate, private-inner serialize-only validated proof snapshot, source/proof page bound, and Rust-owned generated request/row/proof parity. Account authority remains an issuance-time snapshot and does not claim race-safe repository currentness. The three checked-in Rust harnesses still need sealed-wrapper and boundary/page-size migration, the TypeScript contract-test root is expected but absent, and no production report/query consumer or owner adapter is mapped or claimed. Tests, proof, checklist acceptance, PR readiness, and DONE remain open."
     },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",
