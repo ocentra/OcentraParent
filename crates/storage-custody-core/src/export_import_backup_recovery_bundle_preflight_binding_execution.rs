@@ -51,6 +51,7 @@ pub struct RestoreExecutionBinding {
         contracts::ExportImportDataClass,
         contracts::ExportImportIntegrityRef,
     )>,
+    target_device_id: contracts::ExportImportDeviceId,
     accepted_sections: Vec<contracts::ExportImportSectionDecision>,
     rejected_sections: Vec<contracts::ExportImportSectionDecision>,
     tombstones_preserved: bool,
@@ -70,6 +71,7 @@ impl Debug for RestoreExecutionBinding {
             .field("bundle_id", &self.bundle_id)
             .field("key_ref", &self.key_ref)
             .field("manifest_integrity_ref", &self.manifest_integrity_ref)
+            .field("target_device_id", &self.target_device_id)
             .field("payload_integrity_refs", &self.payload_integrity_refs)
             .field("accepted_sections", &self.accepted_sections)
             .field("rejected_sections", &self.rejected_sections)
@@ -88,6 +90,7 @@ impl PartialEq for RestoreExecutionBinding {
             && self.key_ref == other.key_ref
             && self.manifest_integrity_ref == other.manifest_integrity_ref
             && self.payload_integrity_refs == other.payload_integrity_refs
+            && self.target_device_id == other.target_device_id
             && self.accepted_sections == other.accepted_sections
             && self.rejected_sections == other.rejected_sections
             && self.tombstones_preserved == other.tombstones_preserved
@@ -110,6 +113,7 @@ impl RestoreExecutionBinding {
             contracts::ExportImportDataClass,
             contracts::ExportImportIntegrityRef,
         )>,
+        target_device_id: contracts::ExportImportDeviceId,
         accepted_sections: Vec<contracts::ExportImportSectionDecision>,
         rejected_sections: Vec<contracts::ExportImportSectionDecision>,
         tombstones_preserved: bool,
@@ -125,6 +129,7 @@ impl RestoreExecutionBinding {
             key_ref,
             manifest_integrity_ref,
             payload_integrity_refs,
+            target_device_id,
             accepted_sections,
             rejected_sections,
             tombstones_preserved,

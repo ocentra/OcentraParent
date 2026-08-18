@@ -13,7 +13,10 @@ pub(super) fn apply_event(
         DataCustodyRuntimeRecord::Schedule(schedule) => {
             let expected_job =
                 job_for_schedule(schedule).map_err(BackupJobLedgerError::InvalidInitialJob)?;
-            apply::apply_schedule(ledger, schedule, &expected_job, false)?;
+            // Legacy schedule-only records are rehydrated into the same stable
+            // initial job identity. New writes use ScheduleAndJob atomically,
+            // but replay must never leave a durable schedule without work.
+            apply::apply_schedule(ledger, schedule, &expected_job, true)?;
         }
         DataCustodyRuntimeRecord::ScheduleAndJob { schedule, job } => {
             let expected_job =

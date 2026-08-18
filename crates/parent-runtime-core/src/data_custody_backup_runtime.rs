@@ -1,9 +1,6 @@
 use std::collections::BTreeSet;
 
-use chrono::Utc;
-
-use ocentra_eventing::{error::EventingError, journal::policy::JournalDispatchPhase};
-use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
+use ocentra_eventing::error::EventingError;
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
     export_import_backup_recovery_backup_job_state::BackupJobStateError,
@@ -11,10 +8,11 @@ use ocentra_storage_custody_core::export_import_backup_recovery::{
 };
 
 use super::data_custody_backup_runtime_job_ledger::BackupJobLedger;
+use super::data_custody_backup_runtime_ports::{AuthorityUnavailable, ProviderBackupError};
 use super::data_custody_backup_runtime_reconciliation;
-use super::data_custody_backup_runtime_schedule::{job_for_schedule, schedule_request_for};
+use super::data_custody_parent_runtime_clock::{clock_error, RuntimeClockError};
 use super::data_custody_runtime_eventing::{
-    DataCustodyRuntimeEvent, DataCustodyRuntimeEventJournal, DataCustodyRuntimeEventKind,
+    DataCustodyRuntimeEventJournal, DataCustodyRuntimeEventKind,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -25,74 +23,29 @@ pub struct BackupRuntimeScheduleInput {
     pub interval_seconds: Option<u64>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum AuthorityUnavailable {
-    Unavailable,
-}
-
-pub(crate) trait AccountCustodyAuthorityPort: Send + Sync {
-    fn current_household_authority(
-        &self,
-        household_id: &contracts::ExportImportHouseholdId,
-    ) -> Result<CurrentVerifiedHouseholdAuthority, AuthorityUnavailable>;
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ProviderBackupError {
-    Unavailable,
-    Failed,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct ProviderOperationReceipt {
-    execution_ref: contracts::ExportImportExecutionRef,
-    provider_operation_ref: contracts::ExportImportProviderOperationRef,
-}
-
-impl ProviderOperationReceipt {
-    pub(crate) fn new(
-        reservation: &BackupDispatchReservation,
-        provider_operation_ref: impl Into<String>,
-    ) -> Option<Self> {
-        Some(Self {
-            execution_ref: reservation.execution_ref.clone(),
-            provider_operation_ref: contracts::ExportImportProviderOperationRef::parse(
-                provider_operation_ref,
-            )?,
-        })
-    }
-
-    pub(crate) fn execution_ref(&self) -> &contracts::ExportImportExecutionRef {
-        &self.execution_ref
-    }
-
-    pub(crate) fn provider_operation_ref(&self) -> &contracts::ExportImportProviderOperationRef {
-        &self.provider_operation_ref
-    }
-}
-
-/// Provider-neutral port. No SDK, OAuth, filesystem, or credential adapter is
-/// implemented in this crate; a parent product runtime must mount one here.
-pub(crate) trait ProviderNeutralBackupPort: Send + Sync {
-    fn execute_backup(
-        &self,
-        reservation: BackupDispatchReservation,
-        job: &contracts::ExportImportBackupJobRecord,
-    ) -> Result<ProviderOperationReceipt, ProviderBackupError>;
-}
-
 #[derive(Debug)]
 pub(crate) struct BackupDispatchReservation {
     execution_ref: contracts::ExportImportExecutionRef,
+    bundle_id: contracts::ExportImportBundleId,
 }
 
 impl BackupDispatchReservation {
-    pub(crate) fn new(execution_ref: contracts::ExportImportExecutionRef) -> Self {
-        Self { execution_ref }
+    pub(crate) fn new(
+        execution_ref: contracts::ExportImportExecutionRef,
+        bundle_id: contracts::ExportImportBundleId,
+    ) -> Self {
+        Self {
+            execution_ref,
+            bundle_id,
+        }
     }
 
     pub(crate) fn execution_ref(&self) -> &contracts::ExportImportExecutionRef {
         &self.execution_ref
+    }
+
+    pub(crate) fn bundle_id(&self) -> &contracts::ExportImportBundleId {
+        &self.bundle_id
     }
 }
 
@@ -107,6 +60,7 @@ pub enum BackupRuntimeError {
     Provider(ProviderBackupError),
     ReplaySkipped(usize),
     DispatchReservation,
+    RuntimeNotRecovered,
 }
 
 impl From<EventingError> for BackupRuntimeError {
@@ -140,6 +94,7 @@ pub struct ParentBackupRuntime {
     pub(crate) journal: DataCustodyRuntimeEventJournal,
     pub(crate) ledger: BackupJobLedger,
     pub(crate) dispatch_reservations: BTreeSet<String>,
+    pub(crate) recovered: bool,
 }
 
 impl ParentBackupRuntime {
@@ -148,65 +103,18 @@ impl ParentBackupRuntime {
             journal,
             ledger: BackupJobLedger::default(),
             dispatch_reservations: BTreeSet::new(),
+            recovered: false,
         }
-    }
-
-    pub async fn recover(&mut self) -> Result<(), BackupRuntimeError> {
-        self.ledger = BackupJobLedger::default();
-        self.dispatch_reservations.clear();
-        self.journal.recover().await?;
-        let report = self.journal.replay().await?;
-        if report.skipped_count != 0 {
-            return Err(BackupRuntimeError::ReplaySkipped(report.skipped_count));
-        }
-        for record in report.records {
-            let event = DataCustodyRuntimeEventJournal::decode(&record.envelope)
-                .map_err(BackupRuntimeError::ReplayDecode)?;
-            self.ledger
-                .apply_event(&event)
-                .map_err(|_| BackupRuntimeError::ScheduleJob)?;
-        }
-        Ok(())
-    }
-
-    pub(crate) async fn schedule_backup(
-        &mut self,
-        input: BackupRuntimeScheduleInput,
-        authority_port: &dyn AccountCustodyAuthorityPort,
-    ) -> Result<contracts::ExportImportBackupJobRecord, BackupRuntimeError> {
-        let authority = authority_port
-            .current_household_authority(&input.input.household_id)
-            .map_err(BackupRuntimeError::AuthorityUnavailable)?;
-        let schedule = ocentra_storage_custody_core::export_import_backup_recovery::
-            export_import_backup_recovery_backup_schedule::derive_backup_schedule(
-                schedule_request_for(input),
-                authority,
-            )?;
-        let job = job_for_schedule(&schedule).map_err(|_| BackupRuntimeError::ScheduleJob)?;
-        if let Some(existing_job) = self
-            .ledger
-            .existing_job_for_schedule(&schedule)
-            .map_err(|_| BackupRuntimeError::ScheduleJob)?
-        {
-            return Ok(existing_job);
-        }
-
-        let event = DataCustodyRuntimeEvent::schedule_and_job(
-            schedule,
-            job.clone(),
-            format!("schedule:{}:initial-job", job.schedule_ref),
-        );
-        self.journal
-            .append_record(event.clone(), JournalDispatchPhase::BeforeDispatch)
-            .await?;
-        self.ledger
-            .apply_event(&event)
-            .map_err(|_| BackupRuntimeError::ScheduleJob)?;
-        Ok(job)
     }
 
     pub(crate) async fn reconcile_after_restart(&mut self) -> Result<usize, BackupRuntimeError> {
-        let now = Utc::now().to_rfc3339();
+        if !self.recovered {
+            return Err(BackupRuntimeError::RuntimeNotRecovered);
+        }
+        let now = self
+            .journal
+            .next_recorded_at()
+            .map_err(BackupRuntimeError::from)?;
         let reconciled = data_custody_backup_runtime_reconciliation::reconcile_after_restart(
             &self.ledger,
             &now,
@@ -240,5 +148,11 @@ impl From<AuthorityUnavailable> for BackupRuntimeError {
 impl From<ProviderBackupError> for BackupRuntimeError {
     fn from(error: ProviderBackupError) -> Self {
         Self::Provider(error)
+    }
+}
+
+impl From<RuntimeClockError> for BackupRuntimeError {
+    fn from(error: RuntimeClockError) -> Self {
+        Self::Eventing(clock_error(error))
     }
 }

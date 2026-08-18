@@ -1,9 +1,8 @@
-use chrono::Utc;
+use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
 use ocentra_schema::export_import_backup_recovery as contracts;
 
 use super::export_import_backup_recovery_bundle_preflight_binding::execution_binding::RestoreExecutionBinding;
 use super::export_import_backup_recovery_bundle_preflight_binding::BoundImportPreflight;
-use super::export_import_backup_recovery_compensation::PartialWriteCompensation;
 #[path = "export_import_backup_recovery_restore_execution_plan_validation.rs"]
 mod validation;
 use validation::{preflight_is_safe, sections_match_plan};
@@ -12,6 +11,7 @@ use validation::{preflight_is_safe, sections_match_plan};
 pub struct RestoreExecutionPlan {
     bundle_id: contracts::ExportImportBundleId,
     household_id: contracts::ExportImportHouseholdId,
+    created_at: contracts::ExportImportTimestamp,
     plan_ref: contracts::ExportImportMigrationPlanRef,
     operation_ref: contracts::ExportImportOperationRef,
     execution_ref: contracts::ExportImportExecutionRef,
@@ -67,6 +67,7 @@ pub fn build_restore_execution_plan(
     Ok(RestoreExecutionPlan {
         bundle_id: bundle.manifest.bundle_id.clone(),
         household_id: bundle.manifest.source_household_id.clone(),
+        created_at: bundle.manifest.created_at.clone(),
         plan_ref,
         operation_ref,
         execution_ref,
@@ -83,6 +84,10 @@ impl RestoreExecutionPlan {
 
     pub fn household_id(&self) -> &contracts::ExportImportHouseholdId {
         &self.household_id
+    }
+
+    pub fn created_at(&self) -> &contracts::ExportImportTimestamp {
+        &self.created_at
     }
 
     pub fn plan_ref(&self) -> &contracts::ExportImportMigrationPlanRef {
@@ -132,79 +137,17 @@ impl RestoreExecutionPlan {
     pub fn execution_binding(&self) -> &RestoreExecutionBinding {
         &self.execution_binding
     }
-}
 
-/// Converts a provider-neutral executor result into a durable restore receipt
-/// while retaining all identity and safety fields from the owner-bound plan.
-pub fn complete_restore_receipt(
-    plan: &RestoreExecutionPlan,
-    state: contracts::ExportImportRestoreApplyState,
-    applied_sections: Vec<contracts::ExportImportSectionDecision>,
-    rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-    compensation: PartialWriteCompensation,
-    provider_operation_ref: Option<String>,
-    rollback_provider_operation_ref: Option<String>,
-    note: Option<String>,
-) -> Result<contracts::ExportImportRestoreReceipt, RestoreExecutionPlanError> {
-    if !plan.no_resurrection()
-        || !sections_match_plan(plan, state, &applied_sections, &rejected_sections)
-    {
-        return Err(RestoreExecutionPlanError::UnsafeSectionDecision);
+    pub fn matches_current_authority(&self, authority: &CurrentVerifiedHouseholdAuthority) -> bool {
+        authority.input().action
+            == ocentra_family_identity_core::household_authority::HouseholdAuthorityAction::ImportRestoreData
+            && authority.identity_binding().household_id() == self.household_id.as_str()
+            && authority.identity_binding().target_device_id()
+                == self.execution_binding.target_device_id().as_str()
+            && authority.family_revocation_epoch()
+                == self.execution_binding.authority_generation()
+            && authority.proof_nonce() == self.execution_binding.authority_proof_nonce()
     }
-    if state == contracts::ExportImportRestoreApplyState::Applied
-        && (plan.is_partial()
-            || applied_sections.as_slice() != plan.accepted_sections()
-            || rejected_sections.as_slice() != plan.rejected_sections())
-    {
-        return Err(RestoreExecutionPlanError::StateRequiresSections);
-    }
-    if state == contracts::ExportImportRestoreApplyState::Partial && applied_sections.is_empty() {
-        return Err(RestoreExecutionPlanError::StateRequiresSections);
-    }
-    let provider_operation_ref = provider_operation_ref
-        .map(|value| {
-            contracts::ExportImportProviderOperationRef::parse(value)
-                .ok_or(RestoreExecutionPlanError::ProviderOperationRefInvalid)
-        })
-        .transpose()?;
-    let rollback_provider_operation_ref = rollback_provider_operation_ref
-        .map(|value| {
-            contracts::ExportImportProviderOperationRef::parse(value)
-                .ok_or(RestoreExecutionPlanError::ProviderOperationRefInvalid)
-        })
-        .transpose()?;
-    if matches!(
-        state,
-        contracts::ExportImportRestoreApplyState::Applied
-            | contracts::ExportImportRestoreApplyState::Partial
-    ) && provider_operation_ref.is_none()
-    {
-        return Err(RestoreExecutionPlanError::ProviderOperationRefRequired);
-    }
-    if compensation == PartialWriteCompensation::Applied
-        && rollback_provider_operation_ref.is_none()
-    {
-        return Err(RestoreExecutionPlanError::ProviderOperationRefRequired);
-    }
-    let recorded_at = contracts::ExportImportTimestamp::parse(Utc::now().to_rfc3339())
-        .ok_or(RestoreExecutionPlanError::InvalidTimestamp)?;
-
-    Ok(contracts::ExportImportRestoreReceipt {
-        bundle_id: plan.bundle_id().clone(),
-        restore_plan_ref: plan.plan_ref().clone(),
-        operation_ref: plan.operation_ref().clone(),
-        execution_ref: plan.execution_ref().clone(),
-        recorded_at,
-        state,
-        applied_sections,
-        rejected_sections,
-        tombstones_preserved: plan.tombstones_preserved(),
-        no_resurrection: plan.no_resurrection(),
-        compensation_applied: compensation == PartialWriteCompensation::Applied,
-        provider_operation_ref,
-        rollback_provider_operation_ref,
-        note,
-    })
 }
 
 /// Validates an executor observation before the parent runtime can persist an

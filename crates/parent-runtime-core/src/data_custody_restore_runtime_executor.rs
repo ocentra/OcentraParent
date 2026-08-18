@@ -46,7 +46,13 @@ pub enum RestoreExecutorOperationError {
 /// Opaque external executor boundary. The parent runtime mounts only these
 /// provider-neutral operations; SDK, OAuth, filesystem, and key storage
 /// implementations remain owned by their dependency runtimes.
-pub(crate) trait ProviderNeutralRestorePort: Send + Sync {
+mod restore_provider_sealed {
+    pub trait Port {}
+}
+
+pub(crate) trait ProviderNeutralRestorePort:
+    restore_provider_sealed::Port + Send + Sync
+{
     fn execute_restore(
         &self,
         plan: &RestoreExecutionPlan,

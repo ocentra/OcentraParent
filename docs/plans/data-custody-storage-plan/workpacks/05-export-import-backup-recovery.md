@@ -119,9 +119,15 @@ job/receipt storage, filesystem/provider SDKs, or producer mutation.
 ### Parent-runtime-core durable owner
 
 - `crates/parent-runtime-core/src/data_custody_backup_runtime.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_lifecycle.rs`
 - `crates/parent-runtime-core/src/data_custody_backup_runtime_persistence.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_ports.rs`
 - `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule.rs`
 - `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_artifact.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_authority.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_finish.rs`
+- `crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_helpers.rs`
 - `crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger.rs`
 - `crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger_apply.rs`
 - `crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger_event_apply.rs`
@@ -131,7 +137,10 @@ job/receipt storage, filesystem/provider SDKs, or producer mutation.
 - `crates/parent-runtime-core/src/data_custody_runtime_eventing_identity_backup.rs`
 - `crates/parent-runtime-core/src/data_custody_runtime_eventing_identity_kind.rs`
 - `crates/parent-runtime-core/src/data_custody_runtime_eventing_validation.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_eventing_validation_payload.rs`
+- `crates/parent-runtime-core/src/data_custody_parent_runtime_clock.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_binding.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_stage.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_recovery.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_dispatch.rs`
@@ -146,6 +155,8 @@ job/receipt storage, filesystem/provider SDKs, or producer mutation.
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation_validation.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_executor.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_executor_receipts.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_receipts.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_receipts.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch.rs`
 
@@ -159,6 +170,19 @@ added here. The current source keeps the mount constructors and dispatch
 ports owner-private until the dependency-owned Account/key/provider composer
 supplies a trusted implementation; this is an explicit external mounting
 blocker, not an authorization or source-completion claim.
+
+The Eventing owner also owns a stateful runtime clock/fence in this parent
+boundary: durable replay establishes the timestamp floor, mutation is denied
+before successful recovery, timestamps are monotonic with checked overflow,
+and excessive forward wall-clock skew fails closed. Future schedule deadlines
+remain payload data and are never reused as event-observed time.
+
+The backup dispatch path also requires a sealed custody-artifact port that
+binds the encrypted bundle, manifest/payload integrity references, and
+tombstone cursor to the durable job before a provider can observe a dispatch.
+Because no dependency-owned artifact/provider composer is mounted in this
+source wave, backup execution remains manual-required; the source does not
+claim a functioning scheduled or provider-backed backup.
 
 ### Expected test roots (deferred)
 

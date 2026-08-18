@@ -6,8 +6,10 @@ use ocentra_storage_custody_core::export_import_backup_recovery::
     };
 use ocentra_storage_custody_core::export_import_backup_recovery::
     export_import_backup_recovery_backup_schedule::BackupScheduleRequest;
-use super::data_custody_backup_runtime::{
-    ProviderBackupError, ProviderNeutralBackupPort, ProviderOperationReceipt,
+use super::data_custody_backup_runtime::BackupDispatchReservation;
+use super::data_custody_backup_runtime_ports::{
+    BackupArtifactBinding, ProviderBackupError, ProviderNeutralBackupPort,
+    ProviderOperationReceipt,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -92,12 +94,13 @@ pub(crate) fn start_job(
 pub(crate) fn execute_provider(
     provider: Option<&dyn ProviderNeutralBackupPort>,
     job: &contracts::ExportImportBackupJobRecord,
-    reservation: super::data_custody_backup_runtime::BackupDispatchReservation,
+    reservation: BackupDispatchReservation,
+    artifact: BackupArtifactBinding,
 ) -> ProviderJobOutcome {
     let Some(provider) = provider else {
         return ProviderJobOutcome::ManualRequired(ProviderBackupError::Unavailable);
     };
-    match provider.execute_backup(reservation, job) {
+    match provider.execute_backup(reservation, artifact, job) {
         Ok(receipt) => ProviderJobOutcome::Succeeded(receipt),
         // The provider contract does not yet expose a trusted status query.
         // Treat every error as outcome-unknown and require reconciliation;
