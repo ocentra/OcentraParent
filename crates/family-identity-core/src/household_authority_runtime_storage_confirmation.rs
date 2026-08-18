@@ -20,6 +20,7 @@ use super::{
     HouseholdAuthorityParentStorageStoreFailure, HouseholdAuthorityRuntimeCasFence,
     HouseholdAuthorityRuntimeConsumedEffect, HouseholdAuthorityRuntimeFailure,
     HouseholdAuthorityRuntimeParentStorageConfirmation,
+    HouseholdAuthorityRuntimeParentStorageExecutorHandoff,
 };
 
 /// Compose and durably stage the family-owned confirmation for one canonical storage intent.
@@ -107,8 +108,10 @@ impl HouseholdAuthorityRuntimeParentStorageConfirmation {
         self,
         account_service: &mut AccountIdentityAuthorityService,
         device_trust_source: &impl HouseholdAuthorityDeviceTrustSource,
-    ) -> Result<ConsumedParentStorageConfirmation, HouseholdAuthorityParentStorageConfirmationFailure>
-    {
+    ) -> Result<
+        HouseholdAuthorityRuntimeParentStorageExecutorHandoff,
+        HouseholdAuthorityParentStorageConfirmationFailure,
+    > {
         let Self {
             effect,
             authority,
@@ -144,7 +147,7 @@ impl HouseholdAuthorityRuntimeParentStorageConfirmation {
             ));
         }
         let target = &effect.target;
-        Ok(ConsumedParentStorageConfirmation {
+        let confirmation = ConsumedParentStorageConfirmation {
             household_id: target.household_id.clone(),
             account_id: target.account_id.clone(),
             parent_device_id: target.parent_device_id.clone(),
@@ -160,6 +163,10 @@ impl HouseholdAuthorityRuntimeParentStorageConfirmation {
             apply_intent_digest,
             expires_at,
             receipt_epoch: stored.receipt_epoch,
+        };
+        Ok(HouseholdAuthorityRuntimeParentStorageExecutorHandoff {
+            effect,
+            confirmation,
         })
     }
 }
@@ -208,6 +215,11 @@ fn map_store_consume_failure(
         | HouseholdAuthorityParentStorageStoreFailure::BindingMismatch
         | HouseholdAuthorityParentStorageStoreFailure::Conflict) => {
             HouseholdAuthorityParentStorageConfirmationFailure::Store(store)
+        }
+        HouseholdAuthorityParentStorageStoreFailure::Owner(owner) => {
+            HouseholdAuthorityParentStorageConfirmationFailure::Store(
+                HouseholdAuthorityParentStorageStoreFailure::Owner(owner),
+            )
         }
         HouseholdAuthorityParentStorageStoreFailure::AccountAuthorityUnavailable => {
             HouseholdAuthorityParentStorageConfirmationFailure::AccountAuthorityUnavailable

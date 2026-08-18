@@ -60,6 +60,31 @@ pub enum HouseholdAuthorityParentStorageStoreFailure {
     AccountAuthorityNotCurrent,
     DeviceTrustUnavailable,
     DeviceTrustNotCurrent,
+    Owner(HouseholdAuthorityParentStorageOwnerFailure),
+}
+
+/// Typed non-Account owner failures encountered during storage confirmation composition.
+///
+/// These outcomes remain distinct from Device Trust currentness. A storage confirmation cannot
+/// turn an unavailable capability, lease, step-up, role, or execution fence into a device error.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum HouseholdAuthorityParentStorageOwnerFailure {
+    CapabilityUnavailable,
+    CapabilityExpired,
+    CapabilityRevoked,
+    CapabilityBindingMismatch,
+    ControllerLeaseUnavailable,
+    ControllerLeaseExpired,
+    ControllerLeaseRevoked,
+    ControllerLeaseBindingMismatch,
+    ParentStepUpUnavailable,
+    ParentStepUpExpired,
+    ParentStepUpReplayRejected,
+    ParentStepUpBindingMismatch,
+    RuntimeFenceUnavailable,
+    EffectTargetMismatch,
+    RoleNotAuthorized,
+    ManualRequired,
 }
 
 /// Failure from an owner boundary or from the cross-owner binding checks.
@@ -201,6 +226,17 @@ pub struct HouseholdAuthorityRuntimeParentStorageConfirmation {
     nonce_id: String,
     receipt_epoch: u64,
     expires_at: DateTime<Utc>,
+}
+
+/// Opaque by-value handoff consumed by the future WP05 storage executor.
+///
+/// Both the effect authorization and the durable confirmation have already crossed their owner
+/// boundaries. The fields remain private and the value is neither cloneable nor serializable, so
+/// a downstream executor can only receive and move the exact owner-issued handoff; it cannot
+/// mint a replacement from receipt, preview, digest, or target fields.
+pub struct HouseholdAuthorityRuntimeParentStorageExecutorHandoff {
+    effect: HouseholdAuthorityRuntimeConsumedEffect,
+    confirmation: ConsumedParentStorageConfirmation,
 }
 
 /// The only positive composition result from this module.

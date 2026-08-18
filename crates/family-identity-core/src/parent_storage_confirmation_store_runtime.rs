@@ -6,11 +6,11 @@ use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBe
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::household_authority_runtime_composer::HouseholdAuthorityDeviceTrustSource;
 
+use super::device_failure::map_device_failure;
 use super::{
-    map_device_failure, parse_state, validate_current_binding, validate_input,
-    ConsumedParentStorageConfirmation, ParentStorageConfirmationBinding,
-    ParentStorageConfirmationStoreError, StagedParentStorageConfirmation, StoredLifecycleState,
-    StoredRow,
+    parse_state, validate_current_binding, validate_input, ConsumedParentStorageConfirmation,
+    ParentStorageConfirmationBinding, ParentStorageConfirmationStoreError,
+    StagedParentStorageConfirmation, StoredLifecycleState, StoredRow,
 };
 
 pub(super) fn stage(
@@ -34,9 +34,49 @@ pub(super) fn stage(
     let expires_at = now
         .checked_add(super::MAX_CONFIRMATION_TTL_MILLIS)
         .ok_or(ParentStorageConfirmationStoreError::ClockUnavailable)?;
+    expire_prior_staged_intent(
+        &transaction,
+        binding.household_id,
+        preview_id.as_str(),
+        apply_intent_digest.as_str(),
+        now,
+    )?;
     let receipt_id = random_hex_id()?;
     let nonce_id = random_hex_id()?;
     let receipt_epoch = super::support::next_receipt_epoch(&transaction, now)?;
+    insert_staged_row(
+        &transaction,
+        &binding,
+        preview_id,
+        apply_intent_digest,
+        &receipt_id,
+        &nonce_id,
+        receipt_epoch,
+        now,
+        expires_at,
+    )?;
+    transaction
+        .commit()
+        .map_err(|_| ParentStorageConfirmationStoreError::Unavailable)?;
+    Ok(StagedParentStorageConfirmation {
+        receipt_id,
+        nonce_id,
+        receipt_epoch,
+        expires_at_epoch_millis: expires_at,
+    })
+}
+
+fn insert_staged_row(
+    transaction: &Transaction<'_>,
+    binding: &ParentStorageConfirmationBinding<'_>,
+    preview_id: &ParentStoragePreviewId,
+    apply_intent_digest: &ParentStorageApplyIntentDigest,
+    receipt_id: &str,
+    nonce_id: &str,
+    receipt_epoch: u64,
+    issued_at: i64,
+    expires_at: i64,
+) -> Result<(), ParentStorageConfirmationStoreError> {
     transaction
         .execute(
             "INSERT INTO account_identity_parent_storage_confirmation (
@@ -71,20 +111,31 @@ pub(super) fn stage(
                 preview_id.as_str(),
                 apply_intent_digest.as_str(),
                 sql_generation(receipt_epoch)?,
-                now,
+                issued_at,
                 expires_at,
             ],
         )
         .map_err(super::support::map_write_error)?;
+    Ok(())
+}
+
+fn expire_prior_staged_intent(
+    transaction: &Transaction<'_>,
+    household_id: &str,
+    preview_id: &str,
+    apply_intent_digest: &str,
+    now: i64,
+) -> Result<(), ParentStorageConfirmationStoreError> {
     transaction
-        .commit()
+        .execute(
+            "UPDATE account_identity_parent_storage_confirmation
+             SET lifecycle_state = 'expired'
+             WHERE household_id = ?1 AND preview_id = ?2 AND apply_intent_digest = ?3
+               AND lifecycle_state = 'staged' AND expires_at_epoch_millis <= ?4",
+            params![household_id, preview_id, apply_intent_digest, now],
+        )
         .map_err(|_| ParentStorageConfirmationStoreError::Unavailable)?;
-    Ok(StagedParentStorageConfirmation {
-        receipt_id,
-        nonce_id,
-        receipt_epoch,
-        expires_at_epoch_millis: expires_at,
-    })
+    Ok(())
 }
 
 pub(super) fn consume(

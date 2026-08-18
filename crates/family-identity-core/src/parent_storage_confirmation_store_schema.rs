@@ -37,7 +37,6 @@ pub(super) const TABLE_SQL: &str = r#"CREATE TABLE account_identity_parent_stora
     lifecycle_state TEXT NOT NULL CHECK (
         lifecycle_state IN ('staged','consumed','expired')
     ),
-    UNIQUE (household_id, preview_id, apply_intent_digest),
     CHECK (
         (lifecycle_state = 'staged' AND consumed_at_epoch_millis IS NULL)
         OR (lifecycle_state = 'consumed'
@@ -86,7 +85,6 @@ CREATE TABLE IF NOT EXISTS account_identity_parent_storage_confirmation (
     lifecycle_state TEXT NOT NULL CHECK (
         lifecycle_state IN ('staged','consumed','expired')
     ),
-    UNIQUE (household_id, preview_id, apply_intent_digest),
     CHECK (
         (lifecycle_state = 'staged' AND consumed_at_epoch_millis IS NULL)
         OR (lifecycle_state = 'consumed'
@@ -96,6 +94,9 @@ CREATE TABLE IF NOT EXISTS account_identity_parent_storage_confirmation (
 ) STRICT;
 CREATE INDEX IF NOT EXISTS account_identity_parent_storage_confirmation_state
     ON account_identity_parent_storage_confirmation(lifecycle_state, expires_at_epoch_millis);
+CREATE UNIQUE INDEX IF NOT EXISTS account_identity_parent_storage_confirmation_intent_staged
+    ON account_identity_parent_storage_confirmation(household_id, preview_id, apply_intent_digest)
+    WHERE lifecycle_state = 'staged';
 "#;
 
 use rusqlite::{Connection, OptionalExtension};
@@ -206,23 +207,37 @@ fn validate_table_columns(
 fn validate_table_index(
     connection: &Connection,
 ) -> Result<(), ParentStorageConfirmationStoreError> {
+    validate_index_sql(
+        connection,
+        "account_identity_parent_storage_confirmation_state",
+        "CREATE INDEX account_identity_parent_storage_confirmation_state
+         ON account_identity_parent_storage_confirmation(lifecycle_state, expires_at_epoch_millis)",
+    )?;
+    validate_index_sql(
+        connection,
+        "account_identity_parent_storage_confirmation_intent_staged",
+        "CREATE UNIQUE INDEX account_identity_parent_storage_confirmation_intent_staged
+         ON account_identity_parent_storage_confirmation(household_id, preview_id, apply_intent_digest)
+         WHERE lifecycle_state = 'staged'",
+    )
+}
+
+fn validate_index_sql(
+    connection: &Connection,
+    index_name: &str,
+    expected_sql: &str,
+) -> Result<(), ParentStorageConfirmationStoreError> {
     let index_sql = connection
         .query_row(
             "SELECT sql FROM sqlite_master
-             WHERE type = 'index' AND name = 'account_identity_parent_storage_confirmation_state'",
-            [],
+             WHERE type = 'index' AND name = ?1",
+            [index_name],
             |row| row.get::<_, String>(0),
         )
         .map_err(|_| ParentStorageConfirmationStoreError::IntegrityRejected)?;
-    if normalize_sql(&index_sql)
-        != normalize_sql(
-            "CREATE INDEX account_identity_parent_storage_confirmation_state
-             ON account_identity_parent_storage_confirmation(lifecycle_state, expires_at_epoch_millis)",
-        )
-    {
-        return Err(ParentStorageConfirmationStoreError::IntegrityRejected);
-    }
-    Ok(())
+    (normalize_sql(&index_sql) == normalize_sql(expected_sql))
+        .then_some(())
+        .ok_or(ParentStorageConfirmationStoreError::IntegrityRejected)
 }
 
 pub(super) fn validate_rows(
@@ -341,7 +356,11 @@ pub(super) fn validate_related_objects(
         let owned_state_index = name == "account_identity_parent_storage_confirmation_state"
             && origin == "c"
             && partial == 0;
-        if !auto_index && !owned_state_index {
+        let owned_intent_index = name
+            == "account_identity_parent_storage_confirmation_intent_staged"
+            && origin == "c"
+            && partial == 1;
+        if !auto_index && !owned_state_index && !owned_intent_index {
             return Err(ParentStorageConfirmationStoreError::IntegrityRejected);
         }
     }

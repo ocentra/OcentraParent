@@ -3,6 +3,7 @@ use ocentra_family_identity_core::household_authority_runtime_composer::{
     HouseholdAuthorityDeviceTrustSource, HouseholdAuthorityParentStorageConfirmationFailure,
     HouseholdAuthorityParentStorageStoreFailure,
     HouseholdAuthorityRuntimeParentStorageConfirmation,
+    HouseholdAuthorityRuntimeParentStorageExecutorHandoff,
 };
 use ocentra_schema::parent_owned_sync_export as sync_contracts;
 use ocentra_schema::parent_storage_settings_apply_flow as contracts;
@@ -133,12 +134,13 @@ pub fn derive_parent_storage_apply_decision(
 /// until a separately owner-issued WP05 executor outcome exists.
 pub struct ParentStorageApplyConfirmedReady {
     pub decision: contracts::ParentStorageApplyDecision,
+    pub executor_handoff: HouseholdAuthorityRuntimeParentStorageExecutorHandoff,
 }
 
 pub enum ParentStorageApplyConfirmationOutcome {
     BlockedManualRequired {
-        pub decision: contracts::ParentStorageApplyDecision,
-        pub confirmation: HouseholdAuthorityRuntimeParentStorageConfirmation,
+        decision: contracts::ParentStorageApplyDecision,
+        confirmation: HouseholdAuthorityRuntimeParentStorageConfirmation,
     },
     ConfirmedReady(ParentStorageApplyConfirmedReady),
 }
@@ -176,9 +178,12 @@ pub fn consume_parent_storage_apply_confirmation(
     }
     confirmation
         .consume_for_storage(account_service, device_trust_source)
-        .map(|_consumed| {
+        .map(|executor_handoff| {
             ParentStorageApplyConfirmationOutcome::ConfirmedReady(
-                ParentStorageApplyConfirmedReady { decision },
+                ParentStorageApplyConfirmedReady {
+                    decision,
+                    executor_handoff,
+                },
             )
         })
         .map_err(map_parent_storage_confirmation_failure)

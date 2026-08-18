@@ -7,20 +7,26 @@ use rusqlite::{Connection, OptionalExtension, Transaction};
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::device_trust_current_binding::CurrentChildDeviceTrustBinding;
 use crate::device_trust_lifecycle::DeviceTrustLifecycleState;
-use crate::household_authority_runtime_composer::{
-    HouseholdAuthorityDeviceTrustSource, HouseholdAuthorityRuntimeFailure,
-};
+use crate::household_authority_runtime_composer::HouseholdAuthorityDeviceTrustSource;
 
 use super::account_identity_authority_repository_invariants::provider_label;
 
 const TABLE: &str = "account_identity_parent_storage_confirmation";
 const MAX_CONFIRMATION_TTL_MILLIS: i64 = 5 * 60 * 1_000;
+#[path = "parent_storage_confirmation_store_device_failure.rs"]
+mod device_failure;
+#[path = "parent_storage_confirmation_store_owner_failure.rs"]
+mod owner_failure;
 #[path = "parent_storage_confirmation_store_runtime.rs"]
 mod runtime;
 #[path = "parent_storage_confirmation_store_schema.rs"]
 mod schema;
+#[path = "parent_storage_confirmation_store_step_up_failure.rs"]
+mod step_up_failure;
 #[path = "parent_storage_confirmation_store_support.rs"]
 mod support;
+#[path = "parent_storage_confirmation_store_terminal_failure.rs"]
+mod terminal_failure;
 
 pub(crate) type ParentStorageConfirmationStoreError =
     crate::household_authority_runtime_composer::HouseholdAuthorityParentStorageStoreFailure;
@@ -453,46 +459,5 @@ fn validate_current_binding(
 impl ParentStorageConfirmationBinding<'_> {
     fn provider_label(&self) -> &'static str {
         provider_label(self.provider)
-    }
-}
-
-fn map_device_failure(
-    failure: HouseholdAuthorityRuntimeFailure,
-) -> ParentStorageConfirmationStoreError {
-    match failure {
-        HouseholdAuthorityRuntimeFailure::DeviceTrustUnavailable => {
-            ParentStorageConfirmationStoreError::DeviceTrustUnavailable
-        }
-        HouseholdAuthorityRuntimeFailure::DeviceTrustRevoked
-        | HouseholdAuthorityRuntimeFailure::DeviceTrustBindingMismatch
-        | HouseholdAuthorityRuntimeFailure::DeviceTrustGenerationMismatch => {
-            ParentStorageConfirmationStoreError::DeviceTrustNotCurrent
-        }
-        HouseholdAuthorityRuntimeFailure::AccountAuthorityUnavailable
-        | HouseholdAuthorityRuntimeFailure::AccountAuthorityRevoked
-        | HouseholdAuthorityRuntimeFailure::AccountAuthorityStale
-        | HouseholdAuthorityRuntimeFailure::AccountAuthorityGenerationMismatch
-        | HouseholdAuthorityRuntimeFailure::SessionStale => {
-            ParentStorageConfirmationStoreError::AccountAuthorityNotCurrent
-        }
-        HouseholdAuthorityRuntimeFailure::CapabilityUnavailable
-        | HouseholdAuthorityRuntimeFailure::CapabilityExpired
-        | HouseholdAuthorityRuntimeFailure::CapabilityRevoked
-        | HouseholdAuthorityRuntimeFailure::CapabilityBindingMismatch
-        | HouseholdAuthorityRuntimeFailure::ControllerLeaseUnavailable
-        | HouseholdAuthorityRuntimeFailure::ControllerLeaseExpired
-        | HouseholdAuthorityRuntimeFailure::ControllerLeaseRevoked
-        | HouseholdAuthorityRuntimeFailure::ControllerLeaseBindingMismatch
-        | HouseholdAuthorityRuntimeFailure::ParentStepUpUnavailable
-        | HouseholdAuthorityRuntimeFailure::ParentStepUpExpired
-        | HouseholdAuthorityRuntimeFailure::ParentStepUpReplayRejected
-        | HouseholdAuthorityRuntimeFailure::ParentStepUpBindingMismatch
-        | HouseholdAuthorityRuntimeFailure::RuntimeFenceUnavailable
-        | HouseholdAuthorityRuntimeFailure::EffectTargetMismatch
-        | HouseholdAuthorityRuntimeFailure::RoleNotAuthorized
-        | HouseholdAuthorityRuntimeFailure::ManualRequired => {
-            ParentStorageConfirmationStoreError::DeviceTrustNotCurrent
-        }
-        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationStore(failure) => failure,
     }
 }
