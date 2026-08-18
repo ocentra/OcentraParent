@@ -91,11 +91,13 @@ they create or mutate a sealed record, registry epoch, or binding lock. The
 DPAPI and current-user registry code remains a real platform custody boundary,
 but no live seal, unseal, activation, or revocation execution is claimed.
 
-Unsupported platform startup is represented as typed manual-required state by
-the desktop command state; non-platform and custody-corruption startup errors
-are represented as a separate typed unavailable state and never accept traffic.
-The command returns only redacted state booleans and an opaque reference; no
-raw custody diagnostic or protected material is exposed. No plaintext or
+Unsupported non-Windows startup is represented as typed manual-required state
+by the desktop command state. Windows `Error::Platform` and other custody-open
+failures are represented as a separate typed unavailable state and never accept
+traffic. The command returns only redacted state booleans and an opaque
+reference; no raw custody diagnostic or protected material is exposed. Its
+`custodySealed` success field means only that the platform custody operation
+completed; it does not claim family lifecycle activation. No plaintext or
 in-memory production key fallback is provided.
 
 `windows_dpapi_key_sealing.rs` and the opaque
