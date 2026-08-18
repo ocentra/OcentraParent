@@ -1850,6 +1850,7 @@
         "infra/cloudflare/src/billing-binding-read-model.ts",
         "infra/cloudflare/src/auth/verifier.ts",
         "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
         "infra/cloudflare/src/storage/account-identity-store.ts",
         "infra/cloudflare/src/storage/account-identity-authority-store.ts",
         "infra/cloudflare/src/storage/account-identity-authority-writer.ts",
@@ -1864,11 +1865,8 @@
         "infra/cloudflare/tests/property/billing-idempotency.property.test.ts",
         "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts"
       ],
-      "plannedImplementationRoots": [
-        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
-        "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
-      ],
-      "note": "The existing Account D1 adapter is read-side only. The reviewed production caller that composes a verified Firebase/provider subject into sealed current Account authority, and the authoritative D1 write/update/revocation/CAS owner, are both absent; production binding configuration remains manual-required."
+      "plannedImplementationRoots": ["infra/cloudflare/src/auth/account-identity-authority-runtime.ts"],
+      "note": "Reviewed source now includes verified-provider current-authority resolution plus Account-owned create, currentness, compare-and-swap, and revoke operations. The verifier reaches the read/current-authority path, but the mutation producer is not mounted in the Worker entrypoint. The planned authority-runtime owner must compose mutations without exposing raw authority inputs. Expected tests, migration execution, proof, deployment, and DONE remain open."
     },
     "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures": {
       "planSlug": "cloudflare-control-plane-plan",

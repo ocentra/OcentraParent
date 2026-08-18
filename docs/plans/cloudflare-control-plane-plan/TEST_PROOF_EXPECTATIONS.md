@@ -129,9 +129,11 @@ result from `cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <a
 `npm --prefix infra/cloudflare run test:integration`, and the focused
 architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/storage/account-identity-store.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
 Current source declares the isolated Account binding and ordered migrations,
-but their application, the authoritative writer/provider caller, and the full
-expected-test source are absent. The command remains deferred and must never be
-run against `BILLING_D1` as a substitute.
+implements the Account-owned writer/currentness/revocation/CAS boundary, and
+mounts verified-provider current-authority resolution through the verifier.
+The mutation producer is not mounted in the Worker entrypoint, the migration
+has not been applied, and the full expected-test source is absent. The command
+remains deferred and must never be run against `BILLING_D1` as a substitute.
 WP06 also retains the direct focused command
 `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`
 in `03-account-identity-d1-migration-test.md`; the aggregate integration script
@@ -139,9 +141,10 @@ cannot substitute for or silently omit that required migration/adapter result.
 
 Cloudflare WP08 follows WP06. It maps the selected account-identity integration
 assertion and its module-runner result to the Cloudflare proof root and the
-Account WP06 aggregation handoff. Missing source, command output, or proof is
-recorded as an exact blocker and keeps Cloudflare WP06/WP08 and Account WP06
-blocked; neither packet may substitute a test double or claim account authority.
+Account WP06 aggregation handoff. Missing runtime composition, expected-test
+source, command output, or proof is recorded as an exact blocker and keeps
+Cloudflare WP06/WP08 and Account WP06 blocked; neither packet may substitute a
+test double or claim account authority.
 The runner consumes the module-local generated billing-contract route, not
 `packages/billing-domain/src/*`. Its current preflight
 `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` is empty,

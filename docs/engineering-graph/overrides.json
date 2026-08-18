@@ -81,7 +81,7 @@
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Reviewed as the Cloudflare production authority packet after Account WP08's canonical identities, Account WP02's target-aware sealed authority, and WP01's module scaffold. The existing D1 surface reads current authority but does not own authoritative writes, updates, revocation, compare-and-swap, or a shipped Firebase/provider-to-Account caller. Those missing planned owners are the bounded implementation-only source target once dependencies are reviewed. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
+      "reason": "Independent source review accepted the Cloudflare WP06 authority packet at f9cfc9070 and dfa8181b1 after Account WP08's canonical identities, Account WP02's target-aware identity, and WP01's module scaffold. D1 read/current-authority resolution, Account-owned create/currentness/compare-and-swap/revoke source, and the verified-provider caller now exist. The verifier reaches current-authority resolution; the mutation producer is not mounted in the Worker entrypoint. Runtime mutation composition, higher authority, expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
     },
     {
       "id": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
@@ -926,7 +926,7 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
       ],
-      "reason": "WP03 requires Cloudflare WP06's authoritative D1 producer/currentness/revocation/CAS owner and shipped provider-to-Account caller. The existing read adapter, provider-subject mapping, and local LAN registry are insufficient. This reviewed-implementation gate remains closed until WP06's planned production source is independently reviewed; it does not change normal READY, tests, proof, runtime, or DONE state.",
+      "reason": "WP03 requires Cloudflare WP06's authoritative D1 producer/currentness/revocation/CAS owner and verified-provider current-authority caller. Those source owners are independently reviewed at f9cfc9070 and dfa8181b1, so this implementation-only dependency gate is satisfied. Cloudflare mutation runtime composition, migration, tests, proof, deployment, and normal DONE remain open and cannot be borrowed as WP03 runtime authority.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -1812,11 +1812,26 @@
         "crates/family-identity-core/src/household_authority_validation.rs",
         "crates/storage-custody-core/src/report_query_custody_request_validate.rs"
       ],
-      "reason": "Independent source review accepted the target-aware Account identity packet at 86caae334 and 7934fb41b. The resolver consumes opaque current Account authority, keeps the parent actor distinct from the target child/profile/device, preserves observer read-only scope, and does not accept same-family, capability, controller-lease, or step-up authority from the request. Actions requiring unavailable capability, lease, or step-up sources reject. The real storage-custody consumer uses this boundary. Expected tests, higher authority composition, the Cloudflare provider caller, focused validation, proof, PR readiness, and DONE remain open.",
+      "reason": "Independent source review accepted the target-aware Account identity packet at 86caae334 and 7934fb41b. The resolver consumes opaque current Account authority, keeps the parent actor distinct from the target child/profile/device, preserves observer read-only scope, and does not accept same-family, capability, controller-lease, or step-up authority from the request. Actions requiring unavailable capability, lease, or step-up sources reject. The real storage-custody consumer uses this boundary. Cloudflare current-authority resolution now consumes this source, while mutation runtime composition remains open. Expected tests, higher authority composition, focused validation, proof, PR readiness, and DONE remain open.",
       "evidence": [
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",
         "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
         "docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "implementation": [
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
+      ],
+      "reason": "Independent source review accepted the Cloudflare WP06 authority packet at f9cfc9070 and dfa8181b1. The verifier reaches bounded verified-provider current-authority resolution; the Account-owned writer owns create, currentness, compare-and-swap, and revoke source without accepting caller-minted authority. The mutation producer is not mounted in the Worker entrypoint. Expected tests, runtime mutation composition, migration execution, proof, deployment, PR readiness, and DONE remain open.",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/PLAN_CODE_STATUS_MATRIX.md"
       ]
     },
