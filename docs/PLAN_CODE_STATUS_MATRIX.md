@@ -41,22 +41,24 @@ The detailed per-workpack gap register is the plan table in this document,
 except for the four large plans whose complete rows live in
 `docs/plans/ai-plan/CODE_AUDIT.md`, `docs/plans/app-plan/CODE_AUDIT.md`,
 `docs/plans/app-game-plan/CODE_AUDIT.md`, and
-`docs/plans/tracking-plan/CODE_AUDIT.md`. The 681-row `graph:matrix` remains the
+`docs/plans/tracking-plan/CODE_AUDIT.md`. The 683-row `graph:matrix` remains the
 topology/dependency join; it must not overwrite the code-reachability finding.
 
 ## Live executable topology matrix - 2026-08-17
 
 This table is generated from the validated engineering graph and its reviewed
-code map, not from plan checkboxes. The graph currently contains 705 nodes, 765
-edges, 23 plans, and 681 workpacks. It maps 2,982 implementation files and 1,145
+code map, not from plan checkboxes. The graph currently contains 707 nodes, 802
+edges, 23 plans, and 683 workpacks. It maps 3,060 implementation files and 1,146
 test files: 587 workpacks have both code and tests, 4 are source-only, 8 are
-tests-only, 82 are expected no-source coordination/reference packets, and none
-have unknown ownership. Topology expectations match for 665/681 workpacks.
+tests-only, 84 are expected no-source coordination/reference packets, and none
+have unknown ownership. Topology expectations match for 667/683 workpacks.
+Derived state is 360 planned, 35 blocked, 5 ready, 8 active, 274 in
+validation, and 1 done.
 
 These counts prove file ownership and expected topology only. They do not prove
 that the mapped code is production-reachable, that the tests cover the workpack,
 or that either passes. Only one workpack currently satisfies the complete graph
-contract; 680/681 still lack recorded reviewed completion evidence.
+contract; 682/683 still lack recorded reviewed completion evidence.
 
 Legend: `C+T/S/T/N/U` = code-and-tests / source-only / tests-only / no-source /
 unknown. State counts use `P/B/R/A/V/D` = planned / blocked / ready / active /
@@ -64,34 +66,34 @@ validation / done.
 
 | Plan | WPs | C+T/S/T/N/U | Impl/Test files | Planned / Blocked / Ready / Active / Validation / Done | Highest-impact current gap |
 | --- | ---: | ---: | ---: | ---: | --- |
-| Account identity/family | 8 | 7/0/0/1/0 | 207/82 | 0/6/0/0/2/0 | Source checkpoint `1cf0742c9`: accepted sealed authority/repository source remains, but WP02 target child/device resolution is conflated for several actions; provider/account route composition, expected tests, proof, and DONE remain open. |
+| Account identity/family | 8 | 7/0/0/1/0 | 104/32 | 0/6/0/0/2/0 | Source checkpoint `1cf0742c9`: accepted sealed authority/repository source remains, but WP02 target child/device resolution is conflated for several actions; provider/account route composition, expected tests, proof, and DONE remain open. |
 | AI | 48 | 44/0/0/4/0 | 195/98 | 46/0/0/0/2/0 | All 48 lack retained/referenced completion proof; mapped code is not whole-chain acceptance. |
-| App/game | 220 | 201/0/0/19/0 | 2349/867 | 126/2/0/1/91/0 | Two workpacks are dependency-blocked and the plan remains integration-open. |
+| App/game | 220 | 201/0/0/19/0 | 2369/867 | 126/2/0/2/90/0 | Two workpacks are dependency-blocked and the plan remains integration-open. |
 | Browser | 30 | 22/0/0/8/0 | 145/45 | 30/0/0/0/0/0 | All workpacks remain planned; proof and several native/runtime authority paths are open. |
 | Child-agent runtime distribution | 11 | 10/0/0/1/0 | 79/17 | 8/0/0/0/3/0 | Distribution/runtime proof remains unreferenced across the plan. |
-| Cloudflare control plane | 13 | 9/0/1/3/0 | 186/63 | 10/2/0/0/1/0 | WP01's bounded scaffold is in validation. WP06's bounded durable adapter/auth source packet is independently accepted, but provider verification, migration, tests, proof, and deployment remain open; normal WP06 is blocked and not DONE. |
-| Data custody/storage | 11 | 8/0/0/3/0 | 971/482 | 1/1/3/0/6/0 | Source checkpoint `1cf0742c9`: WP05 still lacks local/provider writer, byte verifier, scheduler, restore/migration/apply/rollback runtime. New WP09/WP10 are explicit source-only routes; WP07 remains blocked on Account authority/composition. Tests, proof, and DONE remain open. |
+| Cloudflare control plane | 13 | 9/0/1/3/0 | 37/72 | 9/3/0/0/1/0 | WP01's bounded scaffold is in validation. WP06's bounded durable adapter/auth source packet is independently accepted, but provider verification, migration, tests, proof, and deployment remain open; normal WP06 is blocked and not DONE. |
+| Data custody/storage | 11 | 8/0/0/3/0 | 173/16 | 1/3/3/0/4/0 | Source checkpoint `1cf0742c9`: WP05 still lacks local/provider writer, byte verifier, scheduler, restore/migration/apply/rollback runtime. New WP09/WP10 are explicit unimplemented source routes; WP07 remains blocked on Account authority/composition. Tests, proof, and DONE remain open. |
 | Device trust bootstrap | 9 | 6/0/3/0/0 | 107/41 | 0/2/1/0/6/0 | Accepted Device source is integrated through `68717b5b7`: WP01 current binding, WP05 unsigned entitlement boundary, WP06 fail-closed restore authority, and WP07 durable removal/readiness are real. Platform/passkey ceremony, issuer/revocation provider, restore/platform callers, expected tests, proof, and completion remain open. |
 | LAN | 26 | 22/1/2/1/0 | 305/63 | 0/1/0/0/25/0 | WP26 is source-only with zero mapped tests and is blocked on Device Trust WP01/WP03. |
-| Logging domain parity | 10 | 9/0/0/1/0 | 141/59 | 5/0/0/0/5/0 | Accepted source wave establishes Rust-owned exact 18-key redaction policy and generated TS parity; tests, proof, and external composition remain open. |
+| Logging domain parity | 10 | 9/0/0/1/0 | 155/59 | 5/0/0/0/5/0 | Accepted source wave establishes Rust-owned exact 18-key redaction policy and generated TS parity; tests, proof, and external composition remain open. |
 | App | 95 | 88/1/0/6/0 | 258/115 | 13/0/0/0/82/0 | One source-only mismatch and remaining compiler/runtime/native gaps. |
 | Network | 8 | 8/0/0/0/0 | 349/88 | 6/1/0/0/1/0 | WP04 remains dependency-blocked despite complete file topology. |
-| Parent desktop/runtime package | 11 | 10/0/0/1/0 | 49/32 | 4/0/0/0/7/0 | Signed package/update/rollback and retained release proof remain open. |
-| Payment/subscription | 13 | 11/0/0/2/0 | 82/53 | 4/5/0/4/0/0 | Accepted source closes caller-minted entitlement, in-memory DO, provider-identity, and pending-recovery defects; Account migration, real issuer/provider authority, and expected tests remain open. |
+| Parent desktop/runtime package | 11 | 10/0/0/1/0 | 131/32 | 4/0/0/2/5/0 | Signed package/update/rollback and retained release proof remain open. |
+| Payment/subscription | 13 | 11/0/0/2/0 | 90/53 | 4/5/0/4/0/0 | Accepted source closes caller-minted entitlement, in-memory DO, provider-identity, and pending-recovery defects; Account migration, real issuer/provider authority, and expected tests remain open. |
 | Policy control plane | 8 | 7/0/0/1/0 | 210/46 | 1/4/0/0/3/0 | Four workpacks are blocked on trusted source, Device Trust, and delivery owners. |
 | Portal UX/household surfaces | 20 | 17/0/1/2/0 | 95/67 | 15/0/0/0/5/0 | One tests-only mismatch; upstream live authority remains absent for several surfaces. |
 | Remote access | 6 | 5/0/0/1/0 | 40/22 | 4/0/0/0/2/0 | Authenticated relay/session runtime and proof remain open. |
-| Eventing | 13 | 10/0/1/2/0 | 194/112 | 0/2/1/0/9/1 | WP11 production source is independently accepted through `fa1230661`: envelope/request/journal/replay authority is fail-closed and single-use. Its old replay tests and required negative/audit families remain for the test-writing wave; WP10/WP12 stay blocked. |
+| Eventing | 13 | 10/0/1/2/0 | 193/112 | 0/2/1/0/9/1 | WP11 production source is independently accepted through `fa1230661`: envelope/request/journal/replay authority is fail-closed and single-use. Its old replay tests and required negative/audit families remain for the test-writing wave; WP10/WP12 stay blocked. |
 | Screen AI pipeline | 10 | 7/0/0/3/0 | 150/43 | 9/1/0/0/0/0 | One blocked workpack and unresolved policy/custody authority chain. |
 | Screen | 43 | 29/2/0/12/0 | 230/80 | 25/0/0/0/18/0 | Two source-only mappings plus platform/runtime/custody gaps. |
-| Setup/install/provisioning | 7 | 2/0/0/5/0 | 17/10 | 0/1/0/0/6/0 | Rollout gate is blocked; trusted readiness aggregation remains incomplete. |
+| Setup/install/provisioning | 7 | 2/0/0/5/0 | 29/10 | 0/2/0/0/5/0 | Rollout gate is blocked; trusted readiness aggregation remains incomplete. |
 | Tracking | 43 | 36/0/0/7/0 | 134/82 | 41/2/0/0/0/0 | WP40 is now reviewed as an 18-source/2-test composition owner; the shipped caller that connects child tracking flow to the durable journal/ActivityStore is still absent. |
 | V0.8 enforcement | 20 | 19/0/0/1/0 | 94/72 | 13/1/0/0/6/0 | WP04 remains blocked on the enforcement audit-journal owner. |
 
 All rows describe the current integration checkout. Git does not encode
 per-plan branch custody; the safe pushed checkpoint and any active local source
 batch are recorded separately in the repository custody status. Use
-`npm run graph:matrix -- --json` for all 681 workpack rows.
+`npm run graph:matrix -- --json` for all 683 workpack rows.
 
 ## Authoritative production reachability dashboard - 2026-08-16
 
@@ -938,7 +940,8 @@ was:
 
 ### Graph-derived plan/workpack matrix
 
-The rows below are the current graph projection for every plan directory. The
+The rows below are the retained historical graph projection for every plan
+directory. The
 `P/B/R/A/V/D` column is the workpack count in `planned/blocked/ready/active/
 validation/done` order. Code/test counts are reviewed-root topology for that
 plan and may overlap because shared crates are intentionally visible in more
@@ -982,8 +985,8 @@ checklist prose. A graph `DONE` state requires the referenced implementation,
 test, proof, checklist, and any detected ADR paths to exist; it does not claim
 that CI or a product path has been merged.
 
-There are **23 plan folders** and **680 imported workpack rows** in this
-checkout (not 24 plans). The live reviewed-root topology is 2,902
+At that checkpoint there were **23 plan folders** and **680 imported workpack
+rows** (not 24 plans). The then-reviewed-root topology was 2,902
 implementation files and 1,144 test files. Those are ownership/topology counts,
 not proof that the files are production-reachable or that tests pass. The
 current consolidated head has not run final product CI and has not merged to

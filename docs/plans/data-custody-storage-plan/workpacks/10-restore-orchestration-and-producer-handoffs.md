@@ -41,8 +41,12 @@ Out of scope:
 - Account WP05 provides current authority/capability/session/lease composition;
   Account WP08 provides the trusted authority/confirmation contract where
   required.
-- Eventing supplies durable ordering/replay primitives; Device Trust supplies
-  independent trusted-device readiness where the action requires it.
+- Conditional handoffs only: if the selected implementation requires shared
+  durable ordering/replay primitives, route them to the exact Eventing owner;
+  if an action requires independent trusted-device readiness, route that input
+  to the exact Device Trust owner. No exact owner workpack is selected by the
+  current live-code audit, so neither plan is a current hard dependency and no
+  graph edge is asserted here.
 - Data-class owners must expose typed producer/consumer handoffs and return
   owner-derived outcomes; WP10 records/coordinates them but does not fabricate
   them.
@@ -79,4 +83,3 @@ This route does not claim any data-class writer, provider/local filesystem
 implementation, Account authority implementation, Device Trust readiness,
 portal/desktop behavior, proof, or plan completion until those owners deliver
 their own accepted source and validation evidence.
-

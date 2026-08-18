@@ -42,8 +42,12 @@ Out of scope:
 - Data WP05 supplies bundle manifest/preflight/integrity contracts.
 - Account WP05 supplies the current household/member/device/session/capability/
   lease composer when a job requires authority.
-- Device Trust and Eventing are consumed only for the exact signer-key/readiness
-  and durable retry/event boundaries they own; neither is re-owned here.
+- Conditional handoffs only: if the selected implementation requires a
+  trusted-device signer/readiness input, route that input to the exact Device
+  Trust owner; if it requires a shared durable event/retry primitive, route
+  that primitive to the exact Eventing owner. No exact owner workpack is
+  selected by the current live-code audit, so neither plan is a current hard
+  dependency and no graph edge is asserted here.
 
 ## Acceptance criteria
 
@@ -77,4 +81,3 @@ This route does not claim provider SDK execution, Account authority, Device
 Trust readiness, data-class restore/apply, portal rendering, or production
 custody completion until the owning source, expected tests, focused gates, and
 proof are accepted.
-

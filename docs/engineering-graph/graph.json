@@ -479,11 +479,11 @@
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
       ],
       "state": "blocked",
-      "lifecycleState": "validation",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / durable source accepted / tests and composition open",
+        "statusText": "reopened / target-aware correction pending / tests and composition open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
