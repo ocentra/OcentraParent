@@ -21,10 +21,16 @@ pub(super) fn decode_png(bytes: &[u8]) -> Result<(u32, u32), ManagedBrowserCdpSc
     let output_buffer_size = reader
         .output_buffer_size()
         .ok_or(ManagedBrowserCdpScreenCaptureError::InvalidPng)?;
-    if u64::try_from(output_buffer_size).unwrap_or(u64::MAX) > super::max_decoded_bytes() {
+    let output_buffer_size = u64::try_from(output_buffer_size)
+        .map_err(|_error| ManagedBrowserCdpScreenCaptureError::InvalidPng)?;
+    if output_buffer_size > super::max_decoded_bytes() {
         return Err(ManagedBrowserCdpScreenCaptureError::DimensionsOutOfBounds);
     }
-    let mut decoded = vec![0; output_buffer_size];
+    let mut decoded = vec![
+        0;
+        usize::try_from(output_buffer_size)
+            .map_err(|_error| ManagedBrowserCdpScreenCaptureError::InvalidPng)?
+    ];
     let output = reader
         .next_frame(&mut decoded)
         .map_err(|_error| ManagedBrowserCdpScreenCaptureError::InvalidPng)?;

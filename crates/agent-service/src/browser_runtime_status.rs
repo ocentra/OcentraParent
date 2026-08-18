@@ -130,17 +130,17 @@ pub fn running_managed_status(
 ) -> BrowserManagedSessionStatus {
     let started_at = started_at.into();
     let mut status = base_managed_status(checked_at);
-    status.browser_family = Some(launch.browser_family);
-    status.browser_channel = Some(launch.browser_channel);
-    status.profile_path_ref = Some(launch.profile_path_ref);
-    status.process_id = Some(launch.process_id);
+    status.browser_family = Some(launch.browser_family());
+    status.browser_channel = Some(launch.browser_channel());
+    status.profile_path_ref = Some(launch.profile_path_ref().to_owned());
+    status.process_id = Some(launch.process_id());
     status.managed_state = BrowserManagedState::RunningManaged;
     status.capability_status = BrowserCapabilityStatus::BridgeMissing;
     status.degraded_reason =
         Some(constants::value::MANAGED_BROWSER_BRIDGE_CONNECT_PENDING.to_string());
     status.started_at = Some(started_at.0);
     apply_profile_store_entry(&mut status, profile_store_entry);
-    status.bridge_endpoint_ref = Some(launch.bridge_endpoint_ref);
+    status.bridge_endpoint_ref = Some(launch.bridge_endpoint_ref().to_owned());
     status
 }
 

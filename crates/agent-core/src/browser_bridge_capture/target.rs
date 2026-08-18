@@ -140,7 +140,6 @@ fn opaque_ref(
     snapshot: &TargetSnapshot,
 ) -> String {
     let mut digest = Sha256::new();
-    digest.update(binding.session_secret);
     digest.update(binding.managed_browser_session_id.as_bytes());
     digest.update([0]);
     digest.update(binding.profile_id.as_bytes());
@@ -149,9 +148,13 @@ fn opaque_ref(
     digest.update(binding.process_id.to_be_bytes());
     digest.update(target_id.as_bytes());
     digest.update([0]);
+    digest.update(snapshot.websocket_url.as_bytes());
+    digest.update([0]);
     digest.update(snapshot.url_digest.as_bytes());
     digest.update([0]);
     digest.update(snapshot.title_digest.as_bytes());
+    digest.update([0]);
+    digest.update(snapshot.browser_identity_digest.as_bytes());
     let mut reference = String::from(prefix);
     reference.push('-');
     for byte in digest.finalize() {

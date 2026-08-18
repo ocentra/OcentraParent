@@ -24,6 +24,9 @@ pub(crate) fn launch_error_reason(error: &BrowserManagedLaunchError) -> &'static
         BrowserManagedLaunchError::UnsupportedBrowser => {
             constants::value::MANAGED_BROWSER_UNSUPPORTED_EXECUTABLE
         }
+        BrowserManagedLaunchError::ManualRequired => {
+            constants::value::MANAGED_BROWSER_BRIDGE_ENDPOINT_MANUAL_REQUIRED
+        }
         BrowserManagedLaunchError::Io => constants::value::MANAGED_BROWSER_LAUNCH_ERROR,
     }
 }

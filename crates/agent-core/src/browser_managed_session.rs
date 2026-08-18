@@ -1,13 +1,11 @@
-use std::{
-    fmt,
-    net::SocketAddr,
-    path::{Path, PathBuf},
-};
+use std::{fmt, net::SocketAddr, path::PathBuf};
 
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
 use ocentra_parent_agent_protocol::browser_managed::{
     BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
 };
+#[path = "browser_managed_session/accessors.rs"]
+mod accessors;
 #[path = "browser_managed_session/capability.rs"]
 mod capability;
 #[path = "browser_managed_session/launch.rs"]
@@ -60,31 +58,34 @@ pub struct BrowserManagedLaunchPlan {
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct BrowserManagedLaunch {
-    pub process_id: u32,
-    pub bridge_port: u16,
-    pub browser_family: BrowserFamily,
-    pub browser_channel: BrowserChannel,
-    pub profile_path_ref: String,
-    pub bridge_endpoint_ref: String,
+    process_id: u32,
+    bridge_port: u16,
+    browser_family: BrowserFamily,
+    browser_channel: BrowserChannel,
+    profile_path_ref: String,
+    bridge_endpoint_ref: String,
     pub(crate) cdp_authority: ManagedBrowserLaunchAuthority,
 }
 
 /// Private launch evidence carried only by a real managed-browser launch.
 ///
 /// The public launch fields are status data and are intentionally insufficient
-/// to mint a CDP capture authority. The random secret and binding digests are
-/// created after the owned process is spawned and are never serialized or
-/// exposed through Debug.
+/// to mint a CDP capture authority. Endpoint, process, executable, and profile
+/// identity are kept here so the capture owner can revalidate them without
+/// accepting caller-assembled authority.
 #[derive(Clone, PartialEq, Eq)]
 pub(crate) struct ManagedBrowserLaunchAuthority {
-    pub(crate) managed_browser_session_id: String,
-    pub(crate) profile_id: String,
-    pub(crate) session_secret: [u8; 32],
-    pub(crate) generation: u64,
-    pub(crate) created_at_epoch_ms: u64,
-    pub(crate) expires_at_epoch_ms: u64,
-    pub(crate) executable_binding: String,
-    pub(crate) profile_binding: String,
+    managed_browser_session_id: String,
+    profile_id: String,
+    process_id: u32,
+    bridge_port: u16,
+    browser_family: BrowserFamily,
+    browser_channel: BrowserChannel,
+    executable_path: PathBuf,
+    profile_path: PathBuf,
+    generation: u64,
+    created_at_epoch_ms: u64,
+    expires_at_epoch_ms: u64,
 }
 
 impl fmt::Debug for BrowserManagedLaunch {
@@ -102,18 +103,13 @@ impl fmt::Debug for BrowserManagedLaunch {
     }
 }
 
-impl BrowserManagedLaunch {
-    pub(crate) fn cdp_authority(&self) -> &ManagedBrowserLaunchAuthority {
-        &self.cdp_authority
-    }
-}
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum BrowserManagedLaunchError {
     DefaultProfileRejected,
     UnownedProfileRejected,
     BridgePortUnavailable,
     UnsupportedBrowser,
+    ManualRequired,
     Io,
 }
 
@@ -170,10 +166,6 @@ pub fn launch_managed_browser(
     config: BrowserManagedLaunchConfig,
 ) -> Result<BrowserManagedLaunch, BrowserManagedLaunchError> {
     launch::launch_managed_browser(config)
-}
-
-pub(crate) fn managed_path_binding(path: &Path) -> String {
-    capability::managed_path_binding(path)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

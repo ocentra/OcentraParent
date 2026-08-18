@@ -39,8 +39,18 @@ fn ihdr_dimensions(data: &[u8]) -> Result<(u32, u32), ManagedBrowserCdpScreenCap
     if data.len() != 13 {
         return Err(ManagedBrowserCdpScreenCaptureError::InvalidPng);
     }
-    let width = u32::from_be_bytes(data[0..4].try_into().unwrap());
-    let height = u32::from_be_bytes(data[4..8].try_into().unwrap());
+    let width = u32::from_be_bytes(
+        data.get(0..4)
+            .ok_or(ManagedBrowserCdpScreenCaptureError::InvalidPng)?
+            .try_into()
+            .map_err(|_error| ManagedBrowserCdpScreenCaptureError::InvalidPng)?,
+    );
+    let height = u32::from_be_bytes(
+        data.get(4..8)
+            .ok_or(ManagedBrowserCdpScreenCaptureError::InvalidPng)?
+            .try_into()
+            .map_err(|_error| ManagedBrowserCdpScreenCaptureError::InvalidPng)?,
+    );
     super::super::validate_dimensions(width, height)?;
     Ok((width, height))
 }

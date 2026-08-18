@@ -31,9 +31,8 @@ pub(super) fn validate(binding: &LaunchBinding) -> Result<(), ManagedBrowserCdpC
     }
     if !managed_session_id_is_valid(binding)
         || !profile_id_is_valid(binding)
-        || binding.executable_binding.trim().is_empty()
-        || binding.profile_binding.trim().is_empty()
-        || binding.session_secret.iter().all(|byte| *byte == 0)
+        || binding.executable_path.as_os_str().is_empty()
+        || binding.profile_path.as_os_str().is_empty()
         || binding.generation == 0
     {
         return Err(BrowserBridgePollError::UntrustedSession.into());

@@ -19,9 +19,17 @@ pub(super) fn read<'a>(
     offset: usize,
 ) -> Result<Chunk<'a>, ManagedBrowserCdpScreenCaptureError> {
     let length_bytes = bytes
-        .get(offset..offset + 4)
+        .get(
+            offset
+                ..offset
+                    .checked_add(4)
+                    .ok_or(ManagedBrowserCdpScreenCaptureError::InvalidPng)?,
+        )
         .ok_or(ManagedBrowserCdpScreenCaptureError::InvalidPng)?;
-    let length = usize::try_from(u32::from_be_bytes(length_bytes.try_into().unwrap()))
+    let length_bytes: [u8; 4] = length_bytes
+        .try_into()
+        .map_err(|_error| ManagedBrowserCdpScreenCaptureError::InvalidPng)?;
+    let length = usize::try_from(u32::from_be_bytes(length_bytes))
         .map_err(|_error| ManagedBrowserCdpScreenCaptureError::InvalidPng)?;
     let end = offset
         .checked_add(12)

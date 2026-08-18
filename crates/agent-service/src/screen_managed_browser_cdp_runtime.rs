@@ -7,7 +7,7 @@
 
 use std::path::Path;
 
-use chrono::{DateTime, FixedOffset};
+use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use ocentra_parent_agent_core::{
     journal_crypto::JournalKey, journal_error::JournalError,
     screen_evidence_queue::ScreenEvidenceQueue,
@@ -33,8 +33,6 @@ pub(crate) struct ManagedBrowserCdpQueueRequest<'a> {
     pub(crate) queue_dir: &'a Path,
     pub(crate) key: &'a JournalKey,
     pub(crate) queue_job_id: String,
-    pub(crate) created_at: String,
-    pub(crate) expires_at: String,
     pub(crate) device_ref: String,
     pub(crate) local_user_ref: String,
     pub(crate) parent_setting_ref: String,
@@ -62,17 +60,31 @@ pub(crate) fn enqueue_managed_browser_cdp_capture(
 ) -> Result<ManagedBrowserCdpQueueJobId, ManagedBrowserCdpQueueError> {
     let capture_receipt = request.capture.receipt();
     let capture_bytes = request.capture.png_bytes();
-    if !queue_request_is_valid(&request, capture_receipt, capture_bytes) {
+    let created_at = Utc::now();
+    let expires_at = created_at
+        .checked_add_signed(Duration::seconds(
+            ocentra_schema::managed_browser_cdp_capture::MANAGED_BROWSER_CDP_MAX_QUEUE_TTL_SECONDS,
+        ))
+        .ok_or(ManagedBrowserCdpQueueError::InvalidRequest)?;
+    if !queue_request_is_valid(
+        &request,
+        capture_receipt,
+        capture_bytes,
+        &created_at,
+        &expires_at,
+    ) {
         return Err(ManagedBrowserCdpQueueError::InvalidRequest);
     }
+    let created_at_text = created_at.to_rfc3339_opts(SecondsFormat::Millis, true);
+    let expires_at_text = expires_at.to_rfc3339_opts(SecondsFormat::Millis, true);
 
     let receipt = capture_receipt;
     let job = ScreenAnalysisQueueJob {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
         queue_job_id: request.queue_job_id.clone(),
-        created_at: request.created_at.clone(),
-        not_before: request.created_at.clone(),
-        expires_at: request.expires_at,
+        created_at: created_at_text.clone(),
+        not_before: created_at_text,
+        expires_at: expires_at_text,
         last_attempt_at: None,
         capture_reason: MANAGED_BROWSER_CDP_CAPTURE_REASON.to_owned(),
         capture_scope: receipt.capture_mode.as_protocol_str().to_owned(),
@@ -115,19 +127,12 @@ fn queue_request_is_valid(
     request: &ManagedBrowserCdpQueueRequest<'_>,
     receipt: &ocentra_schema::managed_browser_cdp_capture::ManagedBrowserCdpCaptureReceipt,
     image_bytes: &[u8],
+    created_at: &DateTime<Utc>,
+    expires_at: &DateTime<Utc>,
 ) -> bool {
-    let queue_window_is_valid = match (
-        DateTime::<FixedOffset>::parse_from_rfc3339(&request.created_at),
-        DateTime::<FixedOffset>::parse_from_rfc3339(&request.expires_at),
-    ) {
-        (Ok(created_at), Ok(expires_at)) => {
-            let lifetime = expires_at.signed_duration_since(created_at);
-            lifetime.num_seconds() > 0
-                && lifetime.num_seconds()
-                    <= ocentra_schema::managed_browser_cdp_capture::MANAGED_BROWSER_CDP_MAX_QUEUE_TTL_SECONDS
-        }
-        _ => false,
-    };
+    let queue_window_is_valid = expires_at > created_at
+        && expires_at.signed_duration_since(created_at).num_seconds()
+            <= ocentra_schema::managed_browser_cdp_capture::MANAGED_BROWSER_CDP_MAX_QUEUE_TTL_SECONDS;
     let mut digest = String::new();
     for byte in Sha256::digest(image_bytes) {
         digest.push_str(&format!("{byte:02x}"));

@@ -6,7 +6,7 @@
 //! screenshot command. URLs, titles, debugger endpoints, and image bytes stay
 //! inside this boundary and are never represented by public Debug output.
 
-use std::fmt;
+use std::{fmt, path::Path};
 
 use crate::{
     browser_bridge_poll::BrowserBridgePollError, browser_managed_session::BrowserManagedLaunch,
@@ -27,6 +27,8 @@ mod binding;
 mod identity;
 #[path = "browser_bridge_capture/identity_match.rs"]
 mod identity_match;
+#[path = "browser_bridge_capture/port_owner.rs"]
+mod port_owner;
 #[path = "browser_bridge_capture/process.rs"]
 mod process;
 #[path = "browser_bridge_capture/target.rs"]
@@ -95,6 +97,15 @@ impl fmt::Debug for ManagedBrowserCdpCaptureBytes {
             .field("evidence_refs", &self.evidence_refs)
             .finish()
     }
+}
+
+pub(crate) fn verify_managed_browser_cdp_endpoint(
+    endpoint: std::net::SocketAddr,
+    process_id: u32,
+    executable_path: &Path,
+) -> Result<(), BrowserBridgePollError> {
+    port_owner::verify_endpoint_owner(endpoint, process_id)?;
+    process::verify_process_executable(process_id, executable_path)
 }
 
 pub fn authorize_managed_browser_cdp_target(

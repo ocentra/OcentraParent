@@ -2595,9 +2595,16 @@ dependencies = [
 name = "ocentra-entitlement-core"
 version = "0.1.1"
 dependencies = [
+ "atomicwrites",
  "chrono",
+ "ed25519-dalek",
+ "fs2",
  "ocentra-eventing",
+ "ocentra-family-identity-core",
+ "ocentra-schema",
  "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]
@@ -2689,7 +2696,6 @@ dependencies = [
  "chrono",
  "ed25519-dalek",
  "fs2",
- "getrandom 0.3.4",
  "ocentra-eventing",
  "ocentra-lan-core",
  "ocentra-network-core",
@@ -2895,6 +2901,7 @@ name = "ocentra-storage-custody-core"
 version = "0.1.1"
 dependencies = [
  "atomicwrites",
+ "chrono",
  "fs2",
  "getrandom 0.3.4",
  "ocentra-eventing",

@@ -30,6 +30,8 @@ pub const BROWSER_INTERVENTION_OS_APP_CONTROL_REQUIRED: &str =
     "browser-intervention-os-app-control-required";
 pub const MANAGED_BROWSER_EXECUTABLE_MISSING: &str = "managed-browser-executable-missing";
 pub const MANAGED_BROWSER_BRIDGE_CONNECT_PENDING: &str = "managed-browser-bridge-connect-pending";
+pub const MANAGED_BROWSER_BRIDGE_ENDPOINT_MANUAL_REQUIRED: &str =
+    "managed-browser-bridge-endpoint-manual-required";
 pub const MANAGED_BROWSER_BRIDGE_PORT_UNAVAILABLE: &str = "managed-browser-bridge-port-unavailable";
 pub const MANAGED_BROWSER_INVALID_BRIDGE_PORT: &str = "managed-browser-invalid-bridge-port";
 pub const MANAGED_BROWSER_INVALID_PROFILE: &str = "managed-browser-invalid-profile";
