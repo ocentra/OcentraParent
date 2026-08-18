@@ -159,6 +159,7 @@ job/receipt storage, filesystem/provider SDKs, or producer mutation.
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_receipts.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch_validation.rs`
 
 This is the legal parent-runtime owner for the bounded source packet. It
 persists scheduler/job and restore/migration state, reconciles interrupted work
@@ -207,6 +208,19 @@ restart reconciliation, executor/rollback mount, and Eventing/outbox
 composition to `crates/parent-runtime-core`; `storage-custody-core` remains a
 pure decision/orchestration owner. This changes routing only and does not mark
 any source, test, proof, or runtime composition complete.
+
+## 2026-08-18 rollback authority source review
+
+The independently reviewed rollback validation source is now mapped at
+`crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch_validation.rs`.
+It binds rollback dispatch to the observed sealed provider-operation reference
+and execution binding, rejects missing or mismatched identity, and refuses to
+treat a persisted reference as restartable provider authority by itself. This
+is a real source-level authority boundary, not provider execution or runtime
+reachability. The provider-neutral restore port, Account/family authority,
+key/import custody, producer composition, five expected runtime tests, focused
+validation, proof, precommit, CI, and DONE remain open; unavailable provider
+paths stay manual-required.
 
 ## Candidate source acceptance (tests and proof unresolved)
 

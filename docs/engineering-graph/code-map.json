@@ -1950,6 +1950,7 @@
       "roots": [
         "infra/cloudflare/src/auth/model.ts",
         "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/auth/provider-webhook.ts",
         "infra/cloudflare/src/providers/firebase-auth-contract.ts",
         "infra/cloudflare/src/providers/firebase-auth-jwt.ts",
         "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
@@ -5451,6 +5452,7 @@
         "crates/parent-runtime-core/src/data_custody_restore_runtime_recovery.rs",
         "crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs",
         "crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch_validation.rs",
         "crates/parent-runtime-core/src/data_custody_restore_runtime_stage.rs",
         "crates/parent-runtime-core/src/data_custody_runtime_eventing.rs",
         "crates/parent-runtime-core/src/data_custody_runtime_eventing_identity.rs",
