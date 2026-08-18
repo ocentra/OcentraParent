@@ -1,13 +1,17 @@
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 
+use super::protocol::{provider_label, role_label, support_revocation_label, support_scope_label};
 use super::{AccountIdentityMutationAuthorityRequest, ResolvedAccountIdentityMutationTarget};
+use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
 
 pub(crate) const ENVELOPE_VERSION: &str = "ocentra.account-mutation.v1";
 pub(crate) const SIGNATURE_ALGORITHM: &str = "ed25519";
 pub(crate) const AUDIENCE: &str = "ocentra.account.mutation";
 pub(crate) const ENVIRONMENT: &str = "account-owned";
+pub(crate) const CANONICAL_FIELD_COUNT: usize = 44;
+pub(crate) const MAX_CANONICAL_FIELD_BYTES: usize = 1024;
+pub(crate) const MAX_CANONICAL_PAYLOAD_BYTES: usize = 8 * 1024;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct CanonicalMutationEnvelope {
     pub(crate) key_id: String,
     pub(crate) provider: String,
@@ -74,11 +78,12 @@ pub(crate) fn from_resolved(
         envelope.support_device_id = receipt.device_id.as_str().to_owned();
         envelope.support_child_profile_id = receipt.child_profile_id.to_string();
         envelope.support_child_device_id = receipt.child_device_id.as_str().to_owned();
-        envelope.support_scope = format!("{:?}", receipt.scope);
+        envelope.support_scope = support_scope_label(receipt.scope).to_owned();
         envelope.support_issuer = receipt.issuer.as_str().to_owned();
         envelope.support_issued_at.clone_from(&receipt.issued_at);
         envelope.support_expires_at.clone_from(&receipt.expires_at);
-        envelope.support_revocation_state = format!("{:?}", receipt.revocation_state);
+        envelope.support_revocation_state =
+            support_revocation_label(receipt.revocation_state).to_owned();
         envelope.support_audit_identity = receipt.audit_identity.as_str().to_owned();
     }
     envelope
@@ -94,12 +99,12 @@ fn base_envelope(
 ) -> CanonicalMutationEnvelope {
     CanonicalMutationEnvelope {
         key_id: key_id.to_owned(),
-        provider: format!("{:?}", authority.provider()),
+        provider: provider_label(authority.provider()).to_owned(),
         provider_subject: authority.provider_subject().as_str().to_owned(),
         account_id: authority.account_id().to_string(),
         household_id: authority.household_id().to_string(),
         member_id: authority.member_id().as_str().to_owned(),
-        role: format!("{:?}", authority.role()),
+        role: role_label(authority.role()).to_owned(),
         device_id: authority.device_id().as_str().to_owned(),
         child_profile_id: authority.child_profile_id().to_string(),
         child_device_id: authority.child_device_id().as_str().to_owned(),
@@ -142,10 +147,15 @@ fn base_envelope(
     }
 }
 
-pub(crate) fn encode(envelope: &CanonicalMutationEnvelope) -> Vec<u8> {
-    let mut bytes = Vec::with_capacity(2048);
-    for field in string_fields(envelope) {
-        append_string(&mut bytes, field);
+pub(crate) fn encode(
+    envelope: &CanonicalMutationEnvelope,
+) -> Result<Vec<u8>, AccountIdentityMutationAuthorityError> {
+    super::parse::validate_issued_envelope(envelope)?;
+    let fields = string_fields(envelope);
+    let capacity = encoded_capacity(&fields)?;
+    let mut bytes = Vec::with_capacity(capacity);
+    for field in fields {
+        append_string(&mut bytes, field)?;
     }
     for number in [
         envelope.session_generation,
@@ -160,10 +170,12 @@ pub(crate) fn encode(envelope: &CanonicalMutationEnvelope) -> Vec<u8> {
     ] {
         bytes.extend_from_slice(&number.to_be_bytes());
     }
-    bytes
+    (bytes.len() <= MAX_CANONICAL_PAYLOAD_BYTES)
+        .then_some(bytes)
+        .ok_or(AccountIdentityMutationAuthorityError::InvalidEnvelope)
 }
 
-fn string_fields(envelope: &CanonicalMutationEnvelope) -> [&str; 44] {
+pub(super) fn string_fields(envelope: &CanonicalMutationEnvelope) -> [&str; CANONICAL_FIELD_COUNT] {
     [
         ENVELOPE_VERSION,
         SIGNATURE_ALGORITHM,
@@ -212,7 +224,35 @@ fn string_fields(envelope: &CanonicalMutationEnvelope) -> [&str; 44] {
     ]
 }
 
-fn append_string(bytes: &mut Vec<u8>, value: &str) {
-    bytes.extend_from_slice(&(value.len() as u32).to_be_bytes());
+fn encoded_capacity(
+    fields: &[&str; CANONICAL_FIELD_COUNT],
+) -> Result<usize, AccountIdentityMutationAuthorityError> {
+    let mut total = 5_usize
+        .checked_mul(8)
+        .ok_or(AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+    for field in fields {
+        if field.len() > MAX_CANONICAL_FIELD_BYTES {
+            return Err(AccountIdentityMutationAuthorityError::InvalidEnvelope);
+        }
+        u32::try_from(field.len())
+            .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+        total = total
+            .checked_add(4)
+            .and_then(|value| value.checked_add(field.len()))
+            .ok_or(AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+    }
+    (total <= MAX_CANONICAL_PAYLOAD_BYTES)
+        .then_some(total)
+        .ok_or(AccountIdentityMutationAuthorityError::InvalidEnvelope)
+}
+
+fn append_string(
+    bytes: &mut Vec<u8>,
+    value: &str,
+) -> Result<(), AccountIdentityMutationAuthorityError> {
+    let length = u32::try_from(value.len())
+        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+    bytes.extend_from_slice(&length.to_be_bytes());
     bytes.extend_from_slice(value.as_bytes());
+    Ok(())
 }

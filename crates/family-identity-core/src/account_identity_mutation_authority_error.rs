@@ -14,8 +14,9 @@ pub enum AccountIdentityMutationAuthorityError {
     VerificationKeyUnavailable,
     SignatureInvalid,
     ClockUnavailable,
-    ReplayDetected,
     IdempotencyConflict,
+    EffectPending,
+    EffectStateInvalid,
     RepositoryUnavailable,
 }
 

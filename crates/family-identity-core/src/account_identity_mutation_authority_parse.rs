@@ -1,8 +1,9 @@
-use super::envelope::{encode, CanonicalMutationEnvelope};
+use super::envelope::{
+    encode, CanonicalMutationEnvelope, CANONICAL_FIELD_COUNT, MAX_CANONICAL_PAYLOAD_BYTES,
+};
 use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
 
-pub(super) const FIELD_COUNT: usize = 44;
-const MAX_PAYLOAD_BYTES: usize = 8 * 1024;
+pub(super) const FIELD_COUNT: usize = CANONICAL_FIELD_COUNT;
 
 #[path = "account_identity_mutation_authority_parse_cursor.rs"]
 mod cursor;
@@ -26,7 +27,7 @@ pub(crate) fn parse_wire(
         .map(u32::from_be_bytes)
         .and_then(|value| usize::try_from(value).ok())
         .ok_or(AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
-    if payload_length == 0 || payload_length > MAX_PAYLOAD_BYTES {
+    if payload_length == 0 || payload_length > MAX_CANONICAL_PAYLOAD_BYTES {
         return Err(AccountIdentityMutationAuthorityError::InvalidEnvelope);
     }
     let expected_length = 4_usize
@@ -40,7 +41,7 @@ pub(crate) fn parse_wire(
     let signature = <[u8; 64]>::try_from(&wire[4 + payload_length..])
         .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
     let envelope = parse_payload(&payload)?;
-    if encode(&envelope) != payload {
+    if encode(&envelope)? != payload {
         return Err(AccountIdentityMutationAuthorityError::InvalidEnvelope);
     }
     Ok(ParsedSignedMutationAuthority {
@@ -106,6 +107,13 @@ fn parse_payload(
         target_expires_at_epoch_millis: signed_numbers[0],
         target_support_authorization_expires_at_epoch_millis: signed_numbers[1],
     };
-    target_validation::validate_envelope(&envelope)?;
+    validate_issued_envelope(&envelope)?;
     Ok(envelope)
+}
+
+pub(crate) fn validate_issued_envelope(
+    envelope: &CanonicalMutationEnvelope,
+) -> Result<(), AccountIdentityMutationAuthorityError> {
+    validation::validate_envelope(envelope)?;
+    target_validation::validate_envelope(envelope)
 }

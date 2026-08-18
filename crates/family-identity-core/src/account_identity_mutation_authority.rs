@@ -2,49 +2,36 @@
 //!
 //! Callers can request a typed mutation, but only the durable Account
 //! repository can resolve its target and construct the signed envelope. The
-//! authority value and its verified form are opaque and deliberately have no
-//! serde implementations.
+//! authority value is opaque and deliberately has no serde implementation.
+//! Consumption commits the mutation and returns only its durable outcome.
 
 use sha2::{Digest, Sha256};
 
 use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
 
+#[path = "account_identity_mutation_action.rs"]
+mod action;
 #[path = "account_identity_mutation_authority_envelope.rs"]
 pub(crate) mod envelope;
 #[path = "account_identity_mutation_authority_parse.rs"]
 pub(crate) mod parse;
+#[path = "account_identity_mutation_authority_protocol.rs"]
+pub(crate) mod protocol;
 #[path = "account_identity_mutation_authority_request.rs"]
 mod request;
+#[path = "account_identity_mutation_result.rs"]
+mod result;
 #[path = "account_identity_mutation_authority_validation.rs"]
 pub(crate) mod validation;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 pub enum AccountIdentityMutationAction {
     RevokeChildDevice,
     RevokeSetupInvite,
     RevokeRecovery,
 }
 
-impl AccountIdentityMutationAction {
-    pub(crate) fn as_str(self) -> &'static str {
-        match self {
-            Self::RevokeChildDevice => "revoke-child-device",
-            Self::RevokeSetupInvite => "revoke-setup-invite",
-            Self::RevokeRecovery => "revoke-recovery",
-        }
-    }
-
-    pub(crate) fn parse(value: &str) -> Option<Self> {
-        match value {
-            "revoke-child-device" => Some(Self::RevokeChildDevice),
-            "revoke-setup-invite" => Some(Self::RevokeSetupInvite),
-            "revoke-recovery" => Some(Self::RevokeRecovery),
-            _ => None,
-        }
-    }
-}
-
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub(crate) enum AccountIdentityMutationTarget {
     ChildDevice {
         child_profile_id: String,
@@ -54,7 +41,7 @@ pub(crate) enum AccountIdentityMutationTarget {
     Recovery(String),
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct AccountIdentityMutationAuthorityRequest {
     action: AccountIdentityMutationAction,
     target: AccountIdentityMutationTarget,
@@ -63,65 +50,75 @@ pub struct AccountIdentityMutationAuthorityRequest {
 
 /// Opaque signed bytes. No public constructor or deserializer exists.
 pub struct AccountIdentityMutationAuthority {
-    payload: Vec<u8>,
-    signature: [u8; 64],
-}
-
-impl AccountIdentityMutationAuthority {
-    pub fn wire_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(4 + self.payload.len() + self.signature.len());
-        bytes.extend_from_slice(&(self.payload.len() as u32).to_be_bytes());
-        bytes.extend_from_slice(&self.payload);
-        bytes.extend_from_slice(&self.signature);
-        bytes
-    }
-
-    pub fn payload_digest(&self) -> String {
-        payload_digest(&self.payload)
-    }
-
-    pub(crate) fn from_signed_parts(payload: Vec<u8>, signature: [u8; 64]) -> Self {
-        Self { payload, signature }
-    }
-}
-
-/// Opaque result returned only after signature, currentness, target, clock,
-/// replay, and idempotency checks commit in the Account repository.
-pub struct VerifiedAccountIdentityMutationAuthority {
-    action: AccountIdentityMutationAction,
-    target_id: String,
-    idempotency_key: String,
+    wire: Vec<u8>,
     payload_digest: String,
 }
 
-impl VerifiedAccountIdentityMutationAuthority {
-    pub fn action(&self) -> AccountIdentityMutationAction {
-        self.action
+impl AccountIdentityMutationAuthority {
+    pub fn wire_bytes(&self) -> &[u8] {
+        self.wire.as_slice()
     }
 
-    pub fn target_id(&self) -> &str {
-        self.target_id.as_str()
+    pub fn payload_digest(&self) -> String {
+        self.payload_digest.clone()
     }
 
-    pub fn idempotency_key(&self) -> &str {
-        self.idempotency_key.as_str()
-    }
-
-    pub fn payload_digest(&self) -> &str {
-        self.payload_digest.as_str()
-    }
-
-    pub(crate) fn new(
-        action: AccountIdentityMutationAction,
-        target_id: String,
-        idempotency_key: String,
-        payload_digest: String,
-    ) -> Self {
-        Self {
-            action,
-            target_id,
-            idempotency_key,
+    pub(crate) fn from_signed_parts(
+        payload: Vec<u8>,
+        signature: [u8; 64],
+    ) -> Result<Self, AccountIdentityMutationAuthorityError> {
+        let payload_length = u32::try_from(payload.len())
+            .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+        let wire_capacity = 4_usize
+            .checked_add(payload.len())
+            .and_then(|value| value.checked_add(signature.len()))
+            .ok_or(AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
+        let payload_digest = payload_digest(&payload);
+        let mut wire = Vec::with_capacity(wire_capacity);
+        wire.extend_from_slice(&payload_length.to_be_bytes());
+        wire.extend_from_slice(&payload);
+        wire.extend_from_slice(&signature);
+        Ok(Self {
+            wire,
             payload_digest,
+        })
+    }
+}
+
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub enum AccountIdentityMutationResult {
+    SetupInviteRevoked,
+    RecoveryRevoked,
+}
+
+/// Outcome committed by the Account repository in the same transaction as
+/// verification and mutation. A retry of the identical signed request returns
+/// the recorded result with `repeated` set instead of applying twice.
+pub struct AccountIdentityMutationOutcome {
+    result: AccountIdentityMutationResult,
+    repeated: bool,
+}
+
+impl AccountIdentityMutationOutcome {
+    pub fn result(&self) -> AccountIdentityMutationResult {
+        self.result
+    }
+
+    pub fn repeated(&self) -> bool {
+        self.repeated
+    }
+
+    pub(crate) fn committed(result: AccountIdentityMutationResult) -> Self {
+        Self {
+            result,
+            repeated: false,
+        }
+    }
+
+    pub(crate) fn recorded(result: AccountIdentityMutationResult) -> Self {
+        Self {
+            result,
+            repeated: true,
         }
     }
 }
@@ -138,7 +135,6 @@ pub(crate) trait AccountIdentityMutationAuthorityCustody: Send + Sync {
     fn sign(&self, payload: &[u8]) -> Result<[u8; 64], AccountIdentityMutationAuthorityError>;
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct ResolvedAccountIdentityMutationTarget {
     pub(crate) kind: String,
     pub(crate) target_id: String,

@@ -3,6 +3,13 @@ use rusqlite::Connection;
 pub(super) fn validate_indexes(connection: &Connection) -> Result<(), ()> {
     validate_index(
         connection,
+        "account_identity_mutation_effect",
+        "account_identity_mutation_effect_retention",
+        false,
+        &["status", "retain_until_epoch_millis"],
+    )?;
+    validate_index(
+        connection,
         "account_identity_setup_invite",
         "account_identity_setup_invite_household",
         false,
@@ -77,11 +84,7 @@ fn validate_index_shape(
 
 pub(super) fn validate_foreign_keys(connection: &Connection) -> Result<(), ()> {
     validate_foreign_key(connection, "account_identity_runtime_clock", None)?;
-    validate_foreign_key(
-        connection,
-        "account_identity_mutation_authority_replay",
-        None,
-    )?;
+    validate_foreign_key(connection, "account_identity_mutation_effect", None)?;
     validate_foreign_key(connection, "account_identity_setup_invite", None)?;
     validate_foreign_key(
         connection,

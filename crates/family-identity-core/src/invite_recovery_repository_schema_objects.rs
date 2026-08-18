@@ -4,7 +4,7 @@ use super::super::INVITE_RECOVERY_SCHEMA_SQL;
 
 pub(super) const OWNED_TABLES: [&str; 8] = [
     "account_identity_runtime_clock",
-    "account_identity_mutation_authority_replay",
+    "account_identity_mutation_effect",
     "account_identity_setup_invite",
     "account_identity_pending_invite_membership",
     "account_identity_recovery",
@@ -117,6 +117,7 @@ fn expected_index(name: &str) -> bool {
     matches!(
         name,
         "account_identity_setup_invite_household"
+            | "account_identity_mutation_effect_retention"
             | "account_identity_recovery_household"
             | "account_identity_recovery_handoff_ready"
     )

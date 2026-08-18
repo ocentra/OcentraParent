@@ -45,7 +45,7 @@ pub(super) fn validate_consumed(
         || row.state != "pending"
         || row.expires_at_epoch_millis != envelope.target_expires_at_epoch_millis
         || row.expires_at_epoch_millis <= now
-        || (envelope.role != "ParentOwner" && row.inviter_member_id != envelope.member_id)
+        || (envelope.role != "parent-owner" && row.inviter_member_id != envelope.member_id)
     {
         return Err(AccountIdentityMutationAuthorityError::TargetNotCurrent);
     }

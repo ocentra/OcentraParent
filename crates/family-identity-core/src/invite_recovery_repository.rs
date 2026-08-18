@@ -35,22 +35,58 @@ pub const INVITE_RECOVERY_SCHEMA_SQL: &str =
          clock_id INTEGER PRIMARY KEY CHECK (clock_id = 1),
          last_epoch_millis INTEGER NOT NULL CHECK (last_epoch_millis > 0)
      ) STRICT;
-     CREATE TABLE IF NOT EXISTS account_identity_mutation_authority_replay (
-         payload_digest TEXT PRIMARY KEY CHECK (
+     CREATE TABLE IF NOT EXISTS account_identity_mutation_effect (
+         account_id TEXT NOT NULL CHECK (length(trim(account_id)) > 0),
+         household_id TEXT NOT NULL CHECK (length(trim(household_id)) > 0),
+         action TEXT NOT NULL CHECK (action IN (
+             'revoke-child-device','revoke-setup-invite','revoke-recovery'
+         )),
+         target_kind TEXT NOT NULL CHECK (target_kind IN (
+             'child-device','setup-invite','recovery'
+         )),
+         target_id TEXT NOT NULL CHECK (
+             length(trim(target_id)) > 0 AND length(target_id) <= 256
+         ),
+         idempotency_key TEXT NOT NULL CHECK (
+             length(trim(idempotency_key)) > 0 AND length(idempotency_key) <= 256
+         ),
+         payload_digest TEXT NOT NULL UNIQUE CHECK (
              length(payload_digest) = 71
              AND substr(payload_digest, 1, 7) = 'sha256:'
              AND substr(payload_digest, 8) NOT GLOB '*[^0-9a-f]*'
-         ),
-         idempotency_key TEXT NOT NULL UNIQUE CHECK (
-             length(trim(idempotency_key)) > 0 AND length(idempotency_key) <= 256
          ),
          key_id TEXT NOT NULL CHECK (
              length(key_id) = 71
              AND substr(key_id, 1, 7) = 'sha256:'
              AND substr(key_id, 8) NOT GLOB '*[^0-9a-f]*'
          ),
-         consumed_at_epoch_millis INTEGER NOT NULL CHECK (consumed_at_epoch_millis > 0)
+         token_expires_at_epoch_millis INTEGER NOT NULL CHECK (
+             token_expires_at_epoch_millis > 0
+         ),
+         status TEXT NOT NULL CHECK (status IN ('pending','completed')),
+         result_code TEXT CHECK (result_code IS NULL OR result_code IN (
+             'setup-invite-revoked','recovery-revoked'
+         )),
+         created_at_epoch_millis INTEGER NOT NULL CHECK (created_at_epoch_millis > 0),
+         updated_at_epoch_millis INTEGER NOT NULL CHECK (
+             updated_at_epoch_millis >= created_at_epoch_millis
+         ),
+         completed_at_epoch_millis INTEGER,
+         retain_until_epoch_millis INTEGER NOT NULL CHECK (
+             retain_until_epoch_millis > token_expires_at_epoch_millis
+         ),
+         PRIMARY KEY (
+             account_id, household_id, action, target_kind, target_id, idempotency_key
+         ),
+         CHECK (
+             (status = 'pending' AND result_code IS NULL
+                 AND completed_at_epoch_millis IS NULL)
+             OR (status = 'completed' AND result_code IS NOT NULL
+                 AND completed_at_epoch_millis = updated_at_epoch_millis)
+         )
      ) STRICT;
+     CREATE INDEX IF NOT EXISTS account_identity_mutation_effect_retention
+         ON account_identity_mutation_effect(status, retain_until_epoch_millis);
      CREATE TABLE IF NOT EXISTS account_identity_setup_invite (
          invite_id TEXT PRIMARY KEY CHECK (length(trim(invite_id)) > 0),
          token_digest TEXT NOT NULL UNIQUE CHECK (length(token_digest) = 64 AND token_digest NOT GLOB '*[^0-9a-f]*'),

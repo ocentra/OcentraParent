@@ -11,7 +11,7 @@ use crate::account_identity_authority::{
 };
 use crate::account_identity_mutation_authority::{
     AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityCustody,
-    AccountIdentityMutationAuthorityRequest, VerifiedAccountIdentityMutationAuthority,
+    AccountIdentityMutationAuthorityRequest, AccountIdentityMutationOutcome,
 };
 use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
 use crate::session_lifecycle_custody::SessionLifecyclePolicy;
@@ -159,29 +159,21 @@ impl AccountIdentityAuthorityService {
             .map_err(AccountIdentityMutationAuthorityServiceError::Mutation)
     }
 
-    pub fn consume_mutation_authority(
+    /// Verify and apply an Account-owned mutation atomically. The method never
+    /// returns a detachable authority token: it returns only the durable
+    /// result committed with the mutation and idempotency record.
+    pub fn consume_and_apply_mutation_authority(
         &mut self,
         wire: &[u8],
-    ) -> Result<
-        VerifiedAccountIdentityMutationAuthority,
-        AccountIdentityMutationAuthorityServiceError,
-    > {
+    ) -> Result<AccountIdentityMutationOutcome, AccountIdentityMutationAuthorityServiceError> {
         let custody = self.mutation_custody.as_deref().ok_or(
             AccountIdentityMutationAuthorityServiceError::Mutation(
                 AccountIdentityMutationAuthorityError::VerificationKeyUnavailable,
             ),
         )?;
         self.repository
-            .consume_mutation_authority(wire, custody)
+            .consume_and_apply_mutation_authority(wire, custody)
             .map_err(AccountIdentityMutationAuthorityServiceError::Mutation)
-    }
-
-    pub(crate) fn revoke_setup_invite(
-        &mut self,
-        authority: &VerifiedAccountIdentityAuthority,
-        invite_id: &crate::family_identity::SetupInviteId,
-    ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
-        self.repository.revoke_setup_invite(authority, invite_id)
     }
 
     pub fn approve_recovery(
@@ -201,14 +193,6 @@ impl AccountIdentityAuthorityService {
         invite_recovery_repository::InviteRecoveryRepositoryError,
     > {
         self.repository.complete_recovery(authority, recovery_id)
-    }
-
-    pub(crate) fn revoke_recovery(
-        &mut self,
-        authority: &VerifiedAccountIdentityAuthority,
-        recovery_id: &crate::family_identity::RecoveryId,
-    ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
-        self.repository.revoke_recovery(authority, recovery_id)
     }
 
     pub fn claim_recovery_handoff(

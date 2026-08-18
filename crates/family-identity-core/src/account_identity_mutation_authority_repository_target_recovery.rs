@@ -40,7 +40,7 @@ pub(super) fn validate_consumed(
     envelope: &CanonicalMutationEnvelope,
     now: i64,
 ) -> Result<(), AccountIdentityMutationAuthorityError> {
-    if envelope.role != "ParentOwner" {
+    if envelope.role != "parent-owner" {
         return Err(AccountIdentityMutationAuthorityError::RoleNotAuthorized);
     }
     let row = load(transaction, &envelope.target_id)?;

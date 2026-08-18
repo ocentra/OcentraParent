@@ -7,6 +7,10 @@ use rusqlite::{params, OptionalExtension, Transaction};
 
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_mutation_authority::envelope::CanonicalMutationEnvelope;
+use crate::account_identity_mutation_authority::protocol::{
+    provider_label as canonical_provider_label, role_label, support_revocation_label,
+    support_scope_label,
+};
 use crate::account_identity_mutation_authority::AccountIdentityMutationAuthorityRequest;
 use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
 
@@ -114,12 +118,12 @@ fn handoff_matches_envelope(
     handoff: &AccountIdentityCurrentMemberDeviceAuthorityHandoff,
     envelope: &CanonicalMutationEnvelope,
 ) -> bool {
-    format!("{:?}", handoff.mapping.provider) == envelope.provider
+    canonical_provider_label(&handoff.mapping.provider) == envelope.provider
         && handoff.mapping.provider_subject.as_str() == envelope.provider_subject
         && handoff.member.account_id.to_string() == envelope.account_id
         && handoff.member.household_id.to_string() == envelope.household_id
         && handoff.member.member_id.as_str() == envelope.member_id
-        && format!("{:?}", handoff.member.role) == envelope.role
+        && role_label(handoff.member.role) == envelope.role
         && handoff.member.device_id.as_str() == envelope.device_id
         && handoff.binding.child_profile_id.to_string() == envelope.child_profile_id
         && handoff.binding.child_device_id.as_str() == envelope.child_device_id
@@ -144,11 +148,11 @@ fn support_matches(
         && receipt.device_id.as_str() == envelope.support_device_id
         && receipt.child_profile_id.to_string() == envelope.support_child_profile_id
         && receipt.child_device_id.as_str() == envelope.support_child_device_id
-        && format!("{:?}", receipt.scope) == envelope.support_scope
+        && support_scope_label(receipt.scope) == envelope.support_scope
         && receipt.issuer.as_str() == envelope.support_issuer
         && receipt.issued_at == envelope.support_issued_at
         && receipt.expires_at == envelope.support_expires_at
-        && format!("{:?}", receipt.revocation_state) == envelope.support_revocation_state
+        && support_revocation_label(receipt.revocation_state) == envelope.support_revocation_state
         && receipt.audit_identity.as_str() == envelope.support_audit_identity
 }
 
@@ -184,15 +188,12 @@ fn parse_epoch_millis(value: &str) -> Result<i64, AccountIdentityMutationAuthori
 
 fn provider_label(value: &str) -> Result<&'static str, AccountIdentityMutationAuthorityError> {
     match value {
-        "Authjs" => Ok("authjs"),
-        "Firebase" => Ok("firebase"),
+        "authjs" => Ok("authjs"),
+        "firebase" => Ok("firebase"),
         _ => Err(AccountIdentityMutationAuthorityError::InvalidEnvelope),
     }
 }
 
 fn issue_provider_label(authority: &VerifiedAccountIdentityAuthority) -> &'static str {
-    match authority.provider() {
-        ocentra_schema::account_identity_authority::AccountIdentityProvider::Authjs => "authjs",
-        ocentra_schema::account_identity_authority::AccountIdentityProvider::Firebase => "firebase",
-    }
+    canonical_provider_label(authority.provider())
 }

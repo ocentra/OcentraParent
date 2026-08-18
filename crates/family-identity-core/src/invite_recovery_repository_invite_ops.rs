@@ -108,40 +108,6 @@ impl SqliteAccountIdentityAuthorityRepository {
             .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
         redeemed_invite(code, row, recipient, target_role, accepted_at)
     }
-
-    pub(crate) fn revoke_setup_invite(
-        &mut self,
-        authority: &VerifiedAccountIdentityAuthority,
-        invite_id: &SetupInviteId,
-    ) -> Result<(), InviteRecoveryRepositoryError> {
-        let transaction = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
-        let (now, _) = trusted_now_in_transaction(&transaction)?;
-        ensure_current_authority(&transaction, authority, now)?;
-        let changed = transaction
-            .execute(
-                "UPDATE account_identity_setup_invite
-                 SET state = 'revoked', revoked_at_epoch_millis = ?2
-                 WHERE invite_id = ?1 AND household_id = ?3 AND state = 'pending'
-                   AND (inviter_member_id = ?4 OR ?5 = 'parent-owner')",
-                params![
-                    invite_id.as_str(),
-                    now,
-                    authority.household_id().to_string(),
-                    authority.member_id().as_str(),
-                    role_label(authority.role()),
-                ],
-            )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
-        if changed != 1 {
-            return Err(InviteRecoveryRepositoryError::Missing);
-        }
-        transaction
-            .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
-    }
 }
 
 fn load_invite_row(

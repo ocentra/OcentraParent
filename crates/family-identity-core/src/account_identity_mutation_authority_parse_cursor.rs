@@ -1,6 +1,5 @@
+use crate::account_identity_mutation_authority::envelope::MAX_CANONICAL_FIELD_BYTES;
 use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
-
-const MAX_FIELD_BYTES: usize = 1024;
 
 pub(super) struct Cursor<'a> {
     bytes: &'a [u8],
@@ -52,7 +51,7 @@ impl<'a> Cursor<'a> {
     fn read_string(&mut self) -> Result<String, AccountIdentityMutationAuthorityError> {
         let length = usize::try_from(u32::from_be_bytes(self.read_array::<4>()?))
             .map_err(|_| AccountIdentityMutationAuthorityError::InvalidEnvelope)?;
-        if length > MAX_FIELD_BYTES {
+        if length > MAX_CANONICAL_FIELD_BYTES {
             return Err(AccountIdentityMutationAuthorityError::InvalidEnvelope);
         }
         let end = self

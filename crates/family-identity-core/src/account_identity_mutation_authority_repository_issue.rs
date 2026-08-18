@@ -37,7 +37,7 @@ pub(super) fn issue(
         + Duration::minutes(5);
     let expires_at = expires_at.to_rfc3339_opts(SecondsFormat::Millis, true);
     let envelope = from_resolved(key_id, authority, request, &target, &issued_at, &expires_at);
-    let payload = encode(&envelope);
+    let payload = encode(&envelope)?;
     let signature = custody.sign(&payload)?;
     verifying_key
         .verify_strict(&payload, &ed25519_dalek::Signature::from_bytes(&signature))
@@ -45,7 +45,5 @@ pub(super) fn issue(
     transaction
         .commit()
         .map_err(|_| AccountIdentityMutationAuthorityError::RepositoryUnavailable)?;
-    Ok(AccountIdentityMutationAuthority::from_signed_parts(
-        payload, signature,
-    ))
+    AccountIdentityMutationAuthority::from_signed_parts(payload, signature)
 }

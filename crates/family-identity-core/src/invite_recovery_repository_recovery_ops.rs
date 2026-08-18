@@ -53,67 +53,6 @@ impl SqliteAccountIdentityAuthorityRepository {
             .commit()
             .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
     }
-
-    pub(crate) fn revoke_recovery(
-        &mut self,
-        authority: &VerifiedAccountIdentityAuthority,
-        recovery_id: &RecoveryId,
-    ) -> Result<(), InviteRecoveryRepositoryError> {
-        let transaction = self
-            .connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
-        let (now, _) = trusted_now_in_transaction(&transaction)?;
-        ensure_current_authority(&transaction, authority, now)?;
-        let transition_at = next_transition_at(&transaction, recovery_id, now)?;
-        let changed = transaction
-            .execute(
-                "UPDATE account_identity_recovery
-                 SET state = 'revoked', last_transition_at_epoch_millis = ?3
-                 WHERE recovery_id = ?1 AND household_id = ?2
-                   AND state IN ('owner-approval-required','approved')",
-                params![
-                    recovery_id.as_str(),
-                    authority.household_id().to_string(),
-                    transition_at
-                ],
-            )
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
-        if changed != 1 {
-            return Err(InviteRecoveryRepositoryError::RecoveryRejected);
-        }
-        cancel_live_recovery_handoff(&transaction, recovery_id, authority)?;
-        transaction
-            .commit()
-            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
-    }
-}
-
-fn cancel_live_recovery_handoff(
-    transaction: &rusqlite::Transaction<'_>,
-    recovery_id: &RecoveryId,
-    authority: &VerifiedAccountIdentityAuthority,
-) -> Result<(), InviteRecoveryRepositoryError> {
-    transaction
-        .execute(
-            "DELETE FROM account_identity_recovery_custody_handoff
-             WHERE recovery_id = ?1 AND household_id = ?2
-               AND state IN ('pending','in-flight')",
-            params![recovery_id.as_str(), authority.household_id().to_string()],
-        )
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
-    let remaining = transaction
-        .query_row(
-            "SELECT COUNT(*) FROM account_identity_recovery_custody_handoff
-             WHERE recovery_id = ?1 AND household_id = ?2",
-            params![recovery_id.as_str(), authority.household_id().to_string()],
-            |row| row.get::<_, i64>(0),
-        )
-        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
-    if remaining != 0 {
-        return Err(InviteRecoveryRepositoryError::RecoveryRejected);
-    }
-    Ok(())
 }
 
 pub(crate) fn ensure_recovery_proof_current(
