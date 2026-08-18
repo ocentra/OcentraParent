@@ -15328,22 +15328,15 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "route-only; not product completion",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15374,16 +15367,25 @@
       "title": "WP02 Child Windows Service Package",
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "state": "blocked",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted / test-deferred",
+        "statusText": "source partial",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/child-runtime/tests/integration/windows_service_distribution.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15404,6 +15406,9 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package"
+          ],
+          "tests": [
+            "crates/child-runtime/tests/integration/windows_service_distribution.rs"
           ]
         }
       }
@@ -15414,16 +15419,25 @@
       "title": "WP03 Child macOS Service Package",
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "state": "blocked",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted / test-deferred",
+        "statusText": "source partial",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/child-runtime/tests/integration/macos_service_distribution.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15444,6 +15458,9 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package"
+          ],
+          "tests": [
+            "crates/child-runtime/tests/integration/macos_service_distribution.rs"
           ]
         }
       }
@@ -15454,16 +15471,25 @@
       "title": "WP04 Child Linux Service Package",
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "state": "blocked",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted / test-deferred",
+        "statusText": "source partial",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/child-runtime/tests/integration/linux_service_distribution.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15484,6 +15510,9 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package"
+          ],
+          "tests": [
+            "crates/child-runtime/tests/integration/linux_service_distribution.rs"
           ]
         }
       }
@@ -15494,16 +15523,25 @@
       "title": "WP05 Child Android Agent Package",
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "state": "blocked",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted / test-deferred",
+        "statusText": "source partial",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/child-runtime-android-bridge/tests/integration/trust_bound_lifecycle.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15524,6 +15562,9 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package"
+          ],
+          "tests": [
+            "crates/child-runtime-android-bridge/tests/integration/trust_bound_lifecycle.rs"
           ]
         }
       }
@@ -15535,22 +15576,22 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "source correction pending",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": true,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/ios/tests/child_capability_identity.test.mjs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15571,7 +15612,8 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/06-child-ios-agent-capability-package"
-          ]
+          ],
+          "tests": ["platforms/ios/tests/child_capability_identity.test.mjs"]
         }
       }
     },
@@ -15581,16 +15623,27 @@
       "title": "WP07 Child Managed Service Respawn",
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
+        "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted / test-deferred",
+        "statusText": "source incomplete",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/child-runtime/tests/integration/service_supervision.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15611,6 +15664,9 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn"
+          ],
+          "tests": [
+            "crates/child-runtime/tests/integration/service_supervision.rs"
           ]
         }
       }
@@ -15621,16 +15677,26 @@
       "title": "WP08 Child Parent Authorized Uninstall",
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn"
+      ],
+      "state": "blocked",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted / test-deferred",
+        "statusText": "source partial / caller missing",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/child-runtime/tests/integration/parent_authorized_removal.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15651,6 +15717,9 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall"
+          ],
+          "tests": [
+            "crates/child-runtime/tests/integration/parent_authorized_removal.rs"
           ]
         }
       }
@@ -15661,16 +15730,26 @@
       "title": "WP09 Child Signing Store Device Owner Matrix",
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "state": "blocked",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted / test-deferred",
+        "statusText": "source partial / integration missing",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/agent-updater/tests/integration/handoff_update_runtime.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15691,6 +15770,9 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix"
+          ],
+          "tests": [
+            "crates/agent-updater/tests/integration/handoff_update_runtime.rs"
           ]
         }
       }
@@ -15701,16 +15783,25 @@
       "title": "WP10 Setup Device Trust Handoff",
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+      ],
+      "state": "blocked",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted / test-deferred",
+        "statusText": "source partial / first runtime packet",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/child-runtime/tests/integration/device_trust_handoff.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15731,6 +15822,9 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff"
+          ],
+          "tests": [
+            "crates/child-runtime/tests/integration/device_trust_handoff.rs"
           ]
         }
       }
@@ -15741,23 +15835,25 @@
       "title": "WP11 Proof CI Release Gate",
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
-      "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+        "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall",
+        "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix"
+      ],
+      "state": "blocked",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "source missing",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": true,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": ["scripts/test/child-runtime-release-gate.mjs"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15778,7 +15874,8 @@
         "expected": {
           "proof": [
             "output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate"
-          ]
+          ],
+          "tests": ["scripts/test/child-runtime-release-gate.mjs"]
         }
       }
     },
@@ -23917,7 +24014,6 @@
       "dependsOn": [
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
-        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
         "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
         "WP-lan-plan-23-pairing-and-route-proof",
         "WP-data-custody-storage-plan-01-custody-source-of-truth",
@@ -23935,7 +24031,6 @@
         "dependencyReview": {
           "hardDependencies": [
             "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
-            "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
             "WP-data-custody-storage-plan-01-custody-source-of-truth",
             "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
             "WP-lan-plan-23-pairing-and-route-proof",
@@ -30414,6 +30509,171 @@
       "confidence": "structural"
     },
     {
+      "from": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "Child WP10 must consume Device Trust WP01 current binding; setup handoff DTOs and caller-supplied identity cannot authorize startup."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Windows package/runtime source must consume the reviewed trusted startup, authenticated ingress, and external health boundary."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "macOS package/runtime source must consume the reviewed trusted startup, authenticated ingress, and external health boundary."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Linux package/runtime source must consume the reviewed trusted startup, authenticated ingress, and external health boundary."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Android JNI startup and ingress must consume the reviewed Device Trust-bound runtime boundary without minting authority."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+      "to": "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md"
+      ],
+      "reason": "Lifecycle supervision consumes the platform package/runtime source rather than static manager declarations alone."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+      "to": "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
+      ],
+      "reason": "Lifecycle aggregation must preserve the iOS capability-only and unsupported/no-daemon boundary."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Health-aware supervision requires the trusted startup and external-health boundary from WP10."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "Child removal must consume Account WP08 current verified household authority and cannot self-authorize from local signals."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall",
+      "to": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md"
+      ],
+      "reason": "Removal must integrate with lifecycle stop/disable/remove states and retain cleanup outcomes."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
+      "to": "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
+      ],
+      "reason": "Signing/store/device-owner matrix consumes canonical platform identities and preserves iOS capability/manual-required limits."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Updater/install execution must consume the durable WP10 handoff and retain its manual-required/no-claim state."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "The aggregate source gate follows the runtime handoff and must report its missing caller/ingress/health truth."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md"
+      ],
+      "reason": "The release gate cannot aggregate a release decision while authority-bound removal and platform cleanup source is missing."
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md"
+      ],
+      "reason": "The release gate must aggregate updater/handoff and platform signing/store/manual-required state."
+    },
+    {
       "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
       "to": "WP-data-custody-storage-plan-02-encryption-key-custody",
       "kind": "depends_on",
@@ -30566,17 +30826,6 @@
         "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
       ],
       "reason": "Setup cannot claim parent readiness without the package owner's signed artifact/install handoff."
-    },
-    {
-      "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
-      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
-      "kind": "depends_on",
-      "confidence": "reviewed",
-      "evidence": [
-        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
-        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
-      ],
-      "reason": "Setup cannot claim child install/service/permission readiness without the child distribution and trust handoff."
     },
     {
       "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
