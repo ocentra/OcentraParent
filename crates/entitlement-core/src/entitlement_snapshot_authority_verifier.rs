@@ -17,6 +17,19 @@ use super::{
     EntitlementSnapshotAuthority, EntitlementSnapshotVerificationFailure,
 };
 
+/// A crate-private receipt that couples cache mutation to the verifier's
+/// successful signature, binding, and currentness path. The signed transport
+/// type itself never authorizes durable replacement.
+pub(crate) struct SnapshotVerificationReceipt {
+    snapshot: SignedEntitlementSnapshot,
+}
+
+impl SnapshotVerificationReceipt {
+    pub(crate) fn snapshot(&self) -> &SignedEntitlementSnapshot {
+        &self.snapshot
+    }
+}
+
 /// Opaque result of cryptographic, currentness, account, and device binding
 /// verification. It cannot be serialized or reconstructed by a command.
 pub struct VerifiedEntitlementSnapshot {
@@ -24,6 +37,7 @@ pub struct VerifiedEntitlementSnapshot {
     authority_generation: u64,
     context: EntitlementSnapshotContext,
     enabled_capabilities: Vec<EntitlementCapability>,
+    cache_receipt: SnapshotVerificationReceipt,
 }
 
 impl std::fmt::Debug for VerifiedEntitlementSnapshot {
@@ -36,7 +50,7 @@ impl std::fmt::Debug for VerifiedEntitlementSnapshot {
 }
 
 impl VerifiedEntitlementSnapshot {
-    pub fn snapshot_id(&self) -> &EntitlementSnapshotId {
+    pub(crate) fn snapshot_id(&self) -> &EntitlementSnapshotId {
         &self.snapshot_id
     }
 
@@ -50,6 +64,10 @@ impl VerifiedEntitlementSnapshot {
 
     pub(crate) fn enables(&self, capability: EntitlementCapability) -> bool {
         self.enabled_capabilities.contains(&capability)
+    }
+
+    pub(crate) fn cache_receipt(&self) -> &SnapshotVerificationReceipt {
+        &self.cache_receipt
     }
 }
 
@@ -84,5 +102,8 @@ pub(crate) fn verify(
             package_build_state: EntitlementPackageBuildState::Valid,
         },
         enabled_capabilities,
+        cache_receipt: SnapshotVerificationReceipt {
+            snapshot: snapshot.clone(),
+        },
     })
 }

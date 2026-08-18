@@ -17,8 +17,11 @@ use crate::{
     entitlement_access::{
         EntitlementPolicyState, FamilySetupState, OfflineGraceState, SubscriptionState,
     },
+    entitlement_snapshot::SignedEntitlementSnapshot,
+    entitlement_snapshot_cache::SignedEntitlementRevocationUpdate,
     entitlement_snapshot_values::{
-        EntitlementPackageBuildRef, EntitlementSignatureKeyId, EntitlementSnapshotReleaseChannel,
+        EntitlementPackageBuildRef, EntitlementSignatureKeyId, EntitlementSnapshotFreshnessState,
+        EntitlementSnapshotReleaseChannel,
     },
 };
 
@@ -126,12 +129,30 @@ pub trait EntitlementCurrentnessAuthority: Send + Sync {
 
     /// Re-resolve the live account session/support receipt and Device Trust
     /// generations. Borrowing an opaque authority is not proof that it is
-    /// still current; this method must consult the durable owners again.
+    /// still current; this method must consult the durable owners again and
+    /// evaluate session expiry through the same owner-controlled trusted-time
+    /// boundary used by `evaluate_snapshot_freshness`.
     fn validate_current_identity(
         &self,
         account_authority: &VerifiedAccountIdentityAuthority,
         device_binding: &CurrentChildDeviceTrustBinding,
     ) -> Result<(), EntitlementSnapshotVerificationFailure>;
+
+    /// Evaluate the signed active window through the owner-controlled trusted
+    /// time/currentness boundary. The implementation must re-read its
+    /// restart-safe monotonic generation fence on every call, reject a
+    /// snapshot/update generation or cursor rollback, and use the owner's
+    /// configured maximum grace interval rather than a crate-wide constant.
+    ///
+    /// The boundary owns the clock decision: callers cannot inject a clock or
+    /// turn a signed `grace_until` value into entitlement by themselves. If
+    /// the owner has no trusted time, configured grace policy, or rollback
+    /// fence, it must return `AuthorityUnavailable`.
+    fn evaluate_snapshot_freshness(
+        &self,
+        snapshot: &SignedEntitlementSnapshot,
+        revocation_update: &SignedEntitlementRevocationUpdate,
+    ) -> Result<EntitlementSnapshotFreshnessState, EntitlementSnapshotVerificationFailure>;
 
     fn subscription_state(
         &self,

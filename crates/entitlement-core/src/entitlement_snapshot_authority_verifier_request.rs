@@ -1,6 +1,5 @@
 #![forbid(unsafe_code)]
 
-use chrono::{DateTime, Utc};
 use ocentra_family_identity_core::{
     account_identity_authority::VerifiedAccountIdentityAuthority,
     device_trust_current_binding::CurrentChildDeviceTrustBinding,
@@ -60,13 +59,7 @@ impl EntitlementSnapshotVerificationRequest {
         {
             return Err(EntitlementSnapshotVerificationFailure::CurrentAuthorityUnavailable);
         }
-        let session_expires_at = DateTime::parse_from_rfc3339(authority.session_expires_at())
-            .map(|timestamp| timestamp.with_timezone(&Utc))
-            .map_err(|_error| {
-                EntitlementSnapshotVerificationFailure::CurrentAuthorityUnavailable
-            })?;
-        if Utc::now() >= session_expires_at
-            || device_binding.authority_generation() == 0
+        if device_binding.authority_generation() == 0
             || device_binding.lifecycle_generation() == 0
             || device_binding.installation_binding_generation() == 0
         {
