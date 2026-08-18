@@ -32,8 +32,10 @@
    key/decrypt capability, provider-neutral adapter, and producer ports; leave
    unavailable external owners manual-required or blocked. WP09/WP10 remain
    downstream source-only routes and must not duplicate these ledgers.
-   Separately finish WP08's trusted confirmation receipt plus reachable
-   `Applied`/`Partial` decision path.
+   After Account WP05's durable opaque-effect CAS/recovery owner is reviewed,
+   finish WP08's trusted confirmation receipt plus reachable `Applied`/`Partial`
+   decision path. Do not stage or consume a confirmation through a caller-made
+   receipt while that Account handoff is missing.
    WP06's generated TypeScript edge is source-present, but no report/query
    runtime consumer is routed to it; do not invent an agent-service/report
    caller or substitute proof scripts or synthetic DTO callers for missing
@@ -89,6 +91,6 @@ proof, precommit, CI, or PR were run.
   open, with unavailable provider-backed paths manual-required.
 - WP06's current Account-authority-derived opaque Rust request/row boundary and generated TypeScript page/cursor edge are source-accepted; no downstream report/query consumer is routed, and the expected Rust tests are stale while the TypeScript contract test is unwritten.
 - WP07 has a real internal child custody command/effect/tombstone lifecycle and startup recovery; trusted authority composition, external calling, test migration, and aggregate route acceptance remain open.
-- WP08 source is incomplete: no trusted confirmation receipt/confirmed input exists, so `Applied` and `Partial` remain unreachable; its positive/negative expected tests and current proof are also open.
+- WP08 source is incomplete: no trusted confirmation receipt/confirmed input exists, so `Applied` and `Partial` remain unreachable; its positive/negative expected tests and current proof are also open. The confirmation staging/consume path is explicitly blocked on Account WP05's durable opaque-effect CAS/recovery owner and typed handoff.
 - State remains open until the remaining production source, complete expected tests, provider/AI/runtime handoffs, rollout refresh, and carried proof blockers are closed.
 - Keep this file and `PLAN_STATE.md` synchronized before any DONE/PR_READY claim.

@@ -824,26 +824,19 @@
         "crates/policy-control-core/tests/unit/authenticated_delivery_grant_provenance.rs",
         "crates/provisioning-core/src/provisioning_install.rs",
         "crates/provisioning-core/src/provisioning_install/family_context.rs",
-        "crates/provisioning-core/tests/unit/readiness_flow.rs"
+        "crates/provisioning-core/tests/unit/readiness_flow.rs",
+        "crates/family-identity-core/src/household_authority_runtime_cas_repository.rs",
+        "crates/family-identity-core/src/household_authority_runtime_cas_schema.rs",
+        "crates/family-identity-core/src/household_authority_runtime_cas_recovery.rs",
+        "crates/family-identity-core/tests/unit/household_authority_runtime_cas.rs"
       ],
       "plannedImplementationRoots": [
-        "crates/family-identity-core/src/household_authority_runtime_composer.rs",
-        "crates/family-identity-core/src/household_authority_runtime_consume.rs",
-        "crates/family-identity-core/src/household_authority_runtime_revalidation.rs",
-        "crates/family-identity-core/src/household_authority_runtime_account.rs",
-        "crates/family-identity-core/src/household_authority_runtime_authorization.rs",
-        "crates/family-identity-core/src/household_authority_runtime_binding.rs",
-        "crates/family-identity-core/src/household_authority_runtime_capability.rs",
-        "crates/family-identity-core/src/household_authority_runtime_device_source.rs",
-        "crates/family-identity-core/src/household_authority_runtime_device_validation.rs",
-        "crates/family-identity-core/src/household_authority_runtime_lease.rs",
-        "crates/family-identity-core/src/household_authority_runtime_ports.rs",
-        "crates/family-identity-core/src/household_authority_runtime_requirements.rs",
-        "crates/family-identity-core/src/household_authority_runtime_resolution.rs",
-        "crates/family-identity-core/src/household_authority_runtime_step_up.rs",
-        "crates/family-identity-core/src/lib.rs"
+        "crates/family-identity-core/src/household_authority_runtime_cas_repository.rs",
+        "crates/family-identity-core/src/household_authority_runtime_cas_schema.rs",
+        "crates/family-identity-core/src/household_authority_runtime_cas_recovery.rs"
       ],
-      "note": "WP05's repaired source-reviewed packet re-resolves WP08 Account currentness, requires exact canonical installation/pairing/route identity across the Device Trust and capability/lease/step-up bindings, and returns a non-serializable/non-Clone authorization that can only move into the execution-time owner CAS/revocation fence. The final effect is an opaque target-bound single-use receipt retaining private household/account/child/provider/session/installation/pairing/route identities, current generations/epochs, and the CAS nonce; by-value consumption requires an exact owner-issued typed target and fails closed on mismatch. The fence re-resolves Account, Device Trust, capability, lease, and one-time step-up currentness immediately before receipt issuance; the durable CAS owner and typed downstream caller remain open and fail closed. Tests, proof, and DONE remain deferred. lib.rs, consume, and revalidation are exact runtime roots; no caller or test roots are invented."
+      "expectedTestRoots": ["crates/family-identity-core/tests/unit/household_authority_runtime_cas.rs"],
+      "note": "WP05's reviewed runtime composer/revalidation source is a fail-closed boundary only: it re-resolves Account currentness and produces an opaque target-bound receipt shape, but ManualRequiredHouseholdAuthorityRuntimeCasFence is the only shipped fence. Existing account_identity_authority_repository_cas.rs owns current Account-authority CAS and account_identity_mutation_authority_repository_effect.rs owns a separate canonical mutation envelope/effect table; neither owns the opaque WP05 effect handoff. The next legal source packet is a dedicated Account-owned durable CAS repository, schema, and crash/replay recovery module under family-identity-core, with exact-idempotent outcome recovery and no receipt minting on ambiguity. Data Custody WP08 confirmation staging/consume depends on this typed handoff. Tests, proof, focused execution, downstream callers, and DONE remain deferred."
     },
     "WP-account-identity-family-plan-06-security-proof-and-route-gate": {
       "planSlug": "account-identity-family-plan",

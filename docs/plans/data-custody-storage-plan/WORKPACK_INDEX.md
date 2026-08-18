@@ -47,7 +47,9 @@ WP03 uses WP01/WP02 storage and key boundaries.
 WP04 uses WP01 event and retention classes.
 WP05 uses WP02/WP04 bundle, key, and retention rules.
 WP06 uses WP01/WP04 derived data and deletion behavior.
-WP08 uses WP03/WP05/WP06 states for parent-visible settings.
+WP08 uses WP03/WP05/WP06 states for parent-visible settings and depends on
+Account WP05's durable opaque-effect CAS/recovery handoff before confirmation
+staging/consume can reach `Applied` or `Partial`.
 WP05 owns the remaining source packet in three legal layers: schema durable
 backup/schedule/job/migration/rollback contracts; pure
 storage-custody-core decisions/orchestration; and parent-runtime-core durable

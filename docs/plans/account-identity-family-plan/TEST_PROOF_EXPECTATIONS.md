@@ -293,6 +293,16 @@ remote view and remote control capability separation
 export/delete owner-only
 billing parent-owner-only
 all decisions emit audit refs
+durable Account-owned CAS repository/fence compares the opaque target,
+authority generations, revocation, capability, lease, and one-time step-up
+state before effect consumption
+exact-idempotent replay returns only the already committed outcome for the
+same target/generation/nonce; replay, mismatch, stale, and ambiguous partial
+commit fail closed
+crash/restart recovery never mints a second receipt and preserves monotonic
+terminal state
+Data Custody WP08 confirmation staging/consume remains blocked until this
+typed Account handoff is reachable from a production caller
 ```
 
 ## WP07 Parent Account Family Setup UI

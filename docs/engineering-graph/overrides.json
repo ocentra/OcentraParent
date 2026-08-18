@@ -3,8 +3,8 @@
   "workpackReviews": [
     {
       "id": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
-      "hardDependencies": [],
-      "reason": "Live-code review found the Rust-owned storage settings and preview boundary present but the apply source incomplete: no trusted confirmation receipt or confirmed input can authorize Applied or Partial. This authorizes only the bounded confirmation/replay and reachable decision source packet; expected tests, focused execution, proof, checklist acceptance, PR readiness, adjacent portal/provider composition, and DONE remain open.",
+      "hardDependencies": ["WP-account-identity-family-plan-05-device-ownership-authz"],
+      "reason": "Live-code review found the Rust-owned storage settings and preview boundary present but the apply source incomplete: no trusted confirmation receipt or confirmed input can authorize Applied or Partial. Confirmation staging/consume is additionally gated on Account WP05's durable opaque-effect CAS/recovery owner and typed handoff. This authorizes only the bounded confirmation/replay and reachable decision source packet; expected tests, focused execution, proof, checklist acceptance, PR readiness, adjacent portal/provider composition, and DONE remain open.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
@@ -1768,9 +1768,34 @@
         "docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md"
       ],
       "reason": "The final Account gate aggregates the honest live setup UI, accessibility, and degraded/manual-required evidence from WP07."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md"
+      ],
+      "reason": "Data WP08 confirmation staging/consume requires the typed opaque Account WP05 effect handoff; the Account-owned durable CAS/recovery owner must exist before Applied or Partial can be reachable."
     }
   ],
   "stateOverrides": [
+    {
+      "id": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "state": "validation",
+      "reason": "WP05's shipped runtime composer exposes only a fail-closed manual-required CAS fence. A durable Account-owned opaque-effect CAS repository/schema/recovery owner is missing; the current-authority CAS and separate mutation-effect table do not satisfy it. Data Custody WP08 confirmation staging/consume depends on this typed handoff, so implementation READY is not legal.",
+      "statusText": "Validation — implementation blocked: durable Account-owned effect CAS/recovery owner missing; Data Custody WP08 confirmation handoff blocked; tests and proof open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+        "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-account-identity-family-plan-03-session-token-lifecycle",
       "state": "validation",
@@ -1854,32 +1879,6 @@
     }
   ],
   "completionEvidenceOverrides": [
-    {
-      "id": "WP-account-identity-family-plan-05-device-ownership-authz",
-      "implementation": [
-        "crates/family-identity-core/src/household_authority_runtime_composer.rs",
-        "crates/family-identity-core/src/household_authority_runtime_consume.rs",
-        "crates/family-identity-core/src/household_authority_runtime_revalidation.rs",
-        "crates/family-identity-core/src/household_authority_runtime_account.rs",
-        "crates/family-identity-core/src/household_authority_runtime_authorization.rs",
-        "crates/family-identity-core/src/household_authority_runtime_binding.rs",
-        "crates/family-identity-core/src/household_authority_runtime_capability.rs",
-        "crates/family-identity-core/src/household_authority_runtime_device_source.rs",
-        "crates/family-identity-core/src/household_authority_runtime_device_validation.rs",
-        "crates/family-identity-core/src/household_authority_runtime_lease.rs",
-        "crates/family-identity-core/src/household_authority_runtime_ports.rs",
-        "crates/family-identity-core/src/household_authority_runtime_requirements.rs",
-        "crates/family-identity-core/src/household_authority_runtime_resolution.rs",
-        "crates/family-identity-core/src/household_authority_runtime_step_up.rs",
-        "crates/family-identity-core/src/lib.rs"
-      ],
-      "reason": "Source-only WP05 repair adds exact canonical Account installation/pairing/route binding across Device Trust and every capability/lease/step-up matcher, plus a by-value execution-time revalidation path and owner-issued CAS/revocation fence. It re-resolves Account session identity/expiry and current Device Trust, capability, lease, and one-time step-up state immediately before effect without accepting caller-assembled authority scalars. The final effect is an opaque target-bound single-use receipt retaining private household/account/child/provider/session/installation/pairing/route identities, current generations/epochs, and the CAS nonce; typed target consumption is exact-match and fail-closed. Durable CAS ownership, capability/lease/step-up owners where absent, tests, proof, focused execution, a typed downstream caller, and DONE remain deferred; all missing owners fail closed.",
-      "evidence": [
-        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
-        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
-        "docs/engineering-graph/code-map.json"
-      ]
-    },
     {
       "id": "WP-logging-domain-parity-02-typescript-logging-package-parity",
       "implementation": [

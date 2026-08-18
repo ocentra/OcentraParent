@@ -29,7 +29,7 @@
 
 Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk. WP06 is reopened for a final aggregation rerun after Account WP08 plus Cloudflare WP06/WP08; PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
 
-Current routing note: independent source review accepts the replacement Account packet at `35edb2830`, integrated through `e69acf279`. WP08 schema validation, sealed current authority, and local SQLite CAS repository are present. Reviewed source at `86caae334` and `7934fb41b` adds the target-aware WP02 action resolver, preserves parent actor versus child/profile/device target identity, derives current account/household/member/device/role identity from the opaque Account binding, rejects caller-supplied authority, and migrates the real storage-custody consumer. Capability, controller-lease, and step-up actions remain fail-closed because those authority sources are not present. The source wave deliberately did not run tests or claim proof. The next coherent source chain is Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS plus its shipped provider caller, then Device Trust WP03 live ceremony composition; WP02 expected tests follow in the later complete test-source wave.
+Current routing note: independent source review accepts the replacement Account packet at `35edb2830`, integrated through `e69acf279`. WP08 schema validation, sealed current authority, and local SQLite CAS repository are present. Reviewed source at `86caae334` and `7934fb41b` adds the target-aware WP02 action resolver, preserves parent actor versus child/profile/device target identity, derives current account/household/member/device/role identity from the opaque Account binding, rejects caller-supplied authority, and migrates the real storage-custody consumer. WP05's runtime composer/revalidation path remains fail-closed because the durable Account-owned effect CAS repository/fence and exact-idempotent replay/recovery owner are not present; the existing current-authority CAS and mutation-effect rows are not that owner. Data Custody WP08 confirmation staging/consume depends on this typed Account handoff. The source wave deliberately did not run tests or claim proof. The next coherent source chain is the WP05 durable CAS/recovery packet, then the already ordered Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS plus its shipped provider caller, then Device Trust WP03 live ceremony composition; WP02/WP05 expected tests follow only after their source owners exist.
 
 Do not revive the rejected `ac03afee3a` WP02-WP05 record packet. Its public
 serde records were disconnected from production and accepted caller-mintable
@@ -38,6 +38,8 @@ authority/lifecycle facts. The dependency-first production sequence is:
 ```text
 accepted WP08 schema + sealed authority + local repository/CAS
   -> WP02 target-aware actor/target resolver with unavailable capability/lease/step-up actions fail-closed
+  -> Account WP05 durable opaque-effect CAS repository/fence/schema/recovery owner
+  -> Data Custody WP08 confirmation staging/consume may consume the typed Account handoff
   -> Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider-to-Account caller
   -> Device Trust WP03 RegisterLanSignerAnchor actor/target composition
   -> mount reviewed WP04 repository behind real identity/membership/support/Data owners and write its six expected test roots
@@ -149,6 +151,8 @@ actor/household/role/device/session/capability authZ matrix
 wrong-household and stale/revoked device denial proof
 remote view/control capability separation
 export/delete and billing owner gates
+durable Account-owned opaque-effect CAS/recovery owner with exact-idempotent replay and crash/restart recovery
+typed handoff required before Data Custody WP08 confirmation staging/consume can advance
 ```
 
 ### 6. WP07 Parent Account Family Setup UI

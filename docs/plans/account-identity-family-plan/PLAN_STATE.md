@@ -18,8 +18,8 @@
 
 ```text
 Plan route: upgraded
-Execution-grade workpacks: WP01 has a provider/custody proof pack plus the retained narrow D1 storage-adapter proof at `docs/proof/account-identity-family-plan/01-auth-provider-decision/06-account-identity-storage-adapter-proof.md`; WP08 has a tracked durable Rust-authority manifest under `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk; WP06 is reopened for final aggregation after WP08 plus Cloudflare WP06/WP08 handoffs
-Implementation: reviewed source provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, durable authority and session custody, target-aware WP02 resolution, and a strict WP04 SQLite invite/recovery repository with same-transaction authority validation, monotonic clock/rate/replay custody, private owner receipts, and typed recovery handoff. Cloudflare retains the D1 current-authority read adapter and ordered Account/Payment migration source. Authoritative Cloudflare writer/update/revocation/CAS, shipped provider-to-Account caller, WP04 identity/membership/support/Data owner adapters, live Device Trust binding, expected tests, route composition, deployment/migration execution, proof, and DONE remain open
+Execution-grade workpacks: WP01 has a provider/custody proof pack plus the retained narrow D1 storage-adapter proof at `docs/proof/account-identity-family-plan/01-auth-provider-decision/06-account-identity-storage-adapter-proof.md`; WP08 has a tracked durable Rust-authority manifest under `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`; WP02, WP03, WP04, WP05, and WP07 have prior proof roots on disk; WP05's implementation phase is explicitly blocked on a missing durable Account-owned effect CAS/recovery owner; WP06 is reopened for final aggregation after WP08 plus Cloudflare WP06/WP08 handoffs
+Implementation: reviewed source provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, durable authority and session custody, target-aware WP02 resolution, and a strict WP04 SQLite invite/recovery repository with same-transaction authority validation, monotonic clock/rate/replay custody, private owner receipts, and typed recovery handoff. WP05's runtime composer and opaque receipt are only a fail-closed source boundary: the durable Account-owned CAS repository/fence and exact-idempotent replay/recovery owner are missing. Data Custody WP08 confirmation staging/consume depends on that typed Account handoff. Cloudflare retains the D1 current-authority read adapter and ordered Account/Payment migration source. Authoritative Cloudflare writer/update/revocation/CAS, shipped provider-to-Account caller, WP04 identity/membership/support/Data owner adapters, live Device Trust binding, expected tests, route composition, deployment/migration execution, proof, and DONE remain open
 Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP08 uses its tracked durable manifest rather than ignored raw output; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent unless a selected workpack explicitly requires them
 PR-ready: false
 ```
@@ -86,7 +86,9 @@ What is now real:
   or owner-receipt construction; recovery remains `Approved` until a real
   downstream owner receipt is acknowledged;
 - WP05 billing and support/admin consumers bind action identity to current
-  repository authority and a complete support receipt;
+  repository authority and a complete support receipt, but this does not close
+  the workpack: the runtime effect handoff still has no durable Account-owned
+  CAS repository/fence or crash/replay recovery owner;
 - Cloudflare WP06 owns the D1 adapter and the ordered undeployed source
   migrations `0001_account_identity_authority.sql`,
   `0002_account_identity_current_authority.sql`,
@@ -106,8 +108,11 @@ What remains before product completion:
   revocation, cross-household, support-receipt, migration, and route negatives;
 - focused execution, proof regeneration, precommit, PR, CI, and merge.
 
-Therefore WP02-WP05 and WP08 have accepted production source but remain open;
+Therefore WP02-WP05 and WP08 have bounded source slices but remain open;
 historical checkboxes and proof do not close their new source/test obligations.
+WP05 cannot enter implementation READY until its Account-owned CAS/recovery
+packet exists; Data Custody WP08 confirmation staging/consume remains a
+downstream blocked handoff and cannot bypass this dependency.
 
 ## Current product direction
 
@@ -302,7 +307,7 @@ Device Trust WP03 live Account/Device Trust ceremony composition
 Cloudflare WP08 runner/proof
 WP03 session/token lifecycle
 WP04 invite/recovery lifecycle
-WP05 device ownership authorization
+WP05 durable Account-owned effect CAS/recovery owner, then device ownership authorization
 WP07 parent account/family setup UI
 WP06 security proof and route gate
 ```
