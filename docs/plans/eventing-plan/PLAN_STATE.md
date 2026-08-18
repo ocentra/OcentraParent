@@ -88,6 +88,15 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 
 - `crates/ocentra-eventing` and its external `unit`, `contract`, `journal_replay`, `integration`, and `version_skew` harnesses are present. This audit does not treat their historical pass wording as current retained proof.
 - `packages/event-domain` and downstream mirror commands remain expected validation, not current closure evidence.
+- 2026-08-18 WP08 hardening checkpoint: `agent-service` has a narrow typed
+  parent-intent marker route. Missing/malformed requests are rejected; valid
+  markers are manual-required because no authenticated session producer is
+  mounted. The result explicitly leaves journal, Eventing publication, event
+  id, and child transport unclaimed. This removes the prior caller-fabricated
+  policy/tracking state, zero-consumer publish, and replay-redispatch path, but
+  it is not functional parent-runtime integration. The planned
+  `parent_runtime_intent_ingress.rs` owner and expected service/runtime tests
+  remain absent.
 - 2026-08-16 production-code pass: WP10 now has a code-drafted, unvalidated
   structural household-mesh validator and fail-closed runtime authorization
   boundary in `crates/agent-protocol/src/household_mesh.rs`,
@@ -127,6 +136,11 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 
 ## Open gaps / missing product runtime
 
+- WP08 cannot publish a parent intent until Account WP03 supplies opaque live
+  session authority, Tracking WP40 and Policy WP03/WP04/WP08 supply canonical
+  producers/consumers, Enforcement WP11 supplies durable result history, and
+  Child Runtime WP10 supplies authenticated ingress/local republish. Existing
+  caller-parameterized parent-runtime helpers are not production authority.
 - Parent protocol event payloads and service read-model bridges still need their own feature proofs before they can claim full parent/controller or child-agent product eventing completion.
 - Cross-process parent-to-child, external transport/relay, LAN/relay, and service transport delivery are not implemented by the reusable crate. They must publish into a local bus on each side after typed transport/API boundaries.
 - Household AI Provider Mesh is consumer-layer work. The reusable eventing crate supplies local bus semantics, typed envelopes, idempotency, TTL, retry, dead-letter, aggregate ordering, request/response, journal/replay, and topology proof. It does not provide cross-device transport, peer discovery, provider trust, job authority, payload custody, policy behavior, or enforcement behavior.
@@ -173,7 +187,8 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   commits through `4b7bf6e3f` are pushed. Rows 57-62 remain unchecked until
   whole-plan integration, CI, review, and merge are complete; ignored evidence
   is not retained acceptance by itself.
-- Workpacks closed in the current selectable slice: WP06 only. WP09 remains
+- Workpacks closed in the current selectable slice: WP06 only. WP08 is now
+  explicitly blocked after its safe fail-closed source hardening. WP09 remains
   open on integration/CI/review/merge; WP10 is blocked on LAN WP26 and its
   authority composition; WP11 is implementation-ready but lacks the required
   negative coverage for the envelope/aggregate/idempotency helper and its
@@ -182,6 +197,9 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 
 ### Active/open workpacks
 
+- [08 Parent Runtime Integration](workpacks/08-parent-runtime-integration.md)
+  (safe reject/manual-required ingress integrated; functional runtime owner,
+  dependency composition, expected tests, and proof remain open)
 - [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
   (Phase 1 and expected tests written; focused/local proof and normal pre-commit
   green; accepted commits pushed; whole-plan integration, CI, review, and merge

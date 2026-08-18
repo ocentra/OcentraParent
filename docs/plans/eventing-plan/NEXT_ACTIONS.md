@@ -25,6 +25,13 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
+- [08 Parent Runtime Integration](workpacks/08-parent-runtime-integration.md)
+  now has only the safe service edge: malformed input is rejected and a valid
+  intent marker is manual-required with no journal/publish/transport claim.
+  Do not add a success branch until Account WP03, Tracking WP40, Policy
+  WP03/WP04/WP08, Enforcement WP11, and Child Runtime WP10 provide their
+  reviewed public owners. After those source packets land, implement the one
+  deep parent-runtime ingress composer, then write the two expected test roots.
 - [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
   is the active bounded production packet. The reviewed agent-core/agent-service
   ingestion-time publish, deterministic identity, durable network journal,

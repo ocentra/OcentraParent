@@ -5672,16 +5672,29 @@
         "crates/parent-runtime-core/src/tracking_child_check_in_request_flow.rs",
         "crates/parent-runtime-core/src/tracking_config_update_flow.rs",
         "crates/parent-runtime-core/src/policy_control_update_flow.rs",
+        "crates/agent-protocol/src/constants/parent_controller.rs",
+        "crates/agent-protocol/src/transport.rs",
+        "crates/agent-service/src/websocket/parent_runtime_intent.rs",
+        "crates/agent-service/src/websocket/parent_runtime_intent/result.rs",
+        "crates/parent-runtime-core/src/parent_runtime_intent_ingress.rs",
         "crates/parent-runtime-core/tests/unit/tracking_child_check_in_request_flow.rs",
         "crates/parent-runtime-core/tests/unit/policy_control_update_flow.rs",
+        "crates/parent-runtime-core/tests/integration/parent_runtime_intent_ingress.rs",
         "crates/child-runtime/src/child_domain_runtime_flow.rs",
         "crates/child-runtime/src/tracking_config_update_flow.rs",
         "crates/child-runtime/src/tracking_runtime_flow.rs",
         "crates/child-runtime/tests/integration/child_domain_runtime_flow_intent.rs",
         "crates/child-runtime/tests/integration/tracking_runtime_flow_intent.rs",
         "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs",
-        "crates/agent-service/tests/enforcement_eventing_journal.rs"
-      ]
+        "crates/agent-service/tests/enforcement_eventing_journal.rs",
+        "crates/agent-service/tests/parent_runtime_intent_ingress.rs"
+      ],
+      "plannedImplementationRoots": ["crates/parent-runtime-core/src/parent_runtime_intent_ingress.rs"],
+      "expectedTestRoots": [
+        "crates/agent-service/tests/parent_runtime_intent_ingress.rs",
+        "crates/parent-runtime-core/tests/integration/parent_runtime_intent_ingress.rs"
+      ],
+      "note": "The service edge is deliberately fail-closed: typed markers yield rejected/manual-required results and cannot mint policy, tracking, journal, publication, event-id, or child-transport authority. Functional WP08 remains blocked until the deep parent-runtime owner consumes opaque Account session authority plus dependency-owned Tracking, Policy, Enforcement, and Child Runtime seams. Existing helper tests do not satisfy the two missing expected roots."
     },
     "WP-eventing-plan-09-network-consumer-event-chain": {
       "planSlug": "eventing-plan",

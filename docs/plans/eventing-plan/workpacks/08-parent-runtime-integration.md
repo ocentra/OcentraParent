@@ -18,6 +18,30 @@ Expected outcome:
 - Child commands cross service/transport boundaries as typed contracts, then republish locally on the child side.
 - Enforcement command proof records journal-before-action and adapter-result-to-audit/read-model flow.
 
+Current source checkpoint (2026-08-18):
+
+- `agent-service` now exposes a bounded parent-intent command marker and rejects
+  malformed payloads. A valid marker returns `manual-required` with journal,
+  Eventing publication, event id, and child transport all explicitly unclaimed.
+- The service does not trust caller source/route fields, caller-provided policy
+  state, caller-provided tracking state, or an in-process bus as authority.
+- This is a safe fail-closed ingress seam only. It is not a validated parent
+  publisher, consumer dispatch, child delivery, or replay implementation.
+- The functional owner remains missing at
+  `crates/parent-runtime-core/src/parent_runtime_intent_ingress.rs`. That owner
+  must consume opaque Account-session authority and the public Tracking/Policy
+  producer contracts, then hand durable dispatch to their owning consumers. It
+  must not accept authority scalars or business events from the portal/service
+  request.
+
+Required owner dependencies before functional source can land:
+
+- Account Identity WP03 for authenticated session/currentness/revocation.
+- Tracking WP40 for trusted ingress, durable journal, replay, and projection.
+- Policy WP03/WP04/WP08 for compiled state, delivery/receipt, and event model.
+- Enforcement WP11 for durable before/after/result journal history.
+- Child Runtime WP10 for authenticated child ingress and local republish.
+
 Expected tests/proof:
 
 - `eventing.parent-runtime.intent-validation`
@@ -26,6 +50,16 @@ Expected tests/proof:
 - `eventing.enforcement.journal-before-action`
 - `eventing.adapter-result.audit-read-model`
 - Proof includes runtime command log, rejected UI-publish attempt, and consumer-plan proof references.
+
+Expected test source remains intentionally unwritten during the production
+source wave. The later test wave must add:
+
+- `crates/agent-service/tests/parent_runtime_intent_ingress.rs` for malformed,
+  unknown-field, unauthenticated, source-spoof, and no-false-success cases.
+- `crates/parent-runtime-core/tests/integration/parent_runtime_intent_ingress.rs`
+  for opaque-session authority, canonical tracking/policy producer use,
+  durable dispatch/replay, consumer ownership, and child-local-republish
+  boundaries.
 
 Failure conditions:
 

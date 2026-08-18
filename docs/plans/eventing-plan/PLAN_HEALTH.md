@@ -41,7 +41,14 @@ This file records documentation health and consistency checks for the plan. It i
   is code-complete, but current validation/proof remains open and must include
   the `contract` harness.
 - Do not treat focused tests or stale checked rows as plan closure; WP06 is the
-  only closed selectable workpack, while WP09-WP13 remain open.
+  only closed selectable workpack. WP08 is fail-closed/source-hardened but
+  functionally blocked; WP09-WP13 remain open.
+- Historical WP08 topology previously looked validation-ready because selected
+  tracking, policy, child, and enforcement helpers/tests exist. Live caller
+  review found no authenticated parent-intent producer or functional consumer
+  composition. The new service route deliberately returns manual-required;
+  graph completion must require the missing parent-runtime owner and expected
+  service/runtime tests rather than counting latent helpers as delivery.
 - The route/proof split must stay explicit: `output/eventing-plan-proof/<workpack>/` for raw/generated implementation output; `docs/proof/eventing-plan/` for the hand-authored WP06 durable manifest. WP12's generated route bundle is absent.
 
 ## Required hygiene before PR_READY
@@ -89,7 +96,8 @@ This file records documentation health and consistency checks for the plan. It i
 ### State
 
 - Current state: route and schema hygiene are improved, WP06 locally evidences
-  its generic handoff, WP09 remains integration-open, WP10 is blocked on LAN
+  its generic handoff, WP08 is safe-fail-closed and dependency-blocked, WP09
+  remains integration-open, WP10 is blocked on LAN
   WP26, WP11 is source-integrated/test-open, and WP12/WP13 require validation and
   retained proof.
 - Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned while WP10 is handled; do not promote the local Eventing handoff into enforcement action proof.

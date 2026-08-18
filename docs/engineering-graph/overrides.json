@@ -203,6 +203,26 @@
       "reason": "WP09 is the bounded production foundation for the network consumer chain. Current source implements exact-source ingestion publish, deterministic phase identity/idempotency and refs, recovered ProductionFile journaling before listener readiness, startup/recurring reconciliation, projection-only reads, and real parent-assistant/portal direct-enforcement mutation negatives. Reviewed roots cover capture ingestion, ActivityStore/runtime, agent-core runtime, agent-service delivery/read-model ownership, and the shared Tauri/dev-web portal command boundary; fixture/prove/TEST network_event_runtime files are not shipped production topology. Queue/request-response helpers have no shipped network-consumer caller and are not fake-wired. Focused tests and local ignored proof are green, while the final combined pre-commit, accepted commit, CI, review, and merge remain open. This status does not mark WP09 done or unblock Network WP04."
     },
     {
+      "id": "WP-eventing-plan-08-parent-runtime-integration",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+        "WP-policy-control-plane-plan-02-parent-authoring-preview",
+        "WP-policy-control-plane-plan-03-domain-policy-compilers",
+        "WP-policy-control-plane-plan-04-delivery-ack-audit",
+        "WP-policy-control-plane-plan-08-policy-event-model",
+        "WP-v0-8-enforcement-control-plan-11-audit-journal-events",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "evidence": [
+        "docs/plans/eventing-plan/PLAN_STATE.md",
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "The reviewed service ingress is now safe but deliberately non-functional: malformed input is rejected and a valid intent marker is manual-required with every journal, publish, event-id, and child-transport claim unclaimed. Functional source must wait for opaque Account session authority, canonical Tracking and Policy producers/consumers, durable Enforcement history, and authenticated Child Runtime ingress/local republish. Existing caller-parameterized helpers and in-process buses are not authority. The planned deep parent-runtime owner and two expected test roots remain missing."
+    },
+    {
       "id": "WP-eventing-plan-10-lan-household-mesh-consumer",
       "hardDependencies": ["WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff"],
       "evidence": [
@@ -950,6 +970,94 @@
         "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
       ],
       "reason": "LAN WP26 requires the real one-time parent RegisterLanSignerAnchor ceremony owned by Device Trust WP03; no typed receipt or LAN service caller substitutes for it."
+    },
+    {
+      "from": "WP-eventing-plan-08-parent-runtime-integration",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "The parent-intent ingress needs opaque live session authority, freshness, currentness, and revocation; WebSocket source/route fields are not authentication."
+    },
+    {
+      "from": "WP-eventing-plan-08-parent-runtime-integration",
+      "to": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
+      ],
+      "reason": "Tracking intent publication requires the Tracking-owned trusted ingress, durable journal, replay, and projection composition rather than caller-provided tracking state."
+    },
+    {
+      "from": "WP-eventing-plan-08-parent-runtime-integration",
+      "to": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md"
+      ],
+      "reason": "A policy delivery intent cannot bypass the parent-owned preview and confirmation boundary."
+    },
+    {
+      "from": "WP-eventing-plan-08-parent-runtime-integration",
+      "to": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md"
+      ],
+      "reason": "The Eventing ingress must consume compiler-owned canonical policy state and cannot compile or accept caller-supplied policy truth."
+    },
+    {
+      "from": "WP-eventing-plan-08-parent-runtime-integration",
+      "to": "WP-policy-control-plane-plan-04-delivery-ack-audit",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+        "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md"
+      ],
+      "reason": "Policy publication is not delivery completion; the owning delivery, acknowledgement, retry, rollback, and audit lifecycle must exist first."
+    },
+    {
+      "from": "WP-eventing-plan-08-parent-runtime-integration",
+      "to": "WP-policy-control-plane-plan-08-policy-event-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
+      ],
+      "reason": "Policy event identity, ordering, replay, and dead-letter semantics remain Policy-owned and cannot be invented by the generic ingress."
+    },
+    {
+      "from": "WP-eventing-plan-08-parent-runtime-integration",
+      "to": "WP-v0-8-enforcement-control-plan-11-audit-journal-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md"
+      ],
+      "reason": "Rows 55-56 require durable before-action, adapter-result, and read-model history owned by Enforcement WP11; an emitted event is not action or receipt proof."
+    },
+    {
+      "from": "WP-eventing-plan-08-parent-runtime-integration",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "End-to-end child delivery requires authenticated child ingress, durable handoff custody, replay/expiry handling, and child-local republish owned by Child Runtime WP10."
     },
     {
       "from": "WP-eventing-plan-10-lan-household-mesh-consumer",
