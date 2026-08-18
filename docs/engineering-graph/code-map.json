@@ -656,7 +656,7 @@
         "crates/provisioning-core/src/provisioning_install/family_context.rs",
         "crates/provisioning-core/tests/unit/readiness_flow.rs"
       ],
-      "note": "The reviewed target-aware Account authority owner is present and consumes opaque current Account authority while keeping the parent actor separate from the target child/profile/device. Expected tests and the Cloudflare provider-to-authority composition remain open."
+      "note": "The reviewed target-aware Account identity owner is present and consumes opaque current Account authority while keeping the parent actor separate from the target child/profile/device. Actions requiring capability, controller-lease, or step-up authority reject because those owned sources are unavailable. Expected tests and the Cloudflare provider composition remain open."
     },
     "WP-account-identity-family-plan-03-session-token-lifecycle": {
       "planSlug": "account-identity-family-plan",
@@ -4004,7 +4004,9 @@
     },
     "WP-screen-plan-13-ios-replaykit-adapter-plan-proof": {
       "planSlug": "screen-plan",
-      "roots": ["platforms/ios/OcentraChildAgent", "platforms/ios/OcentraChildAgentTests"]
+      "codeExpectation": "no-code-required",
+      "roots": [],
+      "note": "Capability/proof boundary only: no ReplayKit or broadcast-extension production source/test target is mapped. The Child iOS capability shell belongs to Child Runtime WP06 and is not Screen WP13 evidence."
     },
     "WP-screen-plan-14-protected-surface-detector": {
       "planSlug": "screen-plan",

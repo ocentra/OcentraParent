@@ -29,7 +29,7 @@
 
 Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk. WP06 is reopened for a final aggregation rerun after Account WP08 plus Cloudflare WP06/WP08; PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
 
-Current routing note: independent source review accepts the replacement Account packet at `35edb2830`, integrated through `e69acf279`. WP08 schema validation, sealed current authority, and local SQLite CAS repository are present. Reviewed source at `86caae334` and `7934fb41b` adds the target-aware WP02 action resolver, preserves parent actor versus child/profile/device target identity, derives action authority from the opaque current Account binding, and migrates the real storage-custody consumer. The source wave deliberately did not run tests or claim proof. The next coherent source chain is Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS plus its shipped provider caller, then Device Trust WP03 live ceremony composition; WP02 expected tests follow in the later complete test-source wave.
+Current routing note: independent source review accepts the replacement Account packet at `35edb2830`, integrated through `e69acf279`. WP08 schema validation, sealed current authority, and local SQLite CAS repository are present. Reviewed source at `86caae334` and `7934fb41b` adds the target-aware WP02 action resolver, preserves parent actor versus child/profile/device target identity, derives current account/household/member/device/role identity from the opaque Account binding, rejects caller-supplied authority, and migrates the real storage-custody consumer. Capability, controller-lease, and step-up actions remain fail-closed because those authority sources are not present. The source wave deliberately did not run tests or claim proof. The next coherent source chain is Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS plus its shipped provider caller, then Device Trust WP03 live ceremony composition; WP02 expected tests follow in the later complete test-source wave.
 
 Do not revive the rejected `ac03afee3a` WP02-WP05 record packet. Its public
 serde records were disconnected from production and accepted caller-mintable
@@ -37,7 +37,7 @@ authority/lifecycle facts. The dependency-first production sequence is:
 
 ```text
 accepted WP08 schema + sealed authority + local repository/CAS
-  -> WP02 target-aware actor/target resolver with server-derived capability/lease/step-up
+  -> WP02 target-aware actor/target resolver with unavailable capability/lease/step-up actions fail-closed
   -> Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider-to-Account caller
   -> Device Trust WP03 RegisterLanSignerAnchor actor/target composition
   -> complete WP04 atomic invite/recovery orchestration and typed custody handoff
@@ -89,7 +89,8 @@ Expected result:
 ```text
 typed account/household/membership/role/device references
 parent-controller actor device resolved separately from target child/profile/device
-same-family, capability, controller lease, and step-up derived from owned authority, never caller booleans
+same-family identity derived from owned authority, never caller booleans
+capability, controller lease, and step-up derived from their owning authority or rejected as unavailable
 ParentOwner/CoParent/Observer ViewChildStatus preserved as a parent action over an independently resolved target
 role/action/resource matrix with cross-family denial proof
 observer/support/admin boundaries
@@ -179,10 +180,11 @@ invite/recovery flow without replay/rate-limit/enumeration proof
 
 Reopen WP02 implementation review before downstream custody composition. The
 first source correction must resolve target child/device identity separately
-from the actor parent-controller device, bind capabilities/leases/step-up to
-the target action, remove the `same_family` hardcode and caller-supplied trust
-facts, preserve the correct parent `ViewChildStatus` mapping, and keep the
-sealed current-authority boundary. Cloudflare WP06, not WP02, owns the provider
+from the actor parent-controller device, reject capability/lease/step-up
+actions until their owned authority sources are composed, remove the
+`same_family` hardcode and caller-supplied trust facts, preserve the correct
+parent `ViewChildStatus` mapping, and keep the sealed current-authority
+boundary. Cloudflare WP06, not WP02, owns the provider
 caller and authoritative D1 write/currentness/revocation/CAS path. Do not close
 the row from the existing evaluator tests or historical proof; the production
 caller and new negative/positive expected-test wave remain open.

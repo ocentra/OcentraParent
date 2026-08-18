@@ -49,8 +49,10 @@ Current production-handoff overlay (the checked historical packet below does
 not satisfy these rows):
 
 - [x] WP02 resolves actor parent-controller and target child/profile/device
-  separately and derives same-family, capability, lease, and step-up authority
-  from owned state. Reviewed source: `86caae334` and `7934fb41b`.
+  separately and derives current account, household, member, device, role, and
+  same-family identity from owned state. Capability, controller-lease, and
+  step-up actions remain fail-closed because those authority sources are not
+  present. Reviewed source: `86caae334` and `7934fb41b`.
 - [ ] Cloudflare WP06 owns authoritative Account D1
   write/update/revocation/CAS and a shipped Firebase/provider-to-sealed-
   authority caller; its current read adapter is not closure.
@@ -75,7 +77,8 @@ contract/proof evidence and do not satisfy these rows):
 - [x] A target-aware Account resolver keeps the actor parent-controller device
   distinct from the target child/profile/device for Pair, Register, Revoke,
   View, ChangePolicy, and Remote actions; callers cannot supply `same_family`,
-  capability, controller lease, step-up, support, or lifecycle authority.
+  capability, controller lease, step-up, support, or lifecycle authority, and
+  actions that require unavailable capability/lease/step-up sources reject.
   Reviewed source: `86caae334` and `7934fb41b`.
 - [x] ParentOwner, CoParent, and Observer `ViewChildStatus` is evaluated as a
   parent action over an independently resolved child/profile/device target.

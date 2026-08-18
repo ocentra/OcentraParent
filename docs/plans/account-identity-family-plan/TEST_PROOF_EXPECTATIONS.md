@@ -195,7 +195,8 @@ actor parent-controller device cannot be reused as the target child/profile/devi
 cross-child and cross-household target substitution is denied for Pair, Register, Revoke, View, ChangePolicy, and Remote actions
 caller-supplied same-family, capability, controller lease, and step-up facts cannot authorize
 ParentOwner, CoParent, and Observer ViewChildStatus preserves parent actor scope while resolving the target independently
-the Cloudflare provider caller reaches only sealed target-aware authority and authoritative D1 currentness
+the Cloudflare provider caller reaches only sealed target-aware identity and authoritative D1 currentness
+capability, controller-lease, and step-up actions reject while their owning authority sources are unavailable
 ```
 
 ## WP03 Session Token Lifecycle

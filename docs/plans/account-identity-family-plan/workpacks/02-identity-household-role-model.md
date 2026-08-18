@@ -182,12 +182,16 @@ Reviewed production source now present:
   keeps the actor parent-controller device separate from the target
   child/profile/device for Pair, Register, Revoke, View, ChangePolicy, and
   Remote actions;
-- server-derived same-family, capability, controller-lease, and step-up state;
-  these facts cannot be accepted from the request/caller;
+- server-derived current account, household, member, device, role, and same-
+  family identity; capability, controller-lease, and step-up actions reject
+  because those authority sources are not present and cannot be accepted from
+  the request/caller;
 - correct `ViewChildStatus` composition for ParentOwner, CoParent, and Observer
   actors while independently resolving the child/profile/device target.
 
 Production source still required outside the bounded resolver:
+- owned capability, controller-lease, and step-up authority composition for
+  actions that currently reject as unavailable;
 - a Cloudflare WP06 authoritative D1 writer/update/revocation/CAS owner and
   shipped Firebase/provider-to-sealed-authority caller;
 - a minimized, receipt-bound, audited support authority rather than a public
@@ -283,16 +287,17 @@ and would have introduced parallel mintable authority. It is not WP02 progress.
 
 ## 2026-08-17 live-code review correction
 
-The accepted Rust source is now a bounded target-aware authority model, not a
+The accepted Rust source is now a bounded target-aware identity model, not a
 complete provider runtime. The parent-controller actor and target child/profile/
 device are separated for Pair, Register, Revoke, View, ChangePolicy, and Remote
-actions; capability/lease/step-up authority is derived from opaque current
-Account authority. A production provider-to-authority caller is still absent,
-and the raw evaluator remains diagnostic/legacy risk when fed caller-assembled
-facts.
+actions. Current account, household, member, device, role, and same-family
+identity come from opaque Account authority. Capability, lease, and step-up
+actions reject because their owned authority sources are not present. A
+production provider-to-authority caller is still absent, and the raw evaluator
+remains diagnostic/legacy risk when fed caller-assembled facts.
 
 The bounded source correction preserves the sealed WP08 boundary, derives
-target identity from owned current state, and binds capability/lease/step-up
-requirements to the target action. Normal expected-test, focused-validation,
-proof, PR, and DONE gates remain open; no test or workpack completion is
-claimed.
+target identity from owned current state, and fails closed when a target action
+requires capability/lease/step-up authority that is unavailable. Normal
+expected-test, focused-validation, proof, PR, and DONE gates remain open; no
+test or workpack completion is claimed.

@@ -8,7 +8,7 @@ Read [AUTH_PROVIDER_DECISION.md](AUTH_PROVIDER_DECISION.md) and [IDENTITY_AUTHOR
 
 ```text
 Account WP08 sealed schema/local repository
-  -> Account WP02 target-aware actor/action authority
+  -> Account WP02 target-aware identity with unavailable higher authority rejected
   -> Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider caller
   -> Device Trust WP03 live Account + Device Trust ceremony composition
 ```
