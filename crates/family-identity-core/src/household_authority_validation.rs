@@ -230,6 +230,7 @@ pub(crate) fn elevated_confirmation_state(
             | HouseholdAuthorityAction::RegisterLanSignerAnchor
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::ManageBilling
     ) {
         ElevatedConfirmationState::Required
@@ -258,7 +259,9 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
             HouseholdAuthorityAction::StartRemoteControl
         ) | (
             HouseholdRole::ParentOwner,
-            HouseholdAuthorityAction::ExportDeleteData | HouseholdAuthorityAction::ManageBilling
+            HouseholdAuthorityAction::ExportDeleteData
+                | HouseholdAuthorityAction::ImportRestoreData
+                | HouseholdAuthorityAction::ManageBilling
         )
     )
 }
@@ -299,6 +302,7 @@ fn requires_fresh_session(action: HouseholdAuthorityAction) -> bool {
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::ManageBilling
     )
 }
@@ -311,6 +315,7 @@ fn requires_bound_child_scope(action: HouseholdAuthorityAction) -> bool {
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ViewChildStatus
             | HouseholdAuthorityAction::ChangePolicy
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
     )
@@ -324,6 +329,7 @@ fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ViewChildStatus
             | HouseholdAuthorityAction::ChangePolicy
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
     )
@@ -341,6 +347,7 @@ fn requires_target_child_scope(action: HouseholdAuthorityAction) -> bool {
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ViewChildStatus
             | HouseholdAuthorityAction::ChangePolicy
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
     )
