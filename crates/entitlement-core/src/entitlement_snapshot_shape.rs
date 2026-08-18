@@ -1,6 +1,5 @@
 #![forbid(unsafe_code)]
 
-use crate::entitlement_access::EntitlementCapability;
 use crate::entitlement_snapshot::{
     EntitlementSnapshotShapeError, SignedEntitlementSnapshot, ENTITLEMENT_SNAPSHOT_SCHEMA_VERSION,
     ENTITLEMENT_SNAPSHOT_SIGNATURE_BYTES,
@@ -65,12 +64,6 @@ impl SignedEntitlementSnapshot {
             }
         }
         Ok(())
-    }
-
-    pub(crate) fn enables(&self, capability: EntitlementCapability) -> bool {
-        self.feature_flags
-            .iter()
-            .any(|flag| flag.capability == capability && flag.enabled)
     }
 }
 

@@ -14,7 +14,6 @@ use super::{
 
 pub(crate) struct SnapshotCurrentness {
     pub(crate) freshness: EntitlementSnapshotFreshnessState,
-    pub(crate) authority_generation: u64,
 }
 
 pub(crate) fn currentness(
@@ -37,7 +36,6 @@ pub(crate) fn currentness(
     {
         return Ok(SnapshotCurrentness {
             freshness: EntitlementSnapshotFreshnessState::Revoked,
-            authority_generation: update.authority_generation,
         });
     }
     if update.authority_generation != snapshot.authority_generation
@@ -45,15 +43,11 @@ pub(crate) fn currentness(
     {
         return Ok(SnapshotCurrentness {
             freshness: EntitlementSnapshotFreshnessState::Stale,
-            authority_generation: update.authority_generation,
         });
     }
 
     let freshness = authority
         .currentness
         .evaluate_snapshot_freshness(snapshot, &update)?;
-    Ok(SnapshotCurrentness {
-        freshness,
-        authority_generation: update.authority_generation,
-    })
+    Ok(SnapshotCurrentness { freshness })
 }

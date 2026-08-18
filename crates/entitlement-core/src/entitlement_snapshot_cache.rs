@@ -1,20 +1,18 @@
 #![forbid(unsafe_code)]
 
-//! Durable, replaceable entitlement snapshot and revocation-state custody.
+//! Durable revocation-state custody plus a read-only snapshot storage
+//! primitive for a future owner.
 //!
 //! These stores persist issuer-signed wire material only.  Reading either
 //! file never establishes authority; the verifier authenticates the signature
-//! again on every use.  Missing, malformed, or tampered state is surfaced as
-//! an explicit unavailable/corrupt result so a stale local cache cannot unlock
-//! a capability. Snapshot and revocation generations are retained monotonically;
-//! revocation membership cannot shrink during replacement.
-
-use std::path::{Path, PathBuf};
+//! again on every use. Missing, malformed, or tampered state is surfaced as an
+//! explicit unavailable/corrupt result. Snapshot mutation is intentionally not
+//! exposed here because no legal owner ingestion or handle-safe platform
+//! custody path is mounted; revocation membership cannot shrink during its
+//! locked replacement.
 
 use serde::{Deserialize, Serialize};
 
-use crate::entitlement_snapshot::SignedEntitlementSnapshot;
-use crate::entitlement_snapshot_authority::verifier::SnapshotVerificationReceipt;
 use crate::entitlement_snapshot_values::{
     EntitlementRevocationCursor, EntitlementSignatureKeyId, EntitlementSnapshotId,
 };
@@ -36,88 +34,6 @@ pub(crate) enum EntitlementSnapshotCacheError {
     CorruptState,
     InvalidPath,
     StaleReplacement,
-}
-
-#[derive(Clone, Debug)]
-pub(crate) struct EntitlementSnapshotCache {
-    path: PathBuf,
-}
-
-impl EntitlementSnapshotCache {
-    pub(crate) fn open(path: impl Into<PathBuf>) -> Result<Self, EntitlementSnapshotCacheError> {
-        let path = path.into();
-        path::prepare_path(&path)?;
-        Ok(Self { path })
-    }
-
-    pub(crate) fn read(
-        &self,
-    ) -> Result<Option<SignedEntitlementSnapshot>, EntitlementSnapshotCacheError> {
-        path::ensure_secure_path(&self.path)?;
-        let bytes = match std::fs::read(&self.path) {
-            Ok(bytes) => bytes,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
-            Err(_error) => return Err(EntitlementSnapshotCacheError::StorageUnavailable),
-        };
-        let snapshot: SignedEntitlementSnapshot = serde_json::from_slice(&bytes)
-            .map_err(|_error| EntitlementSnapshotCacheError::CorruptState)?;
-        snapshot
-            .validate_shape()
-            .map_err(|_error| EntitlementSnapshotCacheError::CorruptState)?;
-        Ok(Some(snapshot))
-    }
-
-    /// Persist only a snapshot that already carries the authority's
-    /// signature/currentness receipt. Raw transport values have no mutation
-    /// API, so they cannot pin a higher generation or poison the cache before
-    /// verification. The owner-composed platform custody still must provide a
-    /// handle-safe replacement implementation before this path is production
-    /// reachable; this packet keeps it crate-private/manual-required.
-    pub(crate) fn replace_verified(
-        &self,
-        receipt: &SnapshotVerificationReceipt,
-    ) -> Result<(), EntitlementSnapshotCacheError> {
-        let snapshot = receipt.snapshot();
-        snapshot
-            .validate_shape()
-            .map_err(|_error| EntitlementSnapshotCacheError::CorruptState)?;
-        self.with_lock(|path| {
-            let existing = storage::read_snapshot_file(path)?;
-            if let Some(existing) = existing {
-                storage::enforce_snapshot_monotonicity(&existing, snapshot)?;
-            }
-            storage::write_atomic(path, snapshot)
-        })
-    }
-
-    pub(crate) fn path(&self) -> &Path {
-        &self.path
-    }
-
-    fn with_lock<T>(
-        &self,
-        operation: impl FnOnce(&Path) -> Result<T, EntitlementSnapshotCacheError>,
-    ) -> Result<T, EntitlementSnapshotCacheError> {
-        let lock_path = self.path.with_extension("lock");
-        path::ensure_secure_path(&lock_path)?;
-        let lock = std::fs::OpenOptions::new()
-            .create(true)
-            .read(true)
-            .write(true)
-            .truncate(false)
-            .open(&lock_path)
-            .map_err(|_error| EntitlementSnapshotCacheError::StorageUnavailable)?;
-        fs2::FileExt::lock_exclusive(&lock)
-            .map_err(|_error| EntitlementSnapshotCacheError::StorageUnavailable)?;
-        let result = operation(&self.path);
-        let unlock_result = fs2::FileExt::unlock(&lock)
-            .map_err(|_error| EntitlementSnapshotCacheError::StorageUnavailable);
-        match (result, unlock_result) {
-            (Ok(value), Ok(())) => Ok(value),
-            (Err(error), _) => Err(error),
-            (Ok(_), Err(error)) => Err(error),
-        }
-    }
 }
 
 /// Signed revocation cursor state persisted by the entitlement owner.

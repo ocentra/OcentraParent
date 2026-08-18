@@ -3,11 +3,10 @@
 //! Signed snapshot shape, account/device binding, and signature verification.
 
 use crate::{
-    entitlement_access::EntitlementCapability,
     entitlement_snapshot::{EntitlementSnapshotContext, SignedEntitlementSnapshot},
     entitlement_snapshot_values::{
         EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState,
-        EntitlementPackageBuildState, EntitlementSnapshotBindingState, EntitlementSnapshotId,
+        EntitlementPackageBuildState, EntitlementSnapshotBindingState,
         EntitlementSnapshotSignatureState,
     },
 };
@@ -17,27 +16,10 @@ use super::{
     EntitlementSnapshotAuthority, EntitlementSnapshotVerificationFailure,
 };
 
-/// A crate-private receipt that couples cache mutation to the verifier's
-/// successful signature, binding, and currentness path. The signed transport
-/// type itself never authorizes durable replacement.
-pub(crate) struct SnapshotVerificationReceipt {
-    snapshot: SignedEntitlementSnapshot,
-}
-
-impl SnapshotVerificationReceipt {
-    pub(crate) fn snapshot(&self) -> &SignedEntitlementSnapshot {
-        &self.snapshot
-    }
-}
-
 /// Opaque result of cryptographic, currentness, account, and device binding
 /// verification. It cannot be serialized or reconstructed by a command.
 pub struct VerifiedEntitlementSnapshot {
-    snapshot_id: EntitlementSnapshotId,
-    authority_generation: u64,
     context: EntitlementSnapshotContext,
-    enabled_capabilities: Vec<EntitlementCapability>,
-    cache_receipt: SnapshotVerificationReceipt,
 }
 
 impl std::fmt::Debug for VerifiedEntitlementSnapshot {
@@ -46,28 +28,6 @@ impl std::fmt::Debug for VerifiedEntitlementSnapshot {
             .debug_struct("VerifiedEntitlementSnapshot")
             .field("authority", &"opaque")
             .finish()
-    }
-}
-
-impl VerifiedEntitlementSnapshot {
-    pub(crate) fn snapshot_id(&self) -> &EntitlementSnapshotId {
-        &self.snapshot_id
-    }
-
-    pub(crate) fn authority_generation(&self) -> u64 {
-        self.authority_generation
-    }
-
-    pub(crate) fn context(&self) -> EntitlementSnapshotContext {
-        self.context
-    }
-
-    pub(crate) fn enables(&self, capability: EntitlementCapability) -> bool {
-        self.enabled_capabilities.contains(&capability)
-    }
-
-    pub(crate) fn cache_receipt(&self) -> &SnapshotVerificationReceipt {
-        &self.cache_receipt
     }
 }
 
@@ -80,14 +40,7 @@ pub(crate) fn verify(
     verifier_signature::verify_snapshot_signature(authority, snapshot)?;
     let currentness = verifier_currentness::verify_snapshot_currentness(authority, snapshot)?;
 
-    let enabled_capabilities = snapshot
-        .feature_flags
-        .iter()
-        .filter_map(|flag| flag.enabled.then_some(flag.capability))
-        .collect();
     Ok(VerifiedEntitlementSnapshot {
-        snapshot_id: snapshot.snapshot_id.clone(),
-        authority_generation: currentness.authority_generation,
         context: EntitlementSnapshotContext {
             signature_state: EntitlementSnapshotSignatureState::Trusted,
             freshness_state: currentness.freshness,
@@ -100,10 +53,6 @@ pub(crate) fn verify(
             },
             device_trust_state: EntitlementDeviceTrustState::Present,
             package_build_state: EntitlementPackageBuildState::Valid,
-        },
-        enabled_capabilities,
-        cache_receipt: SnapshotVerificationReceipt {
-            snapshot: snapshot.clone(),
         },
     })
 }

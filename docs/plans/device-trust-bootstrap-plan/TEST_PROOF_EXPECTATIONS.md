@@ -249,21 +249,27 @@ The WP05 source wave is candidate/unreviewed only; its expected test roots and
 retained proof remain missing/open. The later test wave must exercise the
 trusted issuer/provider boundary without caller-built projections, weak-key
 and key-id rejection, signed authority-generation and release-channel
-binding, monotonic snapshot replacement, locked non-shrinking revocation
-updates with the restart-safe owner generation fence, ancestor symlink and
+binding, absent/manual-required snapshot replacement, locked non-shrinking
+revocation updates with the restart-safe owner generation fence, ancestor
+symlink and
 storage-error fail-closed behavior, explicit signed Grace restrictions,
-release-channel mismatch, semantic effective-seat-limit equality, live
-account/session and Device Trust re-resolution at grant and consume, and
-non-cloneable by-value grant consumption with no public positive accessors.
+release-channel mismatch, semantic effective-seat-limit equality, and the
+owner-controlled account/session and Device Trust re-resolution contract for
+any future grant/consume operation. It must also prove that no public
+capability selector or forgeable final-consumption API is reachable without a
+concrete child-runtime action owner.
 The trusted-time/currentness owner must prove restart-safe time rollback
 fencing and an owner-configured maximum grace interval; no caller clock or
-crate-wide magic grace limit is acceptable. Cache mutation must prove that
-unverified wire data cannot advance durable state and that platform custody
-handles reparse/TOCTOU safely, or remain manual-required. A future production
-startup or integration proof must also show real issuer/platform key custody,
-installed-package identity, billing and currentness owners, signed revocation
-delivery, and a child-agent service caller; the current library seam does not
-provide those owners.
+crate-wide magic grace limit is acceptable. Because no real snapshot ingestion
+owner exists in this packet, the expected source/test debt must keep snapshot
+cache mutation absent rather than treating a receipt as an ingestion path.
+Any future mutation proof must show that unverified wire data cannot advance
+durable state and that platform custody handles reparse/TOCTOU safely, or
+remain manual-required. A future production startup or integration proof must
+also show real issuer/platform key custody, installed-package identity,
+billing and currentness owners, signed revocation delivery, a concrete
+child-runtime action owner, and its service startup caller; the current source
+has no child-runtime entitlement consumer.
 
 ## Required negative states
 
