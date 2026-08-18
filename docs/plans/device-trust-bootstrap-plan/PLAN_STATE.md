@@ -81,7 +81,7 @@ authority.
 | WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch source, `crates/family-identity-core` has current-authority and lifecycle-activation seams, and `crates/parent-runtime-core` plus the parent desktop have an opaque staged-handle facade and mounted custody-sealing command. | `require_authenticated_parent_authority()` is permanently unavailable before custody mutation; no ceremony issuer or custody-to-lifecycle startup composition reaches the source. Windows custody-open platform failures are typed unavailable; unsupported non-Windows startup is typed manual-required; the later authenticated-parent gate remains manual-required. The command does not perform lifecycle activation. Non-Windows custody and end-to-end sealing remain unavailable/manual-required; stale lifecycle/custody tests are not proof. |
 | WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries, a five-minute lifetime gate, and bounded atomic challenge/intent plus receipt/credential custody. | The graph is blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Planned `parent_step_up_target_authority.rs` and `parent_step_up_runtime.rs` do not exist. Actor parent-controller and target child/profile/device are not authoritatively separated for `RegisterLanSignerAnchor`; the authoritative Account writer/provider caller, passkey/OS-native signature provider, durable sign counter, shipped parent runtime, expected tests, proof, LAN handoff, and DONE remain open. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
-| WP05 | `crates/entitlement-core` preserves an unsigned entitlement projection and a crate-owned fail-closed context; caller/wire data cannot manufacture trusted snapshot state. | No real entitlement issuer/signature/revocation provider or device-trust-bound capability unlock caller. |
+| WP05 | The candidate source wave on `codex/device-trust-wp05-source-wave` adds `crates/entitlement-core` signed transport, bound authority generation/channel, strict weak-key-rejecting verifier, durable monotonic snapshot/revocation custody, and an opaque account/device-bound unlock authority; `crates/child-runtime` exposes `ChildRuntimeEntitlementLicenseStore` as a library consumer seam with manual-required public startup only. | No concrete owner repository composition is present: real issuer/HSM or platform key provider, installed-package authority, billing/currentness owner, live Account/Device Trust re-resolution caller, signed revocation delivery caller, child-agent startup mount, expected tests, focused execution, proof, CI, independent review, and completion remain open; raw authority/issuer DI stays crate-private and no activation is claimed. |
 | WP06 | `crates/storage-custody-core` provides restore preflight and a verified-parent gate plus an unavailable executor port; caller-minted restore authority was removed. | No encrypted bundle/key-custody runtime, revocation-preserving executor, or shipped restore caller. |
 | WP07 | `crates/child-runtime` durably records tamper/removal evidence, binds readiness to current trust, and keeps ingress blocked across restart while unresolved; the Android bridge carries the fail-closed health state. | Package/device-owner removal, attestation, parent transport, and a real platform removal caller are absent; state remains manual-required. |
 | WP08 | Research/dependency review only. | No runtime dependency adoption owner or trust-root caller. |
@@ -129,9 +129,61 @@ The current WP01 owner paths include:
 
 Independent source review found no remaining internal P0/P1 in the accepted
 continuation. Focused source formatting, architecture, Enforcer, and diff gates
-passed after reconciliation. WP05 remains an unsigned projection without a real
-issuer/revocation provider; WP06 has no real restore executor/custody owner; and
-WP07 has no platform removal or parent-transport caller.
+passed after reconciliation. The WP05 source wave on the separate
+`codex/device-trust-wp05-source-wave` branch adds the authority packet described
+below; it is not part of the historical `68717b5b7` consolidation. WP06 has no
+real restore executor/custody owner; and WP07 has no platform removal or
+parent-transport caller.
+
+## Candidate WP05 source-wave reachability — 2026-08-18 (unreviewed)
+
+The candidate source packet is reachable through these production roots on
+`codex/device-trust-wp05-source-wave`; this section is not an accepted or
+reviewed completion claim:
+
+- `crates/entitlement-core/src/entitlement_snapshot_issuer.rs`: opaque owner
+  issuance boundary and manual-required signing custody; the module and its
+  raw owner-composition path remain crate-private until a concrete owner
+  repository is mounted.
+- `crates/entitlement-core/src/entitlement_snapshot.rs` plus
+  `entitlement_snapshot_shape.rs`, `entitlement_snapshot_signing.rs`,
+  `entitlement_snapshot_derivation.rs`,
+  `entitlement_snapshot_wire_names.rs`, and
+  `entitlement_snapshot_capability_wire_names.rs`: bounded signed envelope,
+  authority-generation/channel binding, and owner-side projection derivation.
+- `crates/entitlement-core/src/entitlement_snapshot_authority.rs` plus
+  `entitlement_snapshot_authority_ports.rs`,
+  `entitlement_snapshot_authority_currentness_ports.rs`,
+  `entitlement_snapshot_authority_verifier.rs`,
+  `entitlement_snapshot_authority_verifier_request.rs`,
+  `entitlement_snapshot_authority_verifier_binding.rs`,
+  `entitlement_snapshot_authority_verifier_signature.rs`,
+  `entitlement_snapshot_authority_verifier_currentness.rs`,
+  `entitlement_snapshot_authority_currentness.rs`, and
+  `entitlement_snapshot_authority_revocation.rs`: Ed25519 verification,
+  weak-key rejection, pinned key-id and authority-generation binding,
+  installed-package/currentness seams, live Account/Device Trust re-resolution,
+  current account/device binding, and by-value grant consumption. The typed
+  ports and raw dependency-injection constructor are crate-private; public
+  startup is manual-required only until an owner composer exists.
+- `crates/entitlement-core/src/entitlement_snapshot_cache.rs` plus
+  `entitlement_snapshot_cache_path.rs`,
+  `entitlement_snapshot_cache_storage.rs`, and
+  `entitlement_snapshot_cache_revocation.rs`: atomic durable
+  snapshot/revocation stores with secure path checks and locked monotonic
+  replacement.
+- `crates/child-runtime/src/runtime_entitlement_license.rs`:
+  `ChildRuntimeEntitlementLicenseStore` is a library consumer seam that reads
+  and consumes the authority; it does not accept caller snapshots, package
+  strings, positive gate facts, or serialized grants. No child-agent service
+  startup caller reaches it.
+
+This does not promote the candidate packet to DONE or accepted source.
+External key custody/signing,
+installed-package identity, billing/currentness/revocation owners and their
+startup composition are not present in this branch. Expected WP05 tests and
+proof roots remain missing/open, and no activation or broad capability
+completion claim follows from the source reachability.
 
 The full expected-test wave, functional validation, proof, production caller
 integration, repo-wide Enforcer/architecture acceptance, platform custody,

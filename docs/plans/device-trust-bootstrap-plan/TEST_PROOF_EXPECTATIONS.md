@@ -243,6 +243,22 @@ dependency adoption review
 route gate
 ```
 
+## WP05 candidate test and proof debt
+
+The WP05 source wave is candidate/unreviewed only; its expected test roots and
+retained proof remain missing/open. The later test wave must exercise the
+trusted issuer/provider boundary without caller-built projections, weak-key
+and key-id rejection, signed authority-generation and release-channel
+binding, monotonic snapshot replacement, locked non-shrinking revocation
+updates with the restart-safe owner generation fence, ancestor symlink and
+storage-error fail-closed behavior, explicit signed Grace restrictions,
+release-channel mismatch, live account/session and Device Trust
+re-resolution at grant and consume, and non-cloneable by-value grant
+consumption. A future production startup or integration proof must also show
+real issuer/platform key custody, installed-package identity, billing and
+currentness owners, signed revocation delivery, and a child-agent service
+caller; the current library seam does not provide those owners.
+
 ## Required negative states
 
 ```text

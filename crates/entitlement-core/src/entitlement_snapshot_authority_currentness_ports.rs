@@ -1,0 +1,64 @@
+#![forbid(unsafe_code)]
+
+use ocentra_family_identity_core::{
+    account_identity_authority::VerifiedAccountIdentityAuthority,
+    device_trust_current_binding::CurrentChildDeviceTrustBinding,
+};
+
+use crate::entitlement_access::{
+    EntitlementPolicyState, FamilySetupState, OfflineGraceState, SubscriptionState,
+};
+
+use super::{
+    EntitlementCurrentnessAuthority, EntitlementSnapshotVerificationFailure,
+    ManualRequiredEntitlementCurrentnessAuthority,
+};
+
+impl EntitlementCurrentnessAuthority for ManualRequiredEntitlementCurrentnessAuthority {
+    fn validate_revocation_generation(
+        &self,
+        _authority_generation: u64,
+    ) -> Result<(), EntitlementSnapshotVerificationFailure> {
+        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
+    }
+
+    fn validate_current_identity(
+        &self,
+        _account_authority: &VerifiedAccountIdentityAuthority,
+        _device_binding: &CurrentChildDeviceTrustBinding,
+    ) -> Result<(), EntitlementSnapshotVerificationFailure> {
+        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
+    }
+
+    fn subscription_state(
+        &self,
+        _account_authority: &VerifiedAccountIdentityAuthority,
+        _device_binding: &CurrentChildDeviceTrustBinding,
+    ) -> Result<SubscriptionState, EntitlementSnapshotVerificationFailure> {
+        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
+    }
+
+    fn offline_grace_state(
+        &self,
+        _account_authority: &VerifiedAccountIdentityAuthority,
+        _device_binding: &CurrentChildDeviceTrustBinding,
+    ) -> Result<OfflineGraceState, EntitlementSnapshotVerificationFailure> {
+        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
+    }
+
+    fn family_setup_state(
+        &self,
+        _account_authority: &VerifiedAccountIdentityAuthority,
+        _device_binding: &CurrentChildDeviceTrustBinding,
+    ) -> Result<FamilySetupState, EntitlementSnapshotVerificationFailure> {
+        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
+    }
+
+    fn policy_state(
+        &self,
+        _account_authority: &VerifiedAccountIdentityAuthority,
+        _device_binding: &CurrentChildDeviceTrustBinding,
+    ) -> Result<EntitlementPolicyState, EntitlementSnapshotVerificationFailure> {
+        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
+    }
+}

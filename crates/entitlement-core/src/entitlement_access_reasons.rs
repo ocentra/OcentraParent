@@ -42,6 +42,6 @@ fn freshness_reason(
         EntitlementSnapshotFreshnessState::Revoked => {
             Some(EntitlementCapabilityRejectionReason::RevokedSnapshot)
         }
-        EntitlementSnapshotFreshnessState::Fresh => None,
+        EntitlementSnapshotFreshnessState::Fresh | EntitlementSnapshotFreshnessState::Grace => None,
     }
 }
