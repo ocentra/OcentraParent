@@ -5,6 +5,8 @@ import {
   type VerifiedAccountIdentityAuthorityCapability,
 } from '../storage/account-identity-authority-store.js';
 import { createAccountIdentityAuthorityRuntime } from './account-identity-authority-runtime.js';
+import { createBrowserSessionStore } from '../storage/account-browser-session-store.js';
+import { readCookie } from '../storage/account-browser-session-codec.js';
 import { getAuthStateModel, type AuthState } from './model.js';
 
 export interface VerifiedIdentity {
@@ -29,6 +31,7 @@ export interface ProviderVerificationPort {
 
 export interface AuthVerifier {
   verifyPublic(): AuthResult;
+  verifyBrowserSession(request: Request): Promise<AuthResult>;
   verifyParentSession(request: Request): Promise<AuthResult>;
   verifyTrustedParentDevice(request: Request): Promise<AuthResult>;
   verifyAdmin(request: Request): Promise<AuthResult>;
@@ -246,6 +249,9 @@ async function verifyParentSessionRequest(
   authState: AuthState,
   providerVerifier: ProviderVerificationPort | undefined
 ): Promise<AuthResult> {
+  if (readCookie(request, 'ocentra_session') !== null) {
+    return requireParentRoleCapability(await verifyBrowserSessionRequest(request, env, authState), authState);
+  }
   const blocker = authAdapterBlocker(env, providerVerifier);
   if (blocker) {
     return manualRequired(authState, blocker);
@@ -258,6 +264,42 @@ async function verifyParentSessionRequest(
     );
   }
   return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
+}
+
+async function verifyBrowserSessionRequest(request: Request, env: Env, authState: AuthState): Promise<AuthResult> {
+  const sessionToken = readCookie(request, 'ocentra_session');
+  const session = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).read(sessionToken);
+  if (session.status === 'missing') return missingHeader('ocentra_session', authState);
+  if (session.status === 'manual-required') return manualRequired(authState, `account-session-${session.reason}`);
+  if (session.status === 'rejected') return forbidden(`account-session-${session.reason}`, authState);
+
+  const authorityResult = await createAccountIdentityAuthorityStore(env.ACCOUNT_IDENTITY_D1).readCurrentAuthority(
+    session.identity.provider,
+    session.identity.providerSubject
+  );
+  if (authorityResult.status !== 'trusted') {
+    if (authorityResult.status === 'rejected') {
+      return forbidden(`account-identity-authority-${authorityResult.reason}`, authState);
+    }
+    return manualRequired(authState, 'account-identity-binding-context-manual-required');
+  }
+  const authority = authorityResult.capability;
+  if (
+    authority.providerSubject !== session.identity.providerSubject ||
+    authority.accountId !== session.identity.accountId ||
+    authority.sessionId !== session.identity.authoritySessionId ||
+    authority.sessionGeneration !== session.identity.authoritySessionGeneration ||
+    authority.authorityGeneration !== session.identity.authorityGeneration
+  ) {
+    return forbidden('account-session-authority-stale', authState);
+  }
+  const role =
+    authority.role === 'support-admin'
+      ? 'support'
+      : authority.role === 'child-profile' || authority.role === 'child-device-agent'
+        ? 'public'
+        : 'parent';
+  return authStateIdentity(authority.providerSubject, authState, role, true, authority);
 }
 
 async function verifyTrustedParentDeviceRequest(
@@ -360,6 +402,10 @@ export function createAuthVerifier(env: Env, providerVerifier?: ProviderVerifica
       return authStateIdentity('public', 'public', 'public', false);
     },
 
+    async verifyBrowserSession(request: Request): Promise<AuthResult> {
+      return verifyBrowserSessionRequest(request, env, 'browser-session-required');
+    },
+
     async verifyParentSession(request: Request): Promise<AuthResult> {
       return verifyParentSessionRequest(request, env, 'parent-session-required', providerVerifier);
     },
@@ -458,6 +504,8 @@ export async function verifyAuthState(
   switch (authModel.adapterMethod) {
     case 'verifyPublic':
       return verifier.verifyPublic();
+    case 'verifyBrowserSession':
+      return verifier.verifyBrowserSession(request);
     case 'verifyParentSession':
       return verifier.verifyParentSession(request);
     case 'verifyTrustedParentDevice':
