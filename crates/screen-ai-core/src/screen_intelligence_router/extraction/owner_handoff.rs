@@ -33,6 +33,7 @@ impl ScreenManagedBrowserStructuredExtraction {
             structured_evidence_digest: observation.structured_evidence_digest,
             structured_signal_digest: observation.structured_signal_digest,
             structured_body_digest: observation.structured_body_digest,
+            structured_sensitivity_digest: observation.structured_sensitivity_digest,
             document_frame_id: observation.document_frame_id,
             document_loader_id: observation.document_loader_id,
             document_url_digest: observation.document_url_digest,

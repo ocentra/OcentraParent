@@ -72,6 +72,7 @@ struct ManagedBrowserCdpCaptureContext {
     structured_evidence_digest: String,
     structured_signal_digest: String,
     structured_body_digest: String,
+    structured_sensitivity_digest: String,
     document_frame_id: String,
     document_loader_id: String,
     document_url_digest: String,
@@ -106,6 +107,7 @@ impl ManagedBrowserCdpCaptureContext {
             extraction.evidence_digest(),
             extraction.structured_signal_digest(),
             extraction.structured_body_digest(),
+            extraction.structured_sensitivity_digest(),
             target_ref,
             &document_frame_id,
             &document_loader_id,
@@ -126,6 +128,7 @@ impl ManagedBrowserCdpCaptureContext {
             structured_evidence_digest: extraction.evidence_digest().to_owned(),
             structured_signal_digest: extraction.structured_signal_digest().to_owned(),
             structured_body_digest: extraction.structured_body_digest().to_owned(),
+            structured_sensitivity_digest: extraction.structured_sensitivity_digest().to_owned(),
             document_frame_id,
             document_loader_id,
             document_url_digest,
@@ -319,6 +322,10 @@ pub fn capture_receipt(
         structured_evidence_digest: capture.capture_context.structured_evidence_digest.clone(),
         structured_signal_digest: capture.capture_context.structured_signal_digest.clone(),
         structured_body_digest: capture.capture_context.structured_body_digest.clone(),
+        structured_sensitivity_digest: capture
+            .capture_context
+            .structured_sensitivity_digest
+            .clone(),
         document_frame_id: capture.capture_context.document_frame_id.clone(),
         document_loader_id: capture.capture_context.document_loader_id.clone(),
         document_url_digest: capture.capture_context.document_url_digest.clone(),

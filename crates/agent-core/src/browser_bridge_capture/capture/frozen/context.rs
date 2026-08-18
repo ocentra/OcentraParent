@@ -131,6 +131,7 @@ fn bind_capture_extraction(
 ) -> Result<structured::ManagedBrowserCdpStructuredExtraction, ManagedBrowserCdpCaptureError> {
     let signal_digest = preflight.payload.signal_digest.clone();
     let body_digest = preflight.payload.body_digest.clone();
+    let sensitivity_digest = preflight.payload.sensitivity_digest.clone();
     let extraction = structured::bind_extraction(
         &authority.launch_authority,
         &authority.target_id,
@@ -144,7 +145,8 @@ fn bind_capture_extraction(
     let matches_postflight = extraction.is_fresh()
         && !extraction.protected_content_skipped()
         && extraction.structured_signal_digest() == signal_digest
-        && extraction.structured_body_digest() == body_digest;
+        && extraction.structured_body_digest() == body_digest
+        && extraction.structured_sensitivity_digest() == sensitivity_digest;
     if matches_postflight {
         Ok(extraction)
     } else {

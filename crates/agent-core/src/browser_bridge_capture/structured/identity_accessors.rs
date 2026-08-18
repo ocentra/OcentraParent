@@ -9,6 +9,10 @@ impl ManagedBrowserCdpStructuredExtraction {
         &self.structured_body_digest
     }
 
+    pub fn structured_sensitivity_digest(&self) -> &str {
+        &self.structured_sensitivity_digest
+    }
+
     pub fn document_frame_id(&self) -> Option<&str> {
         self.document_frame_id.as_deref()
     }
