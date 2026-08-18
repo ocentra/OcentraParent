@@ -816,16 +816,52 @@
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
             "crates/family-identity-core/src/household_authority_runtime_composer.rs",
+            "crates/family-identity-core/src/household_authority_runtime_account.rs",
+            "crates/family-identity-core/src/household_authority_runtime_authorization.rs",
+            "crates/family-identity-core/src/household_authority_runtime_binding.rs",
+            "crates/family-identity-core/src/household_authority_runtime_capability.rs",
+            "crates/family-identity-core/src/household_authority_runtime_device_source.rs",
+            "crates/family-identity-core/src/household_authority_runtime_device_validation.rs",
+            "crates/family-identity-core/src/household_authority_runtime_lease.rs",
+            "crates/family-identity-core/src/household_authority_runtime_ports.rs",
+            "crates/family-identity-core/src/household_authority_runtime_requirements.rs",
+            "crates/family-identity-core/src/household_authority_runtime_resolution.rs",
+            "crates/family-identity-core/src/household_authority_runtime_step_up.rs",
             "crates/family-identity-core/src/lib.rs"
           ],
           "testRoots": []
+        },
+        "completionEvidenceOverride": {
+          "reason": "Source-only WP05 review adds the family-owned runtime composer and module registration. It re-resolves current Account authority/session state and binds the durable Device Trust snapshot without accepting caller-assembled authority scalars. Capability, controller-lease, and one-time parent-step-up producers remain explicit fail-closed ports; tests, proof, focused execution, a typed downstream caller, and DONE remain deferred.",
+          "evidence": [
+            "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+            "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
-          "implementation": [],
+          "implementation": [
+            "crates/family-identity-core/src/household_authority_runtime_composer.rs",
+            "crates/family-identity-core/src/household_authority_runtime_account.rs",
+            "crates/family-identity-core/src/household_authority_runtime_authorization.rs",
+            "crates/family-identity-core/src/household_authority_runtime_binding.rs",
+            "crates/family-identity-core/src/household_authority_runtime_capability.rs",
+            "crates/family-identity-core/src/household_authority_runtime_device_source.rs",
+            "crates/family-identity-core/src/household_authority_runtime_device_validation.rs",
+            "crates/family-identity-core/src/household_authority_runtime_lease.rs",
+            "crates/family-identity-core/src/household_authority_runtime_ports.rs",
+            "crates/family-identity-core/src/household_authority_runtime_requirements.rs",
+            "crates/family-identity-core/src/household_authority_runtime_resolution.rs",
+            "crates/family-identity-core/src/household_authority_runtime_step_up.rs",
+            "crates/family-identity-core/src/lib.rs"
+          ],
           "tests": [
             "docs/plans/account-identity-family-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
@@ -838,6 +874,17 @@
         "expected": {
           "implementation": [
             "crates/family-identity-core/src/household_authority_runtime_composer.rs",
+            "crates/family-identity-core/src/household_authority_runtime_account.rs",
+            "crates/family-identity-core/src/household_authority_runtime_authorization.rs",
+            "crates/family-identity-core/src/household_authority_runtime_binding.rs",
+            "crates/family-identity-core/src/household_authority_runtime_capability.rs",
+            "crates/family-identity-core/src/household_authority_runtime_device_source.rs",
+            "crates/family-identity-core/src/household_authority_runtime_device_validation.rs",
+            "crates/family-identity-core/src/household_authority_runtime_lease.rs",
+            "crates/family-identity-core/src/household_authority_runtime_ports.rs",
+            "crates/family-identity-core/src/household_authority_runtime_requirements.rs",
+            "crates/family-identity-core/src/household_authority_runtime_resolution.rs",
+            "crates/family-identity-core/src/household_authority_runtime_step_up.rs",
             "crates/family-identity-core/src/lib.rs"
           ]
         }
