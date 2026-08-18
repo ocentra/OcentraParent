@@ -25,6 +25,8 @@ pub enum HouseholdAuthorityAction {
     StartRemoteControl,
     #[serde(rename = "export-delete-data")]
     ExportDeleteData,
+    #[serde(rename = "import-restore-data")]
+    ImportRestoreData,
     #[serde(rename = "manage-billing")]
     ManageBilling,
 }
@@ -231,6 +233,7 @@ pub fn requires_parent_step_up(action: HouseholdAuthorityAction) -> bool {
             | HouseholdAuthorityAction::ChangePolicy
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::ManageBilling
     )
 }

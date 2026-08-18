@@ -8,6 +8,32 @@
 //! child runtime feature crates.
 
 mod agent_service_client;
+pub mod data_custody_backup_runtime;
+pub(crate) mod data_custody_backup_runtime_job_ledger;
+pub(crate) mod data_custody_backup_runtime_persistence;
+pub(crate) mod data_custody_backup_runtime_reconciliation;
+pub(crate) mod data_custody_backup_runtime_schedule;
+pub(crate) mod data_custody_backup_runtime_schedule_execute;
+pub mod data_custody_restore_runtime;
+pub(crate) mod data_custody_restore_runtime_dispatch;
+pub(crate) mod data_custody_restore_runtime_dispatch_apply;
+pub(crate) mod data_custody_restore_runtime_dispatch_preflight;
+pub mod data_custody_restore_runtime_executor;
+pub(crate) mod data_custody_restore_runtime_ledger;
+pub(crate) mod data_custody_restore_runtime_ledger_event_stage;
+pub(crate) mod data_custody_restore_runtime_ledger_validation;
+pub(crate) mod data_custody_restore_runtime_reconciliation;
+pub(crate) mod data_custody_restore_runtime_reconciliation_sections;
+pub(crate) mod data_custody_restore_runtime_reconciliation_validation;
+pub(crate) mod data_custody_restore_runtime_recovery;
+pub(crate) mod data_custody_restore_runtime_rollback;
+pub(crate) mod data_custody_restore_runtime_rollback_dispatch;
+pub(crate) mod data_custody_restore_runtime_stage;
+pub mod data_custody_runtime_eventing;
+pub(crate) mod data_custody_runtime_eventing_identity;
+pub(crate) mod data_custody_runtime_eventing_identity_backup;
+pub(crate) mod data_custody_runtime_eventing_identity_kind;
+pub(crate) mod data_custody_runtime_eventing_validation;
 pub mod device_trust_bootstrap_runtime;
 pub mod device_trust_bootstrap_runtime_status;
 pub mod parent_service_health;

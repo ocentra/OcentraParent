@@ -46,6 +46,21 @@ const EXPORT_IMPORT_BACKUP_STATE_AUTHORIZED: &str = "authorized";
 const EXPORT_IMPORT_BACKUP_STATE_MANUAL_REQUIRED: &str = "manualRequired";
 const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_NOT_REQUIRED: &str = "notRequired";
 const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_MANUAL_REQUIRED: &str = "manualRequired";
+const EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_SCHEDULED: &str = "scheduled";
+const EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_CLAIMED: &str = "claimed";
+const EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_RUNNING: &str = "running";
+const EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_SUCCEEDED: &str = "succeeded";
+const EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_RETRYABLE: &str = "retryable";
+const EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_FAILED: &str = "failed";
+const EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_MANUAL_REQUIRED: &str = "manualRequired";
+const EXPORT_IMPORT_BACKUP_JOB_LIFECYCLE_RECONCILED: &str = "reconciled";
+const EXPORT_IMPORT_MIGRATION_OUTCOME_PLANNED: &str = "planned";
+const EXPORT_IMPORT_MIGRATION_OUTCOME_APPLIED: &str = "applied";
+const EXPORT_IMPORT_MIGRATION_OUTCOME_ROLLED_BACK: &str = "rolledBack";
+const EXPORT_IMPORT_MIGRATION_OUTCOME_RECONCILED: &str = "reconciled";
+const EXPORT_IMPORT_MIGRATION_OUTCOME_PARTIAL: &str = "partial";
+const EXPORT_IMPORT_MIGRATION_OUTCOME_FAILED: &str = "failed";
+const EXPORT_IMPORT_MIGRATION_OUTCOME_MANUAL_REQUIRED: &str = "manualRequired";
 const EXPORT_IMPORT_MIGRATION_DEPENDENCY_BUNDLE_REFERENCE: &str = "bundle-migration-reference";
 const EXPORT_IMPORT_MIGRATION_DEPENDENCY_SUPPORTED_PATH: &str = "supported-migration-path";
 const EXPORT_IMPORT_MIGRATION_DEPENDENCY_DURABLE_OWNER: &str =
@@ -152,6 +167,8 @@ pub type ExportImportBackupState = enum_types::ExportImportBackupState;
 pub type ExportImportMigrationExecutionState = enum_types::ExportImportMigrationExecutionState;
 pub type ExportImportMigrationExecutionDependency =
     enum_types::ExportImportMigrationExecutionDependency;
+pub type ExportImportBackupJobLifecycle = enum_types::ExportImportBackupJobLifecycle;
+pub type ExportImportMigrationOutcome = enum_types::ExportImportMigrationOutcome;
 pub type ExportImportPreflightState = enum_types::ExportImportPreflightState;
 pub type ExportImportSectionDecisionState = enum_types::ExportImportSectionDecisionState;
 pub type ExportImportRestoreApplyState = enum_types::ExportImportRestoreApplyState;
@@ -168,6 +185,13 @@ pub type ExportImportTombstoneCursor = text_types::ExportImportTombstoneCursor;
 pub type ExportImportTimestamp = text_types::ExportImportTimestamp;
 pub type ExportImportProductVersion = text_types::ExportImportProductVersion;
 pub type ExportImportMigrationRef = text_types::ExportImportMigrationRef;
+pub type ExportImportScheduleRef = text_types::ExportImportScheduleRef;
+pub type ExportImportJobRef = text_types::ExportImportJobRef;
+pub type ExportImportOperationRef = text_types::ExportImportOperationRef;
+pub type ExportImportIdempotencyRef = text_types::ExportImportIdempotencyRef;
+pub type ExportImportExecutionRef = text_types::ExportImportExecutionRef;
+pub type ExportImportProviderOperationRef = text_types::ExportImportProviderOperationRef;
+pub type ExportImportMigrationPlanRef = text_types::ExportImportMigrationPlanRef;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -277,6 +301,77 @@ pub struct ExportImportBackupRequestState {
     pub explicit_confirmation_required: bool,
     pub provider_runtime_claimed: bool,
     pub manual_required_note: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportImportBackupSchedule {
+    pub schedule_ref: ExportImportScheduleRef,
+    pub bundle_id: ExportImportBundleId,
+    pub household_id: ExportImportHouseholdId,
+    pub cadence: ExportImportBackupCadence,
+    pub interval_seconds: Option<u64>,
+    pub next_run_at: ExportImportTimestamp,
+    pub enabled: bool,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportImportBackupJobRecord {
+    pub job_ref: ExportImportJobRef,
+    pub schedule_ref: ExportImportScheduleRef,
+    pub bundle_id: ExportImportBundleId,
+    pub household_id: ExportImportHouseholdId,
+    pub cadence: ExportImportBackupCadence,
+    pub lifecycle: ExportImportBackupJobLifecycle,
+    pub attempt: u32,
+    pub idempotency_ref: ExportImportIdempotencyRef,
+    pub execution_ref: Option<ExportImportExecutionRef>,
+    pub provider_operation_ref: Option<ExportImportProviderOperationRef>,
+    pub created_at: ExportImportTimestamp,
+    pub updated_at: ExportImportTimestamp,
+    pub manual_required_note: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportImportMigrationReceipt {
+    pub bundle_id: ExportImportBundleId,
+    pub migration_plan_ref: ExportImportMigrationPlanRef,
+    pub migration_ref: ExportImportMigrationRef,
+    pub operation_ref: ExportImportOperationRef,
+    pub execution_ref: ExportImportExecutionRef,
+    pub recorded_at: ExportImportTimestamp,
+    pub outcome: ExportImportMigrationOutcome,
+    pub applied_sections: Vec<ExportImportSectionDecision>,
+    pub rejected_sections: Vec<ExportImportSectionDecision>,
+    pub tombstones_preserved: bool,
+    pub no_resurrection: bool,
+    pub compensation_applied: bool,
+    pub provider_operation_ref: Option<ExportImportProviderOperationRef>,
+    #[serde(default)]
+    pub rollback_provider_operation_ref: Option<ExportImportProviderOperationRef>,
+    pub note: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportImportRestoreReceipt {
+    pub bundle_id: ExportImportBundleId,
+    pub restore_plan_ref: ExportImportMigrationPlanRef,
+    pub operation_ref: ExportImportOperationRef,
+    pub execution_ref: ExportImportExecutionRef,
+    pub recorded_at: ExportImportTimestamp,
+    pub state: ExportImportRestoreApplyState,
+    pub applied_sections: Vec<ExportImportSectionDecision>,
+    pub rejected_sections: Vec<ExportImportSectionDecision>,
+    pub tombstones_preserved: bool,
+    pub no_resurrection: bool,
+    pub compensation_applied: bool,
+    pub provider_operation_ref: Option<ExportImportProviderOperationRef>,
+    #[serde(default)]
+    pub rollback_provider_operation_ref: Option<ExportImportProviderOperationRef>,
+    pub note: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]

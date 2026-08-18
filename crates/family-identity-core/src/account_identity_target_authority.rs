@@ -222,6 +222,7 @@ fn action_requires_target(action: HouseholdAuthorityAction) -> bool {
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ViewChildStatus
             | HouseholdAuthorityAction::ChangePolicy
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
     )
@@ -234,6 +235,7 @@ fn action_requires_child_device_target(action: HouseholdAuthorityAction) -> bool
             | HouseholdAuthorityAction::RegisterLanSignerAnchor
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ChangePolicy
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
     )
