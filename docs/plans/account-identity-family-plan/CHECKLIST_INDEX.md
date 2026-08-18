@@ -45,6 +45,18 @@ with a tracked hand-authored durable manifest under
 This does not assert a Cloudflare runtime, migration, deployment, account final
 gate, or whole-plan completion.
 
+Current production-handoff overlay (the checked historical packet below does
+not satisfy these rows):
+
+- [ ] WP02 resolves actor parent-controller and target child/profile/device
+  separately and derives same-family, capability, lease, and step-up authority
+  from owned state.
+- [ ] Cloudflare WP06 owns authoritative Account D1
+  write/update/revocation/CAS and a shipped Firebase/provider-to-sealed-
+  authority caller; its current read adapter is not closure.
+- [ ] Device Trust WP03 consumes live Account and Device Trust currentness;
+  mapped contracts and prior proof are not runtime reachability.
+
 - [x] Rust-owned canonical account/family schema and compatibility boundary exists, including the encoded TS-edge artifact `packages/schema-domain/src/generated-family-references.ts` generated from `crates/schema/src/family_references_ts.rs` and the matching contract drift test. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`.
 - [x] Account, household, membership, role, device, invite/recovery, and session authority paths preserve canonical schema ownership. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/01-account-authority-parity-proof.md`.
 - [x] Cross-household, revoked, stale, malformed, duplicate, and schema-incompatible authority cases reject or degrade safely. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/02-account-authority-negative-proof.md`.
@@ -60,13 +72,18 @@ gate, or whole-plan completion.
 Current production-closure overlay (the checked rows below retain historical
 contract/proof evidence and do not satisfy these rows):
 
-- [ ] A durable repository/runtime caller derives account, household,
-  membership, role, child, and device authority from WP08 canonical identity;
-  callers cannot supply `same_family`, support authority, or lifecycle state as
-  trusted facts.
-- [ ] Expected tests cover repository reload, concurrent membership/role
-  transitions, full pending/invited/revoked/disabled denial, minimized audited
-  support scope, and production-caller use of the sealed binding.
+- [ ] A target-aware Account resolver keeps the actor parent-controller device
+  distinct from the target child/profile/device for Pair, Register, Revoke,
+  View, ChangePolicy, and Remote actions; callers cannot supply `same_family`,
+  capability, controller lease, step-up, support, or lifecycle authority.
+- [ ] ParentOwner, CoParent, and Observer `ViewChildStatus` is evaluated as a
+  parent action over an independently resolved child/profile/device target.
+- [ ] Cloudflare WP06 supplies the authoritative D1 writer/currentness/
+  revocation/CAS owner and provider-to-sealed-authority production caller.
+- [ ] Expected tests cover actor/target mismatch, cross-child/cross-household
+  targets, caller-supplied trust rejection, correct parent `ViewChildStatus`,
+  repository reload/concurrency, membership-state denial, audited support
+  scope, and production-caller use of the sealed binding.
 
 - [x] Account user model defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.
 - [x] Household model defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.

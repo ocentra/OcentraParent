@@ -82,7 +82,7 @@
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Reviewed as the durable Cloudflare packet after Account WP08's canonical identities, Account WP02's sealed current member/role/device binding, and WP01's module scaffold. WP06 must consume that Account-owned contract and add the durable adapter and Worker caller without inventing household authority. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
+      "reason": "Reviewed as the Cloudflare production authority packet after Account WP08's canonical identities, Account WP02's target-aware sealed authority, and WP01's module scaffold. The existing D1 surface reads current authority but does not own authoritative writes, updates, revocation, compare-and-swap, or a shipped Firebase/provider-to-Account caller. Those missing planned source owners must land before the implementation-only gate can clear. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
     },
     {
       "id": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
@@ -253,7 +253,7 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
       ],
-      "reason": "Device Trust WP03 cannot authorize a high-risk parent action until WP01 owns the persistent trusted-device/signer-key lifecycle source, Account Identity WP08 defines the canonical household/child/device/pairing authority contract, and Cloudflare WP06 persists and resolves that contract from a production caller. Its real passkey/OS ceremony must resolve the target independently, verify and consume the one-time RegisterLanSignerAnchor authorization, and own durable sign-count state; caller-supplied identifiers, typed receipts, pure evaluators, LAN pairing state, and unavailable verifiers do not satisfy these dependencies."
+      "reason": "Device Trust WP03 cannot authorize a high-risk parent action until WP01 owns the persistent trusted-device/signer-key lifecycle source and Cloudflare WP06 exposes the live Account authority produced from Account WP08 plus the target-aware WP02 correction. WP02 is intentionally transitive through WP06 rather than duplicated as a direct edge. WP03 must then keep the actor parent-controller device distinct from the target child/profile/device for RegisterLanSignerAnchor and consume live Account and Device Trust currentness. Caller-supplied identifiers, typed receipts, pure evaluators, LAN pairing state, and unavailable verifiers do not satisfy these dependencies."
     },
     {
       "id": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
@@ -334,7 +334,7 @@
     {
       "id": "WP-account-identity-family-plan-02-identity-household-role-model",
       "hardDependencies": ["WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"],
-      "reason": "Live-code review reopened WP02: the accepted evaluator conflates the actor parent-controller device with the target child/device for Pair, Register, Revoke, View, ChangePolicy, and Remote actions. A target-aware resolver, capability/lease/step-up binding, and provider-to-authority caller remain missing. This routes only a bounded source correction and preserves normal expected-test, proof, PR, and DONE gates.",
+      "reason": "Live-code review reopened WP02: the current Account adapter hard-codes same-family authority, maps device scope from the actor role, and accepts capability and controller-lease facts from the caller. Pair, Register, Revoke, View, ChangePolicy, and Remote actions therefore do not have an independently resolved target child/profile/device, and parent ViewChildStatus is mapped through child-device scope. The missing target-aware source owner must preserve the sealed WP08 boundary and server-derived capability, lease, and step-up state. Cloudflare WP06 separately owns provider composition. Normal expected-test, proof, PR, and DONE gates remain unchanged.",
       "evidence": [
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",
         "docs/plans/account-identity-family-plan/NEXT_ACTIONS.md",
@@ -760,7 +760,7 @@
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
       ],
-      "reason": "WP03 requires Account Identity WP08's canonical household/child/device/pairing authority contract; request DTOs and model-only records cannot establish the target binding.",
+      "reason": "WP03 requires Account Identity WP08's canonical household/child/device/pairing authority contract. The target-aware WP02 correction is consumed transitively through Cloudflare WP06; request DTOs and model-only records cannot establish the target binding.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -773,7 +773,7 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
       ],
-      "reason": "WP03 requires Cloudflare WP06's durable authoritative repository and production caller to persist and resolve the Account WP08 binding; the current provider-subject mapping and local LAN registry are insufficient. WP06's bounded source packet is independently accepted; this reviewed-implementation gate authorizes only the bounded WP03 source phase and does not change normal READY, tests, proof, runtime, or DONE state.",
+      "reason": "WP03 requires Cloudflare WP06's authoritative D1 producer/currentness/revocation/CAS owner and shipped provider-to-Account caller. The existing read adapter, provider-subject mapping, and local LAN registry are insufficient. This reviewed-implementation gate remains closed until WP06's planned production source is independently reviewed; it does not change normal READY, tests, proof, runtime, or DONE state.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -1229,7 +1229,7 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
       ],
-      "reason": "Cloudflare WP06 cannot infer current member, role, household, or device authority from a verified provider subject; it consumes the sealed Account WP02 binding contract.",
+      "reason": "Cloudflare WP06 cannot infer current member, role, household, target child/profile/device, capability, lease, or step-up authority from a verified provider subject. Its source phase consumes the target-aware sealed Account WP02 authority after that planned owner is independently reviewed.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -1533,18 +1533,6 @@
       "reason": "Reference-routing contract and exact-source boundary test are current; no network runtime implementation claim, CI, review, or main merge.",
       "statusText": "Validation — catalog routing and no-default-read boundary are current; runtime work remains separate.",
       "evidence": ["docs/proof/network-plan/slice-08-control-catalog-routing.md"]
-    },
-    {
-      "id": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
-      "state": "validation",
-      "reason": "Authorize only the independently reviewed WP03 source packet against the WP01, Account WP08, and Cloudflare WP06 implementation-phase gates. Normal dependency derivation remains blocked; tests, proof, runtime reachability, provider authority, LAN handoff, and DONE remain open.",
-      "statusText": "Blocked / implementation-only source authorized; normal READY, tests, proof, runtime, LAN handoff, and DONE remain blocked.",
-      "evidence": [
-        "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
-        "docs/plans/device-trust-bootstrap-plan/NEXT_ACTIONS.md",
-        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
-        "docs/engineering-graph/code-map.json"
-      ]
     }
   ],
   "proofOverrides": [
@@ -1653,26 +1641,10 @@
         "packages/schema-domain/src/generated-account-identity-authority.ts",
         "packages/schema-domain/src/account-identity-authority.ts"
       ],
-      "reason": "Independent source review accepted the Account authority packet at 35edb2830, integrated through e69acf279. Rust-owned schema validation, guarded non-forgeable capability issuance, durable repository/CAS/invariant enforcement, and generated TypeScript parity now exist. Expected tests, provider composition, deployment/migration execution, proof, and DONE remain open.",
+      "reason": "Independent source review accepted the Account authority packet at 35edb2830, integrated through e69acf279. Rust-owned schema validation, guarded non-forgeable capability issuance, a local SQLite repository/CAS/invariant owner, and generated TypeScript parity exist. This evidence does not include target-aware action resolution, an authoritative Cloudflare D1 writer/update/revocation/CAS path, a provider-to-Account production caller, or a live Device Trust binding. Expected tests, deployment/migration execution, proof, and DONE remain open.",
       "evidence": [
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
-        "docs/PLAN_CODE_STATUS_MATRIX.md"
-      ]
-    },
-    {
-      "id": "WP-account-identity-family-plan-02-identity-household-role-model",
-      "implementation": [
-        "crates/family-identity-core/src/account_identity_authority_capability.rs",
-        "crates/family-identity-core/src/account_identity_authority_repository.rs",
-        "crates/family-identity-core/src/account_identity_authority_repository_cas.rs",
-        "crates/family-identity-core/src/account_identity_authority_role_mapping.rs",
-        "crates/family-identity-core/src/family_identity_account.rs"
-      ],
-      "reason": "Independent source review accepted the sealed current account/member/household/role/device authority and durable CAS repository at 35edb2830, integrated through e69acf279. The packet removes caller-derived authority fallbacks and binds support authority to a complete receipt. Expected tests and the real provider/service composition remain open; no proof or DONE is claimed.",
-      "evidence": [
-        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
-        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
         "docs/PLAN_CODE_STATUS_MATRIX.md"
       ]
     },

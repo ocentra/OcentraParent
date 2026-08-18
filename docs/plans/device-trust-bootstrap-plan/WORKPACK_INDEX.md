@@ -22,7 +22,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | --- | --- | ---: | --- | --- |
 | partial / foundation-source only; expected tests, authority bridge, and caller open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | accepted continuation is integrated through `68717b5b7`: durable lifecycle/current-binding source is present, but no shipped authority issuer, platform ceremony, production caller, expected-test wave, proof, or completion exists | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
 | partial / Windows custody source only; downstream of WP01 | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | DPAPI/registry and opaque runtime seams exist, but `require_authenticated_parent_authority()` is permanently unavailable; no ceremony issuer, desktop mount, custody-to-lifecycle startup composition, current tests, or end-to-end sealing proof is available | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
-| blocked / implementation-only source authorized | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; reviewed-implementation gates authorize only the bounded source packet; atomic ceremony custody/recovery and linked-challenge lifecycle validation are independently static-reviewed with no remaining internal P0/P1; authoritative target resolution, platform/passkey provider, durable sign counter, tests, proof, runtime, LAN handoff, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
+| blocked / bounded custody retained / target authority and runtime missing | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Atomic ceremony custody/recovery and linked-challenge lifecycle source are retained, but planned target-authority and parent-runtime owners, platform/passkey provider, durable sign counter, expected tests, proof, LAN handoff, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
 | partial / source accepted, expected tests open | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | unsigned projection and fail-closed wire/context boundary are integrated; real issuer/signature/revocation authority, callers, expected tests, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
 | partial / source accepted, expected tests open | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | caller-minted restore authority is removed and verified-parent/executor boundaries fail closed; encryption, real executor/custody, expected tests, revocation proof, and callers remain open | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
@@ -70,11 +70,13 @@ broader lifecycle composition remain open.
 WP05's unsigned entitlement projection, WP06's fail-closed restore boundary,
 and WP07's durable removal/readiness boundary are also accepted source, not
 test/proof/completion claims. WP03 remains BLOCKED in the default graph on
-WP01, Account WP08, and Cloudflare WP06. Reviewed-implementation gates now
-authorize only the bounded WP03 source packet against all three reviewed source
-owners; the default dependency state does not change and the route does not
-provide ceremony authority, provider authority, tests, proof, runtime
-reachability, or completion. WP02 is not a default WP26 dependency. If the
+WP01, Account WP08, and Cloudflare WP06. The reviewed-implementation edges do
+not authorize the bounded WP03 source packet yet: Cloudflare WP06 still lacks
+its planned authoritative caller/writer source evidence. Account WP02 is the
+only authority-chain workpack currently eligible for implementation-only work;
+the default dependency state does not change, and the route does not provide
+ceremony authority, provider authority, tests, proof, runtime reachability, or
+completion. WP02 is not a default WP26 dependency. If the
 platform sealing/lifecycle-revocation path is selected, the reviewed WP26 ->
 WP02 gate must be added and completed before the LAN/child consumer route is
 assigned; the non-sealing route remains free of that optional dependency.
@@ -83,7 +85,8 @@ assigned; the non-sealing route remains free of that optional dependency.
 
 ```text
 WP01 foundation/source ------------------------------+
-Account WP08 -> Cloudflare WP06 current-authority ---+-> WP03 parent ceremony
+Account WP08 -> Account WP02 target authority --------+
+Cloudflare WP06 authoritative writer/provider caller -+-> WP03 parent ceremony
                                                         +-> LAN WP26 / child current-binding consumer
 WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
 WP02 parent-runtime/platform sealing + revocation is a conditional gate on the
@@ -116,7 +119,8 @@ That selected route cannot proceed until WP02's sealing, lifecycle-generation,
 and revocation handoff is complete. The edge points downstream from WP26 to
 WP02 and does not point back to WP03, so it cannot create a cycle. If the
 platform path is not selected, the edge remains absent and the Account WP08 ->
-Cloudflare WP06 -> WP03 -> LAN/child route does not force WP02.
+Account WP02 target authority -> Cloudflare WP06 -> WP03 -> LAN/child route
+does not force Device Trust WP02.
 
 ## Dependency rules
 
@@ -128,8 +132,10 @@ ceremony authority. Its WP01 foundation edge is a reviewed conditional gate for
 the selected platform-custody route, not a prerequisite for the default Account
 -> Cloudflare -> WP03 -> LAN/child route.
 WP03 depends on WP01, Account Identity WP08, and Cloudflare WP06 and blocks
-high-risk action approval claims. WP02 is conditional only for a demonstrated
-private-key/install custody requirement.
+high-risk action approval claims. Target-aware Account WP02 is consumed
+transitively through WP06; it is not duplicated as a direct WP03 edge. Device
+Trust WP02 is conditional only for a demonstrated private-key/install custody
+requirement.
 WP04 depends on WP03 and blocks phone/QR approval claims.
 WP05 depends on WP01/WP02 and payment handoff; license never unlocks behavior alone.
 WP06 depends on WP02/WP03/WP04 and blocks recovery/reset claims.

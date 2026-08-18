@@ -40,9 +40,11 @@ Purpose: define parent step-up auth with passkeys, biometrics, and OS-native app
   inspected lifecycle paths. The reviewed code map now records it, but no test,
   proof, runtime-reachability, or completion claim follows.
 - The draft currently receives child-device and pairing identifiers from the
-  request boundary. The repository has no durable authoritative
-  household-to-child-to-device-to-pairing lookup that can validate those
-  identifiers independently, so they cannot authorize signer registration.
+  request boundary. Account has a sealed binding and local repository, and
+  Cloudflare has a read adapter, but WP02 still lacks target-aware action
+  authority and WP06 lacks authoritative writes/currentness plus a shipped
+  provider caller. Those identifiers therefore cannot authorize signer
+  registration.
 
 ## LAN WP26 dependency routing
 
@@ -53,11 +55,15 @@ WP03 has three hard prerequisites:
 - Account Identity WP08 owns the canonical cross-boundary
   household/child/device/pairing authority contract.
 - Cloudflare WP06 owns the durable authoritative repository and production
-  caller that persists and resolves that contract.
+  caller that persists and resolves that contract after target-aware Account
+  WP02. WP02 is transitive through WP06 rather than a duplicate direct edge.
 
 WP03 remains blocked until a real parent ceremony can resolve the target from
 those owners, authorize the one-time `RegisterLanSignerAnchor` action, verify
-the signed assertion, and consume its nonce/receipt exactly once. Account WP05
+the signed assertion, and consume its nonce/receipt exactly once. The actor
+parent-controller device must remain distinct from the target
+child/profile/device, and both Account and Device Trust currentness must be
+re-resolved. Account WP05
 is a pure evaluator over caller-supplied records, and the local LAN trusted
 device registry is pairing state; neither is the missing account/household
 authority repository. A typed receipt, document assertion, request DTO, or LAN
@@ -70,16 +76,19 @@ the one-time registration authorization and current-binding/revocation handoff.
 
 ## Implementation-phase routing disposition — 2026-08-17
 
-The graph now applies narrow `reviewed-implementation` phase gates from WP03 to
-Device Trust WP01, Account WP08, and Cloudflare WP06. WP03's bounded source
-packet is authorized for implementation-only continuation against those
-reviewed source owners. The default graph remains blocked and normal READY,
-tests, proof, runtime reachability, provider/native authority, LAN handoff,
-and DONE remain unchanged. No phase gate provides ceremony authority, tests,
-proof, completion, or runtime authority, and no WP26 edge is opted into one.
+The graph keeps hard edges from WP03 to Device Trust WP01, Account WP08, and
+Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Bounded
+ceremony custody source is retained, but the planned production owners
+`crates/family-identity-core/src/parent_step_up_target_authority.rs` and
+`crates/parent-runtime-core/src/parent_step_up_runtime.rs` are absent. The graph
+therefore remains blocked, and normal READY, tests, proof, runtime reachability,
+provider/native authority, LAN handoff, and DONE remain unchanged.
 
 ## Negative cases
 
 - Cached login cannot bypass step-up.
 - Child devices cannot satisfy parent step-up.
 - Expired assertions fail closed.
+- Parent-controller actor identity cannot be reused as the target child device.
+- Cross-child, cross-household, stale Account, revoked Device Trust, provider-
+  account mismatch, and replayed `RegisterLanSignerAnchor` attempts fail closed.

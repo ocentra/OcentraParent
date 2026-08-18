@@ -109,7 +109,7 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 | WP03 | worker entrypoint, env validation, request-size guard, origin/CORS behavior, kill-switch, scheduled hook shape |
 | WP04 | route manifest, route groups, domain contract ownership, no ad hoc route strings |
 | WP05 | auth/admin/support/webhook states, adapter boundary, provider blockers |
-| WP06 | DO/D1/KV/R2/Queue ownership, idempotency/cache/ledger/queue separation |
+| WP06 | DO/D1/KV/R2/Queue ownership plus Account D1 authoritative create/update/revoke/currentness/CAS, verified-provider-to-sealed-authority caller, idempotency, restart, and stale-generation rejection |
 | WP07 | local dev, seed, fixture, teardown, emulator/miniflare/wrangler blockers |
 | WP08 | test runner, exact assertion matrix, unit/integration/security/property/e2e family mapping |
 | WP09 | portal-to-worker smoke, redacted request/response proof, no child private payloads |
@@ -119,17 +119,19 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 
 ## Account authority storage handoff
 
-WP06 consumes, but does not define, Account WP08's Rust-owned contract. Its
-proof must name `infra/cloudflare/wrangler.toml`, `src/env.ts`, the selected
-account-identity D1/DO/KV declarations, binding-specific account migration
-directory (or equivalent mapping), store, migration, and
+WP06 consumes, but does not define, Account WP08's Rust-owned contract or
+Account WP02's target-aware action authority. Its proof must name
+`infra/cloudflare/wrangler.toml`, `src/env.ts`, the selected account-identity
+D1 declarations, binding-specific account migration directory, read store,
+authoritative writer/currentness/revocation/CAS owner, provider caller, and
 `tests/integration/account-identity-d1-migration.test.ts`; retain the migration
 result from `cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`, the module integration result from
 `npm --prefix infra/cloudflare run test:integration`, and the focused
 architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/storage/account-identity-store.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
-Current source declares only billing storage bindings and no binding-specific
-account migration mapping, so this migration command is blocked and must never
-be run against `BILLING_D1` as a substitute.
+Current source declares the isolated Account binding and ordered migrations,
+but their application, the authoritative writer/provider caller, and the full
+expected-test source are absent. The command remains deferred and must never be
+run against `BILLING_D1` as a substitute.
 WP06 also retains the direct focused command
 `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`
 in `03-account-identity-d1-migration-test.md`; the aggregate integration script
@@ -156,6 +158,9 @@ missing binding fails clearly
 private/admin/support route lacks owner proof
 provider/webhook assumption blocked until provider proof
 account/session and trusted-device authority remain dependency-gated until owning-plan proof exists
+verified provider subject cannot substitute for target-aware sealed Account authority
+read-adapter success cannot substitute for authoritative write/update/revoke/CAS currentness
+stale generation, revoked mapping, provider/account mismatch, restart, and concurrent CAS fail closed
 D1/KV/R2/Queue claim has clear owner and purpose
 local dev proof is not production deployment proof
 payment remains blocked until WP12 handoff proof exists and is consumed

@@ -76,7 +76,7 @@ authority.
 | --- | --- | --- |
 | WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar/transition journal, current device/signer binding, durable local event journal, and the integrated trusted-device/signer-key registration packet. Public household signer/verifier mint paths are removed; current authority is re-resolved from owner state. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped platform/passkey ceremony issuer or complete trust-state composition owner. Independent source review accepted the bounded packet as implementation evidence only. Expected-test migration, functional validation, proof, production caller integration, and completion remain open. |
 | WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch source, `crates/family-identity-core` has current-authority and lifecycle-activation seams, and `crates/parent-runtime-core` has an opaque staged-handle facade. | `require_authenticated_parent_authority()` is permanently unavailable before custody mutation; no ceremony issuer, desktop/native command mount, or custody-to-lifecycle startup composition reaches the source. Non-Windows custody and end-to-end sealing remain unavailable/manual-required; stale lifecycle/custody tests are not proof. |
-| WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries and a five-minute lifetime gate. The pushed integration source packet adds atomic challenge/intent and receipt/credential custody, restart reconciliation, and strict linked-challenge lifecycle validation; independent static review accepted the bounded source with no remaining internal P0/P1 in those paths. The graph now authorizes this bounded source packet in the implementation-only phase against reviewed WP01, Account WP08, and Cloudflare WP06 evidence. | The default graph remains blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06 for normal readiness. There is no independently authoritative household/child/device/pairing lookup, passkey/OS-native signature provider, durable sign-counter owner, one-time `RegisterLanSignerAnchor` ceremony, shipped caller, focused test pass, or proof; request-bound identifiers and policy proof consumption are not ceremony authority. Tests, proof, runtime reachability, provider authority, LAN handoff, and DONE remain open. |
+| WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries, a five-minute lifetime gate, and bounded atomic challenge/intent plus receipt/credential custody. | The graph is blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Planned `parent_step_up_target_authority.rs` and `parent_step_up_runtime.rs` do not exist. Actor parent-controller and target child/profile/device are not authoritatively separated for `RegisterLanSignerAnchor`; the authoritative Account writer/provider caller, passkey/OS-native signature provider, durable sign counter, shipped parent runtime, expected tests, proof, LAN handoff, and DONE remain open. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
 | WP05 | `crates/entitlement-core` preserves an unsigned entitlement projection and a crate-owned fail-closed context; caller/wire data cannot manufacture trusted snapshot state. | No real entitlement issuer/signature/revocation provider or device-trust-bound capability unlock caller. |
 | WP06 | `crates/storage-custody-core` provides restore preflight and a verified-parent gate plus an unavailable executor port; caller-minted restore authority was removed. | No encrypted bundle/key-custody runtime, revocation-preserving executor, or shipped restore caller. |
@@ -86,13 +86,14 @@ authority.
 
 The smallest honest result is therefore a durable gap map, not a synthetic
 issuer, test bridge, proof adapter, or dead DTO caller. WP01 owns the persistent
-trusted-device/signer-key lifecycle source. Account Identity WP08 must define
-the canonical household/child/device/pairing binding, and Cloudflare WP06 must
-persist and resolve it from a real production caller. The graph authorizes only
-the bounded WP03 source packet in its implementation-only phase; normal WP03
-readiness remains blocked until those sources and a real platform/passkey
-ceremony issuer provide the one-time `RegisterLanSignerAnchor` authorization.
-WP02 is conditional only if the implementation demonstrates a private-key/install
+trusted-device/signer-key lifecycle source. Account Identity WP08 supplies the
+canonical binding foundation; Account Identity WP02 must correct actor/target
+action authority; Cloudflare WP06 must own authoritative writes/currentness and
+resolve it from a shipped provider caller. WP03 retains bounded custody source,
+but its missing target-authority and parent-runtime owners keep the graph
+blocked until that chain and a real platform/passkey ceremony issuer provide
+the one-time `RegisterLanSignerAnchor` authorization. Device Trust WP02 is
+conditional only if the implementation demonstrates a private-key/install
 custody need; it is not added as a blanket WP26 dependency. When selected, the
 reviewed WP26 -> WP02 gate must be promoted and complete before the LAN/child
 consumer route proceeds; when not selected, that edge remains absent. Subsequent
@@ -134,12 +135,13 @@ integration, repo-wide Enforcer/architecture acceptance, platform custody,
 broader lifecycle composition, and DONE state remain open. WP01 is a
 foundation/source-only route, not a shipped authority or production-caller
 route; its graph state must remain validation/open rather than READY for a
-missing issuer. WP03 remains BLOCKED. Its bounded source packet is accepted
-only through implementation-only phase gates for WP01, Account WP08, and
-Cloudflare WP06; no ceremony, provider, runtime, test, proof, or completion
-claim follows. The Account WP08 implementation input and Cloudflare WP06
-bounded source packet are reviewed, while their normal runtime gates remain
-open. WP02 is a conditional downstream sealing/composition route, and WP26 is
+missing issuer. WP03 remains BLOCKED. Its bounded custody source is retained,
+but its planned target-authority and parent-runtime roots are missing. Account
+WP02's target-aware correction is consumed transitively through Cloudflare
+WP06; no ceremony, provider, runtime, test, proof, or completion claim follows.
+The Account WP08 implementation input and Cloudflare read adapter are reviewed,
+while authoritative Cloudflare writes/provider composition remain open. Device
+Trust WP02 is a conditional downstream sealing/composition route, and WP26 is
 ordered after WP03 for current-binding/revocation consumption. The default graph
 does not force WP02 into that route; when a platform sealing/lifecycle-revocation
 path is selected, its reviewed conditional `WP26 -> WP02` gate must be promoted
@@ -165,7 +167,7 @@ WP26 --depends_on (reviewed; implementationGate only for the reviewed source
 The selected route is then blocked until WP02's sealing, lifecycle-generation,
 and revocation handoff is complete; the edge never points back to WP03 and
 cannot create a cycle. If the platform path is not selected, that conditional
-edge remains absent, so the Account WP08 -> Cloudflare WP06 -> WP03 -> LAN/child
+edge remains absent, so the Account WP08 -> Account WP02 -> Cloudflare WP06 -> WP03 -> LAN/child
 route is not forced through WP02. This is routing/authorization only; it does
 not claim WP02 implementation, tests, proof, runtime reachability, or DONE.
 The current WP02 source cannot satisfy the selected gate: its authenticated
@@ -176,20 +178,24 @@ runtime proof before the promoted edge can clear.
 
 ## WP03 target-authority owner correction — 2026-08-17
 
-Live source inspection found no repository that authoritatively resolves a
-household, child profile, device, pairing, install, and route as one durable
-binding. Account WP02 supplies the model and Account WP05 supplies pure
-authorization semantics over caller-provided records; neither is a persistence
-owner. Account WP08 owns the canonical cross-boundary contract. Cloudflare WP06
-is the designated durable storage owner, but its current store only maps a
-provider subject to an account and has no production Worker caller.
+Live source inspection found a sealed Account binding and local SQLite
+repository/CAS plus a Cloudflare D1 read adapter, but no complete live authority
+chain. Account WP02 still hard-codes same-family authority, derives device scope
+from the actor role, and accepts capability/lease facts from the caller instead
+of resolving the target child/profile/device independently. Account WP08 owns
+the canonical cross-boundary contract. Cloudflare WP06 is the designated
+authoritative D1 writer/currentness/revocation/CAS and provider-caller owner,
+but those source roots do not exist.
 
 WP03 therefore has explicit hard dependencies on Device Trust WP01, Account
-Identity WP08, and Cloudflare WP06. The local LAN registry cannot substitute
-for account/household authority. The current WP03 Rust draft may retain its
-atomic custody and recovery work, but target identifiers remain untrusted until
-the Account WP08 contract and Cloudflare WP06 repository/caller are real. A
-native/passkey provider and durable sign-counter owner also remain absent. The
+Identity WP08, and Cloudflare WP06; target-aware Account WP02 is intentionally
+transitive through WP06 rather than a duplicate direct edge. The local LAN
+registry cannot substitute for account/household authority. The current WP03
+Rust draft may retain its atomic custody and recovery work, but
+`RegisterLanSignerAnchor` must keep the actor parent-controller device distinct
+from the target child/profile/device and consume both live Account and Device
+Trust currentness. A native/passkey provider, parent-runtime composer, and
+durable sign-counter owner also remain absent. The
 implementation-only routing is authorization only, not a runtime, test, proof,
 or completion claim.
 

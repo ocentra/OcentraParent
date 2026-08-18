@@ -80,9 +80,11 @@ crate-private repository/read port and the non-public trusted result. It rejects
 selector mismatch, unpaired or uninstalled devices, inactive lifecycle,
 revocation, and invalid generation. Downstream crates cannot implement that
 port or fabricate the trusted binding. Independent P0/P1 review accepted this
-bounded source packet. No repository adapter or production caller exists yet;
-Cloudflare WP06 owns that next source packet. Tests, builds, retained proof,
-runtime authority, and DONE remain deferred.
+bounded source packet. A local SQLite repository/CAS owner and a Cloudflare D1
+read adapter now exist. WP02's target-aware action owner and Cloudflare WP06's
+authoritative writer/update/revocation/CAS plus provider caller do not. Tests,
+builds, retained proof, live Device Trust binding, runtime authority, and DONE
+remain deferred.
 
 ## 2026-08-17 source review result
 
@@ -109,11 +111,13 @@ pure evaluator, LAN registry, request DTO, or generated edge value is not a
 substitute. WP03 remains blocked until both the contract and durable caller are
 reachable, and no reverse dependency from Account WP08 to WP03 is introduced.
 
-Cloudflare WP06 remains the durable repository and production-caller owner.
-This packet may define the contract and family-owned read port, but it must not
-add D1 storage, a Worker route, provider verification, or a fake local authority
-adapter. Existing tests/proof are not evidence for this new packet and every
-acceptance row below remains open.
+Cloudflare WP06 remains the authoritative Cloudflare repository and
+production-caller owner. Its current read adapter and migrations do not own
+write/update/revocation/CAS currentness. This packet may define the contract,
+family-owned read port, and local repository, but it must not add a Worker
+route, provider composition, or fake Cloudflare authority adapter. Existing
+tests/proof are not evidence for this new packet and every acceptance row below
+remains open.
 
 PR #607's TypeScript Cloudflare persistence/D1-test-double work is historical
 branch evidence only. It is not an implementation starting point or proof of
@@ -206,12 +210,13 @@ deployment, or whole-plan readiness.
 Independent review accepts the replacement Account source at `35edb2830`,
 integrated through `e69acf279`. In addition to the prior canonical binding, the
 current packet adds strict schema validation modules, non-forgeable capability
-issuance, and durable repository/CAS/invariant/read ownership. Generated
+issuance, and local durable repository/CAS/invariant/read ownership. Generated
 Account TypeScript remains derived from the Rust template. Cloudflare WP06 now
-contains the source adapter and ordered `0001`-`0004` migration files, but
-provider composition, migration execution, expected tests, retained proof, and
-deployment remain downstream/open. This is reviewed implementation evidence,
-not a new DONE claim.
+contains the read adapter and ordered `0001`-`0004` migration files, but its
+authoritative writer/update/revocation/CAS path, provider composition,
+migration execution, expected tests, retained proof, and deployment remain
+downstream/open. WP02's target-aware action resolver is also reopened. This is
+reviewed implementation evidence, not a new DONE claim.
 
 ## Prior narrow completion record
 

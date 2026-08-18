@@ -139,7 +139,7 @@ npm run lint:architecture -- --files crates/schema crates/family-identity-core p
 ```
 
 Cloudflare WP06 owns the real persistence/migration command and must use
-`cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"` only after its dedicated account D1 binding and binding-specific migration directory (or equivalent isolated mapping) exist. Current Cloudflare source declares neither that account D1/DO/KV set nor the isolated migration mapping, so `BILLING_D1` cannot be used as a substitute. Cloudflare WP08 owns the module-scoped runner command `npm --prefix infra/cloudflare run test:integration`. Account WP08 consumes neither result as its own validation; Account WP06 aggregates their proof or exact blockers later.
+`cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`. The dedicated Account D1 binding and ordered migration source now exist, but application, authoritative write/update/revocation/CAS behavior, provider-to-Account caller reachability, and retained proof do not; `BILLING_D1` cannot substitute. Cloudflare WP08 owns the module-scoped runner command `npm --prefix infra/cloudflare run test:integration`. Account WP08 consumes neither result as its own validation; Account WP06 aggregates their proof or exact blockers later.
 
 Expected proof:
 
@@ -165,6 +165,7 @@ wrong household or revoked/stale actor cannot read or mutate authority state
 malformed/duplicate/schema-incompatible records reject or degrade safely
 schema-incompatible authority input cannot invent a successful decision
 Account WP08 cannot report a D1 test double or Cloudflare runner as its own proof
+Cloudflare read-adapter presence cannot substitute for authoritative write/update/revocation/CAS and provider-caller tests
 TS edge code cannot become the account-authority owner or bypass the Rust generated-artifact drift test
 account, household, device, invite, recovery, and session operations have focused negative coverage
 authority proof redacts sensitive values and preserves a safe correlation ID
@@ -190,6 +191,11 @@ parent owner/co-parent/observer/child/support roles are distinct
 revoked/disabled/pending/invited states deny or degrade correctly
 cross-family id guessing is denied
 support/admin actor is minimized and audited
+actor parent-controller device cannot be reused as the target child/profile/device
+cross-child and cross-household target substitution is denied for Pair, Register, Revoke, View, ChangePolicy, and Remote actions
+caller-supplied same-family, capability, controller lease, and step-up facts cannot authorize
+ParentOwner, CoParent, and Observer ViewChildStatus preserves parent actor scope while resolving the target independently
+the Cloudflare provider caller reaches only sealed target-aware authority and authoritative D1 currentness
 ```
 
 ## WP03 Session Token Lifecycle

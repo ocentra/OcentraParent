@@ -169,39 +169,52 @@ consumer, child-device scope consumer, and focused unit/contract tests are real.
 They prove a bounded decision model, not a durable account authority runtime.
 The live production consumers still pass caller-assembled family, membership,
 device-trust, session, capability, and lease facts into the evaluator. The
-sealed WP08 current-binding read port has no production repository adapter or
-caller, and the TypeScript owner paths named by this historical workpack no
-longer exist.
+sealed WP08 current-binding port and local SQLite repository/CAS exist, and
+Cloudflare has a read adapter, but no target-aware action owner, authoritative
+Cloudflare writer/currentness, or shipped provider caller exists. The
+TypeScript owner paths named by this historical workpack no longer exist.
 
 Production source still required:
 
-- an Account-owned sealed cross-runtime binding over WP08 canonical IDs that
-  includes server-derived current household, membership, role, child, and
-  device context without exposing public authority construction;
-- a Cloudflare WP06 durable repository/runtime producer and consumer of that
-  contract;
+- an Account-owned target-aware resolver over the sealed WP08 binding that
+  keeps the actor parent-controller device separate from the target
+  child/profile/device for Pair, Register, Revoke, View, ChangePolicy, and
+  Remote actions;
+- server-derived same-family, capability, controller-lease, and step-up state;
+  these facts cannot be accepted from the request/caller;
+- correct `ViewChildStatus` composition for ParentOwner, CoParent, and Observer
+  actors while independently resolving the child/profile/device target;
+- a Cloudflare WP06 authoritative D1 writer/update/revocation/CAS owner and
+  shipped Firebase/provider-to-sealed-authority caller;
 - a minimized, receipt-bound, audited support authority rather than a public
   support actor or caller boolean;
 - monotonic membership/role transitions and a typed audit sink.
 
 Expected test source still required:
 
+- actor-device/target-device mismatch, cross-child target, and cross-household
+  target tests for every affected action;
+- tests proving caller-supplied `same_family`, capability, controller lease,
+  and step-up state cannot authorize an action;
+- positive parent-owner/co-parent/observer `ViewChildStatus` cases with an
+  independently resolved target;
 - repository reload and concurrent transition tests;
 - pending, invited, revoked, and disabled membership matrix negatives;
 - minimized support/admin scope and audit-reference tests;
 - a real production-caller test proving sealed current binding is consumed and
   caller-supplied authority cannot bypass it.
 
-### Accepted replacement source delta
+### Accepted replacement source delta and reopened review
 
 The independently accepted `35edb2830` packet, integrated through
-`e69acf279`, closes the internal WP02 source seam above: current account,
-household, member, role, device, session, target, support receipt, and authority
-generation are resolved through a sealed capability plus durable repository,
-compare-and-swap, invariant, read, and mapping modules. Request/provider
-subjects and public serde values cannot construct that capability, and support
-authority requires a complete receipt. The shipped provider-to-authority
-producer, account routes, expected tests, validation, and proof remain open.
+`e69acf279`, remains valid for its sealed capability and local SQLite
+repository/CAS/invariant boundary. Live review reopened action composition:
+the current evaluator hard-codes same-family authority, derives device scope
+from the actor role, accepts capability and controller-lease facts from its
+caller, and does not independently resolve the target child/profile/device.
+The planned target-aware owner is therefore still missing. Cloudflare WP06
+separately owns the authoritative D1 writer and provider caller. Expected
+tests, validation, proof, routes, and DONE remain open.
 
 The remote packet `ac03afee3a` is rejected/quarantined: its public
 deserializable account/membership/support records had no caller or persistence

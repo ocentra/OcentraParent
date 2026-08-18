@@ -167,7 +167,7 @@ Do not use one proof family to claim the whole device-trust path. For this plan,
 ```text
 trust source-of-truth E2E: actor/account/household/device registration -> trust state -> revocation/expiry/no-child-control boundaries.
 local key sealing E2E: trust subject -> platform store/wrapper -> sealed key lifecycle -> wrong user/device/key negatives -> no universal key.
-parent step-up E2E: parent account + household role + action -> platform approval assertion -> nonce/expiry/audit proof.
+parent step-up E2E: live Account currentness + live Device Trust currentness + parent-controller actor + independently resolved target child/profile/device + action -> platform approval assertion -> nonce/sign-count/expiry/audit proof.
 phone QR approval E2E: desktop challenge -> phone approval -> action/household/parent/device/target binding -> replay/expiry rejection.
 entitlement-device binding E2E: signed entitlement snapshot -> trusted device binding -> expiry/revocation/replay checks -> no license-only unlock.
 recovery reset/re-pair E2E: encrypted recovery bundle -> wrong household/device/key negatives -> revocation preserved -> re-pair state.
@@ -175,6 +175,14 @@ child tamper/uninstall E2E: parent-authorized request -> trust revocation -> pac
 dependency adoption E2E: dependency candidate -> license/security/maintenance/supply-chain review -> adoption or rejection proof.
 route gate E2E: accepted proof roots + carried blockers -> adjacent handoffs -> route/index sync -> manual-required gap register.
 ```
+
+WP03 expected-test source must reject actor-device/target-device conflation,
+cross-child and cross-household substitution, stale or revoked Account/Device
+Trust state, provider/account mismatch, caller-supplied capability/lease/step-
+up facts, stale sign counters, replayed nonces, restart reuse, and a
+`RegisterLanSignerAnchor` call that bypasses the shipped parent runtime. These
+tests are written only after the target-authority and runtime source packet is
+stable; historical receipt/shape tests do not satisfy them.
 
 A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
 

@@ -30,7 +30,7 @@ Use this index to select exactly one workpack.
 ## Default execution order
 
 ```text
-WP01 -> Account WP08 -> Cloudflare WP06 -> Cloudflare WP08 -> WP02 -> WP03 -> WP04 -> WP05 -> WP07 -> Account WP06
+WP01 -> Account WP08 -> Account WP02 target authority -> Cloudflare WP06 writer/caller -> Device Trust WP03 ceremony -> Cloudflare WP08 -> WP03 -> WP04 -> WP05 -> WP07 -> Account WP06
 ```
 
 ## WP08 verification state
@@ -45,16 +45,19 @@ household/child/device binding with pairing, installation, selected route,
 lifecycle, revocation, bounded generation, guarded identifiers, active provider
 mapping, exact account consistency, and a crate-private fail-closed read port.
 It does not authorize completion, tests, proof, Cloudflare runtime, or a
-production authority claim. Cloudflare WP06 and WP08 handoffs remain open.
+production authority claim. WP02's target-aware action owner, Cloudflare
+WP06's authoritative writer/provider caller, Device Trust WP03's live binding,
+and Cloudflare WP08 proof remain open.
 
 ## WP02-WP05 live production correction
 
 The checked WP02-WP05 rows preserve an earlier local contract/proof slice and
-do not close the replacement source. The accepted `35edb2830` packet now adds
-the sealed capability, durable repository/CAS, persisted session currentness,
+do not close the replacement source. The accepted `35edb2830` packet adds the
+sealed capability, local durable repository/CAS, persisted session currentness,
 owner-derived invite/recovery records, and Account-bound billing/support
-consumers. Provider/account route composition, remaining runtime handoffs, the
-complete expected-test wave, validation, and proof are still open.
+consumers. WP02's actor-versus-target correction, Cloudflare's authoritative
+writer/provider composition, remaining runtime handoffs, the complete
+expected-test wave, validation, and proof are still open.
 
 The rejected `codex/account-wp02-wp05-source-wave` packet at `ac03afee3a` is
 quarantined remote evidence only. It added public deserializable lifecycle
@@ -68,8 +71,8 @@ legal replacement is the accepted `35edb2830` packet now integrated through
 ```text
 WP01 blocks runtime provider/session implementation.
 WP08 owns only the Rust-owned account/family contract authority and account-authority parity. It is not WP01 provider-decision work and it does not own any Cloudflare binding, adapter, migration, or worker test runner.
-Cloudflare WP06 owns the D1/DO/KV binding, persistence surface, migration execution, and storage-proof packet after the WP08 contract handoff. Cloudflare WP08 owns the Cloudflare runner/pyramid proof after Cloudflare WP06. Neither packet redefines account/family authority.
-WP02 blocks most authorization, UI, policy, payment, and remote-access handoffs.
+WP02 consumes WP08 and must first provide target-aware actor/action authority without caller-supplied same-family, capability, lease, or step-up trust. It blocks Cloudflare WP06 and most authorization, UI, policy, payment, remote-access, and Device Trust handoffs.
+Cloudflare WP06 consumes WP02 and owns the authoritative D1 writer/update/revocation/CAS surface, provider-to-sealed-authority caller, migration execution, and storage-proof packet. Its existing D1 read adapter is not sufficient. Cloudflare WP08 owns the Cloudflare runner/pyramid proof after WP06. Neither packet redefines account/family authority.
 WP03 blocks secure-login/session claims and must be read with workpacks/03-current-boundary-addendum.md.
 WP04 may run after WP02 but must not implement data-custody side effects itself.
 WP05 depends on WP02/WP03 authority and session freshness models.

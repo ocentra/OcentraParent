@@ -19,7 +19,7 @@
 ```text
 Plan route: upgraded
 Execution-grade workpacks: WP01 has a provider/custody proof pack plus the retained narrow D1 storage-adapter proof at `docs/proof/account-identity-family-plan/01-auth-provider-decision/06-account-identity-storage-adapter-proof.md`; WP08 has a tracked durable Rust-authority manifest under `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk; WP06 is reopened for final aggregation after WP08 plus Cloudflare WP06/WP08 handoffs
-Implementation: the accepted Account source wave at `35edb2830`, reconciled into the integration line through `e69acf279`, now provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, durable repository/CAS/invariant enforcement, session and invite/recovery lifecycle records, and the Cloudflare D1 current-authority adapter plus ordered `0001`-`0004` Account/Payment migration source. Billing and support/admin consumers resolve current Account authority and reject request/provider-body subject ownership. Independent review found no remaining internal P0/P1 source defect. Expected tests, real provider-to-authority composition, account/session routes, deployment/migration execution, adjacent handoffs, and proof remain open
+Implementation: the accepted Account source wave at `35edb2830`, reconciled into the integration line through `e69acf279`, provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, a local SQLite repository/CAS/invariant owner, session and invite/recovery lifecycle records, and a Cloudflare D1 current-authority read adapter plus ordered `0001`-`0004` Account/Payment migration source. Live review reopened WP02 because the action evaluator still conflates the actor parent-controller device with the target child/profile/device, hard-codes same-family authority, derives device scope from the actor role, and accepts capability/lease facts from its caller. The authoritative Cloudflare D1 writer/update/revocation/CAS path, shipped Firebase/provider-to-Account caller, live Device Trust binding, expected tests, route composition, deployment/migration execution, proof, and DONE remain open
 Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP08 uses its tracked durable manifest rather than ignored raw output; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent unless a selected workpack explicitly requires them
 PR-ready: false
 ```
@@ -34,11 +34,12 @@ not establish Rust schema authority or any Cloudflare runtime/migration proof.
 
 WP02-WP05 are not production complete. Their Rust evaluators and focused tests
 are real, and bounded provisioning, policy, and child-runtime consumers exist.
-Those consumers still receive caller-assembled authority/lifecycle flags; the
-sealed WP08 current-binding read port has no durable Cloudflare repository or
-shipped runtime caller. Historical checked rows prove contract/proof slices,
-not durable account, session, invite/recovery, or device-authorization
-execution.
+Those consumers still receive caller-assembled authority/lifecycle flags. A
+sealed WP08 boundary and local SQLite repository/CAS exist, and Cloudflare has
+a D1 read adapter, but there is no target-aware action resolver, authoritative
+Cloudflare writer/update/revocation/CAS owner, or shipped provider-to-Account
+caller. Historical checked rows prove contract/proof slices, not durable
+account, session, invite/recovery, or device-authorization execution.
 
 The attempted source packet at remote commit `ac03afee3a` was independently
 reviewed and rejected. It introduced public deserializable account, session,
@@ -48,13 +49,17 @@ timing, support, and owner-approval state and allowed non-monotonic lifecycle
 rewrites. The packet remains quarantined as remote evidence and is not mapped
 as implementation.
 
-The first legal production source seam is Account WP02: extend the sealed WP08
-authority boundary with a server-derived, current member/role/device binding
-that can cross into the Cloudflare runtime without exposing a caller-mintable
-authority object. Cloudflare WP06 then implements the durable repository and
-shipped caller for that Account-owned contract. Only after that seam exists
-should WP03-WP05 add repository-owned transitions, opaque receipts, typed
-handoffs, and their deferred concurrency/restart/security tests.
+The first legal production source seam is Account WP02: resolve the actor
+parent-controller device separately from the target child/profile/device and
+derive same-family, capability, controller-lease, and step-up facts behind the
+sealed WP08 boundary. Parent-owner/co-parent/observer `ViewChildStatus` must
+remain a parent action while its target is resolved independently. Cloudflare
+WP06 then owns the authoritative D1 producer/currentness/revocation/CAS path
+and shipped Firebase/provider-to-Account caller. Device Trust WP03 follows by
+consuming live Account and Device Trust currentness for
+`RegisterLanSignerAnchor`. Only after that chain exists should downstream
+runtime orchestration and the deferred concurrency/restart/security test wave
+proceed.
 `CHECKLIST_INDEX.md` keeps the historical proof rows checked while adding
 explicit unchecked production-source and expected-test overlays.
 
@@ -70,9 +75,10 @@ or CI were run in this source phase.
 What is now real:
 
 - WP08 owns strict Rust schema validation and generated TypeScript parity;
-- WP02 owns a sealed capability and durable compare-and-swap repository for
-  current account, household, member, role, device, session, target, support
-  receipt, and authority generation state;
+- WP02 owns a sealed capability and local durable compare-and-swap repository
+  for current account, household, member, role, device, session, target,
+  support receipt, and authority generation state; its action-level
+  actor-versus-target composition remains incorrect and reopened;
 - WP03 currentness comes from persisted session identity, generation, expiry,
   freshness, and revocation state instead of request booleans;
 - WP04 has owner-derived invite and recovery lifecycle source records without
@@ -87,8 +93,11 @@ What is now real:
 
 What remains before product completion:
 
-- a shipped provider-verification/account-authority producer and account/session
-  route composition;
+- a target-aware WP02 action authority that removes `same_family` and
+  capability/controller-lease/step-up trust from caller input and maps parent
+  `ViewChildStatus` correctly;
+- a shipped Cloudflare authoritative writer/currentness/revocation/CAS owner,
+  Firebase/provider-to-Account caller, and account/session route composition;
 - complete atomic invite/recovery runtime orchestration and typed custody
   delivery;
 - Device Trust step-up plus remote/export/delete consumers;
@@ -158,10 +167,10 @@ portal-domain and apps/portal:
   UI projection/rendering consumers. They may prove honest state visibility but do not prove account runtime, Cloudflare persistence, device trust, LAN/remote transport, or child activity readiness.
 
 Cloudflare control-plane runtime/schema:
-  Cloudflare retains an isolated optional `ACCOUNT_IDENTITY_D1` store and migration configuration, but no provider verifier, runtime store caller, account/session routes, household authority, deployed/migrated D1 schema, Durable Object coordination, or production Worker readiness. Those runtime/persistence boundaries remain open here.
+  Cloudflare retains an isolated `ACCOUNT_IDENTITY_D1` configuration, ordered Account migrations, Firebase verification source, and a current-authority read adapter. It still has no authoritative Account writer/update/revocation/CAS owner, shipped provider-to-sealed-authority caller, account/session route composition, applied production migration, live Device Trust binding, or production Worker readiness. Those runtime/persistence boundaries remain open here.
 
-2026-08-16 production reachability audit:
-  `infra/cloudflare/src/auth/verifier.ts` is invoked by the Worker route dispatcher, but both Wrangler configurations set `AUTH_ADAPTER_MODE` to `account-auth-adapter-manual-required`; the only non-blocked bearer path is the local-safe fixture mode and its token normalization is not cryptographic provider verification. The Worker route manifest contains billing/admin/webhook routes, not Account identity routes. Provider library, issuer, trust material, and runtime-owned account caller remain unresolved, so no Account auth or D1 persistence implementation slice is authorized.
+2026-08-17 production reachability audit:
+  Firebase verification and the Account D1 read adapter exist, but the Worker still has no target-aware provider-to-Account authority composer, authoritative Account write/update/revoke/CAS path, or account/session route. Production configuration and migration remain manual-required, so no live Account or Device Trust authority is reachable.
 
 Adjacent plans:
   Payment, policy, data custody, device trust, LAN, remote, setup-install, and broader portal UX consume account/family authority through handoff contracts, events, requests, read models, and proof routes. They must not re-own the authority model.
@@ -198,8 +207,8 @@ WP07 proves the local setup route/projection slice; it does not prove physical d
 - WP07 root now contains `00-first-run-ui-state-machine.md`, `01-household-setup-ui-proof.md`, `02-device-role-ui-proof.md`, `03-observer-read-only-ui-proof.md`, `04-recovery-ui-proof.md`, `05-mobile-parent-child-claim-split-proof.md`, `06-source-custody-label-proof.md`, and `16-validation-commands.log`; the portal route/test/e2e surface is now real and keeps sibling runtime ownership explicit instead of pretending setup owns Cloudflare, trust, custody, or transport execution.
 - `packages/family-domain/tests/unit/setup-lifecycle.test.ts` was repaired so the direct invite/recovery suite now matches the live schema, and `packages/family-domain/src/setup-lifecycle.ts` received a local exhaustiveness repair so the WP04 build gate is green again; no further production TS/Rust changes were required for WP02-WP03 closure, and WP05 only needed owner-only test additions in shared TypeScript/Rust authority suites.
 - WP08's Rust schema/account-authority implementation and focused test surface are retained by the tracked durable manifest; Cloudflare WP06/WP08 and Account WP06 final aggregation remain open.
-- WP08's bounded source repair is independently accepted as implementation evidence only. `AccountIdentityAuthorityHandoff` is now the exact `v0.7` canonical binding, and `family-identity-core` owns a sealed, fail-closed current-binding port. No production repository implementation or caller exists, so runtime authority remains unreachable by construction. Focused Rust/TypeScript tests and retained proof stay deferred, and the prior durable manifest does not validate this follow-up. Cloudflare WP06 retains only the isolated provider-subject D1 store and must implement the real adapter/caller without redefining authority.
-- Cloudflare WP06 does not supply a provider-subject persistence handoff. No Cloudflare-owned token-verification route, account-family authority binding, deployed/migrated schema proof, Durable Object coordination, or runner proof exists; provider verification and any runtime-owned store caller remain manual-required.
+- WP08's bounded source repair is independently accepted as implementation evidence only. `AccountIdentityAuthorityHandoff` is the exact `v0.7` canonical binding, and `family-identity-core` owns a sealed, fail-closed current-binding port plus local SQLite repository/CAS. WP02's action composer remains target-unsafe, focused Rust/TypeScript tests and retained proof stay deferred, and the prior durable manifest does not validate this follow-up.
+- Cloudflare WP06 has Firebase verification source, ordered migrations, and a D1 read adapter, but no authoritative writer/update/revocation/CAS owner or shipped provider-to-sealed-authority caller. Applied migration, route reachability, live Device Trust composition, runner proof, and deployment remain manual-required.
 - WP06's prior root contains `00-security-proof-pack.md`, `01-authn-negative-proof.md`, `02-authz-matrix-proof.md`, `03-token-replay-proof.md`, `04-recovery-abuse-proof.md`, `05-origin-csrf-open-redirect-proof.md`, `06-route-sync-proof.md`, `07-logging-redaction-proof.md`, `08-manual-required-gap-register.md`, and `16-validation-commands.log`; it is reopened and cannot be final-gate proof until `09-account-authority-cloudflare-storage-gate.md` aggregates green Account WP08, Cloudflare WP06, and Cloudflare WP08 proof. A blocker remains a scheduling block for payment, policy, remote, and device trust.
 - Browser request-safety proof remains blocked at `output/account-identity-family-plan-proof/03-session-token-lifecycle/05-csrf-origin-proof.md` and `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md` because this plan slice still does not own a real browser request consumer.
 - Adjacent runtime and schema work remain manual-required: provider verification and account/session runtime routes, D1/DO/KV account-family schema and migration proof, Cloudflare worker/runtime proof, payment execution, policy execution, data-custody execution, device-trust bootstrap, LAN transport, and remote transport.
@@ -241,9 +250,11 @@ retain all expected-test, focused validation, proof, PR, and DONE gates.
 
 ```text
 WP01 provider decision and custody boundary
-WP08 Rust-owned schema and account-authority parity
-Cloudflare WP06 D1/DO/KV binding/migration -> Cloudflare WP08 runner/proof
-WP02 account/household/role/device model
+WP08 Rust-owned schema, sealed authority, and local repository/CAS
+WP02 target-aware actor/target action authority
+Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider caller
+Device Trust WP03 live Account/Device Trust ceremony composition
+Cloudflare WP08 runner/proof
 WP03 session/token lifecycle
 WP04 invite/recovery lifecycle
 WP05 device ownership authorization
