@@ -226,10 +226,13 @@ async function run(command, args) {
     console.log('\nReviewed workpack code/test expectations:');
     for (const workpack of inventory.workpacks) {
       const missing = workpack.missingRoots.length ? ` missing=${workpack.missingRoots.join(',')}` : '';
+      const missingExpectedTests = workpack.missingExpectedTestRoots.length
+        ? ` missingExpectedTestRoots=${workpack.missingExpectedTestRoots.join(',')}`
+        : '';
       console.log(
         `${workpack.workpackId} [${workpack.state}] expectation=${workpack.codeExpectation} ` +
           `satisfied=${workpack.codeExpectationSatisfied} implementation=${workpack.implementationFiles} ` +
-          `tests=${workpack.testFiles} roots=${workpack.roots.length}${missing}`
+          `tests=${workpack.testFiles} roots=${workpack.roots.length}${missing}${missingExpectedTests}`
       );
     }
     console.log('\nCounts are live file topology only; they do not claim acceptance, proof, CI, or merge.');
@@ -421,6 +424,9 @@ async function run(command, args) {
           console.log(`  Test files: ${topology.testFiles}`);
           console.log(`  Roots: ${topology.roots.join(', ')}`);
           if (topology.missingRoots.length > 0) console.log(`  Missing roots: ${topology.missingRoots.join(', ')}`);
+          if (topology.missingExpectedTestRoots.length > 0) {
+            console.log(`  missingExpectedTestRoots: ${topology.missingExpectedTestRoots.join(', ')}`);
+          }
         } else {
           console.log('Code/test topology: unknown-workpack-ownership');
           console.log('  Plan-root counts are available from graph:report; no reviewed workpack map exists yet.');
