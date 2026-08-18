@@ -1,6 +1,7 @@
 export type AuthState =
   | 'public'
   | 'browser-session-required'
+  | 'browser-refresh-required'
   | 'parent-session-required'
   | 'trusted-parent-device-required'
   | 'admin-required'
@@ -11,6 +12,7 @@ export type AuthState =
 export type AuthAdapterMethod =
   | 'verifyPublic'
   | 'verifyBrowserSession'
+  | 'verifyBrowserRefresh'
   | 'verifyParentSession'
   | 'verifyTrustedParentDevice'
   | 'verifyAdmin'
@@ -49,6 +51,12 @@ export const AUTH_STATE_MODELS: Record<AuthState, AuthStateModel> = {
   'browser-session-required': {
     state: 'browser-session-required',
     adapterMethod: 'verifyBrowserSession',
+    privateRoute: true,
+    manualRequiredOwner: 'account-identity-family-plan',
+  },
+  'browser-refresh-required': {
+    state: 'browser-refresh-required',
+    adapterMethod: 'verifyBrowserRefresh',
     privateRoute: true,
     manualRequiredOwner: 'account-identity-family-plan',
   },
