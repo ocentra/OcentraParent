@@ -1,15 +1,13 @@
 #![forbid(unsafe_code)]
 
-//! Durable revocation-state custody plus a read-only snapshot storage
-//! primitive for a future owner.
+//! Read-only signed revocation-state custody for a future owner.
 //!
-//! These stores persist issuer-signed wire material only.  Reading either
-//! file never establishes authority; the verifier authenticates the signature
-//! again on every use. Missing, malformed, or tampered state is surfaced as an
-//! explicit unavailable/corrupt result. Snapshot mutation is intentionally not
-//! exposed here because no legal owner ingestion or handle-safe platform
-//! custody path is mounted; revocation membership cannot shrink during its
-//! locked replacement.
+//! This source reads issuer-signed wire material only. Reading the file never
+//! establishes authority; the verifier authenticates the signature again on
+//! every use. Missing, malformed, or tampered state is surfaced as an explicit
+//! unavailable/corrupt result. No local mutation writer exists for signed
+//! revocation transport because no legal owner transition or handle-safe
+//! platform custody path is mounted.
 
 use serde::{Deserialize, Serialize};
 
@@ -21,9 +19,6 @@ use crate::entitlement_snapshot_values::{
 pub(crate) mod path;
 #[path = "entitlement_snapshot_cache_revocation.rs"]
 pub(crate) mod revocation_state;
-#[path = "entitlement_snapshot_cache_storage.rs"]
-mod storage;
-
 const REVOCATION_STATE_SCHEMA_VERSION: u16 = 1;
 const REVOCATION_SIGNATURE_BYTES: usize = 64;
 const MAX_REVOCATION_ENTRIES: usize = 16_384;
@@ -33,7 +28,6 @@ pub(crate) enum EntitlementSnapshotCacheError {
     StorageUnavailable,
     CorruptState,
     InvalidPath,
-    StaleReplacement,
 }
 
 /// Signed revocation cursor state persisted by the entitlement owner.

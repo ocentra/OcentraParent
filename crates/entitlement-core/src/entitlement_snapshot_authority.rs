@@ -55,7 +55,6 @@ pub enum EntitlementSnapshotVerificationFailure {
     CurrentAuthorityUnavailable,
     AuthorityUnavailable,
     RevocationStateCorrupt,
-    StaleAuthorityState,
 }
 
 pub struct EntitlementSnapshotAuthority {
