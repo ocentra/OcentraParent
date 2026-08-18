@@ -14,6 +14,9 @@
 
 use chrono::{DateTime, Utc};
 use ocentra_schema::account_identity_authority::AccountIdentityProvider;
+use ocentra_schema::parent_storage_settings_apply_flow::{
+    ParentStorageApplyIntentDigest, ParentStoragePreviewId,
+};
 
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_authority_repository::AccountIdentityAuthorityService;
@@ -34,6 +37,7 @@ mod household_authority_runtime_requirements;
 mod household_authority_runtime_resolution;
 mod household_authority_runtime_revalidation;
 mod household_authority_runtime_step_up;
+mod household_authority_runtime_storage_confirmation;
 
 /// Failure from an owner boundary or from the cross-owner binding checks.
 ///
@@ -62,6 +66,10 @@ pub enum HouseholdAuthorityRuntimeFailure {
     ParentStepUpExpired,
     ParentStepUpReplayRejected,
     ParentStepUpBindingMismatch,
+    ParentStorageConfirmationUnavailable,
+    ParentStorageConfirmationExpired,
+    ParentStorageConfirmationReplayRejected,
+    ParentStorageConfirmationBindingMismatch,
     RuntimeFenceUnavailable,
     EffectTargetMismatch,
     RoleNotAuthorized,
@@ -122,6 +130,27 @@ pub struct ConsumedParentStepUp {
     route_id: String,
     action: HouseholdAuthorityAction,
     authority_generation: u64,
+    expires_at: DateTime<Utc>,
+    receipt_epoch: u64,
+}
+
+/// A one-time, owner-issued confirmation for one exact parent storage preview.
+///
+/// This is deliberately distinct from the serialized preview and apply-intent digest. The
+/// family owner must consume durable replay/nonce state before returning this value. It is not
+/// `Clone`, serde, or publicly constructible, so storage custody can only receive it by value.
+pub struct ConsumedParentStorageConfirmation {
+    household_id: String,
+    account_id: String,
+    parent_device_id: String,
+    child_profile_id: String,
+    child_device_id: String,
+    installation_id: String,
+    pairing_id: String,
+    route_id: String,
+    authority_generation: u64,
+    preview_id: ParentStoragePreviewId,
+    apply_intent_digest: ParentStorageApplyIntentDigest,
     expires_at: DateTime<Utc>,
     receipt_epoch: u64,
 }
@@ -282,6 +311,19 @@ pub trait HouseholdAuthorityParentStepUpSource {
     }
 }
 
+/// One-time parent storage confirmation owner seam. Implementations must bind the durable
+/// consumption to the current Account/Device Trust tuple, preview, and canonical apply digest
+/// before returning the opaque value. Callers do not provide receipt or state fields.
+pub trait HouseholdAuthorityParentStorageConfirmationSource {
+    fn consume_current_parent_storage_confirmation(
+        &mut self,
+        account_authority: &VerifiedAccountIdentityAuthority,
+        device_binding: &CurrentChildDeviceTrustBinding,
+        preview_id: &ParentStoragePreviewId,
+        apply_intent_digest: &ParentStorageApplyIntentDigest,
+    ) -> Result<ConsumedParentStorageConfirmation, HouseholdAuthorityRuntimeFailure>;
+}
+
 /// Explicit fail-closed Device Trust adapter for deployments that have not wired the owner.
 #[derive(Debug, Default)]
 pub struct ManualRequiredHouseholdAuthorityDeviceTrustSource;
@@ -297,6 +339,11 @@ pub struct ManualRequiredHouseholdAuthorityControllerLeaseSource;
 /// Explicit fail-closed step-up adapter until a durable one-time receipt owner is integrated.
 #[derive(Debug, Default)]
 pub struct ManualRequiredHouseholdAuthorityParentStepUpSource;
+
+/// Explicit fail-closed storage confirmation adapter until Account/family durable one-time
+/// confirmation custody is integrated.
+#[derive(Debug, Default)]
+pub struct ManualRequiredHouseholdAuthorityParentStorageConfirmationSource;
 
 /// Explicit fail-closed execution fence until a durable owner wires a CAS/revocation store for
 /// the composed nonce and all dependency generations.

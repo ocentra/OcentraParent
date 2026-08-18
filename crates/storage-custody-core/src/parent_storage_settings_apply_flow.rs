@@ -1,3 +1,6 @@
+use ocentra_family_identity_core::household_authority_runtime_composer::{
+    ConsumedParentStorageConfirmation, HouseholdAuthorityRuntimeFailure,
+};
 use ocentra_schema::parent_owned_sync_export as sync_contracts;
 use ocentra_schema::parent_storage_settings_apply_flow as contracts;
 
@@ -82,6 +85,10 @@ pub enum ParentStorageSettingsApplyFlowError {
     WrongDevicePreviewMustNotMatch,
     ApplyCannotProceedWithoutPreview,
     ApplyIntentDigestUnavailable,
+    ParentStorageConfirmationUnavailable,
+    ParentStorageConfirmationExpired,
+    ParentStorageConfirmationReplayRejected,
+    ParentStorageConfirmationBindingMismatch,
     DeleteActionNotesMustStayVisible,
     DisconnectNotesMustStayVisible,
     DisconnectCannotDeleteProviderData,
@@ -111,6 +118,48 @@ pub fn derive_parent_storage_apply_decision(
     input: ParentStorageApplyDecisionInput,
 ) -> Result<contracts::ParentStorageApplyDecision, ParentStorageSettingsApplyFlowError> {
     parent_storage_settings_apply_flow_apply::derive_parent_storage_apply_decision(preview, input)
+}
+
+/// Consume a family-owned confirmation for the exact canonical preview intent.
+///
+/// The opaque confirmation is moved into this boundary; callers cannot supply a serialized
+/// receipt or choose an apply state. This validates only confirmation custody. Applied/Partial
+/// remain unavailable until a real WP05 executor owner supplies a separate outcome handoff.
+pub fn consume_parent_storage_apply_confirmation(
+    preview: &contracts::ParentStorageRestorePreview,
+    input: ParentStorageApplyDecisionInput,
+    confirmation: ConsumedParentStorageConfirmation,
+) -> Result<(), ParentStorageSettingsApplyFlowError> {
+    let decision = parent_storage_settings_apply_flow_apply::derive_parent_storage_apply_decision(
+        preview, input,
+    )?;
+    confirmation
+        .consume_for_storage(
+            &preview.preview_id,
+            &preview.household_ref,
+            &decision.apply_intent_digest,
+        )
+        .map_err(map_parent_storage_confirmation_failure)
+}
+
+fn map_parent_storage_confirmation_failure(
+    failure: HouseholdAuthorityRuntimeFailure,
+) -> ParentStorageSettingsApplyFlowError {
+    match failure {
+        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationUnavailable => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationUnavailable
+        }
+        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationExpired => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationExpired
+        }
+        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationReplayRejected => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationReplayRejected
+        }
+        HouseholdAuthorityRuntimeFailure::ParentStorageConfirmationBindingMismatch => {
+            ParentStorageSettingsApplyFlowError::ParentStorageConfirmationBindingMismatch
+        }
+        _ => ParentStorageSettingsApplyFlowError::ParentStorageConfirmationBindingMismatch,
+    }
 }
 
 pub fn derive_parent_storage_delete_action_row(
