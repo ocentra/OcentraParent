@@ -74,6 +74,14 @@ import {
 } from './env.js';
 import { findRoute, ROUTE_MANIFEST, type RouteManifestEntry } from './routes.js';
 import { redactHeaders } from './security/redaction.js';
+import {
+  loginBrowserSession,
+  logoutBrowserSession,
+  refreshBrowserSession,
+  revokeBrowserSessions,
+} from './auth/browser-session-routes.js';
+import { readCookie } from './storage/account-browser-session-codec.js';
+import { createBrowserSessionStore } from './storage/account-browser-session-store.js';
 
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const INTERACTIVE_CSRF_HEADER = 'x-ocentra-csrf';
@@ -105,6 +113,10 @@ function interactiveCsrfToken(env: Env): string | null {
 
 export const IMPLEMENTED_HANDLER_KEYS = [
   'health',
+  'account-session-login',
+  'account-session-refresh',
+  'account-session-logout',
+  'account-session-revoke',
   'pricing-public',
   'billing-status',
   'billing-checkout',
@@ -314,8 +326,9 @@ function withCors(response: Response, request: Request, env: Env): Response {
   headers.set('access-control-allow-methods', 'GET,POST,OPTIONS');
   headers.set(
     'access-control-allow-headers',
-    'authorization,content-type,stripe-signature,paypal-transmission-id,paypal-transmission-sig,x-razorpay-signature,x-goog-signature,x-ocentra-internal-call,x-ocentra-internal-secret,x-ocentra-csrf'
+    'authorization,content-type,cookie,stripe-signature,paypal-transmission-id,paypal-transmission-sig,x-razorpay-signature,x-goog-signature,x-ocentra-internal-call,x-ocentra-internal-secret,x-ocentra-csrf,sec-fetch-site'
   );
+  headers.set('access-control-allow-credentials', 'true');
   headers.set('access-control-max-age', '86400');
   headers.set('vary', 'origin');
   headers.set('access-control-allow-origin', resolveResponseOrigin(origin, env));
@@ -1017,12 +1030,12 @@ function checkoutHostedRouteForPath(path: string) {
   return null;
 }
 
-function requireInteractiveRequestBoundary(
+async function requireInteractiveRequestBoundary(
   request: Request,
   env: Env,
   identity: VerifiedIdentity,
   requestId: string
-): Response | null {
+): Promise<Response | null> {
   const authority = requireVerifiedParentAuthority(identity);
   if (authority instanceof Response) {
     return authority;
@@ -1033,6 +1046,20 @@ function requireInteractiveRequestBoundary(
     return json(403, {
       error: 'origin-validation-failed',
     });
+  }
+
+  const fetchSite = request.headers.get('sec-fetch-site');
+  if (readCookie(request, 'ocentra_session') !== null && fetchSite !== 'same-origin' && fetchSite !== 'same-site') {
+    return json(403, { error: 'fetch-metadata-validation-failed' });
+  }
+
+  if (readCookie(request, 'ocentra_session') !== null) {
+    const csrfValid = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).verifyCsrf(
+      readCookie(request, 'ocentra_session'),
+      request.headers.get(INTERACTIVE_CSRF_HEADER)
+    );
+    if (!csrfValid) return json(403, { error: 'csrf-validation-failed' });
+    return null;
   }
 
   const expectedCsrfToken = interactiveCsrfToken(env);
@@ -1495,6 +1522,25 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       });
     },
 
+    async 'account-session-login'({ request, env }): Promise<Response> {
+      return loginBrowserSession(request, env, createFirebaseProviderVerificationPort(env));
+    },
+
+    async 'account-session-refresh'({ request, env, identity }): Promise<Response> {
+      if (!identity) return json(500, { error: 'identity-missing' });
+      return refreshBrowserSession(request, env, identity);
+    },
+
+    async 'account-session-logout'({ request, env, identity }): Promise<Response> {
+      if (!identity) return json(500, { error: 'identity-missing' });
+      return logoutBrowserSession(request, env, identity);
+    },
+
+    async 'account-session-revoke'({ request, env, identity }): Promise<Response> {
+      if (!identity) return json(500, { error: 'identity-missing' });
+      return revokeBrowserSessions(request, env, identity);
+    },
+
     async 'pricing-public'({ env }): Promise<Response> {
       return json(200, {
         status: 'ok',
@@ -1540,7 +1586,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('checkout', subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
+      const boundaryFailure = await requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1627,7 +1673,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('portal', subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
+      const boundaryFailure = await requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1722,7 +1768,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('change-plan', subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
+      const boundaryFailure = await requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1796,7 +1842,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('cancel', subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
+      const boundaryFailure = await requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1880,7 +1926,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('referral-invite', subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
+      const boundaryFailure = await requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -2419,7 +2465,11 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     });
   }
 
-  if (isRouteKillSwitchEnabled(env) && STATE_CHANGING_METHODS.has(request.method)) {
+  if (
+    isRouteKillSwitchEnabled(env) &&
+    STATE_CHANGING_METHODS.has(request.method) &&
+    !new URL(request.url).pathname.startsWith('/auth/session/')
+  ) {
     return json(503, {
       error: 'billing-route-kill-switch-enabled',
       status: 'manual-required',

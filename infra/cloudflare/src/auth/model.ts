@@ -1,5 +1,6 @@
 export type AuthState =
   | 'public'
+  | 'browser-session-required'
   | 'parent-session-required'
   | 'trusted-parent-device-required'
   | 'admin-required'
@@ -9,6 +10,7 @@ export type AuthState =
 
 export type AuthAdapterMethod =
   | 'verifyPublic'
+  | 'verifyBrowserSession'
   | 'verifyParentSession'
   | 'verifyTrustedParentDevice'
   | 'verifyAdmin'
@@ -34,10 +36,7 @@ export interface AuthStateModel {
   adapterMethod: AuthAdapterMethod;
   privateRoute: boolean;
   manualRequiredOwner:
-    | 'not-applicable'
-    | 'account-identity-family-plan'
-    | 'provider-webhook-proof'
-    | 'cloudflare-control-plane-plan';
+    'not-applicable' | 'account-identity-family-plan' | 'provider-webhook-proof' | 'cloudflare-control-plane-plan';
 }
 
 export const AUTH_STATE_MODELS: Record<AuthState, AuthStateModel> = {
@@ -46,6 +45,12 @@ export const AUTH_STATE_MODELS: Record<AuthState, AuthStateModel> = {
     adapterMethod: 'verifyPublic',
     privateRoute: false,
     manualRequiredOwner: 'not-applicable',
+  },
+  'browser-session-required': {
+    state: 'browser-session-required',
+    adapterMethod: 'verifyBrowserSession',
+    privateRoute: true,
+    manualRequiredOwner: 'account-identity-family-plan',
   },
   'parent-session-required': {
     state: 'parent-session-required',
@@ -114,7 +119,8 @@ export function getAuthStateModel(authState: AuthState): AuthStateModel {
 export function validateAuthBoundaryRoute(route: AuthBoundaryRouteLike): AuthBoundaryViolationReason | null {
   const isPrivateRoute =
     route.path.startsWith('/auth/') || route.path.startsWith('/admin/') || route.path.startsWith('/webhooks/');
-  if (isPrivateRoute && !getAuthStateModel(route.authState).privateRoute) {
+  const publicSessionLogin = route.path === '/auth/session/login' && route.method === 'POST';
+  if (isPrivateRoute && !publicSessionLogin && !getAuthStateModel(route.authState).privateRoute) {
     return 'naked-private-route';
   }
 
