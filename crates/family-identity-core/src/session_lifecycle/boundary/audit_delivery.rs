@@ -23,7 +23,7 @@ impl SessionAuditEventId {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct SessionAuditDeliveryAttemptId(String);
 
 impl SessionAuditDeliveryAttemptId {
