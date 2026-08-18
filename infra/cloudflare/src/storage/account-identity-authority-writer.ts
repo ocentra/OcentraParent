@@ -30,20 +30,6 @@ export interface AccountOwnedAuthorityProducer {
   ): Promise<AccountIdentityCurrentMemberDeviceAuthorityHandoff | null>;
 }
 
-/**
- * Bind the Account-owned producer to the Cloudflare storage seam. The private
- * brand prevents a request or serialized handoff from being passed as the
- * producer; only this explicit owner composition boundary can create it.
- */
-export function createAccountOwnedAuthorityProducer(
-  resolveCurrentAuthority: AccountOwnedAuthorityProducer['resolveCurrentAuthority']
-): AccountOwnedAuthorityProducer {
-  return Object.freeze({
-    [ACCOUNT_OWNED_PRODUCER]: true as const,
-    resolveCurrentAuthority,
-  });
-}
-
 interface ServerOwnedAccountIdentityAuthority {
   readonly handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff;
   readonly [SERVER_OWNED_AUTHORITY]: true;

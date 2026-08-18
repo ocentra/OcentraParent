@@ -116,6 +116,24 @@
   deliberately deferred to the plan-wide test-writing phase; no test result,
   proof artifact, deployment, or `DONE` state is inferred.
 
+## WP06 producer transport audit - 2026-08-18
+
+- The Account-to-Worker non-forgeable producer transport is not present. Rust
+  `VerifiedAccountIdentityAuthority` remains crate-private and
+  non-serializable, and no signed/sealed transport plus Worker verifier is
+  exposed to Cloudflare. The old exported closure-wrapping factory was removed
+  because its private symbol did not stop arbitrary callers from minting a
+  producer.
+- Cloudflare runtime source now has a read-only provider/current-authority
+  path and explicit fail-closed mutation methods. Create/CAS/revoke return
+  `account-identity-authority-source-unavailable`; no mutation composition or
+  runtime authority claim is made.
+- Required dependency route before mounting mutations:
+  `account-identity-family-plan` WP02/WP08 -> Account-owned signed/sealed
+  current-authority transport and Worker verifier -> Cloudflare WP06 runtime.
+  D1 rows, provider claims, request headers, and serialized handoffs cannot
+  substitute for this owner route.
+
 Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 now has reviewed D1 read/current-authority, authoritative create/CAS/revoke, and verified-provider caller source. The verifier reaches current-authority resolution, while the Account-owned mutation producer is not mounted in the Worker entrypoint. Caller-supplied authority headers still cannot authorize production, and capability, controller-lease, and step-up authority remain unavailable. Migration application, expected tests, focused validation, retained proof, deployment, and full runtime reachability remain open, so normal WP06 remains blocked and is not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
