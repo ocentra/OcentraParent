@@ -75,6 +75,28 @@ not `DONE`.
   The complete expected-test packet, focused execution, migration application,
   retained proof, deployment, and runtime-composition gate are still open.
 
+## 2026-08-18 producer transport audit
+
+The Account-owned producer required for Cloudflare mutation composition is not
+present in this repository. `ocentra-family-identity-core` keeps
+`VerifiedAccountIdentityAuthority` crate-private and non-serializable; no
+signed/sealed Account-to-Worker transport or verifier is exposed to
+`infra/cloudflare`. The previous exported
+`createAccountOwnedAuthorityProducer(resolveCurrentAuthority)` factory has
+therefore been removed: a private symbol brand alone did not prevent any
+caller holding the factory from minting a producer around an arbitrary
+closure.
+
+`infra/cloudflare/src/auth/account-identity-authority-runtime.ts` now routes
+verified-provider reads through the existing bounded D1 read adapter, while
+create/compare-and-swap/revoke return
+`account-identity-authority-source-unavailable` and emit no mutation. The
+exact owner route that must be supplied before mutation can be mounted is:
+`account-identity-family-plan` WP02/WP08 -> Account-owned signed/sealed
+current-authority transport and Worker verifier -> Cloudflare WP06 runtime.
+Until that route exists, D1 evidence, provider claims, request headers, and
+serialized handoffs remain insufficient to mint Account authority.
+
 ## Goal
 
 Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, and optional R2.

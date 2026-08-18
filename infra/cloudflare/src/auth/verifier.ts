@@ -4,7 +4,7 @@ import {
   isVerifiedAccountIdentityAuthorityCapability,
   type VerifiedAccountIdentityAuthorityCapability,
 } from '../storage/account-identity-authority-store.js';
-import { createAccountIdentityAuthorityCaller } from './account-identity-authority-caller.js';
+import { createAccountIdentityAuthorityRuntime } from './account-identity-authority-runtime.js';
 import { getAuthStateModel, type AuthState } from './model.js';
 
 export interface VerifiedIdentity {
@@ -208,7 +208,7 @@ async function verifyProviderBoundRequest(
   authState: AuthState,
   providerVerifier: ProviderVerificationPort
 ): Promise<AuthResult> {
-  const authorityResult = await createAccountIdentityAuthorityCaller(env).resolveVerifiedProviderAuthority(
+  const authorityResult = await createAccountIdentityAuthorityRuntime(env).resolveVerifiedProviderAuthority(
     request,
     providerVerifier
   );
