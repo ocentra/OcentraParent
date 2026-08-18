@@ -51,7 +51,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
   {
     path: '/auth/session/logout',
     method: 'POST',
-    authState: 'browser-session-required',
+    authState: 'browser-refresh-required',
     handlerKey: 'account-session-logout',
     requestModel: 'AccountSessionLogoutRequest',
     responseModel: 'AccountSessionLogoutResponse',
@@ -62,7 +62,7 @@ export const ROUTE_MANIFEST: RouteManifestEntry[] = [
   {
     path: '/auth/session/revoke',
     method: 'POST',
-    authState: 'browser-session-required',
+    authState: 'browser-refresh-required',
     handlerKey: 'account-session-revoke',
     requestModel: 'AccountSessionRevokeRequest',
     responseModel: 'AccountSessionLogoutResponse',

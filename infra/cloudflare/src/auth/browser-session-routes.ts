@@ -1,4 +1,6 @@
 import type { ProviderVerificationPort, VerifiedIdentity } from './verifier.js';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
+import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 import {
   createAccountIdentityAuthorityCaller,
   type VerifiedProviderAuthorityResult,
@@ -9,11 +11,15 @@ import {
   browserSessionCookieNames,
   browserSessionRole,
   cookieMaxAge,
+  newOpaqueValue,
   readCookie,
 } from '../storage/account-browser-session-codec.js';
 import { isLocalFixtureEnvironment, parseAllowedOrigins, type Env } from '../env.js';
 
 const CSRF_HEADER = 'x-ocentra-csrf';
+const REQUEST_CORRELATION_HEADER = 'x-ocentra-request-id';
+const log = Logger.instance;
+log.register(import.meta.url);
 
 function json(status: number, body: unknown, headers: HeadersInit = {}): Response {
   return new Response(JSON.stringify(body), {
@@ -36,13 +42,43 @@ function cookieNames(env: Env) {
   return browserSessionCookieNames(!isLocalFixtureEnvironment(env));
 }
 
-function requestCorrelationId(request: Request): string | undefined {
-  return (
+function requestCorrelationId(request: Request): string {
+  const candidate =
     request.headers.get('x-ocentra-request-id') ??
     request.headers.get('x-request-id') ??
     request.headers.get('cf-ray') ??
-    undefined
+    null;
+  return candidate && /^[A-Za-z0-9._:-]{1,128}$/.test(candidate)
+    ? candidate
+    : `browser-route-${newOpaqueValue().slice(0, 24)}`;
+}
+
+function milestone(
+  action: 'login' | 'refresh' | 'logout' | 'global-revoke',
+  result: 'started' | 'accepted' | 'rejected' | 'manual-required',
+  correlationId: string,
+  reason?: string
+): void {
+  log.logInfo(
+    'account browser session route milestone',
+    getStackTrace(),
+    {
+      owner: 'account-identity-family-plan',
+      boundary: 'browser-session-route',
+      action,
+      result,
+      reason: reason ?? null,
+      correlationId,
+      redactionState: 'provider-subject-and-session-identifiers-omitted',
+    },
+    true
   );
+}
+
+function withCorrelation(response: Response, correlationId: string): Response {
+  const headers = new Headers(response.headers);
+  headers.set(REQUEST_CORRELATION_HEADER, correlationId);
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
 function safetyFailure(request: Request, env: Env, csrfRequired: boolean): Response | null {
@@ -105,29 +141,53 @@ export async function loginBrowserSession(
   env: Env,
   providerVerifier: ProviderVerificationPort | undefined
 ): Promise<Response> {
+  const correlation = requestCorrelationId(request);
+  milestone('login', 'started', correlation);
   const safety = safetyFailure(request, env, false);
-  if (safety) return safety;
+  if (safety) {
+    milestone('login', 'rejected', correlation, 'request-safety');
+    return withCorrelation(safety, correlation);
+  }
   const authorityResult = await createAccountIdentityAuthorityCaller(env).resolveVerifiedProviderAuthority(
     request,
     providerVerifier
   );
-  if (authorityResult.status !== 'trusted') return authorityFailure(authorityResult);
+  if (authorityResult.status !== 'trusted') {
+    milestone(
+      'login',
+      authorityResult.status === 'manual-required' ? 'manual-required' : 'rejected',
+      correlation,
+      authorityResult.status
+    );
+    return withCorrelation(authorityFailure(authorityResult), correlation);
+  }
   const authority = authorityResult.capability;
   const role = browserSessionRole(authority.role);
-  if (role === null) return json(403, { error: 'browser-session-role-ineligible' });
-  const nowMs = Date.now();
-  const created = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).create(
-    authority,
-    nowMs,
-    requestCorrelationId(request)
-  );
-  if (created.status !== 'accepted') {
-    return json(created.status === 'manual-required' ? 503 : 409, {
-      error: created.status,
-      reason: created.reason,
-    });
+  if (role === null) {
+    milestone('login', 'rejected', correlation, 'role-ineligible');
+    return withCorrelation(json(403, { error: 'browser-session-role-ineligible' }), correlation);
   }
-  if (created.identity === null) return json(503, { error: 'session-custody-conflict' });
+  const nowMs = Date.now();
+  const created = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).create(authority, nowMs, correlation);
+  if (created.status !== 'accepted') {
+    milestone(
+      'login',
+      created.status === 'manual-required' ? 'manual-required' : 'rejected',
+      correlation,
+      created.reason
+    );
+    return withCorrelation(
+      json(created.status === 'manual-required' ? 503 : 409, {
+        error: created.status,
+        reason: created.reason,
+      }),
+      correlation
+    );
+  }
+  if (created.identity === null) {
+    milestone('login', 'manual-required', correlation, 'session-custody-conflict');
+    return withCorrelation(json(503, { error: 'session-custody-conflict' }), correlation);
+  }
   const names = cookieNames(env);
   const headers = new Headers({ 'cache-control': 'no-store' });
   headers.append(
@@ -163,27 +223,50 @@ export async function loginBrowserSession(
   };
   const response = sessionResponse(identity, created.identity.accessExpiresAt, created.secrets.csrfToken);
   for (const [key, value] of response.headers) if (key !== 'cache-control') headers.set(key, value);
+  milestone('login', 'accepted', correlation);
+  headers.set(REQUEST_CORRELATION_HEADER, correlation);
   return new Response(response.body, { status: response.status, headers });
 }
 
 export async function refreshBrowserSession(request: Request, env: Env, identity: VerifiedIdentity): Promise<Response> {
+  const correlation = requestCorrelationId(request);
+  milestone('refresh', 'started', correlation);
   const safety = safetyFailure(request, env, true);
-  if (safety) return safety;
+  if (safety) {
+    milestone('refresh', 'rejected', correlation, 'request-safety');
+    return withCorrelation(safety, correlation);
+  }
   const names = cookieNames(env);
   const store = createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1);
   const refreshToken = readCookie(request, names.refresh);
   if (!(await store.verifyRefreshCsrf(refreshToken, request.headers.get(CSRF_HEADER)))) {
-    return json(403, { error: 'csrf-validation-failed', boundary: 'account-browser-session' });
+    milestone('refresh', 'rejected', correlation, 'csrf-validation-failed');
+    return withCorrelation(
+      json(403, { error: 'csrf-validation-failed', boundary: 'account-browser-session' }),
+      correlation
+    );
   }
   const nowMs = Date.now();
-  const rotated = await store.rotate(refreshToken, nowMs, requestCorrelationId(request));
+  const rotated = await store.rotate(refreshToken, nowMs, correlation);
   if (rotated.status !== 'accepted') {
-    return json(rotated.status === 'manual-required' ? 503 : 401, {
-      error: rotated.status,
-      reason: rotated.reason,
-    });
+    milestone(
+      'refresh',
+      rotated.status === 'manual-required' ? 'manual-required' : 'rejected',
+      correlation,
+      rotated.reason
+    );
+    return withCorrelation(
+      json(rotated.status === 'manual-required' ? 503 : 401, {
+        error: rotated.status,
+        reason: rotated.reason,
+      }),
+      correlation
+    );
   }
-  if (rotated.identity === null) return json(503, { error: 'session-custody-conflict' });
+  if (rotated.identity === null) {
+    milestone('refresh', 'manual-required', correlation, 'session-custody-conflict');
+    return withCorrelation(json(503, { error: 'session-custody-conflict' }), correlation);
+  }
   const headers = new Headers({ 'cache-control': 'no-store' });
   headers.append(
     'set-cookie',
@@ -211,58 +294,101 @@ export async function refreshBrowserSession(request: Request, env: Env, identity
   );
   const response = sessionResponse(identity, rotated.identity.accessExpiresAt, rotated.secrets.csrfToken);
   for (const [key, value] of response.headers) if (key !== 'cache-control') headers.set(key, value);
+  milestone('refresh', 'accepted', correlation);
+  headers.set(REQUEST_CORRELATION_HEADER, correlation);
   return new Response(response.body, { status: response.status, headers });
 }
 
 export async function logoutBrowserSession(request: Request, env: Env, _identity: VerifiedIdentity): Promise<Response> {
+  const correlation = requestCorrelationId(request);
+  milestone('logout', 'started', correlation);
   const safety = safetyFailure(request, env, true);
-  if (safety) return safety;
+  if (safety) {
+    milestone('logout', 'rejected', correlation, 'request-safety');
+    return withCorrelation(safety, correlation);
+  }
   const names = cookieNames(env);
   const store = createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1);
-  const sessionToken = readCookie(request, names.session);
-  if (!(await store.verifyCsrf(sessionToken, request.headers.get(CSRF_HEADER)))) {
-    return json(403, { error: 'csrf-validation-failed', boundary: 'account-browser-session' });
+  const refreshToken = readCookie(request, names.refresh);
+  if (!(await store.verifyRefreshCsrf(refreshToken, request.headers.get(CSRF_HEADER)))) {
+    milestone('logout', 'rejected', correlation, 'csrf-validation-failed');
+    return withCorrelation(
+      json(403, { error: 'csrf-validation-failed', boundary: 'account-browser-session' }),
+      correlation
+    );
   }
-  const result = await store.logout(sessionToken, Date.now(), requestCorrelationId(request));
+  const result = await store.logoutRefresh(refreshToken, Date.now(), correlation);
   if (result.status !== 'accepted') {
-    return json(result.status === 'manual-required' ? 503 : 401, {
-      error: result.status,
-      reason: result.reason,
-    });
+    milestone(
+      'logout',
+      result.status === 'manual-required' ? 'manual-required' : 'rejected',
+      correlation,
+      result.reason
+    );
+    return withCorrelation(
+      json(result.status === 'manual-required' ? 503 : 401, {
+        error: result.status,
+        reason: result.reason,
+      }),
+      correlation
+    );
   }
   const headers = new Headers({ 'cache-control': 'no-store' });
   headers.append('set-cookie', clearCookie(names.session, true, env));
   headers.append('set-cookie', clearCookie(names.refresh, true, env));
   headers.append('set-cookie', clearCookie(names.csrf, false, env));
+  headers.set(REQUEST_CORRELATION_HEADER, correlation);
+  milestone('logout', 'accepted', correlation);
   return new Response(null, { status: 204, headers });
 }
 
 export async function revokeBrowserSessions(request: Request, env: Env, identity: VerifiedIdentity): Promise<Response> {
+  const correlation = requestCorrelationId(request);
+  milestone('global-revoke', 'started', correlation);
   const safety = safetyFailure(request, env, true);
-  if (safety) return safety;
-  if (!isVerifiedAccountIdentityAuthorityCapability(identity.authority)) return capabilityMissing();
-  if (identity.authority.role !== 'parent-owner') return json(403, { error: 'parent-owner-required' });
+  if (safety) {
+    milestone('global-revoke', 'rejected', correlation, 'request-safety');
+    return withCorrelation(safety, correlation);
+  }
+  if (!isVerifiedAccountIdentityAuthorityCapability(identity.authority)) {
+    milestone('global-revoke', 'manual-required', correlation, 'authority-capability-missing');
+    return withCorrelation(capabilityMissing(), correlation);
+  }
+  if (identity.authority.role !== 'parent-owner') {
+    milestone('global-revoke', 'rejected', correlation, 'parent-owner-required');
+    return withCorrelation(json(403, { error: 'parent-owner-required' }), correlation);
+  }
   const names = cookieNames(env);
   const store = createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1);
-  const sessionToken = readCookie(request, names.session);
-  if (!(await store.verifyCsrf(sessionToken, request.headers.get(CSRF_HEADER)))) {
-    return json(403, { error: 'csrf-validation-failed', boundary: 'account-browser-session' });
+  const refreshToken = readCookie(request, names.refresh);
+  if (!(await store.verifyRefreshCsrf(refreshToken, request.headers.get(CSRF_HEADER)))) {
+    milestone('global-revoke', 'rejected', correlation, 'csrf-validation-failed');
+    return withCorrelation(
+      json(403, { error: 'csrf-validation-failed', boundary: 'account-browser-session' }),
+      correlation
+    );
   }
-  const result = await store.revokeAll(
-    identity.authority.provider,
-    identity.authority.providerSubject,
-    Date.now(),
-    requestCorrelationId(request)
-  );
+  const result = await store.revokeAll(identity.authority, Date.now(), correlation);
   if (result.status !== 'accepted') {
-    return json(result.status === 'manual-required' ? 503 : 409, {
-      error: result.status,
-      reason: result.reason,
-    });
+    milestone(
+      'global-revoke',
+      result.status === 'manual-required' ? 'manual-required' : 'rejected',
+      correlation,
+      result.reason
+    );
+    return withCorrelation(
+      json(result.status === 'manual-required' ? 503 : 409, {
+        error: result.status,
+        reason: result.reason,
+      }),
+      correlation
+    );
   }
   const headers = new Headers({ 'cache-control': 'no-store' });
   headers.append('set-cookie', clearCookie(names.session, true, env));
   headers.append('set-cookie', clearCookie(names.refresh, true, env));
   headers.append('set-cookie', clearCookie(names.csrf, false, env));
+  headers.set(REQUEST_CORRELATION_HEADER, correlation);
+  milestone('global-revoke', 'accepted', correlation);
   return new Response(null, { status: 204, headers });
 }
