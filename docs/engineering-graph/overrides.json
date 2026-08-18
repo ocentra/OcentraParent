@@ -1772,6 +1772,19 @@
   ],
   "stateOverrides": [
     {
+      "id": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "state": "validation",
+      "reason": "The rejected-head source repair is a candidate for independent re-review; expected route/store/request-safety tests, migration execution, live D1/Worker validation, proof, CI, PR, and DONE remain open.",
+      "statusText": "Validation — candidate source / re-review required / route-store tests and proof open.",
+      "needsReview": true,
+      "evidence": [
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-eventing-plan-09-network-consumer-event-chain",
       "state": "validation",
       "reason": "The production code, expected tests, focused validation, normal pre-commit, accepted commits, and remote checkpoint are current, while whole-plan integration acceptance, CI, review, and merge remain open.",

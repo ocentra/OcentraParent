@@ -268,15 +268,23 @@ digest custody, replay-family revocation, and guarded mutation/audit batches;
 global revoke advances a durable generation fence. Audit and revoke-outcome
 rows retain only domain-separated digests and bounded request correlation.
 
+The rotate-first batch deliberately aborts on a concurrent CAS loss before
+consumed-refresh or audit custody can commit; the in-flight loser is therefore
+manual-required rather than attempting a post-abort mutation. Later reuse of
+the durable consumed digest still reaches replay-family revocation. This race
+remains an expected test and operational-reconciliation gap.
+
 The historical `0005`/`0006` files are not edited as deployed-schema repair.
 Forward `0007_account_browser_session_custody_hardening.sql` rebuilds the
-authority-bearing custody tables as STRICT, aborts on invalid legacy rows after
-recording a non-sensitive quarantine attempt, and publishes the exact schema
-version sentinel only after a complete copy. Every BrowserSessionStore read or
-mutation requires that sentinel and fails closed when it is absent or malformed.
+authority-bearing custody tables as STRICT, fails closed by aborting on invalid
+legacy rows, and publishes the exact schema version sentinel only after a
+complete copy. Its non-sensitive quarantine attempt is not retained when the
+migration transaction rolls back. Every BrowserSessionStore read or mutation
+requires that sentinel and fails closed when it is absent or malformed.
 
-Independent review remains open pending final source reconciliation. The exact
-Cloudflare route/store/security test family is absent and remains deferred, as
+Independent review remains open and re-review is required after the rejected
+head repair. The exact Cloudflare route/store/security test family is absent and
+remains deferred, as
 do migration application, live D1/Worker execution, retained proof, precommit,
 CI, PR, and DONE. The final WP06 parameterless mutation-readiness seam remains
 manual-required; this source does not fabricate provider or Account authority.
