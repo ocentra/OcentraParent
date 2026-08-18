@@ -19,7 +19,9 @@ use ocentra_parent_agent_protocol::{
 use ocentra_parent_runtime_core::device_trust_bootstrap_runtime::{
     ParentDeviceTrustCommandError, ParentDeviceTrustCommandFacade,
 };
-use ocentra_parent_runtime_core::device_trust_bootstrap_runtime_status::command_error_is_manual_required;
+use ocentra_parent_runtime_core::device_trust_bootstrap_runtime_status::{
+    command_error_is_manual_required, startup_error_is_manual_required,
+};
 use ocentra_parent_runtime_core::parent_service_health::ParentAgentServiceHealth;
 use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use ocentra_parent_runtime_core::parent_ui_bridge::{
@@ -43,6 +45,7 @@ pub mod parent_route_subscription_delivery;
 // Compatibility/test-only raw socket probe; production readiness uses the typed health handshake.
 const LEGACY_SOCKET_CONNECT_TIMEOUT_MS: u64 = 250;
 const PARENT_DEVICE_TRUST_STORAGE_DIRECTORY: &str = "device-trust";
+const REDACTED_PARENT_DEVICE_TRUST_CEREMONY_REF: &str = "ParentDeviceTrustCeremonyRef([redacted])";
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, serde::Deserialize)]
 #[serde(transparent)]
 pub struct ParentRouteSubscriptionId(pub String);
@@ -79,9 +82,15 @@ impl ParentDeviceTrustCommandState {
     }
 }
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
+#[derive(Clone, Deserialize, Eq, PartialEq)]
 #[serde(transparent)]
 pub struct ParentDeviceTrustCeremonyRef(String);
+
+impl std::fmt::Debug for ParentDeviceTrustCeremonyRef {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(REDACTED_PARENT_DEVICE_TRUST_CEREMONY_REF)
+    }
+}
 
 impl ParentDeviceTrustCeremonyRef {
     fn is_empty(&self) -> bool {
@@ -241,7 +250,7 @@ fn parent_dispatch(action: ParentUiAction) -> ParentUiActionResult {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentDeviceTrustSealResult {
-    pub accepted: bool,
+    pub custody_sealed: bool,
     pub device_trust_ref: Option<String>,
     pub manual_required: bool,
     pub unavailable: bool,
@@ -254,7 +263,7 @@ fn parent_device_trust_seal_staged_ceremony(
 ) -> ParentDeviceTrustSealResult {
     if ceremony_ref.is_empty() {
         return ParentDeviceTrustSealResult {
-            accepted: false,
+            custody_sealed: false,
             device_trust_ref: None,
             manual_required: false,
             unavailable: true,
@@ -262,7 +271,7 @@ fn parent_device_trust_seal_staged_ceremony(
     }
     let Some(facade) = device_trust.facade() else {
         return ParentDeviceTrustSealResult {
-            accepted: false,
+            custody_sealed: false,
             device_trust_ref: None,
             manual_required: device_trust.manual_required(),
             unavailable: device_trust.unavailable(),
@@ -270,7 +279,7 @@ fn parent_device_trust_seal_staged_ceremony(
     };
     match ceremony_ref.seal(facade) {
         Ok(result) => ParentDeviceTrustSealResult {
-            accepted: true,
+            custody_sealed: true,
             device_trust_ref: Some(result.device_trust_ref.as_str().to_owned()),
             manual_required: false,
             unavailable: false,
@@ -278,7 +287,7 @@ fn parent_device_trust_seal_staged_ceremony(
         Err(error) => {
             let manual_required = command_error_is_manual_required(&error);
             ParentDeviceTrustSealResult {
-                accepted: false,
+                custody_sealed: false,
                 device_trust_ref: None,
                 manual_required,
                 unavailable: !manual_required,
@@ -325,7 +334,7 @@ pub fn run() -> Result<(), ParentDesktopCommandError> {
                 .join(PARENT_DEVICE_TRUST_STORAGE_DIRECTORY);
             let state = match ParentDeviceTrustCommandFacade::open(root) {
                 Ok(facade) => ParentDeviceTrustCommandState::Available(facade),
-                Err(error) if command_error_is_manual_required(&error) => {
+                Err(error) if startup_error_is_manual_required(&error) => {
                     ParentDeviceTrustCommandState::ManualRequired
                 }
                 Err(_error) => ParentDeviceTrustCommandState::Unavailable,

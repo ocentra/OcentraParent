@@ -90,8 +90,10 @@ Windows DPAPI adapter validation:
 desktop command mount are present, but the authenticated-parent requirement is
 permanently unavailable before custody mutation and no record-backed ceremony
 issuer or custody-to-lifecycle startup caller exists. The command accepts only
-an opaque staged handle and returns rejected/manual-required state; it does not
-prove a seal. A future selected platform route
+an opaque staged handle and reports custody-sealed-only success or a typed
+rejection; it does not claim family lifecycle activation or prove a live seal in
+this issuer-less lane. Windows custody-open platform failures are unavailable,
+while unsupported non-Windows startup is manual-required. A future selected platform route
 must add a real Windows caller and retain proof for the exact authority,
 current binding, registry epoch, ciphertext, activation, unseal, revocation,
 wrong-user, wrong-device, and restart states. On non-Windows hosts, record
