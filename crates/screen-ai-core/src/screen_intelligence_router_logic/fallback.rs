@@ -1,47 +1,32 @@
 use crate::screen_intelligence_router::{
-    ScreenIntelligenceRouteRequest, ScreenStructuredExtractionAuthority,
-    ScreenStructuredExtractionFallbackState, ScreenStructuredExtractionFreshness,
-    ScreenStructuredExtractionRedactionState, ScreenStructuredExtractionState,
+    ScreenIntelligenceRouteKind, ScreenIntelligenceRouteRequest,
+    ScreenStructuredExtractionFallbackState,
 };
 
 pub(super) fn structured_extraction_fallback_state_for(
     request: &ScreenIntelligenceRouteRequest,
+    route_kind: &ScreenIntelligenceRouteKind,
 ) -> ScreenStructuredExtractionFallbackState {
     let Some(extraction) = request.structured_extraction.as_ref() else {
         return ScreenStructuredExtractionFallbackState::NotAttempted;
     };
-    if extraction.no_screen_needed
-        && extraction.authority == ScreenStructuredExtractionAuthority::ManagedBrowserCdp
-        && extraction.freshness == ScreenStructuredExtractionFreshness::Fresh
-        && extraction.redaction_state
-            != ScreenStructuredExtractionRedactionState::ProtectedContentSkipped
+
+    if matches!(route_kind, ScreenIntelligenceRouteKind::NoScreenNeeded)
+        && extraction.can_answer_policy()
     {
-        return if request.parent_allows_managed_browser_structured_extraction {
-            ScreenStructuredExtractionFallbackState::NotRequired
-        } else {
-            ScreenStructuredExtractionFallbackState::ScreenshotRequired
-        };
+        return ScreenStructuredExtractionFallbackState::NotRequired;
     }
-    if extraction.freshness == ScreenStructuredExtractionFreshness::Stale {
+    if extraction.protected_content_skipped() {
+        return ScreenStructuredExtractionFallbackState::RedactedEvidenceInsufficient;
+    }
+    if extraction.is_stale() {
         return ScreenStructuredExtractionFallbackState::Stale;
     }
-    match extraction.extraction_state {
-        ScreenStructuredExtractionState::NeedsScreenshot => {
-            ScreenStructuredExtractionFallbackState::ScreenshotRequired
-        }
-        ScreenStructuredExtractionState::Unavailable => {
-            if extraction.authority != ScreenStructuredExtractionAuthority::ManagedBrowserCdp {
-                ScreenStructuredExtractionFallbackState::AuthorityUnavailable
-            } else if extraction.redaction_state
-                == ScreenStructuredExtractionRedactionState::ProtectedContentSkipped
-            {
-                ScreenStructuredExtractionFallbackState::RedactedEvidenceInsufficient
-            } else {
-                ScreenStructuredExtractionFallbackState::AuthorityUnavailable
-            }
-        }
-        ScreenStructuredExtractionState::EnoughForPolicy => {
-            ScreenStructuredExtractionFallbackState::RedactedEvidenceInsufficient
-        }
+    if extraction.requires_screenshot() {
+        return ScreenStructuredExtractionFallbackState::ScreenshotRequired;
     }
+    if extraction.is_unavailable() {
+        return ScreenStructuredExtractionFallbackState::AuthorityUnavailable;
+    }
+    ScreenStructuredExtractionFallbackState::ScreenshotRequired
 }

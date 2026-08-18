@@ -1,30 +1,32 @@
+use super::route_projection::preferred_capture_scope;
 use crate::screen_intelligence_router::{
-    ScreenCaptureScope, ScreenIntelligencePolicySensitivity, ScreenIntelligenceRouteKind,
-    ScreenIntelligenceRouteRequest, ScreenIntelligenceSourceKind,
+    ScreenCaptureScope, ScreenIntelligenceRouteKind, ScreenIntelligenceRouteRequest,
+    ScreenIntelligenceSourceKind,
 };
 use crate::screen_intelligence_router_logic::consistency;
 
 pub(super) fn route_kind_for(
     request: &ScreenIntelligenceRouteRequest,
 ) -> ScreenIntelligenceRouteKind {
-    if screen_capture_is_unsafe(request) {
+    if consistency::screen_capture_is_unsafe(request) {
         return ScreenIntelligenceRouteKind::Unavailable;
     }
-    if request.parent_allows_managed_browser_structured_extraction
+    if request
+        .structured_extraction
+        .as_ref()
+        .is_some_and(|value| consistency::protected_content_skipped(value))
+    {
+        return ScreenIntelligenceRouteKind::Unavailable;
+    }
+    if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
+        && request.parent_allows_managed_browser_structured_extraction
         && request.structured_extraction.as_ref().is_some_and(|value| {
             consistency::screen_managed_browser_structured_extraction_can_answer_policy(value)
         })
     {
         return ScreenIntelligenceRouteKind::NoScreenNeeded;
     }
-    if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
-        && request.parent_allows_managed_browser_structured_extraction
-        && request.structured_extraction.as_ref().is_some_and(|value| {
-            consistency::screen_managed_browser_structured_extraction_is_ready_for_structured_route(
-                value,
-            )
-        })
-    {
+    if managed_browser_structured_extraction_should_precede_capture(request) {
         return ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction;
     }
     if !request.parent_allows_screen_capture {
@@ -41,46 +43,12 @@ pub(super) fn route_kind_for(
     }
 }
 
-pub(super) fn capture_scope_for_route(
+fn managed_browser_structured_extraction_should_precede_capture(
     request: &ScreenIntelligenceRouteRequest,
-    route_kind: &ScreenIntelligenceRouteKind,
-) -> Option<ScreenCaptureScope> {
-    match route_kind {
-        ScreenIntelligenceRouteKind::ScreenCaptureActiveWindow
-        | ScreenIntelligenceRouteKind::ScreenCaptureSelectedWindow => {
-            preferred_capture_scope(&request.allowed_capture_scopes).cloned()
-        }
-        _ => None,
-    }
-}
-
-pub(super) fn structured_extraction_for_route(
-    request: &ScreenIntelligenceRouteRequest,
-) -> Option<String> {
-    request
-        .structured_extraction
-        .as_ref()
-        .map(|value| value.extraction_id.clone())
-}
-
-fn screen_capture_is_unsafe(request: &ScreenIntelligenceRouteRequest) -> bool {
-    [
-        request.protected_surface_suspected,
-        request.credential_prompt_suspected,
-        request.policy_sensitivity == ScreenIntelligencePolicySensitivity::ProtectedSurface,
-        request.policy_sensitivity == ScreenIntelligencePolicySensitivity::CredentialRisk,
-    ]
-    .into_iter()
-    .any(|value| value)
-}
-
-fn preferred_capture_scope(scopes: &[ScreenCaptureScope]) -> Option<&ScreenCaptureScope> {
-    scopes
-        .iter()
-        .find(|scope| **scope == ScreenCaptureScope::ActiveWindow)
-        .or_else(|| {
-            scopes
-                .iter()
-                .find(|scope| **scope == ScreenCaptureScope::SelectedWindow)
-        })
+) -> bool {
+    // With no owner-issued receipt, this is only the extraction-first handoff;
+    // the no-screen route requires a verified receipt above.
+    request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
+        && request.parent_allows_managed_browser_structured_extraction
+        && request.structured_extraction.is_none()
 }

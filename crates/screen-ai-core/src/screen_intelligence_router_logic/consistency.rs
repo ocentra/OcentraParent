@@ -1,6 +1,6 @@
 use crate::screen_intelligence_router::{
-    ScreenCaptureScope, ScreenIntelligenceRouteDecision, ScreenIntelligenceRouteKind,
-    ScreenIntelligenceRouteRequest, ScreenIntelligenceSourceKind,
+    ScreenCaptureScope, ScreenIntelligencePolicySensitivity, ScreenIntelligenceRouteDecision,
+    ScreenIntelligenceRouteKind, ScreenIntelligenceRouteRequest, ScreenIntelligenceSourceKind,
     ScreenManagedBrowserStructuredExtraction, ScreenStructuredExtractionFallbackState,
 };
 
@@ -18,10 +18,15 @@ pub(super) fn screen_managed_browser_structured_extraction_can_answer_policy(
     extraction_consistency::can_answer_policy(value)
 }
 
-pub(super) fn screen_managed_browser_structured_extraction_is_ready_for_structured_route(
-    value: &ScreenManagedBrowserStructuredExtraction,
-) -> bool {
-    extraction_consistency::can_answer_policy(value)
+pub(super) fn screen_capture_is_unsafe(value: &ScreenIntelligenceRouteRequest) -> bool {
+    [
+        value.protected_surface_suspected,
+        value.credential_prompt_suspected,
+        value.policy_sensitivity == ScreenIntelligencePolicySensitivity::ProtectedSurface,
+        value.policy_sensitivity == ScreenIntelligencePolicySensitivity::CredentialRisk,
+    ]
+    .into_iter()
+    .any(|flag| flag)
 }
 
 pub(super) fn screen_intelligence_route_request_is_consistent(
@@ -61,8 +66,10 @@ fn screen_intelligence_route_decision_matches_route_kind(
 ) -> bool {
     match value.route_kind {
         ScreenIntelligenceRouteKind::NoScreenNeeded => [
+            value.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser,
             value.screenshot_skipped,
             value.capture_scope.is_none(),
+            value.managed_browser_structured_extraction_first,
             value.structured_extraction_id.is_some(),
             value.structured_extraction_fallback_state
                 == ScreenStructuredExtractionFallbackState::NotRequired,
@@ -70,11 +77,13 @@ fn screen_intelligence_route_decision_matches_route_kind(
         .into_iter()
         .all(|value| value),
         ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction => [
+            value.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser,
             value.screenshot_skipped,
             value.managed_browser_structured_extraction_first,
             value.capture_scope.is_none(),
+            value.structured_extraction_id.is_none(),
             value.structured_extraction_fallback_state
-                == ScreenStructuredExtractionFallbackState::NotRequired,
+                == ScreenStructuredExtractionFallbackState::NotAttempted,
         ]
         .into_iter()
         .all(|value| value),

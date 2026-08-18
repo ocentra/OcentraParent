@@ -8,8 +8,6 @@ use super::policy::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ScreenIntelligenceRouteRequest {
     pub schema_version: u16,
     pub request_id: String,
