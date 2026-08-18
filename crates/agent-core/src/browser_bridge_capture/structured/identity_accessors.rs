@@ -28,4 +28,11 @@ impl ManagedBrowserCdpStructuredExtraction {
     pub fn authority_digest(&self) -> &str {
         &self.authority_digest
     }
+
+    /// Verify the canonical digest against the producer-owned binding token.
+    /// Neutral handoff fields cannot be used to mint this binding.
+    pub fn authority_binding_is_valid(&self) -> bool {
+        self.authority_binding
+            .matches_digest(&self.authority_digest)
+    }
 }

@@ -62,8 +62,9 @@ pub(super) fn bind_extraction(
         document_identity,
         redact_page_identity,
     );
-    let authority_digest =
-        crate::browser_bridge_capture::target::authority_digest(binding, target_id, snapshot);
+    let authority_binding =
+        crate::browser_bridge_capture::target::authority_binding(binding, target_id, snapshot);
+    let authority_digest = authority_binding.digest();
     let extraction_id = format!("{STRUCTURED_EXTRACTION_ID_PREFIX}{evidence_digest}");
     let captured_at = trusted_timestamp(captured_at_epoch_ms);
     let freshness = freshness_for(binding, captured_at_epoch_ms, captured_at_monotonic);
@@ -82,6 +83,7 @@ pub(super) fn bind_extraction(
         document_loader_id: document_identity.map(|identity| identity.loader_id.clone()),
         document_url_digest: document_identity.map(|identity| identity.url_digest.clone()),
         authority_digest,
+        authority_binding,
         capability_revoked,
         visible_text_summary,
         visible_text_character_count,

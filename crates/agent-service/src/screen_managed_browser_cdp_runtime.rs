@@ -30,9 +30,8 @@ use ocentra_schema::managed_browser_cdp_capture::{
     MANAGED_BROWSER_CDP_ADAPTER_ID, MANAGED_BROWSER_CDP_CAPTURE_REASON,
     MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION, MANAGED_BROWSER_CDP_ENCRYPTED_IMAGE_REF_PREFIX,
     MANAGED_BROWSER_CDP_IMAGE_FORMAT, MANAGED_BROWSER_CDP_MAX_DIMENSION,
-    MANAGED_BROWSER_CDP_MAX_PIXELS, MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED,
-    MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE, MANAGED_BROWSER_CDP_SENSITIVITY_UNAVAILABLE,
-    MANAGED_BROWSER_CDP_SENSITIVITY_UNKNOWN, MANAGED_BROWSER_CDP_SOURCE_ID,
+    MANAGED_BROWSER_CDP_MAX_PIXELS, MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE,
+    MANAGED_BROWSER_CDP_SOURCE_ID,
 };
 use ocentra_screen_ai_core::screen_intelligence_router::extraction::owner::handoff::ScreenManagedBrowserStructuredExtractionHandoffError;
 use ocentra_screen_ai_core::screen_intelligence_router::extraction::owner::{
@@ -140,6 +139,11 @@ pub fn plan_managed_browser_screen_route(
     input: ManagedBrowserScreenIntelligenceRequest,
 ) -> Result<ScreenIntelligenceRouteDecision, ManagedBrowserScreenIntelligenceRouteError> {
     let extraction = authority.extract_structured()?;
+    if !extraction.authority_binding_is_valid() {
+        return Err(ManagedBrowserScreenIntelligenceRouteError::Browser(
+            ManagedBrowserCdpCaptureError::TargetAuthorityMismatch,
+        ));
+    }
     let handoff = ScreenManagedBrowserStructuredExtraction::from_untrusted_observation(Box::new(
         ManagedBrowserStructuredExtractionHandoff { extraction },
     ))
@@ -294,7 +298,8 @@ fn queue_request_is_valid(
         && !receipt.structured_extraction_id.trim().is_empty()
         && valid_sha256_digest(receipt.structured_evidence_digest.as_bytes())
         && valid_sha256_digest(receipt.structured_signal_digest.as_bytes())
-        && valid_sensitivity_digest(receipt.structured_sensitivity_digest.as_bytes())
+        && receipt.structured_sensitivity_digest
+            == MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE
         && receipt
             .structured_body_digest
             .as_bytes()
@@ -321,13 +326,6 @@ fn queue_request_is_valid(
 
 fn valid_sha256_digest(value: &[u8]) -> bool {
     value.len() == 64 && value.iter().all(u8::is_ascii_hexdigit)
-}
-
-fn valid_sensitivity_digest(value: &[u8]) -> bool {
-    value == MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE.as_bytes()
-        || value == MANAGED_BROWSER_CDP_SENSITIVITY_UNKNOWN.as_bytes()
-        || value == MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED.as_bytes()
-        || value == MANAGED_BROWSER_CDP_SENSITIVITY_UNAVAILABLE.as_bytes()
 }
 
 fn queue_job_custody_is_valid(job: &ScreenAnalysisQueueJob) -> bool {

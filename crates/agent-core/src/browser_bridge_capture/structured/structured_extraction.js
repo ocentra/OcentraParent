@@ -6,8 +6,7 @@
   const unknownDigest = 'managed-browser-sensitivity-unknown-v1';
   const protectedBodyDigest = 'protected-content-redacted-v1';
   const hasSensitiveMarker = (value) =>
-    typeof value === 'string' &&
-    /\b(password|passcode|pin|security|secret|credential)\b/i.test(value);
+    typeof value === 'string' && /\b(password|passcode|pin|security|secret|credential)\b/i.test(value);
 
   const documentUrl = () => {
     try {
@@ -34,8 +33,7 @@
     bodyDigest,
   });
 
-  const protectedResult = (overflow = false) =>
-    result(true, false, protectedDigest, overflow, protectedBodyDigest);
+  const protectedResult = (overflow = false) => result(true, false, protectedDigest, overflow, protectedBodyDigest);
 
   const safeAttribute = (node, name) => {
     const value = node.getAttribute(name);
@@ -44,21 +42,12 @@
 
   const bodyDigestFor = async (text) => {
     try {
-      if (
-        typeof crypto !== 'object' ||
-        !crypto ||
-        !crypto.subtle ||
-        typeof TextEncoder !== 'function'
-      ) {
+      if (typeof crypto !== 'object' || !crypto || !crypto.subtle || typeof TextEncoder !== 'function') {
         return '';
       }
-      const bytes = await crypto.subtle.digest(
-        'SHA-256',
-        new TextEncoder().encode(text),
-      );
-      return `managed-browser-body-sha256-v1-${Array.from(
-        new Uint8Array(bytes),
-        (byte) => byte.toString(16).padStart(2, '0'),
+      const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return `managed-browser-body-sha256-v1-${Array.from(new Uint8Array(bytes), (byte) =>
+        byte.toString(16).padStart(2, '0')
       ).join('')}`;
     } catch (_error) {
       return '';
@@ -157,13 +146,11 @@
       node = walker.nextNode();
     }
     // No affirmative owner-safe classification exists in this producer. The
-    // body, metadata, and accessibility values therefore remain redacted even
-    // when the bounded structural probe permits a frozen screenshot.
+    // body, metadata, and accessibility values therefore remain redacted, and
+    // this bounded structural probe never authorizes a frozen screenshot.
     const bodyDigest = await bodyDigestFor(bodyText);
-    return bodyDigest
-      ? result(false, true, unknownDigest, false, bodyDigest)
-      : protectedResult();
+    return bodyDigest ? result(false, false, unknownDigest, false, bodyDigest) : protectedResult();
   } catch (_error) {
     return protectedResult();
   }
-})()
+})();

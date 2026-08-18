@@ -1,5 +1,7 @@
 use std::sync::atomic::Ordering;
 
+use ocentra_schema::managed_browser_cdp_capture::MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE;
+
 use super::super::super::{
     binding, process, structured, target, transport, ManagedBrowserCdpCaptureContext,
     ManagedBrowserCdpCaptureError, ManagedBrowserCdpTargetAuthority,
@@ -59,6 +61,8 @@ fn structured_payload_matches(
     expected: &structured::EvaluatedPayload,
 ) -> bool {
     actual.payload.capture_safe
+        && actual.payload.sensitivity_digest == MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE
+        && expected.payload.sensitivity_digest == MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE
         && actual.payload.signal_digest == expected.payload.signal_digest
         && actual.payload.body_digest == expected.payload.body_digest
         && actual.payload.sensitivity_digest == expected.payload.sensitivity_digest

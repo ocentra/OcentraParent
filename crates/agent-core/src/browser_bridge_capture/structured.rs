@@ -42,6 +42,7 @@ pub struct ManagedBrowserCdpStructuredExtraction {
     document_loader_id: Option<String>,
     document_url_digest: Option<String>,
     authority_digest: String,
+    authority_binding: super::target::AuthorityBinding,
     capability_revoked: Arc<std::sync::atomic::AtomicBool>,
     visible_text_summary: Option<String>,
     visible_text_character_count: usize,

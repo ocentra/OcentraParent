@@ -21,6 +21,19 @@ pub(super) struct TargetSnapshot {
     pub(super) browser_identity_digest: String,
 }
 
+/// Producer-owned binding for the managed browser target. The fields remain
+/// private to the browser bridge; consumers receive only the derived digest
+/// and cannot mint a binding from the neutral handoff fields.
+pub(super) struct AuthorityBinding {
+    managed_browser_session_id: String,
+    profile_id: String,
+    generation: u64,
+    process_id: u32,
+    target_id: String,
+    websocket_url: String,
+    browser_identity_digest: String,
+}
+
 #[derive(Clone, PartialEq, Eq)]
 pub(super) struct DocumentIdentity {
     pub(super) frame_id: String,
@@ -183,24 +196,42 @@ pub(super) fn opaque_redacted_evidence_refs(
     }
 }
 
-pub(super) fn authority_digest(
+pub(super) fn authority_binding(
     binding: &LaunchBinding,
     target_id: &str,
     snapshot: &TargetSnapshot,
-) -> String {
-    let mut digest = Sha256::new();
-    digest.update(binding.managed_browser_session_id.as_bytes());
-    digest.update([0]);
-    digest.update(binding.profile_id.as_bytes());
-    digest.update([0]);
-    digest.update(binding.generation.to_be_bytes());
-    digest.update(binding.process_id.to_be_bytes());
-    digest.update(target_id.as_bytes());
-    digest.update([0]);
-    digest.update(snapshot.websocket_url.as_bytes());
-    digest.update([0]);
-    digest.update(snapshot.browser_identity_digest.as_bytes());
-    hex_digest(digest.finalize())
+) -> AuthorityBinding {
+    AuthorityBinding {
+        managed_browser_session_id: binding.managed_browser_session_id.clone(),
+        profile_id: binding.profile_id.clone(),
+        generation: binding.generation,
+        process_id: binding.process_id,
+        target_id: target_id.to_owned(),
+        websocket_url: snapshot.websocket_url.clone(),
+        browser_identity_digest: snapshot.browser_identity_digest.clone(),
+    }
+}
+
+impl AuthorityBinding {
+    pub(super) fn digest(&self) -> String {
+        let mut digest = Sha256::new();
+        digest.update(self.managed_browser_session_id.as_bytes());
+        digest.update([0]);
+        digest.update(self.profile_id.as_bytes());
+        digest.update([0]);
+        digest.update(self.generation.to_be_bytes());
+        digest.update(self.process_id.to_be_bytes());
+        digest.update(self.target_id.as_bytes());
+        digest.update([0]);
+        digest.update(self.websocket_url.as_bytes());
+        digest.update([0]);
+        digest.update(self.browser_identity_digest.as_bytes());
+        hex_digest(digest.finalize())
+    }
+
+    pub(super) fn matches_digest(&self, digest: &str) -> bool {
+        self.digest() == digest
+    }
 }
 
 fn opaque_ref(

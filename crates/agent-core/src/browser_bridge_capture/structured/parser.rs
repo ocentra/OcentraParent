@@ -107,7 +107,10 @@ fn parse_sensitivity(value: &Value) -> Result<(bool, String), ExtractionError> {
     ) {
         return Err(ExtractionError::InvalidResponse);
     }
-    Ok((capture_safe, sensitivity_digest))
+    Ok((
+        capture_safe && sensitivity_digest == MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE,
+        sensitivity_digest,
+    ))
 }
 
 fn bounded_string(value: &Value, field: &str, limit: usize) -> Result<String, ExtractionError> {
