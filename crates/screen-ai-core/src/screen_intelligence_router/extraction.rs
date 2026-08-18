@@ -12,13 +12,18 @@ pub(crate) const MANAGED_BROWSER_TARGET_REF_PREFIX: &str = "browser-target-";
 pub(crate) const MANAGED_BROWSER_URL_REF_PREFIX: &str = "browser-url-";
 pub(crate) const MANAGED_BROWSER_TITLE_REF_PREFIX: &str = "browser-title-";
 pub(crate) const SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT: usize = 480;
+const MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_PREFIX: &str = "browser-extraction-";
 const MANAGED_BROWSER_STRUCTURED_SIGNAL_PROTECTED: &str = "protected-content-redacted-v1";
 const MANAGED_BROWSER_STRUCTURED_SIGNAL_UNAVAILABLE: &str =
     "managed-browser-structured-unavailable-v1";
 const MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE: &str =
     "managed-browser-structured-evidence-unavailable-v1";
 const MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_UNAVAILABLE: &str =
-    "browser-extraction-unavailable-v1";
+    "managed-browser-unavailable-extraction-v1";
+const MANAGED_BROWSER_SESSION_REF_UNAVAILABLE: &str = "managed-browser-unavailable-session-v1";
+const MANAGED_BROWSER_TARGET_REF_UNAVAILABLE: &str = "managed-browser-unavailable-target-v1";
+const MANAGED_BROWSER_URL_REF_UNAVAILABLE: &str = "managed-browser-unavailable-url-v1";
+const MANAGED_BROWSER_TITLE_REF_UNAVAILABLE: &str = "managed-browser-unavailable-title-v1";
 const MANAGED_BROWSER_SENSITIVITY_STRUCTURAL_SAFE: &str =
     "managed-browser-sensitivity-structural-safe-v1";
 const MANAGED_BROWSER_SENSITIVITY_UNKNOWN: &str = "managed-browser-sensitivity-unknown-v1";
@@ -133,17 +138,7 @@ impl ScreenManagedBrowserStructuredExtraction {
     }
 
     pub(crate) fn authority_is_managed_browser(&self) -> bool {
-        self.receipt.authority.source_id == MANAGED_BROWSER_STRUCTURED_SOURCE_ID
-            && self
-                .receipt
-                .authority
-                .managed_browser_session_ref
-                .starts_with(MANAGED_BROWSER_SESSION_REF_PREFIX)
-            && self
-                .receipt
-                .authority
-                .target_ref
-                .starts_with(MANAGED_BROWSER_TARGET_REF_PREFIX)
+        authority_identity_is_real(&self.receipt)
     }
 
     pub(crate) fn has_structured_evidence(&self) -> bool {
@@ -176,21 +171,8 @@ fn receipt_is_bound_and_redacted(
     receipt.schema_version > 0
         && !receipt.extraction_id.trim().is_empty()
         && !receipt.captured_at.trim().is_empty()
-        && receipt.authority.source_id == MANAGED_BROWSER_STRUCTURED_SOURCE_ID
-        && receipt
-            .authority
-            .managed_browser_session_ref
-            .starts_with(MANAGED_BROWSER_SESSION_REF_PREFIX)
-        && receipt
-            .authority
-            .target_ref
-            .starts_with(MANAGED_BROWSER_TARGET_REF_PREFIX)
-        && receipt.evidence_refs.len() >= 3
-        && receipt.evidence_refs.iter().all(|reference| {
-            !reference.evidence_id.trim().is_empty()
-                && !reference.digest.trim().is_empty()
-                && reference.uri.is_none()
-        })
+        && authority_identity_is_consistent(receipt)
+        && digest_validation::valid_evidence_refs(receipt)
         && extraction_identity_is_consistent(receipt)
         && digest_validation::valid_signal_digest(receipt)
         && ((receipt.redaction_state
@@ -202,24 +184,8 @@ fn receipt_is_bound_and_redacted(
             ) && receipt.structured_body_digest.is_empty())
             || digest_validation::valid_body_digest(&receipt.structured_body_digest))
         && digest_validation::valid_digest(&receipt.authority_digest)
-        && digest_validation::valid_sensitivity_digest(&receipt.structured_sensitivity_digest)
+        && digest_validation::valid_sensitivity_digest(receipt)
         && document_identity_is_consistent(receipt)
-        && receipt.evidence_refs.iter().any(|reference| {
-            reference.evidence_id == receipt.authority.target_ref
-                && reference
-                    .evidence_id
-                    .starts_with(MANAGED_BROWSER_TARGET_REF_PREFIX)
-        })
-        && receipt.evidence_refs.iter().any(|reference| {
-            reference
-                .evidence_id
-                .starts_with(MANAGED_BROWSER_URL_REF_PREFIX)
-        })
-        && receipt.evidence_refs.iter().any(|reference| {
-            reference
-                .evidence_id
-                .starts_with(MANAGED_BROWSER_TITLE_REF_PREFIX)
-        })
         && receipt.visible_text_character_count <= SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT
         && receipt.visible_text_summary.as_ref().is_none_or(|summary| {
             let character_count = summary.chars().count();
@@ -229,6 +195,35 @@ fn receipt_is_bound_and_redacted(
         && !receipt.raw_dom_included
         && receipt.custody_state != ScreenEvidenceCustodyState::OcentraHostedNonActivity
         && redaction_flags_are_consistent(receipt)
+}
+
+fn authority_identity_is_real(receipt: &VerifiedManagedBrowserStructuredExtractionReceipt) -> bool {
+    receipt.authority.source_id == MANAGED_BROWSER_STRUCTURED_SOURCE_ID
+        && receipt
+            .authority
+            .managed_browser_session_ref
+            .starts_with(MANAGED_BROWSER_SESSION_REF_PREFIX)
+        && receipt
+            .authority
+            .target_ref
+            .starts_with(MANAGED_BROWSER_TARGET_REF_PREFIX)
+}
+
+fn authority_identity_is_consistent(
+    receipt: &VerifiedManagedBrowserStructuredExtractionReceipt,
+) -> bool {
+    match &receipt.outcome {
+        VerifiedStructuredExtractionOutcome::Unavailable => {
+            receipt.authority.source_id == MANAGED_BROWSER_STRUCTURED_SOURCE_ID
+                && receipt.authority.managed_browser_session_ref
+                    == MANAGED_BROWSER_SESSION_REF_UNAVAILABLE
+                && receipt.authority.target_ref == MANAGED_BROWSER_TARGET_REF_UNAVAILABLE
+        }
+        VerifiedStructuredExtractionOutcome::ProtectedContentSkipped
+        | VerifiedStructuredExtractionOutcome::ReviewRequired => {
+            authority_identity_is_real(receipt)
+        }
+    }
 }
 
 fn document_identity_is_consistent(
@@ -267,6 +262,10 @@ fn extraction_identity_is_consistent(
         VerifiedStructuredExtractionOutcome::ProtectedContentSkipped
         | VerifiedStructuredExtractionOutcome::ReviewRequired => {
             digest_validation::valid_digest(&receipt.structured_evidence_digest)
+                && receipt
+                    .extraction_id
+                    .strip_prefix(MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_PREFIX)
+                    .is_some_and(|digest| digest == receipt.structured_evidence_digest)
         }
     }
 }
