@@ -11,6 +11,7 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+ocentra-parent-agent-core = { path = "../agent-core" }
 ocentra-evidence = { path = "../ocentra-evidence" }
 ocentra-eventing = { path = "../ocentra-eventing" }
 serde = { version = "1.0.228", features = ["derive"] }

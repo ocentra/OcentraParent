@@ -31,6 +31,8 @@ mod identity_match;
 mod port_owner;
 #[path = "browser_bridge_capture/process.rs"]
 mod process;
+#[path = "browser_bridge_capture/structured.rs"]
+mod structured;
 #[path = "browser_bridge_capture/target.rs"]
 mod target;
 #[path = "browser_bridge_capture/transport.rs"]
@@ -65,7 +67,11 @@ pub enum ManagedBrowserCdpCaptureError {
     ResponseTooLarge,
     InvalidResponse,
     InvalidImage,
+    StructuredExtractionUnavailable,
+    ProtectedSurfaceRejected,
 }
+
+pub type ManagedBrowserCdpStructuredExtraction = structured::ManagedBrowserCdpStructuredExtraction;
 
 impl From<BrowserBridgePollError> for ManagedBrowserCdpCaptureError {
     fn from(error: BrowserBridgePollError) -> Self {
@@ -127,6 +133,27 @@ pub fn authorize_managed_browser_cdp_target(
 }
 
 impl ManagedBrowserCdpTargetAuthority {
+    pub fn extract_structured(
+        &self,
+    ) -> Result<ManagedBrowserCdpStructuredExtraction, ManagedBrowserCdpCaptureError> {
+        process::revalidate(&self.launch_authority)?;
+        let live_target = target::poll_and_verify(
+            &self.launch_authority,
+            &self.target_id,
+            Some(&self.verified_snapshot),
+        )?;
+        let captured_at_epoch_ms = binding::unix_epoch_millis()?;
+        let payload = structured::extract(self.endpoint, &live_target.snapshot.websocket_url)
+            .unwrap_or_else(|_error| structured::Payload::unavailable());
+        Ok(structured::bind_extraction(
+            &self.launch_authority,
+            &self.target_id,
+            &live_target.snapshot,
+            captured_at_epoch_ms,
+            payload,
+        ))
+    }
+
     pub fn capture(
         &self,
         request: &ManagedBrowserCdpCaptureRequest,
@@ -143,6 +170,7 @@ impl ManagedBrowserCdpTargetAuthority {
             &self.target_id,
             Some(&self.verified_snapshot),
         )?;
+        structured::ensure_capture_safe(self.endpoint, &live_target.snapshot.websocket_url)?;
         let png_bytes = transport::capture_screenshot(
             self.endpoint,
             &live_target.snapshot.websocket_url,
