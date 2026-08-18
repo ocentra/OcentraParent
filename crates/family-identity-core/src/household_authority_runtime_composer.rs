@@ -13,10 +13,12 @@
 //! required. A transport DTO or a public proof cannot satisfy any of these ports.
 
 use chrono::{DateTime, Utc};
+use ocentra_schema::account_identity_authority::AccountIdentityProvider;
 
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_authority_repository::AccountIdentityAuthorityService;
 use crate::device_trust_current_binding::CurrentChildDeviceTrustBinding;
+use crate::device_trust_lifecycle::DeviceTrustLifecycleState;
 use crate::household_authority::HouseholdAuthorityAction;
 
 mod household_authority_runtime_account;
@@ -61,6 +63,7 @@ pub enum HouseholdAuthorityRuntimeFailure {
     ParentStepUpReplayRejected,
     ParentStepUpBindingMismatch,
     RuntimeFenceUnavailable,
+    EffectTargetMismatch,
     RoleNotAuthorized,
     ManualRequired,
 }
@@ -144,12 +147,62 @@ pub struct HouseholdAuthorityRuntimeAuthorization {
     parent_step_up: Option<ConsumedParentStepUp>,
 }
 
-/// The only value a downstream effect owner may receive after an authorization has been
-/// revalidated and atomically consumed. It is deliberately distinct from the composer's
-/// positive authorization: the latter is a one-time input to the owner-issued CAS fence, never
-/// an effect permission by itself.
-pub struct HouseholdAuthorityRuntimeEffectAuthorization {
+/// The exact typed target bound by the owner-issued execution receipt.
+///
+/// This type has no public constructor and keeps every target identity and currentness snapshot
+/// private. A downstream caller cannot pair a receipt with caller-assembled household, account,
+/// child, device, provider, session, route, or generation scalars. A real effect owner either
+/// constructs this target inside the CAS owner or receives it from that owner and consumes the
+/// receipt by value.
+pub struct HouseholdAuthorityRuntimeEffectTarget {
     action: HouseholdAuthorityAction,
+    household_id: String,
+    account_id: String,
+    parent_device_id: String,
+    child_profile_id: String,
+    child_device_id: String,
+    provider: AccountIdentityProvider,
+    provider_subject: String,
+    session_id: String,
+    session_expires_at: String,
+    session_generation: u64,
+    account_authority_generation: u64,
+    account_binding_authority_generation: u64,
+    installation_id: String,
+    pairing_id: String,
+    route_id: String,
+    device_trust_subject: String,
+    device_signer_key_id: String,
+    device_signer_key_sha256: String,
+    device_state: DeviceTrustLifecycleState,
+    device_lifecycle_generation: u64,
+    device_installation_binding_generation: u64,
+    device_authority_generation: u64,
+    capability_authority_generation: Option<u64>,
+    capability_expires_at: Option<DateTime<Utc>>,
+    capability_revocation_epoch: Option<u64>,
+    controller_lease_authority_generation: Option<u64>,
+    controller_lease_expires_at: Option<DateTime<Utc>>,
+    controller_lease_revocation_epoch: Option<u64>,
+    parent_step_up_authority_generation: Option<u64>,
+    parent_step_up_expires_at: Option<DateTime<Utc>>,
+    parent_step_up_receipt_epoch: Option<u64>,
+}
+
+/// The only value a downstream effect owner may receive after an authorization has been
+/// revalidated and atomically consumed. It is a target-bound, single-use receipt rather than an
+/// action flag: its private target and CAS nonce cannot be inspected, copied, serialized, or
+/// paired with another target by a caller.
+pub struct HouseholdAuthorityRuntimeEffectAuthorization {
+    target: HouseholdAuthorityRuntimeEffectTarget,
+    consumption_nonce: [u8; 32],
+}
+
+/// Terminal effect handoff produced by consuming the owner-issued receipt with the exact typed
+/// target. It remains opaque and non-reusable; the receipt and target are both moved by value.
+pub struct HouseholdAuthorityRuntimeConsumedEffect {
+    target: HouseholdAuthorityRuntimeEffectTarget,
+    consumption_nonce: [u8; 32],
 }
 
 /// Owner seam for the final execution-time CAS/revocation fence.
@@ -157,8 +210,10 @@ pub struct HouseholdAuthorityRuntimeEffectAuthorization {
 /// The caller supplies no current state. `consume_household_authority` resolves current Account,
 /// Device Trust, capability, lease, and step-up state immediately before invoking this seam. An
 /// implementation must atomically compare the private authorization nonce and all supplied owner
-/// snapshots against its revocation/currentness store before returning the opaque effect value.
-/// Returning an effect without that owner CAS is an authority bug.
+/// snapshots against its revocation/currentness store before issuing the target-bound receipt.
+/// The owner must either consume that receipt inside the same CAS owner or use the exact opaque
+/// target returned by its own owner boundary and call `consume_for_target` by value. Returning an
+/// effect without that owner CAS is an authority bug.
 pub trait HouseholdAuthorityRuntimeCasFence {
     fn compare_and_consume(
         &mut self,
