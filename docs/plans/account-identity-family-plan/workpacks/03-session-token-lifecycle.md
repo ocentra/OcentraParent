@@ -166,6 +166,52 @@ deserializable session record accepted caller-provided replay/freshness state,
 had no token custody or durable repository, and allowed terminal/backdated
 rewrites. It is not WP03 progress.
 
+## 2026-08-18 production source completion boundary
+
+The accepted Cloudflare source packet now supplies the WP03 production/runtime
+composition, without reviving caller-minted session facts or evaluators. The
+reachable source is:
+
+- `infra/cloudflare/migrations/account-identity/0005_account_browser_session_custody.sql`
+  and `0006_account_browser_session_refresh_custody.sql` for digest-only
+  browser-session custody, revocation generations, consumed-refresh replay
+  custody, and durable revoke outcomes;
+- `infra/cloudflare/src/storage/account-browser-session-codec.ts` and
+  `account-browser-session-store.ts` for opaque cookies, non-forgeable
+  Account authority capabilities, same-boundary currentness revalidation,
+  refresh-family CAS, exact CSRF digest checks, refresh-bound logout/revoke,
+  and redacted audit custody;
+- `infra/cloudflare/src/auth/account-identity-authority-caller.ts`,
+  `verifier.ts`, and `providers/firebase-auth.ts` for the final WP06 provider
+  result distinction and provider-to-Account authority caller; and
+- `infra/cloudflare/src/auth/browser-session-routes.ts` plus `routes.ts` for
+  origin/fetch-metadata request safety, bounded correlation, login/refresh/
+  logout/global-revoke reachability, and secure `__Host-` cookies where legal.
+
+The session store rejects structurally forged capabilities at runtime, permits
+only parent/controller/support browser roles (observer and child roles never
+map to parent), binds refresh and CSRF credentials to one session family, and
+uses a durable generation fence for global revoke. Rotation is one D1 CAS
+sequence: the old refresh digest is rotated first, then consumed only by the
+new generation/current digest, then audited; a failed CAS commits neither
+consumed custody nor audit. Session mutation/audit custody is guarded so a
+successful mutation without its audit outcome rolls back. Access expiry does
+not block refresh-bound logout or global revoke, while an optional access
+cookie must still bind to the same session.
+
+The expected runtime test source is still absent and must be added by the
+test/proof phase:
+
+- `infra/cloudflare/tests/unit/account-browser-session-store.test.ts`
+- `infra/cloudflare/tests/unit/account-browser-session-routes.test.ts`
+- `infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts`
+- `infra/cloudflare/tests/integration/account-browser-session-real.test.ts`
+
+The source is rebased onto Cloudflare WP06 final head `56a4faa37`. It does not
+claim applied D1 migrations, live Worker deployment, tests, retained proof,
+precommit, CI, PR, or DONE. The final WP06 mutation-readiness seam remains
+parameterless/manual-required; no caller-side authority is fabricated.
+
 ## Fill before DONE
 
 - Workpack id and branch: `WP03 Session Token Lifecycle`; `codex/tracking-plan-full-continuation-a`.

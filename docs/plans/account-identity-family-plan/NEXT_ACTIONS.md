@@ -108,6 +108,20 @@ sensitive-action freshness gate
 proof root and command log
 ```
 
+2026-08-18 source boundary: the Cloudflare runtime composition is now
+reachable through the final WP06 provider caller and Account current-authority
+capability. Migrations `0005_account_browser_session_custody.sql` and
+`0006_account_browser_session_refresh_custody.sql`, the opaque session store,
+refresh-family CAS/replay custody, refresh-bound logout/revoke routes, exact
+CSRF plus origin/fetch-metadata checks, redacted milestones, and `__Host-`
+cookies are source-present. The expected route/store/request-safety tests are
+not present yet and remain deferred to the test/proof phase:
+`infra/cloudflare/tests/unit/account-browser-session-store.test.ts`,
+`infra/cloudflare/tests/unit/account-browser-session-routes.test.ts`,
+`infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts`,
+and `infra/cloudflare/tests/integration/account-browser-session-real.test.ts`.
+Applied migrations, deployment, retained proof, and DONE remain open.
+
 ### 4. WP04 Invites Recovery Lifecycle
 
 Expected result:

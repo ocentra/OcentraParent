@@ -3,19 +3,19 @@ import {
   createAccountIdentityAuthorityWriter,
   type AccountIdentityAuthorityWriter,
 } from '../storage/account-identity-authority-writer.js';
-import type {
-  ProviderVerificationPort,
-  VerifiedAccountIdentityAuthorityCapability,
-  VerifiedProviderIdentity,
-} from './verifier.js';
+import type { VerifiedAccountIdentityAuthorityCapability } from '../storage/account-identity-authority-store.js';
+import type { ProviderVerificationPort, ProviderVerificationResult } from './verifier.js';
 
 export type VerifiedProviderAuthorityResult =
   | {
       status: 'trusted';
-      providerIdentity: VerifiedProviderIdentity;
+      providerIdentity: Extract<ProviderVerificationResult, { status: 'verified' }>['identity'];
       capability: VerifiedAccountIdentityAuthorityCapability;
     }
-  | { status: 'not-found'; providerIdentity: VerifiedProviderIdentity }
+  | {
+      status: 'not-found';
+      providerIdentity: Extract<ProviderVerificationResult, { status: 'verified' }>['identity'];
+    }
   | { status: 'provider-unavailable' }
   | {
       status: 'manual-required';
@@ -46,17 +46,26 @@ function createCaller(writer: AccountIdentityAuthorityWriter): AccountIdentityAu
         return { status: 'provider-unavailable' };
       }
 
-      let providerIdentity: VerifiedProviderIdentity | null;
+      let verification: ProviderVerificationResult;
       try {
-        providerIdentity = await providerVerifier.verify(request);
+        verification = await providerVerifier.verify(request);
       } catch {
-        providerIdentity = null;
-      }
-      if (providerIdentity === null) {
         return { status: 'provider-unavailable' };
       }
+      if (verification.status === 'unavailable') {
+        return { status: 'provider-unavailable' };
+      }
+      if (verification.status === 'rejected') {
+        return { status: 'rejected', reason: 'provider-credential-rejected' };
+      }
+      const providerIdentity = verification.identity;
 
-      const authority = await writer.readCurrentAuthority(providerIdentity.provider, providerIdentity.providerSubject);
+      let authority: Awaited<ReturnType<AccountIdentityAuthorityWriter['readCurrentAuthority']>>;
+      try {
+        authority = await writer.readCurrentAuthority(providerIdentity.provider, providerIdentity.providerSubject);
+      } catch {
+        return { status: 'manual-required', reason: 'account-identity-d1-unavailable' };
+      }
       switch (authority.status) {
         case 'trusted':
           return { status: 'trusted', providerIdentity, capability: authority.capability };

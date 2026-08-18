@@ -246,6 +246,34 @@ evaluator remains diagnostic risk if fed caller-assembled facts, and the
 Cloudflare provider-to-authority caller is still missing. Retain all expected-
 test, focused validation, proof, PR, and DONE gates.
 
+## 2026-08-18 Account WP03 production source boundary
+
+Account WP03 now has a real Cloudflare source seam for browser login, refresh,
+logout, global revoke, and session custody, rebased onto Cloudflare WP06 final
+head `56a4faa37`. The source uses the final provider verification result and
+`createAccountIdentityAuthorityCaller(...).resolveVerifiedProviderAuthority`
+for provider-bound login/current authority. Browser refresh-bound requests
+re-resolve Account current authority from D1 because they have no provider
+token; they do not mint or reconstruct authority from request fields.
+
+The source-level request safety and custody boundary is now concrete: allowed
+origin and same-origin/same-site fetch metadata are required, refresh CSRF is
+an exact digest/session match, optional access cookies must bind to the same
+session, access expiry does not prevent refresh-bound logout/revoke, and
+production cookies use `__Host-` names with Secure/Path=/ when the environment
+permits them. Store creation and parent-owner global revoke runtime-check the
+opaque WeakSet capability; Account currentness is revalidated inside the D1
+create mutation; refresh rotation uses rotate-first CAS, durable consumed
+digest custody, replay-family revocation, and guarded mutation/audit batches;
+global revoke advances a durable generation fence. Audit and revoke-outcome
+rows retain only domain-separated digests and bounded request correlation.
+
+This is source acceptance only. The exact Cloudflare route/store/security test
+family is absent and remains deferred, as do migration application, live D1/
+Worker execution, retained proof, precommit, CI, PR, and DONE. The final WP06
+parameterless mutation-readiness seam remains manual-required; this source does
+not fabricate provider or Account authority.
+
 ## Default execution order
 
 ```text

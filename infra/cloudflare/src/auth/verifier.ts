@@ -5,7 +5,7 @@ import {
   isVerifiedAccountIdentityAuthorityCapability,
   type VerifiedAccountIdentityAuthorityCapability,
 } from '../storage/account-identity-authority-store.js';
-import { createAccountIdentityAuthorityRuntime } from './account-identity-authority-runtime.js';
+import { createAccountIdentityAuthorityCaller } from './account-identity-authority-caller.js';
 import { createBrowserSessionStore } from '../storage/account-browser-session-store.js';
 import { browserSessionCookieNames, browserSessionRole, readCookie } from '../storage/account-browser-session-codec.js';
 import { getAuthStateModel, type AuthState } from './model.js';
@@ -26,8 +26,19 @@ export interface VerifiedProviderIdentity {
   providerSubject: string;
 }
 
+export type ProviderVerificationResult =
+  | { status: 'verified'; identity: VerifiedProviderIdentity }
+  | {
+      status: 'rejected';
+      reason: 'missing-credential' | 'malformed-credential' | 'invalid-credential';
+    }
+  | {
+      status: 'unavailable';
+      reason: 'configuration-unavailable' | 'jwks-unavailable' | 'provider-unavailable';
+    };
+
 export interface ProviderVerificationPort {
-  verify(request: Request): Promise<VerifiedProviderIdentity | null>;
+  verify(request: Request): Promise<ProviderVerificationResult>;
 }
 
 export interface AuthVerifier {
@@ -224,7 +235,7 @@ async function verifyProviderBoundRequest(
   authState: AuthState,
   providerVerifier: ProviderVerificationPort
 ): Promise<AuthResult> {
-  const authorityResult = await createAccountIdentityAuthorityRuntime(env).resolveVerifiedProviderAuthority(
+  const authorityResult = await createAccountIdentityAuthorityCaller(env).resolveVerifiedProviderAuthority(
     request,
     providerVerifier
   );
