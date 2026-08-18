@@ -57,9 +57,10 @@ owned by the WP05 `crates/parent-runtime-core` route listed in
 - Data WP04 supplies retention/delete/tombstone ordering and no-resurrection
   constraints.
 - Data WP05 supplies bundle manifest/preflight/integrity contracts.
-- Data WP05 parent-runtime-core supplies the durable scheduler/job ledger and
-  restart reconciliation seam; WP09 returns owner-bound operation outcomes to
-  that runtime and does not persist a second ledger.
+- Data WP05 base parent-runtime-core supplies the durable scheduler/job ledger,
+  restore/migration ledger, and restart reconciliation seam; WP09 returns
+  owner-bound provider operation outcomes to that base and does not persist a
+  second ledger or depend on the later WP11 composition mount.
 - Account WP05 supplies the current household/member/device/session/capability/
   lease composer when a job requires authority.
 - Conditional handoffs only: if the selected implementation requires a
@@ -86,11 +87,11 @@ owned by the WP05 `crates/parent-runtime-core` route listed in
 
 ## Ownership correction (2026-08-18)
 
-WP09 is a downstream pure storage/adapter-port route. The durable parent
-scheduler/job lifecycle, restart reconciliation, and Eventing/outbox
-composition are WP05 `parent-runtime-core` responsibilities. No provider SDK,
-OAuth flow, filesystem adapter, caller-supplied authority, or duplicate
-ledger is permitted here.
+WP09 is a downstream pure storage/adapter-port route from the WP05 base layer.
+The durable parent scheduler/job lifecycle, restart reconciliation, and
+Eventing/outbox composition are WP05 responsibilities. No provider SDK, OAuth
+flow, filesystem adapter, caller-supplied authority, duplicate ledger, or
+dependency on the later WP11 composition mount is permitted here.
 
 ## Expected tests and proof (deferred until source wave is complete)
 

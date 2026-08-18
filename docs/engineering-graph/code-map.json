@@ -9809,6 +9809,21 @@
       "plannedImplementationRoots": ["crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"],
       "expectedTestRoots": ["crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"],
       "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes."
+    },
+    "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount": {
+      "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/parent-runtime-core/src/data_custody_runtime_composition.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs",
+        "crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/parent-runtime-core/src/data_custody_runtime_composition.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs"
+      ],
+      "expectedTestRoots": ["crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs"],
+      "note": "New blocked composition/custody-mount owner. The planned parent-runtime roots are absent and remain gated on Account WP05 true authority transaction/CAS, key/import custody, producer artifact custody, WP09 provider operation capability, and WP10 owner-derived outcomes; no private traits become public and no runtime completeness is implied."
     }
   }
 }

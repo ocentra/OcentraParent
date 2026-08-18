@@ -28,14 +28,15 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | validation / source accepted, tests open | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 recorded | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | no runtime consumer; stale/unwritten expected tests and historical ignored `output/` root remain |
 | validation / source incomplete | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 12/12 recorded | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | confirmation authority and reachable Applied/Partial path, expected tests, and clean-checkout proof remain open |
 | blocked / source reachable, Account composition and tests open | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 2/14 | integrated child custody command/effect/tombstone lifecycle | Account WP04/WP05 plus missing clean-checkout aggregate root |
-| source route only / not implemented | [WP09 Parent Local Bundle Provider Runtime](workpacks/09-parent-local-bundle-provider-runtime.md) | 0/0 | `BUNDLE_PROTOCOL.md`, `PARENT_STORAGE_PROVIDER_MATRIX.md` | no source, tests, or proof yet; downstream pure byte-custody/provider-port route; WP05 parent-runtime owns durable scheduler/job state |
-| source route only / not implemented | [WP10 Restore Orchestration And Producer Handoffs](workpacks/10-restore-orchestration-and-producer-handoffs.md) | 0/0 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `EVENT_MODEL.md` | no source, tests, or proof yet; downstream pure producer-handoff route; WP05 parent-runtime owns durable restore/migration ledger and executor mount |
+| blocked / source route only / not implemented | [WP09 Parent Local Bundle Provider Runtime](workpacks/09-parent-local-bundle-provider-runtime.md) | 0/0 | `BUNDLE_PROTOCOL.md`, `PARENT_STORAGE_PROVIDER_MATRIX.md` | no source, tests, or proof yet; downstream pure byte-custody/provider-port route from WP05 base; WP05 owns durable scheduler/job state; WP11 composition is downstream |
+| blocked / source route only / not implemented | [WP10 Restore Orchestration And Producer Handoffs](workpacks/10-restore-orchestration-and-producer-handoffs.md) | 0/0 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `EVENT_MODEL.md` | no source, tests, or proof yet; downstream pure producer-handoff route from WP05 base; WP05 owns durable restore/migration ledger; WP11 composition is downstream |
+| blocked / runtime composition and custody mount not implemented | [WP11 Runtime Composition And Custody Mount](workpacks/11-runtime-composition-and-custody-mount.md) | 0/0 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `BUNDLE_PROTOCOL.md`, `EVENT_MODEL.md` | planned parent-runtime composition/mount roots are absent; blocked on Account WP05 true authority transaction/CAS, key/import custody, producer artifact custody, WP09 provider operation capability, and WP10 outcomes |
 | source | [Migrated Data And AI UI Plan](workpacks/data and AI Ui plan.md) | 0/0 | source evidence only | n/a |
 
 ## Default execution order
 
 ```text
-WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP08 -> WP09 -> WP10 -> WP07
+WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP08 -> (WP09, WP10) -> WP11 -> WP07
 ```
 
 ## Dependency rules
@@ -57,8 +58,18 @@ scheduler/job and restore/migration ledgers, restart reconciliation,
 executor/rollback mount, and Eventing/outbox composition. It consumes only
 opaque Account/family authority, key/decrypt capability, provider-neutral
 adapter, and producer ports.
-WP09 consumes WP02/WP03/WP04/WP05 plus Account WP05 and exact Device Trust/Eventing handoffs; it remains a downstream pure byte-custody/provider-port route and does not own a second scheduler/job ledger.
-WP10 consumes WP02/WP03/WP04/WP05 plus Account WP05/WP08 and exact Device Trust/Eventing/data-class producer handoffs; it remains a downstream pure producer-handoff route and does not own a second restore/migration ledger or fabricate receipts.
+WP09 consumes the WP05 base plus WP02/WP03/WP04, Account WP05, and exact
+Device Trust/Eventing handoffs; it remains a downstream pure byte-custody/
+provider-port route and does not own a second scheduler/job ledger or depend on
+WP11.
+WP10 consumes the WP05 base plus WP02/WP03/WP04, Account WP05/WP08, and exact
+Device Trust/Eventing/data-class producer handoffs; it remains a downstream
+pure producer-handoff route and does not own a second restore/migration ledger,
+fabricate receipts, or depend on WP09/WP11.
+WP11 consumes WP05 base, WP09 provider operation capability, WP10 outcomes,
+Account WP05 true authority transaction/CAS, key/import custody, and the
+producer-owned artifact-custody handoff. It is blocked until those owners are
+available and never becomes a prerequisite of WP09 or WP10.
 WP07 is last and consumes all previous proof roots.
 ```
 
@@ -113,8 +124,8 @@ schema contracts
     -> storage-custody-core pure decisions/orchestration
     -> parent-runtime-core durable scheduler/job + restore/migration ledgers
        + restart reconciliation + executor/rollback mount + Eventing/outbox
-    -> WP09 provider-neutral byte/adapter-port handoff
-    -> WP10 producer-handoff orchestration
+    -> WP09 provider-neutral byte/adapter-port handoff --┐
+    -> WP10 producer-handoff orchestration --------------┴-> WP11 runtime composition/custody mount
 ```
 
 The exact production and deferred expected-test roots are recorded in

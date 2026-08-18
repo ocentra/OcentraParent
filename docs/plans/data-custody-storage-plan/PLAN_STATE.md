@@ -128,10 +128,10 @@ is integrated, but no report/query runtime consumer is routed to it; expected
 tests, focused execution, proof, precommit, CI, and PR are intentionally
 deferred to their later phases.
 
-Global engineering-graph regeneration is deferred to the owning coordinator;
-this plan-local source/status checkpoint does not write global graph files.
-Graph state remains evidence-derived; topology presence does not promote a
-workpack to DONE.
+The 2026-08-18 routing correction regenerates the engineering graph from this
+plan's explicit WP05 base, parallel WP09/WP10 downstream routes, and blocked
+WP11 composition/mount route. Graph topology remains evidence-derived;
+topology presence does not promote a workpack to DONE.
 
 ## What Is Already Present
 
@@ -220,3 +220,25 @@ byte and producer-handoff orchestration and cannot duplicate the parent
 runtime owner. The expected tests, focused validation, proof, and completion
 remain open. No provider fake, caller-supplied authority, or source
 completion is implied.
+
+## 2026-08-18 base/composition routing correction
+
+WP05 is now the base source route: schema contracts, pure decisions,
+parent-runtime durable scheduler/job and restore/migration ledgers, restart
+reconciliation, Eventing/outbox composition, and explicit manual-required
+gates. Runtime composition/custody mounting is a separate blocked WP11 route,
+not an implicit WP05 completion claim.
+
+WP11's planned roots are only:
+
+- `crates/parent-runtime-core/src/data_custody_runtime_composition.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs`
+- `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`
+
+WP11 cannot advance until Account WP05 supplies the true authority
+transaction/CAS and recovery owner, key/import custody is owner-resolved,
+producer artifact custody is available, WP09 supplies provider operation
+capability, and WP10 supplies owner-derived outcomes. WP09 and WP10 now depend
+on the WP05 base only and remain independent of WP11, so the route is acyclic.
+No private trait is made public, and no runtime completeness, proof, PR
+readiness, or plan completion is claimed.

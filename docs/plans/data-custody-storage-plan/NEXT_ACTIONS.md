@@ -22,16 +22,18 @@
    Account WP08's sealed current authority, Account WP04's correlated
    export/delete handoff, and Account WP05's current
    household/member/device/session/capability/lease authorization composer.
-2. Review and integrate the bounded WP05 source packet now present in its
-   reviewed ownership order: schema-owned durable backup cadence/schedule/job
-   and migration/rollback contracts; pure `storage-custody-core`
+2. Review and integrate the bounded WP05 base source packet in its reviewed
+   ownership order: schema-owned durable backup cadence/schedule/job and
+   migration/rollback contracts; pure `storage-custody-core`
    backup/restore/migration/preflight decisions and compensation; and the
    `parent-runtime-core` durable scheduler/job ledger, restore/migration
    ledger, restart reconciliation, executor/rollback mount, and real
-   Eventing/outbox composition. Mount only opaque Account/family authority,
-   key/decrypt capability, provider-neutral adapter, and producer ports; leave
-   unavailable external owners manual-required or blocked. WP09/WP10 remain
-   downstream source-only routes and must not duplicate these ledgers.
+   Eventing/outbox composition. Runtime composition/custody mounting is now
+   isolated in blocked WP11. Mount only opaque Account/family authority,
+   key/decrypt capability, provider-neutral adapter, producer artifact, and
+   producer-result ports there; leave unavailable external owners
+   manual-required or blocked. WP09/WP10 consume the WP05 base independently
+   and must not duplicate these ledgers or depend on WP11.
    After Account WP05's durable opaque-effect CAS/recovery owner is reviewed,
    finish WP08's trusted confirmation receipt plus reachable `Applied`/`Partial`
    decision path. Do not stage or consume a confirmation through a caller-made
@@ -63,6 +65,18 @@ the WP05 parent-runtime scheduler/job or restore/migration ledger. Account
 WP02's target-aware authority correction remains a separate prerequisite for
 action-bound custody composition; missing Account/key/provider/producer owners
 must remain opaque blockers rather than being fabricated.
+
+## 2026-08-18 base/composition routing correction
+
+The legal route is now `WP05 base -> (WP09, WP10) -> WP11 composition/mount`.
+WP11 is blocked on Account WP05's true authority transaction/CAS and recovery
+owner, key/import custody, producer artifact custody, WP09 provider operation
+capability, and WP10 owner-derived outcomes. Its only planned roots are
+`crates/parent-runtime-core/src/data_custody_runtime_composition.rs`,
+`crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs`,
+and `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`.
+This is routing-only: no production source, tests, proof, public private
+traits, runtime completeness, or PR readiness is implied.
 
 ## Production-code audit boundary
 

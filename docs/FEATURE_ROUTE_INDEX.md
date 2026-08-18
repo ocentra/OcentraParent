@@ -53,5 +53,7 @@ source, while capability/lease/step-up authority remains fail-closed and open.
 Evidence/data custody now routes WP09 for
 parent-local/provider-neutral encrypted bundle runtime and WP10 for durable
 restore orchestration and producer handoffs. These are implementation gaps,
-not feature completion claims; provider, Account, Device Trust, Eventing, and
-data-class ownership boundaries remain explicit.
+then routes both through the WP05 base to a blocked WP11 composition/mount
+owner. These are implementation gaps, not feature completion claims; provider,
+Account, key/import, producer artifact, Device Trust, Eventing, and data-class
+ownership boundaries remain explicit.

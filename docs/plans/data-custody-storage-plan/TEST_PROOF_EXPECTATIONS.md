@@ -157,7 +157,7 @@ expiry boundary
 restore cannot revive deleted state
 ```
 
-## WP05 Export Import Backup Recovery
+## WP05 Export Import Backup Recovery (base source and custody decisions)
 
 Expected coverage:
 
@@ -303,5 +303,34 @@ receipt provenance, owner result requirement, redaction, and no-fake-success
 WP10 expected tests cover only downstream pure producer-handoff orchestration.
 Durable restore/migration ledgers, restart reconciliation, executor/rollback
 mounting, and Eventing/outbox composition are tested through the WP05
-parent-runtime roots above.
+parent-runtime roots above. Runtime composition/custody mounting is not part
+of this base test family; it has its own WP11 integration obligation.
 ```
+
+## WP11 Runtime Composition And Custody Mount
+
+Expected coverage:
+
+```text
+Account WP05 true authority transaction/CAS and recovery currentness
+key/import custody ownership and integrity binding
+producer-owned sealed artifact custody bound to the WP05 operation
+WP09 provider operation capability and opaque outcome
+WP10 owner-derived producer outcomes, partial, and manual-required states
+restart/reconciliation binding without a second ledger
+missing, stale, revoked, ambiguous, no-fake-success, and no-resurrection negatives
+private mount traits remain private and request/JSON selectors are rejected
+```
+
+Expected source/test ownership roots (routing obligations only; absent until
+the composition source wave):
+
+```text
+composition: crates/parent-runtime-core/src/data_custody_runtime_composition.rs,
+             crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs
+integration: crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs
+```
+
+WP11 is blocked on the Account, key/import, producer-artifact, WP09 provider,
+and WP10 outcome handoffs above. No source, focused test, proof, runtime
+composition, or completion claim is implied by these expected roots.

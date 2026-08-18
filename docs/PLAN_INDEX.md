@@ -66,7 +66,9 @@ The current acyclic authority route is Account WP08 -> Account WP02 target
 identity -> Cloudflare WP06 authoritative writer/provider caller -> Device
 Trust WP03 ceremony -> LAN/child consumers. These are source and dependency
 routes, not completion claims.
-The Data Custody route now includes explicit source-only WP09 parent-local
-bundle/provider runtime and WP10 restore-orchestration/producer-handoff
-workpacks. Their plan-local state, expected-test obligations, and no-claim
-boundaries are authoritative; neither row implies implementation or readiness.
+The Data Custody route now includes the WP05 base source layer, parallel
+source-only WP09 parent-local bundle/provider and WP10 restore-orchestration/
+producer-handoff workpacks, and a separate blocked WP11 runtime composition/
+custody-mount route. Their plan-local state, expected-test obligations, and
+no-claim boundaries are authoritative; none implies implementation or
+readiness.

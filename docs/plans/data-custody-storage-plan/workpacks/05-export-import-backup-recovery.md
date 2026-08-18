@@ -222,6 +222,29 @@ runtime composition, and retained proof artifacts are completed and reviewed:
 - Wrong-household, wrong-key, corrupt-bundle, expired-retention, duplicate-device, and unsupported migration cases fail closed in the shared Rust preflight state machine.
 - Default support recovery of child evidence decryption remains blocked.
 
+## 2026-08-18 base/composition routing correction
+
+WP05 is the base owner only. Its legal scope is the schema contract, pure
+`storage-custody-core` decisions, durable parent-runtime scheduler/job and
+restore/migration ledgers, restart reconciliation, Eventing/outbox seam, and
+manual-required gates. It does not claim that those seams are mounted to live
+Account, key/import, provider, or producer owners.
+
+The separate runtime composition and custody-mount route is
+[WP11](11-runtime-composition-and-custody-mount.md), with only these planned
+parent-runtime roots:
+
+- `crates/parent-runtime-core/src/data_custody_runtime_composition.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs`
+- `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`
+
+WP09 and WP10 consume this WP05 base layer independently. They must not depend
+on or implement WP11 composition, duplicate the WP05 ledgers, publicize private
+mount traits, or treat source presence as runtime completion. Account WP05's
+true authority transaction/CAS, key/import custody, producer artifact custody,
+WP09 provider operation capability, and WP10 owner outcomes remain external
+composition gates for WP11.
+
 ## Proof artifacts
 
 - `00-export-bundle-contract-proof.md`

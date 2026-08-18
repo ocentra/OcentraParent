@@ -101,6 +101,12 @@
 - [x] Workpack completion section filled. Proof: `docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md`
 - [x] No restore-ready overclaim made. Proof: `docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md`
 
+WP05 checklist rows above cover the bounded bundle/preflight/base contract
+packet and retained historical proof only. Durable runtime composition/custody
+mounting, external Account/key/provider/producer handoffs, and its expected
+integration test are tracked separately under WP11 below; these rows do not
+close WP05 runtime reachability or plan completion.
+
 ## WP06 Report Query Custody
 
 - [x] Derived source matrix defined. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/00-derived-source-matrix-proof.md`
@@ -157,6 +163,21 @@
 - [ ] Focused tests and focused architecture/Enforcer gates pass or an exact blocker is recorded.
 - [ ] Required proof artifacts are written under `output/data-custody-storage-plan-proof/10-restore-orchestration-and-producer-handoffs/`.
 - [ ] Workpack completion section and plan indexes are synchronized without a restore-ready overclaim.
+
+## WP11 Runtime Composition And Custody Mount
+
+- [ ] WP05 base ledgers, reconciliation, Eventing/outbox, and manual-required gates are mounted without a second ledger.
+- [ ] Account WP05 true authority transaction/CAS and recovery handoff is owner-resolved.
+- [ ] Key/import custody and integrity binding are owner-resolved.
+- [ ] Producer-owned sealed artifact custody is bound to the WP05 operation.
+- [ ] WP09 provider operation capability and opaque outcome are mounted.
+- [ ] WP10 owner-derived producer outcomes, partial, and manual-required states are mounted.
+- [ ] Missing, stale, revoked, ambiguous, no-fake-success, and no-resurrection negatives are covered.
+- [ ] Private mount traits remain private and request/JSON authority selectors are rejected.
+- [ ] Expected integration test source is written and reviewed at `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`.
+- [ ] Focused test, architecture, generated, single-source, and Enforcer gates pass or an exact blocker is recorded.
+- [ ] Required proof artifacts are written under `output/data-custody-storage-plan-proof/11-runtime-composition-and-custody-mount/`.
+- [ ] Workpack completion section and plan indexes are synchronized without a runtime-complete overclaim.
 
 ## WP07 Rollout Proof And Route Gate
 
