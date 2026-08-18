@@ -2,7 +2,7 @@ import UIKit
 
 private enum ChildIosEntitlementCapabilityProof {
     static let schemaVersion = "child-ios-entitlement-capability-proof"
-    static let bundleId = "ca.ocentra.parent.agent"
+    static let bundleId = "ca.ocentra.child.agent"
     static let capabilityOnlyState = "service-mode=capability-only"
     static let launchAvailabilityState = "launch-availability=manual-required"
     static let recoveryState = "recovery=not-implemented"
@@ -20,7 +20,7 @@ private enum ChildIosEntitlementCapabilityProof {
     static let daemonState = "daemon=not-claimed"
     static let childAgentParityState = "child-agent-parity=not-claimed"
     static let statusText = [
-        "Ocentra Parent Agent iOS scaffold",
+        "Ocentra Child Agent iOS capability scaffold",
         schemaVersion,
         bundleId,
         capabilityOnlyState,

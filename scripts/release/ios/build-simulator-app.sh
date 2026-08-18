@@ -2,20 +2,24 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-version="${OCENTRA_PARENT_VERSION:-$(cd "$repo_root" && node scripts/release/validate-version.mjs --print-version)}"
+if [[ -n "${OCENTRA_PARENT_VERSION:-}" ]]; then
+  echo 'Refusing legacy parent-scoped iOS child package version input. Use OCENTRA_CHILD_IOS_VERSION.' >&2
+  exit 1
+fi
+version="${OCENTRA_CHILD_IOS_VERSION:-$(cd "$repo_root" && node scripts/release/validate-version.mjs --print-version)}"
 package_root="$repo_root/target/release-packages/ios"
 derived_data="$repo_root/target/ios-derived-data"
-app_path="$derived_data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app"
-zip_name="ocentra-parent-agent-ios-simulator-v${version}.zip"
+app_path="$derived_data/Build/Products/Debug-iphonesimulator/OcentraChildAgent.app"
+zip_name="ocentra-child-agent-ios-simulator-v${version}.zip"
 zip_path="$package_root/$zip_name"
-latest_path="$package_root/ocentra-parent-agent-ios-simulator-latest.zip"
+latest_path="$package_root/ocentra-child-agent-ios-simulator-latest.zip"
 
 rm -rf "$derived_data"
 mkdir -p "$package_root"
 
 xcodebuild \
-  -project "$repo_root/platforms/ios/OcentraParentAgent.xcodeproj" \
-  -scheme OcentraParentAgent \
+  -project "$repo_root/platforms/ios/OcentraChildAgent.xcodeproj" \
+  -scheme OcentraChildAgent \
   -configuration Debug \
   -sdk iphonesimulator \
   -derivedDataPath "$derived_data" \

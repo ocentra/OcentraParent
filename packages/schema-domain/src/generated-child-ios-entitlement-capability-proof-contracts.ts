@@ -257,10 +257,10 @@ export interface GeneratedChildIosEntitlementCapabilityReadModelShape {
 
 export const GeneratedChildIosEntitlementCapabilityReadModel = {
   schemaVersion: 'child-ios-entitlement-capability-proof',
-  bundleId: 'ca.ocentra.parent.agent',
+  bundleId: 'ca.ocentra.child.agent',
   statusSurfaceClass: 'AgentStatusViewController',
   protocolBridgeProof: {
-    bundleId: 'ca.ocentra.parent.agent',
+    bundleId: 'ca.ocentra.child.agent',
     statusSurfaceClass: 'AgentStatusViewController',
     bridgeState: 'simulator-scaffold',
     externalTransportState: 'not-implemented',
