@@ -68,6 +68,7 @@ pub(super) fn screen_intelligence_route_decision_is_consistent(
     value: &ScreenIntelligenceRouteDecision,
 ) -> bool {
     screen_intelligence_base_flags_are_consistent(value)
+        && screen_skipped_fallback_is_consistent(value)
         && screen_intelligence_route_decision_matches_route_kind(value)
 }
 
@@ -79,6 +80,12 @@ fn screen_intelligence_base_flags_are_consistent(value: &ScreenIntelligenceRoute
     ]
     .into_iter()
     .all(|value| value)
+}
+
+fn screen_skipped_fallback_is_consistent(value: &ScreenIntelligenceRouteDecision) -> bool {
+    !value.screenshot_skipped
+        || value.structured_extraction_fallback_state
+            != ScreenStructuredExtractionFallbackState::ScreenshotRequired
 }
 
 fn screen_intelligence_route_decision_matches_route_kind(
@@ -103,7 +110,7 @@ fn screen_intelligence_route_decision_matches_route_kind(
             value.capture_scope.is_none(),
             value.structured_extraction_id.is_some(),
             value.structured_extraction_fallback_state
-                == ScreenStructuredExtractionFallbackState::ScreenshotRequired,
+                == ScreenStructuredExtractionFallbackState::NotAttempted,
         ]
         .into_iter()
         .all(|value| value),
@@ -134,6 +141,8 @@ fn screen_intelligence_route_decision_matches_route_kind(
             value.screenshot_skipped,
             value.capture_scope.is_none(),
             value.unavailable_reason.is_some(),
+            value.structured_extraction_fallback_state
+                != ScreenStructuredExtractionFallbackState::ScreenshotRequired,
         ]
         .into_iter()
         .all(|value| value),
