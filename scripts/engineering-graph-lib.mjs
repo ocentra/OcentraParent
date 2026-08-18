@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, realpathSync } from 'node:fs';
+import { lstatSync, realpathSync } from 'node:fs';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -8,6 +8,8 @@ export const GRAPH_PATH = 'docs/engineering-graph/graph.json';
 export const OVERRIDES_PATH = 'docs/engineering-graph/overrides.json';
 export const CODE_MAP_PATH = 'docs/engineering-graph/code-map.json';
 const WORKPACK_CODE_EXPECTATIONS = new Set(['code-and-tests', 'tests-only', 'no-code-required']);
+const PLANNED_IMPLEMENTATION_EXPECTATIONS = new Set(['code-and-tests']);
+const PLANNED_TEST_EXPECTATIONS = new Set(['code-and-tests', 'tests-only']);
 const IMPLEMENTATION_GATE = 'reviewed-implementation';
 const IMPLEMENTATION_GATE_VALUES = new Set([IMPLEMENTATION_GATE]);
 const COMPLETION_EVIDENCE_FIELDS = new Set(['id', 'reason', 'evidence']);
@@ -66,6 +68,54 @@ const IGNORED_CODE_DIRECTORIES = new Set([
   'target',
   'test-results',
 ]);
+const NON_EXECUTABLE_CODE_DIRECTORIES = new Set([
+  ...IGNORED_CODE_DIRECTORIES,
+  '.agents',
+  '.codebase-memory',
+  '.codeql-local',
+  '.codex',
+  '.codex-artifacts',
+  '.codex-logs',
+  '.codex-tmp',
+  '.enforce',
+  '.generated',
+  '.github',
+  '.hub',
+  '.idea',
+  '.ledger',
+  '.logs',
+  '.tmp',
+  '.turbo',
+  '.vscode',
+  'docs',
+  'generated',
+  'ocentra-ledger',
+  'output',
+  'outputs',
+  'proof',
+  'proofs',
+  'tmp',
+  'vendor',
+]);
+const SUPPORT_ONLY_CODE_DIRECTORIES = new Set([
+  'benchmark',
+  'benchmarks',
+  'benches',
+  'demo',
+  'demos',
+  'example',
+  'examples',
+  'fixture',
+  'fixtures',
+  'mock',
+  'mocks',
+  'sample',
+  'samples',
+  'stub',
+  'stubs',
+  'test-data',
+  'testdata',
+]);
 
 const NODE_KINDS = new Set(['goal', 'plan', 'workpack']);
 const STATES = new Set(['planned', 'blocked', 'ready', 'active', 'validation', 'done', 'failed', 'paused']);
@@ -73,7 +123,7 @@ const EDGE_KINDS = new Set(['contains', 'depends_on']);
 const GRAPH_EDGE_FIELDS = new Set(['from', 'to', 'kind', 'confidence', 'evidence', 'reason', 'implementationGate']);
 
 export function normalizeRepoPath(value) {
-  return value.split(path.sep).join('/');
+  return value.replace(/\\/gu, '/');
 }
 
 function isRepoRelativePath(value) {
@@ -108,12 +158,40 @@ function repoPathStatus(root, relativePath) {
   if (!isPathInside(rootPath, candidate)) {
     return { exists: false, regularFile: false, reason: 'path resolves outside the repository' };
   }
-  if (!existsSync(candidate)) return { exists: false, regularFile: false, reason: `missing path ${relativePath}` };
+  let current = rootPath;
+  const parts = normalized.split('/');
+  for (const [index, part] of parts.entries()) {
+    current = path.join(current, part);
+    let entryStat;
+    try {
+      entryStat = lstatSync(current);
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        return { exists: false, regularFile: false, reason: `missing path ${relativePath}` };
+      }
+      return { exists: false, regularFile: false, reason: `path cannot be inspected ${relativePath}` };
+    }
+    if (entryStat.isSymbolicLink()) {
+      return { exists: false, regularFile: false, reason: `symbolic-link path is not accepted ${relativePath}` };
+    }
+    let resolvedEntry;
+    try {
+      resolvedEntry = realpathSync(current);
+    } catch {
+      return { exists: false, regularFile: false, reason: `path cannot be inspected ${relativePath}` };
+    }
+    if (!isPathInside(rootPath, resolvedEntry)) {
+      return { exists: false, regularFile: false, reason: 'path resolves outside the repository' };
+    }
+    if (index < parts.length - 1 && !entryStat.isDirectory()) {
+      return { exists: false, regularFile: false, reason: `path parent is not a directory ${relativePath}` };
+    }
+  }
   let resolved;
   let stat;
   try {
     resolved = realpathSync(candidate);
-    stat = lstatSync(resolved);
+    stat = lstatSync(candidate);
   } catch {
     return { exists: false, regularFile: false, reason: `path cannot be inspected ${relativePath}` };
   }
@@ -127,19 +205,99 @@ function repoPathStatus(root, relativePath) {
   };
 }
 
-function executableEvidenceProblem(root, node, requirement, reference) {
+function executablePathProblem(
+  reference,
+  requirement,
+  { requireNormalized = false, requireProductionPath = false } = {}
+) {
   if (!['implementation', 'tests'].includes(requirement)) return null;
-  const status = repoPathStatus(root, reference);
-  if (!status.exists) return status.reason;
-  if (!status.regularFile) return status.reason;
-  const normalized = normalizeRepoPath(reference);
-  if (normalized.toLowerCase().startsWith('docs/')) return `documentation is not executable evidence ${reference}`;
+  if (!isRepoRelativePath(reference)) {
+    return `path must be repository-relative and cannot traverse outside the repository: ${reference}`;
+  }
+  const trimmed = reference.trim();
+  const normalized = normalizeRepoPath(trimmed);
+  if (
+    requireNormalized &&
+    (reference !== trimmed || normalized !== trimmed || path.posix.normalize(normalized) !== normalized)
+  ) {
+    return `path must use normalized repository-relative form: ${reference}`;
+  }
   const extension = path.extname(normalized).toLowerCase();
   if (!CODE_EXTENSIONS.has(extension)) return `unsupported executable evidence path ${reference}`;
+  const lower = normalized.toLowerCase();
+  const segments = lower.split('/');
+  if (requireProductionPath && segments.some((segment) => NON_EXECUTABLE_CODE_DIRECTORIES.has(segment))) {
+    return `non-executable or generated path is not accepted ${reference}`;
+  }
+  const basename = path.posix.basename(lower);
+  if (
+    requireProductionPath &&
+    (segments.some((segment) => SUPPORT_ONLY_CODE_DIRECTORIES.has(segment)) ||
+      /(?:^|[._-])(?:example|fixture|mock|sample|stub)s?(?:[._-]|$)/u.test(basename) ||
+      /(?:^|[._-])generated(?:[._-]|$)/u.test(basename))
+  ) {
+    return `support-only or generated path is not accepted ${reference}`;
+  }
   if (requirement === 'implementation' && isTestPath(normalized)) {
     return `test path is not production implementation ${reference}`;
   }
+  if (requirement === 'tests' && !isTestPath(normalized)) {
+    return `planned test path is not test-classified ${reference}`;
+  }
   return null;
+}
+
+function plannedExecutablePathProblem(root, reference, requirement) {
+  const pathProblem = executablePathProblem(reference, requirement, {
+    requireNormalized: true,
+    requireProductionPath: true,
+  });
+  if (pathProblem) return pathProblem;
+  const status = repoPathStatus(root, reference);
+  if (!status.exists) return status.reason.startsWith('missing path ') ? null : status.reason;
+  if (!status.regularFile) return status.reason;
+  return null;
+}
+
+function executableEvidenceProblem(root, _node, requirement, reference) {
+  const pathProblem = executablePathProblem(reference, requirement);
+  if (pathProblem) return pathProblem;
+  const status = repoPathStatus(root, reference);
+  if (!status.exists) return status.reason;
+  if (!status.regularFile) return status.reason;
+  return null;
+}
+
+function assertPlannedExecutableRoots(
+  root,
+  codeMapPath,
+  workpackId,
+  entry,
+  { field, requirement, allowedExpectations }
+) {
+  const values = entry[field];
+  if (values === undefined) return;
+  const codeExpectation = entry.codeExpectation ?? 'code-and-tests';
+  if (!allowedExpectations.has(codeExpectation)) {
+    throw new Error(
+      `${codeMapPath} workpack ${workpackId} ${field} is not allowed with codeExpectation ${codeExpectation}`
+    );
+  }
+  if (!Array.isArray(values) || values.length === 0) {
+    throw new Error(`${codeMapPath} workpack ${workpackId} ${field} must be a non-empty array when present`);
+  }
+  for (const reference of values) {
+    const problem = plannedExecutablePathProblem(root, reference, requirement);
+    if (problem) throw new Error(`${codeMapPath} workpack ${workpackId} ${field}: ${problem}`);
+  }
+  const normalizedRoots = new Set(entry.roots.map(normalizeRepoPath));
+  const normalizedValues = values.map(normalizeRepoPath);
+  if (new Set(normalizedValues).size !== normalizedValues.length) {
+    throw new Error(`${codeMapPath} workpack ${workpackId} ${field} must not contain duplicates`);
+  }
+  if (normalizedValues.some((reference) => !normalizedRoots.has(reference))) {
+    throw new Error(`${codeMapPath} workpack ${workpackId} ${field} must be a subset of roots`);
+  }
 }
 
 export function stableId(prefix, value) {
@@ -220,36 +378,16 @@ export async function loadCodeMap(root, codeMapPath = CODE_MAP_PATH) {
     if (new Set(entry.roots.map(normalizeRepoPath)).size !== entry.roots.length) {
       throw new Error(`${codeMapPath} workpack ${workpackId} must not contain duplicate roots`);
     }
-    if (entry.plannedImplementationRoots !== undefined) {
-      if (codeExpectation !== 'code-and-tests') {
-        throw new Error(
-          `${codeMapPath} workpack ${workpackId} plannedImplementationRoots requires codeExpectation code-and-tests`
-        );
-      }
-      if (!Array.isArray(entry.plannedImplementationRoots) || entry.plannedImplementationRoots.length === 0) {
-        throw new Error(
-          `${codeMapPath} workpack ${workpackId} plannedImplementationRoots must be a non-empty array when present`
-        );
-      }
-      if (entry.plannedImplementationRoots.some((rootPath) => !isRepoRelativePath(rootPath))) {
-        throw new Error(
-          `${codeMapPath} workpack ${workpackId} plannedImplementationRoots must contain only repository-relative roots`
-        );
-      }
-      const normalizedRoots = new Set(entry.roots.map(normalizeRepoPath));
-      const normalizedPlannedRoots = entry.plannedImplementationRoots.map(normalizeRepoPath);
-      if (new Set(normalizedPlannedRoots).size !== normalizedPlannedRoots.length) {
-        throw new Error(`${codeMapPath} workpack ${workpackId} plannedImplementationRoots must not contain duplicates`);
-      }
-      if (normalizedPlannedRoots.some((rootPath) => !normalizedRoots.has(rootPath))) {
-        throw new Error(`${codeMapPath} workpack ${workpackId} plannedImplementationRoots must be a subset of roots`);
-      }
-      if (normalizedPlannedRoots.some(isTestPath)) {
-        throw new Error(
-          `${codeMapPath} workpack ${workpackId} plannedImplementationRoots must contain production paths, not tests`
-        );
-      }
-    }
+    assertPlannedExecutableRoots(root, codeMapPath, workpackId, entry, {
+      field: 'plannedImplementationRoots',
+      requirement: 'implementation',
+      allowedExpectations: PLANNED_IMPLEMENTATION_EXPECTATIONS,
+    });
+    assertPlannedExecutableRoots(root, codeMapPath, workpackId, entry, {
+      field: 'expectedTestRoots',
+      requirement: 'tests',
+      allowedExpectations: PLANNED_TEST_EXPECTATIONS,
+    });
   }
   return map;
 }
@@ -1189,28 +1327,29 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   }
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   for (const [workpackId, mapping] of Object.entries(codeMap.workpacks ?? {})) {
-    if (!Array.isArray(mapping.plannedImplementationRoots)) continue;
+    if (!Array.isArray(mapping.plannedImplementationRoots) && !Array.isArray(mapping.expectedTestRoots)) continue;
     const node = nodeById.get(workpackId);
     if (!node || node.kind !== 'workpack') {
-      throw new Error(`${CODE_MAP_PATH} planned implementation owner is not an imported workpack: ${workpackId}`);
+      throw new Error(`${CODE_MAP_PATH} planned executable owner is not an imported workpack: ${workpackId}`);
     }
-    const plannedImplementationRoots = mapping.plannedImplementationRoots.map(normalizeRepoPath);
+    const plannedImplementationRoots = (mapping.plannedImplementationRoots ?? []).map(normalizeRepoPath);
+    const expectedTestRoots = (mapping.expectedTestRoots ?? []).map(normalizeRepoPath);
+    const references = { ...node.completion.references };
+    if (plannedImplementationRoots.length > 0) references.implementation = [];
+    const expected = { ...(node.completion.expected ?? {}) };
+    if (plannedImplementationRoots.length > 0) expected.implementation = plannedImplementationRoots;
+    if (expectedTestRoots.length > 0) expected.tests = expectedTestRoots;
     node.completion = {
       ...node.completion,
-      references: {
-        ...node.completion.references,
-        implementation: [],
-      },
-      expected: {
-        ...(node.completion.expected ?? {}),
-        implementation: plannedImplementationRoots,
-      },
+      references,
+      expected,
     };
     node.metadata = {
       ...node.metadata,
       plannedSourceExpectation: {
         source: CODE_MAP_PATH,
         roots: plannedImplementationRoots,
+        testRoots: expectedTestRoots,
       },
     };
   }
@@ -1398,9 +1537,12 @@ function completionRequirementGaps(
   }
   if (includeExpectedArtifacts) {
     for (const reference of expected) {
-      if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement)) {
-        gaps.push(`${requirement}: missing expected artifact ${reference}`);
-      }
+      if (durableProofSatisfiesExpected(root, node, requirement)) continue;
+      if (['implementation', 'tests'].includes(requirement)) {
+        const problem = executableEvidenceProblem(root, node, requirement, reference);
+        if (problem?.startsWith('missing path ')) gaps.push(`${requirement}: missing expected artifact ${reference}`);
+        else if (problem) gaps.push(`${requirement}: invalid expected artifact ${reference}: ${problem}`);
+      } else if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing expected artifact ${reference}`);
     }
   }
   return gaps;

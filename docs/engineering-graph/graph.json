@@ -16636,6 +16636,9 @@
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
             "crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs"
+          ],
+          "testRoots": [
+            "crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"
           ]
         },
         "dependencyReview": {
@@ -16673,6 +16676,9 @@
         "expected": {
           "implementation": [
             "crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs"
+          ],
+          "tests": [
+            "crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"
           ]
         }
       }
@@ -16705,6 +16711,9 @@
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
             "crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"
+          ],
+          "testRoots": [
+            "crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"
           ]
         },
         "dependencyReview": {
@@ -16744,6 +16753,9 @@
         "expected": {
           "implementation": [
             "crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"
+          ],
+          "tests": [
+            "crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"
           ]
         }
       }
