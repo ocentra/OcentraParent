@@ -5172,6 +5172,45 @@
     },
     "WP-data-custody-storage-plan-05-export-import-backup-recovery": {
       "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "code-and-tests",
+      "plannedImplementationRoots": [
+        "crates/schema/src/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_build.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_integrity.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_logic.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_rejection.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_response.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_sections.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_restore.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_migration.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_backup_schedule.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_backup_job_state.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_migration_execution.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_compensation.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_schedule.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_reconciliation.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_ledger.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_executor.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/schema/tests/contract/export_import_backup_recovery.rs",
+        "crates/schema/tests/contract/export_import_backup_recovery_runtime.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery_runtime.rs",
+        "crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs",
+        "crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs",
+        "crates/parent-runtime-core/tests/integration/data_custody_runtime.rs"
+      ],
       "roots": [
         "crates/schema/src/export_import_backup_recovery.rs",
         "crates/schema/src/export_import_backup_recovery",
@@ -5185,8 +5224,30 @@
         "crates/storage-custody-core/src/export_import_backup_recovery_import_response.rs",
         "crates/storage-custody-core/src/export_import_backup_recovery_import_sections.rs",
         "crates/storage-custody-core/src/export_import_backup_recovery_restore.rs",
-        "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs"
-      ]
+        "crates/storage-custody-core/src/export_import_backup_recovery_migration.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_backup_schedule.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_backup_job_state.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_migration_execution.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_compensation.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery_runtime.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_schedule.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_reconciliation.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_ledger.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_executor.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs",
+        "crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs",
+        "crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs",
+        "crates/parent-runtime-core/tests/integration/data_custody_runtime.rs"
+      ],
+      "note": "WP05 source route is intentionally split: schema owns durable backup/schedule/job/migration/rollback contracts; storage-custody-core owns pure decisions/orchestration and fail-closed compensation; parent-runtime-core owns durable scheduler/job and restore/migration ledgers, restart reconciliation, executor/rollback mounting, and real Eventing/outbox composition. All new parent-runtime and runtime-test roots are planned and absent; no tests/proof/DONE are claimed."
     },
     "WP-data-custody-storage-plan-06-report-query-custody": {
       "planSlug": "data-custody-storage-plan",
@@ -9536,7 +9597,7 @@
       ],
       "plannedImplementationRoots": ["crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs"],
       "expectedTestRoots": ["crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"],
-      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, job retry/restart custody, and provider-neutral adapter are not implemented yet."
+      "note": "Downstream routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed pure decision/adapter-port roots are absent: parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, retry/idempotency planning, and provider-neutral opaque status are not implemented yet. WP05 parent-runtime-core owns the durable scheduler/job ledger and restart reconciliation; WP09 must not add a duplicate ledger or provider SDK."
     },
     "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs": {
       "planSlug": "data-custody-storage-plan",
@@ -9547,7 +9608,7 @@
       ],
       "plannedImplementationRoots": ["crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"],
       "expectedTestRoots": ["crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"],
-      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes."
+      "note": "Downstream routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed pure orchestration roots are absent: restore/migration/apply/rollback/idempotency planning and producer handoffs are not implemented yet. WP05 parent-runtime-core owns durable ledgers, restart reconciliation, executor/rollback mounting, and Eventing/outbox composition; WP10 cannot mint receipts or mutate data classes."
     }
   }
 }

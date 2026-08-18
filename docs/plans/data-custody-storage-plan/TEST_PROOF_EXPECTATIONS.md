@@ -28,6 +28,7 @@ Use the subset relevant to the selected workpack:
 cargo test -p ocentra-storage-custody-core
 cargo test -p ocentra-evidence
 cargo test -p ocentra-eventing
+cargo test -p ocentra-parent-runtime-core
 
 # Shared custody/export/sync/restore/report/query schema scope
 npm run build --workspace @ocentra-parent/schema-domain
@@ -45,7 +46,7 @@ npm run test --workspace @ocentra-parent/portal -- storage
 node scripts/test/parent-owned-sync-export-manifest-proof.mjs
 
 # Architecture scope: start with touched files; expand only when the workpack requires it
-npm run lint:architecture -- --files crates/storage-custody-core crates/ocentra-evidence crates/ocentra-eventing packages/schema-domain packages/production-domain apps/portal scripts/test docs/plans/data-custody-storage-plan
+npm run lint:architecture -- --files crates/schema crates/storage-custody-core crates/parent-runtime-core crates/ocentra-evidence crates/ocentra-eventing packages/schema-domain packages/production-domain apps/portal scripts/test docs/plans/data-custody-storage-plan
 ```
 
 Run through `npm run agent:run --` when collecting proof if available.
@@ -53,7 +54,8 @@ Run through `npm run agent:run --` when collecting proof if available.
 ## Command ownership notes
 
 - `packages/schema-domain` owns canonical shared custody/export/sync/restore/report/query/assistant-citation/provider/retention/tombstone/parent-storage-setting shapes when contracts cross package/crate/app/plan boundaries.
-- `crates/storage-custody-core` proves generic Rust custody/delete/export decisions and custody action-plan events only.
+- `crates/storage-custody-core` proves generic Rust custody/delete/export decisions and custody action-plan events only; WP05's backup/restore/migration modules remain pure decisions/orchestration and never persist a second job or receipt ledger.
+- `crates/parent-runtime-core` owns the durable WP05 scheduler/job and restore/migration ledgers, restart reconciliation, executor/rollback mounting, and real Eventing journal/outbox composition. It consumes only opaque Account/family authority, key/decrypt capability, provider-neutral adapter, and producer ports; it must not mint or implement those external owners.
 - `crates/ocentra-evidence` proves evidence refs and evidence identity only.
 - `crates/ocentra-eventing` proves event/journal/idempotency primitives only; this plan must not re-own the event bus.
 - `packages/production-domain` is legacy package identity unless a selected public export is named. Current parent-owned sync/export contract proof routes through schema-domain.
@@ -168,6 +170,41 @@ retention/tombstone preserved
 restore/apply idempotent
 partial restore state
 support recovery limits
+schema-owned backup cadence/schedule/job lifecycle and operation refs
+migration apply/rollback/reconciliation receipts bound to bundle/plan identity
+storage-custody-core pure backup/restore/migration/preflight decisions
+parent-runtime durable scheduler/job and restore/migration ledgers
+restart reconciliation, executor/rollback mount, and Eventing/outbox seam
+no caller-supplied authority, key, integrity, or provider identity
+```
+
+Expected source/test ownership roots (all deferred until the source packet is
+complete):
+
+```text
+schema: crates/schema/src/export_import_backup_recovery.rs,
+       crates/schema/src/export_import_backup_recovery/,
+       crates/schema/tests/contract/export_import_backup_recovery_runtime.rs
+storage decisions: crates/storage-custody-core/src/export_import_backup_recovery_backup_schedule.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_backup_job_state.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_migration_execution.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_compensation.rs,
+                   crates/storage-custody-core/tests/unit/export_import_backup_recovery_runtime.rs
+parent runtime: crates/parent-runtime-core/src/data_custody_backup_runtime.rs,
+                crates/parent-runtime-core/src/data_custody_backup_runtime_schedule.rs,
+                crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger.rs,
+                crates/parent-runtime-core/src/data_custody_backup_runtime_reconciliation.rs,
+                crates/parent-runtime-core/src/data_custody_runtime_eventing.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime_ledger.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime_executor.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs,
+                crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs,
+                crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs,
+                crates/parent-runtime-core/tests/integration/data_custody_runtime.rs
 ```
 
 ## WP06 Report Query Custody
@@ -244,6 +281,11 @@ provider-neutral opaque status and unsupported-provider/manual-required state
 payload/key/provider/path redaction and no-fallback-store negative
 ```
 
+WP09 expected tests cover only the downstream pure byte-custody/provider-port
+boundary. Durable scheduler/job persistence and restart reconciliation are
+tested through the WP05 parent-runtime roots above, not by a second WP09
+ledger.
+
 ## WP10 Restore Orchestration And Producer Handoffs
 
 Expected coverage:
@@ -256,4 +298,9 @@ missing/failed/partial data-class producer handoffs and manual-required outcomes
 tombstone/no-resurrection and migration rollback boundaries
 receipt provenance, owner result requirement, redaction, and no-fake-success
 ```
+
+WP10 expected tests cover only downstream pure producer-handoff orchestration.
+Durable restore/migration ledgers, restart reconciliation, executor/rollback
+mounting, and Eventing/outbox composition are tested through the WP05
+parent-runtime roots above.
 ```
