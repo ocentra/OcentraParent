@@ -6,6 +6,8 @@ use crate::{
 
 mod read;
 
+const PROJECTION_ONLY_REPLAY_EVENT_TYPE: &str = "projection-only-replay";
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ReplayMode {
@@ -114,7 +116,7 @@ impl ReplayActionReport {
                 .records
                 .first()
                 .map(|record| record.envelope.contract.event_type.clone())
-                .unwrap_or(crate::EventType::parse("projection-only-replay")?);
+                .unwrap_or(crate::EventType::parse(PROJECTION_ONLY_REPLAY_EVENT_TYPE)?);
             return Err(crate::EventingError::ReplayActionNotAllowed { event_type });
         }
         Ok(Self {
