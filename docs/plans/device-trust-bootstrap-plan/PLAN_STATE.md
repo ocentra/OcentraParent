@@ -90,8 +90,10 @@ the bounded WP03 source packet in its implementation-only phase; normal WP03
 readiness remains blocked until those sources and a real platform/passkey
 ceremony issuer provide the one-time `RegisterLanSignerAnchor` authorization.
 WP02 is conditional only if the implementation demonstrates a private-key/install
-custody need; it is not added as a blanket WP26 dependency. Subsequent WP04-WP07
-work remains dependent on its authority and platform owners.
+custody need; it is not added as a blanket WP26 dependency. When selected, the
+reviewed WP26 -> WP02 gate must be promoted and complete before the LAN/child
+consumer route proceeds; when not selected, that edge remains absent. Subsequent
+WP04-WP07 work remains dependent on its authority and platform owners.
 
 The repository graph records the bounded WP01 packet as reviewed implementation
 evidence only. Graph state remains non-authoritative for completion until its
@@ -135,7 +137,34 @@ Cloudflare WP06; no ceremony, provider, runtime, test, proof, or completion
 claim follows. The Account WP08 implementation input and Cloudflare WP06
 bounded source packet are reviewed, while their normal runtime gates remain
 open. WP02 is a conditional downstream sealing/composition route, and WP26 is
-ordered after WP03 for current-binding/revocation consumption.
+ordered after WP03 for current-binding/revocation consumption. The default graph
+does not force WP02 into that route; when a platform sealing/lifecycle-revocation
+path is selected, its reviewed conditional `WP26 -> WP02` gate must be promoted
+before the consumer route can proceed.
+
+## Conditional WP02 sealing gate — 2026-08-17
+
+The graph's reviewed dependency model is completion-gated by default, with
+`implementationGate: "reviewed-implementation"` available for a separately
+reviewed source phase. It has no always-on optional dependency switch. The
+default Device Trust/LAN route therefore keeps WP02 out of WP26's hard
+dependency list when no private-key/install custody path is selected.
+
+If that platform path is selected, the owner must add the reviewed, acyclic
+edge from LAN WP26 to Device Trust WP02, carry the matching WP26 dependency
+review, and regenerate the graph before assigning the consumer:
+
+```text
+WP26 --depends_on (reviewed; implementationGate only for the reviewed source
+                  phase)--> WP02 --depends_on (reviewed)--> WP01
+```
+
+The selected route is then blocked until WP02's sealing, lifecycle-generation,
+and revocation handoff is complete; the edge never points back to WP03 and
+cannot create a cycle. If the platform path is not selected, that conditional
+edge remains absent, so the Account WP08 -> Cloudflare WP06 -> WP03 -> LAN/child
+route is not forced through WP02. This is routing/authorization only; it does
+not claim WP02 implementation, tests, proof, runtime reachability, or DONE.
 
 ## WP03 target-authority owner correction — 2026-08-17
 

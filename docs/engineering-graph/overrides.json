@@ -271,7 +271,7 @@
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "WP26 is only a partial code draft. LAN WP15, WP18, and WP19 supply local composition inputs, but no shipped authority route legally registers a signer. Device Trust WP01 must own persistent trusted-device/signer-key registration and WP03 must own the one-time RegisterLanSignerAnchor ceremony before WP26 can claim ingress, custody, route composition, or the private Eventing WP10 handoff. WP02 is conditional only for a demonstrated private-key/install custody need."
+      "reason": "WP26 is only a partial code draft. LAN WP15, WP18, and WP19 supply local composition inputs, but no shipped authority route legally registers a signer. Account WP08 must define the canonical binding, Cloudflare WP06 must bridge current authority, Device Trust WP01 supplies the persistent current-binding source, and WP03 must own the one-time RegisterLanSignerAnchor ceremony before WP26 can claim ingress, custody, route composition, or the private Eventing WP10 handoff. WP02 is not a default dependency: if a private-key/install sealing and lifecycle-revocation path is selected, promote the reviewed WP26 -> WP02 depends_on edge and matching hard dependency before assigning the consumer; otherwise leave that conditional edge absent."
     },
     {
       "id": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
@@ -735,7 +735,8 @@
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md"
       ],
-      "reason": "The conditional parent-runtime/platform sealing route consumes WP01 current binding and lifecycle state; it cannot issue ceremony authority or revive revoked trust."
+      "reason": "The conditional parent-runtime/platform sealing route consumes WP01 current binding and lifecycle state; this reviewed implementation gate is relevant only when that platform-custody route is selected and does not make WP02 a prerequisite for the default Account WP08 -> Cloudflare WP06 -> WP03 -> LAN/child route. It cannot issue ceremony authority or revive revoked trust.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",

@@ -3128,6 +3128,7 @@
       "roots": [
         "crates/family-identity-core/src/device_trust_current_binding.rs",
         "crates/family-identity-core/src/device_trust_lifecycle.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_revocation.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_authority.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_current_authority.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_signer_authority.rs",

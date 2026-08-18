@@ -10,16 +10,21 @@
 3. Device Trust WP03: after WP01 plus Account/Cloudflare are reachable, own the
    parent step-up/passkey ceremony, one-time `RegisterLanSignerAnchor`
    authorization, signature verification, sign-count, and nonce consumption.
-4. Device Trust WP02 (conditional): compose parent-runtime/platform sealing,
-   lifecycle generation, and revocation only when a real private-key/install
-   custody need is selected; it cannot issue ceremony authority.
-5. LAN WP26 and child/runtime consumers: only after WP03, consume current
-   binding/revocation for signed ingress; never register or infer signer
-   authority locally.
+4. Device Trust WP02 (conditional): when a real private-key/install custody
+   path is selected, compose parent-runtime/platform sealing, lifecycle
+   generation, and revocation. The selected route must carry the reviewed WP26
+   -> WP02 gate to completion before LAN/child consumers proceed; the default
+   non-sealing route does not add WP02 as a hard dependency. WP02 cannot issue
+   ceremony authority.
+5. LAN WP26 and child/runtime consumers: only after WP03, and after the selected
+   WP02 gate when applicable, consume current binding/revocation for signed
+   ingress; never register or infer signer authority locally.
 
 This order is intentionally non-circular: WP01 is the foundation/source owner,
-WP03 is the ceremony owner, and downstream LAN/child consumers do not unlock
-WP03.
+Account WP08 and Cloudflare WP06 bridge current authority before WP03, WP03 is
+the ceremony owner, and downstream LAN/child consumers do not unlock WP03. The
+optional WP02 gate points only into the downstream consumer route and never back
+to WP03.
 
 1. Finish the repository-wide production-source wave and integration review before starting this plan's expected-test migration. Do not interleave one-line source edits with test execution.
 2. Treat merged PR #605 and its fresh 60-job CI as narrow unissued-parent-challenge test evidence only; do not promote it into workpack or plan closure.
@@ -104,9 +109,13 @@ proof, or completion. Normal WP03 readiness remains blocked until a real parent
 ceremony resolves the target authoritatively, provides one-time
 `RegisterLanSignerAnchor` authorization, verifies the signature, owns the
 durable sign counter, and consumes the nonce/receipt. LAN WP26 must remain
-blocked on WP01 and WP03; it has no shipped service route that can legally
-register a signer anchor today. WP02 is conditional only when a demonstrated
-private-key/install custody requirement exists.
+blocked on the Account WP08 -> Cloudflare WP06 authority bridge and WP03
+ceremony; WP01 supplies the current-binding foundation and no shipped service
+route can legally register a signer anchor today. If the platform
+sealing/lifecycle-revocation path is selected, promote the reviewed WP26 ->
+WP02 gate before assigning that consumer route; otherwise WP02 is not a hard
+dependency. WP02 is conditional only when a demonstrated private-key/install
+custody requirement exists.
 
 The consolidated source audit found no legal production-code slice to add:
 
