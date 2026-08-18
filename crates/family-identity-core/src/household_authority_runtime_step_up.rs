@@ -46,6 +46,17 @@ impl ConsumedParentStepUp {
             parent_device_id: authority.device_id().as_str().to_owned(),
             child_profile_id: authority.child_profile_id().to_string(),
             child_device_id: authority.child_device_id().as_str().to_owned(),
+            installation_id: authority
+                .current_binding()
+                .installation_id
+                .as_str()
+                .to_owned(),
+            pairing_id: authority.current_binding().pairing_id.as_str().to_owned(),
+            route_id: authority
+                .current_binding()
+                .selected_route_id
+                .as_str()
+                .to_owned(),
             action,
             authority_generation: authority.authority_generation(),
             expires_at,
@@ -81,9 +92,27 @@ impl ConsumedParentStepUp {
             &self.parent_device_id,
             &self.child_profile_id,
             &self.child_device_id,
+            &self.installation_id,
+            &self.pairing_id,
+            &self.route_id,
         ) {
             return Err(HouseholdAuthorityRuntimeFailure::ParentStepUpBindingMismatch);
         }
         Ok(())
+    }
+
+    pub(super) fn same_current(&self, other: &Self) -> bool {
+        self.household_id == other.household_id
+            && self.account_id == other.account_id
+            && self.parent_device_id == other.parent_device_id
+            && self.child_profile_id == other.child_profile_id
+            && self.child_device_id == other.child_device_id
+            && self.installation_id == other.installation_id
+            && self.pairing_id == other.pairing_id
+            && self.route_id == other.route_id
+            && self.action == other.action
+            && self.authority_generation == other.authority_generation
+            && self.expires_at == other.expires_at
+            && self.receipt_epoch == other.receipt_epoch
     }
 }

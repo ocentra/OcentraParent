@@ -1858,6 +1858,8 @@
       "id": "WP-account-identity-family-plan-05-device-ownership-authz",
       "implementation": [
         "crates/family-identity-core/src/household_authority_runtime_composer.rs",
+        "crates/family-identity-core/src/household_authority_runtime_consume.rs",
+        "crates/family-identity-core/src/household_authority_runtime_revalidation.rs",
         "crates/family-identity-core/src/household_authority_runtime_account.rs",
         "crates/family-identity-core/src/household_authority_runtime_authorization.rs",
         "crates/family-identity-core/src/household_authority_runtime_binding.rs",
@@ -1871,7 +1873,7 @@
         "crates/family-identity-core/src/household_authority_runtime_step_up.rs",
         "crates/family-identity-core/src/lib.rs"
       ],
-      "reason": "Source-only WP05 review adds the family-owned runtime composer and module registration. It re-resolves current Account authority/session state and binds the durable Device Trust snapshot without accepting caller-assembled authority scalars. Capability, controller-lease, and one-time parent-step-up producers remain explicit fail-closed ports; tests, proof, focused execution, a typed downstream caller, and DONE remain deferred.",
+      "reason": "Source-only WP05 repair adds exact canonical Account installation/pairing/route binding across Device Trust and every capability/lease/step-up matcher, plus a by-value execution-time revalidation path and owner-issued CAS/revocation fence. It re-resolves Account session identity/expiry and current Device Trust, capability, lease, and one-time step-up state immediately before effect without accepting caller-assembled authority scalars. Durable CAS ownership, capability/lease/step-up owners where absent, tests, proof, focused execution, a typed downstream caller, and DONE remain deferred; all missing owners fail closed.",
       "evidence": [
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",

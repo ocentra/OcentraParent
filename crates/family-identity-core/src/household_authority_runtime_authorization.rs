@@ -3,6 +3,7 @@ use std::fmt;
 use super::{
     ConsumedParentStepUp, CurrentChildDeviceTrustBinding, CurrentHouseholdCapability,
     CurrentHouseholdControllerLease, HouseholdAuthorityRuntimeAuthorization,
+    HouseholdAuthorityRuntimeEffectAuthorization,
 };
 
 impl fmt::Debug for HouseholdAuthorityRuntimeAuthorization {
@@ -15,6 +16,9 @@ impl fmt::Debug for HouseholdAuthorityRuntimeAuthorization {
                 &self.account_authority_generation,
             )
             .field("session_generation", &self.session_generation)
+            .field("session_id", &"opaque")
+            .field("session_expires_at", &"opaque")
+            .field("consumption_nonce", &"opaque")
             .field("capability", &self.capability.is_some())
             .field("controller_lease", &self.controller_lease.is_some())
             .field("parent_step_up", &self.parent_step_up.is_some())
@@ -50,5 +54,25 @@ impl HouseholdAuthorityRuntimeAuthorization {
 
     pub(crate) fn parent_step_up(&self) -> Option<&ConsumedParentStepUp> {
         self.parent_step_up.as_ref()
+    }
+
+    pub(super) fn consumption_nonce(&self) -> &[u8; 32] {
+        &self.consumption_nonce
+    }
+}
+
+impl fmt::Debug for HouseholdAuthorityRuntimeEffectAuthorization {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("HouseholdAuthorityRuntimeEffectAuthorization")
+            .field("action", &self.action)
+            .field("owner_cas", &"consumed")
+            .finish()
+    }
+}
+
+impl HouseholdAuthorityRuntimeEffectAuthorization {
+    pub fn action(&self) -> super::HouseholdAuthorityAction {
+        self.action
     }
 }

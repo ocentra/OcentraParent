@@ -42,8 +42,26 @@ pub(super) fn validate_current(
         || binding.trust_subject() != authority.provider_subject().as_str()
         || binding.parent_device_id() != authority.device_id().as_str()
         || binding.child_device_id() != authority.child_device_id().as_str()
+        || binding.installation_id() != authority.current_binding().installation_id.as_str()
     {
         return Err(HouseholdAuthorityRuntimeFailure::DeviceTrustBindingMismatch);
     }
     Ok(())
+}
+
+pub(super) fn same_current(
+    expected: &CurrentChildDeviceTrustBinding,
+    current: &CurrentChildDeviceTrustBinding,
+) -> bool {
+    expected.family_id() == current.family_id()
+        && expected.trust_subject() == current.trust_subject()
+        && expected.parent_device_id() == current.parent_device_id()
+        && expected.child_device_id() == current.child_device_id()
+        && expected.installation_id() == current.installation_id()
+        && expected.signer_key_id() == current.signer_key_id()
+        && expected.signer_key_sha256() == current.signer_key_sha256()
+        && expected.lifecycle_generation() == current.lifecycle_generation()
+        && expected.installation_binding_generation() == current.installation_binding_generation()
+        && expected.authority_generation() == current.authority_generation()
+        && expected.state() == current.state()
 }

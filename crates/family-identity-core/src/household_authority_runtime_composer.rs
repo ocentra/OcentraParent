@@ -23,12 +23,14 @@ mod household_authority_runtime_account;
 mod household_authority_runtime_authorization;
 mod household_authority_runtime_binding;
 mod household_authority_runtime_capability;
+mod household_authority_runtime_consume;
 mod household_authority_runtime_device_source;
 mod household_authority_runtime_device_validation;
 mod household_authority_runtime_lease;
 mod household_authority_runtime_ports;
 mod household_authority_runtime_requirements;
 mod household_authority_runtime_resolution;
+mod household_authority_runtime_revalidation;
 mod household_authority_runtime_step_up;
 
 /// Failure from an owner boundary or from the cross-owner binding checks.
@@ -58,6 +60,7 @@ pub enum HouseholdAuthorityRuntimeFailure {
     ParentStepUpExpired,
     ParentStepUpReplayRejected,
     ParentStepUpBindingMismatch,
+    RuntimeFenceUnavailable,
     RoleNotAuthorized,
     ManualRequired,
 }
@@ -72,6 +75,9 @@ pub struct CurrentHouseholdCapability {
     parent_device_id: String,
     child_profile_id: String,
     child_device_id: String,
+    installation_id: String,
+    pairing_id: String,
+    route_id: String,
     action: HouseholdAuthorityAction,
     authority_generation: u64,
     expires_at: DateTime<Utc>,
@@ -88,6 +94,9 @@ pub struct CurrentHouseholdControllerLease {
     parent_device_id: String,
     child_profile_id: String,
     child_device_id: String,
+    installation_id: String,
+    pairing_id: String,
+    route_id: String,
     action: HouseholdAuthorityAction,
     authority_generation: u64,
     expires_at: DateTime<Utc>,
@@ -105,24 +114,62 @@ pub struct ConsumedParentStepUp {
     parent_device_id: String,
     child_profile_id: String,
     child_device_id: String,
+    installation_id: String,
+    pairing_id: String,
+    route_id: String,
     action: HouseholdAuthorityAction,
     authority_generation: u64,
     expires_at: DateTime<Utc>,
     receipt_epoch: u64,
 }
 
-/// The only positive runtime result from this module.
+/// The only positive composition result from this module.
 ///
 /// The fields are private and the type has no `Clone`, serde, or public constructor. It is a
-/// capability owned by this composer, not a transport handoff or a policy decision DTO.
+/// one-time input to the owner-issued execution fence, not an effect permission, transport
+/// handoff, or policy decision DTO. Downstream must move it into `consume_household_authority`.
 pub struct HouseholdAuthorityRuntimeAuthorization {
     action: HouseholdAuthorityAction,
     account_authority_generation: u64,
     session_generation: u64,
+    session_id: String,
+    session_expires_at: String,
+    installation_id: String,
+    pairing_id: String,
+    route_id: String,
+    consumption_nonce: [u8; 32],
     device_binding: CurrentChildDeviceTrustBinding,
     capability: Option<CurrentHouseholdCapability>,
     controller_lease: Option<CurrentHouseholdControllerLease>,
     parent_step_up: Option<ConsumedParentStepUp>,
+}
+
+/// The only value a downstream effect owner may receive after an authorization has been
+/// revalidated and atomically consumed. It is deliberately distinct from the composer's
+/// positive authorization: the latter is a one-time input to the owner-issued CAS fence, never
+/// an effect permission by itself.
+pub struct HouseholdAuthorityRuntimeEffectAuthorization {
+    action: HouseholdAuthorityAction,
+}
+
+/// Owner seam for the final execution-time CAS/revocation fence.
+///
+/// The caller supplies no current state. `consume_household_authority` resolves current Account,
+/// Device Trust, capability, lease, and step-up state immediately before invoking this seam. An
+/// implementation must atomically compare the private authorization nonce and all supplied owner
+/// snapshots against its revocation/currentness store before returning the opaque effect value.
+/// Returning an effect without that owner CAS is an authority bug.
+pub trait HouseholdAuthorityRuntimeCasFence {
+    fn compare_and_consume(
+        &mut self,
+        authorization: HouseholdAuthorityRuntimeAuthorization,
+        current_account_authority: VerifiedAccountIdentityAuthority,
+        current_device_binding: CurrentChildDeviceTrustBinding,
+        current_capability: Option<CurrentHouseholdCapability>,
+        current_controller_lease: Option<CurrentHouseholdControllerLease>,
+        current_parent_step_up: Option<ConsumedParentStepUp>,
+        consumption_nonce: &[u8; 32],
+    ) -> Result<HouseholdAuthorityRuntimeEffectAuthorization, HouseholdAuthorityRuntimeFailure>;
 }
 
 /// Current Device Trust owner seam.
@@ -164,6 +211,20 @@ pub trait HouseholdAuthorityParentStepUpSource {
         device_binding: &CurrentChildDeviceTrustBinding,
         action: HouseholdAuthorityAction,
     ) -> Result<ConsumedParentStepUp, HouseholdAuthorityRuntimeFailure>;
+
+    /// Re-resolve the already-consumed one-time step-up at effect time without minting or
+    /// consuming a second receipt. A durable owner returns a fresh opaque currentness snapshot;
+    /// the CAS fence must compare its receipt generation and replay/revocation state. The default
+    /// is fail-closed/manual-required.
+    fn revalidate_current_parent_step_up(
+        &self,
+        _account_authority: &VerifiedAccountIdentityAuthority,
+        _device_binding: &CurrentChildDeviceTrustBinding,
+        _action: HouseholdAuthorityAction,
+        _expected: &ConsumedParentStepUp,
+    ) -> Result<ConsumedParentStepUp, HouseholdAuthorityRuntimeFailure> {
+        Err(HouseholdAuthorityRuntimeFailure::ParentStepUpUnavailable)
+    }
 }
 
 /// Explicit fail-closed Device Trust adapter for deployments that have not wired the owner.
@@ -181,6 +242,11 @@ pub struct ManualRequiredHouseholdAuthorityControllerLeaseSource;
 /// Explicit fail-closed step-up adapter until a durable one-time receipt owner is integrated.
 #[derive(Debug, Default)]
 pub struct ManualRequiredHouseholdAuthorityParentStepUpSource;
+
+/// Explicit fail-closed execution fence until a durable owner wires a CAS/revocation store for
+/// the composed nonce and all dependency generations.
+#[derive(Debug, Default)]
+pub struct ManualRequiredHouseholdAuthorityRuntimeCasFence;
 
 /// Resolve and compose a current runtime authorization.
 ///
@@ -231,13 +297,60 @@ pub fn compose_household_authority(
         action,
     )?;
 
+    let mut consumption_nonce = [0_u8; 32];
+    getrandom::fill(&mut consumption_nonce)
+        .map_err(|_error| HouseholdAuthorityRuntimeFailure::RuntimeFenceUnavailable)?;
+
     Ok(HouseholdAuthorityRuntimeAuthorization {
         action,
         account_authority_generation: account_authority.authority_generation(),
         session_generation: account_authority.session_generation(),
+        session_id: account_authority.session_id().as_str().to_owned(),
+        session_expires_at: account_authority.session_expires_at().to_owned(),
+        installation_id: account_authority
+            .current_binding()
+            .installation_id
+            .as_str()
+            .to_owned(),
+        pairing_id: account_authority
+            .current_binding()
+            .pairing_id
+            .as_str()
+            .to_owned(),
+        route_id: account_authority
+            .current_binding()
+            .selected_route_id
+            .as_str()
+            .to_owned(),
+        consumption_nonce,
         device_binding,
         capability,
         controller_lease,
         parent_step_up,
     })
+}
+
+/// Re-resolve every owner boundary immediately before an effect and consume the authorization by
+/// value through the owner-issued CAS/revocation fence. A failed fence consumes the value without
+/// yielding a reusable positive authorization.
+pub fn consume_household_authority(
+    account_service: &AccountIdentityAuthorityService,
+    presented_account_authority: &VerifiedAccountIdentityAuthority,
+    device_trust_source: &impl HouseholdAuthorityDeviceTrustSource,
+    capability_source: &impl HouseholdAuthorityCapabilitySource,
+    controller_lease_source: &impl HouseholdAuthorityControllerLeaseSource,
+    parent_step_up_source: &impl HouseholdAuthorityParentStepUpSource,
+    cas_fence: &mut impl HouseholdAuthorityRuntimeCasFence,
+    authorization: HouseholdAuthorityRuntimeAuthorization,
+) -> Result<HouseholdAuthorityRuntimeEffectAuthorization, HouseholdAuthorityRuntimeFailure> {
+    household_authority_runtime_consume::consume(
+        account_service,
+        presented_account_authority,
+        device_trust_source,
+        capability_source,
+        controller_lease_source,
+        parent_step_up_source,
+        cas_fence,
+        authorization,
+    )
 }
