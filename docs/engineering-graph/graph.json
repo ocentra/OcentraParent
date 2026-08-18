@@ -544,25 +544,60 @@
       "path": "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
       "parent": "PLAN-account-identity-family-plan",
       "dependsOn": [
-        "WP-account-identity-family-plan-02-identity-household-role-model"
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
       ],
       "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / currentness source accepted / routes and tests open",
+        "statusText": "validation / candidate production source / independent review open / route-store tests and proof open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+            "infra/cloudflare/src/storage/account-browser-session-codec.ts",
+            "infra/cloudflare/src/storage/account-browser-session-store.ts",
+            "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+            "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+            "infra/cloudflare/src/auth/browser-session-routes.ts",
+            "infra/cloudflare/src/auth/verifier.ts",
+            "infra/cloudflare/src/providers/firebase-auth.ts",
+            "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
+            "infra/cloudflare/src/routes.ts"
+          ],
+          "testRoots": [
+            "infra/cloudflare/tests/unit/account-browser-session-store.test.ts",
+            "infra/cloudflare/tests/unit/account-browser-session-routes.test.ts",
+            "infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts",
+            "infra/cloudflare/tests/integration/account-browser-session-real.test.ts"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+          ],
+          "evidence": [
+            "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+            "docs/plans/account-identity-family-plan/NEXT_ACTIONS.md",
+            "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+            "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+            "docs/PLAN_CODE_STATUS_MATRIX.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Candidate WP03 source now composes browser login, refresh, refresh-bound logout/global revoke, strict digest-only custody, current-authority revalidation, and redacted audit outcomes through Cloudflare WP06's final provider caller/verifier result seam. Trusted store time and runtime D1 row validation fail closed. Independent review remains open; the exact route/store/request-safety/integration tests, migration execution, live D1/Worker validation, proof, deployment, and DONE remain open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
-          ],
+          "implementation": [],
           "tests": [
             "docs/plans/account-identity-family-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
@@ -571,6 +606,26 @@
             "docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+            "infra/cloudflare/src/storage/account-browser-session-codec.ts",
+            "infra/cloudflare/src/storage/account-browser-session-store.ts",
+            "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+            "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+            "infra/cloudflare/src/auth/browser-session-routes.ts",
+            "infra/cloudflare/src/auth/verifier.ts",
+            "infra/cloudflare/src/providers/firebase-auth.ts",
+            "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
+            "infra/cloudflare/src/routes.ts"
+          ],
+          "tests": [
+            "infra/cloudflare/tests/unit/account-browser-session-store.test.ts",
+            "infra/cloudflare/tests/unit/account-browser-session-routes.test.ts",
+            "infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts",
+            "infra/cloudflare/tests/integration/account-browser-session-real.test.ts"
+          ]
         }
       }
     },
@@ -31678,6 +31733,20 @@
         "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
       ],
       "reason": "WP03 durable sessions and refresh families require server-derived account, household, membership, and role identity from WP02.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts"
+      ],
+      "reason": "WP03 browser login and current-authority composition must consume Cloudflare WP06's final discriminated provider verification caller and parameterless mutation-readiness boundary; it must not duplicate provider/store reads or mint authority. WP06 remains a reviewed read/manual seam, so WP03 tests, migration execution, live Worker/D1 validation, proof, deployment, and DONE remain open.",
       "implementationGate": "reviewed-implementation"
     },
     {

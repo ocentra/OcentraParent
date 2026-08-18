@@ -246,9 +246,9 @@ evaluator remains diagnostic risk if fed caller-assembled facts, and the
 Cloudflare provider-to-authority caller is still missing. Retain all expected-
 test, focused validation, proof, PR, and DONE gates.
 
-## 2026-08-18 Account WP03 production source boundary
+## 2026-08-18 Account WP03 candidate production source boundary
 
-Account WP03 now has a real Cloudflare source seam for browser login, refresh,
+Account WP03 now has a candidate Cloudflare source seam for browser login, refresh,
 logout, global revoke, and session custody, rebased onto Cloudflare WP06 final
 head `56a4faa37`. The source uses the final provider verification result and
 `createAccountIdentityAuthorityCaller(...).resolveVerifiedProviderAuthority`
@@ -268,11 +268,18 @@ digest custody, replay-family revocation, and guarded mutation/audit batches;
 global revoke advances a durable generation fence. Audit and revoke-outcome
 rows retain only domain-separated digests and bounded request correlation.
 
-This is source acceptance only. The exact Cloudflare route/store/security test
-family is absent and remains deferred, as do migration application, live D1/
-Worker execution, retained proof, precommit, CI, PR, and DONE. The final WP06
-parameterless mutation-readiness seam remains manual-required; this source does
-not fabricate provider or Account authority.
+The historical `0005`/`0006` files are not edited as deployed-schema repair.
+Forward `0007_account_browser_session_custody_hardening.sql` rebuilds the
+authority-bearing custody tables as STRICT, aborts on invalid legacy rows after
+recording a non-sensitive quarantine attempt, and publishes the exact schema
+version sentinel only after a complete copy. Every BrowserSessionStore read or
+mutation requires that sentinel and fails closed when it is absent or malformed.
+
+Independent review remains open pending final source reconciliation. The exact
+Cloudflare route/store/security test family is absent and remains deferred, as
+do migration application, live D1/Worker execution, retained proof, precommit,
+CI, PR, and DONE. The final WP06 parameterless mutation-readiness seam remains
+manual-required; this source does not fabricate provider or Account authority.
 
 ## Default execution order
 

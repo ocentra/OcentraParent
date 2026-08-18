@@ -1,7 +1,10 @@
 import type { AccountIdentityProvider } from '@ocentra-parent/schema-domain/account-identity-authority';
 
 const SESSION_TOKEN_PATTERN = /^[A-Za-z0-9_-]{43}\.[A-Za-z0-9_-]{43}$/;
+const SESSION_ID_PATTERN = /^[A-Za-z0-9_-]{43}$/;
 const DIGEST_HEX_PATTERN = /^[a-f0-9]{64}$/;
+const ISO_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+const AUTHORITY_TEXT_PATTERN = /^[^\u0000-\u001f\u007f]{1,256}$/;
 
 export interface BrowserSessionSecrets {
   readonly sessionToken: string;
@@ -16,7 +19,7 @@ export interface BrowserSessionRow {
   csrf_token_digest: string;
   provider: AccountIdentityProvider;
   provider_subject: string;
-  role: 'parent-owner' | 'co-parent-guardian' | 'observer' | 'child-profile' | 'child-device-agent' | 'support-admin';
+  role: 'parent-owner' | 'co-parent-guardian' | 'support-admin';
   account_id: string;
   household_id: string | null;
   member_id: string | null;
@@ -52,12 +55,169 @@ export interface BrowserSessionRow {
   updated_at: string;
 }
 
+function record(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function text(value: unknown): value is string {
+  return typeof value === 'string' && AUTHORITY_TEXT_PATTERN.test(value);
+}
+
+function nullableText(value: unknown): value is string | null {
+  return value === null || text(value);
+}
+
+function generation(value: unknown): value is number {
+  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
+}
+
+function timestamp(value: unknown): value is string {
+  return typeof value === 'string' && ISO_TIMESTAMP_PATTERN.test(value) && Number.isFinite(Date.parse(value));
+}
+
+export function isBrowserSessionTimestamp(value: unknown): value is string {
+  return timestamp(value);
+}
+
+function nullableTimestamp(value: unknown): value is string | null {
+  return value === null || timestamp(value);
+}
+
+function provider(value: unknown): value is AccountIdentityProvider {
+  return value === 'authjs' || value === 'firebase';
+}
+
+function role(value: unknown): value is BrowserSessionRow['role'] {
+  return value === 'parent-owner' || value === 'co-parent-guardian' || value === 'support-admin';
+}
+
+function nullableSupportScope(value: unknown): value is BrowserSessionRow['support_scope'] {
+  return value === null || value === 'read-only' || value === 'household' || value === 'device-control';
+}
+
+function nullableSupportRevocationState(value: unknown): value is BrowserSessionRow['support_revocation_state'] {
+  return value === null || value === 'active' || value === 'revoked';
+}
+
+/**
+ * D1's generic row decoder is not a runtime schema. Every authority-bearing
+ * row must pass this exact shape/type check before it can become a session
+ * identity or participate in a custody mutation.
+ */
+export function isBrowserSessionRow(value: unknown): value is BrowserSessionRow {
+  const row = record(value);
+  if (row === null) return false;
+  const baseShape =
+    isSessionId(row.session_id) &&
+    isDigestValue(row.session_token_digest) &&
+    isDigestValue(row.refresh_token_digest) &&
+    isDigestValue(row.csrf_token_digest) &&
+    provider(row.provider) &&
+    text(row.provider_subject) &&
+    role(row.role) &&
+    text(row.account_id) &&
+    nullableText(row.household_id) &&
+    nullableText(row.member_id) &&
+    nullableText(row.device_id) &&
+    nullableText(row.child_profile_id) &&
+    nullableText(row.child_device_id) &&
+    text(row.authority_session_id) &&
+    generation(row.authority_session_generation) &&
+    generation(row.authority_generation) &&
+    nullableText(row.support_receipt_id) &&
+    nullableText(row.support_provider_subject) &&
+    nullableText(row.support_account_id) &&
+    nullableText(row.support_member_id) &&
+    nullableText(row.support_household_id) &&
+    nullableText(row.support_device_id) &&
+    nullableText(row.support_child_profile_id) &&
+    nullableText(row.support_child_device_id) &&
+    nullableSupportScope(row.support_scope) &&
+    nullableText(row.support_issuer) &&
+    nullableTimestamp(row.support_issued_at) &&
+    nullableTimestamp(row.support_expires_at) &&
+    nullableSupportRevocationState(row.support_revocation_state) &&
+    nullableText(row.support_audit_identity) &&
+    timestamp(row.issued_at) &&
+    timestamp(row.access_expires_at) &&
+    timestamp(row.refresh_expires_at) &&
+    generation(row.revoke_generation) &&
+    generation(row.refresh_generation) &&
+    (row.status === 'active' || row.status === 'revoked') &&
+    timestamp(row.last_seen_at) &&
+    nullableTimestamp(row.revoked_at) &&
+    timestamp(row.created_at) &&
+    timestamp(row.updated_at);
+  if (!baseShape) return false;
+  const session = row as BrowserSessionRow;
+
+  const issuedAt = Date.parse(session.issued_at);
+  const createdAt = Date.parse(session.created_at);
+  const accessExpiresAt = Date.parse(session.access_expires_at);
+  const refreshExpiresAt = Date.parse(session.refresh_expires_at);
+  const lastSeenAt = Date.parse(session.last_seen_at);
+  const updatedAt = Date.parse(session.updated_at);
+  const revokedAt = session.revoked_at === null ? null : Date.parse(session.revoked_at);
+  const supportIssuedAt = session.support_issued_at === null ? null : Date.parse(session.support_issued_at);
+  const supportExpiresAt = session.support_expires_at === null ? null : Date.parse(session.support_expires_at);
+  const supportFields = [
+    session.support_receipt_id,
+    session.support_provider_subject,
+    session.support_account_id,
+    session.support_member_id,
+    session.support_household_id,
+    session.support_device_id,
+    session.support_child_profile_id,
+    session.support_child_device_id,
+    session.support_scope,
+    session.support_issuer,
+    session.support_issued_at,
+    session.support_expires_at,
+    session.support_revocation_state,
+    session.support_audit_identity,
+  ];
+  const supportComplete =
+    session.role === 'support-admin' &&
+    supportFields.every((field) => field !== null) &&
+    session.supportProviderSubject === session.provider_subject &&
+    session.supportAccountId === session.account_id &&
+    session.supportMemberId === session.member_id &&
+    session.supportHouseholdId === session.household_id &&
+    session.supportDeviceId === session.device_id &&
+    session.supportChildProfileId === session.child_profile_id &&
+    session.supportChildDeviceId === session.child_device_id &&
+    session.support_revocation_state === 'active' &&
+    supportIssuedAt !== null &&
+    supportExpiresAt !== null &&
+    supportIssuedAt <= issuedAt &&
+    supportExpiresAt > issuedAt &&
+    supportExpiresAt > supportIssuedAt;
+  const supportAbsent = session.role !== 'support-admin' && supportFields.every((field) => field === null);
+  const distinctDigests =
+    new Set([session.session_token_digest, session.refresh_token_digest, session.csrf_token_digest]).size === 3;
+  const orderedLifetime =
+    createdAt <= issuedAt &&
+    issuedAt <= lastSeenAt &&
+    lastSeenAt <= updatedAt &&
+    issuedAt < accessExpiresAt &&
+    accessExpiresAt < refreshExpiresAt &&
+    (session.status === 'active'
+      ? session.revoked_at === null
+      : session.revoked_at !== null && revokedAt !== null && createdAt <= revokedAt && revokedAt <= updatedAt);
+  return distinctDigests && orderedLifetime && (supportComplete || supportAbsent);
+}
+
+function isDigestValue(value: unknown): value is string {
+  return typeof value === 'string' && DIGEST_HEX_PATTERN.test(value);
+}
+
 export interface BrowserSessionIdentity {
   readonly sessionId: string;
   readonly provider: AccountIdentityProvider;
   readonly providerSubject: string;
-  readonly role:
-    'parent-owner' | 'co-parent-guardian' | 'observer' | 'child-profile' | 'child-device-agent' | 'support-admin';
+  readonly role: 'parent-owner' | 'co-parent-guardian' | 'support-admin';
   readonly accountId: string;
   readonly authoritySessionId: string;
   readonly authoritySessionGeneration: number;
@@ -83,6 +243,10 @@ export function newOpaqueValue(): string {
 
 export function newSessionId(): string {
   return newOpaqueValue();
+}
+
+export function isSessionId(value: unknown): value is string {
+  return typeof value === 'string' && SESSION_ID_PATTERN.test(value);
 }
 
 export function sessionCookieValue(sessionId: string, secret: string): string {

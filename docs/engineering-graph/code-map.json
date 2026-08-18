@@ -668,8 +668,40 @@
         "crates/family-identity-core/tests/unit/session_lifecycle.rs",
         "crates/provisioning-core/src/provisioning_install.rs",
         "crates/provisioning-core/src/provisioning_install/family_context.rs",
-        "crates/provisioning-core/tests/unit/readiness_flow.rs"
-      ]
+        "crates/provisioning-core/tests/unit/readiness_flow.rs",
+        "infra/cloudflare/migrations/account-identity/0005_account_browser_session_custody.sql",
+        "infra/cloudflare/migrations/account-identity/0006_account_browser_session_refresh_custody.sql",
+        "infra/cloudflare/migrations/account-identity/0007_account_browser_session_custody_hardening.sql",
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-browser-session-codec.ts",
+        "infra/cloudflare/src/storage/account-browser-session-store.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+        "infra/cloudflare/src/auth/browser-session-routes.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/providers/firebase-auth.ts",
+        "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
+        "infra/cloudflare/src/routes.ts"
+      ],
+      "plannedImplementationRoots": [
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-browser-session-codec.ts",
+        "infra/cloudflare/src/storage/account-browser-session-store.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+        "infra/cloudflare/src/auth/browser-session-routes.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/providers/firebase-auth.ts",
+        "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
+        "infra/cloudflare/src/routes.ts"
+      ],
+      "expectedTestRoots": [
+        "infra/cloudflare/tests/unit/account-browser-session-store.test.ts",
+        "infra/cloudflare/tests/unit/account-browser-session-routes.test.ts",
+        "infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts",
+        "infra/cloudflare/tests/integration/account-browser-session-real.test.ts"
+      ],
+      "note": "Candidate production source maps browser login, refresh, refresh-bound logout/global revoke, durable session/refresh custody, exact request safety, current-authority revalidation, strict schema/row fail-closed decoding, and redacted audit outcomes. Independent review remains open; expected route/store/security/integration tests, migration execution, live D1/Worker validation, proof, deployment, and DONE remain open."
     },
     "WP-account-identity-family-plan-04-invites-recovery-lifecycle": {
       "planSlug": "account-identity-family-plan",
