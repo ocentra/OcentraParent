@@ -8,6 +8,9 @@ use super::{
     ManagedBrowserStructuredExtractionObservation, ManagedBrowserStructuredExtractionOwner,
 };
 
+#[path = "owner_handoff/normalization.rs"]
+mod normalization;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScreenManagedBrowserStructuredExtractionHandoffError {
     InvalidOwnerHandoff,
@@ -17,7 +20,7 @@ impl ScreenManagedBrowserStructuredExtraction {
     pub fn from_untrusted_observation(
         owner: Box<dyn ManagedBrowserStructuredExtractionOwner>,
     ) -> Result<Self, ScreenManagedBrowserStructuredExtractionHandoffError> {
-        let observation = owner.observation();
+        let observation = normalization::normalize(owner.observation());
         let redaction_state = redaction_state_for(&observation);
         let outcome = outcome_for(&observation);
         let receipt = VerifiedManagedBrowserStructuredExtractionReceipt {
