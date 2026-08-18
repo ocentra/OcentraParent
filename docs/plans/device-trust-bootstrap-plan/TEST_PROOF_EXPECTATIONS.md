@@ -43,7 +43,14 @@ Current device-trust coverage starts in:
 
 These plan-local tests currently prove document and route alignment only. They do not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle execution, or child uninstall execution by themselves.
 
-The narrow Windows DPAPI adapter is separately covered by `crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs`. That proof requires a current authorized parent-device authority input whose trust subject and device reference exactly match the sealed context, and incorporates a machine-local Windows registry binding that is read at seal/unseal rather than serialized in the blob. It proves only the Windows adapter boundary: same-device unseal, different trusted-device rejection, revoked rejection, and persisted-blob round trip. It does not close WP02 or claim Android, Linux, macOS, iOS, recovery, or complete trust lifecycle coverage.
+`crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs` is a
+synthetic parent-presence/authority-boundary probe. It is not a Windows DPAPI
+proof and must not be cited for same-device unseal, registry-epoch persistence,
+revocation, or lifecycle activation. The current
+`require_authenticated_parent_authority()` boundary is permanently
+unavailable, so no current test establishes a reachable DPAPI custody path.
+It does not close WP02 or claim Android, Linux, macOS, iOS, recovery, or
+complete trust lifecycle coverage.
 
 Implementation-adjacent coverage currently lives in:
 
@@ -79,21 +86,29 @@ Trust sealing must remain manual-required until the authority contract exposes a
 
 Windows DPAPI adapter validation:
 
-**Windows-only proof label.** The commands below are a Windows-host proof
-requirement. On non-Windows hosts, the adapter is expected to return
-`PlatformUnavailable`; a passing compile or skipped `#[cfg(windows)]` test is
-not DPAPI proof. Record non-Windows execution as `unsupported-platform`
-coverage, not as same-device or persisted-blob validation.
+**No current DPAPI proof command is authorized.** The Windows source is
+present, but the authenticated-parent requirement is permanently unavailable
+before custody mutation and no ceremony issuer, desktop/native mount, or
+custody-to-lifecycle startup caller exists. A future selected platform route
+must add a real Windows caller and retain proof for the exact authority,
+current binding, registry epoch, ciphertext, activation, unseal, revocation,
+wrong-user, wrong-device, and restart states. On non-Windows hosts, record
+`unsupported-platform`; a passing compile, skipped `#[cfg(windows)]` test, or
+synthetic probe is not DPAPI proof.
 
 ```powershell
 cargo check -p ocentra-storage-custody-core
-cargo test -p ocentra-family-identity-core --test unit trust_bootstrap_probes
 cargo clippy -p ocentra-storage-custody-core --lib -- -D warnings
 cargo clippy -p ocentra-family-identity-core --all-targets -- -D warnings
-npm run lint:architecture -- --files crates/storage-custody-core/src/windows_dpapi_key_sealing.rs crates/family-identity-core/src/trust_bootstrap.rs crates/family-identity-core/src/trust_bootstrap/current_authority.rs crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs
+npm run lint:architecture -- --files crates/storage-custody-core/src/windows_dpapi_key_sealing.rs crates/storage-custody-core/src/windows_device_trust_custody.rs crates/storage-custody-core/src/windows_device_trust_custody_platform.rs crates/family-identity-core/src/trust_bootstrap.rs crates/family-identity-core/src/trust_bootstrap/current_authority.rs crates/family-identity-core/src/device_trust_lifecycle_activation.rs crates/parent-runtime-core/src/device_trust_bootstrap_runtime.rs
 ```
 
-The Windows adapter must fail closed when the local machine binding cannot be read; no roaming, plaintext, or portable-key fallback is permitted. The current sealing capability derives subject/device binding only from the verified parent ceremony, while unseal requires a current runtime-owned lifecycle authority source rather than a caller-deserialized snapshot.
+These commands are source/static prerequisites only until the missing caller
+and authority owners exist. The Windows adapter must fail closed when the
+local machine binding cannot be read; no roaming, plaintext, or portable-key
+fallback is permitted. The current sealing source derives subject/device
+binding from the ceremony seam, while unseal requires a current runtime-owned
+lifecycle authority source rather than a caller-deserialized snapshot.
 
 ## Common commands
 

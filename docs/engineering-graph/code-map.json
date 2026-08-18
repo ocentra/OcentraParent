@@ -3194,12 +3194,9 @@
         "crates/storage-custody-core/src/windows_device_trust_custody_snapshot.rs",
         "crates/storage-custody-core/src/windows_device_trust_custody_transaction.rs",
         "crates/storage-custody-core/src/windows_dpapi_key_sealing.rs",
-        "crates/storage-custody-core/tests/windows_device_trust_custody.rs",
-        "crates/storage-custody-core/tests/windows_device_trust_custody_generation.rs",
-        "crates/storage-custody-core/tests/windows_device_trust_custody_unsupported.rs",
+        "crates/family-identity-core/src/trust_bootstrap/current_authority.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_activation.rs",
         "crates/parent-runtime-core/src/device_trust_bootstrap_runtime.rs",
-        "crates/parent-runtime-core/tests/integration/device_trust_bootstrap_runtime.rs",
-        "crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs",
         "tests/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs"
       ]
     },
