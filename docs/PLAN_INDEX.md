@@ -13,6 +13,16 @@
 
 # Plan Index
 
+## Current Child Runtime source-routing overlay
+
+The Child Agent Runtime Distribution plan is in the production-source phase,
+not complete or release-ready. WP06 has an independent iOS identity correction
+open; Device Trust WP01 gates the first WP10 runtime packet. WP10's typed
+handoff/projection has no production caller, trusted desktop/Android startup
+binding, authenticated external ingress, or external health. WP02-WP05,
+WP07-WP09, and WP11 remain downstream source work. Expected tests, focused
+validation, proof, precommit, CI, and release remain deferred.
+
 Use this file to choose exactly one plan. After choosing a plan, open only that plan's `AGENTS.md`.
 Plan-local checklists and proof inventories are reset here; collect proof in the designated local artifact path for the chosen workpack or crate, not in the plan folder.
 

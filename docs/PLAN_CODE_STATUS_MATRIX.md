@@ -1309,6 +1309,26 @@ post-merge reverified`. Only the final state counts toward `Freshly reverified`.
 
 ## Dependency and unblock order
 
+### Child Runtime source-routing overlay - 2026-08-18
+
+This overlay is the current code-first route for the child plan. It supersedes
+older index-level completion wording without claiming any workpack complete:
+
+- WP06 is independent first source work because the real iOS project/product/
+  bundle/release identity remains parent-labelled.
+- WP10 is the first runtime packet after reviewed Device Trust WP01 source. Its
+  typed setup/device-trust handoff and updater projection have no production
+  caller; desktop/Android startup has no trusted binding, authenticated
+  external ingress, or externally reachable health.
+- WP02-WP05 follow WP10. WP07 has static manager declarations but no executable
+  lifecycle/supervision owner. WP08 has no Account-authority/platform cleanup
+  caller or durable cleanup receipt path. WP09 does not consume WP10's handoff.
+  WP11 has no executable aggregate release gate.
+- The required order is WP06 plus Device-Trust-WP01-gated WP10, then WP02-WP05,
+  WP07, WP08, WP09, and WP11. Child WP10 must not depend back on Setup WP07.
+- No expected-test source, focused execution, proof, precommit, CI, PR,
+  release, or DONE claim follows from this source-routing overlay.
+
 1. **Complete the account-authority runtime chain**: Firebase subject-verification source now exists and fails closed, while Account WP08 and Cloudflare WP06 carry bounded authority/storage source. Server-derived family/device binding, migration, expected tests, retained proof, deployment, and runtime reachability remain open. Supply those seams before WP03's native parent authority, Cloudflare WP08 test proof, and Account WP06 aggregation.
 2. **Build device trust runtime**: parent presence and sealed device trust unblock safe account, setup, payment, remote, and enforcement decisions.
 3. **Keep the two WP11 owners distinct**: Eventing WP11's generic type-safety source repair is integrated but still needs expected tests and acceptance. Separately, enforcement-plan WP11 still owns enforcement-specific durable audit history before enforcement WP04 trusted dispatch -> adapter -> receipt -> rollback. Do not use the Eventing source fix as enforcement completion.

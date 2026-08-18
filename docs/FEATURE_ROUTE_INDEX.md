@@ -13,6 +13,15 @@
 
 # Feature Route Index
 
+## Current Child Runtime source-routing overlay
+
+Child runtime is in source phase. The iOS capability contract does not make
+the actual app child-owned while the project/bundle/release identity remains
+parent-labelled. WP10 has typed schema/projection only: no Device Trust
+startup caller, authenticated external ingress, external health, or updater
+caller exists. WP02-WP05, WP07-WP09, and WP11 remain open; tests, proof, and
+release claims are deferred.
+
 This index links the product feature list to plan folders. Use it to avoid scanning all feature or expectation docs.
 
 | Feature                               | Status              | Feature doc                                                                       | Expectations                                                                                                                                                                 | Likely plan route                                                                                                                                                                                                                                                                                                                                                                                              | Current gap                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
