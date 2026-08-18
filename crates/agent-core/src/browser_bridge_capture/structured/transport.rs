@@ -10,8 +10,7 @@ use tungstenite::{
     Message,
 };
 
-use super::{ExtractionError, Outcome, Payload};
-use crate::browser_bridge_capture::ManagedBrowserCdpCaptureError;
+use super::{ExtractionError, Payload};
 
 const CDP_FIELD_ID: &str = "id";
 const CDP_FIELD_METHOD: &str = "method";
@@ -21,54 +20,7 @@ const CDP_PARAM_EXPRESSION: &str = "expression";
 const CDP_PARAM_RETURN_BY_VALUE: &str = "returnByValue";
 const CDP_PARAM_AWAIT_PROMISE: &str = "awaitPromise";
 
-const STRUCTURED_EXTRACTION_EXPRESSION: &str = r#"(() => {
-  const limit = 480;
-  const bodyText = typeof document.body?.innerText === 'string'
-    ? document.body.innerText
-    : '';
-  const probe = bodyText.slice(0, 4096);
-  const credentialSelector = [
-    'input[type="password"]',
-    'input[autocomplete="current-password"]',
-    'input[autocomplete="new-password"]',
-    'input[autocomplete="one-time-code"]',
-    'input[autocomplete="cc-number"]',
-    'input[autocomplete="cc-csc"]'
-  ].join(',');
-  const protectedSelector = [
-    '[data-ocentra-protected="true"]',
-    '[data-sensitive-content="true"]',
-    '[aria-label*="password" i]',
-    '[aria-label*="security code" i]',
-    '[aria-label*="credit card" i]'
-  ].join(',');
-  const credentialRisk = Boolean(document.querySelector(credentialSelector))
-    || /password|passcode|verification code|security code|credit card|cvv|ssn/i.test(probe);
-  const protectedSurface = Boolean(document.querySelector(protectedSelector));
-  const protectedContentSkipped = credentialRisk || protectedSurface;
-  const metaValues = Array.from(document.querySelectorAll(
-    'meta[name="description"], meta[property="og:title"], meta[property="og:description"]'
-  )).slice(0, 6).map((node) => node.getAttribute('content') || '')
-    .filter((value) => value.length > 0).join(' ').slice(0, limit);
-  const accessibilityValues = Array.from(document.querySelectorAll(
-    '[aria-label], [role]'
-  )).slice(0, 32).map((node) => `${node.getAttribute('role') || ''}:${node.getAttribute('aria-label') || ''}`)
-    .filter((value) => value !== ':').join(' ').slice(0, limit);
-  const privateContentRedacted = protectedContentSkipped;
-  const safeText = privateContentRedacted ? '' : bodyText;
-  const visibleText = safeText.slice(0, limit);
-  const visibleTextCharacterCount = safeText.length;
-  const domOverflowRedacted = visibleTextCharacterCount > limit;
-  return {
-    visibleText,
-    visibleTextCharacterCount,
-    domOverflowRedacted,
-    privateContentRedacted,
-    protectedContentSkipped,
-    metaValues,
-    accessibilityValues,
-  };
-})()"#;
+const STRUCTURED_EXTRACTION_EXPRESSION: &str = include_str!("structured_extraction.js");
 
 pub(super) fn extract(
     endpoint: SocketAddr,
@@ -113,21 +65,6 @@ pub(super) fn extract(
             continue;
         }
         return super::parser::parse_payload(&value);
-    }
-}
-
-pub(super) fn ensure_capture_safe(
-    endpoint: SocketAddr,
-    websocket_url: &str,
-) -> Result<(), ManagedBrowserCdpCaptureError> {
-    let payload = extract(endpoint, websocket_url)
-        .map_err(|_error| ManagedBrowserCdpCaptureError::StructuredExtractionUnavailable)?;
-    match payload.outcome {
-        Outcome::ProtectedContentSkipped => {
-            Err(ManagedBrowserCdpCaptureError::ProtectedSurfaceRejected)
-        }
-        Outcome::Unavailable => Err(ManagedBrowserCdpCaptureError::StructuredExtractionUnavailable),
-        Outcome::PolicySufficient | Outcome::NeedsScreenshot => Ok(()),
     }
 }
 

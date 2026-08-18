@@ -55,12 +55,12 @@ impl ManagedBrowserCdpStructuredExtraction {
         self.freshness == Freshness::Stale
     }
 
-    pub fn is_policy_sufficient(&self) -> bool {
-        matches!(&self.outcome, Outcome::PolicySufficient)
+    pub fn has_structured_evidence(&self) -> bool {
+        matches!(&self.outcome, Outcome::StructuredEvidenceAvailable)
     }
 
-    pub fn requires_screenshot(&self) -> bool {
-        matches!(&self.outcome, Outcome::NeedsScreenshot)
+    pub fn requires_review(&self) -> bool {
+        matches!(&self.outcome, Outcome::ReviewRequired)
     }
 
     pub fn protected_content_skipped(&self) -> bool {
@@ -68,7 +68,7 @@ impl ManagedBrowserCdpStructuredExtraction {
     }
 
     pub fn is_unavailable(&self) -> bool {
-        matches!(&self.outcome, Outcome::Unavailable)
+        self.freshness == Freshness::Unavailable || matches!(&self.outcome, Outcome::Unavailable)
     }
 
     pub fn custody_state(&self) -> &str {

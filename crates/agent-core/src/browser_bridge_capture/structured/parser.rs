@@ -1,4 +1,3 @@
-use ocentra_parent_agent_protocol::constants;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
@@ -29,7 +28,7 @@ pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
         .and_then(|count| usize::try_from(count).ok())
         .ok_or(ExtractionError::InvalidResponse)?;
     if visible_text_character_count < visible_text.chars().count()
-        || visible_text_character_count > constants::browser::DEVTOOLS_MAX_RESPONSE_BYTES
+        || visible_text_character_count > MAX_STRUCTURED_TEXT
     {
         return Err(ExtractionError::InvalidResponse);
     }
@@ -47,22 +46,21 @@ pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
         .ok_or(ExtractionError::InvalidResponse)?;
     let meta_values = bounded_string(value, "metaValues", MAX_SIGNAL_TEXT)?;
     let accessibility_values = bounded_string(value, "accessibilityValues", MAX_SIGNAL_TEXT)?;
+    if private_content_redacted || protected_content_skipped {
+        return Ok(Payload::protected_content_skipped());
+    }
     let signal_digest = signal_digest(
         &visible_text,
         &meta_values,
         &accessibility_values,
         visible_text_character_count,
         dom_overflow_redacted,
-        private_content_redacted,
-        protected_content_skipped,
     );
     let has_structured_signals = !meta_values.is_empty() || !accessibility_values.is_empty();
-    let outcome = if protected_content_skipped {
-        Outcome::ProtectedContentSkipped
-    } else if dom_overflow_redacted || (visible_text.is_empty() && !has_structured_signals) {
-        Outcome::NeedsScreenshot
+    let outcome = if dom_overflow_redacted || (visible_text.is_empty() && !has_structured_signals) {
+        Outcome::ReviewRequired
     } else {
-        Outcome::PolicySufficient
+        Outcome::StructuredEvidenceAvailable
     };
     Ok(Payload {
         visible_text_summary: (!visible_text.is_empty()).then_some(visible_text),
@@ -91,8 +89,6 @@ fn signal_digest(
     accessibility_values: &str,
     visible_text_character_count: usize,
     dom_overflow_redacted: bool,
-    private_content_redacted: bool,
-    protected_content_skipped: bool,
 ) -> String {
     digest(&[
         visible_text,
@@ -103,16 +99,6 @@ fn signal_digest(
             "overflow"
         } else {
             "bounded"
-        },
-        if private_content_redacted {
-            "private-redacted"
-        } else {
-            "private-clear"
-        },
-        if protected_content_skipped {
-            "protected-skipped"
-        } else {
-            "protected-absent"
         },
     ])
 }

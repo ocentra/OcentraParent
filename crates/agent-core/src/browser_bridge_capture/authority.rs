@@ -1,6 +1,7 @@
 use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::PathBuf,
+    time::Instant,
 };
 
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
@@ -8,6 +9,7 @@ use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
 use super::{binding, ManagedBrowserCdpCaptureError};
 use crate::browser_managed_session::BrowserManagedLaunch;
 
+#[derive(Clone)]
 pub(super) struct LaunchBinding {
     pub(super) endpoint: SocketAddr,
     pub(super) managed_browser_session_id: String,
@@ -20,12 +22,15 @@ pub(super) struct LaunchBinding {
     pub(super) generation: u64,
     pub(super) created_at_epoch_ms: u64,
     pub(super) expires_at_epoch_ms: u64,
+    pub(super) authority_started_at: Instant,
+    pub(super) authority_started_epoch_ms: u64,
 }
 
 pub(super) fn from_launch(
     launch: &BrowserManagedLaunch,
 ) -> Result<LaunchBinding, ManagedBrowserCdpCaptureError> {
     let authority = launch.cdp_authority();
+    let authority_started_epoch_ms = binding::unix_epoch_millis()?;
     let binding = LaunchBinding {
         endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), authority.bridge_port()),
         managed_browser_session_id: authority.managed_browser_session_id().to_owned(),
@@ -38,6 +43,8 @@ pub(super) fn from_launch(
         generation: authority.generation(),
         created_at_epoch_ms: authority.created_at_epoch_ms(),
         expires_at_epoch_ms: authority.expires_at_epoch_ms(),
+        authority_started_at: Instant::now(),
+        authority_started_epoch_ms,
     };
     binding::validate(&binding)?;
     Ok(binding)

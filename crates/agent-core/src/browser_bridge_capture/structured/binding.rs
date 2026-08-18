@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use chrono::{DateTime, SecondsFormat, Utc};
 use ocentra_schema::managed_browser_cdp_capture::{
     MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION, MANAGED_BROWSER_CDP_SOURCE_ID,
@@ -9,7 +11,10 @@ use crate::browser_bridge_capture::{
     authority::LaunchBinding, target::TargetSnapshot, ManagedBrowserCdpStructuredExtraction,
 };
 
-const STRUCTURED_CUSTODY_STATE: &str = "live-local-child-agent";
+// The producer does not claim child delivery or enforcement authority. A
+// later service owner may replace this with a custody state backed by runtime
+// proof; until then the handoff remains explicitly unavailable.
+const STRUCTURED_CUSTODY_STATE: &str = "unavailable";
 const STRUCTURED_EXTRACTION_ID_PREFIX: &str = "browser-extraction-";
 
 pub(super) fn bind_extraction(
@@ -17,6 +22,7 @@ pub(super) fn bind_extraction(
     target_id: &str,
     snapshot: &TargetSnapshot,
     captured_at_epoch_ms: u64,
+    captured_at_monotonic: Duration,
     payload: Payload,
 ) -> ManagedBrowserCdpStructuredExtraction {
     let Payload {
@@ -27,21 +33,42 @@ pub(super) fn bind_extraction(
         signal_digest,
         outcome,
     } = payload;
-    let evidence_refs =
-        crate::browser_bridge_capture::target::opaque_evidence_refs(binding, target_id, snapshot);
+    let redact_page_identity = matches!(
+        &outcome,
+        Outcome::ProtectedContentSkipped | Outcome::Unavailable
+    );
+    let evidence_refs = if redact_page_identity {
+        crate::browser_bridge_capture::target::opaque_redacted_evidence_refs(
+            binding, target_id, snapshot,
+        )
+    } else {
+        crate::browser_bridge_capture::target::opaque_evidence_refs(binding, target_id, snapshot)
+    };
     let evidence_digest = extraction_digest(
         binding,
         target_id,
         snapshot,
         captured_at_epoch_ms,
         &signal_digest,
+        redact_page_identity,
     );
     let extraction_id = format!("{STRUCTURED_EXTRACTION_ID_PREFIX}{evidence_digest}");
     let captured_at = trusted_timestamp(captured_at_epoch_ms);
-    let freshness = if captured_at_epoch_ms <= binding.expires_at_epoch_ms {
+    let monotonic_lower_bound = binding
+        .authority_started_epoch_ms
+        .saturating_add(u64::try_from(captured_at_monotonic.as_millis()).unwrap_or(u64::MAX));
+    let freshness = if captured_at_epoch_ms >= binding.created_at_epoch_ms
+        && captured_at_epoch_ms <= binding.expires_at_epoch_ms
+        && captured_at_epoch_ms >= monotonic_lower_bound
+        && captured_at_monotonic.as_millis()
+            <= u128::from(
+                binding
+                    .expires_at_epoch_ms
+                    .saturating_sub(binding.created_at_epoch_ms),
+            ) {
         Freshness::Fresh
     } else {
-        Freshness::Stale
+        Freshness::Unavailable
     };
     ManagedBrowserCdpStructuredExtraction {
         source_id: MANAGED_BROWSER_CDP_SOURCE_ID,
@@ -67,17 +94,28 @@ fn extraction_digest(
     snapshot: &TargetSnapshot,
     captured_at_epoch_ms: u64,
     signal_digest: &str,
+    redact_page_identity: bool,
 ) -> String {
     let generation = binding.generation.to_string();
     let process_id = binding.process_id.to_string();
     let captured_at = captured_at_epoch_ms.to_string();
+    let page_identity = if redact_page_identity {
+        "protected-content-redacted-v1"
+    } else {
+        snapshot.url_digest.as_str()
+    };
+    let title_identity = if redact_page_identity {
+        "protected-content-redacted-v1"
+    } else {
+        snapshot.title_digest.as_str()
+    };
     digest(&[
         MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION,
         binding.managed_browser_session_id.as_str(),
         binding.profile_id.as_str(),
         target_id,
-        snapshot.url_digest.as_str(),
-        snapshot.title_digest.as_str(),
+        page_identity,
+        title_identity,
         snapshot.browser_identity_digest.as_str(),
         &generation,
         &process_id,
