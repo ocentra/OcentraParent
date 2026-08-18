@@ -11,7 +11,7 @@
 
 Purpose: define parent-authorized uninstall, revocation, and removal proof for the child agent.
 
-Status: production code drafted / test-deferred. The child service now owns a durable parent-authorized revocation boundary and preserves removal audit state; platform uninstall/device-owner cleanup remains manual-required. Contract tests, validation, and proof are deferred to the later global phase.
+Status: source partial / production caller missing. Durable revocation source exists; Account-authority composition, platform cleanup callbacks, receipts, tests, validation, and proof remain open.
 
 ## Owns
 
@@ -29,6 +29,26 @@ Status: production code drafted / test-deferred. The child service now owns a du
 - Windows/Linux/macOS package managers own service stop/remove hooks; Android package/device-owner removal remains manual-required. No platform uninstall proof is claimed.
 - Windows MSI removes the child service/files while retaining the service-owned ProgramData custody root so `removal-state.json` and its audit history are not silently discarded; Linux and macOS package hooks likewise do not claim to delete durable custody.
 - The deferred Windows lifecycle harness still expects ProgramData absence and uses legacy parent service/path labels; that proof-only mismatch must be reconciled before validation.
+
+The public revoke, reauthorize, and tamper APIs have no production caller outside `child-runtime`. No Windows/macOS/Linux/Android package or device-owner callback consumes the result, performs bounded cleanup, and writes a durable idempotent cleanup receipt. Revocation state therefore blocks the in-process runtime boundary but does not execute platform removal.
+
+## Required production source outcome
+
+- consume Account WP08 current verified household authority without copying or minting it;
+- invoke the existing child removal boundary through an authenticated parent/operator route;
+- dispatch platform-specific cleanup callbacks only after durable revocation and retain idempotent cleanup receipts/residual-custody truth;
+- integrate with WP07 lifecycle stop/disable/remove states and WP10 trusted runtime identity;
+- keep unsupported/device-proof-required platforms explicit.
+
+Implementation dependencies: Account WP08, Child WP10, and Child WP07 reviewed implementation. Normal READY/DONE remains strict.
+
+## Expected test-source gap
+
+- correct actor/household/child/device/action acceptance and wrong-target/action rejection;
+- nonce/generation replay, stale authority, revoked trust, restart durability, and reauthorization;
+- platform callback success/failure/retry/idempotency and crash-between-revocation-and-cleanup;
+- residual custody and cleanup receipt truth per platform;
+- proof that child/local signal input cannot self-authorize revocation or cleanup.
 
 ## Must prove
 
@@ -82,6 +102,8 @@ Status: production code drafted / test-deferred. The child service now owns a du
 - [x] revoked trust is represented as typed service readiness and blocks runtime ingress
 - [x] revocation audit entries remain durable until a parent reauthorization decision
 - [x] platform package/device removal remains explicit manual-required state
+- [ ] production Account-authority caller invokes the child boundary
+- [ ] platform cleanup callbacks and idempotent receipts are implemented
 - [ ] platform uninstall and device-owner cleanup artifacts are validated
 - [ ] contract tests and focused runtime tests are run
 - [ ] proof artifacts are refreshed under the declared output root
