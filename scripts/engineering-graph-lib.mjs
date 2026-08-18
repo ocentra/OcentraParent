@@ -130,7 +130,7 @@ function isRepoRelativePath(value) {
   if (typeof value !== 'string' || value.trim().length === 0) return false;
   const normalized = normalizeRepoPath(value.trim());
   if (normalized === '.' || normalized.startsWith('/') || path.posix.isAbsolute(normalized)) return false;
-  if (/^[A-Za-z]:\//u.test(normalized)) return false;
+  if (/^[A-Za-z]:/u.test(normalized)) return false;
   return !normalized.split('/').some((part) => part === '..' || part.length === 0);
 }
 
