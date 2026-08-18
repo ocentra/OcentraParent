@@ -2,8 +2,8 @@ use ocentra_parent_agent_protocol::{
     constants,
     logging::{LogFieldValue, LogLevel},
     transport::{
-        AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
-        ParentRuntimeIntentIngressKind, ParentRuntimeIntentIngressResult,
+        AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, ParentRuntimeIntentIngressKind,
+        ParentRuntimeIntentIngressResult,
     },
 };
 use serde::Deserialize;
@@ -33,9 +33,7 @@ impl ParentRuntimeIntentRequest {
             Self::TrackingChildCheckInRequest => {
                 ParentRuntimeIntentIngressKind::TrackingChildCheckInRequest
             }
-            Self::PolicyControlDelivery => {
-                ParentRuntimeIntentIngressKind::PolicyControlDelivery
-            }
+            Self::PolicyControlDelivery => ParentRuntimeIntentIngressKind::PolicyControlDelivery,
         }
     }
 }
