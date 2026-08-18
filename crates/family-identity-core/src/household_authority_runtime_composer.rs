@@ -25,6 +25,12 @@ mod household_authority_runtime_account;
 mod household_authority_runtime_authorization;
 mod household_authority_runtime_binding;
 mod household_authority_runtime_capability;
+#[path = "household_authority_runtime_cas_recovery.rs"]
+pub mod household_authority_runtime_cas_recovery;
+#[path = "household_authority_runtime_cas_repository.rs"]
+pub mod household_authority_runtime_cas_repository;
+#[path = "household_authority_runtime_cas_schema.rs"]
+mod household_authority_runtime_cas_schema;
 mod household_authority_runtime_consume;
 mod household_authority_runtime_device_source;
 mod household_authority_runtime_device_validation;
@@ -209,11 +215,14 @@ pub struct HouseholdAuthorityRuntimeConsumedEffect {
 ///
 /// The caller supplies no current state. `consume_household_authority` resolves current Account,
 /// Device Trust, capability, lease, and step-up state immediately before invoking this seam. An
-/// implementation must atomically compare the private authorization nonce and all supplied owner
-/// snapshots against its revocation/currentness store before issuing the target-bound receipt.
-/// The owner must either consume that receipt inside the same CAS owner or use the exact opaque
-/// target returned by its own owner boundary and call `consume_for_target` by value. Returning an
-/// effect without that owner CAS is an authority bug.
+/// An implementation may issue the target-bound receipt only when it owns a transaction or
+/// reservation that compares the private authorization nonce and all supplied owner snapshots
+/// against its revocation/currentness store. A row-only durable ledger cannot claim atomicity
+/// across external Account, Device, capability, lease, or step-up stores; that integration stays
+/// manual/fail-closed until a composed owner transaction exists. The owner must either consume
+/// the receipt inside the same CAS owner or use the exact opaque target returned by its own owner
+/// boundary and call `consume_for_target` by value. Returning an effect without that owner CAS is
+/// an authority bug.
 pub trait HouseholdAuthorityRuntimeCasFence {
     fn compare_and_consume(
         &mut self,
