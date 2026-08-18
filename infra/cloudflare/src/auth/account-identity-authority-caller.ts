@@ -1,9 +1,13 @@
 import type { Env } from '../env.js';
 import {
   createAccountIdentityAuthorityWriter,
+  type AccountIdentityAuthorityRevokeResult,
+  type AccountIdentityAuthorityWriteResult,
+  type AccountOwnedAuthorityProducer,
   type AccountIdentityAuthorityWriter,
 } from '../storage/account-identity-authority-writer.js';
 import type {
+  AccountIdentityProvider,
   ProviderVerificationPort,
   VerifiedAccountIdentityAuthorityCapability,
   VerifiedProviderIdentity,
@@ -34,6 +38,26 @@ export interface AccountIdentityAuthorityCaller {
     request: Request,
     providerVerifier: ProviderVerificationPort | undefined
   ): Promise<VerifiedProviderAuthorityResult>;
+  createCurrentAuthority(
+    producer: AccountOwnedAuthorityProducer,
+    provider: AccountIdentityProvider,
+    providerSubject: string
+  ): Promise<AccountIdentityAuthorityWriteResult>;
+  compareAndSwapCurrentAuthority(
+    producer: AccountOwnedAuthorityProducer,
+    provider: AccountIdentityProvider,
+    providerSubject: string,
+    expectedAuthorityGeneration: number,
+    expectedSessionGeneration: number,
+    expectedSessionId: string
+  ): Promise<AccountIdentityAuthorityWriteResult>;
+  revokeCurrentAuthority(
+    provider: AccountIdentityProvider,
+    providerSubject: string,
+    expectedAuthorityGeneration: number,
+    expectedSessionGeneration: number,
+    expectedSessionId: string
+  ): Promise<AccountIdentityAuthorityRevokeResult>;
 }
 
 function createCaller(writer: AccountIdentityAuthorityWriter): AccountIdentityAuthorityCaller {
@@ -67,6 +91,44 @@ function createCaller(writer: AccountIdentityAuthorityWriter): AccountIdentityAu
         case 'rejected':
           return authority;
       }
+    },
+
+    createCurrentAuthority(producer, provider, providerSubject) {
+      return writer.createCurrentAuthority(producer, provider, providerSubject);
+    },
+
+    compareAndSwapCurrentAuthority(
+      producer,
+      provider,
+      providerSubject,
+      expectedAuthorityGeneration,
+      expectedSessionGeneration,
+      expectedSessionId
+    ) {
+      return writer.compareAndSwapCurrentAuthority(
+        producer,
+        provider,
+        providerSubject,
+        expectedAuthorityGeneration,
+        expectedSessionGeneration,
+        expectedSessionId
+      );
+    },
+
+    revokeCurrentAuthority(
+      provider,
+      providerSubject,
+      expectedAuthorityGeneration,
+      expectedSessionGeneration,
+      expectedSessionId
+    ) {
+      return writer.revokeCurrentAuthority(
+        provider,
+        providerSubject,
+        expectedAuthorityGeneration,
+        expectedSessionGeneration,
+        expectedSessionId
+      );
     },
   };
 }
