@@ -735,7 +735,7 @@
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md"
       ],
-      "reason": "The conditional parent-runtime/platform sealing route consumes WP01 current binding and lifecycle state; this reviewed implementation gate is relevant only when that platform-custody route is selected and does not make WP02 a prerequisite for the default Account WP08 -> Cloudflare WP06 -> WP03 -> LAN/child route. It cannot issue ceremony authority or revive revoked trust.",
+      "reason": "The conditional parent-runtime/platform sealing route consumes WP01 current binding and lifecycle state; this reviewed implementation gate is relevant only when that platform-custody route is selected and does not make WP02 a prerequisite for the default Account WP08 -> Cloudflare WP06 -> WP03 -> LAN/child route. Current Windows custody source remains blocked by permanently unavailable require_authenticated_parent_authority(), with no ceremony issuer, desktop mount, or custody-to-lifecycle startup caller. It cannot issue ceremony authority or revive revoked trust.",
       "implementationGate": "reviewed-implementation"
     },
     {

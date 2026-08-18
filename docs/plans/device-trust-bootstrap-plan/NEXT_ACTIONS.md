@@ -64,9 +64,13 @@ Independent source review and focused static gates accepted the bounded packet.
 Platform custody, trusted ceremony issuance, expected-test migration,
 functional validation, proof, and broader lifecycle integration remain open.
 
-The WP02 Windows custody revoke/reset path now refuses local unauthenticated
-removal and preserves manual-required truth until a trusted parent authority
-provider and ceremony issuer are owned by the correct runtime.
+WP02 Windows custody source is present, but
+`require_authenticated_parent_authority()` is permanently unavailable before
+record/epoch mutation. No ceremony issuer, registered desktop/native mount, or
+custody-to-lifecycle activation/startup caller exists; sealing, unsealing, and
+revocation therefore remain manual-required. Existing lifecycle/custody tests
+and synthetic parent-presence probes are stale/non-authoritative and must not
+be used as DPAPI proof.
 
 WP03 now has a bounded receipt lifetime gate and an independently static-reviewed
 remote-safe integration source packet for atomic ceremony custody/recovery plus strict
@@ -120,8 +124,10 @@ custody requirement exists.
 The consolidated source audit found no legal production-code slice to add:
 
 - WP01/WP02 require a shipped ceremony issuer, platform custody provider, and
-  registered parent-runtime/desktop composition. The current source remains
-  fail-closed/manual-required where those owners are absent.
+  registered parent-runtime/desktop composition. WP02's current
+  `require_authenticated_parent_authority()` boundary is permanently
+  unavailable, so its Windows DPAPI/registry source remains
+  fail-closed/manual-required until those owners and fresh runtime proof exist.
 - WP03 first requires the Account WP08 canonical target-binding contract and
   Cloudflare WP06 durable authoritative repository/caller; it then requires a
   real passkey/OS ceremony, durable sign counter, signature verification, and

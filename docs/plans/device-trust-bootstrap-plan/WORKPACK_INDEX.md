@@ -21,7 +21,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | partial / foundation-source only; expected tests, authority bridge, and caller open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | accepted continuation is integrated through `68717b5b7`: durable lifecycle/current-binding source is present, but no shipped authority issuer, platform ceremony, production caller, expected-test wave, proof, or completion exists | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
-| partial / Windows-only merged custody slice; downstream of WP01 | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | custody and authority-boundary code present; parent-runtime/platform composition, lifecycle/revocation caller, and end-to-end sealing proof remain open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
+| partial / Windows custody source only; downstream of WP01 | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | DPAPI/registry and opaque runtime seams exist, but `require_authenticated_parent_authority()` is permanently unavailable; no ceremony issuer, desktop mount, custody-to-lifecycle startup composition, current tests, or end-to-end sealing proof is available | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
 | blocked / implementation-only source authorized | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; reviewed-implementation gates authorize only the bounded source packet; atomic ceremony custody/recovery and linked-challenge lifecycle validation are independently static-reviewed with no remaining internal P0/P1; authoritative target resolution, platform/passkey provider, durable sign counter, tests, proof, runtime, LAN handoff, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
 | partial / source accepted, expected tests open | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | unsigned projection and fail-closed wire/context boundary are integrated; real issuer/signature/revocation authority, callers, expected tests, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
@@ -39,14 +39,17 @@ WP02, WP03, WP04, WP05, WP06, and WP07 have bounded production contracts or
 fail-closed local state, but none has a complete shipped cryptographic/device
 authority path for the missing behavior. WP08 and WP09 remain research/route
 work only. In particular, `ParentDeviceTrustCommandFacade` and the Windows
-custody implementation have no registered external production caller; the
-entitlement verifier and restore executor are unavailable-by-default ports;
+custody implementation have no registered external production caller, and
+`require_authenticated_parent_authority()` is permanently unavailable before
+custody mutation; the entitlement verifier and restore executor are
+unavailable-by-default ports;
 the QR and step-up paths have no ceremony issuer/nonce consumer; and child
 removal still stops at durable evidence/manual-required platform cleanup.
 
-This audit records source reachability only. It does not treat tests, proof,
-static status, synthetic challenges/receipts, generic JSON, or public DTOs as
-authority and does not change any workpack to complete. No target-authority
+This audit records source reachability only. It does not treat stale lifecycle
+tests, synthetic probes, proof, static status, synthetic challenges/receipts,
+generic JSON, or public DTOs as authority and does not change any workpack to
+complete. No target-authority
 edit is legal without Account WP08's canonical binding and Cloudflare WP06's
 durable repository/caller; the platform/passkey ceremony composition follows
 those owners. The graph validator reported checked-in graph/source drift during
