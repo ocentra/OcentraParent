@@ -30,7 +30,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | source-reviewed | [26 Child Disclosure UX](workpacks/26-child-disclosure-ux.md)                                                  | 2,681 | 0/6 checked; 6 open   |
 | checked | [27 Screenshot Retention Optional Mode](workpacks/27-screenshot-retention-optional-mode.md)                           | 1,789 | 7/7 checked; 0 open   |
 | checked | [31 Screen Intelligence Router](workpacks/31-screen-intelligence-router.md)                                           | 1,222 | 7/7 checked; 0 open   |
-| checked | [32 Browser Structured Extraction Before Screenshot](workpacks/32-browser-structured-extraction-before-screenshot.md) | 1,108 | 6/6 checked; 0 open   |
+| source-reviewed | [32 Browser Structured Extraction Before Screenshot](workpacks/32-browser-structured-extraction-before-screenshot.md) | 1,108 | 3/6 checked; 3 open; tests/proof deferred |
 | open    | [33 Managed Browser CDP Screenshot Capture Path](workpacks/33-managed-browser-cdp-screenshot-capture-path.md)         | 1,871 | 0/7 checked; 7 open   |
 | checked | [34 OCR Tesseract Baseline](workpacks/34-ocr-tesseract-baseline.md)                                                   | 2,639 | 6/6 checked; 0 open   |
 | checked | [35 OCR PaddleOCR PP-OCR Evaluation](workpacks/35-ocr-paddleocr-ppocr-evaluation.md)                                  | 4,622 | 6/6 checked; 0 open   |

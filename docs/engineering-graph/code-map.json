@@ -4381,11 +4381,43 @@
     },
     "WP-screen-plan-32-browser-structured-extraction-before-screenshot": {
       "planSlug": "screen-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/schema/tests/contract/managed_browser_cdp_capture.rs",
+        "crates/agent-core/tests/unit/browser_bridge_structured_extraction_tests.rs",
+        "crates/agent-service/tests/unit/screen_managed_browser_cdp_runtime_tests.rs",
+        "crates/screen-ai-core/tests/unit/pipeline_decision.rs",
+        "crates/screen-capture-adapter/tests/unit/managed_browser_cdp.rs"
+      ],
       "roots": [
+        "crates/schema/src/managed_browser_cdp_capture.rs",
+        "crates/agent-core/src/browser_bridge_capture.rs",
+        "crates/agent-core/src/browser_bridge_capture/authority.rs",
+        "crates/agent-core/src/browser_bridge_capture/binding.rs",
+        "crates/agent-core/src/browser_bridge_capture/capture.rs",
+        "crates/agent-core/src/browser_bridge_capture/capture/frozen.rs",
+        "crates/agent-core/src/browser_bridge_capture/capture/frozen/checks.rs",
+        "crates/agent-core/src/browser_bridge_capture/capture/frozen/context.rs",
+        "crates/agent-core/src/browser_bridge_capture/process.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/accessors.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/binding.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/identity_accessors.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/parser.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/structured_extraction.js",
+        "crates/agent-core/src/browser_bridge_capture/structured/transport.rs",
+        "crates/agent-core/src/browser_bridge_capture/target.rs",
+        "crates/agent-core/src/browser_bridge_capture/transport.rs",
+        "crates/agent-core/src/browser_bridge_capture/transport/screenshot.rs",
+        "crates/agent-service/src/screen_managed_browser_cdp_runtime.rs",
+        "crates/agent-service/src/screen_managed_browser_structured_route_composition.rs",
         "crates/screen-ai-core/src/screen_intelligence_router",
         "crates/screen-ai-core/src/screen_intelligence_router_logic",
+        "crates/screen-capture-adapter/src/managed_browser_cdp.rs",
         "crates/screen-ai-core/tests/unit/pipeline_decision.rs"
-      ]
+      ],
+      "plannedImplementationRoots": ["crates/agent-service/src/screen_managed_browser_structured_route_composition.rs"],
+      "note": "Reviewed fail-closed production source now provides a bounded CDP structural probe, opaque producer binding, redacted/digest-only handoff, frozen-capture safety checks, and neutral screen-router input. No executable service caller composes the browser owner with policy safe-disclosure authority, unknown sensitivity never authorizes capture or NoScreenNeeded, and the planned composition owner plus all focused tests remain absent."
     },
     "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path": {
       "planSlug": "screen-plan",

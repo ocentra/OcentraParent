@@ -26,6 +26,8 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by unchecked boxes
 
+- [32 Browser Structured Extraction Before Screenshot](workpacks/32-browser-structured-extraction-before-screenshot.md): reviewed fail-closed source implements 3/6 rows. Next production source is the executable browser/policy owner composition; title/meta/accessibility/visible-text disclosure and `no_screen_needed` must remain unavailable until that authority exists. Write the five mapped focused test files only in the later test-source phase.
+
 - [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md): 6 open of 6 boxes; reopen after independent review found unsafe retention, non-atomic queue mutation, and fabricated proof boundaries.
 
 - [03 Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md): 8 open of 8 boxes.

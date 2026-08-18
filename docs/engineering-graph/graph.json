@@ -23088,24 +23088,38 @@
       "title": "32 Browser Structured Extraction Before Screenshot",
       "path": "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
       "parent": "PLAN-screen-plan",
-      "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [
+        "WP-browser-plan-07-managed-chromium-launcher",
+        "WP-browser-plan-09-cdp-version-and-target-adapter"
+      ],
+      "state": "blocked",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
-        "statusText": "checked",
+        "statusText": "source-reviewed",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-service/src/screen_managed_browser_structured_route_composition.rs"
+          ],
+          "testRoots": [
+            "crates/schema/tests/contract/managed_browser_cdp_capture.rs",
+            "crates/agent-core/tests/unit/browser_bridge_structured_extraction_tests.rs",
+            "crates/agent-service/tests/unit/screen_managed_browser_cdp_runtime_tests.rs",
+            "crates/screen-ai-core/tests/unit/pipeline_decision.rs",
+            "crates/screen-capture-adapter/tests/unit/managed_browser_cdp.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
@@ -23114,6 +23128,16 @@
         "expected": {
           "proof": [
             "output/screen-plan-proof/32-browser-structured-extraction-before-screenshot"
+          ],
+          "implementation": [
+            "crates/agent-service/src/screen_managed_browser_structured_route_composition.rs"
+          ],
+          "tests": [
+            "crates/schema/tests/contract/managed_browser_cdp_capture.rs",
+            "crates/agent-core/tests/unit/browser_bridge_structured_extraction_tests.rs",
+            "crates/agent-service/tests/unit/screen_managed_browser_cdp_runtime_tests.rs",
+            "crates/screen-ai-core/tests/unit/pipeline_decision.rs",
+            "crates/screen-capture-adapter/tests/unit/managed_browser_cdp.rs"
           ]
         }
       }
@@ -32395,6 +32419,28 @@
       ],
       "reason": "WP11 is blocked until Account WP05 supplies a true authority transaction/CAS and recovery source handoff; caller-selected authority is not accepted. The reviewed-implementation gate never borrows runtime authority or claims tests, proof, or DONE.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
+      "to": "WP-browser-plan-07-managed-chromium-launcher",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md"
+      ],
+      "reason": "Screen WP32 requires a shipped managed-browser owner/session before structured extraction can become an executable source. The current function-level producer path has no service composition caller and cannot borrow authority from request fields."
+    },
+    {
+      "from": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
+      "to": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "Screen WP32 consumes the browser-owned CDP target boundary; bounded parsing and opaque producer binding do not establish a shipped target adapter, safe-disclosure authority, or executable runtime caller."
     }
   ],
   "migration": {

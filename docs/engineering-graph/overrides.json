@@ -1860,6 +1860,28 @@
       ],
       "reason": "WP11 is blocked until Account WP05 supplies a true authority transaction/CAS and recovery source handoff; caller-selected authority is not accepted. The reviewed-implementation gate never borrows runtime authority or claims tests, proof, or DONE.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
+      "to": "WP-browser-plan-07-managed-chromium-launcher",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md"
+      ],
+      "reason": "Screen WP32 requires a shipped managed-browser owner/session before structured extraction can become an executable source. The current function-level producer path has no service composition caller and cannot borrow authority from request fields."
+    },
+    {
+      "from": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
+      "to": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "Screen WP32 consumes the browser-owned CDP target boundary; bounded parsing and opaque producer binding do not establish a shipped target adapter, safe-disclosure authority, or executable runtime caller."
     }
   ],
   "stateOverrides": [
