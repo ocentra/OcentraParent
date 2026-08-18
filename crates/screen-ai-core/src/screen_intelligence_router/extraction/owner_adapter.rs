@@ -1,30 +1,23 @@
-use ocentra_parent_agent_core::browser_bridge_capture::{
-    ManagedBrowserCdpCaptureError, ManagedBrowserCdpStructuredExtraction,
-    ManagedBrowserCdpTargetAuthority,
-};
+use ocentra_parent_screen_capture_adapter::managed_browser_cdp::structured_extraction::ManagedBrowserStructuredExtraction;
 
 use super::{
-    ActivityEvidenceRef, ScreenEvidenceCustodyState, ScreenManagedBrowserStructuredExtraction,
+    ActivityEvidenceRef, ScreenManagedBrowserStructuredExtraction,
     ScreenStructuredExtractionFreshness, ScreenStructuredExtractionRedactionState,
     VerifiedManagedBrowserStructuredExtractionAuthority,
-    VerifiedManagedBrowserStructuredExtractionReceipt, VerifiedStructuredExtractionOutcome,
+    VerifiedManagedBrowserStructuredExtractionReceipt,
 };
 
-pub(super) fn from_authority(
-    authority: &ManagedBrowserCdpTargetAuthority,
-) -> Result<ScreenManagedBrowserStructuredExtraction, ManagedBrowserCdpCaptureError> {
-    let extraction = authority.extract_structured()?;
-    Ok(from_owner_extraction(extraction))
-}
+#[path = "owner_adapter/outcome.rs"]
+mod outcome;
 
-fn from_owner_extraction(
-    extraction: ManagedBrowserCdpStructuredExtraction,
+pub(super) fn from_owner_extraction(
+    extraction: ManagedBrowserStructuredExtraction,
 ) -> ScreenManagedBrowserStructuredExtraction {
     let redaction_state = redaction_state_for(&extraction);
     let freshness = freshness_for(&extraction);
-    let outcome = outcome_for(&extraction);
+    let outcome = outcome::outcome_for(&extraction);
     let evidence = evidence_refs_for(&extraction);
-    let custody_state = custody_state_for(&extraction);
+    let custody_state = outcome::custody_state_for(&extraction);
 
     ScreenManagedBrowserStructuredExtraction {
         receipt: VerifiedManagedBrowserStructuredExtractionReceipt {
@@ -51,7 +44,7 @@ fn from_owner_extraction(
 }
 
 fn redaction_state_for(
-    extraction: &ManagedBrowserCdpStructuredExtraction,
+    extraction: &ManagedBrowserStructuredExtraction,
 ) -> ScreenStructuredExtractionRedactionState {
     if extraction.protected_content_skipped() {
         ScreenStructuredExtractionRedactionState::ProtectedContentSkipped
@@ -65,7 +58,7 @@ fn redaction_state_for(
 }
 
 fn freshness_for(
-    extraction: &ManagedBrowserCdpStructuredExtraction,
+    extraction: &ManagedBrowserStructuredExtraction,
 ) -> ScreenStructuredExtractionFreshness {
     if extraction.is_stale() {
         ScreenStructuredExtractionFreshness::Stale
@@ -76,68 +69,26 @@ fn freshness_for(
     }
 }
 
-fn outcome_for(
-    extraction: &ManagedBrowserCdpStructuredExtraction,
-) -> VerifiedStructuredExtractionOutcome {
-    if extraction.protected_content_skipped() {
-        VerifiedStructuredExtractionOutcome::ProtectedContentSkipped
-    } else if extraction.is_unavailable() {
-        VerifiedStructuredExtractionOutcome::Unavailable {
-            reason: String::from("managed-browser structured extraction is unavailable"),
-        }
-    } else if extraction.is_policy_sufficient() {
-        VerifiedStructuredExtractionOutcome::PolicySufficient {
-            category_candidate: String::from("managed-browser-page"),
-            risk_signals: Vec::new(),
-            confidence_basis: String::from(
-                "bounded managed-browser URL/title/meta/DOM/accessibility signals; not policy authority",
-            ),
-        }
-    } else if extraction.requires_screenshot() {
-        VerifiedStructuredExtractionOutcome::NeedsScreenshot {
-            reason: String::from(
-                "bounded managed-browser structured signals did not answer the policy question",
-            ),
-        }
-    } else {
-        VerifiedStructuredExtractionOutcome::Unavailable {
-            reason: String::from("managed-browser structured extraction outcome is unavailable"),
-        }
-    }
-}
-
-fn evidence_refs_for(
-    extraction: &ManagedBrowserCdpStructuredExtraction,
-) -> Vec<ActivityEvidenceRef> {
-    let references = extraction.evidence_refs();
+fn evidence_refs_for(extraction: &ManagedBrowserStructuredExtraction) -> Vec<ActivityEvidenceRef> {
     let digest = extraction.evidence_digest().to_owned();
     vec![
         ActivityEvidenceRef {
-            evidence_id: references.target_ref.clone(),
+            evidence_id: extraction.target_ref().to_owned(),
             kind: String::from("managed-browser-target"),
             digest: digest.clone(),
             uri: None,
         },
         ActivityEvidenceRef {
-            evidence_id: references.url_ref.clone(),
+            evidence_id: extraction.url_ref().to_owned(),
             kind: String::from("managed-browser-url"),
             digest: digest.clone(),
             uri: None,
         },
         ActivityEvidenceRef {
-            evidence_id: references.title_ref.clone(),
+            evidence_id: extraction.title_ref().to_owned(),
             kind: String::from("managed-browser-title"),
             digest,
             uri: None,
         },
     ]
-}
-
-fn custody_state_for(
-    extraction: &ManagedBrowserCdpStructuredExtraction,
-) -> ScreenEvidenceCustodyState {
-    match extraction.custody_state() {
-        "live-local-child-agent" => ScreenEvidenceCustodyState::LiveLocalChildAgent,
-        _ => ScreenEvidenceCustodyState::Unavailable,
-    }
 }

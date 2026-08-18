@@ -1,12 +1,20 @@
-//! Browser-owned authority and bounded CDP screenshot transport.
+//! Browser-owned authority and bounded CDP structured extraction.
 //!
 //! A capture authority is minted only from the private evidence carried by a
 //! real managed-browser launch. The authority re-authenticates the owned
-//! process and bridge, then re-polls the exact target immediately before the
-//! screenshot command. URLs, titles, debugger endpoints, and image bytes stay
-//! inside this boundary and are never represented by public Debug output.
+//! process and bridge, then re-polls the exact target before any owner action.
+//! URLs, titles, debugger endpoints, and image bytes stay inside this boundary
+//! and are never represented by public Debug output. Screenshot capture is
+//! fail-closed until the owner proves an atomic or frozen-page guard.
 
-use std::{fmt, path::Path};
+use std::{
+    fmt,
+    path::Path,
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
+};
 
 use crate::{
     browser_bridge_poll::BrowserBridgePollError, browser_managed_session::BrowserManagedLaunch,
@@ -15,9 +23,6 @@ use ocentra_schema::managed_browser_cdp_capture::{
     ManagedBrowserCdpCaptureMode, ManagedBrowserCdpCaptureReceipt, ManagedBrowserCdpCaptureRequest,
     ManagedBrowserCdpEvidenceRefs, MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION,
 };
-
-const CDP_MAX_IMAGE_BYTES: usize = 32 * 1024 * 1024;
-const PNG_SIGNATURE: &[u8; 8] = b"\x89PNG\r\n\x1a\n";
 
 #[path = "browser_bridge_capture/authority.rs"]
 mod authority;
@@ -35,8 +40,6 @@ mod process;
 mod structured;
 #[path = "browser_bridge_capture/target.rs"]
 mod target;
-#[path = "browser_bridge_capture/transport.rs"]
-mod transport;
 
 #[derive(Clone)]
 pub struct ManagedBrowserCdpTargetAuthority {
@@ -45,6 +48,7 @@ pub struct ManagedBrowserCdpTargetAuthority {
     verified_snapshot: target::TargetSnapshot,
     evidence_refs: ManagedBrowserCdpEvidenceRefs,
     launch_authority: authority::LaunchBinding,
+    last_observed_epoch_ms: Arc<AtomicU64>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -67,8 +71,7 @@ pub enum ManagedBrowserCdpCaptureError {
     ResponseTooLarge,
     InvalidResponse,
     InvalidImage,
-    StructuredExtractionUnavailable,
-    ProtectedSurfaceRejected,
+    ScreenshotSafetyGuardUnavailable,
 }
 
 pub type ManagedBrowserCdpStructuredExtraction = structured::ManagedBrowserCdpStructuredExtraction;
@@ -123,12 +126,14 @@ pub fn authorize_managed_browser_cdp_target(
     let live_target = target::poll_and_verify(&launch_authority, target_id, None)?;
     let evidence_refs =
         target::opaque_evidence_refs(&launch_authority, target_id, &live_target.snapshot);
+    let created_at_epoch_ms = launch_authority.created_at_epoch_ms;
     Ok(ManagedBrowserCdpTargetAuthority {
         endpoint: launch_authority.endpoint,
         target_id: target_id.to_owned(),
         verified_snapshot: live_target.snapshot,
         evidence_refs,
         launch_authority,
+        last_observed_epoch_ms: Arc::new(AtomicU64::new(created_at_epoch_ms)),
     })
 }
 
@@ -143,13 +148,28 @@ impl ManagedBrowserCdpTargetAuthority {
             Some(&self.verified_snapshot),
         )?;
         let captured_at_epoch_ms = binding::unix_epoch_millis()?;
-        let payload = structured::extract(self.endpoint, &live_target.snapshot.websocket_url)
-            .unwrap_or_else(|_error| structured::Payload::unavailable());
+        let captured_at_monotonic = self.launch_authority.authority_started_at.elapsed();
+        let monotonic_lower_bound = self
+            .launch_authority
+            .authority_started_epoch_ms
+            .saturating_add(u64::try_from(captured_at_monotonic.as_millis()).unwrap_or(u64::MAX));
+        let previous_epoch_ms = self.last_observed_epoch_ms.load(Ordering::Acquire);
+        let clock_rolled_back = captured_at_epoch_ms < previous_epoch_ms
+            || captured_at_epoch_ms < monotonic_lower_bound;
+        self.last_observed_epoch_ms
+            .fetch_max(captured_at_epoch_ms, Ordering::AcqRel);
+        let payload = if clock_rolled_back {
+            structured::Payload::unavailable()
+        } else {
+            structured::extract(self.endpoint, &live_target.snapshot.websocket_url)
+                .unwrap_or_else(|_error| structured::Payload::unavailable())
+        };
         Ok(structured::bind_extraction(
             &self.launch_authority,
             &self.target_id,
             &live_target.snapshot,
             captured_at_epoch_ms,
+            captured_at_monotonic,
             payload,
         ))
     }
@@ -164,28 +184,10 @@ impl ManagedBrowserCdpTargetAuthority {
         if request.target_id != self.target_id {
             return Err(ManagedBrowserCdpCaptureError::TargetAuthorityMismatch);
         }
-        process::revalidate(&self.launch_authority)?;
-        let live_target = target::poll_and_verify(
-            &self.launch_authority,
-            &self.target_id,
-            Some(&self.verified_snapshot),
-        )?;
-        structured::ensure_capture_safe(self.endpoint, &live_target.snapshot.websocket_url)?;
-        let png_bytes = transport::capture_screenshot(
-            self.endpoint,
-            &live_target.snapshot.websocket_url,
-            request,
-        )?;
-        if png_bytes.is_empty() || png_bytes.len() > CDP_MAX_IMAGE_BYTES {
-            return Err(ManagedBrowserCdpCaptureError::ResponseTooLarge);
-        }
-        if png_bytes.get(0..8) != Some(PNG_SIGNATURE.as_slice()) {
-            return Err(ManagedBrowserCdpCaptureError::InvalidImage);
-        }
-        Ok(ManagedBrowserCdpCaptureBytes {
-            png_bytes,
-            evidence_refs: self.evidence_refs.clone(),
-        })
+        // A separate probe followed by an image command is not an atomic or
+        // frozen-page guarantee. Until the managed-browser owner supplies
+        // that guard, screenshots remain unavailable by design.
+        Err(ManagedBrowserCdpCaptureError::ScreenshotSafetyGuardUnavailable)
     }
 }
 

@@ -1,7 +1,5 @@
 use super::capture::ScreenEvidenceCustodyState;
-use ocentra_parent_agent_core::browser_bridge_capture::{
-    ManagedBrowserCdpCaptureError, ManagedBrowserCdpTargetAuthority,
-};
+use ocentra_parent_screen_capture_adapter::managed_browser_cdp::structured_extraction::ManagedBrowserStructuredExtraction;
 use serde::{Deserialize, Serialize};
 
 #[path = "extraction/owner_adapter.rs"]
@@ -58,6 +56,12 @@ enum VerifiedStructuredExtractionOutcome {
     NeedsScreenshot {
         reason: String,
     },
+    StructuredEvidenceAvailable {
+        reason: String,
+    },
+    ReviewRequired {
+        reason: String,
+    },
     ProtectedContentSkipped,
     Unavailable {
         reason: String,
@@ -88,18 +92,17 @@ struct VerifiedManagedBrowserStructuredExtractionReceipt {
 }
 
 /// This receipt has no public or crate-wide constructor, serializer, clone, or
-/// debug surface. The managed-browser owner adapter below accepts evidence only
-/// from the real CDP authority; service-level route composition remains a
-/// separate caller until a production route supplies that authority.
+/// debug surface. The service-layer handoff below accepts only the opaque
+/// producer token; no caller can mint browser authority or policy sufficiency.
 pub struct ScreenManagedBrowserStructuredExtraction {
     receipt: VerifiedManagedBrowserStructuredExtractionReceipt,
 }
 
 impl ScreenManagedBrowserStructuredExtraction {
-    pub fn from_managed_browser_cdp_authority(
-        authority: &ManagedBrowserCdpTargetAuthority,
-    ) -> Result<Self, ManagedBrowserCdpCaptureError> {
-        owner_adapter::from_authority(authority)
+    pub fn from_managed_browser_structured_extraction(
+        extraction: ManagedBrowserStructuredExtraction,
+    ) -> Self {
+        owner_adapter::from_owner_extraction(extraction)
     }
 
     pub(crate) fn is_verified(&self) -> bool {
@@ -158,6 +161,20 @@ impl ScreenManagedBrowserStructuredExtraction {
         )
     }
 
+    pub(crate) fn has_structured_evidence(&self) -> bool {
+        matches!(
+            &self.receipt.outcome,
+            VerifiedStructuredExtractionOutcome::StructuredEvidenceAvailable { .. }
+        )
+    }
+
+    pub(crate) fn requires_review(&self) -> bool {
+        matches!(
+            &self.receipt.outcome,
+            VerifiedStructuredExtractionOutcome::ReviewRequired { .. }
+        )
+    }
+
     pub(crate) fn is_stale(&self) -> bool {
         self.receipt.freshness == ScreenStructuredExtractionFreshness::Stale
     }
@@ -213,10 +230,11 @@ fn receipt_is_bound_and_redacted(
                 .starts_with(MANAGED_BROWSER_TITLE_REF_PREFIX)
         })
         && receipt.visible_text_character_count <= SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT
-        && receipt
-            .visible_text_summary
-            .as_ref()
-            .is_none_or(|summary| summary.len() <= SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT)
+        && receipt.visible_text_summary.as_ref().is_none_or(|summary| {
+            let character_count = summary.chars().count();
+            character_count <= SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT
+                && character_count <= receipt.visible_text_character_count
+        })
         && !receipt.raw_dom_included
         && receipt.custody_state != ScreenEvidenceCustodyState::OcentraHostedNonActivity
         && redaction_flags_are_consistent(receipt)
@@ -230,11 +248,19 @@ fn redaction_flags_are_consistent(
             !receipt.private_content_redacted && !receipt.dom_overflow_redacted
         }
         ScreenStructuredExtractionRedactionState::PrivateTextRedacted => {
-            receipt.private_content_redacted && !receipt.dom_overflow_redacted
+            receipt.private_content_redacted
+                && receipt.visible_text_summary.is_none()
+                && receipt.visible_text_character_count == 0
+                && !receipt.dom_overflow_redacted
         }
         ScreenStructuredExtractionRedactionState::OverflowRedacted => {
             !receipt.private_content_redacted && receipt.dom_overflow_redacted
         }
-        ScreenStructuredExtractionRedactionState::ProtectedContentSkipped => true,
+        ScreenStructuredExtractionRedactionState::ProtectedContentSkipped => {
+            receipt.private_content_redacted
+                && receipt.visible_text_summary.is_none()
+                && receipt.visible_text_character_count == 0
+                && !receipt.dom_overflow_redacted
+        }
     }
 }

@@ -1,9 +1,10 @@
 //! Screen-owned adapter for browser-target capture.
 //!
 //! This adapter is deliberately separate from desktop capture. It accepts only
-//! the browser-owned target authority and emits bounded, fully decoded PNG
-//! bytes for the encrypted queue handoff; it has no desktop, screencast, or
-//! remote mode.
+//! the browser-owned target authority. Structured evidence is handed off
+//! through an opaque producer token; screenshot queue handoff remains
+//! fail-closed until the owner supplies an atomic or frozen-page guard. It has
+//! no desktop, screencast, or remote mode.
 
 use std::fmt;
 
@@ -21,6 +22,7 @@ const CDP_MAX_IMAGE_BYTES: usize = 32 * 1024 * 1024;
 
 #[path = "managed_browser_cdp/decoder.rs"]
 mod decoder;
+pub mod structured_extraction;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ManagedBrowserCdpScreenCapture {

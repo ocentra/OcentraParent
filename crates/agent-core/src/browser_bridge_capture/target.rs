@@ -133,6 +133,33 @@ pub(super) fn opaque_evidence_refs(
     }
 }
 
+pub(super) fn opaque_redacted_evidence_refs(
+    binding: &LaunchBinding,
+    target_id: &str,
+    snapshot: &TargetSnapshot,
+) -> ManagedBrowserCdpEvidenceRefs {
+    ManagedBrowserCdpEvidenceRefs {
+        target_ref: opaque_redacted_ref(
+            MANAGED_BROWSER_CDP_TARGET_REF_PREFIX,
+            binding,
+            target_id,
+            snapshot,
+        ),
+        url_ref: opaque_redacted_ref(
+            MANAGED_BROWSER_CDP_URL_REF_PREFIX,
+            binding,
+            target_id,
+            snapshot,
+        ),
+        title_ref: opaque_redacted_ref(
+            MANAGED_BROWSER_CDP_TITLE_REF_PREFIX,
+            binding,
+            target_id,
+            snapshot,
+        ),
+    }
+}
+
 fn opaque_ref(
     prefix: &str,
     binding: &LaunchBinding,
@@ -155,6 +182,32 @@ fn opaque_ref(
     digest.update(snapshot.title_digest.as_bytes());
     digest.update([0]);
     digest.update(snapshot.browser_identity_digest.as_bytes());
+    let mut reference = String::from(prefix);
+    reference.push('-');
+    for byte in digest.finalize() {
+        reference.push_str(&format!("{byte:02x}"));
+    }
+    reference
+}
+
+fn opaque_redacted_ref(
+    prefix: &str,
+    binding: &LaunchBinding,
+    target_id: &str,
+    snapshot: &TargetSnapshot,
+) -> String {
+    let mut digest = Sha256::new();
+    digest.update(binding.managed_browser_session_id.as_bytes());
+    digest.update([0]);
+    digest.update(binding.profile_id.as_bytes());
+    digest.update([0]);
+    digest.update(binding.generation.to_be_bytes());
+    digest.update(binding.process_id.to_be_bytes());
+    digest.update(target_id.as_bytes());
+    digest.update([0]);
+    digest.update(snapshot.browser_identity_digest.as_bytes());
+    digest.update([0]);
+    digest.update(b"protected-content-redacted-v1");
     let mut reference = String::from(prefix);
     reference.push('-');
     for byte in digest.finalize() {

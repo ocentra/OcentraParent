@@ -61,7 +61,9 @@ pub(super) fn plan_screen_intelligence_route(
                 .structured_extraction
                 .as_ref()
                 .map(|value| value.custody_state())
-                .unwrap_or(ScreenEvidenceCustodyState::ChildDeviceQueryStore)
+                .unwrap_or(ScreenEvidenceCustodyState::Unavailable)
+        } else if route_kind == ScreenIntelligenceRouteKind::Unavailable {
+            ScreenEvidenceCustodyState::Unavailable
         } else {
             ScreenEvidenceCustodyState::ChildDeviceQueryStore
         },
@@ -95,6 +97,8 @@ fn unavailable_reason_for(request: &ScreenIntelligenceRouteRequest) -> &'static 
         || request.policy_sensitivity == ScreenIntelligencePolicySensitivity::CredentialRisk
     {
         crate::screen_intelligence_router::UNAVAILABLE_CREDENTIAL_PROMPT
+    } else if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser {
+        crate::screen_intelligence_router::UNAVAILABLE_MANAGED_BROWSER_STRUCTURED_EXTRACTION
     } else if super::consistency::managed_browser_structured_extraction_producer_is_unavailable(
         request,
     ) {

@@ -14,6 +14,12 @@ pub(super) fn validate(binding: &LaunchBinding) -> Result<(), ManagedBrowserCdpC
     if now < binding.created_at_epoch_ms || now > binding.expires_at_epoch_ms {
         return Err(ManagedBrowserCdpCaptureError::AuthorityExpired);
     }
+    if binding.created_at_epoch_ms > binding.expires_at_epoch_ms
+        || binding.authority_started_at.elapsed().as_millis()
+            > u128::from(MANAGED_BROWSER_CDP_AUTHORITY_TTL_MS)
+    {
+        return Err(ManagedBrowserCdpCaptureError::AuthorityExpired);
+    }
     if binding
         .expires_at_epoch_ms
         .saturating_sub(binding.created_at_epoch_ms)

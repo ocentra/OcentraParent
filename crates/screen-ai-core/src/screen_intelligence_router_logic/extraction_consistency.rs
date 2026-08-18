@@ -21,7 +21,7 @@ pub(super) fn is_ready_for_structured_route(
 ) -> bool {
     is_consistent(value)
         && value.is_fresh()
-        && value.requires_screenshot()
+        && (value.has_structured_evidence() || value.requires_review())
         && !value.protected_content_skipped()
         && !value.is_unavailable()
 }

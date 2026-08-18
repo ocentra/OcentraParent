@@ -64,5 +64,10 @@ fn safety_blocked_fallback_state_for(
     if consistency::screen_capture_is_unsafe(request) {
         return Some(ScreenStructuredExtractionFallbackState::AuthorityUnavailable);
     }
+    if request.source_kind
+        == crate::screen_intelligence_router::ScreenIntelligenceSourceKind::ManagedBrowser
+    {
+        return Some(ScreenStructuredExtractionFallbackState::AuthorityUnavailable);
+    }
     None
 }

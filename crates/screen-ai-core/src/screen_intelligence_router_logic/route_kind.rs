@@ -35,6 +35,11 @@ pub(super) fn route_kind_for(
         // unavailable; never advertise a structured route without evidence.
         return ScreenIntelligenceRouteKind::Unavailable;
     }
+    if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser {
+        // Managed-browser screenshots have no owner-proven atomic/frozen-page
+        // guard. Do not fall through to a generic desktop capture route.
+        return ScreenIntelligenceRouteKind::Unavailable;
+    }
     if !request.parent_allows_screen_capture {
         return ScreenIntelligenceRouteKind::ManualRequired;
     }

@@ -2875,7 +2875,7 @@ version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
- "ocentra-parent-agent-core",
+ "ocentra-parent-screen-capture-adapter",
  "serde",
 ]
 

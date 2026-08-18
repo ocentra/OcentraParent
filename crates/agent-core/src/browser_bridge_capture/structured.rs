@@ -1,8 +1,8 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, time::Duration};
 
 use ocentra_schema::managed_browser_cdp_capture::ManagedBrowserCdpEvidenceRefs;
 
-use super::{authority::LaunchBinding, target::TargetSnapshot, ManagedBrowserCdpCaptureError};
+use super::{authority::LaunchBinding, target::TargetSnapshot};
 
 #[path = "structured/accessors.rs"]
 mod accessors;
@@ -39,11 +39,12 @@ pub struct ManagedBrowserCdpStructuredExtraction {
 pub(super) enum Freshness {
     Fresh,
     Stale,
+    Unavailable,
 }
 
 pub(super) enum Outcome {
-    PolicySufficient,
-    NeedsScreenshot,
+    StructuredEvidenceAvailable,
+    ReviewRequired,
     ProtectedContentSkipped,
     Unavailable,
 }
@@ -68,6 +69,17 @@ impl Payload {
             outcome: Outcome::Unavailable,
         }
     }
+
+    pub(super) fn protected_content_skipped() -> Self {
+        Self {
+            visible_text_summary: None,
+            visible_text_character_count: 0,
+            dom_overflow_redacted: false,
+            private_content_redacted: true,
+            signal_digest: String::from("protected-content-redacted-v1"),
+            outcome: Outcome::ProtectedContentSkipped,
+        }
+    }
 }
 
 pub(super) enum ExtractionError {
@@ -83,19 +95,20 @@ pub(super) fn extract(
     transport::extract(endpoint, websocket_url)
 }
 
-pub(super) fn ensure_capture_safe(
-    endpoint: SocketAddr,
-    websocket_url: &str,
-) -> Result<(), ManagedBrowserCdpCaptureError> {
-    transport::ensure_capture_safe(endpoint, websocket_url)
-}
-
 pub(super) fn bind_extraction(
     binding: &LaunchBinding,
     target_id: &str,
     snapshot: &TargetSnapshot,
     captured_at_epoch_ms: u64,
+    captured_at_monotonic: Duration,
     payload: Payload,
 ) -> ManagedBrowserCdpStructuredExtraction {
-    binding::bind_extraction(binding, target_id, snapshot, captured_at_epoch_ms, payload)
+    binding::bind_extraction(
+        binding,
+        target_id,
+        snapshot,
+        captured_at_epoch_ms,
+        captured_at_monotonic,
+        payload,
+    )
 }
