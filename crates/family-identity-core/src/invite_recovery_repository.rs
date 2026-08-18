@@ -35,6 +35,22 @@ pub const INVITE_RECOVERY_SCHEMA_SQL: &str =
          clock_id INTEGER PRIMARY KEY CHECK (clock_id = 1),
          last_epoch_millis INTEGER NOT NULL CHECK (last_epoch_millis > 0)
      ) STRICT;
+     CREATE TABLE IF NOT EXISTS account_identity_mutation_authority_replay (
+         payload_digest TEXT PRIMARY KEY CHECK (
+             length(payload_digest) = 71
+             AND substr(payload_digest, 1, 7) = 'sha256:'
+             AND substr(payload_digest, 8) NOT GLOB '*[^0-9a-f]*'
+         ),
+         idempotency_key TEXT NOT NULL UNIQUE CHECK (
+             length(trim(idempotency_key)) > 0 AND length(idempotency_key) <= 256
+         ),
+         key_id TEXT NOT NULL CHECK (
+             length(key_id) = 71
+             AND substr(key_id, 1, 7) = 'sha256:'
+             AND substr(key_id, 8) NOT GLOB '*[^0-9a-f]*'
+         ),
+         consumed_at_epoch_millis INTEGER NOT NULL CHECK (consumed_at_epoch_millis > 0)
+     ) STRICT;
      CREATE TABLE IF NOT EXISTS account_identity_setup_invite (
          invite_id TEXT PRIMARY KEY CHECK (length(trim(invite_id)) > 0),
          token_digest TEXT NOT NULL UNIQUE CHECK (length(token_digest) = 64 AND token_digest NOT GLOB '*[^0-9a-f]*'),
@@ -310,7 +326,7 @@ pub struct InviteMembershipCommitReceipt {
 }
 
 #[path = "invite_recovery_repository_authority.rs"]
-mod authority;
+pub(super) mod authority;
 #[path = "invite_recovery_repository_invite_ops.rs"]
 mod invite_ops;
 #[path = "invite_recovery_repository_membership_ops.rs"]

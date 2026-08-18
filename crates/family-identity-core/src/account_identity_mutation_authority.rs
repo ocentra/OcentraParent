@@ -1,24 +1,22 @@
 //! Account-owned signed mutation-authority transport.
 //!
-//! The durable Account producer resolves a current opaque authority first,
-//! then signs a canonical, short-lived envelope. The envelope is a transport
-//! value only: it has no serde implementation or public field constructors,
-//! and callers cannot mint it by supplying authority scalars or headers.
+//! Callers can request a typed mutation, but only the durable Account
+//! repository can resolve its target and construct the signed envelope. The
+//! authority value and its verified form are opaque and deliberately have no
+//! serde implementations.
 
-use chrono::{SecondsFormat, Utc};
-use ed25519_dalek::{Signer, SigningKey};
-use getrandom::fill;
 use sha2::{Digest, Sha256};
 
-use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
-use crate::family_identity::{RecoveryId, SetupInviteId};
+use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
 
 #[path = "account_identity_mutation_authority_envelope.rs"]
-mod envelope;
+pub(crate) mod envelope;
+#[path = "account_identity_mutation_authority_parse.rs"]
+pub(crate) mod parse;
+#[path = "account_identity_mutation_authority_request.rs"]
+mod request;
 #[path = "account_identity_mutation_authority_validation.rs"]
-mod validation;
-
-use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
+pub(crate) mod validation;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum AccountIdentityMutationAction {
@@ -28,17 +26,26 @@ pub enum AccountIdentityMutationAction {
 }
 
 impl AccountIdentityMutationAction {
-    pub(super) fn as_str(self) -> &'static str {
+    pub(crate) fn as_str(self) -> &'static str {
         match self {
             Self::RevokeChildDevice => "revoke-child-device",
             Self::RevokeSetupInvite => "revoke-setup-invite",
             Self::RevokeRecovery => "revoke-recovery",
         }
     }
+
+    pub(crate) fn parse(value: &str) -> Option<Self> {
+        match value {
+            "revoke-child-device" => Some(Self::RevokeChildDevice),
+            "revoke-setup-invite" => Some(Self::RevokeSetupInvite),
+            "revoke-recovery" => Some(Self::RevokeRecovery),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum AccountIdentityMutationTarget {
+pub(crate) enum AccountIdentityMutationTarget {
     ChildDevice {
         child_profile_id: String,
         child_device_id: String,
@@ -47,59 +54,14 @@ pub enum AccountIdentityMutationTarget {
     Recovery(String),
 }
 
-impl AccountIdentityMutationTarget {
-    pub fn child_device(
-        child_profile_id: &crate::family_identity::ChildProfileId,
-        child_device_id: &ocentra_schema::account_identity_authority::AccountIdentityChildDeviceId,
-    ) -> Self {
-        Self::ChildDevice {
-            child_profile_id: child_profile_id.as_str().to_owned(),
-            child_device_id: child_device_id.as_str().to_owned(),
-        }
-    }
-
-    pub fn setup_invite(invite_id: &SetupInviteId) -> Self {
-        Self::SetupInvite(invite_id.as_str().to_owned())
-    }
-
-    pub fn recovery(recovery_id: &RecoveryId) -> Self {
-        Self::Recovery(recovery_id.as_str().to_owned())
-    }
-}
-
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AccountIdentityMutationAuthorityRequest {
-    pub(super) action: AccountIdentityMutationAction,
-    pub(super) target: AccountIdentityMutationTarget,
-    pub(super) idempotency_key: String,
+    action: AccountIdentityMutationAction,
+    target: AccountIdentityMutationTarget,
+    idempotency_key: String,
 }
 
-impl AccountIdentityMutationAuthorityRequest {
-    pub fn new(
-        action: AccountIdentityMutationAction,
-        target: AccountIdentityMutationTarget,
-        idempotency_key: impl Into<String>,
-    ) -> Result<Self, AccountIdentityMutationAuthorityError> {
-        let request = Self {
-            action,
-            target,
-            idempotency_key: idempotency_key.into(),
-        };
-        validation::validate_request(&request)?;
-        Ok(request)
-    }
-
-    pub fn action(&self) -> AccountIdentityMutationAction {
-        self.action
-    }
-
-    pub fn idempotency_key(&self) -> &str {
-        self.idempotency_key.as_str()
-    }
-}
-
-/// Opaque signed transport value. It is deliberately not Serialize/Deserialize,
-/// Clone, or Debug; only the Account-owned producer can construct it.
+/// Opaque signed bytes. No public constructor or deserializer exists.
 pub struct AccountIdentityMutationAuthority {
     payload: Vec<u8>,
     signature: [u8; 64],
@@ -107,7 +69,7 @@ pub struct AccountIdentityMutationAuthority {
 
 impl AccountIdentityMutationAuthority {
     pub fn wire_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(8 + self.payload.len() + self.signature.len());
+        let mut bytes = Vec::with_capacity(4 + self.payload.len() + self.signature.len());
         bytes.extend_from_slice(&(self.payload.len() as u32).to_be_bytes());
         bytes.extend_from_slice(&self.payload);
         bytes.extend_from_slice(&self.signature);
@@ -115,89 +77,88 @@ impl AccountIdentityMutationAuthority {
     }
 
     pub fn payload_digest(&self) -> String {
-        format!("sha256:{:x}", Sha256::digest(&self.payload))
+        payload_digest(&self.payload)
     }
 
-    pub(super) fn signed_parts(&self) -> (&[u8], &[u8; 64]) {
-        (&self.payload, &self.signature)
-    }
-}
-
-pub(crate) struct AccountIdentityMutationAuthorityIssuer {
-    key_id: String,
-    signing_key: SigningKey,
-}
-
-impl AccountIdentityMutationAuthorityIssuer {
-    pub(crate) fn generate() -> Result<Self, AccountIdentityMutationAuthorityError> {
-        let mut private_key = [0_u8; 32];
-        fill(&mut private_key)
-            .map_err(|_| AccountIdentityMutationAuthorityError::EntropyUnavailable)?;
-        let signing_key = SigningKey::from_bytes(&private_key);
-        let key_id = format!(
-            "sha256:{:x}",
-            Sha256::digest(signing_key.verifying_key().as_bytes())
-        );
-        Ok(Self {
-            key_id,
-            signing_key,
-        })
-    }
-
-    pub(crate) fn issue(
-        &self,
-        authority: &VerifiedAccountIdentityAuthority,
-        request: &AccountIdentityMutationAuthorityRequest,
-    ) -> Result<AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityError> {
-        validation::validate_request(request)?;
-        validation::validate_against_current_authority(authority, request)?;
-
-        let issued_at = Utc::now();
-        let expires_at = issued_at + validation::MAX_AUTHORITY_LIFETIME;
-        validation::validate_lifetime(issued_at, expires_at)?;
-        let issued_at = issued_at.to_rfc3339_opts(SecondsFormat::Millis, true);
-        let expires_at = expires_at.to_rfc3339_opts(SecondsFormat::Millis, true);
-        let envelope = envelope::from_request(
-            self.key_id.as_str(),
-            authority,
-            request,
-            &issued_at,
-            &expires_at,
-        );
-        let payload = envelope::encode(&envelope);
-        let signature = self.signing_key.sign(&payload).to_bytes();
-        Ok(AccountIdentityMutationAuthority { payload, signature })
-    }
-
-    pub(crate) fn verifying_key(&self) -> ed25519_dalek::VerifyingKey {
-        self.signing_key.verifying_key()
+    pub(crate) fn from_signed_parts(payload: Vec<u8>, signature: [u8; 64]) -> Self {
+        Self { payload, signature }
     }
 }
 
-pub struct AccountIdentityMutationAuthorityVerifier {
-    verifying_key: ed25519_dalek::VerifyingKey,
+/// Opaque result returned only after signature, currentness, target, clock,
+/// replay, and idempotency checks commit in the Account repository.
+pub struct VerifiedAccountIdentityMutationAuthority {
+    action: AccountIdentityMutationAction,
+    target_id: String,
+    idempotency_key: String,
+    payload_digest: String,
 }
 
-impl AccountIdentityMutationAuthorityVerifier {
-    pub(crate) fn from_account_issuer(issuer: &AccountIdentityMutationAuthorityIssuer) -> Self {
+impl VerifiedAccountIdentityMutationAuthority {
+    pub fn action(&self) -> AccountIdentityMutationAction {
+        self.action
+    }
+
+    pub fn target_id(&self) -> &str {
+        self.target_id.as_str()
+    }
+
+    pub fn idempotency_key(&self) -> &str {
+        self.idempotency_key.as_str()
+    }
+
+    pub fn payload_digest(&self) -> &str {
+        self.payload_digest.as_str()
+    }
+
+    pub(crate) fn new(
+        action: AccountIdentityMutationAction,
+        target_id: String,
+        idempotency_key: String,
+        payload_digest: String,
+    ) -> Self {
         Self {
-            verifying_key: issuer.verifying_key(),
+            action,
+            target_id,
+            idempotency_key,
+            payload_digest,
         }
     }
-
-    pub(crate) fn verify(
-        &self,
-        authority: &AccountIdentityMutationAuthority,
-    ) -> Result<(), AccountIdentityMutationAuthorityError> {
-        let signature = ed25519_dalek::Signature::from_bytes(authority.signed_parts().1);
-        self.verifying_key
-            .verify_strict(authority.signed_parts().0, &signature)
-            .map_err(|_| AccountIdentityMutationAuthorityError::SignatureUnavailable)
-    }
 }
 
-impl AccountIdentityMutationAuthorityRequest {
-    pub(crate) fn target(&self) -> &AccountIdentityMutationTarget {
-        &self.target
-    }
+/// Internal seam for a future durable platform signer and public-key registry.
+/// No implementation is supplied by this packet, so production issuance and
+/// consumption remain typed unavailable instead of generating a process key.
+pub(crate) trait AccountIdentityMutationAuthorityCustody: Send + Sync {
+    fn signing_key_id(&self) -> &str;
+    fn verification_key(
+        &self,
+        key_id: &str,
+    ) -> Result<ed25519_dalek::VerifyingKey, AccountIdentityMutationAuthorityError>;
+    fn sign(&self, payload: &[u8]) -> Result<[u8; 64], AccountIdentityMutationAuthorityError>;
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(crate) struct ResolvedAccountIdentityMutationTarget {
+    pub(crate) kind: String,
+    pub(crate) target_id: String,
+    pub(crate) child_profile_id: String,
+    pub(crate) child_device_id: String,
+    pub(crate) household_id: String,
+    pub(crate) owner_member_id: String,
+    pub(crate) state: String,
+    pub(crate) expires_at_epoch_millis: i64,
+    pub(crate) support_channel: String,
+    pub(crate) support_authorization_id: String,
+    pub(crate) support_authorization_issuer: String,
+    pub(crate) support_authorization_scope: String,
+    pub(crate) support_authorization_expires_at_epoch_millis: i64,
+}
+
+pub(crate) fn payload_digest(payload: &[u8]) -> String {
+    format!("sha256:{:x}", Sha256::digest(payload))
+}
+
+pub(crate) fn expected_key_id(verifying_key: &ed25519_dalek::VerifyingKey) -> String {
+    format!("sha256:{:x}", Sha256::digest(verifying_key.as_bytes()))
 }

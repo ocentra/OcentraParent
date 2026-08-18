@@ -4,6 +4,12 @@ const CLOCK_COLUMNS: &[(&str, &str, i64, i64)] = &[
     ("clock_id", "INTEGER", 0, 1),
     ("last_epoch_millis", "INTEGER", 1, 0),
 ];
+const MUTATION_REPLAY_COLUMNS: &[(&str, &str, i64, i64)] = &[
+    ("payload_digest", "TEXT", 0, 1),
+    ("idempotency_key", "TEXT", 1, 0),
+    ("key_id", "TEXT", 1, 0),
+    ("consumed_at_epoch_millis", "INTEGER", 1, 0),
+];
 const INVITE_COLUMNS: &[(&str, &str, i64, i64)] = &[
     ("invite_id", "TEXT", 0, 1),
     ("token_digest", "TEXT", 1, 0),
@@ -101,6 +107,11 @@ const HANDOFF_COLUMNS: &[(&str, &str, i64, i64)] = &[
 
 pub(super) fn validate_tables(connection: &Connection) -> Result<(), ()> {
     validate_table(connection, "account_identity_runtime_clock", CLOCK_COLUMNS)?;
+    validate_table(
+        connection,
+        "account_identity_mutation_authority_replay",
+        MUTATION_REPLAY_COLUMNS,
+    )?;
     validate_table(connection, "account_identity_setup_invite", INVITE_COLUMNS)?;
     validate_table(
         connection,

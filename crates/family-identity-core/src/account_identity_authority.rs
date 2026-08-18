@@ -60,6 +60,13 @@ impl VerifiedAccountIdentityAuthority {
     pub(crate) fn current_binding(&self) -> &AccountIdentityHouseholdChildDeviceBinding {
         &self.handoff.binding
     }
+
+    pub(crate) fn support_receipt(
+        &self,
+    ) -> Option<&ocentra_schema::account_identity_authority::AccountIdentitySupportAuthorityReceipt>
+    {
+        self.handoff.member.support_receipt.as_ref()
+    }
 }
 
 pub(crate) struct AccountIdentityCurrentMemberAuthorityProducer<'a, R> {

@@ -10,6 +10,8 @@ mod indexes;
 mod invite_rows;
 #[path = "invite_recovery_repository_schema_membership_rows.rs"]
 mod membership_rows;
+#[path = "account_identity_mutation_authority_replay_rows.rs"]
+mod mutation_replay_rows;
 #[path = "invite_recovery_repository_schema_objects.rs"]
 mod objects;
 #[path = "invite_recovery_repository_schema_rate_rows.rs"]
@@ -52,6 +54,7 @@ fn require_no_foreign_key_violations(connection: &Connection) -> Result<(), ()> 
 
 fn validate_rows(connection: &Connection) -> Result<(), ()> {
     validate_clock_rows(connection)?;
+    mutation_replay_rows::validate(connection)?;
     invite_rows::validate(connection)?;
     membership_rows::validate(connection)?;
     recovery_rows::validate(connection)?;

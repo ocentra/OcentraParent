@@ -10,9 +10,10 @@ use crate::account_identity_authority::{
     AccountIdentityCurrentMemberAuthorityProducer, VerifiedAccountIdentityAuthority,
 };
 use crate::account_identity_mutation_authority::{
-    AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityError,
-    AccountIdentityMutationAuthorityIssuer, AccountIdentityMutationAuthorityRequest,
+    AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityCustody,
+    AccountIdentityMutationAuthorityRequest, VerifiedAccountIdentityMutationAuthority,
 };
+use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
 use crate::session_lifecycle_custody::SessionLifecyclePolicy;
 
 #[path = "account_identity_authority_repository_cas.rs"]
@@ -25,6 +26,8 @@ mod account_identity_authority_repository_read;
 mod account_identity_authority_repository_schema;
 #[path = "account_identity_authority_service_error.rs"]
 mod account_identity_authority_service_error;
+#[path = "account_identity_mutation_authority_repository.rs"]
+mod account_identity_mutation_authority_repository;
 #[path = "invite_recovery_repository.rs"]
 pub mod invite_recovery_repository;
 #[path = "session_lifecycle_repository.rs"]
@@ -102,15 +105,14 @@ impl SqliteAccountIdentityAuthorityRepository {
 /// construct one from a serialized handoff or caller-selected target.
 pub struct AccountIdentityAuthorityService {
     repository: SqliteAccountIdentityAuthorityRepository,
-    mutation_issuer: AccountIdentityMutationAuthorityIssuer,
+    mutation_custody: Option<Box<dyn AccountIdentityMutationAuthorityCustody>>,
 }
 
 impl AccountIdentityAuthorityService {
     pub fn open(path: impl AsRef<Path>) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         Ok(Self {
             repository: SqliteAccountIdentityAuthorityRepository::open(path)?,
-            mutation_issuer: AccountIdentityMutationAuthorityIssuer::generate()
-                .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?,
+            mutation_custody: None,
         })
     }
 
@@ -123,8 +125,7 @@ impl AccountIdentityAuthorityService {
                 path,
                 session_policy,
             )?,
-            mutation_issuer: AccountIdentityMutationAuthorityIssuer::generate()
-                .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?,
+            mutation_custody: None,
         })
     }
 
@@ -143,17 +144,35 @@ impl AccountIdentityAuthorityService {
     /// a target and idempotency key, never authority facts; the issuer binds
     /// both to the opaque current binding before signing.
     pub fn issue_mutation_authority(
-        &self,
-        provider: &AccountIdentityProvider,
-        provider_subject: &AccountIdentityProviderSubject,
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
         request: &AccountIdentityMutationAuthorityRequest,
     ) -> Result<AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityServiceError>
     {
-        let authority = self
-            .resolve_current(provider, provider_subject)
-            .map_err(AccountIdentityMutationAuthorityServiceError::Authority)?;
-        self.mutation_issuer
-            .issue(&authority, request)
+        let custody = self.mutation_custody.as_deref().ok_or(
+            AccountIdentityMutationAuthorityServiceError::Mutation(
+                AccountIdentityMutationAuthorityError::SignerCustodyUnavailable,
+            ),
+        )?;
+        self.repository
+            .issue_mutation_authority(authority, request, custody)
+            .map_err(AccountIdentityMutationAuthorityServiceError::Mutation)
+    }
+
+    pub fn consume_mutation_authority(
+        &mut self,
+        wire: &[u8],
+    ) -> Result<
+        VerifiedAccountIdentityMutationAuthority,
+        AccountIdentityMutationAuthorityServiceError,
+    > {
+        let custody = self.mutation_custody.as_deref().ok_or(
+            AccountIdentityMutationAuthorityServiceError::Mutation(
+                AccountIdentityMutationAuthorityError::VerificationKeyUnavailable,
+            ),
+        )?;
+        self.repository
+            .consume_mutation_authority(wire, custody)
             .map_err(AccountIdentityMutationAuthorityServiceError::Mutation)
     }
 

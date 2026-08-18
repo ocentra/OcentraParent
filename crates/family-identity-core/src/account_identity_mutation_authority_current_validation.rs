@@ -1,4 +1,7 @@
 use chrono::{DateTime, Utc};
+use ocentra_schema::account_identity_authority::{
+    AccountIdentityRole, AccountIdentitySupportReceiptRevocationState,
+};
 
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_mutation_authority::{
@@ -10,11 +13,11 @@ use crate::account_identity_mutation_authority_error::AccountIdentityMutationAut
 pub(super) fn validate_against_current_authority(
     authority: &VerifiedAccountIdentityAuthority,
     request: &AccountIdentityMutationAuthorityRequest,
+    trusted_now_epoch_millis: i64,
 ) -> Result<(), AccountIdentityMutationAuthorityError> {
     if !matches!(
         authority.role(),
-        ocentra_schema::account_identity_authority::AccountIdentityRole::ParentOwner
-            | ocentra_schema::account_identity_authority::AccountIdentityRole::CoParentGuardian
+        AccountIdentityRole::ParentOwner | AccountIdentityRole::CoParentGuardian
     ) {
         return Err(AccountIdentityMutationAuthorityError::RoleNotAuthorized);
     }
@@ -22,9 +25,13 @@ pub(super) fn validate_against_current_authority(
     let expires_at = DateTime::parse_from_rfc3339(authority.session_expires_at())
         .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?
         .with_timezone(&Utc);
-    if expires_at <= Utc::now() {
+    let trusted_now = DateTime::<Utc>::from_timestamp_millis(trusted_now_epoch_millis)
+        .ok_or(AccountIdentityMutationAuthorityError::ClockUnavailable)?;
+    if expires_at <= trusted_now {
         return Err(AccountIdentityMutationAuthorityError::AuthorityExpired);
     }
+
+    validate_support_receipt(authority, trusted_now)?;
 
     if let AccountIdentityMutationTarget::ChildDevice {
         child_profile_id,
@@ -46,5 +53,27 @@ pub(super) fn validate_against_current_authority(
         return Err(AccountIdentityMutationAuthorityError::StepUpUnavailable);
     }
 
+    Ok(())
+}
+
+fn validate_support_receipt(
+    authority: &VerifiedAccountIdentityAuthority,
+    trusted_now: DateTime<Utc>,
+) -> Result<(), AccountIdentityMutationAuthorityError> {
+    let Some(receipt) = authority.support_receipt() else {
+        return Ok(());
+    };
+    let issued_at = DateTime::parse_from_rfc3339(&receipt.issued_at)
+        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?
+        .with_timezone(&Utc);
+    let expires_at = DateTime::parse_from_rfc3339(&receipt.expires_at)
+        .map_err(|_| AccountIdentityMutationAuthorityError::InvalidAuthority)?
+        .with_timezone(&Utc);
+    if receipt.revocation_state != AccountIdentitySupportReceiptRevocationState::Active
+        || issued_at > trusted_now
+        || trusted_now >= expires_at
+    {
+        return Err(AccountIdentityMutationAuthorityError::InvalidAuthority);
+    }
     Ok(())
 }

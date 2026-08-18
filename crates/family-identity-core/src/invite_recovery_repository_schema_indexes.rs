@@ -77,6 +77,11 @@ fn validate_index_shape(
 
 pub(super) fn validate_foreign_keys(connection: &Connection) -> Result<(), ()> {
     validate_foreign_key(connection, "account_identity_runtime_clock", None)?;
+    validate_foreign_key(
+        connection,
+        "account_identity_mutation_authority_replay",
+        None,
+    )?;
     validate_foreign_key(connection, "account_identity_setup_invite", None)?;
     validate_foreign_key(
         connection,

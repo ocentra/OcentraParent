@@ -2,8 +2,9 @@ use rusqlite::Connection;
 
 use super::super::INVITE_RECOVERY_SCHEMA_SQL;
 
-pub(super) const OWNED_TABLES: [&str; 7] = [
+pub(super) const OWNED_TABLES: [&str; 8] = [
     "account_identity_runtime_clock",
+    "account_identity_mutation_authority_replay",
     "account_identity_setup_invite",
     "account_identity_pending_invite_membership",
     "account_identity_recovery",

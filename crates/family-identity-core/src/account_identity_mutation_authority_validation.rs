@@ -1,20 +1,13 @@
-use chrono::Duration;
+use chrono::{DateTime, Duration, Utc};
 
-use super::{
-    AccountIdentityMutationAuthorityError, AccountIdentityMutationAuthorityRequest,
-    AccountIdentityMutationTarget,
-};
+use super::{AccountIdentityMutationAuthorityRequest, AccountIdentityMutationTarget};
+use crate::account_identity_mutation_authority_error::AccountIdentityMutationAuthorityError;
 
-#[path = "account_identity_mutation_authority_current_validation.rs"]
-mod current_validation;
+pub(crate) const MAX_IDEMPOTENCY_KEY_BYTES: usize = 256;
+pub(crate) const MAX_TARGET_ID_BYTES: usize = 256;
+pub(crate) const MAX_AUTHORITY_LIFETIME: Duration = Duration::minutes(5);
 
-pub(super) use current_validation::validate_against_current_authority;
-
-pub(super) const MAX_IDEMPOTENCY_KEY_BYTES: usize = 256;
-pub(super) const MAX_TARGET_ID_BYTES: usize = 256;
-pub(super) const MAX_AUTHORITY_LIFETIME: Duration = Duration::minutes(5);
-
-pub(super) fn validate_request(
+pub(crate) fn validate_request(
     request: &AccountIdentityMutationAuthorityRequest,
 ) -> Result<(), AccountIdentityMutationAuthorityError> {
     if request.idempotency_key.trim().is_empty()
@@ -54,11 +47,18 @@ pub(super) fn validate_request(
     Ok(())
 }
 
-pub(super) fn validate_lifetime(
+pub(crate) fn validate_lifetime(
     issued_at: DateTime<Utc>,
     expires_at: DateTime<Utc>,
+    trusted_now_epoch_millis: i64,
 ) -> Result<(), AccountIdentityMutationAuthorityError> {
-    if expires_at <= issued_at || expires_at - issued_at > MAX_AUTHORITY_LIFETIME {
+    let trusted_now = DateTime::<Utc>::from_timestamp_millis(trusted_now_epoch_millis)
+        .ok_or(AccountIdentityMutationAuthorityError::ClockUnavailable)?;
+    if issued_at > trusted_now
+        || trusted_now >= expires_at
+        || expires_at <= issued_at
+        || expires_at - issued_at > MAX_AUTHORITY_LIFETIME
+    {
         return Err(AccountIdentityMutationAuthorityError::InvalidRequest);
     }
     Ok(())
