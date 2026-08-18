@@ -50,8 +50,10 @@ This table is generated from the validated engineering graph and its reviewed
 code map, not from plan checkboxes. The graph currently contains 707 nodes, 802
 edges, 23 plans, and 683 workpacks. It maps 3,060 implementation files and 1,146
 test files: 587 workpacks have both code and tests, 4 are source-only, 8 are
-tests-only, 84 are expected no-source coordination/reference packets, and none
-have unknown ownership. Topology expectations match for 667/683 workpacks.
+tests-only, and 84 currently have no source or test files. Of those 84, 82 are
+expected no-code coordination/reference packets; Data WP09/WP10 instead require
+missing code-and-tests roots. No workpack has unknown ownership. Topology
+expectations match for 665/683 workpacks.
 Derived state is 360 planned, 35 blocked, 5 ready, 8 active, 274 in
 validation, and 1 done.
 

@@ -9479,17 +9479,25 @@
     },
     "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime": {
       "planSlug": "data-custody-storage-plan",
-      "codeExpectation": "no-code-required",
-      "roots": [],
-      "expectedTestRoots": [],
-      "note": "New routed owner from the 2026-08-17 live-code audit. Parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, job retry/restart custody, and provider-neutral adapter are not implemented yet."
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs",
+        "crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"
+      ],
+      "plannedImplementationRoots": ["crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs"],
+      "expectedTestRoots": ["crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"],
+      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, job retry/restart custody, and provider-neutral adapter are not implemented yet."
     },
     "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs": {
       "planSlug": "data-custody-storage-plan",
-      "codeExpectation": "no-code-required",
-      "roots": [],
-      "expectedTestRoots": [],
-      "note": "New routed owner from the 2026-08-17 live-code audit. Durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes."
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs",
+        "crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"
+      ],
+      "plannedImplementationRoots": ["crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"],
+      "expectedTestRoots": ["crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"],
+      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes."
     }
   }
 }

@@ -32,6 +32,15 @@ Out of scope:
 - data-class mutation, restore/apply/rollback orchestration, or receipt minting;
 - portal/desktop UI and proof artifact publication.
 
+## Reviewed planned source and test roots
+
+- Production owner: `crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs`.
+- Expected test owner: `crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs`.
+
+Both paths are intentionally absent at this routing checkpoint. They declare
+the future Rust ownership boundary; this workpack Markdown cannot satisfy the
+implementation requirement, and no placeholder source is accepted.
+
 ## Required handoffs and dependencies
 
 - Data WP02 supplies key-custody and decrypt-scope decisions.

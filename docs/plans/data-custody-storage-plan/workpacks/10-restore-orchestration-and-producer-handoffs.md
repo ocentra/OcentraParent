@@ -34,6 +34,15 @@ Out of scope:
 - Account authority implementation, Device Trust key material, provider SDKs,
   portal/desktop UI, or proof publication.
 
+## Reviewed planned source and test roots
+
+- Production owner: `crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs`.
+- Expected test owner: `crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs`.
+
+Both paths are intentionally absent at this routing checkpoint. They declare
+the future Rust ownership boundary; this workpack Markdown cannot satisfy the
+implementation requirement, and no placeholder source is accepted.
+
 ## Required handoffs and dependencies
 
 - Data WP02/WP03/WP04/WP05 provide key, provider, retention/tombstone, and bundle
