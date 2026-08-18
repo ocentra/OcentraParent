@@ -16,6 +16,8 @@ pub const RUNTIME_COMPONENT_PARENT_CHILD_SPINE: &str = "parent-child-runtime-spi
 pub const RUNTIME_INSTANCE_LOCAL_PARENT_CONTROLLER: &str = "local-parent-controller";
 pub const EVENTING_JOURNAL_EXTENSION: &str = "parent-runtime-intent.eventing.ndjson";
 pub const INGRESS_REJECTION_INVALID_REQUEST: &str = "invalid-parent-runtime-intent-request";
+pub const INGRESS_NO_CLAIM_AUTHENTICATED_SESSION_UNAVAILABLE: &str =
+    "parent-runtime-intent-authenticated-session-unavailable-manual-required";
 pub const INGRESS_NO_CLAIM_INVALID_SOURCE: &str =
     "parent-runtime-intent-source-is-not-trusted-local-portal";
 pub const INGRESS_NO_CLAIM_JOURNAL_UNAVAILABLE: &str = "parent-runtime-intent-journal-unavailable";
