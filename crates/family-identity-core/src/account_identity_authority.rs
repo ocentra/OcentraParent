@@ -1,6 +1,6 @@
 use crate::household_authority::{
-    authorize_household_action, HouseholdAuthorityAction, HouseholdAuthorityDecision,
-    HouseholdAuthorityInput, ParentControllerLeaseState,
+    HouseholdAuthorityAction, HouseholdAuthorityDecision, HouseholdAuthorityInput,
+    ParentControllerLeaseState, authorize_household_action,
 };
 use ocentra_schema::account_identity_authority::{
     AccountIdentityCurrentMemberDeviceAuthority,
@@ -11,6 +11,8 @@ use ocentra_schema::account_identity_authority::{
 
 #[path = "account_identity_authority_capability.rs"]
 mod account_identity_authority_capability;
+#[path = "account_identity_authority_query_custody.rs"]
+mod account_identity_authority_query_custody;
 #[path = "account_identity_authority_validation.rs"]
 mod account_identity_authority_validation;
 #[path = "account_identity_authority_value_mapping.rs"]

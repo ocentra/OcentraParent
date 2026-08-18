@@ -7,17 +7,17 @@ use super::report_query_custody_source::ReportQueryCustodySourceResolution;
 pub(super) fn derive_report_query_custody_row(
     request: &contracts::ReportQueryCustodyRequest,
     source: ReportQueryCustodySourceResolution,
-    authority: VerifiedAccountIdentityAuthority,
+    authority: &VerifiedAccountIdentityAuthority,
 ) -> Result<contracts::ReportQueryCustodyRow, ReportQueryCustodyDerivationError> {
     super::report_query_custody_request_validate::validate_report_query_custody_request(
-        request, &authority,
+        request, authority,
     )?;
-    if source.authority_generation() != authority.authority_generation() {
+    if !source.matches_authority(authority) {
         return Err(ReportQueryCustodyDerivationError::TrustedSourceResolutionUnavailable);
     }
     let input = source.into_input();
     super::report_query_custody_row_validate::validate_report_query_custody_input(
-        request, &input, &authority,
+        request, &input, authority,
     )?;
     let (state, source_freshness, payload_redaction_state, tombstone_state) =
         super::report_query_custody_row_state::report_query_custody_state(&input)?;
