@@ -2,9 +2,9 @@
 //!
 //! This adapter is deliberately separate from desktop capture. It accepts only
 //! the browser-owned target authority. Structured evidence is handed off
-//! through an opaque producer token; screenshot queue handoff remains
-//! fail-closed until the owner supplies an atomic or frozen-page guard. It has
-//! no desktop, screencast, or remote mode.
+//! through an opaque producer token; screenshot bytes arrive only after the
+//! browser owner completes its frozen-page guard and post-capture checks. It
+//! has no desktop, screencast, or remote mode.
 
 use std::fmt;
 

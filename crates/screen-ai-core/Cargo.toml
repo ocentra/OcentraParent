@@ -13,7 +13,6 @@ path = "src/lib.rs"
 [dependencies]
 ocentra-evidence = { path = "../ocentra-evidence" }
 ocentra-eventing = { path = "../ocentra-eventing" }
-ocentra-parent-screen-capture-adapter = { path = "../screen-capture-adapter" }
 serde = { version = "1.0.228", features = ["derive"] }
 
 [[test]]

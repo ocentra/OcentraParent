@@ -21,11 +21,9 @@ pub(super) fn route_kind_for(
     if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
         && request.parent_allows_managed_browser_structured_extraction
     {
-        if request.structured_extraction.as_ref().is_some_and(|value| {
-            consistency::screen_managed_browser_structured_extraction_can_answer_policy(value)
-        }) {
-            return ScreenIntelligenceRouteKind::NoScreenNeeded;
-        }
+        // NoScreenNeeded remains unavailable until a policy owner issues an
+        // affirmative safe-disclosure classification; ReviewRequired evidence
+        // must not be promoted by this router.
         if request.structured_extraction.as_ref().is_some_and(|value| {
             consistency::screen_managed_browser_structured_extraction_is_ready_for_route(value)
         }) {
@@ -36,8 +34,8 @@ pub(super) fn route_kind_for(
         return ScreenIntelligenceRouteKind::Unavailable;
     }
     if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser {
-        // Managed-browser screenshots have no owner-proven atomic/frozen-page
-        // guard. Do not fall through to a generic desktop capture route.
+        // The browser owner has a frozen capture guard, but this core has no
+        // composed owner handoff yet. Do not fall through to desktop capture.
         return ScreenIntelligenceRouteKind::Unavailable;
     }
     if !request.parent_allows_screen_capture {

@@ -8,10 +8,6 @@ pub(super) fn is_consistent(value: &ScreenManagedBrowserStructuredExtraction) ->
         && !value.evidence_refs().is_empty()
 }
 
-pub(super) fn can_answer_policy(value: &ScreenManagedBrowserStructuredExtraction) -> bool {
-    is_consistent(value) && value.can_answer_policy()
-}
-
 pub(super) fn protected_content_skipped(value: &ScreenManagedBrowserStructuredExtraction) -> bool {
     value.protected_content_skipped()
 }
