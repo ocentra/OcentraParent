@@ -277,6 +277,33 @@ has no child-runtime entitlement consumer. Expected test debt remains in
 `crates/child-runtime/tests/unit/runtime_gate.rs`; these files are not edited
 in the source wave.
 
+## WP06 expected test and proof debt (source repair candidate; tests open)
+
+The WP06 source candidate is static-reviewed only. Its expected test roots and
+retained proof remain missing/open and must be updated in the later test wave:
+
+- `crates/family-identity-core/tests/contract/device_trust_lifecycle.rs` still
+  calls the removed raw `repair_with_new_installation` API and expects a
+  generation-only repair outcome; it must instead cover the missing authorized
+  parent re-pair owner once that owner exists.
+- `crates/schema/tests/contract/export_import_backup_recovery.rs` remains the
+  recovery contract root and must retain wrong-household, wrong-key, corrupted,
+  tombstoned, and redacted-shape negatives.
+- `crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs`
+  still expects caller-built encrypted bundles and context literals without a
+  current tombstone cursor; it must cover `EncryptionCustodyUnavailable`,
+  missing/mismatched cursor rejection, and apply-time currentness revalidation.
+- `tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs`
+  and `tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
+  must remain open until a real encrypted key-custody owner, parent
+  authorization, durable revocation owner, restore executor, and startup caller
+  are mounted.
+
+No WP06 tests, build/check, proof, precommit, CI, or runtime execution were run
+in this source wave. The proof root remains
+`output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` and is
+absent.
+
 ## Required negative states
 
 ```text

@@ -39,6 +39,34 @@ verified-parent and unavailable-by-default executor boundaries. This closes a
 source-authority defect only. Encrypted bundle/key custody, a real executor and
 composition caller, expected tests, focused execution, and proof remain open.
 
+## Source repair candidate — 2026-08-18 (tests open)
+
+The WP06 source wave is pushed at `8a3ed84d3` on
+`codex/device-trust-wp06-source-wave`, based on `31e4a7c55`; it is a candidate
+source packet, not a completion or acceptance claim:
+
+- The public `repair_with_new_installation` generation-only seam was removed.
+  Lifecycle revoke/reset remains durable owner code, but no parent-authorized
+  re-pair transition producer or startup caller exists.
+- The recovery bundle builder now returns `EncryptionCustodyUnavailable` and
+  cannot mark caller-provided payload references as encrypted. No platform
+  key/envelope custody owner is present.
+- Import preflight accepts currentness only when a non-empty bundle cursor
+  exactly matches the storage-owner current cursor. Missing or mismatched
+  currentness is a `TombstoneConflict` with tombstones not preserved; the
+  crate-private apply path re-runs preflight against the bundle/context in the
+  same operation so an old preview cannot survive a cursor advance.
+- `RestoreApplyRequest`, restore application, and migration readiness are
+  crate-private. No external caller can submit serde-shaped preflight data as
+  restore authority; the default executor still returns unavailable.
+
+The actual source has no legal producer for the import context or verified
+parent authority, no encrypted key custody, durable current revocation/tombstone
+owner, authorized re-pair ceremony, real restore executor, or shipped
+parent/child recovery caller. Expected tests and proof remain open. The five
+storage recovery files overlap Data WP05 candidate `3def622df`; rebase and
+semantic reconciliation after Data acceptance are required before integration.
+
 ## Negative cases
 
 - Corrupted bundles fail closed.
