@@ -225,19 +225,30 @@ function reportQueryCustodyPaginationIsContinuousGenerated(
         return true;
       }
       if (index < rows.length - 1) {
-        return row.nextCursorRef === rows[index + 1].cursorRef;
+        const next = rows[index + 1];
+        return next !== undefined && row.nextCursorRef === next.cursorRef;
       }
       return !rows
         .slice(0, index + 1)
         .some((seen) => seen.cursorRef === row.nextCursorRef);
     }) &&
-    rows.every(
-      (row, index) => index === 0 || rows[index - 1].sourceCursorRef === row.sourceCursorRef
-    ) &&
-    rows.every(
-      (row, index) =>
-        index === 0 || rows[index - 1].stableSortKey.toString() < row.stableSortKey.toString()
-    )
+    rows.every((row, index) => {
+      if (index === 0) {
+        return true;
+      }
+      const previous = rows[index - 1];
+      return previous !== undefined && previous.sourceCursorRef === row.sourceCursorRef;
+    }) &&
+    rows.every((row, index) => {
+      if (index === 0) {
+        return true;
+      }
+      const previous = rows[index - 1];
+      return (
+        previous !== undefined &&
+        previous.stableSortKey.toString() < row.stableSortKey.toString()
+      );
+    })
   );
 }
 
