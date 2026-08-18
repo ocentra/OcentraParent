@@ -20,6 +20,18 @@ This plan owns data custody guarantees, encrypted storage, evidence retention, e
 
 Route status: execution-grade architecture and an integrated production-source wave now exist. Current source closes the WP02 cross-scope decrypt-authority gap, WP03 manifest-custody gap, WP05's bounded schema/storage/parent-runtime source packet, WP06's full Rust request/row plus generated TypeScript custody boundary, and places the WP04/WP07 durable effect/tombstone lifecycle in its child-runtime owner. WP06 now derives an opaque query-source capability from current Account authority, enforces session expiry, exact role binding, bounded page size, and cursor/source/stable-sort continuity; no report/query runtime consumer reaches it. Parent Storage Settings WP08 remains source-incomplete: its confirmation staging/consume path cannot reach `Applied` or `Partial` until Account WP05 supplies the durable opaque-effect CAS/recovery handoff. WP05's external Account/key/provider/producer composition, production caller reachability, expected tests, focused execution, proof, precommit/CI, and PR remain open; unavailable provider-backed paths stay manual-required. This source wave deliberately did not write or run tests, regenerate proof, run precommit/CI, or claim DONE or PR_READY. Older checked rows and ignored `output/` roots remain historical until the later test/proof waves re-accept them from a clean checkout.
 
+## 2026-08-18 source-map refresh
+
+The canonical Data WP05 source route now includes the independently accepted
+rollback authority-binding validator at
+`crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch_validation.rs`.
+It rejects missing or mismatched provider-operation identity and requires the
+sealed in-memory provider binding before rollback dispatch. This closes a
+source-level authority-binding gap only. It does not provide the concrete
+provider-neutral restore port, Account/family authority, key/import custody,
+producer composition, runtime caller reachability, expected tests, focused
+validation, proof, precommit, CI, or DONE.
+
 ## Current ownership interpretation
 
 ```text

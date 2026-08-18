@@ -103,11 +103,20 @@ proof, precommit, CI, or PR were run.
 - WP02 decrypt-scope authority source is accepted; expected tests and current validation/proof are open.
 - WP03 manifest-custody source is accepted; provider runtime, expected tests, and current validation/proof are open.
 - WP05's bounded backup cadence/manual backup and migration execution/rollback
-  source packet is present; external Account/key/provider/producer composition,
-  production reachability, expected tests, focused validation, and proof remain
-  open, with unavailable provider-backed paths manual-required.
+  source packet is present, including the independently accepted rollback
+  authority-binding validator; external Account/key/provider/producer
+  composition, production reachability, expected tests, focused validation,
+  and proof remain open, with unavailable provider-backed paths
+  manual-required.
 - WP06's current Account-authority-derived opaque Rust request/row boundary and generated TypeScript page/cursor edge are source-accepted; no downstream report/query consumer is routed, and the expected Rust tests are stale while the TypeScript contract test is unwritten.
 - WP07 has a real internal child custody command/effect/tombstone lifecycle and startup recovery; trusted authority composition, external calling, test migration, and aggregate route acceptance remain open.
 - WP08 source is incomplete: no trusted confirmation receipt/confirmed input exists, so `Applied` and `Partial` remain unreachable; its positive/negative expected tests and current proof are also open. The confirmation staging/consume path is explicitly blocked on Account WP05's durable opaque-effect CAS/recovery owner and typed handoff.
 - State remains open until the remaining production source, complete expected tests, provider/AI/runtime handoffs, rollout refresh, and carried proof blockers are closed.
 - Keep this file and `PLAN_STATE.md` synchronized before any DONE/PR_READY claim.
+
+## 2026-08-18 source-map refresh
+
+Data WP05's rollback dispatch validation is now explicitly mapped in the
+engineering graph. The next source work remains the real Account/family,
+key/import, provider-neutral, and producer owners plus a reachable caller;
+tests and proof are intentionally still later gates.

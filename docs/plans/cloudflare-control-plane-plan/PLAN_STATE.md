@@ -262,3 +262,13 @@ remain open.
 ## Overclaim boundary
 
 This plan is implementation-present but not completion-ready. Cloudflare correctness remains incomplete until scoped validation stays green, proof bundles live under `output/cloudflare-control-plane-plan-proof/`, and the WP12 handoff bundle no longer carries open external billing-boundary blockers, WP02 lint debt, manual-required authority and deployment states, or downstream payment-plan consumption gaps.
+
+## 2026-08-18 source-map refresh
+
+Cloudflare WP05 now maps the separate
+`infra/cloudflare/src/auth/provider-webhook.ts` source boundary. Stripe
+webhooks use the real timestamped HMAC verifier; Razorpay, PayPal, Apple, and
+Google remain explicit unavailable/manual-required paths. The former fake
+non-Stripe verification route is removed. Admin/support and family/device
+authority remain unavailable, and tests, retained proof, deployment secrets,
+runtime reachability, and DONE remain open.

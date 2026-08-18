@@ -16311,7 +16311,7 @@
             "docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 is authorized for an implementation-only, fail-closed provider adapter and explicit environment/configuration custody; it may return only verified provider identity and must not create family, household, role, child, device, session, or fixture/header authority. Tests, proof, deployment secrets, runtime reachability, and DONE remain open."
+          "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open."
         }
       },
       "completion": {
@@ -16843,7 +16843,7 @@
             "docs/PLAN_CODE_STATUS_MATRIX.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Independent source review accepted the current bundle/import/preflight/apply boundary through 7a1e1c389 and identified two exact remaining production-source outcomes: backup cadence/manual backup and migration execution/rollback. This authorizes only that bounded source continuation; expected tests, focused execution, proof, checklist acceptance, PR readiness, and DONE remain open."
+          "reason": "Independent source review accepted the bounded Data WP05 source route through canonical 739269cd8, including the parent-runtime rollback dispatch authority binding. The rollback validation rejects missing or mismatched provider-operation identity and requires an in-memory sealed binding; external Account/key/provider/producer composition, production reachability, five expected runtime tests, focused execution, proof, checklist acceptance, PR readiness, and DONE remain open."
         },
         "completionEvidenceOverride": {
           "reason": "Independent source review at canonical 79b2c3bd7 accepted bounded Data WP05 production source: versioned bundle/import decisions, sealed preflight custody, durable backup and restore/migration ledgers, restart reconciliation, rollback/executor seams, and file-backed Eventing. Five expected test roots, external Account/key/provider/producer composition, focused validation, proof, checklist acceptance, PR readiness, and DONE remain open.",

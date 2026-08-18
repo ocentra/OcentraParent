@@ -85,6 +85,7 @@ Status: `blocked / proof-present`.
 Implemented packet:
 
 - `infra/cloudflare/src/auth/verifier.ts`
+- `infra/cloudflare/src/auth/provider-webhook.ts`
 - `infra/cloudflare/tests/unit/auth-boundary.test.ts`
 - `infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts`
 
@@ -93,6 +94,17 @@ Focused outcome:
 - Webhook auth now treats unresolved and unknown auth-adapter modes as `manual-required` instead of falling through to provider-signature evaluation.
 - Unit auth coverage now proves the same `manual-required` boundary for provider webhooks.
 - Integration webhook rejection coverage now proves the same `manual-required` boundary at the Worker request surface.
+
+## 2026-08-18 provider-webhook source correction
+
+Provider webhook verification is now a separate source boundary in
+`infra/cloudflare/src/auth/provider-webhook.ts`. Stripe has a real
+timestamped HMAC verification path with explicit secret and tolerance checks;
+Razorpay, PayPal, Apple, and Google return explicit unavailable/manual-required
+blockers. This removes the former fake/non-Stripe verification path without
+creating provider, family, household, admin, support, or device authority.
+Tests, retained proof, deployment secrets, runtime reachability, and DONE
+remain open.
 
 External blocker:
 
