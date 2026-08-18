@@ -117,8 +117,9 @@ refresh-family CAS/replay custody, refresh-bound logout/revoke routes, exact
 CSRF plus origin/fetch-metadata checks, redacted milestones, and `__Host-`
 cookies are source-present. The store captures trusted time internally and the
 forward migration sentinel/row decoder fail closed on malformed schema values
-or an unapplied/mismatched custody version. Independent review remains open and
-re-review is required for the repaired candidate.
+or an unapplied/mismatched custody version. Independent coordinator re-review
+accepted the repaired source boundary; this is implementation acceptance only,
+not test, migration, deployment, proof, or DONE acceptance.
 The expected route/store/request-safety tests are not
 present yet and remain deferred to the test/proof phase:
 `infra/cloudflare/tests/unit/account-browser-session-store.test.ts`,

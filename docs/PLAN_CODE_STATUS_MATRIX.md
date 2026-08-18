@@ -661,15 +661,15 @@ precommit, PR, CI, and merge are still open.
 
 The historical WP03 row above remains the 2026-08-15 baseline and is
 superseded for current source topology by this overlay. The candidate source
-packet rebased at `1a91c8a99` adds the Cloudflare browser-session migration,
+packet integrated at `3d1cb513c` adds the Cloudflare browser-session migration,
 forward custody hardening, codec/store, opaque capability provenance, provider
 caller, verifier, request routes, and Worker route composition. Independent
-review remains open pending final reconciliation; this candidate does not
-promote the workpack to DONE.
+coordinator re-review accepted the repaired implementation boundary; this does
+not promote the workpack to DONE.
 
 | Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
 | --- | --- | --- | --- |
-| WP03 Session Token Lifecycle | Historical `0005`/`0006` definitions plus forward `infra/cloudflare/migrations/account-identity/0007_account_browser_session_custody_hardening.sql`, `infra/cloudflare/src/storage/account-browser-session-codec.ts`, `account-browser-session-store.ts`, `account-identity-authority-store.ts`, `infra/cloudflare/src/auth/account-identity-authority-caller.ts`, `verifier.ts`, `browser-session-routes.ts`, `infra/cloudflare/src/providers/firebase-auth.ts`, and `infra/cloudflare/src/routes.ts` now compose opaque browser login, refresh, logout, global revoke, current-authority revalidation, refresh replay custody, request safety, complete support-receipt binding, and redacted audit outcomes. | **Candidate source / independent review open** | The forward migration rebuilds STRICT custody, aborts on invalid legacy rows, and publishes the exact runtime schema sentinel; store time capture and fail-closed row/schema validation are source-present. The exact route/store/request-safety/integration test files remain unwritten, migrations are unapplied, live D1/Worker execution and deployment are unverified, and retained proof, CI, PR, and DONE remain open. |
+| WP03 Session Token Lifecycle | Historical `0005`/`0006` definitions plus forward `infra/cloudflare/migrations/account-identity/0007_account_browser_session_custody_hardening.sql`, `infra/cloudflare/src/storage/account-browser-session-codec.ts`, `account-browser-session-store.ts`, `account-identity-authority-store.ts`, `infra/cloudflare/src/auth/account-identity-authority-caller.ts`, `verifier.ts`, `browser-session-routes.ts`, `infra/cloudflare/src/providers/firebase-auth.ts`, and `infra/cloudflare/src/routes.ts` now compose opaque browser login, refresh, logout, global revoke, current-authority revalidation, refresh replay custody, request safety, complete support-receipt binding, and redacted audit outcomes. | **Source reviewed / expected tests open** | The forward migration rebuilds STRICT custody, aborts on invalid legacy rows, and publishes the exact runtime schema sentinel; store time capture and fail-closed row/schema validation are source-present. The exact route/store/request-safety/integration test files remain unwritten, migrations are unapplied, live D1/Worker execution and deployment are unverified, and retained proof, CI, PR, and DONE remain open. |
 
 The expected test source remains deferred to the later test/proof wave:
 
@@ -687,9 +687,9 @@ inferred.
 
 **Account Identity Family Phase 1 result:** all 8/8 indexed workpacks are now
 inspected and mapped from live source and expected test topology. Five
-workpacks have accepted replacement source; only WP02 and WP08 have reviewed
-implementation completion evidence. WP03 now has a bounded candidate
-production-source overlay with independent review open, but none is DONE.
+workpacks have accepted replacement source; WP02, WP03, and WP08 have reviewed
+implementation evidence. WP03 now has a bounded reviewed production-source
+overlay, but none is DONE.
 Every row still has an
 expected-test, composition, proof, or aggregate-gate gap. No Phase 2 passing-
 test or Phase 3 proof claim is inferred from this audit.

@@ -552,10 +552,10 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — candidate source / re-review required / route-store tests and proof open.",
+        "statusText": "Validation — production source reviewed / route-store tests, migration execution, and proof open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
-        "needsReview": true,
+        "needsReview": false,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
@@ -593,20 +593,42 @@
           "reason": "Candidate WP03 source now composes browser login, refresh, refresh-bound logout/global revoke, strict digest-only custody, current-authority revalidation, and redacted audit outcomes through Cloudflare WP06's final provider caller/verifier result seam. Trusted store time and runtime D1 row validation fail closed. Independent review remains open; the exact route/store/request-safety/integration tests, migration execution, live D1/Worker validation, proof, deployment, and DONE remain open."
         },
         "stateOverride": {
-          "reason": "The rejected-head source repair is a candidate for independent re-review; expected route/store/request-safety tests, migration execution, live D1/Worker validation, proof, CI, PR, and DONE remain open.",
+          "reason": "Independent coordinator re-review accepted the repaired browser-session source boundary after the persisted-row casing fix and exact rotate-first D1 batch binding review. Expected route/store/request-safety tests, migration execution, live D1/Worker validation, proof, CI, PR, and DONE remain open.",
           "evidence": [
             "docs/plans/account-identity-family-plan/PLAN_STATE.md",
             "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md",
             "docs/engineering-graph/code-map.json"
           ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent coordinator re-review accepted the repaired WP03 implementation boundary integrated at 3d1cb513c. It composes the final provider caller, current Account authority, strict browser-session and refresh-family custody, request-safety routes, and runtime row validation without caller-minted authority. Expected route/store/security/integration tests, migration execution, live D1/Worker validation, retained proof, CI, PR, and DONE remain open.",
+          "evidence": [
+            "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+            "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+            "docs/PLAN_CODE_STATUS_MATRIX.md"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
-          "implementation": [],
+          "implementation": [
+            "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+            "infra/cloudflare/src/storage/account-browser-session-codec.ts",
+            "infra/cloudflare/src/storage/account-browser-session-store.ts",
+            "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+            "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+            "infra/cloudflare/src/auth/browser-session-routes.ts",
+            "infra/cloudflare/src/auth/verifier.ts",
+            "infra/cloudflare/src/providers/firebase-auth.ts",
+            "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
+            "infra/cloudflare/src/routes.ts"
+          ],
           "tests": [
             "docs/plans/account-identity-family-plan/TEST_PROOF_EXPECTATIONS.md"
           ],

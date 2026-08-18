@@ -168,10 +168,11 @@ rewrites. It is not WP03 progress.
 
 ## 2026-08-18 candidate production source boundary
 
-The candidate Cloudflare source packet supplies the WP03 production/runtime
+The repaired Cloudflare source packet supplies the WP03 production/runtime
 composition, without reviving caller-minted session facts or evaluators.
-Independent review remains open and re-review is required after the rejected
-head repair; the reachable source is:
+Independent coordinator re-review accepted this source boundary after the
+persisted-row casing repair and exact rotate-first D1 binding review; the
+reachable source is:
 
 - `infra/cloudflare/migrations/account-identity/0005_account_browser_session_custody.sql`
   and `0006_account_browser_session_refresh_custody.sql` remain historical
@@ -228,9 +229,9 @@ test/proof phase:
 - `infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts`
 - `infra/cloudflare/tests/integration/account-browser-session-real.test.ts`
 
-The candidate is rebased onto Cloudflare WP06 final head `56a4faa37` and is
-ready only for independent re-review. It does not claim applied D1 migrations,
-live Worker deployment, tests, retained proof, precommit, CI, PR, or DONE. The
+The source is integrated at consolidation head `3d1cb513c` and accepted only
+for implementation topology. It does not claim applied D1 migrations, live
+Worker deployment, tests, retained proof, precommit, CI, PR, or DONE. The
 final WP06 mutation-readiness seam remains parameterless/manual-required; no
 caller-side authority is fabricated.
 

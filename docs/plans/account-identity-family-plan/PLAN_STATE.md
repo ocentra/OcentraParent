@@ -282,9 +282,10 @@ complete copy. Its non-sensitive quarantine attempt is not retained when the
 migration transaction rolls back. Every BrowserSessionStore read or mutation
 requires that sentinel and fails closed when it is absent or malformed.
 
-Independent review remains open and re-review is required after the rejected
-head repair. The exact Cloudflare route/store/security test family is absent and
-remains deferred, as
+Independent coordinator re-review accepted the repaired source boundary after
+the persisted-row casing fix and an exact verification of the rotate-first D1
+batch bindings. The exact Cloudflare route/store/security test family is absent
+and remains deferred, as
 do migration application, live D1/Worker execution, retained proof, precommit,
 CI, PR, and DONE. The final WP06 parameterless mutation-readiness seam remains
 manual-required; this source does not fabricate provider or Account authority.
