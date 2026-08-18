@@ -65,6 +65,7 @@ import {
 } from './storage/account-identity-authority-store.js';
 import {
   getMissingBindings,
+  isLocalFixtureEnvironment,
   isRouteKillSwitchEnabled,
   parseAllowedOrigins,
   parseRequestMaxBytes,
@@ -80,7 +81,7 @@ import {
   refreshBrowserSession,
   revokeBrowserSessions,
 } from './auth/browser-session-routes.js';
-import { readCookie } from './storage/account-browser-session-codec.js';
+import { browserSessionCookieNames, readCookie } from './storage/account-browser-session-codec.js';
 import { createBrowserSessionStore } from './storage/account-browser-session-store.js';
 
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
@@ -1049,13 +1050,15 @@ async function requireInteractiveRequestBoundary(
   }
 
   const fetchSite = request.headers.get('sec-fetch-site');
-  if (readCookie(request, 'ocentra_session') !== null && fetchSite !== 'same-origin' && fetchSite !== 'same-site') {
+  const cookieNames = browserSessionCookieNames(!isLocalFixtureEnvironment(env));
+  const sessionToken = readCookie(request, cookieNames.session);
+  if (sessionToken !== null && fetchSite !== 'same-origin' && fetchSite !== 'same-site') {
     return json(403, { error: 'fetch-metadata-validation-failed' });
   }
 
-  if (readCookie(request, 'ocentra_session') !== null) {
+  if (sessionToken !== null) {
     const csrfValid = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).verifyCsrf(
-      readCookie(request, 'ocentra_session'),
+      sessionToken,
       request.headers.get(INTERACTIVE_CSRF_HEADER)
     );
     if (!csrfValid) return json(403, { error: 'csrf-validation-failed' });

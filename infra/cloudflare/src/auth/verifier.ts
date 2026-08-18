@@ -1,12 +1,13 @@
 import { isLocalFixtureEnvironment, resolveAuthAdapterMode, type Env } from '../env.js';
 import type { AccountIdentityProvider } from '@ocentra-parent/schema-domain/account-identity-authority';
 import {
+  createAccountIdentityAuthorityStore,
   isVerifiedAccountIdentityAuthorityCapability,
   type VerifiedAccountIdentityAuthorityCapability,
 } from '../storage/account-identity-authority-store.js';
 import { createAccountIdentityAuthorityRuntime } from './account-identity-authority-runtime.js';
 import { createBrowserSessionStore } from '../storage/account-browser-session-store.js';
-import { readCookie } from '../storage/account-browser-session-codec.js';
+import { browserSessionCookieNames, browserSessionRole, readCookie } from '../storage/account-browser-session-codec.js';
 import { getAuthStateModel, type AuthState } from './model.js';
 
 export interface VerifiedIdentity {
@@ -32,6 +33,7 @@ export interface ProviderVerificationPort {
 export interface AuthVerifier {
   verifyPublic(): AuthResult;
   verifyBrowserSession(request: Request): Promise<AuthResult>;
+  verifyBrowserRefresh(request: Request): Promise<AuthResult>;
   verifyParentSession(request: Request): Promise<AuthResult>;
   verifyTrustedParentDevice(request: Request): Promise<AuthResult>;
   verifyAdmin(request: Request): Promise<AuthResult>;
@@ -109,6 +111,17 @@ function authStateIdentity(
       authority,
     },
   };
+}
+
+async function readBrowserCurrentAuthority(env: Env, provider: AccountIdentityProvider, providerSubject: string) {
+  try {
+    return await createAccountIdentityAuthorityStore(env.ACCOUNT_IDENTITY_D1).readCurrentAuthority(
+      provider,
+      providerSubject
+    );
+  } catch {
+    return { status: 'manual-required' as const, reason: 'account-identity-d1-unavailable' as const };
+  }
 }
 
 function requireParentRoleCapability(result: AuthResult, authState: AuthState): AuthResult {
@@ -216,13 +229,8 @@ async function verifyProviderBoundRequest(
     providerVerifier
   );
   if (authorityResult.status === 'trusted') {
-    const role =
-      authorityResult.capability.role === 'support-admin'
-        ? 'support'
-        : authorityResult.capability.role === 'child-profile' ||
-            authorityResult.capability.role === 'child-device-agent'
-          ? 'public'
-          : 'parent';
+    const role = browserSessionRole(authorityResult.capability.role);
+    if (role === null) return forbidden('browser-session-role-ineligible', authState);
     return authStateIdentity(
       authorityResult.capability.providerSubject,
       authState,
@@ -249,7 +257,8 @@ async function verifyParentSessionRequest(
   authState: AuthState,
   providerVerifier: ProviderVerificationPort | undefined
 ): Promise<AuthResult> {
-  if (readCookie(request, 'ocentra_session') !== null) {
+  const cookieNames = browserSessionCookieNames(!isLocalFixtureEnvironment(env));
+  if (readCookie(request, cookieNames.session) !== null) {
     return requireParentRoleCapability(await verifyBrowserSessionRequest(request, env, authState), authState);
   }
   const blocker = authAdapterBlocker(env, providerVerifier);
@@ -267,13 +276,15 @@ async function verifyParentSessionRequest(
 }
 
 async function verifyBrowserSessionRequest(request: Request, env: Env, authState: AuthState): Promise<AuthResult> {
-  const sessionToken = readCookie(request, 'ocentra_session');
+  const cookieNames = browserSessionCookieNames(!isLocalFixtureEnvironment(env));
+  const sessionToken = readCookie(request, cookieNames.session);
   const session = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).read(sessionToken);
-  if (session.status === 'missing') return missingHeader('ocentra_session', authState);
+  if (session.status === 'missing') return missingHeader(cookieNames.session, authState);
   if (session.status === 'manual-required') return manualRequired(authState, `account-session-${session.reason}`);
   if (session.status === 'rejected') return forbidden(`account-session-${session.reason}`, authState);
 
-  const authorityResult = await createAccountIdentityAuthorityStore(env.ACCOUNT_IDENTITY_D1).readCurrentAuthority(
+  const authorityResult = await readBrowserCurrentAuthority(
+    env,
     session.identity.provider,
     session.identity.providerSubject
   );
@@ -284,7 +295,10 @@ async function verifyBrowserSessionRequest(request: Request, env: Env, authState
     return manualRequired(authState, 'account-identity-binding-context-manual-required');
   }
   const authority = authorityResult.capability;
+  const role = browserSessionRole(authority.role);
+  if (role === null) return forbidden('browser-session-role-ineligible', authState);
   if (
+    authority.provider !== session.identity.provider ||
     authority.providerSubject !== session.identity.providerSubject ||
     authority.accountId !== session.identity.accountId ||
     authority.sessionId !== session.identity.authoritySessionId ||
@@ -293,12 +307,54 @@ async function verifyBrowserSessionRequest(request: Request, env: Env, authState
   ) {
     return forbidden('account-session-authority-stale', authState);
   }
-  const role =
-    authority.role === 'support-admin'
-      ? 'support'
-      : authority.role === 'child-profile' || authority.role === 'child-device-agent'
-        ? 'public'
-        : 'parent';
+  return authStateIdentity(authority.providerSubject, authState, role, true, authority);
+}
+
+async function verifyBrowserRefreshRequest(request: Request, env: Env, authState: AuthState): Promise<AuthResult> {
+  const cookieNames = browserSessionCookieNames(!isLocalFixtureEnvironment(env));
+  const refreshToken = readCookie(request, cookieNames.refresh);
+  const store = createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1);
+  const refresh = await store.readRefresh(refreshToken);
+  if (refresh.status === 'missing') return missingHeader(cookieNames.refresh, authState);
+  if (refresh.status === 'manual-required') return manualRequired(authState, `account-session-${refresh.reason}`);
+  if (refresh.status === 'rejected') return forbidden(`account-session-${refresh.reason}`, authState);
+  if (!(await store.verifyRefreshCsrf(refreshToken, request.headers.get('x-ocentra-csrf')))) {
+    return forbidden('csrf-validation-failed', authState);
+  }
+
+  const accessToken = readCookie(request, cookieNames.session);
+  if (accessToken !== null) {
+    const access = await store.readBinding(accessToken);
+    if (access.status === 'manual-required') return manualRequired(authState, `account-session-${access.reason}`);
+    if (access.status !== 'active' || access.identity.sessionId !== refresh.identity.sessionId) {
+      return forbidden('account-refresh-access-session-mismatch', authState);
+    }
+  }
+
+  const authorityResult = await readBrowserCurrentAuthority(
+    env,
+    refresh.identity.provider,
+    refresh.identity.providerSubject
+  );
+  if (authorityResult.status !== 'trusted') {
+    if (authorityResult.status === 'rejected') {
+      return forbidden(`account-identity-authority-${authorityResult.reason}`, authState);
+    }
+    return manualRequired(authState, 'account-identity-binding-context-manual-required');
+  }
+  const authority = authorityResult.capability;
+  const role = browserSessionRole(authority.role);
+  if (role === null) return forbidden('browser-session-role-ineligible', authState);
+  if (
+    authority.provider !== refresh.identity.provider ||
+    authority.providerSubject !== refresh.identity.providerSubject ||
+    authority.accountId !== refresh.identity.accountId ||
+    authority.sessionId !== refresh.identity.authoritySessionId ||
+    authority.sessionGeneration !== refresh.identity.authoritySessionGeneration ||
+    authority.authorityGeneration !== refresh.identity.authorityGeneration
+  ) {
+    return forbidden('account-session-authority-stale', authState);
+  }
   return authStateIdentity(authority.providerSubject, authState, role, true, authority);
 }
 
@@ -406,6 +462,10 @@ export function createAuthVerifier(env: Env, providerVerifier?: ProviderVerifica
       return verifyBrowserSessionRequest(request, env, 'browser-session-required');
     },
 
+    async verifyBrowserRefresh(request: Request): Promise<AuthResult> {
+      return verifyBrowserRefreshRequest(request, env, 'browser-refresh-required');
+    },
+
     async verifyParentSession(request: Request): Promise<AuthResult> {
       return verifyParentSessionRequest(request, env, 'parent-session-required', providerVerifier);
     },
@@ -506,6 +566,8 @@ export async function verifyAuthState(
       return verifier.verifyPublic();
     case 'verifyBrowserSession':
       return verifier.verifyBrowserSession(request);
+    case 'verifyBrowserRefresh':
+      return verifier.verifyBrowserRefresh(request);
     case 'verifyParentSession':
       return verifier.verifyParentSession(request);
     case 'verifyTrustedParentDevice':

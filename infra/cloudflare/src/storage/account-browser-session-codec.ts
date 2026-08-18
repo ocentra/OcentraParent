@@ -16,12 +16,15 @@ export interface BrowserSessionRow {
   csrf_token_digest: string;
   provider: AccountIdentityProvider;
   provider_subject: string;
+  role: 'parent-owner' | 'co-parent-guardian' | 'observer' | 'child-profile' | 'child-device-agent' | 'support-admin';
   account_id: string;
   authority_session_id: string;
   authority_session_generation: number;
   authority_generation: number;
   issued_at: string;
-  expires_at: string;
+  access_expires_at: string;
+  refresh_expires_at: string;
+  revoke_generation: number;
   refresh_generation: number;
   status: 'active' | 'revoked';
   last_seen_at: string;
@@ -34,12 +37,16 @@ export interface BrowserSessionIdentity {
   readonly sessionId: string;
   readonly provider: AccountIdentityProvider;
   readonly providerSubject: string;
+  readonly role:
+    'parent-owner' | 'co-parent-guardian' | 'observer' | 'child-profile' | 'child-device-agent' | 'support-admin';
   readonly accountId: string;
   readonly authoritySessionId: string;
   readonly authoritySessionGeneration: number;
   readonly authorityGeneration: number;
   readonly issuedAt: string;
-  readonly expiresAt: string;
+  readonly accessExpiresAt: string;
+  readonly refreshExpiresAt: string;
+  readonly revokeGeneration: number;
   readonly refreshGeneration: number;
 }
 
@@ -80,17 +87,50 @@ export function isDigest(value: string): boolean {
   return DIGEST_HEX_PATTERN.test(value);
 }
 
+export function constantTimeEqual(left: string, right: string): boolean {
+  const length = Math.max(left.length, right.length);
+  let difference = left.length ^ right.length;
+  for (let index = 0; index < length; index += 1) {
+    difference |= (left.charCodeAt(index) || 0) ^ (right.charCodeAt(index) || 0);
+  }
+  return difference === 0;
+}
+
+export function browserSessionRole(role: string): 'parent' | 'support' | null {
+  if (role === 'parent-owner' || role === 'co-parent-guardian') return 'parent';
+  if (role === 'support-admin') return 'support';
+  return null;
+}
+
+export interface BrowserSessionCookieNames {
+  readonly session: string;
+  readonly refresh: string;
+  readonly csrf: string;
+}
+
+export function browserSessionCookieNames(useHostPrefix: boolean): BrowserSessionCookieNames {
+  const prefix = useHostPrefix ? '__Host-' : '';
+  return {
+    session: `${prefix}ocentra_session`,
+    refresh: `${prefix}ocentra_refresh`,
+    csrf: `${prefix}ocentra_csrf`,
+  };
+}
+
 export function sessionIdentity(row: BrowserSessionRow): BrowserSessionIdentity {
   return {
     sessionId: row.session_id,
     provider: row.provider,
     providerSubject: row.provider_subject,
+    role: row.role,
     accountId: row.account_id,
     authoritySessionId: row.authority_session_id,
     authoritySessionGeneration: row.authority_session_generation,
     authorityGeneration: row.authority_generation,
     issuedAt: row.issued_at,
-    expiresAt: row.expires_at,
+    accessExpiresAt: row.access_expires_at,
+    refreshExpiresAt: row.refresh_expires_at,
+    revokeGeneration: row.revoke_generation,
     refreshGeneration: row.refresh_generation,
   };
 }
