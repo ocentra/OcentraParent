@@ -43,7 +43,7 @@ pub(super) const TABLE_SQL: &str = r#"CREATE TABLE account_identity_parent_stora
             AND consumed_at_epoch_millis >= issued_at_epoch_millis)
         OR (lifecycle_state = 'expired' AND consumed_at_epoch_millis IS NULL)
     )
-) STRICT;"#;
+) STRICT"#;
 
 pub(super) const SCHEMA_SQL: &str = r#"
 CREATE TABLE IF NOT EXISTS account_identity_parent_storage_confirmation (

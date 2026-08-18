@@ -106,12 +106,21 @@ impl HouseholdAuthorityRuntimeParentStorageConfirmation {
     /// storage boundary; the input receipt and durable row cannot be reused.
     pub fn consume_for_storage(
         self,
+        expected_preview_id: &ParentStoragePreviewId,
+        expected_apply_intent_digest: &ParentStorageApplyIntentDigest,
         account_service: &mut AccountIdentityAuthorityService,
         device_trust_source: &impl HouseholdAuthorityDeviceTrustSource,
     ) -> Result<
         HouseholdAuthorityRuntimeParentStorageExecutorHandoff,
         HouseholdAuthorityParentStorageConfirmationFailure,
     > {
+        if self.preview_id.as_str() != expected_preview_id.as_str()
+            || self.apply_intent_digest.as_str() != expected_apply_intent_digest.as_str()
+        {
+            return Err(HouseholdAuthorityParentStorageConfirmationFailure::Store(
+                HouseholdAuthorityParentStorageStoreFailure::BindingMismatch,
+            ));
+        }
         let Self {
             effect,
             authority,

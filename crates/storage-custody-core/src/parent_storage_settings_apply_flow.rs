@@ -177,7 +177,12 @@ pub fn consume_parent_storage_apply_confirmation(
         }
     }
     confirmation
-        .consume_for_storage(account_service, device_trust_source)
+        .consume_for_storage(
+            &preview.preview_id,
+            &decision.apply_intent_digest,
+            account_service,
+            device_trust_source,
+        )
         .map(|executor_handoff| {
             ParentStorageApplyConfirmationOutcome::ConfirmedReady(
                 ParentStorageApplyConfirmedReady {
