@@ -96,7 +96,7 @@ ceremony, one-time nonce consumer, transport, and retained runtime proof.
 WP05 now has a crate-private device-bound entitlement verifier boundary, but
 remains blocked on the real signature/revocation provider, child-runtime action
 owner/startup mount, and retained runtime proof; no entitlement startup or
-capability unlock route is exported in the candidate source wave.
+capability unlock route is exported in the reviewed source-repair wave.
 
 WP06 now blocks the untrusted confirmation-only restore path and exposes a
 verified-parent re-pair gate plus an unavailable-by-default restore executor;

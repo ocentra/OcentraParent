@@ -243,15 +243,16 @@ dependency adoption review
 route gate
 ```
 
-## WP05 candidate test and proof debt
+## WP05 expected test and proof debt (source review complete; tests open)
 
-The WP05 source wave is candidate/unreviewed only; its expected test roots and
-retained proof remain missing/open. The later test wave must exercise the
+The WP05 source wave has independent source review and the Grace/revocation
+repairs in this packet; its expected test roots and retained proof remain
+missing/open. The later test wave must exercise the
 trusted issuer/provider boundary without caller-built projections, weak-key
 and key-id rejection, signed authority-generation and release-channel
-binding, absent/manual-required snapshot replacement, locked non-shrinking
-revocation updates with the restart-safe owner generation fence, ancestor
-symlink and
+binding, typed Grace rejection for every non-Tracking capability and inactive
+offline-grace state, absent/manual-required snapshot and revocation
+replacement, the restart-safe owner generation fence, ancestor symlink and
 storage-error fail-closed behavior, explicit signed Grace restrictions,
 release-channel mismatch, semantic effective-seat-limit equality, and the
 owner-controlled account/session and Device Trust re-resolution contract for
@@ -269,7 +270,12 @@ remain manual-required. A future production startup or integration proof must
 also show real issuer/platform key custody, installed-package identity,
 billing and currentness owners, signed revocation delivery, a concrete
 child-runtime action owner, and its service startup caller; the current source
-has no child-runtime entitlement consumer.
+has no child-runtime entitlement consumer. Expected test debt remains in
+`crates/entitlement-core/tests/unit/capability_gate.rs`,
+`crates/entitlement-core/tests/unit/capability_access.rs`,
+`crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs`, and
+`crates/child-runtime/tests/unit/runtime_gate.rs`; these files are not edited
+in the source wave.
 
 ## Required negative states
 

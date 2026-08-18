@@ -71,8 +71,5 @@ pub(crate) fn map_cache_error(
         EntitlementSnapshotCacheError::CorruptState => {
             EntitlementSnapshotVerificationFailure::RevocationStateCorrupt
         }
-        EntitlementSnapshotCacheError::StaleReplacement => {
-            EntitlementSnapshotVerificationFailure::StaleAuthorityState
-        }
     }
 }

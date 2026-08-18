@@ -37,7 +37,7 @@ snapshot/verifier modules from the Device branch were removed during review.
 No real issuer, signature/revocation provider, or shipped capability-unlock
 caller exists. Expected tests, focused execution, and proof remain open.
 
-## Candidate source wave — 2026-08-18 (unreviewed)
+## Independently reviewed source repairs — 2026-08-18 (expected tests open)
 
 The source-only WP05 packet now contains a signed transport envelope and an
 authority-owned verification path in `crates/entitlement-core`:
@@ -64,13 +64,13 @@ authority-owned verification path in `crates/entitlement-core`:
   crate-private, and no public unlock, capability-selector, or final-consume
   method exists. The verifier is a future owner primitive only; no concrete
   child-runtime action owner currently reaches it.
-- `entitlement_snapshot_cache.rs` persists signed revocation state with atomic
-  writes, parent-chain symlink/error rejection, signed revocation generations,
-  and non-shrinking revocation membership. Snapshot transport has no cache
-  mutation writer in this packet: the prior receipt API had no narrowly typed
-  owner ingestion caller and was removed. The current path checks are not a
-  platform handle-safe reparse defense; an owner-controlled custody adapter
-  must replace this manual-required path before production reachability.
+- `entitlement_snapshot_cache.rs` provides read-only signed revocation state
+  with parent-chain symlink/error rejection and shape validation. Snapshot and
+  revocation transport have no mutation writer in this packet: the prior
+  receipt and raw signed-update paths had no narrowly typed owner transition
+  caller and were removed. The current path checks are not a platform
+  handle-safe reparse defense; an owner-controlled custody adapter must replace
+  this manual-required path before production reachability.
   Every read remains subject to signature/currentness verification. Snapshot
   authority generation is signed and must exactly match the current revocation
   generation; a separate owner-held monotonic fence is required so rolling
@@ -92,15 +92,15 @@ active offline grace, and only the low-risk Tracking capability can pass.
 Other capabilities fail closed. Grace is not treated as full entitlement
 freshness.
 
-This is a candidate source reachability packet, not an accepted/reviewed
-completion claim. A concrete owner repository composition is not present, so
+This is an independently reviewed source-repair packet, not a completion
+claim. A concrete owner repository composition is not present, so
 the raw authority/issuer DI path stays crate-private and no entitlement
 startup route is exported. A real issuer/HSM or platform key provider,
 installed-package authority, billing/currentness owner, and signed revocation
-delivery caller are still external dependencies. No entitlement
+delivery caller are still external dependencies. Expected tests and proof
+remain open. No entitlement
 activation or broad product capability completion is claimed. The expected
-WP05 tests, focused execution, retained proof, CI, and independent review
-remain open.
+WP05 tests, focused runtime execution, retained proof, and CI remain open.
 
 ### Required owner route before unlock composition
 
