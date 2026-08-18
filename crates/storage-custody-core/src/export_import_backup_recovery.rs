@@ -49,9 +49,7 @@ pub(crate) struct ExportPayloadSectionInput {
     pub(crate) data_class: contracts::ExportImportDataClass,
     pub(crate) payload_ref: contracts::ExportImportPayloadRef,
     pub(crate) payload_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
-    pub(crate) encrypted: bool,
     pub(crate) retention_state: contracts::ExportImportSectionRetentionState,
-    pub(crate) support_default_decryptable: bool,
     pub(crate) included_in_human_summary: bool,
     pub(crate) notes: String,
 }
@@ -67,20 +65,13 @@ pub(crate) struct ExportHumanSummaryInput {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ExportBundleBuildError {
-    EmptySections,
-    MissingManifestIntegrity,
-    MissingPayloadIntegrity(contracts::ExportImportDataClass),
-    SectionNotEncrypted(contracts::ExportImportDataClass),
-    SupportDefaultDecryptForbidden(contracts::ExportImportDataClass),
-    DuplicateDataClass(contracts::ExportImportDataClass),
-    SummaryMustBeRedacted,
-    SummaryMustBeSupportSafe,
+    EncryptionCustodyUnavailable,
 }
 
 /// Import context is assembled by the storage owner, never from a wire or UI
-/// payload. No public constructor exists until durable key and integrity
-/// custody is available, so callers cannot mint an accepted preview from
-/// booleans.
+/// payload. No public constructor exists until durable key, integrity, and
+/// tombstone-cursor custody are available, so callers cannot mint an accepted
+/// preview from booleans or advance revocation state with an imported cursor.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ImportBundleContext {
     pub(crate) local_household_id: contracts::ExportImportHouseholdId,
@@ -93,6 +84,7 @@ pub(crate) struct ImportBundleContext {
     pub(crate) migration_supported: bool,
     pub(crate) manifest_integrity_ok: bool,
     pub(crate) payload_integrity_failures: Vec<contracts::ExportImportDataClass>,
+    pub(crate) current_tombstone_cursor: Option<contracts::ExportImportTombstoneCursor>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -197,6 +189,7 @@ pub fn apply_restore(
 }
 
 pub(crate) fn apply_restore_with_parent_authority(
+    bundle: &contracts::ExportImportRecoveryBundle,
     preflight: &contracts::ExportImportImportPreflight,
     context: &ImportBundleContext,
     request: &RestoreApplyRequest,
@@ -204,6 +197,7 @@ pub(crate) fn apply_restore_with_parent_authority(
 ) -> contracts::ExportImportRestoreApplyResult {
     let mut executor = UnavailableRestoreExecutor;
     apply_restore_with_parent_authority_and_executor(
+        bundle,
         preflight,
         context,
         request,
@@ -213,32 +207,40 @@ pub(crate) fn apply_restore_with_parent_authority(
 }
 
 pub(crate) fn apply_restore_with_parent_authority_and_executor(
+    bundle: &contracts::ExportImportRecoveryBundle,
     preflight: &contracts::ExportImportImportPreflight,
     context: &ImportBundleContext,
     request: &RestoreApplyRequest,
     authority: CurrentVerifiedHouseholdAuthority,
     executor: &mut impl RestoreExecutor,
 ) -> contracts::ExportImportRestoreApplyResult {
+    // Re-read the owner-supplied current cursor in the same operation.  A
+    // preview is not an authorization to apply after revocation advances.
+    let current_preflight = run_import_preflight(bundle, context);
+    if current_preflight != *preflight {
+        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
+    }
     let identity_binding = authority.identity_binding();
     let Some(target_device_id) = context.target_device_id.as_ref() else {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
     };
-    if !export_import_backup_recovery_restore::preflight_is_applicable(preflight)
+    if !export_import_backup_recovery_restore::preflight_is_applicable(&current_preflight)
         || !request.confirmed
         || authority.input().action != HouseholdAuthorityAction::PairChildDevice
         || identity_binding.household_id() != context.local_household_id.as_str()
         || identity_binding.target_device_id() != target_device_id.as_str()
     {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
     }
 
-    let Ok(receipt) = executor.execute_restore(preflight, request) else {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    let Ok(receipt) = executor.execute_restore(&current_preflight, request) else {
+        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
     };
-    let Some(result) =
-        export_import_backup_recovery_restore::apply_restore_after_execution(preflight, receipt)
-    else {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    let Some(result) = export_import_backup_recovery_restore::apply_restore_after_execution(
+        &current_preflight,
+        receipt,
+    ) else {
+        return export_import_backup_recovery_restore::blocked_restore(&current_preflight, request);
     };
     result
 }
