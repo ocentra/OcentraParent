@@ -109,7 +109,7 @@ impl SqliteAccountIdentityAuthorityRepository {
         redeemed_invite(code, row, recipient, target_role, accepted_at)
     }
 
-    pub fn revoke_setup_invite(
+    pub(crate) fn revoke_setup_invite(
         &mut self,
         authority: &VerifiedAccountIdentityAuthority,
         invite_id: &SetupInviteId,

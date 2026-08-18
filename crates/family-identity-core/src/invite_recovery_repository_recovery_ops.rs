@@ -54,7 +54,7 @@ impl SqliteAccountIdentityAuthorityRepository {
             .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
     }
 
-    pub fn revoke_recovery(
+    pub(crate) fn revoke_recovery(
         &mut self,
         authority: &VerifiedAccountIdentityAuthority,
         recovery_id: &RecoveryId,

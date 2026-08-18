@@ -9,6 +9,10 @@ use rusqlite::Connection;
 use crate::account_identity_authority::{
     AccountIdentityCurrentMemberAuthorityProducer, VerifiedAccountIdentityAuthority,
 };
+use crate::account_identity_mutation_authority::{
+    AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityError,
+    AccountIdentityMutationAuthorityIssuer, AccountIdentityMutationAuthorityRequest,
+};
 use crate::session_lifecycle_custody::SessionLifecyclePolicy;
 
 #[path = "account_identity_authority_repository_cas.rs"]
@@ -98,12 +102,15 @@ impl SqliteAccountIdentityAuthorityRepository {
 /// construct one from a serialized handoff or caller-selected target.
 pub struct AccountIdentityAuthorityService {
     repository: SqliteAccountIdentityAuthorityRepository,
+    mutation_issuer: AccountIdentityMutationAuthorityIssuer,
 }
 
 impl AccountIdentityAuthorityService {
     pub fn open(path: impl AsRef<Path>) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         Ok(Self {
             repository: SqliteAccountIdentityAuthorityRepository::open(path)?,
+            mutation_issuer: AccountIdentityMutationAuthorityIssuer::generate()
+                .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?,
         })
     }
 
@@ -116,6 +123,8 @@ impl AccountIdentityAuthorityService {
                 path,
                 session_policy,
             )?,
+            mutation_issuer: AccountIdentityMutationAuthorityIssuer::generate()
+                .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?,
         })
     }
 
@@ -129,7 +138,26 @@ impl AccountIdentityAuthorityService {
             .map_err(AccountIdentityAuthorityServiceError::from)
     }
 
-    pub fn revoke_setup_invite(
+    /// Issue a short-lived mutation transport only after the provider subject
+    /// resolves to the current durable Account authority. The request carries
+    /// a target and idempotency key, never authority facts; the issuer binds
+    /// both to the opaque current binding before signing.
+    pub fn issue_mutation_authority(
+        &self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
+        request: &AccountIdentityMutationAuthorityRequest,
+    ) -> Result<AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityServiceError>
+    {
+        let authority = self
+            .resolve_current(provider, provider_subject)
+            .map_err(AccountIdentityMutationAuthorityServiceError::Authority)?;
+        self.mutation_issuer
+            .issue(&authority, request)
+            .map_err(AccountIdentityMutationAuthorityServiceError::Mutation)
+    }
+
+    pub(crate) fn revoke_setup_invite(
         &mut self,
         authority: &VerifiedAccountIdentityAuthority,
         invite_id: &crate::family_identity::SetupInviteId,
@@ -156,7 +184,7 @@ impl AccountIdentityAuthorityService {
         self.repository.complete_recovery(authority, recovery_id)
     }
 
-    pub fn revoke_recovery(
+    pub(crate) fn revoke_recovery(
         &mut self,
         authority: &VerifiedAccountIdentityAuthority,
         recovery_id: &crate::family_identity::RecoveryId,
@@ -188,4 +216,10 @@ pub enum AccountIdentityAuthorityServiceError {
     Repository(AccountIdentityAuthorityRepositoryError),
     Missing,
     InvalidAuthority,
+}
+
+#[derive(Debug)]
+pub enum AccountIdentityMutationAuthorityServiceError {
+    Authority(AccountIdentityAuthorityServiceError),
+    Mutation(AccountIdentityMutationAuthorityError),
 }

@@ -4,6 +4,8 @@
 mod family_identity_text_ids;
 pub mod account_identity_authority;
 pub mod account_identity_authority_repository;
+pub mod account_identity_mutation_authority;
+pub mod account_identity_mutation_authority_error;
 pub mod account_identity_target_authority;
 pub mod device_trust_current_binding;
 pub mod device_trust_lifecycle;
