@@ -3,14 +3,14 @@ use std::collections::BTreeSet;
 use ocentra_eventing::error::EventingError;
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::{
-    BackupRequestInput, export_import_backup_recovery_backup_job_state::BackupJobStateError,
-    export_import_backup_recovery_backup_schedule::BackupScheduleError,
+    export_import_backup_recovery_backup_job_state::BackupJobStateError,
+    export_import_backup_recovery_backup_schedule::BackupScheduleError, BackupRequestInput,
 };
 
 use super::data_custody_backup_runtime_job_ledger::BackupJobLedger;
 use super::data_custody_backup_runtime_ports::{AuthorityUnavailable, ProviderBackupError};
 use super::data_custody_backup_runtime_reconciliation;
-use super::data_custody_parent_runtime_clock::{RuntimeClockError, clock_error};
+use super::data_custody_parent_runtime_clock::{clock_error, RuntimeClockError};
 use super::data_custody_runtime_eventing::{
     DataCustodyRuntimeEventJournal, DataCustodyRuntimeEventKind,
 };
@@ -24,10 +24,7 @@ pub struct BackupRuntimeScheduleInput {
 }
 
 #[derive(Debug)]
-/// A one-shot runtime-issued reservation for one provider dispatch. The
-/// constructor remains private so callers cannot mint execution identity;
-/// providers receive only reservations issued by the recovered parent ledger.
-pub struct BackupDispatchReservation {
+pub(crate) struct BackupDispatchReservation {
     execution_ref: contracts::ExportImportExecutionRef,
     bundle_id: contracts::ExportImportBundleId,
 }
@@ -43,11 +40,11 @@ impl BackupDispatchReservation {
         }
     }
 
-    pub fn execution_ref(&self) -> &contracts::ExportImportExecutionRef {
+    pub(crate) fn execution_ref(&self) -> &contracts::ExportImportExecutionRef {
         &self.execution_ref
     }
 
-    pub fn bundle_id(&self) -> &contracts::ExportImportBundleId {
+    pub(crate) fn bundle_id(&self) -> &contracts::ExportImportBundleId {
         &self.bundle_id
     }
 }

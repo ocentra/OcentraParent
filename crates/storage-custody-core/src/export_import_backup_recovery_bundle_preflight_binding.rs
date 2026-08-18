@@ -50,8 +50,8 @@ pub fn bind_import_preflight(
 ) -> Result<BoundImportPreflight, ImportBindingError> {
     // Restore/import is a distinct state-changing household action. ExportDeleteData
     // and PairChildDevice must never be accepted as substitutes for it.
-    let verified = custody.verify_import_bundle(bundle, authority)?;
-    let verified = verified.validate_for_binding(bundle)?;
+    let verified = custody.verify_import_bundle(bundle, &authority)?;
+    verified.validate_for_binding(bundle, authority)?;
     let (
         verified_bundle_id,
         key_ref,

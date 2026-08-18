@@ -6,10 +6,17 @@ mod metadata;
 #[path = "export_import_backup_recovery_bundle_preflight_binding_execution_metadata_identity.rs"]
 mod metadata_identity;
 
-/// The family/key owner supplies the implementation. The value is deliberately
-/// opaque, non-Clone, and non-serde; it is accepted only inside an owner-issued
-/// custody result and is never exposed as a raw key or decrypt handle.
-pub trait RestoreExecutionCapability: Send + Sync {}
+/// Opaque key/decrypt/integrity custody supplied by the account/key runtime.
+/// The trait deliberately has no serde representation or public constructor;
+/// only the mounted custody port can issue a token for a checked bundle.
+mod sealed {
+    pub trait Capability {}
+}
+
+/// The family/key owner supplies the only implementation. Keeping the trait
+/// sealed prevents a caller from manufacturing a capability token in this
+/// crate or from turning a serde preflight into executor authority.
+pub trait RestoreExecutionCapability: sealed::Capability + Send + Sync {}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RestoreExecutionStage {

@@ -6,11 +6,11 @@ use ocentra_storage_custody_core::export_import_backup_recovery::{
         RestoreDispatchReservation, RestoreExecutionBinding, RestoreExecutionStage,
     },
     export_import_backup_recovery_compensation::{
-        PartialWriteCompensation, PartialWriteObservation, decide_partial_write_compensation,
+        decide_partial_write_compensation, PartialWriteCompensation, PartialWriteObservation,
     },
     export_import_backup_recovery_migration_execution::MigrationExecutionError,
     export_import_backup_recovery_restore_execution_plan::{
-        RestoreExecutionPlan, RestoreExecutionPlanError, validate_restore_execution_observation,
+        validate_restore_execution_observation, RestoreExecutionPlan, RestoreExecutionPlanError,
     },
 };
 
@@ -23,10 +23,7 @@ pub enum RestoreAuthorityUnavailable {
     Unavailable,
 }
 
-/// Account-owned currentness boundary for restore authorization. Implementors
-/// return only the opaque runtime authorization issued by Account; no
-/// household, role, generation, or session fields are accepted from callers.
-pub trait RestoreAccountAuthorityPort: Send + Sync {
+pub(crate) trait RestoreAccountAuthorityPort: Send + Sync {
     fn current_restore_authority(
         &self,
         household_id: &contracts::ExportImportHouseholdId,
@@ -49,7 +46,13 @@ pub enum RestoreExecutorOperationError {
 /// Opaque external executor boundary. The parent runtime mounts only these
 /// provider-neutral operations; SDK, OAuth, filesystem, and key storage
 /// implementations remain owned by their dependency runtimes.
-pub trait ProviderNeutralRestorePort: Send + Sync {
+mod restore_provider_sealed {
+    pub trait Port {}
+}
+
+pub(crate) trait ProviderNeutralRestorePort:
+    restore_provider_sealed::Port + Send + Sync
+{
     fn execute_restore(
         &self,
         plan: &RestoreExecutionPlan,
@@ -111,7 +114,7 @@ impl RestoreExecutionObservation {
 }
 
 impl<'a> RestoreExecutorMount<'a> {
-    pub fn new(
+    pub(crate) fn new(
         account: &'a dyn RestoreAccountAuthorityPort,
         custody: &'a dyn ImportCustodyCapabilityPort,
         provider: Option<&'a dyn ProviderNeutralRestorePort>,
@@ -123,15 +126,15 @@ impl<'a> RestoreExecutorMount<'a> {
         }
     }
 
-    pub fn account(&self) -> &'a dyn RestoreAccountAuthorityPort {
+    pub(crate) fn account(&self) -> &'a dyn RestoreAccountAuthorityPort {
         self.account
     }
 
-    pub fn custody(&self) -> &'a dyn ImportCustodyCapabilityPort {
+    pub(crate) fn custody(&self) -> &'a dyn ImportCustodyCapabilityPort {
         self.custody
     }
 
-    pub fn provider(&self) -> Option<&'a dyn ProviderNeutralRestorePort> {
+    pub(crate) fn provider(&self) -> Option<&'a dyn ProviderNeutralRestorePort> {
         self.provider
     }
 }
