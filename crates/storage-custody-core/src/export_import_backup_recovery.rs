@@ -3,14 +3,26 @@ use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_family_identity_core::household_authority::HouseholdAuthorityAction;
 use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
 
+#[path = "export_import_backup_recovery_backup_job_state.rs"]
+pub mod export_import_backup_recovery_backup_job_state;
+#[path = "export_import_backup_recovery_backup_schedule.rs"]
+pub mod export_import_backup_recovery_backup_schedule;
 #[path = "export_import_backup_recovery_build.rs"]
 mod export_import_backup_recovery_build;
+#[path = "export_import_backup_recovery_bundle_preflight_binding.rs"]
+pub mod export_import_backup_recovery_bundle_preflight_binding;
+#[path = "export_import_backup_recovery_compensation.rs"]
+pub mod export_import_backup_recovery_compensation;
 #[path = "export_import_backup_recovery_import.rs"]
 mod export_import_backup_recovery_import;
 #[path = "export_import_backup_recovery_migration.rs"]
 mod export_import_backup_recovery_migration;
+#[path = "export_import_backup_recovery_migration_execution.rs"]
+pub mod export_import_backup_recovery_migration_execution;
 #[path = "export_import_backup_recovery_restore.rs"]
 mod export_import_backup_recovery_restore;
+#[path = "export_import_backup_recovery_restore_execution_plan.rs"]
+pub mod export_import_backup_recovery_restore_execution_plan;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BackupRequestInput {

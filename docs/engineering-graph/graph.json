@@ -16659,10 +16659,21 @@
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "source incomplete",
+        "statusText": "source incomplete / runtime composition blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/schema/tests/contract/export_import_backup_recovery_runtime.rs",
+            "crates/storage-custody-core/tests/unit/export_import_backup_recovery_runtime.rs",
+            "crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs",
+            "crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs",
+            "crates/parent-runtime-core/tests/integration/data_custody_runtime.rs"
+          ]
+        },
         "dependencyReview": {
           "hardDependencies": [],
           "evidence": [
@@ -16690,6 +16701,15 @@
             "docs/plans/data-custody-storage-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        },
+        "expected": {
+          "tests": [
+            "crates/schema/tests/contract/export_import_backup_recovery_runtime.rs",
+            "crates/storage-custody-core/tests/unit/export_import_backup_recovery_runtime.rs",
+            "crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs",
+            "crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs",
+            "crates/parent-runtime-core/tests/integration/data_custody_runtime.rs"
+          ]
         }
       }
     },
