@@ -101,8 +101,14 @@ capability unlock route is exported in the reviewed source-repair wave.
 WP06 now blocks the untrusted confirmation-only restore path and exposes a
 verified-parent re-pair gate plus an unavailable-by-default restore executor;
 only a coherent execution receipt can project applied/partial state.
-Encrypted bundle/key custody, revocation preservation, and runtime proof
-remain open.
+The source-only WP06 candidate now removes the raw installation-generation
+repair stub, refuses to construct encrypted bundle metadata without a real key
+custody owner, and requires a current tombstone cursor with same-operation
+revalidation before executor dispatch. Encrypted bundle/key custody, durable
+revocation currentness, authorized re-pair, a real executor, production
+callers, expected tests, and runtime proof remain open. Its storage files
+overlap Data WP05 candidate `3def622df`; rebase/reconciliation waits for Data
+acceptance.
 
 ## Production-code audit boundary (2026-08-16)
 
