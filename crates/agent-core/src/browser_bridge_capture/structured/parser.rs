@@ -86,6 +86,7 @@ pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
         } else {
             digest(&["unknown-static-sensitivity-redacted-v1", &body_digest])
         },
+        body_digest,
         sensitivity_digest,
         capture_safe: capture_safe && !protected,
         document_url_digest,

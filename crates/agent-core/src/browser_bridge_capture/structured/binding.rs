@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 use chrono::{DateTime, SecondsFormat, Utc};
 use ocentra_schema::managed_browser_cdp_capture::{
@@ -23,6 +23,7 @@ pub(super) fn bind_extraction(
     binding: &LaunchBinding,
     target_id: &str,
     snapshot: &TargetSnapshot,
+    capability_revoked: Arc<std::sync::atomic::AtomicBool>,
     captured_at_epoch_ms: u64,
     captured_at_monotonic: Duration,
     document_identity: Option<&DocumentIdentity>,
@@ -34,6 +35,7 @@ pub(super) fn bind_extraction(
         dom_overflow_redacted,
         private_content_redacted,
         signal_digest,
+        body_digest,
         sensitivity_digest: _,
         capture_safe: _,
         document_url_digest: _,
@@ -59,25 +61,11 @@ pub(super) fn bind_extraction(
         document_identity,
         redact_page_identity,
     );
+    let authority_digest =
+        crate::browser_bridge_capture::target::authority_digest(binding, target_id, snapshot);
     let extraction_id = format!("{STRUCTURED_EXTRACTION_ID_PREFIX}{evidence_digest}");
     let captured_at = trusted_timestamp(captured_at_epoch_ms);
-    let monotonic_lower_bound = binding
-        .authority_started_epoch_ms
-        .saturating_add(u64::try_from(captured_at_monotonic.as_millis()).unwrap_or(u64::MAX));
-    let freshness = if captured_at_epoch_ms >= binding.created_at_epoch_ms
-        && binding.created_at_epoch_ms <= captured_at_epoch_ms
-        && captured_at_epoch_ms <= binding.expires_at_epoch_ms
-        && captured_at_epoch_ms >= monotonic_lower_bound
-        && captured_at_monotonic.as_millis()
-            <= u128::from(
-                binding
-                    .expires_at_epoch_ms
-                    .saturating_sub(binding.created_at_epoch_ms),
-            ) {
-        Freshness::Fresh
-    } else {
-        Freshness::Unavailable
-    };
+    let freshness = freshness_for(binding, captured_at_epoch_ms, captured_at_monotonic);
     ManagedBrowserCdpStructuredExtraction {
         source_id: MANAGED_BROWSER_CDP_SOURCE_ID,
         extraction_id,
@@ -86,6 +74,13 @@ pub(super) fn bind_extraction(
         target_ref: evidence_refs.target_ref.clone(),
         evidence_refs,
         evidence_digest,
+        structured_signal_digest: signal_digest,
+        structured_body_digest: body_digest,
+        document_frame_id: document_identity.map(|identity| identity.frame_id.clone()),
+        document_loader_id: document_identity.map(|identity| identity.loader_id.clone()),
+        document_url_digest: document_identity.map(|identity| identity.url_digest.clone()),
+        authority_digest,
+        capability_revoked,
         visible_text_summary,
         visible_text_character_count,
         dom_overflow_redacted,
@@ -93,6 +88,30 @@ pub(super) fn bind_extraction(
         freshness,
         outcome,
         custody_state: STRUCTURED_CUSTODY_STATE,
+    }
+}
+
+fn freshness_for(
+    binding: &LaunchBinding,
+    captured_at_epoch_ms: u64,
+    captured_at_monotonic: Duration,
+) -> Freshness {
+    let monotonic_lower_bound = binding
+        .authority_started_epoch_ms
+        .saturating_add(u64::try_from(captured_at_monotonic.as_millis()).unwrap_or(u64::MAX));
+    let wall_time_is_valid = captured_at_epoch_ms >= binding.created_at_epoch_ms
+        && captured_at_epoch_ms <= binding.expires_at_epoch_ms
+        && captured_at_epoch_ms >= monotonic_lower_bound;
+    let monotonic_time_is_valid = captured_at_monotonic.as_millis()
+        <= u128::from(
+            binding
+                .expires_at_epoch_ms
+                .saturating_sub(binding.created_at_epoch_ms),
+        );
+    if wall_time_is_valid && monotonic_time_is_valid {
+        Freshness::Fresh
+    } else {
+        Freshness::Unavailable
     }
 }
 

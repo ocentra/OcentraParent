@@ -23,6 +23,8 @@ pub const MANAGED_BROWSER_CDP_TARGET_REF_PREFIX: &str = "browser-target";
 pub const MANAGED_BROWSER_CDP_URL_REF_PREFIX: &str = "browser-url";
 pub const MANAGED_BROWSER_CDP_TITLE_REF_PREFIX: &str = "browser-title";
 pub const MANAGED_BROWSER_CDP_CAPTURE_REF_PREFIX: &str = "browser-capture-";
+pub const MANAGED_BROWSER_CDP_STRUCTURED_BODY_DIGEST_PREFIX: &str =
+    "managed-browser-body-sha256-v1-";
 pub const MANAGED_BROWSER_CDP_FIELD_ID: &str = "id";
 pub const MANAGED_BROWSER_CDP_FIELD_METHOD: &str = "method";
 pub const MANAGED_BROWSER_CDP_FIELD_PARAMS: &str = "params";
@@ -103,6 +105,16 @@ pub struct ManagedBrowserCdpCaptureReceipt {
     pub capture_ref: String,
     pub target_ref: String,
     pub evidence_refs: ManagedBrowserCdpEvidenceRefs,
+    pub captured_at: String,
+    pub structured_extraction_id: String,
+    pub structured_evidence_digest: String,
+    pub structured_signal_digest: String,
+    pub structured_body_digest: String,
+    pub document_frame_id: String,
+    pub document_loader_id: String,
+    pub document_url_digest: String,
+    pub authority_digest: String,
+    pub capture_context_digest: String,
     pub capture_mode: ManagedBrowserCdpCaptureMode,
     pub width: u32,
     pub height: u32,

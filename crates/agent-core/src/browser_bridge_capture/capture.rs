@@ -28,7 +28,10 @@ pub(super) fn capture(
     let mut session =
         transport::CdpSession::connect(authority.endpoint, &live_target.snapshot.websocket_url)
             .map_err(|_error| ManagedBrowserCdpCaptureError::ScreenshotSafetyGuardUnavailable)?;
-    let mut frozen = match session.freeze() {
+    let mut frozen = match session.freeze(
+        &authority.launch_authority,
+        authority.capability_revoked.clone(),
+    ) {
         Ok(frozen) => frozen,
         Err(error) => {
             // A transport/response failure after the freeze command may leave
@@ -39,7 +42,7 @@ pub(super) fn capture(
             if !matches!(error, transport::CdpTransportError::Protocol) {
                 process::retire(&authority.launch_authority);
                 authority
-                    .capture_safety_revoked
+                    .capability_revoked
                     .store(true, std::sync::atomic::Ordering::Release);
             }
             return Err(ManagedBrowserCdpCaptureError::ScreenshotSafetyGuardUnavailable);

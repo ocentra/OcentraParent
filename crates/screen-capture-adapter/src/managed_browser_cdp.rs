@@ -13,16 +13,13 @@ use ocentra_parent_agent_core::browser_bridge_capture::{
 };
 use ocentra_schema::managed_browser_cdp_capture::{
     ManagedBrowserCdpCaptureMode, ManagedBrowserCdpCaptureReceipt, ManagedBrowserCdpCaptureRequest,
-    MANAGED_BROWSER_CDP_CAPTURE_REF_PREFIX, MANAGED_BROWSER_CDP_MAX_DIMENSION,
-    MANAGED_BROWSER_CDP_MAX_PIXELS,
+    MANAGED_BROWSER_CDP_MAX_DIMENSION, MANAGED_BROWSER_CDP_MAX_PIXELS,
 };
-use sha2::{Digest, Sha256};
 
 const CDP_MAX_IMAGE_BYTES: usize = 32 * 1024 * 1024;
 
 #[path = "managed_browser_cdp/decoder.rs"]
 mod decoder;
-pub mod structured_extraction;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ManagedBrowserCdpScreenCapture {
@@ -61,16 +58,7 @@ pub fn capture_managed_browser_cdp(
     let capture = authority.capture(request)?;
     let (width, height) = decoder::decode_png(capture.png_bytes())?;
     validate_requested_dimensions(request, width, height)?;
-    let image_digest = image_digest(capture.png_bytes());
-    let capture_ref = capture_ref(&capture.evidence_refs().target_ref, &image_digest);
-    let receipt = capture_receipt(
-        capture_ref,
-        &capture,
-        request.mode,
-        width,
-        height,
-        image_digest,
-    );
+    let receipt = capture_receipt(&capture, request.mode, width, height);
     Ok(ManagedBrowserCdpScreenCapture {
         receipt,
         png_bytes: capture.png_bytes().to_vec(),
@@ -121,26 +109,6 @@ fn validate_requested_dimensions(
         return Err(ManagedBrowserCdpScreenCaptureError::RequestedDimensionsNotApplied);
     }
     Ok(())
-}
-
-fn image_digest(bytes: &[u8]) -> String {
-    let mut digest = String::new();
-    for byte in Sha256::digest(bytes) {
-        digest.push_str(&format!("{byte:02x}"));
-    }
-    digest
-}
-
-fn capture_ref(target_ref: &str, image_digest: &str) -> String {
-    let mut digest = Sha256::new();
-    digest.update(target_ref.as_bytes());
-    digest.update([0]);
-    digest.update(image_digest.as_bytes());
-    let mut value = String::from(MANAGED_BROWSER_CDP_CAPTURE_REF_PREFIX);
-    for byte in digest.finalize() {
-        value.push_str(&format!("{byte:02x}"));
-    }
-    value
 }
 
 pub(super) fn validate_dimensions(

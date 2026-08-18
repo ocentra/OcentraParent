@@ -1,3 +1,5 @@
+use std::sync::atomic::Ordering;
+
 use super::{Freshness, ManagedBrowserCdpStructuredExtraction, Outcome};
 
 impl ManagedBrowserCdpStructuredExtraction {
@@ -48,7 +50,7 @@ impl ManagedBrowserCdpStructuredExtraction {
     }
 
     pub fn is_fresh(&self) -> bool {
-        self.freshness == Freshness::Fresh
+        self.freshness == Freshness::Fresh && !self.capability_revoked.load(Ordering::Acquire)
     }
 
     pub fn has_structured_evidence(&self) -> bool {
@@ -64,7 +66,7 @@ impl ManagedBrowserCdpStructuredExtraction {
     }
 
     pub fn is_unavailable(&self) -> bool {
-        self.freshness == Freshness::Unavailable || matches!(&self.outcome, Outcome::Unavailable)
+        !self.is_fresh() || matches!(&self.outcome, Outcome::Unavailable)
     }
 
     pub fn custody_state(&self) -> &str {

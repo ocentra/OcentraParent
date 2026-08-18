@@ -1,6 +1,9 @@
 use super::capture::ScreenEvidenceCustodyState;
 use serde::{Deserialize, Serialize};
 
+#[path = "extraction/owner.rs"]
+pub mod owner;
+
 pub(crate) const MANAGED_BROWSER_STRUCTURED_SOURCE_ID: &str = "managed-browser-cdp";
 pub(crate) const MANAGED_BROWSER_SESSION_REF_PREFIX: &str = "managed-browser-session-";
 pub(crate) const MANAGED_BROWSER_TARGET_REF_PREFIX: &str = "browser-target-";
@@ -41,10 +44,9 @@ enum ScreenStructuredExtractionFreshness {
 }
 
 enum VerifiedStructuredExtractionOutcome {
-    StructuredEvidenceAvailable { reason: String },
-    ReviewRequired { reason: String },
+    ReviewRequired,
     ProtectedContentSkipped,
-    Unavailable { reason: String },
+    Unavailable,
 }
 
 struct VerifiedManagedBrowserStructuredExtractionAuthority {
@@ -59,6 +61,13 @@ struct VerifiedManagedBrowserStructuredExtractionReceipt {
     captured_at: String,
     authority: VerifiedManagedBrowserStructuredExtractionAuthority,
     evidence_refs: Vec<ActivityEvidenceRef>,
+    structured_evidence_digest: String,
+    structured_signal_digest: String,
+    structured_body_digest: String,
+    document_frame_id: Option<String>,
+    document_loader_id: Option<String>,
+    document_url_digest: Option<String>,
+    authority_digest: String,
     freshness: ScreenStructuredExtractionFreshness,
     visible_text_summary: Option<String>,
     visible_text_character_count: usize,
@@ -71,15 +80,20 @@ struct VerifiedManagedBrowserStructuredExtractionReceipt {
 }
 
 /// This receipt has no public or crate-wide constructor, serializer, clone, or
-/// debug surface. The service-layer handoff below accepts only the opaque
-/// producer token; no caller can mint browser authority or policy sufficiency.
+/// debug surface. The public handoff accepts only a bounded neutral observation
+/// and never turns caller data into browser, capture, or policy authority.
 pub struct ScreenManagedBrowserStructuredExtraction {
     receipt: VerifiedManagedBrowserStructuredExtractionReceipt,
+    owner_authority_is_validated: bool,
 }
 
 impl ScreenManagedBrowserStructuredExtraction {
     pub(crate) fn is_verified(&self) -> bool {
         receipt_is_bound_and_redacted(&self.receipt)
+    }
+
+    pub(crate) fn owner_authority_is_validated(&self) -> bool {
+        self.owner_authority_is_validated
     }
 
     pub(crate) fn extraction_id(&self) -> &str {
@@ -118,16 +132,13 @@ impl ScreenManagedBrowserStructuredExtraction {
     }
 
     pub(crate) fn has_structured_evidence(&self) -> bool {
-        matches!(
-            &self.receipt.outcome,
-            VerifiedStructuredExtractionOutcome::StructuredEvidenceAvailable { .. }
-        )
+        false
     }
 
     pub(crate) fn requires_review(&self) -> bool {
         matches!(
             &self.receipt.outcome,
-            VerifiedStructuredExtractionOutcome::ReviewRequired { .. }
+            VerifiedStructuredExtractionOutcome::ReviewRequired
         )
     }
 
@@ -139,7 +150,7 @@ impl ScreenManagedBrowserStructuredExtraction {
         self.receipt.freshness == ScreenStructuredExtractionFreshness::Unavailable
             || matches!(
                 &self.receipt.outcome,
-                VerifiedStructuredExtractionOutcome::Unavailable { .. }
+                VerifiedStructuredExtractionOutcome::Unavailable
             )
     }
 }
@@ -165,6 +176,18 @@ fn receipt_is_bound_and_redacted(
                 && !reference.digest.trim().is_empty()
                 && reference.uri.is_none()
         })
+        && valid_digest(&receipt.structured_evidence_digest)
+        && valid_digest(&receipt.structured_signal_digest)
+        && ((receipt.redaction_state
+            == ScreenStructuredExtractionRedactionState::ProtectedContentSkipped
+            && receipt.structured_body_digest == "protected-content-redacted-v1")
+            || (matches!(
+                &receipt.outcome,
+                VerifiedStructuredExtractionOutcome::Unavailable
+            ) && receipt.structured_body_digest.is_empty())
+            || valid_body_digest(&receipt.structured_body_digest))
+        && valid_digest(&receipt.authority_digest)
+        && document_identity_is_consistent(receipt)
         && receipt.evidence_refs.iter().any(|reference| {
             reference.evidence_id == receipt.authority.target_ref
                 && reference
@@ -190,6 +213,40 @@ fn receipt_is_bound_and_redacted(
         && !receipt.raw_dom_included
         && receipt.custody_state != ScreenEvidenceCustodyState::OcentraHostedNonActivity
         && redaction_flags_are_consistent(receipt)
+}
+
+fn valid_digest(value: &str) -> bool {
+    value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
+}
+
+fn valid_body_digest(value: &str) -> bool {
+    value
+        .strip_prefix("managed-browser-body-sha256-v1-")
+        .is_some_and(valid_digest)
+}
+
+fn document_identity_is_consistent(
+    receipt: &VerifiedManagedBrowserStructuredExtractionReceipt,
+) -> bool {
+    if matches!(
+        &receipt.outcome,
+        VerifiedStructuredExtractionOutcome::ProtectedContentSkipped
+            | VerifiedStructuredExtractionOutcome::Unavailable
+    ) {
+        return true;
+    }
+    receipt
+        .document_frame_id
+        .as_deref()
+        .is_some_and(|value| !value.trim().is_empty())
+        && receipt
+            .document_loader_id
+            .as_deref()
+            .is_some_and(|value| !value.trim().is_empty())
+        && receipt
+            .document_url_digest
+            .as_deref()
+            .is_some_and(valid_digest)
 }
 
 fn redaction_flags_are_consistent(

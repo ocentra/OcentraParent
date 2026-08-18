@@ -1,4 +1,11 @@
-use std::{net::TcpStream, time::Duration};
+use std::{
+    net::TcpStream,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    time::Duration,
+};
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_schema::managed_browser_cdp_capture::{
@@ -11,7 +18,7 @@ use tungstenite::{
     Message, WebSocket,
 };
 
-use super::ManagedBrowserCdpCaptureError;
+use super::{authority::LaunchBinding, ManagedBrowserCdpCaptureError};
 
 #[path = "transport/screenshot.rs"]
 mod screenshot;
@@ -37,6 +44,8 @@ pub(super) enum CdpTransportError {
 
 pub(super) struct FrozenPageGuard {
     armed: bool,
+    retirement_binding: Option<LaunchBinding>,
+    capability_revoked: Arc<AtomicBool>,
 }
 
 impl CdpSession {
@@ -101,13 +110,21 @@ impl CdpSession {
         }
     }
 
-    pub(super) fn freeze(&mut self) -> Result<FrozenPageGuard, CdpTransportError> {
+    pub(super) fn freeze(
+        &mut self,
+        binding: &LaunchBinding,
+        capability_revoked: Arc<AtomicBool>,
+    ) -> Result<FrozenPageGuard, CdpTransportError> {
         self.call("Page.enable", json!({}))?;
         self.call(
             CDP_METHOD_SET_WEB_LIFECYCLE_STATE,
             json!({ "state": CDP_STATE_FROZEN }),
         )?;
-        Ok(FrozenPageGuard { armed: true })
+        Ok(FrozenPageGuard {
+            armed: true,
+            retirement_binding: Some(binding.clone()),
+            capability_revoked,
+        })
     }
 }
 
@@ -121,7 +138,21 @@ impl FrozenPageGuard {
             json!({ "state": CDP_STATE_ACTIVE }),
         )?;
         self.armed = false;
+        self.retirement_binding = None;
         Ok(())
+    }
+}
+
+impl Drop for FrozenPageGuard {
+    fn drop(&mut self) {
+        if !self.armed {
+            return;
+        }
+        if let Some(binding) = self.retirement_binding.take() {
+            let _retired = super::process::retire(&binding);
+        }
+        self.capability_revoked.store(true, Ordering::Release);
+        self.armed = false;
     }
 }
 
