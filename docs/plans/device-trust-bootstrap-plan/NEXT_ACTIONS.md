@@ -1,5 +1,26 @@
 # Next Actions
 
+## Ordered runtime-owner routing (audit truth, not completion)
+
+1. Account Identity WP08: keep the Rust-owned canonical household/child/device/
+   pairing/install/route/lifecycle/revocation binding as the contract producer.
+2. Cloudflare WP06: make the provider-gated durable repository/caller the
+   current-authority bridge; no fixture, provider-subject mapping, or caller
+   selector may substitute for it.
+3. Device Trust WP03: after WP01 plus Account/Cloudflare are reachable, own the
+   parent step-up/passkey ceremony, one-time `RegisterLanSignerAnchor`
+   authorization, signature verification, sign-count, and nonce consumption.
+4. Device Trust WP02 (conditional): compose parent-runtime/platform sealing,
+   lifecycle generation, and revocation only when a real private-key/install
+   custody need is selected; it cannot issue ceremony authority.
+5. LAN WP26 and child/runtime consumers: only after WP03, consume current
+   binding/revocation for signed ingress; never register or infer signer
+   authority locally.
+
+This order is intentionally non-circular: WP01 is the foundation/source owner,
+WP03 is the ceremony owner, and downstream LAN/child consumers do not unlock
+WP03.
+
 1. Finish the repository-wide production-source wave and integration review before starting this plan's expected-test migration. Do not interleave one-line source edits with test execution.
 2. Treat merged PR #605 and its fresh 60-job CI as narrow unissued-parent-challenge test evidence only; do not promote it into workpack or plan closure.
 3. Choose the real runtime owners for each missing slice before implementation: `family-domain`, `lan-domain`, billing entitlement, Rust protocol/service, and any new trust-bootstrap runtime module.

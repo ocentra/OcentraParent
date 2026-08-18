@@ -20,8 +20,8 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| ready / source accepted and integrated, expected tests open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | accepted continuation is integrated through `68717b5b7`: current device/signer binding is owner-resolved and public household-authority mint paths are removed; platform ceremony/custody, expected tests, proof, shipped composition, and completion remain open | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
-| partial / Windows-only merged custody slice | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | custody and authority-boundary code present; no desktop command-path or end-to-end sealing proof; workpack remains open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
+| partial / foundation-source only; expected tests, authority bridge, and caller open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | accepted continuation is integrated through `68717b5b7`: durable lifecycle/current-binding source is present, but no shipped authority issuer, platform ceremony, production caller, expected-test wave, proof, or completion exists | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
+| partial / Windows-only merged custody slice; downstream of WP01 | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | custody and authority-boundary code present; parent-runtime/platform composition, lifecycle/revocation caller, and end-to-end sealing proof remain open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
 | blocked / implementation-only source authorized | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; reviewed-implementation gates authorize only the bounded source packet; atomic ceremony custody/recovery and linked-challenge lifecycle validation are independently static-reviewed with no remaining internal P0/P1; authoritative target resolution, platform/passkey provider, durable sign counter, tests, proof, runtime, LAN handoff, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
 | partial / source accepted, expected tests open | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | unsigned projection and fail-closed wire/context boundary are integrated; real issuer/signature/revocation authority, callers, expected tests, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
@@ -57,11 +57,12 @@ implementation and dependency evidence without changing any DONE state.
 
 The accepted Device Trust continuation is integrated through `68717b5b7` and independently reviewed
 with no P0/P1 findings. The graph records its five reviewed
-`family-identity-core` source paths as implementation evidence; WP01 remains
-READY, not DONE. Focused source-format, architecture, Enforcer, diff, and guard
-checks passed. Expected-test migration, functional validation, proof,
-production caller integration, repo-wide Enforcer/architecture acceptance,
-platform custody, and broader lifecycle composition remain open.
+`family-identity-core` source paths as implementation evidence; WP01 remains a
+foundation/source-only validation route, not a shipped authority or production
+caller. Focused source-format, architecture, Enforcer, diff, and guard checks
+passed. Expected-test migration, functional validation, proof, production caller
+integration, repo-wide Enforcer/architecture acceptance, platform custody, and
+broader lifecycle composition remain open.
 
 WP05's unsigned entitlement projection, WP06's fail-closed restore boundary,
 and WP07's durable removal/readiness boundary are also accepted source, not
@@ -75,16 +76,21 @@ opted into it.
 ## Default execution order
 
 ```text
-WP01 ---------------------------+
-Account WP08 -> Cloudflare WP06 +-> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
-WP02 remains a conditional custody dependency where the selected ceremony needs it.
+WP01 foundation/source ------------------------------+
+Account WP08 -> Cloudflare WP06 current-authority ---+-> WP03 parent ceremony
+WP02 parent-runtime/platform sealing + revocation ---+       |
+                                                              +-> LAN WP26 / child current-binding consumer
+WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
+WP02 is conditional for a selected private-key/install custody need, but when selected it consumes WP01 and cannot create ceremony authority.
 ```
 
 ## Dependency rules
 
 ```text
 WP01 establishes trust state/source of truth.
-WP02 depends on WP01 and blocks key/trust persistence claims.
+WP02 depends on WP01 and owns only the downstream parent-runtime/platform
+sealing, lifecycle composition, and revocation bridge; it cannot mint or
+substitute parent ceremony authority.
 WP03 depends on WP01, Account Identity WP08, and Cloudflare WP06 and blocks
 high-risk action approval claims. WP02 is conditional only for a demonstrated
 private-key/install custody requirement.
@@ -92,6 +98,9 @@ WP04 depends on WP03 and blocks phone/QR approval claims.
 WP05 depends on WP01/WP02 and payment handoff; license never unlocks behavior alone.
 WP06 depends on WP02/WP03/WP04 and blocks recovery/reset claims.
 WP07 depends on WP01/WP02/WP06 and blocks child uninstall/tamper claims.
+LAN WP26 and any child current-binding consumer are ordered after WP03's
+one-time `RegisterLanSignerAnchor` ceremony; they consume the current binding
+and revocation state and do not register signer authority locally.
 WP08 can run in parallel as research but cannot approve adoption without proof.
 WP09 is last and consumes all previous proof roots.
 ```

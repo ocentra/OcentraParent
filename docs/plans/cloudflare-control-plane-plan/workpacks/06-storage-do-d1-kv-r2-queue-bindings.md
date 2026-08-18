@@ -58,6 +58,18 @@ reachability remain open. Normal WP06 is blocked and is not `DONE`.
 
 Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, and optional R2.
 
+## Device Trust current-authority bridge
+
+Cloudflare WP06 is the ordered durable-adapter/caller bridge after Account
+Identity WP08 and before Device Trust WP03. Its production path must persist
+and resolve the canonical household/child/device/pairing/install/route/
+lifecycle/revocation binding without inventing household or signer authority.
+The current adapter remains provider-gated and unreachable in production, so
+WP03 cannot treat it as a live authority source yet. No Worker fixture, provider
+subject mapping, caller-supplied selector, LAN registry, or typed receipt may
+authorize `RegisterLanSignerAnchor`; WP03 owns that ceremony after this bridge
+is real. This route also has no reverse dependency on WP03.
+
 ## First-touch surfaces
 
 - `infra/cloudflare/src/env.ts` for the optional account-identity D1 declaration and ownership boundary; account DO/KV remain absent and manual-required

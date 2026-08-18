@@ -56,9 +56,14 @@ or portal transport may stand in for the shipped child/runtime peer ingress.
 - Dependencies: W15, W18, and W19 must expose the durable household, signed
   child, and route/revocation composition required by this boundary. Device
   Trust WP01 must first provide the persistent trusted-device/signer-key
-  registration source, and Device Trust WP03 must provide the one-time parent
-  `RegisterLanSignerAnchor` authorization. WP02 is conditional only if a
-  demonstrated private-key/install custody need exists.
+  registration/current-binding source, and Device Trust WP03 must provide the
+  one-time parent `RegisterLanSignerAnchor` authorization before this consumer
+  bridge runs. WP02 is conditional only if a demonstrated private-key/install
+  custody need exists.
+- Ordering: Account WP08 -> Cloudflare WP06 -> Device Trust WP03 -> this LAN /
+  child current-binding consumer. WP26 consumes current binding and revocation
+  state after the ceremony; it cannot register a signer, infer authority from
+  pairing, or create a reverse WP03 dependency.
 - Unlocks: private Eventing WP10 authorization handoff only after LAN validation,
   route authority, custody, and negative-path proof are complete.
 
