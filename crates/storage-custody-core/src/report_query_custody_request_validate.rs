@@ -1,9 +1,11 @@
+use chrono::{DateTime, Utc};
 use ocentra_family_identity_core::{
     account_identity_authority::{
-        VerifiedAccountIdentityAuthority, authorize_household_action_from_verified_authority,
+        authorize_household_action_from_verified_authority, VerifiedAccountIdentityAuthority,
     },
     household_authority::{HouseholdAuthorityAction, HouseholdAuthorizationState},
 };
+use ocentra_schema::account_identity_authority::AccountIdentityRole;
 use ocentra_schema::report_query_custody as contracts;
 
 use super::ReportQueryCustodyDerivationError;
@@ -15,7 +17,15 @@ pub(super) fn validate_report_query_custody_request(
     request: &contracts::ReportQueryCustodyRequest,
     authority: &VerifiedAccountIdentityAuthority,
 ) -> Result<(), ReportQueryCustodyDerivationError> {
-    validate_current_parent_authority(request, authority)?;
+    validate_report_query_custody_request_at(request, authority, Utc::now())
+}
+
+pub(super) fn validate_report_query_custody_request_at(
+    request: &contracts::ReportQueryCustodyRequest,
+    authority: &VerifiedAccountIdentityAuthority,
+    now: DateTime<Utc>,
+) -> Result<(), ReportQueryCustodyDerivationError> {
+    validate_current_parent_authority(request, authority, now)?;
     let authority_reference = &request.parent_authority;
     if authority_reference.authority_generation == 0 {
         return Err(ReportQueryCustodyDerivationError::InvalidParentAuthority);
@@ -91,6 +101,7 @@ pub(super) fn validate_report_query_custody_request(
 fn validate_current_parent_authority(
     request: &contracts::ReportQueryCustodyRequest,
     authority: &VerifiedAccountIdentityAuthority,
+    now: DateTime<Utc>,
 ) -> Result<(), ReportQueryCustodyDerivationError> {
     let action_decision = authorize_household_action_from_verified_authority(
         authority,
@@ -126,8 +137,33 @@ fn validate_current_parent_authority(
     if current_identity != requested_identity {
         return Err(ReportQueryCustodyDerivationError::ParentAuthorityIdentityMismatch);
     }
+    if !request_actor_role_matches_authority(request.parent_action.actor.role, authority.role()) {
+        return Err(ReportQueryCustodyDerivationError::ParentAuthorityIdentityMismatch);
+    }
     (authority.authority_generation() == request.parent_authority.authority_generation)
         .then_some(())
         .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityGenerationMismatch)?;
+    let session_expires_at = DateTime::parse_from_rfc3339(authority.session_expires_at())
+        .map_err(|_| ReportQueryCustodyDerivationError::ParentAuthorityExpired)?
+        .with_timezone(&Utc);
+    (session_expires_at > now)
+        .then_some(())
+        .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityExpired)?;
     Ok(())
+}
+
+fn request_actor_role_matches_authority(
+    request_role: contracts::ParentActorRole,
+    authority_role: AccountIdentityRole,
+) -> bool {
+    matches!(
+        (request_role, authority_role),
+        (
+            contracts::ParentActorRole::Parent,
+            AccountIdentityRole::ParentOwner
+        ) | (
+            contracts::ParentActorRole::Guardian,
+            AccountIdentityRole::CoParentGuardian
+        )
+    )
 }

@@ -6,6 +6,10 @@ use ocentra_schema::account_identity_authority::{
 };
 
 impl super::VerifiedAccountIdentityAuthority {
+    pub fn session_expires_at(&self) -> &str {
+        &self.provenance.session_expires_at
+    }
+
     pub fn report_query_custody_states(
         &self,
     ) -> (

@@ -1,6 +1,7 @@
 /* generated from crates/schema/src/report_query_custody.rs */
 
 import {
+  GeneratedReportQueryCustodyMaxPageSize,
   GeneratedReportQueryCustodyNonClaims,
   GeneratedReportQueryCustodySourceDataClasses,
   GeneratedReportQueryCustodyStates,
@@ -42,6 +43,7 @@ export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedRep
     reportQueryCustodyAuthorityReferenceIsConsistentGenerated(request) &&
     !request.rawChildEvidenceRequested &&
     request.pageSize > 0 &&
+    request.pageSize <= GeneratedReportQueryCustodyMaxPageSize &&
     request.requestedDataClasses.length > 0 &&
     request.allowedSourceDataClasses.length > 0 &&
     request.sourceCitationRefs.length > 0 &&
@@ -66,6 +68,7 @@ export function reportQueryCustodyRowIsHonestGenerated(row: GeneratedReportQuery
     !row.rawChildEvidenceIncluded &&
     row.parentAuthority.authorityGeneration > 0 &&
     row.pageSize > 0 &&
+    row.pageSize <= GeneratedReportQueryCustodyMaxPageSize &&
     row.pageIndex > 0 &&
     allowedSourceDataClassSet.has(row.sourceDataClass) &&
     row.requestedDataClasses.length > 0 &&

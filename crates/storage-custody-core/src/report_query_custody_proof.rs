@@ -1,11 +1,12 @@
+use chrono::Utc;
 use ocentra_family_identity_core::account_identity_authority::VerifiedAccountIdentityAuthority;
 use std::collections::BTreeSet;
 
 use ocentra_schema::report_query_custody as contracts;
 
 use super::{
-    ReportQueryCustodyDerivationError,
     report_query_custody_source::ReportQueryCustodySourceResolution,
+    ReportQueryCustodyDerivationError,
 };
 
 pub(super) fn build_report_query_custody_proof(
@@ -14,8 +15,11 @@ pub(super) fn build_report_query_custody_proof(
     updated_at: contracts::ParentTimestamp,
     authority: &VerifiedAccountIdentityAuthority,
 ) -> Result<contracts::ReportQueryCustodyContractProof, ReportQueryCustodyDerivationError> {
-    super::report_query_custody_request_validate::validate_report_query_custody_request(
-        request, authority,
+    let resolved_at = Utc::now();
+    super::report_query_custody_request_validate::validate_report_query_custody_request_at(
+        request,
+        authority,
+        resolved_at,
     )?;
 
     let mut rows = Vec::with_capacity(sources.len());
@@ -23,8 +27,11 @@ pub(super) fn build_report_query_custody_proof(
     let mut seen_source_refs: BTreeSet<contracts::ReportQueryCustodySourceRef> = BTreeSet::new();
     let mut seen_sort_keys: BTreeSet<contracts::ReportQueryCustodySortKey> = BTreeSet::new();
     for source in sources {
-        let row = super::report_query_custody_row::derive_report_query_custody_row(
-            request, source, authority,
+        let row = super::report_query_custody_row::derive_report_query_custody_row_at(
+            request,
+            source,
+            authority,
+            resolved_at,
         )?;
         if !seen_cursor_refs.insert(row.cursor_ref.clone()) {
             return Err(ReportQueryCustodyDerivationError::DuplicateCursorRef);
