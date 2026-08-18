@@ -83,10 +83,8 @@ impl DataCustodyRuntimeClock {
         {
             return Err(RuntimeClockError::NonMonotonicTimestamp);
         }
-        if clock
-            .last_committed
-            .is_some_and(|previous| parsed < previous)
-        {
+        let durable_floor = clock.last_committed.max(clock.last_issued);
+        if durable_floor.is_some_and(|previous| parsed < previous) {
             return Err(RuntimeClockError::NonMonotonicTimestamp);
         }
         if parsed

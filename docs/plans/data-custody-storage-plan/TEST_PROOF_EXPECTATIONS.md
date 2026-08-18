@@ -178,8 +178,9 @@ restart reconciliation, executor/rollback mount, and Eventing/outbox seam
 no caller-supplied authority, key, integrity, or provider identity
 ```
 
-Expected source/test ownership roots (all deferred until the source packet is
-complete):
+Expected source/test ownership roots (source roots are present in the bounded
+packet; expected tests and proof remain deferred until external composition
+and focused validation are complete):
 
 ```text
 schema: crates/schema/src/export_import_backup_recovery.rs,

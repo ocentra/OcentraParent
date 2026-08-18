@@ -18,7 +18,7 @@
 
 This plan owns data custody guarantees, encrypted storage, evidence retention, export/import/restore, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, report/query custody, and parent storage settings/apply flow.
 
-Route status: execution-grade architecture and an integrated production-source wave now exist. Current source closes the WP02 cross-scope decrypt-authority gap, WP03 manifest-custody gap, WP05 import-integrity gap, WP06's full Rust request/row plus generated TypeScript custody boundary, and places the WP04/WP07 durable effect/tombstone lifecycle in its child-runtime owner. WP06 now derives an opaque query-source capability from current Account authority, enforces session expiry, exact role binding, bounded page size, and cursor/source/stable-sort continuity; no report/query runtime consumer reaches it. This source wave deliberately did not write or run tests, regenerate proof, run precommit/CI, or claim DONE or PR_READY. Older checked rows and ignored `output/` roots remain historical until the later test/proof waves re-accept them from a clean checkout.
+Route status: execution-grade architecture and an integrated production-source wave now exist. Current source closes the WP02 cross-scope decrypt-authority gap, WP03 manifest-custody gap, WP05's bounded schema/storage/parent-runtime source packet, WP06's full Rust request/row plus generated TypeScript custody boundary, and places the WP04/WP07 durable effect/tombstone lifecycle in its child-runtime owner. WP06 now derives an opaque query-source capability from current Account authority, enforces session expiry, exact role binding, bounded page size, and cursor/source/stable-sort continuity; no report/query runtime consumer reaches it. WP05's external Account/key/provider/producer composition, production caller reachability, expected tests, focused execution, proof, precommit/CI, and PR remain open; unavailable provider-backed paths stay manual-required. This source wave deliberately did not write or run tests, regenerate proof, run precommit/CI, or claim DONE or PR_READY. Older checked rows and ignored `output/` roots remain historical until the later test/proof waves re-accept them from a clean checkout.
 
 ## Current ownership interpretation
 
@@ -109,27 +109,27 @@ WP01: crates/schema source-of-truth contract plus generated edge; no shipped run
 WP02: decrypt-scope authority now fails closed against the selected platform row; real platform/provider key consumers remain adjacent-owner work.
 WP03: sync manifest custody is validated before claim-safe state derivation; provider SDK/OAuth/upload/delete/retrieval execution remains adjacent-owner work.
 WP04: generic retention/delete derivation remains in storage-custody-core; the durable tombstone/effect owner is now child-runtime and is reached by its internal custody command path.
-WP05: dishonest import bundles are rejected before derivation; backup cadence/manual backup and migration execution/rollback source remain missing, as does a provider/filesystem restore executor.
+WP05: dishonest import bundles are rejected before derivation, and the bounded schema/storage/parent-runtime backup, restore, migration, rollback, reconciliation, and Eventing source packet is present. Provider/filesystem execution, external authority/key/provider/producer composition, production callers, tests, focused validation, and proof remain open.
 WP06: current Account-authority-derived opaque query-source capability, request/row authority and citation binding, session expiry, exact actor-role binding, page-size, and cursor/source/stable-sort continuity now fail closed at the Rust boundary with generated TypeScript parity. No report/query/notification/AI/portal runtime consumer reaches the boundary; stale Rust tests and the unwritten TypeScript contract test remain open.
 WP07: submit_storage_custody_action -> PublishStorageCustody -> dynamic Device Trust gate -> ChildStorageCustodyRuntime::execute -> durable effect/journal/tombstone lifecycle is real source. Default custody authority is manual-required and no trusted Account/family adapter or external caller supplies the opaque handle.
 WP08: schema/storage-custody-core parent-storage settings/apply derivation plus generated edge; no portal/desktop host/provider apply caller found.
 Migrated Data And AI UI: source-only and not executable custody scope.
 ```
 
-The next legal production slice is the READY WP05 source route: complete the
-schema-owned durable contracts, pure storage-custody-core decisions, and the
-parent-runtime-core durable scheduler/ledger/restart/executor composition.
-Only opaque Account/family authority, key/decrypt capability, provider-neutral
-adapter, and producer ports may be consumed; absent external owners remain
-manual-required or blocked. Trusted Account/family composition and an external
-upstream caller follow as separate routes and must retain private traits,
-opaque handles, generation/currentness checks, and the independent Device
-Trust gate. WP06's shared source edge is integrated, but no report/query
-runtime consumer is routed to it; stale/unwritten expected tests, focused
-execution, proof, precommit, CI, and PR are intentionally deferred to their
-later phases.
+The bounded WP05 source route is now present in its schema,
+storage-custody-core, and parent-runtime-core ownership layers. The next legal
+work is to mount the separate trusted Account/family, key/decrypt,
+provider-neutral, and producer owners and a real production caller without
+accepting caller-selected authority; absent external owners remain
+manual-required or blocked. The parent runtime retains private traits, opaque
+handles, generation/currentness checks, and the independent Device Trust gate.
+WP09 and WP10 remain downstream source-only handoffs. WP06's shared source edge
+is integrated, but no report/query runtime consumer is routed to it; expected
+tests, focused execution, proof, precommit, CI, and PR are intentionally
+deferred to their later phases.
 
-The engineering graph is regenerated from this source/status checkpoint.
+Global engineering-graph regeneration is deferred to the owning coordinator;
+this plan-local source/status checkpoint does not write global graph files.
 Graph state remains evidence-derived; topology presence does not promote a
 workpack to DONE.
 
@@ -142,11 +142,12 @@ workpack to DONE.
 - WP02 source now includes explicit decrypt-scope authority validation in `crates/storage-custody-core`; platform consumers and the new expected-test matrix remain open.
 - WP03 source now includes manifest-custody validation in `crates/storage-custody-core`; provider execution and current tests/proof remain open.
 - WP04 generic retention/delete derivation remains in `storage-custody-core`, while the durable child-side tombstone/effect lifecycle now lives in and is reached through `child-runtime`; moved-store tests remain stale.
-- WP05 source now rejects dishonest import bundles. Its remaining route is
-  explicit: schema durable backup/schedule/job/migration/rollback contracts,
-  pure `storage-custody-core` decisions/orchestration, and the missing durable
-  `parent-runtime-core` scheduler/job and restore/migration runtime. The
-  parent-runtime owner is source-routed but not yet implemented.
+- WP05 source now rejects dishonest import bundles and includes the explicit
+  schema durable backup/schedule/job/migration/rollback contracts, pure
+  `storage-custody-core` decisions/orchestration, and the durable
+  `parent-runtime-core` scheduler/job and restore/migration runtime. Its
+  external mounts, production caller reachability, expected tests, focused
+  validation, and proof remain open.
 - WP06's Rust request/row authority boundary and generated TypeScript edge are source-present with current-authority, expiry, role, page, and cursor/source continuity enforcement; no downstream report/query consumer is routed, and the expected Rust/TypeScript tests remain stale or unwritten.
 - WP07 has a real internal child-service command/effect/journal/tombstone path and startup recovery, but default authority is manual-required and no trusted external composition supplies it.
 - WP08 parent-storage settings/apply contracts remain source-present; real portal/desktop/provider apply composition and current validation/proof remain open.
@@ -158,11 +159,13 @@ workpack to DONE.
 - Parent-owned cloud default, provider choice defaults, and visible versus app-specific folder policy are still open.
 - Provider sync runtime and provider/file retrieval execution remain open. WP03 has a claim-safe shared contract/manifest source boundary but no current test/proof acceptance or provider-side OAuth/upload/delete/retrieval execution.
 - Trusted Account/family custody-authority composition and an external upstream child-service caller remain open; the present runtime correctly returns manual-required.
-- WP05 backup cadence/manual backup and migration execution/rollback source
-  remain open, including the parent-runtime scheduler/job ledger, durable
-  restore/migration ledger, restart reconciliation, executor/rollback mount,
-  and Eventing/outbox composition. Account/key/provider/producer owners remain
-  opaque external dependencies; no SDK or fake adapter is in scope.
+- WP05 backup cadence/manual backup and migration execution/rollback source are
+  present in the bounded schema/storage/parent-runtime packet, including the
+  scheduler/job ledger, durable restore/migration ledger, restart
+  reconciliation, executor/rollback mount, and Eventing/outbox composition.
+  Account/key/provider/producer owners, production caller reachability, tests,
+  focused validation, and proof remain open; no SDK or fake adapter is in
+  scope.
 - WP06 downstream report/query runtime consumption, expected tests, focused validation, and proof refresh remain open; the shared generated edge is source-present.
 - AI runtime custody and support diagnostics remain open.
 - Proof artifacts must be created by implementation work; this plan only defines expected proof.
@@ -195,12 +198,12 @@ Update this plan only via the blueprint and matching workpack proof rows.
 
 ## 2026-08-18 runtime ownership correction
 
-Live-code review confirms WP05's bundle/preflight/integrity/manual readiness is
-not a storage or restore runtime. No production local/provider writer or
-retriever, scheduler, byte-level verifier, restore/migration/apply/rollback,
-or idempotency executor is currently owned. Child-runtime owns local
-data/tombstone durability; Account owns authority. The legal WP05 route is now
-split as follows:
+The bounded source packet now supplies WP05's legal schema, pure
+storage-custody-core, and parent-runtime-core ownership layers. It does not
+mount a production local/provider writer or retriever, byte-level provider
+verifier, external authority/key/provider/producer composer, or upstream
+caller. Child-runtime owns local data/tombstone durability; Account owns
+authority. The WP05 route remains split as follows:
 
 - `crates/schema` owns durable backup cadence/schedule/job lifecycle,
   idempotency/execution refs, provider-neutral operation refs, and

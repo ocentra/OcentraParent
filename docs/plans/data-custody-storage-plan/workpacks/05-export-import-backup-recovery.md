@@ -69,8 +69,8 @@ Failure conditions:
 
 ## Reviewed source ownership route (2026-08-18)
 
-WP05 is the READY source slice for the remaining production packet. The route
-is deliberately split by authority and durability; no crate may mint a
+WP05's bounded source packet is present in the reviewed ownership route. The
+route is deliberately split by authority and durability; no crate may mint a
 caller-selected Account/family authority, key/decrypt capability, integrity
 decision, or provider identity.
 
@@ -160,8 +160,9 @@ job/receipt storage, filesystem/provider SDKs, or producer mutation.
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch.rs`
 
-This is the missing legal parent-runtime owner. It persists scheduler/job and
-restore/migration state, reconciles interrupted work on restart, mounts only
+This is the legal parent-runtime owner for the bounded source packet. It
+persists scheduler/job and restore/migration state, reconciles interrupted work
+on restart, and mounts only
 opaque provider/key/Account ports, and composes the real Eventing journal and
 outbox seam. It must fail closed when an external authority, key/decrypt
 capability, provider-neutral adapter, or producer handoff is unavailable; no

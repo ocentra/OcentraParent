@@ -72,6 +72,7 @@ impl ParentRestoreRuntime {
             &rejected_sections,
         );
         persist_rollback_intents(self, plan, &rollback_intent).await?;
+        self.revalidate_authority(plan, mount)?;
         // Keep the in-memory intent fenced after the durable before-dispatch
         // records exist. Any provider error or terminal-journal failure leaves
         // this marker set so a same-process retry requires reconciliation.

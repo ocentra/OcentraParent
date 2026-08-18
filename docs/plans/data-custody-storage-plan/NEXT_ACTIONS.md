@@ -22,17 +22,18 @@
    Account WP08's sealed current authority, Account WP04's correlated
    export/delete handoff, and Account WP05's current
    household/member/device/session/capability/lease authorization composer.
-2. Finish the READY WP05 source packet in its reviewed ownership order:
-   schema-owned durable backup cadence/schedule/job and migration/rollback
-   contracts; pure `storage-custody-core` backup/restore/migration/preflight
-   decisions and compensation; then the `parent-runtime-core` durable
-   scheduler/job ledger, restore/migration ledger, restart reconciliation,
-   executor/rollback mount, and real Eventing/outbox composition. Consume only
-   opaque Account/family authority, key/decrypt capability, provider-neutral
-   adapter, and producer ports; leave unavailable external owners
-   manual-required or blocked. WP09/WP10 remain downstream source-only routes
-   and must not duplicate these ledgers. Separately finish WP08's trusted
-   confirmation receipt plus reachable `Applied`/`Partial` decision path.
+2. Review and integrate the bounded WP05 source packet now present in its
+   reviewed ownership order: schema-owned durable backup cadence/schedule/job
+   and migration/rollback contracts; pure `storage-custody-core`
+   backup/restore/migration/preflight decisions and compensation; and the
+   `parent-runtime-core` durable scheduler/job ledger, restore/migration
+   ledger, restart reconciliation, executor/rollback mount, and real
+   Eventing/outbox composition. Mount only opaque Account/family authority,
+   key/decrypt capability, provider-neutral adapter, and producer ports; leave
+   unavailable external owners manual-required or blocked. WP09/WP10 remain
+   downstream source-only routes and must not duplicate these ledgers.
+   Separately finish WP08's trusted confirmation receipt plus reachable
+   `Applied`/`Partial` decision path.
    WP06's generated TypeScript edge is source-present, but no report/query
    runtime consumer is routed to it; do not invent an agent-service/report
    caller or substitute proof scripts or synthetic DTO callers for missing
@@ -52,9 +53,9 @@
 
 ## 2026-08-17 routing correction
 
-Before the expected-test wave, implement the READY WP05 owner route above.
-WP09 then supplies only downstream pure provider-neutral byte custody/adapter
-port composition, and WP10 supplies only downstream pure producer-handoff
+The WP05 owner route above is now source-present before the expected-test wave.
+WP09 supplies only downstream pure provider-neutral byte custody/adapter-port
+composition, and WP10 supplies only downstream pure producer-handoff
 orchestration after their graph dependencies are legal. Neither may duplicate
 the WP05 parent-runtime scheduler/job or restore/migration ledger. Account
 WP02's target-aware authority correction remains a separate prerequisite for
@@ -82,7 +83,10 @@ proof, precommit, CI, or PR were run.
 - WP01 production contract source is complete with a Rust-owned 28-row matrix and generated TS edge; the full Rust invariant-test family and current proof acceptance remain open. Deleted handwritten TS adapters/tests/proof runners must not be restored without a real consumer.
 - WP02 decrypt-scope authority source is accepted; expected tests and current validation/proof are open.
 - WP03 manifest-custody source is accepted; provider runtime, expected tests, and current validation/proof are open.
-- WP05 import-integrity source is accepted, while backup cadence/manual backup and migration execution/rollback source remain open.
+- WP05's bounded backup cadence/manual backup and migration execution/rollback
+  source packet is present; external Account/key/provider/producer composition,
+  production reachability, expected tests, focused validation, and proof remain
+  open, with unavailable provider-backed paths manual-required.
 - WP06's current Account-authority-derived opaque Rust request/row boundary and generated TypeScript page/cursor edge are source-accepted; no downstream report/query consumer is routed, and the expected Rust tests are stale while the TypeScript contract test is unwritten.
 - WP07 has a real internal child custody command/effect/tombstone lifecycle and startup recovery; trusted authority composition, external calling, test migration, and aggregate route acceptance remain open.
 - WP08 source is incomplete: no trusted confirmation receipt/confirmed input exists, so `Applied` and `Partial` remain unreachable; its positive/negative expected tests and current proof are also open.

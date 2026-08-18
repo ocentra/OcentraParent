@@ -51,6 +51,7 @@ impl ParentRestoreRuntime {
         .await?;
         self.dispatch_started_restore
             .insert(plan.operation_ref().as_str().to_owned());
+        self.revalidate_authority(plan, mount)?;
 
         let observation = execute_restore_operation(plan, provider)?;
         if observation.compensation() == PartialWriteCompensation::Required {

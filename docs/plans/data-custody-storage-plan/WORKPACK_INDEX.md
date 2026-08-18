@@ -24,7 +24,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | validation / source accepted, tests open | [WP02 Encryption Key Custody](workpacks/02-encryption-key-custody.md) | 12/12 recorded | `KEY_CUSTODY_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | historical ignored `output/` root; refresh later |
 | validation / source accepted, tests open | [WP03 Parent Owned Cloud Sync](workpacks/03-parent-owned-cloud-sync.md) | 13/13 recorded | `PARENT_STORAGE_PROVIDER_MATRIX.md`, `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md` | historical ignored `output/` root; refresh later |
 | validation / source accepted, test migration open | [WP04 Retention Delete Tombstone](workpacks/04-retention-delete-tombstone.md) | 13/13 recorded | `DECISIONS.md`, `EVENT_MODEL.md` | historical ignored `output/` root; refresh later |
-| source incomplete / READY source continuation | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 12/12 recorded | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | durable schema contracts, pure storage decisions, parent-runtime scheduler/ledger/restart/executor owner, expected tests, and proof remain open |
+| source incomplete / runtime composition blocked | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 12/12 recorded | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | bounded schema/storage/parent-runtime source packet present; external composition/reachability, expected tests, focused validation, and proof remain open |
 | validation / source accepted, tests open | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 recorded | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | no runtime consumer; stale/unwritten expected tests and historical ignored `output/` root remain |
 | validation / source incomplete | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 12/12 recorded | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | confirmation authority and reachable Applied/Partial path, expected tests, and clean-checkout proof remain open |
 | blocked / source reachable, Account composition and tests open | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 2/14 | integrated child custody command/effect/tombstone lifecycle | Account WP04/WP05 plus missing clean-checkout aggregate root |
@@ -60,7 +60,7 @@ WP10 consumes WP02/WP03/WP04/WP05 plus Account WP05/WP08 and exact Device Trust/
 WP07 is last and consumes all previous proof roots.
 ```
 
-## Production-code audit note (2026-08-17, source checkpoint `a78d8f831`)
+## Production-code audit note (2026-08-17, historical pre-packet checkpoint `a78d8f831`)
 
 Recorded boxes and old `output/` references are not current acceptance. The
 source wave closed WP02 cross-scope decrypt authority, WP03 manifest custody,
@@ -72,11 +72,13 @@ internal service path from `submit_storage_custody_action` through dispatch and
 That command path remains fail-closed in shipped composition: default startup
 uses a manual-required custody authority, no Account/family trusted adapter or
 external upstream caller supplies the opaque handle, and Device Trust remains
-an independent outer readiness gate. WP05 still lacks backup cadence/manual
-backup and migration execution/rollback source. WP06 has no shipped report/query
-consumer; its Rust harnesses are stale and its expected TypeScript contract test
-is unwritten. These tests belong to the later expected-test wave and must not be
-repaired by restoring a core re-export or inventing a consumer.
+an independent outer readiness gate. At this historical checkpoint WP05 still
+lacked its durable backup/migration runtime source; the bounded source packet
+now supplies that owner, while external composition/reachability remains open.
+WP06 has no shipped report/query consumer; its Rust harnesses are stale and its
+expected TypeScript contract test is unwritten. These tests belong to the later
+expected-test wave and must not be repaired by restoring a core re-export or
+inventing a consumer.
 
 Do not treat the graph's validation/completion state as a substitute for this
 source audit. Graph topology is updated from the integrated source; DONE still
@@ -88,16 +90,17 @@ Do not implement adjacent plan internals from this plan. Keep eventing, account,
 
 Do not use the source-only migrated UI plan as executable implementation scope by default. Do not raise status from docs/checklist/proof text alone, source presence alone, schema proof alone, sync manifest proof, portal UI proof, or a proof root for another workpack.
 
-## 2026-08-17 missing runtime ownership routing
+## 2026-08-17 missing runtime ownership routing (historical pre-packet route)
 
-The live-code audit found that WP05 has typed bundle/preflight/integrity/manual
+The live-code audit found that WP05 had typed bundle/preflight/integrity/manual
 readiness but no production local/provider writer or retriever, scheduler,
 cryptographic byte verifier, restore/migration/apply/rollback/idempotency
 runtime. Child-runtime owns local data/tombstone durability and Account owns
-authority. The READY WP05 route now assigns schema contracts, pure
-storage-custody-core decisions, and the missing parent-runtime-core durable
-owner explicitly. WP09 and WP10 remain downstream source routes, not
-completion rows or permission to add a fake provider.
+authority. The reviewed source packet now supplies the routed schema contracts,
+pure storage-custody-core decisions, and parent-runtime-core durable owner;
+external composition and production reachability remain open. WP09 and WP10
+remain downstream source routes, not completion rows or permission to add a
+fake provider.
 
 ## 2026-08-18 reviewed WP05 ownership route
 
