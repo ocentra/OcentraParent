@@ -78,6 +78,7 @@ pub enum ReportQueryCustodyDerivationError {
     SourceCursorContinuityMismatch,
     NonSequentialPageIndex,
     InvalidContractVersion,
+    MissingRequiredState(contracts::ReportQueryCustodyState),
 }
 
 pub fn derive_report_query_custody_row(

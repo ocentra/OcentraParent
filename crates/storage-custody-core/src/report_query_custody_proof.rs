@@ -9,6 +9,9 @@ use super::{
     ReportQueryCustodyDerivationError,
 };
 
+#[path = "report_query_custody_proof_validate.rs"]
+mod report_query_custody_proof_validate;
+
 pub(super) fn build_report_query_custody_proof(
     request: &contracts::ReportQueryCustodyRequest,
     sources: Vec<ReportQueryCustodySourceResolution>,
@@ -65,6 +68,8 @@ pub(super) fn build_report_query_custody_proof(
         }
         rows.push(row);
     }
+
+    report_query_custody_proof_validate::validate_required_states(&rows)?;
 
     Ok(contracts::ReportQueryCustodyContractProof {
         schema_version: contracts::REPORT_QUERY_CUSTODY_SCHEMA_VERSION.to_string(),
