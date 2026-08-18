@@ -1,10 +1,10 @@
 import { isLocalFixtureEnvironment, resolveAuthAdapterMode, type Env } from '../env.js';
 import type { AccountIdentityProvider } from '@ocentra-parent/schema-domain/account-identity-authority';
 import {
-  createAccountIdentityAuthorityStore,
   isVerifiedAccountIdentityAuthorityCapability,
   type VerifiedAccountIdentityAuthorityCapability,
 } from '../storage/account-identity-authority-store.js';
+import { createAccountIdentityAuthorityCaller } from './account-identity-authority-caller.js';
 import { getAuthStateModel, type AuthState } from './model.js';
 
 export interface VerifiedIdentity {
@@ -208,19 +208,9 @@ async function verifyProviderBoundRequest(
   authState: AuthState,
   providerVerifier: ProviderVerificationPort
 ): Promise<AuthResult> {
-  let verifiedIdentity: VerifiedProviderIdentity | null;
-  try {
-    verifiedIdentity = await providerVerifier.verify(request);
-  } catch {
-    verifiedIdentity = null;
-  }
-  if (verifiedIdentity === null) {
-    return manualRequired(authState, PROVIDER_VERIFICATION_UNAVAILABLE_BLOCKER);
-  }
-
-  const authorityResult = await createAccountIdentityAuthorityStore(env.ACCOUNT_IDENTITY_D1).readCurrentAuthority(
-    verifiedIdentity.provider,
-    verifiedIdentity.providerSubject
+  const authorityResult = await createAccountIdentityAuthorityCaller(env).resolveVerifiedProviderAuthority(
+    request,
+    providerVerifier
   );
   if (authorityResult.status === 'trusted') {
     const role =
@@ -243,6 +233,9 @@ async function verifyProviderBoundRequest(
   }
   if (authorityResult.status === 'not-found') {
     return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
+  }
+  if (authorityResult.status === 'provider-unavailable') {
+    return manualRequired(authState, PROVIDER_VERIFICATION_UNAVAILABLE_BLOCKER);
   }
   return manualRequired(authState, authorityResult.reason);
 }
