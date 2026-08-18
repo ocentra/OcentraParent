@@ -1,40 +1,70 @@
 #![forbid(unsafe_code)]
 
-//! Account-owned durable session custody.
+//! Account-owned durable browser-session custody.
 
 use ocentra_eventing::error::EventingError;
-use rusqlite::params;
+use ocentra_schema::account_identity_authority::{
+    AccountIdentityDeviceId, AccountIdentityMemberId, AccountIdentityProviderSubject,
+};
+use ocentra_schema::report_query_custody::ParentAccountId;
+use rusqlite::TransactionBehavior;
 
+use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_authority_repository::SqliteAccountIdentityAuthorityRepository;
 use crate::family_identity::SessionFreshnessState;
-use crate::family_identity_account::AccountUserId;
 use crate::session_lifecycle::{
     authorize_session_token_action, SessionActivityState, SessionCredentialKind,
     SessionLifecycleAction, SessionTokenDecision, SessionTokenInput, TokenReplayState,
     TokenValidityWindowState,
 };
-use crate::session_lifecycle_custody::{
-    SessionAuditEventId, SessionCredentialRecord, SessionTimestamp, SessionTokenDigest,
+use crate::session_lifecycle_custody::audit_delivery::{
+    SessionAuditDeliveryAttemptId, SessionAuditEventId,
+};
+use crate::session_lifecycle_custody::browser_credentials::{
+    IssuedBrowserSession, PresentedBrowserAccessCredential, PresentedBrowserRefreshCredential,
+};
+use crate::session_lifecycle_custody::record::SessionCredentialRecord;
+use crate::session_lifecycle_custody::storage_values::{
+    SessionAccessDigest, SessionCredentialMaterial, SessionRefreshDigest, SessionRefreshFamilyId,
 };
 use crate::session_lifecycle_record::SessionId;
 
+#[path = "session_lifecycle_repository_audit.rs"]
+mod audit;
+#[path = "session_lifecycle_repository_authority.rs"]
+mod authority;
+#[path = "session_lifecycle_repository_clock.rs"]
+mod clock;
 #[path = "session_lifecycle_repository_codec.rs"]
 mod codec;
+#[path = "session_lifecycle_repository_invariants.rs"]
+mod invariants;
+#[path = "session_lifecycle_repository_labels.rs"]
+mod labels;
 #[path = "session_lifecycle_repository_schema.rs"]
 mod schema;
 
 #[derive(Debug)]
 pub enum SessionLifecycleRepositoryError {
     Unavailable,
+    ClockUnavailable,
+    EntropyUnavailable,
+    AuthorityMissing,
+    AuthorityExpired,
+    InvalidAuthorityBinding,
+    WrongCredentialClass,
     Missing,
     ReplayRejected,
     InvalidStoredSession,
+    InvalidAuditRecord,
     InvalidTransition,
     CurrentnessConflict,
+    AuditConflict,
+    DeliveryConflict,
     InvalidValue(EventingError),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SessionAuditAction {
     Created,
     Rotated,
@@ -43,293 +73,278 @@ pub enum SessionAuditAction {
     GloballyRevoked,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SessionAuditEvent {
-    pub event_id: String,
-    pub session_id: SessionId,
-    pub account_user_id: AccountUserId,
-    pub action: SessionAuditAction,
-    pub occurred_at: SessionTimestamp,
+    event_id: SessionAuditEventId,
+    session_id: SessionId,
+    account_id: ParentAccountId,
+    provider_subject: AccountIdentityProviderSubject,
+    member_id: AccountIdentityMemberId,
+    device_id: AccountIdentityDeviceId,
+    action: SessionAuditAction,
+    occurred_at_epoch_millis: i64,
+}
+
+impl SessionAuditEvent {
+    pub fn event_id(&self) -> &SessionAuditEventId {
+        &self.event_id
+    }
+
+    pub fn session_id(&self) -> &SessionId {
+        &self.session_id
+    }
+
+    pub fn account_id(&self) -> &ParentAccountId {
+        &self.account_id
+    }
+
+    pub fn provider_subject(&self) -> &AccountIdentityProviderSubject {
+        &self.provider_subject
+    }
+
+    pub fn member_id(&self) -> &AccountIdentityMemberId {
+        &self.member_id
+    }
+
+    pub fn device_id(&self) -> &AccountIdentityDeviceId {
+        &self.device_id
+    }
+
+    pub fn action(&self) -> SessionAuditAction {
+        self.action
+    }
+
+    pub fn occurred_at_epoch_millis(&self) -> i64 {
+        self.occurred_at_epoch_millis
+    }
+}
+
+#[derive(Debug)]
+pub struct PendingSessionAuditDelivery {
+    event: SessionAuditEvent,
+    delivery_attempt_id: SessionAuditDeliveryAttemptId,
+}
+
+impl PendingSessionAuditDelivery {
+    pub fn event(&self) -> &SessionAuditEvent {
+        &self.event
+    }
 }
 
 impl SqliteAccountIdentityAuthorityRepository {
-    pub fn insert_session(
+    pub fn issue_browser_session(
         &mut self,
-        record: &SessionCredentialRecord,
-    ) -> Result<(), SessionLifecycleRepositoryError> {
-        if record.refresh_generation != 1 {
-            return Err(SessionLifecycleRepositoryError::InvalidTransition);
-        }
+        current_authority: &VerifiedAccountIdentityAuthority,
+    ) -> Result<IssuedBrowserSession, SessionLifecycleRepositoryError> {
+        let policy = self.session_policy.clone();
+        let now_epoch_millis = clock::trusted_now_epoch_millis()?;
+        let material = SessionCredentialMaterial::issue()
+            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
+        let refresh_family_id = SessionRefreshFamilyId::generate()
+            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let transaction = self
             .connection
-            .unchecked_transaction()
+            .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        let current_epoch = codec::current_revoke_epoch(&transaction, &record.account_user_id)?;
-        if record.global_revoke_epoch != current_epoch {
-            return Err(SessionLifecycleRepositoryError::CurrentnessConflict);
-        }
-        codec::insert_record(&transaction, record)?;
-        codec::insert_audit(
+        let binding =
+            authority::binding_from_verified(&transaction, current_authority, now_epoch_millis)?;
+        let current_epoch = codec::current_revoke_epoch(&transaction, &binding.account_id)?;
+        let record = SessionCredentialRecord::issue(
+            binding,
+            &material,
+            refresh_family_id,
+            now_epoch_millis,
+            current_epoch,
+            &policy,
+        )
+        .map_err(SessionLifecycleRepositoryError::InvalidValue)?;
+        invariants::validate_record(&record)?;
+        codec::insert_record(&transaction, &record)?;
+        audit::insert_audit(
             &transaction,
-            record,
+            &record,
             SessionAuditAction::Created,
-            &record.issued_at,
+            now_epoch_millis,
         )?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        Ok(record.into_issued(material))
     }
 
     pub fn authorize_browser_session(
         &mut self,
-        token_digest: &SessionTokenDigest,
+        credential: &PresentedBrowserAccessCredential,
         action: SessionLifecycleAction,
-        observed_at: &SessionTimestamp,
     ) -> Result<SessionTokenDecision, SessionLifecycleRepositoryError> {
+        let policy = self.session_policy.clone();
+        let now_epoch_millis = clock::trusted_now_epoch_millis()?;
+        let digest = SessionAccessDigest::from_presented(credential);
         let transaction = self
             .connection
-            .unchecked_transaction()
+            .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        let Some(record) = codec::read_by_digest(&transaction, token_digest)? else {
-            return Ok(authorize_session_token_action(SessionTokenInput {
-                credential_kind: SessionCredentialKind::BrowserUserSession,
-                action,
-                activity_state: SessionActivityState::Revoked,
-                replay_state: TokenReplayState::ReplayDetected,
-                validity_window_state: TokenValidityWindowState::Expired,
-                session_freshness_state: SessionFreshnessState::Stale,
-            }));
+        let Some(record) = codec::read_by_access_digest(&transaction, &digest)? else {
+            return Ok(missing_browser_session_decision(action));
         };
-        let current_epoch = codec::current_revoke_epoch(&transaction, &record.account_user_id)?;
-        let decision = record.authorize(
-            SessionCredentialKind::BrowserUserSession,
-            action,
-            TokenReplayState::Fresh,
-            observed_at,
-            current_epoch,
-        );
+        authority::binding_for_record_current(&transaction, &record, now_epoch_millis)?;
+        let current_epoch = codec::current_revoke_epoch(&transaction, &record.binding.account_id)?;
+        let decision = record.authorize(action, now_epoch_millis, current_epoch, &policy);
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(decision)
     }
 
-    pub fn rotate_session(
+    pub fn rotate_browser_session(
         &mut self,
-        current_digest: &SessionTokenDigest,
-        next: &SessionCredentialRecord,
-        transitioned_at: &SessionTimestamp,
-    ) -> Result<(), SessionLifecycleRepositoryError> {
+        credential: &PresentedBrowserRefreshCredential,
+    ) -> Result<IssuedBrowserSession, SessionLifecycleRepositoryError> {
+        let policy = self.session_policy.clone();
+        let trusted_now = clock::trusted_now_epoch_millis()?;
+        let digest = SessionRefreshDigest::from_presented(credential);
+        let material = SessionCredentialMaterial::issue()
+            .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let transaction = self
             .connection
-            .unchecked_transaction()
+            .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        let current = codec::read_by_digest(&transaction, current_digest)?
-            .ok_or(SessionLifecycleRepositoryError::ReplayRejected)?;
-        let epoch = codec::current_revoke_epoch(&transaction, &current.account_user_id)?;
-        if current.activity_state != SessionActivityState::Active
-            || current.global_revoke_epoch != epoch
-            || next.account_user_id != current.account_user_id
-            || next.refresh_family_id != current.refresh_family_id
-            || next.refresh_generation != current.refresh_generation.saturating_add(1)
-            || next.global_revoke_epoch != epoch
-            || current.validity_window_state_at(transitioned_at) != TokenValidityWindowState::Valid
-        {
-            return Err(SessionLifecycleRepositoryError::InvalidTransition);
-        }
-        let changed = transaction
-            .execute(
-                "UPDATE account_identity_session
-                 SET activity_state = 'revoked', freshness_state = 'stale', last_transition_at = ?2
-                 WHERE token_digest = ?1 AND activity_state = 'active'",
-                params![current_digest.as_str(), transitioned_at.as_str()],
-            )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        if changed != 1 {
+        let Some(current) = codec::read_by_refresh_digest(&transaction, &digest)? else {
+            return if codec::refresh_was_consumed(&transaction, &digest)? {
+                Err(SessionLifecycleRepositoryError::ReplayRejected)
+            } else {
+                Err(SessionLifecycleRepositoryError::Missing)
+            };
+        };
+        let binding = authority::binding_for_record_current(&transaction, &current, trusted_now)?;
+        let current_epoch = codec::current_revoke_epoch(&transaction, &current.binding.account_id)?;
+        if !current.refresh_is_current(trusted_now, current_epoch, &policy) {
             return Err(SessionLifecycleRepositoryError::ReplayRejected);
         }
-        codec::insert_record(&transaction, next)?;
-        codec::insert_audit(
+        let transitioned_at = clock::monotonic_transition_epoch_millis(
+            trusted_now,
+            current.last_transition_at_epoch_millis,
+        )?;
+        let next = current
+            .rotated(binding, &material, transitioned_at, &policy)
+            .map_err(SessionLifecycleRepositoryError::InvalidValue)?;
+        invariants::validate_record(&next)?;
+        codec::register_consumed_refresh(&transaction, &current, transitioned_at)?;
+        codec::rotate_record(&transaction, &current, &next)?;
+        audit::insert_audit(
             &transaction,
-            &current,
+            &next,
             SessionAuditAction::Rotated,
             transitioned_at,
         )?;
         transaction
             .commit()
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        Ok(next.into_issued(material))
     }
 
-    pub fn logout_session(
+    pub fn logout_browser_session(
         &mut self,
-        token_digest: &SessionTokenDigest,
-        transitioned_at: &SessionTimestamp,
+        credential: &PresentedBrowserAccessCredential,
     ) -> Result<(), SessionLifecycleRepositoryError> {
-        self.transition_session(
-            token_digest,
-            SessionActivityState::LoggedOut,
-            transitioned_at,
-        )
+        self.transition_browser_session(credential, SessionActivityState::LoggedOut)
     }
 
-    pub fn revoke_session(
+    pub fn revoke_browser_session(
         &mut self,
-        token_digest: &SessionTokenDigest,
-        transitioned_at: &SessionTimestamp,
+        credential: &PresentedBrowserAccessCredential,
     ) -> Result<(), SessionLifecycleRepositoryError> {
-        self.transition_session(token_digest, SessionActivityState::Revoked, transitioned_at)
+        self.transition_browser_session(credential, SessionActivityState::Revoked)
     }
 
-    pub fn revoke_all_sessions(
+    pub fn revoke_all_browser_sessions(
         &mut self,
-        account_user_id: &AccountUserId,
-        transitioned_at: &SessionTimestamp,
+        current_authority: &VerifiedAccountIdentityAuthority,
     ) -> Result<u64, SessionLifecycleRepositoryError> {
+        let trusted_now = clock::trusted_now_epoch_millis()?;
         let transaction = self
             .connection
-            .unchecked_transaction()
+            .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        let next_epoch = codec::current_revoke_epoch(&transaction, account_user_id)?
-            .checked_add(1)
-            .ok_or(SessionLifecycleRepositoryError::InvalidTransition)?;
-        transaction
-            .execute(
-                "INSERT INTO account_identity_session_revoke_epoch (account_user_id, epoch)
-                 VALUES (?1, ?2) ON CONFLICT(account_user_id) DO UPDATE SET epoch = excluded.epoch",
-                params![
-                    account_user_id.as_str(),
-                    codec::to_sql_generation(next_epoch)?
-                ],
-            )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        transaction
-            .execute(
-                "INSERT INTO account_identity_session_audit_outbox
-                 (event_id, session_id, account_user_id, action, occurred_at, delivery_state)
-                 SELECT 'account-session:' || session_id || ':global-' || ?2,
-                        session_id, account_user_id, 'globally-revoked', ?3, 'pending'
-                 FROM account_identity_session
-                 WHERE account_user_id = ?1 AND activity_state = 'active'
-                 ON CONFLICT(event_id) DO NOTHING",
-                params![
-                    account_user_id.as_str(),
-                    codec::to_sql_generation(next_epoch)?,
-                    transitioned_at.as_str()
-                ],
-            )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        transaction
-            .execute(
-                "UPDATE account_identity_session
-                 SET activity_state = 'globally-revoked', freshness_state = 'stale',
-                     last_transition_at = ?2
-                 WHERE account_user_id = ?1 AND activity_state = 'active'",
-                params![account_user_id.as_str(), transitioned_at.as_str()],
-            )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        let binding =
+            authority::binding_from_verified(&transaction, current_authority, trusted_now)?;
+        let current_epoch = codec::current_revoke_epoch(&transaction, &binding.account_id)?;
+        let sessions = codec::read_active_for_account(&transaction, &binding.account_id)?;
+        let next_epoch =
+            codec::advance_revoke_epoch(&transaction, &binding.account_id, current_epoch)?;
+        for session in sessions {
+            if session.global_revoke_epoch != current_epoch {
+                return Err(SessionLifecycleRepositoryError::CurrentnessConflict);
+            }
+            let transitioned_at = clock::monotonic_transition_epoch_millis(
+                trusted_now,
+                session.last_transition_at_epoch_millis,
+            )?;
+            codec::transition_activity(
+                &transaction,
+                &session,
+                SessionActivityState::GloballyRevoked,
+                transitioned_at,
+            )?;
+            audit::insert_audit(
+                &transaction,
+                &session,
+                SessionAuditAction::GloballyRevoked,
+                transitioned_at,
+            )?;
+        }
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
         Ok(next_epoch)
     }
 
-    pub fn pending_session_audit_events(
-        &self,
-    ) -> Result<Vec<SessionAuditEvent>, SessionLifecycleRepositoryError> {
-        let mut statement = self
-            .connection
-            .prepare(
-                "SELECT event_id, session_id, account_user_id, action, occurred_at
-                 FROM account_identity_session_audit_outbox
-                 WHERE delivery_state = 'pending' ORDER BY sequence",
-            )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        let rows = statement
-            .query_map([], |row| {
-                Ok((
-                    row.get::<_, String>(0)?,
-                    row.get::<_, String>(1)?,
-                    row.get::<_, String>(2)?,
-                    row.get::<_, String>(3)?,
-                    row.get::<_, String>(4)?,
-                ))
-            })
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        rows.map(|row| {
-            let (event_id, session_id, account_user_id, action, occurred_at) =
-                row.map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-            Ok(SessionAuditEvent {
-                event_id,
-                session_id: SessionId::parse(session_id)
-                    .map_err(SessionLifecycleRepositoryError::InvalidValue)?,
-                account_user_id: AccountUserId::parse(account_user_id)
-                    .map_err(SessionLifecycleRepositoryError::InvalidValue)?,
-                action: codec::labels::parse_audit_action(action.as_bytes())?,
-                occurred_at: SessionTimestamp::parse(occurred_at)
-                    .map_err(SessionLifecycleRepositoryError::InvalidValue)?,
-            })
-        })
-        .collect::<Result<Vec<_>, _>>()
-    }
-
-    pub fn mark_session_audit_delivered(
-        &self,
-        event_id: &SessionAuditEventId,
-    ) -> Result<(), SessionLifecycleRepositoryError> {
-        let changed = self
-            .connection
-            .execute(
-                "UPDATE account_identity_session_audit_outbox
-                 SET delivery_state = 'delivered'
-                 WHERE event_id = ?1 AND delivery_state = 'pending'",
-                [event_id.as_str()],
-            )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        (changed == 1)
-            .then_some(())
-            .ok_or(SessionLifecycleRepositoryError::Missing)
-    }
-
-    fn transition_session(
+    fn transition_browser_session(
         &mut self,
-        token_digest: &SessionTokenDigest,
+        credential: &PresentedBrowserAccessCredential,
         activity_state: SessionActivityState,
-        transitioned_at: &SessionTimestamp,
     ) -> Result<(), SessionLifecycleRepositoryError> {
+        let trusted_now = clock::trusted_now_epoch_millis()?;
+        let digest = SessionAccessDigest::from_presented(credential);
         let transaction = self
             .connection
-            .unchecked_transaction()
+            .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        let record = codec::read_by_digest(&transaction, token_digest)?
+        let current = codec::read_by_access_digest(&transaction, &digest)?
             .ok_or(SessionLifecycleRepositoryError::Missing)?;
-        if record.activity_state != SessionActivityState::Active {
-            return Err(SessionLifecycleRepositoryError::InvalidTransition);
-        }
-        let changed = transaction
-            .execute(
-                "UPDATE account_identity_session
-                 SET activity_state = ?2, freshness_state = 'stale', last_transition_at = ?3
-                 WHERE token_digest = ?1 AND activity_state = 'active'",
-                params![
-                    token_digest.as_str(),
-                    codec::labels::activity_label(activity_state).0,
-                    transitioned_at.as_str()
-                ],
-            )
-            .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        if changed != 1 {
+        authority::binding_for_record_current(&transaction, &current, trusted_now)?;
+        let current_epoch = codec::current_revoke_epoch(&transaction, &current.binding.account_id)?;
+        if current.global_revoke_epoch != current_epoch
+            || current.activity_state != SessionActivityState::Active
+        {
             return Err(SessionLifecycleRepositoryError::CurrentnessConflict);
         }
-        codec::insert_audit(
+        let transitioned_at = clock::monotonic_transition_epoch_millis(
+            trusted_now,
+            current.last_transition_at_epoch_millis,
+        )?;
+        codec::transition_activity(&transaction, &current, activity_state, transitioned_at)?;
+        audit::insert_audit(
             &transaction,
-            &record,
-            codec::labels::audit_action_for_state(activity_state),
+            &current,
+            labels::audit_action_for_state(activity_state),
             transitioned_at,
         )?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
     }
+}
+
+fn missing_browser_session_decision(action: SessionLifecycleAction) -> SessionTokenDecision {
+    authorize_session_token_action(SessionTokenInput {
+        credential_kind: SessionCredentialKind::BrowserUserSession,
+        action,
+        activity_state: SessionActivityState::Revoked,
+        replay_state: TokenReplayState::ReplayDetected,
+        validity_window_state: TokenValidityWindowState::Expired,
+        session_freshness_state: SessionFreshnessState::Stale,
+    })
 }
 
 pub(crate) const SESSION_SCHEMA_SQL: &str = schema::SESSION_SCHEMA_SQL;

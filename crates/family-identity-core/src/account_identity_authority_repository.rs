@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::time::Duration;
 
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
@@ -9,6 +10,7 @@ use crate::account_identity_authority::{
     AccountIdentityAuthorityRepository, AccountIdentityCurrentMemberAuthorityProducer,
     VerifiedAccountIdentityAuthority,
 };
+use crate::session_lifecycle_custody::SessionLifecyclePolicy;
 
 #[path = "account_identity_authority_repository_cas.rs"]
 mod account_identity_authority_repository_cas;
@@ -34,11 +36,22 @@ pub enum AccountIdentityAuthorityRepositoryError {
 /// session identity, and session generation are independently guarded by SQL.
 pub struct SqliteAccountIdentityAuthorityRepository {
     connection: Connection,
+    session_policy: SessionLifecyclePolicy,
 }
 
 impl SqliteAccountIdentityAuthorityRepository {
     pub fn open(path: impl AsRef<Path>) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
+        Self::open_with_session_policy(path, SessionLifecyclePolicy::production_default())
+    }
+
+    pub fn open_with_session_policy(
+        path: impl AsRef<Path>,
+        session_policy: SessionLifecyclePolicy,
+    ) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         let connection = Connection::open(path)
+            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        connection
+            .busy_timeout(Duration::from_secs(5))
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         connection
             .execute_batch(
@@ -64,7 +77,10 @@ impl SqliteAccountIdentityAuthorityRepository {
         connection
             .execute_batch(session_lifecycle_repository::SESSION_SCHEMA_SQL)
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
-        Ok(Self { connection })
+        Ok(Self {
+            connection,
+            session_policy,
+        })
     }
 }
 
@@ -79,6 +95,18 @@ impl AccountIdentityAuthorityService {
     pub fn open(path: impl AsRef<Path>) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         Ok(Self {
             repository: SqliteAccountIdentityAuthorityRepository::open(path)?,
+        })
+    }
+
+    pub fn open_with_session_policy(
+        path: impl AsRef<Path>,
+        session_policy: SessionLifecyclePolicy,
+    ) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
+        Ok(Self {
+            repository: SqliteAccountIdentityAuthorityRepository::open_with_session_policy(
+                path,
+                session_policy,
+            )?,
         })
     }
 
