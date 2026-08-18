@@ -1,4 +1,5 @@
 use ocentra_schema::managed_browser_cdp_capture::ManagedBrowserCdpCaptureRequest;
+use ocentra_schema::managed_browser_cdp_capture::MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE;
 
 #[path = "frozen/checks.rs"]
 mod checks;
@@ -50,17 +51,17 @@ fn preflight_error(
     preflight: &structured::EvaluatedPayload,
     live_target: &target::LiveTarget,
 ) -> Option<ManagedBrowserCdpCaptureError> {
-    if preflight.payload.capture_safe
-        && target::document_identity_matches_snapshot(
-            &live_target.snapshot,
-            &preflight.document_identity,
-        )
+    if !preflight.payload.capture_safe
+        || preflight.payload.sensitivity_digest != MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE
     {
-        None
-    } else if preflight.payload.capture_safe {
-        Some(ManagedBrowserCdpCaptureError::TargetAuthorityMismatch)
-    } else {
         Some(ManagedBrowserCdpCaptureError::ProtectedSurfaceRejected)
+    } else if target::document_identity_matches_snapshot(
+        &live_target.snapshot,
+        &preflight.document_identity,
+    ) {
+        None
+    } else {
+        Some(ManagedBrowserCdpCaptureError::TargetAuthorityMismatch)
     }
 }
 
@@ -89,7 +90,13 @@ fn checks_for(
         body_is_same: preflight.payload.body_digest == postflight.payload.body_digest,
         sensitivity_is_same: preflight.payload.capture_safe
             && postflight.payload.capture_safe
+            && preflight.payload.sensitivity_digest
+                == MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE
+            && postflight.payload.sensitivity_digest
+                == MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE
             && preflight.payload.sensitivity_digest == postflight.payload.sensitivity_digest,
-        postflight_is_safe: postflight.payload.capture_safe,
+        postflight_is_safe: postflight.payload.capture_safe
+            && postflight.payload.sensitivity_digest
+                == MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE,
     }
 }

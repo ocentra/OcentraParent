@@ -161,7 +161,7 @@
     // when the bounded structural probe permits a frozen screenshot.
     const bodyDigest = await bodyDigestFor(bodyText);
     return bodyDigest
-      ? result(false, true, unknownDigest, false, bodyDigest)
+      ? result(false, false, unknownDigest, false, bodyDigest)
       : protectedResult();
   } catch (_error) {
     return protectedResult();
