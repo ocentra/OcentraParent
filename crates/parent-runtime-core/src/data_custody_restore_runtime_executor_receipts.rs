@@ -46,7 +46,7 @@ impl<'a> RestoreRollbackBinding<'a> {
 }
 
 #[derive(Debug)]
-pub(super) struct RestoreExecutorReceipt<'a> {
+pub(crate) struct RestoreExecutorReceipt<'a> {
     execution_ref: contracts::ExportImportExecutionRef,
     state: contracts::ExportImportRestoreApplyState,
     applied_sections: Vec<contracts::ExportImportSectionDecision>,
