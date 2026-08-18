@@ -119,7 +119,6 @@ impl SessionAuditEvent {
     }
 }
 
-#[derive(Debug)]
 pub struct PendingSessionAuditDelivery {
     event: SessionAuditEvent,
     delivery_attempt_id: SessionAuditDeliveryAttemptId,
