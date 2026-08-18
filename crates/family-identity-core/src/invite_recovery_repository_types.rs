@@ -1,18 +1,4 @@
 use super::*;
-
-impl VerifiedSupportRecoveryAuthorization {
-    pub(crate) fn from_audited_support(input: VerifiedSupportRecoveryAuthorizationInput) -> Self {
-        Self {
-            authorization_id: input.authorization_id,
-            issuer: input.issuer,
-            household_id: input.household_id,
-            account_id: input.account_id,
-            kind: input.kind,
-            scope: input.scope,
-            expires_at_epoch_millis: input.expires_at_epoch_millis,
-        }
-    }
-}
 impl fmt::Debug for IssuedSetupInvite {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("IssuedSetupInvite")
@@ -81,14 +67,5 @@ impl RecoveryHandoffDeliveryAttempt {
     }
     pub fn lease_expires_at(&self) -> &str {
         &self.lease_expires_at
-    }
-}
-impl fmt::Debug for RecoveryCustodyDeliveryReceipt {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("RecoveryCustodyDeliveryReceipt")
-            .field("handoff_id", &self.handoff_id)
-            .field("correlation_id", &self.correlation_id)
-            .field("attempt_id", &"<redacted>")
-            .finish()
     }
 }

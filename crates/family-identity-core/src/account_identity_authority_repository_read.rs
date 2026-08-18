@@ -60,6 +60,9 @@ impl SqliteAccountIdentityAuthorityRepository {
         let handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff =
             serde_json::from_str(&authority_json)
                 .map_err(|_| AccountIdentityAuthorityRepositoryError::InvalidStoredAuthority)?;
+        handoff
+            .validate_shape()
+            .map_err(|_| AccountIdentityAuthorityRepositoryError::InvalidStoredAuthority)?;
         if mapping_status != "active"
             || handoff.mapping.status != AccountIdentityMappingStatus::Active
             || &handoff.mapping.provider != provider

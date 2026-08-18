@@ -1,4 +1,16 @@
-use super::{support_invite::*, support_recovery::*, support_security::*, *};
+use std::time::{SystemTime, UNIX_EPOCH};
+
+use chrono::{DateTime, SecondsFormat, Utc};
+use ocentra_schema::account_identity_authority::{
+    AccountIdentityCurrentMemberDeviceAuthorityHandoff, AccountIdentityMappingStatus,
+};
+use rusqlite::{params, OptionalExtension, Transaction};
+
+use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
+use crate::family_identity::RecoveryId;
+
+use super::support_invite_identity::provider_label;
+use super::{InviteRecoveryRepositoryError, MAX_FORWARD_SKEW_MILLIS};
 
 pub(crate) fn ensure_current_authority(
     transaction: &Transaction<'_>,
@@ -101,20 +113,19 @@ pub(crate) fn trusted_now_in_transaction(
         )
         .optional()
         .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
-    const MAX_FORWARD_SKEW_MILLIS: i64 = 24 * 60 * 60 * 1_000;
     let now = match previous {
         None => system_now,
         Some(previous) => {
-            let floor = previous
-                .checked_add(1)
-                .ok_or(InviteRecoveryRepositoryError::ClockUnavailable)?;
             let ceiling = previous
                 .checked_add(MAX_FORWARD_SKEW_MILLIS)
                 .ok_or(InviteRecoveryRepositoryError::ClockUnavailable)?;
+            if system_now < previous {
+                return Err(InviteRecoveryRepositoryError::ClockUnavailable);
+            }
             if system_now > ceiling {
                 return Err(InviteRecoveryRepositoryError::ClockUnavailable);
             }
-            system_now.max(floor)
+            system_now
         }
     };
     if now <= 0 {
@@ -131,7 +142,7 @@ pub(crate) fn trusted_now_in_transaction(
     Ok((now, timestamp(now)?))
 }
 
-fn timestamp(epoch_millis: i64) -> Result<String, InviteRecoveryRepositoryError> {
+pub(crate) fn timestamp(epoch_millis: i64) -> Result<String, InviteRecoveryRepositoryError> {
     DateTime::<Utc>::from_timestamp_millis(epoch_millis)
         .map(|value| value.to_rfc3339_opts(SecondsFormat::Millis, true))
         .ok_or(InviteRecoveryRepositoryError::InvalidInvite)

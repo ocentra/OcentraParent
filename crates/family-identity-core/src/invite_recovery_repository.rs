@@ -5,19 +5,15 @@
 //! this repository; bearer values and serialized DTOs never mint authority.
 
 use std::fmt;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::Duration;
 
-use chrono::{DateTime, SecondsFormat, Utc};
-use getrandom::fill;
 use ocentra_eventing::error::EventingError;
 use ocentra_schema::account_identity_authority::{
-    AccountIdentityCurrentMemberDeviceAuthorityHandoff, AccountIdentityMappingStatus,
     AccountIdentityProvider, AccountIdentityProviderSubject, AccountIdentityRole,
     AccountIdentitySupportScope,
 };
 use ocentra_schema::report_query_custody::{FamilyId, ParentAccountId};
-use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
-use sha2::{Digest, Sha256};
+use rusqlite::Connection;
 
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_authority_repository::SqliteAccountIdentityAuthorityRepository;
@@ -28,39 +24,10 @@ use crate::setup_lifecycle::{RecoverySupportChannel, SetupInvitePurpose, SetupIn
 const INVITE_TOKEN_DIGEST_DOMAIN: &[u8] = b"ocentra-account-invite-v1";
 const MAX_INVITE_TTL: Duration = Duration::from_secs(30 * 24 * 60 * 60);
 const HANDOFF_LEASE_MILLIS: i64 = 5 * 60 * 1_000;
+const MAX_FORWARD_SKEW_MILLIS: i64 = 24 * 60 * 60 * 1_000;
 
 pub(crate) fn validate_schema(connection: &Connection) -> Result<(), ()> {
-    let integrity = connection
-        .query_row("PRAGMA integrity_check", [], |row| row.get::<_, String>(0))
-        .map_err(|_| ())?;
-    if integrity != "ok" {
-        return Err(());
-    }
-    let owned_tables = connection
-        .query_row(
-            "SELECT count(*) FROM sqlite_master
-             WHERE type = 'table' AND name IN (
-                 'account_identity_runtime_clock', 'account_identity_setup_invite',
-                 'account_identity_pending_invite_membership', 'account_identity_recovery',
-                 'account_identity_recovery_rate_limit',
-                 'account_identity_recovery_custody_handoff'
-             )",
-            [],
-            |row| row.get::<_, i64>(0),
-        )
-        .map_err(|_| ())?;
-    if owned_tables != 6 {
-        return Err(());
-    }
-    let unowned_objects = connection
-        .query_row(
-            "SELECT count(*) FROM sqlite_master
-             WHERE type IN ('trigger','view') AND name LIKE 'account_identity_%'",
-            [],
-            |row| row.get::<_, i64>(0),
-        )
-        .map_err(|_| ())?;
-    (unowned_objects == 0).then_some(()).ok_or(())
+    schema::validate(connection)
 }
 
 pub const INVITE_RECOVERY_SCHEMA_SQL: &str =
@@ -103,8 +70,14 @@ pub const INVITE_RECOVERY_SCHEMA_SQL: &str =
          recipient_provider_subject TEXT NOT NULL CHECK (length(trim(recipient_provider_subject)) > 0),
          recipient_account_id TEXT NOT NULL CHECK (length(trim(recipient_account_id)) > 0),
          target_role TEXT NOT NULL CHECK (target_role IN ('co-parent-guardian','observer','child-device-agent','parent-owner')),
-         state TEXT NOT NULL CHECK (state IN ('pending','committed','rejected')),
-         created_at_epoch_millis INTEGER NOT NULL CHECK (created_at_epoch_millis > 0)
+         state TEXT NOT NULL CHECK (state IN ('pending','in-flight','committed','rejected')),
+         created_at_epoch_millis INTEGER NOT NULL CHECK (created_at_epoch_millis > 0),
+         active_attempt_id TEXT UNIQUE CHECK (active_attempt_id IS NULL OR length(trim(active_attempt_id)) > 0),
+         lease_expires_at_epoch_millis INTEGER,
+         attempt_count INTEGER NOT NULL CHECK (attempt_count >= 0),
+         CHECK ((state = 'pending' AND active_attempt_id IS NULL AND lease_expires_at_epoch_millis IS NULL)
+             OR (state = 'in-flight' AND active_attempt_id IS NOT NULL AND lease_expires_at_epoch_millis > created_at_epoch_millis)
+             OR (state IN ('committed','rejected') AND active_attempt_id IS NULL AND lease_expires_at_epoch_millis IS NULL))
      ) STRICT;
      CREATE TABLE IF NOT EXISTS account_identity_recovery (
          recovery_id TEXT PRIMARY KEY CHECK (length(trim(recovery_id)) > 0),
@@ -120,14 +93,35 @@ pub const INVITE_RECOVERY_SCHEMA_SQL: &str =
          identity_proof_subject TEXT NOT NULL CHECK (length(trim(identity_proof_subject)) > 0),
          identity_proof_expires_at_epoch_millis INTEGER NOT NULL CHECK (identity_proof_expires_at_epoch_millis > 0),
          identity_proof_state TEXT NOT NULL CHECK (identity_proof_state IN ('verified','pending','failed')),
-         owner_effect TEXT NOT NULL CHECK (owner_effect IN ('provider-credential-session','device-trust-revoke','device-trust-reinstall','household-authority-mutation','data-custody-export-delete')),
+         support_authorization_id TEXT,
+         support_authorization_issuer TEXT,
+         support_authorization_scope TEXT CHECK (support_authorization_scope IS NULL OR support_authorization_scope IN ('household','device-control')),
+         support_authorization_expires_at_epoch_millis INTEGER,
+         owner_effect_kind INTEGER NOT NULL CHECK (owner_effect_kind IN (1,2,3,4)),
          state TEXT NOT NULL CHECK (state IN ('owner-approval-required','approved','completed','revoked')),
-         delete_export_handoff_required INTEGER NOT NULL CHECK (delete_export_handoff_required IN (0,1)),
          created_at_epoch_millis INTEGER NOT NULL CHECK (created_at_epoch_millis > 0),
-         last_transition_at_epoch_millis INTEGER NOT NULL CHECK (last_transition_at_epoch_millis >= created_at_epoch_millis)
+         last_transition_at_epoch_millis INTEGER NOT NULL CHECK (last_transition_at_epoch_millis >= created_at_epoch_millis),
+         reserved_owner_receipt_id TEXT CHECK (reserved_owner_receipt_id IS NULL OR length(reserved_owner_receipt_id) = 64),
+         reserved_owner_transition_id TEXT CHECK (reserved_owner_transition_id IS NULL OR length(trim(reserved_owner_transition_id)) > 0),
+         reserved_owner_receipt_expires_at_epoch_millis INTEGER,
+         CHECK ((support_channel = 'support-assisted'
+                 AND support_authorization_id IS NOT NULL
+                 AND support_authorization_issuer IS NOT NULL
+                 AND support_authorization_scope IS NOT NULL
+                 AND support_authorization_expires_at_epoch_millis IS NOT NULL)
+             OR (support_channel <> 'support-assisted'
+                 AND support_authorization_id IS NULL
+                 AND support_authorization_issuer IS NULL
+                 AND support_authorization_scope IS NULL
+                 AND support_authorization_expires_at_epoch_millis IS NULL))
      ) STRICT;
      CREATE INDEX IF NOT EXISTS account_identity_recovery_household ON account_identity_recovery(household_id, state);
      CREATE TABLE IF NOT EXISTS account_identity_recovery_rate_limit (
+         subject_digest TEXT PRIMARY KEY CHECK (length(subject_digest) = 64),
+         window_started_at_epoch_millis INTEGER NOT NULL CHECK (window_started_at_epoch_millis > 0),
+         attempt_count INTEGER NOT NULL CHECK (attempt_count >= 0)
+     ) STRICT;
+     CREATE TABLE IF NOT EXISTS account_identity_invite_rate_limit (
          subject_digest TEXT PRIMARY KEY CHECK (length(subject_digest) = 64),
          window_started_at_epoch_millis INTEGER NOT NULL CHECK (window_started_at_epoch_millis > 0),
          attempt_count INTEGER NOT NULL CHECK (attempt_count >= 0)
@@ -146,9 +140,12 @@ pub const INVITE_RECOVERY_SCHEMA_SQL: &str =
          active_attempt_id TEXT UNIQUE CHECK (active_attempt_id IS NULL OR length(trim(active_attempt_id)) > 0),
          lease_expires_at_epoch_millis INTEGER,
          attempt_count INTEGER NOT NULL CHECK (attempt_count >= 0),
+         owner_transition_id TEXT CHECK (owner_transition_id IS NULL OR length(trim(owner_transition_id)) > 0),
+         owner_receipt_digest TEXT CHECK (owner_receipt_digest IS NULL OR (length(owner_receipt_digest) = 64 AND owner_receipt_digest NOT GLOB '*[^0-9a-f]*')),
          CHECK ((state = 'pending' AND lease_expires_at_epoch_millis IS NULL AND active_attempt_id IS NULL)
              OR (state = 'in-flight' AND lease_expires_at_epoch_millis > requested_at_epoch_millis AND active_attempt_id IS NOT NULL)
-             OR (state = 'delivered' AND lease_expires_at_epoch_millis IS NULL))
+             OR (state = 'delivered' AND lease_expires_at_epoch_millis IS NULL
+                 AND owner_transition_id IS NOT NULL AND owner_receipt_digest IS NOT NULL))
      ) STRICT;
      CREATE INDEX IF NOT EXISTS account_identity_recovery_handoff_ready ON account_identity_recovery_custody_handoff(household_id, state, lease_expires_at_epoch_millis);";
 
@@ -174,7 +171,6 @@ pub enum RecoveryOwnerEffect {
     DeviceTrustRevoke,
     DeviceTrustReinstall,
     HouseholdAuthorityMutation,
-    DataCustodyExportDelete,
 }
 
 pub struct SetupInviteCode {
@@ -188,13 +184,7 @@ pub struct VerifiedInviteRecipient {
     account_id: ParentAccountId,
     email_digest: String,
 }
-pub(crate) struct VerifiedInviteRecipientInput {
-    pub(crate) provider: AccountIdentityProvider,
-    pub(crate) provider_subject: AccountIdentityProviderSubject,
-    pub(crate) account_id: ParentAccountId,
-    pub(crate) canonical_email: String,
-}
-#[derive(Debug, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub struct InviteMembershipHandoff {
     invite_id: SetupInviteId,
     household_id: FamilyId,
@@ -217,19 +207,6 @@ pub struct VerifiedRecoveryIdentityProof {
     support_channel: RecoverySupportChannel,
     expires_at_epoch_millis: i64,
 }
-pub(crate) struct VerifiedRecoveryIdentityProofInput {
-    pub(crate) proof_id: String,
-    pub(crate) provider: AccountIdentityProvider,
-    pub(crate) provider_subject: AccountIdentityProviderSubject,
-    pub(crate) account_id: ParentAccountId,
-    pub(crate) household_id: FamilyId,
-    pub(crate) member_id: String,
-    pub(crate) device_id: String,
-    pub(crate) role: AccountIdentityRole,
-    pub(crate) kind: RecoveryKind,
-    pub(crate) support_channel: RecoverySupportChannel,
-    pub(crate) expires_at_epoch_millis: i64,
-}
 
 pub struct VerifiedSupportRecoveryAuthorization {
     authorization_id: String,
@@ -239,15 +216,6 @@ pub struct VerifiedSupportRecoveryAuthorization {
     kind: RecoveryKind,
     scope: AccountIdentitySupportScope,
     expires_at_epoch_millis: i64,
-}
-pub(crate) struct VerifiedSupportRecoveryAuthorizationInput {
-    pub(crate) authorization_id: String,
-    pub(crate) issuer: String,
-    pub(crate) household_id: FamilyId,
-    pub(crate) account_id: ParentAccountId,
-    pub(crate) kind: RecoveryKind,
-    pub(crate) scope: AccountIdentitySupportScope,
-    pub(crate) expires_at_epoch_millis: i64,
 }
 
 pub struct IssuedSetupInvite {
@@ -279,9 +247,65 @@ pub struct RecoveryHandoffDeliveryAttempt {
     lease_expires_at: String,
 }
 
-pub struct RecoveryCustodyDeliveryReceipt {
+pub struct ProviderCredentialSessionOwnerReceipt {
     handoff_id: String,
     correlation_id: String,
+    recovery_id: RecoveryId,
+    attempt_id: String,
+    transition_id: String,
+    receipt_digest: String,
+}
+
+pub struct DeviceTrustRevokeOwnerReceipt {
+    handoff_id: String,
+    correlation_id: String,
+    recovery_id: RecoveryId,
+    attempt_id: String,
+    transition_id: String,
+    receipt_digest: String,
+}
+
+pub struct DeviceTrustReinstallOwnerReceipt {
+    handoff_id: String,
+    correlation_id: String,
+    recovery_id: RecoveryId,
+    attempt_id: String,
+    transition_id: String,
+    receipt_digest: String,
+}
+
+pub struct HouseholdAuthorityMutationOwnerReceipt {
+    handoff_id: String,
+    correlation_id: String,
+    recovery_id: RecoveryId,
+    attempt_id: String,
+    transition_id: String,
+    receipt_digest: String,
+}
+
+/// A membership-owner delivery lease. The account repository only persists
+/// the lease; it cannot mint a membership commit receipt or make the pending
+/// row authoritative.
+pub struct InviteMembershipDeliveryAttempt {
+    invite_id: SetupInviteId,
+    household_id: FamilyId,
+    recipient_provider: AccountIdentityProvider,
+    recipient_provider_subject: AccountIdentityProviderSubject,
+    recipient_account_id: ParentAccountId,
+    target_role: SetupInviteTargetRole,
+    attempt_id: String,
+    lease_expires_at: String,
+}
+
+/// Opaque membership-owner receipt. No constructor exists in this crate: the
+/// membership owner must provide the exact attempt-bound receipt.
+pub struct InviteMembershipCommitReceipt {
+    invite_id: SetupInviteId,
+    household_id: FamilyId,
+    recipient_provider: AccountIdentityProvider,
+    recipient_provider_subject: AccountIdentityProviderSubject,
+    recipient_account_id: ParentAccountId,
+    target_role: SetupInviteTargetRole,
     attempt_id: String,
 }
 
@@ -289,14 +313,60 @@ pub struct RecoveryCustodyDeliveryReceipt {
 mod authority;
 #[path = "invite_recovery_repository_invite_ops.rs"]
 mod invite_ops;
+#[path = "invite_recovery_repository_membership_ops.rs"]
+mod membership_ops;
+#[path = "invite_recovery_repository_membership_types.rs"]
+mod membership_types;
+#[path = "recovery_owner_ack_ops.rs"]
+mod owner_ack_ops;
+#[path = "invite_recovery_repository_owner_receipt_types.rs"]
+mod owner_receipt_types;
+#[path = "invite_recovery_repository_recovery_begin_ops.rs"]
+mod recovery_begin_ops;
+#[path = "invite_recovery_repository_recovery_completion_ops.rs"]
+mod recovery_completion_ops;
+#[path = "invite_recovery_repository_recovery_handoff_ops.rs"]
+mod recovery_handoff_ops;
 #[path = "invite_recovery_repository_recovery_ops.rs"]
 mod recovery_ops;
-#[path = "invite_recovery_repository_support_invite.rs"]
-mod support_invite;
-#[path = "invite_recovery_repository_support_recovery.rs"]
-mod support_recovery;
-#[path = "invite_recovery_repository_support_security.rs"]
-mod support_security;
+#[path = "invite_recovery_repository_schema.rs"]
+mod schema;
+#[path = "invite_recovery_repository_security_effect_codes.rs"]
+mod security_effect_codes;
+#[path = "invite_recovery_repository_security_effects.rs"]
+mod security_effects;
+#[path = "invite_recovery_repository_security_entropy.rs"]
+mod security_entropy;
+#[path = "invite_recovery_repository_security_rate_invite.rs"]
+mod security_rate_invite;
+#[path = "invite_recovery_repository_security_rate_recovery.rs"]
+mod security_rate_recovery;
+#[path = "invite_recovery_repository_support_invite_identity.rs"]
+mod support_invite_identity;
+#[path = "invite_recovery_repository_support_invite_policy.rs"]
+mod support_invite_policy;
+#[path = "invite_recovery_repository_support_invite_purpose.rs"]
+mod support_invite_purpose;
+#[path = "invite_recovery_repository_support_invite_target_role.rs"]
+mod support_invite_target_role;
+#[path = "invite_recovery_repository_support_recovery_channel.rs"]
+mod support_recovery_channel;
+#[path = "invite_recovery_repository_support_recovery_handoff.rs"]
+mod support_recovery_handoff;
+#[path = "invite_recovery_repository_support_recovery_kind_from_label.rs"]
+mod support_recovery_kind_from_label;
+#[path = "invite_recovery_repository_support_recovery_kind_label.rs"]
+mod support_recovery_kind_label;
+#[path = "invite_recovery_repository_support_recovery_labels.rs"]
+mod support_recovery_labels;
+#[path = "invite_recovery_repository_support_recovery_policy.rs"]
+mod support_recovery_policy;
+#[path = "invite_recovery_repository_support_recovery_scope.rs"]
+mod support_recovery_scope;
+#[path = "invite_recovery_repository_support_recovery_scope_from_label.rs"]
+mod support_recovery_scope_from_label;
+#[path = "invite_recovery_repository_support_recovery_scope_label.rs"]
+mod support_recovery_scope_label;
 #[path = "invite_recovery_repository_types.rs"]
 mod types;
 #[path = "invite_recovery_repository_types_identity.rs"]
