@@ -5,36 +5,36 @@ pub(super) fn copy_for_state(
 ) -> (&'static str, &'static str) {
     match state {
         ActivityScreenChildDisclosureState::Enabled => (
-            "Screen activity checks are on",
-            "A parent-enabled local screen check is ready and will show its status here.",
+            "Screen disclosure is proposed",
+            "Current typed settings and capability permit screen analysis; no child disclosure surface is delivered.",
         ),
         ActivityScreenChildDisclosureState::Paused => (
-            "Screen activity checks are paused",
-            "Screen checks are paused by the parent. This status will remain visible until they resume.",
+            "Screen disclosure is proposed and paused",
+            "An authoritative paused state is not currently supplied; no child disclosure surface is delivered.",
         ),
         ActivityScreenChildDisclosureState::Disabled => (
-            "Screen activity checks are off",
-            "Screen checks are disabled by the parent, so this device is not capturing screen evidence.",
+            "Screen disclosure is proposed and disabled",
+            "Current parent settings keep screen analysis disabled; no child disclosure surface is delivered.",
         ),
         ActivityScreenChildDisclosureState::Unavailable => (
-            "Screen activity status is unavailable",
-            "The device could not provide a current screen status. No hidden capture is represented.",
+            "Screen disclosure is unavailable",
+            "No typed current capability proves a child disclosure surface. Hidden capture and raw pixels are not represented.",
         ),
         ActivityScreenChildDisclosureState::ManualRequired => (
-            "Screen activity needs device permission",
-            "A device permission or manual step is required before a screen check can run.",
+            "Screen disclosure needs an authoritative manual state",
+            "The current typed owner has not supplied a manual-required disclosure state; no child surface is delivered.",
         ),
         ActivityScreenChildDisclosureState::CaptureActive => (
-            "A screen check is active",
-            "This notice is visible while the local device processes an allowed screen check.",
+            "Screen capture disclosure is proposed",
+            "An authoritative capture lifecycle is not currently supplied; no child disclosure surface is delivered.",
         ),
         ActivityScreenChildDisclosureState::ProtectedSurface => (
-            "This screen is protected",
-            "The platform blocked this screen, so Ocentra records the limitation instead of capturing pixels.",
+            "Protected-screen disclosure is proposed",
+            "An authoritative protected-surface state is not currently supplied; raw pixels are not represented.",
         ),
         ActivityScreenChildDisclosureState::SummaryReady => (
-            "A screen activity summary is ready",
-            "The local image is deleted; only the safe summary and evidence references remain.",
+            "Screen summary disclosure is diagnostic",
+            "An authoritative analysis lifecycle is not currently supplied; only a proposed safe summary boundary exists.",
         ),
     }
 }

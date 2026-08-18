@@ -27,7 +27,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | checked | [19 Sensitive Text And Redaction Model](workpacks/19-sensitive-text-and-redaction-model.md)                           | 3,047 | 10/10 checked; 0 open |
 | checked | [24 Enforcement Handoff Guard](workpacks/24-enforcement-handoff-guard.md)                                             | 1,510 | 6/6 checked; 0 open   |
 | checked | [25 Parent Portal Summary UI](workpacks/25-parent-portal-summary-ui.md)                                               | 1,840 | 8/8 checked; 0 open   |
-| checked | [26 Child Disclosure UX](workpacks/26-child-disclosure-ux.md)                                                         | 1,132 | 6/6 checked; 0 open   |
+| source-reviewed | [26 Child Disclosure UX](workpacks/26-child-disclosure-ux.md)                                                  | 2,681 | 0/6 checked; 6 open   |
 | checked | [27 Screenshot Retention Optional Mode](workpacks/27-screenshot-retention-optional-mode.md)                           | 1,789 | 7/7 checked; 0 open   |
 | checked | [31 Screen Intelligence Router](workpacks/31-screen-intelligence-router.md)                                           | 1,222 | 7/7 checked; 0 open   |
 | checked | [32 Browser Structured Extraction Before Screenshot](workpacks/32-browser-structured-extraction-before-screenshot.md) | 1,108 | 6/6 checked; 0 open   |

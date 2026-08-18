@@ -1,18 +1,14 @@
 use serde::{Deserialize, Serialize};
 
-use crate::screen_evidence::{
-    SCREEN_CAPABILITY_DISABLED_BY_PARENT, SCREEN_CAPABILITY_READY, SCREEN_DELETION_DELETED,
-    SCREEN_DELETION_EXPIRED_DELETED, SCREEN_DELETION_REQUIRED,
-};
+use crate::activity_capture::ActivityCaptureCapabilityStatus;
+use crate::screen_settings::ScreenAnalysisParentSetting;
 
 #[path = "screen_child_disclosure_copy.rs"]
 mod copy;
+
 use copy::copy_for_state;
 
-pub const SCREEN_CHILD_DISCLOSURE_CAPABILITY_PAUSED: &str = "pausedByParent";
-pub const SCREEN_CHILD_DISCLOSURE_CAPABILITY_PERMISSION_FRAGMENT: &str = "permission";
-pub const SCREEN_CHILD_DISCLOSURE_CAPABILITY_MANUAL_FRAGMENT: &str = "manual";
-pub const SCREEN_CHILD_DISCLOSURE_CAPABILITY_PROTECTED_FRAGMENT: &str = "protected";
+const CHILD_SURFACE_REQUIRED: bool = true;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityScreenChildDisclosureState {
@@ -35,35 +31,44 @@ pub enum ActivityScreenChildDisclosureState {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ActivityScreenChildDisclosure {
-    pub schema_version: u16,
-    pub state: ActivityScreenChildDisclosureState,
-    pub title: String,
-    pub message: String,
-    pub source_result_id: Option<String>,
-    pub capture_active: bool,
-    pub child_visible_required: bool,
-    pub hidden_capture_claimed: bool,
-    pub raw_screenshot_shown: bool,
-    pub remote_viewer_claimed: bool,
-    pub policy_authority_claimed: bool,
-    pub child_agent_delivery_claimed: bool,
+    schema_version: u16,
+    state: ActivityScreenChildDisclosureState,
+    title: String,
+    message: String,
+    current_capability_status: Option<ActivityCaptureCapabilityStatus>,
+    capture_active: bool,
+    child_surface_required: bool,
+    hidden_capture_claimed: bool,
+    raw_screenshot_shown: bool,
+    remote_viewer_claimed: bool,
+    policy_authority_claimed: bool,
+    child_agent_delivery_claimed: bool,
 }
 
 impl ActivityScreenChildDisclosure {
     pub fn unavailable(schema_version: u16) -> Self {
-        Self::for_state(
+        Self::from_owner_state(
             schema_version,
             ActivityScreenChildDisclosureState::Unavailable,
             None,
         )
     }
 
-    pub fn for_state(
+    pub fn from_current_authority(
+        schema_version: u16,
+        setting: &ScreenAnalysisParentSetting,
+        capability_status: ActivityCaptureCapabilityStatus,
+    ) -> Self {
+        let state = state_for_current_authority(setting, capability_status);
+        Self::from_owner_state(schema_version, state, Some(capability_status))
+    }
+
+    fn from_owner_state(
         schema_version: u16,
         state: ActivityScreenChildDisclosureState,
-        source_result_id: Option<String>,
+        current_capability_status: Option<ActivityCaptureCapabilityStatus>,
     ) -> Self {
         let (title, message) = copy_for_state(state);
         Self {
@@ -71,9 +76,9 @@ impl ActivityScreenChildDisclosure {
             state,
             title: title.to_string(),
             message: message.to_string(),
-            source_result_id,
+            current_capability_status,
             capture_active: state == ActivityScreenChildDisclosureState::CaptureActive,
-            child_visible_required: true,
+            child_surface_required: CHILD_SURFACE_REQUIRED,
             hidden_capture_claimed: false,
             raw_screenshot_shown: false,
             remote_viewer_claimed: false,
@@ -82,34 +87,77 @@ impl ActivityScreenChildDisclosure {
         }
     }
 
-    pub fn from_observation(
-        schema_version: u16,
-        source_result_id: String,
-        capability_status: &str,
-        deletion_state: &str,
-    ) -> Self {
-        let state = if deletion_state == SCREEN_DELETION_REQUIRED {
-            ActivityScreenChildDisclosureState::CaptureActive
-        } else if capability_status == SCREEN_CAPABILITY_DISABLED_BY_PARENT {
-            ActivityScreenChildDisclosureState::Disabled
-        } else if capability_status == SCREEN_CHILD_DISCLOSURE_CAPABILITY_PAUSED {
-            ActivityScreenChildDisclosureState::Paused
-        } else if capability_status.contains(SCREEN_CHILD_DISCLOSURE_CAPABILITY_PERMISSION_FRAGMENT)
-            || capability_status.contains(SCREEN_CHILD_DISCLOSURE_CAPABILITY_MANUAL_FRAGMENT)
-        {
-            ActivityScreenChildDisclosureState::ManualRequired
-        } else if capability_status.contains(SCREEN_CHILD_DISCLOSURE_CAPABILITY_PROTECTED_FRAGMENT)
-        {
-            ActivityScreenChildDisclosureState::ProtectedSurface
-        } else if deletion_state == SCREEN_DELETION_DELETED
-            || deletion_state == SCREEN_DELETION_EXPIRED_DELETED
-        {
-            ActivityScreenChildDisclosureState::SummaryReady
-        } else if capability_status == SCREEN_CAPABILITY_READY {
-            ActivityScreenChildDisclosureState::Enabled
-        } else {
+    pub fn schema_version(&self) -> u16 {
+        self.schema_version
+    }
+
+    pub fn state(&self) -> ActivityScreenChildDisclosureState {
+        self.state
+    }
+
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+
+    pub fn message(&self) -> &str {
+        &self.message
+    }
+
+    pub fn current_capability_status(&self) -> Option<ActivityCaptureCapabilityStatus> {
+        self.current_capability_status
+    }
+
+    pub fn capture_active(&self) -> bool {
+        self.capture_active
+    }
+
+    pub fn child_surface_required(&self) -> bool {
+        self.child_surface_required
+    }
+
+    pub fn hidden_capture_claimed(&self) -> bool {
+        self.hidden_capture_claimed
+    }
+
+    pub fn raw_screenshot_shown(&self) -> bool {
+        self.raw_screenshot_shown
+    }
+
+    pub fn remote_viewer_claimed(&self) -> bool {
+        self.remote_viewer_claimed
+    }
+
+    pub fn policy_authority_claimed(&self) -> bool {
+        self.policy_authority_claimed
+    }
+
+    pub fn child_agent_delivery_claimed(&self) -> bool {
+        self.child_agent_delivery_claimed
+    }
+}
+
+fn state_for_current_authority(
+    setting: &ScreenAnalysisParentSetting,
+    capability_status: ActivityCaptureCapabilityStatus,
+) -> ActivityScreenChildDisclosureState {
+    if !setting.screen_analysis_enabled {
+        ActivityScreenChildDisclosureState::Disabled
+    } else {
+        state_for_capability(capability_status)
+    }
+}
+
+fn state_for_capability(
+    capability_status: ActivityCaptureCapabilityStatus,
+) -> ActivityScreenChildDisclosureState {
+    match capability_status {
+        ActivityCaptureCapabilityStatus::Available => ActivityScreenChildDisclosureState::Enabled,
+        ActivityCaptureCapabilityStatus::Unavailable
+        | ActivityCaptureCapabilityStatus::AccessDenied
+        | ActivityCaptureCapabilityStatus::NoActiveWindow
+        | ActivityCaptureCapabilityStatus::NoNetworkObservations
+        | ActivityCaptureCapabilityStatus::AdapterError => {
             ActivityScreenChildDisclosureState::Unavailable
-        };
-        Self::for_state(schema_version, state, Some(source_result_id))
+        }
     }
 }

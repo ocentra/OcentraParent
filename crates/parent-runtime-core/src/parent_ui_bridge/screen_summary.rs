@@ -23,7 +23,8 @@ pub(super) fn screen_summary_panel_snapshot(
         },
         Some(read_model) => {
             let latest_row = read_model.rows.first();
-            let child_disclosure = screen_child_disclosure_from_read_model(read_model);
+            let child_disclosure =
+                ActivityScreenChildDisclosure::unavailable(read_model.schema_version);
             ParentScreenSummaryPanelSnapshot {
                 eyebrow,
                 title,
@@ -50,20 +51,18 @@ pub(super) fn screen_summary_panel_snapshot(
 fn unavailable_screen_summary_details(
     product_claim: &str,
 ) -> Vec<ParentScreenSummaryPanelDetailSnapshot> {
+    let child_disclosure = ActivityScreenChildDisclosure::unavailable(
+        ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION,
+    );
     vec![
         screen_summary_detail("Status", SCREEN_SUMMARY_UNAVAILABLE.to_string()),
         screen_summary_detail(
-            "Child disclosure",
-            screen_summary_child_disclosure_state(&ActivityScreenChildDisclosure::unavailable(
-                ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION,
-            )),
+            "Child disclosure (diagnostic/proposed; not delivered)",
+            screen_summary_child_disclosure_state(&child_disclosure),
         ),
         screen_summary_detail(
-            "Child disclosure message",
-            ActivityScreenChildDisclosure::unavailable(
-                ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION,
-            )
-            .message,
+            "Child disclosure copy (diagnostic/proposed; not delivered)",
+            child_disclosure.message().to_string(),
         ),
         screen_summary_detail("Product claim", product_claim.to_string()),
     ]
@@ -104,25 +103,28 @@ fn screen_summary_details(
                 .unwrap_or_else(|| SCREEN_SUMMARY_NOT_REPORTED.to_string()),
         ),
         screen_summary_detail(
-            "Child disclosure",
+            "Child disclosure (diagnostic/proposed; not delivered)",
             screen_summary_child_disclosure_state(child_disclosure),
         ),
-        screen_summary_detail("Child disclosure message", child_disclosure.message.clone()),
         screen_summary_detail(
-            "Child-visible requirement",
-            screen_summary_yes_no(child_disclosure.child_visible_required),
+            "Child disclosure copy (diagnostic/proposed; not delivered)",
+            child_disclosure.message().to_string(),
         ),
         screen_summary_detail(
-            "Hidden capture claimed",
-            screen_summary_yes_no(child_disclosure.hidden_capture_claimed),
+            "Child surface requirement",
+            screen_summary_yes_no(child_disclosure.child_surface_required()),
         ),
         screen_summary_detail(
-            "Raw screenshot shown",
-            screen_summary_yes_no(child_disclosure.raw_screenshot_shown),
+            "Hidden capture claim",
+            screen_summary_yes_no(child_disclosure.hidden_capture_claimed()),
+        ),
+        screen_summary_detail(
+            "Raw screenshot representation",
+            screen_summary_yes_no(child_disclosure.raw_screenshot_shown()),
         ),
         screen_summary_detail(
             "Child-agent delivery",
-            if child_disclosure.child_agent_delivery_claimed {
+            if child_disclosure.child_agent_delivery_claimed() {
                 "Claimed".to_string()
             } else {
                 "Not claimed".to_string()
@@ -132,22 +134,8 @@ fn screen_summary_details(
     ]
 }
 
-fn screen_child_disclosure_from_read_model(
-    read_model: &ActivityScreenReadModel,
-) -> ActivityScreenChildDisclosure {
-    let Some(row) = read_model.rows.first() else {
-        return ActivityScreenChildDisclosure::unavailable(read_model.schema_version);
-    };
-    ActivityScreenChildDisclosure::from_observation(
-        read_model.schema_version,
-        row.row_id.clone(),
-        &row.capability_status,
-        &row.image_deletion_state,
-    )
-}
-
 fn screen_summary_child_disclosure_state(disclosure: &ActivityScreenChildDisclosure) -> String {
-    screen_summary_readable_label(&serialized_enum_label(&disclosure.state))
+    screen_summary_readable_label(&serialized_enum_label(&disclosure.state()))
 }
 
 fn screen_summary_panel_row_snapshot(

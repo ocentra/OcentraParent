@@ -22823,15 +22823,15 @@
       "path": "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
-        "statusText": "checked",
+        "statusText": "source-reviewed",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
+        "needsReview": true,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
