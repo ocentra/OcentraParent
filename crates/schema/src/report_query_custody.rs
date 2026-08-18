@@ -95,6 +95,21 @@ pub type ReportQueryCustodySourceDataClass = enum_custody::ReportQueryCustodySou
 pub type ReportQueryCustodyNonClaim = enum_custody::ReportQueryCustodyNonClaim;
 pub type ReportQueryCustodyTombstoneState = enum_custody::ReportQueryCustodyTombstoneState;
 
+/// Every custody proof must account for each explicit query/report outcome.
+/// Keep this list in the Rust contract owner so runtime proof builders cannot
+/// silently drift from the generated edge contract's required state set.
+pub fn required_report_query_custody_states() -> [ReportQueryCustodyState; 7] {
+    [
+        ReportQueryCustodyState::DerivedFresh,
+        ReportQueryCustodyState::DerivedStale,
+        ReportQueryCustodyState::PartiallyRedacted,
+        ReportQueryCustodyState::DeletedSource,
+        ReportQueryCustodyState::SyncConflict,
+        ReportQueryCustodyState::CursorExpired,
+        ReportQueryCustodyState::RateLimited,
+    ]
+}
+
 pub type ParentContractSchemaVersion = text_types_core::ParentContractSchemaVersion;
 pub type ParentAccountId = text_types_core::ParentAccountId;
 pub type FamilyId = text_types_core::FamilyId;
