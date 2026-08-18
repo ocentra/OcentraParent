@@ -4,6 +4,8 @@
 > = {
   partialRestore: (preview: GeneratedParentStorageRestorePreview) =>
     preview.partialRestore && preview.rejectedSections.length > 0,
+  importPreviewPassed: (preview: GeneratedParentStorageRestorePreview) =>
+    !preview.partialRestore && preview.rejectedSections.length === 0,
   wrongHousehold: (preview: GeneratedParentStorageRestorePreview) => !preview.householdMatch,
   tombstoneConflict: (preview: GeneratedParentStorageRestorePreview) => preview.rejectedSections.length > 0,
   manualRequired: (preview: GeneratedParentStorageRestorePreview) =>

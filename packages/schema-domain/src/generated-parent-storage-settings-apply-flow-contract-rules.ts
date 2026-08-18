@@ -30,7 +30,8 @@ export function parentStorageRestorePreviewIsHonestGenerated(preview: GeneratedP
     !preview.tombstonesPreserved ||
     !preview.householdRef.trim() ||
     !preview.productVersion.trim() ||
-    !preview.schemaVersion.trim()
+    !preview.schemaVersion.trim() ||
+    preview.partialRestore !== (preview.previewState === 'partialRestore')
   ) {
     return false;
   }
@@ -44,10 +45,17 @@ export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedP
     !decision.confirmationRequired ||
     !/^[0-9a-f]{64}$/.test(decision.applyIntentDigest) ||
     decision.rollbackAvailable ||
+    decision.applyState === 'notStarted' ||
     decision.applyState === 'applyPending' ||
     decision.applyState === 'applied' ||
     decision.applyState === 'partial' ||
     decision.applyState === 'rollbackManualRequired'
+  ) {
+    return false;
+  }
+  if (
+    decision.manualReviewRequired.length > 0 &&
+    (decision.manualRequiredNote === null || decision.manualRequiredNote.trim().length === 0)
   ) {
     return false;
   }
@@ -124,6 +132,8 @@ const parentStorageRestorePreviewChecksGenerated: Partial<
 > = {
   partialRestore: (preview: GeneratedParentStorageRestorePreview) =>
     preview.partialRestore && preview.rejectedSections.length > 0,
+  importPreviewPassed: (preview: GeneratedParentStorageRestorePreview) =>
+    !preview.partialRestore && preview.rejectedSections.length === 0,
   wrongHousehold: (preview: GeneratedParentStorageRestorePreview) => !preview.householdMatch,
   tombstoneConflict: (preview: GeneratedParentStorageRestorePreview) => preview.rejectedSections.length > 0,
   manualRequired: (preview: GeneratedParentStorageRestorePreview) =>
