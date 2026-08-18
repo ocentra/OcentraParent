@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use ocentra_schema::account_identity_authority::AccountIdentityChildDeviceId;
 use ocentra_schema::report_query_custody::ChildProfileId;
 
@@ -10,7 +11,7 @@ use crate::household_authority::{
     HouseholdAuthorityAction, HouseholdAuthorityDecision,
 };
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Eq, PartialEq)]
 pub enum AccountIdentityTarget {
     ChildProfile(ChildProfileId),
     ChildDevice {
@@ -35,7 +36,7 @@ impl AccountIdentityTarget {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Eq, PartialEq)]
 pub struct AccountIdentityTargetActionRequest {
     action: HouseholdAuthorityAction,
     target: Option<AccountIdentityTarget>,
@@ -49,6 +50,8 @@ impl AccountIdentityTargetActionRequest {
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum AccountIdentityTargetAuthorityFailure {
+    SessionExpiryInvalid,
+    SessionExpired,
     TargetRequired,
     TargetUnexpected,
     TargetProfileMismatch,
@@ -102,6 +105,21 @@ pub fn resolve_target_action_from_verified_authority<'a>(
     authority: &'a VerifiedAccountIdentityAuthority,
     request: &AccountIdentityTargetActionRequest,
 ) -> Result<AccountIdentityTargetActionResolution<'a>, AccountIdentityTargetAuthorityFailure> {
+    resolve_target_action_at(authority, request, Utc::now())
+}
+
+pub(crate) fn resolve_target_action_at<'a>(
+    authority: &'a VerifiedAccountIdentityAuthority,
+    request: &AccountIdentityTargetActionRequest,
+    now: DateTime<Utc>,
+) -> Result<AccountIdentityTargetActionResolution<'a>, AccountIdentityTargetAuthorityFailure> {
+    let session_expires_at = DateTime::parse_from_rfc3339(authority.session_expires_at())
+        .map_err(|_| AccountIdentityTargetAuthorityFailure::SessionExpiryInvalid)?
+        .with_timezone(&Utc);
+    (session_expires_at > now)
+        .then_some(())
+        .ok_or(AccountIdentityTargetAuthorityFailure::SessionExpired)?;
+
     let target_required = action_requires_target(request.action);
     validate_target(
         target_required,
