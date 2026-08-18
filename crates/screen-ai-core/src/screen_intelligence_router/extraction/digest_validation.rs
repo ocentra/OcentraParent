@@ -2,7 +2,9 @@ use super::{
     VerifiedManagedBrowserStructuredExtractionReceipt, VerifiedStructuredExtractionOutcome,
     MANAGED_BROWSER_SENSITIVITY_PROTECTED, MANAGED_BROWSER_SENSITIVITY_STRUCTURAL_SAFE,
     MANAGED_BROWSER_SENSITIVITY_UNAVAILABLE, MANAGED_BROWSER_SENSITIVITY_UNKNOWN,
+    MANAGED_BROWSER_STRUCTURED_AUTHORITY_DIGEST_UNAVAILABLE,
     MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE,
+    MANAGED_BROWSER_STRUCTURED_EVIDENCE_KIND_UNAVAILABLE,
     MANAGED_BROWSER_STRUCTURED_SIGNAL_PROTECTED, MANAGED_BROWSER_STRUCTURED_SIGNAL_UNAVAILABLE,
     MANAGED_BROWSER_TARGET_REF_PREFIX, MANAGED_BROWSER_TARGET_REF_UNAVAILABLE,
     MANAGED_BROWSER_TITLE_REF_PREFIX, MANAGED_BROWSER_TITLE_REF_UNAVAILABLE,
@@ -46,6 +48,21 @@ pub(super) fn valid_sensitivity_digest(
     }
 }
 
+/// The producer digest covers launch-private inputs that this neutral handoff
+/// intentionally does not expose. Real outcomes therefore receive shape-only
+/// validation here; cryptographic recomputation remains an upstream boundary.
+pub(super) fn valid_authority_digest(
+    receipt: &VerifiedManagedBrowserStructuredExtractionReceipt,
+) -> bool {
+    let unavailable = matches!(
+        &receipt.outcome,
+        VerifiedStructuredExtractionOutcome::Unavailable
+    );
+    (unavailable
+        && receipt.authority_digest == MANAGED_BROWSER_STRUCTURED_AUTHORITY_DIGEST_UNAVAILABLE)
+        || (!unavailable && valid_digest(&receipt.authority_digest))
+}
+
 pub(super) fn valid_evidence_refs(
     receipt: &VerifiedManagedBrowserStructuredExtractionReceipt,
 ) -> bool {
@@ -56,7 +73,8 @@ pub(super) fn valid_evidence_refs(
     match &receipt.outcome {
         VerifiedStructuredExtractionOutcome::Unavailable => {
             receipt.evidence_refs.iter().all(|reference| {
-                reference.uri.is_none()
+                reference.kind == MANAGED_BROWSER_STRUCTURED_EVIDENCE_KIND_UNAVAILABLE
+                    && reference.uri.is_none()
                     && reference.digest == MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE
             }) && receipt
                 .evidence_refs

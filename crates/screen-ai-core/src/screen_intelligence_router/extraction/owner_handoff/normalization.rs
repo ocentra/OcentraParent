@@ -1,6 +1,8 @@
 use super::super::super::{
     MANAGED_BROWSER_SENSITIVITY_UNAVAILABLE, MANAGED_BROWSER_SESSION_REF_UNAVAILABLE,
+    MANAGED_BROWSER_STRUCTURED_AUTHORITY_DIGEST_UNAVAILABLE,
     MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE,
+    MANAGED_BROWSER_STRUCTURED_EVIDENCE_KIND_UNAVAILABLE,
     MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_UNAVAILABLE,
     MANAGED_BROWSER_STRUCTURED_SIGNAL_UNAVAILABLE, MANAGED_BROWSER_TARGET_REF_UNAVAILABLE,
     MANAGED_BROWSER_TITLE_REF_UNAVAILABLE, MANAGED_BROWSER_URL_REF_UNAVAILABLE,
@@ -13,20 +15,18 @@ pub(super) fn normalize(
     if !observation.unavailable {
         return observation;
     }
+    // Preserve the attempted observation time; it is not content or authority identity.
     observation.extraction_id = String::from(MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_UNAVAILABLE);
     observation.managed_browser_session_ref = String::from(MANAGED_BROWSER_SESSION_REF_UNAVAILABLE);
     observation.target_ref = String::from(MANAGED_BROWSER_TARGET_REF_UNAVAILABLE);
+    observation.authority_digest =
+        String::from(MANAGED_BROWSER_STRUCTURED_AUTHORITY_DIGEST_UNAVAILABLE);
     observation.structured_evidence_digest =
         String::from(MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE);
-    let evidence_kind = observation
-        .evidence_refs
-        .first()
-        .map(|evidence_ref| evidence_ref.kind.clone())
-        .unwrap_or_default();
     observation.evidence_refs = vec![
-        unavailable_evidence_ref(MANAGED_BROWSER_TARGET_REF_UNAVAILABLE, &evidence_kind),
-        unavailable_evidence_ref(MANAGED_BROWSER_URL_REF_UNAVAILABLE, &evidence_kind),
-        unavailable_evidence_ref(MANAGED_BROWSER_TITLE_REF_UNAVAILABLE, &evidence_kind),
+        unavailable_evidence_ref(MANAGED_BROWSER_TARGET_REF_UNAVAILABLE),
+        unavailable_evidence_ref(MANAGED_BROWSER_URL_REF_UNAVAILABLE),
+        unavailable_evidence_ref(MANAGED_BROWSER_TITLE_REF_UNAVAILABLE),
     ];
     observation.structured_signal_digest =
         String::from(MANAGED_BROWSER_STRUCTURED_SIGNAL_UNAVAILABLE);
@@ -43,10 +43,10 @@ pub(super) fn normalize(
     observation
 }
 
-fn unavailable_evidence_ref(evidence_id: &str, kind: &str) -> ActivityEvidenceRef {
+fn unavailable_evidence_ref(evidence_id: &str) -> ActivityEvidenceRef {
     ActivityEvidenceRef {
         evidence_id: String::from(evidence_id),
-        kind: String::from(kind),
+        kind: String::from(MANAGED_BROWSER_STRUCTURED_EVIDENCE_KIND_UNAVAILABLE),
         digest: String::from(MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE),
         uri: None,
     }

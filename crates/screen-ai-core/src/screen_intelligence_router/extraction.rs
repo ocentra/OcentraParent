@@ -20,6 +20,10 @@ const MANAGED_BROWSER_STRUCTURED_EVIDENCE_DIGEST_UNAVAILABLE: &str =
     "managed-browser-structured-evidence-unavailable-v1";
 const MANAGED_BROWSER_STRUCTURED_EXTRACTION_ID_UNAVAILABLE: &str =
     "managed-browser-unavailable-extraction-v1";
+const MANAGED_BROWSER_STRUCTURED_AUTHORITY_DIGEST_UNAVAILABLE: &str =
+    "managed-browser-unavailable-authority-v1";
+const MANAGED_BROWSER_STRUCTURED_EVIDENCE_KIND_UNAVAILABLE: &str =
+    "managed-browser-structured-evidence-kind-unavailable-v1";
 const MANAGED_BROWSER_SESSION_REF_UNAVAILABLE: &str = "managed-browser-unavailable-session-v1";
 const MANAGED_BROWSER_TARGET_REF_UNAVAILABLE: &str = "managed-browser-unavailable-target-v1";
 const MANAGED_BROWSER_URL_REF_UNAVAILABLE: &str = "managed-browser-unavailable-url-v1";
@@ -183,7 +187,7 @@ fn receipt_is_bound_and_redacted(
                 VerifiedStructuredExtractionOutcome::Unavailable
             ) && receipt.structured_body_digest.is_empty())
             || digest_validation::valid_body_digest(&receipt.structured_body_digest))
-        && digest_validation::valid_digest(&receipt.authority_digest)
+        && digest_validation::valid_authority_digest(receipt)
         && digest_validation::valid_sensitivity_digest(receipt)
         && document_identity_is_consistent(receipt)
         && receipt.visible_text_character_count <= SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT
