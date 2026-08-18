@@ -2,7 +2,7 @@
 
 > Plan: `data-custody-storage-plan`
 > Workpack: `WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs`
-> Status: routed source work only; implementation, tests, proof, and PR readiness are open.
+> Status: planned source work; Account WP05 participant/CAS source, implementation, tests, proof, and PR readiness are open.
 
 # WP10 Restore Orchestration And Producer Handoffs
 

@@ -2,7 +2,7 @@
 
 > Plan: `data-custody-storage-plan`
 > Workpack: `WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime`
-> Status: routed source work only; implementation, tests, proof, and PR readiness are open.
+> Status: planned source work; Account WP05 participant/CAS source, implementation, tests, proof, and PR readiness are open.
 
 # WP09 Parent Local Bundle Provider Runtime
 

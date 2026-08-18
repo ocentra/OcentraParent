@@ -129,8 +129,11 @@ tests, focused execution, proof, precommit, CI, and PR are intentionally
 deferred to their later phases.
 
 The 2026-08-18 routing correction regenerates the engineering graph from this
-plan's explicit WP05 base, parallel WP09/WP10 downstream routes, and blocked
-WP11 composition/mount route. Graph topology remains evidence-derived;
+plan's explicit WP05 base, Account WP05 participant/CAS source prerequisite,
+parallel WP09/WP10 downstream source routes, and dependency-blocked WP11
+composition/mount route. Reviewed-implementation gates preserve the mandated
+source-before-tests order without promoting normal READY, tests, proof, or
+DONE. Graph topology remains evidence-derived;
 topology presence does not promote a workpack to DONE.
 
 ## What Is Already Present

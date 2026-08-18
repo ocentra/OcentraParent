@@ -2,7 +2,7 @@
 
 > Plan: `data-custody-storage-plan`
 > Workpack: `WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount`
-> Status: blocked routing work only; production composition, tests, proof, and PR readiness are open.
+> Status: planned dependency-blocked source work; WP09/WP10 source, Account WP05 participant/CAS source, production composition, tests, proof, and PR readiness are open.
 
 # WP11 Runtime Composition And Custody Mount
 

@@ -68,8 +68,11 @@ must remain opaque blockers rather than being fabricated.
 
 ## 2026-08-18 base/composition routing correction
 
-The legal route is now `WP05 base -> (WP09, WP10) -> WP11 composition/mount`.
-WP11 is blocked on Account WP05's true authority transaction/CAS and recovery
+The legal source route is now `WP05 base -> Account WP05 participant/CAS source -> (WP09, WP10) -> WP11 composition/mount`.
+Reviewed-implementation gates let WP09/WP10 consume source-accepted Data
+foundations without waiting for their tests or DONE, while the missing Account
+WP05 participant/CAS source remains a real blocker. WP11 is blocked on Account
+WP05's true authority transaction/CAS and recovery
 owner, key/import custody, producer artifact custody, WP09 provider operation
 capability, and WP10 owner-derived outcomes. Its only planned roots are
 `crates/parent-runtime-core/src/data_custody_runtime_composition.rs`,

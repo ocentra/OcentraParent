@@ -612,7 +612,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
         "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md"
       ],
-      "reason": "Byte persistence and verification must consume the key-custody and decrypt-scope boundary."
+      "reason": "Byte persistence and verification must consume the reviewed WP02 key-custody and decrypt-scope source boundary. This source-phase gate does not claim runtime composition, tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
@@ -623,7 +624,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
         "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md"
       ],
-      "reason": "The provider-neutral adapter must preserve the parent-owned provider and encryption-before-upload contract."
+      "reason": "The provider-neutral adapter must preserve the reviewed WP03 parent-owned provider and encryption-before-upload source contract. This source-phase gate does not claim a live provider, tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
@@ -634,7 +636,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
         "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
       ],
-      "reason": "Atomic persistence and job retry must preserve retention and tombstone ordering."
+      "reason": "Atomic persistence and job retry must preserve the reviewed WP04 retention and tombstone source ordering. This source-phase gate does not claim runtime composition, tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
@@ -645,7 +648,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
         "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md"
       ],
-      "reason": "The runtime stores and verifies the WP05 bundle and preflight contract without redefining it."
+      "reason": "The runtime stores and verifies the reviewed WP05 bundle and preflight source contract without redefining it. This source-phase gate does not claim tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
@@ -656,7 +660,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
       ],
-      "reason": "Manual or scheduled custody jobs require Account-owned current authority, capability, and lease composition."
+      "reason": "Manual or scheduled custody jobs require the Account-owned current authority, capability, and lease source composition. The reviewed-implementation gate remains blocked until Account WP05 records its missing durable participant/CAS source; it never borrows runtime authority or claims tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
@@ -667,7 +672,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
         "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md"
       ],
-      "reason": "Restore preflight and producer handoffs must bind to the key-custody boundary."
+      "reason": "Restore preflight and producer handoffs must bind to the reviewed WP02 key-custody source boundary. This source-phase gate does not claim runtime composition, tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
@@ -678,7 +684,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
         "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md"
       ],
-      "reason": "Restore orchestration must consume provider/sync state without becoming a provider implementation."
+      "reason": "Restore orchestration must consume the reviewed WP03 provider/sync source state without becoming a provider implementation. This source-phase gate does not claim a live provider, tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
@@ -689,7 +696,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
         "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
       ],
-      "reason": "Restore and rollback must preserve tombstones, retention expiry, and no-resurrection ordering."
+      "reason": "Restore and rollback must preserve the reviewed WP04 tombstone, retention-expiry, and no-resurrection source ordering. This source-phase gate does not claim runtime composition, tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
@@ -700,7 +708,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
         "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md"
       ],
-      "reason": "Preflight, migration, and apply orchestration must consume the versioned bundle and integrity contract."
+      "reason": "Preflight, migration, and apply orchestration must consume the reviewed WP05 versioned bundle and integrity source contract. This source-phase gate does not claim tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
@@ -711,7 +720,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
       ],
-      "reason": "Apply, migration, and rollback require Account-owned current capability, lease, and session authority."
+      "reason": "Apply, migration, and rollback require the Account-owned current capability, lease, and session source authority. The reviewed-implementation gate remains blocked until Account WP05 records its missing durable participant/CAS source; it never borrows runtime authority or claims tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
@@ -722,7 +732,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
       ],
-      "reason": "Trusted confirmation and current authority must come from the Account WP08 boundary, never from request data."
+      "reason": "Trusted confirmation and current authority must come from the reviewed Account WP08 source boundary, never from request data. This source-phase gate does not claim the blocked Data WP08 executor, tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
@@ -1799,7 +1810,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
         "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md"
       ],
-      "reason": "WP11 mounts only the WP05 base ledgers, reconciliation, Eventing/outbox, and manual-required gates; it cannot replace or duplicate that owner."
+      "reason": "WP11 mounts only the reviewed WP05 base ledgers, reconciliation, Eventing/outbox, and manual-required source gates; it cannot replace or duplicate that owner. This source-phase gate does not claim tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
@@ -1810,7 +1822,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
         "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md"
       ],
-      "reason": "WP11 cannot mount a key/decrypt or import-integrity capability until the key/import custody owner supplies current owner-derived state."
+      "reason": "WP11 consumes the reviewed WP02 key/import-custody source boundary but cannot mount a positive capability until current owner-derived state exists. This source-phase gate does not claim runtime authority, tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
@@ -1821,7 +1834,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
         "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md"
       ],
-      "reason": "WP11 consumes WP09's opaque provider operation capability and owner-derived outcome; WP09 remains independent of the composition mount."
+      "reason": "WP11 consumes WP09's opaque provider operation capability and owner-derived outcome; WP09 remains independent of the composition mount. The reviewed-implementation gate remains blocked until WP09's planned production source exists.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
@@ -1832,7 +1846,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
         "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md"
       ],
-      "reason": "WP11 consumes WP10 owner-derived producer outcomes, including partial/manual-required states; WP10 remains independent of the composition mount."
+      "reason": "WP11 consumes WP10 owner-derived producer outcomes, including partial/manual-required states; WP10 remains independent of the composition mount. The reviewed-implementation gate remains blocked until WP10's planned production source exists.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
@@ -1843,7 +1858,8 @@
         "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
       ],
-      "reason": "WP11 is blocked until Account WP05 supplies a true authority transaction/CAS and recovery handoff; caller-selected authority is not accepted."
+      "reason": "WP11 is blocked until Account WP05 supplies a true authority transaction/CAS and recovery source handoff; caller-selected authority is not accepted. The reviewed-implementation gate never borrows runtime authority or claims tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
     }
   ],
   "stateOverrides": [
@@ -1943,6 +1959,64 @@
     }
   ],
   "completionEvidenceOverrides": [
+    {
+      "id": "WP-data-custody-storage-plan-02-encryption-key-custody",
+      "implementation": [
+        "crates/schema/src/encryption_key_custody.rs",
+        "crates/storage-custody-core/src/encryption_key_custody.rs",
+        "crates/storage-custody-core/src/encryption_key_custody_platform.rs"
+      ],
+      "reason": "Reviewed Data WP02 source establishes the Rust-owned key-custody contract, scoped custody decisions, and fail-closed platform boundary. Expected tests, live platform/key owners, focused validation, proof, checklist acceptance, PR readiness, and DONE remain open.",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+        "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+      "implementation": [
+        "crates/schema/src/parent_owned_sync_export.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider.rs",
+        "packages/schema-domain/src/generated-parent-owned-sync-export-contracts.ts"
+      ],
+      "reason": "Reviewed Data WP03 source establishes the parent-owned encrypted-sync contract, provider-neutral validation boundary, tombstone state, and generated TypeScript parity. Expected tests, a live provider owner, focused validation, proof, checklist acceptance, PR readiness, and DONE remain open.",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+        "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "implementation": [
+        "crates/schema/src/retention_delete_tombstone.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_validate.rs"
+      ],
+      "reason": "Reviewed Data WP04 source establishes typed retention/delete/tombstone contracts, no-resurrection state transitions, propagation checks, and proof-row decisions. Expected-test migration, live downstream owners, focused validation, proof, checklist acceptance, PR readiness, and DONE remain open.",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+      "implementation": [
+        "crates/storage-custody-core/src/export_import_backup_recovery.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing.rs"
+      ],
+      "reason": "Independent source review at canonical 79b2c3bd7 accepted bounded Data WP05 production source: versioned bundle/import decisions, sealed preflight custody, durable backup and restore/migration ledgers, restart reconciliation, rollback/executor seams, and file-backed Eventing. Five expected test roots, external Account/key/provider/producer composition, focused validation, proof, checklist acceptance, PR readiness, and DONE remain open.",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+        "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
     {
       "id": "WP-logging-domain-parity-02-typescript-logging-package-parity",
       "implementation": [
