@@ -106,6 +106,33 @@ impl HouseholdAuthorityRuntimeAuthorization {
 }
 
 impl HouseholdAuthorityRuntimeEffectAuthorization {
+    /// Consume an already revalidated Account receipt for one exact Data Custody operation.
+    ///
+    /// Data Custody receives no household, device, session, generation, or revocation fields
+    /// from this type. Account retains those fields privately and performs the final target
+    /// comparison here before moving the receipt into the terminal consumed effect.
+    pub fn consume_for_data_custody(
+        self,
+        expected_action: super::HouseholdAuthorityAction,
+        expected_household_id: &str,
+        expected_target_device_id: Option<&str>,
+        expected_account_authority_generation: Option<u64>,
+    ) -> Result<HouseholdAuthorityRuntimeConsumedEffect, HouseholdAuthorityRuntimeFailure> {
+        if self.target.action != expected_action
+            || self.target.household_id != expected_household_id
+            || expected_target_device_id
+                .is_some_and(|expected| self.target.child_device_id != expected)
+            || expected_account_authority_generation
+                .is_some_and(|expected| self.target.account_authority_generation != expected)
+        {
+            return Err(HouseholdAuthorityRuntimeFailure::EffectTargetMismatch);
+        }
+        Ok(HouseholdAuthorityRuntimeConsumedEffect {
+            target: self.target,
+            consumption_nonce: self.consumption_nonce,
+        })
+    }
+
     /// Consume this receipt exactly once with an owner-issued target. Both values move by value,
     /// and every private identity, binding, generation, expiry, and action field must match.
     /// Mismatched targets fail closed; there is no API for pairing arbitrary caller state.

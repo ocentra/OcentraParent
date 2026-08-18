@@ -1,6 +1,6 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 
-use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
+use ocentra_family_identity_core::household_authority_runtime_composer::HouseholdAuthorityRuntimeEffectAuthorization;
 
 use super::{authorize_backup_request, BackupRequestError, BackupRequestInput};
 
@@ -30,18 +30,13 @@ pub enum BackupScheduleError {
 /// failed authority/integrity check into an accepted schedule.
 pub fn derive_backup_schedule(
     request: BackupScheduleRequest,
-    authority: CurrentVerifiedHouseholdAuthority,
+    authority: HouseholdAuthorityRuntimeEffectAuthorization,
 ) -> Result<contracts::ExportImportBackupSchedule, BackupScheduleError> {
     let schedule_ref = contracts::ExportImportScheduleRef::parse(request.schedule_ref)
         .ok_or(BackupScheduleError::InvalidScheduleRef)?;
     let next_run_at = contracts::ExportImportTimestamp::parse(request.next_run_at)
         .ok_or(BackupScheduleError::InvalidTimestamp)?;
-    let household_id = contracts::ExportImportHouseholdId::parse(
-        authority.identity_binding().household_id().to_owned(),
-    )
-    .ok_or(BackupScheduleError::Authorization(
-        BackupRequestError::HouseholdMismatch,
-    ))?;
+    let household_id = request.input.household_id.clone();
 
     let cadence = request.input.cadence;
     let authorization = authorize_backup_request(request.input, authority)

@@ -1,4 +1,4 @@
-use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
+use ocentra_family_identity_core::household_authority_runtime_composer::HouseholdAuthorityRuntimeEffectAuthorization;
 use ocentra_schema::export_import_backup_recovery as contracts;
 
 use super::execution_binding::RestoreExecutionCapability;
@@ -19,7 +19,7 @@ pub trait ImportCustodyCapabilityPort: sealed::Port + Send + Sync {
     fn verify_import_bundle(
         &self,
         bundle: &contracts::ExportImportRecoveryBundle,
-        authority: &CurrentVerifiedHouseholdAuthority,
+        authority: &HouseholdAuthorityRuntimeEffectAuthorization,
     ) -> Result<VerifiedImportCustody, ImportBindingError>;
 }
 
@@ -64,24 +64,26 @@ impl VerifiedImportCustody {
     pub(crate) fn validate_for_binding(
         &self,
         bundle: &contracts::ExportImportRecoveryBundle,
-        authority: &CurrentVerifiedHouseholdAuthority,
+        authority: HouseholdAuthorityRuntimeEffectAuthorization,
     ) -> Result<(), ImportBindingError> {
         if self.bundle_id != bundle.manifest.bundle_id
-            || self.household_id.as_str() != authority.identity_binding().household_id()
             || self.household_id != bundle.manifest.source_household_id
         {
             return Err(ImportBindingError::HouseholdMismatch);
         }
-        if self.target_device_id.as_ref().map(|value| value.as_str())
-            != Some(authority.identity_binding().target_device_id())
-        {
-            return Err(ImportBindingError::HouseholdMismatch);
-        }
-        if self.authority_generation == 0
-            || self.authority_generation != authority.family_revocation_epoch()
-            || self.authority_proof_nonce.trim().is_empty()
-            || self.authority_proof_nonce != authority.proof_nonce()
-        {
+        let target_device_id = self
+            .target_device_id
+            .as_ref()
+            .ok_or(ImportBindingError::MissingLocalContext)?;
+        authority
+            .consume_for_data_custody(
+                ocentra_family_identity_core::household_authority::HouseholdAuthorityAction::ImportRestoreData,
+                self.household_id.as_str(),
+                Some(target_device_id.as_str()),
+                None,
+            )
+            .map_err(|_| ImportBindingError::AuthorityProofMismatch)?;
+        if self.authority_generation == 0 || self.authority_proof_nonce.trim().is_empty() {
             return Err(ImportBindingError::AuthorityProofMismatch);
         }
         if self.key_ref != bundle.manifest.key_ref

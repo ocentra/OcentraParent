@@ -1,7 +1,4 @@
-use ocentra_family_identity_core::{
-    household_authority::HouseholdAuthorityAction,
-    household_authority_proof::CurrentVerifiedHouseholdAuthority,
-};
+use ocentra_family_identity_core::household_authority_runtime_composer::HouseholdAuthorityRuntimeEffectAuthorization;
 use ocentra_schema::export_import_backup_recovery as contracts;
 #[path = "export_import_backup_recovery_bundle_preflight_binding_custody_port.rs"]
 pub mod custody_port;
@@ -48,16 +45,13 @@ impl BoundImportPreflight {
 /// restore plan by a caller.
 pub fn bind_import_preflight(
     bundle: &contracts::ExportImportRecoveryBundle,
-    authority: CurrentVerifiedHouseholdAuthority,
+    authority: HouseholdAuthorityRuntimeEffectAuthorization,
     custody: &dyn ImportCustodyCapabilityPort,
 ) -> Result<BoundImportPreflight, ImportBindingError> {
     // Restore/import is a distinct state-changing household action. ExportDeleteData
     // and PairChildDevice must never be accepted as substitutes for it.
-    if authority.input().action != HouseholdAuthorityAction::ImportRestoreData {
-        return Err(ImportBindingError::AuthorityActionRequired);
-    }
     let verified = custody.verify_import_bundle(bundle, &authority)?;
-    verified.validate_for_binding(bundle, &authority)?;
+    verified.validate_for_binding(bundle, authority)?;
     let (
         verified_bundle_id,
         key_ref,

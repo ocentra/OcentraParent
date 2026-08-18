@@ -1,7 +1,7 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 
 use ocentra_family_identity_core::household_authority::HouseholdAuthorityAction;
-use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
+use ocentra_family_identity_core::household_authority_runtime_composer::HouseholdAuthorityRuntimeEffectAuthorization;
 
 #[path = "export_import_backup_recovery_backup_job_state.rs"]
 pub mod export_import_backup_recovery_backup_job_state;
@@ -128,15 +128,16 @@ pub(crate) fn migration_execution_readiness(
 
 pub fn authorize_backup_request(
     input: BackupRequestInput,
-    authority: CurrentVerifiedHouseholdAuthority,
+    authority: HouseholdAuthorityRuntimeEffectAuthorization,
 ) -> Result<contracts::ExportImportBackupRequestState, BackupRequestError> {
-    if authority.input().action != HouseholdAuthorityAction::ExportDeleteData {
-        return Err(BackupRequestError::AuthorityActionRequired);
-    }
-    let identity_binding = authority.identity_binding();
-    if identity_binding.household_id() != input.household_id.as_str() {
-        return Err(BackupRequestError::HouseholdMismatch);
-    }
+    authority
+        .consume_for_data_custody(
+            HouseholdAuthorityAction::ExportDeleteData,
+            input.household_id.as_str(),
+            None,
+            None,
+        )
+        .map_err(|_| BackupRequestError::HouseholdMismatch)?;
 
     let scheduled = input.cadence == contracts::ExportImportBackupCadence::Scheduled;
     Ok(contracts::ExportImportBackupRequestState {

@@ -48,7 +48,7 @@ impl ParentRestoreRuntime {
             .account()
             .current_restore_authority(plan.household_id())
             .map_err(RestoreRuntimeError::Authority)?;
-        if plan.matches_current_authority(&authority) {
+        if plan.matches_current_runtime_authority(authority) {
             Ok(())
         } else {
             Err(RestoreRuntimeError::Binding(
