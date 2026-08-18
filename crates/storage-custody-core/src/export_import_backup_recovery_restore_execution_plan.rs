@@ -147,7 +147,7 @@ impl RestoreExecutionPlan {
                 ocentra_family_identity_core::household_authority::HouseholdAuthorityAction::ImportRestoreData,
                 self.household_id.as_str(),
                 Some(self.execution_binding.target_device_id().as_str()),
-                Some(self.execution_binding.authority_generation()),
+                None,
             )
             .is_ok()
     }

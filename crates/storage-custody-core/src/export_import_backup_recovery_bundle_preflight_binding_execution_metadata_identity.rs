@@ -3,14 +3,6 @@ use ocentra_schema::export_import_backup_recovery as contracts;
 use super::{RestoreExecutionBinding, RestoreExecutionCapability};
 
 impl RestoreExecutionBinding {
-    pub fn authority_generation(&self) -> u64 {
-        self.authority_generation
-    }
-
-    pub fn authority_proof_nonce(&self) -> &str {
-        &self.authority_proof_nonce
-    }
-
     pub fn is_same_capability(&self, other: &Self) -> bool {
         std::ptr::eq(self.capability.as_ref(), other.capability.as_ref())
     }

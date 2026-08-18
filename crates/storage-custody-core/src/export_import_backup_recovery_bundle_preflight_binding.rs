@@ -59,8 +59,6 @@ pub fn bind_import_preflight(
         payload_integrity_refs,
         _verified_household_id,
         target_device_id,
-        authority_generation,
-        authority_proof_nonce,
         migration_ref,
         preflight,
         capability,
@@ -77,8 +75,6 @@ pub fn bind_import_preflight(
         preflight.tombstones_preserved && !preflight.local_truth_mutated,
         migration_ref,
         preflight.migration_state,
-        authority_generation,
-        authority_proof_nonce,
         capability,
     );
 
