@@ -503,8 +503,15 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
     const missingExpectedTestRoots = expectedTestRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
     const uniqueRoots = [...new Set(entry.roots.map(normalizeRepoPath))];
     const missingRoots = uniqueRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
+    // Deferred tooling-test cases: missing expected roots remain visible and unsatisfied;
+    // existing expected roots inside declared roots scan once; existing expected roots
+    // outside declared roots are scanned and counted as test evidence.
+    const existingExpectedTestRoots = expectedTestRoots.filter(
+      (relativePath) => !missingExpectedTestRoots.includes(relativePath)
+    );
+    const scanRoots = [...new Set([...uniqueRoots, ...existingExpectedTestRoots])];
     const files = [];
-    for (const relativePath of uniqueRoots.filter((candidate) => !missingRoots.includes(candidate))) {
+    for (const relativePath of scanRoots.filter((candidate) => !missingRoots.includes(candidate))) {
       files.push(...(await walkCodeFiles(root, relativePath)));
     }
     const uniqueFiles = [...new Set(files)].sort();
