@@ -40,7 +40,7 @@ accepted WP08 schema + sealed authority + local repository/CAS
   -> WP02 target-aware actor/target resolver with unavailable capability/lease/step-up actions fail-closed
   -> Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider-to-Account caller
   -> Device Trust WP03 RegisterLanSignerAnchor actor/target composition
-  -> complete WP04 atomic invite/recovery orchestration and typed custody handoff
+  -> mount reviewed WP04 repository behind real identity/membership/support/Data owners and write its six expected test roots
   -> complete WP05 Device Trust/remote/export/delete step-up consumers
   -> write the full WP02-WP05/WP08 expected-test wave
   -> run focused tests and focused Enforcer only after test source is complete

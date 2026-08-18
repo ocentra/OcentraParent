@@ -235,7 +235,12 @@ Expected focused commands:
 npm run build --workspace @ocentra-parent/family-domain
 npm run test --workspace @ocentra-parent/family-domain -- invite
 npm run test --workspace @ocentra-parent/family-domain -- recovery
+cargo test -p ocentra-family-identity-core --test unit invite_recovery_repository
+cargo test -p ocentra-family-identity-core --test unit recovery_owner_ack
+cargo test -p ocentra-family-identity-core --test contract recovery_data_custody_handoff
+cargo test -p ocentra-family-identity-core --test integration invite_recovery_repository
 npm run lint:architecture -- --files packages/family-domain
+npm run lint:architecture -- --files crates/family-identity-core
 ```
 
 Expected coverage:
@@ -252,6 +257,12 @@ recovery owner approval and support audit
 enumeration-resistant response and timing strategy
 rate limiting or exact blocker
 account delete/export handoff to data custody
+same-transaction current-authority revalidation
+strict SQLite object/index/row validation and corruption rejection
+monotonic clock rollback/forward-skew edges
+durable restart, replay, lease, and concurrent redemption/claim behavior
+owner receipt binding; approval alone never becomes terminal completion
+typed correlated Data Custody retry without Account-owned side effects
 ```
 
 ## WP05 Device Ownership AuthZ

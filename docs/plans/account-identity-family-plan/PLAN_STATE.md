@@ -19,7 +19,7 @@
 ```text
 Plan route: upgraded
 Execution-grade workpacks: WP01 has a provider/custody proof pack plus the retained narrow D1 storage-adapter proof at `docs/proof/account-identity-family-plan/01-auth-provider-decision/06-account-identity-storage-adapter-proof.md`; WP08 has a tracked durable Rust-authority manifest under `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk; WP06 is reopened for final aggregation after WP08 plus Cloudflare WP06/WP08 handoffs
-Implementation: the accepted Account source wave at `35edb2830`, reconciled into the integration line through `e69acf279`, provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, a local SQLite repository/CAS/invariant owner, session and invite/recovery lifecycle records, and a Cloudflare D1 current-authority read adapter plus ordered `0001`-`0004` Account/Payment migration source. Reviewed commits `86caae334` and `7934fb41b` add the bounded target-aware WP02 resolver and migrate the storage-custody consumer without accepting caller-minted authority. The authoritative Cloudflare D1 writer/update/revocation/CAS path, shipped Firebase/provider-to-Account caller, live Device Trust binding, expected tests, route composition, deployment/migration execution, proof, and DONE remain open
+Implementation: reviewed source provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, durable authority and session custody, target-aware WP02 resolution, and a strict WP04 SQLite invite/recovery repository with same-transaction authority validation, monotonic clock/rate/replay custody, private owner receipts, and typed recovery handoff. Cloudflare retains the D1 current-authority read adapter and ordered Account/Payment migration source. Authoritative Cloudflare writer/update/revocation/CAS, shipped provider-to-Account caller, WP04 identity/membership/support/Data owner adapters, live Device Trust binding, expected tests, route composition, deployment/migration execution, proof, and DONE remain open
 Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP08 uses its tracked durable manifest rather than ignored raw output; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent unless a selected workpack explicitly requires them
 PR-ready: false
 ```
@@ -82,8 +82,9 @@ What is now real:
   actor-versus-target composition remains incorrect and reopened;
 - WP03 currentness comes from persisted session identity, generation, expiry,
   freshness, and revocation state instead of request booleans;
-- WP04 has owner-derived invite and recovery lifecycle source records without
-  public authority construction or terminal-state reset;
+- WP04 has a strict durable invite/recovery repository without public authority
+  or owner-receipt construction; recovery remains `Approved` until a real
+  downstream owner receipt is acknowledged;
 - WP05 billing and support/admin consumers bind action identity to current
   repository authority and a complete support receipt;
 - Cloudflare WP06 owns the D1 adapter and the ordered undeployed source
@@ -98,8 +99,8 @@ What remains before product completion:
   authority, including actor/target substitution and parent observer cases;
 - a shipped Cloudflare authoritative writer/currentness/revocation/CAS owner,
   Firebase/provider-to-Account caller, and account/session route composition;
-- complete atomic invite/recovery runtime orchestration and typed custody
-  delivery;
+- ship identity/membership/support/Data owner adapters for the reviewed WP04
+  repository and typed custody handoff;
 - Device Trust step-up plus remote/export/delete consumers;
 - the full expected-test wave for reload, concurrency, replay, expiry,
   revocation, cross-household, support-receipt, migration, and route negatives;

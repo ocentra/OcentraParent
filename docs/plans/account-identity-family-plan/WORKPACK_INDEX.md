@@ -22,7 +22,7 @@ Use this index to select exactly one workpack.
 | validation / replacement source accepted / tests deferred | [WP08 Rust Schema And Account Authority](workpacks/08-rust-schema-workers-d1-runtime-migration.md) | 9/9 prior packet; replacement schema/repository source reviewed, current test/proof rows open | `PLAN_STATE.md`, accepted WP01 custody decision, canonical Rust contract boundary | `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/` |
 | target-aware source reviewed / tests and composition open | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 13/13 historical proof plus reviewed target-aware resolver/storage-custody consumer source; expected tests, Cloudflare provider composition, and current proof open | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
 | validation / production source reviewed / route-store tests and proof open | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) + [current boundary addendum](workpacks/03-current-boundary-addendum.md) | 14/14 historical proof; reviewed Cloudflare browser-session migrations/store/routes now mapped with trusted-time, forward schema sentinel, complete support provenance, and runtime row validation; expected route/store/request-safety tests and proof remain open | `RESEARCH_AND_DECISIONS.md`, `crates/family-identity-core/src/session_lifecycle.rs`, `infra/cloudflare/migrations/account-identity/0007_account_browser_session_custody_hardening.sql`, `infra/cloudflare/src/storage/account-identity-authority-store.ts`, `infra/cloudflare/src/storage/account-browser-session-store.ts`, `infra/cloudflare/src/auth/browser-session-routes.ts` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
-| validation / lifecycle source accepted / orchestration and tests open | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 historical proof; owner-derived lifecycle records accepted, atomic runtime/custody/tests open | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
+| source reviewed / owner adapters and six expected test roots open | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 historical proof; strict durable repository, rate/replay custody, private owner receipts, and typed handoff source reviewed; shipped identity/membership/support/Data owners, tests, and current proof open | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
 | validation / authority consumers accepted / handoffs and tests open | [WP05 Device Ownership AuthZ](workpacks/05-device-ownership-authz.md) | 13/13 historical proof; current Account-bound billing/support source accepted, remaining consumers/tests open | `docs/features/family-setup-device-roles.md`, `docs/expectations/platforms.md` | `output/account-identity-family-plan-proof/05-device-ownership-authz/` |
 | complete | [WP07 Parent Account Family Setup UI](workpacks/07-parent-account-family-setup-ui.md) | 13/13 | `docs/expectations/portal.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/` |
 | open | [WP06 Security Proof And Route Gate](workpacks/06-security-proof-and-route-gate.md) | 14/18 | all prior workpack proof roots, including WP08 | `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/` |
@@ -53,12 +53,12 @@ Cloudflare WP08 proof remain open.
 ## WP02-WP05 live production correction
 
 The checked WP02-WP05 rows preserve an earlier local contract/proof slice and
-do not close the replacement source. The accepted `35edb2830` packet adds the
-sealed capability, local durable repository/CAS, persisted session currentness,
-owner-derived invite/recovery records, and Account-bound billing/support
-consumers. WP02's actor-versus-target correction, Cloudflare's authoritative
-writer/provider composition, remaining runtime handoffs, the complete
-expected-test wave, validation, and proof are still open.
+do not close the replacement source. Current reviewed source adds the sealed
+Account capability, durable authority/session custody, target-aware action
+resolution, and WP04 strict invite/recovery repository with private owner
+receipts. Cloudflare provider composition, WP04 production owner adapters,
+remaining runtime handoffs, the complete expected-test wave, validation, and
+current proof are still open.
 
 The rejected `codex/account-wp02-wp05-source-wave` packet at `ac03afee3a` is
 quarantined remote evidence only. It added public deserializable lifecycle

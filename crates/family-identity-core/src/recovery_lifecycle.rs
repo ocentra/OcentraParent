@@ -73,18 +73,6 @@ impl RecoveryLifecycleRecord {
         Ok(())
     }
 
-    pub(crate) fn complete(
-        &mut self,
-        transitioned_at: impl Into<String>,
-    ) -> Result<(), EventingError> {
-        if self.operation.state != RecoveryState::Approved {
-            return Err(invalid_state("approval-required"));
-        }
-        self.last_transition_at = transition_time(transitioned_at)?;
-        self.operation.state = RecoveryState::Completed;
-        Ok(())
-    }
-
     pub(crate) fn revoke(
         &mut self,
         transitioned_at: impl Into<String>,
