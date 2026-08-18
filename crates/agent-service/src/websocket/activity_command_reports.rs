@@ -32,7 +32,8 @@ pub(super) fn build_activity_command_report(
             | AgentCommandName::AgentActivityGamesReadModelGet
             | AgentCommandName::AgentActivityNetworkReadModelGet
             | AgentCommandName::AgentActivityTrackingReadModelGet
-            | AgentCommandName::AgentActivityTrackingRetentionSettingsWrite => {
+            | AgentCommandName::AgentActivityTrackingRetentionSettingsWrite
+            | AgentCommandName::AgentParentRuntimeIntentIngressPublish => {
                 build_activity_surface_report(command).await
             }
             AgentCommandName::AgentActivityAppGameBoundaryReadModelGet

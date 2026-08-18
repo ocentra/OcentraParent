@@ -38,6 +38,8 @@ mod health_nonce;
 mod lan_command_reports;
 #[path = "websocket/network_command_reports.rs"]
 mod network_command_reports;
+#[path = "websocket/parent_runtime_intent.rs"]
+mod parent_runtime_intent;
 #[path = "websocket/policy_request_confirm.rs"]
 mod policy_request_confirm;
 #[path = "websocket/policy_request_resolution.rs"]

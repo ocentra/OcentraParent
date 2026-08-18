@@ -171,6 +171,8 @@ pub enum AgentCommandName {
     AgentActivityTrackingReadModelGet,
     #[serde(rename = "agent.activity.tracking.retention-settings.write")]
     AgentActivityTrackingRetentionSettingsWrite,
+    #[serde(rename = "agent.parent-runtime.intent-ingress.publish")]
+    AgentParentRuntimeIntentIngressPublish,
     #[serde(rename = "agent.browser.inventory.read-model.get")]
     AgentBrowserInventoryReadModelGet,
     #[serde(rename = "agent.browser.evidence.recent.get")]
@@ -388,6 +390,8 @@ pub enum AgentEventName {
     AgentActivityTrackingReadModelReported,
     #[serde(rename = "agent.activity.tracking.retention-settings.write.reported")]
     AgentActivityTrackingRetentionSettingsWriteReported,
+    #[serde(rename = "agent.parent-runtime.intent-ingress.reported")]
+    AgentParentRuntimeIntentIngressReported,
     #[serde(rename = "agent.browser.inventory.read-model.reported")]
     AgentBrowserInventoryReadModelReported,
     #[serde(rename = "agent.browser.evidence.recent.reported")]
@@ -574,6 +578,9 @@ fn response_event_matches_activity(command: &AgentCommandName, event: &AgentEven
         ) | (
             AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
             AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported
+        ) | (
+            AgentCommandName::AgentParentRuntimeIntentIngressPublish,
+            AgentEventName::AgentParentRuntimeIntentIngressReported
         ) | (
             AgentCommandName::AgentBrowserSocialDashboardReadModelGet,
             AgentEventName::AgentBrowserSocialDashboardReadModelReported
@@ -1076,6 +1083,51 @@ pub struct AgentEventEnvelope {
     pub severity: crate::LogLevel,
     pub payload: LogFields,
     pub snapshot: Option<AgentLogSnapshot>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentRuntimeIntentIngressKind {
+    #[serde(rename = "unknown")]
+    Unknown,
+    #[serde(rename = "tracking-child-check-in-request")]
+    TrackingChildCheckInRequest,
+    #[serde(rename = "policy-control-delivery")]
+    PolicyControlDelivery,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentRuntimeIntentIngressState {
+    #[serde(rename = "published")]
+    Published,
+    #[serde(rename = "rejected")]
+    Rejected,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+    #[serde(rename = "unavailable")]
+    Unavailable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentRuntimeIntentIngressClaimState {
+    #[serde(rename = "claimed")]
+    Claimed,
+    #[serde(rename = "unclaimed")]
+    Unclaimed,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentRuntimeIntentIngressResult {
+    pub schema_version: u16,
+    pub command_id: String,
+    pub intent_kind: ParentRuntimeIntentIngressKind,
+    pub state: ParentRuntimeIntentIngressState,
+    pub journal_state: ParentRuntimeIntentIngressClaimState,
+    pub eventing_publish_state: ParentRuntimeIntentIngressClaimState,
+    pub event_id: Option<String>,
+    pub rejection_reason: Option<String>,
+    pub no_claim_reason: Option<String>,
+    pub child_transport_claimed: bool,
 }
 
 const PARENT_CHILD_RUNTIME_PHASES: [ParentChildRuntimePhase; 9] = [
