@@ -64,24 +64,25 @@ proceed.
 `CHECKLIST_INDEX.md` keeps the historical proof rows checked while adding
 explicit unchecked production-source and expected-test overlays.
 
-## 2026-08-17 accepted Account source wave
+## 2026-08-17 canonical Account source disposition
 
-The replacement packet at `origin/codex/account-wp02-source-wave` head
-The six patch-unique commits on remote `codex/account-wp02-source-wave` at
-`35edb2830` are superseded/rejected and are not integrated. The canonical
-replacement source is represented by the reconciled WP08/WP02 roots on the
-current consolidation line and passed two independent
-source reviews plus focused formatting, architecture, generated-contract,
-single-source-contract, and Enforcer checks. No tests, build, proof, precommit,
-or CI were run in this source phase.
+The six patch-unique commits on remote
+`origin/codex/account-wp02-source-wave` at `35edb2830` are
+superseded/rejected and are not integrated. The accepted canonical source is
+the separately reconciled WP08/WP02 implementation on the current
+consolidation line; it passed two independent source reviews plus focused
+formatting, architecture, generated-contract, single-source-contract, and
+Enforcer checks. That acceptance covers source only. No product tests, build,
+proof, full precommit, CI, runtime reachability, or DONE claim follows from it.
 
 What is now real:
 
 - WP08 owns strict Rust schema validation and generated TypeScript parity;
 - WP02 owns a sealed capability and local durable compare-and-swap repository
   for current account, household, member, role, device, session, target,
-  support receipt, and authority generation state; its action-level
-  actor-versus-target composition remains incorrect and reopened;
+  support receipt, and authority generation state; its bounded target-aware
+  action resolver preserves parent actor identity separately from the target,
+  while the complete substitution/observer expected-test packet remains open;
 - WP03 currentness comes from persisted session identity, generation, expiry,
   freshness, and revocation state instead of request booleans;
 - WP04 has a strict durable invite/recovery repository without public authority

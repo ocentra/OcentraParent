@@ -3,10 +3,11 @@
 Snapshot: 2026-08-18 after the canonical truth refresh at
 `b4c3a921b193c58fb3c3f5ec2707415e3063de03`.
 
-The audited promotion/custody count is 29 registered Ocentra Parent worktrees
-and zero open pull requests. The source-consolidation table below retains the
-23-worktree predecessor inventory; the six post-snapshot or temporary lanes are
-not deletion evidence and must be re-audited before cleanup.
+The live promotion/custody audit found 32 registered Ocentra Parent worktrees
+and zero open pull requests. Thirty-one worktrees are expected clean after this
+truth-repair commit; the root checkout retains its ignored local Codex config.
+No branch or worktree in this inventory is deletion-authorized by this
+document.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
@@ -33,6 +34,18 @@ Preview Gate`; administrators are enforced; force-push and branch deletion are
 disabled; and conversation resolution is required. `ci.yml` pull requests
 target `main`, `develop`, and `production`. Workflow and branch protection were
 not edited by this refresh.
+
+## Active source packets awaiting independent review
+
+These packets are active custody, not integration evidence and not cleanup
+candidates. Canonical product-source truth remains
+`origin/codex/eventing-wp09-production` at `b4c3a921b` until a packet passes
+independent review and is deliberately integrated.
+
+| Branch / worktree | Latest observed state | Review disposition |
+| --- | --- | --- |
+| `codex/account-wp02-authority-transport` / `E:/OcentraWorktrees/lanes/account-wp02-authority-transport` | The in-flight repair advanced from `c0ec338d0` to clean pushed head `7282020448`; local and upstream equal. | Pending independent review. Do not map, accept, or infer runtime/tests from `7282020448`. |
+| `codex/screen-wp32-producer-source` / `E:/OcentraWorktrees/lanes/screen-wp32-producer-source` | Clean pushed head `f992301ca`; local and upstream equal. | Pending independent review. Do not map or accept the producer packet, and do not infer tests, runtime reachability, proof, or DONE. |
 
 ## Patch-unique remote branch disposition
 
@@ -86,29 +99,34 @@ ancestry noise, not unique patch custody:
 
 ## Registered E-drive worktrees
 
-There are 29 registered Ocentra Parent worktrees in the audited custody count.
-The predecessor table below lists 23 source-consolidation worktrees; all listed
-entries track an upstream and all listed HEADs equaled it at that snapshot.
-Twenty-two were clean; the sole exception was the root checkout's
-ignored local Codex configuration recorded below. No worktree contains a
-local-only commit.
+There are 32 registered Ocentra Parent worktrees in the live custody count.
+Every worktree tracks an upstream and every committed HEAD equaled that
+upstream at the audit point. No worktree contains a local-only commit. The root
+checkout's ignored local Codex configuration is the only retained dirty state;
+the current truth-refresh lane becomes clean when this repair commit is created.
 
 | Worktree | Branch / audited head | State |
 | --- | --- | --- |
 | `E:/OcentraParent` | `develop` / `4ece515282` | Only untracked `.codex/config.toml`; do not use for feature edits. |
-| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / `1101f37f8` | Clean pushed coordinator integration line. |
+| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / `b4c3a921b1` | Clean pushed canonical product-source integration line. |
 | `E:/OcentraWorktrees/lanes/account-wp02-source-wave` | `codex/account-wp04-source-wave` / `1101f37f8` | Clean pushed same-tree alias after Account WP04 integration. |
 | `E:/OcentraWorktrees/lanes/data-custody-wp05-source` | `codex/data-custody-wp05-source-repaired` / `f8d0a888a1` | Clean pushed ancestor; repaired WP05 is integrated in consolidation. |
 | `E:/OcentraWorktrees/lanes/device-trust-runtime-routing` | `codex/device-trust-wp06-source-wave` / `1b35933194` | Clean pushed; WP06 patches are integrated and this branch is a cleanup candidate. |
 | `E:/OcentraWorktrees/lanes/account-cloudflare-authority-routing` | `codex/child-runtime-source-routing` / `c71becbcfd` | Clean pushed, patch-equivalent source custody. |
 | `E:/OcentraWorktrees/lanes/account-data-runtime-routing` | `codex/account-wp02-target-authority` / `f6ac50434d` | Clean pushed, patch-equivalent source custody. |
+| `E:/OcentraWorktrees/lanes/account-wp02-authority-transport` | `codex/account-wp02-authority-transport` / `7282020448` | Clean pushed repair packet pending independent review. Not integration evidence or a cleanup candidate. |
 | `E:/OcentraWorktrees/lanes/account-wp03-runtime-source` | `codex/account-wp03-runtime-source` / `59eefd0d23` | Clean pushed, patch-equivalent source custody. |
 | `E:/OcentraWorktrees/lanes/account-wp03-source-wave` | `codex/account-wp03-source-wave` / `53b5d195d3` | Clean pushed, patch-equivalent source custody. |
+| `E:/OcentraWorktrees/lanes/account-wp05-routing` | `codex/account-wp05-routing` / `d78758b213` | Clean pushed routing lane; local equals upstream. |
+| `E:/OcentraWorktrees/lanes/account-wp05-source` | `codex/account-wp05-source` / `937009bc13` | Clean pushed reviewed source-custody lane; local equals upstream. |
+| `E:/OcentraWorktrees/lanes/account-wp07-source` | `codex/account-wp07-source` / `2f3d3051aa` | Clean pushed reviewed source-custody lane; local equals upstream. |
+| `E:/OcentraWorktrees/lanes/canonical-truth-refresh` | `codex/canonical-truth-refresh` / current document commit on top of `d7795c188` | Docs/graph review-repair lane; not canonical product-source integration. |
 | `E:/OcentraWorktrees/lanes/cloudflare-wp06-authority-source` | `codex/cloudflare-wp06-runtime-source` / `8f50794297` | Clean pushed, patch-equivalent source custody. |
 | `E:/OcentraWorktrees/lanes/data-custody-source-consolidation` | `codex/data-custody-source-consolidation` / `8da579cc70` | Clean pushed stale alternate; no direct integration. |
 | `E:/OcentraWorktrees/lanes/data-custody-source-wave` | `codex/data-custody-source-wave` / `78f01911f1` | Clean pushed stale alternate; narrow salvage only. |
 | `E:/OcentraWorktrees/lanes/data-custody-wp06-source` | `codex/data-custody-wp06-source` / `f5b839efbc` | Clean pushed, patch-equivalent source custody. |
 | `E:/OcentraWorktrees/lanes/data-custody-wp08-source` | `codex/data-custody-wp08-source` / `1d63e190c5` | Clean pushed, patch-equivalent source custody. |
+| `E:/OcentraWorktrees/lanes/data-wp05-authority-handoff` | `codex/data-wp05-authority-handoff` / `b3c47fd3df` | Clean pushed Account-authority handoff source custody; local equals upstream. |
 | `E:/OcentraWorktrees/lanes/data-wp06-query-source-wave` | `codex/child-runtime-routing-refresh` / `1b6b5a28f6` | Clean pushed, patch-equivalent source custody. |
 | `E:/OcentraWorktrees/lanes/data-wp08-p1-source-repair` | `codex/data-wp08-p1-source-repair` / `d77f8f649b` | Clean pushed, patch-equivalent source custody. |
 | `E:/OcentraWorktrees/lanes/device-trust-wp01` | `codex/device-trust-wp01-source-wave` / `914d06b6aa` | Clean pushed stale branch; its two residual patches were semantically superseded. |
@@ -116,7 +134,10 @@ local-only commit.
 | `E:/OcentraWorktrees/lanes/eventing-wp11-typed-delivery` | `codex/eventing-wp11-typed-delivery` / `8fb261274c` | Clean pushed, patch-equivalent source custody. |
 | `E:/OcentraWorktrees/lanes/logging-source-wave-repair` | `codex/logging-source-wave-repair` / `e0c2d158ab` | Clean pushed; production patches integrated, docs-only unique remainder. |
 | `E:/OcentraWorktrees/lanes/payment-source-wave` | `codex/payment-source-wave` / `63305016fc` | Clean pushed, patch-equivalent source custody. |
-| `E:/OcentraWorktrees/lanes/screen-wp26-source` | `codex/screen-wp26-source` / `1101f37f8` | Clean pushed source lane, newly assigned to the graph-authorized Screen WP26 production packet. |
+| `E:/OcentraWorktrees/lanes/screen-wp26-source` | `codex/screen-wp26-source` / `43649e7b25` | Clean pushed reviewed Screen WP26 source-custody lane; local equals upstream. |
+| `E:/OcentraWorktrees/lanes/screen-wp32-producer-source` | `codex/screen-wp32-producer-source` / `f992301ca9` | Clean pushed producer packet pending independent review; not mapped or accepted. |
+| `E:/OcentraWorktrees/lanes/screen-wp32-source` | `codex/screen-wp32-source` / `b4c3a921b1` | Clean pushed same-tree alias for the integrated Screen WP32 source-only packet. |
+| `E:/OcentraWorktrees/lanes/screen-wp33-source` | `codex/screen-wp33-source` / `0ec240f089` | Clean pushed reviewed Screen WP33 source-custody lane; local equals upstream. |
 | `E:/OcentraWorktrees/lanes/setup-wp07-source-wave` | `codex/setup-wp07-source-wave` / `09f7c7c960` | Clean pushed; production patches integrated, docs-only unique remainder. |
 
 No registered Ocentra Parent worktree exists on `C:`. Historical ledger entries
