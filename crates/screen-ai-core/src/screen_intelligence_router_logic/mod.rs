@@ -1,5 +1,7 @@
 mod consistency;
 mod decision_build;
+mod extraction_consistency;
+mod fallback;
 mod route_kind;
 
 use crate::screen_intelligence_router::{
@@ -23,6 +25,12 @@ pub(crate) fn screen_intelligence_route_decision_is_consistent(
     value: &ScreenIntelligenceRouteDecision,
 ) -> bool {
     consistency::screen_intelligence_route_decision_is_consistent(value)
+}
+
+pub(crate) fn structured_extraction_fallback_state_for(
+    request: &ScreenIntelligenceRouteRequest,
+) -> crate::screen_intelligence_router::ScreenStructuredExtractionFallbackState {
+    fallback::structured_extraction_fallback_state_for(request)
 }
 
 pub(crate) fn plan_screen_intelligence_route(

@@ -1,4 +1,5 @@
 use super::route_kind::{capture_scope_for_route, route_kind_for, structured_extraction_for_route};
+use super::structured_extraction_fallback_state_for;
 use crate::screen_intelligence_router::{
     ScreenEvidenceCustodyState, ScreenIntelligencePolicySensitivity,
     ScreenIntelligenceRouteDecision, ScreenIntelligenceRouteKind, ScreenIntelligenceRouteRequest,
@@ -27,22 +28,39 @@ pub(super) fn plan_screen_intelligence_route(
         managed_browser_structured_extraction_first: request.source_kind
             == ScreenIntelligenceSourceKind::ManagedBrowser
             && matches!(
-                route_kind,
+                &route_kind,
                 ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction
                     | ScreenIntelligenceRouteKind::NoScreenNeeded
             ),
+        structured_extraction_fallback_state: structured_extraction_fallback_state_for(request),
         policy_question: request.policy_question.clone(),
         policy_sensitivity: request.policy_sensitivity.clone(),
-        evidence_refs: request
-            .structured_extraction
-            .as_ref()
-            .map(|value| value.evidence_refs.clone())
-            .unwrap_or_else(|| request.existing_evidence_refs.clone()),
-        custody_state: request
-            .structured_extraction
-            .as_ref()
-            .map(|value| value.custody_state.clone())
-            .unwrap_or(ScreenEvidenceCustodyState::ChildDeviceQueryStore),
+        evidence_refs: if matches!(
+            &route_kind,
+            ScreenIntelligenceRouteKind::NoScreenNeeded
+                | ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction
+        ) {
+            request
+                .structured_extraction
+                .as_ref()
+                .map(|value| value.evidence_refs.clone())
+                .unwrap_or_else(|| request.existing_evidence_refs.clone())
+        } else {
+            request.existing_evidence_refs.clone()
+        },
+        custody_state: if matches!(
+            &route_kind,
+            ScreenIntelligenceRouteKind::NoScreenNeeded
+                | ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction
+        ) {
+            request
+                .structured_extraction
+                .as_ref()
+                .map(|value| value.custody_state.clone())
+                .unwrap_or(ScreenEvidenceCustodyState::ChildDeviceQueryStore)
+        } else {
+            ScreenEvidenceCustodyState::ChildDeviceQueryStore
+        },
         manual_required_reason: (route_kind == ScreenIntelligenceRouteKind::ManualRequired)
             .then(|| manual_reason_for(request).to_string()),
         unavailable_reason: (route_kind == ScreenIntelligenceRouteKind::Unavailable)

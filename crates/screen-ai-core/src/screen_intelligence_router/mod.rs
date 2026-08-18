@@ -1,5 +1,9 @@
 pub(crate) const SCREEN_INTELLIGENCE_ROUTER_SCHEMA_VERSION: u16 = 1;
 pub(crate) const SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT: usize = 480;
+pub(crate) use extraction::{
+    MANAGED_BROWSER_STRUCTURED_SOURCE_ID, MANAGED_BROWSER_TARGET_REF_PREFIX,
+    MANAGED_BROWSER_TITLE_REF_PREFIX, MANAGED_BROWSER_URL_REF_PREFIX,
+};
 
 pub(crate) const MANUAL_REQUIRED_PARENT_DISABLED: &str =
     "parent setting requires manual review before screen capture";
@@ -23,6 +27,10 @@ pub type ScreenManagedBrowserStructuredExtraction =
 pub type ScreenStructuredExtractionRedactionState =
     extraction::ScreenStructuredExtractionRedactionState;
 pub type ScreenStructuredExtractionState = extraction::ScreenStructuredExtractionState;
+pub type ScreenStructuredExtractionAuthority = extraction::ScreenStructuredExtractionAuthority;
+pub type ScreenStructuredExtractionFreshness = extraction::ScreenStructuredExtractionFreshness;
+pub type ScreenStructuredExtractionFallbackState =
+    extraction::ScreenStructuredExtractionFallbackState;
 pub type ScreenIntelligencePolicySensitivity = policy::ScreenIntelligencePolicySensitivity;
 pub type ScreenIntelligenceRouteKind = policy::ScreenIntelligenceRouteKind;
 pub type ScreenIntelligenceSourceKind = policy::ScreenIntelligenceSourceKind;

@@ -2,6 +2,7 @@ use crate::screen_intelligence_router::{
     ScreenCaptureScope, ScreenIntelligencePolicySensitivity, ScreenIntelligenceRouteKind,
     ScreenIntelligenceRouteRequest, ScreenIntelligenceSourceKind,
 };
+use crate::screen_intelligence_router_logic::consistency;
 
 pub(super) fn route_kind_for(
     request: &ScreenIntelligenceRouteRequest,
@@ -9,15 +10,20 @@ pub(super) fn route_kind_for(
     if screen_capture_is_unsafe(request) {
         return ScreenIntelligenceRouteKind::Unavailable;
     }
-    if request
-        .structured_extraction
-        .as_ref()
-        .is_some_and(|value| value.no_screen_needed)
+    if request.parent_allows_managed_browser_structured_extraction
+        && request.structured_extraction.as_ref().is_some_and(|value| {
+            consistency::screen_managed_browser_structured_extraction_can_answer_policy(value)
+        })
     {
         return ScreenIntelligenceRouteKind::NoScreenNeeded;
     }
     if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
         && request.parent_allows_managed_browser_structured_extraction
+        && request.structured_extraction.as_ref().is_some_and(|value| {
+            consistency::screen_managed_browser_structured_extraction_is_ready_for_structured_route(
+                value,
+            )
+        })
     {
         return ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction;
     }
@@ -65,7 +71,7 @@ fn screen_capture_is_unsafe(request: &ScreenIntelligenceRouteRequest) -> bool {
         request.policy_sensitivity == ScreenIntelligencePolicySensitivity::CredentialRisk,
     ]
     .into_iter()
-    .all(|value| value)
+    .any(|value| value)
 }
 
 fn preferred_capture_scope(scopes: &[ScreenCaptureScope]) -> Option<&ScreenCaptureScope> {
