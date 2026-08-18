@@ -134,6 +134,7 @@ mod screen_ai_retention_sweeper_runtime;
 mod screen_ai_service_capture_event_builder;
 mod screen_ai_service_event_bridge;
 mod screen_ai_service_event_subscription;
+pub mod screen_managed_browser_cdp_runtime;
 mod screen_settings_api;
 mod screen_settings_payload;
 mod screen_settings_request;

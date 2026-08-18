@@ -32,6 +32,23 @@ This is capture MVP for browser pages, browser games, video, social web, and web
 - [ ] Record URL/title/target evidence refs.
 - [ ] Exclude live screencast from MVP default.
 
+## Source packet status
+
+The source-first packet now owns the Rust contract, browser-authority target
+binding, bounded CDP transport, separate screen adapter, and encrypted queue
+handoff at:
+
+- `crates/schema/src/managed_browser_cdp_capture.rs`
+- `crates/agent-core/src/browser_bridge_capture.rs`
+- `crates/screen-capture-adapter/src/managed_browser_cdp.rs`
+- `crates/agent-service/src/screen_managed_browser_cdp_runtime.rs`
+
+Tests and proof remain deferred. The browser plan still owns the URL/target
+trigger producer; this packet accepts only a browser-owned target authority and
+fails closed when custody or target binding is absent. No live browser runtime,
+AI/OCR/VLM, retention, remote, policy, enforcement, or product completion claim
+is made by this source packet.
+
 ## Proof
 
 - `scripts/test/screen-managed-browser-cdp-capture-proof.mjs` opens a real

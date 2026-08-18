@@ -62,6 +62,7 @@ pub mod family_reference_primitives_ts;
 pub mod family_references_ts;
 pub mod logging_contracts;
 pub mod logging_contracts_ts;
+pub mod managed_browser_cdp_capture;
 pub mod notification_local_outbox_ts;
 pub mod notification_v3_provider_retry_ts;
 mod parent_agent_protocol_bridge_ts;

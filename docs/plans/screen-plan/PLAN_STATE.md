@@ -147,7 +147,7 @@ screen-AI service runtime and several platform owners are absent.
 | 30 Test Suite Playwright Rollout PR Gate | Tests/scripts only | Validation-only; deferred from code pass. |
 | 31 Screen Intelligence Router | `screen-ai-core` routing modules | AI routing only; no non-AI capture/provider caller. |
 | 32 Browser Structured Extraction Before Screenshot | AI router with browser source handoff | Browser/AI source handoff only; browser owner and non-AI capture path remain separate. |
-| 33 Managed Browser CDP Screenshot Capture Path | No mapped production implementation | Proof/test roots are absent; no shipped CDP capture caller. |
+| 33 Managed Browser CDP Screenshot Capture Path | Rust source packet present: `crates/schema/src/managed_browser_cdp_capture.rs`, `crates/agent-core/src/browser_bridge_capture.rs`, `crates/screen-capture-adapter/src/managed_browser_cdp.rs`, and `crates/agent-service/src/screen_managed_browser_cdp_runtime.rs` | Source-first/test-deferred: browser-owner trigger wiring, focused contract/security/runtime tests, live browser proof, deletion proof, and CI remain open; no product completion claim. |
 | 34 OCR Tesseract Baseline | Tests/proof only | Validation-only; no runtime implementation. |
 | 35 OCR PaddleOCR PP-OCR Evaluation | Tests/proof only | Validation-only; no runtime implementation. |
 | 36 Small VLM Guided Classifier Evaluation | AI analysis/runtime modules | AI evaluation/runtime only; outside this non-AI pass. |

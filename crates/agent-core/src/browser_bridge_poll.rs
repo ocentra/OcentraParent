@@ -71,6 +71,13 @@ impl BrowserBridgePollError {
     }
 }
 
+pub(crate) fn validate_bridge_custody(
+    config: &BrowserBridgePollConfig,
+    observed_at: &str,
+) -> Result<(), BrowserBridgePollError> {
+    custody::validate_bridge_custody(config, observed_at)
+}
+
 pub fn poll_chromium_bridge(
     config: &BrowserBridgePollConfig,
     observed_at: &str,

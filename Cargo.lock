@@ -2703,6 +2703,7 @@ dependencies = [
  "sha2",
  "sysinfo",
  "tokio",
+ "tungstenite 0.24.0",
  "winreg",
 ]
 

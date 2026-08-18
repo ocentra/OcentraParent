@@ -4396,9 +4396,14 @@
     },
     "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path": {
       "planSlug": "screen-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
-        "scripts/test/screen-managed-browser-cdp-capture-proof.mjs",
-        "packages/activity-domain/tests/screen-managed-browser-cdp-capture.test.ts"
+        "crates/schema/src/managed_browser_cdp_capture.rs",
+        "crates/schema/src/managed_browser_cdp_capture/validation.rs",
+        "crates/agent-core/src/browser_bridge_capture.rs",
+        "crates/agent-core/src/browser_bridge_capture/transport.rs",
+        "crates/screen-capture-adapter/src/managed_browser_cdp.rs",
+        "crates/agent-service/src/screen_managed_browser_cdp_runtime.rs"
       ]
     },
     "WP-screen-plan-34-ocr-tesseract-baseline": {
