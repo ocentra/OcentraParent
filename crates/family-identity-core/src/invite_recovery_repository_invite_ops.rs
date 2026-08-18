@@ -1,0 +1,216 @@
+use super::{authority::*, support::*, *};
+
+impl SqliteAccountIdentityAuthorityRepository {
+    pub fn issue_setup_invite(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        purpose: SetupInvitePurpose,
+        target_role: SetupInviteTargetRole,
+        recipient: &VerifiedInviteRecipient,
+        ttl: Duration,
+    ) -> Result<IssuedSetupInvite, InviteRecoveryRepositoryError> {
+        if !matches!(
+            authority.role(),
+            AccountIdentityRole::ParentOwner | AccountIdentityRole::CoParentGuardian
+        ) || !purpose_matches_target_role(purpose, target_role)
+            || !inviter_can_issue(authority.role(), purpose)
+            || ttl.is_zero()
+            || ttl > MAX_INVITE_TTL
+        {
+            return Err(InviteRecoveryRepositoryError::InvalidInvite);
+        }
+        let invite_id = SetupInviteId::parse(opaque_id("invite-")?)
+            .map_err(InviteRecoveryRepositoryError::InvalidValue)?;
+        let token = opaque_id("token-")?;
+        let token_digest = digest_token(&token);
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        let (now, _) = trusted_now_in_transaction(&transaction)?;
+        let expires_at_epoch_millis = now
+            .checked_add(i64::try_from(ttl.as_millis()).map_err(|_| {
+                InviteRecoveryRepositoryError::InvalidValue(EventingError::InvalidValue {
+                    field: "family_identity.setup_invite.ttl",
+                    value: String::from("overflow"),
+                })
+            })?)
+            .ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
+        let expires_at = timestamp(expires_at_epoch_millis)?;
+        ensure_current_authority(&transaction, authority, now)?;
+        transaction
+            .execute(
+                "INSERT INTO account_identity_setup_invite (
+                     invite_id, token_digest, household_id, inviter_account_id,
+                     inviter_member_id, inviter_device_id, inviter_authority_generation,
+                     inviter_session_generation, inviter_role, purpose, target_role,
+                     recipient_provider, recipient_provider_subject, recipient_account_id,
+                     invitee_email_digest, issued_at_epoch_millis, expires_at_epoch_millis,
+                     state, use_count
+                 ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, 'pending', 0)",
+                params![
+                    invite_id.as_str(),
+                    token_digest,
+                    authority.household_id().to_string(),
+                    authority.account_id().to_string(),
+                    authority.member_id().as_str(),
+                    authority.device_id().as_str(),
+                    authority.authority_generation() as i64,
+                    authority.session_generation() as i64,
+                    role_label(authority.role()),
+                    purpose_label(purpose),
+                    target_role_label(target_role),
+                    provider_label(&recipient.provider),
+                    recipient.provider_subject.as_str(),
+                    recipient.account_id.to_string(),
+                    recipient.email_digest.as_str(),
+                    now,
+                    expires_at_epoch_millis,
+                ],
+            )
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        transaction
+            .commit()
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        Ok(IssuedSetupInvite {
+            code: SetupInviteCode { invite_id, token },
+            purpose,
+            target_role,
+            expires_at,
+        })
+    }
+
+    pub fn redeem_setup_invite(
+        &mut self,
+        recipient: &VerifiedInviteRecipient,
+        code: SetupInviteCode,
+    ) -> Result<RedeemedSetupInvite, InviteRecoveryRepositoryError> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        let (now, accepted_at) = trusted_now_in_transaction(&transaction)?;
+        let row = load_invite_row(&transaction, &code)?;
+        let target_role =
+            target_role_from_label(&row.1).ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
+        if row.2 != "pending"
+            || row.3 <= now
+            || row.4 != provider_label(&recipient.provider)
+            || row.5 != recipient.provider_subject.as_str()
+            || row.6 != recipient.account_id.to_string()
+        {
+            return Err(InviteRecoveryRepositoryError::InviteRejected);
+        }
+        let changed = transaction
+            .execute(
+                "UPDATE account_identity_setup_invite
+                 SET state = 'accepted', accepted_at_epoch_millis = ?3, use_count = 1
+                 WHERE invite_id = ?1 AND token_digest = ?2 AND state = 'pending'
+                   AND expires_at_epoch_millis > ?3 AND use_count = 0",
+                params![code.invite_id().as_str(), digest_token(code.as_str()), now],
+            )
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        if changed != 1 {
+            return Err(InviteRecoveryRepositoryError::InviteRejected);
+        }
+        transaction
+            .execute(
+                "INSERT INTO account_identity_pending_invite_membership (
+                     invite_id, household_id, recipient_provider,
+                     recipient_provider_subject, recipient_account_id, target_role,
+                     state, created_at_epoch_millis
+                 ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'pending', ?7)",
+                params![
+                    code.invite_id().as_str(),
+                    row.0,
+                    row.4,
+                    row.5,
+                    row.6,
+                    target_role_label(target_role),
+                    now,
+                ],
+            )
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        transaction
+            .commit()
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        Ok(RedeemedSetupInvite {
+            invite_id: code.invite_id().clone(),
+            household_id: FamilyId::parse(row.0.clone())
+                .ok_or(InviteRecoveryRepositoryError::InvalidInvite)?,
+            target_role,
+            accepted_at,
+            membership_handoff: InviteMembershipHandoff {
+                invite_id: code.invite_id().clone(),
+                household_id: FamilyId::parse(row.0)
+                    .ok_or(InviteRecoveryRepositoryError::InvalidInvite)?,
+                recipient_provider: recipient.provider.clone(),
+                recipient_provider_subject: recipient.provider_subject.clone(),
+                recipient_account_id: recipient.account_id.clone(),
+                target_role,
+            },
+        })
+    }
+
+    pub fn revoke_setup_invite(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        invite_id: &SetupInviteId,
+    ) -> Result<(), InviteRecoveryRepositoryError> {
+        let transaction = self
+            .connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        let (now, _) = trusted_now_in_transaction(&transaction)?;
+        ensure_current_authority(&transaction, authority, now)?;
+        let changed = transaction
+            .execute(
+                "UPDATE account_identity_setup_invite
+                 SET state = 'revoked', revoked_at_epoch_millis = ?2
+                 WHERE invite_id = ?1 AND household_id = ?3 AND state = 'pending'
+                   AND (inviter_member_id = ?4 OR ?5 = 'parent-owner')",
+                params![
+                    invite_id.as_str(),
+                    now,
+                    authority.household_id().to_string(),
+                    authority.member_id().as_str(),
+                    role_label(authority.role()),
+                ],
+            )
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?;
+        if changed != 1 {
+            return Err(InviteRecoveryRepositoryError::Missing);
+        }
+        transaction
+            .commit()
+            .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
+    }
+}
+
+fn load_invite_row(
+    transaction: &Transaction<'_>,
+    code: &SetupInviteCode,
+) -> Result<(String, String, String, i64, String, String, String), InviteRecoveryRepositoryError> {
+    transaction
+        .query_row(
+            "SELECT household_id, target_role, state, expires_at_epoch_millis,
+                        recipient_provider, recipient_provider_subject, recipient_account_id
+                 FROM account_identity_setup_invite
+                 WHERE invite_id = ?1 AND token_digest = ?2 LIMIT 1",
+            params![code.invite_id().as_str(), digest_token(code.as_str())],
+            |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, String>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, i64>(3)?,
+                    row.get::<_, String>(4)?,
+                    row.get::<_, String>(5)?,
+                    row.get::<_, String>(6)?,
+                ))
+            },
+        )
+        .optional()
+        .map_err(|_| InviteRecoveryRepositoryError::Unavailable)?
+        .ok_or(InviteRecoveryRepositoryError::InviteRejected)
+}

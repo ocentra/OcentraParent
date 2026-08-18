@@ -20,6 +20,8 @@ mod account_identity_authority_repository_invariants;
 mod account_identity_authority_repository_read;
 #[path = "account_identity_authority_service_error.rs"]
 mod account_identity_authority_service_error;
+#[path = "invite_recovery_repository.rs"]
+pub mod invite_recovery_repository;
 #[path = "session_lifecycle_repository.rs"]
 pub mod session_lifecycle_repository;
 
@@ -77,6 +79,11 @@ impl SqliteAccountIdentityAuthorityRepository {
         connection
             .execute_batch(session_lifecycle_repository::SESSION_SCHEMA_SQL)
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        connection
+            .execute_batch(invite_recovery_repository::INVITE_RECOVERY_SCHEMA_SQL)
+            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        invite_recovery_repository::validate_schema(&connection)
+            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         Ok(Self {
             connection,
             session_policy,
@@ -118,6 +125,108 @@ impl AccountIdentityAuthorityService {
         AccountIdentityCurrentMemberAuthorityProducer::new(&self.repository)
             .produce(provider, provider_subject)
             .map_err(AccountIdentityAuthorityServiceError::from)
+    }
+
+    pub fn issue_setup_invite(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        purpose: crate::setup_lifecycle::SetupInvitePurpose,
+        target_role: crate::setup_lifecycle::SetupInviteTargetRole,
+        recipient: &invite_recovery_repository::VerifiedInviteRecipient,
+        ttl: Duration,
+    ) -> Result<
+        invite_recovery_repository::IssuedSetupInvite,
+        invite_recovery_repository::InviteRecoveryRepositoryError,
+    > {
+        self.repository
+            .issue_setup_invite(authority, purpose, target_role, recipient, ttl)
+    }
+
+    pub fn redeem_setup_invite(
+        &mut self,
+        recipient: &invite_recovery_repository::VerifiedInviteRecipient,
+        code: invite_recovery_repository::SetupInviteCode,
+    ) -> Result<
+        invite_recovery_repository::RedeemedSetupInvite,
+        invite_recovery_repository::InviteRecoveryRepositoryError,
+    > {
+        self.repository.redeem_setup_invite(recipient, code)
+    }
+
+    pub fn revoke_setup_invite(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        invite_id: &crate::family_identity::SetupInviteId,
+    ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
+        self.repository.revoke_setup_invite(authority, invite_id)
+    }
+
+    pub fn begin_recovery(
+        &mut self,
+        proof: &invite_recovery_repository::VerifiedRecoveryIdentityProof,
+        support_authorization: Option<
+            &invite_recovery_repository::VerifiedSupportRecoveryAuthorization,
+        >,
+    ) -> Result<
+        crate::family_identity::RecoveryId,
+        invite_recovery_repository::InviteRecoveryRepositoryError,
+    > {
+        self.repository.begin_recovery(proof, support_authorization)
+    }
+
+    pub fn approve_recovery(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        recovery_id: &crate::family_identity::RecoveryId,
+    ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
+        self.repository.approve_recovery(authority, recovery_id)
+    }
+
+    pub fn complete_recovery(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        recovery_id: &crate::family_identity::RecoveryId,
+    ) -> Result<
+        invite_recovery_repository::RecoveryCompletion,
+        invite_recovery_repository::InviteRecoveryRepositoryError,
+    > {
+        self.repository.complete_recovery(authority, recovery_id)
+    }
+
+    pub fn revoke_recovery(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        recovery_id: &crate::family_identity::RecoveryId,
+    ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
+        self.repository.revoke_recovery(authority, recovery_id)
+    }
+
+    pub fn claim_recovery_handoff(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+    ) -> Result<
+        Option<invite_recovery_repository::RecoveryHandoffDeliveryAttempt>,
+        invite_recovery_repository::InviteRecoveryRepositoryError,
+    > {
+        self.repository.claim_recovery_handoff(authority)
+    }
+
+    pub fn acknowledge_recovery_handoff(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        attempt: &invite_recovery_repository::RecoveryHandoffDeliveryAttempt,
+        receipt: &invite_recovery_repository::RecoveryCustodyDeliveryReceipt,
+    ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
+        self.repository
+            .acknowledge_recovery_handoff(authority, attempt, receipt)
+    }
+
+    pub fn release_recovery_handoff(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        attempt: &invite_recovery_repository::RecoveryHandoffDeliveryAttempt,
+    ) -> Result<(), invite_recovery_repository::InviteRecoveryRepositoryError> {
+        self.repository.release_recovery_handoff(authority, attempt)
     }
 }
 

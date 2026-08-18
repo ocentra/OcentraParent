@@ -2,9 +2,6 @@
 
 //! Durable-adapter-neutral invite lifecycle state.
 
-use chrono::{DateTime, FixedOffset, Utc};
-use serde::{Deserialize, Serialize};
-
 use crate::family_identity::{HouseholdRole, SetupInvite};
 use crate::family_identity_contract_text::required_contract_text;
 use crate::setup_lifecycle::{
@@ -12,24 +9,25 @@ use crate::setup_lifecycle::{
     SetupInvitePurpose, SetupInviteReplayState, SetupInviteState, SetupRecoveryAbuseState,
     SetupRecoveryResponseTimingState,
 };
+use chrono::{DateTime, FixedOffset, Utc};
 use ocentra_eventing::error::EventingError;
 
 /// Invite redemption is modeled as a state transition rather than a boolean
 /// helper. The durable adapter owns persistence and token custody; this record
 /// owns expiry, single-use, and revocation semantics.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SetupInviteLifecycleRecord {
-    pub invite: SetupInvite,
-    pub purpose: SetupInvitePurpose,
-    pub inviter_role: HouseholdRole,
-    pub issued_at: String,
-    pub accepted_at: Option<String>,
-    pub revoked_at: Option<String>,
-    pub use_count: u32,
+    pub(crate) invite: SetupInvite,
+    pub(crate) purpose: SetupInvitePurpose,
+    pub(crate) inviter_role: HouseholdRole,
+    pub(crate) issued_at: String,
+    pub(crate) accepted_at: Option<String>,
+    pub(crate) revoked_at: Option<String>,
+    pub(crate) use_count: u32,
 }
 
 impl SetupInviteLifecycleRecord {
-    pub fn new(
+    pub(crate) fn new(
         invite: SetupInvite,
         purpose: SetupInvitePurpose,
         inviter_role: HouseholdRole,
@@ -54,7 +52,7 @@ impl SetupInviteLifecycleRecord {
         })
     }
 
-    pub fn authorize_at(
+    pub(crate) fn authorize_at(
         &self,
         same_family: bool,
         abuse_state: SetupRecoveryAbuseState,
@@ -74,7 +72,7 @@ impl SetupInviteLifecycleRecord {
         })
     }
 
-    pub fn accept_at(
+    pub(crate) fn accept_at(
         &mut self,
         same_family: bool,
         abuse_state: SetupRecoveryAbuseState,
@@ -96,7 +94,7 @@ impl SetupInviteLifecycleRecord {
         Ok(decision)
     }
 
-    pub fn revoke_at(&mut self, revoked_at: impl Into<String>) -> Result<(), EventingError> {
+    pub(crate) fn revoke_at(&mut self, revoked_at: impl Into<String>) -> Result<(), EventingError> {
         self.revoked_at = Some(required_contract_text(
             "family_identity.setup_invite.revoked_at",
             revoked_at,
