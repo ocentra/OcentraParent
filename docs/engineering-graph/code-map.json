@@ -1667,7 +1667,7 @@
         ".github/workflows/ci-package-ios.yml",
       ".github/workflows/package-preview.yml"
     ],
-    "note": "Independent first source packet: capability contracts exist, but platforms/ios/OcentraParentAgent.xcodeproj and platforms/ios/OcentraParentAgent remain parent-labelled. Child identity and capability-limit tests are missing."
+    "note": "Independent first source packet reviewed at c71becbcfd4f07eb98a118f10dbf261320f6b54e corrects the iOS project/product/bundle/release identity to the child package. Child identity/capability tests, workflows, signing, device, and store proof remain missing."
     },
   "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn": {
     "planSlug": "child-agent-runtime-distribution-plan",

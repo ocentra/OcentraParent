@@ -16,8 +16,9 @@
 ## Current Child Runtime source-routing overlay
 
 The Child Agent Runtime Distribution plan is in the production-source phase,
-not complete or release-ready. WP06 has an independent iOS identity correction
-open; Device Trust WP01 gates the first WP10 runtime packet. WP10's typed
+not complete or release-ready. WP06's independent iOS identity/source packet
+is reviewed at `c71becbcfd4f07eb98a118f10dbf261320f6b54e`; its tests, workflows,
+signing, device, and store proof remain open. Device Trust WP01 gates the first WP10 runtime packet. WP10's typed
 handoff/projection has no production caller, trusted desktop/Android startup
 binding, authenticated external ingress, or external health. WP02-WP05,
 WP07-WP09, and WP11 remain downstream source work. Expected tests, focused
