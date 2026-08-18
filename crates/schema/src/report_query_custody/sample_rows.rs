@@ -1,7 +1,7 @@
 use super::identifiers::{
     account_id, conflict_ref, contract_version, cursor_ref, deleted_source_ref, evidence_id,
-    family_id, parent_action_id, parent_actor_id, parent_device_id, parent_device_label,
-    policy_version, query_cursor, request_id, sort_key, source_ref, timestamp,
+    family_id, parent_action_id, parent_actor_id, parent_authority_id, parent_device_id,
+    parent_device_label, policy_version, query_cursor, request_id, sort_key, source_ref, timestamp,
 };
 use super::*;
 
@@ -168,6 +168,18 @@ fn sample_row(input: ReportQueryCustodySampleRowInput<'_>) -> ReportQueryCustody
 
     let is_rate_limited = state == ReportQueryCustodyState::RateLimited;
     let is_cursor_expired = state == ReportQueryCustodyState::CursorExpired;
+    let row_cursor_ref = match page_index {
+        1 => cursor_ref(request.requested_cursor.to_string()),
+        2 => cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_DERIVED_FRESH_NEXT_CURSOR),
+        3 => cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_DERIVED_STALE_NEXT_CURSOR),
+        4 => cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_PARTIALLY_REDACTED_NEXT_CURSOR),
+        6 => cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_SYNC_CONFLICT_NEXT_CURSOR),
+        _ => cursor_ref(format!("report-query-custody-cursor-{}", state.as_str())),
+    };
+    let stable_sort_key = sort_key(format!(
+        "{}-{:02}",
+        REPORT_QUERY_CUSTODY_SAMPLE_STABLE_SORT_KEY, page_index
+    ));
 
     ReportQueryCustodyRow {
         row_id: source_ref(format!("report-query-custody-row-{}", state.as_str())),
@@ -175,12 +187,12 @@ fn sample_row(input: ReportQueryCustodySampleRowInput<'_>) -> ReportQueryCustody
         state,
         source_freshness,
         source_data_class,
-        cursor_ref: cursor_ref(format!("report-query-custody-cursor-{}", state.as_str())),
+        cursor_ref: row_cursor_ref,
         source_cursor_ref: cursor_ref(REPORT_QUERY_CUSTODY_SAMPLE_SOURCE_CURSOR_REF),
         next_cursor_ref,
         page_index,
         page_size: request.page_size,
-        stable_sort_key: sort_key(REPORT_QUERY_CUSTODY_SAMPLE_STABLE_SORT_KEY),
+        stable_sort_key,
         requested_data_classes: request.requested_data_classes.clone(),
         allowed_source_data_classes: request.allowed_source_data_classes.clone(),
         source_citation_refs: request.source_citation_refs.clone(),
