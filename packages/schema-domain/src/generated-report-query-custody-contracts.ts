@@ -5,6 +5,7 @@ import { brandedNonEmptyStringSchema } from './effect';
 export const ReportQueryCustodyContractRuntime = {
   SchemaVersion: 'report-query-custody-proof',
 } as const;
+export const GeneratedReportQueryCustodyMaxPageSize = 100 as const;
 
 export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentAccountIdSchema = brandedNonEmptyStringSchema('ParentAccountId');

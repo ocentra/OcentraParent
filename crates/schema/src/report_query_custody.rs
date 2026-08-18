@@ -10,6 +10,7 @@ mod text_types_core;
 mod text_types_query;
 
 pub const REPORT_QUERY_CUSTODY_SCHEMA_VERSION: &str = "report-query-custody-proof";
+pub const REPORT_QUERY_CUSTODY_MAX_PAGE_SIZE: u32 = 100;
 
 const REPORT_QUERY_CUSTODY_STATE_DERIVED_FRESH: &str = "derivedFresh";
 const REPORT_QUERY_CUSTODY_STATE_DERIVED_STALE: &str = "derivedStale";

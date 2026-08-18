@@ -50,6 +50,7 @@ pub enum ReportQueryCustodyDerivationError {
     ParentAuthorityActionRejected,
     ParentAuthorityIdentityMismatch,
     ParentAuthorityGenerationMismatch,
+    ParentAuthorityExpired,
     RawChildEvidenceRequested,
     EmptyRequestScope,
     NonPositivePageSize,

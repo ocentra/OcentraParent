@@ -12,6 +12,7 @@ pub(super) struct AccountIdentityAuthorityProvenance {
     pub(super) provider_subject: AccountIdentityProviderSubject,
     pub(super) session_id: ocentra_schema::account_identity_authority::AccountIdentitySessionId,
     pub(super) session_generation: u64,
+    pub(super) session_expires_at: String,
     pub(super) authority_generation: u64,
 }
 
@@ -23,6 +24,7 @@ pub(super) fn provenance_from_handoff(
         provider_subject: handoff.mapping.provider_subject.clone(),
         session_id: handoff.member.session_id.clone(),
         session_generation: handoff.member.session_generation,
+        session_expires_at: handoff.member.session_expires_at.clone(),
         authority_generation: handoff.member.authority_generation,
     }
 }

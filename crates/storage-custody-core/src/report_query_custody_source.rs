@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 use ocentra_family_identity_core::account_identity_authority::VerifiedAccountIdentityAuthority;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityAccountState, AccountIdentityAuditIdentity,
@@ -11,8 +12,8 @@ use ocentra_schema::account_identity_authority::{
 use ocentra_schema::report_query_custody as contracts;
 
 use super::{
-    ReportQueryCustodyDerivationError, ReportQueryCustodyDerivationInput, ReportQueryCustodySignal,
     report_query_custody_request_validate, report_query_custody_row_validate,
+    ReportQueryCustodyDerivationError, ReportQueryCustodyDerivationInput, ReportQueryCustodySignal,
 };
 
 #[path = "report_query_custody_state_projection.rs"]
@@ -38,6 +39,7 @@ struct ReportQueryCustodyAuthorityBinding {
     session_freshness_state: AccountIdentitySessionFreshnessState,
     session_id: AccountIdentitySessionId,
     session_generation: u64,
+    session_expires_at: String,
     authority_generation: u64,
     provider: AccountIdentityProvider,
     provider_subject: AccountIdentityProviderSubject,
@@ -76,6 +78,7 @@ impl ReportQueryCustodyAuthorityBinding {
             session_freshness_state,
             session_id: authority.session_id().clone(),
             session_generation: authority.session_generation(),
+            session_expires_at: authority.session_expires_at().to_owned(),
             authority_generation: authority.authority_generation(),
             provider: authority.provider().clone(),
             provider_subject: authority.provider_subject().clone(),
@@ -85,8 +88,10 @@ impl ReportQueryCustodyAuthorityBinding {
         }
     }
 
-    fn matches_authority(&self, authority: &VerifiedAccountIdentityAuthority) -> bool {
-        self == &Self::from_verified_authority(authority)
+    fn is_current_at(&self, now: DateTime<Utc>) -> bool {
+        DateTime::parse_from_rfc3339(&self.session_expires_at)
+            .map(|expires_at| expires_at.with_timezone(&Utc) > now)
+            .unwrap_or(false)
     }
 }
 
@@ -94,7 +99,7 @@ impl ReportQueryCustodyAuthorityBinding {
 ///
 /// A producer obtains this only from the verified family capability supplied
 /// by its current authority path. It carries the complete account, household,
-/// member, device, child, session, generation, provider, and support
+/// member, device, child, session, expiry, generation, provider, and support
 /// provenance tuple. It is not serde data and cannot be replaced by a request
 /// DTO or an availability boolean.
 #[derive(Debug, Eq, PartialEq)]
@@ -214,18 +219,34 @@ impl ReportQueryCustodySourceResolution {
         source: ReportQueryCustodySourceOwnerRow,
         authority: &VerifiedAccountIdentityAuthority,
     ) -> Result<Self, ReportQueryCustodyDerivationError> {
+        Self::from_owned_source_at(request, owner, source, authority, Utc::now())
+    }
+
+    fn from_owned_source_at(
+        request: &contracts::ReportQueryCustodyRequest,
+        owner: &ReportQueryCustodySourceOwnerEvidence,
+        source: ReportQueryCustodySourceOwnerRow,
+        authority: &VerifiedAccountIdentityAuthority,
+        resolved_at: DateTime<Utc>,
+    ) -> Result<Self, ReportQueryCustodyDerivationError> {
         let current_authority =
             ReportQueryCustodyAuthorityBinding::from_verified_authority(authority);
+        if !current_authority.is_current_at(resolved_at) {
+            return Err(ReportQueryCustodyDerivationError::ParentAuthorityExpired);
+        }
         if owner.authority != current_authority || source.authority != owner.authority {
             return Err(ReportQueryCustodyDerivationError::TrustedSourceResolutionUnavailable);
         }
-        report_query_custody_request_validate::validate_report_query_custody_request(
-            request, authority,
+        report_query_custody_request_validate::validate_report_query_custody_request_at(
+            request,
+            authority,
+            resolved_at,
         )?;
-        report_query_custody_row_validate::validate_report_query_custody_input(
+        report_query_custody_row_validate::validate_report_query_custody_input_at(
             request,
             &source.input,
             authority,
+            resolved_at,
         )?;
         Ok(Self {
             input: source.input,
@@ -237,8 +258,13 @@ impl ReportQueryCustodySourceResolution {
         self.input
     }
 
-    pub(super) fn matches_authority(&self, authority: &VerifiedAccountIdentityAuthority) -> bool {
-        self.authority.matches_authority(authority)
+    pub(super) fn matches_authority_at(
+        &self,
+        authority: &VerifiedAccountIdentityAuthority,
+        resolved_at: DateTime<Utc>,
+    ) -> bool {
+        self.authority == ReportQueryCustodyAuthorityBinding::from_verified_authority(authority)
+            && self.authority.is_current_at(resolved_at)
     }
 }
 
@@ -274,8 +300,11 @@ pub fn resolve_report_query_custody_sources<P>(
 where
     P: ReportQueryCustodySourcePort,
 {
-    report_query_custody_request_validate::validate_report_query_custody_request(
-        request, authority,
+    let resolved_at = Utc::now();
+    report_query_custody_request_validate::validate_report_query_custody_request_at(
+        request,
+        authority,
+        resolved_at,
     )
     .map_err(ReportQueryCustodySourceAdapterError::Custody)?;
     let owner = ReportQueryCustodySourceOwnerEvidence::from_verified_current_authority(authority);
@@ -284,8 +313,12 @@ where
         .map_err(ReportQueryCustodySourceAdapterError::Producer)?
         .into_iter()
         .map(|source| {
-            ReportQueryCustodySourceResolution::from_owned_source(
-                request, &owner, source, authority,
+            ReportQueryCustodySourceResolution::from_owned_source_at(
+                request,
+                &owner,
+                source,
+                authority,
+                resolved_at,
             )
             .map_err(ReportQueryCustodySourceAdapterError::Custody)
         })
