@@ -5265,6 +5265,7 @@
         "crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_execution_metadata.rs",
         "crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_execution_metadata_identity.rs",
         "crates/storage-custody-core/src/export_import_backup_recovery_compensation.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_migration.rs",
         "crates/storage-custody-core/src/export_import_backup_recovery_migration_execution.rs",
         "crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan.rs",
         "crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan_validation.rs",
