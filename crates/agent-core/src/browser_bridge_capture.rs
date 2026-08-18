@@ -24,6 +24,7 @@ use ocentra_schema::managed_browser_cdp_capture::{
     ManagedBrowserCdpCaptureMode, ManagedBrowserCdpCaptureReceipt, ManagedBrowserCdpCaptureRequest,
     ManagedBrowserCdpEvidenceRefs, MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION,
 };
+use sha2::{Digest, Sha256};
 
 #[path = "browser_bridge_capture/authority.rs"]
 mod authority;
@@ -54,13 +55,84 @@ pub struct ManagedBrowserCdpTargetAuthority {
     evidence_refs: ManagedBrowserCdpEvidenceRefs,
     launch_authority: authority::LaunchBinding,
     last_observed_epoch_ms: Arc<AtomicU64>,
-    capture_safety_revoked: Arc<AtomicBool>,
+    pub(super) capability_revoked: Arc<AtomicBool>,
 }
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ManagedBrowserCdpCaptureBytes {
     png_bytes: Vec<u8>,
     evidence_refs: ManagedBrowserCdpEvidenceRefs,
+    capture_context: ManagedBrowserCdpCaptureContext,
+}
+
+#[derive(Clone, PartialEq, Eq)]
+struct ManagedBrowserCdpCaptureContext {
+    captured_at: String,
+    structured_extraction_id: String,
+    structured_evidence_digest: String,
+    structured_signal_digest: String,
+    structured_body_digest: String,
+    document_frame_id: String,
+    document_loader_id: String,
+    document_url_digest: String,
+    authority_digest: String,
+    context_digest: String,
+}
+
+impl ManagedBrowserCdpCaptureContext {
+    pub(super) fn from_extraction(
+        extraction: &ManagedBrowserCdpStructuredExtraction,
+        target_ref: &str,
+    ) -> Result<Self, ManagedBrowserCdpCaptureError> {
+        let document_frame_id = extraction
+            .document_frame_id()
+            .filter(|value| !value.trim().is_empty())
+            .ok_or(ManagedBrowserCdpCaptureError::TargetAuthorityMismatch)?
+            .to_owned();
+        let document_loader_id = extraction
+            .document_loader_id()
+            .filter(|value| !value.trim().is_empty())
+            .ok_or(ManagedBrowserCdpCaptureError::TargetAuthorityMismatch)?
+            .to_owned();
+        let document_url_digest = extraction
+            .document_url_digest()
+            .filter(|value| value.len() == 64)
+            .ok_or(ManagedBrowserCdpCaptureError::TargetAuthorityMismatch)?
+            .to_owned();
+        let captured_at = extraction.captured_at().to_owned();
+        let mut digest = Sha256::new();
+        for value in [
+            extraction.extraction_id(),
+            extraction.evidence_digest(),
+            extraction.structured_signal_digest(),
+            extraction.structured_body_digest(),
+            target_ref,
+            &document_frame_id,
+            &document_loader_id,
+            &document_url_digest,
+            extraction.authority_digest(),
+            &captured_at,
+        ] {
+            digest.update(value.as_bytes());
+            digest.update([0]);
+        }
+        let context_digest = hex_digest(digest.finalize());
+        if !extraction.is_fresh() {
+            return Err(ManagedBrowserCdpCaptureError::AuthorityExpired);
+        }
+        Ok(Self {
+            captured_at,
+            structured_extraction_id: extraction.extraction_id().to_owned(),
+            structured_evidence_digest: extraction.evidence_digest().to_owned(),
+            structured_signal_digest: extraction.structured_signal_digest().to_owned(),
+            structured_body_digest: extraction.structured_body_digest().to_owned(),
+            document_frame_id,
+            document_loader_id,
+            document_url_digest,
+            authority_digest: extraction.authority_digest().to_owned(),
+            context_digest,
+        })
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -141,7 +213,7 @@ pub fn authorize_managed_browser_cdp_target(
         evidence_refs,
         launch_authority,
         last_observed_epoch_ms: Arc::new(AtomicU64::new(created_at_epoch_ms)),
-        capture_safety_revoked: Arc::new(AtomicBool::new(false)),
+        capability_revoked: Arc::new(AtomicBool::new(false)),
     })
 }
 
@@ -149,6 +221,9 @@ impl ManagedBrowserCdpTargetAuthority {
     pub fn extract_structured(
         &self,
     ) -> Result<ManagedBrowserCdpStructuredExtraction, ManagedBrowserCdpCaptureError> {
+        if self.capability_revoked.load(Ordering::Acquire) {
+            return Err(ManagedBrowserCdpCaptureError::ScreenshotSafetyGuardUnavailable);
+        }
         process::revalidate(&self.launch_authority)?;
         let live_target = target::poll_and_verify(
             &self.launch_authority,
@@ -162,7 +237,8 @@ impl ManagedBrowserCdpTargetAuthority {
             Some(&live_target.snapshot),
         );
         let authority_is_fresh = binding::validate(&self.launch_authority).is_ok()
-            && process::revalidate(&self.launch_authority).is_ok();
+            && process::revalidate(&self.launch_authority).is_ok()
+            && !self.capability_revoked.load(Ordering::Acquire);
         // Sample authoritative wall time only after evaluation and all
         // document/target/authority revalidation have returned.
         let captured_at_epoch_ms = binding::unix_epoch_millis()?;
@@ -196,6 +272,7 @@ impl ManagedBrowserCdpTargetAuthority {
             &self.launch_authority,
             &self.target_id,
             &live_target.snapshot,
+            self.capability_revoked.clone(),
             captured_at_epoch_ms,
             captured_at_monotonic,
             document_identity.as_ref(),
@@ -207,7 +284,7 @@ impl ManagedBrowserCdpTargetAuthority {
         &self,
         request: &ManagedBrowserCdpCaptureRequest,
     ) -> Result<ManagedBrowserCdpCaptureBytes, ManagedBrowserCdpCaptureError> {
-        if self.capture_safety_revoked.load(Ordering::Acquire) {
+        if self.capability_revoked.load(Ordering::Acquire) {
             return Err(ManagedBrowserCdpCaptureError::ScreenshotSafetyGuardUnavailable);
         }
         capture::capture(self, request)
@@ -225,18 +302,28 @@ impl ManagedBrowserCdpCaptureBytes {
 }
 
 pub fn capture_receipt(
-    capture_ref: String,
     capture: &ManagedBrowserCdpCaptureBytes,
     capture_mode: ManagedBrowserCdpCaptureMode,
     width: u32,
     height: u32,
-    image_digest: String,
 ) -> ManagedBrowserCdpCaptureReceipt {
+    let image_digest = hex_digest(Sha256::digest(&capture.png_bytes));
+    let capture_ref = capture_ref(&capture.capture_context.context_digest, &image_digest);
     ManagedBrowserCdpCaptureReceipt {
         schema_version: MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION.to_owned(),
         capture_ref,
         target_ref: capture.evidence_refs.target_ref.clone(),
         evidence_refs: capture.evidence_refs.clone(),
+        captured_at: capture.capture_context.captured_at.clone(),
+        structured_extraction_id: capture.capture_context.structured_extraction_id.clone(),
+        structured_evidence_digest: capture.capture_context.structured_evidence_digest.clone(),
+        structured_signal_digest: capture.capture_context.structured_signal_digest.clone(),
+        structured_body_digest: capture.capture_context.structured_body_digest.clone(),
+        document_frame_id: capture.capture_context.document_frame_id.clone(),
+        document_loader_id: capture.capture_context.document_loader_id.clone(),
+        document_url_digest: capture.capture_context.document_url_digest.clone(),
+        authority_digest: capture.capture_context.authority_digest.clone(),
+        capture_context_digest: capture.capture_context.context_digest.clone(),
         capture_mode,
         width,
         height,
@@ -248,4 +335,24 @@ pub fn capture_receipt(
             .to_owned(),
         raw_image_retained: false,
     }
+}
+
+fn capture_ref(context_digest: &str, image_digest: &str) -> String {
+    let mut digest = Sha256::new();
+    digest.update(context_digest.as_bytes());
+    digest.update([0]);
+    digest.update(image_digest.as_bytes());
+    let mut value = String::from(
+        ocentra_schema::managed_browser_cdp_capture::MANAGED_BROWSER_CDP_CAPTURE_REF_PREFIX,
+    );
+    value.push_str(&hex_digest(digest.finalize()));
+    value
+}
+
+fn hex_digest(bytes: impl IntoIterator<Item = u8>) -> String {
+    let mut value = String::new();
+    for byte in bytes {
+        value.push_str(&format!("{byte:02x}"));
+    }
+    value
 }

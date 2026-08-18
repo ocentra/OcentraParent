@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, time::Duration};
+use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 use ocentra_schema::managed_browser_cdp_capture::ManagedBrowserCdpEvidenceRefs;
 
@@ -12,6 +12,8 @@ use super::{
 mod accessors;
 #[path = "structured/binding.rs"]
 mod binding;
+#[path = "structured/identity_accessors.rs"]
+mod identity_accessors;
 #[path = "structured/parser.rs"]
 mod parser;
 #[path = "structured/transport.rs"]
@@ -30,6 +32,13 @@ pub struct ManagedBrowserCdpStructuredExtraction {
     target_ref: String,
     evidence_refs: ManagedBrowserCdpEvidenceRefs,
     evidence_digest: String,
+    structured_signal_digest: String,
+    structured_body_digest: String,
+    document_frame_id: Option<String>,
+    document_loader_id: Option<String>,
+    document_url_digest: Option<String>,
+    authority_digest: String,
+    capability_revoked: Arc<std::sync::atomic::AtomicBool>,
     visible_text_summary: Option<String>,
     visible_text_character_count: usize,
     dom_overflow_redacted: bool,
@@ -58,6 +67,7 @@ pub(super) struct Payload {
     pub(super) dom_overflow_redacted: bool,
     pub(super) private_content_redacted: bool,
     pub(super) signal_digest: String,
+    pub(super) body_digest: String,
     pub(super) sensitivity_digest: String,
     pub(super) capture_safe: bool,
     pub(super) document_url_digest: String,
@@ -71,7 +81,8 @@ impl Payload {
             visible_text_character_count: 0,
             dom_overflow_redacted: false,
             private_content_redacted: false,
-            signal_digest: String::new(),
+            signal_digest: String::from("managed-browser-structured-unavailable-v1"),
+            body_digest: String::new(),
             sensitivity_digest: String::from("managed-browser-sensitivity-unavailable-v1"),
             capture_safe: false,
             document_url_digest: String::new(),
@@ -86,6 +97,7 @@ impl Payload {
             dom_overflow_redacted: false,
             private_content_redacted: true,
             signal_digest: String::from("protected-content-redacted-v1"),
+            body_digest: String::from("protected-content-redacted-v1"),
             sensitivity_digest: String::from("managed-browser-sensitivity-protected-v1"),
             capture_safe: false,
             document_url_digest: String::new(),
@@ -133,6 +145,7 @@ pub(super) fn bind_extraction(
     binding: &LaunchBinding,
     target_id: &str,
     snapshot: &TargetSnapshot,
+    capability_revoked: Arc<std::sync::atomic::AtomicBool>,
     captured_at_epoch_ms: u64,
     captured_at_monotonic: Duration,
     document_identity: Option<&DocumentIdentity>,
@@ -142,6 +155,7 @@ pub(super) fn bind_extraction(
         binding,
         target_id,
         snapshot,
+        capability_revoked,
         captured_at_epoch_ms,
         captured_at_monotonic,
         document_identity,

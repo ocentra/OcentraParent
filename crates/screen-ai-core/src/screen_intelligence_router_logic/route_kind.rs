@@ -29,13 +29,13 @@ pub(super) fn route_kind_for(
         }) {
             return ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction;
         }
-        // No owner-issued receipt means the browser producer boundary is
+        // No service-owned handoff means the browser producer boundary is
         // unavailable; never advertise a structured route without evidence.
         return ScreenIntelligenceRouteKind::Unavailable;
     }
     if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser {
-        // The browser owner has a frozen capture guard, but this core has no
-        // composed owner handoff yet. Do not fall through to desktop capture.
+        // Do not fall through to desktop capture when the service cannot
+        // compose the managed-browser owner handoff.
         return ScreenIntelligenceRouteKind::Unavailable;
     }
     if !request.parent_allows_screen_capture {

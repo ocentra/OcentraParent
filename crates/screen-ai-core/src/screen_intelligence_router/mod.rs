@@ -12,7 +12,7 @@ pub(crate) const UNAVAILABLE_MANAGED_BROWSER_STRUCTURED_EXTRACTION: &str =
     "managed-browser structured extraction producer authority is unavailable";
 
 mod capture;
-mod extraction;
+pub mod extraction;
 mod policy;
 mod route;
 

@@ -32,7 +32,9 @@ pub(super) fn document_identity_matches_snapshot(
     snapshot: &TargetSnapshot,
     identity: &DocumentIdentity,
 ) -> bool {
-    identity.url_digest == snapshot.url_digest
+    !identity.frame_id.trim().is_empty()
+        && !identity.loader_id.trim().is_empty()
+        && identity.url_digest == snapshot.url_digest
 }
 
 pub(super) fn document_identity_digest(identity: &DocumentIdentity) -> String {
@@ -181,6 +183,26 @@ pub(super) fn opaque_redacted_evidence_refs(
     }
 }
 
+pub(super) fn authority_digest(
+    binding: &LaunchBinding,
+    target_id: &str,
+    snapshot: &TargetSnapshot,
+) -> String {
+    let mut digest = Sha256::new();
+    digest.update(binding.managed_browser_session_id.as_bytes());
+    digest.update([0]);
+    digest.update(binding.profile_id.as_bytes());
+    digest.update([0]);
+    digest.update(binding.generation.to_be_bytes());
+    digest.update(binding.process_id.to_be_bytes());
+    digest.update(target_id.as_bytes());
+    digest.update([0]);
+    digest.update(snapshot.websocket_url.as_bytes());
+    digest.update([0]);
+    digest.update(snapshot.browser_identity_digest.as_bytes());
+    hex_digest(digest.finalize())
+}
+
 fn opaque_ref(
     prefix: &str,
     binding: &LaunchBinding,
@@ -238,8 +260,12 @@ fn opaque_redacted_ref(
 }
 
 fn text_digest(value: &str) -> String {
+    hex_digest(Sha256::digest(value.as_bytes()))
+}
+
+fn hex_digest(bytes: impl IntoIterator<Item = u8>) -> String {
     let mut digest = String::new();
-    for byte in Sha256::digest(value.as_bytes()) {
+    for byte in bytes {
         digest.push_str(&format!("{byte:02x}"));
     }
     digest
