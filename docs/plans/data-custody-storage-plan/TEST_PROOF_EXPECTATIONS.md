@@ -223,6 +223,26 @@ assistant citations restricted to allowed refs
 stale/conflict state
 ```
 
+Current expected test ownership and open migration:
+
+```text
+Rust schema contracts: crates/schema/tests/contract/report_query_custody.rs,
+                       crates/schema/tests/contract/report_query_custody_generated.rs
+Rust custody boundary: crates/storage-custody-core/tests/unit/report_query_custody.rs
+TypeScript contract: packages/schema-domain/tests/contract/report-query-custody.test.ts (absent)
+```
+
+The Rust harnesses must migrate to
+`ValidatedReportQueryCustodyProofSnapshot` and add fail-closed coverage for an
+untrusted raw proof DTO, missing required states, source and proof results above
+the request page size, snapshot expiry/identity/generation mismatch, and exact
+request/row scope plus citation binding. The TypeScript contract test must cover
+requested-scope subset, row source class in requested and allowed scopes, exact
+row/request scope and citation arrays, authority-generation equality, and
+`rows.length <= request.pageSize`. Snapshot validation must not be described as
+a race-safe durable Account repository-currentness check. None of these tests
+has been migrated, added, or run by the source-mapping wave.
+
 ## WP08 Parent Storage Settings Apply Flow
 
 Expected coverage:

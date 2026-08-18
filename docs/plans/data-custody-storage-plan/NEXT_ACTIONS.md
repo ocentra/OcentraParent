@@ -38,15 +38,21 @@
    finish WP08's trusted confirmation receipt plus reachable `Applied`/`Partial`
    decision path. Do not stage or consume a confirmation through a caller-made
    receipt while that Account handoff is missing.
-   WP06's generated TypeScript edge is source-present, but no report/query
-   runtime consumer is routed to it; do not invent an agent-service/report
-   caller or substitute proof scripts or synthetic DTO callers for missing
-   product behavior.
+   WP06's sealed Rust proof boundary and Rust-generated TypeScript edge are
+   source-present for all seven states, exact request/row/citation/generation
+   binding, and source/proof page limits. Its Account capability is an
+   issuance-time snapshot, not race-safe repository currentness. No
+   report/query runtime consumer or owner adapter is routed to it; do not
+   invent an agent-service/report caller or substitute proof scripts or
+   synthetic DTO callers for missing product behavior.
 3. After the repository-wide source wave is complete, write WP01's missing
    Rust invariant-test family, migrate the stale moved-store tests, and write
-   the full expected-test matrix for WP02-WP07, including WP06's stale Rust
-   authority/pagination cases and unwritten TypeScript contract coverage. Only
-   then run focused crate/domain tests and repair failures.
+   the full expected-test matrix for WP02-WP07. WP06 must migrate its Rust
+   harnesses to the sealed wrapper, cover raw-DTO rejection, all-seven-state
+   completeness, snapshot expiry/binding, and source/proof page-size
+   negatives, and add the unwritten TypeScript scope/row/generation/array/
+   pagination contract coverage. Only then run focused crate/domain tests and
+   repair failures.
 4. After focused tests and per-domain Enforcer gates, resolve the aggregate-
    proof publication model so fresh checkouts can audit durable artifacts;
    follow with repo-wide Enforcer, proof, precommit, one PR/CI cycle, and merge.
@@ -108,7 +114,7 @@ proof, precommit, CI, or PR were run.
   composition, production reachability, expected tests, focused validation,
   and proof remain open, with unavailable provider-backed paths
   manual-required.
-- WP06's current Account-authority-derived opaque Rust request/row boundary and generated TypeScript page/cursor edge are source-accepted; no downstream report/query consumer is routed, and the expected Rust tests are stale while the TypeScript contract test is unwritten.
+- WP06's Account-issued authority-snapshot Rust request/row/sealed-proof boundary and generated TypeScript scope/citation/generation/page edge are source-accepted for all seven states. No downstream report/query consumer or owner adapter is routed; the expected Rust tests are stale and the TypeScript contract test is unwritten.
 - WP07 has a real internal child custody command/effect/tombstone lifecycle and startup recovery; trusted authority composition, external calling, test migration, and aggregate route acceptance remain open.
 - WP08 source is incomplete: no trusted confirmation receipt/confirmed input exists, so `Applied` and `Partial` remain unreachable; its positive/negative expected tests and current proof are also open. The confirmation staging/consume path is explicitly blocked on Account WP05's durable opaque-effect CAS/recovery owner and typed handoff.
 - State remains open until the remaining production source, complete expected tests, provider/AI/runtime handoffs, rollout refresh, and carried proof blockers are closed.
@@ -120,3 +126,9 @@ Data WP05's rollback dispatch validation is now explicitly mapped in the
 engineering graph. The next source work remains the real Account/family,
 key/import, provider-neutral, and producer owners plus a reachable caller;
 tests and proof are intentionally still later gates.
+
+Data WP06's canonical `9462ce44e` and `d3c4b64ca` source is now explicitly
+mapped through the sealed validated proof snapshot, all-seven-state gate,
+source/proof page bound, and Rust/generated parity rules. This mapping does not
+add its missing consumer/owner adapter, migrate or run tests, refresh proof, or
+raise validation/DONE/PR readiness.
