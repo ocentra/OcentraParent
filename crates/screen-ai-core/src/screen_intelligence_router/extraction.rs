@@ -1,6 +1,8 @@
 use super::capture::ScreenEvidenceCustodyState;
 use serde::{Deserialize, Serialize};
 
+#[path = "extraction/digest_validation.rs"]
+mod digest_validation;
 #[path = "extraction/owner.rs"]
 pub mod owner;
 
@@ -10,6 +12,14 @@ pub(crate) const MANAGED_BROWSER_TARGET_REF_PREFIX: &str = "browser-target-";
 pub(crate) const MANAGED_BROWSER_URL_REF_PREFIX: &str = "browser-url-";
 pub(crate) const MANAGED_BROWSER_TITLE_REF_PREFIX: &str = "browser-title-";
 pub(crate) const SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT: usize = 480;
+const MANAGED_BROWSER_STRUCTURED_SIGNAL_PROTECTED: &str = "protected-content-redacted-v1";
+const MANAGED_BROWSER_STRUCTURED_SIGNAL_UNAVAILABLE: &str =
+    "managed-browser-structured-unavailable-v1";
+const MANAGED_BROWSER_SENSITIVITY_STRUCTURAL_SAFE: &str =
+    "managed-browser-sensitivity-structural-safe-v1";
+const MANAGED_BROWSER_SENSITIVITY_UNKNOWN: &str = "managed-browser-sensitivity-unknown-v1";
+const MANAGED_BROWSER_SENSITIVITY_PROTECTED: &str = "managed-browser-sensitivity-protected-v1";
+const MANAGED_BROWSER_SENSITIVITY_UNAVAILABLE: &str = "managed-browser-sensitivity-unavailable-v1";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -64,6 +74,7 @@ struct VerifiedManagedBrowserStructuredExtractionReceipt {
     structured_evidence_digest: String,
     structured_signal_digest: String,
     structured_body_digest: String,
+    structured_sensitivity_digest: String,
     document_frame_id: Option<String>,
     document_loader_id: Option<String>,
     document_url_digest: Option<String>,
@@ -176,8 +187,8 @@ fn receipt_is_bound_and_redacted(
                 && !reference.digest.trim().is_empty()
                 && reference.uri.is_none()
         })
-        && valid_digest(&receipt.structured_evidence_digest)
-        && valid_digest(&receipt.structured_signal_digest)
+        && digest_validation::valid_digest(&receipt.structured_evidence_digest)
+        && digest_validation::valid_signal_digest(receipt)
         && ((receipt.redaction_state
             == ScreenStructuredExtractionRedactionState::ProtectedContentSkipped
             && receipt.structured_body_digest == "protected-content-redacted-v1")
@@ -185,8 +196,9 @@ fn receipt_is_bound_and_redacted(
                 &receipt.outcome,
                 VerifiedStructuredExtractionOutcome::Unavailable
             ) && receipt.structured_body_digest.is_empty())
-            || valid_body_digest(&receipt.structured_body_digest))
-        && valid_digest(&receipt.authority_digest)
+            || digest_validation::valid_body_digest(&receipt.structured_body_digest))
+        && digest_validation::valid_digest(&receipt.authority_digest)
+        && digest_validation::valid_sensitivity_digest(&receipt.structured_sensitivity_digest)
         && document_identity_is_consistent(receipt)
         && receipt.evidence_refs.iter().any(|reference| {
             reference.evidence_id == receipt.authority.target_ref
@@ -215,16 +227,6 @@ fn receipt_is_bound_and_redacted(
         && redaction_flags_are_consistent(receipt)
 }
 
-fn valid_digest(value: &str) -> bool {
-    value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
-}
-
-fn valid_body_digest(value: &str) -> bool {
-    value
-        .strip_prefix("managed-browser-body-sha256-v1-")
-        .is_some_and(valid_digest)
-}
-
 fn document_identity_is_consistent(
     receipt: &VerifiedManagedBrowserStructuredExtractionReceipt,
 ) -> bool {
@@ -246,7 +248,7 @@ fn document_identity_is_consistent(
         && receipt
             .document_url_digest
             .as_deref()
-            .is_some_and(valid_digest)
+            .is_some_and(digest_validation::valid_digest)
 }
 
 fn redaction_flags_are_consistent(

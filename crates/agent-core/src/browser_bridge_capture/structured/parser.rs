@@ -1,6 +1,11 @@
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
+use ocentra_schema::managed_browser_cdp_capture::{
+    MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED, MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE,
+    MANAGED_BROWSER_CDP_SENSITIVITY_UNKNOWN,
+};
+
 use super::{ExtractionError, Outcome, Payload};
 
 const MAX_STRUCTURED_TEXT: usize = 480;
@@ -9,9 +14,6 @@ const MAX_DOCUMENT_URL: usize = 4096;
 const CDP_FIELD_EXCEPTION_DETAILS: &str = "exceptionDetails";
 const CDP_FIELD_VALUE: &str = "value";
 const CDP_FIELD_RESULT: &str = "result";
-const SENSITIVITY_STRUCTURAL_SAFE: &str = "managed-browser-sensitivity-structural-safe-v1";
-const SENSITIVITY_PROTECTED: &str = "managed-browser-sensitivity-protected-v1";
-const SENSITIVITY_UNKNOWN: &str = "managed-browser-sensitivity-unknown-v1";
 const BODY_DIGEST_PREFIX: &str = "managed-browser-body-sha256-v1-";
 
 pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
@@ -55,10 +57,6 @@ pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
     let accessibility_values = bounded_string(value, "accessibilityValues", MAX_SIGNAL_TEXT)?;
     let body_digest = bounded_string(value, "bodyDigest", MAX_SIGNAL_TEXT)?;
     let (capture_safe, sensitivity_digest) = parse_sensitivity(value)?;
-    // No page-provided value is allowed to authorize raw text. The current
-    // owner has no affirmative safe-classification capability, so every page
-    // remains redacted; the structural marker is used only for the frozen
-    // screenshot guard.
     if !visible_text.is_empty()
         || visible_text_character_count != 0
         || !meta_values.is_empty()
@@ -67,7 +65,8 @@ pub(super) fn parse_payload(value: &Value) -> Result<Payload, ExtractionError> {
     {
         return Err(ExtractionError::InvalidResponse);
     }
-    let protected = protected_content_skipped || sensitivity_digest == SENSITIVITY_PROTECTED;
+    let protected = protected_content_skipped
+        || sensitivity_digest == MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED;
     if !protected && !body_digest_is_valid(&body_digest) {
         return Err(ExtractionError::InvalidResponse);
     }
@@ -102,7 +101,9 @@ fn parse_sensitivity(value: &Value) -> Result<(bool, String), ExtractionError> {
     let sensitivity_digest = bounded_string(value, "sensitivityDigest", MAX_SIGNAL_TEXT)?;
     if !matches!(
         sensitivity_digest.as_str(),
-        SENSITIVITY_STRUCTURAL_SAFE | SENSITIVITY_PROTECTED | SENSITIVITY_UNKNOWN
+        MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE
+            | MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED
+            | MANAGED_BROWSER_CDP_SENSITIVITY_UNKNOWN
     ) {
         return Err(ExtractionError::InvalidResponse);
     }

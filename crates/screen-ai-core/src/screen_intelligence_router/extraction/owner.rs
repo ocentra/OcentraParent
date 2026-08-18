@@ -27,6 +27,7 @@ pub struct ManagedBrowserStructuredExtractionObservation {
     pub structured_evidence_digest: String,
     pub structured_signal_digest: String,
     pub structured_body_digest: String,
+    pub structured_sensitivity_digest: String,
     pub document_frame_id: Option<String>,
     pub document_loader_id: Option<String>,
     pub document_url_digest: Option<String>,

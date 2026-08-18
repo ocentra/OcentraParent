@@ -1,6 +1,9 @@
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 
-use ocentra_schema::managed_browser_cdp_capture::ManagedBrowserCdpEvidenceRefs;
+use ocentra_schema::managed_browser_cdp_capture::{
+    ManagedBrowserCdpEvidenceRefs, MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED,
+    MANAGED_BROWSER_CDP_SENSITIVITY_UNAVAILABLE,
+};
 
 use super::{
     authority::LaunchBinding,
@@ -34,6 +37,7 @@ pub struct ManagedBrowserCdpStructuredExtraction {
     evidence_digest: String,
     structured_signal_digest: String,
     structured_body_digest: String,
+    structured_sensitivity_digest: String,
     document_frame_id: Option<String>,
     document_loader_id: Option<String>,
     document_url_digest: Option<String>,
@@ -83,7 +87,7 @@ impl Payload {
             private_content_redacted: false,
             signal_digest: String::from("managed-browser-structured-unavailable-v1"),
             body_digest: String::new(),
-            sensitivity_digest: String::from("managed-browser-sensitivity-unavailable-v1"),
+            sensitivity_digest: String::from(MANAGED_BROWSER_CDP_SENSITIVITY_UNAVAILABLE),
             capture_safe: false,
             document_url_digest: String::new(),
             outcome: Outcome::Unavailable,
@@ -98,7 +102,7 @@ impl Payload {
             private_content_redacted: true,
             signal_digest: String::from("protected-content-redacted-v1"),
             body_digest: String::from("protected-content-redacted-v1"),
-            sensitivity_digest: String::from("managed-browser-sensitivity-protected-v1"),
+            sensitivity_digest: String::from(MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED),
             capture_safe: false,
             document_url_digest: String::new(),
             outcome: Outcome::ProtectedContentSkipped,

@@ -25,6 +25,13 @@ pub const MANAGED_BROWSER_CDP_TITLE_REF_PREFIX: &str = "browser-title";
 pub const MANAGED_BROWSER_CDP_CAPTURE_REF_PREFIX: &str = "browser-capture-";
 pub const MANAGED_BROWSER_CDP_STRUCTURED_BODY_DIGEST_PREFIX: &str =
     "managed-browser-body-sha256-v1-";
+pub const MANAGED_BROWSER_CDP_SENSITIVITY_STRUCTURAL_SAFE: &str =
+    "managed-browser-sensitivity-structural-safe-v1";
+pub const MANAGED_BROWSER_CDP_SENSITIVITY_UNKNOWN: &str = "managed-browser-sensitivity-unknown-v1";
+pub const MANAGED_BROWSER_CDP_SENSITIVITY_PROTECTED: &str =
+    "managed-browser-sensitivity-protected-v1";
+pub const MANAGED_BROWSER_CDP_SENSITIVITY_UNAVAILABLE: &str =
+    "managed-browser-sensitivity-unavailable-v1";
 pub const MANAGED_BROWSER_CDP_FIELD_ID: &str = "id";
 pub const MANAGED_BROWSER_CDP_FIELD_METHOD: &str = "method";
 pub const MANAGED_BROWSER_CDP_FIELD_PARAMS: &str = "params";
@@ -110,6 +117,7 @@ pub struct ManagedBrowserCdpCaptureReceipt {
     pub structured_evidence_digest: String,
     pub structured_signal_digest: String,
     pub structured_body_digest: String,
+    pub structured_sensitivity_digest: String,
     pub document_frame_id: String,
     pub document_loader_id: String,
     pub document_url_digest: String,

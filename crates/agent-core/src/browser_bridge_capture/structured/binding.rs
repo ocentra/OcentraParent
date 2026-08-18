@@ -36,7 +36,7 @@ pub(super) fn bind_extraction(
         private_content_redacted,
         signal_digest,
         body_digest,
-        sensitivity_digest: _,
+        sensitivity_digest,
         capture_safe: _,
         document_url_digest: _,
         outcome,
@@ -58,6 +58,7 @@ pub(super) fn bind_extraction(
         snapshot,
         captured_at_epoch_ms,
         &signal_digest,
+        &sensitivity_digest,
         document_identity,
         redact_page_identity,
     );
@@ -76,6 +77,7 @@ pub(super) fn bind_extraction(
         evidence_digest,
         structured_signal_digest: signal_digest,
         structured_body_digest: body_digest,
+        structured_sensitivity_digest: sensitivity_digest,
         document_frame_id: document_identity.map(|identity| identity.frame_id.clone()),
         document_loader_id: document_identity.map(|identity| identity.loader_id.clone()),
         document_url_digest: document_identity.map(|identity| identity.url_digest.clone()),
@@ -121,6 +123,7 @@ fn extraction_digest(
     snapshot: &TargetSnapshot,
     captured_at_epoch_ms: u64,
     signal_digest: &str,
+    sensitivity_digest: &str,
     document_identity: Option<&DocumentIdentity>,
     redact_page_identity: bool,
 ) -> String {
@@ -153,6 +156,7 @@ fn extraction_digest(
         &captured_at,
         &document_identity,
         signal_digest,
+        sensitivity_digest,
     ])
 }
 
