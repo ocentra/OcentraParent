@@ -29,7 +29,7 @@ pub(super) fn validate_objects(connection: &Connection) -> Result<(), ()> {
             || (object_type == "table" && !table_is_allowed(&name))
             || (object_type == "index" && !index_is_allowed(&name))
             || ((object_type == "table" || object_type == "index")
-                && OWNED_TABLES.contains(&name.as_str())
+                && is_canonical_owned_object(&object_type, &name)
                 && !canonical_definition_matches(&object_type, &name, sql.as_deref().ok_or(())?))
         {
             return Err(());
@@ -44,6 +44,14 @@ fn table_is_allowed(name: &str) -> bool {
 
 fn index_is_allowed(name: &str) -> bool {
     name.starts_with("sqlite_autoindex_") || expected_index(name) || owner_index(name)
+}
+
+fn is_canonical_owned_object(object_type: &str, name: &str) -> bool {
+    match object_type {
+        "table" => OWNED_TABLES.contains(&name),
+        "index" => expected_index(name),
+        _ => false,
+    }
 }
 
 fn is_owned_trigger_or_view(object_type: &str, name: &str, sql: Option<&str>) -> bool {
