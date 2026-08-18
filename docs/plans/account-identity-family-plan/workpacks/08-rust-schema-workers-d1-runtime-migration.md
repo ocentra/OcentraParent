@@ -98,6 +98,17 @@ family-owned fail-closed current-binding read boundary
 no caller-supplied DTO, selector, or generated TypeScript value becomes authority
 ```
 
+## Device Trust current-authority bridge
+
+Account WP08 is the canonical contract producer for the household/child/device/
+pairing/install/route/lifecycle/revocation binding consumed by Device Trust
+WP03. It does not issue parent presence, register a LAN signer, or own local
+trust lifecycle. Cloudflare WP06 is the next ordered consumer and must resolve
+this binding from a provider-gated durable caller; a provider-subject mapping,
+pure evaluator, LAN registry, request DTO, or generated edge value is not a
+substitute. WP03 remains blocked until both the contract and durable caller are
+reachable, and no reverse dependency from Account WP08 to WP03 is introduced.
+
 Cloudflare WP06 remains the durable repository and production-caller owner.
 This packet may define the contract and family-owned read port, but it must not
 add D1 storage, a Worker route, provider verification, or a fake local authority

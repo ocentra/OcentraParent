@@ -63,6 +63,11 @@ device registry is pairing state; neither is the missing account/household
 authority repository. A typed receipt, document assertion, request DTO, or LAN
 service caller must not advance WP26.
 
+WP03 is the ceremony owner after the WP01 foundation and Account/Cloudflare
+current-authority bridge. WP01 must not become a ceremony issuer, and WP03 must
+not depend on LAN WP26 or a child consumer; those consumers are ordered after
+the one-time registration authorization and current-binding/revocation handoff.
+
 ## Implementation-phase routing disposition — 2026-08-17
 
 The graph now applies narrow `reviewed-implementation` phase gates from WP03 to

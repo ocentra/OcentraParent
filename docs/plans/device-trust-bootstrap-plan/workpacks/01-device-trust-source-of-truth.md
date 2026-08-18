@@ -32,18 +32,37 @@ Purpose: define trust ownership, trust states, bootstrap lifecycle, and cross-pl
 - The lifecycle authority sidecar now serializes process writers through a sibling lock, reloads the current map before each generation update, and persists with an atomic replacement plus file/parent synchronization. Corrupt, missing-after-database, lock, and persistence failures remain unavailable rather than being treated as trusted.
 - `device_trust_ref` generation is opaque, CSPRNG-backed, and input-independent. Sealing remains manual-required because no specifically authorized high-risk device-trust sealing action exists; low-risk actions are never promoted.
 - Parent-presence decisions are transactionally enqueued beside custody state and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Visible tests cover accepted and replay outcomes, correlation and redaction, real delivery failure, restart recovery, and idempotent re-delivery. This workpack does not claim subscriber delivery, a broader event-bus runtime, or broader device-trust lifecycle completion.
-- This remains a partial, unchecked WP01 foundation. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, Unix production custody, or platform-wide path guarantees. The workpack is READY only for the bounded production implementation route below; its required tests, validation, and proof remain open.
+- This remains a partial, unchecked WP01 foundation/source. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, Unix production custody, or platform-wide path guarantees. It is not a shipped authority or production-caller route; its required tests, validation, authority bridge, and proof remain open.
 
 ## LAN WP26 dependency routing
 
-WP01 is READY as the next legal production-code route for the missing persistent
-trusted-device and signer-key registration source that LAN WP26 must consume.
-The route belongs in the family-identity trust owner and must expose current
-registration, revocation, and authority-generation state; WP26 must not create
-that state or call a LAN-local substitute. This routing note is not a WP01
-completion claim: the existing partial lifecycle remains open until a shipped
-owner and its required tests/validation are present. WP03 depends on this
-source before it can authorize the one-time `RegisterLanSignerAnchor` step.
+WP01 is a foundation/source route, not a READY authority or production-caller
+route. The family-identity trust owner exposes the durable current registration,
+revocation, and authority-generation state that downstream owners must consume;
+WP26 must not create that state or call a LAN-local substitute. This routing
+note is not a WP01 completion claim: the partial lifecycle remains open until a
+shipped authority issuer, production composition, expected tests, validation,
+and proof exist. WP03 owns the one-time `RegisterLanSignerAnchor` ceremony and
+must not be made to depend on a LAN consumer in return.
+
+## Downstream bridge order
+
+The current legal order is explicit and non-circular:
+
+1. Account Identity WP08 defines the canonical household/child/device/pairing
+   binding; Cloudflare WP06 persists and resolves it from a provider-gated
+   production caller. Neither packet may redefine Device Trust authority.
+2. Device Trust WP03 consumes WP01 plus those Account/Cloudflare handoffs to
+   own parent step-up, target resolution, signer registration authorization,
+   signature verification, durable sign-count ownership, and one-time nonce
+   consumption. Typed receipts and request identifiers are not ceremony
+   authority.
+3. The selected WP02 parent-runtime/platform sealing route composes sealing,
+   lifecycle, and revocation with the current binding. It remains
+   manual-required without a real ceremony issuer and platform owner.
+4. LAN WP26 and child/runtime consumers run only after WP03 and consume the
+   current binding/revocation state; they do not mint, register, or infer
+   signer authority from pairing or transport evidence.
 
 ## Accepted source consolidation — 2026-08-17
 

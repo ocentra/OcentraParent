@@ -16802,12 +16802,12 @@
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "ready / source accepted and integrated, expected tests open",
+        "statusText": "partial / foundation-source only; expected tests, authority bridge, and caller open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -16818,7 +16818,7 @@
             "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Reviewed as the dependency-free READY implementation route for the missing family-owned persistent trusted-device/signer-key registration source. The existing WP01 lifecycle foundation remains partial; tests, validation, proof, and completion are not claimed. WP03 remains blocked on this source and WP26 remains blocked on WP01 plus WP03."
+          "reason": "Reviewed as the family-owned foundation/source route for durable trusted-device/signer-key lifecycle state. WP01 is not a shipped authority issuer or production-caller route: tests, validation, proof, platform ceremony, and completion remain open. Account WP08 -> Cloudflare WP06 current-authority resolution must precede WP03's one-time RegisterLanSignerAnchor ceremony; WP02 is conditional for parent-runtime/platform sealing and revocation; LAN WP26 and child consumers follow WP03 and cannot mint signer authority."
         },
         "completionEvidenceOverride": {
           "reason": "Independent source review accepted the Device Trust continuation at 914d06b6a and root integrated its reconciled WP01 authority/current-binding source through 68717b5b7. Public household signer/verifier mint paths are removed and current authority is owner-resolved. The overlapping entitlement boundary retains Payment's unsigned projection and omits incompatible public signed modules. Focused source-format, architecture, Enforcer, and diff gates passed. Expected-test migration, functional validation, proof, real platform/passkey callers, repo-wide Enforcer, and DONE remain open.",
@@ -16868,13 +16868,15 @@
       "title": "WP02 Local Key Sealing",
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / Windows-only merged custody slice",
+        "statusText": "partial / Windows-only merged custody slice; downstream of WP01",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -30733,6 +30735,17 @@
         "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md"
       ],
       "reason": "Refund/dispute support actions consume the Payment-owned invoice/refund/dispute state machine and its rollback semantics."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md"
+      ],
+      "reason": "The conditional parent-runtime/platform sealing route consumes WP01 current binding and lifecycle state; it cannot issue ceremony authority or revive revoked trust."
     },
     {
       "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",

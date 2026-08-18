@@ -78,6 +78,16 @@ output/device-trust-bootstrap-plan-proof/02-local-key-sealing/17-blockers.md
 
 ## Current audit state
 
+## Downstream composition route
+
+WP02 is downstream of the WP01 foundation. When selected for a demonstrated
+private-key or install-custody need, its parent-runtime/platform owner must
+compose sealing, current-binding lookup, lifecycle generation, and revocation
+through the trusted ceremony boundary. WP02 does not issue parent presence,
+register a LAN signer, resolve household targets, or revive revoked trust. With
+no shipped ceremony issuer or registered native caller, sealing and revocation
+remain manual-required; the Windows slice below is source evidence only.
+
 - The merged Windows-only custody and dispatch safety slice has an unregistered
   native parent-runtime facade consumes only an opaque staged-ceremony handle and
   rejects an unstaged or already-consumed handle before it can call

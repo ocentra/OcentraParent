@@ -126,13 +126,16 @@ WP07 has no platform removal or parent-transport caller.
 
 The full expected-test wave, functional validation, proof, production caller
 integration, repo-wide Enforcer/architecture acceptance, platform custody,
-broader lifecycle composition, and DONE state remain open. The default graph therefore keeps
-WP01 READY (not DONE) and WP03 BLOCKED. WP03's bounded source packet is already
-accepted and is authorized only through the implementation-only phase gates for
-WP01, Account WP08, and Cloudflare WP06; no ceremony, provider, runtime, test,
-proof, or completion claim follows. The Account WP08 implementation input and
-Cloudflare WP06 bounded source packet are reviewed, while their normal runtime
-gates remain open. WP26 remains completion-gated on both WP01 and WP03.
+broader lifecycle composition, and DONE state remain open. WP01 is a
+foundation/source-only route, not a shipped authority or production-caller
+route; its graph state must remain validation/open rather than READY for a
+missing issuer. WP03 remains BLOCKED. Its bounded source packet is accepted
+only through implementation-only phase gates for WP01, Account WP08, and
+Cloudflare WP06; no ceremony, provider, runtime, test, proof, or completion
+claim follows. The Account WP08 implementation input and Cloudflare WP06
+bounded source packet are reviewed, while their normal runtime gates remain
+open. WP02 is a conditional downstream sealing/composition route, and WP26 is
+ordered after WP03 for current-binding/revocation consumption.
 
 ## WP03 target-authority owner correction — 2026-08-17
 
