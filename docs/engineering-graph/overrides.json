@@ -352,7 +352,7 @@
         "WP-data-custody-storage-plan-05-export-import-backup-recovery",
         "WP-account-identity-family-plan-05-device-ownership-authz"
       ],
-      "reason": "WP05 live-code audit found no parent-local/provider writer or retriever, scheduler, cryptographic byte verifier, or job custody runtime. WP09 is a new source-only owner for encrypted bytes, atomic persistence/retrieval, retry/restart custody, and a provider-neutral adapter; it must not fake a cloud provider or claim tests/proof/DONE.",
+      "reason": "WP05 live-code audit found no parent-local/provider writer or retriever, scheduler, cryptographic byte verifier, or job custody runtime. WP09 is a new source-and-test owner with reviewed planned Rust roots that are currently missing; it owns encrypted bytes, atomic persistence/retrieval, retry/restart custody, and a provider-neutral adapter and must not fake a cloud provider or claim tests/proof/DONE.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
@@ -372,7 +372,7 @@
         "WP-account-identity-family-plan-05-device-ownership-authz",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
       ],
-      "reason": "WP05 has no production restore/migration/apply/rollback/idempotency executor. WP10 is the explicit orchestration owner for durable receipts, trusted confirmation/authority handoffs, producer outcomes, tombstone/no-resurrection, and crash/restart coordination; it cannot mint receipts or mutate data classes.",
+      "reason": "WP05 has no production restore/migration/apply/rollback/idempotency executor. WP10 is the explicit source-and-test orchestration owner with reviewed planned Rust roots that are currently missing; it owns durable receipts, trusted confirmation/authority handoffs, producer outcomes, tombstone/no-resurrection, and crash/restart coordination and cannot mint receipts or mutate data classes.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",

@@ -16632,6 +16632,12 @@
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs"
+          ]
+        },
         "dependencyReview": {
           "hardDependencies": [
             "WP-account-identity-family-plan-05-device-ownership-authz",
@@ -16647,16 +16653,14 @@
             "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md"
           ],
-          "reason": "WP05 live-code audit found no parent-local/provider writer or retriever, scheduler, cryptographic byte verifier, or job custody runtime. WP09 is a new source-only owner for encrypted bytes, atomic persistence/retrieval, retry/restart custody, and a provider-neutral adapter; it must not fake a cloud provider or claim tests/proof/DONE."
+          "reason": "WP05 live-code audit found no parent-local/provider writer or retriever, scheduler, cryptographic byte verifier, or job custody runtime. WP09 is a new source-and-test owner with reviewed planned Rust roots that are currently missing; it owns encrypted bytes, atomic persistence/retrieval, retry/restart custody, and a provider-neutral adapter and must not fake a cloud provider or claim tests/proof/DONE."
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md"
-          ],
+          "implementation": [],
           "tests": [
             "docs/plans/data-custody-storage-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
@@ -16665,6 +16669,11 @@
             "docs/plans/data-custody-storage-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs"
+          ]
         }
       }
     },
@@ -16692,6 +16701,12 @@
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"
+          ]
+        },
         "dependencyReview": {
           "hardDependencies": [
             "WP-account-identity-family-plan-05-device-ownership-authz",
@@ -16709,16 +16724,14 @@
             "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md"
           ],
-          "reason": "WP05 has no production restore/migration/apply/rollback/idempotency executor. WP10 is the explicit orchestration owner for durable receipts, trusted confirmation/authority handoffs, producer outcomes, tombstone/no-resurrection, and crash/restart coordination; it cannot mint receipts or mutate data classes."
+          "reason": "WP05 has no production restore/migration/apply/rollback/idempotency executor. WP10 is the explicit source-and-test orchestration owner with reviewed planned Rust roots that are currently missing; it owns durable receipts, trusted confirmation/authority handoffs, producer outcomes, tombstone/no-resurrection, and crash/restart coordination and cannot mint receipts or mutate data classes."
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md"
-          ],
+          "implementation": [],
           "tests": [
             "docs/plans/data-custody-storage-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
@@ -16727,6 +16740,11 @@
             "docs/plans/data-custody-storage-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"
+          ]
         }
       }
     },

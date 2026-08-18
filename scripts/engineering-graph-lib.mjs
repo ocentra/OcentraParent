@@ -220,6 +220,36 @@ export async function loadCodeMap(root, codeMapPath = CODE_MAP_PATH) {
     if (new Set(entry.roots.map(normalizeRepoPath)).size !== entry.roots.length) {
       throw new Error(`${codeMapPath} workpack ${workpackId} must not contain duplicate roots`);
     }
+    if (entry.plannedImplementationRoots !== undefined) {
+      if (codeExpectation !== 'code-and-tests') {
+        throw new Error(
+          `${codeMapPath} workpack ${workpackId} plannedImplementationRoots requires codeExpectation code-and-tests`
+        );
+      }
+      if (!Array.isArray(entry.plannedImplementationRoots) || entry.plannedImplementationRoots.length === 0) {
+        throw new Error(
+          `${codeMapPath} workpack ${workpackId} plannedImplementationRoots must be a non-empty array when present`
+        );
+      }
+      if (entry.plannedImplementationRoots.some((rootPath) => !isRepoRelativePath(rootPath))) {
+        throw new Error(
+          `${codeMapPath} workpack ${workpackId} plannedImplementationRoots must contain only repository-relative roots`
+        );
+      }
+      const normalizedRoots = new Set(entry.roots.map(normalizeRepoPath));
+      const normalizedPlannedRoots = entry.plannedImplementationRoots.map(normalizeRepoPath);
+      if (new Set(normalizedPlannedRoots).size !== normalizedPlannedRoots.length) {
+        throw new Error(`${codeMapPath} workpack ${workpackId} plannedImplementationRoots must not contain duplicates`);
+      }
+      if (normalizedPlannedRoots.some((rootPath) => !normalizedRoots.has(rootPath))) {
+        throw new Error(`${codeMapPath} workpack ${workpackId} plannedImplementationRoots must be a subset of roots`);
+      }
+      if (normalizedPlannedRoots.some(isTestPath)) {
+        throw new Error(
+          `${codeMapPath} workpack ${workpackId} plannedImplementationRoots must contain production paths, not tests`
+        );
+      }
+    }
   }
   return map;
 }
@@ -1135,6 +1165,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   }
 
   const overrides = await readOverrides(repoRoot, overridesPath);
+  const codeMap = (await readText(repoRoot, CODE_MAP_PATH)) ? await loadCodeMap(repoRoot) : { workpacks: {} };
   const nodes = [
     {
       id: 'GOAL-ocentra-parent',
@@ -1157,6 +1188,32 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     edges.push({ from: workpack.parent, to: workpack.id, kind: 'contains', confidence: 'structural' });
   }
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  for (const [workpackId, mapping] of Object.entries(codeMap.workpacks ?? {})) {
+    if (!Array.isArray(mapping.plannedImplementationRoots)) continue;
+    const node = nodeById.get(workpackId);
+    if (!node || node.kind !== 'workpack') {
+      throw new Error(`${CODE_MAP_PATH} planned implementation owner is not an imported workpack: ${workpackId}`);
+    }
+    const plannedImplementationRoots = mapping.plannedImplementationRoots.map(normalizeRepoPath);
+    node.completion = {
+      ...node.completion,
+      references: {
+        ...node.completion.references,
+        implementation: [],
+      },
+      expected: {
+        ...(node.completion.expected ?? {}),
+        implementation: plannedImplementationRoots,
+      },
+    };
+    node.metadata = {
+      ...node.metadata,
+      plannedSourceExpectation: {
+        source: CODE_MAP_PATH,
+        roots: plannedImplementationRoots,
+      },
+    };
+  }
   const overrideErrors = overrideSemanticErrors(overrides, nodeById, repoRoot);
   if (overrideErrors.length > 0) {
     throw new Error(`${overridesPath} is invalid: ${overrideErrors.join('; ')}`);
