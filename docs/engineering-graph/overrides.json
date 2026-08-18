@@ -28,7 +28,7 @@
     {
       "id": "WP-data-custody-storage-plan-06-report-query-custody",
       "hardDependencies": [],
-      "reason": "Independent source review accepted the Rust-owned request/row authority and citation boundary through 7a1e1c389 and identified the declared thin TypeScript adapter/rules edge as the bounded remaining production-source packet. This authorizes only that source continuation; expected tests, focused execution, downstream runtime claims, proof, checklist acceptance, PR readiness, and DONE remain open.",
+      "reason": "The integrated source checkpoint a78d8f831 now covers the Account-authority-derived opaque WP06 request/row custody boundary, session expiry, exact role binding, bounded page size, cursor/source/stable-sort continuity, and generated TypeScript parity. No report/query runtime consumer is routed; three Rust harnesses are stale and the TypeScript contract test is unwritten. This authorizes only the reviewed source/graph truth mapping; expected tests, focused execution, downstream runtime claims, proof, checklist acceptance, PR readiness, and DONE remain open.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",

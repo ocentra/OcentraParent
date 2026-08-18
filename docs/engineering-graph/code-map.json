@@ -5166,9 +5166,15 @@
     },
     "WP-data-custody-storage-plan-06-report-query-custody": {
       "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": ["packages/schema-domain/tests/contract/report-query-custody.test.ts"],
       "roots": [
+        "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/account_identity_authority_capability.rs",
+        "crates/family-identity-core/src/account_identity_authority_query_custody.rs",
         "crates/schema/src/report_query_custody.rs",
         "crates/schema/src/report_query_custody",
+        "crates/schema/src/report_query_custody/sample_rows.rs",
         "crates/schema/src/report_query_custody_ts.rs",
         "crates/schema/src/report_query_custody_contracts.template.txt",
         "crates/schema/src/report_query_custody_contract_rules.request.template.txt",
@@ -5177,7 +5183,9 @@
         "crates/schema/src/bin/export_report_query_custody_contract_types.rs",
         "crates/schema/tests/contract/report_query_custody.rs",
         "crates/schema/tests/contract/report_query_custody_generated.rs",
+        "crates/storage-custody-core/Cargo.toml",
         "crates/storage-custody-core/src/report_query_custody.rs",
+        "crates/storage-custody-core/src/report_query_custody_page_size_validate.rs",
         "crates/storage-custody-core/src/report_query_custody_proof.rs",
         "crates/storage-custody-core/src/report_query_custody_request_validate.rs",
         "crates/storage-custody-core/src/report_query_custody_row.rs",
@@ -5186,10 +5194,13 @@
         "crates/storage-custody-core/src/report_query_custody_row_state_shared.rs",
         "crates/storage-custody-core/src/report_query_custody_row_state_terminal.rs",
         "crates/storage-custody-core/src/report_query_custody_row_validate.rs",
+        "crates/storage-custody-core/src/report_query_custody_source.rs",
+        "crates/storage-custody-core/src/report_query_custody_state_projection.rs",
         "crates/storage-custody-core/tests/unit/report_query_custody.rs",
-        "packages/schema-domain/src/generated-report-query-custody-contracts.ts",
-        "packages/schema-domain/src/generated-report-query-custody-contract-rules.ts"
-      ]
+        "packages/schema-domain/src/generated-report-query-custody-contract-rules.ts",
+        "packages/schema-domain/src/generated-report-query-custody-contracts.ts"
+      ],
+      "note": "The 20 newly integrated production/generated roots are source-integrated at a78d8f831; retained schema module/bin/state and storage row-state roots remain part of complete WP06 ownership. The three checked-in Rust harnesses are stale against the current API or canonical sample, and the TypeScript contract-test root is expected but unwritten; no runtime report/query consumer is mapped or claimed."
     },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",

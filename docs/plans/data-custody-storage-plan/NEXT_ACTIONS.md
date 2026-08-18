@@ -23,14 +23,16 @@
    export/delete handoff, and Account WP05's current
    household/member/device/session/capability/lease authorization composer.
 2. Finish WP05 backup cadence/manual-backup plus migration execution/rollback
-   source, the WP06 thin TypeScript adapter/rules edge, and WP08's trusted
-   confirmation receipt plus reachable `Applied`/`Partial` decision path. Do
-   not substitute proof scripts or synthetic DTO callers for missing product
-   behavior.
+   source and WP08's trusted confirmation receipt plus reachable
+   `Applied`/`Partial` decision path. WP06's generated TypeScript edge is
+   source-present, but no report/query runtime consumer is routed to it; do
+   not invent an agent-service/report caller or substitute proof scripts or
+   synthetic DTO callers for missing product behavior.
 3. After the repository-wide source wave is complete, write WP01's missing
-   Rust invariant-test family, migrate the stale moved-
-   store tests and write the full expected-test matrix for WP02-WP07. Only then
-   run focused crate/domain tests and repair failures.
+   Rust invariant-test family, migrate the stale moved-store tests, and write
+   the full expected-test matrix for WP02-WP07, including WP06's stale Rust
+   authority/pagination cases and unwritten TypeScript contract coverage. Only
+   then run focused crate/domain tests and repair failures.
 4. After focused tests and per-domain Enforcer gates, resolve the aggregate-
    proof publication model so fresh checkouts can audit durable artifacts;
    follow with repo-wide Enforcer, proof, precommit, one PR/CI cycle, and merge.
@@ -72,7 +74,7 @@ proof, precommit, CI, or PR were run.
 - WP02 decrypt-scope authority source is accepted; expected tests and current validation/proof are open.
 - WP03 manifest-custody source is accepted; provider runtime, expected tests, and current validation/proof are open.
 - WP05 import-integrity source is accepted, while backup cadence/manual backup and migration execution/rollback source remain open.
-- WP06 Rust request/row validation source is accepted, while its thin TypeScript edge and expected tests remain open.
+- WP06's current Account-authority-derived opaque Rust request/row boundary and generated TypeScript page/cursor edge are source-accepted; no downstream report/query consumer is routed, and the expected Rust tests are stale while the TypeScript contract test is unwritten.
 - WP07 has a real internal child custody command/effect/tombstone lifecycle and startup recovery; trusted authority composition, external calling, test migration, and aggregate route acceptance remain open.
 - WP08 source is incomplete: no trusted confirmation receipt/confirmed input exists, so `Applied` and `Partial` remain unreachable; its positive/negative expected tests and current proof are also open.
 - State remains open until the remaining production source, complete expected tests, provider/AI/runtime handoffs, rollout refresh, and carried proof blockers are closed.

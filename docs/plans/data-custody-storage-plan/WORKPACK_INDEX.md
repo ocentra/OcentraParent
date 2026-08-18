@@ -25,7 +25,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | validation / source accepted, tests open | [WP03 Parent Owned Cloud Sync](workpacks/03-parent-owned-cloud-sync.md) | 13/13 recorded | `PARENT_STORAGE_PROVIDER_MATRIX.md`, `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md` | historical ignored `output/` root; refresh later |
 | validation / source accepted, test migration open | [WP04 Retention Delete Tombstone](workpacks/04-retention-delete-tombstone.md) | 13/13 recorded | `DECISIONS.md`, `EVENT_MODEL.md` | historical ignored `output/` root; refresh later |
 | source incomplete | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 12/12 recorded | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | historical ignored `output/` root; refresh later |
-| source edge incomplete / tests open | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 recorded | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | historical ignored `output/` root; refresh later |
+| validation / source accepted, tests open | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 recorded | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | no runtime consumer; stale/unwritten expected tests and historical ignored `output/` root remain |
 | validation / source incomplete | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 12/12 recorded | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | confirmation authority and reachable Applied/Partial path, expected tests, and clean-checkout proof remain open |
 | blocked / source reachable, Account composition and tests open | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 2/14 | integrated child custody command/effect/tombstone lifecycle | Account WP04/WP05 plus missing clean-checkout aggregate root |
 | source route only / not implemented | [WP09 Parent Local Bundle Provider Runtime](workpacks/09-parent-local-bundle-provider-runtime.md) | 0/0 | `BUNDLE_PROTOCOL.md`, `PARENT_STORAGE_PROVIDER_MATRIX.md` | no source, tests, or proof yet; owns parent-local encrypted bytes and provider-neutral runtime |
@@ -53,11 +53,11 @@ WP10 consumes WP02/WP03/WP04/WP05 plus Account WP05/WP08 and exact Device Trust/
 WP07 is last and consumes all previous proof roots.
 ```
 
-## Production-code audit note (2026-08-17, source checkpoint `7a1e1c389`)
+## Production-code audit note (2026-08-17, source checkpoint `a78d8f831`)
 
 Recorded boxes and old `output/` references are not current acceptance. The
 source wave closed WP02 cross-scope decrypt authority, WP03 manifest custody,
-WP05 import integrity, and WP06 request/row authority gaps. WP04/WP07 now place
+WP05 import integrity, and WP06's full Rust/generated request/row custody edge. WP04/WP07 now place
 the durable tombstone/effect owner in `crates/child-runtime` and expose a real
 internal service path from `submit_storage_custody_action` through dispatch and
 `ChildStorageCustodyRuntime::execute`.
@@ -66,9 +66,10 @@ That command path remains fail-closed in shipped composition: default startup
 uses a manual-required custody authority, no Account/family trusted adapter or
 external upstream caller supplies the opaque handle, and Device Trust remains
 an independent outer readiness gate. WP05 still lacks backup cadence/manual
-backup and migration execution/rollback source. WP06 still needs its declared
-thin TypeScript adapter/rules edge. Stale moved-store tests belong to the later
-expected-test wave and must not be repaired by restoring a core re-export.
+backup and migration execution/rollback source. WP06 has no shipped report/query
+consumer; its Rust harnesses are stale and its expected TypeScript contract test
+is unwritten. These tests belong to the later expected-test wave and must not be
+repaired by restoring a core re-export or inventing a consumer.
 
 Do not treat the graph's validation/completion state as a substitute for this
 source audit. Graph topology is updated from the integrated source; DONE still

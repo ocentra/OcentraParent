@@ -18,7 +18,7 @@
 
 This plan owns data custody guarantees, encrypted storage, evidence retention, export/import/restore, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, report/query custody, and parent storage settings/apply flow.
 
-Route status: execution-grade architecture and an integrated production-source wave now exist. Current source closes the WP02 cross-scope decrypt-authority gap, WP03 manifest-custody gap, WP05 import-integrity gap, WP06 request/row authority gap, and places the WP04/WP07 durable effect/tombstone lifecycle in its child-runtime owner. This source wave deliberately did not write or run tests, regenerate proof, run precommit/CI, or claim DONE. Older checked rows and ignored `output/` roots remain historical until the later test/proof waves re-accept them from a clean checkout.
+Route status: execution-grade architecture and an integrated production-source wave now exist. Current source closes the WP02 cross-scope decrypt-authority gap, WP03 manifest-custody gap, WP05 import-integrity gap, WP06's full Rust request/row plus generated TypeScript custody boundary, and places the WP04/WP07 durable effect/tombstone lifecycle in its child-runtime owner. WP06 now derives an opaque query-source capability from current Account authority, enforces session expiry, exact role binding, bounded page size, and cursor/source/stable-sort continuity; no report/query runtime consumer reaches it. This source wave deliberately did not write or run tests, regenerate proof, run precommit/CI, or claim DONE or PR_READY. Older checked rows and ignored `output/` roots remain historical until the later test/proof waves re-accept them from a clean checkout.
 
 ## Current ownership interpretation
 
@@ -56,7 +56,7 @@ Account, device-trust, Cloudflare, payment, setup, remote, LAN, notification, re
 - Contract/schema proof is not runtime custody proof.
 - Sync manifest proof is not provider OAuth/upload/delete runtime proof.
 - WP05 export/import/restore proof now covers the shared bundle contract and restore/apply state machine only; it is not provider adapter runtime proof.
-- WP06 report/query proof now covers assistant/report citation allowlists at the shared contract boundary; it is not AI runtime answer proof.
+- WP06's expected report/query proof root covers assistant/report citation allowlists at the shared contract boundary; no current WP06 proof was regenerated in this source-only routing refresh, and it is not AI runtime answer proof.
 - Parent storage settings UI proof is not applied custody state.
 - Eventing internals, portal UI internals, account authority, device trust material, Cloudflare runtime, payment semantics, setup journey, remote transport, notification delivery, report rendering, and AI runtime must stay in owning plans unless a selected handoff explicitly touches them.
 ```
@@ -101,7 +101,7 @@ WP02: decrypt-scope authority now fails closed against the selected platform row
 WP03: sync manifest custody is validated before claim-safe state derivation; provider SDK/OAuth/upload/delete/retrieval execution remains adjacent-owner work.
 WP04: generic retention/delete derivation remains in storage-custody-core; the durable tombstone/effect owner is now child-runtime and is reached by its internal custody command path.
 WP05: dishonest import bundles are rejected before derivation; backup cadence/manual backup and migration execution/rollback source remain missing, as does a provider/filesystem restore executor.
-WP06: request and row authority/citation binding now fail closed at the Rust boundary; the declared thin TypeScript adapter/rules edge and downstream report/notification/AI/portal consumers remain open.
+WP06: current Account-authority-derived opaque query-source capability, request/row authority and citation binding, session expiry, exact actor-role binding, page-size, and cursor/source/stable-sort continuity now fail closed at the Rust boundary with generated TypeScript parity. No report/query/notification/AI/portal runtime consumer reaches the boundary; stale Rust tests and the unwritten TypeScript contract test remain open.
 WP07: submit_storage_custody_action -> PublishStorageCustody -> dynamic Device Trust gate -> ChildStorageCustodyRuntime::execute -> durable effect/journal/tombstone lifecycle is real source. Default custody authority is manual-required and no trusted Account/family adapter or external caller supplies the opaque handle.
 WP08: schema/storage-custody-core parent-storage settings/apply derivation plus generated edge; no portal/desktop host/provider apply caller found.
 Migrated Data And AI UI: source-only and not executable custody scope.
@@ -111,9 +111,10 @@ The next legal production slice is trusted custody-authority composition from
 an owning Account/family source, followed by an external upstream caller. It
 must retain the private trait, opaque handle, generation/currentness checks,
 and independent Device Trust gate; it must not accept authority selectors from
-request/JSON data. WP05 backup/migration source and the WP06 TypeScript edge
-also remain source-wave work. Moved-store tests, focused execution, proof,
-precommit, CI, and PR are intentionally deferred to their later phases.
+request/JSON data. WP05 backup/migration source remains open. WP06's shared
+source edge is integrated, but no report/query runtime consumer is routed to
+it; stale/unwritten expected tests, focused execution, proof, precommit, CI,
+and PR are intentionally deferred to their later phases.
 
 The engineering graph is regenerated from this source/status checkpoint.
 Graph state remains evidence-derived; topology presence does not promote a
@@ -129,7 +130,7 @@ workpack to DONE.
 - WP03 source now includes manifest-custody validation in `crates/storage-custody-core`; provider execution and current tests/proof remain open.
 - WP04 generic retention/delete derivation remains in `storage-custody-core`, while the durable child-side tombstone/effect lifecycle now lives in and is reached through `child-runtime`; moved-store tests remain stale.
 - WP05 source now rejects dishonest import bundles, but backup cadence/manual backup and migration execution/rollback remain missing production behavior.
-- WP06 Rust request/row authority validation is source-present; its declared thin TypeScript edge, downstream consumers, and current negative tests remain open.
+- WP06's Rust request/row authority boundary and generated TypeScript edge are source-present with current-authority, expiry, role, page, and cursor/source continuity enforcement; no downstream report/query consumer is routed, and the expected Rust/TypeScript tests remain stale or unwritten.
 - WP07 has a real internal child-service command/effect/journal/tombstone path and startup recovery, but default authority is manual-required and no trusted external composition supplies it.
 - WP08 parent-storage settings/apply contracts remain source-present; real portal/desktop/provider apply composition and current validation/proof remain open.
 - All older `output/data-custody-storage-plan-proof/...` references are historical until the later proof wave publishes durable clean-checkout evidence.
@@ -141,7 +142,7 @@ workpack to DONE.
 - Provider sync runtime and provider/file retrieval execution remain open. WP03 has a claim-safe shared contract/manifest source boundary but no current test/proof acceptance or provider-side OAuth/upload/delete/retrieval execution.
 - Trusted Account/family custody-authority composition and an external upstream child-service caller remain open; the present runtime correctly returns manual-required.
 - WP05 backup cadence/manual backup and migration execution/rollback source remain open.
-- WP06 thin TypeScript adapter/rules source remains open.
+- WP06 downstream report/query runtime consumption, expected tests, focused validation, and proof refresh remain open; the shared generated edge is source-present.
 - AI runtime custody and support diagnostics remain open.
 - Proof artifacts must be created by implementation work; this plan only defines expected proof.
 - Adjacent implementation plans must be updated only when their workpack is selected.
