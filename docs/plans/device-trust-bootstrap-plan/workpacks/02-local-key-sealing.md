@@ -88,6 +88,17 @@ register a LAN signer, resolve household targets, or revive revoked trust. With
 no shipped ceremony issuer or registered native caller, sealing and revocation
 remain manual-required; the Windows slice below is source evidence only.
 
+The default Account WP08 -> Cloudflare WP06 -> Device Trust WP03 -> LAN/child
+route does not force this workpack. If the platform sealing/lifecycle-revocation
+path is selected, the graph route must promote a reviewed `WP26 -> WP02`
+`depends_on` edge in `docs/engineering-graph/overrides.json` and the matching
+WP26 dependency review before assigning the consumer. The selected edge is
+completion-gated (its `implementationGate: "reviewed-implementation"` is only a
+source-phase exception), so LAN/child current-binding consumers cannot proceed
+until WP02's handoff is complete. Leaving that edge absent is the reviewed
+non-sealing route; WP02 is never a ceremony issuer or a reverse dependency on
+WP03, so the conditional path remains acyclic.
+
 - The merged Windows-only custody and dispatch safety slice has an unregistered
   native parent-runtime facade consumes only an opaque staged-ceremony handle and
   rejects an unstaged or already-consumed handle before it can call

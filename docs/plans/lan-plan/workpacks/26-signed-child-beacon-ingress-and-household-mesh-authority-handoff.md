@@ -54,16 +54,20 @@ or portal transport may stand in for the shipped child/runtime peer ingress.
 - Proof: open. The canonical generated root is:
   `output/lan-plan-proof/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff/`.
 - Dependencies: W15, W18, and W19 must expose the durable household, signed
-  child, and route/revocation composition required by this boundary. Device
-  Trust WP01 must first provide the persistent trusted-device/signer-key
-  registration/current-binding source, and Device Trust WP03 must provide the
+  child, and route/revocation composition required by this boundary. Account
+  WP08 must define the canonical binding, Cloudflare WP06 must bridge it through
+  a durable current-authority repository/caller, Device Trust WP01 supplies the
+  persistent current-binding source, and Device Trust WP03 must provide the
   one-time parent `RegisterLanSignerAnchor` authorization before this consumer
-  bridge runs. WP02 is conditional only if a demonstrated private-key/install
-  custody need exists.
+  bridge runs. WP02 is a conditional sealing/lifecycle-revocation gate: only a
+  selected private-key/install custody path carries the reviewed WP26 -> WP02
+  dependency; the default non-sealing consumer route does not force WP02.
 - Ordering: Account WP08 -> Cloudflare WP06 -> Device Trust WP03 -> this LAN /
-  child current-binding consumer. WP26 consumes current binding and revocation
-  state after the ceremony; it cannot register a signer, infer authority from
-  pairing, or create a reverse WP03 dependency.
+  child current-binding consumer. If the platform sealing/lifecycle-revocation
+  path is selected, WP26 also waits for the reviewed WP02 handoff; if it is not
+  selected, no WP02 edge is active. WP26 consumes current binding and
+  revocation state after the ceremony; it cannot register a signer, infer
+  authority from pairing, or create a reverse WP03 dependency.
 - Unlocks: private Eventing WP10 authorization handoff only after LAN validation,
   route authority, custody, and negative-path proof are complete.
 
@@ -135,5 +139,8 @@ and no household mesh readiness or Eventing WP10 authorization claim is released
 - Missing child/runtime transport, missing W15/W18/W19 composition, absent real
   tests, or absent proof keeps the workpack open/manual-required. No shipped
   service route currently establishes signer registration, so WP26 remains
-  blocked on Device Trust WP01 and WP03; a code draft, typed receipt, or local
-  test cannot bypass that authority gate.
+  blocked on the Account WP08 -> Cloudflare WP06 authority bridge and Device
+  Trust WP03 ceremony; WP01 supplies the foundation/current binding. A selected
+  platform sealing/lifecycle-revocation route also waits for the reviewed WP02
+  gate, while a code draft, typed receipt, or local test cannot bypass any of
+  those authority gates.

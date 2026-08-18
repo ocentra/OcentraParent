@@ -66,31 +66,64 @@ broader lifecycle composition remain open.
 
 WP05's unsigned entitlement projection, WP06's fail-closed restore boundary,
 and WP07's durable removal/readiness boundary are also accepted source, not
-test/proof/completion claims. WP03 remains BLOCKED in the default graph on WP01, Account WP08, and Cloudflare
-WP06. Reviewed-implementation gates now authorize only the bounded WP03 source
-packet against all three reviewed source owners; the default dependency state
-does not change and the route does not provide ceremony authority, provider
-authority, tests, proof, runtime reachability, or completion. No WP26 edge is
-opted into it.
+test/proof/completion claims. WP03 remains BLOCKED in the default graph on
+WP01, Account WP08, and Cloudflare WP06. Reviewed-implementation gates now
+authorize only the bounded WP03 source packet against all three reviewed source
+owners; the default dependency state does not change and the route does not
+provide ceremony authority, provider authority, tests, proof, runtime
+reachability, or completion. WP02 is not a default WP26 dependency. If the
+platform sealing/lifecycle-revocation path is selected, the reviewed WP26 ->
+WP02 gate must be added and completed before the LAN/child consumer route is
+assigned; the non-sealing route remains free of that optional dependency.
 
 ## Default execution order
 
 ```text
 WP01 foundation/source ------------------------------+
 Account WP08 -> Cloudflare WP06 current-authority ---+-> WP03 parent ceremony
-WP02 parent-runtime/platform sealing + revocation ---+       |
-                                                              +-> LAN WP26 / child current-binding consumer
+                                                        +-> LAN WP26 / child current-binding consumer
 WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
-WP02 is conditional for a selected private-key/install custody need, but when selected it consumes WP01 and cannot create ceremony authority.
+WP02 parent-runtime/platform sealing + revocation is a conditional gate on the
+LAN/child consumer route only when a private-key/install custody path is selected.
+The default non-sealing route does not force WP02; a selected route carries the
+reviewed WP26 -> WP02 edge and waits for WP02 completion. WP02 cannot create
+ceremony authority.
 ```
+
+### Conditional WP02 graph gate
+
+The graph has one reviewed dependency shape: `depends_on` edges are hard by
+default, and `implementationGate: "reviewed-implementation"` permits only a
+separately reviewed source phase. It has no always-on optional edge toggle, so
+the default graph intentionally keeps WP02 out of WP26's hard dependency list.
+
+When a platform sealing/lifecycle-revocation path is selected, promote the
+following reviewed edge in `docs/engineering-graph/overrides.json`, add WP02 to
+the matching WP26 `hardDependencies`, and regenerate/validate the graph before
+assigning the consumer:
+
+```text
+from = WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff
+to = WP-device-trust-bootstrap-plan-02-local-key-sealing
+kind = depends_on; confidence = reviewed
+implementationGate = reviewed-implementation (source phase only)
+```
+
+That selected route cannot proceed until WP02's sealing, lifecycle-generation,
+and revocation handoff is complete. The edge points downstream from WP26 to
+WP02 and does not point back to WP03, so it cannot create a cycle. If the
+platform path is not selected, the edge remains absent and the Account WP08 ->
+Cloudflare WP06 -> WP03 -> LAN/child route does not force WP02.
 
 ## Dependency rules
 
 ```text
 WP01 establishes trust state/source of truth.
-WP02 depends on WP01 and owns only the downstream parent-runtime/platform
-sealing, lifecycle composition, and revocation bridge; it cannot mint or
-substitute parent ceremony authority.
+WP02 owns only the downstream parent-runtime/platform sealing, lifecycle
+composition, and revocation bridge; it cannot mint or substitute parent
+ceremony authority. Its WP01 foundation edge is a reviewed conditional gate for
+the selected platform-custody route, not a prerequisite for the default Account
+-> Cloudflare -> WP03 -> LAN/child route.
 WP03 depends on WP01, Account Identity WP08, and Cloudflare WP06 and blocks
 high-risk action approval claims. WP02 is conditional only for a demonstrated
 private-key/install custody requirement.
@@ -100,7 +133,10 @@ WP06 depends on WP02/WP03/WP04 and blocks recovery/reset claims.
 WP07 depends on WP01/WP02/WP06 and blocks child uninstall/tamper claims.
 LAN WP26 and any child current-binding consumer are ordered after WP03's
 one-time `RegisterLanSignerAnchor` ceremony; they consume the current binding
-and revocation state and do not register signer authority locally.
+and revocation state and do not register signer authority locally. If the
+platform sealing/lifecycle-revocation path is selected, the reviewed WP02 gate
+must also be complete before this consumer route proceeds; the default route
+does not force WP02.
 WP08 can run in parallel as research but cannot approve adoption without proof.
 WP09 is last and consumes all previous proof roots.
 ```
