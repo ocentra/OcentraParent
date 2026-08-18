@@ -9,6 +9,12 @@ import { createAccountIdentityAuthorityCaller } from './account-identity-authori
 import { createBrowserSessionStore } from '../storage/account-browser-session-store.js';
 import { browserSessionCookieNames, browserSessionRole, readCookie } from '../storage/account-browser-session-codec.js';
 import { getAuthStateModel, type AuthState } from './model.js';
+import {
+  PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS,
+  resolveProviderWebhookName,
+  verifyProviderWebhook,
+  type ProviderWebhookName,
+} from './provider-webhook.js';
 
 export interface VerifiedIdentity {
   subject: string;
@@ -49,7 +55,7 @@ export interface AuthVerifier {
   verifyTrustedParentDevice(request: Request): Promise<AuthResult>;
   verifyAdmin(request: Request): Promise<AuthResult>;
   verifySupport(request: Request): Promise<AuthResult>;
-  verifyProviderWebhook(provider: string, request: Request): Promise<AuthResult>;
+  verifyProviderWebhook(provider: ProviderWebhookName, request: Request): Promise<AuthResult>;
   verifyInternalQueue(request: Request): Promise<AuthResult>;
 }
 
@@ -148,42 +154,6 @@ function requireParentRoleCapability(result: AuthResult, authState: AuthState): 
     return forbidden('parent-role-capability-required', authState);
   }
   return result;
-}
-
-function parseStripeSignatureHeader(signatureHeader: string): {
-  timestamp: string;
-  signatures: ReadonlyArray<string>;
-} | null {
-  const parts = signatureHeader.split(',').map((entry) => entry.trim());
-  const timestamp = parts.find((entry) => entry.startsWith('t='))?.slice(2);
-  const signatures = parts
-    .filter((entry) => entry.startsWith('v1='))
-    .map((entry) => entry.slice(3))
-    .filter((entry) => /^[a-f0-9]{64}$/i.test(entry));
-
-  if (!timestamp || !/^\d+$/.test(timestamp) || signatures.length === 0) {
-    return null;
-  }
-
-  return {
-    timestamp,
-    signatures,
-  };
-}
-
-function safeEqualHex(left: string, right: string): boolean {
-  if (left.length !== right.length) {
-    return false;
-  }
-  let diff = 0;
-  for (let index = 0; index < left.length; index += 1) {
-    diff |= left.charCodeAt(index) ^ right.charCodeAt(index);
-  }
-  return diff === 0;
-}
-
-function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
 }
 
 function providerFromPathname(pathname: string): string | null {
@@ -428,23 +398,32 @@ async function verifySupportRequest(
   return authStateIdentity(authority.providerSubject, authState, 'support', true, authority);
 }
 
-function verifyProviderWebhookRequest(provider: string, request: Request, env: Env, authState: AuthState): AuthResult {
-  const blocker = authAdapterBlocker(env, undefined);
-  if (blocker) {
-    return manualRequired(authState, blocker);
+async function verifyProviderWebhookRequest(
+  provider: ProviderWebhookName,
+  request: Request,
+  env: Env,
+  authState: AuthState
+): Promise<AuthResult> {
+  let result: Awaited<ReturnType<typeof verifyProviderWebhook>>;
+  try {
+    result = await verifyProviderWebhook(provider, request.clone(), env);
+  } catch {
+    return manualRequired(authState, PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.unavailable);
   }
-
-  const headerName = providerWebhookHeaderName(provider);
-  if (!headerName) {
-    return manualRequired(authState, 'unsupported-provider-webhook');
+  if (result.status === 'unavailable') {
+    return manualRequired(authState, result.blocker);
   }
-
-  const headerValue = request.headers.get(headerName);
-  if (!headerValue) {
-    return missingHeader(headerName, authState);
+  if (result.status === 'missing-credential') {
+    return missingHeader(result.headerName, authState);
   }
-  if (!hasWebhookSignatureSyntax(new URL(request.url).pathname, headerValue)) {
-    return forbidden('invalid-provider-webhook-signature-header', authState);
+  if (result.status === 'rejected') {
+    return {
+      ok: false,
+      response: json(400, {
+        error: result.reason,
+        authState,
+      }),
+    };
   }
 
   return authStateIdentity('provider-webhook', authState, 'provider-webhook', false);
@@ -493,7 +472,7 @@ export function createAuthVerifier(env: Env, providerVerifier?: ProviderVerifica
       return verifySupportRequest(request, env, 'support-required', providerVerifier);
     },
 
-    async verifyProviderWebhook(provider: string, request: Request): Promise<AuthResult> {
+    async verifyProviderWebhook(provider: ProviderWebhookName, request: Request): Promise<AuthResult> {
       return verifyProviderWebhookRequest(provider, request, env, 'provider-webhook-signature-required');
     },
 
@@ -509,58 +488,6 @@ export function signatureHeaderName(pathname: string): string {
     return 'x-goog-signature';
   }
   return providerWebhookHeaderName(provider) ?? 'x-goog-signature';
-}
-
-function hasWebhookSignatureSyntax(pathname: string, signatureValue: string | null): boolean {
-  if (!signatureValue || signatureValue.trim().length === 0) {
-    return false;
-  }
-  if (pathname.endsWith('/stripe')) {
-    return parseStripeSignatureHeader(signatureValue) !== null;
-  }
-  return true;
-}
-
-export async function verifyStripeWebhookSignature(
-  payload: string,
-  signatureHeader: string,
-  secret: string,
-  timestampToleranceSeconds: string | undefined
-): Promise<boolean> {
-  const parsed = parseStripeSignatureHeader(signatureHeader);
-  if (!parsed) {
-    return false;
-  }
-  if (
-    timestampToleranceSeconds === undefined ||
-    !/^\d+$/.test(timestampToleranceSeconds) ||
-    Number(timestampToleranceSeconds) <= 0 ||
-    Number(timestampToleranceSeconds) > 86_400
-  ) {
-    return false;
-  }
-  const timestampSeconds = Number(parsed.timestamp);
-  const nowSeconds = Math.floor(Date.now() / 1000);
-  if (
-    !Number.isSafeInteger(timestampSeconds) ||
-    Math.abs(nowSeconds - timestampSeconds) > Number(timestampToleranceSeconds)
-  ) {
-    return false;
-  }
-
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(secret),
-    {
-      name: 'HMAC',
-      hash: 'SHA-256',
-    },
-    false,
-    ['sign']
-  );
-  const signed = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${parsed.timestamp}.${payload}`));
-  const actualSignature = bytesToHex(new Uint8Array(signed));
-  return parsed.signatures.some((expected) => safeEqualHex(expected, actualSignature));
 }
 
 export async function verifyAuthState(
@@ -588,8 +515,11 @@ export async function verifyAuthState(
     case 'verifySupport':
       return verifier.verifySupport(request);
     case 'verifyProviderWebhook': {
-      const provider = providerFromPathname(new URL(request.url).pathname);
-      return verifier.verifyProviderWebhook(provider ?? 'unsupported', request);
+      const provider = resolveProviderWebhookName(providerFromPathname(new URL(request.url).pathname) ?? '');
+      if (!provider) {
+        return manualRequired('provider-webhook-signature-required', PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.unsupported);
+      }
+      return verifier.verifyProviderWebhook(provider, request);
     }
     case 'verifyInternalQueue':
       return verifier.verifyInternalQueue(request);

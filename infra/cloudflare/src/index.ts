@@ -51,12 +51,8 @@ import {
   BillingSupportAdminInvoicesResponseSchema,
   BillingSupportAdminReferralsResponseSchema,
 } from './generated/billing-contracts.js';
-import {
-  signatureHeaderName,
-  verifyAuthState,
-  verifyStripeWebhookSignature,
-  type VerifiedIdentity,
-} from './auth/verifier.js';
+import { signatureHeaderName, verifyAuthState, type VerifiedIdentity } from './auth/verifier.js';
+import { PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS, verifyStripeWebhookSignature } from './auth/provider-webhook.js';
 import { createFirebaseProviderVerificationPort } from './providers/firebase-auth.js';
 import { validateAuthBoundaryRoute } from './auth/model.js';
 import {
@@ -1073,37 +1069,6 @@ async function requireInteractiveRequestBoundary(
   }
 
   return null;
-}
-
-async function computeHexHmac(payload: string, secret: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(secret),
-    {
-      name: 'HMAC',
-      hash: 'SHA-256',
-    },
-    false,
-    ['sign']
-  );
-  const signed = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
-  return Array.from(new Uint8Array(signed), (value) => value.toString(16).padStart(2, '0')).join('');
-}
-
-function safeEqual(left: string, right: string): boolean {
-  if (left.length !== right.length) {
-    return false;
-  }
-  let diff = 0;
-  for (let index = 0; index < left.length; index += 1) {
-    diff |= left.charCodeAt(index) ^ right.charCodeAt(index);
-  }
-  return diff === 0;
-}
-
-async function verifyHexHmac(payload: string, signature: string, secret: string): Promise<boolean> {
-  const expected = await computeHexHmac(payload, secret);
-  return safeEqual(signature.toLowerCase(), expected.toLowerCase());
 }
 
 function providerEventDetails(
@@ -2131,108 +2096,43 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
     },
 
     async 'razorpay-webhook'({ request, env, route }): Promise<Response> {
-      if (!env.RAZORPAY_KEY_SECRET) {
-        return json(503, {
-          error: 'manual-required',
-          authState: route.authState,
-          blocker: 'razorpay-webhook-secret-missing',
-        });
-      }
-
-      const signature = request.headers.get('x-razorpay-signature');
-      if (!signature) {
-        return json(401, {
-          error: 'authentication-required',
-          authState: route.authState,
-          missingHeader: 'x-razorpay-signature',
-        });
-      }
-
-      const body = await request.text();
-      if (!(await verifyHexHmac(body, signature, env.RAZORPAY_KEY_SECRET))) {
-        return json(400, {
-          error: 'invalid-razorpay-signature',
-        });
-      }
-
-      return acceptProviderWebhook('razorpay', body, route.proofIdFamily, env);
+      void request;
+      void env;
+      return json(503, {
+        error: 'manual-required',
+        authState: route.authState,
+        blocker: PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.razorpayVerifierUnavailable,
+      });
     },
 
     async 'paypal-webhook'({ request, env, route }): Promise<Response> {
-      if (!env.PAYPAL_CLIENT_SECRET) {
-        return json(503, {
-          error: 'manual-required',
-          authState: route.authState,
-          blocker: 'paypal-webhook-secret-missing',
-        });
-      }
-
-      const transmissionId = request.headers.get('paypal-transmission-id');
-      const transmissionSig = request.headers.get('paypal-transmission-sig');
-      if (!transmissionId || !transmissionSig) {
-        return json(401, {
-          error: 'authentication-required',
-          authState: route.authState,
-          missingHeader: !transmissionId ? 'paypal-transmission-id' : 'paypal-transmission-sig',
-        });
-      }
-
-      const body = await request.text();
-      if (!(await verifyHexHmac(`${transmissionId}.${body}`, transmissionSig, env.PAYPAL_CLIENT_SECRET))) {
-        return json(400, {
-          error: 'invalid-paypal-signature',
-        });
-      }
-
-      return acceptProviderWebhook('paypal', body, route.proofIdFamily, env);
+      void request;
+      void env;
+      return json(503, {
+        error: 'manual-required',
+        authState: route.authState,
+        blocker: PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.paypalVerifierUnavailable,
+      });
     },
 
     async 'apple-webhook'({ request, env, route }): Promise<Response> {
-      if (!env.APPLE_STORE_KEY_REF) {
-        return json(503, {
-          error: 'manual-required',
-          authState: route.authState,
-          blocker: 'apple-store-key-ref-missing',
-        });
-      }
-
-      const authorization = request.headers.get('authorization');
-      if (authorization !== `Bearer ${env.APPLE_STORE_KEY_REF}`) {
-        return json(400, {
-          error: 'invalid-apple-authorization',
-        });
-      }
-
-      const body = (await request.text()) || '';
-      return acceptProviderWebhook('apple', body, route.proofIdFamily, env);
+      void request;
+      void env;
+      return json(503, {
+        error: 'manual-required',
+        authState: route.authState,
+        blocker: PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.appleVerifierUnavailable,
+      });
     },
 
     async 'google-webhook'({ request, env, route }): Promise<Response> {
-      if (!env.GOOGLE_PLAY_SERVICE_ACCOUNT_REF) {
-        return json(503, {
-          error: 'manual-required',
-          authState: route.authState,
-          blocker: 'google-play-service-account-ref-missing',
-        });
-      }
-
-      const signature = request.headers.get('x-goog-signature');
-      if (!signature) {
-        return json(401, {
-          error: 'authentication-required',
-          authState: route.authState,
-          missingHeader: 'x-goog-signature',
-        });
-      }
-
-      const body = await request.text();
-      if (!(await verifyHexHmac(body, signature, env.GOOGLE_PLAY_SERVICE_ACCOUNT_REF))) {
-        return json(400, {
-          error: 'invalid-google-signature',
-        });
-      }
-
-      return acceptProviderWebhook('google', body, route.proofIdFamily, env);
+      void request;
+      void env;
+      return json(503, {
+        error: 'manual-required',
+        authState: route.authState,
+        blocker: PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.googleVerifierUnavailable,
+      });
     },
 
     async 'admin-billing-accounts'({ request, env, identity }): Promise<Response> {
