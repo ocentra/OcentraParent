@@ -1,4 +1,5 @@
 use super::*;
+use ocentra_parent_agent_protocol::screen_child_disclosure::ActivityScreenChildDisclosure;
 
 pub(super) fn screen_summary_panel_snapshot(
     read_model: Option<&ActivityScreenReadModel>,
@@ -15,51 +16,25 @@ pub(super) fn screen_summary_panel_snapshot(
             title,
             body,
             load_state: SCREEN_SUMMARY_UNAVAILABLE.to_string(),
-            summary_details: vec![
-                screen_summary_detail("Status", SCREEN_SUMMARY_UNAVAILABLE.to_string()),
-                screen_summary_detail("Product claim", product_claim.clone()),
-            ],
+            summary_details: unavailable_screen_summary_details(&product_claim),
             rows: Vec::new(),
             empty_message,
             product_claim,
         },
         Some(read_model) => {
             let latest_row = read_model.rows.first();
+            let child_disclosure = screen_child_disclosure_from_read_model(read_model);
             ParentScreenSummaryPanelSnapshot {
                 eyebrow,
                 title,
                 body,
                 load_state: screen_summary_state_label(read_model.state),
-                summary_details: vec![
-                    screen_summary_detail("Status", screen_summary_state_label(read_model.state)),
-                    screen_summary_detail("Generated at", read_model.generated_at.clone()),
-                    screen_summary_detail("Rows returned", read_model.rows.len().to_string()),
-                    screen_summary_detail(
-                        "Capability",
-                        latest_row
-                            .map(|row| screen_summary_readable_label(&row.capability_status))
-                            .unwrap_or_else(|| SCREEN_SUMMARY_UNAVAILABLE.to_string()),
-                    ),
-                    screen_summary_detail(
-                        "Custody",
-                        latest_row
-                            .map(|row| screen_summary_readable_label(&row.custody_state))
-                            .unwrap_or_else(|| SCREEN_SUMMARY_UNAVAILABLE.to_string()),
-                    ),
-                    screen_summary_detail(
-                        "Deleted evidence",
-                        latest_row
-                            .map(|row| screen_summary_readable_label(&row.image_deletion_state))
-                            .unwrap_or_else(|| SCREEN_SUMMARY_UNAVAILABLE.to_string()),
-                    ),
-                    screen_summary_detail(
-                        "Model",
-                        latest_row
-                            .map(screen_summary_model_summary)
-                            .unwrap_or_else(|| SCREEN_SUMMARY_NOT_REPORTED.to_string()),
-                    ),
-                    screen_summary_detail("Product claim", product_claim.clone()),
-                ],
+                summary_details: screen_summary_details(
+                    read_model,
+                    latest_row,
+                    &child_disclosure,
+                    &product_claim,
+                ),
                 rows: read_model
                     .rows
                     .iter()
@@ -70,6 +45,109 @@ pub(super) fn screen_summary_panel_snapshot(
             }
         }
     }
+}
+
+fn unavailable_screen_summary_details(
+    product_claim: &str,
+) -> Vec<ParentScreenSummaryPanelDetailSnapshot> {
+    vec![
+        screen_summary_detail("Status", SCREEN_SUMMARY_UNAVAILABLE.to_string()),
+        screen_summary_detail(
+            "Child disclosure",
+            screen_summary_child_disclosure_state(&ActivityScreenChildDisclosure::unavailable(
+                ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION,
+            )),
+        ),
+        screen_summary_detail(
+            "Child disclosure message",
+            ActivityScreenChildDisclosure::unavailable(
+                ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION,
+            )
+            .message,
+        ),
+        screen_summary_detail("Product claim", product_claim.to_string()),
+    ]
+}
+
+fn screen_summary_details(
+    read_model: &ActivityScreenReadModel,
+    latest_row: Option<&ActivityScreenReadModelRow>,
+    child_disclosure: &ActivityScreenChildDisclosure,
+    product_claim: &str,
+) -> Vec<ParentScreenSummaryPanelDetailSnapshot> {
+    vec![
+        screen_summary_detail("Status", screen_summary_state_label(read_model.state)),
+        screen_summary_detail("Generated at", read_model.generated_at.clone()),
+        screen_summary_detail("Rows returned", read_model.rows.len().to_string()),
+        screen_summary_detail(
+            "Capability",
+            latest_row
+                .map(|row| screen_summary_readable_label(&row.capability_status))
+                .unwrap_or_else(|| SCREEN_SUMMARY_UNAVAILABLE.to_string()),
+        ),
+        screen_summary_detail(
+            "Custody",
+            latest_row
+                .map(|row| screen_summary_readable_label(&row.custody_state))
+                .unwrap_or_else(|| SCREEN_SUMMARY_UNAVAILABLE.to_string()),
+        ),
+        screen_summary_detail(
+            "Deleted evidence",
+            latest_row
+                .map(|row| screen_summary_readable_label(&row.image_deletion_state))
+                .unwrap_or_else(|| SCREEN_SUMMARY_UNAVAILABLE.to_string()),
+        ),
+        screen_summary_detail(
+            "Model",
+            latest_row
+                .map(screen_summary_model_summary)
+                .unwrap_or_else(|| SCREEN_SUMMARY_NOT_REPORTED.to_string()),
+        ),
+        screen_summary_detail(
+            "Child disclosure",
+            screen_summary_child_disclosure_state(child_disclosure),
+        ),
+        screen_summary_detail("Child disclosure message", child_disclosure.message.clone()),
+        screen_summary_detail(
+            "Child-visible requirement",
+            screen_summary_yes_no(child_disclosure.child_visible_required),
+        ),
+        screen_summary_detail(
+            "Hidden capture claimed",
+            screen_summary_yes_no(child_disclosure.hidden_capture_claimed),
+        ),
+        screen_summary_detail(
+            "Raw screenshot shown",
+            screen_summary_yes_no(child_disclosure.raw_screenshot_shown),
+        ),
+        screen_summary_detail(
+            "Child-agent delivery",
+            if child_disclosure.child_agent_delivery_claimed {
+                "Claimed".to_string()
+            } else {
+                "Not claimed".to_string()
+            },
+        ),
+        screen_summary_detail("Product claim", product_claim.to_string()),
+    ]
+}
+
+fn screen_child_disclosure_from_read_model(
+    read_model: &ActivityScreenReadModel,
+) -> ActivityScreenChildDisclosure {
+    let Some(row) = read_model.rows.first() else {
+        return ActivityScreenChildDisclosure::unavailable(read_model.schema_version);
+    };
+    ActivityScreenChildDisclosure::from_observation(
+        read_model.schema_version,
+        row.row_id.clone(),
+        &row.capability_status,
+        &row.image_deletion_state,
+    )
+}
+
+fn screen_summary_child_disclosure_state(disclosure: &ActivityScreenChildDisclosure) -> String {
+    screen_summary_readable_label(&serialized_enum_label(&disclosure.state))
 }
 
 fn screen_summary_panel_row_snapshot(
@@ -208,5 +286,13 @@ fn screen_summary_detail(label: &str, value: String) -> ParentScreenSummaryPanel
     ParentScreenSummaryPanelDetailSnapshot {
         label: label.to_string(),
         value,
+    }
+}
+
+fn screen_summary_yes_no(value: bool) -> String {
+    if value {
+        "Yes".to_string()
+    } else {
+        "No".to_string()
     }
 }

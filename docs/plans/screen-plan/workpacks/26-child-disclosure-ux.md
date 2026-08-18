@@ -20,11 +20,19 @@ Child-visible/local disclosure, parent-enabled status, calm wording, and no hidd
 
 ## Current State
 
-Disclosure requirement exists in expectations. `screen-child-disclosure-proof`
-now defines the child-visible status/copy contract, renders a child-visible
-disclosure page for desktop/mobile screenshot inspection, and proves no hidden
-capture or raw screenshot display can be represented. Child-agent runtime
-deployment/delivery remains open and unclaimed.
+Rust production source now owns the disclosure projection in
+`crates/agent-protocol/src/screen_child_disclosure.rs` and its calm copy table
+in `screen_child_disclosure_copy.rs`. It consumes the real screen read-model
+capability/deletion state and derives enabled, paused, disabled, unavailable,
+manual-required, capture-active, protected-surface, and summary-ready states.
+The parent runtime consumes that projection in
+`crates/parent-runtime-core/src/parent_ui_bridge/screen_summary.rs` only as a
+parent diagnostic/status projection. No shipped child surface currently
+renders or delivers this projection, so child-visible runtime delivery and
+rendering remain open. Hidden capture, raw screenshot display, remote viewer,
+policy authority, and child-agent delivery remain explicitly unclaimed. Tests,
+proof artifacts, and desktop/mobile screenshots are deferred to the
+test/proof phase.
 
 ## Checklist
 
@@ -37,8 +45,8 @@ deployment/delivery remains open and unclaimed.
 
 ## Proof
 
-- `output/screen-plan-proof/screen-child-disclosure/proof-summary.json`.
-- `output/screen-plan-proof/screen-child-disclosure/screenshots/screen-child-disclosure-desktop.png`.
-- `output/screen-plan-proof/screen-child-disclosure/screenshots/screen-child-disclosure-mobile.png`.
+- Expected proof root: `output/screen-plan-proof/screen-child-disclosure/`.
+- Expected artifacts remain deferred: `proof-summary.json`, desktop screenshot,
+  mobile screenshot, and validation command log.
 - Child-agent runtime deployment/delivery remains open.
-- Product text reviewed.
+- Product text is source-authored; review and runtime proof remain open.

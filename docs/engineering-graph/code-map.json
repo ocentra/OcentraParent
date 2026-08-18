@@ -4304,8 +4304,14 @@
     "WP-screen-plan-26-child-disclosure-ux": {
       "planSlug": "screen-plan",
       "roots": [
-        "apps/portal/src/ScreenChildDisclosureRoutePanel.tsx",
-        "apps/portal/tests/screen/screen-child-disclosure.test.ts"
+        "crates/agent-protocol/src/screen_child_disclosure.rs",
+        "crates/agent-protocol/src/screen_child_disclosure_copy.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/screen_summary.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/agent-protocol/src/screen_child_disclosure.rs",
+        "crates/agent-protocol/src/screen_child_disclosure_copy.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/screen_summary.rs"
       ]
     },
     "WP-screen-plan-27-screenshot-retention-optional-mode": {

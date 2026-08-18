@@ -140,7 +140,7 @@ screen-AI service runtime and several platform owners are absent.
 | 23 Policy Compiler For Screen Derived Evidence | AI policy refs and policy-control handoff | Policy handoff shape only; policy authority is another plan and no screen capture effect is established. |
 | 24 Enforcement Handoff Guard | Screen action/read-model guard | Guard/readiness only; no enforcement adapter execution owned by screen plan. |
 | 25 Parent Portal Summary UI | Portal renders Rust screen read model | Presentation/read-model effect only; no capture source or retention authority. |
-| 26 Child Disclosure UX | No mapped implementation roots | UX/status work only; no shipped child disclosure runtime caller. |
+| 26 Child Disclosure UX | Rust disclosure projection and parent diagnostic consumer | Source-present projection only; no shipped child surface/rendering or child-runtime delivery is claimed, and tests/proof/screenshots remain open. |
 | 27 Screenshot Retention Optional Mode | Settings/preflight schemas and writable settings UI | Default remains disabled; no production opt-in custody/export/delete implementation. |
 | 28 Live View Optional Mode | Rust worker/readiness gate and local proof paths | Worker/transport remains blocked; no live frame provider, session, relay, or product effect. |
 | 29 Proof Tiers And Proof Packs | Proof routing only | Validation/proof work; no runtime implementation. |

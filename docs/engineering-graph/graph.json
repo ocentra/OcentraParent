@@ -22831,22 +22831,34 @@
         "statusText": "checked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-protocol/src/screen_child_disclosure.rs",
+            "crates/agent-protocol/src/screen_child_disclosure_copy.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/screen_summary.rs"
+          ],
+          "testRoots": []
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
         "expected": {
-          "proof": ["output/screen-plan-proof/26-child-disclosure-ux"]
+          "proof": ["output/screen-plan-proof/26-child-disclosure-ux"],
+          "implementation": [
+            "crates/agent-protocol/src/screen_child_disclosure.rs",
+            "crates/agent-protocol/src/screen_child_disclosure_copy.rs",
+            "crates/parent-runtime-core/src/parent_ui_bridge/screen_summary.rs"
+          ]
         }
       }
     },
