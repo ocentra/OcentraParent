@@ -132,6 +132,32 @@
 - [ ] Workpack completion section filled.
 - [ ] No settings-ready overclaim made.
 
+## WP09 Parent Local Bundle Provider Runtime
+
+- [ ] Production source owner and shipped caller are mapped and reviewed.
+- [ ] Parent-local encrypted bundle byte persistence and retrieval are implemented.
+- [ ] Exact-byte hash/signature, household, version, and key-context verification is implemented.
+- [ ] Atomic write, recovery, and corruption quarantine behavior is implemented.
+- [ ] Manual and scheduled job retry, restart, and idempotency custody is implemented.
+- [ ] Provider-neutral adapter behavior preserves explicit no-provider, no-fallback, and manual-required states.
+- [ ] Required positive, negative, interruption, replay, and redaction test source is written and reviewed.
+- [ ] Focused tests and focused architecture/Enforcer gates pass or an exact blocker is recorded.
+- [ ] Required proof artifacts are written under `output/data-custody-storage-plan-proof/09-parent-local-bundle-provider-runtime/`.
+- [ ] Workpack completion section and plan indexes are synchronized without a custody-ready overclaim.
+
+## WP10 Restore Orchestration And Producer Handoffs
+
+- [ ] Production source owner and shipped caller are mapped and reviewed.
+- [ ] Durable preflight, apply, migration, rollback, and idempotency orchestration state is implemented.
+- [ ] Trusted Account authority and confirmation are bound to household, operation, expiry, and replay state.
+- [ ] Data-class producer/consumer handoffs return owner-derived outcomes before receipt advancement.
+- [ ] Tombstone, retention, and no-resurrection constraints are enforced across restore and migration.
+- [ ] Crash/restart, partial failure, retry, rollback, and idempotency behavior is implemented.
+- [ ] Required positive, negative, interruption, replay, and no-fake-receipt test source is written and reviewed.
+- [ ] Focused tests and focused architecture/Enforcer gates pass or an exact blocker is recorded.
+- [ ] Required proof artifacts are written under `output/data-custody-storage-plan-proof/10-restore-orchestration-and-producer-handoffs/`.
+- [ ] Workpack completion section and plan indexes are synchronized without a restore-ready overclaim.
+
 ## WP07 Rollout Proof And Route Gate
 
 - [ ] WP01 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
@@ -141,6 +167,8 @@
 - [ ] WP05 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
 - [ ] WP06 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
 - [ ] WP08 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
+- [ ] WP09 proof root accepted by a clean-checkout aggregate gate. Blocker: production source and expected tests are not implemented.
+- [ ] WP10 proof root accepted by a clean-checkout aggregate gate. Blocker: production source and expected tests are not implemented.
 - [ ] Route/index aggregate proof published from a clean checkout.
 - [ ] Privacy language review published from a clean checkout.
 - [ ] Manual-required gap register published from a clean checkout.
