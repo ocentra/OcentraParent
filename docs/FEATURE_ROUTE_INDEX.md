@@ -15,9 +15,9 @@
 
 ## Current Child Runtime source-routing overlay
 
-Child runtime is in source phase. The iOS capability contract does not make
-the actual app child-owned while the project/bundle/release identity remains
-parent-labelled. WP10 has typed schema/projection only: no Device Trust
+Child runtime is in source phase. The independent WP06 iOS identity/source
+packet is reviewed at `c71becbcfd4f07eb98a118f10dbf261320f6b54e`; tests,
+workflows, signing, device, and store proof remain open. WP10 has typed schema/projection only: no Device Trust
 startup caller, authenticated external ingress, external health, or updater
 caller exists. WP02-WP05, WP07-WP09, and WP11 remain open; tests, proof, and
 release claims are deferred.
