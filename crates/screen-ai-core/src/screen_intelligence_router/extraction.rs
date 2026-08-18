@@ -1,5 +1,11 @@
 use super::capture::ScreenEvidenceCustodyState;
+use ocentra_parent_agent_core::browser_bridge_capture::{
+    ManagedBrowserCdpCaptureError, ManagedBrowserCdpTargetAuthority,
+};
 use serde::{Deserialize, Serialize};
+
+#[path = "extraction/owner_adapter.rs"]
+mod owner_adapter;
 
 pub(crate) const MANAGED_BROWSER_STRUCTURED_SOURCE_ID: &str = "managed-browser-cdp";
 pub(crate) const MANAGED_BROWSER_SESSION_REF_PREFIX: &str = "managed-browser-session-";
@@ -52,6 +58,7 @@ enum VerifiedStructuredExtractionOutcome {
     NeedsScreenshot {
         reason: String,
     },
+    ProtectedContentSkipped,
     Unavailable {
         reason: String,
     },
@@ -81,14 +88,20 @@ struct VerifiedManagedBrowserStructuredExtractionReceipt {
 }
 
 /// This receipt has no public or crate-wide constructor, serializer, clone, or
-/// debug surface. A managed-browser owner must issue it only after binding the
-/// live target, session, source identity, and freshness at its authority
-/// boundary. No such producer is wired in this crate yet.
+/// debug surface. The managed-browser owner adapter below accepts evidence only
+/// from the real CDP authority; service-level route composition remains a
+/// separate caller until a production route supplies that authority.
 pub struct ScreenManagedBrowserStructuredExtraction {
     receipt: VerifiedManagedBrowserStructuredExtractionReceipt,
 }
 
 impl ScreenManagedBrowserStructuredExtraction {
+    pub fn from_managed_browser_cdp_authority(
+        authority: &ManagedBrowserCdpTargetAuthority,
+    ) -> Result<Self, ManagedBrowserCdpCaptureError> {
+        owner_adapter::from_authority(authority)
+    }
+
     pub(crate) fn is_verified(&self) -> bool {
         receipt_is_bound_and_redacted(&self.receipt)
     }
@@ -212,7 +225,7 @@ fn receipt_is_bound_and_redacted(
 fn redaction_flags_are_consistent(
     receipt: &VerifiedManagedBrowserStructuredExtractionReceipt,
 ) -> bool {
-    match receipt.redaction_state {
+    match &receipt.redaction_state {
         ScreenStructuredExtractionRedactionState::None => {
             !receipt.private_content_redacted && !receipt.dom_overflow_redacted
         }
