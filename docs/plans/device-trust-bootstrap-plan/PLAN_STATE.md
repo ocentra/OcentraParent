@@ -32,11 +32,13 @@ merged Windows-only source contains DPAPI-protected record/registry-epoch
 custody code in `storage-custody-core`, the current-authority seam in
 `family-identity-core`, and an opaque parent-runtime staged-handle facade.
 `require_authenticated_parent_authority()` is permanently unavailable, so the
-custody operations fail closed before record/epoch mutation. No ceremony issuer,
-registered desktop/native command, or custody-to-lifecycle startup composition
-reaches that source; no end-to-end Windows seal, activation, unseal, or
-revocation execution is claimed. Existing lifecycle/custody tests are stale
-against this boundary and are not current DPAPI proof.
+custody operations fail closed before record/epoch mutation. The parent desktop
+now registers a native command that accepts only an opaque staged-ceremony
+reference and generates trust material inside the facade, but no ceremony issuer
+or custody-to-lifecycle startup composition reaches that source; no end-to-end
+Windows seal, activation, unseal, or revocation execution is claimed. Existing
+lifecycle/custody tests are stale against this boundary and are not current
+DPAPI proof.
 
 PR [#627](https://github.com/ocentra/OcentraParent/pull/627) also merged as
 `1ce56056c8c233addafe89feec7008c2bdda7059`, adding the fail-closed
@@ -75,7 +77,7 @@ authority.
 | Workpack | Reachable production code | Missing production authority / caller |
 | --- | --- | --- |
 | WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar/transition journal, current device/signer binding, durable local event journal, and the integrated trusted-device/signer-key registration packet. Public household signer/verifier mint paths are removed; current authority is re-resolved from owner state. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped platform/passkey ceremony issuer or complete trust-state composition owner. Independent source review accepted the bounded packet as implementation evidence only. Expected-test migration, functional validation, proof, production caller integration, and completion remain open. |
-| WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch source, `crates/family-identity-core` has current-authority and lifecycle-activation seams, and `crates/parent-runtime-core` has an opaque staged-handle facade. | `require_authenticated_parent_authority()` is permanently unavailable before custody mutation; no ceremony issuer, desktop/native command mount, or custody-to-lifecycle startup composition reaches the source. Non-Windows custody and end-to-end sealing remain unavailable/manual-required; stale lifecycle/custody tests are not proof. |
+| WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch source, `crates/family-identity-core` has current-authority and lifecycle-activation seams, and `crates/parent-runtime-core` plus the parent desktop have an opaque staged-handle facade and mounted command. | `require_authenticated_parent_authority()` is permanently unavailable before custody mutation; no ceremony issuer or custody-to-lifecycle startup composition reaches the source. Platform-unavailable startup is typed manual-required; corruption/other custody-open failures are typed unavailable and reject traffic. Non-Windows custody and end-to-end sealing remain unavailable/manual-required; stale lifecycle/custody tests are not proof. |
 | WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries, a five-minute lifetime gate, and bounded atomic challenge/intent plus receipt/credential custody. | The graph is blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Planned `parent_step_up_target_authority.rs` and `parent_step_up_runtime.rs` do not exist. Actor parent-controller and target child/profile/device are not authoritatively separated for `RegisterLanSignerAnchor`; the authoritative Account writer/provider caller, passkey/OS-native signature provider, durable sign counter, shipped parent runtime, expected tests, proof, LAN handoff, and DONE remain open. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
 | WP05 | `crates/entitlement-core` preserves an unsigned entitlement projection and a crate-owned fail-closed context; caller/wire data cannot manufacture trusted snapshot state. | No real entitlement issuer/signature/revocation provider or device-trust-bound capability unlock caller. |
@@ -244,9 +246,12 @@ remote-access-plan and policy-control-plane-plan:
 - `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
 - Current plan-local tests prove document and route shape only, not runtime trust.
 - Login/session proof, LAN pairing proof, package install proof, and license proof are all insufficient for device trust.
-- The Windows-only WP02 source has an opaque parent-runtime facade, but no
-  parent-desktop command mount or startup caller. Android, Linux, iOS, and
-  macOS custody implementations and their proof remain absent.
+- The Windows-only WP02 source has an opaque parent-runtime facade and a
+  parent-desktop Tauri command mount. The startup state is typed
+  manual-required for expected platform unavailability and typed unavailable
+  for corruption or other custody-open failures; neither state accepts sealing
+  traffic without an available facade. Android, Linux,
+  iOS, and macOS custody implementations and their proof remain absent.
 - `require_authenticated_parent_authority()` is permanently unavailable, so
   Windows custody seal/unseal/revoke/reset fails closed before record or epoch
   mutation. No platform ceremony issuer exists in this lane, so local
@@ -316,10 +321,11 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
   pending/reset state, rejects child-scoped and low-risk ceremonies, and does
   not make login or ordinary parent authority a sealing capability.
 - Windows custody source includes DPAPI/registry-epoch persistence and a
-  current-authority seam, but the authenticated-parent gate is permanently
-  unavailable and no parent-runtime/desktop bridge is mounted. It is source
-  topology only, not a complete trust lifecycle, activation, recovery, or
-  cross-platform custody implementation.
+  current-authority seam. The authenticated-parent gate is permanently
+  unavailable, while the parent-desktop command mount is now reachable and
+  returns rejected/manual-required state without an issuer. It is not a complete
+  trust lifecycle, activation, recovery, or cross-platform custody
+  implementation.
 - Parent-presence decisions are correlated and redacted, inserted transactionally into the canonical parent-presence SQLite outbox, and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Pending rows drain on restart, and stable event identities make recovery idempotent. This is durable local journal evidence only; it does not claim subscriber delivery, a broader event-bus runtime, or complete device-trust lifecycle integration.
 - No complete device-trust state machine exists yet beyond that narrow parent-presence bootstrap boundary.
 - No merged cross-platform local key sealing implementation exists; the merged

@@ -17015,7 +17015,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / Windows custody source only; downstream of WP01",
+        "statusText": "partial / Windows custody source with desktop mount; downstream of WP01",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

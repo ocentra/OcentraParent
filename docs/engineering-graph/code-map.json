@@ -3229,6 +3229,8 @@
         "crates/family-identity-core/src/trust_bootstrap/current_authority.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_activation.rs",
         "crates/parent-runtime-core/src/device_trust_bootstrap_runtime.rs",
+        "crates/parent-runtime-core/src/device_trust_bootstrap_runtime_status.rs",
+        "apps/parent-desktop/src-tauri/src/lib.rs",
         "tests/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs"
       ]
     },

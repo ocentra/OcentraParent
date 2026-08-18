@@ -9,6 +9,7 @@
 
 mod agent_service_client;
 pub mod device_trust_bootstrap_runtime;
+pub mod device_trust_bootstrap_runtime_status;
 pub mod parent_service_health;
 pub mod parent_ui_bridge;
 pub mod policy_control_dispatch;
