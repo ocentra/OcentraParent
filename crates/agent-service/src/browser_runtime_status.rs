@@ -1,8 +1,8 @@
-use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
 use ocentra_parent_agent_protocol::browser::BrowserChannel;
 use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
 use ocentra_parent_agent_protocol::browser::BrowserFamily;
+use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::browser_managed::BrowserBridgeKind;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileLifecycleState;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
@@ -274,21 +274,19 @@ fn base_managed_status(checked_at: impl Into<BrowserRuntimeText>) -> BrowserMana
     BrowserManagedSessionStatus {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
         checked_at: checked_at.0,
-        managed_browser_session_id: Some(constants::browser::SESSION_ID_DEV.to_string()),
-        browser_family: Some(BrowserFamily::UnknownChromium),
-        browser_channel: Some(BrowserChannel::Unknown),
+        managed_browser_session_id: None,
+        browser_family: None,
+        browser_channel: None,
         browser_version: None,
-        profile_id: Some(constants::browser::PROFILE_ID_DEV.to_string()),
-        profile_path_ref: Some(constants::browser::PROFILE_PATH_REF_MANAGED.to_string()),
-        profile_root_ref: Some(constants::browser::PROFILE_ROOT_REF_MANAGED.to_string()),
-        profile_scope_id: Some(constants::browser::PROFILE_SCOPE_ID_DEV.to_string()),
-        profile_lifecycle_state: Some(BrowserManagedProfileLifecycleState::Ready),
-        policy_revision: Some(constants::browser::PROFILE_POLICY_REVISION_DEV.to_string()),
+        profile_id: None,
+        profile_path_ref: None,
+        profile_root_ref: None,
+        profile_scope_id: None,
+        profile_lifecycle_state: None,
+        policy_revision: None,
         process_id: None,
-        bridge_kind: Some(BrowserBridgeKind::ChromiumDevtoolsProtocol),
-        bridge_endpoint_ref: Some(
-            constants::browser::BRIDGE_ENDPOINT_REF_LOOPBACK_DEVTOOLS.to_string(),
-        ),
+        bridge_kind: None,
+        bridge_endpoint_ref: None,
         unmanaged_process_name: None,
         unmanaged_executable_path_ref: None,
         unmanaged_signature_ref: None,
@@ -296,12 +294,12 @@ fn base_managed_status(checked_at: impl Into<BrowserRuntimeText>) -> BrowserMana
         unmanaged_process_kind: None,
         unmanaged_detection_confidence: None,
         unmanaged_detection_reason: None,
-        managed_state: BrowserManagedState::ManagedProfileReady,
+        managed_state: BrowserManagedState::Error,
         capability_status: BrowserCapabilityStatus::BridgeMissing,
         degraded_reason: None,
         started_at: None,
-        custody_label: BrowserCustodyLabel::ChildDeviceLocal,
-        query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
+        custody_label: BrowserCustodyLabel::Unavailable,
+        query_visibility: BrowserQueryVisibilityLabel::Unavailable,
     }
 }
 
