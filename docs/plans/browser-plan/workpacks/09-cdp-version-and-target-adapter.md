@@ -26,6 +26,23 @@ adapter explicit about tab-list-only capability.
 The CDP adapter is fixture-backed, malformed-payload-safe, redaction-safe, and
 explicit about tab-list-only capability.
 
+### Reviewed production-readiness boundary (2026-08-18)
+
+The parser and target/capture authority code are real, but this workpack has
+no production caller that retains the same managed launch, validates custody,
+and routes a source-backed result into Screen. The next packet must poll from
+the private authority retained by the WP07 service runtime, mint target
+authority only from a trusted same-launch page candidate, and keep active-tab
+state `Unknown` because target-list evidence is not focus proof. WP09 remains
+open and is not PR-ready.
+
+Required integration tests remain open: retained-launch bridge success and
+owner mismatch; malformed, oversized, timeout, missing-target, target
+disappearance/navigation, and process-replacement cases; same-launch target
+authority; Screen handoff success/manual-required/failure; and a regression
+that forbids promoting target-list evidence to a known active tab. Fixture
+parser tests alone do not close this production seam.
+
 ## Scope
 
 - `/json/version` parser.
