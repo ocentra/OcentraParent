@@ -45,6 +45,20 @@ shipped authority issuer, production composition, expected tests, validation,
 and proof exist. WP03 owns the one-time `RegisterLanSignerAnchor` ceremony and
 must not be made to depend on a LAN consumer in return.
 
+## Multi-owner effect-fence handoff
+
+WP01 is the Device Trust owner participant for Account WP05A. A future private
+participant must prepare, commit, abort, and recover an action-bound reservation
+against the current trusted-device/signer binding, generation, and revocation
+state owned here. It must expose only an opaque participant handle/outcome to
+the coordinator; Account may not copy Device Trust currentness or replay truth.
+
+Planned participant roots (currently absent) are
+`crates/family-identity-core/src/device_trust_runtime_fence_participant.rs` and
+`crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs`.
+This is routing only: no source, test, proof, runtime reachability, READY, or
+DONE claim is made.
+
 ## Downstream bridge order
 
 The current legal order is explicit and non-circular:

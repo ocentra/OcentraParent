@@ -314,6 +314,24 @@ WP06 security proof and route gate
 
 WP06 is last because it consumes proof from every earlier workpack.
 
+## 2026-08-18 multi-owner effect-fence routing correction
+
+The earlier Account-only CAS wording is retired as an implementation route.
+`HouseholdAuthorityRuntimeCasFence` currently receives already-resolved
+snapshots and its shipped implementation is manual-required; an Account-local
+ledger cannot atomically own Device Trust or parent-step-up revocation.
+
+Account WP05A (`workpacks/05-runtime-effect-fencing-coordinator.md`) is now the
+planned coordinator/recovery route. It owns only opaque operation identity,
+prepare/commit/abort/recover ordering, exact-idempotent committed replay, and
+the private Account participant plus capability/controller-lease reservation
+adapters. Account WP02/WP08 remain the Account source of truth consumed through
+that adapter; Device Trust WP01 and Device Trust WP03 remain separate owner participants.
+The coordinator must fail closed on unavailable, mismatched, revoked, expired,
+or restart-uncertain reservations and must not claim distributed transaction
+atomicity. Account WP05 consumes this handoff; Data WP08/WP09/WP10/WP11 remain
+blocked until reviewed owner participants exist.
+
 ## Health rules
 
 - Do not start runtime implementation if WP01 provider/custody decision is open.

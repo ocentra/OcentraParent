@@ -163,8 +163,15 @@ The consolidated source audit found no legal production-code slice to add:
 
 The next dependency chain is Account WP08 canonical binding -> Account WP02
 target-aware action authority -> Cloudflare WP06 authoritative writer/provider
-caller -> WP03 trusted target resolution and platform/passkey ceremony,
-alongside completion of the WP01 trust lifecycle source. Until those
-owners are dependency-legal and reachable from shipped entrypoints, preserve
-the manual-required outcomes and do not claim trust bootstrap, device sealing,
-recovery, entitlement unlock, or child uninstall.
+caller -> WP03 trusted target resolution and platform/passkey ceremony ->
+Account WP05A multi-owner effect-fence participant, alongside completion of
+the WP01 trust lifecycle source. Until those owners are dependency-legal and
+reachable from shipped entrypoints, preserve the manual-required outcomes and
+do not claim trust bootstrap, device sealing, recovery, entitlement unlock, or
+child uninstall.
+
+WP03 remains the sole owner of parent-step-up nonce/sign-count and platform
+verification truth. It supplies a private reservation participant to Account
+WP05A; Account WP05A coordinates but does not copy or re-authorize Device Trust
+state. This is routing only: no source, tests, proof, platform ceremony, or
+DONE claim is authorized.
