@@ -2,6 +2,28 @@
   "schemaVersion": 2,
   "workpackReviews": [
     {
+      "id": "WP-browser-plan-07-managed-chromium-launcher",
+      "hardDependencies": [],
+      "reason": "Reviewed implementation authorization for the first managed-browser production packet only. WP07 owns the retained BrowserManagedLaunch/process/session/private-custody runtime in the service AppState/websocket route and must poll from that authority before handing source-backed capture to Screen. The planned source and integration test roots are absent; this does not authorize normal READY, tests, proof, PR readiness, or DONE.",
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/NEXT_ACTIONS.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "hardDependencies": [],
+      "reason": "Reviewed implementation authorization for the same-launch CDP target-binding packet only. WP09 owns the missing binding between the retained managed launch and existing tab-list parser/capture authority; active-tab state remains Unknown and Screen handoff does not mint browser authority. The planned source and integration test roots are absent; this does not authorize normal READY, tests, proof, PR readiness, or DONE.",
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/NEXT_ACTIONS.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
       "hardDependencies": [
         "WP-account-identity-family-plan-02-identity-household-role-model",
@@ -1992,6 +2014,32 @@
     }
   ],
   "stateOverrides": [
+    {
+      "id": "WP-browser-plan-07-managed-chromium-launcher",
+      "state": "validation",
+      "reason": "Reviewed implementation-phase route for the retained BrowserManagedRuntime packet. The missing service runtime and integration test roots are explicitly mapped; source edits may proceed only in that packet. Normal READY, tests, proof, PR readiness, and DONE remain unchanged and unavailable until the roots exist and are validated.",
+      "statusText": "Validation — implementation route authorized; retained managed runtime source/tests missing; READY and completion remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/NEXT_ACTIONS.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "state": "validation",
+      "reason": "Reviewed implementation-phase route for the same-launch CDP target-binding packet. The missing binding source and integration test roots are explicitly mapped; source edits may proceed only in that packet. Active-tab state remains Unknown. Normal READY, tests, proof, PR readiness, and DONE remain unchanged and unavailable until the roots exist and are validated.",
+      "statusText": "Validation — implementation route authorized; same-launch binding source/tests missing; READY and completion remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/NEXT_ACTIONS.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
       "state": "validation",
