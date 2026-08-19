@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use ocentra_schema::account_identity_authority::AccountIdentityCurrentMemberDeviceAuthorityHandoff;
 use ocentra_schema::account_identity_authority_producer::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_AUDIENCE, ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_ENVIRONMENT,
@@ -107,9 +107,13 @@ pub(crate) fn parse_wire_at(
 }
 
 fn parse_timestamp(value: &str) -> Result<DateTime<Utc>, AccountIdentityAuthorityProducerError> {
-    DateTime::parse_from_rfc3339(value)
+    let parsed = DateTime::parse_from_rfc3339(value)
         .map(|value| value.with_timezone(&Utc))
-        .map_err(|_| AccountIdentityAuthorityProducerError::InvalidWire)
+        .map_err(|_| AccountIdentityAuthorityProducerError::InvalidWire)?;
+    if parsed.to_rfc3339_opts(SecondsFormat::Millis, true) != value {
+        return Err(AccountIdentityAuthorityProducerError::InvalidWire);
+    }
+    Ok(parsed)
 }
 
 struct Cursor<'a> {

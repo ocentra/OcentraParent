@@ -148,7 +148,7 @@ impl AccountIdentityAuthorityService {
     /// Issue a short-lived Account-owned current-authority transport. The
     /// provider subject is only a lookup key; every signed authority field is
     /// copied from the opaque, repository-validated capability.
-    pub fn issue_current_authority_producer(
+    pub(crate) fn issue_current_authority_producer(
         &self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
