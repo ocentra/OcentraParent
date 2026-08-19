@@ -82,6 +82,7 @@ pub enum EventingError {
     OrderedDispatchChainExpired {
         aggregate_key: AggregateKey,
     },
+    CausalDispatchCancelled,
     InvalidRequestOptions {
         reason: String,
     },

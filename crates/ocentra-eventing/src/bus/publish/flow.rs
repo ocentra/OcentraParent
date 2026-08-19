@@ -40,7 +40,7 @@ where
     E: DomainEvent,
 {
     bus.ensure_active()?;
-    let _dispatch_chain_guard = dispatch_chain.retain_live()?;
+    dispatch_chain.ensure_live()?;
     let stored = EventEnvelope::from_event(event, metadata)?.store()?;
     if stored.is_deadline_expired(bus.clock.now()) {
         return dispatching::dead_letter_expired_deadline(bus, stored, dispatch_mode).await;

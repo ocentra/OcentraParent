@@ -5,26 +5,18 @@ use std::{
 };
 
 use ocentra_eventing::{
+    bus::publisher::RootEventPublisher,
     bus::reports::handler::{HandlerOutcome, PublishReport},
     bus::subscriber::EventSubscriber,
     bus::subscriber::SubscriptionReport,
     bus::EventBus,
     envelope::DomainEvent,
     envelope::EventContract,
-    envelope::EventMetadata,
-    envelope::EventSource,
     error::EventingError,
     ids::AggregateKey,
-    ids::CorrelationId,
-    ids::EventCustody,
-    ids::EventId,
     ids::EventType,
     ids::IdempotencyKey,
-    ids::RecordedAt,
-    ids::RuntimeInstanceId,
     ids::SchemaVersion,
-    ids::SourceComponent,
-    ids::SourceService,
     ids::SubscriberId,
     ids::TargetHandler,
     journal::ndjson::NdjsonEventJournal,
@@ -49,9 +41,10 @@ pub(crate) struct ObservedAtText(pub(crate) String);
 
 #[path = "screen_ai_service_event_subscription/live_view_service_runtime.rs"]
 pub(crate) mod live_view_service_runtime;
+mod routing;
 
 pub(crate) struct ScreenAiServiceEventRuntime {
-    bus: EventBus,
+    bus: RootEventPublisher,
     deletion_journals: Arc<Mutex<BTreeMap<PathBuf, NdjsonEventJournal>>>,
 }
 
@@ -207,12 +200,15 @@ pub(crate) async fn subscribe_screen_service_row_ready_events(
 }
 
 pub(crate) async fn publish_screen_service_row_ready_event(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     event: ScreenAiServiceRowReadyEvent,
     observed_at: ObservedAtText,
 ) -> Result<ocentra_eventing::bus::reports::handler::PublishReport, EventingError> {
-    bus.publish(event, screen_service_row_ready_metadata(&observed_at)?)
-        .await
+    bus.publish(
+        event,
+        routing::screen_service_row_ready_metadata(&observed_at)?,
+    )
+    .await
 }
 
 async fn handle_screen_service_row_ready_event(
@@ -301,30 +297,4 @@ async fn publish_screen_runtime_chain_for_row(
 fn screen_service_row_is_degraded(row: &ActivityScreenReadModelRow) -> bool {
     row.capability_status == constants::activity_surface::SAVED_STATE_DEGRADED
         && !row.policy_eligible
-}
-
-fn screen_service_row_ready_metadata(
-    observed_at: &ObservedAtText,
-) -> Result<EventMetadata, EventingError> {
-    Ok(EventMetadata::from_parts(
-        EventId::generated(),
-        CorrelationId::parse(constants::screen_flow::CORRELATION_SCREEN_RUNTIME_PREFIX)?,
-        screen_service_row_ready_source()?,
-        RecordedAt::parse(observed_at.0.as_str())?,
-        Some(TargetHandler::parse(
-            constants::screen_flow::TARGET_SCREEN_SERVICE_EVENT_SUBSCRIBER,
-        )?),
-    ))
-}
-
-fn screen_service_row_ready_source() -> Result<EventSource, EventingError> {
-    Ok(EventSource::new(
-        EventCustody::parse(constants::child_agent::CUSTODY_CHILD_AGENT_RUNTIME)?,
-        ocentra_eventing::ids::RuntimeRole::parse(constants::eventing_source::ROLE_AGENT)?,
-        SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
-        SourceComponent::parse(
-            constants::screen_flow::RUNTIME_COMPONENT_SCREEN_SERVICE_SUBSCRIBER,
-        )?,
-        RuntimeInstanceId::parse(constants::screen_flow::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,
-    ))
 }

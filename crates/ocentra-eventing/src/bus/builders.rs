@@ -11,12 +11,19 @@ use crate::{
 };
 
 use super::{
-    active_dispatch::ActiveDispatchTracker, dispatch_chain::EventBusIdentity, EventBus,
-    EventBusLifecycleState,
+    active_dispatch::ActiveDispatchTracker, identity::EventBusIdentity,
+    publisher::RootEventPublisher, EventBus, EventBusLifecycleState,
 };
 
 impl EventBus {
-    pub fn new() -> Self {
+    /// Constructs an event bus together with its nonforgeable root publication
+    /// capability. The returned wrapper dereferences to `EventBus` for
+    /// subscription and lifecycle operations.
+    pub fn new() -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self::build())
+    }
+
+    fn build() -> Self {
         Self {
             identity: EventBusIdentity::generated(),
             registry: Arc::new(Mutex::new(BTreeMap::new())),
@@ -34,94 +41,97 @@ impl EventBus {
         }
     }
 
-    pub fn with_clock(clock: SharedEventClock) -> Self {
-        Self {
+    pub fn with_clock(clock: SharedEventClock) -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self {
             clock,
-            ..Self::new()
-        }
+            ..Self::build()
+        })
     }
 
-    pub fn with_handler_policy(policy: HandlerExecutionPolicy) -> Self {
-        Self {
+    pub fn with_handler_policy(policy: HandlerExecutionPolicy) -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self {
             handler_policy: policy,
-            ..Self::new()
-        }
+            ..Self::build()
+        })
     }
 
     pub fn with_handler_policy_and_clock(
         policy: HandlerExecutionPolicy,
         clock: SharedEventClock,
-    ) -> Self {
-        Self {
+    ) -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self {
             handler_policy: policy,
             clock,
-            ..Self::new()
-        }
+            ..Self::build()
+        })
     }
 
-    pub fn with_queue_policy(policy: EventQueuePolicy) -> Self {
-        Self {
+    pub fn with_queue_policy(policy: EventQueuePolicy) -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self {
             queue: EventQueue::new(policy),
-            ..Self::new()
-        }
+            ..Self::build()
+        })
     }
 
-    pub fn with_queue_policy_and_clock(policy: EventQueuePolicy, clock: SharedEventClock) -> Self {
-        Self {
+    pub fn with_queue_policy_and_clock(
+        policy: EventQueuePolicy,
+        clock: SharedEventClock,
+    ) -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self {
             queue: EventQueue::new(policy),
             clock,
-            ..Self::new()
-        }
+            ..Self::build()
+        })
     }
 
     pub fn with_policies(
         handler_policy: HandlerExecutionPolicy,
         queue_policy: EventQueuePolicy,
-    ) -> Self {
-        Self {
+    ) -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self {
             handler_policy,
             queue: EventQueue::new(queue_policy),
-            ..Self::new()
-        }
+            ..Self::build()
+        })
     }
 
     pub fn with_policies_and_clock(
         handler_policy: HandlerExecutionPolicy,
         queue_policy: EventQueuePolicy,
         clock: SharedEventClock,
-    ) -> Self {
-        Self {
+    ) -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self {
             handler_policy,
             queue: EventQueue::new(queue_policy),
             clock,
-            ..Self::new()
-        }
+            ..Self::build()
+        })
     }
 
-    pub fn with_journal(policy: JournalPolicy, journal: SharedEventJournal) -> Self {
-        Self {
+    pub fn with_journal(policy: JournalPolicy, journal: SharedEventJournal) -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self {
             journal_policy: policy,
             event_journal: Some(journal),
-            ..Self::new()
-        }
+            ..Self::build()
+        })
     }
 
     pub fn with_journal_and_queue_policy(
         journal_policy: JournalPolicy,
         journal: SharedEventJournal,
         queue_policy: EventQueuePolicy,
-    ) -> Self {
-        Self {
+    ) -> RootEventPublisher {
+        RootEventPublisher::for_bus(Self {
             journal_policy,
             event_journal: Some(journal),
             queue: EventQueue::new(queue_policy),
-            ..Self::new()
-        }
+            ..Self::build()
+        })
     }
 }
 
 impl Default for EventBus {
     fn default() -> Self {
-        Self::new()
+        Self::build()
     }
 }

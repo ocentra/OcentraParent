@@ -1,9 +1,10 @@
 use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
 use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, error::EventingError, ids::EventType,
-    ids::SubscriberId, ids::TargetHandler, journal::ndjson::NdjsonEventJournal,
-    journal::policy::JournalPolicy, journal::policy::JournalSelector,
+    bus::publisher::RootEventPublisher, bus::subscriber::EventSubscriber, bus::EventBus,
+    error::EventingError, ids::EventType, ids::SubscriberId, ids::TargetHandler,
+    journal::ndjson::NdjsonEventJournal, journal::policy::JournalPolicy,
+    journal::policy::JournalSelector,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
@@ -234,7 +235,7 @@ pub async fn publish_screen_degraded_event_chain_for_input(
 }
 
 pub struct ScreenRuntimeSpine {
-    bus: EventBus,
+    bus: RootEventPublisher,
 }
 
 impl ScreenRuntimeSpine {

@@ -18,7 +18,8 @@ where
 {
     let mut receiver = bus.requests.register::<E>(request_id.clone())?;
     let bus_for_publish = bus.clone();
-    let mut publish = tokio::spawn(async move { bus_for_publish.publish(event, metadata).await });
+    let mut publish =
+        tokio::spawn(async move { bus_for_publish.publish_root(event, metadata).await });
     let mut timeout = bus.clock.sleep(options.timeout());
     let mut publish_report = None;
     let mut response_payload = None;

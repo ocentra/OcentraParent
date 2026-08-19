@@ -1,4 +1,4 @@
-use ocentra_eventing::{bus::EventBus, error::EventingError};
+use ocentra_eventing::{bus::publisher::RootEventPublisher, bus::EventBus, error::EventingError};
 use ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgePhase;
 
 use crate::{
@@ -9,7 +9,7 @@ use crate::{
 };
 
 pub(crate) struct HouseholdMeshBridgeSpine {
-    bus: EventBus,
+    bus: RootEventPublisher,
 }
 
 impl HouseholdMeshBridgeSpine {

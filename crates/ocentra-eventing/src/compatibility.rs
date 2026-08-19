@@ -202,7 +202,7 @@ const LINEAGE_ROWS: &[CompatibilityRow] = &[
     CompatibilityRow {
         semantic_id: "sync-and-async-publish",
         source_semantic: "EventBus publish and publishAsync",
-        rust_surface: "publish, publish_and_wait, and publish_detached",
+        rust_surface: "RootEventPublisher publish, publish_and_wait, and publish_detached",
         status: EventCompatibilityStatus::Compatible,
         proof_artifact: "output/eventing-plan-proof/14-24-runtime-lifecycle/proof-summary.json",
         compatibility_note: "Detached publish returns an observable join report",

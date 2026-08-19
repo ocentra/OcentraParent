@@ -1,5 +1,8 @@
 use ocentra_eventing::bus::reports::handler::EventMetricsSnapshot;
-use ocentra_eventing::{bus::subscriber::SubscriptionReport, bus::EventBus, error::EventingError};
+use ocentra_eventing::{
+    bus::publisher::RootEventPublisher, bus::subscriber::SubscriptionReport, bus::EventBus,
+    error::EventingError,
+};
 use ocentra_lan_core::lan_pairing;
 use ocentra_network_core::network_runtime;
 use ocentra_parent_agent_protocol::child_domain_runtime::{
@@ -37,7 +40,7 @@ pub struct ChildDomainRuntimeFlowReport {
 }
 
 pub struct ChildDomainRuntimeEventFlow {
-    bus: EventBus,
+    bus: RootEventPublisher,
     domain: ChildRuntimeDomain,
     observer_subscription_report: SubscriptionReport,
     ai_subscription_report: SubscriptionReport,
