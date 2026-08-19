@@ -4,6 +4,8 @@ import {
   type AccountIdentityProvider,
 } from '@ocentra-parent/schema-domain/account-identity-authority';
 
+import { decodeJsonRejectingDuplicateKeys } from './account-identity-authority-json-decoder';
+
 const DOMAIN_SEPARATOR = new TextEncoder().encode('ocentra.account-authority-producer.signing.v1\0');
 const SCHEMA_VERSION = 'ocentra.account-authority-producer.v1';
 const AUDIENCE = 'ocentra.account.authority';
@@ -159,11 +161,24 @@ async function verifyWire(wire: Uint8Array, binding: AccountOwnedAuthorityServic
     return { status: 'rejected', reason: 'verification-key-unavailable' };
   }
 
+  let resolvedKeyId: string;
   try {
-    if ((await expectedKeyId(keyBytes)) !== parsed.keyId) {
-      return { status: 'rejected', reason: 'verification-key-unavailable' };
-    }
-    const publicKey = await crypto.subtle.importKey('raw', keyBytes, 'Ed25519', false, ['verify']);
+    resolvedKeyId = await expectedKeyId(keyBytes);
+  } catch {
+    return { status: 'rejected', reason: 'verification-key-unavailable' };
+  }
+  if (resolvedKeyId !== parsed.keyId) {
+    return { status: 'rejected', reason: 'verification-key-unavailable' };
+  }
+
+  let publicKey: CryptoKey;
+  try {
+    publicKey = await crypto.subtle.importKey('raw', keyBytes, 'Ed25519', false, ['verify']);
+  } catch {
+    return { status: 'rejected', reason: 'verification-key-unavailable' };
+  }
+
+  try {
     const valid = await crypto.subtle.verify('Ed25519', publicKey, parsed.signature, parsed.signingBytes);
     return valid
       ? { status: 'wire-authenticated', handoff: WireAuthenticatedHandoff.issue(parsed.handoff) }
@@ -233,15 +248,11 @@ function parseWire(
     return { status: 'rejected', reason: 'authority-expired' };
   }
 
-  let payloadValue: unknown;
   const payloadText = decodeUtf8(payload);
   if (payloadText === null) return { status: 'rejected', reason: 'invalid-payload' };
-  try {
-    payloadValue = JSON.parse(payloadText);
-  } catch {
-    return { status: 'rejected', reason: 'invalid-payload' };
-  }
-  const parsed = AccountIdentityCurrentMemberDeviceAuthorityHandoffSchema.safeParse(payloadValue);
+  const decodedPayload = decodeJsonRejectingDuplicateKeys(payloadText);
+  if (decodedPayload.status !== 'decoded') return { status: 'rejected', reason: 'invalid-payload' };
+  const parsed = AccountIdentityCurrentMemberDeviceAuthorityHandoffSchema.safeParse(decodedPayload.value);
   if (!parsed.success || JSON.stringify(parsed.data) !== payloadText || !hasRustAuthorityShape(parsed.data)) {
     return { status: 'rejected', reason: 'invalid-payload' };
   }
