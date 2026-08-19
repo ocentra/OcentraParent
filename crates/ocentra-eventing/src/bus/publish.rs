@@ -139,7 +139,7 @@ impl EventBus {
         flow::publish_with_mode(self, event, metadata, DispatchMode::Sequential).await
     }
 
-    pub(super) async fn publish_in_chain<E>(
+    pub(super) async fn publish_causal_in_chain<E>(
         &self,
         event: E,
         metadata: EventMetadata,
@@ -149,7 +149,14 @@ impl EventBus {
     where
         E: DomainEvent,
     {
-        flow::publish_with_mode_in_chain(self, event, metadata, dispatch_mode, dispatch_chain).await
+        flow::publish_causal_with_mode_in_chain(
+            self,
+            event,
+            metadata,
+            dispatch_mode,
+            dispatch_chain,
+        )
+        .await
     }
 
     pub async fn journal(&self) -> Vec<StoredEventEnvelope> {
@@ -160,7 +167,7 @@ impl EventBus {
         self.dead_letters.read().await.clone()
     }
 
-    pub(super) async fn complete_request<E>(
+    pub(super) fn complete_request<E>(
         &self,
         request_id: RequestId,
         response: E::Response,

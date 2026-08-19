@@ -21,7 +21,10 @@ pub(super) async fn dispatch_attempt(
     // CLONE-JUSTIFICATION: the handler owns its publisher while the attempt
     // supervisor retains the same causal scope for cancellation observation.
     let attempt = AssertUnwindSafe((subscriber.handler)(stored, publisher.clone())).catch_unwind();
-    let result = waiting::wait(attempt, &publisher, policy.timeout(), clock).await;
+    let result = scoped
+        .guard
+        .run(waiting::wait(attempt, &publisher, policy.timeout(), clock))
+        .await;
     scoped.guard.cancel();
     match result {
         Ok(Ok(Ok(()))) => AttemptOutcome::Handled,

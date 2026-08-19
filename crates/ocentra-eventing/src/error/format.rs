@@ -41,7 +41,11 @@ pub(super) fn fmt_eventing_error(
         | EventingError::OrderedDispatchDepthExceeded { .. }
         | EventingError::OrderedDispatchLockOrderViolation { .. }
         | EventingError::OrderedDispatchChainExpired { .. }
-        | EventingError::CausalDispatchCancelled => dispatch::fmt_dispatch_error(error, formatter),
+        | EventingError::CausalDispatchCancelled
+        | EventingError::CausalPublicationOutsideHandlerTask
+        | EventingError::CausalPublicationRequiresRootAuthority { .. } => {
+            dispatch::fmt_dispatch_error(error, formatter)
+        }
         EventingError::InvalidRequestOptions { .. }
         | EventingError::DuplicateRequest { .. }
         | EventingError::RequestTypeMismatch { .. }

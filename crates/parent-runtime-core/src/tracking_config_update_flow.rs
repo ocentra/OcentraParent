@@ -164,7 +164,7 @@ pub async fn publish_parent_tracking_config_updated_event_flow(
 }
 
 async fn subscribe_parent_tracking_config_updated_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
     previous_event_ref: String,
 ) -> Result<SubscriptionReport, EventingError> {
@@ -203,7 +203,7 @@ async fn subscribe_parent_tracking_config_updated_events(
 }
 
 async fn subscribe_tracking_config_change_requested_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingConfigChangeRequestedEvent, _, _>(
@@ -240,7 +240,7 @@ async fn subscribe_tracking_config_change_requested_events(
 }
 
 async fn subscribe_tracking_config_policy_evaluation_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
     child_acknowledgement_state: ChildAcknowledgementState,
     origin_state: ParentRuntimeOriginState,
@@ -308,7 +308,7 @@ async fn subscribe_tracking_config_policy_evaluation_events(
 }
 
 async fn subscribe_tracking_config_policy_decision_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingConfigPolicyDecisionCompletedEvent, _, _>(

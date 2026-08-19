@@ -104,7 +104,7 @@ pub(super) async fn dispatch(
     subscribers: Vec<SubscriberRecord>,
     dispatch_mode: DispatchMode,
     dispatch_chain: DispatchChain,
-    ordered_admission: Option<OrderedDispatchAdmission>,
+    ordered_admission: Option<&OrderedDispatchAdmission>,
 ) -> Vec<crate::bus::reports::handler::HandlerReport> {
     match dispatch_mode {
         DispatchMode::Sequential => {

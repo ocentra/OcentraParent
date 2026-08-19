@@ -5,6 +5,10 @@ use tokio::sync::watch;
 
 use crate::EventingError;
 
+tokio::task_local! {
+    static ACTIVE_HANDLER_SCOPE: Arc<HandlerScopeState>;
+}
+
 #[derive(Clone, Default)]
 pub(super) struct HandlerScopeChain {
     scopes: Vec<Arc<HandlerScopeState>>,
@@ -14,7 +18,7 @@ impl HandlerScopeChain {
     pub(super) fn append(&self) -> HandlerScopeBinding {
         let state = Arc::new(HandlerScopeState::new());
         // CLONE-JUSTIFICATION: a child scope keeps the complete immutable
-        // ancestor chain so cancellation survives cross-task publication.
+        // ancestor chain through nested handler publication.
         let mut scopes = self.scopes.clone();
         scopes.push(Arc::clone(&state));
         HandlerScopeBinding {
@@ -28,6 +32,19 @@ impl HandlerScopeChain {
             return Ok(());
         }
         Err(EventingError::CausalDispatchCancelled)
+    }
+
+    pub(super) fn ensure_current_handler_task(&self) -> Result<(), EventingError> {
+        let Some(expected) = self.scopes.last() else {
+            return Err(EventingError::CausalPublicationOutsideHandlerTask);
+        };
+        let is_current = ACTIVE_HANDLER_SCOPE
+            .try_with(|active| Arc::ptr_eq(active, expected))
+            .unwrap_or(false);
+        if is_current {
+            return Ok(());
+        }
+        Err(EventingError::CausalPublicationOutsideHandlerTask)
     }
 
     pub(super) async fn cancelled(&self) {
@@ -55,6 +72,17 @@ pub(super) struct HandlerScopeGuard {
 }
 
 impl HandlerScopeGuard {
+    pub(super) async fn run<F>(&self, future: F) -> F::Output
+    where
+        F: std::future::Future,
+    {
+        // CLONE-JUSTIFICATION: task-local identity must match the exact private
+        // handler scope while the handler future is being polled.
+        ACTIVE_HANDLER_SCOPE
+            .scope(Arc::clone(&self.state), future)
+            .await
+    }
+
     pub(super) fn cancel(&self) {
         self.state.cancel();
     }

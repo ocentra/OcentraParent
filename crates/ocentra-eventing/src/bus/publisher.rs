@@ -33,8 +33,9 @@ impl RootEventPublisher {
         }
     }
 
-    /// Borrows the underlying bus to perform subscription, inspection, and lifecycle
-    /// operations without transferring this root-publication authority.
+    /// Borrows the raw bus for inspection or as a handler-scoped causal target,
+    /// without transferring root publication, subscription, replay, or drain
+    /// authority.
     pub fn event_bus(&self) -> &EventBus {
         &self.bus
     }
@@ -56,12 +57,11 @@ impl std::fmt::Debug for RootEventPublisher {
 
 /// A handler-scoped publisher that preserves ordered-dispatch causality.
 ///
-/// Clones retain the same causal chain, including clones moved into
-/// `tokio::spawn`. Handler code must use this publisher for awaited nested
-/// publication; a captured raw [`EventBus`] has no root publication authority.
-/// A spawned publication must remain awaited by and finish within its handler;
-/// handler completion or timeout cancels unfinished descendant publication
-/// rather than authorizing detached delivery.
+/// Handler code must use this publisher for awaited nested publication; a
+/// captured raw [`EventBus`] has no root publication authority. The publisher
+/// is bound to the exact task polling its handler. Moving a clone into
+/// `tokio::spawn` is rejected before publication mutates queue, dead-letter, or
+/// journal state, because Tokio does not inherit handler task-local identity.
 #[derive(Clone)]
 pub struct EventPublisher {
     bus: EventBus,
@@ -164,12 +164,17 @@ impl EventPublisher {
     where
         E: DomainEvent,
     {
+        self.dispatch_chain.ensure_current_handler_task()?;
         self.dispatch_chain.ensure_live()?;
         // CLONE-JUSTIFICATION: one causal-chain snapshot moves into publication;
         // a separate snapshot observes ancestor cancellation.
         let dispatch_chain = self.dispatch_chain.clone();
-        let publish =
-            target_bus.publish_in_chain(event, metadata, dispatch_mode, dispatch_chain.clone());
+        let publish = target_bus.publish_causal_in_chain(
+            event,
+            metadata,
+            dispatch_mode,
+            dispatch_chain.clone(),
+        );
         tokio::pin!(publish);
         // CANCEL-SAFE: dropping publication releases every admission lease by
         // RAII, and the biased cancellation branch wins if both become ready.
