@@ -2020,6 +2020,7 @@
         "infra/cloudflare/src/index.ts",
         "infra/cloudflare/src/billing-binding-read-model.ts",
         "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
         "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
         "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
         "infra/cloudflare/src/storage/account-identity-store.ts",
@@ -2035,22 +2036,29 @@
         "infra/cloudflare/tests/unit/billing-binding-read-model.test.ts",
         "infra/cloudflare/tests/property/billing-idempotency.property.test.ts",
         "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-producer-transport.test.ts",
         "infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts",
         "infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts",
-        "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts"
+        "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts"
       ],
       "plannedImplementationRoots": [
+        "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
         "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
         "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
         "infra/cloudflare/src/storage/account-identity-authority-store.ts",
         "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
       ],
       "expectedTestRoots": [
+        "infra/cloudflare/tests/unit/account-identity-authority-producer-transport.test.ts",
         "infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts",
         "infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts",
-        "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts"
+        "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts"
       ],
-      "note": "Reviewed Cloudflare WP06 source remains a safe verified-provider read/manual boundary. Account WP08 now supplies a crate-private Rust producer transport at c5ed3ce5c, but no authenticated Account producer adapter or durable signer/key registry exists, so no Cloudflare consumer/mount can verify it yet. The existing caller/store/writer boundaries remain the owning surfaces for a future private verifier/service-binding consumer and D1 currentness/revocation/CAS recheck; the exact helper split is a decision blocker, not a new public route or arbitrary module. Expected subject, signature/time, currentness, migration, reachability, proof, deployment, and DONE remain open."
+      "note": "Reviewed Cloudflare WP06 source remains a safe verified-provider read/manual boundary. Account WP08 supplies the crate-private Rust producer transport at c5ed3ce5c, but Account durable signer/key custody and authenticated service-binding/public-key registry distribution are missing. The exact missing Cloudflare production root is infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts for the private binding adapter and bounded signed-wire verifier. The existing caller/runtime/store/writer roots remain the owning surfaces; the writer's atomic currentness/revocation/CAS recheck must run only after the verified handoff and is not a completion claim. Missing transport and six expected test roots keep implementation incomplete. No public route, Firebase authority, caller-supplied scalar, validation, proof, deployment, READY, or DONE claim is made."
     },
     "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures": {
       "planSlug": "cloudflare-control-plane-plan",
