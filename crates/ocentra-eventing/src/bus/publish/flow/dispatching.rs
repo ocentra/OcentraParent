@@ -10,8 +10,9 @@ use crate::bus::reports::empty_publish_report;
 use crate::bus::{DispatchMode, EventBus, SubscriberRecord};
 use crate::journal::policy::JournalDispatchPhase;
 use crate::queue::state::NoSubscriberQueueDecision;
-use crate::{EventingError, ExpectValue, PublishReport, QueueDisposition, StoredEventEnvelope};
+use crate::{EventingError, PublishReport, QueueDisposition, StoredEventEnvelope};
 
+use super::ordered;
 use super::queued;
 
 pub(super) async fn publish_without_subscribers(
@@ -123,24 +124,6 @@ pub(super) async fn dispatch(
             )
             .await
         }
-        DispatchMode::OrderedByAggregateKey => {
-            let aggregate_key = stored.aggregate_key.clone();
-            let aggregate_gate = bus.aggregate_gate(&aggregate_key);
-            let aggregate_permit = Arc::clone(&aggregate_gate)
-                .acquire_owned()
-                .await
-                .expect_value("aggregate ordering gate remains open");
-            let reports = dispatch_sequential(
-                stored,
-                subscribers,
-                EventPublisher::new(bus.clone()),
-                bus.handler_policy.clone(),
-                Arc::clone(&bus.clock),
-            )
-            .await;
-            drop(aggregate_permit);
-            bus.release_idle_aggregate_gate(&aggregate_key, &aggregate_gate);
-            reports
-        }
+        DispatchMode::OrderedByAggregateKey => ordered::dispatch(bus, stored, subscribers).await,
     }
 }

@@ -9,6 +9,7 @@ use crate::bus::reports::handler::{HandlerOutcome, HandlerReport};
 use receipt::validate_before_dispatch_receipt;
 
 mod dispatching;
+mod ordered;
 mod queued;
 mod receipt;
 
