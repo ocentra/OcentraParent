@@ -39,10 +39,12 @@ deployment, runtime-readiness, or DONE claim changed.
 Account WP08's Rust producer transport is now source-present, but its issuance
 is crate-private and typed unavailable without Account signer/key custody and
 an authenticated producer adapter. WP06 remains a safe verified-provider
-read/manual boundary. The next legal Cloudflare packet is the private verifier
-and service-binding consumer at the existing Account caller/runtime boundary,
-followed by a D1 currentness/revocation/CAS recheck before any writer mutation
-is mounted. The exact helper split is a decision blocker; do not invent a
-public route, Firebase authority, request-selected scalar, or arbitrary module.
-Expected subject, signature/time, currentness, migration, reachability, and
-restart/concurrency tests remain open.
+read/manual boundary. The next legal Cloudflare packet is the bounded private
+service-binding adapter/verifier at the existing Account caller/runtime seam,
+using an Account-owned durable public-key registry, followed by a same-
+transaction D1 currentness/revocation/CAS recheck before any writer mutation
+is mounted. Missing/untrusted key distribution remains manual-required; do not
+invent a public route, Firebase authority, env/request/fixture key, request-
+selected scalar, or arbitrary module. Expected subject, signature/time,
+currentness, migration, reachability, restart, key rotation, replay, and
+concurrency tests remain open.

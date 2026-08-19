@@ -286,3 +286,31 @@ mounted from that transport. The existing
 owning boundary; the exact helper split is a decision blocker. No public route,
 Firebase authority, request-supplied scalar, migration execution, test, proof,
 deployment, runtime-ready, or DONE claim is made.
+
+## 2026-08-19 WP06 producer-consumer contract decision
+
+The missing packet is now routed as a private consumer at the existing
+`account-identity-authority-caller.ts` / `account-identity-authority-runtime.ts`
+seam, not as a new public Worker route. Account WP02/WP08 must expose an
+authenticated service-binding adapter that accepts only the already verified
+provider and subject as a lookup key and returns the bounded signed wire or a
+typed unavailable result. Account also owns the durable, versioned public-key
+registry; Cloudflare obtains a key by `key_id` through that authenticated
+binding and checks `sha256:<public-key>` before verifying. No env, Firebase,
+fixture, request header, caller row, or hard-coded key is acceptable.
+
+Cloudflare's private verifier owns envelope/schema/audience/environment/
+algorithm, size, canonical payload, timestamp, key-id, and Ed25519 checks. The
+existing D1 writer then re-reads and compares the exact durable provider,
+account, target, session, generation, lifecycle, and revocation state in the
+same transaction before any guarded create/CAS/revoke write. Missing or
+untrusted transport/key distribution remains `manual-required`; the current
+parameterless runtime gate stays in place until the Account route is real.
+
+Expected source roots are the existing caller/runtime/store/writer/env,
+isolated account migration, and one private transport/verifier module at that
+seam. Expected test roots are the producer transport, caller/runtime,
+currentness, restart/CAS, and account migration tests listed in
+`TEST_PROOF_EXPECTATIONS.md`. Account signer/key custody and authenticated
+service-binding/registry distribution are hard dependencies. Tests, migration
+execution, proof, deployment, runtime readiness, and DONE remain open.
