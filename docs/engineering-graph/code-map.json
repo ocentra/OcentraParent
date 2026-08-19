@@ -1498,13 +1498,19 @@
     },
     "WP-browser-plan-07-managed-chromium-launcher": {
       "planSlug": "browser-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "crates/agent-core/src/browser_managed_session/launch.rs",
         "crates/agent-core/tests/unit/browser_managed_session_tests.rs",
         "crates/agent-service/src/browser_runtime.rs",
         "crates/agent-service/src/browser_runtime_impl/launch.rs",
-        "crates/agent-service/tests/unit/browser_runtime_tests.rs"
-      ]
+        "crates/agent-service/tests/unit/browser_runtime_tests.rs",
+        "crates/agent-service/src/browser_runtime_impl/managed_runtime.rs",
+        "crates/agent-service/tests/integration/browser_managed_runtime.rs"
+      ],
+      "plannedImplementationRoots": ["crates/agent-service/src/browser_runtime_impl/managed_runtime.rs"],
+      "expectedTestRoots": ["crates/agent-service/tests/integration/browser_managed_runtime.rs"],
+      "note": "Reviewed implementation authorization for the retained managed-browser runtime packet. The missing owner must retain BrowserManagedLaunch, process/session/bridge lifecycle, and private custody in the service-owned AppState/websocket route; polling must use that authority and route source-backed capture into Screen. No environment/dev constants or caller-supplied authority are accepted. The planned source and integration test roots are absent; tests, focused validation, proof, PR readiness, and DONE remain open."
     },
     "WP-browser-plan-08-bridge-custody-and-security": {
       "planSlug": "browser-plan",
@@ -1518,12 +1524,18 @@
     },
     "WP-browser-plan-09-cdp-version-and-target-adapter": {
       "planSlug": "browser-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "crates/agent-core/src/browser_bridge_http.rs",
         "crates/agent-core/src/browser_bridge_poll.rs",
         "crates/agent-core/tests/unit/browser_bridge_cdp_adapter_tests.rs",
-        "crates/agent-core/tests/unit/browser_bridge_poll_tests.rs"
-      ]
+        "crates/agent-core/tests/unit/browser_bridge_poll_tests.rs",
+        "crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs",
+        "crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"
+      ],
+      "plannedImplementationRoots": ["crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs"],
+      "expectedTestRoots": ["crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"],
+      "note": "Reviewed implementation authorization for the same-launch CDP target-binding packet. Existing parsing remains tab-list-only and active-tab unknown; the missing source must bind target authority only to a trusted retained managed launch and preserve malformed/oversized/timeout, owner-mismatch, disappearance/navigation, process-replacement, and no-active-tab-claim negatives. The planned source and integration test roots are absent; tests, focused validation, proof, PR readiness, and DONE remain open."
     },
     "WP-browser-plan-10-tab-evidence-mapper": {
       "planSlug": "browser-plan",

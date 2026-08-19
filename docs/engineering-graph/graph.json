@@ -14815,30 +14815,62 @@
       "path": "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "Validation — implementation route authorized; retained managed runtime source/tests missing; READY and completion remain open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-service/src/browser_runtime_impl/managed_runtime.rs"
+          ],
+          "testRoots": [
+            "crates/agent-service/tests/integration/browser_managed_runtime.rs"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/browser-plan/PLAN_STATE.md",
+            "docs/plans/browser-plan/NEXT_ACTIONS.md",
+            "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Reviewed implementation authorization for the first managed-browser production packet only. WP07 owns the retained BrowserManagedLaunch/process/session/private-custody runtime in the service AppState/websocket route and must poll from that authority before handing source-backed capture to Screen. The planned source and integration test roots are absent; this does not authorize normal READY, tests, proof, PR readiness, or DONE."
+        },
+        "stateOverride": {
+          "reason": "Reviewed implementation-phase route for the retained BrowserManagedRuntime packet. The missing service runtime and integration test roots are explicitly mapped; source edits may proceed only in that packet. Normal READY, tests, proof, PR readiness, and DONE remain unchanged and unavailable until the roots exist and are validated.",
+          "evidence": [
+            "docs/plans/browser-plan/PLAN_STATE.md",
+            "docs/plans/browser-plan/NEXT_ACTIONS.md",
+            "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/browser-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/browser-plan/implementation-checklist.md"],
           "adr": []
         },
         "expected": {
-          "proof": ["output/browser-plan-proof/07-managed-chromium-launcher"]
+          "proof": ["output/browser-plan-proof/07-managed-chromium-launcher"],
+          "implementation": [
+            "crates/agent-service/src/browser_runtime_impl/managed_runtime.rs"
+          ],
+          "tests": [
+            "crates/agent-service/tests/integration/browser_managed_runtime.rs"
+          ]
         }
       }
     },
@@ -14883,23 +14915,49 @@
       "path": "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "Validation — implementation route authorized; same-launch binding source/tests missing; READY and completion remain open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs"
+          ],
+          "testRoots": [
+            "crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/browser-plan/PLAN_STATE.md",
+            "docs/plans/browser-plan/NEXT_ACTIONS.md",
+            "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Reviewed implementation authorization for the same-launch CDP target-binding packet only. WP09 owns the missing binding between the retained managed launch and existing tab-list parser/capture authority; active-tab state remains Unknown and Screen handoff does not mint browser authority. The planned source and integration test roots are absent; this does not authorize normal READY, tests, proof, PR readiness, or DONE."
+        },
+        "stateOverride": {
+          "reason": "Reviewed implementation-phase route for the same-launch CDP target-binding packet. The missing binding source and integration test roots are explicitly mapped; source edits may proceed only in that packet. Active-tab state remains Unknown. Normal READY, tests, proof, PR readiness, and DONE remain unchanged and unavailable until the roots exist and are validated.",
+          "evidence": [
+            "docs/plans/browser-plan/PLAN_STATE.md",
+            "docs/plans/browser-plan/NEXT_ACTIONS.md",
+            "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/browser-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/browser-plan/implementation-checklist.md"],
@@ -14908,6 +14966,12 @@
         "expected": {
           "proof": [
             "output/browser-plan-proof/09-cdp-version-and-target-adapter"
+          ],
+          "implementation": [
+            "crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs"
+          ],
+          "tests": [
+            "crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"
           ]
         }
       }
