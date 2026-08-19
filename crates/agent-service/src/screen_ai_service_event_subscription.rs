@@ -5,7 +5,7 @@ use std::{
 };
 
 use ocentra_eventing::{
-    bus::publisher::RootEventPublisher,
+    bus::publisher::{EventContext, EventPublisher, RootEventPublisher},
     bus::reports::handler::{HandlerOutcome, PublishReport},
     bus::subscriber::EventSubscriber,
     bus::subscriber::SubscriptionReport,
@@ -178,6 +178,7 @@ pub(crate) async fn subscribe_screen_service_row_ready_events(
     bus: &RootEventPublisher,
     state: ScreenAiServiceEventSubscriptionState,
 ) -> Result<SubscriptionReport, EventingError> {
+    let causal_target = bus.event_bus().clone();
     bus.subscribe::<ScreenAiServiceRowReadyEvent, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(constants::screen_flow::SUBSCRIBER_SCREEN_SERVICE_ROW_READY)?,
@@ -186,14 +187,10 @@ pub(crate) async fn subscribe_screen_service_row_ready_events(
         ),
         move |context| {
             let state = state.clone();
-            async move {
-                handle_screen_service_row_ready_event(
-                    context.payload().clone(),
-                    ObservedAtText(context.envelope().observed_at.as_str().to_string()),
-                    state,
-                )
-                .await
-            }
+            // CLONE-JUSTIFICATION: the handler receives a raw target bus with
+            // no root publication authority.
+            let causal_target = causal_target.clone();
+            async move { handle_screen_service_row_ready_event(context, &causal_target, state).await }
         },
     )
     .await
@@ -212,13 +209,21 @@ pub(crate) async fn publish_screen_service_row_ready_event(
 }
 
 async fn handle_screen_service_row_ready_event(
-    event: ScreenAiServiceRowReadyEvent,
-    observed_at: ObservedAtText,
+    context: EventContext<ScreenAiServiceRowReadyEvent>,
+    causal_target: &EventBus,
     state: ScreenAiServiceEventSubscriptionState,
 ) -> Result<(), EventingError> {
+    let event = context.payload().clone();
+    let observed_at = ObservedAtText(context.envelope().observed_at.as_str().to_string());
     let queue_job_id = event.row.queue_job_id.clone();
     let screen_analysis_result_id = event.row.row_id.clone();
-    let result = publish_screen_runtime_chain_for_row(event, observed_at).await;
+    let result = publish_screen_runtime_chain_for_row(
+        context.publisher(),
+        causal_target,
+        event,
+        observed_at,
+    )
+    .await;
 
     match result {
         Ok(report) if screen_runtime_report_succeeded(&report) => {
@@ -277,14 +282,19 @@ fn screen_runtime_report_succeeded(report: &ScreenRuntimeReport) -> bool {
 }
 
 async fn publish_screen_runtime_chain_for_row(
+    publisher: &EventPublisher,
+    causal_target: &EventBus,
     event: ScreenAiServiceRowReadyEvent,
     observed_at: ObservedAtText,
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
     let ScreenAiServiceRowReadyEvent { row, action_ref } = event;
     if screen_service_row_is_degraded(&row) {
-        return publish_screen_degraded_event_chain(row, observed_at).await;
+        return publish_screen_degraded_event_chain(publisher, causal_target, row, observed_at)
+            .await;
     }
     publish_screen_service_row_event_chain(
+        publisher,
+        causal_target,
         row,
         observed_at,
         ScreenAiServiceEventBridgeRefs {

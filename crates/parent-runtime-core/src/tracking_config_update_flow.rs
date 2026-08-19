@@ -2,7 +2,8 @@ use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Duration;
 
 use ocentra_child_runtime::tracking_config_update_flow::{
-    publish_parent_tracking_config_updated_event, TrackingConfigUpdateEventFlowReport,
+    TrackingConfigUpdateCausalTarget, TrackingConfigUpdateEventFlow,
+    TrackingConfigUpdateEventFlowReport,
 };
 use ocentra_eventing::{
     bus::publisher::RootEventPublisher, bus::subscriber::EventSubscriber,
@@ -80,10 +81,17 @@ impl ParentTrackingConfigUpdateEventFlow {
         origin_state: ParentRuntimeOriginState,
     ) -> Result<Self, EventingError> {
         let bus = EventBus::new();
+        let child_runtime_target = TrackingConfigUpdateEventFlow::new()
+            .await?
+            .into_causal_target();
         let state = ParentTrackingConfigUpdateEventState::default();
         let previous_event_ref = previous_event_ref.into();
-        let decision_subscription_report =
-            subscribe_tracking_config_policy_decision_events(&bus, state.clone()).await?;
+        let decision_subscription_report = subscribe_tracking_config_policy_decision_events(
+            &bus,
+            state.clone(),
+            child_runtime_target,
+        )
+        .await?;
         let policy_evaluation_subscription_report =
             subscribe_tracking_config_policy_evaluation_events(
                 &bus,
@@ -310,6 +318,7 @@ async fn subscribe_tracking_config_policy_evaluation_events(
 async fn subscribe_tracking_config_policy_decision_events(
     bus: &RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
+    child_runtime_target: TrackingConfigUpdateCausalTarget,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingConfigPolicyDecisionCompletedEvent, _, _>(
         EventSubscriber::new(
@@ -323,6 +332,7 @@ async fn subscribe_tracking_config_policy_decision_events(
         ),
         move |context| {
             let state = state.clone();
+            let child_runtime_target = child_runtime_target.clone();
             async move {
                 let decision = context.payload().clone();
                 state.record_policy_decision_event(decision.clone());
@@ -331,6 +341,7 @@ async fn subscribe_tracking_config_policy_decision_events(
                 if decision.decision_state == TrackingConfigPolicyDecisionState::Approved {
                     handle_approved_tracking_config_decision(
                         context.publisher(),
+                        &child_runtime_target,
                         state.clone(),
                         &decision,
                         &parent_event,
@@ -354,6 +365,7 @@ async fn subscribe_tracking_config_policy_decision_events(
 
 async fn handle_approved_tracking_config_decision(
     publisher: &ocentra_eventing::bus::publisher::EventPublisher,
+    child_runtime_target: &TrackingConfigUpdateCausalTarget,
     state: ParentTrackingConfigUpdateEventState,
     decision: &TrackingConfigPolicyDecisionCompletedEvent,
     parent_event: &ParentTrackingConfigUpdatedEvent,
@@ -367,7 +379,8 @@ async fn handle_approved_tracking_config_decision(
         )
         .await?;
 
-    let child_runtime_flow = publish_parent_tracking_config_updated_event(parent_event)
+    let child_runtime_flow = child_runtime_target
+        .publish_parent_config_updated(publisher, parent_event)
         .await
         .ok();
     state.record_child_runtime_flow(child_runtime_flow.clone());
