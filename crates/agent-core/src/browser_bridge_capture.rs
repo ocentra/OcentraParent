@@ -200,6 +200,17 @@ pub(crate) fn verify_managed_browser_cdp_endpoint(
     process::verify_process_executable(process_id, executable_path)
 }
 
+/// Re-authenticate the retained launch before every bridge poll.  The service
+/// may retain this opaque launch, but it cannot reuse its copied process,
+/// endpoint, executable, or profile fields after the operating-system process
+/// has exited or a replacement has taken the same port.
+pub(crate) fn revalidate_managed_browser_launch(
+    launch: &BrowserManagedLaunch,
+) -> Result<(), ManagedBrowserCdpCaptureError> {
+    let launch_authority = authority::from_launch(launch)?;
+    process::revalidate(&launch_authority)
+}
+
 pub fn authorize_managed_browser_cdp_target(
     launch: &BrowserManagedLaunch,
     target_id: &str,

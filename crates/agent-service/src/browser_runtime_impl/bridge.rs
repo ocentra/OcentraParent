@@ -25,7 +25,7 @@ pub(super) fn bridge_poll_status(
     started_at: BrowserRuntimeText,
 ) -> BridgePollResult {
     let checked_at = checked_at.0;
-    match launch.poll_bridge(checked_at.clone()) {
+    match launch.poll_bridge() {
         Ok(snapshot) => connected_bridge_status(
             BrowserRuntimeText(checked_at),
             BrowserRuntimeVersion(snapshot.browser_version.clone()),

@@ -200,6 +200,22 @@ pub fn bridge_disconnected_status(
     status
 }
 
+pub fn stopped_managed_status(
+    checked_at: impl Into<BrowserRuntimeText>,
+    reason: impl Into<BrowserRuntimeText>,
+    launch: &BrowserManagedLaunch,
+    profile_store_entry: &BrowserManagedProfileStoreEntry,
+    started_at: impl Into<BrowserRuntimeText>,
+) -> BrowserManagedSessionStatus {
+    let reason = reason.into();
+    let mut status =
+        managed_launch_base_status(checked_at, launch, profile_store_entry, started_at);
+    status.managed_state = BrowserManagedState::Stopped;
+    status.capability_status = BrowserCapabilityStatus::Stale;
+    status.degraded_reason = Some(reason.0);
+    status
+}
+
 pub fn status_with_error(
     checked_at: impl Into<BrowserRuntimeText>,
     reason: impl Into<BrowserRuntimeText>,

@@ -16,9 +16,3 @@ pub(super) fn configured_bridge_port() -> Result<Option<u16>, BrowserRuntimeErro
         )),
     }
 }
-
-pub(super) fn launch_on_status_enabled() -> bool {
-    env::var(constants::env_var::MANAGED_BROWSER_LAUNCH_ON_STATUS)
-        .map(|value| value == constants::value::TRUE)
-        .unwrap_or(false)
-}

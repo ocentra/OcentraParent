@@ -204,12 +204,19 @@ impl BrowserManagedLaunch {
 
     pub fn poll_bridge(
         &self,
-        observed_at: impl Into<String>,
     ) -> Result<
         crate::browser_bridge_poll::BrowserBridgePollSnapshot,
         crate::browser_bridge_poll::BrowserBridgePollError,
     > {
-        let observed_at = observed_at.into();
+        crate::browser_bridge_capture::revalidate_managed_browser_launch(self).map_err(
+            |error| match error {
+                crate::browser_bridge_capture::ManagedBrowserCdpCaptureError::Bridge(error) => {
+                    error
+                }
+                _ => crate::browser_bridge_poll::BrowserBridgePollError::UntrustedProcess,
+            },
+        )?;
+        let observed_at = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true);
         let config = self.bridge_poll_config(self.session_fresh_until());
         crate::browser_bridge_poll::poll_chromium_bridge(
             &config,

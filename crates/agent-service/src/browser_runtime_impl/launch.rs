@@ -1,9 +1,6 @@
 use ocentra_parent_agent_core::{
     browser_managed_discovery::{BrowserUnmanagedProcessObservation, unmanaged_browser_processes},
-    browser_managed_session::{
-        BrowserManagedLaunchConfig, launch_managed_browser, managed_browser_launch_plan,
-        reserve_managed_browser_bridge_port,
-    },
+    browser_managed_session::{BrowserManagedLaunchConfig, managed_browser_launch_plan},
     process_capture::collect_process_snapshot,
 };
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
@@ -56,36 +53,6 @@ pub(super) fn managed_profile_or_missing_status(
             profile_store.entry,
         ),
         Err(error) => status_with_error(checked_at, error.reason()),
-    }
-}
-
-pub(super) fn launch_managed_browser_status(
-    checked_at: BrowserRuntimeText,
-) -> Result<ManagedBrowserRuntimeLaunch, BrowserManagedSessionStatus> {
-    let checked_at = checked_at.0;
-    let Some(executable) = managed_browser_executable_path() else {
-        return Err(missing_browser_status(checked_at));
-    };
-    let Ok(profile_store) = managed_browser_profile_store() else {
-        return Err(profile_missing_status(checked_at));
-    };
-    let reservation = match reserve_managed_browser_bridge_port() {
-        Ok(reservation) => reservation,
-        Err(error) => return Err(status_with_error(checked_at, error.reason())),
-    };
-    let config = BrowserManagedLaunchConfig {
-        executable_path: executable.into(),
-        profile_dir: profile_store.profile_dir,
-        bridge_port: reservation.bridge_port,
-    };
-
-    match launch_managed_browser(config) {
-        Ok(launch) => Ok(ManagedBrowserRuntimeLaunch {
-            launch,
-            profile_store_entry: profile_store.entry,
-            started_at: BrowserRuntimeText(checked_at),
-        }),
-        Err(error) => Err(status_with_error(checked_at, error.reason())),
     }
 }
 
