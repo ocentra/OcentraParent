@@ -17,13 +17,13 @@ use ocentra_parent_agent_core::{
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileStoreEntry;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct BrowserRuntimeText(String);
+pub(crate) struct BrowserRuntimeText(String);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct BrowserRuntimeOptionalText(Option<String>);
+pub(crate) struct BrowserRuntimeOptionalText(Option<String>);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct BrowserManagedLaunchStatus {
+pub(crate) struct BrowserManagedLaunchStatus {
     process_id: u32,
     browser_family: BrowserFamily,
     browser_channel: BrowserChannel,
@@ -32,7 +32,7 @@ pub struct BrowserManagedLaunchStatus {
 }
 
 impl BrowserManagedLaunchStatus {
-    pub fn new(
+    pub(crate) fn new(
         process_id: u32,
         browser_family: BrowserFamily,
         browser_channel: BrowserChannel,
@@ -79,7 +79,7 @@ where
     }
 }
 
-pub fn missing_browser_status(
+pub(crate) fn missing_browser_status(
     checked_at: impl Into<BrowserRuntimeText>,
 ) -> BrowserManagedSessionStatus {
     let checked_at = checked_at.into();
@@ -115,7 +115,7 @@ pub fn missing_browser_status(
     }
 }
 
-pub fn profile_missing_status(
+pub(crate) fn profile_missing_status(
     checked_at: impl Into<BrowserRuntimeText>,
 ) -> BrowserManagedSessionStatus {
     let mut status = missing_browser_status(checked_at);
@@ -126,7 +126,7 @@ pub fn profile_missing_status(
     status
 }
 
-pub fn unmanaged_browser_status(
+pub(crate) fn unmanaged_browser_status(
     checked_at: impl Into<BrowserRuntimeText>,
     process: BrowserUnmanagedProcessObservation,
 ) -> BrowserManagedSessionStatus {
@@ -148,7 +148,7 @@ pub fn unmanaged_browser_status(
     status
 }
 
-pub fn managed_profile_ready_status(
+pub(crate) fn managed_profile_ready_status(
     checked_at: impl Into<BrowserRuntimeText>,
     browser_family: BrowserFamily,
     browser_channel: BrowserChannel,
@@ -161,7 +161,7 @@ pub fn managed_profile_ready_status(
     status
 }
 
-pub fn running_managed_status(
+pub(crate) fn running_managed_status(
     checked_at: impl Into<BrowserRuntimeText>,
     launch: impl Into<BrowserManagedLaunchStatus>,
     profile_store_entry: BrowserManagedProfileStoreEntry,
@@ -184,7 +184,7 @@ pub fn running_managed_status(
     status
 }
 
-pub fn bridge_disconnected_status(
+pub(crate) fn bridge_disconnected_status(
     checked_at: impl Into<BrowserRuntimeText>,
     reason: impl Into<BrowserRuntimeText>,
     started_at: impl Into<BrowserRuntimeText>,
@@ -200,7 +200,7 @@ pub fn bridge_disconnected_status(
     status
 }
 
-pub fn stopped_managed_status(
+pub(crate) fn stopped_managed_status(
     checked_at: impl Into<BrowserRuntimeText>,
     reason: impl Into<BrowserRuntimeText>,
     launch: &BrowserManagedLaunch,
@@ -216,7 +216,7 @@ pub fn stopped_managed_status(
     status
 }
 
-pub fn status_with_error(
+pub(crate) fn status_with_error(
     checked_at: impl Into<BrowserRuntimeText>,
     reason: impl Into<BrowserRuntimeText>,
 ) -> BrowserManagedSessionStatus {
@@ -228,7 +228,7 @@ pub fn status_with_error(
     status
 }
 
-pub fn connected_status(
+pub(crate) fn connected_status(
     checked_at: impl Into<BrowserRuntimeText>,
     browser_version: impl Into<BrowserRuntimeOptionalText>,
     capability_status: BrowserCapabilityStatus,
