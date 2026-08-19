@@ -1,10 +1,9 @@
 use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
 use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
-    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
-    ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
-    ids::SourceService, ids::SubscriberId, ids::TargetHandler, topology::EventTopologyManifest,
+    bus::EventBus, envelope::EventMetadata, envelope::EventSource, error::EventingError,
+    ids::CorrelationId, ids::EventCustody, ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId,
+    ids::SourceComponent, ids::SourceService, ids::TargetHandler, topology::EventTopologyManifest,
 };
 use ocentra_parent_agent_protocol::browser::{
     BrowserRuntimeEventPayload as ProtocolBrowserRuntimeEventPayload, BrowserRuntimePhase,
@@ -226,7 +225,7 @@ impl BrowserRuntimeReport {
 pub async fn publish_browser_runtime_chain_for_input(
     input: BrowserRuntimeInput,
 ) -> Result<BrowserRuntimeReport, EventingError> {
-    let spine = BrowserRuntimeSpine::with_default_handlers().await?;
+    let spine = BrowserRuntimeSpine::without_owner_handlers();
     spine.publish_input_chain(input).await
 }
 
@@ -235,20 +234,10 @@ struct BrowserRuntimeSpine {
 }
 
 impl BrowserRuntimeSpine {
-    async fn with_default_handlers() -> Result<Self, EventingError> {
-        let bus = EventBus::new();
-        for phase in BrowserRuntimePhase::ordered_chain() {
-            bus.subscribe::<BrowserRuntimeEventPayload, _, _>(
-                EventSubscriber::new(
-                    SubscriberId::parse(phase.subscriber_id())?,
-                    EventType::parse(phase.event_type())?,
-                    TargetHandler::parse(phase.target_handler())?,
-                ),
-                |_| async { Ok(()) },
-            )
-            .await?;
+    fn without_owner_handlers() -> Self {
+        Self {
+            bus: EventBus::new(),
         }
-        Ok(Self { bus })
     }
 
     async fn publish_input_chain(

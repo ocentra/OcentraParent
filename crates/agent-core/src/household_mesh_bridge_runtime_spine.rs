@@ -1,11 +1,7 @@
-use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, error::EventingError, ids::EventType,
-    ids::SubscriberId, ids::TargetHandler,
-};
+use ocentra_eventing::{bus::EventBus, error::EventingError};
 use ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgePhase;
 
 use crate::{
-    household_mesh_bridge_runtime::HouseholdMeshBridgeEventPayload,
     household_mesh_bridge_runtime::HouseholdMeshBridgeInput,
     household_mesh_bridge_runtime::HouseholdMeshBridgeReport,
     household_mesh_bridge_runtime_payload::household_mesh_bridge_event_payload_from_input,
@@ -17,20 +13,10 @@ pub(crate) struct HouseholdMeshBridgeSpine {
 }
 
 impl HouseholdMeshBridgeSpine {
-    pub(crate) async fn with_default_handlers() -> Result<Self, EventingError> {
-        let bus = EventBus::new();
-        for phase in HouseholdMeshBridgePhase::ordered_chain() {
-            bus.subscribe::<HouseholdMeshBridgeEventPayload, _, _>(
-                EventSubscriber::new(
-                    SubscriberId::parse(phase.subscriber_id())?,
-                    EventType::parse(phase.event_type())?,
-                    TargetHandler::parse(phase.target_handler())?,
-                ),
-                |_| async { Ok(()) },
-            )
-            .await?;
+    pub(crate) fn without_owner_handlers() -> Self {
+        Self {
+            bus: EventBus::new(),
         }
-        Ok(Self { bus })
     }
 
     pub(crate) async fn publish_input_chain(

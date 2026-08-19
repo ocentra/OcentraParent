@@ -1,8 +1,7 @@
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
-    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
-    ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
-    ids::SourceService, ids::SubscriberId, ids::TargetHandler,
+    bus::EventBus, envelope::EventMetadata, envelope::EventSource, error::EventingError,
+    ids::CorrelationId, ids::EventCustody, ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId,
+    ids::SourceComponent, ids::SourceService, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
@@ -19,7 +18,7 @@ use crate::screen_household_mesh_runtime_state::custody_label;
 pub(crate) async fn publish_screen_household_mesh_chain_for_input(
     input: crate::screen_household_mesh_runtime::ScreenHouseholdMeshInput,
 ) -> Result<crate::screen_household_mesh_runtime::ScreenHouseholdMeshReport, EventingError> {
-    let spine = ScreenHouseholdMeshSpine::with_default_handlers().await?;
+    let spine = ScreenHouseholdMeshSpine::without_owner_handlers();
     spine.publish_input_chain(input).await
 }
 
@@ -144,20 +143,10 @@ struct ScreenHouseholdMeshSpine {
 }
 
 impl ScreenHouseholdMeshSpine {
-    async fn with_default_handlers() -> Result<Self, EventingError> {
-        let bus = EventBus::new();
-        for phase in ScreenHouseholdMeshPhase::ordered_chain() {
-            bus.subscribe::<ScreenHouseholdMeshEventPayload, _, _>(
-                EventSubscriber::new(
-                    SubscriberId::parse(phase.subscriber_id())?,
-                    EventType::parse(phase.event_type())?,
-                    TargetHandler::parse(phase.target_handler())?,
-                ),
-                |_| async { Ok(()) },
-            )
-            .await?;
+    fn without_owner_handlers() -> Self {
+        Self {
+            bus: EventBus::new(),
         }
-        Ok(Self { bus })
     }
 
     async fn publish_input_chain(

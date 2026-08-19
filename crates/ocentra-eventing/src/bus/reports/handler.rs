@@ -14,6 +14,17 @@ pub enum HandlerOutcome {
     Panicked,
 }
 
+/// Consumer work observed during one publication.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum EventConsumerOutcome {
+    /// No matching consumer was registered when the event was published.
+    Unregistered,
+    /// Every registered consumer completed its handler work.
+    Handled,
+    /// At least one registered consumer failed to complete its handler work.
+    Failed,
+}
+
 impl HandlerOutcome {
     pub(crate) fn dead_letter_reason(self) -> super::dead_letter::DeadLetterReason {
         match self {
@@ -93,6 +104,24 @@ pub struct PublishReport {
 impl PublishReport {
     pub fn no_subscribers(&self) -> bool {
         self.subscriber_count == 0
+    }
+
+    /// Classifies actual consumer execution without treating an empty route as success.
+    pub fn consumer_outcome(&self) -> EventConsumerOutcome {
+        if self.no_subscribers() {
+            return EventConsumerOutcome::Unregistered;
+        }
+        if self.dead_letter_count == 0
+            && self.handled_count == self.subscriber_count
+            && self.handler_reports.len() == self.subscriber_count
+            && self
+                .handler_reports
+                .iter()
+                .all(|report| report.outcome == HandlerOutcome::Handled)
+        {
+            return EventConsumerOutcome::Handled;
+        }
+        EventConsumerOutcome::Failed
     }
 }
 

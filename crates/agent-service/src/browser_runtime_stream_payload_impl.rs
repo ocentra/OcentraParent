@@ -44,10 +44,9 @@ pub(crate) async fn stream_browser_runtime_event_chain_for_read_model_with_polic
             ),
             None => browser_runtime_input_from_row(read_model, row),
         };
+        let evidence_requires_manual_review = !input.exact_url_claimed;
         if input.exact_url_claimed {
             stream.exact_url_rows += 1;
-        } else {
-            stream.manual_required_rows += 1;
         }
         if let Ok(report) =
             request_browser_runtime_action_intent_status_for_input(input.clone()).await
@@ -71,10 +70,12 @@ pub(crate) async fn stream_browser_runtime_event_chain_for_read_model_with_polic
         {
             stream.record_social_provider_receipt(&report.request_report.response);
         }
-        match publish_browser_runtime_chain_for_input(input).await {
-            Ok(report) => stream.record_success(&report),
-            Err(_) => stream.failed_rows += 1,
-        }
+        let publication = publish_browser_runtime_chain_for_input(input).await;
+        super::browser_runtime_stream_publication::record_browser_runtime_publication(
+            &mut stream,
+            publication,
+            evidence_requires_manual_review,
+        );
     }
 
     stream
