@@ -79,6 +79,35 @@ platform E2E: real platform/browser/permission state -> adapter output -> cleanu
 
 A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
 
+## WP07/WP09 deferred test-source debt (2026-08-19)
+
+Canonical Browser source is intentionally manual-required. Before running any
+Browser test command, repair these stale compile surfaces without restoring
+caller-mintable authority:
+
+```text
+crates/agent-service/tests/unit/browser_runtime_status.rs
+  old bridge_disconnected_status and connected_status arities
+crates/agent-service/tests/unit/browser_runtime_tests.rs
+  old disconnected helper arity and private BrowserManagedLaunch construction
+crates/agent-service/tests/unit/browser_inventory_read_model_tests.rs
+  private BrowserManagedLaunch construction without private CDP authority
+```
+
+Then create the missing workpack roots:
+
+```text
+crates/agent-service/tests/integration/browser_managed_runtime.rs
+crates/agent-core/tests/integration/browser_bridge_managed_launch.rs
+```
+
+Required coverage includes manual-required status with no DEV/env custody,
+owner-issued start/stop, retained launch identity, pre/post I/O revalidation,
+confirmed teardown, restart/expiry/process exit, same-port replacement,
+malformed/oversized/timeout target lists, target disappearance/navigation,
+same-launch target authority, active-tab remaining Unknown, and unavailable
+Screen handoff. Fixture constructors or public authority shims are forbidden.
+
 ## Structured harness logging expectations
 
 Every browser implementation/proof slice must preserve both product-safe logging and local harness logging.

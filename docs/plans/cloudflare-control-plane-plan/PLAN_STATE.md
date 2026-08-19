@@ -152,7 +152,7 @@
   WP02/WP08 dependencies, migration execution, expected tests, proof,
   deployment, and normal WP06 `DONE` semantics remain open.
 
-Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 now has reviewed D1 read/current-authority, authoritative writer, and verified-provider caller source. The verifier reaches current-authority resolution, while the Account WP02/WP08 signed/sealed producer transport and Worker verifier are missing; runtime mutation composition is therefore not exposed. Caller-supplied authority headers still cannot authorize production, and capability, controller-lease, and step-up authority remain unavailable. Migration application, expected tests, focused validation, retained proof, deployment, and full runtime reachability remain open, so normal WP06 remains blocked and is not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
+Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 now has reviewed D1 read/current-authority, authoritative writer, verified-provider caller, bounded signed-wire decoder, and private one-shot verifier source. The private verifier is not a runtime mount: Account still supplies no durable signer/public-key registry or authenticated Cloudflare service binding, so mutation composition remains unavailable/manual-required. Caller-supplied authority headers still cannot authorize production, and capability, controller-lease, and step-up authority remain unavailable. Migration application, all six expected tests, focused validation, retained proof, deployment, and full runtime reachability remain open, so normal WP06 remains blocked and is not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 
@@ -314,3 +314,21 @@ currentness, restart/CAS, and account migration tests listed in
 `TEST_PROOF_EXPECTATIONS.md`. Account signer/key custody and authenticated
 service-binding/registry distribution are hard dependencies. Tests, migration
 execution, proof, deployment, runtime readiness, and DONE remain open.
+
+## 2026-08-19 WP06 private verifier source accepted
+
+Canonical source `da84e6ee3` adds the bounded duplicate-key-rejecting JSON
+decoder and private Account producer verifier at
+`infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts` and
+`infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts`.
+The verifier uses an internal symbol/WeakSet binding and one-shot WeakMap
+custody, owns its finite safe-integer clock, validates the Rust-shaped cross-
+field contract, and distinguishes unavailable verification-key custody from an
+invalid signature. No public caller can mint the verified handoff, and no env,
+Firebase, fixture, request, or D1 row becomes Account authority.
+
+This closes the planned Worker decoder/verifier source gap only. Account does
+not yet provide durable signer/public-key registry custody or an authenticated
+Cloudflare service binding, so the verifier cannot be mounted to production
+mutation composition. The six expected tests, migration execution, focused
+validation, retained proof, deployment, and normal `DONE` remain open.

@@ -194,7 +194,7 @@ after this bridge is real. This route has no reverse dependency on WP03.
 
 ## Completion
 
-- Status: read/current-authority adapter, Account-owned writer, and provider caller source reviewed; Account WP02 target identity reviewed. The verifier reaches current-authority resolution, but the mutation producer is not mounted. Runtime mutation composition, migration execution, expected tests, focused validation, retained proof, and deployment remain deferred. Normal workpack readiness remains blocked. No Cloudflare runtime-ready, deployment-ready, payment-ready, or `DONE` claim is made.
+- Status: read/current-authority adapter, Account-owned writer/provider caller, bounded JSON decoder, and private one-shot producer verifier source reviewed; Account WP02 target identity reviewed. The private verifier is not mounted because durable Account signer/public-key registry custody and authenticated service binding remain absent. Runtime mutation composition, migration execution, all six expected tests, focused validation, retained proof, and deployment remain deferred. Normal workpack readiness remains blocked. No Cloudflare runtime-ready, deployment-ready, payment-ready, or `DONE` claim is made.
 - Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 - Runtime/source owner: `infra/cloudflare/src/env.ts`
 - Account D1 and isolated migration configuration: `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, `src/env.ts`, and `package.json`; account DO/KV declarations remain absent and no `BILLING_D1` substitution is allowed
@@ -264,7 +264,8 @@ Source remains bounded to these owning surfaces; no global graph or unrelated
 Cloudflare route is implied:
 
 ```text
-infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts  (new private binding adapter/verifier seam)
+infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts         (bounded duplicate-key-rejecting wire parser)
+infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts  (private one-shot binding/verifier seam)
 infra/cloudflare/src/auth/account-identity-authority-caller.ts               (mount only after verified handoff)
 infra/cloudflare/src/auth/account-identity-authority-runtime.ts              (retain parameterless manual-required gate)
 infra/cloudflare/src/storage/account-identity-authority-writer.ts            (transactional recheck and guarded mutation)
@@ -307,6 +308,24 @@ key custody; Device Trust WP03 remains downstream. If the Account service
 binding or registry cannot be made authenticated and durable, keep the current
 manual-required runtime and do not invent a verifier, key, endpoint, or
 caller-supplied substitute.
+
+## 2026-08-19 private verifier source acceptance
+
+Canonical `da84e6ee3` implements the two planned Cloudflare verifier roots. The
+JSON decoder accepts only a bounded full JSON grammar, rejects duplicate keys
+including escape-equivalent keys before parsing, and retains canonical-string
+equality. The producer transport keeps verified Account binding private through
+an internal symbol/WeakSet plus one-shot WeakMap custody, uses an internal
+finite safe-integer clock, validates Rust-shaped cross-field invariants, and
+classifies digest/key-import failures as verification-key unavailable rather
+than signature invalid. Only a cryptographic verify false/error is an invalid
+signature.
+
+This is a source-only acceptance. There is still no durable Account signer/key
+registry, authenticated Cloudflare service-binding mount, migration execution,
+test result, retained proof, deployment, runtime-ready state, or `DONE`. The
+next code belongs to the Account binding owner; the next Cloudflare work is the
+complete expected-test packet after that dependency is real.
 
 ## What is actually proved
 

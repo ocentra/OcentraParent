@@ -50,7 +50,7 @@ mod socket_session;
 mod tracking_retention_settings_write;
 
 use self::basic_reports::{
-    BROWSER_POLICY_TEST_STORE_PREFIX, SCREEN_SETTINGS_TEST_STORE_PREFIX, temp_runtime_store_path,
+    temp_runtime_store_path, BROWSER_POLICY_TEST_STORE_PREFIX, SCREEN_SETTINGS_TEST_STORE_PREFIX,
 };
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime, browser_runtime::BrowserManagedRuntime,

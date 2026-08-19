@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::{
     lan_pairing::LanPairingOptionalText,
     logging::{LogFieldValue, LogLevel},
     transport::{
-        AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, command_response_event_id_prefix,
+        command_response_event_id_prefix, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
     },
 };
 use std::{future::Future, pin::Pin};
@@ -14,13 +14,13 @@ use crate::{
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     lan_pairing::{
-        LanCommandDecision, LanPairingRuntime, command_routing::route_lan_command,
-        extend_log_fields,
+        command_routing::route_lan_command, extend_log_fields, LanCommandDecision,
+        LanPairingRuntime,
     },
     screen_settings_runtime::ScreenSettingsRuntime,
 };
 
-use super::{WebsocketCommandOrigin, WebsocketCommandText, command_dispatch::build_command_event};
+use super::{command_dispatch::build_command_event, WebsocketCommandOrigin, WebsocketCommandText};
 
 pub(super) fn handle_command_text(
     text: WebsocketCommandText,

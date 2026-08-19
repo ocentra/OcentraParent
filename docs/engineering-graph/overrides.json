@@ -4,7 +4,7 @@
     {
       "id": "WP-browser-plan-07-managed-chromium-launcher",
       "hardDependencies": [],
-      "reason": "Reviewed implementation authorization for the first managed-browser production packet only. WP07 owns the retained BrowserManagedLaunch/process/session/private-custody runtime in the service AppState/websocket route and must poll from that authority before handing source-backed capture to Screen. The planned source and integration test roots are absent; this does not authorize normal READY, tests, proof, PR readiness, or DONE.",
+      "reason": "Canonical f80b47c6a is an accepted fail-closed source baseline: it removes unreachable service launch state, env/dev authority, placeholder polling, and Browser-to-Screen composition, leaving production status manual-required. The owner-issued retained runtime and integration test roots remain absent; existing tests are stale. This does not authorize runtime, normal READY, proof, PR readiness, or DONE.",
       "evidence": [
         "docs/plans/browser-plan/PLAN_STATE.md",
         "docs/plans/browser-plan/NEXT_ACTIONS.md",
@@ -14,8 +14,8 @@
     },
     {
       "id": "WP-browser-plan-09-cdp-version-and-target-adapter",
-      "hardDependencies": [],
-      "reason": "Reviewed implementation authorization for the same-launch CDP target-binding packet only. WP09 owns the missing binding between the retained managed launch and existing tab-list parser/capture authority; active-tab state remains Unknown and Screen handoff does not mint browser authority. The planned source and integration test roots are absent; this does not authorize normal READY, tests, proof, PR readiness, or DONE.",
+      "hardDependencies": ["WP-browser-plan-07-managed-chromium-launcher"],
+      "reason": "Core CDP parsing/capture authority remains private and tab-list-only, but canonical f80b47c6a removes the dead Browser-to-Screen service surface. WP09 now explicitly depends on a real WP07 owner-issued retained launch. The same-launch binding and integration test roots are absent, active-tab state remains Unknown, and existing tests are stale. This does not authorize runtime, normal READY, proof, PR readiness, or DONE.",
       "evidence": [
         "docs/plans/browser-plan/PLAN_STATE.md",
         "docs/plans/browser-plan/NEXT_ACTIONS.md",
@@ -60,7 +60,7 @@
     {
       "id": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
       "hardDependencies": [],
-      "reason": "Independent source review accepted the bounded Data WP05 source route through canonical 739269cd8, including the parent-runtime rollback dispatch authority binding. The rollback validation rejects missing or mismatched provider-operation identity and requires an in-memory sealed binding; external Account/key/provider/producer composition, production reachability, five expected runtime tests, focused execution, proof, checklist acceptance, PR readiness, and DONE remain open.",
+      "reason": "Independent source review accepted the bounded fail-closed Data WP05 source route, including the parent-runtime rollback dispatch authority binding. Live caller/test audit finds no production implementation of the Account/provider/key/producer ports, all five expected runtime test roots are absent, blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort requires an owner-side adapter before cross-crate mounting. The remaining source order is Account WP05, Data WP09, WP10, WP11 composition, then a real caller; focused execution, proof, checklist acceptance, PR readiness, and DONE remain open.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
@@ -125,7 +125,7 @@
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Independent source review accepted the Cloudflare WP06 authority packet after Account WP08's canonical identities, Account WP02's target-aware identity, and WP01's module scaffold. The runtime is now explicitly mapped as a safe verified-provider read/manual boundary: the verifier reaches current-authority resolution, while parameterless mutation readiness remains manual-required and no caller-scalar mutation API exists. Writer create/currentness/compare-and-swap/revoke remains gated by the unconstructible AccountOwnedAuthorityProducer. The exact missing production owner is Account WP02/WP08 signed/sealed current-authority producer transport plus Worker verifier. Runtime mutation composition, higher authority, expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
+      "reason": "Independent source review accepted Cloudflare WP06's D1 authority packet plus canonical da84e6ee3's bounded duplicate-key-rejecting decoder and private one-shot Account producer verifier. The runtime remains a safe verified-provider read/manual boundary because Account provides no durable signer/public-key registry or authenticated Cloudflare service binding; parameterless mutation readiness stays manual-required and no caller-scalar mutation API exists. Runtime mutation composition, higher authority, all six expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
     },
     {
       "id": "WP-account-identity-family-plan-03-session-token-lifecycle",
@@ -1966,6 +1966,18 @@
       "implementationGate": "reviewed-implementation"
     },
     {
+      "from": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "to": "WP-browser-plan-07-managed-chromium-launcher",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "WP09 can bind a target only from a real WP07 owner-issued retained launch. Parser/capture source and request fields cannot substitute for that authority."
+    },
+    {
       "from": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
       "to": "WP-browser-plan-07-managed-chromium-launcher",
       "kind": "depends_on",
@@ -2014,32 +2026,6 @@
     }
   ],
   "stateOverrides": [
-    {
-      "id": "WP-browser-plan-07-managed-chromium-launcher",
-      "state": "validation",
-      "reason": "Reviewed implementation-phase route for the retained BrowserManagedRuntime packet. The missing service runtime and integration test roots are explicitly mapped; source edits may proceed only in that packet. Normal READY, tests, proof, PR readiness, and DONE remain unchanged and unavailable until the roots exist and are validated.",
-      "statusText": "Validation — implementation route authorized; retained managed runtime source/tests missing; READY and completion remain open.",
-      "needsReview": false,
-      "evidence": [
-        "docs/plans/browser-plan/PLAN_STATE.md",
-        "docs/plans/browser-plan/NEXT_ACTIONS.md",
-        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
-        "docs/engineering-graph/code-map.json"
-      ]
-    },
-    {
-      "id": "WP-browser-plan-09-cdp-version-and-target-adapter",
-      "state": "validation",
-      "reason": "Reviewed implementation-phase route for the same-launch CDP target-binding packet. The missing binding source and integration test roots are explicitly mapped; source edits may proceed only in that packet. Active-tab state remains Unknown. Normal READY, tests, proof, PR readiness, and DONE remain unchanged and unavailable until the roots exist and are validated.",
-      "statusText": "Validation — implementation route authorized; same-launch binding source/tests missing; READY and completion remain open.",
-      "needsReview": false,
-      "evidence": [
-        "docs/plans/browser-plan/PLAN_STATE.md",
-        "docs/plans/browser-plan/NEXT_ACTIONS.md",
-        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
-        "docs/engineering-graph/code-map.json"
-      ]
-    },
     {
       "id": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
       "state": "validation",
@@ -2200,7 +2186,7 @@
         "crates/parent-runtime-core/src/data_custody_restore_runtime.rs",
         "crates/parent-runtime-core/src/data_custody_runtime_eventing.rs"
       ],
-      "reason": "Independent source review at canonical 79b2c3bd7 accepted bounded Data WP05 production source: versioned bundle/import decisions, sealed preflight custody, durable backup and restore/migration ledgers, restart reconciliation, rollback/executor seams, and file-backed Eventing. Five expected test roots, external Account/key/provider/producer composition, focused validation, proof, checklist acceptance, PR readiness, and DONE remain open.",
+      "reason": "Independent source review accepted bounded fail-closed Data WP05 production source: versioned bundle/import decisions, sealed preflight custody, durable backup and restore/migration ledgers, restart reconciliation, rollback/executor seams, and file-backed Eventing. No production caller implements the Account/provider/key/producer ports; all five expected tests are absent, the blocked-restore test is stale against source, and the sealed import port needs an owner adapter. Focused validation, proof, checklist acceptance, PR readiness, and DONE remain open.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md",
@@ -2426,13 +2412,15 @@
     {
       "id": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
       "implementation": [
+        "infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
         "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
         "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
         "infra/cloudflare/src/auth/verifier.ts",
         "infra/cloudflare/src/storage/account-identity-authority-store.ts",
         "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
       ],
-      "reason": "Reviewed WP06 source remains limited to the reachable verified-provider read/manual boundary. Account WP08's crate-private producer transport is mapped at c5ed3ce5c, but Account durable signer/key custody and authenticated service-binding/public-key registry distribution are missing. The exact missing Cloudflare production root is infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts for the private binding adapter and bounded signed-wire verifier. Runtime mutation readiness is parameterless and manual-required; the existing writer remains producer-gated and requires the verified handoff plus D1 atomic currentness/revocation/CAS recheck. Six expected WP06 test roots are missing. No public route, Firebase authority, env/fixture/request key, caller-supplied scalar, validation, proof, deployment, READY, or DONE claim is permitted.",
+      "reason": "Canonical da84e6ee3 includes the reviewed bounded JSON decoder and private one-shot Account producer verifier. WP06 remains a verified-provider read/manual boundary because Account durable signer/public-key custody and authenticated service-binding/registry distribution are missing. Runtime mutation readiness is parameterless and manual-required; the existing writer remains producer-gated and requires a real verified handoff plus D1 atomic currentness/revocation/CAS recheck. Six expected WP06 test roots are missing. No public route, Firebase authority, env/fixture/request key, caller-supplied scalar, validation, proof, deployment, READY, or DONE claim is permitted.",
       "evidence": [
         "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",

@@ -1502,21 +1502,28 @@
       "roots": [
         "crates/agent-core/src/browser_managed_session/launch.rs",
         "crates/agent-core/tests/unit/browser_managed_session_tests.rs",
+        "crates/agent-service/src/app.rs",
         "crates/agent-service/src/browser_runtime.rs",
-        "crates/agent-service/src/browser_runtime_impl/launch.rs",
+        "crates/agent-service/src/browser_runtime_impl.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-service/src/websocket.rs",
         "crates/agent-service/tests/unit/browser_runtime_tests.rs",
         "crates/agent-service/src/browser_runtime_impl/managed_runtime.rs",
         "crates/agent-service/tests/integration/browser_managed_runtime.rs"
       ],
       "plannedImplementationRoots": ["crates/agent-service/src/browser_runtime_impl/managed_runtime.rs"],
       "expectedTestRoots": ["crates/agent-service/tests/integration/browser_managed_runtime.rs"],
-      "note": "Reviewed implementation authorization for the retained managed-browser runtime packet. The missing owner must retain BrowserManagedLaunch, process/session/bridge lifecycle, and private custody in the service-owned AppState/websocket route; polling must use that authority and route source-backed capture into Screen. No environment/dev constants or caller-supplied authority are accepted. The planned source and integration test roots are absent; tests, focused validation, proof, PR readiness, and DONE remain open."
+      "note": "Canonical f80b47c6a removes the dead/unreachable service launch state, environment/dev profile authority, placeholder bridge poll, and Browser-to-Screen surface. Production status is explicitly manual-required. A future private owner-issued retained runtime remains a missing planned implementation root; the existing Browser tests are stale against private launch/status APIs and the expected integration root is absent. No runtime, validation, proof, PR readiness, or DONE claim is made."
     },
     "WP-browser-plan-08-bridge-custody-and-security": {
       "planSlug": "browser-plan",
       "roots": [
         "crates/agent-core/src/browser_bridge_http.rs",
         "crates/agent-core/src/browser_bridge_poll.rs",
+        "crates/agent-core/src/browser_bridge_capture.rs",
+        "crates/agent-core/src/browser_bridge_capture/authority.rs",
+        "crates/agent-core/src/browser_bridge_capture/process.rs",
+        "crates/agent-core/src/browser_managed_session.rs",
         "crates/agent-core/src/browser_bridge_poll",
         "crates/agent-core/tests/unit/browser_bridge_poll_security_tests.rs",
         "crates/agent-core/tests/unit/browser_bridge_poll_tests.rs"
@@ -1535,7 +1542,7 @@
       ],
       "plannedImplementationRoots": ["crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs"],
       "expectedTestRoots": ["crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"],
-      "note": "Reviewed implementation authorization for the same-launch CDP target-binding packet. Existing parsing remains tab-list-only and active-tab unknown; the missing source must bind target authority only to a trusted retained managed launch and preserve malformed/oversized/timeout, owner-mismatch, disappearance/navigation, process-replacement, and no-active-tab-claim negatives. The planned source and integration test roots are absent; tests, focused validation, proof, PR readiness, and DONE remain open."
+      "note": "Core CDP parsing/capture authority remains private and tab-list-only with active state Unknown. Canonical f80b47c6a removes the dead service Browser-to-Screen surface. WP09 is blocked on a real WP07 owner-issued retained launch; the same-launch binding and integration test roots remain absent, and existing tests need private-boundary migration. Tests, focused validation, proof, PR readiness, and DONE remain open."
     },
     "WP-browser-plan-10-tab-evidence-mapper": {
       "planSlug": "browser-plan",
@@ -2020,6 +2027,7 @@
         "infra/cloudflare/src/index.ts",
         "infra/cloudflare/src/billing-binding-read-model.ts",
         "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts",
         "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
         "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
         "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
@@ -2044,6 +2052,7 @@
         "infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts"
       ],
       "plannedImplementationRoots": [
+        "infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts",
         "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
         "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
         "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
@@ -2058,7 +2067,7 @@
         "infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts",
         "infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts"
       ],
-      "note": "Reviewed Cloudflare WP06 source remains a safe verified-provider read/manual boundary. Account WP08 supplies the crate-private Rust producer transport at c5ed3ce5c, but Account durable signer/key custody and authenticated service-binding/public-key registry distribution are missing. The exact missing Cloudflare production root is infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts for the private binding adapter and bounded signed-wire verifier. The existing caller/runtime/store/writer roots remain the owning surfaces; the writer's atomic currentness/revocation/CAS recheck must run only after the verified handoff and is not a completion claim. Missing transport and six expected test roots keep implementation incomplete. No public route, Firebase authority, caller-supplied scalar, validation, proof, deployment, READY, or DONE claim is made."
+      "note": "Canonical da84e6ee3 includes the reviewed bounded JSON decoder and private one-shot Account producer verifier. WP06 remains a safe verified-provider read/manual boundary because Account durable signer/public-key custody and authenticated service-binding/registry distribution are missing. The existing caller/runtime/store/writer roots remain the owning surfaces; the writer's atomic currentness/revocation/CAS recheck must run only after a real Account binding supplies the verified handoff. All six expected test roots, migration execution, proof, deployment, runtime mount, and DONE remain open. No public route, Firebase authority, caller-supplied scalar, validation, READY, or completion claim is made."
     },
     "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures": {
       "planSlug": "cloudflare-control-plane-plan",
@@ -5548,7 +5557,7 @@
         "crates/parent-runtime-core/tests/integration/data_custody_runtime.rs",
         "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs"
       ],
-      "note": "WP05 production source is reviewed and rebased onto the current consolidation head, including the durable parent-runtime seams. Account authority, key custody, provider/producer composition, runtime reachability, all five expected runtime tests, proof, precommit, CI, and DONE remain open; this mapping does not imply completion."
+      "note": "WP05 production source is reviewed, fail-closed, and rebased onto the current consolidation head, including the durable parent-runtime seams. Live caller tracing finds no production implementation of the Account/provider/key/producer ports; all five expected runtime test roots are absent, the blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort needs an owner-side adapter before cross-crate mounting. The remaining order is Account WP05, Data WP09, WP10, WP11 composition, then a real caller. Proof, precommit, CI, and DONE remain open; this mapping does not imply completion."
     },
     "WP-data-custody-storage-plan-06-report-query-custody": {
       "planSlug": "data-custody-storage-plan",

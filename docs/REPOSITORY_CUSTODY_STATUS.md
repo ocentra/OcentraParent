@@ -1,8 +1,8 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-18 after independently reviewed Data routing and Screen WP32
-source integration at `2a50575d2`, plus this custody-refresh commit. This
-supersedes the retained `1101f37f8` snapshot below.
+Snapshot: 2026-08-19 after canonical Cloudflare verifier source, Browser
+manual-required source integration at `f80b47c6a`, and this custody/graph truth
+refresh. This supersedes the retained 2026-08-18 snapshots below.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
@@ -12,9 +12,9 @@ claim. Refresh Git ancestry and patch identity before deleting any ref.
 
 | Ref | Head | Custody state |
 | --- | --- | --- |
-| `origin/main` | `eb4e66a791` | Release baseline. It has no commit missing from consolidation and is 437 commits behind it. |
-| `origin/develop` | `4ece515282` | Promotion baseline. It has no commit missing from consolidation and is 434 commits behind it. |
-| `origin/codex/eventing-wp09-production` | this commit; parent `2a50575d27` | Clean pushed source-consolidation line. Reviewed Account, Device Trust, Data Custody, Eventing, Screen, and graph-routing source packets plus this custody refresh are integrated. Expected tests remain deliberately deferred until the source wave is complete. |
+| `origin/main` | `eb4e66a791` | Release baseline. It has no commit missing from consolidation and is 462 commits behind this snapshot. |
+| `origin/develop` | `4ece515282` | Promotion baseline. It has no commit missing from consolidation and is 459 commits behind this snapshot. |
+| `origin/codex/eventing-wp09-production` | this commit; parent `f80b47c6a` | Canonical source-consolidation line after Browser source integration and this truth refresh. Account, Device Trust, Data Custody, Cloudflare, Browser, Screen, and accepted Eventing source packets are retained here. Expected tests remain deliberately deferred until the source wave is complete. |
 | `origin/production` | `683a07cf31` | Historical production ref; not the current integration line. |
 | archive refs | `ac9f65bb4a`, `405e7fc77e` | Coverage for historical local/remote tips. Retain through source/test consolidation and promotion. |
 
@@ -24,21 +24,24 @@ precommit, or CI merely because it is pushed.
 
 ## Current remote branch disposition
 
-There are 47 non-archive `origin/codex/*` refs including canonical:
+There are 64 non-archive `origin/codex/*` refs including canonical, plus two
+archive coverage refs:
 
 - one canonical consolidation ref;
-- 33 noncanonical refs with zero patch-unique commits against canonical;
-- 13 noncanonical refs with residual patch-unique history, all now reviewed and
-  rejected as direct merge/cherry-pick inputs.
+- 47 noncanonical refs with zero patch-unique commits against canonical;
+- 16 noncanonical refs with residual patch-unique history. Some are active
+  review/repair custody; others are reviewed net-integrated, rejected, or
+  superseded. None may be merged by branch tip.
 
-The 13 reviewed residual refs are:
+The 16 residual refs are:
 
 | Remote branch | Current disposition |
 | --- | --- |
-| `codex/account-wp02-source-wave` | Six residual commits are superseded by newer sealed Account authority, billing serialization, refund binding, and provider reconciliation source in canonical. Do not cherry-pick. |
-| `codex/device-trust-wp01-source-wave` | Two residual commits are superseded by later canonical authority/readiness hardening. Do not cherry-pick. |
-| `codex/data-wp05-mount-contract-source` | Two commits are an add-then-revert pair; final files are byte-identical to canonical. The reverted seam was caller-mintable and unsafe. Do not cherry-pick. |
-| `codex/data-wp08-runtime-source` | Rejected runtime packet; it exposed caller-supplied confirmation/result authority rather than an owner-controlled execution seam. |
+| `codex/account-wp02-source-wave` | Six residual Account/payment authority commits still require narrow semantic review after the current Account dependencies. Do not merge the stale branch tip. |
+| `codex/device-trust-wp01-source-wave` | Two narrow owner-bound entitlement/current-authority commits still require review; do not merge the broad stale branch tip. |
+| `codex/account-wp05-cas-source` | Independently rejected as inert/wrong-owner CAS source: no reserve/prepare caller, weaker binding, ephemeral-storage bypass, and ambiguous recovery semantics. Retain only until disposition cleanup. |
+| `codex/data-wp05-mount-contract-source` | Two commits are an add-then-revert pair; the reverted seam was caller-mintable and unsafe. Do not cherry-pick. |
+| `codex/data-wp08-runtime-source` | Unique production source remains under review; do not merge before Account/Device authority and independent source acceptance. |
 | `codex/data-custody-source-consolidation` | Superseded stale alternate; effect ledger was added and later removed. |
 | `codex/data-custody-source-wave` | Superseded broad alternate; no reviewed missing production invariant remains. |
 | `codex/data-custody-wp05-source` | Superseded old WP05 packet; repaired production source is already canonical. |
@@ -46,27 +49,35 @@ The 13 reviewed residual refs are:
 | `codex/data-custody-plan-code-wave` | Obsolete child-runtime routing packet. |
 | `codex/logging-source-wave-repair` | Only stale docs remain patch-unique; production source is canonical. |
 | `codex/setup-wp07-source-wave` | Only stale docs remain patch-unique; production source is canonical. |
-| `codex/canonical-truth-refresh` | Superseded custody/matrix snapshot; this document and current graph replace it. |
-| `codex/screen-wp32-producer-source` | Superseded wording/format history; reviewed Screen WP32 source and corrected graph truth are canonical. |
+| `codex/canonical-truth-refresh` | Superseded docs-only custody/matrix snapshot; this document and regenerated graph replace it. |
+| `codex/cloudflare-wp06-runtime-source-aug19` | Three patch-unique commits are net-integrated in canonical; remaining difference is formatting/history only. Do not replay the tip. |
+| `codex/eventing-core-p1-aug19` | Active repair. The reviewed `8bec42487` head is rejected for raw-bus root dispatch, non-transactional descendant cancellation, and two causal callers that create new root buses. A superseding source repair is in progress. |
+| `codex/screen-wp32-producer-source` | One residual producer patch requires reconciliation with Browser's now-manual-required, no-Browser-to-Screen source boundary before integration. |
 
-The 33 zero-patch-unique cleanup candidates are:
+The 47 zero-patch-unique cleanup candidates are:
 
+`account-authority-producer-map`, `account-authority-producer-transport`,
 `account-cloudflare-authority-routing`, `account-data-runtime-routing`,
-`account-wp02-authority-transport`, `account-wp02-target-authority`,
-`account-wp03-runtime-source`, `account-wp03-source-wave`,
-`account-wp04-source-wave`, `account-wp05-cas-routing`,
-`account-wp05-routing`, `account-wp05-source`, `account-wp07-source`,
+`account-multi-owner-fence-route`, `account-wp02-authority-transport`,
+`account-wp02-target-authority`, `account-wp03-runtime-source`,
+`account-wp03-source-wave`, `account-wp04-source-wave`,
+`account-wp05-cas-routing`, `account-wp05-routing`, `account-wp05-source`,
+`account-wp07-source`, `browser-runtime-source-aug19`,
+`browser-wp07-wp09-map`, `browser-wp07-wp09-route`,
 `child-runtime-routing-refresh`, `child-runtime-source-routing`,
-`cloudflare-wp06-authority-source`, `cloudflare-wp06-runtime-source`,
-`data-custody-wp05-source-repaired`, `data-custody-wp06-source`,
-`data-custody-wp08-source`, `data-wp05-authority-handoff`,
-`data-wp05-runtime-composition-routing`, `data-wp06-query-source-wave`,
-`data-wp06-routing-refresh`, `data-wp08-p1-source-repair`,
+`cloudflare-wp05-source-completion`, `cloudflare-wp06-authority-source`,
+`cloudflare-wp06-runtime-map`, `cloudflare-wp06-runtime-route`,
+`cloudflare-wp06-runtime-source`, `data-custody-wp05-source-repaired`,
+`data-custody-wp06-source`, `data-custody-wp08-source`,
+`data-wp05-authority-handoff`, `data-wp05-runtime-composition-routing`,
+`data-wp05-source-completion`, `data-wp06-map-aug18`,
+`data-wp06-query-source-wave`, `data-wp06-routing-refresh`,
+`data-wp06-source-completion`, `data-wp08-p1-source-repair`,
 `device-trust-runtime-routing`, `device-trust-wp02-source-wave`,
 `device-trust-wp05-source-wave`, `device-trust-wp06-source-wave`,
-`eventing-wp08-parent-intent-ingress`, `eventing-wp11-typed-delivery`,
-`payment-source-wave`, `screen-wp26-source`, `screen-wp32-source`, and
-`screen-wp33-source`.
+`eventing-consumer-truth-aug18`, `eventing-wp08-parent-intent-ingress`,
+`eventing-wp11-typed-delivery`, `payment-source-wave`, `screen-wp26-source`,
+`screen-wp32-source`, `screen-wp33-source`, and `source-map-refresh-aug18`.
 
 Do not delete these refs yet. The user-required cleanup gate is canonical
 promotion through `develop` to `main`, followed by fresh open-PR, local-only
@@ -121,6 +132,60 @@ patch custody:
 - `codex/payment-source-wave`
 
 ## Current registered E-drive worktrees
+
+There are 55 registered Ocentra Parent worktrees. At the pre-commit audit:
+
+- the coordinator worktree contains only this claimed docs/graph refresh;
+- `E:/OcentraWorktrees/lanes/eventing-core-p1-aug19` contains the active
+  superseding Eventing source repair;
+- `E:/OcentraParent` contains only the pre-existing untracked
+  `.codex/config.toml`;
+- every other registered worktree is clean;
+- `codex/account-wp05-owner-fence` and
+  `codex/cloudflare-wp06-producer-consumer` have no upstream, but both are
+  clean ancestors of canonical with zero patch-unique commits, so neither
+  contains unpublished work;
+- the only ahead-of-upstream branch is this coordinator line before its final
+  push; no other worktree contains a local-only commit;
+- no registered Ocentra Parent worktree exists on `C:`.
+
+The exact registered branch set is:
+
+`develop`; `codex/account-authority-producer-map`;
+`codex/account-authority-producer-transport`;
+`codex/child-runtime-source-routing`; `codex/account-wp02-target-authority`;
+`codex/account-multi-owner-fence-route`;
+`codex/account-wp02-authority-transport`; `codex/account-wp04-source-wave`;
+`codex/account-wp03-runtime-source`; `codex/account-wp03-source-wave`;
+`codex/account-wp05-cas-routing`; `codex/account-wp05-cas-source`;
+`codex/account-wp05-owner-fence`; `codex/account-wp05-routing`;
+`codex/account-wp05-source`; `codex/account-wp07-source`;
+`codex/browser-runtime-source-aug19`; `codex/browser-wp07-wp09-map`;
+`codex/browser-wp07-wp09-route`; `codex/canonical-truth-refresh`;
+`codex/cloudflare-wp05-source-completion`;
+`codex/cloudflare-wp06-runtime-source`;
+`codex/cloudflare-wp06-producer-consumer`;
+`codex/cloudflare-wp06-runtime-map`; `codex/cloudflare-wp06-runtime-route`;
+`codex/cloudflare-wp06-runtime-source-aug19`;
+`codex/data-custody-source-consolidation`;
+`codex/data-custody-source-wave`; `codex/data-custody-wp05-source-repaired`;
+`codex/data-custody-wp06-source`; `codex/data-custody-wp08-source`;
+`codex/data-wp05-authority-handoff`;
+`codex/data-wp05-mount-contract-source`;
+`codex/data-wp05-runtime-composition-routing`;
+`codex/data-wp05-source-completion`; `codex/data-wp06-map-aug18`;
+`codex/child-runtime-routing-refresh`; `codex/data-wp06-source-completion`;
+`codex/data-wp08-p1-source-repair`; `codex/data-wp08-runtime-source`;
+`codex/device-trust-wp06-source-wave`; `codex/device-trust-wp01-source-wave`;
+`codex/eventing-consumer-truth-aug18`; `codex/eventing-core-p1-aug19`;
+`codex/eventing-wp08-parent-intent-ingress`;
+`codex/eventing-wp09-production`; `codex/eventing-wp11-typed-delivery`;
+`codex/logging-source-wave-repair`; `codex/payment-source-wave`;
+`codex/screen-wp26-source`; `codex/screen-wp32-producer-source`;
+`codex/screen-wp32-source`; `codex/screen-wp33-source`;
+`codex/setup-wp07-source-wave`; and `codex/source-map-refresh-aug18`.
+
+## Prior registered-worktree snapshot at `2a50575d2`
 
 There are 39 registered Ocentra Parent worktrees:
 

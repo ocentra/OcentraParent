@@ -157,8 +157,8 @@ pub fn delete_managed_browser_profile_store(
     store::delete_managed_browser_profile_store(config)
 }
 
-pub fn reserve_managed_browser_bridge_port()
--> Result<BrowserManagedBridgePortReservation, BrowserManagedLaunchError> {
+pub fn reserve_managed_browser_bridge_port(
+) -> Result<BrowserManagedBridgePortReservation, BrowserManagedLaunchError> {
     launch::reserve_managed_browser_bridge_port()
 }
 

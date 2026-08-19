@@ -22,19 +22,19 @@
    Account WP08's sealed current authority, Account WP04's correlated
    export/delete handoff, and Account WP05's current
    household/member/device/session/capability/lease authorization composer.
-2. Review and integrate the bounded WP05 base source packet in its reviewed
-   ownership order: schema-owned durable backup cadence/schedule/job and
-   migration/rollback contracts; pure `storage-custody-core`
-   backup/restore/migration/preflight decisions and compensation; and the
-   `parent-runtime-core` durable scheduler/job ledger, restore/migration
-   ledger, restart reconciliation, executor/rollback mount, and real
-   Eventing/outbox composition. Runtime composition/custody mounting is now
-   isolated in blocked WP11. Mount only opaque Account/family authority,
-   key/decrypt capability, provider-neutral adapter, producer artifact, and
-   producer-result ports there; leave unavailable external owners
-   manual-required or blocked. WP09/WP10 consume the WP05 base independently
-   and must not duplicate these ledgers or depend on WP11.
-   After Account WP05's durable opaque-effect CAS/recovery owner is reviewed,
+2. Preserve the reviewed WP05 base packet and close its dependency-owned
+   composition gaps in this order: Account WP05 current authority/fence, Data
+   WP09 provider-neutral byte custody, WP10 producer handoffs, WP11
+   composition/mount, then a real caller. The base already supplies the schema
+   contracts, pure `storage-custody-core` decisions, parent-runtime durable
+   scheduler/job and restore/migration ledgers, restart reconciliation,
+   rollback mount, and Eventing/outbox composition. It remains unmounted: no
+   production caller implements its Account/provider/key/producer ports, and
+   the sealed import-custody port needs an owner-side adapter design. Do not add
+   another WP05-only seam or make the private port public. WP09/WP10 consume the
+   WP05 base independently and must not duplicate these ledgers or depend on
+   WP11. After Account WP05's durable opaque-effect CAS/recovery owner is
+   reviewed,
    finish WP08's trusted confirmation receipt plus reachable `Applied`/`Partial`
    decision path. Do not stage or consume a confirmation through a caller-made
    receipt while that Account handoff is missing.
@@ -123,9 +123,12 @@ proof, precommit, CI, or PR were run.
 ## 2026-08-18 source-map refresh
 
 Data WP05's rollback dispatch validation is now explicitly mapped in the
-engineering graph. The next source work remains the real Account/family,
-key/import, provider-neutral, and producer owners plus a reachable caller;
-tests and proof are intentionally still later gates.
+engineering graph. A fresh caller/test audit confirms the base source is real
+and fail-closed but unmounted: no production caller implements the external
+ports, all five expected runtime test roots are absent, and a stale blocked-
+restore test disagrees with the source's false/false local-authority/tombstone
+flags. The next source work remains the dependency-ordered Account WP05, WP09,
+WP10, WP11, and caller chain; tests and proof are intentionally later gates.
 
 Data WP06's canonical `9462ce44e` and `d3c4b64ca` source is now explicitly
 mapped through the sealed validated proof snapshot, all-seven-state gate,

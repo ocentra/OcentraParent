@@ -16,7 +16,7 @@ use crate::{
     snapshot::build_dev_log_snapshot,
 };
 
-use super::{WebsocketCommandOrigin, WebsocketCommandText, command_entry::handle_command_text};
+use super::{command_entry::handle_command_text, WebsocketCommandOrigin, WebsocketCommandText};
 
 enum SocketLoopControl {
     Continue,

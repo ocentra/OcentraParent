@@ -26,15 +26,14 @@ adapter explicit about tab-list-only capability.
 The CDP adapter is fixture-backed, malformed-payload-safe, redaction-safe, and
 explicit about tab-list-only capability.
 
-### Reviewed production-readiness boundary (2026-08-18)
+### Reviewed production-readiness boundary (2026-08-19)
 
-The parser and target/capture authority code are real, but this workpack has
-no production caller that retains the same managed launch, validates custody,
-and routes a source-backed result into Screen. The next packet must poll from
-the private authority retained by the WP07 service runtime, mint target
-authority only from a trusted same-launch page candidate, and keep active-tab
-state `Unknown` because target-list evidence is not focus proof. WP09 remains
-open and is not PR-ready.
+The parser and core target/capture authority code are real, but canonical
+`f80b47c6a` intentionally removes the dead service Browser-to-Screen surface.
+WP09 now explicitly depends on a real WP07 owner-issued retained launch before
+it can poll, mint same-launch target authority, or offer a typed Screen-owned
+handoff. Active-tab state remains `Unknown` because target-list evidence is not
+focus proof. WP09 remains blocked/open and is not PR-ready.
 
 Required integration tests remain open: retained-launch bridge success and
 owner mismatch; malformed, oversized, timeout, missing-target, target

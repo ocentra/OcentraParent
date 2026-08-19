@@ -1,9 +1,9 @@
 use axum::{
-    Json, Router,
-    extract::{State, ws::WebSocketUpgrade},
-    http::{HeaderMap, StatusCode, header::ORIGIN},
+    extract::{ws::WebSocketUpgrade, State},
+    http::{header::ORIGIN, HeaderMap, StatusCode},
     response::IntoResponse,
     routing::get,
+    Json, Router,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{AgentLogSnapshot, LogFields};
@@ -21,7 +21,7 @@ use crate::{
     network::NetworkPolicy,
     screen_settings_runtime::ScreenSettingsRuntime,
     snapshot::build_dev_log_snapshot,
-    websocket::{WebsocketCommandOrigin, handle_socket},
+    websocket::{handle_socket, WebsocketCommandOrigin},
 };
 
 #[derive(Clone)]

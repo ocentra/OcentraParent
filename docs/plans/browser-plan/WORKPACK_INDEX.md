@@ -30,6 +30,12 @@ code-blocked; validation, proof, and platform gaps must not be promoted to
 production implementation. The graph report's all-`planned` topology is stale
 and is not completion evidence.
 
+2026-08-19 correction: canonical `f80b47c6a` removes the dead service launch,
+env/dev authority, placeholder poll, and Browser-to-Screen path. WP07 is an
+honest manual-required source baseline with no live owner; WP09 remains blocked
+on WP07 and has no production target/Screen caller. Their existing tests are
+stale and the two expected integration roots are absent.
+
 | Status  | Workpack                                                                                            |   Size | Boxes                 |
 | ------- | --------------------------------------------------------------------------------------------------- | -----: | --------------------- |
 | open    | [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md)     |  5,608 | 0/16 checked; 16 open |
@@ -38,9 +44,9 @@ and is not completion evidence.
 | open    | [04 Windows Browser Inventory Adapter](workpacks/04-windows-browser-inventory-adapter.md)           | 14,183 | 0/16 checked; 16 open |
 | open    | [05 Cross-Platform Inventory Matrix](workpacks/05-cross-platform-inventory-matrix.md)               | 21,493 | 0/16 checked; 16 open |
 | open    | [06 Managed Profile Store](workpacks/06-managed-profile-store.md)                                   |  5,199 | 0/16 checked; 16 open |
-| open    | [07 Managed Chromium Launcher](workpacks/07-managed-chromium-launcher.md)                           |  5,377 | 0/16 checked; 16 open |
+| blocked / manual-required source baseline, tests stale | [07 Managed Chromium Launcher](workpacks/07-managed-chromium-launcher.md) | 5,377 | 0/16 checked; 16 open |
 | open    | [08 Bridge Custody And Security](workpacks/08-bridge-custody-and-security.md)                       |  3,712 | 0/16 checked; 16 open |
-| open    | [09 CDP Version And Target Adapter](workpacks/09-cdp-version-and-target-adapter.md)                 |  4,576 | 0/16 checked; 16 open |
+| blocked on WP07 / parser source only, tests stale | [09 CDP Version And Target Adapter](workpacks/09-cdp-version-and-target-adapter.md) | 4,576 | 0/16 checked; 16 open |
 | open    | [10 Tab Evidence Mapper](workpacks/10-tab-evidence-mapper.md)                                       |  4,678 | 0/16 checked; 16 open |
 | open    | [11 Active-Tab Proof Model](workpacks/11-active-tab-proof-model.md)                                 |  3,860 | 0/16 checked; 16 open |
 | open    | [12 Journal And SQLite Browser Ingest](workpacks/12-journal-and-sqlite-browser-ingest.md)           |  3,851 | 0/16 checked; 16 open |

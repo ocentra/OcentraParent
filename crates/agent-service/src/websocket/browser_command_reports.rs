@@ -7,8 +7,8 @@ use crate::{
         browser_intervention_report::build_browser_intervention_read_model_report,
         build_browser_evidence_recent_report, build_browser_inventory_read_model_report,
     },
-    browser_runtime::BrowserManagedRuntime,
     browser_runtime::build_browser_managed_status_report,
+    browser_runtime::BrowserManagedRuntime,
     browser_runtime_stream_api::build_browser_runtime_event_chain_stream_report,
 };
 
