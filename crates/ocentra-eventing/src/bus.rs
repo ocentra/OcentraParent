@@ -18,6 +18,8 @@ mod aggregate_gate;
 mod builders;
 mod dispatch;
 mod dispatch_chain;
+mod handler_scope;
+mod identity;
 mod journaling;
 mod lifecycle;
 mod publish;
@@ -83,7 +85,7 @@ pub struct EventBusShutdownReport {
 
 #[derive(Clone)]
 pub struct EventBus {
-    identity: dispatch_chain::EventBusIdentity,
+    identity: identity::EventBusIdentity,
     registry: Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
     stored_journal: Arc<RwLock<Vec<StoredEventEnvelope>>>,
     dead_letters: Arc<RwLock<Vec<DeadLetter>>>,

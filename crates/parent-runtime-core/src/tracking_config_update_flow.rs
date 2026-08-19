@@ -5,11 +5,12 @@ use ocentra_child_runtime::tracking_config_update_flow::{
     publish_parent_tracking_config_updated_event, TrackingConfigUpdateEventFlowReport,
 };
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
-    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::CorrelationId,
-    ids::EventCustody, ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId,
-    ids::RuntimeRole, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
-    ids::TargetHandler, request::RequestOptions, request::RequestReport,
+    bus::publisher::RootEventPublisher, bus::subscriber::EventSubscriber,
+    bus::subscriber::SubscriptionReport, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
+    ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::RuntimeRole,
+    ids::SourceComponent, ids::SourceService, ids::SubscriberId, ids::TargetHandler,
+    request::RequestOptions, request::RequestReport,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::{
@@ -64,7 +65,7 @@ pub struct ParentTrackingConfigUpdateEventFlowReport {
 }
 
 pub struct ParentTrackingConfigUpdateEventFlow {
-    bus: EventBus,
+    bus: RootEventPublisher,
     state: ParentTrackingConfigUpdateEventState,
     parent_subscription_report: SubscriptionReport,
     change_requested_subscription_report: SubscriptionReport,

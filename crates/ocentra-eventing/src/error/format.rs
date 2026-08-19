@@ -40,9 +40,8 @@ pub(super) fn fmt_eventing_error(
         EventingError::OrderedDispatchCycle { .. }
         | EventingError::OrderedDispatchDepthExceeded { .. }
         | EventingError::OrderedDispatchLockOrderViolation { .. }
-        | EventingError::OrderedDispatchChainExpired { .. } => {
-            dispatch::fmt_dispatch_error(error, formatter)
-        }
+        | EventingError::OrderedDispatchChainExpired { .. }
+        | EventingError::CausalDispatchCancelled => dispatch::fmt_dispatch_error(error, formatter),
         EventingError::InvalidRequestOptions { .. }
         | EventingError::DuplicateRequest { .. }
         | EventingError::RequestTypeMismatch { .. }

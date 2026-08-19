@@ -35,6 +35,9 @@ pub(super) fn fmt_dispatch_error(
             "ordered dispatch causal chain expired before aggregate {} could be dispatched",
             aggregate_key.as_str()
         ),
+        EventingError::CausalDispatchCancelled => {
+            formatter.write_str("causal dispatch cancelled with its owning handler")
+        }
         _ => {
             debug_assert!(false, "dispatch formatter received non-dispatch error");
             formatter.write_str("eventing dispatch error")

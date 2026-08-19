@@ -2,8 +2,8 @@ use std::{path::PathBuf, time::Duration};
 
 use ocentra_eventing::bus::reports::handler::EventMetricsSnapshot;
 use ocentra_eventing::{
-    bus::subscriber::SubscriptionReport, bus::EventBus, error::EventingError,
-    request::RequestOptions, request::RequestReport,
+    bus::publisher::RootEventPublisher, bus::subscriber::SubscriptionReport, bus::EventBus,
+    error::EventingError, request::RequestOptions, request::RequestReport,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::config_update_event::{
@@ -47,7 +47,7 @@ pub struct TrackingConfigUpdateEventFlowReport {
 }
 
 pub struct TrackingConfigUpdateEventFlow {
-    bus: EventBus,
+    bus: RootEventPublisher,
     state: TrackingConfigUpdateEventState,
     parent_subscription_report: SubscriptionReport,
     child_subscription_report: SubscriptionReport,

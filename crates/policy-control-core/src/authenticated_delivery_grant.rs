@@ -1,7 +1,7 @@
 #![forbid(unsafe_code)]
 
 use ed25519_dalek::SigningKey;
-use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::bus::publisher::RootEventPublisher;
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
@@ -174,7 +174,7 @@ pub(crate) struct AuthenticatedDeliveryGrantIssuer {
 impl AuthenticatedDeliveryGrantIssuer {
     pub(crate) fn with_event_bus_issuance_publisher(
         mut self,
-        event_bus: EventBus,
+        event_bus: RootEventPublisher,
     ) -> Result<Self, EventingError> {
         self.issuance_publisher = Some(EventBusAuthenticatedDeliveryGrantIssuancePublisher::new(
             event_bus,

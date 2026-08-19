@@ -1,7 +1,8 @@
 use ocentra_eventing::{
-    bus::EventBus, envelope::EventMetadata, envelope::EventSource, error::EventingError,
-    ids::CorrelationId, ids::EventCustody, ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId,
-    ids::SourceComponent, ids::SourceService, ids::TargetHandler,
+    bus::publisher::RootEventPublisher, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
+    ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
@@ -139,7 +140,7 @@ pub(crate) fn screen_mesh_event_source(
 }
 
 struct ScreenHouseholdMeshSpine {
-    bus: EventBus,
+    bus: RootEventPublisher,
 }
 
 impl ScreenHouseholdMeshSpine {
