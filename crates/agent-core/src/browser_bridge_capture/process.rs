@@ -3,7 +3,7 @@ use std::path::Path;
 use ocentra_parent_agent_protocol::constants;
 use sysinfo::{Pid, ProcessRefreshKind, ProcessesToUpdate, System};
 
-use super::{authority::LaunchBinding, binding, ManagedBrowserCdpCaptureError};
+use super::{ManagedBrowserCdpCaptureError, authority::LaunchBinding, binding};
 use crate::browser_bridge_poll::BrowserBridgePollError;
 
 pub(super) fn revalidate(binding: &LaunchBinding) -> Result<(), ManagedBrowserCdpCaptureError> {

@@ -50,11 +50,11 @@ mod socket_session;
 mod tracking_retention_settings_write;
 
 use self::basic_reports::{
-    temp_runtime_store_path, BROWSER_POLICY_TEST_STORE_PREFIX, SCREEN_SETTINGS_TEST_STORE_PREFIX,
+    BROWSER_POLICY_TEST_STORE_PREFIX, SCREEN_SETTINGS_TEST_STORE_PREFIX, temp_runtime_store_path,
 };
 use crate::{
-    browser_policy_runtime::BrowserPolicyRuntime, lan_pairing::LanPairingRuntime,
-    screen_settings_runtime::ScreenSettingsRuntime,
+    browser_policy_runtime::BrowserPolicyRuntime, browser_runtime::BrowserManagedRuntime,
+    lan_pairing::LanPairingRuntime, screen_settings_runtime::ScreenSettingsRuntime,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -77,6 +77,7 @@ pub(crate) fn handle_command_text_for_test(
         BrowserPolicyRuntime::for_store_path(
             temp_runtime_store_path(BROWSER_POLICY_TEST_STORE_PREFIX).0,
         ),
+        BrowserManagedRuntime::new(),
         ScreenSettingsRuntime::for_store_path(
             temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
         ),
@@ -94,6 +95,7 @@ pub(crate) fn handle_command_text_with_browser_policy_for_test(
         text,
         lan_pairing,
         browser_policy,
+        BrowserManagedRuntime::new(),
         ScreenSettingsRuntime::for_store_path(
             temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
         ),
@@ -127,8 +129,16 @@ pub(crate) fn handle_socket(
     socket: WebSocket,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
 ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
-    socket_session::handle_socket(socket, lan_pairing, browser_policy, screen_settings, origin)
+    socket_session::handle_socket(
+        socket,
+        lan_pairing,
+        browser_policy,
+        browser_runtime,
+        screen_settings,
+        origin,
+    )
 }

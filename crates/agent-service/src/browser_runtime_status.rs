@@ -1,11 +1,10 @@
+use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
 use ocentra_parent_agent_protocol::browser::BrowserChannel;
 use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
 use ocentra_parent_agent_protocol::browser::BrowserFamily;
-use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::browser_managed::BrowserBridgeKind;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileLifecycleState;
-use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileStoreEntry;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedState;
 use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
@@ -15,6 +14,7 @@ use ocentra_parent_agent_core::{
     browser_managed_discovery::BrowserUnmanagedProcessObservation,
     browser_managed_session::BrowserManagedLaunch,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileStoreEntry;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BrowserRuntimeText(String);
@@ -187,9 +187,13 @@ pub fn running_managed_status(
 pub fn bridge_disconnected_status(
     checked_at: impl Into<BrowserRuntimeText>,
     reason: impl Into<BrowserRuntimeText>,
+    started_at: impl Into<BrowserRuntimeText>,
+    launch: &BrowserManagedLaunch,
+    profile_store_entry: &BrowserManagedProfileStoreEntry,
 ) -> BrowserManagedSessionStatus {
     let reason = reason.into();
-    let mut status = base_managed_status(checked_at);
+    let mut status =
+        managed_launch_base_status(checked_at, launch, profile_store_entry, started_at);
     status.managed_state = BrowserManagedState::BridgeDisconnected;
     status.capability_status = BrowserCapabilityStatus::Stale;
     status.degraded_reason = Some(reason.0);
@@ -213,14 +217,39 @@ pub fn connected_status(
     browser_version: impl Into<BrowserRuntimeOptionalText>,
     capability_status: BrowserCapabilityStatus,
     degraded_reason: impl Into<BrowserRuntimeOptionalText>,
+    started_at: impl Into<BrowserRuntimeText>,
+    launch: &BrowserManagedLaunch,
+    profile_store_entry: &BrowserManagedProfileStoreEntry,
 ) -> BrowserManagedSessionStatus {
     let browser_version = browser_version.into();
     let degraded_reason = degraded_reason.into();
-    let mut status = base_managed_status(checked_at);
+    let mut status =
+        managed_launch_base_status(checked_at, launch, profile_store_entry, started_at);
     status.browser_version = browser_version.0;
     status.managed_state = BrowserManagedState::BridgeConnected;
     status.capability_status = capability_status;
     status.degraded_reason = degraded_reason.0;
+    status
+}
+
+fn managed_launch_base_status(
+    checked_at: impl Into<BrowserRuntimeText>,
+    launch: &BrowserManagedLaunch,
+    profile_store_entry: &BrowserManagedProfileStoreEntry,
+    started_at: impl Into<BrowserRuntimeText>,
+) -> BrowserManagedSessionStatus {
+    let mut status = base_managed_status(checked_at);
+    status.managed_browser_session_id = Some(launch.managed_browser_session_id().to_owned());
+    status.browser_family = Some(launch.browser_family());
+    status.browser_channel = Some(launch.browser_channel());
+    status.process_id = Some(launch.process_id());
+    status.profile_id = Some(profile_store_entry.profile_id.clone());
+    status.profile_path_ref = Some(profile_store_entry.profile_path_ref.clone());
+    status.profile_root_ref = Some(profile_store_entry.profile_root_ref.clone());
+    status.profile_scope_id = Some(profile_store_entry.profile_scope_id.clone());
+    status.profile_lifecycle_state = Some(profile_store_entry.lifecycle_state);
+    status.policy_revision = Some(profile_store_entry.policy_revision.clone());
+    status.started_at = Some(started_at.into().0);
     status
 }
 

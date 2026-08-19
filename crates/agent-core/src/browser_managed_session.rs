@@ -1,4 +1,10 @@
-use std::{fmt, net::SocketAddr, path::PathBuf};
+use std::{
+    fmt,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+    path::PathBuf,
+};
+
+use chrono::{SecondsFormat, Utc};
 
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
 use ocentra_parent_agent_protocol::browser_managed::{
@@ -151,8 +157,8 @@ pub fn delete_managed_browser_profile_store(
     store::delete_managed_browser_profile_store(config)
 }
 
-pub fn reserve_managed_browser_bridge_port(
-) -> Result<BrowserManagedBridgePortReservation, BrowserManagedLaunchError> {
+pub fn reserve_managed_browser_bridge_port()
+-> Result<BrowserManagedBridgePortReservation, BrowserManagedLaunchError> {
     launch::reserve_managed_browser_bridge_port()
 }
 
@@ -166,6 +172,71 @@ pub fn launch_managed_browser(
     config: BrowserManagedLaunchConfig,
 ) -> Result<BrowserManagedLaunch, BrowserManagedLaunchError> {
     launch::launch_managed_browser(config)
+}
+
+impl BrowserManagedLaunch {
+    /// Builds bridge custody only from the private launch authority. The
+    /// service may retain and pass this opaque launch, but cannot construct a
+    /// trusted bridge config from process labels or environment values.
+    fn bridge_poll_config(
+        &self,
+        session_fresh_until: impl Into<String>,
+    ) -> crate::browser_bridge_poll::BrowserBridgePollConfig {
+        let authority = &self.cdp_authority;
+        crate::browser_bridge_poll::BrowserBridgePollConfig {
+            endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), authority.bridge_port),
+            managed_browser_session_id: authority.managed_browser_session_id.clone(),
+            profile_id: authority.profile_id.clone(),
+            process_id: authority.process_id,
+            browser_family: authority.browser_family,
+            browser_channel: authority.browser_channel,
+            expected_custody: crate::browser_bridge_poll::BrowserBridgeExpectedCustody {
+                bridge_port: authority.bridge_port,
+                managed_browser_session_id: authority.managed_browser_session_id.clone(),
+                profile_id: authority.profile_id.clone(),
+                process_id: authority.process_id,
+                browser_family: authority.browser_family,
+                browser_channel: authority.browser_channel,
+                session_fresh_until: session_fresh_until.into(),
+            },
+        }
+    }
+
+    pub fn poll_bridge(
+        &self,
+        observed_at: impl Into<String>,
+    ) -> Result<
+        crate::browser_bridge_poll::BrowserBridgePollSnapshot,
+        crate::browser_bridge_poll::BrowserBridgePollError,
+    > {
+        let observed_at = observed_at.into();
+        let config = self.bridge_poll_config(self.session_fresh_until());
+        crate::browser_bridge_poll::poll_chromium_bridge(
+            &config,
+            &observed_at,
+            &self.session_fresh_until(),
+        )
+    }
+
+    pub fn expires_at_epoch_ms(&self) -> u64 {
+        self.cdp_authority.expires_at_epoch_ms
+    }
+
+    fn session_fresh_until(&self) -> String {
+        chrono::DateTime::<Utc>::from_timestamp_millis(
+            i64::try_from(self.cdp_authority.expires_at_epoch_ms).unwrap_or(i64::MAX),
+        )
+        .unwrap_or_else(Utc::now)
+        .to_rfc3339_opts(SecondsFormat::Millis, true)
+    }
+
+    pub fn managed_browser_session_id(&self) -> &str {
+        &self.cdp_authority.managed_browser_session_id
+    }
+
+    pub fn retire(&self) -> bool {
+        crate::browser_bridge_capture::retire_managed_browser_launch(self)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

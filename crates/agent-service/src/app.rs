@@ -1,9 +1,9 @@
 use axum::{
-    extract::{ws::WebSocketUpgrade, State},
-    http::{header::ORIGIN, HeaderMap, StatusCode},
+    Json, Router,
+    extract::{State, ws::WebSocketUpgrade},
+    http::{HeaderMap, StatusCode, header::ORIGIN},
     response::IntoResponse,
     routing::get,
-    Json, Router,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{AgentLogSnapshot, LogFields};
@@ -11,6 +11,7 @@ use ocentra_parent_agent_protocol::logging::{AgentLogSnapshot, LogFields};
 use crate::{
     browser_intervention_page::serve_browser_intervention_page,
     browser_policy_runtime::BrowserPolicyRuntime,
+    browser_runtime::BrowserManagedRuntime,
     dev_log::write_agent_info,
     lan_pairing::LanPairingRuntime,
     lan_pairing_runtime_state::{
@@ -20,7 +21,7 @@ use crate::{
     network::NetworkPolicy,
     screen_settings_runtime::ScreenSettingsRuntime,
     snapshot::build_dev_log_snapshot,
-    websocket::{handle_socket, WebsocketCommandOrigin},
+    websocket::{WebsocketCommandOrigin, handle_socket},
 };
 
 #[derive(Clone)]
@@ -28,6 +29,7 @@ pub struct AppState {
     network: NetworkPolicy,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
 }
 
@@ -40,6 +42,7 @@ pub fn router(network: NetworkPolicy) -> Router {
         network,
         lan_pairing,
         browser_policy: BrowserPolicyRuntime::from_env(),
+        browser_runtime: BrowserManagedRuntime::new(),
         screen_settings: ScreenSettingsRuntime::from_env(),
     };
     Router::new()
@@ -87,6 +90,7 @@ async fn websocket(
             socket,
             state.lan_pairing,
             state.browser_policy,
+            state.browser_runtime,
             state.screen_settings,
             WebsocketCommandOrigin(origin),
         )

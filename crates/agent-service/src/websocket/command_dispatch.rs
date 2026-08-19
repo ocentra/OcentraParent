@@ -5,7 +5,8 @@ use std::{future::Future, pin::Pin};
 
 use crate::{
     browser_policy_api::build_browser_policy_event, browser_policy_runtime::BrowserPolicyRuntime,
-    lan_pairing::LanPairingRuntime, parent_assistant_api::build_parent_assistant_scaffold_event,
+    browser_runtime::BrowserManagedRuntime, lan_pairing::LanPairingRuntime,
+    parent_assistant_api::build_parent_assistant_scaffold_event,
     screen_settings_api::build_screen_settings_event,
     screen_settings_runtime::ScreenSettingsRuntime,
 };
@@ -24,6 +25,7 @@ pub(super) fn build_command_event(
     command: AgentCommandEnvelope,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
@@ -52,7 +54,7 @@ pub(super) fn build_command_event(
             | AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet
             | AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet
             | AgentCommandName::AgentNetworkWindowsWfpGateStatusGet => {
-                build_browser_network_command_report(command).await
+                build_browser_network_command_report(command, browser_runtime.clone()).await
             }
             AgentCommandName::AgentLocalAiRuntimeStatusGet
             | AgentCommandName::AgentLocalAiChatGenerate
