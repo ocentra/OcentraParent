@@ -124,16 +124,24 @@ The Account WP08 producer transport is now mapped at canonical source
 adapter is available. Expected Cloudflare WP06 test roots remain unwritten:
 
 ```text
+infra/cloudflare/tests/unit/account-identity-authority-producer-transport.test.ts
 infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts
 infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts
 infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts
+infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts
 ```
 
-These must cover private transport verification/service-binding rejection,
-verified-provider subject binding without Firebase authority substitution, D1
-currentness/revocation/CAS and stale-generation/restart/concurrency negatives,
-and the absence of any public caller-scalar mutation route. No test or proof
-claim is made by this mapping update.
+Add the private transport verifier root below the caller/runtime roots. These
+must cover the Account service-binding adapter, durable public-key registry,
+key-id hash checking and rotation/revocation, bounded canonical wire parsing,
+signature and timestamp checks, verified-provider subject binding without
+Firebase authority substitution, D1 currentness/revocation/CAS and
+stale-generation/restart/concurrency negatives, and the absence of any public
+caller-scalar mutation route. The registry must remain Account-owned and
+durable; a missing/untrusted registry or binding is manual-required, never a
+fallback to an env key, Firebase key, request key, fixture, or caller row. No
+test or proof claim is made by this mapping update.
 
 WP06 consumes, but does not define, Account WP08's Rust-owned contract or
 Account WP02's target-aware action authority. Its proof must name

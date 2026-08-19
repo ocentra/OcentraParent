@@ -217,6 +217,97 @@ invent a public route or arbitrary module. Expected subject, signature/time,
 currentness, migration, reachability, restart, and concurrency tests are
 mapped but not written or run.
 
+## 2026-08-19 WP06 producer-consumer source contract
+
+The next source packet is a private consumer at the existing
+`account-identity-authority-caller.ts` / `account-identity-authority-runtime.ts`
+seam. It is not a public Worker route and does not add a browser, admin,
+support, Firebase, or request-selected authority path.
+
+### Deep interface and trust route
+
+Account WP02/WP08 must provide an authenticated Cloudflare service-binding
+adapter owned by Account. The adapter accepts only the provider and subject
+already returned by the Worker provider verifier as a lookup key and returns
+either a bounded signed producer wire or a typed unavailable result. It must
+never accept household, member, device, role, session, generation, target,
+lease, capability, or receipt scalars from the Worker request.
+
+The Worker must obtain the verification key by `key_id` from an Account-owned,
+durable, versioned public-key registry over that authenticated service binding.
+The registry entry must be checked against `sha256:<public-key>` before use;
+the key is not an environment variable, Firebase key, request header, D1 row
+supplied by the caller, or hard-coded fixture. Until Account supplies durable
+signer/key custody and authenticated registry distribution, the adapter and
+consumer return `account-identity-authority-source-unavailable` and no writer
+operation is mounted. Unknown, revoked, expired, or rotated-out key IDs remain
+manual-required rather than falling back to another key.
+
+The private Worker verifier owns the bounded-wire checks: exact domain
+separator, schema/audience/environment/algorithm, field and payload limits,
+canonical payload bytes, strict timestamp form and lifetime/skew, key-id
+derivation, and Ed25519 signature. It yields only the validated Account
+handoff to the existing server-owned caller; it does not yield a reusable
+authority token to a route caller.
+
+Before create, compare-and-swap, revoke, or any future mutation, the existing
+D1 writer must re-read the provider mapping in the same transaction and
+compare the verified handoff with durable provider/account/household/member/
+device/session/authority-generation state, active mapping/revocation,
+pairing/install/lifecycle state, and the expected session identity and
+generation. A stale, revoked, mismatched, replayed, or unavailable result
+fails closed; only the guarded atomic write/CAS result is returned.
+
+### Exact source and test roots for the packet
+
+Source remains bounded to these owning surfaces; no global graph or unrelated
+Cloudflare route is implied:
+
+```text
+infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts  (new private binding adapter/verifier seam)
+infra/cloudflare/src/auth/account-identity-authority-caller.ts               (mount only after verified handoff)
+infra/cloudflare/src/auth/account-identity-authority-runtime.ts              (retain parameterless manual-required gate)
+infra/cloudflare/src/storage/account-identity-authority-writer.ts            (transactional recheck and guarded mutation)
+infra/cloudflare/src/storage/account-identity-authority-store.ts             (durable currentness read)
+infra/cloudflare/src/env.ts                                                   (private binding declaration only, when Account route exists)
+infra/cloudflare/wrangler.toml                                                (binding shape only; no placeholder readiness claim)
+infra/cloudflare/wrangler.production.toml                                     (binding shape only; no placeholder readiness claim)
+infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql
+```
+
+Expected tests are written later in the plan-wide test phase, through the
+same interface used by production:
+
+```text
+infra/cloudflare/tests/unit/account-identity-authority-producer-transport.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts
+infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts
+```
+
+The test adapter must be an in-memory implementation of the same private
+service-binding/key-registry interface, not a mock or fake authority source.
+Required negatives include unavailable signer/registry/service binding,
+unknown or hash-mismatched key, key rotation/revocation, malformed/tampered/
+non-canonical/oversize wire, invalid signature, expiry/future skew, provider
+subject mismatch, revoked or stale D1 mapping, generation/session conflict,
+restart/replay, concurrent CAS, and proof that no public scalar mutation route
+exists. No test, proof, migration application, runtime readiness, or DONE claim
+is made by this contract update.
+
+### Hard dependencies and stop condition
+
+The packet depends on Account WP02/WP08 durable signer/key custody,
+authenticated producer issuance, and authenticated public-key registry
+distribution. Cloudflare WP06 owns verification, durable recheck, and guarded
+storage only. Account WP08 owns the Rust wire; Account WP02/WP08 own issuer and
+key custody; Device Trust WP03 remains downstream. If the Account service
+binding or registry cannot be made authenticated and durable, keep the current
+manual-required runtime and do not invent a verifier, key, endpoint, or
+caller-supplied substitute.
+
 ## What is actually proved
 
 - Durable Object ownership is explicit for `BILLING_DO`, `REFERRAL_DO`, and `ENTITLEMENT_SNAPSHOT_DO`, each with one owner, one purpose, and explicit child-data prohibition.
