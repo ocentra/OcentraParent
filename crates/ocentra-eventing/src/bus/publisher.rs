@@ -8,6 +8,7 @@ use super::{
 };
 
 mod context;
+mod request;
 
 /// The explicit authority for independent root publication on one event bus.
 ///
