@@ -1,6 +1,7 @@
 import {
   AccountIdentityCurrentMemberDeviceAuthorityHandoffSchema,
   type AccountIdentityCurrentMemberDeviceAuthorityHandoff,
+  type AccountIdentityProvider,
 } from '@ocentra-parent/schema-domain/account-identity-authority';
 
 const DOMAIN_SEPARATOR = new TextEncoder().encode('ocentra.account-authority-producer.signing.v1\0');
@@ -16,6 +17,8 @@ const MAX_FUTURE_ISSUED_SKEW_MS = 30 * 1_000;
 const MAX_WIRE_BYTES = MAX_PAYLOAD_BYTES + MAX_FIELD_BYTES * 7 + 128 + SIGNATURE_BYTES;
 const KEY_ID_PATTERN = /^sha256:[0-9a-f]{64}$/;
 const MILLIS_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+const ACCOUNT_OWNED_BINDING = Symbol('account-owned-authority-service-binding');
+const WIRE_AUTHENTICATED_HANDOFF = Symbol('wire-authenticated-account-authority-handoff');
 
 export const ACCOUNT_IDENTITY_AUTHORITY_SOURCE_UNAVAILABLE = 'account-identity-authority-source-unavailable' as const;
 
@@ -24,54 +27,126 @@ export type AccountIdentityAuthorityProducerUnavailable = {
   readonly reason: typeof ACCOUNT_IDENTITY_AUTHORITY_SOURCE_UNAVAILABLE;
 };
 
-export type AccountIdentityAuthorityProducerVerificationError =
-  'invalid-wire' | 'invalid-payload' | 'authority-expired' | 'verification-key-unavailable' | 'signature-invalid';
+type WireResolution =
+  | { readonly status: 'trusted'; readonly wire: ArrayBuffer }
+  | { readonly status: 'unavailable' }
+  | { readonly status: 'rejected' };
 
-export type AccountIdentityAuthorityProducerKeyResolution =
+type KeyResolution =
   | { readonly status: 'trusted'; readonly keyId: string; readonly publicKey: ArrayBuffer }
   | { readonly status: 'unavailable' }
   | { readonly status: 'rejected' };
 
-/**
- * Account owns this adapter. Cloudflare must never obtain a key from env,
- * Firebase, D1 caller data, a request header, or a fixture. Until Account
- * supplies an authenticated durable implementation, the runtime stays typed
- * unavailable and no writer mutation is mounted.
- */
-export interface AccountIdentityAuthorityProducerKeyRegistry {
-  resolveVerificationKey(keyId: string): Promise<AccountIdentityAuthorityProducerKeyResolution>;
+interface AccountOwnedAuthorityServiceBinding {
+  readonly [ACCOUNT_OWNED_BINDING]: true;
+  resolveCurrentAuthorityWire(provider: AccountIdentityProvider, providerSubject: string): Promise<WireResolution>;
+  resolveVerificationKey(keyId: string): Promise<KeyResolution>;
 }
 
-/** The verified handoff is intentionally opaque and has no serialisation path. */
-export interface VerifiedAccountIdentityAuthorityProducerHandoff {
-  readonly __verifiedAccountIdentityAuthorityProducerHandoff: unique symbol;
+interface AccountOwnedAuthorityTransportConsumer {
+  resolveCurrentAuthority(
+    provider: AccountIdentityProvider,
+    providerSubject: string
+  ): Promise<AccountIdentityCurrentMemberDeviceAuthorityHandoff | null>;
 }
 
-const HANDOFFS = new WeakMap<
-  VerifiedAccountIdentityAuthorityProducerHandoff,
+const TRUSTED_BINDINGS = new WeakSet<AccountOwnedAuthorityServiceBinding>();
+const AUTHENTICATED_HANDOFFS = new WeakMap<
+  WireAuthenticatedHandoff,
   AccountIdentityCurrentMemberDeviceAuthorityHandoff
 >();
 
-export type AccountIdentityAuthorityProducerVerificationResult =
-  | { readonly status: 'verified'; readonly handoff: VerifiedAccountIdentityAuthorityProducerHandoff }
+class WireAuthenticatedHandoff {
+  public readonly [WIRE_AUTHENTICATED_HANDOFF] = true;
+
+  private constructor() {}
+
+  public static issue(handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff): WireAuthenticatedHandoff {
+    const marker = Object.freeze(new WireAuthenticatedHandoff());
+    AUTHENTICATED_HANDOFFS.set(marker, handoff);
+    return marker;
+  }
+}
+
+type VerificationError =
+  'invalid-wire' | 'invalid-payload' | 'authority-expired' | 'verification-key-unavailable' | 'signature-invalid';
+
+type VerificationResult =
+  | { readonly status: 'wire-authenticated'; readonly handoff: WireAuthenticatedHandoff }
   | AccountIdentityAuthorityProducerUnavailable
-  | { readonly status: 'rejected'; readonly reason: AccountIdentityAuthorityProducerVerificationError };
+  | { readonly status: 'rejected'; readonly reason: VerificationError };
+
+/**
+ * Only this module may eventually wrap the real Account-owned Cloudflare
+ * service binding. It intentionally has no current caller: Account has not
+ * supplied an authenticated binding or durable registry yet.
+ */
+function registerAccountOwnedServiceBinding(
+  binding: Omit<AccountOwnedAuthorityServiceBinding, typeof ACCOUNT_OWNED_BINDING>
+): AccountOwnedAuthorityTransportConsumer {
+  const trusted: AccountOwnedAuthorityServiceBinding = Object.freeze({
+    [ACCOUNT_OWNED_BINDING]: true,
+    resolveCurrentAuthorityWire: binding.resolveCurrentAuthorityWire.bind(binding),
+    resolveVerificationKey: binding.resolveVerificationKey.bind(binding),
+  });
+  TRUSTED_BINDINGS.add(trusted);
+  return Object.freeze({
+    resolveCurrentAuthority(provider, providerSubject) {
+      return resolveCurrentAuthority(trusted, provider, providerSubject);
+    },
+  });
+}
 
 export function accountIdentityAuthorityProducerUnavailable(): AccountIdentityAuthorityProducerUnavailable {
   return { status: 'unavailable', reason: ACCOUNT_IDENTITY_AUTHORITY_SOURCE_UNAVAILABLE };
 }
 
-export async function verifyAccountIdentityAuthorityProducerWire(
-  wire: Uint8Array,
-  keyRegistry: AccountIdentityAuthorityProducerKeyRegistry,
-  now = Date.now()
-): Promise<AccountIdentityAuthorityProducerVerificationResult> {
+function isTrustedBinding(value: unknown): value is AccountOwnedAuthorityServiceBinding {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    (value as Partial<AccountOwnedAuthorityServiceBinding>)[ACCOUNT_OWNED_BINDING] === true &&
+    TRUSTED_BINDINGS.has(value as AccountOwnedAuthorityServiceBinding)
+  );
+}
+
+async function resolveCurrentAuthority(
+  binding: AccountOwnedAuthorityServiceBinding,
+  provider: AccountIdentityProvider,
+  providerSubject: string
+): Promise<AccountIdentityCurrentMemberDeviceAuthorityHandoff | null> {
+  if (!isTrustedBinding(binding)) return null;
+  let resolution: WireResolution;
+  try {
+    resolution = await binding.resolveCurrentAuthorityWire(provider, providerSubject);
+  } catch {
+    return null;
+  }
+  if (resolution.status !== 'trusted') return null;
+  const wire = readBuffer(resolution.wire);
+  if (wire === null) return null;
+  const verified = await verifyWire(wire, binding);
+  if (verified.status !== 'wire-authenticated') return null;
+  const handoff = consumeAuthenticatedHandoff(verified.handoff);
+  if (
+    handoff === null ||
+    handoff.mapping.provider !== provider ||
+    handoff.mapping.providerSubject !== providerSubject
+  ) {
+    return null;
+  }
+  return handoff;
+}
+
+async function verifyWire(wire: Uint8Array, binding: AccountOwnedAuthorityServiceBinding): Promise<VerificationResult> {
+  const now = trustedNow();
+  if (now === null) return accountIdentityAuthorityProducerUnavailable();
   const parsed = parseWire(wire, now);
   if (parsed.status !== 'parsed') return parsed;
 
-  let resolution: AccountIdentityAuthorityProducerKeyResolution;
+  let resolution: KeyResolution;
   try {
-    resolution = await keyRegistry.resolveVerificationKey(parsed.keyId);
+    resolution = await binding.resolveVerificationKey(parsed.keyId);
   } catch {
     return accountIdentityAuthorityProducerUnavailable();
   }
@@ -79,31 +154,32 @@ export async function verifyAccountIdentityAuthorityProducerWire(
   if (resolution.status !== 'trusted' || resolution.keyId !== parsed.keyId) {
     return { status: 'rejected', reason: 'verification-key-unavailable' };
   }
-
-  const keyBytes = new Uint8Array(resolution.publicKey);
-  if (keyBytes.byteLength !== 32 || (await expectedKeyId(keyBytes)) !== parsed.keyId) {
+  const keyBytes = readBuffer(resolution.publicKey);
+  if (keyBytes === null || keyBytes.byteLength !== 32) {
     return { status: 'rejected', reason: 'verification-key-unavailable' };
   }
 
-  let publicKey: CryptoKey;
   try {
-    publicKey = await crypto.subtle.importKey('raw', keyBytes, 'Ed25519', false, ['verify']);
-  } catch {
-    return { status: 'rejected', reason: 'verification-key-unavailable' };
-  }
-  let valid: boolean;
-  try {
-    valid = await crypto.subtle.verify('Ed25519', publicKey, parsed.signature, parsed.signingBytes);
+    if ((await expectedKeyId(keyBytes)) !== parsed.keyId) {
+      return { status: 'rejected', reason: 'verification-key-unavailable' };
+    }
+    const publicKey = await crypto.subtle.importKey('raw', keyBytes, 'Ed25519', false, ['verify']);
+    const valid = await crypto.subtle.verify('Ed25519', publicKey, parsed.signature, parsed.signingBytes);
+    return valid
+      ? { status: 'wire-authenticated', handoff: WireAuthenticatedHandoff.issue(parsed.handoff) }
+      : { status: 'rejected', reason: 'signature-invalid' };
   } catch {
     return { status: 'rejected', reason: 'signature-invalid' };
   }
-  if (!valid) return { status: 'rejected', reason: 'signature-invalid' };
+}
 
-  const handoff: VerifiedAccountIdentityAuthorityProducerHandoff = Object.freeze({
-    __verifiedAccountIdentityAuthorityProducerHandoff: Symbol('verified-account-authority') as never,
-  });
-  HANDOFFS.set(handoff, parsed.handoff);
-  return { status: 'verified', handoff };
+function consumeAuthenticatedHandoff(
+  marker: WireAuthenticatedHandoff
+): AccountIdentityCurrentMemberDeviceAuthorityHandoff | null {
+  if (marker[WIRE_AUTHENTICATED_HANDOFF] !== true) return null;
+  const handoff = AUTHENTICATED_HANDOFFS.get(marker) ?? null;
+  AUTHENTICATED_HANDOFFS.delete(marker);
+  return handoff;
 }
 
 function parseWire(
@@ -117,7 +193,7 @@ function parseWire(
       readonly signingBytes: Uint8Array;
       readonly handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff;
     }
-  | { readonly status: 'rejected'; readonly reason: AccountIdentityAuthorityProducerVerificationError } {
+  | { readonly status: 'rejected'; readonly reason: VerificationError } {
   if (wire.byteLength > MAX_WIRE_BYTES || wire.byteLength <= SIGNATURE_BYTES) {
     return { status: 'rejected', reason: 'invalid-wire' };
   }
@@ -139,18 +215,16 @@ function parseWire(
     fields[0] !== SCHEMA_VERSION ||
     fields[1] !== AUDIENCE ||
     fields[2] !== ENVIRONMENT ||
-    fields[3] !== SIGNATURE_ALGORITHM
+    fields[3] !== SIGNATURE_ALGORITHM ||
+    !KEY_ID_PATTERN.test(fields[4])
   ) {
     return { status: 'rejected', reason: 'invalid-wire' };
   }
-  const keyId = fields[4];
-  if (!KEY_ID_PATTERN.test(keyId)) return { status: 'rejected', reason: 'invalid-wire' };
 
   const issuedAt = parseTimestamp(fields[5]);
   const expiresAt = parseTimestamp(fields[6]);
+  if (issuedAt === null || expiresAt === null) return { status: 'rejected', reason: 'invalid-wire' };
   if (
-    issuedAt === null ||
-    expiresAt === null ||
     issuedAt >= expiresAt ||
     issuedAt > now + MAX_FUTURE_ISSUED_SKEW_MS ||
     expiresAt <= now ||
@@ -160,27 +234,84 @@ function parseWire(
   }
 
   let payloadValue: unknown;
+  const payloadText = decodeUtf8(payload);
+  if (payloadText === null) return { status: 'rejected', reason: 'invalid-payload' };
   try {
-    payloadValue = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(payload));
+    payloadValue = JSON.parse(payloadText);
   } catch {
     return { status: 'rejected', reason: 'invalid-payload' };
   }
   const parsed = AccountIdentityCurrentMemberDeviceAuthorityHandoffSchema.safeParse(payloadValue);
-  if (!parsed.success || JSON.stringify(parsed.data) !== new TextDecoder().decode(payload)) {
+  if (!parsed.success || JSON.stringify(parsed.data) !== payloadText || !hasRustAuthorityShape(parsed.data)) {
     return { status: 'rejected', reason: 'invalid-payload' };
   }
-  return { status: 'parsed', keyId, signature, signingBytes, handoff: parsed.data };
+  return { status: 'parsed', keyId: fields[4], signature, signingBytes, handoff: parsed.data };
+}
+
+function hasRustAuthorityShape(handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff): boolean {
+  const member = handoff.member;
+  const binding = handoff.binding;
+  const receipt = member.supportReceipt;
+  return (
+    handoff.schemaVersion === 'v0.1' &&
+    handoff.mapping.status === 'active' &&
+    handoff.mapping.accountId === member.accountId &&
+    member.accountId === binding.accountId &&
+    member.householdId === binding.householdId &&
+    member.accountState === 'active' &&
+    member.membershipState === 'active' &&
+    member.deviceTrustState === 'trusted' &&
+    member.sessionFreshnessState === 'fresh' &&
+    Number.isSafeInteger(member.sessionGeneration) &&
+    member.sessionGeneration > 0 &&
+    member.sessionExpiresAt.trim().length > 0 &&
+    (member.role !== 'support-admin' || receipt !== null) &&
+    (receipt === null ||
+      (receipt.issuedAt.trim().length > 0 &&
+        receipt.expiresAt.trim().length > 0 &&
+        receipt.revocationState === 'active')) &&
+    binding.pairingState === 'paired' &&
+    binding.installState === 'installed' &&
+    binding.lifecycleState === 'active' &&
+    binding.revocationState === 'active' &&
+    Number.isSafeInteger(member.authorityGeneration) &&
+    member.authorityGeneration > 0 &&
+    member.authorityGeneration === binding.authorityGeneration
+  );
+}
+
+function trustedNow(): number | null {
+  const now = Date.now();
+  return Number.isSafeInteger(now) && now >= 0 ? now : null;
 }
 
 function parseTimestamp(value: string): number | null {
   if (!MILLIS_UTC_PATTERN.test(value)) return null;
   const timestamp = Date.parse(value);
-  return Number.isFinite(timestamp) && new Date(timestamp).toISOString() === value ? timestamp : null;
+  return Number.isSafeInteger(timestamp) && timestamp >= 0 && new Date(timestamp).toISOString() === value
+    ? timestamp
+    : null;
 }
 
 async function expectedKeyId(publicKey: Uint8Array): Promise<string> {
   const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', publicKey));
   return `sha256:${Array.from(digest, (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+}
+
+function decodeUtf8(value: Uint8Array): string | null {
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(value);
+  } catch {
+    return null;
+  }
+}
+
+function readBuffer(value: ArrayBuffer): Uint8Array | null {
+  try {
+    return new Uint8Array(value);
+  } catch {
+    return null;
+  }
 }
 
 function startsWith(value: Uint8Array, prefix: Uint8Array): boolean {
@@ -209,11 +340,7 @@ class Cursor {
       return value;
     }
     if (value.byteLength === 0 || value.byteLength > MAX_FIELD_BYTES) return null;
-    try {
-      const text = new TextDecoder('utf-8', { fatal: true }).decode(value);
-      return text.length > 0 && text.length <= MAX_FIELD_BYTES ? text : null;
-    } catch {
-      return null;
-    }
+    const text = decodeUtf8(value);
+    return text !== null && text.length > 0 ? text : null;
   }
 }
