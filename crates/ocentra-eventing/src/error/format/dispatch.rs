@@ -38,6 +38,14 @@ pub(super) fn fmt_dispatch_error(
         EventingError::CausalDispatchCancelled => {
             formatter.write_str("causal dispatch cancelled with its owning handler")
         }
+        EventingError::CausalPublicationOutsideHandlerTask => formatter.write_str(
+            "causal publication must be awaited by the handler task that owns its publisher",
+        ),
+        EventingError::CausalPublicationRequiresRootAuthority { event_type } => write!(
+            formatter,
+            "causal publication of {} requires root authority because it would queue, dead-letter, or append a durable journal",
+            event_type.as_str()
+        ),
         _ => {
             debug_assert!(false, "dispatch formatter received non-dispatch error");
             formatter.write_str("eventing dispatch error")

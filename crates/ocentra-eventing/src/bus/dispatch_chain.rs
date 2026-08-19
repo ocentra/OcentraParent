@@ -61,8 +61,8 @@ impl DispatchChain {
         Ok(OrderedDispatchAdmission {
             chain: Self {
                 frames,
-                // CLONE-JUSTIFICATION: every descendant must retain all
-                // ancestor cancellation scopes across task boundaries.
+                // CLONE-JUSTIFICATION: every nested descendant must retain all
+                // ancestor cancellation scopes.
                 handler_scopes: self.handler_scopes.clone(),
             },
             _lease: lease,
@@ -88,6 +88,10 @@ impl DispatchChain {
             return Ok(());
         };
         self.ensure_frames_live(&current.key.aggregate_key)
+    }
+
+    pub(super) fn ensure_current_handler_task(&self) -> Result<(), EventingError> {
+        self.handler_scopes.ensure_current_handler_task()
     }
 
     pub(super) async fn cancelled(&self) {

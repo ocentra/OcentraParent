@@ -9,6 +9,7 @@ use crate::bus::reports::dead_letters_for;
 use crate::bus::reports::handler::{HandlerOutcome, HandlerReport};
 use receipt::validate_before_dispatch_receipt;
 
+mod causal;
 mod dispatching;
 mod ordered;
 mod preparation;
@@ -26,21 +27,7 @@ pub(super) async fn publish_with_mode<E>(
 where
     E: DomainEvent,
 {
-    publish_with_mode_in_chain(bus, event, metadata, dispatch_mode, DispatchChain::root()).await
-}
-
-pub(super) async fn publish_with_mode_in_chain<E>(
-    bus: &EventBus,
-    event: E,
-    metadata: EventMetadata,
-    dispatch_mode: DispatchMode,
-    dispatch_chain: DispatchChain,
-) -> Result<PublishReport, EventingError>
-where
-    E: DomainEvent,
-{
     bus.ensure_active()?;
-    dispatch_chain.ensure_live()?;
     let stored = EventEnvelope::from_event(event, metadata)?.store()?;
     if stored.is_deadline_expired(bus.clock.now()) {
         return dispatching::dead_letter_expired_deadline(bus, stored, dispatch_mode).await;
@@ -55,9 +42,22 @@ where
         dispatch_mode,
         bus.queue.report(QueueDisposition::Dispatched),
         true,
-        dispatch_chain,
+        DispatchChain::root(),
     )
     .await
+}
+
+pub(super) async fn publish_causal_with_mode_in_chain<E>(
+    bus: &EventBus,
+    event: E,
+    metadata: EventMetadata,
+    dispatch_mode: DispatchMode,
+    dispatch_chain: DispatchChain,
+) -> Result<PublishReport, EventingError>
+where
+    E: DomainEvent,
+{
+    causal::publish_with_mode(bus, event, metadata, dispatch_mode, dispatch_chain).await
 }
 
 pub(super) async fn publish_with_mode_and_before_dispatch_receipt_validator<E>(
@@ -273,7 +273,7 @@ impl EventBus {
             subscribers,
             dispatch_mode,
             dispatch_chain,
-            ordered_admission,
+            ordered_admission.as_ref(),
         )
         .await
     }

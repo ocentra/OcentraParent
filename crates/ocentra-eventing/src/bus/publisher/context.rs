@@ -13,16 +13,9 @@ impl EventPublisher {
     where
         E: RequestEvent,
     {
+        self.dispatch_chain.ensure_current_handler_task()?;
         self.dispatch_chain.ensure_live()?;
-        let completion = self.bus.complete_request::<E>(request_id, response);
-        tokio::pin!(completion);
-        // CANCEL-SAFE: completion has no partial async commit before its future
-        // resolves; cancellation therefore cannot expose a half-completion.
-        tokio::select! {
-            biased;
-            _ = self.dispatch_chain.cancelled() => Err(EventingError::CausalDispatchCancelled),
-            result = completion => result,
-        }
+        self.bus.complete_request::<E>(request_id, response)
     }
 }
 
@@ -47,9 +40,8 @@ where
         self.envelope.payload()
     }
 
-    /// Returns the causal publisher for nested handler work. Clone this value
-    /// into spawned tasks; unlike task-local state, the explicit chain survives
-    /// the spawn boundary.
+    /// Returns the causal publisher for nested handler work. Publication must
+    /// be awaited directly by this handler task; spawned clones fail closed.
     pub fn publisher(&self) -> &EventPublisher {
         &self.publisher
     }

@@ -83,6 +83,10 @@ pub enum EventingError {
         aggregate_key: AggregateKey,
     },
     CausalDispatchCancelled,
+    CausalPublicationOutsideHandlerTask,
+    CausalPublicationRequiresRootAuthority {
+        event_type: EventType,
+    },
     InvalidRequestOptions {
         reason: String,
     },

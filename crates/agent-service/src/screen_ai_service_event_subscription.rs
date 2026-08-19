@@ -175,7 +175,7 @@ pub(crate) enum ScreenAiServiceEventSubscriptionDispatch {
 }
 
 pub(crate) async fn subscribe_screen_service_row_ready_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ScreenAiServiceEventSubscriptionState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ScreenAiServiceRowReadyEvent, _, _>(

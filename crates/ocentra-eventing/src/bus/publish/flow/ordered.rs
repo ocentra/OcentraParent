@@ -9,7 +9,7 @@ pub(super) async fn dispatch(
     bus: &EventBus,
     stored: crate::StoredEventEnvelope,
     subscribers: Vec<SubscriberRecord>,
-    admission: OrderedDispatchAdmission,
+    admission: &OrderedDispatchAdmission,
 ) -> Vec<crate::bus::reports::handler::HandlerReport> {
     let reports = dispatch_sequential(
         stored,
@@ -19,6 +19,5 @@ pub(super) async fn dispatch(
         Arc::clone(&bus.clock),
     )
     .await;
-    drop(admission);
     reports
 }
