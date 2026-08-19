@@ -80,7 +80,7 @@ The protocol does not claim distributed transaction atomicity. The interface
 must make uncertainty explicit and fail closed rather than hiding a partial
 owner commit behind an Account-local CAS row.
 
-## Hard dependencies and handoffs
+## Hard owner dependencies
 
 - Account WP02/WP08: sealed Account authority and actor-versus-target binding;
   WP05A owns only the private adapter over that source.
@@ -88,12 +88,14 @@ owner commit behind an Account-local CAS row.
 - Device Trust WP01: trusted-device current binding participant.
 - Device Trust WP03: parent-step-up reservation participant; it remains the
   ceremony owner and must not be moved into Account.
+
+## Downstream consumers and handoffs
+
 - Account WP05: capability/lease consumer and downstream authorization owner.
 - Policy WP01: typed consumer only; no policy storage or authority duplication.
-
-Data WP08/WP09/WP10/WP11 remain blocked until this coordinator and all required
-owner participants have reviewed source. They may consume only an opaque,
-owner-derived committed outcome.
+- Data WP08/WP09/WP10/WP11 remain blocked until this coordinator and all
+  required owner participants have reviewed source. They may consume only an
+  opaque, owner-derived committed outcome.
 
 ## Acceptance and no-claim boundary
 
