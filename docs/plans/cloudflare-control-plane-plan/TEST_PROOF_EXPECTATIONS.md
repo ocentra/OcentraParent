@@ -119,6 +119,22 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 
 ## Account authority storage handoff
 
+The Account WP08 producer transport is now mapped at canonical source
+`c5ed3ce5c`, but no Account signer/key registry or authenticated producer
+adapter is available. Expected Cloudflare WP06 test roots remain unwritten:
+
+```text
+infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts
+```
+
+These must cover private transport verification/service-binding rejection,
+verified-provider subject binding without Firebase authority substitution, D1
+currentness/revocation/CAS and stale-generation/restart/concurrency negatives,
+and the absence of any public caller-scalar mutation route. No test or proof
+claim is made by this mapping update.
+
 WP06 consumes, but does not define, Account WP08's Rust-owned contract or
 Account WP02's target-aware action authority. Its proof must name
 `infra/cloudflare/wrangler.toml`, `src/env.ts`, the selected account-identity

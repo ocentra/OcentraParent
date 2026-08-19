@@ -428,12 +428,30 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / replacement source accepted / tests deferred",
+        "statusText": "validation / bounded producer source accepted / tests deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/schema/src/account_identity_authority_producer.rs",
+            "crates/schema/src/lib.rs",
+            "crates/family-identity-core/src/account_identity_authority.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer_envelope.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer_error.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer_parse.rs",
+            "crates/family-identity-core/src/account_identity_authority_repository.rs",
+            "crates/family-identity-core/src/lib.rs"
+          ],
+          "testRoots": [
+            "crates/family-identity-core/tests/contract/account_identity_authority_producer.rs",
+            "crates/family-identity-core/tests/unit/account_identity_authority_producer.rs"
+          ]
+        },
         "completionEvidenceOverride": {
-          "reason": "Independent source review accepted the Account authority packet at 35edb2830, integrated through e69acf279. Rust-owned schema validation, guarded non-forgeable capability issuance, a local SQLite repository/CAS/invariant owner, and generated TypeScript parity exist. This evidence does not include target-aware action resolution, an authoritative Cloudflare D1 writer/update/revocation/CAS path, a provider-to-Account production caller, or a live Device Trust binding. Expected tests, deployment/migration execution, proof, and DONE remain open.",
+          "reason": "Independent source review accepts the integrated Account authority and crate-private producer packet at c5ed3ce5c. Rust-owned schema validation, guarded non-forgeable capability issuance, bounded domain-separated transport parsing/signature/time validation, a local SQLite repository/CAS/invariant owner, and generated TypeScript parity exist. No authenticated producer adapter, durable signer/key registry, Cloudflare verifier/mount, target-aware action completion, live Device Trust binding, expected tests, deployment/migration execution, proof, or DONE is claimed.",
           "evidence": [
             "docs/plans/account-identity-family-plan/PLAN_STATE.md",
             "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
@@ -449,12 +467,19 @@
         },
         "references": {
           "implementation": [
+            "crates/schema/src/account_identity_authority_producer.rs",
+            "crates/schema/src/lib.rs",
             "crates/schema/src/account_identity_authority.rs",
             "crates/schema/src/account_identity_authority_validation.rs",
             "crates/family-identity-core/src/account_identity_authority.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer_envelope.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer_error.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer_parse.rs",
             "crates/family-identity-core/src/account_identity_authority_repository.rs",
             "crates/family-identity-core/src/account_identity_authority_repository_cas.rs",
             "crates/family-identity-core/src/account_identity_authority_repository_invariants.rs",
+            "crates/family-identity-core/src/lib.rs",
             "packages/schema-domain/src/generated-account-identity-authority.ts",
             "packages/schema-domain/src/account-identity-authority.ts"
           ],
@@ -466,6 +491,23 @@
             "docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "crates/schema/src/account_identity_authority_producer.rs",
+            "crates/schema/src/lib.rs",
+            "crates/family-identity-core/src/account_identity_authority.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer_envelope.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer_error.rs",
+            "crates/family-identity-core/src/account_identity_authority_producer_parse.rs",
+            "crates/family-identity-core/src/account_identity_authority_repository.rs",
+            "crates/family-identity-core/src/lib.rs"
+          ],
+          "tests": [
+            "crates/family-identity-core/tests/contract/account_identity_authority_producer.rs",
+            "crates/family-identity-core/tests/unit/account_identity_authority_producer.rs"
+          ]
         }
       }
     },
@@ -16423,16 +16465,23 @@
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "reviewed safe read/manual boundary; trusted producer verifier/transport and expected tests open",
+        "statusText": "reviewed safe read/manual boundary; Account transport source mapped; private verifier/mount and expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
-            "infra/cloudflare/src/auth/account-identity-authority-runtime.ts"
+            "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+            "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+            "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+            "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
           ],
-          "testRoots": []
+          "testRoots": [
+            "infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts",
+            "infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts",
+            "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts"
+          ]
         },
         "dependencyReview": {
           "hardDependencies": [
@@ -16451,7 +16500,7 @@
           "reason": "Independent source review accepted the Cloudflare WP06 authority packet after Account WP08's canonical identities, Account WP02's target-aware identity, and WP01's module scaffold. The runtime is now explicitly mapped as a safe verified-provider read/manual boundary: the verifier reaches current-authority resolution, while parameterless mutation readiness remains manual-required and no caller-scalar mutation API exists. Writer create/currentness/compare-and-swap/revoke remains gated by the unconstructible AccountOwnedAuthorityProducer. The exact missing production owner is Account WP02/WP08 signed/sealed current-authority producer transport plus Worker verifier. Runtime mutation composition, higher authority, expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
         },
         "completionEvidenceOverride": {
-          "reason": "Reviewed WP06 source is limited to the reachable verified-provider read/manual boundary. Runtime mutation readiness is parameterless and manual-required; writer mutations remain gated by the unconstructible AccountOwnedAuthorityProducer. The Account WP02/WP08 signed/sealed current-authority producer transport and Worker verifier are missing, so tests, migration execution, proof, deployment, and DONE remain open.",
+          "reason": "Reviewed WP06 source remains limited to the reachable verified-provider read/manual boundary. Account WP08's crate-private producer transport is now mapped at c5ed3ce5c, but Account signer/key custody, an authenticated producer adapter, and the Cloudflare private verifier/service-binding consumer are missing. Runtime mutation readiness is parameterless and manual-required; writer mutations remain producer-gated and require a D1 currentness/revocation/CAS recheck. The helper split is a decision blocker; no public route or caller-supplied authority is permitted. Expected tests, migration execution, proof, deployment, and DONE remain open.",
           "evidence": [
             "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
             "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
@@ -16484,7 +16533,15 @@
         },
         "expected": {
           "implementation": [
-            "infra/cloudflare/src/auth/account-identity-authority-runtime.ts"
+            "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+            "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+            "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+            "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
+          ],
+          "tests": [
+            "infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts",
+            "infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts",
+            "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts"
           ]
         }
       }

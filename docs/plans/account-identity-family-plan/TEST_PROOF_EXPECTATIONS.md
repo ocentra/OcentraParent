@@ -171,6 +171,21 @@ account, household, device, invite, recovery, and session operations have focuse
 authority proof redacts sensitive values and preserves a safe correlation ID
 ```
 
+Expected producer-transport test roots (not present and not run in this
+source/map phase):
+
+```text
+crates/family-identity-core/tests/contract/account_identity_authority_producer.rs
+crates/family-identity-core/tests/unit/account_identity_authority_producer.rs
+```
+
+The expected cases cover bounded wire parsing, canonical JSON and domain
+separation, signature/key-id failure, exact UTC-millisecond timestamp and
+lifetime/skew rejection, typed signer-custody unavailability, and the rule
+that every authority-bearing signed field comes from the sealed Account
+capability. Cloudflare subject/currentness and D1 CAS/revocation tests remain
+owned by Cloudflare WP06/WP08.
+
 ## WP05A Runtime Effect Fencing Coordinator
 
 Expected focused source/test scope after the owner protocol is reviewed:
