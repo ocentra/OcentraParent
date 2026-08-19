@@ -29,6 +29,23 @@ The child service can launch Edge/Chrome/Chrome for Testing through managed
 profiles with tracked session/process/bridge state and no default-profile
 attachment.
 
+### Reviewed production-readiness boundary (2026-08-18)
+
+The launcher source is usable as the private authority for a future retained
+runtime, but the current service route still discards `BrowserManagedLaunch`
+after launch. Later polling therefore cannot prove ownership from the launch
+and falls back to process-placeholder/unknown custody, which is rejected.
+The next packet must retain the launch, process, session, and bridge lifecycle
+in the service-owned `AppState`/websocket route. It must not mint authority
+from environment values, process labels, or caller input. This note records
+an open implementation dependency only; WP07 remains open and is not
+PR-ready.
+
+Required tests remain open: retained launch lifecycle and restart/expiry,
+process exit and bridge disconnect, owner/custody mismatch, and no default or
+unowned profile attachment through the real service route. The existing
+launcher planning and failed-spawn tests do not cover this integration seam.
+
 ## Scope
 
 - Edge/Chrome executable identity.

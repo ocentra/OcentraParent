@@ -27,9 +27,24 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. Use `WORKPACK_INDEX.md` to pick the exact assigned browser control/reference row.
-2. If the task names a settings inventory, coverage matrix, schema proposal, questionnaire forest, or managed/unmanaged browser boundary, open only that reference workpack.
-3. If the task is implementation or proof, route from the selected reference row into the owning browser implementation workpack/checklist row before making claims.
+1. WP07/WP09 have completed a plan-local source reachability review. Do not
+   claim readiness from the existing launcher/parser tests: the service drops
+   `BrowserManagedLaunch` and later polls with unknown/process-placeholder
+   custody, while the CDP-to-Screen path has no production caller.
+2. The next implementation packet must retain the managed launch/process/
+   session/private authority in the service-owned `AppState` route, poll from
+   that authority, mint target authority only from a same-launch trusted page
+   candidate, and invoke the existing Screen handoff. Preserve target-list
+   `Unknown` active-tab state and explicit teardown/restart/expiry failures.
+3. Before implementation, route exact source and test roots through the global
+   graph/coordinator. Required test roots include retained-launch lifecycle,
+   owner/custody mismatch, malformed/oversized/timeout bridge responses,
+   target disappearance/navigation/process replacement, same-launch target
+   authority, Screen handoff outcomes, and no-active-tab-claim regression.
+4. This plan-local route intentionally does not edit `graph.json`, global
+   indexes/matrices, source, tests, or proof. A later coordinator rebuild is
+   required before the packet can be considered READY; all WP07/WP09 rows and
+   proof remain open.
 
 ## PR readiness guard
 

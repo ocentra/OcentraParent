@@ -108,6 +108,41 @@ references to `packages/activity-domain/src/browser*.ts` remain stale; the
 active TypeScript edge ownership is `packages/browser-domain` and the active
 runtime ownership is the Rust paths in `source-index.md`.
 
+Reviewed readiness route (2026-08-18, WP07/WP09 production follow-up): the
+existing launcher and CDP adapter implementations are real and bounded, but
+their parent-service seam is not yet a delivered managed-browser runtime.
+The service currently discards the private `BrowserManagedLaunch` authority
+after launch, and its later bridge polling falls back to
+`PROCESS_ID_UNKNOWN`/`Unknown` custody, which the bridge rejects. The CDP
+version/target parser and capture/target-authority modules are present, but
+have no production caller that retains the same managed launch and hands the
+result into Screen. This is a reviewed implementation route, not a DONE or
+PR-ready claim.
+
+The first coherent production packet is:
+
+1. Retain a cloneable, service-owned managed-browser runtime in `AppState` and
+   websocket routing, including process/session lifecycle and the private
+   launch authority; do not recreate custody from environment/dev constants.
+2. Poll `/json/version` and `/json/list` from that retained authority and
+   preserve the existing tab-list-only/active-unknown semantics.
+3. Mint CDP target authority only from a trusted same-launch page candidate;
+   target-list visibility must remain `Unknown` active-tab state.
+4. Route the existing typed Screen handoff from that source-backed capture,
+   with teardown, restart, process-exit, expiry, and bridge-disconnect state
+   transitions kept explicit.
+
+Expected source/test debt for this packet is still open: a real AppState and
+websocket integration path; launch/process/session retention and restart or
+expiry tests; bridge custody/owner-mismatch and malformed/oversized/timeout
+tests through the retained launch; target disappearance/navigation and
+process-replacement tests; trusted same-launch target-authority tests; Screen
+handoff success/manual-required/failure tests; and a no-active-tab-claim
+regression. No fixture, environment constant, or caller-supplied authority is
+acceptable as a substitute for these tests. WP07/WP09 remain open and
+implementation-blocked until this packet is routed and implemented; no
+global graph or matrix state is changed by this plan-local update.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.
