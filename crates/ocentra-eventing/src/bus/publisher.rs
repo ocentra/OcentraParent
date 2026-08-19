@@ -3,16 +3,28 @@ use crate::{
     RequestEvent, RequestId,
 };
 
-use super::{DispatchMode, EventBus, PublishReport};
+use super::{dispatch_chain::DispatchChain, DispatchMode, EventBus, PublishReport};
 
+/// A handler-scoped publisher that preserves ordered-dispatch causality.
+///
+/// Clones retain the same causal chain, including clones moved into
+/// `tokio::spawn`. Handler code must use this publisher for awaited nested
+/// publication; publishing through a captured [`EventBus`] starts an
+/// independent root publication and cannot safely bypass an aggregate gate
+/// held by the handler. A spawned publication must remain awaited by and finish
+/// within its handler; cloning this value is not authority to detach work.
 #[derive(Clone)]
 pub struct EventPublisher {
     bus: EventBus,
+    dispatch_chain: DispatchChain,
 }
 
 impl EventPublisher {
-    pub(super) fn new(bus: EventBus) -> Self {
-        Self { bus }
+    pub(super) fn for_dispatch(bus: EventBus, dispatch_chain: DispatchChain) -> Self {
+        Self {
+            bus,
+            dispatch_chain,
+        }
     }
 
     pub async fn publish<E>(
@@ -23,7 +35,14 @@ impl EventPublisher {
     where
         E: DomainEvent,
     {
-        self.bus.publish(event, metadata).await
+        self.bus
+            .publish_in_chain(
+                event,
+                metadata,
+                DispatchMode::Sequential,
+                self.dispatch_chain.clone(),
+            )
+            .await
     }
 
     pub async fn publish_with_mode<E>(
@@ -36,7 +55,42 @@ impl EventPublisher {
         E: DomainEvent,
     {
         self.bus
-            .publish_with_mode(event, metadata, dispatch_mode)
+            .publish_in_chain(event, metadata, dispatch_mode, self.dispatch_chain.clone())
+            .await
+    }
+
+    /// Publishes to another bus while retaining this handler's causal chain.
+    ///
+    /// This is the cross-bus counterpart to [`Self::publish`]. A raw call on
+    /// `target_bus` would create an unrelated root publication and must not be
+    /// used for awaited work caused by the current handler.
+    pub async fn publish_on<E>(
+        &self,
+        target_bus: &EventBus,
+        event: E,
+        metadata: EventMetadata,
+    ) -> Result<PublishReport, EventingError>
+    where
+        E: DomainEvent,
+    {
+        self.publish_on_with_mode(target_bus, event, metadata, DispatchMode::Sequential)
+            .await
+    }
+
+    /// Publishes to another bus with an explicit dispatch mode while retaining
+    /// this handler's causal chain.
+    pub async fn publish_on_with_mode<E>(
+        &self,
+        target_bus: &EventBus,
+        event: E,
+        metadata: EventMetadata,
+        dispatch_mode: DispatchMode,
+    ) -> Result<PublishReport, EventingError>
+    where
+        E: DomainEvent,
+    {
+        target_bus
+            .publish_in_chain(event, metadata, dispatch_mode, self.dispatch_chain.clone())
             .await
     }
 
@@ -86,6 +140,9 @@ where
         self.envelope.payload()
     }
 
+    /// Returns the causal publisher for nested handler work. Clone this value
+    /// into spawned tasks; unlike task-local state, the explicit chain survives
+    /// the spawn boundary.
     pub fn publisher(&self) -> &EventPublisher {
         &self.publisher
     }

@@ -10,11 +10,15 @@ use crate::{
     SharedEventClock, SharedEventJournal,
 };
 
-use super::{active_dispatch::ActiveDispatchTracker, EventBus, EventBusLifecycleState};
+use super::{
+    active_dispatch::ActiveDispatchTracker, dispatch_chain::EventBusIdentity, EventBus,
+    EventBusLifecycleState,
+};
 
 impl EventBus {
     pub fn new() -> Self {
         Self {
+            identity: EventBusIdentity::generated(),
             registry: Arc::new(Mutex::new(BTreeMap::new())),
             stored_journal: Arc::new(RwLock::new(Vec::new())),
             dead_letters: Arc::new(RwLock::new(Vec::new())),

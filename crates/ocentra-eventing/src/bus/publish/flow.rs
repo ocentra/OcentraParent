@@ -4,12 +4,14 @@ use crate::{
 };
 
 use super::{DispatchMode, DispatchStoredError, EventBus, SubscriberRecord};
+use crate::bus::dispatch_chain::{DispatchChain, OrderedDispatchAdmission};
 use crate::bus::reports::dead_letters_for;
 use crate::bus::reports::handler::{HandlerOutcome, HandlerReport};
 use receipt::validate_before_dispatch_receipt;
 
 mod dispatching;
 mod ordered;
+mod preparation;
 mod queued;
 mod receipt;
 
@@ -24,7 +26,21 @@ pub(super) async fn publish_with_mode<E>(
 where
     E: DomainEvent,
 {
+    publish_with_mode_in_chain(bus, event, metadata, dispatch_mode, DispatchChain::root()).await
+}
+
+pub(super) async fn publish_with_mode_in_chain<E>(
+    bus: &EventBus,
+    event: E,
+    metadata: EventMetadata,
+    dispatch_mode: DispatchMode,
+    dispatch_chain: DispatchChain,
+) -> Result<PublishReport, EventingError>
+where
+    E: DomainEvent,
+{
     bus.ensure_active()?;
+    let _dispatch_chain_guard = dispatch_chain.retain_live()?;
     let stored = EventEnvelope::from_event(event, metadata)?.store()?;
     if stored.is_deadline_expired(bus.clock.now()) {
         return dispatching::dead_letter_expired_deadline(bus, stored, dispatch_mode).await;
@@ -33,12 +49,13 @@ where
     if subscribers.is_empty() {
         return dispatching::publish_without_subscribers(bus, stored, dispatch_mode, None).await;
     }
-    bus.dispatch_stored(
+    bus.dispatch_stored_in_chain(
         stored,
         subscribers,
         dispatch_mode,
         bus.queue.report(QueueDisposition::Dispatched),
         true,
+        dispatch_chain,
     )
     .await
 }
@@ -88,12 +105,34 @@ impl EventBus {
         queue_report: crate::QueueReport,
         write_journal: bool,
     ) -> Result<PublishReport, EventingError> {
-        self.dispatch_stored_checked(
+        self.dispatch_stored_in_chain(
             stored,
             subscribers,
             dispatch_mode,
             queue_report,
             write_journal,
+            DispatchChain::root(),
+        )
+        .await
+    }
+
+    async fn dispatch_stored_in_chain(
+        &self,
+        stored: StoredEventEnvelope,
+        subscribers: Vec<SubscriberRecord>,
+        dispatch_mode: DispatchMode,
+        queue_report: crate::QueueReport,
+        write_journal: bool,
+        dispatch_chain: DispatchChain,
+    ) -> Result<PublishReport, EventingError> {
+        self.dispatch_stored_checked_with_before_dispatch_receipt_validator(
+            stored,
+            subscribers,
+            dispatch_mode,
+            queue_report,
+            write_journal,
+            None,
+            dispatch_chain,
         )
         .await
         .map_err(DispatchStoredError::into_error)
@@ -115,6 +154,7 @@ impl EventBus {
             queue_report,
             write_journal,
             Some(validator),
+            DispatchChain::root(),
         )
         .await
         .map_err(DispatchStoredError::into_error)
@@ -135,6 +175,7 @@ impl EventBus {
             queue_report,
             write_journal,
             None,
+            DispatchChain::root(),
         )
         .await
     }
@@ -147,9 +188,12 @@ impl EventBus {
         queue_report: crate::QueueReport,
         write_journal: bool,
         validator: Option<BeforeDispatchReceiptValidator>,
+        dispatch_chain: DispatchChain,
     ) -> Result<PublishReport, DispatchStoredError> {
-        let reservation = self.queue.reserve_dispatch(&stored)?;
         let _active_dispatch = self.active_dispatches.enter();
+        let ordered_admission =
+            preparation::prepare_ordered(self, &stored, dispatch_mode, &dispatch_chain).await?;
+        let reservation = self.queue.reserve_dispatch(&stored)?;
         if write_journal {
             self.record_stored_snapshot(&stored).await;
         }
@@ -164,7 +208,13 @@ impl EventBus {
             journal_appends.push(append);
         }
         let handler_reports = self
-            .dispatch(stored.clone(), subscribers.clone(), dispatch_mode)
+            .dispatch(
+                stored.clone(),
+                subscribers.clone(),
+                dispatch_mode,
+                dispatch_chain,
+                ordered_admission,
+            )
             .await;
         reservation.complete();
         let dead_letters = dead_letters_for(&stored, &handler_reports);
@@ -214,7 +264,17 @@ impl EventBus {
         stored: StoredEventEnvelope,
         subscribers: Vec<SubscriberRecord>,
         dispatch_mode: DispatchMode,
+        dispatch_chain: DispatchChain,
+        ordered_admission: Option<OrderedDispatchAdmission>,
     ) -> Vec<HandlerReport> {
-        dispatching::dispatch(self, stored, subscribers, dispatch_mode).await
+        dispatching::dispatch(
+            self,
+            stored,
+            subscribers,
+            dispatch_mode,
+            dispatch_chain,
+            ordered_admission,
+        )
+        .await
     }
 }

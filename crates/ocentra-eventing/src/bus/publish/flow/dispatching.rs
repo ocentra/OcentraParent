@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::bus::dispatch::{dispatch_concurrent, dispatch_sequential};
+use crate::bus::dispatch_chain::{DispatchChain, OrderedDispatchAdmission};
 use crate::bus::publish::flow::{
     receipt::validate_before_dispatch_receipt, BeforeDispatchReceiptValidator,
 };
@@ -10,7 +11,7 @@ use crate::bus::reports::empty_publish_report;
 use crate::bus::{DispatchMode, EventBus, SubscriberRecord};
 use crate::journal::policy::JournalDispatchPhase;
 use crate::queue::state::NoSubscriberQueueDecision;
-use crate::{EventingError, PublishReport, QueueDisposition, StoredEventEnvelope};
+use crate::{EventingError, ExpectValue, PublishReport, QueueDisposition, StoredEventEnvelope};
 
 use super::ordered;
 use super::queued;
@@ -102,13 +103,15 @@ pub(super) async fn dispatch(
     stored: StoredEventEnvelope,
     subscribers: Vec<SubscriberRecord>,
     dispatch_mode: DispatchMode,
+    dispatch_chain: DispatchChain,
+    ordered_admission: Option<OrderedDispatchAdmission>,
 ) -> Vec<crate::bus::reports::handler::HandlerReport> {
     match dispatch_mode {
         DispatchMode::Sequential => {
             dispatch_sequential(
                 stored,
                 subscribers,
-                EventPublisher::new(bus.clone()),
+                EventPublisher::for_dispatch(bus.clone(), dispatch_chain),
                 bus.handler_policy.clone(),
                 Arc::clone(&bus.clock),
             )
@@ -118,12 +121,20 @@ pub(super) async fn dispatch(
             dispatch_concurrent(
                 stored,
                 subscribers,
-                EventPublisher::new(bus.clone()),
+                EventPublisher::for_dispatch(bus.clone(), dispatch_chain),
                 bus.handler_policy.clone(),
                 Arc::clone(&bus.clock),
             )
             .await
         }
-        DispatchMode::OrderedByAggregateKey => ordered::dispatch(bus, stored, subscribers).await,
+        DispatchMode::OrderedByAggregateKey => {
+            ordered::dispatch(
+                bus,
+                stored,
+                subscribers,
+                ordered_admission.expect_value("ordered dispatch admission"),
+            )
+            .await
+        }
     }
 }
