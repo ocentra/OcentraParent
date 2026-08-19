@@ -2764,6 +2764,7 @@ dependencies = [
  "ocentra-parent-screen-capture-adapter",
  "ocentra-policy-control-core",
  "ocentra-schema",
+ "ocentra-screen-ai-core",
  "ocentra-screen-live-view-core",
  "serde",
  "serde_json",
@@ -2875,7 +2876,6 @@ version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
- "ocentra-parent-screen-capture-adapter",
  "serde",
 ]
 
