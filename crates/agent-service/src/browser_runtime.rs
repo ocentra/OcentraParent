@@ -10,12 +10,10 @@ use ocentra_parent_agent_protocol::{
 
 use ocentra_parent_agent_core::browser_bridge_capture::{
     ManagedBrowserCdpCaptureError, ManagedBrowserCdpTargetAuthority,
-    authorize_managed_browser_cdp_target,
 };
 
 use crate::screen_managed_browser_cdp_runtime::{
     ManagedBrowserScreenIntelligenceRequest, ManagedBrowserScreenIntelligenceRouteError,
-    plan_managed_browser_screen_route,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -56,14 +54,8 @@ impl BrowserManagedRuntime {
         &self,
         target_id: BrowserManagedTargetId,
     ) -> Result<ManagedBrowserCdpTargetAuthority, BrowserManagedRuntimeTargetError> {
-        let launch = self
-            .state
-            .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner())
-            .active_launch()
-            .ok_or(BrowserManagedRuntimeTargetError::NoActiveLaunch)?;
-        authorize_managed_browser_cdp_target(&launch, target_id.0.as_str())
-            .map_err(BrowserManagedRuntimeTargetError::Capture)
+        let _ = (self, target_id);
+        Err(BrowserManagedRuntimeTargetError::Unavailable)
     }
 
     pub fn plan_screen_route(
@@ -74,22 +66,21 @@ impl BrowserManagedRuntime {
         ocentra_screen_ai_core::screen_intelligence_router::ScreenIntelligenceRouteDecision,
         BrowserManagedRuntimeScreenRouteError,
     > {
-        let authority = self
-            .authorize_target(target_id)
-            .map_err(BrowserManagedRuntimeScreenRouteError::Target)?;
-        plan_managed_browser_screen_route(&authority, input)
-            .map_err(BrowserManagedRuntimeScreenRouteError::Screen)
+        let _ = (self, target_id, input);
+        Err(BrowserManagedRuntimeScreenRouteError::Unavailable)
     }
 }
 
 #[derive(Debug)]
 pub enum BrowserManagedRuntimeTargetError {
+    Unavailable,
     NoActiveLaunch,
     Capture(ManagedBrowserCdpCaptureError),
 }
 
 #[derive(Debug)]
 pub enum BrowserManagedRuntimeScreenRouteError {
+    Unavailable,
     Target(BrowserManagedRuntimeTargetError),
     Screen(ManagedBrowserScreenIntelligenceRouteError),
 }

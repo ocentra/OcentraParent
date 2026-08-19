@@ -14,6 +14,7 @@ use super::{BrowserManagedRuntime, BrowserRuntimeText};
 
 pub(super) struct BrowserManagedRuntimeState {
     active: Option<launch::ManagedBrowserRuntimeLaunch>,
+    terminal: Option<BrowserManagedSessionStatus>,
 }
 
 fn resolve_active_status(
@@ -24,7 +25,15 @@ fn resolve_active_status(
     if active.launch.expires_at_epoch_ms() <= current_epoch_millis() {
         let _ = active.launch.retire();
         state.active = None;
-        return None;
+        let status = crate::browser_runtime_status::stopped_managed_status(
+            checked_at,
+            constants::value::BROWSER_BRIDGE_STALE_SESSION,
+            &active.launch,
+            &active.profile_store_entry,
+            active.started_at,
+        );
+        state.terminal = Some(status.clone());
+        return Some(status);
     }
     let result = bridge_poll_status(
         checked_at,
@@ -35,7 +44,20 @@ fn resolve_active_status(
     if result.retire {
         let _ = active.launch.retire();
         state.active = None;
-        None
+        let reason = result
+            .status
+            .degraded_reason
+            .clone()
+            .unwrap_or_else(|| constants::value::BROWSER_BRIDGE_STALE_SESSION.to_string());
+        let status = crate::browser_runtime_status::stopped_managed_status(
+            result.status.checked_at.clone(),
+            reason,
+            &active.launch,
+            &active.profile_store_entry,
+            active.started_at,
+        );
+        state.terminal = Some(status.clone());
+        Some(status)
     } else {
         Some(result.status)
     }
@@ -43,13 +65,10 @@ fn resolve_active_status(
 
 impl BrowserManagedRuntimeState {
     pub(super) fn new() -> Self {
-        Self { active: None }
-    }
-
-    pub(super) fn active_launch(
-        &self,
-    ) -> Option<ocentra_parent_agent_core::browser_managed_session::BrowserManagedLaunch> {
-        self.active.as_ref().map(|active| active.launch.clone())
+        Self {
+            active: None,
+            terminal: None,
+        }
     }
 }
 
@@ -61,8 +80,8 @@ mod config;
 mod launch;
 
 use self::bridge::bridge_poll_status;
-use self::config::{configured_bridge_port, launch_on_status_enabled};
-use self::launch::{launch_managed_browser_status, managed_profile_or_missing_status};
+use self::config::configured_bridge_port;
+use self::launch::managed_profile_or_missing_status;
 
 #[derive(Clone, Copy, Debug)]
 struct BrowserRuntimeErrorText(&'static str);
@@ -105,8 +124,8 @@ pub(super) fn resolve_browser_managed_status(
         return status;
     }
 
-    if launch_on_status_enabled() {
-        return launch_and_poll_status(&mut state, BrowserRuntimeText(checked_at));
+    if let Some(status) = state.terminal.clone() {
+        return status;
     }
 
     match configured_bridge_port() {
@@ -117,26 +136,6 @@ pub(super) fn resolve_browser_managed_status(
         Ok(None) => managed_profile_or_missing_status(BrowserRuntimeText(checked_at)),
         Err(reason) => status_with_error(checked_at, reason.0),
     }
-}
-
-fn launch_and_poll_status(
-    state: &mut BrowserManagedRuntimeState,
-    checked_at: BrowserRuntimeText,
-) -> BrowserManagedSessionStatus {
-    let active = match launch_managed_browser_status(checked_at.clone()) {
-        Ok(active) => active,
-        Err(status) => return status,
-    };
-    let result = bridge_poll_status(
-        checked_at,
-        &active.launch,
-        &active.profile_store_entry,
-        active.started_at.clone(),
-    );
-    if !result.retire {
-        state.active = Some(active);
-    }
-    result.status
 }
 
 fn current_epoch_millis() -> u64 {
