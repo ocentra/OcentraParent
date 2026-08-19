@@ -60,6 +60,10 @@ pub struct VerifiedAccountIdentityAuthority {
 }
 
 impl VerifiedAccountIdentityAuthority {
+    pub(crate) fn handoff(&self) -> &AccountIdentityCurrentMemberDeviceAuthorityHandoff {
+        &self.handoff
+    }
+
     pub(crate) fn current_binding(&self) -> &AccountIdentityHouseholdChildDeviceBinding {
         &self.handoff.binding
     }

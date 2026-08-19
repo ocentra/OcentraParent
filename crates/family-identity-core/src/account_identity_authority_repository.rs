@@ -9,6 +9,9 @@ use rusqlite::Connection;
 use crate::account_identity_authority::{
     AccountIdentityCurrentMemberAuthorityProducer, VerifiedAccountIdentityAuthority,
 };
+use crate::account_identity_authority_producer::AccountIdentityAuthorityProducerCustody;
+use crate::account_identity_authority_producer::AccountIdentityAuthorityProducerTransport;
+use crate::account_identity_authority_producer_error::AccountIdentityAuthorityProducerError;
 use crate::account_identity_mutation_authority::{
     AccountIdentityMutationAuthority, AccountIdentityMutationAuthorityCustody,
     AccountIdentityMutationAuthorityRequest, AccountIdentityMutationOutcome,
@@ -106,6 +109,7 @@ impl SqliteAccountIdentityAuthorityRepository {
 pub struct AccountIdentityAuthorityService {
     repository: SqliteAccountIdentityAuthorityRepository,
     mutation_custody: Option<Box<dyn AccountIdentityMutationAuthorityCustody>>,
+    authority_producer_custody: Option<Box<dyn AccountIdentityAuthorityProducerCustody>>,
 }
 
 impl AccountIdentityAuthorityService {
@@ -113,6 +117,7 @@ impl AccountIdentityAuthorityService {
         Ok(Self {
             repository: SqliteAccountIdentityAuthorityRepository::open(path)?,
             mutation_custody: None,
+            authority_producer_custody: None,
         })
     }
 
@@ -126,6 +131,7 @@ impl AccountIdentityAuthorityService {
                 session_policy,
             )?,
             mutation_custody: None,
+            authority_producer_custody: None,
         })
     }
 
@@ -137,6 +143,34 @@ impl AccountIdentityAuthorityService {
         AccountIdentityCurrentMemberAuthorityProducer::new(&self.repository)
             .produce(provider, provider_subject)
             .map_err(AccountIdentityAuthorityServiceError::from)
+    }
+
+    /// Issue a short-lived Account-owned current-authority transport. The
+    /// provider subject is only a lookup key; every signed authority field is
+    /// copied from the opaque, repository-validated capability.
+    pub fn issue_current_authority_producer(
+        &self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
+    ) -> Result<AccountIdentityAuthorityProducerTransport, AccountIdentityAuthorityProducerError>
+    {
+        let custody = self
+            .authority_producer_custody
+            .as_deref()
+            .ok_or(AccountIdentityAuthorityProducerError::SignerCustodyUnavailable)?;
+        let authority = self
+            .resolve_current(provider, provider_subject)
+            .map_err(AccountIdentityAuthorityProducerError::Authority)?;
+        crate::account_identity_authority_producer::issue(&authority, custody)
+    }
+
+    /// Crate-private installation seam for the future durable signer/key
+    /// registry. No public constructor can inject process or caller custody.
+    pub(crate) fn set_authority_producer_custody(
+        &mut self,
+        custody: Box<dyn AccountIdentityAuthorityProducerCustody>,
+    ) {
+        self.authority_producer_custody = Some(custody);
     }
 
     /// Issue a short-lived mutation transport only after the provider subject
