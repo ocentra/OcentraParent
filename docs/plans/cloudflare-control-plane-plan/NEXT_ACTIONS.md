@@ -33,3 +33,16 @@ The graph now maps the provider-webhook verifier separately from Firebase
 account authentication. Stripe verification is source-present; other
 providers and admin/support authority remain manual-required. No test, proof,
 deployment, runtime-readiness, or DONE claim changed.
+
+## 2026-08-19 WP06 producer-consumer routing
+
+Account WP08's Rust producer transport is now source-present, but its issuance
+is crate-private and typed unavailable without Account signer/key custody and
+an authenticated producer adapter. WP06 remains a safe verified-provider
+read/manual boundary. The next legal Cloudflare packet is the private verifier
+and service-binding consumer at the existing Account caller/runtime boundary,
+followed by a D1 currentness/revocation/CAS recheck before any writer mutation
+is mounted. The exact helper split is a decision blocker; do not invent a
+public route, Firebase authority, request-selected scalar, or arbitrary module.
+Expected subject, signature/time, currentness, migration, reachability, and
+restart/concurrency tests remain open.

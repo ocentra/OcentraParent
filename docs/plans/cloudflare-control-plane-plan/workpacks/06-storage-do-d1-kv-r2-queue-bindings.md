@@ -202,6 +202,21 @@ after this bridge is real. This route has no reverse dependency on WP03.
 - Owned auth handoff surface: `infra/cloudflare/src/auth/account-identity-authority-caller.ts` consuming verified Firebase identity plus Account-owned authority. Current-authority resolution is mounted through the verifier; mutation composition remains manual-required.
 - Owned test surfaces: `infra/cloudflare/tests/unit/env-bindings.test.ts`; `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
+## 2026-08-19 Account producer transport mapping
+
+Account WP08 now supplies a Rust-owned, crate-private producer transport at
+canonical source `c5ed3ce5c`. Its authority-bearing fields derive from the
+sealed `VerifiedAccountIdentityAuthority`; signer/key custody and an
+authenticated producer adapter are still absent, so the Account issuer is
+typed unavailable. WP06 therefore remains limited to the existing verified-
+provider read/manual boundary. The missing Cloudflare source is a private
+transport verifier/service-binding consumer at the existing caller/runtime
+boundary plus a D1 currentness, revocation, and CAS recheck before writer
+mutations. The exact helper split is a decision blocker, not permission to
+invent a public route or arbitrary module. Expected subject, signature/time,
+currentness, migration, reachability, restart, and concurrency tests are
+mapped but not written or run.
+
 ## What is actually proved
 
 - Durable Object ownership is explicit for `BILLING_DO`, `REFERRAL_DO`, and `ENTITLEMENT_SNAPSHOT_DO`, each with one owner, one purpose, and explicit child-data prohibition.

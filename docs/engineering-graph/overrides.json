@@ -2241,16 +2241,23 @@
     {
       "id": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
       "implementation": [
+        "crates/schema/src/account_identity_authority_producer.rs",
+        "crates/schema/src/lib.rs",
         "crates/schema/src/account_identity_authority.rs",
         "crates/schema/src/account_identity_authority_validation.rs",
         "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_envelope.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_error.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_parse.rs",
         "crates/family-identity-core/src/account_identity_authority_repository.rs",
         "crates/family-identity-core/src/account_identity_authority_repository_cas.rs",
         "crates/family-identity-core/src/account_identity_authority_repository_invariants.rs",
+        "crates/family-identity-core/src/lib.rs",
         "packages/schema-domain/src/generated-account-identity-authority.ts",
         "packages/schema-domain/src/account-identity-authority.ts"
       ],
-      "reason": "Independent source review accepted the Account authority packet at 35edb2830, integrated through e69acf279. Rust-owned schema validation, guarded non-forgeable capability issuance, a local SQLite repository/CAS/invariant owner, and generated TypeScript parity exist. This evidence does not include target-aware action resolution, an authoritative Cloudflare D1 writer/update/revocation/CAS path, a provider-to-Account production caller, or a live Device Trust binding. Expected tests, deployment/migration execution, proof, and DONE remain open.",
+      "reason": "Independent source review accepts the integrated Account authority and crate-private producer packet at c5ed3ce5c. Rust-owned schema validation, guarded non-forgeable capability issuance, bounded domain-separated transport parsing/signature/time validation, a local SQLite repository/CAS/invariant owner, and generated TypeScript parity exist. No authenticated producer adapter, durable signer/key registry, Cloudflare verifier/mount, target-aware action completion, live Device Trust binding, expected tests, deployment/migration execution, proof, or DONE is claimed.",
       "evidence": [
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
@@ -2377,7 +2384,7 @@
         "infra/cloudflare/src/storage/account-identity-authority-store.ts",
         "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
       ],
-      "reason": "Reviewed WP06 source is limited to the reachable verified-provider read/manual boundary. Runtime mutation readiness is parameterless and manual-required; writer mutations remain gated by the unconstructible AccountOwnedAuthorityProducer. The Account WP02/WP08 signed/sealed current-authority producer transport and Worker verifier are missing, so tests, migration execution, proof, deployment, and DONE remain open.",
+      "reason": "Reviewed WP06 source remains limited to the reachable verified-provider read/manual boundary. Account WP08's crate-private producer transport is now mapped at c5ed3ce5c, but Account signer/key custody, an authenticated producer adapter, and the Cloudflare private verifier/service-binding consumer are missing. Runtime mutation readiness is parameterless and manual-required; writer mutations remain producer-gated and require a D1 currentness/revocation/CAS recheck. The helper split is a decision blocker; no public route or caller-supplied authority is permitted. Expected tests, migration execution, proof, deployment, and DONE remain open.",
       "evidence": [
         "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",

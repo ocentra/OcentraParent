@@ -332,6 +332,18 @@ or restart-uncertain reservations and must not claim distributed transaction
 atomicity. Account WP05 consumes this handoff; Data WP08/WP09/WP10/WP11 remain
 blocked until reviewed owner participants exist.
 
+## 2026-08-19 Account WP08 producer transport mapping
+
+The integrated Account producer packet at canonical source `c5ed3ce5c` is now
+mapped to WP08. Nine Rust source files define a bounded, Rust-owned,
+domain-separated signed envelope and parser; issuance is crate-private and
+starts only from `VerifiedAccountIdentityAuthority`. Signer/key custody and an
+authenticated producer adapter are absent, so the service remains unavailable
+until Account-owned custody exists. No Cloudflare verifier, service-binding
+mount, D1 currentness recheck, tests, proof, runtime reachability, or DONE claim
+is implied. The expected wire/parser, canonical/signature/time, and
+cross-boundary subject/currentness negatives remain open.
+
 ## Health rules
 
 - Do not start runtime implementation if WP01 provider/custody decision is open.

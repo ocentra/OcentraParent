@@ -879,6 +879,7 @@
       "planSlug": "account-identity-family-plan",
       "roots": [
         "crates/schema/src/account_identity_authority.rs",
+        "crates/schema/src/account_identity_authority_producer.rs",
         "crates/schema/src/account_identity_authority_validation.rs",
         "crates/schema/src/account_identity_authority_validation_binding.rs",
         "crates/schema/src/account_identity_authority_validation_identity.rs",
@@ -903,6 +904,10 @@
         "crates/family-identity-core/src/family_identity_profiles_validation.rs",
         "crates/family-identity-core/src/family_identity_setup_records.rs",
         "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_envelope.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_error.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_parse.rs",
         "crates/family-identity-core/src/account_identity_authority_capability.rs",
         "crates/family-identity-core/src/account_identity_authority_device_mapping.rs",
         "crates/family-identity-core/src/account_identity_authority_repository.rs",
@@ -926,10 +931,29 @@
         "crates/family-identity-core/tests/unit/household_authority.rs",
         "crates/family-identity-core/tests/unit/setup_lifecycle.rs",
         "crates/family-identity-core/tests/unit/session_lifecycle.rs",
+        "crates/family-identity-core/tests/contract/account_identity_authority_producer.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_producer.rs",
         "packages/schema-domain/src/generated-account-identity-authority.ts",
         "packages/schema-domain/src/account-identity-authority.ts",
         "packages/schema-domain/package.json"
-      ]
+      ],
+      "codeExpectation": "code-and-tests",
+      "plannedImplementationRoots": [
+        "crates/schema/src/account_identity_authority_producer.rs",
+        "crates/schema/src/lib.rs",
+        "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_envelope.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_error.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_parse.rs",
+        "crates/family-identity-core/src/account_identity_authority_repository.rs",
+        "crates/family-identity-core/src/lib.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/family-identity-core/tests/contract/account_identity_authority_producer.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_producer.rs"
+      ],
+      "note": "Account WP08 owns the integrated Rust-only producer transport at canonical source c5ed3ce5c: crate-private issuance from VerifiedAccountIdentityAuthority, bounded canonical envelope/parser, domain-separated signature verification, exact UTC-millisecond time checks, and typed signer-custody unavailability. The nine mapped producer source files are source-only/static-validated; no authenticated producer adapter, durable signer/key registry, Cloudflare consumer/mount, tests, proof, or DONE claim exists. All authority-bearing signed fields derive from the sealed Account capability; envelope metadata is issuer/custody-owned."
     },
     "WP-ai-plan-01-source-index-and-repo-reconciliation": {
       "planSlug": "ai-plan",
@@ -1998,10 +2022,23 @@
         "infra/cloudflare/tests/unit/account-identity-store.test.ts",
         "infra/cloudflare/tests/unit/billing-binding-read-model.test.ts",
         "infra/cloudflare/tests/property/billing-idempotency.property.test.ts",
-        "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts"
+        "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts"
       ],
-      "plannedImplementationRoots": ["infra/cloudflare/src/auth/account-identity-authority-runtime.ts"],
-      "note": "Reviewed source maps the authority runtime as a safe verified-provider read/manual boundary. The verifier reaches current-authority resolution; the runtime exposes no mutation method or caller-supplied provider, subject, generation, or session scalar and reports parameterless mutation readiness as manual-required. Writer create/currentness/compare-and-swap/revoke remain gated by the unconstructible AccountOwnedAuthorityProducer. The exact missing production owner is Account WP02/WP08 signed/sealed current-authority producer transport plus Worker verifier. Expected tests, migration execution, proof, deployment, runtime mutation composition, and DONE remain open."
+      "plannedImplementationRoots": [
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
+      ],
+      "expectedTestRoots": [
+        "infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts"
+      ],
+      "note": "Reviewed Cloudflare WP06 source remains a safe verified-provider read/manual boundary. Account WP08 now supplies a crate-private Rust producer transport at c5ed3ce5c, but no authenticated Account producer adapter or durable signer/key registry exists, so no Cloudflare consumer/mount can verify it yet. The existing caller/store/writer boundaries remain the owning surfaces for a future private verifier/service-binding consumer and D1 currentness/revocation/CAS recheck; the exact helper split is a decision blocker, not a new public route or arbitrary module. Expected subject, signature/time, currentness, migration, reachability, proof, deployment, and DONE remain open."
     },
     "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures": {
       "planSlug": "cloudflare-control-plane-plan",

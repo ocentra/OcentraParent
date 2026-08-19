@@ -49,6 +49,17 @@ accepted WP08 schema + sealed authority + local repository/CAS
   -> Cloudflare WP08 runner proof and Account WP06 aggregation
 ```
 
+### 0a. WP08 Account producer transport handoff
+
+The Rust-only producer transport is source-present at `c5ed3ce5c` and mapped
+to WP08. It is not a public authority factory: issuance is crate-private,
+authority-bearing fields come from `VerifiedAccountIdentityAuthority`, and
+missing signer/key custody returns typed unavailable. The next source owner is
+an authenticated Account producer adapter and durable signer/key registry;
+Cloudflare must not consume D1 rows, Firebase claims, request headers, or a
+serialized handoff as authority. Expected parser/canonical/signature/time
+tests remain unwritten and no proof or completion claim is made.
+
 Source packets must be reachable from a shipped caller, derive trust from owned
 state, keep terminal transitions monotonic, and fail closed. A new DTO, enum, or
 test-only constructor with no production caller is not progress.

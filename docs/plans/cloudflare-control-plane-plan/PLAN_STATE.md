@@ -272,3 +272,17 @@ Google remain explicit unavailable/manual-required paths. The former fake
 non-Stripe verification route is removed. Admin/support and family/device
 authority remain unavailable, and tests, retained proof, deployment secrets,
 runtime reachability, and DONE remain open.
+
+## 2026-08-19 Account producer transport handoff mapping
+
+Account WP08 now has a Rust-owned, crate-private signed current-authority
+transport at canonical source `c5ed3ce5c`. It consumes only the sealed
+`VerifiedAccountIdentityAuthority`, bounds and canonicalizes the envelope, and
+fails typed unavailable while Account signer/key custody or an authenticated
+producer adapter is absent. Cloudflare WP06 does not yet have a private
+verifier/service-binding consumer or a D1 currentness/revocation/CAS recheck
+mounted from that transport. The existing
+`account-identity-authority-caller.ts`, store, writer, and runtime remain the
+owning boundary; the exact helper split is a decision blocker. No public route,
+Firebase authority, request-supplied scalar, migration execution, test, proof,
+deployment, runtime-ready, or DONE claim is made.
