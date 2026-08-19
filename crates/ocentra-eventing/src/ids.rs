@@ -81,6 +81,13 @@ text_identifier!(RuntimeInstanceId, RUNTIME_INSTANCE_ID_LABEL);
 text_identifier!(RecordedAt, RECORDED_AT_LABEL);
 
 impl EventId {
+    /// Generates a collision-resistant event identity from the operating
+    /// system CSPRNG.
+    ///
+    /// This API remains infallible for compatibility with existing event
+    /// construction. If secure entropy is unavailable, the process aborts
+    /// rather than minting an identity from a timestamp, process-local counter,
+    /// or another collision-prone fallback.
     pub fn generated() -> Self {
         let mut entropy = [0_u8; 16];
         if getrandom::fill(&mut entropy).is_err() {

@@ -6,7 +6,8 @@ use crate::{
 };
 
 use super::{
-    reports::dead_letter::DeadLetter, DispatchMode, EventBus, PublishReport, SubscriberRecord,
+    dispatch_chain::DispatchChain, reports::dead_letter::DeadLetter, DispatchMode, EventBus,
+    PublishReport, SubscriberRecord,
 };
 
 mod flow;
@@ -32,6 +33,12 @@ impl From<EventingError> for DispatchStoredError {
 }
 
 impl EventBus {
+    /// Publishes a root event with no handler-owned causal dispatch chain.
+    ///
+    /// Handler code that awaits a nested publication must use the
+    /// [`super::publisher::EventPublisher`] supplied by its event context. A
+    /// captured `EventBus` represents independent root work and will wait for
+    /// any existing ordered aggregate owner.
     pub async fn publish<E>(
         &self,
         event: E,
@@ -54,6 +61,10 @@ impl EventBus {
         self.publish(event, metadata).await
     }
 
+    /// Spawns an independent root publication.
+    ///
+    /// Handler-owned spawned work must instead clone the publisher from its
+    /// event context so ordered causality survives the spawn boundary.
     pub fn publish_detached<E>(
         &self,
         event: E,
@@ -81,6 +92,9 @@ impl EventBus {
         request::publish_request(self, event, metadata, options).await
     }
 
+    /// Publishes a root event with an explicit dispatch mode.
+    ///
+    /// Handler code must use its context publisher for causal nested work.
     pub async fn publish_with_mode<E>(
         &self,
         event: E,
@@ -91,6 +105,19 @@ impl EventBus {
         E: DomainEvent,
     {
         flow::publish_with_mode(self, event, metadata, dispatch_mode).await
+    }
+
+    pub(super) async fn publish_in_chain<E>(
+        &self,
+        event: E,
+        metadata: EventMetadata,
+        dispatch_mode: DispatchMode,
+        dispatch_chain: DispatchChain,
+    ) -> Result<PublishReport, EventingError>
+    where
+        E: DomainEvent,
+    {
+        flow::publish_with_mode_in_chain(self, event, metadata, dispatch_mode, dispatch_chain).await
     }
 
     /// Publishes only after the selected before-dispatch journal append passes
