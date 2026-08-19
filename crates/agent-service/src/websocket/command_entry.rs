@@ -3,28 +3,30 @@ use ocentra_parent_agent_protocol::{
     lan_pairing::LanPairingOptionalText,
     logging::{LogFieldValue, LogLevel},
     transport::{
-        command_response_event_id_prefix, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+        AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, command_response_event_id_prefix,
     },
 };
 use std::{future::Future, pin::Pin};
 
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime,
+    browser_runtime::BrowserManagedRuntime,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     lan_pairing::{
-        command_routing::route_lan_command, extend_log_fields, LanCommandDecision,
-        LanPairingRuntime,
+        LanCommandDecision, LanPairingRuntime, command_routing::route_lan_command,
+        extend_log_fields,
     },
     screen_settings_runtime::ScreenSettingsRuntime,
 };
 
-use super::{command_dispatch::build_command_event, WebsocketCommandOrigin, WebsocketCommandText};
+use super::{WebsocketCommandOrigin, WebsocketCommandText, command_dispatch::build_command_event};
 
 pub(super) fn handle_command_text(
     text: WebsocketCommandText,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
@@ -39,6 +41,7 @@ pub(super) fn handle_command_text(
                     command,
                     lan_pairing,
                     browser_policy,
+                    browser_runtime,
                     screen_settings,
                     origin,
                 )
@@ -64,6 +67,7 @@ fn handle_command(
     command: AgentCommandEnvelope,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
@@ -87,8 +91,14 @@ fn handle_command(
             }
         };
 
-        let mut event =
-            build_command_event(command, lan_pairing, browser_policy, screen_settings).await;
+        let mut event = build_command_event(
+            command,
+            lan_pairing,
+            browser_policy,
+            browser_runtime,
+            screen_settings,
+        )
+        .await;
         if let Some(audit_fields) = audit_fields {
             extend_log_fields(&mut event.payload, audit_fields);
         }

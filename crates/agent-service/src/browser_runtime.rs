@@ -1,11 +1,108 @@
 #[path = "browser_runtime_impl.rs"]
 mod browser_runtime_impl;
 
-use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
-use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use std::sync::{Arc, Mutex};
+
+use ocentra_parent_agent_protocol::{
+    browser_managed::BrowserManagedSessionStatus,
+    transport::{AgentCommandEnvelope, AgentEventEnvelope},
+};
+
+use ocentra_parent_agent_core::browser_bridge_capture::{
+    ManagedBrowserCdpCaptureError, ManagedBrowserCdpTargetAuthority,
+    authorize_managed_browser_cdp_target,
+};
+
+use crate::screen_managed_browser_cdp_runtime::{
+    ManagedBrowserScreenIntelligenceRequest, ManagedBrowserScreenIntelligenceRouteError,
+    plan_managed_browser_screen_route,
+};
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct BrowserManagedTargetId(String);
+
+impl BrowserManagedTargetId {
+    pub(crate) fn from_runtime_text(value: BrowserRuntimeText) -> Self {
+        Self(value.0)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct BrowserRuntimeText(pub(crate) String);
+
+#[derive(Clone)]
+pub struct BrowserManagedRuntime {
+    state: Arc<Mutex<browser_runtime_impl::BrowserManagedRuntimeState>>,
+}
+
+impl BrowserManagedRuntime {
+    pub fn new() -> Self {
+        Self {
+            state: Arc::new(Mutex::new(
+                browser_runtime_impl::BrowserManagedRuntimeState::new(),
+            )),
+        }
+    }
+
+    pub async fn build_status_report(&self, command: AgentCommandEnvelope) -> AgentEventEnvelope {
+        browser_runtime_impl::build_browser_managed_status_report(self.clone(), command).await
+    }
+
+    pub(crate) fn resolve_status(&self) -> BrowserManagedSessionStatus {
+        browser_runtime_impl::resolve_browser_managed_status(self)
+    }
+
+    pub fn authorize_target(
+        &self,
+        target_id: BrowserManagedTargetId,
+    ) -> Result<ManagedBrowserCdpTargetAuthority, BrowserManagedRuntimeTargetError> {
+        let launch = self
+            .state
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .active_launch()
+            .ok_or(BrowserManagedRuntimeTargetError::NoActiveLaunch)?;
+        authorize_managed_browser_cdp_target(&launch, target_id.0.as_str())
+            .map_err(BrowserManagedRuntimeTargetError::Capture)
+    }
+
+    pub fn plan_screen_route(
+        &self,
+        target_id: BrowserManagedTargetId,
+        input: ManagedBrowserScreenIntelligenceRequest,
+    ) -> Result<
+        ocentra_screen_ai_core::screen_intelligence_router::ScreenIntelligenceRouteDecision,
+        BrowserManagedRuntimeScreenRouteError,
+    > {
+        let authority = self
+            .authorize_target(target_id)
+            .map_err(BrowserManagedRuntimeScreenRouteError::Target)?;
+        plan_managed_browser_screen_route(&authority, input)
+            .map_err(BrowserManagedRuntimeScreenRouteError::Screen)
+    }
+}
+
+#[derive(Debug)]
+pub enum BrowserManagedRuntimeTargetError {
+    NoActiveLaunch,
+    Capture(ManagedBrowserCdpCaptureError),
+}
+
+#[derive(Debug)]
+pub enum BrowserManagedRuntimeScreenRouteError {
+    Target(BrowserManagedRuntimeTargetError),
+    Screen(ManagedBrowserScreenIntelligenceRouteError),
+}
+
+impl Default for BrowserManagedRuntime {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 pub async fn build_browser_managed_status_report(
+    runtime: BrowserManagedRuntime,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    browser_runtime_impl::build_browser_managed_status_report(command).await
+    runtime.build_status_report(command).await
 }

@@ -10,6 +10,49 @@ use crate::{
     event_builder::build_event, time::timestamp_now,
 };
 
+use super::{BrowserManagedRuntime, BrowserRuntimeText};
+
+pub(super) struct BrowserManagedRuntimeState {
+    active: Option<launch::ManagedBrowserRuntimeLaunch>,
+}
+
+fn resolve_active_status(
+    state: &mut BrowserManagedRuntimeState,
+    checked_at: BrowserRuntimeText,
+) -> Option<BrowserManagedSessionStatus> {
+    let active = state.active.clone()?;
+    if active.launch.expires_at_epoch_ms() <= current_epoch_millis() {
+        let _ = active.launch.retire();
+        state.active = None;
+        return None;
+    }
+    let result = bridge_poll_status(
+        checked_at,
+        &active.launch,
+        &active.profile_store_entry,
+        active.started_at.clone(),
+    );
+    if result.retire {
+        let _ = active.launch.retire();
+        state.active = None;
+        None
+    } else {
+        Some(result.status)
+    }
+}
+
+impl BrowserManagedRuntimeState {
+    pub(super) fn new() -> Self {
+        Self { active: None }
+    }
+
+    pub(super) fn active_launch(
+        &self,
+    ) -> Option<ocentra_parent_agent_core::browser_managed_session::BrowserManagedLaunch> {
+        self.active.as_ref().map(|active| active.launch.clone())
+    }
+}
+
 #[path = "browser_runtime_impl/bridge.rs"]
 mod bridge;
 #[path = "browser_runtime_impl/config.rs"]
@@ -21,16 +64,14 @@ use self::bridge::bridge_poll_status;
 use self::config::{configured_bridge_port, launch_on_status_enabled};
 use self::launch::{launch_managed_browser_status, managed_profile_or_missing_status};
 
-#[derive(Clone, Debug)]
-struct BrowserRuntimeText(String);
-
 #[derive(Clone, Copy, Debug)]
 struct BrowserRuntimeErrorText(&'static str);
 
 pub async fn build_browser_managed_status_report(
+    runtime: BrowserManagedRuntime,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    let status = tokio::task::spawn_blocking(resolve_browser_managed_status)
+    let status = tokio::task::spawn_blocking(move || runtime.resolve_status())
         .await
         .unwrap_or_else(|_| {
             status_with_error(
@@ -50,16 +91,58 @@ pub async fn build_browser_managed_status_report(
     )
 }
 
-fn resolve_browser_managed_status() -> BrowserManagedSessionStatus {
+pub(super) fn resolve_browser_managed_status(
+    runtime: &BrowserManagedRuntime,
+) -> BrowserManagedSessionStatus {
     let checked_at: String = timestamp_now();
+    let mut state = runtime
+        .state
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner());
+
+    if let Some(status) = resolve_active_status(&mut state, BrowserRuntimeText(checked_at.clone()))
+    {
+        return status;
+    }
+
+    if launch_on_status_enabled() {
+        return launch_and_poll_status(&mut state, BrowserRuntimeText(checked_at));
+    }
+
     match configured_bridge_port() {
-        Ok(Some(port)) => bridge_poll_status(BrowserRuntimeText(checked_at), port),
-        Ok(None) => {
-            if launch_on_status_enabled() {
-                return launch_managed_browser_status(BrowserRuntimeText(checked_at));
-            }
-            managed_profile_or_missing_status(BrowserRuntimeText(checked_at))
-        }
+        Ok(Some(_)) => status_with_error(
+            checked_at,
+            constants::value::MANAGED_BROWSER_BRIDGE_ENDPOINT_MANUAL_REQUIRED,
+        ),
+        Ok(None) => managed_profile_or_missing_status(BrowserRuntimeText(checked_at)),
         Err(reason) => status_with_error(checked_at, reason.0),
     }
+}
+
+fn launch_and_poll_status(
+    state: &mut BrowserManagedRuntimeState,
+    checked_at: BrowserRuntimeText,
+) -> BrowserManagedSessionStatus {
+    let active = match launch_managed_browser_status(checked_at.clone()) {
+        Ok(active) => active,
+        Err(status) => return status,
+    };
+    let result = bridge_poll_status(
+        checked_at,
+        &active.launch,
+        &active.profile_store_entry,
+        active.started_at.clone(),
+    );
+    if !result.retire {
+        state.active = Some(active);
+    }
+    result.status
+}
+
+fn current_epoch_millis() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .ok()
+        .and_then(|duration| u64::try_from(duration.as_millis()).ok())
+        .unwrap_or(u64::MAX)
 }

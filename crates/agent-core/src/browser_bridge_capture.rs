@@ -12,8 +12,8 @@ use std::{
     fmt,
     path::Path,
     sync::{
-        atomic::{AtomicBool, AtomicU64, Ordering},
         Arc,
+        atomic::{AtomicBool, AtomicU64, Ordering},
     },
 };
 
@@ -21,8 +21,9 @@ use crate::{
     browser_bridge_poll::BrowserBridgePollError, browser_managed_session::BrowserManagedLaunch,
 };
 use ocentra_schema::managed_browser_cdp_capture::{
-    ManagedBrowserCdpCaptureMode, ManagedBrowserCdpCaptureReceipt, ManagedBrowserCdpCaptureRequest,
-    ManagedBrowserCdpEvidenceRefs, MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION,
+    MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION, ManagedBrowserCdpCaptureMode,
+    ManagedBrowserCdpCaptureReceipt, ManagedBrowserCdpCaptureRequest,
+    ManagedBrowserCdpEvidenceRefs,
 };
 use sha2::{Digest, Sha256};
 
@@ -218,6 +219,17 @@ pub fn authorize_managed_browser_cdp_target(
         last_observed_epoch_ms: Arc::new(AtomicU64::new(created_at_epoch_ms)),
         capability_revoked: Arc::new(AtomicBool::new(false)),
     })
+}
+
+/// Retire a managed browser only when the private launch binding still
+/// identifies the same executable, profile, process, and bridge. Callers do
+/// not receive those identity fields and therefore cannot turn an arbitrary
+/// process id into a teardown authority.
+pub(crate) fn retire_managed_browser_launch(launch: &BrowserManagedLaunch) -> bool {
+    let Ok(binding) = authority::from_launch_for_retirement(launch) else {
+        return false;
+    };
+    process::retire(&binding)
 }
 
 impl ManagedBrowserCdpTargetAuthority {
