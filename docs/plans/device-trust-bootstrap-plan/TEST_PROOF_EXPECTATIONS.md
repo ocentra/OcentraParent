@@ -43,6 +43,19 @@ Current device-trust coverage starts in:
 
 These plan-local tests currently prove document and route alignment only. They do not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle execution, or child uninstall execution by themselves.
 
+WP03's future owner-fence participant must add and focus:
+
+```text
+crates/family-identity-core/tests/unit/parent_step_up_runtime_fence_participant.rs
+```
+
+That test must prove action/target-bound prepare, one-time commit or abort,
+sign-count and expiry enforcement, replay/restart recovery, and fail-closed
+uncertainty through a private participant seam. It must not export raw receipt
+or nonce state to Account WP05A, and its presence does not authorize source,
+proof, platform ceremony, runtime reachability, or DONE before the real
+passkey/OS authority and WP01 currentness owner exist.
+
 `crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs` is a
 synthetic parent-presence/authority-boundary probe. It is not a Windows DPAPI
 proof and must not be cited for same-device unseal, registry-epoch persistence,

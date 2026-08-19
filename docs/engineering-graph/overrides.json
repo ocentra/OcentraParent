@@ -2,9 +2,31 @@
   "schemaVersion": 2,
   "workpackReviews": [
     {
+      "id": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth"
+      ],
+      "reason": "This is a planned coordinator route, not an implementation-ready packet. It owns only opaque operation identity, durable prepare/commit/abort/recover ordering, exact committed replay, a private Account participant adapter, and Account-side capability/controller-lease reservation adapters. Account WP02/WP08 retain Account source truth; Device Trust currentness and parent step-up remain separate owner participants; missing sources/tests/proof and cross-store uncertainty keep this workpack blocked.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/MULTI_OWNER_EFFECT_FENCING_DECISION.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/plans/account-identity-family-plan/NEXT_ACTIONS.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
-      "hardDependencies": ["WP-account-identity-family-plan-05-device-ownership-authz"],
-      "reason": "Live-code review found the Rust-owned storage settings and preview boundary present but the apply source incomplete: no trusted confirmation receipt or confirmed input can authorize Applied or Partial. Confirmation staging/consume is additionally gated on Account WP05's durable opaque-effect CAS/recovery owner and typed handoff. This authorizes only the bounded confirmation/replay and reachable decision source packet; expected tests, focused execution, proof, checklist acceptance, PR readiness, adjacent portal/provider composition, and DONE remain open.",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator"
+      ],
+      "reason": "Live-code review found the Rust-owned storage settings and preview boundary present but the apply source incomplete: no trusted confirmation receipt or confirmed input can authorize Applied or Partial. Confirmation staging/consume is additionally gated on Account WP05A's multi-owner coordinator/recovery route and typed opaque owner handoff. This authorizes only the bounded confirmation/replay and reachable decision source packet; expected tests, focused execution, proof, checklist acceptance, PR readiness, adjacent portal/provider composition, and DONE remain open.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
@@ -424,7 +446,7 @@
         "WP-data-custody-storage-plan-02-encryption-key-custody",
         "WP-account-identity-family-plan-05-device-ownership-authz"
       ],
-      "reason": "New blocked parent-runtime composition/mount route. WP05 supplies the base ledgers, reconciliation, Eventing/outbox, and manual-required gates; Account WP05 must supply true authority transaction/CAS and recovery; Data WP02 must supply key/import custody; producer owners must supply sealed artifact custody; WP09 must supply provider operation capability; and WP10 must supply owner-derived outcomes. The composition roots are absent, private mount traits stay private, and no runtime completeness or fake success is permitted.",
+      "reason": "New blocked parent-runtime composition/mount route. WP05 supplies the base ledgers, reconciliation, Eventing/outbox, and manual-required gates; Account WP05A must supply the multi-owner coordinator/recovery route and typed opaque owner handoff without claiming cross-store atomicity; Data WP02 must supply key/import custody; producer owners must supply sealed artifact custody; WP09 must supply provider operation capability; and WP10 must supply owner-derived outcomes. The composition roots are absent, private mount traits stay private, and no runtime completeness or fake success is permitted.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
@@ -1581,6 +1603,66 @@
       "implementationGate": "reviewed-implementation"
     },
     {
+      "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "The coordinator's Account participant must resolve current household/member/role/target authority from Account WP02; it may not accept caller-minted selectors or duplicate that source.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "Account-side reservation requires repository-owned session freshness and revocation from Account WP03; the coordinator cannot copy or infer session currentness.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "The Account participant must bind against the canonical durable Account authority schema owned by WP08; a local snapshot or request DTO is not an authority source.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "The coordinator must prepare against Device Trust's persistent trusted-device/signer currentness owner and cannot move or duplicate that revocation/generation truth into Account.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "The coordinator consumes a private WP03 reservation participant for action-bound step-up nonce/sign-count/expiry/target binding; it may not export raw receipt state or mint step-up authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
       "from": "WP-account-identity-family-plan-05-device-ownership-authz",
       "to": "WP-account-identity-family-plan-02-identity-household-role-model",
       "kind": "depends_on",
@@ -1799,7 +1881,7 @@
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md"
       ],
-      "reason": "Data WP08 confirmation staging/consume requires the typed opaque Account WP05 effect handoff; the Account-owned durable CAS/recovery owner must exist before Applied or Partial can be reachable."
+      "reason": "Data WP08 confirmation staging/consume requires the typed opaque Account WP05A multi-owner coordinator handoff; owner-specific reservations and crash recovery must exist before Applied or Partial can be reachable."
     },
     {
       "from": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
@@ -1858,7 +1940,7 @@
         "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
       ],
-      "reason": "WP11 is blocked until Account WP05 supplies a true authority transaction/CAS and recovery source handoff; caller-selected authority is not accepted. The reviewed-implementation gate never borrows runtime authority or claims tests, proof, or DONE.",
+      "reason": "WP11 is blocked until Account WP05A supplies the typed opaque multi-owner coordinator handoff and owner-specific recovery; caller-selected authority and claimed cross-store atomicity are not accepted. The reviewed-implementation gate never borrows runtime authority or claims tests, proof, or DONE.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -1882,14 +1964,52 @@
         "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
       ],
       "reason": "Screen WP32 consumes the browser-owned CDP target boundary; bounded parsing and opaque producer binding do not establish a shipped target adapter, safe-disclosure authority, or executable runtime caller."
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "to": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md"
+      ],
+      "reason": "Account WP05 consumes the typed opaque effect-fence handoff from WP05A for capability and controller-lease reservations. WP05A owns coordinator recovery, the private Account participant adapter, and Account-side reservations; it does not copy Account authority, Device Trust currentness, or parent-step-up truth.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
+      "to": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md"
+      ],
+      "reason": "Data WP08 remains blocked until the multi-owner coordinator and all owner-specific reservation participants produce a typed opaque handoff; no caller-selected snapshot or Account-only CAS may authorize Applied or Partial.",
+      "implementationGate": "reviewed-implementation"
     }
   ],
   "stateOverrides": [
     {
+      "id": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "state": "validation",
+      "reason": "WP05A is a newly routed, blocked coordinator workpack. Its planned coordinator/recovery and Account capability/lease roots, Device Trust participant roots, and expected tests are absent. It must coordinate opaque owner reservations without copying Account authority, Device Trust currentness, parent step-up, capability, or lease truth; no source, tests, proof, runtime reachability, READY, or DONE claim is made.",
+      "statusText": "Validation — planned multi-owner coordinator route; implementation and owner participants missing; downstream Data WP08/WP09/WP10/WP11 remain blocked.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/account-identity-family-plan/MULTI_OWNER_EFFECT_FENCING_DECISION.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-account-identity-family-plan-05-device-ownership-authz",
       "state": "validation",
-      "reason": "WP05's shipped runtime composer exposes only a fail-closed manual-required CAS fence. A durable Account-owned opaque-effect CAS repository/schema/recovery owner is missing; the current-authority CAS and separate mutation-effect table do not satisfy it. Data Custody WP08 confirmation staging/consume depends on this typed handoff, so implementation READY is not legal.",
-      "statusText": "Validation — implementation blocked: durable Account-owned effect CAS/recovery owner missing; Data Custody WP08 confirmation handoff blocked; tests and proof open.",
+      "reason": "WP05's shipped runtime composer exposes only a fail-closed manual-required CAS fence. The old Account-only CAS route is retired because it cannot atomically own Device Trust or parent-step-up currentness. WP05A now owns coordinator recovery, the private Account participant adapter, and Account capability/lease reservations; owner participants and typed handoff remain missing, so Data Custody confirmation staging/consume and implementation READY are not legal.",
+      "statusText": "Validation — implementation blocked: multi-owner coordinator and owner participants missing; Data Custody WP08 confirmation handoff blocked; tests and proof open.",
       "needsReview": false,
       "evidence": [
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",

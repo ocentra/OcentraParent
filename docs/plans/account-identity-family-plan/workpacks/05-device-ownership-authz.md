@@ -136,12 +136,15 @@ Required artifacts:
 The following production-source rows are separate from the historical
 contract/proof slice and remain open:
 
-- [ ] A durable Account-owned CAS repository/fence persists the opaque,
-  target-bound effect handoff and atomically compares current generations,
-  revocation, lease, capability, and one-time step-up state before consumption.
-- [ ] Recovery reopens only an exact idempotent outcome after crash/restart;
-  replay, target mismatch, stale generation, and partial-commit states fail
-  closed without minting a new receipt.
+- [ ] The Account-owned runtime effect-fencing coordinator is routed through
+  `workpacks/05-runtime-effect-fencing-coordinator.md`; it coordinates opaque
+  owner reservations and does not copy Device Trust or parent-step-up truth.
+- [ ] Account capability and controller-lease reservation adapters bind one
+  exact action/target/generation/expiry and participate in prepare/commit/abort
+  without caller-minted state.
+- [ ] Recovery reopens only an exact idempotent committed outcome after
+  crash/restart; replay, target mismatch, stale generation, owner revocation,
+  partial commit, and uncertainty fail closed without minting a new receipt.
 
 ## Focused commands
 
@@ -226,17 +229,17 @@ but its shipped implementation is `ManualRequiredHouseholdAuthorityRuntimeCasFen
 `account_identity_authority_repository_cas.rs` owns current Account-authority
 CAS, while `account_identity_mutation_authority_repository_effect.rs` owns a
 different canonical mutation envelope/effect table; neither is the durable
-owner of the opaque WP05 effect receipt. The WP05 source phase is therefore
+owner of the opaque runtime effect handoff. The WP05 source phase is therefore
 blocked, not implementation-complete.
 
-The next legal source packet is Account-owned and remains under
-`crates/family-identity-core`: a dedicated durable effect-CAS repository,
-schema, and recovery module must own exact target/generation/revocation
-comparison, single-use consumption, and crash/restart replay recovery. The
-existing runtime composer/ports remain integration seams only and must not be
-listed as completing this owner. Data Custody WP08's confirmation
-staging/consume path depends on the typed Account handoff and cannot bypass
-this dependency.
+The next legal source packet is the Account WP05A coordinator in
+`workpacks/05-runtime-effect-fencing-coordinator.md`. It owns coordinator
+schema/recovery and Account-side capability/lease reservation adapters while
+Account WP02/WP08, Device Trust WP01, and Device Trust WP03 retain their own
+currentness and receipt truth. The existing runtime composer/ports remain
+integration seams only and must not be listed as completing this owner. Data
+Custody WP08's confirmation staging/consume path depends on the typed opaque
+handoff and cannot bypass this dependency.
 
 ## Fill before DONE
 

@@ -824,19 +824,32 @@
         "crates/policy-control-core/tests/unit/authenticated_delivery_grant_provenance.rs",
         "crates/provisioning-core/src/provisioning_install.rs",
         "crates/provisioning-core/src/provisioning_install/family_context.rs",
-        "crates/provisioning-core/tests/unit/readiness_flow.rs",
-        "crates/family-identity-core/src/household_authority_runtime_cas_repository.rs",
-        "crates/family-identity-core/src/household_authority_runtime_cas_schema.rs",
-        "crates/family-identity-core/src/household_authority_runtime_cas_recovery.rs",
-        "crates/family-identity-core/tests/unit/household_authority_runtime_cas.rs"
+        "crates/provisioning-core/tests/unit/readiness_flow.rs"
+      ],
+      "note": "WP05's reviewed runtime composer/revalidation source is a fail-closed boundary only: it re-resolves Account currentness and produces an opaque target-bound receipt shape, but ManualRequiredHouseholdAuthorityRuntimeCasFence is the only shipped fence. Existing Account-authority CAS and mutation-effect repositories do not own the opaque runtime effect handoff. WP05A now owns coordinator/recovery, the private Account participant adapter, and Account-side capability/lease reservations; Account WP02/WP08 retain the underlying source of truth, while Device Trust WP01 and WP03 retain their owner participants. Data Custody WP08/WP09/WP10/WP11 depend on the typed opaque handoff. Tests, proof, focused execution, downstream callers, and DONE remain deferred."
+    },
+    "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator": {
+      "planSlug": "account-identity-family-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/family-identity-core/src/household_authority_runtime_fence_coordinator.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_schema.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_recovery.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_account.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_capability.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_lease.rs",
+        "crates/family-identity-core/tests/unit/household_authority_runtime_fence.rs"
       ],
       "plannedImplementationRoots": [
-        "crates/family-identity-core/src/household_authority_runtime_cas_repository.rs",
-        "crates/family-identity-core/src/household_authority_runtime_cas_schema.rs",
-        "crates/family-identity-core/src/household_authority_runtime_cas_recovery.rs"
+        "crates/family-identity-core/src/household_authority_runtime_fence_coordinator.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_schema.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_recovery.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_account.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_capability.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_lease.rs"
       ],
-      "expectedTestRoots": ["crates/family-identity-core/tests/unit/household_authority_runtime_cas.rs"],
-      "note": "WP05's reviewed runtime composer/revalidation source is a fail-closed boundary only: it re-resolves Account currentness and produces an opaque target-bound receipt shape, but ManualRequiredHouseholdAuthorityRuntimeCasFence is the only shipped fence. Existing account_identity_authority_repository_cas.rs owns current Account-authority CAS and account_identity_mutation_authority_repository_effect.rs owns a separate canonical mutation envelope/effect table; neither owns the opaque WP05 effect handoff. The next legal source packet is a dedicated Account-owned durable CAS repository, schema, and crash/replay recovery module under family-identity-core, with exact-idempotent outcome recovery and no receipt minting on ambiguity. Data Custody WP08 confirmation staging/consume depends on this typed handoff. Tests, proof, focused execution, downstream callers, and DONE remain deferred."
+      "expectedTestRoots": ["crates/family-identity-core/tests/unit/household_authority_runtime_fence.rs"],
+      "note": "New planned owner route. The coordinator owns only opaque operation identity, prepare/commit/abort/recover ordering, exact committed-outcome replay, a private Account participant adapter, and Account-side capability/lease reservation adapters. Account WP02/WP08 retain Account source truth; Device Trust WP01 and WP03 retain separate source-of-truth participants. No source or tests exist yet; uncertainty and cross-store non-atomicity must fail closed."
     },
     "WP-account-identity-family-plan-06-security-proof-and-route-gate": {
       "planSlug": "account-identity-family-plan",
@@ -3329,8 +3342,12 @@
         "crates/family-identity-core/tests/unit/trust_bootstrap_store_integrity.rs",
         "crates/family-identity-core/tests/unit/trust_bootstrap_store_metadata.rs",
         "crates/family-identity-core/tests/unit/trust_bootstrap_store_schema.rs",
-        "crates/family-identity-core/tests/unit/trust_bootstrap_store_security.rs"
-      ]
+        "crates/family-identity-core/tests/unit/trust_bootstrap_store_security.rs",
+        "crates/family-identity-core/src/device_trust_runtime_fence_participant.rs",
+        "crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs"
+      ],
+      "plannedImplementationRoots": ["crates/family-identity-core/src/device_trust_runtime_fence_participant.rs"],
+      "expectedTestRoots": ["crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs"]
     },
     "WP-device-trust-bootstrap-plan-02-local-key-sealing": {
       "planSlug": "device-trust-bootstrap-plan",
@@ -3376,13 +3393,19 @@
         "crates/schema/src/parent_step_up_receipt.rs",
         "crates/schema/tests/contract/parent_step_up_receipt.rs",
         "tests/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs",
-        "crates/parent-runtime-core/src/parent_step_up_runtime.rs"
+        "crates/parent-runtime-core/src/parent_step_up_runtime.rs",
+        "crates/family-identity-core/src/parent_step_up_runtime_fence_participant.rs",
+        "crates/parent-runtime-core/src/parent_step_up_runtime_fence_participant.rs",
+        "crates/family-identity-core/tests/unit/parent_step_up_runtime_fence_participant.rs"
       ],
       "plannedImplementationRoots": [
         "crates/family-identity-core/src/parent_step_up_target_authority.rs",
-        "crates/parent-runtime-core/src/parent_step_up_runtime.rs"
+        "crates/parent-runtime-core/src/parent_step_up_runtime.rs",
+        "crates/family-identity-core/src/parent_step_up_runtime_fence_participant.rs",
+        "crates/parent-runtime-core/src/parent_step_up_runtime_fence_participant.rs"
       ],
-      "note": "The prior bounded ceremony custody source remains real, but the reviewed RegisterLanSignerAnchor actor/target authority owner and shipped parent-runtime composition are absent. The future path must consume live Account current authority plus Device Trust current binding without treating request identifiers or the actor parent-controller device as the target child device."
+      "expectedTestRoots": ["crates/family-identity-core/tests/unit/parent_step_up_runtime_fence_participant.rs"],
+      "note": "The prior bounded ceremony custody source remains real, but the reviewed RegisterLanSignerAnchor actor/target authority owner, parent-runtime composition, and private runtime-fence participant are absent. The future path must consume live Account current authority plus Device Trust current binding without treating request identifiers or the actor parent-controller device as the target child device."
     },
     "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge": {
       "planSlug": "device-trust-bootstrap-plan",

@@ -171,6 +171,24 @@ account, household, device, invite, recovery, and session operations have focuse
 authority proof redacts sensitive values and preserves a safe correlation ID
 ```
 
+## WP05A Runtime Effect Fencing Coordinator
+
+Expected focused source/test scope after the owner protocol is reviewed:
+
+```bash
+cargo test -p ocentra-family-identity-core household_authority_runtime_fence
+npm run lint:architecture -- --files crates/family-identity-core/src/household_authority_runtime_fence_coordinator.rs crates/family-identity-core/src/household_authority_runtime_fence_schema.rs crates/family-identity-core/src/household_authority_runtime_fence_recovery.rs crates/family-identity-core/src/household_authority_runtime_fence_account.rs crates/family-identity-core/src/household_authority_runtime_fence_capability.rs crates/family-identity-core/src/household_authority_runtime_fence_lease.rs crates/family-identity-core/tests/unit/household_authority_runtime_fence.rs
+```
+
+Required negative cases are owner-unavailable, stale generation, revocation,
+expiry, target substitution, duplicate operation identity, prepare/commit
+failure, abort retry, restart ambiguity, exact committed replay, and no-new-
+receipt recovery. These paths do not exist yet; no test or proof claim is made.
+
+The test must exercise the same private owner seams as production. It must not
+use caller-assembled authority, a snapshot-only CAS, a mock that bypasses an
+owner reservation, or a fixture/manual/debug authority path.
+
 ## WP02 Identity Household Role Model
 
 Expected focused commands:

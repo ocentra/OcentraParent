@@ -443,6 +443,15 @@ This is a validation slice only. It does not claim runtime dependency adoption,
 platform ceremony, key sealing, recovery execution, device-trust closure, CI,
 review, or main merge.
 
+## 2026-08-18 multi-owner fencing handoff
+
+Device Trust WP03 retains ownership of parent-step-up ceremony, nonce/sign-count
+custody, and the private reservation participant required by Account WP05A.
+Account WP05A may coordinate an opaque prepared/committed outcome but may not
+copy Device Trust currentness, receipt, or replay state. WP03 remains blocked on
+its existing Account/Cloudflare/WP01 authority chain and a real passkey/OS
+authority; this routing update does not authorize source, tests, proof, or DONE.
+
 ## Execution Gate
 
 - Route and implementation continue from [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md).

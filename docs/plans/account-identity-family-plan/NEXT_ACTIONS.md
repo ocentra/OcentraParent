@@ -155,6 +155,26 @@ durable Account-owned opaque-effect CAS/recovery owner with exact-idempotent rep
 typed handoff required before Data Custody WP08 confirmation staging/consume can advance
 ```
 
+### 5A. WP05A Runtime Effect Fencing Coordinator
+
+Before source implementation, route and review the owner-specific protocol:
+
+```text
+Account WP02/WP08 -> sealed Account authority source; WP05A private Account participant adapter
+Account WP03 -> session freshness/revocation participant
+Device Trust WP01 -> trusted-device currentness participant
+Device Trust WP03 -> parent-step-up reservation participant
+WP05A -> coordinator/recovery plus private Account participant, capability, and controller-lease reservations
+WP05 -> Account authorization consumer and typed downstream handoffs
+```
+
+The coordinator must use private prepare/commit/abort/recover handles, exact
+target/generation binding, durable idempotency, and fail-closed restart
+uncertainty. Do not implement an Account-local snapshot CAS or move Device
+Trust/step-up truth into this plan. Data Custody WP08/WP09/WP10/WP11 remain
+blocked until the owner participants and coordinator recovery source are
+reviewed.
+
 ### 6. WP07 Parent Account Family Setup UI
 
 Expected result:
