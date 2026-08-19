@@ -1,3 +1,4 @@
+use ocentra_eventing::bus::reports::handler::EventConsumerOutcome;
 use ocentra_parent_agent_protocol::child_agent::child_agent_events::{
     ChildCommandAcceptedEvent, ChildCommandKind, ChildCommandReceivedEvent,
 };
@@ -42,6 +43,14 @@ pub async fn prove_browser_runtime_action_intent_child_status(
     )
     .await
     .map_err(BrowserRuntimeActionIntentChildStatusError::ParentChildRuntime)?;
+    if child_report.publish_reports.is_empty()
+        || child_report
+            .publish_reports
+            .iter()
+            .any(|report| report.consumer_outcome() != EventConsumerOutcome::Handled)
+    {
+        return Err(BrowserRuntimeActionIntentChildStatusError::ConsumerUnavailable);
+    }
     let payloads = child_report
         .stored_events
         .iter()

@@ -205,7 +205,7 @@ pub async fn publish_screen_runtime_chain_for_input(
     input: ScreenRuntimeInput,
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, EventingError> {
-    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
+    let spine = ScreenRuntimeSpine::without_owner_handlers();
     spine.publish_input_chain(input, observed_at).await
 }
 
@@ -213,7 +213,7 @@ pub async fn publish_screen_capture_queue_events_for_input(
     input: ScreenRuntimeCaptureInput,
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, EventingError> {
-    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
+    let spine = ScreenRuntimeSpine::without_owner_handlers();
     spine.publish_capture_queue_events(input, observed_at).await
 }
 
@@ -221,7 +221,7 @@ pub async fn publish_screen_deletion_event_for_input(
     input: ScreenRuntimeDeletionInput,
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, EventingError> {
-    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
+    let spine = ScreenRuntimeSpine::without_owner_handlers();
     spine.publish_deletion_event(input, observed_at).await
 }
 
@@ -229,7 +229,7 @@ pub async fn publish_screen_degraded_event_chain_for_input(
     input: ScreenRuntimeDegradedInput,
     observed_at: &str,
 ) -> Result<ScreenRuntimeReport, EventingError> {
-    let spine = ScreenRuntimeSpine::with_default_handlers().await?;
+    let spine = ScreenRuntimeSpine::without_owner_handlers();
     spine.publish_degraded_event_chain(input, observed_at).await
 }
 
@@ -238,20 +238,10 @@ pub struct ScreenRuntimeSpine {
 }
 
 impl ScreenRuntimeSpine {
-    pub async fn with_default_handlers() -> Result<Self, EventingError> {
-        let bus = EventBus::new();
-        for phase in ScreenRuntimePhase::ordered_chain() {
-            bus.subscribe::<ScreenRuntimeEventPayload, _, _>(
-                EventSubscriber::new(
-                    SubscriberId::parse(phase.subscriber_id())?,
-                    EventType::parse(phase.event_type())?,
-                    TargetHandler::parse(phase.target_handler())?,
-                ),
-                |_| async { Ok(()) },
-            )
-            .await?;
+    fn without_owner_handlers() -> Self {
+        Self {
+            bus: EventBus::new(),
         }
-        Ok(Self { bus })
     }
 
     pub async fn with_durable_deletion_handler(
