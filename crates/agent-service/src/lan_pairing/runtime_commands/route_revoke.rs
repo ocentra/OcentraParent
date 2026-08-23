@@ -24,8 +24,6 @@ pub(super) fn lan_pairing_route_revoke(
         },
         Err(reason) => rejection_event(command, &reason, None, &origin),
     };
-    drop(origin);
-    drop(runtime);
     event
 }
 
