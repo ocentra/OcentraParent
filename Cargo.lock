@@ -2816,6 +2816,7 @@ dependencies = [
  "crc32fast",
  "ocentra-parent-agent-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-schema",
  "png",
  "serde_json",
  "sha2",
