@@ -14747,16 +14747,26 @@
       "title": "03 Browser Inventory Model",
       "path": "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-01-contract-boundary-and-effect-schemas"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-01-contract-boundary-and-effect-schemas"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md",
+            "docs/plans/browser-plan/workpacks/01-contract-boundary-and-effect-schemas.md"
+          ],
+          "reason": "Actual source audit routes Browser WP03 inventory through the Browser WP01 source boundary; this reviewed-implementation gate records source order only and does not claim implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14781,16 +14791,24 @@
       "title": "04 Windows Browser Inventory Adapter",
       "path": "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-03-browser-inventory-model"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": ["WP-browser-plan-03-browser-inventory-model"],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md",
+            "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md"
+          ],
+          "reason": "Actual source audit routes Browser WP04 Windows inventory through the Browser WP03 inventory model; this reviewed-implementation gate records source order only and does not claim platform completion."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14817,16 +14835,26 @@
       "title": "05 Cross-Platform Inventory Matrix",
       "path": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-04-windows-browser-inventory-adapter"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-04-windows-browser-inventory-adapter"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
+            "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md"
+          ],
+          "reason": "Actual source audit routes Browser WP05 cross-platform inventory through the Windows inventory adapter boundary in WP04; this reviewed-implementation gate records source order only."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14887,7 +14915,7 @@
       "title": "07 Managed Chromium Launcher",
       "path": "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-browser-plan-06-managed-profile-store"],
       "state": "blocked",
       "lifecycleState": "blocked",
       "metadata": {
@@ -14907,7 +14935,7 @@
           ]
         },
         "dependencyReview": {
-          "hardDependencies": [],
+          "hardDependencies": ["WP-browser-plan-06-managed-profile-store"],
           "evidence": [
             "docs/plans/browser-plan/PLAN_STATE.md",
             "docs/plans/browser-plan/NEXT_ACTIONS.md",
@@ -14944,16 +14972,24 @@
       "title": "08 Bridge Custody And Security",
       "path": "docs/plans/browser-plan/workpacks/08-bridge-custody-and-security.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-07-managed-chromium-launcher"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": ["WP-browser-plan-07-managed-chromium-launcher"],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/08-bridge-custody-and-security.md",
+            "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md"
+          ],
+          "reason": "Actual source audit routes Browser bridge custody/security through the managed launcher owner in WP07; caller/env authority and dead bridge paths remain unavailable."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14978,7 +15014,10 @@
       "title": "09 CDP Version And Target Adapter",
       "path": "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": ["WP-browser-plan-07-managed-chromium-launcher"],
+      "dependsOn": [
+        "WP-browser-plan-07-managed-chromium-launcher",
+        "WP-browser-plan-08-bridge-custody-and-security"
+      ],
       "state": "blocked",
       "lifecycleState": "blocked",
       "metadata": {
@@ -14998,7 +15037,10 @@
           ]
         },
         "dependencyReview": {
-          "hardDependencies": ["WP-browser-plan-07-managed-chromium-launcher"],
+          "hardDependencies": [
+            "WP-browser-plan-07-managed-chromium-launcher",
+            "WP-browser-plan-08-bridge-custody-and-security"
+          ],
           "evidence": [
             "docs/plans/browser-plan/PLAN_STATE.md",
             "docs/plans/browser-plan/NEXT_ACTIONS.md",
@@ -15037,16 +15079,26 @@
       "title": "10 Tab Evidence Mapper",
       "path": "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-09-cdp-version-and-target-adapter"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-09-cdp-version-and-target-adapter"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md",
+            "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+          ],
+          "reason": "Actual source audit routes Browser tab evidence mapping through the CDP target adapter; no active-tab or focus authority is inferred."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15071,16 +15123,24 @@
       "title": "11 Active-Tab Proof Model",
       "path": "docs/plans/browser-plan/workpacks/11-active-tab-proof-model.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-10-tab-evidence-mapper"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": ["WP-browser-plan-10-tab-evidence-mapper"],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/11-active-tab-proof-model.md",
+            "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md"
+          ],
+          "reason": "Actual source audit routes Browser active-tab proof through tab evidence mapping. No native-host, extension, focus, or activation provider exists; focus proof is not invented."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15105,16 +15165,24 @@
       "title": "12 Journal And SQLite Browser Ingest",
       "path": "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-10-tab-evidence-mapper"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": ["WP-browser-plan-10-tab-evidence-mapper"],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md",
+            "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md"
+          ],
+          "reason": "Actual source audit routes Browser journal/SQLite ingest through the tab evidence mapper; this records source handoff only and does not claim durable runtime composition."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15141,16 +15209,34 @@
       "title": "13 Browser Read Models And Service Events",
       "path": "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-browser-plan-03-browser-inventory-model",
+        "WP-browser-plan-11-active-tab-proof-model",
+        "WP-browser-plan-12-journal-and-sqlite-browser-ingest"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-03-browser-inventory-model",
+            "WP-browser-plan-11-active-tab-proof-model",
+            "WP-browser-plan-12-journal-and-sqlite-browser-ingest"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md",
+            "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md",
+            "docs/plans/browser-plan/workpacks/11-active-tab-proof-model.md",
+            "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md"
+          ],
+          "reason": "Actual source audit routes Browser read models/service events through the inventory model, active-tab evidence boundary, and journal ingest; unknown focus remains explicit."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15177,16 +15263,28 @@
       "title": "14 Portal Browser Status Surfaces",
       "path": "docs/plans/browser-plan/workpacks/14-portal-browser-status-surfaces.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-browser-plan-13-browser-read-models-and-service-events"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-13-browser-read-models-and-service-events"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/14-portal-browser-status-surfaces.md",
+            "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+          ],
+          "reason": "Actual source audit routes parent Browser status surfaces through the Browser read-model/event boundary; portal projection is not product enforcement."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15213,16 +15311,26 @@
       "title": "15 Browser Policy Authoring Manifest",
       "path": "docs/plans/browser-plan/workpacks/15-browser-policy-authoring-manifest.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-01-contract-boundary-and-effect-schemas"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-01-contract-boundary-and-effect-schemas"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/15-browser-policy-authoring-manifest.md",
+            "docs/plans/browser-plan/workpacks/01-contract-boundary-and-effect-schemas.md"
+          ],
+          "reason": "Actual source audit routes Browser policy authoring manifest through the Browser inventory/source model; policy authority remains outside Browser."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15249,16 +15357,26 @@
       "title": "16 Policy Target Compiler",
       "path": "docs/plans/browser-plan/workpacks/16-policy-target-compiler.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-15-browser-policy-authoring-manifest"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-15-browser-policy-authoring-manifest"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/16-policy-target-compiler.md",
+            "docs/plans/browser-plan/workpacks/15-browser-policy-authoring-manifest.md"
+          ],
+          "reason": "Actual source audit routes the Browser policy target compiler through the policy authoring manifest; no enforcement authority is minted."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15283,16 +15401,37 @@
       "title": "17 Managed Intervention And Block Page",
       "path": "docs/plans/browser-plan/workpacks/17-managed-intervention-and-block-page.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-browser-plan-13-browser-read-models-and-service-events",
+        "WP-browser-plan-16-policy-target-compiler",
+        "WP-browser-plan-07-managed-chromium-launcher",
+        "WP-browser-plan-09-cdp-version-and-target-adapter"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-07-managed-chromium-launcher",
+            "WP-browser-plan-09-cdp-version-and-target-adapter",
+            "WP-browser-plan-13-browser-read-models-and-service-events",
+            "WP-browser-plan-16-policy-target-compiler"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/17-managed-intervention-and-block-page.md",
+            "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md",
+            "docs/plans/browser-plan/workpacks/16-policy-target-compiler.md",
+            "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+            "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+          ],
+          "reason": "Actual source audit routes managed intervention/block-page handoff through Browser read models, policy compilation, managed launch, and CDP target boundaries; action delivery remains manual-required."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15319,16 +15458,24 @@
       "title": "18 Unmanaged Browser Detection",
       "path": "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-03-browser-inventory-model"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": ["WP-browser-plan-03-browser-inventory-model"],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md",
+            "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md"
+          ],
+          "reason": "Actual source audit routes unmanaged-browser detection through Browser inventory/source identity; network/process evidence is not upgraded to exact browser authority."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15353,16 +15500,26 @@
       "title": "19 Unmanaged Fallback UX And Actions",
       "path": "docs/plans/browser-plan/workpacks/19-unmanaged-fallback-ux-and-actions.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-18-unmanaged-browser-detection"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-18-unmanaged-browser-detection"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/19-unmanaged-fallback-ux-and-actions.md",
+            "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md"
+          ],
+          "reason": "Actual source audit routes unmanaged fallback UX/actions through unmanaged-browser detection; OS blocking, termination, relaunch, and exact unmanaged URL control remain unclaimed."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15389,16 +15546,31 @@
       "title": "20 Windows AppLocker And App Control Proof",
       "path": "docs/plans/browser-plan/workpacks/20-windows-applocker-app-control-proof.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-browser-plan-18-unmanaged-browser-detection",
+        "WP-browser-plan-19-unmanaged-fallback-ux-and-actions"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-18-unmanaged-browser-detection",
+            "WP-browser-plan-19-unmanaged-fallback-ux-and-actions"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/20-windows-applocker-app-control-proof.md",
+            "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md",
+            "docs/plans/browser-plan/workpacks/19-unmanaged-fallback-ux-and-actions.md"
+          ],
+          "reason": "Actual source audit routes Browser App Control representation through unmanaged detection and fallback actions. External Windows AppLocker/WDAC authority remains absent; no fake graph node or enforcement completion is introduced."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15461,16 +15633,37 @@
       "title": "22 Performance And Service Health",
       "path": "docs/plans/browser-plan/workpacks/22-performance-and-service-health.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-browser-plan-07-managed-chromium-launcher",
+        "WP-browser-plan-09-cdp-version-and-target-adapter",
+        "WP-browser-plan-12-journal-and-sqlite-browser-ingest",
+        "WP-browser-plan-13-browser-read-models-and-service-events"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-07-managed-chromium-launcher",
+            "WP-browser-plan-09-cdp-version-and-target-adapter",
+            "WP-browser-plan-12-journal-and-sqlite-browser-ingest",
+            "WP-browser-plan-13-browser-read-models-and-service-events"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/22-performance-and-service-health.md",
+            "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+            "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
+            "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md",
+            "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+          ],
+          "reason": "Actual source audit routes Browser performance/service-health accounting through managed launch, CDP, journal ingest, and read-model boundaries; the current fixture budget is not a production health producer."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15497,16 +15690,61 @@
       "title": "23 E2E And Manual Proof Artifacts",
       "path": "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-browser-plan-07-managed-chromium-launcher",
+        "WP-browser-plan-08-bridge-custody-and-security",
+        "WP-browser-plan-09-cdp-version-and-target-adapter",
+        "WP-browser-plan-10-tab-evidence-mapper",
+        "WP-browser-plan-12-journal-and-sqlite-browser-ingest",
+        "WP-browser-plan-13-browser-read-models-and-service-events",
+        "WP-browser-plan-14-portal-browser-status-surfaces",
+        "WP-browser-plan-15-browser-policy-authoring-manifest",
+        "WP-browser-plan-16-policy-target-compiler",
+        "WP-browser-plan-17-managed-intervention-and-block-page",
+        "WP-browser-plan-18-unmanaged-browser-detection",
+        "WP-browser-plan-19-unmanaged-fallback-ux-and-actions"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-07-managed-chromium-launcher",
+            "WP-browser-plan-08-bridge-custody-and-security",
+            "WP-browser-plan-09-cdp-version-and-target-adapter",
+            "WP-browser-plan-10-tab-evidence-mapper",
+            "WP-browser-plan-12-journal-and-sqlite-browser-ingest",
+            "WP-browser-plan-13-browser-read-models-and-service-events",
+            "WP-browser-plan-14-portal-browser-status-surfaces",
+            "WP-browser-plan-15-browser-policy-authoring-manifest",
+            "WP-browser-plan-16-policy-target-compiler",
+            "WP-browser-plan-17-managed-intervention-and-block-page",
+            "WP-browser-plan-18-unmanaged-browser-detection",
+            "WP-browser-plan-19-unmanaged-fallback-ux-and-actions"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+            "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+            "docs/plans/browser-plan/workpacks/08-bridge-custody-and-security.md",
+            "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
+            "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md",
+            "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md",
+            "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md",
+            "docs/plans/browser-plan/workpacks/14-portal-browser-status-surfaces.md",
+            "docs/plans/browser-plan/workpacks/15-browser-policy-authoring-manifest.md",
+            "docs/plans/browser-plan/workpacks/16-policy-target-compiler.md",
+            "docs/plans/browser-plan/workpacks/17-managed-intervention-and-block-page.md",
+            "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md",
+            "docs/plans/browser-plan/workpacks/19-unmanaged-fallback-ux-and-actions.md"
+          ],
+          "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15533,16 +15771,26 @@
       "title": "24 Rollout, Checklist, And PR Gate",
       "path": "docs/plans/browser-plan/workpacks/24-rollout-checklist-and-pr-gate.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-browser-plan-23-e2e-and-manual-proof-artifacts"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-browser-plan-23-e2e-and-manual-proof-artifacts"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/workpacks/24-rollout-checklist-and-pr-gate.md",
+            "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md"
+          ],
+          "reason": "WP24 rollout acceptance consumes the WP23 E2E/manual proof manifest and closure artifacts. It is a normal rollout gate; it does not mechanically depend on every Browser row or promote known manual/platform gaps."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -33882,7 +34130,8 @@
         "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
         "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
       ],
-      "reason": "WP09 can bind a target only from a real WP07 owner-issued retained launch. Parser/capture source and request fields cannot substitute for that authority."
+      "reason": "WP09 can bind a target only from a real WP07 owner-issued retained launch. Parser/capture source and request fields cannot substitute for that authority.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
@@ -35625,6 +35874,485 @@
       ],
       "reason": "Actual source audit routes Parent Desktop Runtime WP06 local-service bridge logging through the Rust logging-core owner; this reviewed-implementation gate records source handoff only and does not claim route readiness or DONE.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-03-browser-inventory-model",
+      "to": "WP-browser-plan-01-contract-boundary-and-effect-schemas",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md",
+        "docs/plans/browser-plan/workpacks/01-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "Actual source audit routes Browser WP03 inventory through the Browser WP01 source boundary; this reviewed-implementation gate records source order only and does not claim implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-04-windows-browser-inventory-adapter",
+      "to": "WP-browser-plan-03-browser-inventory-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md",
+        "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md"
+      ],
+      "reason": "Actual source audit routes Browser WP04 Windows inventory through the Browser WP03 inventory model; this reviewed-implementation gate records source order only and does not claim platform completion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-05-cross-platform-inventory-matrix",
+      "to": "WP-browser-plan-04-windows-browser-inventory-adapter",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
+        "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md"
+      ],
+      "reason": "Actual source audit routes Browser WP05 cross-platform inventory through the Windows inventory adapter boundary in WP04; this reviewed-implementation gate records source order only.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-07-managed-chromium-launcher",
+      "to": "WP-browser-plan-06-managed-profile-store",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md"
+      ],
+      "reason": "Actual source audit routes the managed Chromium launcher through the Browser WP06 contract boundary; the retained launch owner remains absent and no runtime readiness is claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-08-bridge-custody-and-security",
+      "to": "WP-browser-plan-07-managed-chromium-launcher",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/08-bridge-custody-and-security.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md"
+      ],
+      "reason": "Actual source audit routes Browser bridge custody/security through the managed launcher owner in WP07; caller/env authority and dead bridge paths remain unavailable.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "to": "WP-browser-plan-08-bridge-custody-and-security",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
+        "docs/plans/browser-plan/workpacks/08-bridge-custody-and-security.md"
+      ],
+      "reason": "Actual source audit routes CDP target polling through the retained WP07 launch owner and WP08 bridge custody/security. Target-list evidence remains tab-list-only and active-tab state remains unknown.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-10-tab-evidence-mapper",
+      "to": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "Actual source audit routes Browser tab evidence mapping through the CDP target adapter; no active-tab or focus authority is inferred.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-11-active-tab-proof-model",
+      "to": "WP-browser-plan-10-tab-evidence-mapper",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/11-active-tab-proof-model.md",
+        "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md"
+      ],
+      "reason": "Actual source audit routes Browser active-tab proof through tab evidence mapping. No native-host, extension, focus, or activation provider exists; focus proof is not invented.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-12-journal-and-sqlite-browser-ingest",
+      "to": "WP-browser-plan-10-tab-evidence-mapper",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md",
+        "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md"
+      ],
+      "reason": "Actual source audit routes Browser journal/SQLite ingest through the tab evidence mapper; this records source handoff only and does not claim durable runtime composition.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-13-browser-read-models-and-service-events",
+      "to": "WP-browser-plan-03-browser-inventory-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md",
+        "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md"
+      ],
+      "reason": "Actual source audit routes Browser read models/service events through the inventory model, active-tab evidence boundary, and journal ingest; unknown focus remains explicit.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-13-browser-read-models-and-service-events",
+      "to": "WP-browser-plan-11-active-tab-proof-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md",
+        "docs/plans/browser-plan/workpacks/11-active-tab-proof-model.md"
+      ],
+      "reason": "Actual source audit routes Browser read models/service events through the inventory model, active-tab evidence boundary, and journal ingest; unknown focus remains explicit.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-13-browser-read-models-and-service-events",
+      "to": "WP-browser-plan-12-journal-and-sqlite-browser-ingest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md",
+        "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md"
+      ],
+      "reason": "Actual source audit routes Browser read models/service events through the inventory model, active-tab evidence boundary, and journal ingest; unknown focus remains explicit.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-14-portal-browser-status-surfaces",
+      "to": "WP-browser-plan-13-browser-read-models-and-service-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/14-portal-browser-status-surfaces.md",
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+      ],
+      "reason": "Actual source audit routes parent Browser status surfaces through the Browser read-model/event boundary; portal projection is not product enforcement.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-15-browser-policy-authoring-manifest",
+      "to": "WP-browser-plan-01-contract-boundary-and-effect-schemas",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/15-browser-policy-authoring-manifest.md",
+        "docs/plans/browser-plan/workpacks/01-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "Actual source audit routes Browser policy authoring manifest through the Browser inventory/source model; policy authority remains outside Browser.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-16-policy-target-compiler",
+      "to": "WP-browser-plan-15-browser-policy-authoring-manifest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/16-policy-target-compiler.md",
+        "docs/plans/browser-plan/workpacks/15-browser-policy-authoring-manifest.md"
+      ],
+      "reason": "Actual source audit routes the Browser policy target compiler through the policy authoring manifest; no enforcement authority is minted.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-17-managed-intervention-and-block-page",
+      "to": "WP-browser-plan-13-browser-read-models-and-service-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/17-managed-intervention-and-block-page.md",
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+      ],
+      "reason": "Actual source audit routes managed intervention/block-page handoff through Browser read models, policy compilation, managed launch, and CDP target boundaries; action delivery remains manual-required.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-17-managed-intervention-and-block-page",
+      "to": "WP-browser-plan-16-policy-target-compiler",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/17-managed-intervention-and-block-page.md",
+        "docs/plans/browser-plan/workpacks/16-policy-target-compiler.md"
+      ],
+      "reason": "Actual source audit routes managed intervention/block-page handoff through Browser read models, policy compilation, managed launch, and CDP target boundaries; action delivery remains manual-required.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-17-managed-intervention-and-block-page",
+      "to": "WP-browser-plan-07-managed-chromium-launcher",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/17-managed-intervention-and-block-page.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md"
+      ],
+      "reason": "Actual source audit routes managed intervention/block-page handoff through Browser read models, policy compilation, managed launch, and CDP target boundaries; action delivery remains manual-required.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-17-managed-intervention-and-block-page",
+      "to": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/17-managed-intervention-and-block-page.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "Actual source audit routes managed intervention/block-page handoff through Browser read models, policy compilation, managed launch, and CDP target boundaries; action delivery remains manual-required.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-18-unmanaged-browser-detection",
+      "to": "WP-browser-plan-03-browser-inventory-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md",
+        "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md"
+      ],
+      "reason": "Actual source audit routes unmanaged-browser detection through Browser inventory/source identity; network/process evidence is not upgraded to exact browser authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-19-unmanaged-fallback-ux-and-actions",
+      "to": "WP-browser-plan-18-unmanaged-browser-detection",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/19-unmanaged-fallback-ux-and-actions.md",
+        "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md"
+      ],
+      "reason": "Actual source audit routes unmanaged fallback UX/actions through unmanaged-browser detection; OS blocking, termination, relaunch, and exact unmanaged URL control remain unclaimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-20-windows-applocker-app-control-proof",
+      "to": "WP-browser-plan-18-unmanaged-browser-detection",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/20-windows-applocker-app-control-proof.md",
+        "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md"
+      ],
+      "reason": "Actual source audit routes Browser App Control representation through unmanaged detection and fallback actions. External Windows AppLocker/WDAC authority remains absent; no fake graph node or enforcement completion is introduced.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-20-windows-applocker-app-control-proof",
+      "to": "WP-browser-plan-19-unmanaged-fallback-ux-and-actions",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/20-windows-applocker-app-control-proof.md",
+        "docs/plans/browser-plan/workpacks/19-unmanaged-fallback-ux-and-actions.md"
+      ],
+      "reason": "Actual source audit routes Browser App Control representation through unmanaged detection and fallback actions. External Windows AppLocker/WDAC authority remains absent; no fake graph node or enforcement completion is introduced.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-22-performance-and-service-health",
+      "to": "WP-browser-plan-07-managed-chromium-launcher",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/22-performance-and-service-health.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md"
+      ],
+      "reason": "Actual source audit routes Browser performance/service-health accounting through managed launch, CDP, journal ingest, and read-model boundaries; the current fixture budget is not a production health producer.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-22-performance-and-service-health",
+      "to": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/22-performance-and-service-health.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "Actual source audit routes Browser performance/service-health accounting through managed launch, CDP, journal ingest, and read-model boundaries; the current fixture budget is not a production health producer.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-22-performance-and-service-health",
+      "to": "WP-browser-plan-12-journal-and-sqlite-browser-ingest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/22-performance-and-service-health.md",
+        "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md"
+      ],
+      "reason": "Actual source audit routes Browser performance/service-health accounting through managed launch, CDP, journal ingest, and read-model boundaries; the current fixture budget is not a production health producer.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-22-performance-and-service-health",
+      "to": "WP-browser-plan-13-browser-read-models-and-service-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/22-performance-and-service-health.md",
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+      ],
+      "reason": "Actual source audit routes Browser performance/service-health accounting through managed launch, CDP, journal ingest, and read-model boundaries; the current fixture budget is not a production health producer.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-07-managed-chromium-launcher",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-08-bridge-custody-and-security",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/08-bridge-custody-and-security.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-10-tab-evidence-mapper",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-12-journal-and-sqlite-browser-ingest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-13-browser-read-models-and-service-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-14-portal-browser-status-surfaces",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/14-portal-browser-status-surfaces.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-15-browser-policy-authoring-manifest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/15-browser-policy-authoring-manifest.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-16-policy-target-compiler",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/16-policy-target-compiler.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-17-managed-intervention-and-block-page",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/17-managed-intervention-and-block-page.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-18-unmanaged-browser-detection",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "to": "WP-browser-plan-19-unmanaged-fallback-ux-and-actions",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
+        "docs/plans/browser-plan/workpacks/19-unmanaged-fallback-ux-and-actions.md"
+      ],
+      "reason": "The WP23 workpack manifest exercises managed launch/CDP, bridge custody, tab evidence, journal/read-model/portal projection, policy manifest/compiler, managed intervention, and unmanaged fallback artifacts. Active-tab WP11, AppLocker/WDAC WP20, native-host WP21, and performance-health WP22 remain manual/platform gaps recorded by the manifest, not live prerequisites.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-24-rollout-checklist-and-pr-gate",
+      "to": "WP-browser-plan-23-e2e-and-manual-proof-artifacts",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/24-rollout-checklist-and-pr-gate.md",
+        "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md"
+      ],
+      "reason": "WP24 rollout acceptance consumes the WP23 E2E/manual proof manifest and closure artifacts. It is a normal rollout gate; it does not mechanically depend on every Browser row or promote known manual/platform gaps."
     }
   ],
   "migration": {
