@@ -2,13 +2,18 @@ use std::{sync::Arc, time::Duration};
 
 use tokio::sync::{Mutex, Notify};
 
+use ocentra_eventing::{
+    envelope::{EventMetadata, StoredEventEnvelope},
+    ids::CausationId,
+};
+
 use super::fixtures::{
     metadata, metadata_with_event_id, subscriber, subscriber_for_event, test_event,
     test_event_for_type, TestText, OTHER_EVENT_TYPE, OTHER_SUBSCRIBER, OTHER_TARGET,
     TEST_SUBSCRIBER, TEST_TARGET,
 };
 use crate::bus::publisher::RootEventPublisher;
-use crate::{EventBus, EventingError, ExpectValue};
+use crate::{CorrelationId, EventBus, EventingError, ExpectValue};
 
 fn accepts_root_publication_authority(_: &RootEventPublisher) {}
 
@@ -167,13 +172,18 @@ async fn cancelling_causal_publication_leaves_no_nested_effects() {
 }
 
 #[tokio::test]
-async fn cross_bus_parent_child_publication_preserves_correlation() {
+async fn cross_bus_parent_child_publication_derives_causal_metadata() {
     let parent_bus = EventBus::new();
     let child_root = EventBus::new();
     let child_bus = child_root.event_bus().clone();
-    let child_correlation = Arc::new(Mutex::new(None::<String>));
-    let child_correlation_for_handler = Arc::clone(&child_correlation);
-
+    let observed_child_causality = Arc::new(Mutex::new(None::<(String, Option<String>)>));
+    let observed_child_causality_for_handler = Arc::clone(&observed_child_causality);
+    let mut child_metadata = metadata_with_event_id(
+        TestText(OTHER_TARGET.to_owned()),
+        TestText("child-work-event-1".to_owned()),
+    );
+    child_metadata.correlation_id = CorrelationId::parse("caller-spoofed-child-correlation-1")
+        .expect_value("different child correlation parses");
     child_root
         .subscribe::<super::fixtures::TestEvent, _, _>(
             subscriber_for_event(
@@ -182,10 +192,15 @@ async fn cross_bus_parent_child_publication_preserves_correlation() {
                 TestText(OTHER_EVENT_TYPE.to_owned()),
             ),
             move |context| {
-                let observed = Arc::clone(&child_correlation_for_handler);
+                let observed = Arc::clone(&observed_child_causality_for_handler);
                 async move {
-                    *observed.lock().await =
-                        Some(context.envelope().correlation_id().as_str().to_owned());
+                    *observed.lock().await = Some((
+                        context.envelope().correlation_id().as_str().to_owned(),
+                        context
+                            .envelope()
+                            .causation_id()
+                            .map(|causation_id| causation_id.as_str().to_owned()),
+                    ));
                     Ok(())
                 }
             },
@@ -194,6 +209,7 @@ async fn cross_bus_parent_child_publication_preserves_correlation() {
         .expect_value("child subscriber registers");
 
     let child_bus_for_handler = child_bus.clone();
+    let child_metadata_for_handler = child_metadata.clone();
     parent_bus
         .subscribe::<super::fixtures::TestEvent, _, _>(
             subscriber(
@@ -202,6 +218,7 @@ async fn cross_bus_parent_child_publication_preserves_correlation() {
             ),
             move |context| {
                 let child_bus = child_bus_for_handler.clone();
+                let child_metadata = child_metadata_for_handler.clone();
                 async move {
                     context
                         .publisher()
@@ -211,10 +228,7 @@ async fn cross_bus_parent_child_publication_preserves_correlation() {
                                 TestText("child-work".to_owned()),
                                 TestText(OTHER_EVENT_TYPE.to_owned()),
                             ),
-                            metadata_with_event_id(
-                                TestText(OTHER_TARGET.to_owned()),
-                                TestText("child-work-event-1".to_owned()),
-                            ),
+                            child_metadata,
                         )
                         .await?;
                     Ok(())
@@ -234,16 +248,102 @@ async fn cross_bus_parent_child_publication_preserves_correlation() {
         )
         .await
         .expect_value("parent publication succeeds");
-    let parent_correlation = parent_bus
+    let parent_event = parent_bus
         .journal()
         .await
         .into_iter()
         .find(|event| event.contract.event_type.as_str() == super::fixtures::TEST_EVENT_TYPE)
-        .expect_value("parent journal records root event")
-        .correlation_id
-        .as_str()
-        .to_owned();
+        .expect_value("parent journal records root event");
+    let child_events = child_bus.journal().await;
+    assert_eq!(child_events.len(), 1);
+    let child_event = &child_events[0];
+    assert_derived_child_metadata(&parent_event, child_event, &child_metadata);
+    assert_eq!(
+        *observed_child_causality.lock().await,
+        Some((
+            parent_event.correlation_id.as_str().to_owned(),
+            Some(parent_event.event_id.as_str().to_owned()),
+        ))
+    );
+}
 
-    assert_eq!(*child_correlation.lock().await, Some(parent_correlation));
-    assert_eq!(child_bus.journal().await.len(), 1);
+fn assert_derived_child_metadata(
+    parent: &StoredEventEnvelope,
+    child: &StoredEventEnvelope,
+    caller: &EventMetadata,
+) {
+    assert_ne!(caller.correlation_id, parent.correlation_id);
+    assert_eq!(child.correlation_id, parent.correlation_id);
+    assert_eq!(
+        child
+            .causation_id
+            .as_ref()
+            .expect_value("child causation derives from parent")
+            .as_str(),
+        parent.event_id.as_str()
+    );
+    assert_eq!(child.event_id, caller.event_id);
+    assert_eq!(child.source, caller.source);
+    assert_eq!(child.target_handler, caller.target_handler);
+}
+
+#[tokio::test]
+async fn causal_publication_rejects_caller_supplied_causation_without_child_effects() {
+    let parent_bus = EventBus::new();
+    let child_bus = EventBus::new().event_bus().clone();
+    let child_bus_for_handler = child_bus.clone();
+
+    parent_bus
+        .subscribe::<super::fixtures::TestEvent, _, _>(
+            subscriber(
+                TestText(TEST_SUBSCRIBER.to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            move |context| {
+                let child_bus = child_bus_for_handler.clone();
+                async move {
+                    let spoofed = CausationId::parse("caller-spoofed-causation-1")?;
+                    let result = context
+                        .publisher()
+                        .publish_on(
+                            &child_bus,
+                            test_event_for_type(
+                                TestText("spoofed-child-work".to_owned()),
+                                TestText(OTHER_EVENT_TYPE.to_owned()),
+                            ),
+                            metadata_with_event_id(
+                                TestText(OTHER_TARGET.to_owned()),
+                                TestText("spoofed-child-event-1".to_owned()),
+                            )
+                            .with_causation_id(spoofed.clone()),
+                        )
+                        .await;
+                    assert!(matches!(
+                        result,
+                        Err(EventingError::CallerSuppliedCausation { causation_id })
+                            if causation_id == spoofed
+                    ));
+                    Ok(())
+                }
+            },
+        )
+        .await
+        .expect_value("parent subscriber registers");
+
+    parent_bus
+        .publish(
+            test_event(TestText("spoofed-parent-work".to_owned())),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("spoofed-parent-event-1".to_owned()),
+            ),
+        )
+        .await
+        .expect_value("parent publication succeeds");
+
+    assert!(child_bus.journal().await.is_empty());
+    assert!(child_bus.dead_letters().await.is_empty());
+    let metrics = child_bus.metrics_snapshot().await;
+    assert_eq!(metrics.queue.queued_event_count, 0);
+    assert_eq!(metrics.queue.in_flight_event_id_count, 0);
 }

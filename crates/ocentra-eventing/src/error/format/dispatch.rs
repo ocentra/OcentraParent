@@ -46,6 +46,11 @@ pub(super) fn fmt_dispatch_error(
             "causal publication of {} requires root authority because it would queue, dead-letter, or append a durable journal",
             event_type.as_str()
         ),
+        EventingError::CallerSuppliedCausation { causation_id } => write!(
+            formatter,
+            "causal publication rejects caller-supplied causation {}",
+            causation_id.as_str()
+        ),
         _ => {
             debug_assert!(false, "dispatch formatter received non-dispatch error");
             formatter.write_str("eventing dispatch error")

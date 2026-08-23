@@ -1,14 +1,17 @@
 use std::ops::Deref;
 
-use crate::{DomainEvent, EventEnvelope, EventMetadata, EventingError};
+use crate::{DomainEvent, EventEnvelope, EventMetadata, EventingError, StoredEventEnvelope};
 
 use super::{
     dispatch_chain::DispatchChain, handler_scope::HandlerScopeGuard, DispatchMode, EventBus,
     PublishReport,
 };
 
+mod causal_metadata;
 mod context;
 mod request;
+
+use causal_metadata::CausalParent;
 
 /// The explicit authority for independent root publication on one event bus.
 ///
@@ -67,13 +70,19 @@ impl std::fmt::Debug for RootEventPublisher {
 pub struct EventPublisher {
     bus: EventBus,
     dispatch_chain: DispatchChain,
+    parent: CausalParent,
 }
 
 impl EventPublisher {
-    pub(super) fn for_dispatch(bus: EventBus, dispatch_chain: DispatchChain) -> Self {
+    pub(super) fn for_dispatch(
+        bus: EventBus,
+        dispatch_chain: DispatchChain,
+        parent: &StoredEventEnvelope,
+    ) -> Self {
         Self {
             bus,
             dispatch_chain,
+            parent: CausalParent::from_stored(parent),
         }
     }
 
@@ -146,6 +155,7 @@ impl EventPublisher {
                 // the same bus; it receives no root-publication authority.
                 bus: self.bus.clone(),
                 dispatch_chain: scoped_chain.chain,
+                parent: self.parent.clone(),
             },
             guard: scoped_chain.guard,
         }
@@ -167,6 +177,7 @@ impl EventPublisher {
     {
         self.dispatch_chain.ensure_current_handler_task()?;
         self.dispatch_chain.ensure_live()?;
+        let metadata = self.parent.derive_metadata(metadata)?;
         // CLONE-JUSTIFICATION: one causal-chain snapshot moves into publication;
         // a separate snapshot observes ancestor cancellation.
         let dispatch_chain = self.dispatch_chain.clone();

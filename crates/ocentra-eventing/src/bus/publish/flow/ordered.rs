@@ -11,10 +11,11 @@ pub(super) async fn dispatch(
     subscribers: Vec<SubscriberRecord>,
     admission: &OrderedDispatchAdmission,
 ) -> Vec<crate::bus::reports::handler::HandlerReport> {
+    let publisher = EventPublisher::for_dispatch(bus.clone(), admission.chain().clone(), &stored);
     let reports = dispatch_sequential(
         stored,
         subscribers,
-        EventPublisher::for_dispatch(bus.clone(), admission.chain().clone()),
+        publisher,
         bus.handler_policy.clone(),
         Arc::clone(&bus.clock),
     )

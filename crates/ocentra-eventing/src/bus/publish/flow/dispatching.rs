@@ -108,20 +108,22 @@ pub(super) async fn dispatch(
 ) -> Vec<crate::bus::reports::handler::HandlerReport> {
     match dispatch_mode {
         DispatchMode::Sequential => {
+            let publisher = EventPublisher::for_dispatch(bus.clone(), dispatch_chain, &stored);
             dispatch_sequential(
                 stored,
                 subscribers,
-                EventPublisher::for_dispatch(bus.clone(), dispatch_chain),
+                publisher,
                 bus.handler_policy.clone(),
                 Arc::clone(&bus.clock),
             )
             .await
         }
         DispatchMode::Concurrent => {
+            let publisher = EventPublisher::for_dispatch(bus.clone(), dispatch_chain, &stored);
             dispatch_concurrent(
                 stored,
                 subscribers,
-                EventPublisher::for_dispatch(bus.clone(), dispatch_chain),
+                publisher,
                 bus.handler_policy.clone(),
                 Arc::clone(&bus.clock),
             )

@@ -1,7 +1,8 @@
 use std::{error::Error, fmt};
 
 use crate::{
-    AggregateKey, EventId, EventType, IdempotencyKey, RequestId, SchemaVersion, SubscriberId,
+    AggregateKey, CausationId, EventId, EventType, IdempotencyKey, RequestId, SchemaVersion,
+    SubscriberId,
 };
 
 mod format;
@@ -86,6 +87,9 @@ pub enum EventingError {
     CausalPublicationOutsideHandlerTask,
     CausalPublicationRequiresRootAuthority {
         event_type: EventType,
+    },
+    CallerSuppliedCausation {
+        causation_id: CausationId,
     },
     InvalidRequestOptions {
         reason: String,

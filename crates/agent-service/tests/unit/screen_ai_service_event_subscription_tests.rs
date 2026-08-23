@@ -95,6 +95,23 @@ async fn screen_service_event_subscription_rejects_without_runtime_owner() {
             reason: ScreenAiServiceEventBridgeError::RuntimeOwnerUnavailable,
         }]
     );
+    let stored = bus.journal().await;
+    assert_eq!(stored.len(), 1);
+    assert_eq!(
+        stored[0].contract.event_type.as_str(),
+        constants::screen_flow::EVENT_SCREEN_SERVICE_ROW_READY
+    );
+    let dead_letters = bus.dead_letters().await;
+    assert_eq!(dead_letters.len(), 1);
+    assert_eq!(
+        dead_letters[0].envelope.contract.event_type.as_str(),
+        constants::screen_flow::EVENT_SCREEN_SERVICE_ROW_READY
+    );
+    let metrics = bus.metrics_snapshot().await;
+    assert_eq!(metrics.stored_event_count, 1);
+    assert_eq!(metrics.dead_letter_count, 1);
+    assert_eq!(metrics.queue.queued_event_count, 0);
+    assert_eq!(metrics.queue.in_flight_event_id_count, 0);
 }
 
 #[tokio::test]
