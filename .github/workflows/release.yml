@@ -67,7 +67,7 @@ jobs:
           set -euo pipefail
           if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/production" ]]; then
             publish_allowed=true
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.publish }}" == "true" ]]; then
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.publish }}" == "true" && "${{ github.ref }}" == "refs/heads/production" ]]; then
             publish_allowed=true
           else
             publish_allowed=false

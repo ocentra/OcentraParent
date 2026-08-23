@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 
 const repoRoot = process.cwd();
@@ -37,6 +39,52 @@ test('production release workflow publishes only from production branch', () => 
   assert.match(workflow, /Check production release secrets/u);
   assert.match(workflow, /OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64/u);
   assert.match(workflow, /scripts\/smoke\/windows-msi-smoke\.ps1/u);
+});
+
+test('manual production release requires an explicit production ref', () => {
+  const workflow = readRepoFile('.github/workflows/release.yml');
+
+  assert.match(
+    workflow,
+    /workflow_dispatch:[\s\S]*?inputs:[\s\S]*?publish:[\s\S]*?github\.ref[\s\S]*?refs\/heads\/production/u
+  );
+  assert.match(
+    workflow,
+    /github\.event_name[\s\S]*?workflow_dispatch[\s\S]*?inputs\.publish[\s\S]*?github\.ref[\s\S]*?refs\/heads\/production/u
+  );
+});
+
+test('production release decision rejects non-production refs and accepts production creation', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ocentra-release-decision-'));
+  const eventPath = join(root, 'event.json');
+  const outputPath = join(root, 'output.txt');
+  writeFileSync(eventPath, JSON.stringify({ before: '0000000000000000000000000000000000000000' }));
+
+  try {
+    const run = (ref) =>
+      spawnSync(process.execPath, ['scripts/release/decide-production-release.mjs'], {
+        cwd: repoRoot,
+        env: {
+          ...process.env,
+          GITHUB_EVENT_PATH: eventPath,
+          GITHUB_OUTPUT: outputPath,
+          GITHUB_REF: ref,
+        },
+        encoding: 'utf8',
+      });
+
+    const nonProduction = run('refs/heads/main');
+    assert.equal(nonProduction.status, 0, nonProduction.stderr);
+    assert.match(nonProduction.stdout, /release_required=false/u);
+    assert.match(nonProduction.stdout, /reason=non-production-ref/u);
+
+    const production = run('refs/heads/production');
+    assert.equal(production.status, 0, production.stderr);
+    assert.match(production.stdout, /release_required=false/u);
+    assert.match(production.stdout, /reason=production-branch-created/u);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('package preview workflow builds every scaffolded platform', () => {
