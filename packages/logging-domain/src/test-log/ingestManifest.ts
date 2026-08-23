@@ -1,5 +1,4 @@
 import crypto from 'node:crypto';
-import fs from 'node:fs';
 import type { TestLogScope } from './types';
 import { getDefaultLogRoot, listNdjsonFiles } from './ndjsonPaths';
 import {
@@ -10,10 +9,15 @@ import {
   type GeneratedObservedFileState,
 } from '../local-test-log';
 import {
-  assertReadableLocalArtifactFile,
   durableRemoveLocalArtifact,
   durableReplaceLocalArtifact,
+  readLocalArtifactTextSnapshot,
 } from '../local-artifact-file';
+import { withLocalArtifactLock } from '../local-artifact-lock';
+import { resolveContainedLocalArtifactPath } from '../local-artifact-path';
+
+const MaximumManifestBytes = 256 * 1024;
+const MaximumObservedLogBytes = 64 * 1024 * 1024;
 
 export interface ManifestEntry {
   readonly size: number;
@@ -27,12 +31,7 @@ export interface IngestManifest {
   readonly files: Record<string, ManifestEntry>;
 }
 
-function fileHash(filePath: string): string {
-  assertReadableLocalArtifactFile(filePath);
-  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
-}
-
-function parseManifest(scope: TestLogScope, input: unknown): IngestManifest {
+function parseManifest(scope: TestLogScope, input: unknown, rootDir: string): IngestManifest {
   const isRecord = [typeof input === 'object', input != null, !Array.isArray(input)].every(Boolean);
   if (!isRecord) {
     throw new Error('invalid local log ingest manifest');
@@ -61,6 +60,7 @@ function parseManifest(scope: TestLogScope, input: unknown): IngestManifest {
     if (!validRecord) {
       throw new Error('invalid local log ingest manifest');
     }
+    resolveContainedLocalArtifactPath(rootDir, filePath);
     const entry = value as Record<string, unknown>;
     const size = entry['size'];
     const modifiedMs = entry['modifiedMs'];
@@ -92,26 +92,30 @@ export function getManifestPath(scope: TestLogScope, rootDir?: string): string {
 }
 
 export function loadManifest(scope: TestLogScope, rootDir?: string): IngestManifest {
-  const manifestPath = getManifestPath(scope, rootDir);
-  if (!assertReadableLocalArtifactFile(manifestPath)) {
+  const resolvedRoot = rootDir ?? getDefaultLogRoot();
+  const manifestPath = getManifestPath(scope, resolvedRoot);
+  const snapshot = readLocalArtifactTextSnapshot(manifestPath, resolvedRoot, MaximumManifestBytes);
+  if (snapshot == null) {
     return { scope, updatedAt: 0, files: {} };
   }
 
   try {
-    return parseManifest(scope, JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as unknown);
+    return parseManifest(scope, JSON.parse(snapshot.content) as unknown, resolvedRoot);
   } catch {
     throw new Error('invalid local log ingest manifest');
   }
 }
 
 export function saveManifest(manifest: IngestManifest, rootDir?: string): void {
-  const manifestPath = getManifestPath(manifest.scope, rootDir);
-  const validated = parseManifest(manifest.scope, manifest);
-  durableReplaceLocalArtifact(manifestPath, `${JSON.stringify(validated, null, 2)}\n`);
+  const resolvedRoot = rootDir ?? getDefaultLogRoot();
+  const manifestPath = getManifestPath(manifest.scope, resolvedRoot);
+  const validated = parseManifest(manifest.scope, manifest, resolvedRoot);
+  durableReplaceLocalArtifact(manifestPath, `${JSON.stringify(validated, null, 2)}\n`, resolvedRoot);
 }
 
 export function removeManifest(scope: TestLogScope, rootDir?: string): void {
-  durableRemoveLocalArtifact(getManifestPath(scope, rootDir));
+  const resolvedRoot = rootDir ?? getDefaultLogRoot();
+  durableRemoveLocalArtifact(getManifestPath(scope, resolvedRoot), resolvedRoot);
 }
 
 export function getChangedFiles(
@@ -119,51 +123,53 @@ export function getChangedFiles(
   logsDir: string,
   rootDir?: string
 ): { readonly newFiles: string[]; readonly changedFiles: string[]; readonly manifest: IngestManifest } {
-  const manifest = loadManifest(scope, rootDir);
-  const files = listNdjsonFiles(logsDir);
-  const observedFiles: GeneratedObservedFileState[] = [];
-
-  for (const filePath of files) {
-    const resolvedPath = filePath;
-    assertReadableLocalArtifactFile(resolvedPath);
-    const currentStat = fs.statSync(resolvedPath);
-    const existing = manifest.files[resolvedPath];
-    const sha256 =
-      existing != null && existing.size === currentStat.size && existing.modifiedMs === currentStat.mtimeMs
-        ? existing.sha256
-        : fileHash(resolvedPath);
-    observedFiles.push({
-      resolvedPath,
-      size: currentStat.size,
-      modifiedMs: currentStat.mtimeMs,
-      sha256,
+  const resolvedRoot = rootDir ?? getDefaultLogRoot();
+  return withLocalArtifactLock(resolvedRoot, () => {
+    resolveContainedLocalArtifactPath(resolvedRoot, logsDir);
+    const manifest = loadManifest(scope, resolvedRoot);
+    const observedFiles = listNdjsonFiles(logsDir).map((resolvedPath): GeneratedObservedFileState => {
+      const snapshot = readLocalArtifactTextSnapshot(resolvedPath, resolvedRoot, MaximumObservedLogBytes);
+      if (snapshot == null) {
+        throw new Error('test log disappeared during manifest observation');
+      }
+      const existing = manifest.files[resolvedPath];
+      const sha256 =
+        existing != null && existing.size === snapshot.stat.size && existing.modifiedMs === snapshot.stat.modifiedMs
+          ? existing.sha256
+          : crypto.createHash('sha256').update(snapshot.content, 'utf8').digest('hex');
+      return {
+        resolvedPath,
+        size: snapshot.stat.size,
+        modifiedMs: snapshot.stat.modifiedMs,
+        sha256,
+      };
     });
-  }
-
-  const { newFiles, changedFiles } = classifyGeneratedManifestChanges(
-    manifest as GeneratedIngestManifest,
-    observedFiles
-  );
-  return { newFiles, changedFiles, manifest };
+    const { newFiles, changedFiles } = classifyGeneratedManifestChanges(
+      manifest as GeneratedIngestManifest,
+      observedFiles
+    );
+    return { newFiles, changedFiles, manifest };
+  });
 }
 
 export function updateManifest(scope: TestLogScope, logsDir: string, rootDir?: string): IngestManifest {
-  const files = listNdjsonFiles(logsDir);
-  const observedFiles: GeneratedObservedFileState[] = [];
-
-  for (const filePath of files) {
-    const resolvedPath = filePath;
-    assertReadableLocalArtifactFile(resolvedPath);
-    const stat = fs.statSync(resolvedPath);
-    observedFiles.push({
-      resolvedPath,
-      size: stat.size,
-      modifiedMs: stat.mtimeMs,
-      sha256: fileHash(resolvedPath),
+  const resolvedRoot = rootDir ?? getDefaultLogRoot();
+  return withLocalArtifactLock(resolvedRoot, () => {
+    resolveContainedLocalArtifactPath(resolvedRoot, logsDir);
+    const observedFiles = listNdjsonFiles(logsDir).map((resolvedPath): GeneratedObservedFileState => {
+      const snapshot = readLocalArtifactTextSnapshot(resolvedPath, resolvedRoot, MaximumObservedLogBytes);
+      if (snapshot == null) {
+        throw new Error('test log disappeared during manifest observation');
+      }
+      return {
+        resolvedPath,
+        size: snapshot.stat.size,
+        modifiedMs: snapshot.stat.modifiedMs,
+        sha256: crypto.createHash('sha256').update(snapshot.content, 'utf8').digest('hex'),
+      };
     });
-  }
-
-  const manifest = buildGeneratedManifest(scope, Date.now(), observedFiles) as IngestManifest;
-  saveManifest(manifest, rootDir);
-  return manifest;
+    const manifest = buildGeneratedManifest(scope, Date.now(), observedFiles) as IngestManifest;
+    saveManifest(manifest, resolvedRoot);
+    return manifest;
+  });
 }

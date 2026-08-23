@@ -6,9 +6,8 @@ interface StructuredLogSanitizerPolicy {
   readonly circularValue: string;
   readonly unsupportedValue: string;
   readonly isSensitiveKey: (key: string) => boolean;
+  readonly sanitizeString?: (value: string, key: string) => string;
 }
-
-const SupportedPrimitiveTypes = new Set(['boolean', 'number', 'string']);
 
 export function sanitizeStructuredLogValue(
   value: unknown,
@@ -32,7 +31,10 @@ function sanitizeValue(
   if (policy.isSensitiveKey(serializationKey)) {
     return policy.redactedValue;
   }
-  if (value === null || SupportedPrimitiveTypes.has(typeof value)) {
+  if (typeof value === 'string') {
+    return policy.sanitizeString?.(value, serializationKey) ?? value;
+  }
+  if (value === null || typeof value === 'boolean' || (typeof value === 'number' && Number.isFinite(value))) {
     return value;
   }
   if (typeof value !== 'object') {

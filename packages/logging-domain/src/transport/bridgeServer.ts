@@ -1,6 +1,8 @@
 import http from 'node:http';
 import { getDefaultLogRoot } from '../test-log/ndjsonPaths';
 import { ensureLocalArtifactRoot } from '../local-artifact-path';
+import { localArtifactDirectoryDurability } from '../local-artifact-path';
+import { recoverLocalArtifactAppends } from '../local-artifact-append';
 import { assertLoggingArtifactRootLayout } from '../local-artifact-tree';
 import { resolveGeneratedBridgeRoute } from '../parent-log-runtime';
 import { applyBridgeCorsHeaders, hasBridgeJsonContentType, sendBridgeJson } from './bridgeHttp';
@@ -30,7 +32,7 @@ function routeBridgeRequest(
 ): Promise<void> | void {
   switch (route) {
     case 'health':
-      return sendBridgeJson(response, 200, { ok: true });
+      return sendBridgeJson(response, 200, { ok: true, directoryDurability: localArtifactDirectoryDurability() });
     case 'run-info':
       return sendBridgeRunInfo(response, lifecycle.runInfo());
     case 'run-started':
@@ -38,7 +40,7 @@ function routeBridgeRequest(
     case 'logs':
       return handleBridgeLogs(request, response, rootDir, lifecycle);
     case 'flush':
-      return handleBridgeFlush(request, response, lifecycle);
+      return handleBridgeFlush(request, response, rootDir, lifecycle);
     default:
       return sendBridgeJson(response, 404, { ok: false, error: 'not found' });
   }
@@ -47,6 +49,7 @@ function routeBridgeRequest(
 export function createBridgeServer(options: BridgeServerOptions = {}): http.Server {
   const rootDir = ensureLocalArtifactRoot(options.rootDir ?? getDefaultLogRoot());
   assertLoggingArtifactRootLayout(rootDir);
+  recoverLocalArtifactAppends(rootDir);
   const lifecycle = new BridgeLifecycleStateStore(rootDir);
   recoverPendingBridgeStart(rootDir, lifecycle);
 

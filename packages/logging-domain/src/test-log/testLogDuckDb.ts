@@ -1,8 +1,7 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { DuckDBInstance, type DuckDBConnection, type DuckDBValue } from '@duckdb/node-api';
 import { getChangedFiles, removeManifest, updateManifest } from './ingestManifest';
-import { getDbDir, getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
+import { getDbDir, getDefaultLogRoot, getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
 import {
   buildGeneratedSearchLikeQuery,
@@ -19,6 +18,9 @@ import {
   rowToGeneratedStoredLog,
 } from '../duckdb-log-query';
 import { type StoredTestLogLine, type TestLogScope as TestLogScopeType, type TestLogStats } from './types';
+import { recoverLocalArtifactAppends } from '../local-artifact-append';
+import { statLocalArtifact, type LocalArtifactStat } from '../local-artifact-file';
+import { withLocalArtifactLockAsync } from '../local-artifact-lock';
 
 export interface IngestResult {
   readonly mode: 'rebuild' | 'incremental';
@@ -62,6 +64,14 @@ function getDefaultDbPath(scope: TestLogScopeType, rootDir?: string): string {
   return path.join(getDbDir(rootDir), getGeneratedDefaultDuckDbFileName(scope));
 }
 
+function sameFileSystemPath(left: string, right: string): boolean {
+  const resolvedLeft = path.resolve(left);
+  const resolvedRight = path.resolve(right);
+  return process.platform === 'win32'
+    ? resolvedLeft.toLowerCase() === resolvedRight.toLowerCase()
+    : resolvedLeft === resolvedRight;
+}
+
 function openDatabase(filePath: string): Promise<DuckDBInstance> {
   return DuckDBInstance.create(filePath);
 }
@@ -96,53 +106,82 @@ function rowToStats(row: StatsRow | undefined): TestLogStats {
 }
 
 export class TestLogDuckDb {
+  private readonly rootDir: string;
   private readonly dbPath: string;
+  private readonly databaseIdentity: LocalArtifactStat['identity'];
   private readonly database: DuckDBInstance;
   private readonly connection: DuckDBConnection;
+  private closed = false;
 
-  private constructor(dbPath: string, database: DuckDBInstance, connection: DuckDBConnection) {
+  private constructor(
+    rootDir: string,
+    dbPath: string,
+    databaseIdentity: LocalArtifactStat['identity'],
+    database: DuckDBInstance,
+    connection: DuckDBConnection
+  ) {
+    this.rootDir = rootDir;
     this.dbPath = dbPath;
+    this.databaseIdentity = databaseIdentity;
     this.database = database;
     this.connection = connection;
   }
 
   static async create(scope: TestLogScopeType, rootDir?: string): Promise<TestLogDuckDb> {
-    const dbPath = getDefaultDbPath(scope, rootDir);
-    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-    const database = await openDatabase(dbPath);
-    const connection = await database.connect();
-    const instance = new TestLogDuckDb(dbPath, database, connection);
-    await instance.ensureSchema();
-    return instance;
+    const resolvedRoot = rootDir ?? getDefaultLogRoot();
+    return withLocalArtifactLockAsync(resolvedRoot, async () => {
+      recoverLocalArtifactAppends(resolvedRoot);
+      const dbPath = getDefaultDbPath(scope, resolvedRoot);
+      const database = await openDatabase(dbPath);
+      const connection = await database.connect();
+      const stat = statLocalArtifact(dbPath, resolvedRoot);
+      if (stat == null) {
+        closeConnection(connection);
+        closeDatabase(database);
+        throw new Error('DuckDB did not create its owned database file');
+      }
+      const instance = new TestLogDuckDb(resolvedRoot, dbPath, stat.identity, database, connection);
+      await instance.ensureSchema();
+      return instance;
+    });
   }
 
   async close(): Promise<void> {
-    closeConnection(this.connection);
-    closeDatabase(this.database);
+    if (this.closed) {
+      return;
+    }
+    await withLocalArtifactLockAsync(this.rootDir, async () => {
+      if (this.closed) {
+        return;
+      }
+      closeConnection(this.connection);
+      closeDatabase(this.database);
+      this.closed = true;
+    });
   }
 
   async ensureSchema(): Promise<void> {
-    await runAsync(this.connection, GeneratedCreateTestLogsTableSql);
-
-    await runAsync(this.connection, GeneratedIndexScopeLevelSql);
-    await runAsync(this.connection, GeneratedIndexScopeRunSql);
+    await this.withOwnedDatabase(async () => {
+      await runAsync(this.connection, GeneratedCreateTestLogsTableSql);
+      await runAsync(this.connection, GeneratedIndexScopeLevelSql);
+      await runAsync(this.connection, GeneratedIndexScopeRunSql);
+    });
   }
 
   async reset(): Promise<void> {
-    await runAsync(this.connection, 'DELETE FROM test_logs');
+    await this.withOwnedDatabase(() => runAsync(this.connection, 'DELETE FROM test_logs'));
   }
 
   async insertLogs(filePath: string, logs: readonly StoredTestLogLine[]): Promise<number> {
-    if (logs.length === 0) {
-      return 0;
-    }
-
-    await runAsync(this.connection, GeneratedDeleteByFileSql, filePath);
-
-    for (const log of logs) {
-      await runAsync(
-        this.connection,
-        `INSERT INTO test_logs (
+    return this.withOwnedDatabase(async () => {
+      if (logs.length === 0) {
+        return 0;
+      }
+      await runAsync(this.connection, GeneratedDeleteByFileSql, filePath);
+      for (const log of logs) {
+        await runAsync(
+          this.connection,
+          `INSERT INTO test_logs (
           ndjson_file,
           scope,
           run_id,
@@ -165,90 +204,117 @@ export class TestLogDuckDb {
           origin,
           environment
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        filePath,
-        log.scope,
-        log.runId,
-        log.runType,
-        log.suiteType,
-        log.testName,
-        log.timestamp,
-        log.level,
-        log.source,
-        log.context,
-        log.message,
-        log.data,
-        log.file,
-        log.filePath,
-        log.line,
-        log.column,
-        log.correlationId,
-        encodeGeneratedDuckDbTags(log.tags),
-        log.stack,
-        log.origin,
-        log.environment
-      );
-    }
-
-    return logs.length;
+          filePath,
+          log.scope,
+          log.runId,
+          log.runType,
+          log.suiteType,
+          log.testName,
+          log.timestamp,
+          log.level,
+          log.source,
+          log.context,
+          log.message,
+          log.data,
+          log.file,
+          log.filePath,
+          log.line,
+          log.column,
+          log.correlationId,
+          encodeGeneratedDuckDbTags(log.tags),
+          log.stack,
+          log.origin,
+          log.environment
+        );
+      }
+      return logs.length;
+    });
   }
 
   async ingestFromScope(scope: TestLogScopeType, rootDir?: string, rebuild = false): Promise<IngestResult> {
-    const logsDir = getTestLogScopeDir(scope, rootDir);
-
-    if (rebuild) {
-      await this.reset();
-      removeManifest(scope, rootDir);
+    const resolvedRoot = rootDir ?? this.rootDir;
+    if (!sameFileSystemPath(resolvedRoot, this.rootDir)) {
+      throw new Error('DuckDB ingest root must match its database root');
     }
-
-    const filesToProcess = rebuild
-      ? listNdjsonFiles(logsDir)
-      : (() => {
-          const { newFiles, changedFiles } = getChangedFiles(scope, logsDir, rootDir);
-          return [...newFiles, ...changedFiles].sort((left, right) => left.localeCompare(right));
-        })();
-
-    let inserted = 0;
-    for (const filePath of filesToProcess) {
-      inserted += await this.insertLogs(filePath, readTestLogEntriesFromFile(filePath));
-    }
-
-    updateManifest(scope, logsDir, rootDir);
-
-    return {
-      mode: rebuild ? 'rebuild' : 'incremental',
-      filesProcessed: filesToProcess.length,
-      logsInserted: inserted,
-    };
+    return this.withOwnedDatabase(async () => {
+      const logsDir = getTestLogScopeDir(scope, resolvedRoot);
+      if (rebuild) {
+        await this.reset();
+        removeManifest(scope, resolvedRoot);
+      }
+      const filesToProcess = rebuild
+        ? listNdjsonFiles(logsDir)
+        : (() => {
+            const { newFiles, changedFiles } = getChangedFiles(scope, logsDir, resolvedRoot);
+            return [...newFiles, ...changedFiles].sort((left, right) => left.localeCompare(right));
+          })();
+      let inserted = 0;
+      for (const filePath of filesToProcess) {
+        inserted += await this.insertLogs(filePath, readTestLogEntriesFromFile(filePath, resolvedRoot));
+      }
+      updateManifest(scope, logsDir, resolvedRoot);
+      return {
+        mode: rebuild ? 'rebuild' : 'incremental',
+        filesProcessed: filesToProcess.length,
+        logsInserted: inserted,
+      };
+    });
   }
 
   async getStats(scope: TestLogScopeType): Promise<TestLogStats> {
-    const rows = await allAsync<StatsRow>(this.connection, GeneratedStatsQuerySql, scope);
-
-    return rowToStats(rows[0]);
+    return this.withOwnedDatabase(async () => {
+      const rows = await allAsync<StatsRow>(this.connection, GeneratedStatsQuerySql, scope);
+      return rowToStats(rows[0]);
+    });
   }
 
   async latestFailures(scope: TestLogScopeType, limit = 20): Promise<StoredTestLogLine[]> {
-    const rows = await allAsync<StoredLogRow>(this.connection, GeneratedLatestFailuresQuerySql, scope, limit);
-
-    return rows.map(rowToStoredLog);
+    return this.withOwnedDatabase(async () => {
+      const rows = await allAsync<StoredLogRow>(this.connection, GeneratedLatestFailuresQuerySql, scope, limit);
+      return rows.map(rowToStoredLog);
+    });
   }
 
   async search(scope: TestLogScopeType, query: string, limit = 20): Promise<StoredTestLogLine[]> {
-    const likeQuery = buildGeneratedSearchLikeQuery(query);
-    const rows = await allAsync<StoredLogRow>(
-      this.connection,
-      GeneratedSearchQuerySql,
-      scope,
-      likeQuery,
-      likeQuery,
-      likeQuery,
-      limit
-    );
-
-    return rows.map(rowToStoredLog);
+    return this.withOwnedDatabase(async () => {
+      const likeQuery = buildGeneratedSearchLikeQuery(query);
+      const rows = await allAsync<StoredLogRow>(
+        this.connection,
+        GeneratedSearchQuerySql,
+        scope,
+        likeQuery,
+        likeQuery,
+        likeQuery,
+        limit
+      );
+      return rows.map(rowToStoredLog);
+    });
   }
 
   dbFilePath(): string {
     return this.dbPath;
+  }
+
+  private async withOwnedDatabase<T>(operation: () => Promise<T>): Promise<T> {
+    return withLocalArtifactLockAsync(this.rootDir, async () => {
+      if (this.closed) {
+        throw new Error('DuckDB logging index is closed');
+      }
+      this.assertDatabaseIdentity();
+      const result = await operation();
+      this.assertDatabaseIdentity();
+      return result;
+    });
+  }
+
+  private assertDatabaseIdentity(): void {
+    const current = statLocalArtifact(this.dbPath, this.rootDir)?.identity;
+    if (
+      current == null ||
+      current.device !== this.databaseIdentity.device ||
+      current.inode !== this.databaseIdentity.inode
+    ) {
+      throw new Error('DuckDB logging index file identity changed');
+    }
   }
 }

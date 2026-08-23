@@ -19,8 +19,12 @@ import {
 } from '../test-log/types';
 import { createParentLogDecisionProvider } from './logDecisionProvider';
 import { createParentLogConfig } from './logConfig';
-import { BridgeLogQueue } from './bridgeLogQueue';
-import { redactStructuredLogValue } from './log-redaction';
+import {
+  BridgeLogQueue,
+  type AmbiguousBridgeDeliveryResolution,
+  type BridgeQueueDeliveryState,
+} from './bridgeLogQueue';
+import { serializeStructuredLogDataForCustody } from './structuredLogCustody';
 import type { BridgeEntry } from '../transport/bridgeLogPayload';
 import { parseStackTrace, type StackFrame } from './stackTraceParser';
 import {
@@ -175,6 +179,14 @@ export class Logger {
     await this.flushLogQueue();
   }
 
+  logQueueDeliveryState(): BridgeQueueDeliveryState {
+    return this.bridgeQueue.deliveryState();
+  }
+
+  resolveAmbiguousLogDelivery(resolution: AmbiguousBridgeDeliveryResolution): void {
+    this.bridgeQueue.resolveAmbiguousDelivery(resolution);
+  }
+
   private log(level: LogLevelValue, message: string, stackTrace: StackTrace, data?: unknown): void {
     const frames = parseStackTrace(stackTrace);
     const location = this.resolveLogLocation(frames);
@@ -261,7 +273,7 @@ export class Logger {
   }
 
   private serializeData(data: unknown): string | null {
-    return data == null ? null : JSON.stringify(redactStructuredLogValue(data));
+    return serializeStructuredLogDataForCustody(data);
   }
 
   private logIfEnabled(

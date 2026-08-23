@@ -9,7 +9,7 @@ function parsePort(value: string | undefined): number {
     throw new Error('invalid log bridge port');
   }
   const port = Number(normalized);
-  if (!Number.isSafeInteger(port) || port < 1 || port > 65_535) {
+  if (!Number.isSafeInteger(port) || port < 0 || port > 65_535) {
     throw new Error('invalid log bridge port');
   }
   return port;
@@ -27,7 +27,7 @@ function parseHost(value: string | undefined, localOnly: boolean): string {
 }
 
 function assertLocalEndpointMatchesPort(bridgeMode: string, bridgeUrl: string, port: number): void {
-  if (bridgeMode !== 'local') {
+  if (bridgeMode !== 'local' || port === 0) {
     return;
   }
   const endpoint = new URL(bridgeUrl);
@@ -52,5 +52,10 @@ const server = createBridgeServer({
 });
 
 server.listen(port, host, () => {
-  process.stdout.write(`Logging bridge listening on http://${host}:${port}\n`);
+  const address = server.address();
+  if (address == null || typeof address === 'string') {
+    throw new Error('log bridge did not expose a TCP listening address');
+  }
+  const displayHost = address.address.includes(':') ? `[${address.address}]` : address.address;
+  process.stdout.write(`Logging bridge listening on http://${displayHost}:${address.port}\n`);
 });

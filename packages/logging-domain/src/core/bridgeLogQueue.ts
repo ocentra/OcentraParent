@@ -1,25 +1,64 @@
 import type { BridgeEntry } from '../transport/bridgeLogPayload';
 import { sendToBridge } from '../transport/bridgeTransport';
+import { BridgeLogQueuePersistence } from './bridgeLogQueuePersistence';
+import {
+  BridgeLogQueueState,
+  type AmbiguousBridgeDeliveryResolution as QueueStateResolution,
+  type PersistedBridgeQueue,
+} from './bridgeLogQueueState';
 
 interface BridgeLogQueueRuntime {
   readonly endpoint: string | null;
   readonly skipHealthCheck: boolean;
 }
 
+export interface BridgeQueueDeliveryState {
+  readonly status: 'ready' | 'ambiguous' | 'persistence-unavailable';
+  readonly queuedEntries: number;
+  readonly queuedBytes: number;
+  readonly ambiguousBatchSize: number;
+}
+
+export type AmbiguousBridgeDeliveryResolution = QueueStateResolution;
+
 export class BridgeLogQueue {
-  private readonly entries: BridgeEntry[] = [];
-  private generation = 0;
+  private readonly state = new BridgeLogQueueState();
+  private readonly persistence = new BridgeLogQueuePersistence();
   private flushInFlight: Promise<void> | null = null;
 
-  constructor(private readonly resolveRuntime: () => BridgeLogQueueRuntime) {}
+  constructor(private readonly resolveRuntime: () => BridgeLogQueueRuntime) {
+    const persisted = this.persistence.restore();
+    if (persisted != null) {
+      this.state.apply(persisted);
+    }
+  }
 
   enqueue(entry: BridgeEntry): void {
-    this.entries.push(entry);
+    this.commitState(this.state.enqueuedState(entry));
   }
 
   reset(): void {
-    this.entries.length = 0;
-    this.generation += 1;
+    if (this.flushInFlight != null || this.state.deliveryStatus() === 'ambiguous') {
+      throw new Error('log bridge queue cannot be reset while delivery ownership is unresolved');
+    }
+    this.persistence.clear();
+    this.state.apply(this.state.resetState());
+  }
+
+  deliveryState(): BridgeQueueDeliveryState {
+    return {
+      status: this.visibleDeliveryStatus(),
+      queuedEntries: this.state.queuedEntries(),
+      queuedBytes: this.state.queuedBytes(),
+      ambiguousBatchSize: this.state.ambiguousEntries(),
+    };
+  }
+
+  resolveAmbiguousDelivery(resolution: AmbiguousBridgeDeliveryResolution): void {
+    if (this.flushInFlight != null) {
+      throw new Error('log bridge delivery is still in flight');
+    }
+    this.commitState(this.state.resolvedState(resolution));
   }
 
   async flush(): Promise<void> {
@@ -38,18 +77,42 @@ export class BridgeLogQueue {
   }
 
   private async drain(): Promise<void> {
-    while (this.entries.length > 0) {
+    this.assertReadyToDeliver();
+    while (this.state.queuedEntries() > 0) {
       const runtime = this.resolveRuntime();
       if (runtime.endpoint == null || runtime.endpoint.length === 0) {
         throw new Error('log bridge endpoint is unavailable; queued entries were retained');
       }
-      const generation = this.generation;
-      const entries = this.entries.slice();
-      await sendToBridge(entries, runtime.endpoint, { skipHealthCheck: runtime.skipHealthCheck });
-      if (generation !== this.generation) {
-        continue;
-      }
-      this.entries.splice(0, entries.length);
+      const entries = this.state.deliveryBatch();
+      await sendToBridge(entries, runtime.endpoint, {
+        skipHealthCheck: runtime.skipHealthCheck,
+        onDeliveryAttempt: () => this.commitState(this.state.ambiguousState(entries.length)),
+      });
+      this.commitState(this.state.successfulState(entries.length));
     }
+  }
+
+  private assertReadyToDeliver(): void {
+    if (this.state.deliveryStatus() === 'ambiguous') {
+      throw new Error('log bridge delivery is ambiguous and requires owner resolution');
+    }
+    if (this.persistence.isBlocked()) {
+      throw new Error('log bridge queue persistence is unavailable');
+    }
+    if (this.state.queuedEntries() > 0) {
+      this.persistence.save(this.state.persisted());
+    }
+  }
+
+  private commitState(next: PersistedBridgeQueue): void {
+    this.persistence.save(next);
+    this.state.apply(next);
+  }
+
+  private visibleDeliveryStatus(): BridgeQueueDeliveryState['status'] {
+    if (this.state.deliveryStatus() === 'ambiguous') {
+      return 'ambiguous';
+    }
+    return this.persistence.available() ? 'ready' : 'persistence-unavailable';
   }
 }
