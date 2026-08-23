@@ -1882,6 +1882,29 @@
         "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
       ],
       "reason": "WP11 is the final proof/CI/release gate over WP02-WP10. Its dependencies are normal completion prerequisites; no implementation review is added and no release, signing, updater, setup, or child-runtime authority is claimed."
+    },
+    {
+      "id": "WP-setup-install-provisioning-plan-06-rollout-proof-and-route-gate",
+      "hardDependencies": [
+        "WP-setup-install-provisioning-plan-01-family-web-info-site",
+        "WP-setup-install-provisioning-plan-02-registration-login-entry",
+        "WP-setup-install-provisioning-plan-03-parent-install-journey",
+        "WP-setup-install-provisioning-plan-04-child-install-permission-journey",
+        "WP-setup-install-provisioning-plan-05-pairing-readiness-recovery",
+        "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine"
+      ],
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/PLAN_STATE.md",
+        "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/01-family-web-info-site.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/02-registration-login-entry.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/03-parent-install-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/04-child-install-permission-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/05-pairing-readiness-recovery.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/06-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "Setup WP06 is the final rollout/proof aggregation gate. It consumes the WP01-WP05 and WP07 proof roots as completion prerequisites; these normal dependencies authorize no product implementation and do not promote any sibling workpack to READY or DONE."
     }
   ],
   "edges": [
@@ -6718,6 +6741,114 @@
         "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
       ],
       "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-setup-install-provisioning-plan-01-family-web-info-site",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/PLAN_STATE.md",
+        "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/01-family-web-info-site.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/02-registration-login-entry.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/03-parent-install-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/04-child-install-permission-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/05-pairing-readiness-recovery.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/06-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "Setup WP06 final rollout/proof gate requires the referenced Setup workpack proof root before completion; this is a normal completion dependency, not implementation authorization."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-setup-install-provisioning-plan-02-registration-login-entry",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/PLAN_STATE.md",
+        "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/01-family-web-info-site.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/02-registration-login-entry.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/03-parent-install-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/04-child-install-permission-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/05-pairing-readiness-recovery.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/06-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "Setup WP06 final rollout/proof gate requires the referenced Setup workpack proof root before completion; this is a normal completion dependency, not implementation authorization."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-setup-install-provisioning-plan-03-parent-install-journey",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/PLAN_STATE.md",
+        "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/01-family-web-info-site.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/02-registration-login-entry.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/03-parent-install-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/04-child-install-permission-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/05-pairing-readiness-recovery.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/06-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "Setup WP06 final rollout/proof gate requires the referenced Setup workpack proof root before completion; this is a normal completion dependency, not implementation authorization."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-setup-install-provisioning-plan-04-child-install-permission-journey",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/PLAN_STATE.md",
+        "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/01-family-web-info-site.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/02-registration-login-entry.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/03-parent-install-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/04-child-install-permission-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/05-pairing-readiness-recovery.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/06-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "Setup WP06 final rollout/proof gate requires the referenced Setup workpack proof root before completion; this is a normal completion dependency, not implementation authorization."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-setup-install-provisioning-plan-05-pairing-readiness-recovery",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/PLAN_STATE.md",
+        "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/01-family-web-info-site.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/02-registration-login-entry.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/03-parent-install-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/04-child-install-permission-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/05-pairing-readiness-recovery.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/06-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "Setup WP06 final rollout/proof gate requires the referenced Setup workpack proof root before completion; this is a normal completion dependency, not implementation authorization."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/PLAN_STATE.md",
+        "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/01-family-web-info-site.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/02-registration-login-entry.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/03-parent-install-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/04-child-install-permission-journey.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/05-pairing-readiness-recovery.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/setup-install-provisioning-plan/workpacks/06-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "Setup WP06 final rollout/proof gate requires the referenced Setup workpack proof root before completion; this is a normal completion dependency, not implementation authorization."
     }
   ],
   "stateOverrides": [
