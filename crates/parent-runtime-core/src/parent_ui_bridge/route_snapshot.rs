@@ -1,5 +1,6 @@
 use super::*;
 use crate::parent_service_health::ParentAgentServiceHealthReason;
+use ocentra_schema::parent_ui_bridge::ParentRouteDataSource;
 
 #[path = "route_snapshot/dependencies.rs"]
 mod dependencies;
