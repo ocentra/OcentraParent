@@ -1,8 +1,10 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-19 after canonical Cloudflare verifier source, Browser
-manual-required source integration at `f80b47c6a`, and this custody/graph truth
-refresh. This supersedes the retained 2026-08-18 snapshots below.
+Snapshot: 2026-08-23 after canonical graph dependency reviews at
+`1595bb38b9e77c19d8000ce5c5b344de91ff7b35` (parent
+`007654fb69f188c75ff1de6470e89bfd28903a52`) and this residual-source
+disposition review. This supersedes the retained 2026-08-19 and
+2026-08-18 snapshots below.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
@@ -14,13 +16,38 @@ claim. Refresh Git ancestry and patch identity before deleting any ref.
 | --- | --- | --- |
 | `origin/main` | `eb4e66a791` | Release baseline. It has no commit missing from consolidation and is 462 commits behind this snapshot. |
 | `origin/develop` | `4ece515282` | Promotion baseline. It has no commit missing from consolidation and is 459 commits behind this snapshot. |
-| `origin/codex/eventing-wp09-production` | this commit; parent `f80b47c6a` | Canonical source-consolidation line after Browser source integration and this truth refresh. Account, Device Trust, Data Custody, Cloudflare, Browser, Screen, and accepted Eventing source packets are retained here. Expected tests remain deliberately deferred until the source wave is complete. |
+| `origin/codex/eventing-wp09-production` | `1595bb38b9e77c19d8000ce5c5b344de91ff7b35`; parent `007654fb69f188c75ff1de6470e89bfd28903a52` | Canonical source-consolidation line after the Account/Device and Cloudflare/Policy/Payment graph reviews. Expected tests remain deliberately deferred until the source wave is complete. |
 | `origin/production` | `683a07cf31` | Historical production ref; not the current integration line. |
 | archive refs | `ac9f65bb4a`, `405e7fc77e` | Coverage for historical local/remote tips. Retain through source/test consolidation and promotion. |
 
 Open pull requests at this snapshot: **0**. No source packet is allowed to skip
 independent review, the later expected-test wave, focused validation,
 precommit, or CI merely because it is pushed.
+
+## Current residual source disposition — 2026-08-23
+
+This is the current commit-level disposition for the reviewed residual packets.
+It records custody and integration decisions only; it does not promote a
+workpack, authorize a caller, or make a test/proof/DONE claim. Do not
+cherry-pick any stale branch tip wholesale.
+
+| Source packet / exact refs | Disposition and remaining boundary |
+| --- | --- |
+| Account wave: `b377dec14`, `6b693ddb3`, `cb015d410`, `87680d811`, `ce3cf4c96`, `35edb2830c9896ddd2d737a65ada720454b78514` | Already present, superseded, or rejected in the canonical authority boundaries. No cherry-pick. |
+| Device Trust wave: `59153e9479979f026c0a5ad1473de39381c587a6`, `2c68aa47e` | Already present/hardened in canonical source. Reject any public caller-key authority; no stale-wave cherry-pick. |
+| Cloudflare runtime wave: `44812e88effa2890c82f9d9251561917f238aeb8`, `1dc274687309a739dd0788430b4b129098d9557b`, `abcdb4f1a562cd18694720f088ca87c71f13008a` | `44812e88e` rejected; `1dc274687` source is present but unmounted; `abcdb4f1` is a duplicate decoder. No branch-tip replay. |
+| Account WP05A/CAS: `9e83c4d86eb44204fc7cacfeea5630f5c0342c66` | Only three dormant CAS repository/schema/recovery files are conditionally salvageable. They are not an authorization fence and do not justify runtime readiness. |
+| Data custody wave: `704878792baa1e7d53c08c5a6e07e1d4e637b800`, `f5cd2d680`, `78f01911f186f6d7ddc7a82fdf5b13051ebe336f` | `704878792` contains an unsafe race/drop path; `f5cd2d680` and the `78f01911` wave duplicate/supersede that source. No direct merge. |
+| Data WP05 variants: `f04f254cf`, `490cd6622`, `bfb85f51` | Duplicate/superseded custody variants; retain for audit until canonical/main disposition is recorded. |
+| Data WP05 follow-on: `444d74699` | Base source is mostly present, but its caller seam is unsafe. Do not promote or use it as a trusted composition. |
+| Data docs/authority variants: `8a92cce1f`, `ec129d668`, `8da579cc70245a3c822045f8a8a74d929fb311a9`, `e9d729d5` | `8a92cce1` is docs-only; `ec129d668` is caller-selected authority/drop and rejected; `8da579cc7` effect-ledger alternate and `e9d729d5` mount contract are dropped. No direct integration. |
+| Data WP08 ordered source: `2d826b6c2bc1de807fea6c6d1f406a6310df1122` → `60973ed54118a76aaa2f5708b78f7fa5b88dfa63` → `19c0b492` → `7c232efbfb1c4c4c5f227332e3a66734432276fe` | Genuinely missing production source, but blocked behind Account WP05. Any future packet must repair atomic effect-consume/staging semantics before tests or readiness. |
+| Screen producer residual: `c02334244e7032a67bdc034e4a428bac8613f296` | Do not cherry-pick wholesale. Later salvage is limited to `crates/agent-service/src/screen_managed_browser_cdp_runtime.rs`; composition/caller source is still missing. Skip `structured_extraction.js` (format/comment-only equivalent). |
+
+Archives and all residual/local branches remain preserved. No remote or local
+branch/worktree deletion is authorized by this review; cleanup waits for
+canonical promotion through `develop` to `main`, then fresh PR/local-dirty,
+ancestry/patch-identity, and Enforcer-claim checks.
 
 ## Current remote branch disposition
 
