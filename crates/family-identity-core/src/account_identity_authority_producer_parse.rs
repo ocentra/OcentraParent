@@ -12,10 +12,8 @@ use ocentra_schema::account_identity_authority_producer::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_SIGNATURE_BYTES,
 };
 
-use super::account_identity_authority_producer_envelope::{
-    domain_separator, CanonicalAuthorityProducerEnvelope,
-};
-use super::account_identity_authority_producer_error::AccountIdentityAuthorityProducerError;
+use super::envelope::{domain_separator, CanonicalAuthorityProducerEnvelope};
+use crate::account_identity_authority_producer_error::AccountIdentityAuthorityProducerError;
 
 pub(crate) struct ParsedAuthorityProducerEnvelope {
     pub(crate) signing_bytes: Vec<u8>,

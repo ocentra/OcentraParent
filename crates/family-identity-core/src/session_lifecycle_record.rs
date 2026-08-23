@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+use ocentra_eventing::error::EventingError;
 use serde::{Deserialize, Serialize};
 
 // The identifier is visible only through this crate's private record module.

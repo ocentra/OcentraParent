@@ -36,10 +36,10 @@ pub(super) fn validate_against_current_authority(
     if let AccountIdentityMutationTarget::ChildDevice {
         child_profile_id,
         child_device_id,
-    } = &request.target
+    } = request.target()
     {
-        if child_profile_id != authority.child_profile_id().as_str()
-            || child_device_id != authority.child_device_id().as_str()
+        if child_profile_id != authority.child_profile_id().to_string().as_str()
+            || child_device_id.as_str() != authority.child_device_id().as_str()
         {
             return Err(AccountIdentityMutationAuthorityError::TargetMismatch);
         }
@@ -49,7 +49,7 @@ pub(super) fn validate_against_current_authority(
     // intentionally has no parent step-up proof yet, so this producer must
     // remain unavailable instead of turning a role/session snapshot into a
     // mutation capability.
-    if request.action == AccountIdentityMutationAction::RevokeChildDevice {
+    if request.action() == AccountIdentityMutationAction::RevokeChildDevice {
         return Err(AccountIdentityMutationAuthorityError::StepUpUnavailable);
     }
 
