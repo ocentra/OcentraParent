@@ -1756,6 +1756,132 @@
         "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md"
       ],
       "reason": "WP39 is a read-model/proof route over the durable journal, replay, and projection owner in Tracking WP37. This route does not claim a shipped journal, portal runtime, tests, proof, or readiness."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+      "hardDependencies": [
+        "WP-parent-desktop-runtime-package-plan-02-parent-web-portal-distribution",
+        "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge"
+      ],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/02-parent-web-portal-distribution.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "WP03 source ordering requires the bounded parent web distribution contract before the Tauri build, and consumes WP06 for the typed parent local-service route/health composition. This does not claim signing, updater, setup, child authority, tests, proof, or DONE."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-04-parent-android-package",
+      "hardDependencies": ["WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge"],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/04-parent-android-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "WP04 parent Android source ordering consumes the typed parent local-service boundary in WP06, while the current Android surface remains a scaffold without Rust/HostBridge/service composition. No platform readiness is claimed."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-05-parent-ios-package",
+      "hardDependencies": ["WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge"],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "WP05 parent iOS source ordering consumes the typed parent local-service boundary in WP06, while the current iOS surface remains a scaffold without Rust bridge/service/store authority. No platform readiness is claimed."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+      "hardDependencies": [
+        "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+        "WP-parent-desktop-runtime-package-plan-04-parent-android-package",
+        "WP-parent-desktop-runtime-package-plan-05-parent-ios-package"
+      ],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/04-parent-android-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md"
+      ],
+      "reason": "WP07 signing/store matrix source ordering consumes the exact parent desktop, Android, and iOS artifact definitions. It does not create signer, notarizer, publisher, provisioning, or credential custody authority."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback",
+      "hardDependencies": [
+        "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+        "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix"
+      ],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md"
+      ],
+      "reason": "WP08 update/rollback is a final artifact and release-state gate over the bounded desktop package and signing/store matrix. Current parent updater/rollback execution is absent; child-agent packaging scripts are not substituted."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+      "hardDependencies": [
+        "WP-parent-desktop-runtime-package-plan-02-parent-web-portal-distribution",
+        "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+        "WP-parent-desktop-runtime-package-plan-04-parent-android-package",
+        "WP-parent-desktop-runtime-package-plan-05-parent-ios-package",
+        "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+        "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+        "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback"
+      ],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/02-parent-web-portal-distribution.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/04-parent-android-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md"
+      ],
+      "reason": "WP09 is validation-only over the bounded WP02-WP08 parent-client packets. All dependencies remain normal completion gates; no implementation authorization or product readiness is created by launch smoke."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
+      "hardDependencies": ["WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge"],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "WP10 source ordering consumes the typed WP06 route bridge. The existing Setup WP07 -> Parent WP10 handoff edge is preserved; adding the reverse edge would create a cycle, so Setup WP07 is intentionally not duplicated as a dependency here."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "hardDependencies": [
+        "WP-parent-desktop-runtime-package-plan-02-parent-web-portal-distribution",
+        "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+        "WP-parent-desktop-runtime-package-plan-04-parent-android-package",
+        "WP-parent-desktop-runtime-package-plan-05-parent-ios-package",
+        "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+        "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+        "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback",
+        "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+        "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts"
+      ],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/02-parent-web-portal-distribution.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/04-parent-android-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
+      ],
+      "reason": "WP11 is the final proof/CI/release gate over WP02-WP10. Its dependencies are normal completion prerequisites; no implementation review is added and no release, signing, updater, setup, or child-runtime authority is claimed."
     }
   ],
   "edges": [
@@ -6273,6 +6399,325 @@
       ],
       "reason": "WP39 source ordering consumes the Tracking WP37 journal, replay, and projection owner.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+      "to": "WP-parent-desktop-runtime-package-plan-02-parent-web-portal-distribution",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/02-parent-web-portal-distribution.md"
+      ],
+      "reason": "The Tauri desktop build invokes the parent portal build, so WP03 retains a normal prerequisite on the bounded WP02 web distribution packet."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+      "to": "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "The desktop shell consumes the typed local-service route and health composition owned by WP06; this is source ordering only and does not claim service readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-04-parent-android-package",
+      "to": "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/04-parent-android-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "Parent Android source ordering must consume the WP06 service/route contract before any live parent-client claim; the current scaffold remains blocked.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-05-parent-ios-package",
+      "to": "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "Parent iOS source ordering must consume the WP06 service/route contract before any live parent-client claim; the current scaffold remains blocked.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md"
+      ],
+      "reason": "Signing/store matrix source ordering consumes the WP03 desktop artifact definition without creating signing authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-04-parent-android-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/04-parent-android-package.md"
+      ],
+      "reason": "Signing/store matrix source ordering consumes the WP04 Android artifact definition without creating store or signing authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-05-parent-ios-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md"
+      ],
+      "reason": "Signing/store matrix source ordering consumes the WP05 iOS artifact definition without creating provisioning or store authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback",
+      "to": "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md"
+      ],
+      "reason": "Update/rollback proof requires the bounded WP03 desktop package artifact state as a normal completion prerequisite."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback",
+      "to": "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md"
+      ],
+      "reason": "Update/rollback proof requires the WP07 signing/store/manual-required matrix as a normal completion prerequisite."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-02-parent-web-portal-distribution",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/02-parent-web-portal-distribution.md"
+      ],
+      "reason": "WP09 validation consumes the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md"
+      ],
+      "reason": "WP09 validation consumes the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-04-parent-android-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/04-parent-android-package.md"
+      ],
+      "reason": "WP09 validation consumes the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-05-parent-ios-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md"
+      ],
+      "reason": "WP09 validation consumes the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "WP09 validation consumes the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md"
+      ],
+      "reason": "WP09 validation consumes the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+      "to": "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md"
+      ],
+      "reason": "WP09 validation consumes the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
+      "to": "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "Setup handoff contracts consume the typed parent local-service route boundary from WP06; this does not transfer setup ownership.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-02-parent-web-portal-distribution",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/02-parent-web-portal-distribution.md"
+      ],
+      "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md"
+      ],
+      "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-04-parent-android-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/04-parent-android-package.md"
+      ],
+      "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-05-parent-ios-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md"
+      ],
+      "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md"
+      ],
+      "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md"
+      ],
+      "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md"
+      ],
+      "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md"
+      ],
+      "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
+      ],
+      "reason": "WP11 proof/CI aggregation requires the prior parent-client packet as a normal completion prerequisite and does not authorize implementation."
     }
   ],
   "stateOverrides": [
