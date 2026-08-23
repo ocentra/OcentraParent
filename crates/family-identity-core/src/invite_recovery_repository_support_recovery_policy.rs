@@ -1,6 +1,6 @@
 use ocentra_schema::account_identity_authority::AccountIdentityRole;
 
-use crate::recovery_lifecycle::RecoveryKind;
+use crate::setup_lifecycle::RecoveryKind;
 use crate::setup_lifecycle::RecoverySupportChannel;
 
 pub(crate) fn recovery_request_is_allowed(

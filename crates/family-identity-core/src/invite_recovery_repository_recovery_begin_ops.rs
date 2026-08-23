@@ -137,5 +137,6 @@ fn persist_recovery(
                 now,
             ],
         )
+        .map(|_| ())
         .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
 }

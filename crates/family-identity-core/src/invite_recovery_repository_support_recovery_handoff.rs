@@ -1,5 +1,5 @@
 use crate::family_identity::RecoveryId;
-use crate::recovery_lifecycle::{RecoveryCustodyHandoff, RecoveryKind};
+use crate::recovery_lifecycle::RecoveryCustodyHandoff;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityDeviceId, AccountIdentityMemberId,
 };
@@ -27,9 +27,9 @@ pub(crate) fn durable_handoff(
     let account_id =
         ParentAccountId::parse(account_id).ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
     let member_id = AccountIdentityMemberId::parse(member_id)
-        .map_err(InviteRecoveryRepositoryError::InvalidValue)?;
+        .ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
     let device_id = AccountIdentityDeviceId::parse(device_id)
-        .map_err(InviteRecoveryRepositoryError::InvalidValue)?;
+        .ok_or(InviteRecoveryRepositoryError::InvalidInvite)?;
     let kind =
         recovery_kind_from_label(&kind).ok_or(InviteRecoveryRepositoryError::HandoffConflict)?;
     let requested_at = timestamp(requested_at_epoch_millis)?;

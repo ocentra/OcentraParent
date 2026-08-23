@@ -1,4 +1,4 @@
-use crate::recovery_lifecycle::RecoveryKind;
+use crate::setup_lifecycle::RecoveryKind;
 
 use super::RecoveryOwnerEffect;
 

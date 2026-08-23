@@ -1,7 +1,6 @@
 use rusqlite::Connection;
 
 use super::schema_recovery_state::{effect_matches_kind, state_valid};
-use super::schema_recovery_support::valid as support_valid;
 
 pub(super) fn validate(connection: &Connection) -> Result<(), ()> {
     let mut statement = connection

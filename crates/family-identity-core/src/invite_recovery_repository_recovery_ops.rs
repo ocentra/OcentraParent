@@ -1,8 +1,9 @@
 use ocentra_schema::account_identity_authority::AccountIdentityRole;
 use rusqlite::{params, OptionalExtension, TransactionBehavior};
 
+use crate::account_identity_authority_repository::SqliteAccountIdentityAuthorityRepository;
 use crate::family_identity::RecoveryId;
-use crate::recovery_lifecycle::RecoveryKind;
+use crate::setup_lifecycle::RecoveryKind;
 
 use super::authority::{ensure_current_authority, next_transition_at, trusted_now_in_transaction};
 use super::support_recovery_kind_from_label::recovery_kind_from_label;
