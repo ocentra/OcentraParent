@@ -4,6 +4,11 @@ import { AppLogEntrySchema, type AppLogEntry } from './types';
 import type { TestLogScope } from '../test-log/types';
 import { getAppLogScopeDir, getAppSessionFilePath } from '../test-log/ndjsonPaths';
 import { selectGeneratedPruneCandidates } from '../local-test-log';
+import {
+  assertReadableLocalArtifactFile,
+  durableAppendLocalArtifact,
+  durableRemoveLocalArtifact,
+} from '../local-artifact-file';
 
 export function appendAppLogEntries(
   scope: TestLogScope,
@@ -12,14 +17,13 @@ export function appendAppLogEntries(
   rootDir?: string
 ): string {
   const filePath = getAppSessionFilePath(scope, sessionId, rootDir);
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
   const payload = entries.map((entry) => JSON.stringify(AppLogEntrySchema.parse(entry))).join('\n');
-  fs.appendFileSync(filePath, `${payload}\n`, 'utf8');
+  durableAppendLocalArtifact(filePath, `${payload}\n`);
   return filePath;
 }
 
 export function readAppLogEntries(filePath: string): AppLogEntry[] {
-  if (!fs.existsSync(filePath)) {
+  if (!assertReadableLocalArtifactFile(filePath)) {
     return [];
   }
 
@@ -41,9 +45,10 @@ export function listAppLogSessionFiles(scope: TestLogScope, rootDir?: string): s
   }
 
   return fs
-    .readdirSync(scopeDir)
-    .filter((entry) => entry.endsWith('.ndjson'))
-    .map((entry) => path.join(scopeDir, entry))
+    .readdirSync(scopeDir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.ndjson'))
+    .map((entry) => path.join(scopeDir, entry.name))
+    .filter((filePath) => assertReadableLocalArtifactFile(filePath))
     .sort((left, right) => left.localeCompare(right));
 }
 
@@ -57,7 +62,7 @@ export function pruneAppLogSessions(scope: TestLogScope, keepNewest: number, roo
 
   const filesToDelete = selectGeneratedPruneCandidates(files, keepNewest);
   for (const file of filesToDelete) {
-    fs.rmSync(file, { force: true });
+    durableRemoveLocalArtifact(file);
   }
 
   return filesToDelete.length;
