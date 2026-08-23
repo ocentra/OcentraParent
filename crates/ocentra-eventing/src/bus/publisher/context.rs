@@ -5,7 +5,7 @@ use crate::{
 use super::{EventContext, EventPublisher};
 
 impl EventPublisher {
-    pub(crate) async fn complete_request<E>(
+    pub async fn complete_request<E>(
         &self,
         request_id: RequestId,
         response: E::Response,
@@ -23,7 +23,7 @@ impl<E> EventContext<E>
 where
     E: DomainEvent,
 {
-    pub(super) fn new(envelope: EventEnvelope<E>, publisher: EventPublisher) -> Self {
+    pub(crate) fn new(envelope: EventEnvelope<E>, publisher: EventPublisher) -> Self {
         Self {
             envelope,
             publisher,

@@ -131,8 +131,8 @@ fn live_and_stored_envelopes_preserve_contract_and_metadata() {
             .as_str(),
         TEST_TARGET
     );
-    assert_eq!(decoded.payload.label, "typed-boundary");
-    assert_eq!(decoded.contract.schema_version.value(), 1);
+    assert_eq!(decoded.payload().label, "typed-boundary");
+    assert_eq!(decoded.contract().schema_version.value(), 1);
 }
 
 #[test]

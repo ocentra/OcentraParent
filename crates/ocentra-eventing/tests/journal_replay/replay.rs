@@ -287,7 +287,7 @@ async fn action_replay_skips_two_before_dispatch_records_and_replays_later_actio
         .await
         .expect_value("replay subscriber registers");
     let reports = replay_bus
-        .replay_to_handlers(action.records, action.mode, DispatchMode::Sequential)
+        .replay_to_handlers(action, DispatchMode::Sequential)
         .await
         .expect_value("action replay dispatches the later actionable record");
 
@@ -329,7 +329,7 @@ async fn dropped_no_subscriber_event_never_becomes_an_after_dispatch_replay_acti
         .replay_action_records(ReplayFilter::all())
         .await
         .expect_value("dropped event never enters action replay");
-    assert!(dropped_actions.records.is_empty());
+    assert!(dropped_actions.records().is_empty());
 
     let handled = Arc::new(tokio::sync::Mutex::new(0_usize));
     let handled_clone = Arc::clone(&handled);
@@ -368,9 +368,9 @@ async fn dropped_no_subscriber_event_never_becomes_an_after_dispatch_replay_acti
         .replay_action_records(ReplayFilter::all())
         .await
         .expect_value("only handled event enters action replay");
-    assert_eq!(actions.records.len(), 1);
+    assert_eq!(actions.records().len(), 1);
     assert_eq!(
-        actions.records[0].envelope.contract.event_type.as_str(),
+        actions.records()[0].envelope.contract.event_type.as_str(),
         TEST_EVENT_TYPE
     );
     assert_eq!(*handled.lock().await, 1);
@@ -385,19 +385,13 @@ async fn projection_replay_cannot_run_handlers_without_action_mode() {
         .append(&stored_event(test_event(TestText(TEST_LABEL.to_owned()))))
         .await
         .expect_value("append event");
-    let projection = journal
+    let _projection = journal
         .replay_projection(ReplayFilter::all())
         .await
         .expect_value("projection replay");
     let bus = EventBus::new();
 
-    let blocked = bus
-        .replay_to_handlers(
-            projection.records.clone(),
-            projection.mode,
-            DispatchMode::Sequential,
-        )
-        .await;
+    let blocked = journal.replay_action_records(ReplayFilter::all()).await;
     assert!(matches!(
         blocked,
         Err(EventingError::ReplayActionNotAllowed { .. })
@@ -425,7 +419,7 @@ async fn projection_replay_cannot_run_handlers_without_action_mode() {
         .await
         .expect_value("action replay reads");
     let reports = bus
-        .replay_to_handlers(action.records, action.mode, DispatchMode::Sequential)
+        .replay_to_handlers(action, DispatchMode::Sequential)
         .await
         .expect_value("action replay dispatches");
 

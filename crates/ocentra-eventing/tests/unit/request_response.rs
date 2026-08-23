@@ -11,7 +11,8 @@ use super::{
         RESULT_EVENT_TYPE,
     },
 };
-use crate::{EventPublisher, EventingError, RequestCompletionOutcome, RequestId, RequestOptions};
+use crate::bus::publisher::EventContext;
+use crate::{EventingError, RequestCompletionOutcome, RequestEvent, RequestId, RequestOptions};
 
 const REQUEST_TERMINAL_RETENTION_PROBE_COUNT: usize = 4097;
 
@@ -50,8 +51,8 @@ async fn publish_request_resolves_associated_response_type() {
 #[tokio::test]
 async fn request_terminal_retention_uses_completion_order_not_request_id_sort_order() {
     let bus = crate::EventBus::new();
-    let captured_publisher = Arc::new(Mutex::new(None::<EventPublisher>));
-    let captured_publisher_clone = Arc::clone(&captured_publisher);
+    let captured_contexts = Arc::new(Mutex::new(Vec::<EventContext<TestRequestEvent>>::new()));
+    let captured_contexts_clone = Arc::clone(&captured_contexts);
     bus.subscribe::<TestRequestEvent, _, _>(
         subscriber_for_event(
             TestText("request-retention-subscriber".to_owned()),
@@ -59,9 +60,9 @@ async fn request_terminal_retention_uses_completion_order_not_request_id_sort_or
             TestText(REQUEST_EVENT_TYPE.to_owned()),
         ),
         move |context| {
-            let captured_publisher = Arc::clone(&captured_publisher_clone);
+            let captured_contexts = Arc::clone(&captured_contexts_clone);
             async move {
-                *captured_publisher.lock().await = Some(context.publisher().clone());
+                captured_contexts.lock().await.push(context.clone());
                 context.complete_request(TestResponse::approved()).await?;
                 Ok(())
             }
@@ -92,22 +93,42 @@ async fn request_terminal_retention_uses_completion_order_not_request_id_sort_or
         .await;
     }
 
-    let publisher = captured_publisher
-        .lock()
-        .await
-        .clone()
-        .expect_value("request publisher captured");
+    let contexts = captured_contexts.lock().await.clone();
+    let oldest_context = contexts
+        .iter()
+        .find(|context| {
+            context
+                .payload()
+                .request_id()
+                .expect_value("oldest request id available")
+                .as_str()
+                == oldest.as_str()
+        })
+        .expect_value("oldest request context captured")
+        .clone();
+    let first_new_context = contexts
+        .iter()
+        .find(|context| {
+            context
+                .payload()
+                .request_id()
+                .expect_value("first new request id available")
+                .as_str()
+                == first_new.as_str()
+        })
+        .expect_value("first new request context captured")
+        .clone();
     assert_eq!(
-        publisher
-            .complete_request::<TestRequestEvent>(oldest, TestResponse::approved())
+        oldest_context
+            .complete_request(TestResponse::approved())
             .await
             .expect_value("evicted oldest reports late")
             .outcome,
         RequestCompletionOutcome::Late
     );
     assert_eq!(
-        publisher
-            .complete_request::<TestRequestEvent>(first_new, TestResponse::approved())
+        first_new_context
+            .complete_request(TestResponse::approved())
             .await
             .expect_value("newer low-sorted request remains retained")
             .outcome,
@@ -123,7 +144,7 @@ async fn request_terminal_retention_uses_completion_order_not_request_id_sort_or
 }
 
 async fn publish_retention_probe_request(
-    bus: &crate::EventBus,
+    bus: &crate::bus::publisher::RootEventPublisher,
     label: TestText,
     request_id: TestText,
     event_id: TestText,

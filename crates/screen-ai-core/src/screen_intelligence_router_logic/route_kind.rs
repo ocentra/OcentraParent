@@ -14,7 +14,7 @@ pub(super) fn route_kind_for(
     if request
         .structured_extraction
         .as_ref()
-        .is_some_and(|value| consistency::protected_content_skipped(value))
+        .is_some_and(|value| value.protected_content_skipped())
     {
         return ScreenIntelligenceRouteKind::Unavailable;
     }

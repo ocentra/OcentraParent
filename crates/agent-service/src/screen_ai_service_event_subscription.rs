@@ -29,7 +29,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::screen_ai_service_event_bridge::{
     publish_screen_degraded_event_chain, publish_screen_service_row_event_chain,
-    screen_runtime_deletion_input_from_service_row, ScreenAiServiceEventBridgeError,
+    screen_runtime_degraded_input_from_service_row, screen_runtime_deletion_input_from_service_row,
+    screen_runtime_input_from_service_row, ScreenAiServiceEventBridgeError,
     ScreenAiServiceEventBridgeRefs,
 };
 
@@ -61,16 +62,21 @@ impl ScreenAiServiceEventRuntime {
 
     pub(crate) async fn publish_row_ready(
         &self,
-        row: ActivityScreenReadModelRow,
-        action_ref: ActionRefText,
-        observed_at: ObservedAtText,
+        _row: ActivityScreenReadModelRow,
+        _action_ref: ActionRefText,
+        _observed_at: ObservedAtText,
     ) -> Result<ocentra_eventing::bus::reports::handler::PublishReport, EventingError> {
-        publish_screen_service_row_ready_event(
-            &self.bus,
-            ScreenAiServiceRowReadyEvent::new(row, action_ref),
-            observed_at,
-        )
-        .await
+        return Err(EventingError::InvalidValue {
+            field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
+            value: constants::screen_flow::ERROR_SCREEN_RUNTIME_OWNER_UNAVAILABLE_MANUAL_REQUIRED
+                .to_string(),
+        });
+    }
+
+    pub(crate) async fn event_metrics_snapshot(
+        &self,
+    ) -> ocentra_eventing::bus::reports::handler::EventMetricsSnapshot {
+        self.bus.metrics_snapshot().await
     }
 
     pub(crate) async fn publish_deletion_row(
@@ -214,9 +220,34 @@ async fn handle_screen_service_row_ready_event(
     state: ScreenAiServiceEventSubscriptionState,
 ) -> Result<(), EventingError> {
     let event = context.payload().clone();
-    let observed_at = ObservedAtText(context.envelope().observed_at.as_str().to_string());
     let queue_job_id = event.row.queue_job_id.clone();
     let screen_analysis_result_id = event.row.row_id.clone();
+    let validation = if screen_service_row_is_degraded(&event.row) {
+        screen_runtime_degraded_input_from_service_row(event.row.clone()).map(|_| ())
+    } else {
+        screen_runtime_input_from_service_row(
+            event.row.clone(),
+            ScreenAiServiceEventBridgeRefs {
+                action_ref: ActionRefText(event.action_ref.clone()),
+            },
+        )
+        .map(|_| ())
+    };
+    if let Err(reason) = validation {
+        return Err(reject_screen_service_row(&state, &event, reason));
+    }
+    let error = EventingError::InvalidValue {
+        field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
+        value: constants::screen_flow::ERROR_SCREEN_RUNTIME_OWNER_UNAVAILABLE_MANUAL_REQUIRED
+            .to_string(),
+    };
+    state.record(ScreenAiServiceEventSubscriptionDispatch::Rejected {
+        queue_job_id,
+        screen_analysis_result_id,
+        reason: ScreenAiServiceEventBridgeError::RuntimeOwnerUnavailable,
+    });
+    return Err(error);
+    let observed_at = ObservedAtText(context.envelope().observed_at.as_str().to_string());
     let result = publish_screen_runtime_chain_for_row(
         context.publisher(),
         causal_target,
@@ -226,7 +257,11 @@ async fn handle_screen_service_row_ready_event(
     .await;
 
     match result {
-        Ok(report) if screen_runtime_report_succeeded(&report) => {
+        Ok(report)
+            if report.dead_letters.is_empty()
+                && !report.publish_reports.is_empty()
+                && report.publish_reports.iter().all(publish_report_succeeded) =>
+        {
             let downstream_event_count = report.stored_events.len();
             let raw_image_escaped = report.raw_image_escaped();
             state.record(ScreenAiServiceEventSubscriptionDispatch::Published {
@@ -237,30 +272,28 @@ async fn handle_screen_service_row_ready_event(
             });
             Ok(())
         }
-        Ok(_) => {
-            state.record(ScreenAiServiceEventSubscriptionDispatch::Rejected {
-                queue_job_id,
-                screen_analysis_result_id,
-                reason: ScreenAiServiceEventBridgeError::EventPublishFailed,
-            });
-            Err(EventingError::InvalidValue {
-                field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
-                value: constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS
-                    .to_string(),
-            })
-        }
-        Err(reason) => {
-            state.record(ScreenAiServiceEventSubscriptionDispatch::Rejected {
-                queue_job_id,
-                screen_analysis_result_id,
-                reason,
-            });
-            Err(EventingError::InvalidValue {
-                field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
-                value: constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS
-                    .to_string(),
-            })
-        }
+        Ok(_) => Err(reject_screen_service_row(
+            &state,
+            &event,
+            ScreenAiServiceEventBridgeError::EventPublishFailed,
+        )),
+        Err(reason) => Err(reject_screen_service_row(&state, &event, reason)),
+    }
+}
+
+fn reject_screen_service_row(
+    state: &ScreenAiServiceEventSubscriptionState,
+    event: &ScreenAiServiceRowReadyEvent,
+    reason: ScreenAiServiceEventBridgeError,
+) -> EventingError {
+    state.record(ScreenAiServiceEventSubscriptionDispatch::Rejected {
+        queue_job_id: event.row.queue_job_id.clone(),
+        screen_analysis_result_id: event.row.row_id.clone(),
+        reason,
+    });
+    EventingError::InvalidValue {
+        field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
+        value: constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS.to_string(),
     }
 }
 
@@ -273,12 +306,6 @@ pub(crate) fn publish_report_succeeded(report: &PublishReport) -> bool {
             .handler_reports
             .iter()
             .all(|handler| handler.outcome == HandlerOutcome::Handled)
-}
-
-fn screen_runtime_report_succeeded(report: &ScreenRuntimeReport) -> bool {
-    report.dead_letters.is_empty()
-        && !report.publish_reports.is_empty()
-        && report.publish_reports.iter().all(publish_report_succeeded)
 }
 
 async fn publish_screen_runtime_chain_for_row(

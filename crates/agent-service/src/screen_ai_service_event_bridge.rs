@@ -36,6 +36,7 @@ struct ScreenAiDeletionState(String);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum ScreenAiServiceEventBridgeError {
+    RuntimeOwnerUnavailable,
     RawImageRetained,
     MissingPolicyDecision,
     MissingPolicyAction,
