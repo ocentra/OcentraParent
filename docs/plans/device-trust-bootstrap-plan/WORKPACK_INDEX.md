@@ -143,7 +143,10 @@ transitively through WP06; it is not duplicated as a direct WP03 edge. Device
 Trust WP02 is conditional only for a demonstrated private-key/install custody
 requirement.
 WP04 depends on WP03 and blocks phone/QR approval claims.
-WP05 depends on WP01/WP02 and payment handoff; license never unlocks behavior alone.
+WP05 depends on WP01. WP02 is conditional only when the selected entitlement
+route requires local-key-sealing/lifecycle-revocation custody; payment remains
+a typed handoff with no hard graph edge until its exact producer workpack is
+named. License never unlocks behavior alone.
 WP06 depends on WP02/WP03/WP04 and blocks recovery/reset claims.
 WP07 depends on WP01/WP02/WP06 and blocks child uninstall/tamper claims.
 LAN WP26 and any child current-binding consumer are ordered after WP03's
