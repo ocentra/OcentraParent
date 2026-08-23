@@ -1062,6 +1062,873 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md"
       ],
       "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-network-plan-01-foundation-contracts-and-eventing",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-network-plan-02-passive-capture-and-parsing",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-network-plan-03-classification-and-correlation",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "docs/plans/network-plan/workpacks/03-classification-and-correlation.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-network-plan-05-intervention-adapter-proof-gates",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "docs/plans/network-plan/workpacks/05-intervention-adapter-proof-gates.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-network-plan-06-analyzer-ai-audit-and-risk-budget",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "docs/plans/network-plan/workpacks/06-analyzer-ai-audit-and-risk-budget.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-network-plan-07-performance-security-rollout",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "docs/plans/network-plan/workpacks/07-performance-security-rollout.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-01-source-index-and-repo-reconciliation",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/01-source-index-and-repo-reconciliation.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-02-current-tracking-snapshot-and-gap-map",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/02-current-tracking-snapshot-and-gap-map.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-03-contract-boundary-and-effect-schemas",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-04-location-evidence-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/04-location-evidence-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-05-device-status-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/05-device-status-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-06-permission-and-capability-status-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/06-permission-and-capability-status-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-07-retention-and-custody-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-08-android-foreground-location-adapter",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-09-android-background-location-and-geofence-adapter",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-10-android-battery-connectivity-and-status-adapter",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-11-ios-core-location-foreground-adapter",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-12-ios-background-region-significant-change-adapter",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-13-desktop-location-and-presence-hint-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/13-desktop-location-and-presence-hint-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-14-geofence-rule-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/14-geofence-rule-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-15-geofence-transition-engine",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/15-geofence-transition-engine.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-16-expected-place-schedule-engine",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/16-expected-place-schedule-engine.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-17-parent-acknowledgement-and-exception-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/17-parent-acknowledgement-and-exception-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-18-child-check-in-flow",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/18-child-check-in-flow.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-19-nearby-place-provider-abstraction",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/19-nearby-place-provider-abstraction.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-20-google-places-and-poi-provider-adapter",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/20-google-places-and-poi-provider-adapter.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-21-place-category-taxonomy-and-ambiguity-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/21-place-category-taxonomy-and-ambiguity-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-22-local-parent-defined-place-database",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/22-local-parent-defined-place-database.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-23-ai-location-safety-analysis-contracts",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/23-ai-location-safety-analysis-contracts.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-24-ai-provider-routing",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/24-ai-provider-routing.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-25-policy-compiler-for-tracking-rules",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-26-alert-severity-and-notification-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-27-escalation-engine",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/27-escalation-engine.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-28-temporary-live-tracking-mode",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/28-temporary-live-tracking-mode.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-29-missing-device-mode",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/29-missing-device-mode.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-30-parent-and-child-ui-ux-surfaces",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-31-platform-extension-checklists-and-proof-routing",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-32-journal-sqlite-and-read-model-proof",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-33-proof-gates-fixtures-rollout-and-pr-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-35-parent-tracking-config-command-event-flow",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/35-parent-tracking-config-command-event-flow.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-36-tracking-detection-cascade-event-flow",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-38-tracking-notification-and-escalation-event-flow",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/38-tracking-notification-and-escalation-event-flow.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-tracking-plan-39-tracking-portal-event-read-model-proof",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "docs/plans/tracking-plan/workpacks/39-tracking-portal-event-read-model-proof.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-01-source-index-and-doc-reconciliation",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/01-source-index-and-doc-reconciliation.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-02-current-screen-snapshot-and-gap-map",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/02-current-screen-snapshot-and-gap-map.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-03-contract-boundary-and-effect-schemas",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-05-capability-status-contract",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/05-capability-status-contract.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-06-capture-scope-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-07-capture-trigger-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-08-platform-adapter-abstraction",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-09-windows-capture-adapter-plan-proof",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/09-windows-capture-adapter-plan-proof.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-12-android-mediaprojection-adapter-plan-proof",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-13-ios-replaykit-adapter-plan-proof",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/13-ios-replaykit-adapter-plan-proof.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-14-protected-surface-detector",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/14-protected-surface-detector.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-15-encrypted-temporary-image-queue",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/15-encrypted-temporary-image-queue.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-16-queue-scheduler-and-debouncer",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/16-queue-scheduler-and-debouncer.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-18-screen-analysis-result-schema",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/18-screen-analysis-result-schema.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-20-result-validator-and-invalid-output-handling",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/20-result-validator-and-invalid-output-handling.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-21-journal-and-sqlite-ingest",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/21-journal-and-sqlite-ingest.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-22-deletion-and-retention-proof",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/22-deletion-and-retention-proof.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-23-policy-compiler-for-screen-derived-evidence",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-26-child-disclosure-ux",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-28-live-view-optional-mode",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-29-proof-tiers-and-proof-packs",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/29-proof-tiers-and-proof-packs.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-30-test-suite-playwright-rollout-pr-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/30-test-suite-playwright-rollout-pr-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-39-redacted-summary-only-remote-boundary",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/39-redacted-summary-only-remote-boundary.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
+      "hardDependencies": [
+        "WP-browser-plan-07-managed-chromium-launcher",
+        "WP-browser-plan-09-cdp-version-and-target-adapter"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-01-prerequisite-merge-and-branch-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/01-prerequisite-merge-and-branch-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-06-journal-read-model-and-portal-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-07-deletion-retention-and-custody-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-09-performance-cadence-and-backpressure-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-10-final-rollout-and-pr-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-05-app-game-session-handoff",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/05-app-game-session-handoff.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-06-managed-browser-session-control",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/06-managed-browser-session-control.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-08-network-domain-report-only-boundary",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/08-network-domain-report-only-boundary.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-10-parent-approval-override",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/10-parent-approval-override.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-12-child-facing-status-and-reasons",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/12-child-facing-status-and-reasons.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-13-service-read-models-and-api",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/13-service-read-models-and-api.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-14-portal-control-state-consumption",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/14-portal-control-state-consumption.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-15-integrity-heartbeat-permission-loss",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/15-integrity-heartbeat-permission-loss.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-16-tamper-uninstall-non-claim-design",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/16-tamper-uninstall-non-claim-design.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-17-cross-platform-unavailable-states",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/17-cross-platform-unavailable-states.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-19-playwright-ui-proof",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/19-playwright-ui-proof.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-20-rollout-docs-ci-pr-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/20-rollout-docs-ci-pr-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-11-audit-journal-events",
+      "hardDependencies": ["WP-eventing-plan-06-journal-replay-and-lineage"],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit",
+      "hardDependencies": ["WP-v0-8-enforcement-control-plan-11-audit-journal-events"],
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-05-parent-ios-package",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md"
+      ],
+      "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     }
   ],
   "edges": [
