@@ -45,6 +45,9 @@
     {
       "id": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
       "hardDependencies": [
+        "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+        "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+        "WP-data-custody-storage-plan-06-report-query-custody",
         "WP-account-identity-family-plan-05-device-ownership-authz",
         "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator"
       ],
@@ -59,7 +62,10 @@
     },
     {
       "id": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
-      "hardDependencies": [],
+      "hardDependencies": [
+        "WP-data-custody-storage-plan-02-encryption-key-custody",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone"
+      ],
       "reason": "Independent source review accepted the bounded fail-closed Data WP05 source route, including the parent-runtime rollback dispatch authority binding. Live caller/test audit finds no production implementation of the Account/provider/key/producer ports, all five expected runtime test roots are absent, blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort requires an owner-side adapter before cross-crate mounting. The remaining source order is Account WP05, Data WP09, WP10, WP11 composition, then a real caller; focused execution, proof, checklist acceptance, PR readiness, and DONE remain open.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
@@ -71,7 +77,10 @@
     },
     {
       "id": "WP-data-custody-storage-plan-06-report-query-custody",
-      "hardDependencies": [],
+      "hardDependencies": [
+        "WP-data-custody-storage-plan-01-custody-source-of-truth",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone"
+      ],
       "reason": "Canonical commits 9462ce44e and d3c4b64ca cover the Account-issued authority-snapshot-derived opaque WP06 request/row custody boundary, all-seven-state completeness, sealed validated proof snapshot, source/proof page limits, cursor/source/stable-sort continuity, and exact Rust-owned generated scope/citation/generation/pagination parity. The snapshot does not claim race-safe repository currentness. No production report/query consumer or owner adapter is routed; three Rust harnesses need sealed-wrapper and boundary/page-size migration and the TypeScript contract test is absent. This authorizes only reviewed source/graph truth mapping; expected tests, focused execution, downstream runtime claims, proof, checklist acceptance, PR readiness, and DONE remain open.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
@@ -681,9 +690,7 @@
     },
     {
       "id": "WP-policy-control-plane-plan-05-ask-parent-overrides",
-      "hardDependencies": [
-        "WP-policy-control-plane-plan-04-delivery-ack-audit"
-      ],
+      "hardDependencies": ["WP-policy-control-plane-plan-04-delivery-ack-audit"],
       "evidence": [
         "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md"
@@ -727,9 +734,7 @@
     },
     {
       "id": "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
-      "hardDependencies": [
-        "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate"
-      ],
+      "hardDependencies": ["WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate"],
       "evidence": [
         "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md"
@@ -833,6 +838,204 @@
         "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md"
       ],
       "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-data-custody-storage-plan-02-encryption-key-custody",
+      "hardDependencies": ["WP-data-custody-storage-plan-01-custody-source-of-truth"],
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
+        "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+      "hardDependencies": [
+        "WP-data-custody-storage-plan-01-custody-source-of-truth",
+        "WP-data-custody-storage-plan-02-encryption-key-custody"
+      ],
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
+        "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "hardDependencies": ["WP-data-custody-storage-plan-01-custody-source-of-truth"],
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "hardDependencies": [
+        "WP-data-custody-storage-plan-01-custody-source-of-truth",
+        "WP-data-custody-storage-plan-02-encryption-key-custody",
+        "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+        "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+        "WP-data-custody-storage-plan-06-report-query-custody",
+        "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
+        "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+        "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+        "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+        "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz"
+      ],
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-data-custody-storage-plan-data-and-ai-ui-plan",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
+        "docs/plans/data-custody-storage-plan/workpacks/data and AI Ui plan.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
+      "hardDependencies": ["WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package",
+      "hardDependencies": ["WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package",
+      "hardDependencies": ["WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "hardDependencies": ["WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+      "hardDependencies": [
+        "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
+        "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package",
+        "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package",
+        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+        "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
+      "hardDependencies": [
+        "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
+        "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package",
+        "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package",
+        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+        "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "hardDependencies": ["WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "hardDependencies": [
+        "WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary",
+        "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
+        "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package",
+        "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package",
+        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+        "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+        "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+        "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall",
+        "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     }
   ],
   "edges": [
@@ -845,7 +1048,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
       ],
-      "reason": "Child WP10 must consume Device Trust WP01 current binding; setup handoff DTOs and caller-supplied identity cannot authorize startup."
+      "reason": "Child WP10 must consume Device Trust WP01 current binding; setup handoff DTOs and caller-supplied identity cannot authorize startup.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
@@ -856,7 +1060,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
       ],
-      "reason": "Windows package/runtime source must consume the reviewed trusted startup, authenticated ingress, and external health boundary."
+      "reason": "Windows package/runtime source must consume the reviewed trusted startup, authenticated ingress, and external health boundary.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package",
@@ -867,7 +1072,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
       ],
-      "reason": "macOS package/runtime source must consume the reviewed trusted startup, authenticated ingress, and external health boundary."
+      "reason": "macOS package/runtime source must consume the reviewed trusted startup, authenticated ingress, and external health boundary.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package",
@@ -878,7 +1084,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
       ],
-      "reason": "Linux package/runtime source must consume the reviewed trusted startup, authenticated ingress, and external health boundary."
+      "reason": "Linux package/runtime source must consume the reviewed trusted startup, authenticated ingress, and external health boundary.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
@@ -889,7 +1096,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
       ],
-      "reason": "Android JNI startup and ingress must consume the reviewed Device Trust-bound runtime boundary without minting authority."
+      "reason": "Android JNI startup and ingress must consume the reviewed Device Trust-bound runtime boundary without minting authority.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
@@ -900,7 +1108,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md"
       ],
-      "reason": "Lifecycle supervision consumes the platform package/runtime source rather than static manager declarations alone."
+      "reason": "Lifecycle supervision consumes the platform package/runtime source rather than static manager declarations alone.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
@@ -911,7 +1120,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
       ],
-      "reason": "Lifecycle aggregation must preserve the iOS capability-only and unsupported/no-daemon boundary."
+      "reason": "Lifecycle aggregation must preserve the iOS capability-only and unsupported/no-daemon boundary.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
@@ -922,7 +1132,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
       ],
-      "reason": "Health-aware supervision requires the trusted startup and external-health boundary from WP10."
+      "reason": "Health-aware supervision requires the trusted startup and external-health boundary from WP10.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall",
@@ -933,7 +1144,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md",
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
       ],
-      "reason": "Child removal must consume Account WP08 current verified household authority and cannot self-authorize from local signals."
+      "reason": "Child removal must consume Account WP08 current verified household authority and cannot self-authorize from local signals.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall",
@@ -944,7 +1156,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md"
       ],
-      "reason": "Removal must integrate with lifecycle stop/disable/remove states and retain cleanup outcomes."
+      "reason": "Removal must integrate with lifecycle stop/disable/remove states and retain cleanup outcomes.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
@@ -955,7 +1168,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
       ],
-      "reason": "Signing/store/device-owner matrix consumes canonical platform identities and preserves iOS capability/manual-required limits."
+      "reason": "Signing/store/device-owner matrix consumes canonical platform identities and preserves iOS capability/manual-required limits.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
@@ -966,7 +1180,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
       ],
-      "reason": "Updater/install execution must consume the durable WP10 handoff and retain its manual-required/no-claim state."
+      "reason": "Updater/install execution must consume the durable WP10 handoff and retain its manual-required/no-claim state.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -977,7 +1192,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
       ],
-      "reason": "The aggregate source gate follows the runtime handoff and must report its missing caller/ingress/health truth."
+      "reason": "The aggregate source gate follows the runtime handoff and must report its missing caller/ingress/health truth.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -988,7 +1204,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md"
       ],
-      "reason": "The release gate cannot aggregate a release decision while authority-bound removal and platform cleanup source is missing."
+      "reason": "The release gate cannot aggregate a release decision while authority-bound removal and platform cleanup source is missing.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -999,7 +1216,8 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md"
       ],
-      "reason": "The release gate must aggregate updater/handoff and platform signing/store/manual-required state."
+      "reason": "The release gate must aggregate updater/handoff and platform signing/store/manual-required state.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
@@ -3032,6 +3250,428 @@
         "docs/plans/payment-subscription-plan/workpacks/10-referral-growth-entitlement.md"
       ],
       "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-02-encryption-key-custody",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+      "to": "WP-data-custody-storage-plan-02-encryption-key-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md",
+        "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+      "to": "WP-data-custody-storage-plan-02-encryption-key-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md",
+        "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-06-report-query-custody",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-06-report-query-custody",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-02-encryption-key-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-06-report-query-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
+      "to": "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md",
+        "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
+      "to": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md",
+        "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow",
+      "to": "WP-data-custody-storage-plan-06-report-query-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/08-parent-storage-settings-apply-flow.md",
+        "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+      "to": "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+      "to": "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+      "to": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
+      "to": "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
+      "to": "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
+      "to": "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix",
+      "to": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
+      "to": "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md"
+      ],
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
       "implementationGate": "reviewed-implementation"
     }
   ],
