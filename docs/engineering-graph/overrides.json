@@ -1660,6 +1660,68 @@
         "docs/plans/portal-ux-household-surfaces-plan/workpacks/20-manual-user-review-gate.md",
         "docs/plans/portal-ux-household-surfaces-plan/workpacks/19-product-docs-and-checklist-sync.md"
       ]
+    },
+    {
+      "id": "WP-network-plan-01-foundation-contracts-and-eventing",
+      "hardDependencies": ["WP-eventing-plan-09-network-consumer-event-chain"],
+      "reason": "Network WP01 requires the reusable Eventing WP09 durable observation-to-read-model event backbone; Network must not create a private bus or substitute read-time refs.",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md"
+      ]
+    },
+    {
+      "id": "WP-network-plan-02-passive-capture-and-parsing",
+      "hardDependencies": ["WP-network-plan-01-foundation-contracts-and-eventing"],
+      "reason": "Network WP02 capture and parsing must sequence behind the WP01 Rust-owned contract and eventing boundary; replay/parser output cannot replace typed protocol ownership.",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md",
+        "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md"
+      ]
+    },
+    {
+      "id": "WP-network-plan-03-classification-and-correlation",
+      "hardDependencies": ["WP-network-plan-02-passive-capture-and-parsing"],
+      "reason": "Network WP03 classification and correlation consumes bounded WP02 capture/parser evidence; missing capture provenance must remain ambiguity rather than certainty.",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/03-classification-and-correlation.md",
+        "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md"
+      ]
+    },
+    {
+      "id": "WP-network-plan-06-analyzer-ai-audit-and-risk-budget",
+      "hardDependencies": [
+        "WP-network-plan-03-classification-and-correlation",
+        "WP-ai-plan-07-ai-job-queue-contract",
+        "WP-ai-plan-19-ai-result-journal-sqlite-ingest"
+      ],
+      "reason": "Network WP06 analyzer and risk-budget routing consumes WP03 classification evidence plus the exact AI WP07 job-queue and AI WP19 result-journal owners; no AI runtime or exact-content claim is promoted.",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/06-analyzer-ai-audit-and-risk-budget.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md",
+        "docs/plans/ai-plan/workpacks/19-ai-result-journal-sqlite-ingest.md",
+        "docs/plans/network-plan/workpacks/03-classification-and-correlation.md"
+      ]
+    },
+    {
+      "id": "WP-network-plan-07-performance-security-rollout",
+      "hardDependencies": [
+        "WP-network-plan-01-foundation-contracts-and-eventing",
+        "WP-network-plan-02-passive-capture-and-parsing",
+        "WP-network-plan-05-intervention-adapter-proof-gates"
+      ],
+      "reason": "Network WP07 is the performance/security/rollout gate and therefore requires the Network WP01 contract, WP02 capture/parser, and WP05 adapter-proof surfaces to be complete before final rollout claims. Its workpack names no exact custody/security/rollout sibling workpack IDs, so none are guessed.",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/07-performance-security-rollout.md",
+        "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md",
+        "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md",
+        "docs/plans/network-plan/workpacks/05-intervention-adapter-proof-gates.md"
+      ]
     }
   ],
   "edges": [
@@ -5944,6 +6006,132 @@
         "docs/plans/portal-ux-household-surfaces-plan/workpacks/19-product-docs-and-checklist-sync.md"
       ],
       "reason": "Manual user review requires the Portal product/checklist sync, route list, proof artifacts, validation/gap summary, and explicit visual decision state."
+    },
+    {
+      "from": "WP-network-plan-01-foundation-contracts-and-eventing",
+      "to": "WP-eventing-plan-09-network-consumer-event-chain",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md"
+      ],
+      "reason": "Network WP01 requires the reusable Eventing WP09 durable observation-to-read-model event backbone; Network must not create a private bus or substitute read-time refs.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-network-plan-02-passive-capture-and-parsing",
+      "to": "WP-network-plan-01-foundation-contracts-and-eventing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md",
+        "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md"
+      ],
+      "reason": "Network WP02 capture and parsing must sequence behind the WP01 Rust-owned contract and eventing boundary; replay/parser output cannot replace typed protocol ownership.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-network-plan-03-classification-and-correlation",
+      "to": "WP-network-plan-02-passive-capture-and-parsing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/03-classification-and-correlation.md",
+        "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md"
+      ],
+      "reason": "Network WP03 classification and correlation consumes bounded WP02 capture/parser evidence; missing capture provenance must remain ambiguity rather than certainty.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-network-plan-06-analyzer-ai-audit-and-risk-budget",
+      "to": "WP-network-plan-03-classification-and-correlation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/06-analyzer-ai-audit-and-risk-budget.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md",
+        "docs/plans/ai-plan/workpacks/19-ai-result-journal-sqlite-ingest.md",
+        "docs/plans/network-plan/workpacks/03-classification-and-correlation.md"
+      ],
+      "reason": "Network WP06 analyzer and risk-budget routing consumes WP03 classification evidence plus the exact AI WP07 job-queue and AI WP19 result-journal owners; no AI runtime or exact-content claim is promoted.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-network-plan-06-analyzer-ai-audit-and-risk-budget",
+      "to": "WP-ai-plan-07-ai-job-queue-contract",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/06-analyzer-ai-audit-and-risk-budget.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md",
+        "docs/plans/ai-plan/workpacks/19-ai-result-journal-sqlite-ingest.md",
+        "docs/plans/network-plan/workpacks/03-classification-and-correlation.md"
+      ],
+      "reason": "Network WP06 analyzer and risk-budget routing consumes WP03 classification evidence plus the exact AI WP07 job-queue and AI WP19 result-journal owners; no AI runtime or exact-content claim is promoted.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-network-plan-06-analyzer-ai-audit-and-risk-budget",
+      "to": "WP-ai-plan-19-ai-result-journal-sqlite-ingest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/06-analyzer-ai-audit-and-risk-budget.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md",
+        "docs/plans/ai-plan/workpacks/19-ai-result-journal-sqlite-ingest.md",
+        "docs/plans/network-plan/workpacks/03-classification-and-correlation.md"
+      ],
+      "reason": "Network WP06 analyzer and risk-budget routing consumes WP03 classification evidence plus the exact AI WP07 job-queue and AI WP19 result-journal owners; no AI runtime or exact-content claim is promoted.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-network-plan-07-performance-security-rollout",
+      "to": "WP-network-plan-01-foundation-contracts-and-eventing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/07-performance-security-rollout.md",
+        "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md",
+        "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md",
+        "docs/plans/network-plan/workpacks/05-intervention-adapter-proof-gates.md"
+      ],
+      "reason": "Network WP07 is the performance/security/rollout gate and therefore requires the Network WP01 contract, WP02 capture/parser, and WP05 adapter-proof surfaces to be complete before final rollout claims. Its workpack names no exact custody/security/rollout sibling workpack IDs, so none are guessed."
+    },
+    {
+      "from": "WP-network-plan-07-performance-security-rollout",
+      "to": "WP-network-plan-02-passive-capture-and-parsing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/07-performance-security-rollout.md",
+        "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md",
+        "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md",
+        "docs/plans/network-plan/workpacks/05-intervention-adapter-proof-gates.md"
+      ],
+      "reason": "Network WP07 is the performance/security/rollout gate and therefore requires the Network WP01 contract, WP02 capture/parser, and WP05 adapter-proof surfaces to be complete before final rollout claims. Its workpack names no exact custody/security/rollout sibling workpack IDs, so none are guessed."
+    },
+    {
+      "from": "WP-network-plan-07-performance-security-rollout",
+      "to": "WP-network-plan-05-intervention-adapter-proof-gates",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/07-performance-security-rollout.md",
+        "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md",
+        "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md",
+        "docs/plans/network-plan/workpacks/05-intervention-adapter-proof-gates.md"
+      ],
+      "reason": "Network WP07 is the performance/security/rollout gate and therefore requires the Network WP01 contract, WP02 capture/parser, and WP05 adapter-proof surfaces to be complete before final rollout claims. Its workpack names no exact custody/security/rollout sibling workpack IDs, so none are guessed."
     }
   ],
   "stateOverrides": [
