@@ -2022,6 +2022,311 @@
         "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
       ],
       "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+    },
+    {
+      "id": "WP-screen-plan-04-parent-opt-in-settings-contract",
+      "hardDependencies": ["WP-screen-plan-03-contract-boundary-and-effect-schemas"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/04-parent-opt-in-settings-contract.md",
+        "docs/plans/screen-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "Screen settings are a disabled-by-default contract and must consume the Screen effect/schema boundary; this does not provide a capture provider or production caller."
+    },
+    {
+      "id": "WP-screen-plan-05-capability-status-contract",
+      "hardDependencies": ["WP-screen-plan-03-contract-boundary-and-effect-schemas"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/05-capability-status-contract.md",
+        "docs/plans/screen-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "Capability status is a bounded Screen contract over the shared effect/schema boundary; provider permission and ready authority remain uncomposed."
+    },
+    {
+      "id": "WP-screen-plan-07-capture-trigger-model",
+      "hardDependencies": ["WP-screen-plan-06-capture-scope-model"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md",
+        "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
+      ],
+      "reason": "Trigger scheduling consumes the Screen capture-scope model; current callers are limited to the coupled AI cadence/foreground runtime."
+    },
+    {
+      "id": "WP-screen-plan-08-platform-adapter-abstraction",
+      "hardDependencies": ["WP-screen-plan-06-capture-scope-model"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md",
+        "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
+      ],
+      "reason": "Platform adapters consume the capture-scope contract, while platform composition and physical proof remain open."
+    },
+    {
+      "id": "WP-screen-plan-14-protected-surface-detector",
+      "hardDependencies": ["WP-screen-plan-06-capture-scope-model"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/14-protected-surface-detector.md",
+        "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
+      ],
+      "reason": "Protected-surface detection is downstream of capture scope and remains a bounded detector/proof slice, not safe-capture authority."
+    },
+    {
+      "id": "WP-screen-plan-09-windows-capture-adapter-plan-proof",
+      "hardDependencies": ["WP-screen-plan-08-platform-adapter-abstraction"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/09-windows-capture-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "Windows capture is a platform/manual proof gate over the adapter abstraction; it does not establish live-view, AI, or remote completion."
+    },
+    {
+      "id": "WP-screen-plan-10-macos-capture-adapter-plan-proof",
+      "hardDependencies": ["WP-screen-plan-08-platform-adapter-abstraction"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/10-macos-capture-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "macOS capture is a platform/manual proof gate over the adapter abstraction; the shipped source does not establish a production capture caller."
+    },
+    {
+      "id": "WP-screen-plan-11-linux-capture-adapter-plan-proof",
+      "hardDependencies": ["WP-screen-plan-08-platform-adapter-abstraction"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/11-linux-capture-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "Linux capture is a platform/manual proof gate over the adapter abstraction; the non-Windows adapter/runtime path remains uncomposed."
+    },
+    {
+      "id": "WP-screen-plan-12-android-mediaprojection-adapter-plan-proof",
+      "hardDependencies": [
+        "WP-screen-plan-08-platform-adapter-abstraction",
+        "WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary",
+        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Android MediaProjection requires the Screen adapter contract and the named Child distribution/platform owners; current evidence is explicit-consent/emulator-only and does not claim silent background capture."
+    },
+    {
+      "id": "WP-screen-plan-13-ios-replaykit-adapter-plan-proof",
+      "hardDependencies": ["WP-screen-plan-08-platform-adapter-abstraction"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/13-ios-replaykit-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "iOS ReplayKit is a platform/manual gate over the adapter abstraction; the required extension/capture runtime is missing."
+    },
+    {
+      "id": "WP-screen-plan-15-encrypted-temporary-image-queue",
+      "hardDependencies": ["WP-screen-plan-07-capture-trigger-model"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/15-encrypted-temporary-image-queue.md",
+        "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md"
+      ],
+      "reason": "The encrypted temporary image queue consumes the trigger model before queueing work; custody and tamper/retry proof remain open."
+    },
+    {
+      "id": "WP-screen-plan-16-queue-scheduler-and-debouncer",
+      "hardDependencies": ["WP-screen-plan-07-capture-trigger-model"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/16-queue-scheduler-and-debouncer.md",
+        "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md"
+      ],
+      "reason": "Queue scheduling/debouncing consumes the trigger model before scheduling capture work; it does not create an independent production caller."
+    },
+    {
+      "id": "WP-screen-plan-17-local-ocr-vision-runtime-model",
+      "hardDependencies": ["WP-screen-plan-16-queue-scheduler-and-debouncer"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/17-local-ocr-vision-runtime-model.md",
+        "docs/plans/screen-plan/workpacks/16-queue-scheduler-and-debouncer.md"
+      ],
+      "reason": "The local OCR/vision runtime consumes scheduled queue work; no real provider/runtime authority is asserted by this route."
+    },
+    {
+      "id": "WP-screen-plan-18-screen-analysis-result-schema",
+      "hardDependencies": ["WP-screen-plan-17-local-ocr-vision-runtime-model"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/18-screen-analysis-result-schema.md",
+        "docs/plans/screen-plan/workpacks/17-local-ocr-vision-runtime-model.md"
+      ],
+      "reason": "Analysis result schema follows the local OCR/vision runtime contract and remains a typed bounded handoff."
+    },
+    {
+      "id": "WP-screen-plan-19-sensitive-text-and-redaction-model",
+      "hardDependencies": ["WP-screen-plan-17-local-ocr-vision-runtime-model"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/19-sensitive-text-and-redaction-model.md",
+        "docs/plans/screen-plan/workpacks/17-local-ocr-vision-runtime-model.md"
+      ],
+      "reason": "Sensitive-text/redaction modeling follows the local OCR/vision runtime contract; it does not establish remote or product custody authority."
+    },
+    {
+      "id": "WP-screen-plan-20-result-validator-and-invalid-output-handling",
+      "hardDependencies": ["WP-screen-plan-17-local-ocr-vision-runtime-model"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/20-result-validator-and-invalid-output-handling.md",
+        "docs/plans/screen-plan/workpacks/17-local-ocr-vision-runtime-model.md"
+      ],
+      "reason": "Invalid-output handling follows the local OCR/vision runtime contract and must remain fail-closed without implying provider readiness."
+    },
+    {
+      "id": "WP-screen-plan-22-deletion-and-retention-proof",
+      "hardDependencies": [
+        "WP-screen-plan-21-journal-and-sqlite-ingest",
+        "WP-data-custody-storage-plan-01-custody-source-of-truth",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+        "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/22-deletion-and-retention-proof.md",
+        "docs/plans/screen-plan/workpacks/21-journal-and-sqlite-ingest.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+      ],
+      "reason": "Screen owns local deletion/retention proof only. Journal ingest and the named Data custody source, retention/tombstone owner, and reviewed runtime custody mount are prerequisites; product retention/export/delete authority remains Data-owned."
+    },
+    {
+      "id": "WP-screen-plan-25-parent-portal-summary-ui",
+      "hardDependencies": ["WP-screen-plan-21-journal-and-sqlite-ingest"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/25-parent-portal-summary-ui.md",
+        "docs/plans/screen-plan/workpacks/21-journal-and-sqlite-ingest.md"
+      ],
+      "reason": "The portal summary consumes journal/SQLite ingest as a proof/read-model gate; it does not create product custody or a production Screen caller."
+    },
+    {
+      "id": "WP-screen-plan-23-policy-compiler-for-screen-derived-evidence",
+      "hardDependencies": [
+        "WP-policy-control-plane-plan-01-policy-source-of-truth",
+        "WP-v0-8-enforcement-control-plan-01-contract-boundary-and-effect-schemas",
+        "WP-v0-8-enforcement-control-plan-02-policy-decision-evidence-references"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/01-contract-boundary-and-effect-schemas.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/02-policy-decision-evidence-references.md"
+      ],
+      "reason": "Screen can produce evidence references and summary targets, while Policy owns authority/compiler semantics and v0.8 owns effect/decision contracts; no policy authority or enforcement completion is asserted."
+    },
+    {
+      "id": "WP-screen-plan-24-enforcement-handoff-guard",
+      "hardDependencies": [
+        "WP-screen-plan-23-policy-compiler-for-screen-derived-evidence",
+        "WP-policy-control-plane-plan-01-policy-source-of-truth",
+        "WP-v0-8-enforcement-control-plan-01-contract-boundary-and-effect-schemas",
+        "WP-v0-8-enforcement-control-plan-02-policy-decision-evidence-references"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/24-enforcement-handoff-guard.md",
+        "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/01-contract-boundary-and-effect-schemas.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/02-policy-decision-evidence-references.md"
+      ],
+      "reason": "The enforcement handoff guard is a fail-closed/manual-required boundary over Screen evidence and the named Policy/v0.8 owners; it does not execute adapters or broaden enforcement."
+    },
+    {
+      "id": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
+      "hardDependencies": [
+        "WP-screen-plan-31-screen-intelligence-router",
+        "WP-browser-plan-07-managed-chromium-launcher",
+        "WP-browser-plan-09-cdp-version-and-target-adapter"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+        "docs/plans/screen-plan/workpacks/31-screen-intelligence-router.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "Structured extraction must be routed through the Screen intelligence router and preserve the existing Browser launcher/version-adapter prerequisites; no executable service caller or completion is claimed."
+    },
+    {
+      "id": "WP-screen-plan-36-small-vlm-guided-classifier-evaluation",
+      "hardDependencies": ["WP-screen-plan-31-screen-intelligence-router"],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/36-small-vlm-guided-classifier-evaluation.md",
+        "docs/plans/screen-plan/workpacks/31-screen-intelligence-router.md"
+      ],
+      "reason": "Small-VLM guided classifier evaluation is a validation gate over the Screen intelligence router; it does not establish a real OCR/VLM/provider runtime."
+    },
+    {
+      "id": "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path",
+      "hardDependencies": [
+        "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
+        "WP-browser-plan-07-managed-chromium-launcher",
+        "WP-browser-plan-09-cdp-version-and-target-adapter"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md",
+        "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "Managed-browser CDP capture consumes the Screen structured-extraction route and the Browser launcher/version-adapter owners; live browser triggering, AI/OCR/VLM, retention, and completion remain absent."
+    },
+    {
+      "id": "WP-screen-plan-27-screenshot-retention-optional-mode",
+      "hardDependencies": [
+        "WP-screen-plan-04-parent-opt-in-settings-contract",
+        "WP-data-custody-storage-plan-01-custody-source-of-truth",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+        "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/27-screenshot-retention-optional-mode.md",
+        "docs/plans/screen-plan/workpacks/04-parent-opt-in-settings-contract.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+      ],
+      "reason": "Optional screenshot retention consumes the Screen settings boundary and named Data custody/retention/runtime owners; retention is not itself product custody authority."
+    },
+    {
+      "id": "WP-screen-plan-28-live-view-optional-mode",
+      "hardDependencies": [
+        "WP-screen-plan-04-parent-opt-in-settings-contract",
+        "WP-remote-access-plan-01-remote-capability-fabric",
+        "WP-remote-access-plan-04-session-pairing-grants"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md",
+        "docs/plans/screen-plan/workpacks/04-parent-opt-in-settings-contract.md",
+        "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md",
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md"
+      ],
+      "reason": "Live-view remains a local preflight/loopback/gate. Screen consumes its settings boundary and Remote capability/grant owners; Remote WP02 is intentionally omitted because it already consumes Screen WP28."
+    },
+    {
+      "id": "WP-screen-plan-26-child-disclosure-ux",
+      "hardDependencies": [
+        "WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary",
+        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Child disclosure consumes the named Child distribution/platform owners; no shipped child surface, hidden capture, raw screenshot, remote viewer, or completion authority is asserted."
+    },
+    {
+      "id": "WP-screen-plan-39-redacted-summary-only-remote-boundary",
+      "hardDependencies": [
+        "WP-remote-access-plan-01-remote-capability-fabric",
+        "WP-data-custody-storage-plan-01-custody-source-of-truth"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/39-redacted-summary-only-remote-boundary.md",
+        "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "The redacted-summary-only boundary requires Remote capability fabric and the Data custody source; Remote owns relay/session authority and Data owns export/retention/delete/privacy."
     }
   ],
   "edges": [
@@ -7350,6 +7655,531 @@
         "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
       ],
       "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+    },
+    {
+      "from": "WP-screen-plan-04-parent-opt-in-settings-contract",
+      "to": "WP-screen-plan-03-contract-boundary-and-effect-schemas",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/04-parent-opt-in-settings-contract.md",
+        "docs/plans/screen-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "Screen settings are a disabled-by-default contract and must consume the Screen effect/schema boundary; this does not provide a capture provider or production caller.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-05-capability-status-contract",
+      "to": "WP-screen-plan-03-contract-boundary-and-effect-schemas",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/05-capability-status-contract.md",
+        "docs/plans/screen-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "Capability status is a bounded Screen contract over the shared effect/schema boundary; provider permission and ready authority remain uncomposed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-07-capture-trigger-model",
+      "to": "WP-screen-plan-06-capture-scope-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md",
+        "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
+      ],
+      "reason": "Trigger scheduling consumes the Screen capture-scope model; current callers are limited to the coupled AI cadence/foreground runtime.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-08-platform-adapter-abstraction",
+      "to": "WP-screen-plan-06-capture-scope-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md",
+        "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
+      ],
+      "reason": "Platform adapters consume the capture-scope contract, while platform composition and physical proof remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-14-protected-surface-detector",
+      "to": "WP-screen-plan-06-capture-scope-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/14-protected-surface-detector.md",
+        "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
+      ],
+      "reason": "Protected-surface detection is downstream of capture scope and remains a bounded detector/proof slice, not safe-capture authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-09-windows-capture-adapter-plan-proof",
+      "to": "WP-screen-plan-08-platform-adapter-abstraction",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/09-windows-capture-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "Windows capture is a platform/manual proof gate over the adapter abstraction; it does not establish live-view, AI, or remote completion."
+    },
+    {
+      "from": "WP-screen-plan-10-macos-capture-adapter-plan-proof",
+      "to": "WP-screen-plan-08-platform-adapter-abstraction",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/10-macos-capture-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "macOS capture is a platform/manual proof gate over the adapter abstraction; the shipped source does not establish a production capture caller."
+    },
+    {
+      "from": "WP-screen-plan-11-linux-capture-adapter-plan-proof",
+      "to": "WP-screen-plan-08-platform-adapter-abstraction",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/11-linux-capture-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "Linux capture is a platform/manual proof gate over the adapter abstraction; the non-Windows adapter/runtime path remains uncomposed."
+    },
+    {
+      "from": "WP-screen-plan-12-android-mediaprojection-adapter-plan-proof",
+      "to": "WP-screen-plan-08-platform-adapter-abstraction",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "Android MediaProjection requires the Screen adapter contract and the named Child distribution/platform owners; current evidence is explicit-consent/emulator-only and does not claim silent background capture."
+    },
+    {
+      "from": "WP-screen-plan-12-android-mediaprojection-adapter-plan-proof",
+      "to": "WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md"
+      ],
+      "reason": "Android MediaProjection requires the Screen adapter contract and the named Child distribution/platform owners; current evidence is explicit-consent/emulator-only and does not claim silent background capture."
+    },
+    {
+      "from": "WP-screen-plan-12-android-mediaprojection-adapter-plan-proof",
+      "to": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Android MediaProjection requires the Screen adapter contract and the named Child distribution/platform owners; current evidence is explicit-consent/emulator-only and does not claim silent background capture."
+    },
+    {
+      "from": "WP-screen-plan-13-ios-replaykit-adapter-plan-proof",
+      "to": "WP-screen-plan-08-platform-adapter-abstraction",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/13-ios-replaykit-adapter-plan-proof.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "iOS ReplayKit is a platform/manual gate over the adapter abstraction; the required extension/capture runtime is missing."
+    },
+    {
+      "from": "WP-screen-plan-15-encrypted-temporary-image-queue",
+      "to": "WP-screen-plan-07-capture-trigger-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/15-encrypted-temporary-image-queue.md",
+        "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md"
+      ],
+      "reason": "The encrypted temporary image queue consumes the trigger model before queueing work; custody and tamper/retry proof remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-16-queue-scheduler-and-debouncer",
+      "to": "WP-screen-plan-07-capture-trigger-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/16-queue-scheduler-and-debouncer.md",
+        "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md"
+      ],
+      "reason": "Queue scheduling/debouncing consumes the trigger model before scheduling capture work; it does not create an independent production caller.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-17-local-ocr-vision-runtime-model",
+      "to": "WP-screen-plan-16-queue-scheduler-and-debouncer",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/17-local-ocr-vision-runtime-model.md",
+        "docs/plans/screen-plan/workpacks/16-queue-scheduler-and-debouncer.md"
+      ],
+      "reason": "The local OCR/vision runtime consumes scheduled queue work; no real provider/runtime authority is asserted by this route.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-18-screen-analysis-result-schema",
+      "to": "WP-screen-plan-17-local-ocr-vision-runtime-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/18-screen-analysis-result-schema.md",
+        "docs/plans/screen-plan/workpacks/17-local-ocr-vision-runtime-model.md"
+      ],
+      "reason": "Analysis result schema follows the local OCR/vision runtime contract and remains a typed bounded handoff.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-19-sensitive-text-and-redaction-model",
+      "to": "WP-screen-plan-17-local-ocr-vision-runtime-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/19-sensitive-text-and-redaction-model.md",
+        "docs/plans/screen-plan/workpacks/17-local-ocr-vision-runtime-model.md"
+      ],
+      "reason": "Sensitive-text/redaction modeling follows the local OCR/vision runtime contract; it does not establish remote or product custody authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-20-result-validator-and-invalid-output-handling",
+      "to": "WP-screen-plan-17-local-ocr-vision-runtime-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/20-result-validator-and-invalid-output-handling.md",
+        "docs/plans/screen-plan/workpacks/17-local-ocr-vision-runtime-model.md"
+      ],
+      "reason": "Invalid-output handling follows the local OCR/vision runtime contract and must remain fail-closed without implying provider readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-22-deletion-and-retention-proof",
+      "to": "WP-screen-plan-21-journal-and-sqlite-ingest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/22-deletion-and-retention-proof.md",
+        "docs/plans/screen-plan/workpacks/21-journal-and-sqlite-ingest.md"
+      ],
+      "reason": "Screen owns local deletion/retention proof only. Journal ingest and the named Data custody source, retention/tombstone owner, and reviewed runtime custody mount are prerequisites; product retention/export/delete authority remains Data-owned."
+    },
+    {
+      "from": "WP-screen-plan-22-deletion-and-retention-proof",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/22-deletion-and-retention-proof.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Screen owns local deletion/retention proof only. Journal ingest and the named Data custody source, retention/tombstone owner, and reviewed runtime custody mount are prerequisites; product retention/export/delete authority remains Data-owned."
+    },
+    {
+      "from": "WP-screen-plan-22-deletion-and-retention-proof",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/22-deletion-and-retention-proof.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Screen owns local deletion/retention proof only. Journal ingest and the named Data custody source, retention/tombstone owner, and reviewed runtime custody mount are prerequisites; product retention/export/delete authority remains Data-owned."
+    },
+    {
+      "from": "WP-screen-plan-22-deletion-and-retention-proof",
+      "to": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/22-deletion-and-retention-proof.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+      ],
+      "reason": "Screen owns local deletion/retention proof only. Journal ingest and the named Data custody source, retention/tombstone owner, and reviewed runtime custody mount are prerequisites; product retention/export/delete authority remains Data-owned.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-25-parent-portal-summary-ui",
+      "to": "WP-screen-plan-21-journal-and-sqlite-ingest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/25-parent-portal-summary-ui.md",
+        "docs/plans/screen-plan/workpacks/21-journal-and-sqlite-ingest.md"
+      ],
+      "reason": "The portal summary consumes journal/SQLite ingest as a proof/read-model gate; it does not create product custody or a production Screen caller."
+    },
+    {
+      "from": "WP-screen-plan-23-policy-compiler-for-screen-derived-evidence",
+      "to": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md"
+      ],
+      "reason": "Screen can produce evidence references and summary targets, while Policy owns authority/compiler semantics and v0.8 owns effect/decision contracts; no policy authority or enforcement completion is asserted."
+    },
+    {
+      "from": "WP-screen-plan-23-policy-compiler-for-screen-derived-evidence",
+      "to": "WP-v0-8-enforcement-control-plan-01-contract-boundary-and-effect-schemas",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/01-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "Screen can produce evidence references and summary targets, while Policy owns authority/compiler semantics and v0.8 owns effect/decision contracts; no policy authority or enforcement completion is asserted."
+    },
+    {
+      "from": "WP-screen-plan-23-policy-compiler-for-screen-derived-evidence",
+      "to": "WP-v0-8-enforcement-control-plan-02-policy-decision-evidence-references",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/02-policy-decision-evidence-references.md"
+      ],
+      "reason": "Screen can produce evidence references and summary targets, while Policy owns authority/compiler semantics and v0.8 owns effect/decision contracts; no policy authority or enforcement completion is asserted."
+    },
+    {
+      "from": "WP-screen-plan-24-enforcement-handoff-guard",
+      "to": "WP-screen-plan-23-policy-compiler-for-screen-derived-evidence",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/24-enforcement-handoff-guard.md",
+        "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md"
+      ],
+      "reason": "The enforcement handoff guard is a fail-closed/manual-required boundary over Screen evidence and the named Policy/v0.8 owners; it does not execute adapters or broaden enforcement."
+    },
+    {
+      "from": "WP-screen-plan-24-enforcement-handoff-guard",
+      "to": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/24-enforcement-handoff-guard.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md"
+      ],
+      "reason": "The enforcement handoff guard is a fail-closed/manual-required boundary over Screen evidence and the named Policy/v0.8 owners; it does not execute adapters or broaden enforcement."
+    },
+    {
+      "from": "WP-screen-plan-24-enforcement-handoff-guard",
+      "to": "WP-v0-8-enforcement-control-plan-01-contract-boundary-and-effect-schemas",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/24-enforcement-handoff-guard.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/01-contract-boundary-and-effect-schemas.md"
+      ],
+      "reason": "The enforcement handoff guard is a fail-closed/manual-required boundary over Screen evidence and the named Policy/v0.8 owners; it does not execute adapters or broaden enforcement."
+    },
+    {
+      "from": "WP-screen-plan-24-enforcement-handoff-guard",
+      "to": "WP-v0-8-enforcement-control-plan-02-policy-decision-evidence-references",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/24-enforcement-handoff-guard.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/02-policy-decision-evidence-references.md"
+      ],
+      "reason": "The enforcement handoff guard is a fail-closed/manual-required boundary over Screen evidence and the named Policy/v0.8 owners; it does not execute adapters or broaden enforcement."
+    },
+    {
+      "from": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
+      "to": "WP-screen-plan-31-screen-intelligence-router",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md",
+        "docs/plans/screen-plan/workpacks/31-screen-intelligence-router.md"
+      ],
+      "reason": "Structured extraction must be routed through the Screen intelligence router and preserve the existing Browser launcher/version-adapter prerequisites; no executable service caller or completion is claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-36-small-vlm-guided-classifier-evaluation",
+      "to": "WP-screen-plan-31-screen-intelligence-router",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/36-small-vlm-guided-classifier-evaluation.md",
+        "docs/plans/screen-plan/workpacks/31-screen-intelligence-router.md"
+      ],
+      "reason": "Small-VLM guided classifier evaluation is a validation gate over the Screen intelligence router; it does not establish a real OCR/VLM/provider runtime."
+    },
+    {
+      "from": "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path",
+      "to": "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md",
+        "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md"
+      ],
+      "reason": "Managed-browser CDP capture consumes the Screen structured-extraction route and the Browser launcher/version-adapter owners; live browser triggering, AI/OCR/VLM, retention, and completion remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path",
+      "to": "WP-browser-plan-07-managed-chromium-launcher",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md",
+        "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md"
+      ],
+      "reason": "Managed-browser CDP capture consumes the Screen structured-extraction route and the Browser launcher/version-adapter owners; live browser triggering, AI/OCR/VLM, retention, and completion remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path",
+      "to": "WP-browser-plan-09-cdp-version-and-target-adapter",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md",
+        "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md"
+      ],
+      "reason": "Managed-browser CDP capture consumes the Screen structured-extraction route and the Browser launcher/version-adapter owners; live browser triggering, AI/OCR/VLM, retention, and completion remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-27-screenshot-retention-optional-mode",
+      "to": "WP-screen-plan-04-parent-opt-in-settings-contract",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/27-screenshot-retention-optional-mode.md",
+        "docs/plans/screen-plan/workpacks/04-parent-opt-in-settings-contract.md"
+      ],
+      "reason": "Optional screenshot retention consumes the Screen settings boundary and named Data custody/retention/runtime owners; retention is not itself product custody authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-27-screenshot-retention-optional-mode",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/27-screenshot-retention-optional-mode.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Optional screenshot retention consumes the Screen settings boundary and named Data custody/retention/runtime owners; retention is not itself product custody authority."
+    },
+    {
+      "from": "WP-screen-plan-27-screenshot-retention-optional-mode",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/27-screenshot-retention-optional-mode.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Optional screenshot retention consumes the Screen settings boundary and named Data custody/retention/runtime owners; retention is not itself product custody authority."
+    },
+    {
+      "from": "WP-screen-plan-27-screenshot-retention-optional-mode",
+      "to": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/27-screenshot-retention-optional-mode.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+      ],
+      "reason": "Optional screenshot retention consumes the Screen settings boundary and named Data custody/retention/runtime owners; retention is not itself product custody authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-28-live-view-optional-mode",
+      "to": "WP-screen-plan-04-parent-opt-in-settings-contract",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md",
+        "docs/plans/screen-plan/workpacks/04-parent-opt-in-settings-contract.md"
+      ],
+      "reason": "Live-view remains a local preflight/loopback/gate. Screen consumes its settings boundary and Remote capability/grant owners; Remote WP02 is intentionally omitted because it already consumes Screen WP28.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-28-live-view-optional-mode",
+      "to": "WP-remote-access-plan-01-remote-capability-fabric",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md",
+        "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md"
+      ],
+      "reason": "Live-view remains a local preflight/loopback/gate. Screen consumes its settings boundary and Remote capability/grant owners; Remote WP02 is intentionally omitted because it already consumes Screen WP28."
+    },
+    {
+      "from": "WP-screen-plan-28-live-view-optional-mode",
+      "to": "WP-remote-access-plan-04-session-pairing-grants",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md",
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md"
+      ],
+      "reason": "Live-view remains a local preflight/loopback/gate. Screen consumes its settings boundary and Remote capability/grant owners; Remote WP02 is intentionally omitted because it already consumes Screen WP28."
+    },
+    {
+      "from": "WP-screen-plan-26-child-disclosure-ux",
+      "to": "WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md"
+      ],
+      "reason": "Child disclosure consumes the named Child distribution/platform owners; no shipped child surface, hidden capture, raw screenshot, remote viewer, or completion authority is asserted."
+    },
+    {
+      "from": "WP-screen-plan-26-child-disclosure-ux",
+      "to": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Child disclosure consumes the named Child distribution/platform owners; no shipped child surface, hidden capture, raw screenshot, remote viewer, or completion authority is asserted."
+    },
+    {
+      "from": "WP-screen-plan-39-redacted-summary-only-remote-boundary",
+      "to": "WP-remote-access-plan-01-remote-capability-fabric",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/39-redacted-summary-only-remote-boundary.md",
+        "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md"
+      ],
+      "reason": "The redacted-summary-only boundary requires Remote capability fabric and the Data custody source; Remote owns relay/session authority and Data owns export/retention/delete/privacy."
+    },
+    {
+      "from": "WP-screen-plan-39-redacted-summary-only-remote-boundary",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/39-redacted-summary-only-remote-boundary.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "The redacted-summary-only boundary requires Remote capability fabric and the Data custody source; Remote owns relay/session authority and Data owns export/retention/delete/privacy."
     }
   ],
   "stateOverrides": [
