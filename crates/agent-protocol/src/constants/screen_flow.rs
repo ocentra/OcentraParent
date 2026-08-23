@@ -114,6 +114,8 @@ pub const ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES: &str =
     "screen service event subscriber publishes";
 pub const ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS: &str =
     "screen service event subscriber rejects";
+pub const ERROR_SCREEN_RUNTIME_OWNER_UNAVAILABLE_MANUAL_REQUIRED: &str =
+    "screen runtime owner unavailable; manual-required";
 pub const ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_RECORDS: &str =
     "screen service event subscriber records";
 pub const ERROR_SCREEN_LIVE_VIEW_ENV_LOCKS: &str = "screen live view env locks";

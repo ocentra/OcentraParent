@@ -1,9 +1,10 @@
-use ocentra_eventing::{bus::reports::handler::HandlerOutcome, bus::EventBus};
+use ocentra_eventing::{
+    bus::reports::handler::HandlerOutcome, bus::EventBus, error::EventingError,
+};
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimePhase;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPABILITY_READY;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CATEGORY_SCHOOL;
@@ -21,8 +22,6 @@ use super::screen_ai_service_event_subscription::{
 };
 use crate::screen_ai_service_event_subscription;
 use crate::test_invariants::require_ok;
-
-const DEGRADED_SCREEN_RUNTIME_EVENT_COUNT: usize = 4;
 
 #[tokio::test]
 async fn screen_service_event_runtime_start_registers_subscriber_for_production_startup() {
@@ -42,17 +41,24 @@ async fn screen_service_event_runtime_start_registers_subscriber_for_production_
             ),
         )
         .await;
-    let publish = require_ok(
-        publish,
-        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_PUBLISHES,
+    let error = publish.expect_err("row-ready must stop before root publication");
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
+            value: constants::screen_flow::ERROR_SCREEN_RUNTIME_OWNER_UNAVAILABLE_MANUAL_REQUIRED
+                .to_string(),
+        }
     );
-
-    assert_eq!(publish.handler_reports.len(), 1);
-    assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Handled);
+    let metrics = runtime.event_metrics_snapshot().await;
+    assert_eq!(metrics.stored_event_count, 0);
+    assert_eq!(metrics.dead_letter_count, 0);
+    assert_eq!(metrics.queue.queued_event_count, 0);
+    assert_eq!(metrics.queue.in_flight_event_id_count, 0);
 }
 
 #[tokio::test]
-async fn screen_service_event_subscription_publishes_existing_runtime_chain() {
+async fn screen_service_event_subscription_rejects_without_runtime_owner() {
     let bus = EventBus::new();
     let state = ScreenAiServiceEventSubscriptionState::default();
     let subscription = subscribe_screen_service_row_ready_events(&bus, state.clone()).await;
@@ -80,20 +86,19 @@ async fn screen_service_event_subscription_publishes_existing_runtime_chain() {
     );
 
     assert_eq!(publish.handler_reports.len(), 1);
-    assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Handled);
+    assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Failed);
     assert_eq!(
         dispatches(&state),
-        vec![ScreenAiServiceEventSubscriptionDispatch::Published {
+        vec![ScreenAiServiceEventSubscriptionDispatch::Rejected {
             queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
             screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
-            downstream_event_count: ScreenRuntimePhase::ordered_chain().len(),
-            raw_image_escaped: false,
+            reason: ScreenAiServiceEventBridgeError::RuntimeOwnerUnavailable,
         }]
     );
 }
 
 #[tokio::test]
-async fn screen_service_event_subscription_publishes_degraded_runtime_chain() {
+async fn screen_service_event_subscription_rejects_degraded_without_runtime_owner() {
     let bus = EventBus::new();
     let state = ScreenAiServiceEventSubscriptionState::default();
     let subscription = subscribe_screen_service_row_ready_events(&bus, state.clone()).await;
@@ -121,14 +126,13 @@ async fn screen_service_event_subscription_publishes_degraded_runtime_chain() {
     );
 
     assert_eq!(publish.handler_reports.len(), 1);
-    assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Handled);
+    assert_eq!(publish.handler_reports[0].outcome, HandlerOutcome::Failed);
     assert_eq!(
         dispatches(&state),
-        vec![ScreenAiServiceEventSubscriptionDispatch::Published {
+        vec![ScreenAiServiceEventSubscriptionDispatch::Rejected {
             queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
             screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
-            downstream_event_count: DEGRADED_SCREEN_RUNTIME_EVENT_COUNT,
-            raw_image_escaped: false,
+            reason: ScreenAiServiceEventBridgeError::RuntimeOwnerUnavailable,
         }]
     );
 }

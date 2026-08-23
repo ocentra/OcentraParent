@@ -1,4 +1,4 @@
-use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::bus::{publisher::RootEventPublisher, EventBus};
 use ocentra_eventing::envelope::{EventEnvelope, StoredEventEnvelope};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
@@ -39,11 +39,11 @@ impl AsRef<OsStr> for JournalPath {
 pub(super) fn bus_with_recording_journal(
     policy: JournalPolicy,
     log: Arc<Mutex<Vec<String>>>,
-) -> EventBus {
+) -> RootEventPublisher {
     EventBus::with_journal(policy, Arc::new(RecordingJournal { log }))
 }
 
-pub(super) async fn subscribe_log_handler(bus: &EventBus, log: Arc<Mutex<Vec<String>>>) {
+pub(super) async fn subscribe_log_handler(bus: &RootEventPublisher, log: Arc<Mutex<Vec<String>>>) {
     bus.subscribe::<TestEvent, _, _>(
         subscriber(
             TestText(TEST_SUBSCRIBER.to_owned()),
