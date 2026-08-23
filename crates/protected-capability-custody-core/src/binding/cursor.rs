@@ -1,4 +1,4 @@
-use super::{validation, BindingError, BindingField, MAX_FIELD_BYTES};
+use super::{validation, BindingError, BindingField};
 
 pub(super) struct Cursor<'a> {
     bytes: &'a [u8],
@@ -57,7 +57,7 @@ impl<'a> Cursor<'a> {
         if length == 0 {
             return Err(BindingError::EmptyField);
         }
-        if length > MAX_FIELD_BYTES {
+        if length > validation::max_field_bytes(field) {
             return Err(BindingError::FieldTooLarge);
         }
         let value = self.take_exact(length)?.to_vec();

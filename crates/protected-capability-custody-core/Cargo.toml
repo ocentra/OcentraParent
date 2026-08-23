@@ -11,7 +11,16 @@ workspace = true
 path = "src/lib.rs"
 
 [dependencies]
+dunce = "1.0.5"
+file-id = "0.2.3"
 getrandom = "0.3.4"
 rusqlite = { version = "0.39.0", features = ["bundled"] }
+same-file = "1.0.6"
 sha2 = "0.10.9"
 thiserror = "2.0.18"
+
+[target.'cfg(unix)'.dependencies]
+rustix = { version = "1.1.2", features = ["fs", "process"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Storage_FileSystem"] }

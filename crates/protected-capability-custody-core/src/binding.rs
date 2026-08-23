@@ -7,10 +7,13 @@ mod codec;
 mod cursor;
 mod decode;
 mod validation;
+mod values;
 
+const LOCATOR_MAGIC: [u8; 4] = *b"OCPL";
 const BINDING_MAGIC: [u8; 4] = *b"OCPC";
-const BINDING_VERSION: u16 = 1;
+pub(crate) const BINDING_VERSION: u16 = 2;
 const MAX_FIELD_BYTES: usize = 1024;
+const MAX_LOCATOR_BYTES: usize = 4 * MAX_FIELD_BYTES + 64;
 const GENERATION_SLOT_COUNT: usize = 4;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -33,21 +36,6 @@ pub enum TargetKind {
 #[derive(Clone, Eq, PartialEq)]
 pub struct OperationId(Vec<u8>);
 
-impl OperationId {
-    pub fn try_new(value: Vec<u8>) -> Result<Self, BindingError> {
-        validation::validate_field(&value, BindingField::Operation).map(|_| Self(value))
-    }
-}
-
-impl fmt::Debug for OperationId {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter
-            .debug_struct("OperationId")
-            .field("length", &self.0.len())
-            .finish()
-    }
-}
-
 #[derive(Clone, Eq, PartialEq)]
 pub struct TargetEnvelope {
     kind: TargetKind,
@@ -56,35 +44,12 @@ pub struct TargetEnvelope {
     target: Vec<u8>,
 }
 
-impl TargetEnvelope {
-    pub fn try_new(
-        kind: TargetKind,
-        household: Vec<u8>,
-        device: Vec<u8>,
-        target: Vec<u8>,
-    ) -> Result<Self, BindingError> {
-        validation::validate_field(&household, BindingField::Household)?;
-        validation::validate_field(&device, BindingField::Device)?;
-        validation::validate_field(&target, BindingField::Target)?;
-        Ok(Self {
-            kind,
-            household,
-            device,
-            target,
-        })
-    }
-}
-
-impl fmt::Debug for TargetEnvelope {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter
-            .debug_struct("TargetEnvelope")
-            .field("kind", &self.kind)
-            .field("household_length", &self.household.len())
-            .field("device_length", &self.device.len())
-            .field("target_length", &self.target.len())
-            .finish()
-    }
+#[derive(Clone, Eq, PartialEq)]
+pub struct BindingLocator {
+    operation: OperationId,
+    action: Action,
+    target: TargetEnvelope,
+    canonical: Vec<u8>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -109,30 +74,32 @@ impl GenerationSlot {
         }
         Ok(Self { name, value })
     }
+
+    pub fn name(&self) -> GenerationSlotName {
+        self.name
+    }
+
+    pub fn value(&self) -> u64 {
+        self.value
+    }
 }
 
 #[derive(Clone, Eq, PartialEq)]
 pub struct Binding {
-    operation: OperationId,
-    action: Action,
-    target: TargetEnvelope,
+    locator: BindingLocator,
     generations: [GenerationSlot; GENERATION_SLOT_COUNT],
     canonical: Vec<u8>,
 }
 
 impl Binding {
     pub fn try_new(
-        operation: OperationId,
-        action: Action,
-        target: TargetEnvelope,
+        locator: BindingLocator,
         generations: [GenerationSlot; GENERATION_SLOT_COUNT],
     ) -> Result<Self, BindingError> {
         validation::validate_generation_order(&generations)?;
-        let canonical = codec::encode(&operation, action, &target, &generations)?;
+        let canonical = codec::encode_binding(&locator, &generations)?;
         Ok(Self {
-            operation,
-            action,
-            target,
+            locator,
             generations,
             canonical,
         })
@@ -142,15 +109,16 @@ impl Binding {
         decode::decode(canonical)
     }
 
+    pub(crate) fn locator(&self) -> &BindingLocator {
+        &self.locator
+    }
+
     pub(crate) fn canonical_bytes(&self) -> &[u8] {
         &self.canonical
     }
 
     pub(crate) fn digest(&self) -> [u8; 32] {
-        let digest = Sha256::digest(&self.canonical);
-        let mut output = [0_u8; 32];
-        output.copy_from_slice(&digest);
-        output
+        domain_digest(b"ocentra.binding-digest.v2", &self.canonical)
     }
 }
 
@@ -158,13 +126,24 @@ impl fmt::Debug for Binding {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("Binding")
-            .field("operation", &self.operation)
-            .field("action", &self.action)
-            .field("target", &self.target)
+            .field("locator", &self.locator)
             .field("generation_slot_count", &self.generations.len())
             .field("canonical_length", &self.canonical.len())
             .finish()
     }
+}
+
+fn domain_digest(domain: &[u8], canonical: &[u8]) -> [u8; 32] {
+    let mut hasher = Sha256::new();
+    hasher.update((domain.len() as u32).to_be_bytes());
+    hasher.update(domain);
+    hasher.update((crate::RECORD_NAMESPACE.len() as u32).to_be_bytes());
+    hasher.update(crate::RECORD_NAMESPACE);
+    hasher.update(crate::STORAGE_SCHEMA_VERSION.to_be_bytes());
+    hasher.update(BINDING_VERSION.to_be_bytes());
+    hasher.update((canonical.len() as u32).to_be_bytes());
+    hasher.update(canonical);
+    hasher.finalize().into()
 }
 
 #[derive(Debug, Error)]
@@ -197,6 +176,7 @@ pub enum BindingError {
 
 #[derive(Clone, Copy)]
 enum BindingField {
+    Locator,
     Operation,
     Household,
     Device,

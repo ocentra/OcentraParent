@@ -8,6 +8,10 @@ pub(super) fn validate_field(value: &[u8], field: BindingField) -> Result<(), Bi
     fields::validate(value, field)
 }
 
+pub(super) fn max_field_bytes(field: BindingField) -> usize {
+    fields::max_bytes(field)
+}
+
 pub(super) fn validate_generation_order(
     generations: &[GenerationSlot; GENERATION_SLOT_COUNT],
 ) -> Result<(), BindingError> {

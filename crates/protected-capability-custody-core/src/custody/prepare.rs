@@ -1,66 +1,89 @@
+use getrandom::fill;
 use rusqlite::TransactionBehavior;
 
-use super::{CustodyError, CustodyStore, PreparedCapability};
-use crate::binding::Binding;
-use crate::platform::{PlatformCustodyPort, SealedState};
-use crate::storage::{self, Record, SCHEMA_VERSION};
-
+use super::reconcile;
 use super::support::{
-    attest, context, lock_connection, map_platform_error, map_storage_error, random_record_id,
-    to_i64,
+    attest_path, lock_connection, lock_operation, map_platform_error, map_storage_error, prepared,
+    resolve_current, transition, validate_transition,
 };
+use super::{CustodyError, CustodyStore, PreparedCapability};
+use crate::authority::CurrentBindingPort;
+use crate::binding::BindingLocator;
+use crate::platform::{PlatformCustodyPort, SealedState};
+use crate::storage;
 
-pub(super) fn run<P: PlatformCustodyPort>(
-    store: &CustodyStore<P>,
-    binding: &Binding,
+pub(super) fn run<P: PlatformCustodyPort, A: CurrentBindingPort>(
+    store: &CustodyStore<P, A>,
+    locator: &BindingLocator,
 ) -> Result<PreparedCapability, CustodyError> {
-    let attestation = attest(store.platform.as_ref())?;
-    let digest = binding.digest();
-    let canonical = binding.canonical_bytes();
+    let _operation = lock_operation(store)?;
+    match reconcile::current(store, locator) {
+        Ok(record) => return existing(record.state),
+        Err(CustodyError::Missing) => {}
+        Err(error) => return Err(error),
+    }
+    let attestation = attest_path(store.platform.as_ref(), &store.secured_path)?;
+    let binding = resolve_current(store.authority.as_ref(), locator)?;
     let record_id = random_record_id()?;
-    let sealed = store
+    let lookup_digest = binding.locator().lookup_digest();
+    let binding_digest = binding.digest();
+    let request = transition(
+        &binding,
+        &record_id,
+        &lookup_digest,
+        &binding_digest,
+        SealedState::Prepared,
+        1,
+        attestation,
+        attestation.watermark_floor,
+    );
+    let broker = store
         .platform
-        .seal(context(canonical, SealedState::Prepared, 1, attestation))
+        .reserve(request)
         .map_err(map_platform_error)?;
-    if sealed.is_empty() {
+    let record = validate_transition(
+        store.platform.as_ref(),
+        &broker,
+        request,
+        &store.secured_path,
+    )?;
+    persist(store, &record)?;
+    Ok(prepared(&record))
+}
+
+fn random_record_id() -> Result<[u8; 32], CustodyError> {
+    let mut record_id = [0_u8; 32];
+    fill(&mut record_id).map_err(|_| CustodyError::Unavailable)?;
+    if record_id == [0_u8; 32] {
         return Err(CustodyError::Unavailable);
     }
+    Ok(record_id)
+}
+
+fn persist<P: PlatformCustodyPort, A: CurrentBindingPort>(
+    store: &CustodyStore<P, A>,
+    record: &storage::Record,
+) -> Result<(), CustodyError> {
     let mut connection = lock_connection(store)?;
-    storage::validate_all(&connection).map_err(map_storage_error)?;
     let transaction = connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
         .map_err(|_| CustodyError::Database)?;
-    if let Some(existing) =
-        storage::load_by_digest(&transaction, &digest).map_err(map_storage_error)?
+    if storage::load_by_lookup(&transaction, &record.lookup_digest)
+        .map_err(map_storage_error)?
+        .is_some()
     {
-        return existing_state_error(existing.state);
+        return Err(CustodyError::Conflict);
     }
-    let record = Record {
-        record_id: record_id.clone(),
-        binding_digest: digest.to_vec(),
-        canonical_binding: canonical.to_vec(),
-        state: 1,
-        sequence: 1,
-        key_epoch: to_i64(attestation.key_epoch)?,
-        writer_epoch: to_i64(attestation.writer_epoch)?,
-        anti_rollback_watermark: to_i64(attestation.anti_rollback_watermark)?,
-        sealed,
-        schema_version: SCHEMA_VERSION,
-    };
-    storage::insert(&transaction, &record).map_err(map_storage_error)?;
-    transaction.commit().map_err(|_| CustodyError::Database)?;
-    Ok(PreparedCapability {
-        record_id,
-        binding_digest: digest,
-        sequence: 1,
-    })
+    storage::insert(&transaction, record).map_err(map_storage_error)?;
+    transaction.commit().map_err(|_| CustodyError::Database)
 }
 
-fn existing_state_error(state: i64) -> Result<PreparedCapability, CustodyError> {
+fn existing(state: SealedState) -> Result<PreparedCapability, CustodyError> {
     match state {
-        4 => Err(CustodyError::AlreadyCommitted),
-        5 => Err(CustodyError::Aborted),
-        1..=3 => Err(CustodyError::Conflict),
-        _ => Err(CustodyError::Tampered),
+        SealedState::Committed => Err(CustodyError::AlreadyCommitted),
+        SealedState::Aborted => Err(CustodyError::Aborted),
+        SealedState::Prepared | SealedState::CommitAmbiguous | SealedState::AbortAmbiguous => {
+            Err(CustodyError::Conflict)
+        }
     }
 }

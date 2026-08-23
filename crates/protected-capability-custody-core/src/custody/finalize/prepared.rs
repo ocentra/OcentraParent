@@ -1,36 +1,36 @@
-use super::super::support::{
-    context_from_record, ensure_current_epoch, lock_connection, map_platform_error,
-    map_storage_error, sealed_state, validate_binding,
-};
+use super::super::reconcile;
+use super::super::support::{lock_connection, map_storage_error};
 use super::super::{CustodyError, CustodyStore, PreparedCapability};
+use crate::authority::CurrentBindingPort;
 use crate::binding::Binding;
-use crate::platform::{PlatformAttestation, PlatformCustodyPort};
-use crate::storage;
+use crate::platform::PlatformCustodyPort;
+use crate::storage::{self, Record};
 
-pub(super) fn load<P: PlatformCustodyPort>(
-    store: &CustodyStore<P>,
-    prepared: &PreparedCapability,
-    binding: &Binding,
-    attestation: PlatformAttestation,
-) -> Result<storage::Record, CustodyError> {
-    let connection = lock_connection(store)?;
-    storage::validate_all(&connection).map_err(map_storage_error)?;
-    let record = storage::load_by_id(&connection, &prepared.record_id)
-        .map_err(map_storage_error)?
-        .ok_or(CustodyError::Missing)?;
-    validate_binding(&record, binding, prepared.sequence)?;
-    ensure_current_epoch(&record, attestation)?;
-    let state = sealed_state(record.state)?;
-    store
-        .platform
-        .open(context_from_record(&record, state)?, &record.sealed)
-        .map_err(map_platform_error)?;
-    match record.state {
-        1 => Ok(record),
-        2 => Err(CustodyError::CommitAmbiguous),
-        3 => Err(CustodyError::AbortAmbiguous),
-        4 => Err(CustodyError::AlreadyCommitted),
-        5 => Err(CustodyError::Aborted),
-        _ => Err(CustodyError::Tampered),
+pub(super) fn load<P: PlatformCustodyPort, A: CurrentBindingPort>(
+    store: &CustodyStore<P, A>,
+    capability: &PreparedCapability,
+) -> Result<Record, CustodyError> {
+    let stored = load_stored(store, &capability.record_id)?;
+    if stored.lookup_digest != capability.lookup_digest || stored.sequence != capability.sequence {
+        return Err(CustodyError::Conflict);
     }
+    let binding = Binding::decode(&stored.canonical_binding).map_err(|_| CustodyError::Tampered)?;
+    let reconciled = reconcile::current(store, binding.locator())?;
+    if reconciled.record_id != capability.record_id
+        || reconciled.lookup_digest != capability.lookup_digest
+    {
+        return Err(CustodyError::Conflict);
+    }
+    Ok(reconciled)
+}
+
+fn load_stored<P: PlatformCustodyPort, A: CurrentBindingPort>(
+    store: &CustodyStore<P, A>,
+    record_id: &[u8; 32],
+) -> Result<Record, CustodyError> {
+    let connection = lock_connection(store)?;
+    storage::validate_all(&connection, store.secured_path.identity()).map_err(map_storage_error)?;
+    storage::load_by_id(&connection, record_id)
+        .map_err(map_storage_error)?
+        .ok_or(CustodyError::Missing)
 }
