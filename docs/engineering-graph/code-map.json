@@ -1771,56 +1771,38 @@
       "planSlug": "child-agent-runtime-distribution-plan",
       "expectedTestRoots": ["crates/child-runtime/tests/integration/windows_service_distribution.rs"],
       "roots": [
-        "scripts/release/windows",
-        "scripts/smoke/windows-msi-smoke.ps1",
-        "tests/repo-tooling/release-windows-assets.test.mjs",
-        ".github/workflows/ci-package-windows.yml",
-        ".github/workflows/package-preview.yml",
-        ".github/workflows/release.yml"
+        "scripts/release/windows/OcentraParentAgent.wxs",
+        "scripts/release/windows/OcentraParentAgentService.xml",
+        "scripts/release/windows/build-agent-package.ps1",
+        "scripts/release/windows/install-latest-windows.ps1"
       ],
       "note": "Source partial: canonical child package identity, trusted startup, authenticated ingress, external health, and lifecycle/removal callers remain missing; expected child-labelled elevated lifecycle tests are not written."
     },
     "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
       "expectedTestRoots": ["crates/child-runtime/tests/integration/macos_service_distribution.rs"],
-      "roots": [
-        "scripts/release/macos",
-        "scripts/smoke/macos-pkg-smoke.sh",
-        "packages/schema-domain/src/child-macos-service-package-proof.ts",
-        "packages/schema-domain/tests/proof/child-macos-service-package-proof.test.ts",
-        ".github/workflows/ci-package-macos.yml",
-        ".github/workflows/package-preview.yml"
-      ],
+      "roots": ["scripts/release/macos/build-agent-package.sh", "scripts/release/macos/ca.ocentra.parent.agent.plist"],
       "note": "Source partial: canonical child plist identity, trusted startup, external health, signing/notarization ownership, and lifecycle callbacks remain missing; real-host tests are not written."
     },
     "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
       "expectedTestRoots": ["crates/child-runtime/tests/integration/linux_service_distribution.rs"],
-      "roots": [
-        "scripts/release/linux",
-        "scripts/smoke/linux-deb-smoke.sh",
-        "tests/release/linux/linux-package-baseline.test.mjs",
-        "packages/schema-domain/src/child-linux-service-package-proof.ts",
-        "packages/schema-domain/tests/proof/child-linux-service-package-proof.test.ts",
-        ".github/workflows/ci-package-linux.yml",
-        ".github/workflows/package-preview.yml"
-      ],
+      "roots": ["scripts/release/linux/build-agent-package.sh", "scripts/release/linux/ocentra-parent-agent.service"],
       "note": "Source partial: canonical child package/unit identity, trusted startup, external health, fail-closed lifecycle, signing/feed, and cleanup ownership remain missing; host/distro tests are not written."
     },
     "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
       "expectedTestRoots": ["crates/child-runtime-android-bridge/tests/integration/trust_bound_lifecycle.rs"],
       "roots": [
-        "platforms/android/agent",
-        "scripts/release/android/build-agent-package.mjs",
-        "scripts/smoke/android-apk-smoke.sh",
-        "packages/schema-domain/src/child-android-lifecycle-proof.ts",
-        "packages/schema-domain/src/child-android-device-proof-artifact-gate.ts",
-        "packages/schema-domain/tests/proof/child-android-lifecycle-proof.test.ts",
-        "packages/schema-domain/tests/proof/child-android-device-proof-artifact-gate.test.ts",
-        ".github/workflows/ci-child-android.yml",
-        ".github/workflows/ci-package-android.yml",
-        ".github/workflows/package-preview.yml"
+        "crates/child-runtime-android-bridge/src/ffi/runtime.rs",
+        "crates/child-runtime-android-bridge/src/ffi/bridge_lifecycle.rs",
+        "crates/child-runtime-android-bridge/src/ffi/bridge_health.rs",
+        "crates/child-runtime-android-bridge/src/ffi/jni_exports.rs",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml",
+        "platforms/android/agent/app/build.gradle",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentComposition.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java"
       ],
       "note": "Source partial: JNI startup has no Device Trust binding, authenticated ingress, usable external health, or removal/device-owner composition; expected trust/lifecycle/ABI/device tests remain unwritten."
     },
@@ -1832,52 +1814,26 @@
         "crates/schema/src/child_ios_entitlement_capability_proof",
         "crates/schema/src/child_ios_entitlement_capability_proof_ts.rs",
         "crates/schema/src/bin/export_child_ios_entitlement_capability_proof_contract_types.rs",
-        "crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs",
-        "packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts",
-        "scripts/test/child-ios-entitlement-capability-proof.mjs",
         "platforms/ios/OcentraChildAgent.xcodeproj",
-        "platforms/ios/OcentraChildAgent",
-        "scripts/release/ios/build-simulator-app.sh",
-        "scripts/smoke/ios-simulator-smoke.sh",
-        ".github/workflows/ci-child-ios.yml",
-        ".github/workflows/ci-package-ios.yml",
-        ".github/workflows/package-preview.yml"
+        "platforms/ios/OcentraChildAgent"
       ],
       "note": "Independent first source packet reviewed at c71becbcfd4f07eb98a118f10dbf261320f6b54e corrects the iOS project/product/bundle/release identity to the child package. Child identity/capability tests, workflows, signing, device, and store proof remain missing."
     },
     "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn": {
       "planSlug": "child-agent-runtime-distribution-plan",
       "expectedTestRoots": ["crates/child-runtime/tests/integration/service_supervision.rs"],
-      "roots": [
-        "scripts/release/windows/OcentraParentAgent.wxs",
-        "scripts/release/windows/OcentraParentAgentService.xml",
-        "scripts/release/windows/package-lifecycle-host.mjs",
-        "scripts/release/macos/build-agent-package.sh",
-        "scripts/release/macos/ca.ocentra.parent.agent.plist",
-        "scripts/release/linux/build-agent-package.sh",
-        "scripts/release/linux/ocentra-parent-agent.service",
-        "platforms/android/agent/app/src/main/AndroidManifest.xml",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/OcentraParentAgentService.java",
-        "packages/schema-domain/src/child-android-lifecycle-proof.ts",
-        "packages/schema-domain/tests/proof/child-android-lifecycle-proof.test.ts",
-        "platforms/ios/OcentraChildAgent/AgentStatusViewController.swift",
-        "crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs"
-      ],
+      "roots": ["crates/child-runtime/src/service_supervision.rs"],
       "note": "Source incomplete: manager declarations are static; no executable health-aware lifecycle/supervision owner, platform callback, backoff, or teardown source exists. Lifecycle tests are missing."
     },
     "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall": {
       "planSlug": "child-agent-runtime-distribution-plan",
       "expectedTestRoots": ["crates/child-runtime/tests/integration/parent_authorized_removal.rs"],
       "roots": [
-        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status.rs",
-        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status.ts.txt",
-        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status_support.ts.txt",
-        "crates/child-enforcement-core/tests/contract/tamper_uninstall_artifact_status.rs",
-        "scripts/release/windows/package-lifecycle-host.mjs",
-        "scripts/smoke/windows-msi-smoke.ps1",
-        "scripts/smoke/linux-deb-smoke.sh",
-        "scripts/smoke/android-apk-smoke.sh",
-        "scripts/smoke/ios-simulator-smoke.sh"
+        "crates/child-runtime/src/removal/removal_boundary.rs",
+        "crates/child-runtime/src/removal/removal_record.rs",
+        "crates/child-runtime/src/removal/removal_storage.rs",
+        "crates/child-runtime/src/removal/removal_transitions.rs",
+        "crates/child-runtime/src/service_lifecycle.rs"
       ],
       "note": "Source partial: durable removal state exists, but no Account-authority production caller, platform cleanup callback, or durable cleanup receipt path exists. Authority/replay/platform cleanup tests are missing."
     },
@@ -1889,16 +1845,11 @@
         "crates/schema/src/child_signing_store_device_owner_matrix",
         "crates/schema/src/child_signing_store_device_owner_matrix_ts.rs",
         "crates/schema/src/bin/export_child_signing_store_device_owner_matrix_contract_types.rs",
-        "crates/schema/tests/contract/child_signing_store_device_owner_matrix.rs",
-        "packages/schema-domain/src/generated-child-signing-store-device-owner-matrix-contracts.ts",
-        "scripts/release/windows/build-agent-package.ps1",
-        "scripts/release/macos/build-agent-package.sh",
-        "scripts/release/linux/build-agent-package.sh",
-        "scripts/release/android/build-agent-package.mjs",
-        "scripts/release/ios/build-simulator-app.sh",
         "crates/agent-updater/src/handoff.rs",
         "crates/agent-updater/src/update.rs",
-        "crates/agent-updater/src/installer.rs"
+        "crates/agent-updater/src/installer.rs",
+        "crates/agent-updater/src/cli.rs",
+        "crates/agent-updater/src/bin/updater.rs"
       ],
       "note": "Source partial: Windows updater enforcement and the platform matrix exist, but updater source does not consume the WP10 handoff and non-Windows signing/store/update owners remain missing or manual-required. Handoff/replay/platform tests are missing."
     },
@@ -1908,41 +1859,21 @@
       "roots": [
         "crates/schema/src/setup_device_trust_handoff.rs",
         "crates/schema/src/setup_device_trust_handoff",
-        "crates/schema/tests/contract/setup_device_trust_handoff.rs",
-        "crates/agent-updater/src/handoff.rs"
+        "crates/child-runtime/src/trust_binding.rs",
+        "crates/child-runtime/src/service_paths.rs",
+        "crates/child-runtime/src/service_recovery.rs",
+        "crates/child-runtime/src/service_readiness.rs",
+        "crates/child-runtime/src/service_ingress.rs",
+        "crates/child-runtime/src/bin/ocentra-child-agent-service.rs"
       ],
       "note": "First runtime source packet after reviewed Device Trust WP01 implementation. Typed schema/projection exists, but no production caller, trusted desktop/Android startup binding, authenticated external ingress, external health, durable delivery/replay owner, or updater consumer exists."
     },
     "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate": {
       "planSlug": "child-agent-runtime-distribution-plan",
       "expectedTestRoots": ["scripts/test/child-runtime-release-gate.mjs"],
-      "roots": [
-        ".github/workflows/ci.yml",
-        ".github/workflows/ci-child-android.yml",
-        ".github/workflows/ci-child-ios.yml",
-        ".github/workflows/ci-package-windows.yml",
-        ".github/workflows/ci-package-linux.yml",
-        ".github/workflows/ci-package-macos.yml",
-        ".github/workflows/ci-package-android.yml",
-        ".github/workflows/ci-package-ios.yml",
-        ".github/workflows/package-preview.yml",
-        ".github/workflows/release.yml",
-        "scripts/release/windows",
-        "scripts/release/macos",
-        "scripts/release/linux",
-        "scripts/release/android",
-        "scripts/release/ios",
-        "scripts/smoke/windows-msi-smoke.ps1",
-        "scripts/smoke/linux-deb-smoke.sh",
-        "scripts/smoke/macos-pkg-smoke.sh",
-        "scripts/smoke/android-apk-smoke.sh",
-        "scripts/smoke/ios-simulator-smoke.sh",
-        "tests/repo-tooling/platform-packaging.test.mjs",
-        "tests/repo-tooling/release-version-policy.test.mjs",
-        "tests/repo-tooling/release-windows-assets.test.mjs",
-        "tests/release/linux/linux-package-baseline.test.mjs"
-      ],
-      "note": "Source missing: documentation and workflow aggregation exist, but no executable aggregate gate owns canonical identity, trust, lifecycle, removal, updater/handoff, platform, proof, and release blocker composition. Aggregate tests are missing."
+      "roots": ["scripts/test/child-runtime-release-gate.mjs"],
+      "note": "Source missing: documentation and workflow aggregation exist, but no executable aggregate gate owns canonical identity, trust, lifecycle, removal, updater/handoff, platform, proof, and release blocker composition. Aggregate tests are missing.",
+      "codeExpectation": "tests-only"
     },
     "WP-cloudflare-control-plane-plan-00-games-infra-parity-extraction": {
       "planSlug": "cloudflare-control-plane-plan",

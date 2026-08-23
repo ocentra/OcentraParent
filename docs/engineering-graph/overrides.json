@@ -2556,8 +2556,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
       ],
-      "reason": "The aggregate source gate follows the runtime handoff and must report its missing caller/ingress/health truth.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "The aggregate source gate follows the runtime handoff and must report its missing caller/ingress/health truth."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -2568,8 +2567,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md"
       ],
-      "reason": "The release gate cannot aggregate a release decision while authority-bound removal and platform cleanup source is missing.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "The release gate cannot aggregate a release decision while authority-bound removal and platform cleanup source is missing."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -2580,8 +2578,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md"
       ],
-      "reason": "The release gate must aggregate updater/handoff and platform signing/store/manual-required state.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "The release gate must aggregate updater/handoff and platform signing/store/manual-required state."
     },
     {
       "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
@@ -4965,8 +4962,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -4977,8 +4973,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -4989,8 +4984,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -5001,8 +4995,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -5013,8 +5006,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -5025,8 +5017,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -5037,8 +5028,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
