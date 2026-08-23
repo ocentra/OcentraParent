@@ -17694,7 +17694,7 @@
       "title": "WP04 Phone QR Approval Bridge",
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/04-phone-qr-approval-bridge.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-device-trust-bootstrap-plan-03-parent-step-up-auth"],
       "state": "blocked",
       "lifecycleState": "blocked",
       "metadata": {
@@ -17734,8 +17734,10 @@
       "title": "WP05 Entitlement Device License",
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
@@ -17774,8 +17776,12 @@
       "title": "WP06 Recovery Reset Re-Pair",
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/06-recovery-reset-re-pair.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
@@ -17832,8 +17838,12 @@
       "title": "WP07 Child Tamper Uninstall",
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+        "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
@@ -17918,8 +17928,16 @@
       "title": "WP09 Cross Plan Route Gate",
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge",
+        "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+        "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
+        "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
@@ -31762,6 +31780,179 @@
       ],
       "reason": "WP03 requires Cloudflare WP06's authoritative D1 producer/currentness/revocation/CAS owner and verified-provider current-authority caller. Those source owners are independently reviewed at f9cfc9070 and dfa8181b1, so this implementation-only dependency gate is satisfied. Cloudflare mutation runtime composition, migration, tests, proof, deployment, and normal DONE remain open and cannot be borrowed as WP03 runtime authority.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/04-phone-qr-approval-bridge.md"
+      ],
+      "reason": "The phone/QR bridge consumes the Device Trust WP03 parent ceremony and must not create an independent approval authority."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md"
+      ],
+      "reason": "Entitlement/device-license binding consumes the Device Trust WP01 trusted-device source; license state cannot establish trust or unlock behavior."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
+      "to": "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/06-recovery-reset-re-pair.md"
+      ],
+      "reason": "Recovery/reset re-pair consumes the selected WP02 sealing and lifecycle-revocation custody when that route is enabled; it cannot recover or mint trust from caller state."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/06-recovery-reset-re-pair.md"
+      ],
+      "reason": "Recovery/reset re-pair must consume the WP03 parent ceremony boundary for any high-risk recovery authorization."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
+      "to": "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/04-phone-qr-approval-bridge.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/06-recovery-reset-re-pair.md"
+      ],
+      "reason": "Recovery/reset re-pair follows the WP04 approval bridge when phone/QR approval is selected and must preserve its replay boundary."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md"
+      ],
+      "reason": "Child tamper/uninstall consumes the WP01 trusted-device and revocation source and cannot establish trust locally."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall",
+      "to": "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md"
+      ],
+      "reason": "Child tamper/uninstall consumes the selected WP02 sealing and lifecycle-revocation handoff when that platform custody route is enabled."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall",
+      "to": "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/06-recovery-reset-re-pair.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md"
+      ],
+      "reason": "Child tamper/uninstall consumes the WP06 recovery/reset/revocation state and must not resurrect removed trust."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md"
+      ],
+      "reason": "The final Device Trust route gate consumes WP01's proof root and cannot promote trust source evidence into broad readiness."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate",
+      "to": "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md"
+      ],
+      "reason": "The final Device Trust route gate consumes WP02 proof when the selected sealing route is included; WP08 research remains parallel and non-hard."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md"
+      ],
+      "reason": "The final Device Trust route gate consumes WP03 ceremony proof before any downstream route readiness claim."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate",
+      "to": "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md"
+      ],
+      "reason": "The final Device Trust route gate consumes WP04 approval-bridge proof when that route is selected."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate",
+      "to": "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md"
+      ],
+      "reason": "The final Device Trust route gate consumes WP05 entitlement/device-license proof without treating license state as trust authority."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate",
+      "to": "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md"
+      ],
+      "reason": "The final Device Trust route gate consumes WP06 recovery/reset proof before route readiness."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate",
+      "to": "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md"
+      ],
+      "reason": "The final Device Trust route gate consumes WP07 tamper/uninstall proof and cannot infer it from route or package state."
     },
     {
       "from": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
