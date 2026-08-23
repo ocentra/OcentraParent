@@ -2250,6 +2250,22 @@
       ]
     },
     {
+      "id": "WP-eventing-plan-11-type-safety-and-ownership-hardening",
+      "state": "validation",
+      "reason": "Production hardening is integrated through fa1230661 and the routed test-source packet is integrated at canonical ac5d41322 across the three target harnesses. Their no-run compilation is current, but actual test execution, retained proof, checklist rows 63-68, and completion review remain open; this validation override does not satisfy completion.",
+      "statusText": "Validation — production and routed test source integrated; no-run compilation current; execution, retained proof, checklist rows 63-68, and completion review remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/eventing-plan/PLAN_STATE.md",
+        "docs/plans/eventing-plan/NEXT_ACTIONS.md",
+        "docs/plans/eventing-plan/WORKPACK_INDEX.md",
+        "docs/plans/eventing-plan/workpacks/11-type-safety-and-ownership-hardening.md",
+        "crates/ocentra-eventing/tests/unit/envelope.rs",
+        "crates/ocentra-eventing/tests/contract/typed_boundary.rs",
+        "crates/ocentra-eventing/tests/journal_replay/replay.rs"
+      ]
+    },
+    {
       "id": "WP-app-plan-01-contract-boundary-and-effect-schemas",
       "state": "validation",
       "reason": "The runtime-decision contract slice is code/test/proof/CI/main-merge verified, but the workpack's broader identity, inventory, runtime, session, policy, authority, action, enforcement, platform, and AI checklist remains open.",
