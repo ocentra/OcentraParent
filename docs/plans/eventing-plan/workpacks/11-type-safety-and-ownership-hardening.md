@@ -65,15 +65,20 @@ Current source audit (production source integrated; not closure evidence):
   `app-game-core`, `child-runtime`, and `ocentra-eventing` now use the bounded
   accessor/consuming API; an independent review found and repaired three missed
   callers before integration.
-- Existing tests still use parts of the old public-field API, and
-  `crates/ocentra-eventing/tests/journal_replay/replay.rs` still calls the
-  retired records/mode replay API. The later test-writing phase must migrate
-  those callers and add malformed live/stored payload,
-  aggregate/idempotency tamper, response-type mismatch, unsupported-journal,
-  replay single-use, payload-mutation, and lock/await audit negatives.
+- The routed WP11 test-source packet is integrated at canonical commit
+  `ac5d41322`, updating `crates/ocentra-eventing/tests/unit/envelope.rs`,
+  `crates/ocentra-eventing/tests/contract/typed_boundary.rs`, and
+  `crates/ocentra-eventing/tests/journal_replay/replay.rs` for the hardened
+  accessors/replay API and required negative/audit coverage. The three target
+  harnesses compile with `--no-run`; this is compile-only validation, not test
+  execution or retained proof.
+- Actual test execution, retained proof roots, checklist rows 63-68, and
+  completion review remain open. No source/test presence or compile-only result
+  may promote WP11 to DONE.
 - The cited `63`, `66-76`, `67`, and `68` proof roots are absent; unrelated
   policy-control TypeScript checks do not close this Eventing workpack.
 
-WP11 is therefore source-integrated but open. The later test-writing phase must
-migrate existing test callers and add the named negative/audit families before
-focused execution, retained proof, or any completion claim.
+WP11 is therefore in validation: production and routed test source are
+integrated, and the three target harnesses compile with `--no-run`. Actual test
+execution, retained proof, checklist rows 63-68, and completion review remain
+open; no DONE claim is made.
