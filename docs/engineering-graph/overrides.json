@@ -1170,6 +1170,106 @@
         "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
         "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
       ]
+    },
+    {
+      "id": "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+      "hardDependencies": [
+        "WP-logging-domain-parity-02-typescript-logging-package-parity",
+        "WP-logging-domain-parity-04-rust-logging-core-crate"
+      ],
+      "reason": "Actual source audit routes Logging WP03 parent architecture through the TypeScript parity and Rust logging-core owners; this reviewed-implementation gate records source handoff only and does not claim tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
+        "docs/plans/logging-domain-parity/workpacks/04-rust-logging-core-crate.md"
+      ]
+    },
+    {
+      "id": "WP-logging-domain-parity-05-local-validation-evidence",
+      "hardDependencies": ["WP-logging-domain-parity-04-rust-logging-core-crate"],
+      "reason": "Actual source audit routes Logging WP05 local evidence wrappers through the Rust logging-core boundary; this reviewed-implementation gate records source handoff only and does not claim tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/05-local-validation-evidence.md",
+        "docs/plans/logging-domain-parity/workpacks/04-rust-logging-core-crate.md"
+      ]
+    },
+    {
+      "id": "WP-logging-domain-parity-06-validation-and-enforcement",
+      "hardDependencies": [
+        "WP-logging-domain-parity-02-typescript-logging-package-parity",
+        "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+        "WP-logging-domain-parity-05-local-validation-evidence",
+        "WP-logging-domain-parity-09-log-control-retention-bridge-lifecycle"
+      ],
+      "reason": "Actual source audit routes Logging WP06 validation/enforcement through the package, parent-routing, evidence-wrapper, and control/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim validation closure or DONE.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/06-validation-and-enforcement.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md",
+        "docs/plans/logging-domain-parity/workpacks/05-local-validation-evidence.md",
+        "docs/plans/logging-domain-parity/workpacks/09-log-control-retention-bridge-lifecycle.md"
+      ]
+    },
+    {
+      "id": "WP-logging-domain-parity-07-mcp-query-interface",
+      "hardDependencies": ["WP-logging-domain-parity-05-local-validation-evidence"],
+      "reason": "Actual source audit routes Logging WP07 shared query/MCP through the local evidence/query data owner in WP05; this reviewed-implementation gate records source handoff only and does not claim MCP completion.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/07-mcp-query-interface.md",
+        "docs/plans/logging-domain-parity/workpacks/05-local-validation-evidence.md"
+      ]
+    },
+    {
+      "id": "WP-logging-domain-parity-08-logger-instrumentation-and-adoption",
+      "hardDependencies": [
+        "WP-logging-domain-parity-02-typescript-logging-package-parity",
+        "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+        "WP-logging-domain-parity-09-log-control-retention-bridge-lifecycle"
+      ],
+      "reason": "Actual source audit routes Logging WP08 instrumentation/adoption through package parity, parent logging callers, and control/lifecycle boundaries; this reviewed-implementation gate records source handoff only and does not claim repo-wide adoption.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/08-logger-instrumentation-and-adoption.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md",
+        "docs/plans/logging-domain-parity/workpacks/09-log-control-retention-bridge-lifecycle.md"
+      ]
+    },
+    {
+      "id": "WP-logging-domain-parity-09-log-control-retention-bridge-lifecycle",
+      "hardDependencies": ["WP-logging-domain-parity-02-typescript-logging-package-parity"],
+      "reason": "Actual source audit routes Logging WP09 controls/lifecycle through the TypeScript logging package parity owner; this reviewed-implementation gate records source handoff only and does not claim retention/bridge closure.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/09-log-control-retention-bridge-lifecycle.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md"
+      ]
+    },
+    {
+      "id": "WP-logging-domain-parity-10-proof-trace-pipeline",
+      "hardDependencies": [
+        "WP-logging-domain-parity-02-typescript-logging-package-parity",
+        "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+        "WP-logging-domain-parity-05-local-validation-evidence",
+        "WP-logging-domain-parity-07-mcp-query-interface",
+        "WP-logging-domain-parity-09-log-control-retention-bridge-lifecycle"
+      ],
+      "reason": "Actual source audit routes Logging WP10 proof/CI through package parity, parent routing, local evidence, MCP query, and controls/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim proof or CI closure.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/10-proof-trace-pipeline.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md",
+        "docs/plans/logging-domain-parity/workpacks/05-local-validation-evidence.md",
+        "docs/plans/logging-domain-parity/workpacks/07-mcp-query-interface.md",
+        "docs/plans/logging-domain-parity/workpacks/09-log-control-retention-bridge-lifecycle.md"
+      ]
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+      "hardDependencies": ["WP-logging-domain-parity-04-rust-logging-core-crate"],
+      "reason": "Actual source audit routes Parent Desktop Runtime WP06 local-service bridge logging through the Rust logging-core owner; this reviewed-implementation gate records source handoff only and does not claim route readiness or DONE.",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md",
+        "docs/plans/logging-domain-parity/workpacks/04-rust-logging-core-crate.md"
+      ]
     }
   ],
   "edges": [
@@ -4381,6 +4481,222 @@
         "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
       ],
       "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+      "to": "WP-logging-domain-parity-02-typescript-logging-package-parity",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md"
+      ],
+      "reason": "Actual source audit routes Logging WP03 parent architecture through the TypeScript parity and Rust logging-core owners; this reviewed-implementation gate records source handoff only and does not claim tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+      "to": "WP-logging-domain-parity-04-rust-logging-core-crate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md",
+        "docs/plans/logging-domain-parity/workpacks/04-rust-logging-core-crate.md"
+      ],
+      "reason": "Actual source audit routes Logging WP03 parent architecture through the TypeScript parity and Rust logging-core owners; this reviewed-implementation gate records source handoff only and does not claim tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-05-local-validation-evidence",
+      "to": "WP-logging-domain-parity-04-rust-logging-core-crate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/05-local-validation-evidence.md",
+        "docs/plans/logging-domain-parity/workpacks/04-rust-logging-core-crate.md"
+      ],
+      "reason": "Actual source audit routes Logging WP05 local evidence wrappers through the Rust logging-core boundary; this reviewed-implementation gate records source handoff only and does not claim tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-06-validation-and-enforcement",
+      "to": "WP-logging-domain-parity-02-typescript-logging-package-parity",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/06-validation-and-enforcement.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md"
+      ],
+      "reason": "Actual source audit routes Logging WP06 validation/enforcement through the package, parent-routing, evidence-wrapper, and control/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim validation closure or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-06-validation-and-enforcement",
+      "to": "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/06-validation-and-enforcement.md",
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md"
+      ],
+      "reason": "Actual source audit routes Logging WP06 validation/enforcement through the package, parent-routing, evidence-wrapper, and control/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim validation closure or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-06-validation-and-enforcement",
+      "to": "WP-logging-domain-parity-05-local-validation-evidence",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/06-validation-and-enforcement.md",
+        "docs/plans/logging-domain-parity/workpacks/05-local-validation-evidence.md"
+      ],
+      "reason": "Actual source audit routes Logging WP06 validation/enforcement through the package, parent-routing, evidence-wrapper, and control/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim validation closure or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-06-validation-and-enforcement",
+      "to": "WP-logging-domain-parity-09-log-control-retention-bridge-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/06-validation-and-enforcement.md",
+        "docs/plans/logging-domain-parity/workpacks/09-log-control-retention-bridge-lifecycle.md"
+      ],
+      "reason": "Actual source audit routes Logging WP06 validation/enforcement through the package, parent-routing, evidence-wrapper, and control/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim validation closure or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-07-mcp-query-interface",
+      "to": "WP-logging-domain-parity-05-local-validation-evidence",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/07-mcp-query-interface.md",
+        "docs/plans/logging-domain-parity/workpacks/05-local-validation-evidence.md"
+      ],
+      "reason": "Actual source audit routes Logging WP07 shared query/MCP through the local evidence/query data owner in WP05; this reviewed-implementation gate records source handoff only and does not claim MCP completion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-08-logger-instrumentation-and-adoption",
+      "to": "WP-logging-domain-parity-02-typescript-logging-package-parity",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/08-logger-instrumentation-and-adoption.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md"
+      ],
+      "reason": "Actual source audit routes Logging WP08 instrumentation/adoption through package parity, parent logging callers, and control/lifecycle boundaries; this reviewed-implementation gate records source handoff only and does not claim repo-wide adoption.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-08-logger-instrumentation-and-adoption",
+      "to": "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/08-logger-instrumentation-and-adoption.md",
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md"
+      ],
+      "reason": "Actual source audit routes Logging WP08 instrumentation/adoption through package parity, parent logging callers, and control/lifecycle boundaries; this reviewed-implementation gate records source handoff only and does not claim repo-wide adoption.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-08-logger-instrumentation-and-adoption",
+      "to": "WP-logging-domain-parity-09-log-control-retention-bridge-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/08-logger-instrumentation-and-adoption.md",
+        "docs/plans/logging-domain-parity/workpacks/09-log-control-retention-bridge-lifecycle.md"
+      ],
+      "reason": "Actual source audit routes Logging WP08 instrumentation/adoption through package parity, parent logging callers, and control/lifecycle boundaries; this reviewed-implementation gate records source handoff only and does not claim repo-wide adoption.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-09-log-control-retention-bridge-lifecycle",
+      "to": "WP-logging-domain-parity-02-typescript-logging-package-parity",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/09-log-control-retention-bridge-lifecycle.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md"
+      ],
+      "reason": "Actual source audit routes Logging WP09 controls/lifecycle through the TypeScript logging package parity owner; this reviewed-implementation gate records source handoff only and does not claim retention/bridge closure.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-10-proof-trace-pipeline",
+      "to": "WP-logging-domain-parity-02-typescript-logging-package-parity",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/10-proof-trace-pipeline.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md"
+      ],
+      "reason": "Actual source audit routes Logging WP10 proof/CI through package parity, parent routing, local evidence, MCP query, and controls/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim proof or CI closure.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-10-proof-trace-pipeline",
+      "to": "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/10-proof-trace-pipeline.md",
+        "docs/plans/logging-domain-parity/workpacks/03-parent-logging-architecture-and-routing.md"
+      ],
+      "reason": "Actual source audit routes Logging WP10 proof/CI through package parity, parent routing, local evidence, MCP query, and controls/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim proof or CI closure.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-10-proof-trace-pipeline",
+      "to": "WP-logging-domain-parity-05-local-validation-evidence",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/10-proof-trace-pipeline.md",
+        "docs/plans/logging-domain-parity/workpacks/05-local-validation-evidence.md"
+      ],
+      "reason": "Actual source audit routes Logging WP10 proof/CI through package parity, parent routing, local evidence, MCP query, and controls/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim proof or CI closure.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-10-proof-trace-pipeline",
+      "to": "WP-logging-domain-parity-07-mcp-query-interface",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/10-proof-trace-pipeline.md",
+        "docs/plans/logging-domain-parity/workpacks/07-mcp-query-interface.md"
+      ],
+      "reason": "Actual source audit routes Logging WP10 proof/CI through package parity, parent routing, local evidence, MCP query, and controls/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim proof or CI closure.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-logging-domain-parity-10-proof-trace-pipeline",
+      "to": "WP-logging-domain-parity-09-log-control-retention-bridge-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/logging-domain-parity/workpacks/10-proof-trace-pipeline.md",
+        "docs/plans/logging-domain-parity/workpacks/09-log-control-retention-bridge-lifecycle.md"
+      ],
+      "reason": "Actual source audit routes Logging WP10 proof/CI through package parity, parent routing, local evidence, MCP query, and controls/lifecycle owners; this reviewed-implementation gate records source handoff only and does not claim proof or CI closure.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge",
+      "to": "WP-logging-domain-parity-04-rust-logging-core-crate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md",
+        "docs/plans/logging-domain-parity/workpacks/04-rust-logging-core-crate.md"
+      ],
+      "reason": "Actual source audit routes Parent Desktop Runtime WP06 local-service bridge logging through the Rust logging-core owner; this reviewed-implementation gate records source handoff only and does not claim route readiness or DONE.",
+      "implementationGate": "reviewed-implementation"
     }
   ],
   "stateOverrides": [
