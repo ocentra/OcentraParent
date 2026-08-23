@@ -21928,16 +21928,8 @@
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-            "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md"
-          ],
-          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22180,16 +22172,8 @@
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-            "docs/plans/payment-subscription-plan/workpacks/06-security-privacy-observability.md"
-          ],
-          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
