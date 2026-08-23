@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::{
 
 use crate::lan_pairing::{LanPairingRegistryPersistence, LanPairingRuntime};
 
+#[path = "registry_persistence/known_device_merge.rs"]
 mod known_device_merge;
 
 impl LanPairingRuntime {
