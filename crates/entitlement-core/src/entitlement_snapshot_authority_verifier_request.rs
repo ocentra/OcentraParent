@@ -67,10 +67,10 @@ impl EntitlementSnapshotVerificationRequest {
         }
 
         Ok(Self {
-            account_ref: EntitlementAccountRef::parse(authority.account_id().as_str()).map_err(
+            account_ref: EntitlementAccountRef::parse(authority.account_id().to_string()).map_err(
                 |_error| EntitlementSnapshotVerificationFailure::CurrentAuthorityUnavailable,
             )?,
-            household_ref: EntitlementHouseholdRef::parse(authority.household_id().as_str())
+            household_ref: EntitlementHouseholdRef::parse(authority.household_id().to_string())
                 .map_err(|_error| {
                     EntitlementSnapshotVerificationFailure::CurrentAuthorityUnavailable
                 })?,
