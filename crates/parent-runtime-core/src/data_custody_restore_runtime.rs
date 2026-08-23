@@ -127,7 +127,7 @@ impl ParentRestoreRuntime {
     }
 
     pub fn pending_operation_count(&self) -> usize {
-        data_custody_restore_runtime_reconciliation::pending_operation_count(&self.ledger)
+        super::data_custody_restore_runtime_reconciliation::pending_operation_count(&self.ledger)
     }
 
     pub fn restore_receipt(
@@ -162,7 +162,7 @@ impl ParentRestoreRuntime {
             .await?;
         self.ledger.insert_restore_receipt(receipt.clone())?;
         self.ledger
-            .set_restore_stage(receipt.operation_ref(), stage_for_kind(&kind));
+            .set_restore_stage(&receipt.operation_ref, stage_for_kind(&kind));
         Ok(())
     }
 
@@ -191,7 +191,7 @@ impl ParentRestoreRuntime {
             .await?;
         self.ledger.insert_migration_receipt(receipt.clone())?;
         self.ledger
-            .set_migration_stage(receipt.operation_ref(), stage_for_kind(&kind));
+            .set_migration_stage(&receipt.operation_ref, stage_for_kind(&kind));
         Ok(())
     }
 }
