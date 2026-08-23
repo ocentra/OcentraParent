@@ -1,0 +1,17 @@
+[package]
+name = "ocentra-protected-capability-custody-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+getrandom = "0.3.4"
+rusqlite = { version = "0.39.0", features = ["bundled"] }
+sha2 = "0.10.9"
+thiserror = "2.0.18"
