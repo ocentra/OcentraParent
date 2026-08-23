@@ -1,8 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-import path from 'node:path';
 import type { TestLogScope } from './types';
-import { ensureDirectory, getDefaultLogRoot, listNdjsonFiles } from './ndjsonPaths';
+import { getDefaultLogRoot, listNdjsonFiles } from './ndjsonPaths';
 import {
   buildGeneratedManifest,
   classifyGeneratedManifestChanges,
@@ -10,6 +9,11 @@ import {
   type GeneratedIngestManifest,
   type GeneratedObservedFileState,
 } from '../local-test-log';
+import {
+  assertReadableLocalArtifactFile,
+  durableRemoveLocalArtifact,
+  durableReplaceLocalArtifact,
+} from '../local-artifact-file';
 
 export interface ManifestEntry {
   readonly size: number;
@@ -24,7 +28,63 @@ export interface IngestManifest {
 }
 
 function fileHash(filePath: string): string {
+  assertReadableLocalArtifactFile(filePath);
   return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+}
+
+function parseManifest(scope: TestLogScope, input: unknown): IngestManifest {
+  const isRecord = [typeof input === 'object', input != null, !Array.isArray(input)].every(Boolean);
+  if (!isRecord) {
+    throw new Error('invalid local log ingest manifest');
+  }
+  const record = input as Record<string, unknown>;
+  const updatedAt = record['updatedAt'];
+  const rawFiles = record['files'];
+  const validHeader = [
+    record['scope'] === scope,
+    typeof updatedAt === 'number',
+    Number.isFinite(updatedAt as number),
+    (updatedAt as number) >= 0,
+    typeof rawFiles === 'object',
+    rawFiles != null,
+    !Array.isArray(rawFiles),
+  ].every(Boolean);
+  if (!validHeader) {
+    throw new Error('invalid local log ingest manifest');
+  }
+
+  const files: Record<string, ManifestEntry> = {};
+  for (const [filePath, value] of Object.entries(rawFiles as Record<string, unknown>)) {
+    const validRecord = [filePath.length > 0, typeof value === 'object', value != null, !Array.isArray(value)].every(
+      Boolean
+    );
+    if (!validRecord) {
+      throw new Error('invalid local log ingest manifest');
+    }
+    const entry = value as Record<string, unknown>;
+    const size = entry['size'];
+    const modifiedMs = entry['modifiedMs'];
+    const sha256 = entry['sha256'];
+    const validEntry = [
+      typeof size === 'number',
+      Number.isFinite(size as number),
+      (size as number) >= 0,
+      typeof modifiedMs === 'number',
+      Number.isFinite(modifiedMs as number),
+      (modifiedMs as number) >= 0,
+      typeof sha256 === 'string',
+      /^[0-9a-f]{64}$/u.test(sha256 as string),
+    ].every(Boolean);
+    if (!validEntry) {
+      throw new Error('invalid local log ingest manifest');
+    }
+    files[filePath] = {
+      size: size as number,
+      modifiedMs: modifiedMs as number,
+      sha256: sha256 as string,
+    };
+  }
+  return { scope, updatedAt: updatedAt as number, files };
 }
 
 export function getManifestPath(scope: TestLogScope, rootDir?: string): string {
@@ -33,25 +93,25 @@ export function getManifestPath(scope: TestLogScope, rootDir?: string): string {
 
 export function loadManifest(scope: TestLogScope, rootDir?: string): IngestManifest {
   const manifestPath = getManifestPath(scope, rootDir);
-  if (!fs.existsSync(manifestPath)) {
+  if (!assertReadableLocalArtifactFile(manifestPath)) {
     return { scope, updatedAt: 0, files: {} };
   }
 
   try {
-    return JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as IngestManifest;
+    return parseManifest(scope, JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as unknown);
   } catch {
-    return { scope, updatedAt: 0, files: {} };
+    throw new Error('invalid local log ingest manifest');
   }
 }
 
 export function saveManifest(manifest: IngestManifest, rootDir?: string): void {
   const manifestPath = getManifestPath(manifest.scope, rootDir);
-  ensureDirectory(path.dirname(manifestPath));
-  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+  const validated = parseManifest(manifest.scope, manifest);
+  durableReplaceLocalArtifact(manifestPath, `${JSON.stringify(validated, null, 2)}\n`);
 }
 
 export function removeManifest(scope: TestLogScope, rootDir?: string): void {
-  fs.rmSync(getManifestPath(scope, rootDir), { force: true });
+  durableRemoveLocalArtifact(getManifestPath(scope, rootDir));
 }
 
 export function getChangedFiles(
@@ -65,6 +125,7 @@ export function getChangedFiles(
 
   for (const filePath of files) {
     const resolvedPath = filePath;
+    assertReadableLocalArtifactFile(resolvedPath);
     const currentStat = fs.statSync(resolvedPath);
     const existing = manifest.files[resolvedPath];
     const sha256 =
@@ -92,6 +153,7 @@ export function updateManifest(scope: TestLogScope, logsDir: string, rootDir?: s
 
   for (const filePath of files) {
     const resolvedPath = filePath;
+    assertReadableLocalArtifactFile(resolvedPath);
     const stat = fs.statSync(resolvedPath);
     observedFiles.push({
       resolvedPath,

@@ -18,8 +18,9 @@ import {
   type TestSuiteType,
 } from '../test-log/types';
 import { createParentLogDecisionProvider } from './logDecisionProvider';
+import { createParentLogConfig } from './logConfig';
+import { BridgeLogQueue } from './bridgeLogQueue';
 import { redactStructuredLogValue } from './log-redaction';
-import { resolveBridgeEndpoint, sendToBridge } from '../transport/bridgeTransport';
 import type { BridgeEntry } from '../transport/bridgeLogPayload';
 import { parseStackTrace, type StackFrame } from './stackTraceParser';
 import {
@@ -115,7 +116,10 @@ export class Logger {
   static readonly instance = new Logger();
 
   private readonly registrations = new Map<string, LoggerRegistration>();
-  private readonly logQueue: BridgeEntry[] = [];
+  private readonly bridgeQueue = new BridgeLogQueue(() => {
+    const runtime = this.resolveRuntimeConfig();
+    return { endpoint: runtime.bridgeEndpoint, skipHealthCheck: runtime.skipHealthCheck };
+  });
   private runtimeConfig: Partial<LoggerRuntimeConfig> = {};
   private runSequence = 0;
   private generatedRunId: string | null = null;
@@ -129,7 +133,7 @@ export class Logger {
 
   reset(): void {
     this.registrations.clear();
-    this.logQueue.length = 0;
+    this.bridgeQueue.reset();
     this.runtimeConfig = {};
     this.runSequence = 0;
     this.generatedRunId = null;
@@ -164,15 +168,7 @@ export class Logger {
   }
 
   async flushLogQueue(): Promise<void> {
-    const runtime = this.resolveRuntimeConfig();
-    if (this.logQueue.length === 0 || runtime.bridgeEndpoint == null || runtime.bridgeEndpoint.length === 0) {
-      return;
-    }
-
-    const entries = this.logQueue.splice(0, this.logQueue.length);
-    await sendToBridge(entries, runtime.bridgeEndpoint, {
-      skipHealthCheck: runtime.skipHealthCheck,
-    });
+    await this.bridgeQueue.flush();
   }
 
   async flush(): Promise<void> {
@@ -182,9 +178,9 @@ export class Logger {
   private log(level: LogLevelValue, message: string, stackTrace: StackTrace, data?: unknown): void {
     const frames = parseStackTrace(stackTrace);
     const location = this.resolveLogLocation(frames);
-    if (this.shouldStoreLog(level, location)) {
-      const runtime = this.resolveRuntimeConfig();
-      this.logQueue.push(this.buildBridgeEntry(level, message, stackTrace, data, runtime, location));
+    const runtime = this.resolveRuntimeConfig();
+    if (this.shouldStoreLog(level, location, runtime.runId)) {
+      this.bridgeQueue.enqueue(this.buildBridgeEntry(level, message, stackTrace, data, runtime, location));
     }
   }
 
@@ -219,9 +215,10 @@ export class Logger {
     };
   }
 
-  private shouldStoreLog(level: LogLevelValue, location: ResolvedLogLocation): boolean {
+  private shouldStoreLog(level: LogLevelValue, location: ResolvedLogLocation, runId: string): boolean {
     return createParentLogDecisionProvider().shouldStoreLog(location.moduleName, level, {
       filePath: location.filePath,
+      runId,
     });
   }
 
@@ -289,8 +286,9 @@ export class Logger {
   }
 
   private resolveRuntimeConfig(): ResolvedRuntimeConfig {
+    const bridgeConfig = createParentLogConfig();
     return {
-      bridgeEndpoint: this.runtimeConfig.bridgeEndpoint ?? resolveBridgeEndpoint(),
+      bridgeEndpoint: this.runtimeConfig.bridgeEndpoint ?? bridgeConfig.bridgeUrl,
       runId: this.resolveRunId(),
       testName: this.resolveTestName(),
       scope: this.resolveScope(),
@@ -299,7 +297,7 @@ export class Logger {
       origin: this.resolveOrigin(),
       environment: this.resolveEnvironment(),
       correlationId: this.runtimeConfig.correlationId ?? null,
-      skipHealthCheck: this.runtimeConfig.skipHealthCheck ?? false,
+      skipHealthCheck: this.runtimeConfig.skipHealthCheck ?? bridgeConfig.skipBridgeHealth,
     };
   }
 
