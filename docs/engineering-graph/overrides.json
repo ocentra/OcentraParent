@@ -672,12 +672,28 @@
     },
     {
       "id": "WP-policy-control-plane-plan-02-parent-authoring-preview",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md"
+      "hardDependencies": [
+        "WP-policy-control-plane-plan-01-policy-source-of-truth",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+        "WP-data-custody-storage-plan-01-custody-source-of-truth"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "crates/policy-control-core/src/policy_source.rs",
+        "crates/policy-control-core/src/policy_preview.rs",
+        "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/session_lifecycle.rs",
+        "crates/family-identity-core/src/device_trust_current_binding.rs",
+        "crates/family-identity-core/src/parent_step_up_authority.rs",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+      ],
+      "reason": "Actual code audit found pure preview/source contracts but no production caller, trusted session/device/step-up authority, durable source writer/query/versioning, or custody mount; ActivityStore is evidence only."
     },
     {
       "id": "WP-policy-control-plane-plan-04-delivery-ack-audit",
@@ -796,21 +812,31 @@
     },
     {
       "id": "WP-payment-subscription-plan-08-provider-adapter-portability",
-      "hardDependencies": [],
+      "hardDependencies": [
+        "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+        "WP-payment-subscription-plan-01-product-pricing-entitlement",
+        "WP-payment-subscription-plan-02-checkout-billing-portal",
+        "WP-payment-subscription-plan-03-subscription-webhook-lifecycle"
+      ],
       "evidence": [
         "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+      "reason": "Provider portability requires the Cloudflare handoff, app-owned product/pricing/entitlement, real checkout/portal boundary, and canonical webhook lifecycle; no synthetic URLs or provider events."
     },
     {
       "id": "WP-payment-subscription-plan-09-regional-payment-rollout",
-      "hardDependencies": [],
+      "hardDependencies": [
+        "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+        "WP-payment-subscription-plan-01-product-pricing-entitlement",
+        "WP-payment-subscription-plan-02-checkout-billing-portal",
+        "WP-payment-subscription-plan-08-provider-adapter-portability"
+      ],
       "evidence": [
         "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+      "reason": "Regional rollout requires the server runtime/storage handoff, app-owned currency/product policy, real checkout boundary, and normalized provider availability; WP09 cannot precede WP08."
     },
     {
       "id": "WP-payment-subscription-plan-10-referral-growth-entitlement",
@@ -3672,6 +3698,180 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md"
       ],
       "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-08-provider-adapter-portability",
+      "to": "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md",
+        "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-payment-subscription-plan-08-provider-adapter-portability",
+      "to": "WP-payment-subscription-plan-01-product-pricing-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md",
+        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-08-provider-adapter-portability",
+      "to": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md",
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-08-provider-adapter-portability",
+      "to": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md",
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-09-regional-payment-rollout",
+      "to": "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md",
+        "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE."
+    },
+    {
+      "from": "WP-payment-subscription-plan-09-regional-payment-rollout",
+      "to": "WP-payment-subscription-plan-01-product-pricing-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md",
+        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-09-regional-payment-rollout",
+      "to": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md",
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-09-regional-payment-rollout",
+      "to": "WP-payment-subscription-plan-08-provider-adapter-portability",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md",
+        "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md"
+      ],
+      "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
       "implementationGate": "reviewed-implementation"
     }
   ],
