@@ -16861,16 +16861,48 @@
       "title": "WP12 Payment Plan Handoff Gate",
       "path": "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
       "parent": "PLAN-cloudflare-control-plane-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+        "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+        "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+        "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+        "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+        "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+        "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+        "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "source-present / retained-proof-absent",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+            "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+            "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+            "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+            "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+            "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+            "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+            "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+            "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+            "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+            "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion"
+          ],
+          "evidence": [
+            "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
+            "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20879,7 +20911,9 @@
       "title": "WP00 Cloudflare Control Plane Handoff",
       "path": "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md",
       "parent": "PLAN-payment-subscription-plan",
-      "dependsOn": [],
+      "dependsOn": [
+        "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate"
+      ],
       "state": "blocked",
       "lifecycleState": "blocked",
       "metadata": {
@@ -20887,8 +20921,18 @@
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "blocked / proof-present",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate"
+          ],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
+            "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20922,8 +20966,16 @@
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
+            "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20952,7 +21004,8 @@
       "dependsOn": [
         "WP-account-identity-family-plan-02-identity-household-role-model",
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
-        "WP-payment-subscription-plan-01-product-pricing-entitlement"
+        "WP-payment-subscription-plan-01-product-pricing-entitlement",
+        "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff"
       ],
       "state": "blocked",
       "lifecycleState": "blocked",
@@ -20967,6 +21020,7 @@
           "hardDependencies": [
             "WP-account-identity-family-plan-02-identity-household-role-model",
             "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+            "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
             "WP-payment-subscription-plan-01-product-pricing-entitlement"
           ],
           "evidence": [
@@ -21053,7 +21107,8 @@
       "dependsOn": [
         "WP-payment-subscription-plan-01-product-pricing-entitlement",
         "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
-        "WP-device-trust-bootstrap-plan-05-entitlement-device-license"
+        "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+        "WP-account-identity-family-plan-02-identity-household-role-model"
       ],
       "state": "blocked",
       "lifecycleState": "blocked",
@@ -21066,6 +21121,7 @@
         "needsReview": false,
         "dependencyReview": {
           "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
             "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
             "WP-payment-subscription-plan-01-product-pricing-entitlement",
             "WP-payment-subscription-plan-03-subscription-webhook-lifecycle"
@@ -21103,16 +21159,32 @@
       "title": "WP05 Invoice Tax Refund Dispute",
       "path": "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md",
       "parent": "PLAN-payment-subscription-plan",
-      "dependsOn": [],
-      "state": "active",
+      "dependsOn": [
+        "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+        "WP-payment-subscription-plan-08-provider-adapter-portability",
+        "WP-payment-subscription-plan-09-regional-payment-rollout"
+      ],
+      "state": "blocked",
       "lifecycleState": "active",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+            "WP-payment-subscription-plan-08-provider-adapter-portability",
+            "WP-payment-subscription-plan-09-regional-payment-rollout"
+          ],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
+            "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21146,8 +21218,16 @@
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
+            "docs/plans/payment-subscription-plan/workpacks/06-security-privacy-observability.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21181,8 +21261,16 @@
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
+            "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21216,8 +21304,16 @@
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
+            "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21243,16 +21339,30 @@
       "title": "WP10 Referral Growth Entitlement",
       "path": "docs/plans/payment-subscription-plan/workpacks/10-referral-growth-entitlement.md",
       "parent": "PLAN-payment-subscription-plan",
-      "dependsOn": [],
-      "state": "active",
+      "dependsOn": [
+        "WP-payment-subscription-plan-01-product-pricing-entitlement",
+        "WP-payment-subscription-plan-04-entitlement-delivery-gates"
+      ],
+      "state": "blocked",
       "lifecycleState": "active",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-payment-subscription-plan-01-product-pricing-entitlement",
+            "WP-payment-subscription-plan-04-entitlement-delivery-gates"
+          ],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
+            "docs/plans/payment-subscription-plan/workpacks/10-referral-growth-entitlement.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21278,16 +21388,36 @@
       "title": "WP11 Parent Website Billing Dashboard",
       "path": "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md",
       "parent": "PLAN-payment-subscription-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+        "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+        "WP-payment-subscription-plan-10-referral-growth-entitlement"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+            "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+            "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+            "WP-payment-subscription-plan-10-referral-growth-entitlement"
+          ],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
+            "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21369,16 +21499,50 @@
       "title": "WP07 Rollout Proof And Route Gate",
       "path": "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
       "parent": "PLAN-payment-subscription-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+        "WP-payment-subscription-plan-01-product-pricing-entitlement",
+        "WP-payment-subscription-plan-02-checkout-billing-portal",
+        "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+        "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+        "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+        "WP-payment-subscription-plan-06-security-privacy-observability",
+        "WP-payment-subscription-plan-08-provider-adapter-portability",
+        "WP-payment-subscription-plan-09-regional-payment-rollout",
+        "WP-payment-subscription-plan-10-referral-growth-entitlement",
+        "WP-payment-subscription-plan-11-parent-website-billing-dashboard",
+        "WP-payment-subscription-plan-12-support-admin-billing-ops"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+            "WP-payment-subscription-plan-01-product-pricing-entitlement",
+            "WP-payment-subscription-plan-02-checkout-billing-portal",
+            "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+            "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+            "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+            "WP-payment-subscription-plan-06-security-privacy-observability",
+            "WP-payment-subscription-plan-08-provider-adapter-portability",
+            "WP-payment-subscription-plan-09-regional-payment-rollout",
+            "WP-payment-subscription-plan-10-referral-growth-entitlement",
+            "WP-payment-subscription-plan-11-parent-website-billing-dashboard",
+            "WP-payment-subscription-plan-12-support-admin-billing-ops"
+          ],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
+            "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21468,8 +21632,16 @@
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "Code drafted / unvalidated / tests deferred; open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+            "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21549,8 +21721,16 @@
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "Contract and trace-backed receipt bridge code drafted but unvalidated; child handoff/runtime integration, tests, and proof remain blocked; caller receipts remain evidence",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+            "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21584,8 +21764,18 @@
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "Code drafted / unvalidated / tests deferred — Rust-owned typed decision staging/relay is mapped to action_dispatch.rs, policy_preview.rs, and policy_preview/resolution.rs; notification handoff remains explicitly unclaimed until provider dispatch exists; portal, account/identity, WP11 durability, runtime, tests, and proof remain open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-policy-control-plane-plan-04-delivery-ack-audit"
+          ],
+          "evidence": [
+            "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+            "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21611,16 +21801,40 @@
       "title": "06-rollout-proof-and-route-gate",
       "path": "docs/plans/policy-control-plane-plan/workpacks/06-rollout-proof-and-route-gate.md",
       "parent": "PLAN-policy-control-plane-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-policy-control-plane-plan-01-policy-source-of-truth",
+        "WP-policy-control-plane-plan-02-parent-authoring-preview",
+        "WP-policy-control-plane-plan-03-domain-policy-compilers",
+        "WP-policy-control-plane-plan-04-delivery-ack-audit",
+        "WP-policy-control-plane-plan-05-ask-parent-overrides",
+        "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+        "WP-policy-control-plane-plan-08-policy-event-model"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "Checked",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-policy-control-plane-plan-01-policy-source-of-truth",
+            "WP-policy-control-plane-plan-02-parent-authoring-preview",
+            "WP-policy-control-plane-plan-03-domain-policy-compilers",
+            "WP-policy-control-plane-plan-04-delivery-ack-audit",
+            "WP-policy-control-plane-plan-05-ask-parent-overrides",
+            "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+            "WP-policy-control-plane-plan-08-policy-event-model"
+          ],
+          "evidence": [
+            "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+            "docs/plans/policy-control-plane-plan/workpacks/06-rollout-proof-and-route-gate.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21654,8 +21868,16 @@
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "Checked",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+            "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21689,8 +21911,16 @@
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "Checked",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+            "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
+          ],
+          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -33135,6 +33365,489 @@
         "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md"
       ],
       "reason": "Data WP08 remains blocked until the multi-owner coordinator and all owner-specific reservation participants produce a typed opaque handoff; no caller-selected snapshot or Account-only CAS may authorize Applied or Partial.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "to": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/06-rollout-proof-and-route-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/06-rollout-proof-and-route-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/06-rollout-proof-and-route-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-policy-control-plane-plan-04-delivery-ack-audit",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/06-rollout-proof-and-route-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/06-rollout-proof-and-route-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/06-rollout-proof-and-route-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate",
+      "to": "WP-policy-control-plane-plan-08-policy-event-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/06-rollout-proof-and-route-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+      "to": "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/12-payment-plan-handoff-gate.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "to": "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+        "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+      "to": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md",
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+      "to": "WP-payment-subscription-plan-08-provider-adapter-portability",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md",
+        "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+      "to": "WP-payment-subscription-plan-09-regional-payment-rollout",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md",
+        "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-01-product-pricing-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-06-security-privacy-observability",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/06-security-privacy-observability.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-08-provider-adapter-portability",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-09-regional-payment-rollout",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-10-referral-growth-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/10-referral-growth-entitlement.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-11-parent-website-billing-dashboard",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-10-referral-growth-entitlement",
+      "to": "WP-payment-subscription-plan-01-product-pricing-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/10-referral-growth-entitlement.md",
+        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-10-referral-growth-entitlement",
+      "to": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/10-referral-growth-entitlement.md",
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-11-parent-website-billing-dashboard",
+      "to": "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md",
+        "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion."
+    },
+    {
+      "from": "WP-payment-subscription-plan-11-parent-website-billing-dashboard",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-11-parent-website-billing-dashboard",
+      "to": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md",
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-11-parent-website-billing-dashboard",
+      "to": "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md",
+        "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-11-parent-website-billing-dashboard",
+      "to": "WP-payment-subscription-plan-10-referral-growth-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md",
+        "docs/plans/payment-subscription-plan/workpacks/10-referral-growth-entitlement.md"
+      ],
+      "reason": "Wave-0 reviewed direct dependency; routing only, with no completion promotion.",
       "implementationGate": "reviewed-implementation"
     }
   ],
