@@ -479,6 +479,164 @@
         "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
         "docs/engineering-graph/code-map.json"
       ]
+    },
+    {
+      "id": "WP-account-identity-family-plan-01-auth-provider-decision",
+      "hardDependencies": [],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "docs/plans/account-identity-family-plan/workpacks/01-auth-provider-decision.md"
+      ]
+    },
+    {
+      "id": "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
+      ],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md"
+      ]
+    },
+    {
+      "id": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator"
+      ],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ]
+    },
+    {
+      "id": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-01-auth-provider-decision",
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-account-identity-family-plan-07-parent-account-family-setup-ui"
+      ],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md"
+      ]
+    },
+    {
+      "id": "WP-account-identity-family-plan-07-parent-account-family-setup-ui",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz"
+      ],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md"
+      ]
+    },
+    {
+      "id": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "hardDependencies": [],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ]
+    },
+    {
+      "id": "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+      "hardDependencies": ["WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md"
+      ]
+    },
+    {
+      "id": "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge",
+      "hardDependencies": ["WP-device-trust-bootstrap-plan-03-parent-step-up-auth"],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/04-phone-qr-approval-bridge.md"
+      ]
+    },
+    {
+      "id": "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+      "hardDependencies": ["WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md"
+      ]
+    },
+    {
+      "id": "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
+      "hardDependencies": [
+        "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge"
+      ],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/06-recovery-reset-re-pair.md"
+      ]
+    },
+    {
+      "id": "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall",
+      "hardDependencies": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+        "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair"
+      ],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md"
+      ]
+    },
+    {
+      "id": "WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption",
+      "hardDependencies": [],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/08-open-source-dependency-adoption.md"
+      ]
+    },
+    {
+      "id": "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate",
+      "hardDependencies": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge",
+        "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+        "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
+        "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall"
+      ],
+      "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md"
+      ]
     }
   ],
   "edges": [

@@ -383,8 +383,16 @@
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
         "statusText": "partial",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+            "docs/plans/account-identity-family-plan/workpacks/01-auth-provider-decision.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        },
         "completionEvidenceOverride": {
           "reason": "Account WP01's Firebase external-provider and custody decision is reviewed as the implementation-phase handoff input for Cloudflare WP05 only. No account login/session runtime, tests, proof, deployment, or completion is claimed.",
           "evidence": [
@@ -430,7 +438,7 @@
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
         "statusText": "validation / bounded producer source accepted / tests deferred",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
@@ -449,6 +457,14 @@
             "crates/family-identity-core/tests/contract/account_identity_authority_producer.rs",
             "crates/family-identity-core/tests/unit/account_identity_authority_producer.rs"
           ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+            "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
         },
         "completionEvidenceOverride": {
           "reason": "Independent source review accepts the integrated Account authority and crate-private producer packet at c5ed3ce5c. Rust-owned schema validation, guarded non-forgeable capability issuance, bounded domain-separated transport parsing/signature/time validation, a local SQLite repository/CAS/invariant owner, and generated TypeScript parity exist. No authenticated producer adapter, durable signer/key registry, Cloudflare verifier/mount, target-aware action completion, live Device Trust binding, expected tests, deployment/migration execution, proof, or DONE is claimed.",
@@ -719,8 +735,8 @@
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
         "statusText": "source reviewed / owner adapters and six expected test roots open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true,
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [],
@@ -732,6 +748,17 @@
             "crates/family-identity-core/tests/integration/invite_recovery_repository.rs",
             "crates/family-identity-core/tests/contract/recovery_data_custody_handoff.rs"
           ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-03-session-token-lifecycle",
+            "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
+          ],
+          "evidence": [
+            "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+            "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
         },
         "completionEvidenceOverride": {
           "reason": "Independent P0/P1 source review accepted the WP04 implementation topology at integrated source 1101f37f8: exactly 59 production implementation files cover the strict durable invite/recovery repository, current-authority validation, monotonic clock/rate/replay custody, private owner receipts, and typed handoff boundary. Expected repository/handoff tests, external identity/membership/support/Data adapters, focused execution, proof, PR readiness, CI, and DONE remain open; this evidence is implementation-only and does not promote WP04 to READY or DONE.",
@@ -853,8 +880,23 @@
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
         "statusText": "Validation — implementation blocked: multi-owner coordinator and owner participants missing; Data Custody WP08 confirmation handoff blocked; tests and proof open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-account-identity-family-plan-03-session-token-lifecycle",
+            "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+            "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+            "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+          ],
+          "evidence": [
+            "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+            "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        },
         "stateOverride": {
           "reason": "WP05's shipped runtime composer exposes only a fail-closed manual-required CAS fence. The old Account-only CAS route is retired because it cannot atomically own Device Trust or parent-step-up currentness. WP05A now owns coordinator recovery, the private Account participant adapter, and Account capability/lease reservations; owner participants and typed handoff remain missing, so Data Custody confirmation staging/consume and implementation READY are not legal.",
           "evidence": [
@@ -995,8 +1037,21 @@
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
         "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-account-identity-family-plan-03-session-token-lifecycle",
+            "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+            "WP-account-identity-family-plan-05-device-ownership-authz"
+          ],
+          "evidence": [
+            "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+            "docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        },
         "completionGaps": [
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
@@ -1047,8 +1102,26 @@
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-01-auth-provider-decision",
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-account-identity-family-plan-03-session-token-lifecycle",
+            "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+            "WP-account-identity-family-plan-05-device-ownership-authz",
+            "WP-account-identity-family-plan-07-parent-account-family-setup-ui",
+            "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+            "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+            "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid"
+          ],
+          "evidence": [
+            "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+            "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -17584,8 +17657,18 @@
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
         "statusText": "partial / Windows custody source with desktop mount; downstream of WP01",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+          ],
+          "evidence": [
+            "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -17702,8 +17785,18 @@
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
         "statusText": "blocked",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-device-trust-bootstrap-plan-03-parent-step-up-auth"
+          ],
+          "evidence": [
+            "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/04-phone-qr-approval-bridge.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -17744,8 +17837,18 @@
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
         "statusText": "partial / independently reviewed source repairs, expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+          ],
+          "evidence": [
+            "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -17788,7 +17891,7 @@
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
         "statusText": "partial / independently reviewed source repair integrated, expected-test rewrites open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
@@ -17800,6 +17903,18 @@
             "tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs",
             "tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs"
           ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+            "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+            "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge"
+          ],
+          "evidence": [
+            "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/06-recovery-reset-re-pair.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
         }
       },
       "completion": {
@@ -17850,8 +17965,20 @@
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
         "statusText": "partial / source accepted, expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+            "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+            "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair"
+          ],
+          "evidence": [
+            "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -17890,8 +18017,16 @@
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
         "statusText": "Validation — dependency/security review and boundary test are current; runtime adoption remains open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/08-open-source-dependency-adoption.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        },
         "stateOverride": {
           "reason": "Dependency matrix decisions and the trust-root boundary test are current; runtime library adoption, platform ceremony, CI, review, and main merge remain open.",
           "evidence": [
@@ -17944,8 +18079,24 @@
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
         "statusText": "partial",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+            "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+            "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+            "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge",
+            "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+            "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
+            "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall"
+          ],
+          "evidence": [
+            "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/09-cross-plan-route-gate.md"
+          ],
+          "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
