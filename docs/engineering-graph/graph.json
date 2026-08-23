@@ -31803,7 +31803,7 @@
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md"
       ],
-      "reason": "Entitlement/device-license binding consumes the Device Trust WP01 trusted-device source; license state cannot establish trust or unlock behavior."
+      "reason": "WP01 is the only hard intra-plan prerequisite for entitlement/device-license binding. WP02 local key sealing and lifecycle-revocation custody are conditional: add and complete that reviewed gate only when the selected entitlement route uses a sealed snapshot path. Payment is a downstream typed consumer/handoff boundary owned by Payment WP04, not a WP05 prerequisite; no reverse edge is required. License state cannot establish trust or unlock behavior."
     },
     {
       "from": "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair",
