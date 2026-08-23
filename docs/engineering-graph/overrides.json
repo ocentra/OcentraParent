@@ -157,15 +157,21 @@
     },
     {
       "id": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
-      "hardDependencies": ["WP-account-identity-family-plan-01-auth-provider-decision"],
+      "hardDependencies": [
+        "WP-account-identity-family-plan-01-auth-provider-decision",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth"
+      ],
       "evidence": [
         "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",
         "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
         "docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md",
-        "docs/engineering-graph/code-map.json"
+        "docs/engineering-graph/code-map.json",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
       ],
-      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open."
+      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities."
     },
     {
       "id": "WP-payment-subscription-plan-02-checkout-billing-portal",
@@ -2327,6 +2333,105 @@
         "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
       ],
       "reason": "The redacted-summary-only boundary requires Remote capability fabric and the Data custody source; Remote owns relay/session authority and Data owns export/retention/delete/privacy."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
+      ],
+      "reason": "WP03 owns the shared Worker entrypoint and runtime guard chain, so its source-order boundary consumes the Cloudflare module scaffold and Wrangler environment/binding configuration before dispatch claims."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+        "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP08 is tests-only: its module runner and test pyramid consume the WP01 dependency environment and WP06 storage handoff, without redefining Account authority or claiming runtime readiness."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+        "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+        "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+        "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP10 is validation-only and consumes the guarded runtime, auth/admin/support boundary, and storage/queue owners for security, property, fuzz, and redacted observability coverage."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+        "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+        "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+        "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/DEPLOYMENT_MODEL.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
     }
   ],
   "edges": [
@@ -8180,6 +8285,250 @@
         "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
       ],
       "reason": "The redacted-summary-only boundary requires Remote capability fabric and the Data custody source; Remote owns relay/session authority and Data owns export/retention/delete/privacy."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "WP03 owns the shared Worker entrypoint and runtime guard chain, so its source-order boundary consumes the Cloudflare module scaffold and Wrangler environment/binding configuration before dispatch claims.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "to": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
+      ],
+      "reason": "WP03 owns the shared Worker entrypoint and runtime guard chain, so its source-order boundary consumes the Cloudflare module scaffold and Wrangler environment/binding configuration before dispatch claims.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "to": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "to": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "to": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "to": "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "to": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "to": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+      ],
+      "reason": "WP10 is validation-only and consumes the guarded runtime, auth/admin/support boundary, and storage/queue owners for security, property, fuzz, and redacted observability coverage."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "to": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md"
+      ],
+      "reason": "WP10 is validation-only and consumes the guarded runtime, auth/admin/support boundary, and storage/queue owners for security, property, fuzz, and redacted observability coverage."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP10 is validation-only and consumes the guarded runtime, auth/admin/support boundary, and storage/queue owners for security, property, fuzz, and redacted observability coverage."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities."
     }
   ],
   "stateOverrides": [
