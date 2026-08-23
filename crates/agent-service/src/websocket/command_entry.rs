@@ -72,7 +72,7 @@ fn handle_command(
     origin: WebsocketCommandOrigin,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
-        let request_nonce_digest = super::health_nonce::request_nonce_digest(&command).0;
+        let request_nonce_digest = super::health_nonce::request_nonce_digest(&command);
         let command_identity = command.clone();
         let (command, audit_fields) = match route_lan_command(
             lan_pairing.clone(),
