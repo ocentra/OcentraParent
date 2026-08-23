@@ -775,15 +775,6 @@
       "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
-      "id": "WP-payment-subscription-plan-01-product-pricing-entitlement",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md"
-      ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-    },
-    {
       "id": "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
       "hardDependencies": [
         "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
@@ -793,15 +784,6 @@
       "evidence": [
         "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md"
-      ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-    },
-    {
-      "id": "WP-payment-subscription-plan-06-security-privacy-observability",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "docs/plans/payment-subscription-plan/workpacks/06-security-privacy-observability.md"
       ],
       "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
