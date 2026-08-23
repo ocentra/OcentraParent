@@ -273,16 +273,6 @@
       "reason": "Removing fabricated AI policy authority has no separate code-writing prerequisite, but the product handoff explicitly delegates policy authority to the Policy compiler contract; keep that exact owner dependency visible."
     },
     {
-      "id": "WP-eventing-plan-09-network-consumer-event-chain",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/eventing-plan/PLAN_STATE.md",
-        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
-        "docs/engineering-graph/code-map.json"
-      ],
-      "reason": "WP09 is the bounded production foundation for the network consumer chain. Current source implements exact-source ingestion publish, deterministic phase identity/idempotency and refs, recovered ProductionFile journaling before listener readiness, startup/recurring reconciliation, projection-only reads, and real parent-assistant/portal direct-enforcement mutation negatives. Reviewed roots cover capture ingestion, ActivityStore/runtime, agent-core runtime, agent-service delivery/read-model ownership, and the shared Tauri/dev-web portal command boundary; fixture/prove/TEST network_event_runtime files are not shipped production topology. Queue/request-response helpers have no shipped network-consumer caller and are not fake-wired. Focused tests and local ignored proof are green, while the final combined pre-commit, accepted commit, CI, review, and merge remain open. This status does not mark WP09 done or unblock Network WP04."
-    },
-    {
       "id": "WP-eventing-plan-08-parent-runtime-integration",
       "hardDependencies": [
         "WP-account-identity-family-plan-03-session-token-lifecycle",
@@ -311,17 +301,6 @@
         "docs/engineering-graph/code-map.json"
       ],
       "reason": "WP10 has typed structural validation and a private authorization token, but its production resolver always returns unavailable, no shipped peer transport reaches it, and no durable cross-device message custody exists. LAN WP26 owns the authenticated ingress, selected non-revoked route composition, durable duplicate/idempotency custody, and private authority handoff required before WP10 can republish imported events."
-    },
-    {
-      "id": "WP-eventing-plan-11-type-safety-and-ownership-hardening",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/eventing-plan/workpacks/11-type-safety-and-ownership-hardening.md",
-        "crates/ocentra-eventing/src/envelope.rs",
-        "crates/ocentra-eventing/tests/unit/envelope.rs",
-        "docs/engineering-graph/code-map.json"
-      ],
-      "reason": "The accepted envelope helper in crates/ocentra-eventing/src/envelope.rs binds EventEnvelope<E> to DomainEvent at the struct boundary and validates contract, aggregate, and idempotency identity on both store and stored decode. Focused negative/audit test families and retained generated proof remain open; this is a bounded dependency-free Eventing production hardening packet and unrelated TypeScript checks do not close it."
     },
     {
       "id": "WP-eventing-plan-12-rollout-proof-and-pr-gate",

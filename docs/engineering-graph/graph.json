@@ -19141,17 +19141,8 @@
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "Validation — production code, expected tests, focused validation, normal pre-commit, and remote checkpoint complete; whole-plan integration acceptance remains open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
+        "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/eventing-plan/PLAN_STATE.md",
-            "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
-            "docs/engineering-graph/code-map.json"
-          ],
-          "reason": "WP09 is the bounded production foundation for the network consumer chain. Current source implements exact-source ingestion publish, deterministic phase identity/idempotency and refs, recovered ProductionFile journaling before listener readiness, startup/recurring reconciliation, projection-only reads, and real parent-assistant/portal direct-enforcement mutation negatives. Reviewed roots cover capture ingestion, ActivityStore/runtime, agent-core runtime, agent-service delivery/read-model ownership, and the shared Tauri/dev-web portal command boundary; fixture/prove/TEST network_event_runtime files are not shipped production topology. Queue/request-response helpers have no shipped network-consumer caller and are not fake-wired. Focused tests and local ignored proof are green, while the final combined pre-commit, accepted commit, CI, review, and merge remain open. This status does not mark WP09 done or unblock Network WP04."
-        },
         "stateOverride": {
           "reason": "The production code, expected tests, focused validation, normal pre-commit, accepted commits, and remote checkpoint are current, while whole-plan integration acceptance, CI, review, and merge remain open.",
           "evidence": [
@@ -19241,18 +19232,8 @@
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "Validation — production and routed test source integrated; no-run compilation current; execution, retained proof, checklist rows 63-68, and completion review remain open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
+        "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/eventing-plan/workpacks/11-type-safety-and-ownership-hardening.md",
-            "crates/ocentra-eventing/src/envelope.rs",
-            "crates/ocentra-eventing/tests/unit/envelope.rs",
-            "docs/engineering-graph/code-map.json"
-          ],
-          "reason": "The accepted envelope helper in crates/ocentra-eventing/src/envelope.rs binds EventEnvelope<E> to DomainEvent at the struct boundary and validates contract, aggregate, and idempotency identity on both store and stored decode. Focused negative/audit test families and retained generated proof remain open; this is a bounded dependency-free Eventing production hardening packet and unrelated TypeScript checks do not close it."
-        },
         "stateOverride": {
           "reason": "Production hardening is integrated through fa1230661 and the routed test-source packet is integrated at canonical ac5d41322 across the three target harnesses. Their no-run compilation is current, but actual test execution, retained proof, checklist rows 63-68, and completion review remain open; this validation override does not satisfy completion.",
           "evidence": [
