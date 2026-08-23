@@ -20090,6 +20090,14 @@
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "crates/agent-service/tests/unit/network_product_path_bridge_tests.rs",
+            "crates/agent-service/tests/unit/network_product_path_integration_tests.rs"
+          ]
+        },
         "dependencyReview": {
           "hardDependencies": [
             "WP-ai-plan-07-ai-job-queue-contract",
@@ -20133,6 +20141,10 @@
         "expected": {
           "proof": [
             "output/network-plan-proof/04-cross-slice-cascade-and-parent-surface"
+          ],
+          "tests": [
+            "crates/agent-service/tests/unit/network_product_path_bridge_tests.rs",
+            "crates/agent-service/tests/unit/network_product_path_integration_tests.rs"
           ]
         }
       }
@@ -23509,7 +23521,14 @@
         "statusText": "checked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23526,6 +23545,9 @@
         "expected": {
           "proof": [
             "output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation"
+          ],
+          "tests": [
+            "scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"
           ]
         }
       }

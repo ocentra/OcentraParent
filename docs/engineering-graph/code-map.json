@@ -3555,13 +3555,13 @@
         "crates/child-runtime-android-bridge/src/ffi/mod.rs",
         "crates/child-runtime-android-bridge/src/lib.rs",
         "crates/child-runtime/src/removal.rs",
-        "crates/child-runtime/src/removal_authority.rs",
-        "crates/child-runtime/src/removal_boundary.rs",
-        "crates/child-runtime/src/removal_record.rs",
-        "crates/child-runtime/src/removal_storage.rs",
-        "crates/child-runtime/src/removal_storage_read.rs",
-        "crates/child-runtime/src/removal_transitions.rs",
-        "crates/child-runtime/src/removal_validation.rs",
+        "crates/child-runtime/src/removal/removal_authority.rs",
+        "crates/child-runtime/src/removal/removal_boundary.rs",
+        "crates/child-runtime/src/removal/removal_record.rs",
+        "crates/child-runtime/src/removal/removal_storage.rs",
+        "crates/child-runtime/src/removal/removal_storage_read.rs",
+        "crates/child-runtime/src/removal/removal_transitions.rs",
+        "crates/child-runtime/src/removal/removal_validation.rs",
         "crates/child-runtime/src/service.rs",
         "crates/child-runtime/src/service_dispatch.rs",
         "crates/child-runtime/src/service_error_display.rs",
@@ -3771,6 +3771,11 @@
     },
     "WP-network-plan-04-cross-slice-cascade-and-parent-surface": {
       "planSlug": "network-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/agent-service/tests/unit/network_product_path_bridge_tests.rs",
+        "crates/agent-service/tests/unit/network_product_path_integration_tests.rs"
+      ],
       "roots": [
         "crates/ocentra-network-evidence/src/cascade.rs",
         "crates/ocentra-network-evidence/src/cascade",
@@ -3792,8 +3797,6 @@
         "crates/agent-service/src/activity_network_flow_payload.rs",
         "crates/agent-service/src/activity_surface_read_models/network.rs",
         "crates/agent-service/tests/unit/network_flow_payload_tests.rs",
-        "crates/agent-service/tests/unit/network_product_path_bridge_tests.rs",
-        "crates/agent-service/tests/unit/network_product_path_integration_tests.rs",
         "packages/portal-domain/src/network-evidence-drawer.ts",
         "packages/portal-domain/src/network-evidence-drawer.generated.ts",
         "packages/portal-domain/tests/unit/live-activity-network-flow.test.ts",
@@ -3802,7 +3805,8 @@
         "apps/portal/tests/network/network-evidence-drawer-route-panel.test.ts",
         "apps/portal/tests/live-activity/live-activity-network-flow.test.ts",
         "apps/portal/tests/e2e/network-evidence-drawer-proof.spec.ts"
-      ]
+      ],
+      "note": "The two expected agent-service product-path tests are absent. Existing network tests do not substitute for those expected roots; this topology is unsatisfied and does not promote WP04 beyond its blocked graph state."
     },
     "WP-network-plan-05-intervention-adapter-proof-gates": {
       "planSlug": "network-plan",
@@ -4549,6 +4553,8 @@
     },
     "WP-screen-plan-36-small-vlm-guided-classifier-evaluation": {
       "planSlug": "screen-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": ["scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"],
       "roots": [
         "crates/screen-ai-core/src/screen_ai_pipeline",
         "crates/screen-ai-core/src/screen_ai_pipeline_logic.rs",
@@ -4557,9 +4563,9 @@
         "crates/agent-protocol/src/local_ai_runtime",
         "crates/agent-service/src/screen_ai_analysis_runtime.rs",
         "crates/agent-service/src/screen_ai_analysis_runtime",
-        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs",
-        "scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"
-      ]
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs"
+      ],
+      "note": "The expected guided-classifier readiness proof script and its expected proof artifact are absent. Retained VLM artifacts do not substitute for this expected root; this topology is unsatisfied and does not mark WP36 DONE."
     },
     "WP-screen-plan-37-family-ai-hub-screen-analysis-queue": {
       "planSlug": "screen-plan",
