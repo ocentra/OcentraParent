@@ -2841,6 +2841,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-protected-capability-custody-core"
+version = "0.1.1"
+dependencies = [
+ "getrandom 0.3.4",
+ "rusqlite",
+ "sha2",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "ocentra-provisioning-core"
 version = "0.1.1"
 dependencies = [
