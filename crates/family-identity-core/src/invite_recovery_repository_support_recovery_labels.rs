@@ -1,4 +1,4 @@
-use crate::recovery_lifecycle::RecoveryKind;
+use crate::setup_lifecycle::RecoveryKind;
 
 pub(crate) fn recovery_kind_label(kind: RecoveryKind) -> &'static str {
     match kind {

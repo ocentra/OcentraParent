@@ -1,6 +1,6 @@
 use ocentra_schema::account_identity_authority::AccountIdentitySupportScope;
 
-use crate::recovery_lifecycle::RecoveryKind;
+use crate::setup_lifecycle::RecoveryKind;
 
 pub(crate) fn support_authorization_scope_allows(
     kind: RecoveryKind,

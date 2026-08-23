@@ -4,6 +4,7 @@ use ocentra_eventing::error::EventingError;
 use ocentra_schema::account_identity_authority::AccountIdentityRole;
 use rusqlite::{params, OptionalExtension, Transaction, TransactionBehavior};
 
+use crate::account_identity_authority_repository::SqliteAccountIdentityAuthorityRepository;
 use crate::family_identity::SetupInviteId;
 use crate::setup_lifecycle::{SetupInvitePurpose, SetupInviteTargetRole};
 
@@ -210,6 +211,7 @@ fn persist_setup_invite(
                 expires_at,
             ],
         )
+        .map(|_| ())
         .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
 }
 
@@ -274,6 +276,7 @@ fn insert_pending_membership(
                 now,
             ],
         )
+        .map(|_| ())
         .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
 }
 
