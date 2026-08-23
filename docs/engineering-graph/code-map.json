@@ -6042,7 +6042,11 @@
         "crates/agent-protocol/tests/contract/child_domain_runtime_events.rs",
         "crates/agent-protocol/tests/contract/network_flow_tests.rs",
         "crates/agent-protocol/tests/contract/network_eventing_contract.rs",
-        "crates/agent-protocol/tests/contract/enforcement_audit_boundary_tests.rs"
+        "crates/agent-protocol/tests/contract/enforcement_audit_boundary_tests.rs",
+        "crates/agent-protocol/src/constants/child_agent.rs",
+        "crates/agent-protocol/src/constants/parent_controller.rs",
+        "crates/agent-protocol/tests/contract/child_agent_event_fixtures.rs",
+        "crates/agent-protocol/tests/contract/parent_controller_event_fixtures.rs"
       ]
     },
     "WP-eventing-plan-08-parent-runtime-integration": {
@@ -6109,8 +6113,6 @@
         "crates/agent-core/src/network_event_runtime/identity.rs",
         "crates/agent-core/src/network_event_runtime/identity_payload.rs",
         "crates/agent-core/src/network_event_runtime/metadata.rs",
-        "crates/agent-core/src/network_event_runtime/broker_delivery.rs",
-        "crates/agent-core/src/network_event_runtime/queue.rs",
         "crates/agent-core/src/network_event_runtime/refs.rs",
         "crates/agent-core/src/network_event_runtime_state.rs",
         "crates/agent-core/tests/unit/network_capture_tests.rs",
@@ -6214,8 +6216,6 @@
         "crates/agent-core/src/browser_event_runtime/action_handoff_child_status.rs",
         "crates/agent-core/src/household_mesh_bridge_runtime.rs",
         "crates/agent-core/src/network_event_runtime.rs",
-        "crates/agent-core/src/network_event_runtime/broker_delivery.rs",
-        "crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs",
         "crates/agent-core/src/screen_event_runtime.rs",
         "crates/agent-core/src/screen_household_mesh_runtime.rs",
         "crates/agent-service/src/browser_runtime_stream_events.rs",
