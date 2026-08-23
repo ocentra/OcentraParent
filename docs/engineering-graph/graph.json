@@ -27437,7 +27437,10 @@
       "path": "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [
-        "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
+        "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+        "WP-tracking-plan-32-journal-sqlite-and-read-model-proof",
+        "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants",
+        "WP-tracking-plan-36-tracking-detection-cascade-event-flow"
       ],
       "state": "blocked",
       "lifecycleState": "planned",
@@ -27450,15 +27453,21 @@
         "needsReview": false,
         "dependencyReview": {
           "hardDependencies": [
+            "WP-tracking-plan-32-journal-sqlite-and-read-model-proof",
+            "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants",
+            "WP-tracking-plan-36-tracking-detection-cascade-event-flow",
             "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
           ],
           "evidence": [
             "docs/plans/tracking-plan/PLAN_STATE.md",
             "docs/plans/tracking-plan/CODE_AUDIT.md",
             "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
-            "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
+            "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+            "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md",
+            "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md",
+            "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
           ],
-          "reason": "The source audit found that WP37 has no shipped owner for trusted tracking ingress, durable journal configuration, startup replay, or idempotent ActivityStore projection. WP40 is the explicit composition prerequisite; this review does not claim WP40 or WP37 implementation, tests, proof, or completion."
+          "reason": "The source audit found that WP37 has no shipped owner for trusted tracking ingress, durable journal configuration, startup replay, or idempotent ActivityStore projection. WP40 is the explicit composition prerequisite; this review does not claim WP40 or WP37 implementation, tests, proof, or completion. The reviewed lineage also requires the ActivityStore/SQLite boundary in Tracking WP32, canonical tracking event contracts in WP34, and the typed detection cascade in WP36; these are source-order prerequisites and do not claim implementation, tests, proof, or readiness."
         }
       },
       "completion": {
@@ -27481,16 +27490,35 @@
       "title": "WP38 Tracking Notification And Escalation Event Flow",
       "path": "docs/plans/tracking-plan/workpacks/38-tracking-notification-and-escalation-event-flow.md",
       "parent": "PLAN-tracking-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-tracking-plan-26-alert-severity-and-notification-model",
+        "WP-tracking-plan-27-escalation-engine",
+        "WP-tracking-plan-36-tracking-detection-cascade-event-flow"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-tracking-plan-26-alert-severity-and-notification-model",
+            "WP-tracking-plan-27-escalation-engine",
+            "WP-tracking-plan-36-tracking-detection-cascade-event-flow"
+          ],
+          "evidence": [
+            "docs/plans/tracking-plan/PLAN_STATE.md",
+            "docs/plans/tracking-plan/workpacks/38-tracking-notification-and-escalation-event-flow.md",
+            "docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md",
+            "docs/plans/tracking-plan/workpacks/27-escalation-engine.md",
+            "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+          ],
+          "reason": "WP38 source ordering requires the exact Tracking notification model (WP26), escalation engine (WP27), and detection cascade (WP36). The audit found no exact notification outbox/provider/receipt/lifecycle workpack owner, so no guessed external dependency is added; this route does not claim provider dispatch, receipts, retries, runtime completion, tests, proof, or readiness."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27512,16 +27540,29 @@
       "title": "WP39 Tracking Portal Event Read-Model Proof",
       "path": "docs/plans/tracking-plan/workpacks/39-tracking-portal-event-read-model-proof.md",
       "parent": "PLAN-tracking-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-tracking-plan-37-tracking-event-journal-replay-and-projection"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-tracking-plan-37-tracking-event-journal-replay-and-projection"
+          ],
+          "evidence": [
+            "docs/plans/tracking-plan/PLAN_STATE.md",
+            "docs/plans/tracking-plan/workpacks/39-tracking-portal-event-read-model-proof.md",
+            "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md"
+          ],
+          "reason": "WP39 is a read-model/proof route over the durable journal, replay, and projection owner in Tracking WP37. This route does not claim a shipped journal, portal runtime, tests, proof, or readiness."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -33689,7 +33730,8 @@
         "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
         "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
       ],
-      "reason": "WP37 cannot be a legal implementation slice until the trusted shipped tracking ingress, durable journal composition, startup replay, and idempotent projection owner is implemented by WP40."
+      "reason": "WP37 cannot be a legal implementation slice until the trusted shipped tracking ingress, durable journal composition, startup replay, and idempotent projection owner is implemented by WP40.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
@@ -37144,6 +37186,112 @@
         "docs/plans/network-plan/workpacks/05-intervention-adapter-proof-gates.md"
       ],
       "reason": "Network WP07 is the performance/security/rollout gate and therefore requires the Network WP01 contract, WP02 capture/parser, and WP05 adapter-proof surfaces to be complete before final rollout claims. Its workpack names no exact custody/security/rollout sibling workpack IDs, so none are guessed."
+    },
+    {
+      "from": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
+      "to": "WP-tracking-plan-32-journal-sqlite-and-read-model-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md",
+        "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "WP37 projection and replay source ordering requires the Tracking WP32 ActivityStore/SQLite read-model boundary.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
+      "to": "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md",
+        "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "WP37 journal/replay source ordering requires the canonical Tracking WP34 event contracts and protocol identity.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
+      "to": "WP-tracking-plan-36-tracking-detection-cascade-event-flow",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md",
+        "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "WP37 source ordering requires the typed Tracking WP36 detection cascade event lineage.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-tracking-plan-38-tracking-notification-and-escalation-event-flow",
+      "to": "WP-tracking-plan-26-alert-severity-and-notification-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/workpacks/38-tracking-notification-and-escalation-event-flow.md",
+        "docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md",
+        "docs/plans/tracking-plan/workpacks/27-escalation-engine.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "WP38 source ordering consumes the exact Tracking WP26 alert severity and notification model.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-tracking-plan-38-tracking-notification-and-escalation-event-flow",
+      "to": "WP-tracking-plan-27-escalation-engine",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/workpacks/38-tracking-notification-and-escalation-event-flow.md",
+        "docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md",
+        "docs/plans/tracking-plan/workpacks/27-escalation-engine.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "WP38 source ordering consumes the exact Tracking WP27 escalation engine.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-tracking-plan-38-tracking-notification-and-escalation-event-flow",
+      "to": "WP-tracking-plan-36-tracking-detection-cascade-event-flow",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/workpacks/38-tracking-notification-and-escalation-event-flow.md",
+        "docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md",
+        "docs/plans/tracking-plan/workpacks/27-escalation-engine.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "WP38 source ordering consumes the exact Tracking WP36 detection cascade event flow.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-tracking-plan-39-tracking-portal-event-read-model-proof",
+      "to": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/workpacks/39-tracking-portal-event-read-model-proof.md",
+        "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md"
+      ],
+      "reason": "WP39 source ordering consumes the Tracking WP37 journal, replay, and projection owner.",
+      "implementationGate": "reviewed-implementation"
     }
   ],
   "migration": {
