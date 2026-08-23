@@ -20396,16 +20396,8 @@
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/network-plan/WORKPACK_INDEX.md",
-            "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20440,16 +20432,8 @@
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/network-plan/WORKPACK_INDEX.md",
-            "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20482,16 +20466,8 @@
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/network-plan/WORKPACK_INDEX.md",
-            "docs/plans/network-plan/workpacks/03-classification-and-correlation.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20611,16 +20587,8 @@
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/network-plan/WORKPACK_INDEX.md",
-            "docs/plans/network-plan/workpacks/05-intervention-adapter-proof-gates.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20655,16 +20623,8 @@
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/network-plan/WORKPACK_INDEX.md",
-            "docs/plans/network-plan/workpacks/06-analyzer-ai-audit-and-risk-budget.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20699,16 +20659,8 @@
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/network-plan/WORKPACK_INDEX.md",
-            "docs/plans/network-plan/workpacks/07-performance-security-rollout.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20947,16 +20899,8 @@
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-            "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21025,16 +20969,8 @@
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-            "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21154,16 +21090,8 @@
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-            "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21197,16 +21125,8 @@
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-            "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23345,16 +23265,8 @@
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-ai-pipeline-plan/workpacks/01-prerequisite-merge-and-branch-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23391,16 +23303,8 @@
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23437,16 +23341,8 @@
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23532,16 +23428,8 @@
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23578,16 +23466,8 @@
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23624,16 +23504,8 @@
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23670,16 +23542,8 @@
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23716,16 +23580,8 @@
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23762,16 +23618,8 @@
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24056,8 +23904,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "source-reviewed",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
@@ -24066,14 +23914,6 @@
             "crates/parent-runtime-core/src/parent_ui_bridge/screen_summary.rs"
           ],
           "testRoots": []
-        },
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
         }
       },
       "completion": {
@@ -24183,8 +24023,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "source-reviewed",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
@@ -24197,17 +24037,6 @@
             "crates/screen-ai-core/tests/unit/pipeline_decision.rs",
             "crates/screen-capture-adapter/tests/unit/managed_browser_cdp.rs"
           ]
-        },
-        "dependencyReview": {
-          "hardDependencies": [
-            "WP-browser-plan-07-managed-chromium-launcher",
-            "WP-browser-plan-09-cdp-version-and-target-adapter"
-          ],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
         }
       },
       "completion": {
@@ -24251,16 +24080,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24519,16 +24340,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/01-source-index-and-doc-reconciliation.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24563,16 +24376,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/02-current-screen-snapshot-and-gap-map.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24607,16 +24412,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24651,16 +24448,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/05-capability-status-contract.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24693,16 +24482,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24735,16 +24516,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24777,16 +24550,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24819,16 +24584,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/09-windows-capture-adapter-plan-proof.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24863,16 +24620,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24907,16 +24656,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/13-ios-replaykit-adapter-plan-proof.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24951,16 +24692,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/14-protected-surface-detector.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24993,16 +24726,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/15-encrypted-temporary-image-queue.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25037,16 +24762,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/16-queue-scheduler-and-debouncer.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25079,16 +24796,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/18-screen-analysis-result-schema.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25121,16 +24830,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/20-result-validator-and-invalid-output-handling.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25165,16 +24866,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/21-journal-and-sqlite-ingest.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25207,16 +24900,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/22-deletion-and-retention-proof.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25249,16 +24934,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25293,16 +24970,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25335,16 +25004,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/29-proof-tiers-and-proof-packs.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25377,16 +25038,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/30-test-suite-playwright-rollout-pr-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25421,16 +25074,8 @@
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/screen-plan/WORKPACK_INDEX.md",
-            "docs/plans/screen-plan/workpacks/39-redacted-summary-only-remote-boundary.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25883,16 +25528,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25922,16 +25559,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/27-escalation-engine.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25961,16 +25590,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/28-temporary-live-tracking-mode.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26000,16 +25621,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/29-missing-device-mode.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26039,16 +25652,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26078,16 +25683,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/01-source-index-and-repo-reconciliation.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26117,16 +25714,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/02-current-tracking-snapshot-and-gap-map.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26156,16 +25745,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26195,16 +25776,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/04-location-evidence-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26234,16 +25807,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/05-device-status-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26273,16 +25838,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/06-permission-and-capability-status-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26312,16 +25869,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26351,16 +25900,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26390,16 +25931,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26429,16 +25962,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26468,16 +25993,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26507,16 +26024,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26546,16 +26055,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/13-desktop-location-and-presence-hint-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26585,16 +26086,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/14-geofence-rule-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26624,16 +26117,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/15-geofence-transition-engine.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26663,16 +26148,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/16-expected-place-schedule-engine.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26702,16 +26179,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/17-parent-acknowledgement-and-exception-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26741,16 +26210,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/18-child-check-in-flow.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26780,16 +26241,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/19-nearby-place-provider-abstraction.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26819,16 +26272,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/20-google-places-and-poi-provider-adapter.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26858,16 +26303,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/21-place-category-taxonomy-and-ambiguity-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26897,16 +26334,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/22-local-parent-defined-place-database.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26936,16 +26365,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/23-ai-location-safety-analysis-contracts.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -26975,16 +26396,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/24-ai-provider-routing.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27014,16 +26427,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27053,16 +26458,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27092,16 +26489,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27131,16 +26520,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27170,16 +26551,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27209,16 +26582,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/35-parent-tracking-config-command-event-flow.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27248,16 +26613,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27332,16 +26689,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/38-tracking-notification-and-escalation-event-flow.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27371,16 +26720,8 @@
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-            "docs/plans/tracking-plan/workpacks/39-tracking-portal-event-read-model-proof.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27797,18 +27138,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "blocked",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [
-            "WP-v0-8-enforcement-control-plan-11-audit-journal-events"
-          ],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27847,16 +27178,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/05-app-game-session-handoff.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27895,16 +27218,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/06-managed-browser-session-control.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27943,16 +27258,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/08-network-domain-report-only-boundary.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -27991,16 +27298,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/10-parent-approval-override.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -28039,18 +27338,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [
-            "WP-eventing-plan-06-journal-replay-and-lineage"
-          ],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -28089,16 +27378,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/12-child-facing-status-and-reasons.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -28137,16 +27418,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/13-service-read-models-and-api.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -28185,16 +27458,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/14-portal-control-state-consumption.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -28233,16 +27498,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/15-integrity-heartbeat-permission-loss.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -28281,16 +27538,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/16-tamper-uninstall-non-claim-design.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -28329,16 +27578,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/17-cross-platform-unavailable-states.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -28377,16 +27618,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/19-playwright-ui-proof.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -28425,16 +27658,8 @@
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
-            "docs/plans/v0-8-enforcement-control-plan/workpacks/20-rollout-docs-ci-pr-gate.md"
-          ],
-          "reason": "Wave-0 audited custody/delivery review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-        }
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
