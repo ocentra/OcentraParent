@@ -29,7 +29,7 @@ pub(crate) fn migration_receipt_matches_plan(
 ) -> bool {
     receipt.bundle_id == *plan.bundle_id()
         && receipt.migration_plan_ref == *plan.plan_ref()
-        && receipt.migration_ref.as_ref() == plan.migration_ref()
+        && plan.migration_ref() == Some(&receipt.migration_ref)
         && receipt.operation_ref == *plan.operation_ref()
         && receipt.execution_ref == *plan.execution_ref()
         && migration_sections_match_plan(plan, receipt)
