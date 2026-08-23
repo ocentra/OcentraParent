@@ -43,7 +43,8 @@ pub(super) fn fmt_eventing_error(
         | EventingError::OrderedDispatchChainExpired { .. }
         | EventingError::CausalDispatchCancelled
         | EventingError::CausalPublicationOutsideHandlerTask
-        | EventingError::CausalPublicationRequiresRootAuthority { .. } => {
+        | EventingError::CausalPublicationRequiresRootAuthority { .. }
+        | EventingError::CallerSuppliedCausation { .. } => {
             dispatch::fmt_dispatch_error(error, formatter)
         }
         EventingError::InvalidRequestOptions { .. }
