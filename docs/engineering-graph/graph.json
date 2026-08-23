@@ -39648,7 +39648,8 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
         "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
       ],
-      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities."
+      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
@@ -39659,7 +39660,8 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
       ],
-      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities."
+      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities.",
+      "implementationGate": "reviewed-implementation"
     }
   ],
   "migration": {
