@@ -6,7 +6,7 @@ const ORPHANED_APPLY_REASON: &str =
     "local delete apply lease was orphaned by a prior process; manual reconciliation is required";
 
 impl StorageCustodyEffectStore {
-    pub(super) fn mark_orphaned_apply_manual_required(
+    pub(in crate::service::storage_custody_runtime) fn mark_orphaned_apply_manual_required(
         &self,
         operation_ref: &str,
     ) -> io::Result<()> {

@@ -3,7 +3,7 @@ use std::io;
 use super::{StorageCustodyEffectStatus, StorageCustodyEffectStore};
 
 impl StorageCustodyEffectStore {
-    pub(super) fn mark_manual_required_with_lease(
+    pub(in crate::service::storage_custody_runtime) fn mark_manual_required_with_lease(
         &self,
         operation_ref: &str,
         lease_id: &str,
