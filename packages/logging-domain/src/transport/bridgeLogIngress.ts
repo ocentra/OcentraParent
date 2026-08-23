@@ -1,18 +1,16 @@
 import type http from 'node:http';
-import { redactStructuredLogValue } from '../core/log-redaction';
+import { sanitizeBridgeBatchForCustody } from '../core/logCustody';
+import { withLocalArtifactLock } from '../local-artifact-lock';
 import { bridgeEntryToStoredLog } from '../test-log/bridgeConvert';
 import { appendTestLogEntries } from '../test-log/ndjsonWriter';
-import type { StoredTestLogLine } from '../test-log/types';
+import { TestLogScope, type StoredTestLogLine } from '../test-log/types';
 import { generatedHasRunInfoConflict } from '../parent-log-runtime';
-import { BridgeEntryArraySchema, type BridgeEntry } from './bridgeLogPayload';
+import type { BridgeEntry } from './bridgeLogPayload';
 import { readBridgeRequestBody, sendBridgeJson } from './bridgeHttp';
 import type { BridgeLifecycleStateStore } from './bridgeLifecycleState';
 
-function redactedStoredLog(entry: BridgeEntry): StoredTestLogLine {
-  const stored = bridgeEntryToStoredLog(entry);
-  return stored.data == null
-    ? stored
-    : { ...stored, data: JSON.stringify(redactStructuredLogValue(JSON.parse(stored.data) as unknown)) };
+function storedLogFromCustodiedEntry(entry: BridgeEntry): StoredTestLogLine {
+  return bridgeEntryToStoredLog(entry);
 }
 
 export async function handleBridgeLogs(
@@ -24,19 +22,26 @@ export async function handleBridgeLogs(
   let payload;
   let storedLogs: StoredTestLogLine[];
   try {
-    payload = BridgeEntryArraySchema.parse(JSON.parse(await readBridgeRequestBody(request)) as unknown);
-    storedLogs = payload.map(redactedStoredLog);
+    payload = sanitizeBridgeBatchForCustody(JSON.parse(await readBridgeRequestBody(request)) as unknown).map((entry) =>
+      entry.consumer == null ? { ...entry, consumer: TestLogScope.ParentTest } : entry
+    );
+    storedLogs = payload.map(storedLogFromCustodiedEntry);
   } catch {
     sendBridgeJson(response, 400, { ok: false, error: 'invalid log payload' });
     return;
   }
-  if (generatedHasRunInfoConflict(lifecycle.runInfo(), payload)) {
-    sendBridgeJson(response, 409, { ok: false, error: 'stale run info mismatch' });
-    return;
-  }
   try {
-    appendTestLogEntries(storedLogs, rootDir);
-    lifecycle.recordStored(payload);
+    const conflict = withLocalArtifactLock(rootDir, () => {
+      if (generatedHasRunInfoConflict(lifecycle.runInfo(), payload)) {
+        return true;
+      }
+      appendTestLogEntries(storedLogs, rootDir);
+      return false;
+    });
+    if (conflict) {
+      sendBridgeJson(response, 409, { ok: false, error: 'stale run info mismatch' });
+      return;
+    }
     sendBridgeJson(response, 200, { ok: true, stored: storedLogs.length });
   } catch {
     sendBridgeJson(response, 503, { ok: false, error: 'log bridge storage unavailable' });

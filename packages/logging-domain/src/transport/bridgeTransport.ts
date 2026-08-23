@@ -1,8 +1,9 @@
-import { BridgeEntryArraySchema, type BridgeEntry } from './bridgeLogPayload';
+import type { BridgeEntry } from './bridgeLogPayload';
 import { RunType } from '../test-log/types';
 import { createParentLogConfig } from '../core/logConfig';
 import { buildGeneratedRunStartedPayload } from '../parent-log-runtime';
-import { bridgeEndpoint, fetchBridge, parseBridgeObject } from './bridgeTransportHttp';
+import { sanitizeBridgeBatchForCustody } from '../core/logCustody';
+import { bridgeEndpoint, requestBridgeObject } from './bridgeTransportHttp';
 
 export interface BridgeRunInfo {
   readonly runId: string;
@@ -24,6 +25,7 @@ export interface BridgeRunStartedPayload {
 export interface BridgeSendOptions {
   readonly skipHealthCheck?: boolean;
   readonly timeoutMs?: number;
+  readonly onDeliveryAttempt?: () => void;
 }
 
 export async function sendToBridge(
@@ -35,27 +37,28 @@ export async function sendToBridge(
     return;
   }
 
-  BridgeEntryArraySchema.parse(entries);
+  const sanitizedEntries = sanitizeBridgeBatchForCustody(entries);
 
   const normalized = bridgeEndpoint(endpoint);
   if (options.skipHealthCheck !== true) {
-    const healthResponse = await fetchBridge(`${normalized}/__health__`, { method: 'GET' }, options.timeoutMs);
+    const healthResponse = await requestBridgeObject(`${normalized}/__health__`, { method: 'GET' }, options.timeoutMs);
     if (!healthResponse.ok) {
       throw new Error(`Log bridge health check failed: ${healthResponse.status}`);
     }
-    if ((await parseBridgeObject(healthResponse))?.['ok'] !== true) {
+    if (healthResponse.body?.['ok'] !== true) {
       throw new Error('Log bridge health check returned an invalid response');
     }
   }
 
-  const response = await fetchBridge(
+  options.onDeliveryAttempt?.();
+  const response = await requestBridgeObject(
     `${normalized}/__logs__`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(entries),
+      body: JSON.stringify(sanitizedEntries),
     },
     options.timeoutMs
   );
@@ -63,29 +66,28 @@ export async function sendToBridge(
   if (!response.ok) {
     throw new Error(`Log bridge POST failed: ${response.status}`);
   }
-  const body = await parseBridgeObject(response);
-  if (body?.['ok'] !== true || body['stored'] !== entries.length) {
+  if (response.body?.['ok'] !== true || response.body['stored'] !== sanitizedEntries.length) {
     throw new Error('Log bridge did not confirm the complete batch');
   }
 }
 
 export async function fetchRunInfoFromBridge(endpoint: string): Promise<BridgeRunInfo | null> {
   const normalized = bridgeEndpoint(endpoint);
-  const response = await fetchBridge(`${normalized}/__run_info__`, { method: 'GET' });
+  const response = await requestBridgeObject(`${normalized}/__run_info__`, { method: 'GET' });
   if (!response.ok) {
     return null;
   }
 
-  const body = (await response.json()) as {
+  const body = response.body as {
     ok?: boolean;
     runId?: string;
     runType?: string;
     suiteType?: string | null;
     scope?: string | null;
     startedAt?: number | null;
-  };
+  } | null;
 
-  if (body.ok !== true || typeof body.runId !== 'string' || typeof body.runType !== 'string') {
+  if (body?.ok !== true || typeof body.runId !== 'string' || typeof body.runType !== 'string') {
     return null;
   }
 
@@ -100,7 +102,7 @@ export async function fetchRunInfoFromBridge(endpoint: string): Promise<BridgeRu
 
 export async function notifyBridgeRunStarted(endpoint: string, payload: BridgeRunStartedPayload): Promise<boolean> {
   const normalized = bridgeEndpoint(endpoint);
-  const response = await fetchBridge(`${normalized}/__run_started__`, {
+  const response = await requestBridgeObject(`${normalized}/__run_started__`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -108,13 +110,13 @@ export async function notifyBridgeRunStarted(endpoint: string, payload: BridgeRu
     body: JSON.stringify(buildGeneratedRunStartedPayload({ ...payload, runType: payload.runType ?? RunType.Single })),
   });
 
-  const body = response.ok ? await parseBridgeObject(response) : null;
+  const body = response.ok ? response.body : null;
   return body?.['ok'] === true;
 }
 
 export async function flushBridgeRun(endpoint: string, runId: string): Promise<boolean> {
   const normalized = bridgeEndpoint(endpoint);
-  const response = await fetchBridge(`${normalized}/__flush__`, {
+  const response = await requestBridgeObject(`${normalized}/__flush__`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -122,7 +124,7 @@ export async function flushBridgeRun(endpoint: string, runId: string): Promise<b
     body: JSON.stringify({ runId }),
   });
 
-  const body = response.ok ? await parseBridgeObject(response) : null;
+  const body = response.ok ? response.body : null;
   return (
     body?.['ok'] === true &&
     body['runId'] === runId &&
