@@ -16,7 +16,9 @@ pub(super) fn map_platform_error(error: PlatformError) -> CustodyError {
 
 pub(super) fn map_storage_error(error: StorageError) -> CustodyError {
     match error {
+        StorageError::Unavailable => CustodyError::Unavailable,
         StorageError::Sql(_) => CustodyError::Database,
         StorageError::Tampered => CustodyError::Tampered,
+        StorageError::IllegalTransition => CustodyError::Conflict,
     }
 }

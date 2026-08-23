@@ -1,35 +1,43 @@
 use std::path::Path;
 
-use rusqlite::{params, Connection, OptionalExtension, Transaction};
+use rusqlite::{params, Connection, OpenFlags, OptionalExtension, Transaction};
 use thiserror::Error;
 
-use crate::binding::Binding;
+use crate::platform::{DatabaseIdentity, SealedState};
+
+mod record;
+mod schema;
 
 pub(crate) const TABLE_NAME: &str = "protected_capability_custody_records";
-pub(crate) const SCHEMA_VERSION: i64 = 1;
-const MAX_CANONICAL_BYTES: usize = 16 * 1024;
-const MAX_SEALED_BYTES: usize = 64 * 1024;
+pub(crate) const METADATA_TABLE_NAME: &str = "protected_capability_custody_metadata";
 
-#[derive(Debug)]
 pub(crate) struct Record {
-    pub(crate) record_id: Vec<u8>,
-    pub(crate) binding_digest: Vec<u8>,
+    pub(crate) record_id: [u8; 32],
+    pub(crate) lookup_digest: [u8; 32],
+    pub(crate) binding_digest: [u8; 32],
     pub(crate) canonical_binding: Vec<u8>,
-    pub(crate) state: i64,
-    pub(crate) sequence: i64,
-    pub(crate) key_epoch: i64,
-    pub(crate) writer_epoch: i64,
-    pub(crate) anti_rollback_watermark: i64,
+    pub(crate) state: SealedState,
+    pub(crate) sequence: u64,
+    pub(crate) key_epoch: u64,
+    pub(crate) writer_epoch: u64,
+    pub(crate) anti_rollback_watermark: u64,
     pub(crate) sealed: Vec<u8>,
-    pub(crate) schema_version: i64,
+    pub(crate) schema_version: u32,
+    pub(crate) binding_version: u16,
+    pub(crate) database_identity: DatabaseIdentity,
+    pub(crate) cas_digest: [u8; 32],
 }
 
 #[derive(Debug, Error)]
 pub(crate) enum StorageError {
+    #[error("custody database support is unavailable")]
+    Unavailable,
     #[error("sqlite database operation failed")]
     Sql(#[source] rusqlite::Error),
     #[error("custody database schema or row is tampered")]
     Tampered,
+    #[error("custody database transition is illegal")]
+    IllegalTransition,
 }
 
 impl From<rusqlite::Error> for StorageError {
@@ -38,87 +46,74 @@ impl From<rusqlite::Error> for StorageError {
     }
 }
 
-pub(crate) fn open(path: &Path) -> Result<Connection, StorageError> {
-    let connection = Connection::open(path)?;
-    connection.execute_batch("PRAGMA foreign_keys = ON; PRAGMA synchronous = FULL;")?;
-    initialize_or_validate(&connection)?;
-    Ok(connection)
+pub(crate) fn open(path: &Path) -> Result<(Connection, [u8; 32]), StorageError> {
+    let was_empty = std::fs::metadata(path)
+        .map_err(|_| StorageError::Unavailable)?
+        .len()
+        == 0;
+    let flags = OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX;
+    let mut connection = Connection::open_with_flags(path, flags)?;
+    connection.execute_batch(
+        "PRAGMA foreign_keys = ON; PRAGMA synchronous = FULL; PRAGMA trusted_schema = OFF;",
+    )?;
+    let instance = schema::initialize_or_validate(&mut connection, was_empty)?;
+    Ok((connection, instance))
 }
 
-pub(crate) fn validate_all(connection: &Connection) -> Result<(), StorageError> {
-    validate_schema(connection)?;
-    let integrity =
-        connection.query_row("PRAGMA integrity_check", [], |row| row.get::<_, String>(0))?;
-    if integrity != "ok" {
-        return Err(StorageError::Tampered);
-    }
-    let mut statement = connection.prepare(
-        "SELECT record_id, binding_digest, canonical_binding, state, sequence, key_epoch, \
-         writer_epoch, anti_rollback_watermark, sealed, schema_version \
-         FROM protected_capability_custody_records ORDER BY record_id",
-    )?;
-    let rows = statement.query_map([], read_record)?;
+pub(crate) fn validate_all(
+    connection: &Connection,
+    identity: DatabaseIdentity,
+) -> Result<(), StorageError> {
+    schema::validate(connection)?;
+    schema::validate_integrity(connection)?;
+    let mut statement = connection.prepare(&select_sql("ORDER BY record_id"))?;
+    let rows = statement.query_map([], record::read_raw)?;
     for row in rows {
-        validate_record(&row?)?;
+        let value = record::from_raw(row?)?;
+        if value.database_identity != identity {
+            return Err(StorageError::Tampered);
+        }
     }
     Ok(())
 }
 
-pub(crate) fn load_by_digest(
+pub(crate) fn load_by_lookup(
     connection: &Connection,
-    digest: &[u8],
+    digest: &[u8; 32],
 ) -> Result<Option<Record>, StorageError> {
-    let record = connection
-        .query_row(
-            "SELECT record_id, binding_digest, canonical_binding, state, sequence, key_epoch, \
-             writer_epoch, anti_rollback_watermark, sealed, schema_version \
-             FROM protected_capability_custody_records WHERE binding_digest = ?1",
-            params![digest],
-            read_record,
-        )
-        .optional()?;
-    record.map_or(Ok(None), |record| {
-        validate_record(&record)?;
-        Ok(Some(record))
-    })
+    load_one(connection, "WHERE lookup_digest = ?1", digest)
 }
 
 pub(crate) fn load_by_id(
     connection: &Connection,
-    record_id: &[u8],
+    record_id: &[u8; 32],
 ) -> Result<Option<Record>, StorageError> {
-    let record = connection
-        .query_row(
-            "SELECT record_id, binding_digest, canonical_binding, state, sequence, key_epoch, \
-             writer_epoch, anti_rollback_watermark, sealed, schema_version \
-             FROM protected_capability_custody_records WHERE record_id = ?1",
-            params![record_id],
-            read_record,
-        )
-        .optional()?;
-    record.map_or(Ok(None), |record| {
-        validate_record(&record)?;
-        Ok(Some(record))
-    })
+    load_one(connection, "WHERE record_id = ?1", record_id)
 }
 
-pub(crate) fn insert(transaction: &Transaction<'_>, record: &Record) -> Result<(), StorageError> {
+pub(crate) fn insert(transaction: &Transaction<'_>, value: &Record) -> Result<(), StorageError> {
+    record::validate(value)?;
     transaction.execute(
         "INSERT INTO protected_capability_custody_records \
-         (record_id, binding_digest, canonical_binding, state, sequence, key_epoch, writer_epoch, \
-          anti_rollback_watermark, sealed, schema_version) \
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+         (record_id, lookup_digest, binding_digest, canonical_binding, state, sequence, key_epoch, \
+          writer_epoch, anti_rollback_watermark, sealed, schema_version, binding_version, \
+          database_identity, cas_digest) \
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
         params![
-            &record.record_id,
-            &record.binding_digest,
-            &record.canonical_binding,
-            record.state,
-            record.sequence,
-            record.key_epoch,
-            record.writer_epoch,
-            record.anti_rollback_watermark,
-            &record.sealed,
-            record.schema_version,
+            value.record_id.as_slice(),
+            value.lookup_digest.as_slice(),
+            value.binding_digest.as_slice(),
+            &value.canonical_binding,
+            value.state as u8,
+            value.sequence as i64,
+            value.key_epoch as i64,
+            value.writer_epoch as i64,
+            value.anti_rollback_watermark as i64,
+            &value.sealed,
+            value.schema_version,
+            value.binding_version,
+            value.database_identity.as_bytes().as_slice(),
+            value.cas_digest.as_slice(),
         ],
     )?;
     Ok(())
@@ -129,157 +124,75 @@ pub(crate) fn compare_and_replace(
     prior: &Record,
     next: &Record,
 ) -> Result<bool, StorageError> {
+    record::validate_transition(prior, next)?;
     let changed = transaction.execute(
-        "UPDATE protected_capability_custody_records SET binding_digest = ?1, canonical_binding = ?2, \
-         state = ?3, sequence = ?4, key_epoch = ?5, writer_epoch = ?6, \
-         anti_rollback_watermark = ?7, sealed = ?8, schema_version = ?9 \
-         WHERE record_id = ?10 AND state = ?11 AND sequence = ?12",
+        "UPDATE protected_capability_custody_records SET lookup_digest = ?1, binding_digest = ?2, \
+         canonical_binding = ?3, state = ?4, sequence = ?5, key_epoch = ?6, writer_epoch = ?7, \
+         anti_rollback_watermark = ?8, sealed = ?9, schema_version = ?10, binding_version = ?11, \
+         database_identity = ?12, cas_digest = ?13 \
+         WHERE record_id = ?14 AND lookup_digest = ?15 AND binding_digest = ?16 \
+         AND canonical_binding = ?17 AND state = ?18 AND sequence = ?19 AND key_epoch = ?20 \
+         AND writer_epoch = ?21 AND anti_rollback_watermark = ?22 AND sealed = ?23 \
+         AND schema_version = ?24 AND binding_version = ?25 AND database_identity = ?26 \
+         AND cas_digest = ?27",
         params![
-            &next.binding_digest,
+            next.lookup_digest.as_slice(),
+            next.binding_digest.as_slice(),
             &next.canonical_binding,
-            next.state,
-            next.sequence,
-            next.key_epoch,
-            next.writer_epoch,
-            next.anti_rollback_watermark,
+            next.state as u8,
+            next.sequence as i64,
+            next.key_epoch as i64,
+            next.writer_epoch as i64,
+            next.anti_rollback_watermark as i64,
             &next.sealed,
             next.schema_version,
-            &prior.record_id,
-            prior.state,
-            prior.sequence,
+            next.binding_version,
+            next.database_identity.as_bytes().as_slice(),
+            next.cas_digest.as_slice(),
+            prior.record_id.as_slice(),
+            prior.lookup_digest.as_slice(),
+            prior.binding_digest.as_slice(),
+            &prior.canonical_binding,
+            prior.state as u8,
+            prior.sequence as i64,
+            prior.key_epoch as i64,
+            prior.writer_epoch as i64,
+            prior.anti_rollback_watermark as i64,
+            &prior.sealed,
+            prior.schema_version,
+            prior.binding_version,
+            prior.database_identity.as_bytes().as_slice(),
+            prior.cas_digest.as_slice(),
         ],
     )?;
     Ok(changed == 1)
 }
 
-fn initialize_or_validate(connection: &Connection) -> Result<(), StorageError> {
-    let mut statement = connection.prepare(
-        "SELECT type, name FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name",
-    )?;
-    let objects = statement
-        .query_map([], |row| {
-            Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
-        })?
-        .collect::<Result<Vec<_>, rusqlite::Error>>()?;
-    if objects.is_empty() {
-        connection.execute_batch(
-            "CREATE TABLE protected_capability_custody_records (\
-               record_id BLOB NOT NULL PRIMARY KEY,\
-               binding_digest BLOB NOT NULL UNIQUE,\
-               canonical_binding BLOB NOT NULL,\
-               state INTEGER NOT NULL,\
-               sequence INTEGER NOT NULL,\
-               key_epoch INTEGER NOT NULL,\
-               writer_epoch INTEGER NOT NULL,\
-               anti_rollback_watermark INTEGER NOT NULL,\
-               sealed BLOB NOT NULL,\
-               schema_version INTEGER NOT NULL\
-             ) WITHOUT ROWID;",
-        )?;
-    } else if objects.len() != 1
-        || objects.first().map(|object| object.0.as_str()) != Some("table")
-        || objects.first().map(|object| object.1.as_str()) != Some(TABLE_NAME)
-    {
-        return Err(StorageError::Tampered);
-    }
-    validate_schema(connection)
+pub(crate) fn from_broker(
+    broker: &crate::platform::record::BrokerRecord,
+) -> Result<Record, StorageError> {
+    record::from_broker(broker)
 }
 
-fn validate_schema(connection: &Connection) -> Result<(), StorageError> {
-    let sql = connection
-        .query_row(
-            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?1",
-            params![TABLE_NAME],
-            |row| row.get::<_, String>(0),
-        )
-        .optional()?
-        .ok_or(StorageError::Tampered)?;
-    let normalized = sql
-        .split_whitespace()
-        .collect::<String>()
-        .to_ascii_lowercase();
-    let expected = "create table protected_capability_custody_records ( record_id blob not null primary key, binding_digest blob not null unique, canonical_binding blob not null, state integer not null, sequence integer not null, key_epoch integer not null, writer_epoch integer not null, anti_rollback_watermark integer not null, sealed blob not null, schema_version integer not null ) without rowid"
-        .split_whitespace()
-        .collect::<String>()
-        .to_ascii_lowercase();
-    if normalized != expected {
-        return Err(StorageError::Tampered);
-    }
-
-    let mut statement =
-        connection.prepare("PRAGMA table_info(protected_capability_custody_records)")?;
-    let columns = statement
-        .query_map([], |row| {
-            Ok((
-                row.get::<_, String>(1)?,
-                row.get::<_, String>(2)?,
-                row.get::<_, i64>(3)?,
-                row.get::<_, i64>(5)?,
-            ))
-        })?
-        .collect::<Result<Vec<_>, rusqlite::Error>>()?;
-    let expected_columns = [
-        ("record_id", "BLOB", 1_i64, 1_i64),
-        ("binding_digest", "BLOB", 1_i64, 0_i64),
-        ("canonical_binding", "BLOB", 1_i64, 0_i64),
-        ("state", "INTEGER", 1_i64, 0_i64),
-        ("sequence", "INTEGER", 1_i64, 0_i64),
-        ("key_epoch", "INTEGER", 1_i64, 0_i64),
-        ("writer_epoch", "INTEGER", 1_i64, 0_i64),
-        ("anti_rollback_watermark", "INTEGER", 1_i64, 0_i64),
-        ("sealed", "BLOB", 1_i64, 0_i64),
-        ("schema_version", "INTEGER", 1_i64, 0_i64),
-    ];
-    let columns_match = columns.len() == expected_columns.len()
-        && columns
-            .iter()
-            .zip(expected_columns)
-            .all(|(actual, expected)| {
-                actual.0 == expected.0
-                    && actual.1 == expected.1
-                    && actual.2 == expected.2
-                    && actual.3 == expected.3
-            });
-    if !columns_match {
-        return Err(StorageError::Tampered);
-    }
-    Ok(())
+pub(crate) fn to_broker(value: &Record) -> crate::platform::record::BrokerRecord {
+    record::to_broker(value)
 }
 
-fn read_record(row: &rusqlite::Row<'_>) -> rusqlite::Result<Record> {
-    Ok(Record {
-        record_id: row.get(0)?,
-        binding_digest: row.get(1)?,
-        canonical_binding: row.get(2)?,
-        state: row.get(3)?,
-        sequence: row.get(4)?,
-        key_epoch: row.get(5)?,
-        writer_epoch: row.get(6)?,
-        anti_rollback_watermark: row.get(7)?,
-        sealed: row.get(8)?,
-        schema_version: row.get(9)?,
-    })
+fn load_one<P: rusqlite::ToSql + ?Sized>(
+    connection: &Connection,
+    suffix: &str,
+    parameter: &P,
+) -> Result<Option<Record>, StorageError> {
+    let raw = connection
+        .query_row(&select_sql(suffix), [parameter], record::read_raw)
+        .optional()?;
+    raw.map(record::from_raw).transpose()
 }
 
-fn validate_record(record: &Record) -> Result<(), StorageError> {
-    if record.record_id.len() != 32
-        || record.binding_digest.len() != 32
-        || record.canonical_binding.is_empty()
-        || record.canonical_binding.len() > MAX_CANONICAL_BYTES
-        || record.sealed.is_empty()
-        || record.sealed.len() > MAX_SEALED_BYTES
-        || record.schema_version != SCHEMA_VERSION
-        || !(1..=5).contains(&record.state)
-        || record.sequence <= 0
-        || record.key_epoch <= 0
-        || record.writer_epoch <= 0
-        || record.anti_rollback_watermark <= 0
-    {
-        return Err(StorageError::Tampered);
-    }
-    let binding = Binding::decode(&record.canonical_binding).map_err(|_| StorageError::Tampered)?;
-    if binding.digest().as_slice() != record.binding_digest.as_slice() {
-        return Err(StorageError::Tampered);
-    }
-    Ok(())
+fn select_sql(suffix: &str) -> String {
+    format!(
+        "SELECT record_id, lookup_digest, binding_digest, canonical_binding, state, sequence, \
+         key_epoch, writer_epoch, anti_rollback_watermark, sealed, schema_version, binding_version, \
+         database_identity, cas_digest FROM {TABLE_NAME} {suffix}"
+    )
 }

@@ -1,13 +1,47 @@
-use super::super::CustodyError;
+use super::super::{
+    CommittedCapability, CustodyError, Decision, FinalizeOutcome, PreparedCapability,
+};
 use crate::platform::SealedState;
+use crate::storage::Record;
 
-pub(super) fn sealed_state(state: i64) -> Result<SealedState, CustodyError> {
+pub(super) fn prepared(record: &Record) -> PreparedCapability {
+    PreparedCapability {
+        record_id: record.record_id,
+        lookup_digest: record.lookup_digest,
+        sequence: record.sequence,
+    }
+}
+
+pub(super) fn finalize(record: &Record) -> Result<FinalizeOutcome, CustodyError> {
+    match record.state {
+        SealedState::Committed => Ok(FinalizeOutcome::Committed(committed(record))),
+        SealedState::Aborted => Ok(FinalizeOutcome::Aborted),
+        SealedState::CommitAmbiguous => Ok(FinalizeOutcome::CommitAmbiguous),
+        SealedState::AbortAmbiguous => Ok(FinalizeOutcome::AbortAmbiguous),
+        SealedState::Prepared => Err(CustodyError::Conflict),
+    }
+}
+
+pub(super) fn ambiguous(decision: Decision) -> SealedState {
+    if decision == Decision::Commit {
+        SealedState::CommitAmbiguous
+    } else {
+        SealedState::AbortAmbiguous
+    }
+}
+
+pub(super) fn terminal(state: SealedState) -> Result<SealedState, CustodyError> {
     match state {
-        1 => Ok(SealedState::Prepared),
-        2 => Ok(SealedState::CommitAmbiguous),
-        3 => Ok(SealedState::AbortAmbiguous),
-        4 => Ok(SealedState::Committed),
-        5 => Ok(SealedState::Aborted),
-        _ => Err(CustodyError::Tampered),
+        SealedState::CommitAmbiguous => Ok(SealedState::Committed),
+        SealedState::AbortAmbiguous => Ok(SealedState::Aborted),
+        _ => Err(CustodyError::Conflict),
+    }
+}
+
+fn committed(record: &Record) -> CommittedCapability {
+    CommittedCapability {
+        record_id: record.record_id,
+        lookup_digest: record.lookup_digest,
+        sequence: record.sequence,
     }
 }
