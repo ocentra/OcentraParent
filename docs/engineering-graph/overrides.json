@@ -1485,6 +1485,181 @@
         "docs/plans/browser-plan/workpacks/24-rollout-checklist-and-pr-gate.md",
         "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md"
       ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-04-selected-device-context",
+      "hardDependencies": ["WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states"],
+      "reason": "Selected-device context consumes the bounded Portal WP03 device inventory/source-state projection; selection is not device authority.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/04-selected-device-context.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-10-lan-pairing-state-consumption",
+      "hardDependencies": [
+        "WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states",
+        "WP-lan-plan-24-portal-ux-and-first-run-handoff",
+        "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff"
+      ],
+      "reason": "LAN pairing state consumption requires the Portal WP03 device/source projection and the exact LAN first-run and signed-child authority handoffs; physical pairing remains externally owned.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/10-lan-pairing-state-consumption.md",
+        "docs/plans/lan-plan/workpacks/24-portal-ux-and-first-run-handoff.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-01-service-backed-shell-and-navigation",
+      "hardDependencies": [
+        "WP-portal-ux-household-surfaces-plan-02-household-first-run-and-profiles",
+        "WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states",
+        "WP-portal-ux-household-surfaces-plan-04-selected-device-context",
+        "WP-portal-ux-household-surfaces-plan-13-degraded-empty-stale-and-error-states",
+        "WP-portal-ux-household-surfaces-plan-16-no-fake-data-contract-adapter"
+      ],
+      "reason": "Shell/navigation composes the bounded Portal household, device, selected-context, degraded-state, and no-fake-data surfaces; route presence does not create sibling authority.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/01-service-backed-shell-and-navigation.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/04-selected-device-context.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+      "hardDependencies": [
+        "WP-policy-control-plane-plan-01-policy-source-of-truth",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz"
+      ],
+      "reason": "Policy authoring is a bounded portal preview/confirmation projection and requires Policy WP01 plus Account household, session, and device-ownership authority contracts; durable authoring and parent authority remain missing, with no portal substitute claimed.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-06-schedules-time-budgets-and-templates",
+      "hardDependencies": ["WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model"],
+      "reason": "Schedule and time-budget views consume the Policy WP07 schedule/time-budget conflict owner; the portal does not own timer or policy truth.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/06-schedules-time-budgets-and-templates.md",
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals",
+      "hardDependencies": [
+        "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+        "WP-account-identity-family-plan-05-device-ownership-authz"
+      ],
+      "reason": "Parent request and approval UI depends on the bounded Portal WP05 policy authoring seam and Account WP05 device-ownership authorization; request UI cannot mint authority.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/07-parent-requests-and-approvals.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-08-activity-evidence-and-diagnostics",
+      "hardDependencies": ["WP-browser-plan-13-browser-read-models-and-service-events"],
+      "reason": "Activity evidence and diagnostics consume the typed Browser WP13 read-model/service-event boundary. The workpack names no exact Network, Tracking, or App-Game workpack IDs, so no sibling IDs are guessed.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/08-activity-evidence-and-diagnostics.md",
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-09-browser-app-and-network-surfaces",
+      "hardDependencies": ["WP-browser-plan-13-browser-read-models-and-service-events"],
+      "reason": "Browser/app/network surfaces consume the typed Browser WP13 read-model/service-event boundary. The workpack names no exact sibling provider/read-model workpack beyond broad categories, so no IDs are guessed.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/09-browser-app-and-network-surfaces.md",
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow",
+      "hardDependencies": ["WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center"],
+      "reason": "Assistant action preview depends on the bounded Portal WP05 staged/confirmation relay; the AI provider-event owner remains unambiguous and is intentionally deferred.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-13-degraded-empty-stale-and-error-states",
+      "hardDependencies": [
+        "WP-portal-ux-household-surfaces-plan-02-household-first-run-and-profiles",
+        "WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states"
+      ],
+      "reason": "Degraded, empty, stale, and error states consume the Portal WP02 first-run/profile and WP03 device/source-state projections; no other exact unavailable/degraded input owner is named.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-15-accessibility-responsive-keyboard-ux",
+      "hardDependencies": ["WP-portal-ux-household-surfaces-plan-01-service-backed-shell-and-navigation"],
+      "reason": "Accessibility, responsive, and keyboard acceptance applies to the service-backed Portal WP01 shell/navigation route; WP15 names no additional exact direct-route panel owner.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/15-accessibility-responsive-keyboard-ux.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/01-service-backed-shell-and-navigation.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-17-playwright-screenshot-proof",
+      "hardDependencies": ["WP-portal-ux-household-surfaces-plan-15-accessibility-responsive-keyboard-ux"],
+      "reason": "Screenshot and Playwright proof is a proof workpack and requires the Portal WP15 accessibility/responsive/keyboard UX surface before visual evidence can be accepted.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/17-playwright-screenshot-proof.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/15-accessibility-responsive-keyboard-ux.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-19-product-docs-and-checklist-sync",
+      "hardDependencies": [
+        "WP-portal-ux-household-surfaces-plan-17-playwright-screenshot-proof",
+        "WP-portal-ux-household-surfaces-plan-18-parent-mobile-shell-readiness"
+      ],
+      "reason": "Product documentation and checklist synchronization consumes the Portal screenshot-proof and mobile-shell readiness outputs; this remains routing only and does not promote either workpack.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/19-product-docs-and-checklist-sync.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/17-playwright-screenshot-proof.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/18-parent-mobile-shell-readiness.md"
+      ]
+    },
+    {
+      "id": "WP-portal-ux-household-surfaces-plan-20-manual-user-review-gate",
+      "hardDependencies": ["WP-portal-ux-household-surfaces-plan-19-product-docs-and-checklist-sync"],
+      "reason": "Manual user review requires the Portal product/checklist sync, route list, proof artifacts, validation/gap summary, and explicit visual decision state.",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/20-manual-user-review-gate.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/19-product-docs-and-checklist-sync.md"
+      ]
     }
   ],
   "edges": [
@@ -5392,6 +5567,383 @@
         "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md"
       ],
       "reason": "WP24 rollout acceptance consumes the WP23 E2E/manual proof manifest and closure artifacts. It is a normal rollout gate; it does not mechanically depend on every Browser row or promote known manual/platform gaps."
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-04-selected-device-context",
+      "to": "WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/04-selected-device-context.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md"
+      ],
+      "reason": "Selected-device context consumes the bounded Portal WP03 device inventory/source-state projection; selection is not device authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-10-lan-pairing-state-consumption",
+      "to": "WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/10-lan-pairing-state-consumption.md",
+        "docs/plans/lan-plan/workpacks/24-portal-ux-and-first-run-handoff.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md"
+      ],
+      "reason": "LAN pairing state consumption requires the Portal WP03 device/source projection and the exact LAN first-run and signed-child authority handoffs; physical pairing remains externally owned.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-10-lan-pairing-state-consumption",
+      "to": "WP-lan-plan-24-portal-ux-and-first-run-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/10-lan-pairing-state-consumption.md",
+        "docs/plans/lan-plan/workpacks/24-portal-ux-and-first-run-handoff.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md"
+      ],
+      "reason": "LAN pairing state consumption requires the Portal WP03 device/source projection and the exact LAN first-run and signed-child authority handoffs; physical pairing remains externally owned.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-10-lan-pairing-state-consumption",
+      "to": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/10-lan-pairing-state-consumption.md",
+        "docs/plans/lan-plan/workpacks/24-portal-ux-and-first-run-handoff.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md"
+      ],
+      "reason": "LAN pairing state consumption requires the Portal WP03 device/source projection and the exact LAN first-run and signed-child authority handoffs; physical pairing remains externally owned.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-01-service-backed-shell-and-navigation",
+      "to": "WP-portal-ux-household-surfaces-plan-02-household-first-run-and-profiles",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/01-service-backed-shell-and-navigation.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/04-selected-device-context.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md"
+      ],
+      "reason": "Shell/navigation composes the bounded Portal household, device, selected-context, degraded-state, and no-fake-data surfaces; route presence does not create sibling authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-01-service-backed-shell-and-navigation",
+      "to": "WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/01-service-backed-shell-and-navigation.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/04-selected-device-context.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md"
+      ],
+      "reason": "Shell/navigation composes the bounded Portal household, device, selected-context, degraded-state, and no-fake-data surfaces; route presence does not create sibling authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-01-service-backed-shell-and-navigation",
+      "to": "WP-portal-ux-household-surfaces-plan-04-selected-device-context",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/01-service-backed-shell-and-navigation.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/04-selected-device-context.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md"
+      ],
+      "reason": "Shell/navigation composes the bounded Portal household, device, selected-context, degraded-state, and no-fake-data surfaces; route presence does not create sibling authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-01-service-backed-shell-and-navigation",
+      "to": "WP-portal-ux-household-surfaces-plan-13-degraded-empty-stale-and-error-states",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/01-service-backed-shell-and-navigation.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/04-selected-device-context.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md"
+      ],
+      "reason": "Shell/navigation composes the bounded Portal household, device, selected-context, degraded-state, and no-fake-data surfaces; route presence does not create sibling authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-01-service-backed-shell-and-navigation",
+      "to": "WP-portal-ux-household-surfaces-plan-16-no-fake-data-contract-adapter",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/01-service-backed-shell-and-navigation.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/04-selected-device-context.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md"
+      ],
+      "reason": "Shell/navigation composes the bounded Portal household, device, selected-context, degraded-state, and no-fake-data surfaces; route presence does not create sibling authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+      "to": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Policy authoring is a bounded portal preview/confirmation projection and requires Policy WP01 plus Account household, session, and device-ownership authority contracts; durable authoring and parent authority remain missing, with no portal substitute claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Policy authoring is a bounded portal preview/confirmation projection and requires Policy WP01 plus Account household, session, and device-ownership authority contracts; durable authoring and parent authority remain missing, with no portal substitute claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Policy authoring is a bounded portal preview/confirmation projection and requires Policy WP01 plus Account household, session, and device-ownership authority contracts; durable authoring and parent authority remain missing, with no portal substitute claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Policy authoring is a bounded portal preview/confirmation projection and requires Policy WP01 plus Account household, session, and device-ownership authority contracts; durable authoring and parent authority remain missing, with no portal substitute claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-06-schedules-time-budgets-and-templates",
+      "to": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/06-schedules-time-budgets-and-templates.md",
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md"
+      ],
+      "reason": "Schedule and time-budget views consume the Policy WP07 schedule/time-budget conflict owner; the portal does not own timer or policy truth.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals",
+      "to": "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/07-parent-requests-and-approvals.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Parent request and approval UI depends on the bounded Portal WP05 policy authoring seam and Account WP05 device-ownership authorization; request UI cannot mint authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/07-parent-requests-and-approvals.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Parent request and approval UI depends on the bounded Portal WP05 policy authoring seam and Account WP05 device-ownership authorization; request UI cannot mint authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-08-activity-evidence-and-diagnostics",
+      "to": "WP-browser-plan-13-browser-read-models-and-service-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/08-activity-evidence-and-diagnostics.md",
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+      ],
+      "reason": "Activity evidence and diagnostics consume the typed Browser WP13 read-model/service-event boundary. The workpack names no exact Network, Tracking, or App-Game workpack IDs, so no sibling IDs are guessed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-09-browser-app-and-network-surfaces",
+      "to": "WP-browser-plan-13-browser-read-models-and-service-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/09-browser-app-and-network-surfaces.md",
+        "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md"
+      ],
+      "reason": "Browser/app/network surfaces consume the typed Browser WP13 read-model/service-event boundary. The workpack names no exact sibling provider/read-model workpack beyond broad categories, so no IDs are guessed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow",
+      "to": "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md"
+      ],
+      "reason": "Assistant action preview depends on the bounded Portal WP05 staged/confirmation relay; the AI provider-event owner remains unambiguous and is intentionally deferred.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-13-degraded-empty-stale-and-error-states",
+      "to": "WP-portal-ux-household-surfaces-plan-02-household-first-run-and-profiles",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md"
+      ],
+      "reason": "Degraded, empty, stale, and error states consume the Portal WP02 first-run/profile and WP03 device/source-state projections; no other exact unavailable/degraded input owner is named.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-13-degraded-empty-stale-and-error-states",
+      "to": "WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/02-household-first-run-and-profiles.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md"
+      ],
+      "reason": "Degraded, empty, stale, and error states consume the Portal WP02 first-run/profile and WP03 device/source-state projections; no other exact unavailable/degraded input owner is named.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-15-accessibility-responsive-keyboard-ux",
+      "to": "WP-portal-ux-household-surfaces-plan-01-service-backed-shell-and-navigation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/15-accessibility-responsive-keyboard-ux.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/01-service-backed-shell-and-navigation.md"
+      ],
+      "reason": "Accessibility, responsive, and keyboard acceptance applies to the service-backed Portal WP01 shell/navigation route; WP15 names no additional exact direct-route panel owner.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-17-playwright-screenshot-proof",
+      "to": "WP-portal-ux-household-surfaces-plan-15-accessibility-responsive-keyboard-ux",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/17-playwright-screenshot-proof.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/15-accessibility-responsive-keyboard-ux.md"
+      ],
+      "reason": "Screenshot and Playwright proof is a proof workpack and requires the Portal WP15 accessibility/responsive/keyboard UX surface before visual evidence can be accepted."
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-19-product-docs-and-checklist-sync",
+      "to": "WP-portal-ux-household-surfaces-plan-17-playwright-screenshot-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/19-product-docs-and-checklist-sync.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/17-playwright-screenshot-proof.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/18-parent-mobile-shell-readiness.md"
+      ],
+      "reason": "Product documentation and checklist synchronization consumes the Portal screenshot-proof and mobile-shell readiness outputs; this remains routing only and does not promote either workpack.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-19-product-docs-and-checklist-sync",
+      "to": "WP-portal-ux-household-surfaces-plan-18-parent-mobile-shell-readiness",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/19-product-docs-and-checklist-sync.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/17-playwright-screenshot-proof.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/18-parent-mobile-shell-readiness.md"
+      ],
+      "reason": "Product documentation and checklist synchronization consumes the Portal screenshot-proof and mobile-shell readiness outputs; this remains routing only and does not promote either workpack.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-portal-ux-household-surfaces-plan-20-manual-user-review-gate",
+      "to": "WP-portal-ux-household-surfaces-plan-19-product-docs-and-checklist-sync",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/20-manual-user-review-gate.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/19-product-docs-and-checklist-sync.md"
+      ],
+      "reason": "Manual user review requires the Portal product/checklist sync, route list, proof artifacts, validation/gap summary, and explicit visual decision state."
     }
   ],
   "stateOverrides": [
