@@ -24291,16 +24291,30 @@
       "title": "03 - Capture To AI Analysis Gate",
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate"
+          ],
+          "evidence": [
+            "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md"
+          ],
+          "reason": "WP03 is source-ordered after WP02's real trigger/capture queue boundary. The actual audit limits production callers to TimedCadence and NativeAppForegroundStart; analysis uses only a configured external command, with no real OCR, VLM, or provider runtime. Keep WP03 blocked: the P0 custody-ordering repair belongs to WP03's queue-completion path; the current event read-model reports image deleted before row-ready/queue completion, row-ready rejects, and the durable queue item remains. This reviewed-implementation edge orders source work only and proves no provider or completion readiness."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24378,16 +24392,28 @@
       "title": "05 - Policy Action Dry-Run Gate",
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate"
+          ],
+          "evidence": [
+            "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md"
+          ],
+          "reason": "WP05 is source-ordered after the schema-valid AI-to-policy handoff in WP04. WP05 names Policy and v0-8 enforcement only at plan level, with no exact owner workpack unambiguously identified, so no guessed cross-plan edges are added. Current policy remains hardcoded false and row-ready remains RuntimeOwnerUnavailable; dry-run is not enforcement authority."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24416,16 +24442,33 @@
       "title": "06 - Journal Read Model And Portal Gate",
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+        "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+            "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate"
+          ],
+          "evidence": [
+            "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md"
+          ],
+          "reason": "WP06 journal/read-model/portal integration is source-ordered after the real capture-to-analysis path (WP03) and the policy/action boundary (WP05). The edge does not convert portal/read-model presence into pipeline proof, completion, or policy/enforcement authority."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24454,16 +24497,33 @@
       "title": "07 - Deletion Retention And Custody Gate",
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+        "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+            "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate"
+          ],
+          "evidence": [
+            "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md"
+          ],
+          "reason": "WP07 custody/deletion implementation is source-ordered after the real trigger/capture and capture-to-analysis queue paths. It preserves fail-closed deletion and retry behavior, does not claim parent retention controls, and does not substitute a guessed Data Custody or Screen owner workpack."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24492,16 +24552,45 @@
       "title": "08 - Live Operator Proof Gate",
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+        "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+        "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+        "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate",
+        "WP-screen-ai-pipeline-plan-06-journal-read-model-and-portal-gate",
+        "WP-screen-ai-pipeline-plan-07-deletion-retention-and-custody-gate"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+            "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+            "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+            "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate",
+            "WP-screen-ai-pipeline-plan-06-journal-read-model-and-portal-gate",
+            "WP-screen-ai-pipeline-plan-07-deletion-retention-and-custody-gate"
+          ],
+          "evidence": [
+            "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md"
+          ],
+          "reason": "WP08 is a normal live-operator proof gate over the preceding real Screen-AI slices WP02-WP07. It requires retained live artifacts and preserves non-claims for managed-browser triggers, external providers, adapters, custody, and product completion; it grants no source implementation authorization."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24530,16 +24619,33 @@
       "title": "09 - Performance Cadence And Backpressure Gate",
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+        "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+            "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate"
+          ],
+          "evidence": [
+            "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md"
+          ],
+          "reason": "WP09 is a normal performance/cadence proof gate over the real trigger/capture and analysis paths. The current audit has only TimedCadence and NativeAppForegroundStart production callers; provider scheduling is memory-only and broader OCR/VLM/provider stress remains unproved."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24568,16 +24674,51 @@
       "title": "10 - Final Rollout And PR Gate",
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+        "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+        "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+        "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate",
+        "WP-screen-ai-pipeline-plan-06-journal-read-model-and-portal-gate",
+        "WP-screen-ai-pipeline-plan-07-deletion-retention-and-custody-gate",
+        "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+        "WP-screen-ai-pipeline-plan-09-performance-cadence-and-backpressure-gate"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+            "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+            "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+            "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate",
+            "WP-screen-ai-pipeline-plan-06-journal-read-model-and-portal-gate",
+            "WP-screen-ai-pipeline-plan-07-deletion-retention-and-custody-gate",
+            "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+            "WP-screen-ai-pipeline-plan-09-performance-cadence-and-backpressure-gate"
+          ],
+          "evidence": [
+            "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+            "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+            "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+          ],
+          "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -37906,6 +38047,390 @@
         "docs/plans/setup-install-provisioning-plan/workpacks/06-rollout-proof-and-route-gate.md"
       ],
       "reason": "Setup WP06 final rollout/proof gate requires the referenced Setup workpack proof root before completion; this is a normal completion dependency, not implementation authorization."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+      "to": "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md"
+      ],
+      "reason": "WP03 is source-ordered after WP02's real trigger/capture queue boundary. The actual audit limits production callers to TimedCadence and NativeAppForegroundStart; analysis uses only a configured external command, with no real OCR, VLM, or provider runtime. Keep WP03 blocked: the P0 custody-ordering repair belongs to WP03's queue-completion path; the current event read-model reports image deleted before row-ready/queue completion, row-ready rejects, and the durable queue item remains. This reviewed-implementation edge orders source work only and proves no provider or completion readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate",
+      "to": "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md"
+      ],
+      "reason": "WP05 is source-ordered after the schema-valid AI-to-policy handoff in WP04. WP05 names Policy and v0-8 enforcement only at plan level, with no exact owner workpack unambiguously identified, so no guessed cross-plan edges are added. Current policy remains hardcoded false and row-ready remains RuntimeOwnerUnavailable; dry-run is not enforcement authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-06-journal-read-model-and-portal-gate",
+      "to": "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md"
+      ],
+      "reason": "WP06 journal/read-model/portal integration is source-ordered after the real capture-to-analysis path (WP03) and the policy/action boundary (WP05). The edge does not convert portal/read-model presence into pipeline proof, completion, or policy/enforcement authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-06-journal-read-model-and-portal-gate",
+      "to": "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md"
+      ],
+      "reason": "WP06 journal/read-model/portal integration is source-ordered after the real capture-to-analysis path (WP03) and the policy/action boundary (WP05). The edge does not convert portal/read-model presence into pipeline proof, completion, or policy/enforcement authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-07-deletion-retention-and-custody-gate",
+      "to": "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md"
+      ],
+      "reason": "WP07 custody/deletion implementation is source-ordered after the real trigger/capture and capture-to-analysis queue paths. It preserves fail-closed deletion and retry behavior, does not claim parent retention controls, and does not substitute a guessed Data Custody or Screen owner workpack.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-07-deletion-retention-and-custody-gate",
+      "to": "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md"
+      ],
+      "reason": "WP07 custody/deletion implementation is source-ordered after the real trigger/capture and capture-to-analysis queue paths. It preserves fail-closed deletion and retry behavior, does not claim parent retention controls, and does not substitute a guessed Data Custody or Screen owner workpack.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+      "to": "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md"
+      ],
+      "reason": "WP08 is a normal live-operator proof gate over the preceding real Screen-AI slices WP02-WP07. It requires retained live artifacts and preserves non-claims for managed-browser triggers, external providers, adapters, custody, and product completion; it grants no source implementation authorization."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+      "to": "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md"
+      ],
+      "reason": "WP08 is a normal live-operator proof gate over the preceding real Screen-AI slices WP02-WP07. It requires retained live artifacts and preserves non-claims for managed-browser triggers, external providers, adapters, custody, and product completion; it grants no source implementation authorization."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+      "to": "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md"
+      ],
+      "reason": "WP08 is a normal live-operator proof gate over the preceding real Screen-AI slices WP02-WP07. It requires retained live artifacts and preserves non-claims for managed-browser triggers, external providers, adapters, custody, and product completion; it grants no source implementation authorization."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+      "to": "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md"
+      ],
+      "reason": "WP08 is a normal live-operator proof gate over the preceding real Screen-AI slices WP02-WP07. It requires retained live artifacts and preserves non-claims for managed-browser triggers, external providers, adapters, custody, and product completion; it grants no source implementation authorization."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+      "to": "WP-screen-ai-pipeline-plan-06-journal-read-model-and-portal-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md"
+      ],
+      "reason": "WP08 is a normal live-operator proof gate over the preceding real Screen-AI slices WP02-WP07. It requires retained live artifacts and preserves non-claims for managed-browser triggers, external providers, adapters, custody, and product completion; it grants no source implementation authorization."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+      "to": "WP-screen-ai-pipeline-plan-07-deletion-retention-and-custody-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md"
+      ],
+      "reason": "WP08 is a normal live-operator proof gate over the preceding real Screen-AI slices WP02-WP07. It requires retained live artifacts and preserves non-claims for managed-browser triggers, external providers, adapters, custody, and product completion; it grants no source implementation authorization."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-09-performance-cadence-and-backpressure-gate",
+      "to": "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md"
+      ],
+      "reason": "WP09 is a normal performance/cadence proof gate over the real trigger/capture and analysis paths. The current audit has only TimedCadence and NativeAppForegroundStart production callers; provider scheduling is memory-only and broader OCR/VLM/provider stress remains unproved."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-09-performance-cadence-and-backpressure-gate",
+      "to": "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md"
+      ],
+      "reason": "WP09 is a normal performance/cadence proof gate over the real trigger/capture and analysis paths. The current audit has only TimedCadence and NativeAppForegroundStart production callers; provider scheduling is memory-only and broader OCR/VLM/provider stress remains unproved."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-10-final-rollout-and-pr-gate",
+      "to": "WP-screen-ai-pipeline-plan-02-real-trigger-to-capture-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+      ],
+      "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-10-final-rollout-and-pr-gate",
+      "to": "WP-screen-ai-pipeline-plan-03-capture-to-ai-analysis-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+      ],
+      "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-10-final-rollout-and-pr-gate",
+      "to": "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+      ],
+      "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-10-final-rollout-and-pr-gate",
+      "to": "WP-screen-ai-pipeline-plan-05-policy-action-dry-run-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+      ],
+      "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-10-final-rollout-and-pr-gate",
+      "to": "WP-screen-ai-pipeline-plan-06-journal-read-model-and-portal-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+      ],
+      "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-10-final-rollout-and-pr-gate",
+      "to": "WP-screen-ai-pipeline-plan-07-deletion-retention-and-custody-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+      ],
+      "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-10-final-rollout-and-pr-gate",
+      "to": "WP-screen-ai-pipeline-plan-08-live-operator-proof-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+      ],
+      "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-10-final-rollout-and-pr-gate",
+      "to": "WP-screen-ai-pipeline-plan-09-performance-cadence-and-backpressure-gate",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md"
+      ],
+      "reason": "WP10 is the normal final rollout/proof gate over all preceding Screen-AI pipeline slices WP02-WP09. It aggregates retained proof roots, command logs, known gaps, and non-claims only; it does not assume cross-plan ownership or promote the Screen-AI plan to READY or DONE."
     }
   ],
   "migration": {
