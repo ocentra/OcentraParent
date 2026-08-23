@@ -22597,7 +22597,9 @@
         "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
         "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
         "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
-        "WP-data-custody-storage-plan-01-custody-source-of-truth"
+        "WP-data-custody-storage-plan-01-custody-source-of-truth",
+        "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+        "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow"
       ],
       "state": "blocked",
       "lifecycleState": "planned",
@@ -22616,7 +22618,9 @@
             "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
             "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
             "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
-            "WP-policy-control-plane-plan-01-policy-source-of-truth"
+            "WP-policy-control-plane-plan-01-policy-source-of-truth",
+            "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+            "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow"
           ],
           "evidence": [
             "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
@@ -22628,9 +22632,11 @@
             "crates/family-identity-core/src/device_trust_current_binding.rs",
             "crates/family-identity-core/src/parent_step_up_authority.rs",
             "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
-            "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+            "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
+            "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+            "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md"
           ],
-          "reason": "Actual code audit found pure preview/source contracts but no production caller, trusted session/device/step-up authority, durable source writer/query/versioning, or custody mount; ActivityStore is evidence only."
+          "reason": "Actual code audit found pure preview/source contracts but no production caller, trusted session/device/step-up authority, durable source writer/query/versioning, or custody mount. Portal WP05 authoring control and Portal WP11 assistant-action preview are reviewed-implementation source-order consumers; they remain projections and do not provide policy authority. Existing Policy, Account, Device, and Data prerequisites remain explicit; no completion, proof, or runtime claim is promoted."
         }
       },
       "completion": {
@@ -22703,7 +22709,10 @@
       "title": "04-delivery-ack-audit",
       "path": "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md",
       "parent": "PLAN-policy-control-plane-plan",
-      "dependsOn": [],
+      "dependsOn": [
+        "WP-v0-8-enforcement-control-plan-03-adapter-capability-matrix",
+        "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit"
+      ],
       "state": "blocked",
       "lifecycleState": "blocked",
       "metadata": {
@@ -22714,12 +22723,17 @@
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "dependencyReview": {
-          "hardDependencies": [],
-          "evidence": [
-            "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-            "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md"
+          "hardDependencies": [
+            "WP-v0-8-enforcement-control-plan-03-adapter-capability-matrix",
+            "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit"
           ],
-          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+          "evidence": [
+            "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md",
+            "docs/plans/v0-8-enforcement-control-plan/workpacks/03-adapter-capability-matrix.md",
+            "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md",
+            "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md"
+          ],
+          "reason": "Policy delivery and receipt contracts remain caller-constructible evidence until trusted enforcement authority and execution trace exist. The v0.8 adapter capability matrix and owned-process enforcement boundary are exact authority prerequisites. Eventing WP08 is intentionally not added as a reverse dependency because the live graph already routes Eventing WP08 -> Policy WP04; preserving that owner direction avoids a cycle and keeps eventing runtime ownership outside Policy."
         }
       },
       "completion": {
@@ -22746,7 +22760,16 @@
       "title": "05-ask-parent-overrides",
       "path": "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
       "parent": "PLAN-policy-control-plane-plan",
-      "dependsOn": ["WP-policy-control-plane-plan-04-delivery-ack-audit"],
+      "dependsOn": [
+        "WP-policy-control-plane-plan-04-delivery-ack-audit",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+        "WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals",
+        "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow"
+      ],
       "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
@@ -22758,13 +22781,27 @@
         "needsReview": false,
         "dependencyReview": {
           "hardDependencies": [
-            "WP-policy-control-plane-plan-04-delivery-ack-audit"
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-account-identity-family-plan-03-session-token-lifecycle",
+            "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+            "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+            "WP-policy-control-plane-plan-04-delivery-ack-audit",
+            "WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals",
+            "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow"
           ],
           "evidence": [
             "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-            "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md"
+            "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+            "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+            "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
+            "docs/plans/portal-ux-household-surfaces-plan/workpacks/07-parent-requests-and-approvals.md",
+            "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md"
           ],
-          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+          "reason": "Ask-parent approval and override contracts remain caller-shaped/in-memory and the notification handoff is explicitly unclaimed. Account WP02/WP03 provide actor/session authority, Device WP01/WP03 provide trusted-device and parent step-up authority, Data WP11 provides the required durability/custody composition, and Portal WP07/WP11 provide the bounded request/preview surfaces. No notification provider, approval authority, runtime delivery, or completion is claimed."
         }
       },
       "completion": {
@@ -22858,15 +22895,14 @@
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "Checked",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true,
+        "stateOverride": {
+          "reason": "Bounded schedule/time-budget/conflict semantics are validation-only; no trusted clock, timer journal, offline recovery runtime, or source-order packet is authorized. Keep the row validation with implementation review required; no hard predecessor is invented.",
           "evidence": [
             "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
             "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md"
-          ],
-          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+          ]
         }
       },
       "completion": {
@@ -22901,15 +22937,14 @@
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "Checked",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "reviewed",
-        "needsReview": false,
-        "dependencyReview": {
-          "hardDependencies": [],
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true,
+        "stateOverride": {
+          "reason": "Bounded policy event semantics are validation-only; journal, replay, and dispatcher runtime ownership remains with Eventing WP06/WP08. No Policy implementation packet is authorized and no Eventing prerequisite is invented.",
           "evidence": [
             "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
             "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
-          ],
-          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+          ]
         }
       },
       "completion": {
@@ -39646,6 +39681,129 @@
       ],
       "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md"
+      ],
+      "reason": "Policy WP02 consumes the Portal WP05 authoring projection as a source-order surface; Portal remains UI/projection ownership and cannot replace policy authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md"
+      ],
+      "reason": "Policy WP02 consumes the Portal WP11 assistant-action preview boundary as a source-order surface; assistant drafts remain preview-only and cannot confirm or apply policy.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-policy-control-plane-plan-04-delivery-ack-audit",
+      "to": "WP-v0-8-enforcement-control-plan-03-adapter-capability-matrix",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/03-adapter-capability-matrix.md"
+      ],
+      "reason": "Policy delivery cannot claim execution authority from contracts; v0.8 WP03 owns the adapter capability boundary required for a trusted handoff."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-04-delivery-ack-audit",
+      "to": "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md"
+      ],
+      "reason": "Policy delivery cannot advance receipt-required state without the v0.8 owned-process enforcement boundary and inspectable execution authority."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Parent/observer/revoked actor authority is Account-owned; caller-shaped policy approval is not authority."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "Session lifecycle and trusted actor context are Account-owned prerequisites for ask-parent approval."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "Trusted-device source context is Device Trust-owned and cannot be replaced by caller-supplied device identifiers."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "High-risk parent step-up is Device Trust-owned and required before policy override approval can be trusted."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+      ],
+      "reason": "Ask-parent approval and audit state require the Data Custody runtime composition/custody mount; in-memory state is insufficient."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/07-parent-requests-and-approvals.md"
+      ],
+      "reason": "Portal WP07 owns the bounded parent-request/approval surface consumed by ask-parent policy semantics."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md"
+      ],
+      "reason": "Portal WP11 owns the assistant-action preview surface; preview remains non-authoritative until parent confirmation and trusted handoff."
     }
   ],
   "migration": {
