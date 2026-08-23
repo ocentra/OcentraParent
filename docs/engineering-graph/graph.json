@@ -23031,16 +23031,37 @@
       "title": "01-remote-capability-fabric",
       "path": "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md",
       "parent": "PLAN-remote-access-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "remote-access-plan",
         "indexPath": "docs/plans/remote-access-plan/WORKPACK_INDEX.md",
         "statusText": "Validation — view-only capability contract and focused tests are current; runtime lifecycle and integration remain open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-account-identity-family-plan-03-session-token-lifecycle",
+            "WP-account-identity-family-plan-05-device-ownership-authz",
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+          ],
+          "evidence": [
+            "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md",
+            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+            "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+            "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+          ],
+          "reason": "Actual source audit found a typed view-only capability contract but no shipped remote authority producer; Remote WP01 therefore requires Account authority and current Device Trust. Eventing WP06 is intentionally omitted because the current contract/source exposes an audit reference, not an audit-publisher handoff."
+        },
         "stateOverride": {
           "reason": "Rust-owned view-only capability contract and focused negative tests are current; relay, pairing lifecycle, device-trust integration, custody, CI, review, and main merge remain open.",
           "evidence": [
@@ -23073,16 +23094,70 @@
       "title": "02-live-screen-relay",
       "path": "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
       "parent": "PLAN-remote-access-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-remote-access-plan-04-session-pairing-grants",
+        "WP-screen-plan-06-capture-scope-model",
+        "WP-screen-plan-07-capture-trigger-model",
+        "WP-screen-plan-08-platform-adapter-abstraction",
+        "WP-screen-plan-09-windows-capture-adapter-plan-proof",
+        "WP-screen-plan-10-macos-capture-adapter-plan-proof",
+        "WP-screen-plan-11-linux-capture-adapter-plan-proof",
+        "WP-screen-plan-12-android-mediaprojection-adapter-plan-proof",
+        "WP-screen-plan-13-ios-replaykit-adapter-plan-proof",
+        "WP-screen-plan-14-protected-surface-detector",
+        "WP-screen-plan-26-child-disclosure-ux",
+        "WP-screen-plan-28-live-view-optional-mode",
+        "WP-screen-plan-39-redacted-summary-only-remote-boundary",
+        "WP-eventing-plan-06-journal-replay-and-lineage",
+        "WP-eventing-plan-08-parent-runtime-integration"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "remote-access-plan",
         "indexPath": "docs/plans/remote-access-plan/WORKPACK_INDEX.md",
         "statusText": "Planned",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-eventing-plan-06-journal-replay-and-lineage",
+            "WP-eventing-plan-08-parent-runtime-integration",
+            "WP-remote-access-plan-04-session-pairing-grants",
+            "WP-screen-plan-06-capture-scope-model",
+            "WP-screen-plan-07-capture-trigger-model",
+            "WP-screen-plan-08-platform-adapter-abstraction",
+            "WP-screen-plan-09-windows-capture-adapter-plan-proof",
+            "WP-screen-plan-10-macos-capture-adapter-plan-proof",
+            "WP-screen-plan-11-linux-capture-adapter-plan-proof",
+            "WP-screen-plan-12-android-mediaprojection-adapter-plan-proof",
+            "WP-screen-plan-13-ios-replaykit-adapter-plan-proof",
+            "WP-screen-plan-14-protected-surface-detector",
+            "WP-screen-plan-26-child-disclosure-ux",
+            "WP-screen-plan-28-live-view-optional-mode",
+            "WP-screen-plan-39-redacted-summary-only-remote-boundary"
+          ],
+          "evidence": [
+            "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+            "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
+            "docs/plans/screen-plan/workpacks/06-capture-scope-model.md",
+            "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md",
+            "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md",
+            "docs/plans/screen-plan/workpacks/09-windows-capture-adapter-plan-proof.md",
+            "docs/plans/screen-plan/workpacks/10-macos-capture-adapter-plan-proof.md",
+            "docs/plans/screen-plan/workpacks/11-linux-capture-adapter-plan-proof.md",
+            "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md",
+            "docs/plans/screen-plan/workpacks/13-ios-replaykit-adapter-plan-proof.md",
+            "docs/plans/screen-plan/workpacks/14-protected-surface-detector.md",
+            "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md",
+            "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md",
+            "docs/plans/screen-plan/workpacks/39-redacted-summary-only-remote-boundary.md",
+            "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
+            "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md"
+          ],
+          "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23143,16 +23218,43 @@
       "title": "04-session-pairing-grants",
       "path": "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
       "parent": "PLAN-remote-access-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-eventing-plan-06-journal-replay-and-lineage"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "remote-access-plan",
         "indexPath": "docs/plans/remote-access-plan/WORKPACK_INDEX.md",
         "statusText": "Validation — pairing/standing-grant lifecycle code and focused tests are current; runtime integrations and acceptance gates remain open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-account-identity-family-plan-03-session-token-lifecycle",
+            "WP-account-identity-family-plan-05-device-ownership-authz",
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+            "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+            "WP-eventing-plan-06-journal-replay-and-lineage"
+          ],
+          "evidence": [
+            "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
+            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+            "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+            "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+            "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md"
+          ],
+          "reason": "Pairing and standing-access lifecycle routing requires canonical Account authority, Device Trust step-up/currentness, and Eventing journal/replay lineage; no persistence adapter or runtime completion is claimed."
+        },
         "stateOverride": {
           "reason": "The Rust-owned pairing and standing-grant lifecycle now has focused transition, disclosure, wrong-context, revoke/remove, reconnect-denial, support-boundary, and serialization tests; persistence adapters, relay/session integration, device-trust handoff, generated proof, CI, review, and main merge remain open.",
           "evidence": [
@@ -23185,16 +23287,58 @@
       "title": "05-relay-security-abuse-controls",
       "path": "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
       "parent": "PLAN-remote-access-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-remote-access-plan-02-live-screen-relay",
+        "WP-remote-access-plan-04-session-pairing-grants",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-eventing-plan-06-journal-replay-and-lineage",
+        "WP-eventing-plan-08-parent-runtime-integration",
+        "WP-data-custody-storage-plan-01-custody-source-of-truth",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "remote-access-plan",
         "indexPath": "docs/plans/remote-access-plan/WORKPACK_INDEX.md",
         "statusText": "Planned",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-account-identity-family-plan-03-session-token-lifecycle",
+            "WP-account-identity-family-plan-05-device-ownership-authz",
+            "WP-data-custody-storage-plan-01-custody-source-of-truth",
+            "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+            "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+            "WP-eventing-plan-06-journal-replay-and-lineage",
+            "WP-eventing-plan-08-parent-runtime-integration",
+            "WP-remote-access-plan-02-live-screen-relay",
+            "WP-remote-access-plan-04-session-pairing-grants"
+          ],
+          "evidence": [
+            "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+            "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+            "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
+            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+            "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+            "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+            "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
+            "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
+            "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
+            "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+          ],
+          "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -34745,6 +34889,406 @@
       ],
       "reason": "Actual code audit correction records the direct dependency only; it does not promote implementation, tests, proof, READY, or DONE.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-remote-access-plan-01-remote-capability-fabric",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Actual source audit found a typed view-only capability contract but no shipped remote authority producer; Remote WP01 therefore requires Account authority and current Device Trust. Eventing WP06 is intentionally omitted because the current contract/source exposes an audit reference, not an audit-publisher handoff.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-remote-access-plan-01-remote-capability-fabric",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "Actual source audit found a typed view-only capability contract but no shipped remote authority producer; Remote WP01 therefore requires Account authority and current Device Trust. Eventing WP06 is intentionally omitted because the current contract/source exposes an audit reference, not an audit-publisher handoff.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-remote-access-plan-01-remote-capability-fabric",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Actual source audit found a typed view-only capability contract but no shipped remote authority producer; Remote WP01 therefore requires Account authority and current Device Trust. Eventing WP06 is intentionally omitted because the current contract/source exposes an audit reference, not an audit-publisher handoff.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-remote-access-plan-01-remote-capability-fabric",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "Actual source audit found a typed view-only capability contract but no shipped remote authority producer; Remote WP01 therefore requires Account authority and current Device Trust. Eventing WP06 is intentionally omitted because the current contract/source exposes an audit reference, not an audit-publisher handoff.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-remote-access-plan-04-session-pairing-grants",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Pairing and standing-access lifecycle routing requires canonical Account authority, Device Trust step-up/currentness, and Eventing journal/replay lineage; no persistence adapter or runtime completion is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-04-session-pairing-grants",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "Pairing and standing-access lifecycle routing requires canonical Account authority, Device Trust step-up/currentness, and Eventing journal/replay lineage; no persistence adapter or runtime completion is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-04-session-pairing-grants",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Pairing and standing-access lifecycle routing requires canonical Account authority, Device Trust step-up/currentness, and Eventing journal/replay lineage; no persistence adapter or runtime completion is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-04-session-pairing-grants",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "Pairing and standing-access lifecycle routing requires canonical Account authority, Device Trust step-up/currentness, and Eventing journal/replay lineage; no persistence adapter or runtime completion is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-04-session-pairing-grants",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "Pairing and standing-access lifecycle routing requires canonical Account authority, Device Trust step-up/currentness, and Eventing journal/replay lineage; no persistence adapter or runtime completion is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-04-session-pairing-grants",
+      "to": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
+        "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md"
+      ],
+      "reason": "Pairing and standing-access lifecycle routing requires canonical Account authority, Device Trust step-up/currentness, and Eventing journal/replay lineage; no persistence adapter or runtime completion is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-remote-access-plan-04-session-pairing-grants",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-06-capture-scope-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-07-capture-trigger-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-08-platform-adapter-abstraction",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-09-windows-capture-adapter-plan-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/09-windows-capture-adapter-plan-proof.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-10-macos-capture-adapter-plan-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/10-macos-capture-adapter-plan-proof.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-11-linux-capture-adapter-plan-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/11-linux-capture-adapter-plan-proof.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-12-android-mediaprojection-adapter-plan-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-13-ios-replaykit-adapter-plan-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/13-ios-replaykit-adapter-plan-proof.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-14-protected-surface-detector",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/14-protected-surface-detector.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-26-child-disclosure-ux",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-28-live-view-optional-mode",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-screen-plan-39-redacted-summary-only-remote-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/screen-plan/workpacks/39-redacted-summary-only-remote-boundary.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-02-live-screen-relay",
+      "to": "WP-eventing-plan-08-parent-runtime-integration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md",
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md"
+      ],
+      "reason": "Live relay routing consumes Remote WP04 grant state, Screen capture/platform/disclosure boundaries, and Eventing journal/runtime handoffs; the current service seam remains environment-shaped readiness only, not live-view completion."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-remote-access-plan-02-live-screen-relay",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/remote-access-plan/workpacks/02-live-screen-relay.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-remote-access-plan-04-session-pairing-grants",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-eventing-plan-08-parent-runtime-integration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
+    },
+    {
+      "from": "WP-remote-access-plan-05-relay-security-abuse-controls",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/remote-access-plan/workpacks/05-relay-security-abuse-controls.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Relay security routing requires grant/session, Account and Device Trust authority, Eventing journal/runtime, and Data custody source-of-truth plus retention/delete semantics for redacted diagnostics; no relay runtime or readiness is claimed."
     }
   ],
   "migration": {
