@@ -947,6 +947,36 @@
       ],
       "note": "Account WP08 owns the integrated Rust-only producer transport at canonical source c5ed3ce5c: crate-private issuance from VerifiedAccountIdentityAuthority, bounded canonical envelope/parser, domain-separated signature verification, exact UTC-millisecond time checks, and typed signer-custody unavailability. The nine mapped producer source files are source-only/static-validated; no authenticated producer adapter, durable signer/key registry, Cloudflare consumer/mount, tests, proof, or DONE claim exists. All authority-bearing signed fields derive from the sealed Account capability; envelope metadata is issuer/custody-owned."
     },
+    "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff": {
+      "planSlug": "account-identity-family-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/family-identity-core/src/lib.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_custody.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_service_binding.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_startup.rs",
+        "crates/family-identity-core/tests/contract/account_identity_authority_issuer.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_custody.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_registry.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_startup.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/family-identity-core/src/account_identity_authority_issuer.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_custody.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_service_binding.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_startup.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/family-identity-core/tests/contract/account_identity_authority_issuer.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_custody.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_registry.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_startup.rs"
+      ],
+      "note": "Account WP09 is a planned durable issuer and signing-key custody route. The existing family-identity-core lib.rs is a shared integration root only and is not a planned WP09 implementation root. All five planned source roots and four expected test roots are absent; no issuer/key registry, authenticated producer binding, startup recovery, Cloudflare consumer, source, tests, proof, READY, or DONE claim exists. WP09 consumes WP08's sealed wire contract without duplicating schema or authority."
+    },
     "WP-ai-plan-01-source-index-and-repo-reconciliation": {
       "planSlug": "ai-plan",
       "codeExpectation": "no-code-required",
