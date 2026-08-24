@@ -3,24 +3,27 @@ use ocentra_parent_agent_protocol::{
     lan_pairing::LanPairingOptionalText,
     logging::{LogFieldValue, LogLevel},
     transport::{
-        command_response_event_id_prefix, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+        AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, command_response_event_id_prefix,
     },
 };
 use std::{future::Future, pin::Pin};
 
 use crate::{
+    activity_api::app_game_platform_proof_status_payload::{
+        PlatformProbeCache, PlatformProbeRequestProvenance,
+    },
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::BrowserManagedRuntime,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     lan_pairing::{
-        command_routing::route_lan_command, extend_log_fields, LanCommandDecision,
-        LanPairingRuntime,
+        LanCommandDecision, LanPairingRuntime, command_routing::route_lan_command,
+        extend_log_fields,
     },
     screen_settings_runtime::ScreenSettingsRuntime,
 };
 
-use super::{command_dispatch::build_command_event, WebsocketCommandOrigin, WebsocketCommandText};
+use super::{WebsocketCommandOrigin, WebsocketCommandText, command_dispatch::build_command_event};
 
 pub(super) fn handle_command_text(
     text: WebsocketCommandText,
@@ -29,6 +32,8 @@ pub(super) fn handle_command_text(
     browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
+    probe_cache: PlatformProbeCache,
+    provenance: PlatformProbeRequestProvenance,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
         if text.0.len() > constants::lan_pairing::LAN_WEBSOCKET_COMMAND_MAX_BYTES {
@@ -44,6 +49,8 @@ pub(super) fn handle_command_text(
                     browser_runtime,
                     screen_settings,
                     origin,
+                    probe_cache,
+                    provenance,
                 )
                 .await
             }
@@ -70,6 +77,8 @@ fn handle_command(
     browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
+    probe_cache: PlatformProbeCache,
+    provenance: PlatformProbeRequestProvenance,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
         let request_nonce_digest = super::health_nonce::request_nonce_digest(&command);
@@ -97,6 +106,8 @@ fn handle_command(
             browser_policy,
             browser_runtime,
             screen_settings,
+            probe_cache,
+            provenance,
         )
         .await;
         if let Some(audit_fields) = audit_fields {

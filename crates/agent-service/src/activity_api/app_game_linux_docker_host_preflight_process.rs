@@ -1,13 +1,18 @@
 use std::{process::Stdio, thread, time::Instant};
 
+#[cfg(target_os = "linux")]
+use std::path::PathBuf;
+
 use command_group::{AsyncCommandGroup, AsyncGroupChild};
+use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
 use tokio::process::Command;
 
 use super::{
-    app_game_adapter_host_capabilities_paths::ResolvedExecutablePath,
     app_game_linux_docker_host_preflight_output::read_bounded_until,
+    app_game_linux_docker_host_preflight_path_security::revalidate_trusted_docker_candidate,
+    app_game_linux_docker_host_preflight_paths::TrustedDockerExecutable,
     app_game_linux_docker_host_preflight_wait::{
-        terminate_group_bounded, wait_bounded, DockerProcessGroup,
+        DockerProcessGroup, terminate_child_bounded, terminate_group_bounded, wait_bounded,
     },
 };
 
@@ -32,11 +37,13 @@ impl DockerProbeOutput {
 }
 
 pub(super) fn run_docker_probe(
-    executable: &ResolvedExecutablePath,
+    executable: &TrustedDockerExecutable,
     arguments: DockerProbeArguments,
     deadline: Instant,
 ) -> DockerProbeOutput {
-    let executable = executable.clone();
+    let Some(executable) = executable.try_clone() else {
+        return DockerProbeOutput::unavailable();
+    };
     // The runtime helper is joined; stdout is owned by its cancellable async
     // future, so this is not a detached reader thread or an unbounded wait.
     let Ok(worker) = thread::Builder::new()
@@ -50,7 +57,7 @@ pub(super) fn run_docker_probe(
 }
 
 fn run_docker_probe_on_runtime(
-    executable: ResolvedExecutablePath,
+    executable: TrustedDockerExecutable,
     arguments: DockerProbeArguments,
     deadline: Instant,
 ) -> DockerProbeOutput {
@@ -65,7 +72,7 @@ fn run_docker_probe_on_runtime(
 }
 
 async fn run_docker_probe_async(
-    executable: ResolvedExecutablePath,
+    executable: TrustedDockerExecutable,
     arguments: DockerProbeArguments,
     deadline: Instant,
 ) -> DockerProbeOutput {
@@ -73,30 +80,32 @@ async fn run_docker_probe_async(
         return DockerProbeOutput::unavailable();
     }
 
-    let mut command = Command::new(executable.0);
-    command
-        .args(arguments.0)
-        .stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null());
+    if !revalidate_trusted_docker_candidate(&executable) {
+        return DockerProbeOutput::unavailable();
+    }
+
+    let mut command = build_docker_command(&executable, arguments);
     let mut child = match spawn_process_group(&mut command) {
         Ok(child) => child,
         Err(_) => return DockerProbeOutput::unavailable(),
     };
-    let group = DockerProcessGroup::capture(&child);
+    let Some(mut group) = DockerProcessGroup::capture(&child) else {
+        let _ = terminate_child_bounded(&mut child).await;
+        return DockerProbeOutput::unavailable();
+    };
     let stdout = match child.inner().stdout.take() {
         Some(stdout) => stdout,
         None => {
-            terminate_group_bounded(&mut child, group, false).await;
+            terminate_group_bounded(&mut child, &mut group, false).await;
             return DockerProbeOutput::unavailable();
         }
     };
     let captured = read_bounded_until(stdout, deadline).await;
     let status = if captured.timed_out || captured.overflow || captured.read_error {
-        terminate_group_bounded(&mut child, group, false).await;
+        terminate_group_bounded(&mut child, &mut group, false).await;
         None
     } else {
-        wait_bounded(&mut child, group, deadline).await
+        wait_bounded(&mut child, &mut group, deadline).await
     };
 
     DockerProbeOutput {
@@ -105,6 +114,51 @@ async fn run_docker_probe_async(
             && !captured.read_error,
         stdout: captured.bytes,
     }
+}
+
+fn build_docker_command(
+    executable: &TrustedDockerExecutable,
+    arguments: DockerProbeArguments,
+) -> Command {
+    #[cfg(target_os = "linux")]
+    let executable_path = {
+        use std::os::fd::AsRawFd;
+        PathBuf::from(format!(
+            proof::DOCKER_DESCRIPTOR_PATH_FORMAT,
+            executable.executable.as_raw_fd()
+        ))
+    };
+    #[cfg(not(target_os = "linux"))]
+    let executable_path = executable.path.clone();
+    let mut command = Command::new(executable_path);
+    command
+        .args(arguments.0)
+        .current_dir(&executable.cwd)
+        .env_clear()
+        .env(proof::ENV_PATH, &executable.cwd)
+        .env(proof::ENV_DOCKER_HOST, proof::DOCKER_SERVICE_ENDPOINT)
+        .env(proof::ENV_DOCKER_CONTEXT, proof::DOCKER_SERVICE_CONTEXT)
+        .env(
+            proof::ENV_DOCKER_CONFIG,
+            proof::DOCKER_SERVICE_CONFIG_DIRECTORY,
+        )
+        .env(
+            proof::ENV_DOCKER_TLS_VERIFY,
+            proof::DOCKER_SERVICE_TLS_VERIFY,
+        )
+        .env(
+            proof::ENV_DOCKER_CERT_PATH,
+            ocentra_parent_agent_protocol::constants::value::EMPTY,
+        )
+        .env(proof::ENV_HOME, proof::DOCKER_SERVICE_CONFIG_DIRECTORY)
+        .env(
+            proof::ENV_USERPROFILE,
+            proof::DOCKER_SERVICE_CONFIG_DIRECTORY,
+        )
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null());
+    command
 }
 
 #[cfg(windows)]

@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proo
 use ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxForegroundSourcePreflight;
 
 use super::app_game_adapter_host_capabilities_paths::{
-    android_sdk_adb_available, executable_available, EnvironmentName, ExecutableName,
+    EnvironmentName, ExecutableName, android_sdk_adb_available, executable_available,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -17,6 +17,7 @@ pub(super) struct EvidenceRefs(pub(super) Vec<String>);
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct ProbeRefs(pub(super) Vec<String>);
 
+#[derive(Clone, Debug)]
 pub(super) struct HostCapabilitySignals {
     pub(super) android_adb: bool,
     pub(super) android_adb_path: bool,

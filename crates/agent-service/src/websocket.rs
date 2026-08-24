@@ -50,7 +50,10 @@ mod socket_session;
 mod tracking_retention_settings_write;
 
 use self::basic_reports::{
-    temp_runtime_store_path, BROWSER_POLICY_TEST_STORE_PREFIX, SCREEN_SETTINGS_TEST_STORE_PREFIX,
+    BROWSER_POLICY_TEST_STORE_PREFIX, SCREEN_SETTINGS_TEST_STORE_PREFIX, temp_runtime_store_path,
+};
+use crate::activity_api::app_game_platform_proof_status_payload::{
+    PlatformProbeCache, PlatformProbeRequestProvenance,
 };
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime, browser_runtime::BrowserManagedRuntime,
@@ -82,6 +85,8 @@ pub(crate) fn handle_command_text_for_test(
             temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
         ),
         origin,
+        PlatformProbeCache::new(),
+        PlatformProbeRequestProvenance::Unknown,
     )
 }
 
@@ -100,16 +105,27 @@ pub(crate) fn handle_command_text_with_browser_policy_for_test(
             temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
         ),
         origin,
+        PlatformProbeCache::new(),
+        PlatformProbeRequestProvenance::Unknown,
     )
 }
 
 pub fn dispatch_local_command_text(
     text: WebsocketCommandText,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
-    handle_command_text_for_test(
+    command_entry::handle_command_text(
         text,
         LanPairingRuntime::empty(),
+        BrowserPolicyRuntime::for_store_path(
+            temp_runtime_store_path(BROWSER_POLICY_TEST_STORE_PREFIX).0,
+        ),
+        BrowserManagedRuntime::new(),
+        ScreenSettingsRuntime::for_store_path(
+            temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
+        ),
         WebsocketCommandOrigin(None),
+        PlatformProbeCache::new(),
+        PlatformProbeRequestProvenance::Loopback,
     )
 }
 
@@ -117,11 +133,17 @@ pub fn dispatch_local_command_text_with_browser_policy_store(
     text: WebsocketCommandText,
     store_path: WebsocketBrowserPolicyStorePath,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
-    handle_command_text_with_browser_policy_for_test(
+    command_entry::handle_command_text(
         text,
         LanPairingRuntime::empty(),
         BrowserPolicyRuntime::for_store_path(store_path.0),
+        BrowserManagedRuntime::new(),
+        ScreenSettingsRuntime::for_store_path(
+            temp_runtime_store_path(SCREEN_SETTINGS_TEST_STORE_PREFIX).0,
+        ),
         WebsocketCommandOrigin(None),
+        PlatformProbeCache::new(),
+        PlatformProbeRequestProvenance::Loopback,
     )
 }
 
@@ -132,6 +154,8 @@ pub(crate) fn handle_socket(
     browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
+    probe_cache: PlatformProbeCache,
+    provenance: PlatformProbeRequestProvenance,
 ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
     socket_session::handle_socket(
         socket,
@@ -140,5 +164,7 @@ pub(crate) fn handle_socket(
         browser_runtime,
         screen_settings,
         origin,
+        probe_cache,
+        provenance,
     )
 }

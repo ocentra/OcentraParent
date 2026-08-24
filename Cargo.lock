@@ -2789,6 +2789,7 @@ dependencies = [
  "chrono",
  "command-group",
  "ed25519-dalek",
+ "file-id",
  "nix 0.27.1",
  "ocentra-app-game-core",
  "ocentra-child-runtime",
@@ -2804,11 +2805,13 @@ dependencies = [
  "ocentra-schema",
  "ocentra-screen-ai-core",
  "ocentra-screen-live-view-core",
+ "rustix 1.1.4",
  "serde",
  "serde_json",
  "sha2",
  "tokio",
  "tower-http",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

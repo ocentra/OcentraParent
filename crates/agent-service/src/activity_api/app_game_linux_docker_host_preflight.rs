@@ -8,9 +8,9 @@ use std::time::Instant;
 use super::{
     app_game_linux_docker_host_preflight_paths::resolve_trusted_docker_executable,
     app_game_linux_docker_host_preflight_process::{
-        run_docker_probe, DockerProbeArguments, DockerProbeOutput,
+        DockerProbeArguments, DockerProbeOutput, run_docker_probe,
     },
-    app_game_linux_docker_host_preflight_state::{build_preflight, DockerPreflightState},
+    app_game_linux_docker_host_preflight_state::{DockerPreflightState, build_preflight},
     app_game_linux_docker_host_preflight_wait::DOCKER_PREFLIGHT_TIMEOUT,
 };
 
@@ -28,7 +28,7 @@ pub(super) fn detect_linux_docker_host_preflight() -> AppGameLinuxDockerHostPref
         );
     };
 
-    let daemon_visible = probe_has_nonempty_text(run_docker_probe(
+    let daemon_visible = probe_has_fixed_marker(run_docker_probe(
         &executable,
         DockerProbeArguments(&proof::DOCKER_VERSION_ARGUMENTS),
         deadline,
@@ -68,9 +68,15 @@ pub(super) fn unavailable_linux_docker_host_preflight() -> AppGameLinuxDockerHos
     )
 }
 
-fn probe_has_nonempty_text(output: DockerProbeOutput) -> bool {
-    output.success
-        && std::str::from_utf8(&output.stdout).is_ok_and(|value| !value.trim().is_empty())
+fn probe_has_fixed_marker(output: DockerProbeOutput) -> bool {
+    if !output.success {
+        return false;
+    }
+    let Ok(value) = std::str::from_utf8(&output.stdout) else {
+        return false;
+    };
+    let value = value.strip_suffix('\n').unwrap_or(value);
+    value == proof::DOCKER_READY_MARKER
 }
 
 fn parse_context_count(output: DockerProbeOutput) -> Option<u64> {
@@ -78,7 +84,8 @@ fn parse_context_count(output: DockerProbeOutput) -> Option<u64> {
         return None;
     }
     let value = std::str::from_utf8(&output.stdout).ok()?;
-    let count = value.lines().try_fold(0_u64, |count, line| {
+    let value = value.strip_suffix('\n').unwrap_or(value);
+    let count = value.split('\n').try_fold(0_u64, |count, line| {
         (line == proof::DOCKER_CONTEXT_COUNT_MARKER && count < MAX_DOCKER_INVENTORY_COUNT)
             .then_some(count + 1)
     })?;
@@ -90,7 +97,8 @@ fn parse_inventory_counts(output: DockerProbeOutput) -> Option<(u64, u64)> {
         return None;
     }
     let value = std::str::from_utf8(&output.stdout).ok()?;
-    let mut values = value.split_whitespace();
+    let value = value.strip_suffix('\n').unwrap_or(value);
+    let mut values = value.split(' ');
     let image_count = values.next()?.parse::<u64>().ok()?;
     let container_count = values.next()?.parse::<u64>().ok()?;
     (values.next().is_none()

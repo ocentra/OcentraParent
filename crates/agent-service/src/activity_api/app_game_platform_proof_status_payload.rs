@@ -1,3 +1,5 @@
+use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
+use ocentra_parent_agent_protocol::AppGamePlatformProofStatusRow;
 use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE,
@@ -34,8 +36,6 @@ use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel}
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
-use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
-use ocentra_parent_agent_protocol::AppGamePlatformProofStatusRow;
 use ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxForegroundSourcePreflight;
 
 use super::app_game_adapter_execution_readiness_payload::GeneratedAtText;
@@ -44,6 +44,10 @@ use super::app_game_linux_docker_host_preflight::{
     detect_linux_docker_host_preflight, unavailable_linux_docker_host_preflight,
 };
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
+
+const PLATFORM_PROBE_MIN_INTERVAL: Duration = Duration::from_secs(5);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) struct TextValue(pub(super) &'static str);
@@ -54,12 +58,72 @@ pub(super) struct TextList(pub(super) Vec<String>);
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct SerializedReadModelText(pub(super) String);
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum PlatformProbeRequestProvenance {
+    Loopback,
+    LocalNetwork,
+    Unknown,
+}
+
+#[derive(Clone)]
+pub(crate) struct PlatformProbeCache {
+    state: Arc<Mutex<PlatformProbeCacheState>>,
+}
+
+#[derive(Clone)]
+struct PlatformProbeCacheState {
+    snapshot: (HostCapabilitySignals, AppGameLinuxDockerHostPreflight),
+    last_refresh: Option<Instant>,
+    refresh_in_progress: bool,
+}
+
+impl PlatformProbeCache {
+    pub(crate) fn new() -> Self {
+        Self {
+            state: Arc::new(Mutex::new(PlatformProbeCacheState {
+                snapshot: unavailable_platform_host_state(),
+                last_refresh: None,
+                refresh_in_progress: false,
+            })),
+        }
+    }
+
+    fn snapshot_for(
+        &self,
+        provenance: PlatformProbeRequestProvenance,
+    ) -> (HostCapabilitySignals, AppGameLinuxDockerHostPreflight) {
+        let Ok(mut state) = self.state.lock() else {
+            return unavailable_platform_host_state();
+        };
+        let refresh_allowed = provenance == PlatformProbeRequestProvenance::Loopback;
+        let within_rate_limit = state
+            .last_refresh
+            .is_some_and(|last| last.elapsed() < PLATFORM_PROBE_MIN_INTERVAL);
+        if !refresh_allowed || within_rate_limit || state.refresh_in_progress {
+            return state.snapshot.clone();
+        }
+        state.refresh_in_progress = true;
+        drop(state);
+
+        let snapshot = detect_platform_host_state();
+        let Ok(mut state) = self.state.lock() else {
+            return unavailable_platform_host_state();
+        };
+        state.snapshot = snapshot.clone();
+        state.last_refresh = Some(Instant::now());
+        state.refresh_in_progress = false;
+        snapshot
+    }
+}
+
 pub async fn build_activity_app_game_platform_proof_status_report(
     command: AgentCommandEnvelope,
+    probe_cache: PlatformProbeCache,
+    provenance: PlatformProbeRequestProvenance,
 ) -> AgentEventEnvelope {
     let generated_at = GeneratedAtText(timestamp_now());
     let (host_capabilities, linux_docker_host_preflight) =
-        match tokio::task::spawn_blocking(detect_platform_host_state).await {
+        match tokio::task::spawn_blocking(move || probe_cache.snapshot_for(provenance)).await {
             Ok(state) => state,
             Err(_) => unavailable_platform_host_state(),
         };
@@ -241,7 +305,7 @@ fn windows_status_row(generated_at: &GeneratedAtText) -> AppGamePlatformProofSta
         authority_state: TextValue(APP_GAME_PLATFORM_AUTHORITY_SCOPED_EXECUTION_ONLY),
         host_capability_state: TextValue(APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE),
         host_capability_evidence_refs: TextList(vec![
-            proof::REF_ADAPTER_CAPABILITY_STATE.to_string()
+            proof::REF_ADAPTER_CAPABILITY_STATE.to_string(),
         ]),
         host_capability_probe_refs: TextList(vec![proof::REF_WINDOWS_HOST_LOCAL_PROBE.to_string()]),
         linux_docker_host_preflight: None,

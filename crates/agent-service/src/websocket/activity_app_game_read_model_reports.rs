@@ -2,6 +2,10 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
 };
 
+use crate::activity_api::app_game_platform_proof_status_payload::{
+    PlatformProbeCache, PlatformProbeRequestProvenance,
+};
+
 use crate::activity_api::{
     app_game_adapter_dispatch_preflight_payload::build_activity_app_game_adapter_dispatch_preflight_report,
     app_game_adapter_dispatch_result_payload::build_activity_app_game_adapter_dispatch_result_report,
@@ -17,6 +21,8 @@ use super::basic_reports::build_log_snapshot_report;
 
 pub(super) async fn build_activity_app_game_read_model_report(
     command: AgentCommandEnvelope,
+    probe_cache: PlatformProbeCache,
+    provenance: PlatformProbeRequestProvenance,
 ) -> AgentEventEnvelope {
     match command.command.clone() {
         AgentCommandName::AgentActivityAppGameBoundaryReadModelGet => {
@@ -32,7 +38,8 @@ pub(super) async fn build_activity_app_game_read_model_report(
             build_activity_app_game_adapter_execution_readiness_report(command).await
         }
         AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet => {
-            build_activity_app_game_platform_proof_status_report(command).await
+            build_activity_app_game_platform_proof_status_report(command, probe_cache, provenance)
+                .await
         }
         AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet => {
             build_activity_app_game_child_runtime_transport_receipt_report(command).await
