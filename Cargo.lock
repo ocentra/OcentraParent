@@ -2865,6 +2865,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-protected-capability-custody-protocol"
+version = "0.1.1"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "ocentra-provisioning-core"
 version = "0.1.1"
 dependencies = [

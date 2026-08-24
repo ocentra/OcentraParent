@@ -27,6 +27,7 @@ members = [
   "crates/policy-control-core",
   "crates/provisioning-core",
   "crates/protected-capability-custody-core",
+  "crates/protected-capability-custody-protocol",
   "crates/remote-access-core",
   "crates/screen-capture-adapter",
   "crates/screen-ai-core",
