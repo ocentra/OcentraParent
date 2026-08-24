@@ -1,6 +1,9 @@
-use crate::types::{CorrelationId, Nonce, ProtocolError, ProtocolVersion};
+use crate::types::{BindingEpochs, CorrelationId, Nonce, ProtocolError, ProtocolVersion};
 
-use super::{AttestationDigest, BrokerHello, ClientHello, SessionHandle};
+use super::{
+    AttestationDigest, BrokerHello, BrokerHelloParts, ClientHello, SessionHandle,
+    UntrustedBrokerFacts,
+};
 
 mod binding;
 mod debug;
@@ -8,76 +11,60 @@ mod debug;
 impl BrokerHello {
     pub fn try_from_untrusted_facts(
         client: &ClientHello,
-        broker_nonce: Nonce,
-        broker_epoch: u64,
-        broker_key_epoch: u64,
-        writer_lease_epoch: u64,
-        watermark: u64,
-        authority_generation: u64,
-        target_generation: u64,
-        key_generation: u64,
-        writer_generation: u64,
-        session_handle_bytes: &[u8],
-        attestation_digest_bytes: &[u8],
+        facts: &UntrustedBrokerFacts,
     ) -> Result<Self, ProtocolError> {
-        let session_handle = SessionHandle::try_from_bytes(session_handle_bytes)?;
-        let attestation_digest = AttestationDigest::try_from_bytes(attestation_digest_bytes)?;
+        let session_handle = SessionHandle::try_from_bytes(&facts.session_handle_bytes)?;
+        let attestation_digest =
+            AttestationDigest::try_from_bytes(&facts.attestation_digest_bytes)?;
         Self::from_parts(
             client,
-            broker_nonce,
-            broker_epoch,
-            broker_key_epoch,
-            writer_lease_epoch,
-            watermark,
-            authority_generation,
-            target_generation,
-            key_generation,
-            writer_generation,
-            session_handle,
-            attestation_digest,
+            &BrokerHelloParts {
+                broker_nonce: facts.broker_nonce,
+                broker_epoch: facts.broker_epoch,
+                broker_key_epoch: facts.broker_key_epoch,
+                writer_lease_epoch: facts.writer_lease_epoch,
+                watermark: facts.watermark,
+                authority_generation: facts.authority_generation,
+                target_generation: facts.target_generation,
+                key_generation: facts.key_generation,
+                writer_generation: facts.writer_generation,
+                session_handle,
+                attestation_digest,
+            },
         )
     }
 
     pub(crate) fn from_parts(
         client: &ClientHello,
-        broker_nonce: Nonce,
-        broker_epoch: u64,
-        broker_key_epoch: u64,
-        writer_lease_epoch: u64,
-        watermark: u64,
-        authority_generation: u64,
-        target_generation: u64,
-        key_generation: u64,
-        writer_generation: u64,
-        session_handle: SessionHandle,
-        attestation_digest: AttestationDigest,
+        parts: &BrokerHelloParts,
     ) -> Result<Self, ProtocolError> {
-        if broker_epoch == 0
-            || broker_key_epoch == 0
-            || writer_lease_epoch == 0
-            || authority_generation == 0
-            || target_generation == 0
-            || key_generation == 0
-            || writer_generation == 0
-        {
-            return Err(ProtocolError::InvalidEpoch);
+        BindingEpochs {
+            client_process_epoch: client.client_process_epoch(),
+            broker_epoch: parts.broker_epoch,
+            broker_key_epoch: parts.broker_key_epoch,
+            writer_lease_epoch: parts.writer_lease_epoch,
+            authority_generation: parts.authority_generation,
+            target_generation: parts.target_generation,
+            key_generation: parts.key_generation,
+            writer_generation: parts.writer_generation,
         }
+        .validate()?;
         Ok(Self {
             version: client.version(),
             client_nonce: client.nonce(),
-            broker_nonce,
+            broker_nonce: parts.broker_nonce,
             correlation: client.correlation(),
             client_process_epoch: client.client_process_epoch(),
-            broker_epoch,
-            broker_key_epoch,
-            writer_lease_epoch,
-            watermark,
-            authority_generation,
-            target_generation,
-            key_generation,
-            writer_generation,
-            session_handle,
-            attestation_digest,
+            broker_epoch: parts.broker_epoch,
+            broker_key_epoch: parts.broker_key_epoch,
+            writer_lease_epoch: parts.writer_lease_epoch,
+            watermark: parts.watermark,
+            authority_generation: parts.authority_generation,
+            target_generation: parts.target_generation,
+            key_generation: parts.key_generation,
+            writer_generation: parts.writer_generation,
+            session_handle: parts.session_handle,
+            attestation_digest: parts.attestation_digest,
         })
     }
 

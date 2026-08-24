@@ -1,8 +1,9 @@
 use std::fmt;
 
-use thiserror::Error;
-
+use crate::constants;
 use crate::constants::{CORRELATION_BYTES, NONCE_BYTES, PROTOCOL_VERSION};
+
+mod display;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ProtocolVersion(pub(crate) u16);
@@ -31,7 +32,9 @@ pub struct Nonce(pub(crate) [u8; NONCE_BYTES]);
 
 impl Nonce {
     pub fn try_from_bytes(value: &[u8]) -> Result<Self, ProtocolError> {
-        let bytes = value.try_into().map_err(|_| ProtocolError::InvalidNonce)?;
+        let bytes = value
+            .try_into()
+            .map_err(|_error| ProtocolError::InvalidNonce)?;
         if bytes == [0_u8; NONCE_BYTES] {
             return Err(ProtocolError::InvalidNonce);
         }
@@ -45,7 +48,7 @@ impl Nonce {
 
 impl fmt::Debug for Nonce {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str("Nonce(<redacted>)")
+        formatter.write_str(constants::DEBUG_NONCE)
     }
 }
 
@@ -56,7 +59,7 @@ impl CorrelationId {
     pub fn try_from_bytes(value: &[u8]) -> Result<Self, ProtocolError> {
         let bytes = value
             .try_into()
-            .map_err(|_| ProtocolError::InvalidCorrelationId)?;
+            .map_err(|_error| ProtocolError::InvalidCorrelationId)?;
         if bytes == [0_u8; CORRELATION_BYTES] {
             return Err(ProtocolError::InvalidCorrelationId);
         }
@@ -70,52 +73,60 @@ impl CorrelationId {
 
 impl fmt::Debug for CorrelationId {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str("CorrelationId(<redacted>)")
+        formatter.write_str(constants::DEBUG_CORRELATION)
     }
 }
 
-#[derive(Debug, Error)]
+pub(crate) struct BindingEpochs {
+    pub(crate) client_process_epoch: u64,
+    pub(crate) broker_epoch: u64,
+    pub(crate) broker_key_epoch: u64,
+    pub(crate) writer_lease_epoch: u64,
+    pub(crate) authority_generation: u64,
+    pub(crate) target_generation: u64,
+    pub(crate) key_generation: u64,
+    pub(crate) writer_generation: u64,
+}
+
+impl BindingEpochs {
+    pub(crate) fn validate(&self) -> Result<(), ProtocolError> {
+        if self.client_process_epoch == 0
+            || self.broker_epoch == 0
+            || self.broker_key_epoch == 0
+            || self.writer_lease_epoch == 0
+            || self.authority_generation == 0
+            || self.target_generation == 0
+            || self.key_generation == 0
+            || self.writer_generation == 0
+        {
+            return Err(ProtocolError::InvalidEpoch);
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
 pub enum ProtocolError {
-    #[error("frame is empty")]
     EmptyFrame,
-    #[error("frame exceeds the bounded protocol limit")]
     FrameTooLarge,
-    #[error("frame length prefix is invalid")]
     InvalidFrameLength,
-    #[error("frame has trailing bytes")]
     TrailingBytes,
-    #[error("protocol version {0} is unsupported")]
     UnsupportedVersion(u16),
-    #[error("protocol domain separator is invalid")]
     InvalidDomain,
-    #[error("protocol message kind is invalid: {0}")]
     InvalidMessageKind(u8),
-    #[error("nonce is invalid")]
     InvalidNonce,
-    #[error("correlation id is invalid")]
     InvalidCorrelationId,
-    #[error("field is empty")]
     EmptyField,
-    #[error("field exceeds the bounded protocol limit")]
     FieldTooLarge,
-    #[error("request operation is unsupported: {0}")]
     UnsupportedRequest(u8),
-    #[error("action is unsupported: {0}")]
     UnsupportedAction(u8),
-    #[error("target is unsupported: {0}")]
     UnsupportedTarget(u8),
-    #[error("response status is unsupported: {0}")]
     UnsupportedStatus(u8),
-    #[error("opaque token is invalid")]
     InvalidOpaqueToken,
-    #[error("opaque token was supplied for a request that does not accept one")]
     UnexpectedOpaqueToken,
-    #[error("epoch is invalid")]
     InvalidEpoch,
-    #[error("authenticated session handle is invalid")]
     InvalidSessionHandle,
-    #[error("broker attestation digest is invalid")]
     InvalidAttestationDigest,
-    #[error("payload is truncated")]
     Truncated,
+    InvalidStatusForRequest,
 }

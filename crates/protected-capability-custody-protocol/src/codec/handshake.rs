@@ -3,7 +3,9 @@ use crate::constants::{
     ATTESTATION_DIGEST_BYTES, CORRELATION_BYTES, MESSAGE_BROKER_HELLO, MESSAGE_CLIENT_HELLO,
     NONCE_BYTES, SESSION_HANDLE_BYTES,
 };
-use crate::handshake::{AttestationDigest, BrokerHello, ClientHello, SessionHandle};
+use crate::handshake::{
+    AttestationDigest, BrokerHello, BrokerHelloParts, ClientHello, SessionHandle,
+};
 use crate::types::{CorrelationId, Nonce, ProtocolError};
 
 pub(super) fn encode_client(hello: &ClientHello) -> Result<Vec<u8>, ProtocolError> {
@@ -12,7 +14,7 @@ pub(super) fn encode_client(hello: &ClientHello) -> Result<Vec<u8>, ProtocolErro
     payload.extend_from_slice(hello.nonce().as_bytes());
     payload.extend_from_slice(hello.correlation().as_bytes());
     append_u64(&mut payload, hello.client_process_epoch());
-    encode_frame(payload)
+    encode_frame(&payload)
 }
 
 pub(super) fn decode_client(frame: &[u8]) -> Result<ClientHello, ProtocolError> {
@@ -46,7 +48,7 @@ pub(super) fn encode_broker(hello: &BrokerHello) -> Result<Vec<u8>, ProtocolErro
     append_u64(&mut payload, hello.writer_generation());
     payload.extend_from_slice(hello.session_handle().as_bytes());
     payload.extend_from_slice(hello.attestation_digest().as_bytes());
-    encode_frame(payload)
+    encode_frame(&payload)
 }
 
 pub(super) fn decode_broker(frame: &[u8]) -> Result<BrokerHello, ProtocolError> {
@@ -72,17 +74,19 @@ pub(super) fn decode_broker(frame: &[u8]) -> Result<BrokerHello, ProtocolError> 
     let client = ClientHello::try_new(client_nonce, correlation, client_process_epoch)?;
     BrokerHello::from_parts(
         &client,
-        broker_nonce,
-        broker_epoch,
-        broker_key_epoch,
-        writer_lease_epoch,
-        watermark,
-        authority_generation,
-        target_generation,
-        key_generation,
-        writer_generation,
-        session_handle,
-        attestation_digest,
+        &BrokerHelloParts {
+            broker_nonce,
+            broker_epoch,
+            broker_key_epoch,
+            writer_lease_epoch,
+            watermark,
+            authority_generation,
+            target_generation,
+            key_generation,
+            writer_generation,
+            session_handle,
+            attestation_digest,
+        },
     )
     .map(|mut hello| {
         hello.version = version;

@@ -2868,7 +2868,7 @@ dependencies = [
 name = "ocentra-protected-capability-custody-protocol"
 version = "0.1.1"
 dependencies = [
- "thiserror 2.0.18",
+ "sha2",
 ]
 
 [[package]]

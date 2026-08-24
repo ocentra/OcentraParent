@@ -3,10 +3,11 @@ use crate::codec::frame::{
 };
 use crate::constants::{
     ATTESTATION_DIGEST_BYTES, CORRELATION_BYTES, MESSAGE_RESPONSE, NONCE_BYTES,
-    SESSION_HANDLE_BYTES,
+    REQUEST_DIGEST_BYTES, SESSION_HANDLE_BYTES,
 };
 use crate::handshake::{AttestationDigest, SessionHandle};
-use crate::response::{Response, ResponseStatus};
+use crate::request::RequestKind;
+use crate::response::{Response, ResponseStatus, UntrustedResponseFacts};
 use crate::types::{CorrelationId, Nonce, ProtocolError};
 
 pub(super) fn encode(response: &Response) -> Result<Vec<u8>, ProtocolError> {
@@ -17,6 +18,8 @@ pub(super) fn encode(response: &Response) -> Result<Vec<u8>, ProtocolError> {
     append_u64(&mut payload, response.client_process_epoch());
     payload.extend_from_slice(response.session_handle().as_bytes());
     payload.extend_from_slice(response.attestation_digest().as_bytes());
+    payload.push(response.request_kind() as u8);
+    payload.extend_from_slice(response.request_digest());
     payload.push(response.status() as u8);
     append_u64(&mut payload, response.broker_epoch());
     append_u64(&mut payload, response.broker_key_epoch());
@@ -27,7 +30,7 @@ pub(super) fn encode(response: &Response) -> Result<Vec<u8>, ProtocolError> {
     append_u64(&mut payload, response.key_generation());
     append_u64(&mut payload, response.writer_generation());
     append_field(&mut payload, response.opaque_token())?;
-    encode_frame(payload)
+    encode_frame(&payload)
 }
 
 pub(super) fn decode(frame: &[u8]) -> Result<Response, ProtocolError> {
@@ -40,6 +43,11 @@ pub(super) fn decode(frame: &[u8]) -> Result<Response, ProtocolError> {
     let session_handle = SessionHandle::try_from_bytes(cursor.take_exact(SESSION_HANDLE_BYTES)?)?;
     let attestation_digest =
         AttestationDigest::try_from_bytes(cursor.take_exact(ATTESTATION_DIGEST_BYTES)?)?;
+    let request_kind = RequestKind::decode(cursor.take_u8()?)?;
+    let request_digest = cursor
+        .take_exact(REQUEST_DIGEST_BYTES)?
+        .try_into()
+        .map_err(|_error| ProtocolError::Truncated)?;
     let status = ResponseStatus::decode(cursor.take_u8()?)?;
     let broker_epoch = cursor.take_u64()?;
     let broker_key_epoch = cursor.take_u64()?;
@@ -51,12 +59,14 @@ pub(super) fn decode(frame: &[u8]) -> Result<Response, ProtocolError> {
     let writer_generation = cursor.take_u64()?;
     let opaque_token = cursor.take_field()?;
     cursor.finish()?;
-    Response::from_parts(
+    Response::from_parts(UntrustedResponseFacts {
         nonce,
         correlation,
         client_process_epoch,
         session_handle,
         attestation_digest,
+        request_kind,
+        request_digest,
         status,
         broker_epoch,
         broker_key_epoch,
@@ -67,7 +77,7 @@ pub(super) fn decode(frame: &[u8]) -> Result<Response, ProtocolError> {
         key_generation,
         writer_generation,
         opaque_token,
-    )
+    })
     .map(|mut response| {
         response.version = version;
         response

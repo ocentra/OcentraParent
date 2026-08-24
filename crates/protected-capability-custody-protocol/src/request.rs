@@ -1,7 +1,7 @@
 use crate::constants::OPAQUE_TOKEN_BYTES;
 use crate::handshake::{AttestationDigest, SessionHandle};
 use crate::target::{Action, TargetDescriptor};
-use crate::types::{CorrelationId, Nonce, ProtocolError, ProtocolVersion};
+use crate::types::{BindingEpochs, CorrelationId, Nonce, ProtocolError, ProtocolVersion};
 
 mod accessors;
 mod binding;
@@ -35,6 +35,27 @@ impl RequestKind {
     }
 }
 
+pub struct UntrustedRequestWireValues {
+    pub nonce: Nonce,
+    pub correlation: CorrelationId,
+    pub client_process_epoch: u64,
+    pub broker_epoch: u64,
+    pub broker_key_epoch: u64,
+    pub writer_lease_epoch: u64,
+    pub watermark: u64,
+    pub expected_authority_generation: u64,
+    pub expected_target_generation: u64,
+    pub expected_key_generation: u64,
+    pub expected_writer_generation: u64,
+    pub session_handle: SessionHandle,
+    pub attestation_digest: AttestationDigest,
+    pub kind: RequestKind,
+    pub operation: Vec<u8>,
+    pub action: Action,
+    pub target: TargetDescriptor,
+    pub opaque_token: Vec<u8>,
+}
+
 #[derive(Eq, PartialEq)]
 pub struct Request {
     pub(crate) version: ProtocolVersion,
@@ -60,86 +81,46 @@ pub struct Request {
 
 impl Request {
     pub fn try_from_untrusted_wire_values(
-        nonce: Nonce,
-        correlation: CorrelationId,
-        client_process_epoch: u64,
-        broker_epoch: u64,
-        broker_key_epoch: u64,
-        writer_lease_epoch: u64,
-        watermark: u64,
-        expected_authority_generation: u64,
-        expected_target_generation: u64,
-        expected_key_generation: u64,
-        expected_writer_generation: u64,
-        session_handle: SessionHandle,
-        attestation_digest: AttestationDigest,
-        kind: RequestKind,
-        operation: Vec<u8>,
-        action: Action,
-        target: TargetDescriptor,
-        opaque_token: Vec<u8>,
+        values: UntrustedRequestWireValues,
     ) -> Result<Self, ProtocolError> {
-        validate_epochs(
-            client_process_epoch,
-            broker_epoch,
-            broker_key_epoch,
-            writer_lease_epoch,
-            expected_authority_generation,
-            expected_target_generation,
-            expected_key_generation,
-            expected_writer_generation,
-        )?;
-        crate::target::validation::validate_field(&operation)?;
-        if kind.requires_token() && opaque_token.len() != OPAQUE_TOKEN_BYTES {
+        BindingEpochs {
+            client_process_epoch: values.client_process_epoch,
+            broker_epoch: values.broker_epoch,
+            broker_key_epoch: values.broker_key_epoch,
+            writer_lease_epoch: values.writer_lease_epoch,
+            authority_generation: values.expected_authority_generation,
+            target_generation: values.expected_target_generation,
+            key_generation: values.expected_key_generation,
+            writer_generation: values.expected_writer_generation,
+        }
+        .validate()?;
+        crate::target::validation::validate_field(&values.operation)?;
+        if values.kind.requires_token() && values.opaque_token.len() != OPAQUE_TOKEN_BYTES {
             return Err(ProtocolError::InvalidOpaqueToken);
         }
-        if !kind.requires_token() && !opaque_token.is_empty() {
+        if !values.kind.requires_token() && !values.opaque_token.is_empty() {
             return Err(ProtocolError::UnexpectedOpaqueToken);
         }
         Ok(Self {
             version: ProtocolVersion::CURRENT,
-            nonce,
-            correlation,
-            client_process_epoch,
-            broker_epoch,
-            broker_key_epoch,
-            writer_lease_epoch,
-            watermark,
-            expected_authority_generation,
-            expected_target_generation,
-            expected_key_generation,
-            expected_writer_generation,
-            session_handle,
-            attestation_digest,
-            kind,
-            operation,
-            action,
-            target,
-            opaque_token,
+            nonce: values.nonce,
+            correlation: values.correlation,
+            client_process_epoch: values.client_process_epoch,
+            broker_epoch: values.broker_epoch,
+            broker_key_epoch: values.broker_key_epoch,
+            writer_lease_epoch: values.writer_lease_epoch,
+            watermark: values.watermark,
+            expected_authority_generation: values.expected_authority_generation,
+            expected_target_generation: values.expected_target_generation,
+            expected_key_generation: values.expected_key_generation,
+            expected_writer_generation: values.expected_writer_generation,
+            session_handle: values.session_handle,
+            attestation_digest: values.attestation_digest,
+            kind: values.kind,
+            operation: values.operation,
+            action: values.action,
+            target: values.target,
+            opaque_token: values.opaque_token,
         })
     }
-}
-
-fn validate_epochs(
-    client_process_epoch: u64,
-    broker_epoch: u64,
-    broker_key_epoch: u64,
-    writer_lease_epoch: u64,
-    expected_authority_generation: u64,
-    expected_target_generation: u64,
-    expected_key_generation: u64,
-    expected_writer_generation: u64,
-) -> Result<(), ProtocolError> {
-    if client_process_epoch == 0
-        || broker_epoch == 0
-        || broker_key_epoch == 0
-        || writer_lease_epoch == 0
-        || expected_authority_generation == 0
-        || expected_target_generation == 0
-        || expected_key_generation == 0
-        || expected_writer_generation == 0
-    {
-        return Err(ProtocolError::InvalidEpoch);
-    }
-    Ok(())
 }

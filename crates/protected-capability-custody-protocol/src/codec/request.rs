@@ -5,7 +5,7 @@ use crate::constants::{
     ATTESTATION_DIGEST_BYTES, CORRELATION_BYTES, MESSAGE_REQUEST, NONCE_BYTES, SESSION_HANDLE_BYTES,
 };
 use crate::handshake::{AttestationDigest, SessionHandle};
-use crate::request::{Request, RequestKind};
+use crate::request::{Request, RequestKind, UntrustedRequestWireValues};
 use crate::target::{Action, TargetDescriptor, TargetKind};
 use crate::types::{CorrelationId, Nonce, ProtocolError};
 
@@ -30,7 +30,7 @@ pub(super) fn encode(request: &Request) -> Result<Vec<u8>, ProtocolError> {
     payload.push(request.action() as u8);
     encode_target(&mut payload, request.target())?;
     append_field(&mut payload, request.opaque_token())?;
-    encode_frame(payload)
+    encode_frame(&payload)
 }
 
 pub(super) fn decode(frame: &[u8]) -> Result<Request, ProtocolError> {
@@ -57,7 +57,7 @@ pub(super) fn decode(frame: &[u8]) -> Result<Request, ProtocolError> {
     let target = decode_target(&mut cursor)?;
     let opaque_token = cursor.take_field()?;
     cursor.finish()?;
-    Request::try_from_untrusted_wire_values(
+    Request::try_from_untrusted_wire_values(UntrustedRequestWireValues {
         nonce,
         correlation,
         client_process_epoch,
@@ -76,7 +76,7 @@ pub(super) fn decode(frame: &[u8]) -> Result<Request, ProtocolError> {
         action,
         target,
         opaque_token,
-    )
+    })
     .map(|mut request| {
         request.version = version;
         request

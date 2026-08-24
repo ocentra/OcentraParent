@@ -2,6 +2,7 @@ use crate::types::ProtocolError;
 
 use super::ResponseStatus;
 
+mod compatibility;
 pub(super) mod validation;
 
 impl ResponseStatus {
@@ -15,6 +16,7 @@ impl ResponseStatus {
             6 => Ok(Self::Rejected),
             7 => Ok(Self::Unavailable),
             8 => Ok(Self::UnsupportedPlatform),
+            9 => Ok(Self::PrepareAmbiguous),
             other => Err(ProtocolError::UnsupportedStatus(other)),
         }
     }

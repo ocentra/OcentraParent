@@ -1,5 +1,6 @@
 use std::fmt;
 
+use crate::constants;
 use crate::types::ProtocolError;
 
 use super::ClientHello;
@@ -41,11 +42,14 @@ impl ClientHello {
 impl fmt::Debug for ClientHello {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter
-            .debug_struct("ClientHello")
-            .field("version", &self.version)
-            .field("nonce", &self.nonce)
-            .field("correlation", &self.correlation)
-            .field("client_process_epoch", &self.client_process_epoch)
+            .debug_struct(constants::DEBUG_CLIENT_HELLO)
+            .field(constants::DEBUG_FIELD_VERSION, &self.version)
+            .field(constants::DEBUG_FIELD_NONCE, &self.nonce)
+            .field(constants::DEBUG_FIELD_CORRELATION, &self.correlation)
+            .field(
+                constants::DEBUG_FIELD_CLIENT_PROCESS_EPOCH,
+                &self.client_process_epoch,
+            )
             .finish()
     }
 }

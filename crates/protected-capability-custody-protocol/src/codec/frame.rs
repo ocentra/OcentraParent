@@ -2,22 +2,22 @@ use crate::constants::{FRAME_PREFIX_BYTES, MAX_FIELD_BYTES, MAX_FRAME_BYTES, PRO
 use crate::types::{ProtocolError, ProtocolVersion};
 
 pub(super) fn append_header(payload: &mut Vec<u8>, message_kind: u8, version: ProtocolVersion) {
-    payload.extend_from_slice(PROTOCOL_DOMAIN);
+    payload.extend_from_slice(PROTOCOL_DOMAIN.as_bytes());
     payload.push(message_kind);
     payload.extend_from_slice(&version.value().to_be_bytes());
 }
 
-pub(super) fn encode_frame(payload: Vec<u8>) -> Result<Vec<u8>, ProtocolError> {
+pub(super) fn encode_frame(payload: &[u8]) -> Result<Vec<u8>, ProtocolError> {
     let frame_length = FRAME_PREFIX_BYTES
         .checked_add(payload.len())
         .ok_or(ProtocolError::FrameTooLarge)?;
     if frame_length > MAX_FRAME_BYTES {
         return Err(ProtocolError::FrameTooLarge);
     }
-    let length = u32::try_from(payload.len()).map_err(|_| ProtocolError::FrameTooLarge)?;
+    let length = u32::try_from(payload.len()).map_err(|_error| ProtocolError::FrameTooLarge)?;
     let mut frame = Vec::with_capacity(frame_length);
     frame.extend_from_slice(&length.to_be_bytes());
-    frame.extend_from_slice(&payload);
+    frame.extend_from_slice(payload);
     Ok(frame)
 }
 
@@ -34,7 +34,7 @@ pub(super) fn decode_frame(frame: &[u8]) -> Result<&[u8], ProtocolError> {
     let declared = u32::from_be_bytes(
         frame[..FRAME_PREFIX_BYTES]
             .try_into()
-            .map_err(|_| ProtocolError::InvalidFrameLength)?,
+            .map_err(|_error| ProtocolError::InvalidFrameLength)?,
     ) as usize;
     let expected_frame_length = declared
         .checked_add(FRAME_PREFIX_BYTES)
@@ -53,7 +53,7 @@ pub(super) fn append_field(payload: &mut Vec<u8>, value: &[u8]) -> Result<(), Pr
     if !value.is_empty() && value.len() > MAX_FIELD_BYTES {
         return Err(ProtocolError::FieldTooLarge);
     }
-    let length = u32::try_from(value.len()).map_err(|_| ProtocolError::FieldTooLarge)?;
+    let length = u32::try_from(value.len()).map_err(|_error| ProtocolError::FieldTooLarge)?;
     payload.extend_from_slice(&length.to_be_bytes());
     payload.extend_from_slice(value);
     Ok(())
@@ -86,7 +86,7 @@ impl<'a> Cursor<'a> {
         &mut self,
         expected_message_kind: u8,
     ) -> Result<ProtocolVersion, ProtocolError> {
-        if self.take_exact(PROTOCOL_DOMAIN.len())? != PROTOCOL_DOMAIN {
+        if self.take_exact(PROTOCOL_DOMAIN.len())? != PROTOCOL_DOMAIN.as_bytes() {
             return Err(ProtocolError::InvalidDomain);
         }
         let message_kind = self.take_u8()?;
@@ -107,7 +107,7 @@ impl<'a> Cursor<'a> {
         Ok(u16::from_be_bytes(
             self.take_exact(2)?
                 .try_into()
-                .map_err(|_| ProtocolError::Truncated)?,
+                .map_err(|_error| ProtocolError::Truncated)?,
         ))
     }
 
@@ -115,7 +115,7 @@ impl<'a> Cursor<'a> {
         Ok(u64::from_be_bytes(
             self.take_exact(8)?
                 .try_into()
-                .map_err(|_| ProtocolError::Truncated)?,
+                .map_err(|_error| ProtocolError::Truncated)?,
         ))
     }
 
@@ -123,7 +123,7 @@ impl<'a> Cursor<'a> {
         let length = u32::from_be_bytes(
             self.take_exact(4)?
                 .try_into()
-                .map_err(|_| ProtocolError::Truncated)?,
+                .map_err(|_error| ProtocolError::Truncated)?,
         ) as usize;
         if length > MAX_FIELD_BYTES {
             return Err(ProtocolError::FieldTooLarge);
