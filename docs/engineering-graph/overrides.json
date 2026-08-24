@@ -2400,6 +2400,179 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md"
       ],
       "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "id": "WP-app-plan-18-policy-target-compiler-for-app-rules",
+      "hardDependencies": [
+        "WP-app-game-plan-19-policy-target-compiler-for-app-game-rules",
+        "WP-policy-control-plane-plan-03-domain-policy-compilers"
+      ],
+      "reason": "App-only dry-run compiler consumes shared compiler and policy semantics; stale/wrong-device/manual-required states remain fail-closed.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-49-category-risk-policy-routing",
+      "hardDependencies": [
+        "WP-app-game-plan-49-category-risk-policy-routing",
+        "WP-policy-control-plane-plan-03-domain-policy-compilers"
+      ],
+      "reason": "Advisory category/risk candidates route only with evidence and freshness; no classifier/provider or adapter execution is claimed.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-16-new-app-and-unknown-app-approval-flow",
+      "hardDependencies": ["WP-app-game-plan-05-inventory-evidence-model"],
+      "reason": "Current source derives inventory-backed candidates; durable approval authority, expiry/replay owner, callers, and lifecycle tests remain open and fail closed.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/16-new-app-and-unknown-app-approval-flow.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-17-risk-app-detection",
+      "hardDependencies": [
+        "WP-app-game-plan-05-inventory-evidence-model",
+        "WP-app-game-plan-12-app-game-category-and-risk-taxonomy"
+      ],
+      "reason": "Advisory risk candidates consume explicit upstream evidence; enrichment, detector matrix, AI quality, and enforcement remain absent.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/17-risk-app-detection.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "hardDependencies": [
+        "WP-app-game-plan-13-sessionization-and-duration-engine",
+        "WP-app-game-plan-19-policy-target-compiler-for-app-game-rules",
+        "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model"
+      ],
+      "reason": "Drafted dry-run budget evaluation consumes authoritative sessions, schedule, and compiler refs; restart, scheduler, and adapter execution remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-20-child-facing-app-warning-block-request-ux",
+      "hardDependencies": [
+        "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+        "WP-app-game-plan-117-timer-parent-surface-child-ux-handoff-readiness"
+      ],
+      "reason": "Rust bridge consumes time-budget decisions; live child delivery, rendering, persistence, and notification remain unclaimed.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/20-child-facing-app-warning-block-request-ux.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-26-performance-and-service-health",
+      "hardDependencies": ["WP-app-game-plan-27-performance-and-service-health"],
+      "reason": "Existing activity tests are not the specified performance harness; named performance source/test roots are absent.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/26-performance-and-service-health.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces",
+      "hardDependencies": ["WP-app-game-plan-15-read-models-and-service-events"],
+      "reason": "Real portal consumer roots exist; shared read models feed the projection, while dedicated inventory/running/risk/evidence UI tests remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/15-parent-portal-app-inventory-running-session-surfaces.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-48-portal-source-freshness-surface",
+      "hardDependencies": [
+        "WP-app-plan-47-backend-source-freshness-read-model",
+        "WP-app-game-plan-48-portal-source-freshness-surface"
+      ],
+      "reason": "Portal projection consumes sourceStatusRows; no source authority, policy runtime, or dedicated freshness UI test claim.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-63-source-freshness-source-panel-polish",
+      "hardDependencies": [
+        "WP-app-plan-48-portal-source-freshness-surface",
+        "WP-app-game-plan-63-source-freshness-source-panel-polish"
+      ],
+      "reason": "Real portal intent roots exist; this remains shared source-panel presentation, not rendered UI or runtime readiness.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-64-notification-provider-status-handoff",
+      "hardDependencies": [
+        "WP-app-plan-61-notification-provider-preflight",
+        "WP-app-game-plan-64-notification-provider-status-handoff"
+      ],
+      "reason": "Existing boundary/preflight roots are consumer evidence; provider producers, receipts, credentials, delivery, and dedicated producer tests remain absent.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-65-notification-preference-status-handoff",
+      "hardDependencies": [
+        "WP-app-plan-62-notification-preference-preflight",
+        "WP-app-game-plan-65-notification-preference-status-handoff"
+      ],
+      "reason": "Existing preference boundary/preflight roots are consumer evidence; durable settings/outcome producers and dedicated tests remain absent.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "hardDependencies": [
+        "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model"
+      ],
+      "reason": "Current mapped followthrough belongs to shared App Game; App parent-domain handoff source/test is absent and the packet remains redundant/route-only.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
     }
   ],
   "edges": [
@@ -8612,6 +8785,300 @@
         "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md"
       ],
       "reason": "Portal WP11 owns the assistant-action preview surface; preview remains non-authoritative until parent confirmation and trusted handoff."
+    },
+    {
+      "from": "WP-app-plan-18-policy-target-compiler-for-app-rules",
+      "to": "WP-app-game-plan-19-policy-target-compiler-for-app-game-rules",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md",
+        "docs/plans/app-game-plan/workpacks/19-policy-target-compiler-for-app-game-rules.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "App-only dry-run compiler consumes shared compiler and policy semantics; stale/wrong-device/manual-required states remain fail-closed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-18-policy-target-compiler-for-app-rules",
+      "to": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "App-only dry-run compiler consumes shared compiler and policy semantics; stale/wrong-device/manual-required states remain fail-closed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-49-category-risk-policy-routing",
+      "to": "WP-app-game-plan-49-category-risk-policy-routing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
+        "docs/plans/app-game-plan/workpacks/49-category-risk-policy-routing.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Advisory category/risk candidates route only with evidence and freshness; no classifier/provider or adapter execution is claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-49-category-risk-policy-routing",
+      "to": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Advisory category/risk candidates route only with evidence and freshness; no classifier/provider or adapter execution is claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-16-new-app-and-unknown-app-approval-flow",
+      "to": "WP-app-game-plan-05-inventory-evidence-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/16-new-app-and-unknown-app-approval-flow.md",
+        "docs/plans/app-game-plan/workpacks/05-inventory-evidence-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Current source derives inventory-backed candidates; durable approval authority, expiry/replay owner, callers, and lifecycle tests remain open and fail closed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-17-risk-app-detection",
+      "to": "WP-app-game-plan-05-inventory-evidence-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/17-risk-app-detection.md",
+        "docs/plans/app-game-plan/workpacks/05-inventory-evidence-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Advisory risk candidates consume explicit upstream evidence; enrichment, detector matrix, AI quality, and enforcement remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-17-risk-app-detection",
+      "to": "WP-app-game-plan-12-app-game-category-and-risk-taxonomy",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/17-risk-app-detection.md",
+        "docs/plans/app-game-plan/workpacks/12-app-game-category-and-risk-taxonomy.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Advisory risk candidates consume explicit upstream evidence; enrichment, detector matrix, AI quality, and enforcement remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "to": "WP-app-game-plan-13-sessionization-and-duration-engine",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/plans/app-game-plan/workpacks/13-sessionization-and-duration-engine.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Drafted dry-run budget evaluation consumes authoritative sessions, schedule, and compiler refs; restart, scheduler, and adapter execution remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "to": "WP-app-game-plan-19-policy-target-compiler-for-app-game-rules",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/plans/app-game-plan/workpacks/19-policy-target-compiler-for-app-game-rules.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Drafted dry-run budget evaluation consumes authoritative sessions, schedule, and compiler refs; restart, scheduler, and adapter execution remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "to": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Drafted dry-run budget evaluation consumes authoritative sessions, schedule, and compiler refs; restart, scheduler, and adapter execution remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-20-child-facing-app-warning-block-request-ux",
+      "to": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/20-child-facing-app-warning-block-request-ux.md",
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Rust bridge consumes time-budget decisions; live child delivery, rendering, persistence, and notification remain unclaimed."
+    },
+    {
+      "from": "WP-app-plan-20-child-facing-app-warning-block-request-ux",
+      "to": "WP-app-game-plan-117-timer-parent-surface-child-ux-handoff-readiness",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/20-child-facing-app-warning-block-request-ux.md",
+        "docs/plans/app-game-plan/workpacks/117-timer-parent-surface-child-ux-handoff-readiness.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Rust bridge consumes time-budget decisions; live child delivery, rendering, persistence, and notification remain unclaimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-26-performance-and-service-health",
+      "to": "WP-app-game-plan-27-performance-and-service-health",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/26-performance-and-service-health.md",
+        "docs/plans/app-game-plan/workpacks/27-performance-and-service-health.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Existing activity tests are not the specified performance harness; named performance source/test roots are absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces",
+      "to": "WP-app-game-plan-15-read-models-and-service-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/15-parent-portal-app-inventory-running-session-surfaces.md",
+        "docs/plans/app-game-plan/workpacks/15-read-models-and-service-events.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real portal consumer roots exist; shared read models feed the projection, while dedicated inventory/running/risk/evidence UI tests remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-48-portal-source-freshness-surface",
+      "to": "WP-app-plan-47-backend-source-freshness-read-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/plans/app-plan/workpacks/47-backend-source-freshness-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Portal projection consumes sourceStatusRows; no source authority, policy runtime, or dedicated freshness UI test claim."
+    },
+    {
+      "from": "WP-app-plan-48-portal-source-freshness-surface",
+      "to": "WP-app-game-plan-48-portal-source-freshness-surface",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/plans/app-game-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Portal projection consumes sourceStatusRows; no source authority, policy runtime, or dedicated freshness UI test claim.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-63-source-freshness-source-panel-polish",
+      "to": "WP-app-plan-48-portal-source-freshness-surface",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real portal intent roots exist; this remains shared source-panel presentation, not rendered UI or runtime readiness."
+    },
+    {
+      "from": "WP-app-plan-63-source-freshness-source-panel-polish",
+      "to": "WP-app-game-plan-63-source-freshness-source-panel-polish",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/plans/app-game-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real portal intent roots exist; this remains shared source-panel presentation, not rendered UI or runtime readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-64-notification-provider-status-handoff",
+      "to": "WP-app-plan-61-notification-provider-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-plan/workpacks/61-notification-provider-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Existing boundary/preflight roots are consumer evidence; provider producers, receipts, credentials, delivery, and dedicated producer tests remain absent."
+    },
+    {
+      "from": "WP-app-plan-64-notification-provider-status-handoff",
+      "to": "WP-app-game-plan-64-notification-provider-status-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Existing boundary/preflight roots are consumer evidence; provider producers, receipts, credentials, delivery, and dedicated producer tests remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-65-notification-preference-status-handoff",
+      "to": "WP-app-plan-62-notification-preference-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Existing preference boundary/preflight roots are consumer evidence; durable settings/outcome producers and dedicated tests remain absent."
+    },
+    {
+      "from": "WP-app-plan-65-notification-preference-status-handoff",
+      "to": "WP-app-game-plan-65-notification-preference-status-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Existing preference boundary/preflight roots are consumer evidence; durable settings/outcome producers and dedicated tests remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "to": "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md",
+        "docs/plans/app-game-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Current mapped followthrough belongs to shared App Game; App parent-domain handoff source/test is absent and the packet remains redundant/route-only.",
+      "implementationGate": "reviewed-implementation"
     }
   ],
   "stateOverrides": [
