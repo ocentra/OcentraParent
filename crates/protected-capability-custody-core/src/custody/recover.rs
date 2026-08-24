@@ -1,39 +1,41 @@
 use super::finalize;
 use super::reconcile;
-use super::support::{lock_operation, prepared};
+use super::scope::OperationScope;
+use super::support::prepared;
 use super::{CommittedCapability, CustodyError, CustodyStore, RecoveryOutcome};
-use crate::authority::CurrentBindingPort;
 use crate::binding::BindingLocator;
-use crate::platform::PlatformCustodyPort;
 use crate::platform::SealedState;
 use crate::storage::Record;
 
-pub(super) fn run<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
+pub(super) fn run(
+    store: &CustodyStore,
     locator: &BindingLocator,
 ) -> Result<RecoveryOutcome, CustodyError> {
-    let _operation = lock_operation(store)?;
-    let record = reconcile::current(store, locator)?;
-    outcome(record)
+    let scope = OperationScope::acquire(store, locator)?;
+    let record = reconcile::current(store, &scope)?;
+    outcome(record, scope.binding())
 }
 
-pub(super) fn resolve<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
+pub(super) fn resolve(
+    store: &CustodyStore,
     locator: &BindingLocator,
 ) -> Result<RecoveryOutcome, CustodyError> {
-    let _operation = lock_operation(store)?;
-    let record = reconcile::current(store, locator)?;
-    match finalize::resolve_record(store, record) {
-        Ok(record) => outcome(record),
+    let scope = OperationScope::acquire(store, locator)?;
+    let record = reconcile::current(store, &scope)?;
+    match finalize::resolve_record(store, &scope, record) {
+        Ok(record) => outcome(record, scope.binding()),
         Err(CustodyError::CommitAmbiguous) => Ok(RecoveryOutcome::CommitAmbiguous),
         Err(CustodyError::AbortAmbiguous) => Ok(RecoveryOutcome::AbortAmbiguous),
         Err(error) => Err(error),
     }
 }
 
-fn outcome(record: Record) -> Result<RecoveryOutcome, CustodyError> {
+fn outcome(
+    record: Record,
+    binding: &crate::binding::Binding,
+) -> Result<RecoveryOutcome, CustodyError> {
     match record.state {
-        SealedState::Prepared => Ok(RecoveryOutcome::Prepared(prepared(&record))),
+        SealedState::Prepared => Ok(RecoveryOutcome::Prepared(prepared(&record, binding))),
         SealedState::CommitAmbiguous => Ok(RecoveryOutcome::CommitAmbiguous),
         SealedState::AbortAmbiguous => Ok(RecoveryOutcome::AbortAmbiguous),
         SealedState::Committed => Ok(RecoveryOutcome::Committed(CommittedCapability {

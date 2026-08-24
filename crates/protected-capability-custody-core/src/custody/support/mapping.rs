@@ -1,24 +1,40 @@
-use super::super::CustodyError;
-use crate::platform::PlatformError;
-use crate::storage::StorageError;
+mod local;
+mod phase;
+mod platform;
+mod storage;
+mod transition;
+
+use super::super::{CustodyError, Decision, TransitionPhase};
+use crate::authority::AuthorityError;
+use crate::platform::{PlatformError, TransitionFailure};
 
 pub(super) fn map_platform_error(error: PlatformError) -> CustodyError {
-    match error {
-        PlatformError::Unavailable
-        | PlatformError::Rejected
-        | PlatformError::InvalidAttestation => CustodyError::Unavailable,
-        PlatformError::Tampered | PlatformError::AntiRollback => CustodyError::Tampered,
-        PlatformError::WrongBinding => CustodyError::WrongBinding,
-        PlatformError::Rotated => CustodyError::Rotated,
-        PlatformError::Conflict => CustodyError::Conflict,
-    }
+    platform::platform_error(error)
 }
 
-pub(super) fn map_storage_error(error: StorageError) -> CustodyError {
-    match error {
-        StorageError::Unavailable => CustodyError::Unavailable,
-        StorageError::Sql(_) => CustodyError::Database,
-        StorageError::Tampered => CustodyError::Tampered,
-        StorageError::IllegalTransition => CustodyError::Conflict,
-    }
+pub(super) fn map_authority_error(error: AuthorityError) -> CustodyError {
+    platform::authority_error(error)
+}
+
+pub(super) fn map_transition_failure(
+    error: TransitionFailure,
+    phase: TransitionPhase,
+) -> CustodyError {
+    transition::failure(error, phase)
+}
+
+pub(super) fn local_replica_failure(error: CustodyError, phase: TransitionPhase) -> CustodyError {
+    local::replica_failure(error, phase)
+}
+
+pub(super) fn intent_phase(decision: Decision) -> TransitionPhase {
+    phase::intent(decision)
+}
+
+pub(super) fn terminal_phase(decision: Decision) -> TransitionPhase {
+    phase::terminal(decision)
+}
+
+pub(super) fn map_storage_error(error: crate::storage::StorageError) -> CustodyError {
+    storage::error(error)
 }

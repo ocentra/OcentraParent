@@ -1,63 +1,41 @@
 mod attestation;
 mod mapping;
+pub(super) mod sqlite;
 mod states;
 mod validation;
 
-use std::sync::MutexGuard;
-
-use rusqlite::Connection;
-
-use super::{CustodyError, CustodyStore, Decision, FinalizeOutcome, PreparedCapability};
-use crate::authority::CurrentBindingPort;
-use crate::binding::{Binding, BindingLocator, BINDING_VERSION};
+use super::{CustodyError, Decision, FinalizeOutcome, PreparedCapability, TransitionPhase};
+use crate::authority::AuthorityError;
+use crate::binding::{Binding, BINDING_VERSION};
 use crate::path_security::SecuredPath;
 use crate::platform::{
     record::BrokerRecord,
     request::{BrokerLookup, TransitionRequest},
-    PlatformAttestation, PlatformCustodyPort, SealedState,
+    PlatformAttestation, PlatformDatabaseGuard, SealedState, TransitionFailure,
 };
 use crate::storage::Record;
 
-pub(super) fn attest_path<P: PlatformCustodyPort>(
-    platform: &P,
+pub(super) fn attest_path(
+    platform: &dyn PlatformDatabaseGuard,
     path: &SecuredPath,
 ) -> Result<PlatformAttestation, CustodyError> {
     attestation::attest_path(platform, path)
-}
-
-pub(super) fn lock_connection<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
-) -> Result<MutexGuard<'_, Connection>, CustodyError> {
-    store.connection.lock().map_err(|_| CustodyError::Conflict)
-}
-
-pub(super) fn lock_operation<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
-) -> Result<MutexGuard<'_, ()>, CustodyError> {
-    store.operation.lock().map_err(|_| CustodyError::Conflict)
-}
-
-pub(super) fn resolve_current<A: CurrentBindingPort>(
-    authority: &A,
-    locator: &BindingLocator,
-) -> Result<Binding, CustodyError> {
-    validation::resolve_current(authority, locator)
 }
 
 pub(super) fn validate_current(record: &Record, binding: &Binding) -> Result<(), CustodyError> {
     validation::validate_current(record, binding)
 }
 
-pub(super) fn verify_broker<P: PlatformCustodyPort>(
-    platform: &P,
+pub(super) fn verify_broker(
+    platform: &dyn PlatformDatabaseGuard,
     broker: &BrokerRecord,
     path: &SecuredPath,
 ) -> Result<Record, CustodyError> {
     validation::verify_broker(platform, broker, path)
 }
 
-pub(super) fn validate_transition<P: PlatformCustodyPort>(
-    platform: &P,
+pub(super) fn validate_transition(
+    platform: &dyn PlatformDatabaseGuard,
     broker: &BrokerRecord,
     request: TransitionRequest<'_>,
     path: &SecuredPath,
@@ -109,8 +87,8 @@ pub(super) fn transition<'a>(
     }
 }
 
-pub(super) fn prepared(record: &Record) -> PreparedCapability {
-    states::prepared(record)
+pub(super) fn prepared(record: &Record, binding: &Binding) -> PreparedCapability {
+    states::prepared(record, binding)
 }
 
 pub(super) fn finalize_outcome(record: &Record) -> Result<FinalizeOutcome, CustodyError> {
@@ -133,6 +111,25 @@ pub(super) fn map_platform_error(error: crate::platform::PlatformError) -> Custo
     mapping::map_platform_error(error)
 }
 
-pub(super) fn map_storage_error(error: crate::storage::StorageError) -> CustodyError {
-    mapping::map_storage_error(error)
+pub(super) fn map_authority_error(error: AuthorityError) -> CustodyError {
+    mapping::map_authority_error(error)
+}
+
+pub(super) fn map_transition_failure(
+    error: TransitionFailure,
+    phase: TransitionPhase,
+) -> CustodyError {
+    mapping::map_transition_failure(error, phase)
+}
+
+pub(super) fn local_replica_failure(error: CustodyError, phase: TransitionPhase) -> CustodyError {
+    mapping::local_replica_failure(error, phase)
+}
+
+pub(super) fn intent_phase(decision: Decision) -> TransitionPhase {
+    mapping::intent_phase(decision)
+}
+
+pub(super) fn terminal_phase(decision: Decision) -> TransitionPhase {
+    mapping::terminal_phase(decision)
 }

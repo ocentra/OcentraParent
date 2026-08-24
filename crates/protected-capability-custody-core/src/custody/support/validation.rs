@@ -1,22 +1,10 @@
 use super::super::CustodyError;
-use crate::authority::{AuthorityError, CurrentBindingPort};
-use crate::binding::{Binding, BindingLocator, BINDING_VERSION};
+use crate::binding::{Binding, BINDING_VERSION};
 use crate::path_security::SecuredPath;
 use crate::platform::{
-    record::BrokerRecord, request::TransitionRequest, PlatformAttestation, PlatformCustodyPort,
+    record::BrokerRecord, request::TransitionRequest, PlatformAttestation, PlatformDatabaseGuard,
 };
 use crate::storage::{self, Record};
-
-pub(super) fn resolve_current<A: CurrentBindingPort>(
-    authority: &A,
-    locator: &BindingLocator,
-) -> Result<Binding, CustodyError> {
-    let binding = authority.resolve_current(locator).map_err(map_authority)?;
-    if binding.locator() != locator {
-        return Err(CustodyError::WrongBinding);
-    }
-    Ok(binding)
-}
 
 pub(super) fn validate_current(record: &Record, binding: &Binding) -> Result<(), CustodyError> {
     if record.canonical_binding != binding.canonical_bytes()
@@ -28,8 +16,8 @@ pub(super) fn validate_current(record: &Record, binding: &Binding) -> Result<(),
     Ok(())
 }
 
-pub(super) fn verify_broker<P: PlatformCustodyPort>(
-    platform: &P,
+pub(super) fn verify_broker(
+    platform: &dyn PlatformDatabaseGuard,
     broker: &BrokerRecord,
     path: &SecuredPath,
 ) -> Result<Record, CustodyError> {
@@ -45,13 +33,13 @@ pub(super) fn verify_broker<P: PlatformCustodyPort>(
         return Err(CustodyError::Tampered);
     }
     platform
-        .verify(broker.seal_context(), &broker.sealed)
+        .open_and_verify(broker.seal_context(), &broker.sealed)
         .map_err(super::map_platform_error)?;
-    storage::from_broker(broker).map_err(super::map_storage_error)
+    storage::from_broker(broker).map_err(super::sqlite::map_error)
 }
 
-pub(super) fn validate_transition<P: PlatformCustodyPort>(
-    platform: &P,
+pub(super) fn validate_transition(
+    platform: &dyn PlatformDatabaseGuard,
     broker: &BrokerRecord,
     request: TransitionRequest<'_>,
     path: &SecuredPath,
@@ -91,11 +79,4 @@ pub(super) fn validate_attestation(
         return Err(CustodyError::Tampered);
     }
     Ok(())
-}
-
-fn map_authority(error: AuthorityError) -> CustodyError {
-    match error {
-        AuthorityError::Unavailable => CustodyError::Unavailable,
-        AuthorityError::Rejected => CustodyError::WrongBinding,
-    }
 }

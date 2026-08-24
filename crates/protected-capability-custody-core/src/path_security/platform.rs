@@ -7,29 +7,26 @@ use sha2::{Digest, Sha256};
 use super::PathSecurityError;
 
 #[cfg(unix)]
+pub(super) fn stable_sqlite_paths_supported() -> bool {
+    false
+}
+
+#[cfg(windows)]
+pub(super) fn stable_sqlite_paths_supported() -> bool {
+    true
+}
+
+#[cfg(not(any(unix, windows)))]
+pub(super) fn stable_sqlite_paths_supported() -> bool {
+    false
+}
+
+#[cfg(unix)]
 pub(super) fn open_guarded(
-    path: &Path,
-    directory: bool,
+    _path: &Path,
+    _directory: bool,
 ) -> Result<(Handle, [u8; 32]), PathSecurityError> {
-    use std::fs::File;
-    use std::os::unix::fs::MetadataExt;
-
-    use rustix::fs::{open, Mode, OFlags};
-
-    let mut flags = OFlags::RDONLY | OFlags::CLOEXEC | OFlags::NOFOLLOW;
-    if directory {
-        flags |= OFlags::DIRECTORY;
-    }
-    let descriptor =
-        open(path, flags, Mode::empty()).map_err(|_| PathSecurityError::Unavailable)?;
-    let file = File::from(descriptor);
-    let metadata = file
-        .metadata()
-        .map_err(|_| PathSecurityError::Unavailable)?;
-    let identity = FileId::new_inode(metadata.dev(), metadata.ino());
-    let digest = digest_file_id(identity)?;
-    let handle = Handle::from_file(file).map_err(|_| PathSecurityError::Unavailable)?;
-    Ok((handle, digest))
+    Err(PathSecurityError::UnsupportedPlatform)
 }
 
 #[cfg(windows)]
@@ -68,12 +65,41 @@ pub(super) fn open_guarded(
     Ok((handle, digest))
 }
 
+#[cfg(windows)]
+pub(super) fn create_guarded(path: &Path) -> Result<(Handle, [u8; 32]), PathSecurityError> {
+    use std::fs::OpenOptions;
+    use std::os::windows::fs::OpenOptionsExt;
+
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_FLAG_OPEN_REPARSE_POINT, FILE_SHARE_READ, FILE_SHARE_WRITE,
+    };
+
+    let file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create_new(true)
+        .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE)
+        .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT)
+        .open(path)
+        .map_err(|_| PathSecurityError::Unavailable)?;
+    let identity =
+        file_id::get_high_res_file_id(path).map_err(|_| PathSecurityError::Unavailable)?;
+    let digest = digest_file_id(identity)?;
+    let handle = Handle::from_file(file).map_err(|_| PathSecurityError::Unavailable)?;
+    Ok((handle, digest))
+}
+
+#[cfg(not(windows))]
+pub(super) fn create_guarded(_path: &Path) -> Result<(Handle, [u8; 32]), PathSecurityError> {
+    Err(PathSecurityError::UnsupportedPlatform)
+}
+
 #[cfg(not(any(unix, windows)))]
 pub(super) fn open_guarded(
     _path: &Path,
     _directory: bool,
 ) -> Result<(Handle, [u8; 32]), PathSecurityError> {
-    Err(PathSecurityError::Unavailable)
+    Err(PathSecurityError::UnsupportedPlatform)
 }
 
 fn digest_file_id(identity: FileId) -> Result<[u8; 32], PathSecurityError> {

@@ -1,33 +1,32 @@
+use super::scope::OperationScope;
+use super::support::sqlite::{finish_step, lock_connection, map_error as map_storage_error};
 use super::support::{
-    attest_path, lock_connection, map_platform_error, map_storage_error, resolve_current,
-    validate_attestation, validate_current, verify_broker,
+    attest_path, map_platform_error, validate_attestation, validate_current, verify_broker,
 };
 use super::{CustodyError, CustodyStore};
-use crate::authority::CurrentBindingPort;
-use crate::binding::{Binding, BindingLocator};
-use crate::platform::{record::BrokerRecord, PlatformAttestation, PlatformCustodyPort};
+use crate::binding::Binding;
+use crate::platform::{record::BrokerRecord, PlatformAttestation};
 use crate::storage::{self, Record};
 
 mod persist;
 
-pub(super) fn current<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
-    locator: &BindingLocator,
+pub(super) fn current(
+    store: &CustodyStore,
+    scope: &OperationScope<'_>,
 ) -> Result<Record, CustodyError> {
-    let initial = resolve_current(store.authority.as_ref(), locator)?;
+    let binding = scope.binding().clone();
     let attestation = attest_path(store.platform.as_ref(), &store.secured_path)?;
-    let digest = initial.locator().lookup_digest();
-    let local = load_local(store, &digest)?;
+    let digest = binding.locator().lookup_digest();
     let broker = store
         .platform
         .current(super::support::lookup(&digest, &store.secured_path))
         .map_err(map_platform_error)?;
-    let binding = resolve_current(store.authority.as_ref(), locator)?;
+    let local = load_local(store, &digest)?;
     reconcile(store, &binding, local, broker, attestation)
 }
 
-fn reconcile<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
+fn reconcile(
+    store: &CustodyStore,
     binding: &Binding,
     local: Option<Record>,
     broker: Option<BrokerRecord>,
@@ -43,8 +42,8 @@ fn reconcile<P: PlatformCustodyPort, A: CurrentBindingPort>(
     }
 }
 
-fn reconcile_existing<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
+fn reconcile_existing(
+    store: &CustodyStore,
     binding: &Binding,
     local: Record,
     broker: BrokerRecord,
@@ -69,8 +68,8 @@ fn reconcile_existing<P: PlatformCustodyPort, A: CurrentBindingPort>(
     Err(CustodyError::Conflict)
 }
 
-fn authenticate_local<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
+fn authenticate_local(
+    store: &CustodyStore,
     binding: &Binding,
     local: Record,
     attestation: PlatformAttestation,
@@ -85,11 +84,15 @@ fn authenticate_local<P: PlatformCustodyPort, A: CurrentBindingPort>(
     Ok(local)
 }
 
-fn load_local<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
-    digest: &[u8; 32],
-) -> Result<Option<Record>, CustodyError> {
+fn load_local(store: &CustodyStore, digest: &[u8; 32]) -> Result<Option<Record>, CustodyError> {
+    store
+        .secured_path
+        .revalidate()
+        .map_err(super::support::map_path_error)?;
     let connection = lock_connection(store)?;
-    storage::validate_all(&connection, store.secured_path.identity()).map_err(map_storage_error)?;
-    storage::load_by_lookup(&connection, digest).map_err(map_storage_error)
+    let result = storage::validate_all(&connection, store.secured_path.identity())
+        .map_err(map_storage_error)
+        .and_then(|()| storage::load_by_lookup(&connection, digest).map_err(map_storage_error));
+    drop(connection);
+    finish_step(store, result)
 }

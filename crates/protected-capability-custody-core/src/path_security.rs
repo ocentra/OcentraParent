@@ -4,8 +4,9 @@ use same_file::Handle;
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-use crate::platform::DatabaseIdentity;
+use crate::platform::identity::{DatabaseIdentity, PhysicalDatabaseIdentity};
 
+mod journal;
 mod platform;
 mod validation;
 
@@ -15,6 +16,7 @@ pub(crate) struct PendingSecuredPath {
     parent_handle: Handle,
     canonical_path_digest: [u8; 32],
     physical_file_digest: [u8; 32],
+    rollback_journal: Option<journal::JournalGuard>,
 }
 
 pub(crate) struct SecuredPath {
@@ -22,11 +24,15 @@ pub(crate) struct SecuredPath {
     file_handle: Handle,
     parent_handle: Handle,
     physical_file_digest: [u8; 32],
+    rollback_journal: journal::JournalGuard,
     identity: DatabaseIdentity,
 }
 
 impl PendingSecuredPath {
     pub(crate) fn open(path: &Path) -> Result<Self, PathSecurityError> {
+        if !platform::stable_sqlite_paths_supported() {
+            return Err(PathSecurityError::UnsupportedPlatform);
+        }
         reject_unsafe_shape(path)?;
         validation::components(path)?;
         let canonical = dunce::canonicalize(path).map_err(|_| PathSecurityError::Unavailable)?;
@@ -44,40 +50,86 @@ impl PendingSecuredPath {
             file_handle,
             parent_handle,
             physical_file_digest,
+            rollback_journal: None,
         };
         value.revalidate()?;
         Ok(value)
     }
 
     pub(crate) fn revalidate(&self) -> Result<(), PathSecurityError> {
-        revalidate(
+        revalidate_main(
             &self.canonical,
             &self.file_handle,
             &self.parent_handle,
             self.physical_file_digest,
-        )
+        )?;
+        if let Some(journal) = &self.rollback_journal {
+            journal.revalidate(&self.canonical)?;
+        } else {
+            journal::reject_untracked_sidecars(&self.canonical)?;
+        }
+        Ok(())
+    }
+
+    pub(crate) fn revalidate_quiescent(&self) -> Result<(), PathSecurityError> {
+        self.revalidate()?;
+        self.rollback_journal
+            .as_ref()
+            .ok_or(PathSecurityError::Unavailable)?
+            .validate_empty()
     }
 
     pub(crate) fn canonical(&self) -> &Path {
         &self.canonical
     }
 
+    /// Identity of the exact main file, rollback journal, and canonical path
+    /// pinned before SQLite is allowed to open either file.
+    pub(crate) fn physical_identity(&self) -> Result<PhysicalDatabaseIdentity, PathSecurityError> {
+        self.revalidate_quiescent()?;
+        let rollback_journal = self
+            .rollback_journal
+            .as_ref()
+            .ok_or(PathSecurityError::Unavailable)?;
+        PhysicalDatabaseIdentity::from_parts(
+            self.canonical_path_digest,
+            self.physical_file_digest,
+            rollback_journal.digest(),
+        )
+        .map_err(|_| PathSecurityError::Unavailable)
+    }
+
+    pub(crate) fn secure_rollback_journal(&mut self) -> Result<(), PathSecurityError> {
+        if self.rollback_journal.is_some() {
+            return Err(PathSecurityError::UnsafePath);
+        }
+        self.revalidate()?;
+        self.rollback_journal = Some(journal::JournalGuard::secure(&self.canonical)?);
+        self.revalidate()
+    }
+
     pub(crate) fn bind_instance(
         self,
         database_instance_id: [u8; 32],
     ) -> Result<SecuredPath, PathSecurityError> {
-        self.revalidate()?;
-        let identity = DatabaseIdentity::from_parts(
+        self.revalidate_quiescent()?;
+        let rollback_journal = self
+            .rollback_journal
+            .ok_or(PathSecurityError::Unavailable)?;
+        let physical_identity = PhysicalDatabaseIdentity::from_parts(
             self.canonical_path_digest,
             self.physical_file_digest,
-            database_instance_id,
+            rollback_journal.digest(),
         )
         .map_err(|_| PathSecurityError::Unavailable)?;
+        let identity = DatabaseIdentity::from_parts(physical_identity, database_instance_id)
+            .map_err(|_| PathSecurityError::Unavailable)?;
         Ok(SecuredPath {
             canonical: self.canonical,
             file_handle: self.file_handle,
             parent_handle: self.parent_handle,
             physical_file_digest: self.physical_file_digest,
+            rollback_journal,
             identity,
         })
     }
@@ -85,12 +137,14 @@ impl PendingSecuredPath {
 
 impl SecuredPath {
     pub(crate) fn revalidate(&self) -> Result<(), PathSecurityError> {
-        revalidate(
+        revalidate_main(
             &self.canonical,
             &self.file_handle,
             &self.parent_handle,
             self.physical_file_digest,
-        )
+        )?;
+        self.rollback_journal.revalidate(&self.canonical)?;
+        self.rollback_journal.validate_empty()
     }
 
     pub(crate) fn canonical(&self) -> &Path {
@@ -104,6 +158,8 @@ impl SecuredPath {
 
 #[derive(Debug, Error)]
 pub(crate) enum PathSecurityError {
+    #[error("stable custody paths are unsupported on this platform")]
+    UnsupportedPlatform,
     #[error("database path is unavailable")]
     Unavailable,
     #[error("database path is unsafe")]
@@ -112,7 +168,7 @@ pub(crate) enum PathSecurityError {
     Replaced,
 }
 
-fn revalidate(
+fn revalidate_main(
     canonical: &Path,
     file_handle: &Handle,
     parent_handle: &Handle,
