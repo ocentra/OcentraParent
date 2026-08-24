@@ -21,12 +21,12 @@ impl DeviceTrustRuntimeFenceParticipant<'_> {
         action_value: HouseholdAuthorityAction,
         binding: &CurrentChildDeviceTrustBinding,
     ) -> Result<DeviceTrustRuntimeFenceReservation, DeviceTrustRuntimeFenceError> {
+        storage::validate_schema(&self.repository.connection)?;
         storage::validate_operation(operation_id)?;
         let expected = target::from_binding(action_value, binding)?;
-        let current = target::current_target(self.repository, &expected)?;
-        target::ensure_current(&expected, &current)?;
-
+        let fence = self.repository.external_authority.read_fence()?;
         let transaction = self.repository.transaction()?;
+        let _current = target::current_target_in_transaction(&transaction, &expected, &fence)?;
         let existing = storage::read_reservation(&transaction, operation_id)?;
         if let Some(existing) = existing {
             return prepare_existing(transaction, existing, expected);
@@ -57,7 +57,7 @@ impl DeviceTrustRuntimeFenceParticipant<'_> {
                     storage::to_sql_generation(expected.authority_generation)?,
                 ],
             )
-            .map_err(|_| DeviceTrustRuntimeFenceError::OperationConflict)?;
+            .map_err(|error| storage::classify_insert_error(&transaction, operation_id, error))?;
         transaction
             .commit()
             .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?;

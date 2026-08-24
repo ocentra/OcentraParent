@@ -16,6 +16,7 @@ mod device_trust_lifecycle_activation;
 mod device_trust_lifecycle_authority;
 mod device_trust_lifecycle_authority_fence;
 mod device_trust_lifecycle_authority_intent;
+mod device_trust_lifecycle_authority_lock;
 mod device_trust_lifecycle_authority_reconciliation;
 mod device_trust_lifecycle_authority_store;
 mod device_trust_lifecycle_current_authority;

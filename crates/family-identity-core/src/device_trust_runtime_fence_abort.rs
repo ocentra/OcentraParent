@@ -13,6 +13,7 @@ impl DeviceTrustRuntimeFenceParticipant<'_> {
         &mut self,
         reservation: &DeviceTrustRuntimeFenceReservation,
     ) -> Result<(), DeviceTrustRuntimeFenceError> {
+        storage::validate_schema(&self.repository.connection)?;
         let transaction = self.repository.transaction()?;
         let stored = storage::read_reservation(&transaction, &reservation.operation_id)?
             .ok_or(DeviceTrustRuntimeFenceError::ReservationMissing)?;
