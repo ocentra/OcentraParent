@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use crate::custody::CustodyAdmission;
 use ocentra_protected_capability_custody_protocol::request::{
     authenticated::AuthenticatedRequest, RequestKind,
 };
@@ -13,10 +12,10 @@ use super::{
 impl BrokerProcessAdmission {
     pub fn for_current_process() -> Result<Self, BrokerRuntimeError> {
         let executable = super::BrokerExecutableGuard::open_current_broker()?;
-        let database_path = super::storage_path::open_fixed_database()?;
+        let database = super::storage_path::open_fixed_database()?;
         Ok(Self {
             _executable: executable,
-            database_path,
+            database,
         })
     }
 }
@@ -27,20 +26,26 @@ impl BrokerCustodyRuntime {
     pub fn open_broker_owned(
         admission: BrokerProcessAdmission,
     ) -> Result<Self, BrokerRuntimeError> {
-        let database_path = admission.database_path.as_path();
-        let registry_id = platform::registry_id(database_path).map_err(error_status::platform)?;
+        let BrokerProcessAdmission {
+            _executable,
+            database,
+        } = admission;
+        let registry_id =
+            platform::registry_id(database.canonical()).map_err(error_status::platform)?;
         let authority = Arc::new(authority::BrokerCurrentBindingAuthority::new(
             registry_id.clone(),
         ));
         let platform_owner = Arc::new(platform::BrokerPlatformOwner::new());
-        let admission_authority = Arc::clone(&authority);
-        let custody_admission = CustodyAdmission::new(platform_owner, admission_authority);
-        let store = crate::custody::CustodyStore::open(database_path, custody_admission)?;
+        let store = crate::custody::CustodyStore::open_pending(
+            database,
+            platform_owner,
+            authority.clone(),
+        )?;
         Ok(Self {
             store,
             authority,
             registry_id,
-            _process_admission: admission,
+            _executable,
         })
     }
 

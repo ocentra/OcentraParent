@@ -26,11 +26,25 @@ pub(super) struct LedgerState {
     pub(super) watermark: u64,
 }
 
+/// The custody watermark cannot be trusted when it is stored only in a
+/// user-restorable file or registry hive.  Production deployment must provide
+/// a broker/service or TPM-backed non-restorable anchor before this adapter is
+/// enabled.  There is deliberately no software fallback: snapshot restore is
+/// an unavailable state, never an opportunity to reset the watermark.
+struct NonRestorableAntiRollbackAnchor;
+
+impl NonRestorableAntiRollbackAnchor {
+    fn acquire() -> Result<Self, PlatformError> {
+        Err(PlatformError::Unavailable)
+    }
+}
+
 #[cfg(windows)]
 pub(super) fn load_or_create(
     registry_id: &str,
     physical_identity: PhysicalDatabaseIdentity,
 ) -> Result<LedgerState, PlatformError> {
+    let _anti_rollback_anchor = NonRestorableAntiRollbackAnchor::acquire()?;
     match registry::read(registry_id, STATE_VALUE_NAME)? {
         Some(sealed) => {
             let plaintext = Zeroizing::new(crypto::decrypt_state(registry_id, &sealed)?);

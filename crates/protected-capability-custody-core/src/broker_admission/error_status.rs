@@ -8,6 +8,10 @@ pub(super) fn storage_io(_error: std::io::Error) -> BrokerRuntimeError {
     BrokerRuntimeError::Unavailable
 }
 
+pub(super) fn path_security(_error: crate::path_security::PathSecurityError) -> BrokerRuntimeError {
+    BrokerRuntimeError::Unavailable
+}
+
 pub(super) fn broker_platform_admission(
     _error: &crate::platform::PlatformError,
 ) -> BrokerRuntimeError {

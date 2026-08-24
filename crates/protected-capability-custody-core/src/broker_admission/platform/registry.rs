@@ -1,8 +1,4 @@
 #[cfg(windows)]
-use std::borrow::Cow;
-#[cfg(windows)]
-use std::io;
-#[cfg(windows)]
 use std::os::windows::prelude::OsStrExt;
 #[cfg(windows)]
 use std::path::Path;
@@ -10,14 +6,18 @@ use std::path::Path;
 #[cfg(windows)]
 use sha2::{Digest, Sha256};
 #[cfg(windows)]
-use winreg::enums::{HKEY_CURRENT_USER, REG_BINARY};
+use winreg::enums::{HKEY_LOCAL_MACHINE, KEY_READ, KEY_WRITE};
 #[cfg(windows)]
-use winreg::{RegKey, RegValue};
+use winreg::RegKey;
 
 #[cfg(windows)]
 use super::acl;
 #[cfg(windows)]
 use crate::platform::PlatformError;
+
+#[cfg(windows)]
+#[path = "registry/io.rs"]
+mod registry_io;
 
 #[cfg(windows)]
 const REGISTRY_ROOT: &str = "Software\\Ocentra\\ProtectedCapabilityCustody";
@@ -42,36 +42,17 @@ pub(super) fn registry_id(path: &Path) -> Result<String, PlatformError> {
 
 #[cfg(windows)]
 pub(super) fn read(registry_id: &str, name: &str) -> Result<Option<Vec<u8>>, PlatformError> {
-    let key = open_key(registry_id)?;
-    match key.get_raw_value(name) {
-        Ok(value) if value.vtype == REG_BINARY => Ok(Some(value.bytes.into_owned())),
-        Ok(_) => Err(PlatformError::Tampered),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
-        Err(error) => Err(map_io_error(error)),
-    }
+    registry_io::read(registry_id, name)
 }
 
 #[cfg(windows)]
 pub(super) fn write(registry_id: &str, name: &str, value: &[u8]) -> Result<(), PlatformError> {
-    let key = open_key(registry_id)?;
-    key.set_raw_value(
-        name,
-        &RegValue {
-            bytes: Cow::Borrowed(value),
-            vtype: REG_BINARY,
-        },
-    )
-    .map_err(map_io_error)
+    registry_io::write(registry_id, name, value)
 }
 
 #[cfg(windows)]
 pub(super) fn delete(registry_id: &str, name: &str) -> Result<(), PlatformError> {
-    let key = open_key(registry_id)?;
-    match key.delete_value(name) {
-        Ok(()) => Ok(()),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
-        Err(error) => Err(map_io_error(error)),
-    }
+    registry_io::delete(registry_id, name)
 }
 
 #[cfg(windows)]
@@ -85,18 +66,20 @@ pub(super) fn hex(bytes: &[u8]) -> String {
 }
 
 #[cfg(windows)]
-fn open_key(registry_id: &str) -> Result<RegKey, PlatformError> {
-    let root = RegKey::predef(HKEY_CURRENT_USER);
+pub(super) fn open_key(registry_id: &str) -> Result<RegKey, PlatformError> {
+    // This key is provisioned by the dedicated broker/service installer.  A
+    // client or ordinary user must never be able to create the authority
+    // store on demand, so opening a missing key fails closed.
+    let root = RegKey::predef(HKEY_LOCAL_MACHINE);
     let path = format!("{REGISTRY_ROOT}\\{registry_id}");
     let key = root
-        .create_subkey(path)
-        .map(|(key, _disposition)| key)
+        .open_subkey_with_flags(path, KEY_READ | KEY_WRITE)
         .map_err(map_io_error)?;
-    acl::validate_registry(&key)?;
+    acl::validate_secret_store(&key)?;
     Ok(key)
 }
 
 #[cfg(windows)]
-fn map_io_error(_error: io::Error) -> PlatformError {
+pub(super) fn map_io_error(_error: std::io::Error) -> PlatformError {
     PlatformError::Unavailable
 }

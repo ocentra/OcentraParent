@@ -24,6 +24,7 @@ use crate::admission::{AuthenticatedBrokerSession, AuthenticatedResponse, Client
 use crate::{map_transport_error, ClientError};
 
 mod broker_process;
+mod connect;
 
 use broker_process::{fixed_broker_path, process_executable_matches, spawn_broker, BrokerChild};
 
@@ -91,6 +92,10 @@ impl WindowsBrokerSession {
 }
 
 pub(crate) fn connect() -> Result<AuthenticatedBrokerSession, ClientError> {
+    connect::retry(connect_once)
+}
+
+fn connect_once() -> Result<AuthenticatedBrokerSession, ClientError> {
     let client_identity = current_process_identity()?;
     let bootstrap = BootstrapPacket::generate(
         client_identity.process_id,

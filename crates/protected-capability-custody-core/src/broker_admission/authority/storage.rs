@@ -19,8 +19,12 @@ pub(super) fn load_or_create_generations(
     match platform::read_registry_value(registry_id, &value_name).map_err(map_platform_error)? {
         Some(sealed) => {
             let plaintext = Zeroizing::new(
-                platform::decrypt_dpapi(&sealed, &binding_entropy(registry_id, lookup_digest))
-                    .map_err(map_platform_error)?,
+                platform::decrypt_dpapi(
+                    registry_id,
+                    &sealed,
+                    &binding_entropy(registry_id, lookup_digest),
+                )
+                .map_err(map_platform_error)?,
             );
             codec::decode(plaintext.as_ref()).map(|generations| (generations, false))
         }
@@ -50,6 +54,7 @@ fn create_generations(
     let generations = random_generations()?;
     let plaintext = Zeroizing::new(codec::encode(generations));
     let sealed = platform::encrypt_dpapi(
+        registry_id,
         plaintext.as_ref(),
         &binding_entropy(registry_id, lookup_digest),
     )

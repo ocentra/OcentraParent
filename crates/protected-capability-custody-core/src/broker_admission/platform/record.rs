@@ -24,6 +24,7 @@ pub(super) fn current(
     guard: &BrokerPlatformGuard,
     lookup: BrokerLookup<'_>,
 ) -> Result<Option<BrokerRecord>, PlatformError> {
+    guard.revalidate_live()?;
     validate_lookup(guard, lookup)?;
     let Some(sealed) = read_ciphertext(&guard.registry_id, lookup.lookup_digest)? else {
         return Ok(None);
@@ -50,6 +51,7 @@ pub(super) fn open_and_verify(
     context: SealContext<'_>,
     sealed: &[u8],
 ) -> Result<(), PlatformError> {
+    guard.revalidate_live()?;
     if sealed.is_empty() || sealed.len() > MAX_SEALED_BYTES {
         return Err(PlatformError::Tampered);
     }

@@ -20,6 +20,7 @@ use crate::platform::PlatformError;
 
 #[cfg(windows)]
 const SYSTEM_SID: &str = "S-1-5-18";
+const LOCAL_SERVICE_SID: &str = "S-1-5-19";
 #[cfg(windows)]
 const ADMINISTRATORS_SID: &str = "S-1-5-32-544";
 #[cfg(windows)]
@@ -46,10 +47,36 @@ pub(super) fn validate_file(file: &File) -> Result<(), PlatformError> {
 }
 
 #[cfg(windows)]
-pub(super) fn validate_registry(key: &winreg::RegKey) -> Result<(), PlatformError> {
+pub(super) fn validate_secret_store(key: &winreg::RegKey) -> Result<(), PlatformError> {
     let acl =
         ACL::from_registry_handle(key.raw_handle().cast(), false, false).map_err(map_acl_error)?;
-    validate_entries(acl.all().map_err(map_acl_error)?)
+    validate_secret_entries(acl.all().map_err(map_acl_error)?)
+}
+
+#[cfg(windows)]
+fn validate_secret_entries(entries: Vec<ACLEntry>) -> Result<(), PlatformError> {
+    if entries.is_empty() {
+        return Err(PlatformError::Tampered);
+    }
+    let current_user = current_user_sid()?;
+    if current_user != SYSTEM_SID && current_user != LOCAL_SERVICE_SID {
+        return Err(PlatformError::Tampered);
+    }
+    for entry in entries {
+        if entry.entry_type == AceType::Unknown {
+            return Err(PlatformError::Tampered);
+        }
+        // The authority store is not a user profile.  No user, administrator,
+        // creator-owner, or inherited interactive ACL may read or mutate it.
+        if is_allow(&entry)
+            && entry.flags & INHERIT_ONLY_ACE == 0
+            && entry.string_sid != SYSTEM_SID
+            && entry.string_sid != LOCAL_SERVICE_SID
+        {
+            return Err(PlatformError::Tampered);
+        }
+    }
+    Ok(())
 }
 
 #[cfg(windows)]

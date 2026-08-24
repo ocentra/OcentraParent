@@ -47,10 +47,9 @@ impl BrokerPlatformGuard {
         canonical_path: &Path,
         identity: DatabaseIdentity,
     ) -> Result<PlatformAttestation, PlatformError> {
+        self.revalidate_live()?;
         if canonical_path != self.canonical_path
-            || !identity
-                .as_bytes()
-                .starts_with(self.physical_identity.as_bytes())
+            || identity.as_bytes()[..96] != self.physical_identity.as_bytes()[..]
         {
             return Err(PlatformError::InvalidAttestation);
         }
@@ -68,6 +67,26 @@ impl BrokerPlatformGuard {
             identity,
         ))
     }
+
+    pub(super) fn revalidate_live(&self) -> Result<(), PlatformError> {
+        crate::path_security::identity::revalidate(&self.canonical_path, &self.physical_identity)
+            .map_err(map_path_error)?;
+        super::acl::validate_path(&self.canonical_path)?;
+        super::acl::validate_path(
+            self.canonical_path
+                .parent()
+                .ok_or(PlatformError::InvalidAttestation)?,
+        )?;
+        let journal = super::writer::journal_path(&self.canonical_path);
+        super::acl::validate_path(&journal)?;
+        super::writer::revalidate(&self.canonical_path, &self._writer_lock)?;
+        Ok(())
+    }
+}
+
+#[cfg(windows)]
+fn map_path_error(_error: crate::path_security::PathSecurityError) -> PlatformError {
+    PlatformError::Tampered
 }
 
 #[cfg(windows)]

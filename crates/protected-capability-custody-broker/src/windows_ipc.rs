@@ -1,4 +1,5 @@
 use std::io;
+use std::time::Instant;
 
 use interprocess::os::windows::named_pipe::{pipe_mode, PipeListenerOptions};
 use interprocess::os::windows::security_descriptor::SecurityDescriptor;
@@ -19,18 +20,26 @@ use crate::authority::{
 };
 use crate::{custody, map_transport_error, BrokerError};
 
+mod accept;
+mod deadline;
+mod deadline_io;
+mod deadline_read;
+mod deadline_write;
+
 pub(crate) fn run(pipe_name: &BrokerPipeName) -> Result<(), BrokerError> {
-    let bootstrap = read_bootstrap()?;
-    if &BrokerPipeName::from_nonce(bootstrap.identity().pipe_nonce()) != pipe_name {
-        return Err(BrokerError::InvalidLaunch);
-    }
-    let listener = create_listener(pipe_name)?;
-    let mut stream = listener.accept().map_err(map_transport_error)?;
-    authenticate_pipe_client(&stream, &bootstrap)?;
-    let client_frame = ocentra_protected_capability_custody_protocol::read_frame(&mut stream)?;
+    accept::run(pipe_name)
+}
+
+fn serve_authenticated_peer(
+    stream: &mut interprocess::os::windows::named_pipe::DuplexPipeStream<pipe_mode::Bytes>,
+    bootstrap: &BootstrapPacket,
+    deadline: Instant,
+) -> Result<(), BrokerError> {
+    authenticate_pipe_client(stream, bootstrap)?;
+    let client_frame = deadline::read_frame(stream, deadline)?;
     let client_hello =
         ocentra_protected_capability_custody_protocol::decode_client_hello(&client_frame)?;
-    authenticate_client_hello(&stream, &bootstrap, &client_hello)?;
+    authenticate_client_hello(stream, bootstrap, &client_hello)?;
     let custody = custody::BrokerCustodyService::open();
     let broker_identity = current_process_identity()?;
     let session = BrokerSessionAuthority::generate(
@@ -44,15 +53,15 @@ pub(crate) fn run(pipe_name: &BrokerPipeName) -> Result<(), BrokerError> {
         unix_now_millis()?,
         bootstrap.authenticator(),
     )?;
-    write_encoded(
-        &mut stream,
-        &ocentra_protected_capability_custody_protocol::encode_broker_hello(&broker_hello)?,
-    )?;
+    let encoded_hello =
+        ocentra_protected_capability_custody_protocol::encode_broker_hello(&broker_hello)?;
+    deadline::write_frame(stream, &encoded_hello, deadline)?;
     serve_one_authenticated_request(
-        &mut stream,
+        stream,
         &broker_hello,
         bootstrap.authenticator(),
         &custody,
+        deadline,
     )
 }
 
@@ -76,6 +85,7 @@ fn create_listener(
     let descriptor = SecurityDescriptor::deserialize(&sddl).map_err(map_transport_error)?;
     PipeListenerOptions::new()
         .path(pipe_name.as_path())
+        .nonblocking(true)
         .accept_remote(false)
         .inheritable(false)
         .security_descriptor(Some(descriptor))
@@ -123,10 +133,9 @@ fn serve_one_authenticated_request(
     broker_hello: &UntrustedBrokerHello,
     authenticator: &BootstrapAuthenticator,
     custody: &custody::BrokerCustodyService,
+    deadline: Instant,
 ) -> Result<(), BrokerError> {
-    let request_frame = Zeroizing::new(ocentra_protected_capability_custody_protocol::read_frame(
-        stream,
-    )?);
+    let request_frame = Zeroizing::new(deadline::read_frame(stream, deadline)?);
     let request =
         ocentra_protected_capability_custody_protocol::decode_request(request_frame.as_ref())?;
     let request = request.into_authenticated_session(
@@ -138,15 +147,7 @@ fn serve_one_authenticated_request(
     let response = custody.execute(&request, authenticator)?;
     let encoded_response =
         Zeroizing::new(ocentra_protected_capability_custody_protocol::encode_response(&response)?);
-    write_encoded(stream, encoded_response.as_ref())
-}
-
-fn write_encoded(
-    stream: &mut interprocess::os::windows::named_pipe::DuplexPipeStream<pipe_mode::Bytes>,
-    frame: &[u8],
-) -> Result<(), BrokerError> {
-    ocentra_protected_capability_custody_protocol::write_frame(stream, frame)
-        .map_err(BrokerError::from)
+    deadline::write_frame(stream, encoded_response.as_ref(), deadline)
 }
 
 fn map_sddl_error(_error: widestring::error::ContainsNul<u16>) -> BrokerError {

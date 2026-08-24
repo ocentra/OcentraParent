@@ -27,7 +27,7 @@ pub struct BrokerCustodyRuntime {
     store: CustodyStore,
     authority: Arc<authority::BrokerCurrentBindingAuthority>,
     registry_id: String,
-    _process_admission: BrokerProcessAdmission,
+    _executable: BrokerExecutableGuard,
 }
 
 /// A validated, non-cloneable handle to the fixed sibling broker executable.
@@ -43,7 +43,7 @@ pub struct BrokerExecutableGuard {
 /// cloneable, so ordinary in-process callers cannot mint broker admission.
 pub struct BrokerProcessAdmission {
     _executable: BrokerExecutableGuard,
-    database_path: std::path::PathBuf,
+    database: crate::path_security::PendingSecuredPath,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

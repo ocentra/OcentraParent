@@ -23,7 +23,7 @@ pub(crate) mod sealed {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum SecurityLevel {
-    SameUserIsolated,
+    DedicatedServiceIsolated,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -49,7 +49,7 @@ impl PlatformAttestation {
         database_identity: DatabaseIdentity,
     ) -> Self {
         Self {
-            security_level: SecurityLevel::SameUserIsolated,
+            security_level: SecurityLevel::DedicatedServiceIsolated,
             database_path_security:
                 DatabasePathSecurity::BrokerExclusiveWriterNoFollowRollbackJournal,
             key_epoch,

@@ -70,6 +70,9 @@ pub(super) fn process_executable_matches(
     process_id: u32,
     expected: &BrokerExecutableGuard,
 ) -> Result<bool, ClientError> {
+    expected
+        .revalidate()
+        .map_err(|_| ClientError::PeerAuthentication)?;
     let system = System::new_all();
     let observed = system
         .process(Pid::from_u32(process_id))

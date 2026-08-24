@@ -19,6 +19,9 @@ pub(super) fn reserve(
     guard: &BrokerPlatformGuard,
     next: TransitionRequest<'_>,
 ) -> Result<BrokerRecord, TransitionFailure> {
+    guard
+        .revalidate_live()
+        .map_err(TransitionFailure::DefinitelyNotApplied)?;
     validate_request(guard, next).map_err(TransitionFailure::DefinitelyNotApplied)?;
     if record::read_ciphertext(&guard.registry_id, next.lookup_digest)
         .map_err(TransitionFailure::DefinitelyNotApplied)?
@@ -37,6 +40,9 @@ pub(super) fn advance(
     prior: &BrokerRecord,
     next: TransitionRequest<'_>,
 ) -> Result<BrokerRecord, TransitionFailure> {
+    guard
+        .revalidate_live()
+        .map_err(TransitionFailure::DefinitelyNotApplied)?;
     validate_request(guard, next).map_err(TransitionFailure::DefinitelyNotApplied)?;
     let current = guard
         .current(BrokerLookup {

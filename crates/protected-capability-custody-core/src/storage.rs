@@ -81,7 +81,12 @@ pub(crate) fn validate_all(
     schema::validate_integrity(connection)?;
     let mut statement = connection.prepare(&select_sql("ORDER BY record_id"))?;
     let rows = statement.query_map([], record::read_raw)?;
+    let mut count = 0_i64;
     for row in rows {
+        count = count.checked_add(1).ok_or(StorageError::Tampered)?;
+        if count > ocentra_protected_capability_custody_protocol::constants::MAX_CUSTODY_RECORDS {
+            return Err(StorageError::Tampered);
+        }
         let value = record::from_raw(row?)?;
         if value.database_identity != identity {
             return Err(StorageError::Tampered);
@@ -99,6 +104,14 @@ pub(crate) fn load_by_lookup(
 
 pub(crate) fn insert(transaction: &Transaction<'_>, value: &Record) -> Result<(), StorageError> {
     record::validate(value)?;
+    let count: i64 = transaction.query_row(
+        "SELECT COUNT(*) FROM protected_capability_custody_records",
+        [],
+        |row| row.get(0),
+    )?;
+    if count >= ocentra_protected_capability_custody_protocol::constants::MAX_CUSTODY_RECORDS {
+        return Err(StorageError::Unavailable);
+    }
     transaction.execute(
         "INSERT INTO protected_capability_custody_records \
          (record_id, lookup_digest, binding_digest, canonical_binding, state, sequence, key_epoch, \
