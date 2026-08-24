@@ -31,6 +31,43 @@ function parseIdentity(value: unknown): LocalArtifactIdentity | null {
   return { device: input['device'] as number, inode: input['inode'] as number };
 }
 
+function hasValidMutationFiles(
+  input: Record<string, unknown>,
+  index: number,
+  kind: unknown,
+  stageFile: unknown
+): boolean {
+  return (
+    (kind === 'remove' || kind === 'replace') &&
+    typeof input['relativePath'] === 'string' &&
+    typeof input['backupFile'] === 'string' &&
+    (stageFile === null || typeof stageFile === 'string') &&
+    input['backupFile'] === `backup-${index}` &&
+    (kind !== 'replace' || stageFile === `stage-${index}.data`) &&
+    (kind !== 'remove' || stageFile === null)
+  );
+}
+
+function hasValidMutationTarget(kind: unknown, targetKind: unknown): boolean {
+  return (
+    (targetKind === null || targetKind === 'file' || targetKind === 'directory') &&
+    (kind !== 'replace' || targetKind !== 'directory')
+  );
+}
+
+function mutationIdentitiesMatch(
+  kind: 'remove' | 'replace',
+  stageIdentity: LocalArtifactIdentity | null,
+  targetKind: 'file' | 'directory' | null,
+  targetIdentity: LocalArtifactIdentity | null
+): boolean {
+  return (
+    (kind !== 'replace' || stageIdentity != null) &&
+    (kind !== 'remove' || stageIdentity == null) &&
+    (targetKind == null) === (targetIdentity == null)
+  );
+}
+
 function parsePersistedMutation(value: unknown, index: number): PersistedMutation {
   if (typeof value !== 'object' || value == null || Array.isArray(value)) {
     throw new Error('invalid local artifact transaction');
@@ -39,35 +76,24 @@ function parsePersistedMutation(value: unknown, index: number): PersistedMutatio
   const kind = input['kind'];
   const stageFile = input['stageFile'];
   const targetKind = input['targetKind'];
-  if (
-    (kind !== 'remove' && kind !== 'replace') ||
-    typeof input['relativePath'] !== 'string' ||
-    typeof input['backupFile'] !== 'string' ||
-    (stageFile !== null && typeof stageFile !== 'string') ||
-    (kind === 'replace' && stageFile !== `stage-${index}.data`) ||
-    (kind === 'remove' && stageFile !== null) ||
-    (targetKind !== null && targetKind !== 'file' && targetKind !== 'directory') ||
-    input['backupFile'] !== `backup-${index}` ||
-    (kind === 'replace' && targetKind === 'directory')
-  ) {
+  if (!hasValidMutationFiles(input, index, kind, stageFile) || !hasValidMutationTarget(kind, targetKind)) {
     throw new Error('invalid local artifact transaction');
   }
+  const persistedKind = kind as PersistedMutation['kind'];
+  const persistedStageFile = stageFile as PersistedMutation['stageFile'];
+  const persistedTargetKind = targetKind as PersistedMutation['targetKind'];
   const stageIdentity = parseIdentity(input['stageIdentity']);
   const targetIdentity = parseIdentity(input['targetIdentity']);
-  if (
-    (kind === 'replace' && stageIdentity == null) ||
-    (kind === 'remove' && stageIdentity != null) ||
-    (targetKind == null) !== (targetIdentity == null)
-  ) {
+  if (!mutationIdentitiesMatch(persistedKind, stageIdentity, persistedTargetKind, targetIdentity)) {
     throw new Error('invalid local artifact transaction');
   }
   return {
-    kind,
+    kind: persistedKind,
     relativePath: input['relativePath'] as string,
-    stageFile,
+    stageFile: persistedStageFile,
     stageIdentity,
     backupFile: input['backupFile'] as string,
-    targetKind,
+    targetKind: persistedTargetKind,
     targetIdentity,
   };
 }

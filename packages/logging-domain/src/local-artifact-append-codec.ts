@@ -44,30 +44,38 @@ function parseIdentity(value: unknown): LocalArtifactIdentity | null {
   return { device: input['device'] as number, inode: input['inode'] as number };
 }
 
+function isAppendIntentMetadata(input: Record<string, unknown>): boolean {
+  return (
+    input['schemaVersion'] === 1 &&
+    typeof input['relativePath'] === 'string' &&
+    Number.isSafeInteger(input['offset']) &&
+    (input['offset'] as number) >= 0 &&
+    Number.isSafeInteger(input['payloadLength']) &&
+    (input['payloadLength'] as number) > 0 &&
+    (input['payloadLength'] as number) <= MaximumAppendBytes &&
+    typeof input['payloadSha256'] === 'string' &&
+    /^[0-9a-f]{64}$/u.test(input['payloadSha256'] as string) &&
+    typeof input['payloadBase64'] === 'string'
+  );
+}
+
+function appendPayloadMatchesMetadata(input: Record<string, unknown>, payload: Buffer): boolean {
+  return (
+    payload.byteLength === input['payloadLength'] &&
+    crypto.createHash('sha256').update(payload).digest('hex') === input['payloadSha256']
+  );
+}
+
 function parseAppendIntent(value: unknown): AppendIntent {
   if (typeof value !== 'object' || value == null || Array.isArray(value)) {
     throw new Error('invalid local artifact append intent');
   }
   const input = value as Record<string, unknown>;
-  if (
-    input['schemaVersion'] !== 1 ||
-    typeof input['relativePath'] !== 'string' ||
-    !Number.isSafeInteger(input['offset']) ||
-    (input['offset'] as number) < 0 ||
-    !Number.isSafeInteger(input['payloadLength']) ||
-    (input['payloadLength'] as number) <= 0 ||
-    (input['payloadLength'] as number) > MaximumAppendBytes ||
-    typeof input['payloadSha256'] !== 'string' ||
-    !/^[0-9a-f]{64}$/u.test(input['payloadSha256'] as string) ||
-    typeof input['payloadBase64'] !== 'string'
-  ) {
+  if (!isAppendIntentMetadata(input)) {
     throw new Error('invalid local artifact append intent');
   }
   const payload = Buffer.from(input['payloadBase64'] as string, 'base64');
-  if (
-    payload.byteLength !== input['payloadLength'] ||
-    crypto.createHash('sha256').update(payload).digest('hex') !== input['payloadSha256']
-  ) {
+  if (!appendPayloadMatchesMetadata(input, payload)) {
     throw new Error('invalid local artifact append intent');
   }
   return {
