@@ -18582,7 +18582,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / foundation-source only; expected tests, authority bridge, and caller open",
+        "statusText": "partial / owner-side fence source integrated; expected tests, custody dependency, migration, and caller open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -18604,10 +18604,10 @@
             "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Reviewed as the family-owned foundation/source route for durable trusted-device/signer-key lifecycle state. WP01 is not a shipped authority issuer or production-caller route: tests, validation, proof, platform ceremony, and completion remain open. Account WP08 -> Cloudflare WP06 current-authority resolution must precede WP03's one-time RegisterLanSignerAnchor ceremony; WP02 is conditional for parent-runtime/platform sealing and revocation; LAN WP26 and child consumers follow WP03 and cannot mint signer authority."
+          "reason": "Reviewed as the family-owned foundation/source route for durable trusted-device/signer-key lifecycle state. Accepted source through f5974c795 now includes the private durable Device participant for exact action/target/signer/generation-bound prepare, commit, abort, and fail-closed recovery. WP01 is not a shipped authority issuer, Account WP05A coordinator, migration/startup owner, or production-caller route: the expected participant test, functional validation, proof, platform ceremony, and completion remain open. Account WP08 -> Cloudflare WP06 current-authority resolution must precede WP03's one-time RegisterLanSignerAnchor ceremony; WP02 is conditional for parent-runtime/platform sealing and revocation; LAN WP26 and child consumers follow WP03 and cannot mint signer authority."
         },
         "completionEvidenceOverride": {
-          "reason": "Independent source review accepted the Device Trust continuation at 914d06b6a and root integrated its reconciled WP01 authority/current-binding source through 68717b5b7. Public household signer/verifier mint paths are removed and current authority is owner-resolved. The overlapping entitlement boundary retains Payment's unsigned projection and omits incompatible public signed modules. Focused source-format, architecture, Enforcer, and diff gates passed. Expected-test migration, functional validation, proof, real platform/passkey callers, repo-wide Enforcer, and DONE remain open.",
+          "reason": "Independent source review accepted the earlier Device Trust authority/current-binding continuation and the repaired 18-path runtime-fence packet integrated through f5974c795. Public household signer/verifier mint paths remain removed; current authority is owner-resolved. The private durable participant binds action, target, signer, generation, and digest across prepare/commit/abort/recover, treats prepared restart and commit ambiguity as uncertain, and exposes no caller-mintable handle. Focused Cargo library check, source-format, architecture, Enforcer, diff, and guard gates passed. The expected participant test, lifecycle-test migration, production Account WP05A caller, startup/schema-migration owner, functional validation, proof, real platform/passkey callers, repo-wide Enforcer, and DONE remain open.",
           "evidence": [
             "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md",
@@ -18628,8 +18628,24 @@
             "crates/family-identity-core/src/device_trust_signer_registration_current_authority.rs",
             "crates/family-identity-core/src/device_trust_signer_registration_schema.rs",
             "crates/family-identity-core/src/device_trust_lifecycle.rs",
+            "crates/family-identity-core/src/device_trust_lifecycle_authority.rs",
+            "crates/family-identity-core/src/device_trust_lifecycle_authority_fence.rs",
+            "crates/family-identity-core/src/device_trust_lifecycle_authority_lock.rs",
+            "crates/family-identity-core/src/device_trust_lifecycle_authority_reconciliation.rs",
+            "crates/family-identity-core/src/device_trust_lifecycle_authority_store.rs",
             "crates/family-identity-core/src/device_trust_lifecycle_revocation.rs",
             "crates/family-identity-core/src/household_authority_proof.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_abort.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_action.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_commit.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_digest.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_error.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_participant.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_prepare.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_recovery.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_schema.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_storage.rs",
+            "crates/family-identity-core/src/device_trust_runtime_fence_target.rs",
             "crates/family-identity-core/src/lib.rs"
           ],
           "tests": [

@@ -32,6 +32,12 @@ Purpose: define trust ownership, trust states, bootstrap lifecycle, and cross-pl
 - The lifecycle authority sidecar now serializes process writers through a sibling lock, reloads the current map before each generation update, and persists with an atomic replacement plus file/parent synchronization. Corrupt, missing-after-database, lock, and persistence failures remain unavailable rather than being treated as trusted.
 - `device_trust_ref` generation is opaque, CSPRNG-backed, and input-independent. Sealing remains manual-required because no specifically authorized high-risk device-trust sealing action exists; low-risk actions are never promoted.
 - Parent-presence decisions are transactionally enqueued beside custody state and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Visible tests cover accepted and replay outcomes, correlation and redaction, real delivery failure, restart recovery, and idempotent re-delivery. This workpack does not claim subscriber delivery, a broader event-bus runtime, or broader device-trust lifecycle completion.
+- A private durable Device Trust runtime-fence participant is integrated through
+  `f5974c795`. It binds prepare/commit/abort/recover to the exact action, target,
+  signer, lifecycle generation, and current authority digest, re-resolves owner
+  state inside the transaction, and reports prepared restart or persistence
+  ambiguity as uncertain. Its opaque handles/outcomes do not export Device
+  currentness to Account.
 - This remains a partial, unchecked WP01 foundation/source. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, Unix production custody, or platform-wide path guarantees. It is not a shipped authority or production-caller route; its required tests, validation, authority bridge, and proof remain open.
 
 ## LAN WP26 dependency routing
@@ -47,16 +53,20 @@ must not be made to depend on a LAN consumer in return.
 
 ## Multi-owner effect-fence handoff
 
-WP01 is the Device Trust owner participant for Account WP05A. A future private
-participant must prepare, commit, abort, and recover an action-bound reservation
-against the current trusted-device/signer binding, generation, and revocation
-state owned here. It must expose only an opaque participant handle/outcome to
-the coordinator; Account may not copy Device Trust currentness or replay truth.
+WP01 is the Device Trust owner participant for Account WP05A. The private
+participant source now prepares, commits, aborts, and recovers an action-bound
+reservation against current trusted-device/signer binding, generation, and
+revocation state. It exposes only opaque participant handles/outcomes; Account
+may not copy Device Trust currentness or replay truth.
 
-Planned participant roots (currently absent) are
-`crates/family-identity-core/src/device_trust_runtime_fence_participant.rs` and
-`crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs`.
-This is routing only: no source, test, proof, runtime reachability, READY, or
+The integrated source family is rooted at
+`crates/family-identity-core/src/device_trust_runtime_fence_participant.rs` with
+the adjacent `device_trust_runtime_fence_{action,abort,commit,digest,error,prepare,recovery,schema,storage,target}.rs`
+modules plus the lifecycle authority fence/lock/reconciliation/store changes.
+The expected test root
+`crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs`
+is still absent. No production Account WP05A coordinator caller,
+startup/schema-migration owner, test, proof, runtime reachability, READY, or
 DONE claim is made.
 
 ## Downstream bridge order
@@ -104,6 +114,23 @@ guard checks passed. Expected-test migration, functional validation, proof,
 production platform/passkey callers, repo-wide Enforcer/architecture acceptance, platform
 custody, broader lifecycle composition, and DONE remain open.
 
+## Runtime-fence source consolidation — 2026-08-24
+
+The independently repaired/re-reviewed 18-path participant packet is
+integrated through `f5974c795`. It closes the bounded source gap recorded above:
+durable reservations, exact action/identity/signer/generation binding, owner
+currentness re-resolution, strict schema/row validation, lifecycle-authority
+lock ordering, committed digest verification, and fail-closed restart
+uncertainty are now implemented. Prepared rows cannot reconstruct commit
+authority after restart, and only an exact current committed row can recover a
+committed outcome.
+
+This packet does not close WP01. Protected Capability Custody WP01 remains the
+normal completion dependency; the Account WP05A coordinator/runtime caller,
+durable migration/startup ownership, the expected participant and migrated
+lifecycle tests, functional execution, proof, precommit, CI, and PR remain
+open.
+
 ## Negative cases
 
 - Copied binaries do not create trust.
@@ -114,3 +141,7 @@ custody, broader lifecycle composition, and DONE remain open.
 - Corrupt or substituted custody paths fail closed without deleting or recreating the caller's data.
 - Unsupported production custody fails unavailable before accepting challenge custody.
 - Missing high-risk sealing authority produces manual-required and no device trust reference.
+- Prepared participant state after restart is uncertain and cannot be promoted
+  into a reconstructed commit handle.
+- A stale target, signer, lifecycle generation, authority digest, or corrupted
+  committed row cannot recover or commit an effect.

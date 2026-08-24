@@ -1,5 +1,22 @@
 # Next Actions
 
+## WP01 runtime-fence source checkpoint — 2026-08-24
+
+The independently repaired and reviewed Device-owned runtime-fence participant
+is integrated through `f5974c795`. Its durable SQLite reservation state binds
+action, target, signer, lifecycle generation, and current authority; it
+supports prepare/commit/abort/recover and treats prepared restart state or
+commit ambiguity as uncertain. The source phase is complete for this bounded
+participant packet.
+
+Do not begin its test wave yet. First finish the remaining repository-wide
+production-source wave and accept the Protected Capability Custody foundation.
+Then mount the real Account WP05A coordinator/runtime caller and assign durable
+schema-migration/startup ownership without exporting Device currentness or raw
+participant handles. After the production composition is stable, write the
+missing participant tests and migrate the stale lifecycle contract tests.
+Proof, precommit, PR, and CI remain later phases.
+
 ## Ordered runtime-owner routing (audit truth, not completion)
 
 1. Account Identity WP08: keep the Rust-owned canonical household/child/device/
@@ -40,7 +57,7 @@ to WP03.
 5. Re-open WP05 and WP07 around real trust binding and parent-controlled uninstall/tamper execution instead of contract-only frontage. WP07 has a code-drafted local evidence/manual-required boundary; platform removal, attestation, transport, tests, and proof remain open.
 6. After source is complete, write the full expected-test delta for WP01/WP05/WP06/WP07, then run focused crate/domain validation and Enforcer. Proof remains a later phase under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`.
 
-## Accepted source checkpoint (2026-08-17)
+## Accepted source checkpoint (2026-08-17; superseded for WP01 by `f5974c795`)
 
 The independently accepted Device Trust branch `914d06b6a` is integrated
 through `68717b5b7`. WP01 now preserves owner-resolved current device/signer
