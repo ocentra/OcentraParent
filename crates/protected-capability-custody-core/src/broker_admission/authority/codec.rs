@@ -1,0 +1,52 @@
+use crate::authority::AuthorityError;
+use ocentra_protected_capability_custody_protocol::request::ExpectedGenerations;
+
+const AUTHORITY_MAGIC: [u8; 4] = *b"OCPA";
+const AUTHORITY_VERSION: u16 = 1;
+const AUTHORITY_PLAINTEXT_BYTES: usize = 38;
+
+pub(super) fn encode(generations: ExpectedGenerations) -> [u8; AUTHORITY_PLAINTEXT_BYTES] {
+    let mut plaintext = [0_u8; AUTHORITY_PLAINTEXT_BYTES];
+    plaintext[..4].copy_from_slice(&AUTHORITY_MAGIC);
+    plaintext[4..6].copy_from_slice(&AUTHORITY_VERSION.to_be_bytes());
+    plaintext[6..14].copy_from_slice(&generations.authority().to_be_bytes());
+    plaintext[14..22].copy_from_slice(&generations.target().to_be_bytes());
+    plaintext[22..30].copy_from_slice(&generations.key().to_be_bytes());
+    plaintext[30..38].copy_from_slice(&generations.writer().to_be_bytes());
+    plaintext
+}
+
+pub(super) fn decode(plaintext: &[u8]) -> Result<ExpectedGenerations, AuthorityError> {
+    if plaintext.len() != AUTHORITY_PLAINTEXT_BYTES
+        || plaintext.get(..4) != Some(AUTHORITY_MAGIC.as_slice())
+        || plaintext.get(4..6) != Some(AUTHORITY_VERSION.to_be_bytes().as_slice())
+    {
+        return Err(AuthorityError::Rejected);
+    }
+    ExpectedGenerations::try_new(
+        read_u64(plaintext, 6)?,
+        read_u64(plaintext, 14)?,
+        read_u64(plaintext, 22)?,
+        read_u64(plaintext, 30)?,
+    )
+    .map_err(map_protocol_error)
+}
+
+fn read_u64(bytes: &[u8], offset: usize) -> Result<u64, AuthorityError> {
+    bytes
+        .get(offset..offset + 8)
+        .ok_or(AuthorityError::Rejected)?
+        .try_into()
+        .map(u64::from_be_bytes)
+        .map_err(map_slice_error)
+}
+
+fn map_protocol_error(
+    _error: ocentra_protected_capability_custody_protocol::types::ProtocolError,
+) -> AuthorityError {
+    AuthorityError::Rejected
+}
+
+fn map_slice_error(_error: std::array::TryFromSliceError) -> AuthorityError {
+    AuthorityError::Rejected
+}

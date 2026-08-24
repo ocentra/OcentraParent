@@ -2,6 +2,7 @@
 
 mod authority;
 pub mod binding;
+pub mod broker_admission;
 pub mod custody;
 mod platform;
 

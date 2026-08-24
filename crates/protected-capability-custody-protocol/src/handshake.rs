@@ -2,66 +2,51 @@ mod broker;
 mod client;
 mod session;
 
-use crate::constants::{ATTESTATION_DIGEST_BYTES, SESSION_HANDLE_BYTES};
-use crate::types::{CorrelationId, Nonce, ProtocolVersion};
+use crate::types::{
+    AttestationDigest, CorrelationId, Nonce, ProtocolGeneration, ProtocolVersion, SessionHandle,
+};
 
-pub struct UntrustedBrokerFacts {
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct BrokerSessionWireValues {
     pub broker_nonce: Nonce,
+    pub broker_process_id: u32,
+    pub broker_session_id: u32,
     pub broker_epoch: u64,
     pub broker_key_epoch: u64,
     pub writer_lease_epoch: u64,
     pub watermark: u64,
-    pub authority_generation: u64,
-    pub target_generation: u64,
-    pub key_generation: u64,
-    pub writer_generation: u64,
-    pub session_handle_bytes: [u8; SESSION_HANDLE_BYTES],
-    pub attestation_digest_bytes: [u8; ATTESTATION_DIGEST_BYTES],
+    pub session_handle: SessionHandle,
+    pub session_expires_at_unix_millis: u64,
 }
-
-pub(crate) struct BrokerHelloParts {
-    pub(crate) broker_nonce: Nonce,
-    pub(crate) broker_epoch: u64,
-    pub(crate) broker_key_epoch: u64,
-    pub(crate) writer_lease_epoch: u64,
-    pub(crate) watermark: u64,
-    pub(crate) authority_generation: u64,
-    pub(crate) target_generation: u64,
-    pub(crate) key_generation: u64,
-    pub(crate) writer_generation: u64,
-    pub(crate) session_handle: SessionHandle,
-    pub(crate) attestation_digest: AttestationDigest,
-}
-
-#[derive(Clone, Copy, Eq, PartialEq)]
-pub struct SessionHandle(pub(crate) [u8; SESSION_HANDLE_BYTES]);
-
-#[derive(Clone, Copy, Eq, PartialEq)]
-pub struct AttestationDigest(pub(crate) [u8; ATTESTATION_DIGEST_BYTES]);
 
 #[derive(Eq, PartialEq)]
-pub struct ClientHello {
+pub struct UntrustedClientHello {
     pub(crate) version: ProtocolVersion,
+    pub(crate) protocol_generation: ProtocolGeneration,
     pub(crate) nonce: Nonce,
     pub(crate) correlation: CorrelationId,
+    pub(crate) client_process_id: u32,
     pub(crate) client_process_epoch: u64,
+    pub(crate) client_session_id: u32,
 }
 
 #[derive(Eq, PartialEq)]
-pub struct BrokerHello {
+pub struct UntrustedBrokerHello {
     pub(crate) version: ProtocolVersion,
+    pub(crate) protocol_generation: ProtocolGeneration,
     pub(crate) client_nonce: Nonce,
     pub(crate) broker_nonce: Nonce,
     pub(crate) correlation: CorrelationId,
+    pub(crate) client_process_id: u32,
     pub(crate) client_process_epoch: u64,
+    pub(crate) client_session_id: u32,
+    pub(crate) broker_process_id: u32,
+    pub(crate) broker_session_id: u32,
     pub(crate) broker_epoch: u64,
     pub(crate) broker_key_epoch: u64,
     pub(crate) writer_lease_epoch: u64,
     pub(crate) watermark: u64,
-    pub(crate) authority_generation: u64,
-    pub(crate) target_generation: u64,
-    pub(crate) key_generation: u64,
-    pub(crate) writer_generation: u64,
     pub(crate) session_handle: SessionHandle,
     pub(crate) attestation_digest: AttestationDigest,
+    pub(crate) session_expires_at_unix_millis: u64,
 }

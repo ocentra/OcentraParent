@@ -1,66 +1,24 @@
-use crate::handshake::{AttestationDigest, SessionHandle};
-use crate::types::{CorrelationId, Nonce, ProtocolVersion};
+use crate::types::{AuthenticationTag, OpaquePreparedToken};
 
-use super::Request;
+use super::UntrustedRequest;
 
-impl Request {
-    pub fn version(&self) -> ProtocolVersion {
-        self.version
+mod operation;
+mod session;
+
+impl UntrustedRequest {
+    pub fn opaque_token_digest(&self) -> Option<[u8; 32]> {
+        self.opaque_token.as_ref().map(OpaquePreparedToken::digest)
     }
 
-    pub fn nonce(&self) -> Nonce {
-        self.nonce
+    pub fn into_opaque_token(self) -> Option<OpaquePreparedToken> {
+        self.opaque_token
     }
 
-    pub fn broker_nonce(&self) -> Nonce {
-        self.broker_nonce
+    pub(crate) fn opaque_token(&self) -> Option<&OpaquePreparedToken> {
+        self.opaque_token.as_ref()
     }
 
-    pub fn correlation(&self) -> CorrelationId {
-        self.correlation
-    }
-
-    pub fn client_process_epoch(&self) -> u64 {
-        self.client_process_epoch
-    }
-
-    pub fn broker_epoch(&self) -> u64 {
-        self.broker_epoch
-    }
-
-    pub fn broker_key_epoch(&self) -> u64 {
-        self.broker_key_epoch
-    }
-
-    pub fn writer_lease_epoch(&self) -> u64 {
-        self.writer_lease_epoch
-    }
-
-    pub fn watermark(&self) -> u64 {
-        self.watermark
-    }
-
-    pub fn expected_authority_generation(&self) -> u64 {
-        self.expected_authority_generation
-    }
-
-    pub fn expected_target_generation(&self) -> u64 {
-        self.expected_target_generation
-    }
-
-    pub fn expected_key_generation(&self) -> u64 {
-        self.expected_key_generation
-    }
-
-    pub fn expected_writer_generation(&self) -> u64 {
-        self.expected_writer_generation
-    }
-
-    pub fn session_handle(&self) -> SessionHandle {
-        self.session_handle
-    }
-
-    pub fn attestation_digest(&self) -> AttestationDigest {
-        self.attestation_digest
+    pub(crate) fn authentication_tag(&self) -> AuthenticationTag {
+        self.authentication_tag
     }
 }

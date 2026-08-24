@@ -1,5 +1,9 @@
+use std::io::{Read, Write};
+
 use crate::constants::{FRAME_PREFIX_BYTES, MAX_FIELD_BYTES, MAX_FRAME_BYTES, PROTOCOL_DOMAIN};
 use crate::types::{ProtocolError, ProtocolVersion};
+
+pub(super) mod reader;
 
 pub(super) fn append_header(payload: &mut Vec<u8>, message_kind: u8, version: ProtocolVersion) {
     payload.extend_from_slice(PROTOCOL_DOMAIN.as_bytes());
@@ -14,7 +18,7 @@ pub(super) fn encode_frame(payload: &[u8]) -> Result<Vec<u8>, ProtocolError> {
     if frame_length > MAX_FRAME_BYTES {
         return Err(ProtocolError::FrameTooLarge);
     }
-    let length = u32::try_from(payload.len()).map_err(|_error| ProtocolError::FrameTooLarge)?;
+    let length = u32::try_from(payload.len()).map_err(map_frame_length)?;
     let mut frame = Vec::with_capacity(frame_length);
     frame.extend_from_slice(&length.to_be_bytes());
     frame.extend_from_slice(payload);
@@ -34,7 +38,7 @@ pub(super) fn decode_frame(frame: &[u8]) -> Result<&[u8], ProtocolError> {
     let declared = u32::from_be_bytes(
         frame[..FRAME_PREFIX_BYTES]
             .try_into()
-            .map_err(|_error| ProtocolError::InvalidFrameLength)?,
+            .map_err(map_invalid_frame_length)?,
     ) as usize;
     let expected_frame_length = declared
         .checked_add(FRAME_PREFIX_BYTES)
@@ -53,89 +57,49 @@ pub(super) fn append_field(payload: &mut Vec<u8>, value: &[u8]) -> Result<(), Pr
     if !value.is_empty() && value.len() > MAX_FIELD_BYTES {
         return Err(ProtocolError::FieldTooLarge);
     }
-    let length = u32::try_from(value.len()).map_err(|_error| ProtocolError::FieldTooLarge)?;
+    let length = u32::try_from(value.len()).map_err(map_field_length)?;
     payload.extend_from_slice(&length.to_be_bytes());
     payload.extend_from_slice(value);
     Ok(())
 }
 
-pub(super) struct Cursor<'a> {
-    bytes: &'a [u8],
-    offset: usize,
+pub(crate) fn read_frame(reader: &mut impl Read) -> Result<Vec<u8>, ProtocolError> {
+    let mut prefix = [0_u8; FRAME_PREFIX_BYTES];
+    reader
+        .read_exact(&mut prefix)
+        .map_err(map_transport_error)?;
+    let declared = u32::from_be_bytes(prefix) as usize;
+    if declared == 0 || declared > MAX_FRAME_BYTES.saturating_sub(FRAME_PREFIX_BYTES) {
+        return Err(ProtocolError::InvalidFrameLength);
+    }
+    let mut frame = Vec::with_capacity(FRAME_PREFIX_BYTES + declared);
+    frame.extend_from_slice(&prefix);
+    frame.resize(FRAME_PREFIX_BYTES + declared, 0);
+    reader
+        .read_exact(&mut frame[FRAME_PREFIX_BYTES..])
+        .map_err(map_transport_error)?;
+    decode_frame(&frame)?;
+    Ok(frame)
 }
 
-impl<'a> Cursor<'a> {
-    pub(super) fn new(bytes: &'a [u8]) -> Self {
-        Self { bytes, offset: 0 }
-    }
+pub(crate) fn write_frame(writer: &mut impl Write, frame: &[u8]) -> Result<(), ProtocolError> {
+    decode_frame(frame)?;
+    writer.write_all(frame).map_err(map_transport_error)?;
+    writer.flush().map_err(map_transport_error)
+}
 
-    pub(super) fn take_exact(&mut self, length: usize) -> Result<&'a [u8], ProtocolError> {
-        let end = self
-            .offset
-            .checked_add(length)
-            .ok_or(ProtocolError::Truncated)?;
-        let value = self
-            .bytes
-            .get(self.offset..end)
-            .ok_or(ProtocolError::Truncated)?;
-        self.offset = end;
-        Ok(value)
-    }
+fn map_frame_length(_error: std::num::TryFromIntError) -> ProtocolError {
+    ProtocolError::FrameTooLarge
+}
 
-    pub(super) fn take_header(
-        &mut self,
-        expected_message_kind: u8,
-    ) -> Result<ProtocolVersion, ProtocolError> {
-        if self.take_exact(PROTOCOL_DOMAIN.len())? != PROTOCOL_DOMAIN.as_bytes() {
-            return Err(ProtocolError::InvalidDomain);
-        }
-        let message_kind = self.take_u8()?;
-        if message_kind != expected_message_kind {
-            return Err(ProtocolError::InvalidMessageKind(message_kind));
-        }
-        ProtocolVersion::decode(self.take_u16()?)
-    }
+fn map_invalid_frame_length(_error: std::array::TryFromSliceError) -> ProtocolError {
+    ProtocolError::InvalidFrameLength
+}
 
-    pub(super) fn take_u8(&mut self) -> Result<u8, ProtocolError> {
-        Ok(*self
-            .take_exact(1)?
-            .first()
-            .ok_or(ProtocolError::Truncated)?)
-    }
+fn map_field_length(_error: std::num::TryFromIntError) -> ProtocolError {
+    ProtocolError::FieldTooLarge
+}
 
-    pub(super) fn take_u16(&mut self) -> Result<u16, ProtocolError> {
-        Ok(u16::from_be_bytes(
-            self.take_exact(2)?
-                .try_into()
-                .map_err(|_error| ProtocolError::Truncated)?,
-        ))
-    }
-
-    pub(super) fn take_u64(&mut self) -> Result<u64, ProtocolError> {
-        Ok(u64::from_be_bytes(
-            self.take_exact(8)?
-                .try_into()
-                .map_err(|_error| ProtocolError::Truncated)?,
-        ))
-    }
-
-    pub(super) fn take_field(&mut self) -> Result<Vec<u8>, ProtocolError> {
-        let length = u32::from_be_bytes(
-            self.take_exact(4)?
-                .try_into()
-                .map_err(|_error| ProtocolError::Truncated)?,
-        ) as usize;
-        if length > MAX_FIELD_BYTES {
-            return Err(ProtocolError::FieldTooLarge);
-        }
-        Ok(self.take_exact(length)?.to_vec())
-    }
-
-    pub(super) fn finish(self) -> Result<(), ProtocolError> {
-        if self.offset == self.bytes.len() {
-            Ok(())
-        } else {
-            Err(ProtocolError::TrailingBytes)
-        }
-    }
+fn map_transport_error(_error: std::io::Error) -> ProtocolError {
+    ProtocolError::Transport
 }

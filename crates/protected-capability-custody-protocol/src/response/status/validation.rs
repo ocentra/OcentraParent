@@ -1,19 +1,26 @@
-use crate::constants::OPAQUE_TOKEN_BYTES;
-use crate::types::ProtocolError;
+use crate::request::RequestKind;
+use crate::types::{OpaquePreparedToken, ProtocolError};
 
-use super::super::{ResponseStatus, UntrustedResponseFacts};
+use super::super::{ObservedGenerations, ResponseStatus};
 
-pub(crate) fn validate_result(facts: &UntrustedResponseFacts) -> Result<(), ProtocolError> {
-    if !facts.status.is_compatible_with(facts.request_kind) {
+pub(crate) fn validate_result(
+    request_kind: RequestKind,
+    status: ResponseStatus,
+    observed_generations: Option<ObservedGenerations>,
+    opaque_token: Option<&OpaquePreparedToken>,
+) -> Result<(), ProtocolError> {
+    if !status.is_compatible_with(request_kind) {
         return Err(ProtocolError::InvalidStatusForRequest);
     }
-    if matches!(facts.status, ResponseStatus::Prepared)
-        && facts.opaque_token.len() != OPAQUE_TOKEN_BYTES
-    {
-        return Err(ProtocolError::InvalidOpaqueToken);
+    if status.requires_observed_generations() != observed_generations.is_some() {
+        return Err(ProtocolError::InvalidEpoch);
     }
-    if !matches!(facts.status, ResponseStatus::Prepared) && !facts.opaque_token.is_empty() {
-        return Err(ProtocolError::UnexpectedOpaqueToken);
+    if matches!(status, ResponseStatus::Prepared) != opaque_token.is_some() {
+        return Err(if matches!(status, ResponseStatus::Prepared) {
+            ProtocolError::InvalidOpaqueToken
+        } else {
+            ProtocolError::UnexpectedOpaqueToken
+        });
     }
     Ok(())
 }

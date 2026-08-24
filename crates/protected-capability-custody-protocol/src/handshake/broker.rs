@@ -1,134 +1,135 @@
-use crate::types::{BindingEpochs, CorrelationId, Nonce, ProtocolError, ProtocolVersion};
+use sha2::{Digest, Sha256};
 
-use super::{
-    AttestationDigest, BrokerHello, BrokerHelloParts, ClientHello, SessionHandle,
-    UntrustedBrokerFacts,
+use crate::constants::SESSION_TRANSCRIPT_DOMAIN;
+use crate::types::{
+    AttestationDigest, AuthenticationDomain, AuthenticationTag, BootstrapAuthenticator,
+    ProtocolError, SessionTranscriptDigest,
 };
 
+use super::{BrokerSessionWireValues, UntrustedBrokerHello, UntrustedClientHello};
+
+mod accessors;
 mod binding;
 mod debug;
 
-impl BrokerHello {
-    pub fn try_from_untrusted_facts(
-        client: &ClientHello,
-        facts: &UntrustedBrokerFacts,
+impl UntrustedBrokerHello {
+    pub fn authenticate_wire(
+        client: &UntrustedClientHello,
+        session: BrokerSessionWireValues,
+        now_unix_millis: u64,
+        authenticator: &BootstrapAuthenticator,
     ) -> Result<Self, ProtocolError> {
-        let session_handle = SessionHandle::try_from_bytes(&facts.session_handle_bytes)?;
-        let attestation_digest =
-            AttestationDigest::try_from_bytes(&facts.attestation_digest_bytes)?;
-        Self::from_parts(
+        let session = session.try_new(now_unix_millis)?;
+        let mut canonical = Vec::with_capacity(224);
+        session.append_attestation_message(client, &mut canonical);
+        let tag =
+            authenticator.authenticate(AuthenticationDomain::BrokerAttestation, &canonical)?;
+        Ok(Self::from_parts(
             client,
-            &BrokerHelloParts {
-                broker_nonce: facts.broker_nonce,
-                broker_epoch: facts.broker_epoch,
-                broker_key_epoch: facts.broker_key_epoch,
-                writer_lease_epoch: facts.writer_lease_epoch,
-                watermark: facts.watermark,
-                authority_generation: facts.authority_generation,
-                target_generation: facts.target_generation,
-                key_generation: facts.key_generation,
-                writer_generation: facts.writer_generation,
-                session_handle,
-                attestation_digest,
-            },
-        )
+            session,
+            AttestationDigest::from_authentication_tag(tag),
+        ))
     }
 
-    pub(crate) fn from_parts(
-        client: &ClientHello,
-        parts: &BrokerHelloParts,
+    pub(crate) fn from_untrusted_wire(
+        client: &UntrustedClientHello,
+        session: BrokerSessionWireValues,
+        attestation_digest: AttestationDigest,
+        now_unix_millis: u64,
     ) -> Result<Self, ProtocolError> {
-        BindingEpochs {
-            client_process_epoch: client.client_process_epoch(),
-            broker_epoch: parts.broker_epoch,
-            broker_key_epoch: parts.broker_key_epoch,
-            writer_lease_epoch: parts.writer_lease_epoch,
-            authority_generation: parts.authority_generation,
-            target_generation: parts.target_generation,
-            key_generation: parts.key_generation,
-            writer_generation: parts.writer_generation,
-        }
-        .validate()?;
-        Ok(Self {
+        Ok(Self::from_parts(
+            client,
+            session.try_new(now_unix_millis)?,
+            attestation_digest,
+        ))
+    }
+
+    fn from_parts(
+        client: &UntrustedClientHello,
+        session: BrokerSessionWireValues,
+        attestation_digest: AttestationDigest,
+    ) -> Self {
+        Self {
             version: client.version(),
+            protocol_generation: client.protocol_generation(),
             client_nonce: client.nonce(),
-            broker_nonce: parts.broker_nonce,
+            broker_nonce: session.broker_nonce,
             correlation: client.correlation(),
+            client_process_id: client.client_process_id(),
             client_process_epoch: client.client_process_epoch(),
-            broker_epoch: parts.broker_epoch,
-            broker_key_epoch: parts.broker_key_epoch,
-            writer_lease_epoch: parts.writer_lease_epoch,
-            watermark: parts.watermark,
-            authority_generation: parts.authority_generation,
-            target_generation: parts.target_generation,
-            key_generation: parts.key_generation,
-            writer_generation: parts.writer_generation,
-            session_handle: parts.session_handle,
-            attestation_digest: parts.attestation_digest,
-        })
+            client_session_id: client.client_session_id(),
+            broker_process_id: session.broker_process_id,
+            broker_session_id: session.broker_session_id,
+            broker_epoch: session.broker_epoch,
+            broker_key_epoch: session.broker_key_epoch,
+            writer_lease_epoch: session.writer_lease_epoch,
+            watermark: session.watermark,
+            session_handle: session.session_handle,
+            attestation_digest,
+            session_expires_at_unix_millis: session.session_expires_at_unix_millis,
+        }
     }
 
-    pub fn version(&self) -> ProtocolVersion {
-        self.version
+    pub fn verify_authenticated_provenance(
+        &self,
+        client: &UntrustedClientHello,
+        now_unix_millis: u64,
+        authenticator: &BootstrapAuthenticator,
+    ) -> Result<SessionTranscriptDigest, ProtocolError> {
+        if !self.matches_client(client) || !self.is_live_at(now_unix_millis) {
+            return Err(ProtocolError::AuthenticationFailed);
+        }
+        let session = self.session_wire_values();
+        let mut canonical = Vec::with_capacity(224);
+        session.append_attestation_message(client, &mut canonical);
+        authenticator.verify(
+            AuthenticationDomain::BrokerAttestation,
+            &canonical,
+            AuthenticationTag::from_attestation_digest(self.attestation_digest),
+        )?;
+        Ok(self.transcript_digest())
     }
 
-    pub fn negotiated_version(&self) -> ProtocolVersion {
-        self.version
+    pub fn transcript_digest(&self) -> SessionTranscriptDigest {
+        let mut canonical = Vec::with_capacity(256);
+        self.session_wire_values()
+            .append_attestation_message(&self.client_hello(), &mut canonical);
+        canonical.extend_from_slice(self.attestation_digest.as_bytes());
+        let mut digest = Sha256::new();
+        digest.update((SESSION_TRANSCRIPT_DOMAIN.len() as u32).to_be_bytes());
+        digest.update(SESSION_TRANSCRIPT_DOMAIN.as_bytes());
+        digest.update((canonical.len() as u32).to_be_bytes());
+        digest.update(&canonical);
+        SessionTranscriptDigest::from_digest(digest.finalize().into())
     }
 
-    pub fn client_nonce(&self) -> Nonce {
-        self.client_nonce
+    pub fn is_live_at(&self, now_unix_millis: u64) -> bool {
+        now_unix_millis != 0 && now_unix_millis < self.session_expires_at_unix_millis
     }
 
-    pub fn broker_nonce(&self) -> Nonce {
-        self.broker_nonce
+    pub(crate) fn session_wire_values(&self) -> BrokerSessionWireValues {
+        BrokerSessionWireValues {
+            broker_nonce: self.broker_nonce,
+            broker_process_id: self.broker_process_id,
+            broker_session_id: self.broker_session_id,
+            broker_epoch: self.broker_epoch,
+            broker_key_epoch: self.broker_key_epoch,
+            writer_lease_epoch: self.writer_lease_epoch,
+            watermark: self.watermark,
+            session_handle: self.session_handle,
+            session_expires_at_unix_millis: self.session_expires_at_unix_millis,
+        }
     }
 
-    pub fn correlation(&self) -> CorrelationId {
-        self.correlation
-    }
-
-    pub fn client_process_epoch(&self) -> u64 {
-        self.client_process_epoch
-    }
-
-    pub fn broker_epoch(&self) -> u64 {
-        self.broker_epoch
-    }
-
-    pub fn broker_key_epoch(&self) -> u64 {
-        self.broker_key_epoch
-    }
-
-    pub fn writer_lease_epoch(&self) -> u64 {
-        self.writer_lease_epoch
-    }
-
-    pub fn watermark(&self) -> u64 {
-        self.watermark
-    }
-
-    pub fn authority_generation(&self) -> u64 {
-        self.authority_generation
-    }
-
-    pub fn target_generation(&self) -> u64 {
-        self.target_generation
-    }
-
-    pub fn key_generation(&self) -> u64 {
-        self.key_generation
-    }
-
-    pub fn writer_generation(&self) -> u64 {
-        self.writer_generation
-    }
-
-    pub fn session_handle(&self) -> SessionHandle {
-        self.session_handle
-    }
-
-    pub fn attestation_digest(&self) -> AttestationDigest {
-        self.attestation_digest
+    fn client_hello(&self) -> UntrustedClientHello {
+        UntrustedClientHello {
+            version: self.version,
+            protocol_generation: self.protocol_generation,
+            nonce: self.client_nonce,
+            correlation: self.correlation,
+            client_process_id: self.client_process_id,
+            client_process_epoch: self.client_process_epoch,
+            client_session_id: self.client_session_id,
+        }
     }
 }

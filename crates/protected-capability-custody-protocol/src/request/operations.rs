@@ -1,55 +1,76 @@
 use sha2::{Digest, Sha256};
 
-use crate::constants::{OPAQUE_TOKEN_DIGEST_DOMAIN, REQUEST_DIGEST_BYTES, REQUEST_DIGEST_DOMAIN};
-use crate::target::{Action, TargetDescriptor};
+use crate::constants::{REQUEST_DIGEST_BYTES, REQUEST_DIGEST_DOMAIN};
 
-use super::{Request, RequestKind};
+use super::{RequestKind, UntrustedRequest};
 
-impl Request {
+impl RequestKind {
+    pub(crate) fn decode(value: u8) -> Result<Self, crate::types::ProtocolError> {
+        match value {
+            1 => Ok(Self::Prepare),
+            2 => Ok(Self::Commit),
+            3 => Ok(Self::Abort),
+            4 => Ok(Self::Recover),
+            5 => Ok(Self::ResolveAmbiguity),
+            other => Err(crate::types::ProtocolError::UnsupportedRequest(other)),
+        }
+    }
+
+    pub(crate) fn requires_token(self) -> bool {
+        matches!(self, Self::Commit | Self::Abort)
+    }
+}
+
+impl UntrustedRequest {
     pub fn request_digest(&self) -> [u8; REQUEST_DIGEST_BYTES] {
+        let mut canonical = Vec::with_capacity(512);
+        canonical.extend_from_slice(&self.version().value().to_be_bytes());
+        canonical.extend_from_slice(&self.protocol_generation().value().to_be_bytes());
+        canonical.extend_from_slice(self.nonce().as_bytes());
+        canonical.extend_from_slice(self.broker_nonce().as_bytes());
+        canonical.extend_from_slice(self.correlation().as_bytes());
+        canonical.extend_from_slice(&self.client_process_id().to_be_bytes());
+        canonical.extend_from_slice(&self.client_process_epoch().to_be_bytes());
+        canonical.extend_from_slice(&self.client_session_id().to_be_bytes());
+        canonical.extend_from_slice(&self.broker_process_id().to_be_bytes());
+        canonical.extend_from_slice(&self.broker_session_id().to_be_bytes());
+        canonical.extend_from_slice(&self.broker_epoch().to_be_bytes());
+        canonical.extend_from_slice(&self.broker_key_epoch().to_be_bytes());
+        canonical.extend_from_slice(&self.writer_lease_epoch().to_be_bytes());
+        canonical.extend_from_slice(&self.watermark().to_be_bytes());
+        canonical.extend_from_slice(self.session_handle().as_bytes());
+        canonical.extend_from_slice(self.transcript_digest().as_bytes());
+        canonical.extend_from_slice(&self.sequence().to_be_bytes());
+        canonical.extend_from_slice(&self.expires_at_unix_millis().to_be_bytes());
+        let generations = self.expected_generations();
+        canonical.extend_from_slice(&generations.authority().to_be_bytes());
+        canonical.extend_from_slice(&generations.target().to_be_bytes());
+        canonical.extend_from_slice(&generations.key().to_be_bytes());
+        canonical.extend_from_slice(&generations.writer().to_be_bytes());
+        canonical.push(self.kind() as u8);
+        append_digest_field(&mut canonical, self.operation());
+        canonical.push(self.action() as u8);
+        canonical.push(self.target().kind() as u8);
+        append_digest_field(&mut canonical, self.target().household());
+        append_digest_field(&mut canonical, self.target().device());
+        append_digest_field(&mut canonical, self.target().target());
+        match self.opaque_token_digest() {
+            Some(digest) => {
+                canonical.push(1);
+                canonical.extend_from_slice(&digest);
+            }
+            None => canonical.push(0),
+        }
         let mut digest = Sha256::new();
+        digest.update((REQUEST_DIGEST_DOMAIN.len() as u32).to_be_bytes());
         digest.update(REQUEST_DIGEST_DOMAIN.as_bytes());
-        digest.update(self.version().value().to_be_bytes());
-        digest.update([self.kind() as u8]);
-        append_digest_field(&mut digest, self.operation());
-        digest.update([self.action() as u8]);
-        digest.update([self.target().kind() as u8]);
-        append_digest_field(&mut digest, self.target().household());
-        append_digest_field(&mut digest, self.target().device());
-        append_digest_field(&mut digest, self.target().target());
-        digest.update(opaque_token_digest(self.opaque_token()));
+        digest.update((canonical.len() as u32).to_be_bytes());
+        digest.update(&canonical);
         digest.finalize().into()
     }
-
-    pub fn kind(&self) -> RequestKind {
-        self.kind
-    }
-
-    pub fn operation(&self) -> &[u8] {
-        &self.operation
-    }
-
-    pub fn action(&self) -> Action {
-        self.action
-    }
-
-    pub fn target(&self) -> &TargetDescriptor {
-        &self.target
-    }
-
-    pub fn opaque_token(&self) -> &[u8] {
-        &self.opaque_token
-    }
 }
 
-fn append_digest_field(digest: &mut Sha256, value: &[u8]) {
-    digest.update((value.len() as u32).to_be_bytes());
-    digest.update(value);
-}
-
-fn opaque_token_digest(value: &[u8]) -> [u8; REQUEST_DIGEST_BYTES] {
-    let mut digest = Sha256::new();
-    digest.update(OPAQUE_TOKEN_DIGEST_DOMAIN.as_bytes());
-    append_digest_field(&mut digest, value);
-    digest.finalize().into()
+fn append_digest_field(canonical: &mut Vec<u8>, value: &[u8]) {
+    canonical.extend_from_slice(&(value.len() as u32).to_be_bytes());
+    canonical.extend_from_slice(value);
 }

@@ -18,8 +18,15 @@ pub(super) fn write(
         }
         ProtocolError::EmptyField => Some(formatter.write_str(constants::ERROR_EMPTY_FIELD)),
         ProtocolError::FieldTooLarge => Some(formatter.write_str(constants::ERROR_FIELD_TOO_LARGE)),
+        ProtocolError::InvalidDiscriminant(value) => Some(write_discriminant(formatter, *value)),
+        ProtocolError::Transport => Some(formatter.write_str(constants::ERROR_TRANSPORT)),
         _ => None,
     }
+}
+
+fn write_discriminant(formatter: &mut fmt::Formatter<'_>, value: u8) -> fmt::Result {
+    formatter.write_str(constants::ERROR_INVALID_DISCRIMINANT)?;
+    fmt::Display::fmt(&value, formatter)
 }
 
 fn write_version(formatter: &mut fmt::Formatter<'_>, value: u16) -> fmt::Result {

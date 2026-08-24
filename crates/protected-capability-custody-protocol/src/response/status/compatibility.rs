@@ -32,4 +32,11 @@ impl ResponseStatus {
             ),
         }
     }
+
+    pub(crate) fn requires_observed_generations(self) -> bool {
+        !matches!(
+            self,
+            Self::Rejected | Self::Unavailable | Self::UnsupportedPlatform
+        )
+    }
 }

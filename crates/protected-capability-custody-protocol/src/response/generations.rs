@@ -1,19 +1,19 @@
-use super::Response;
+use super::ObservedGenerations;
 
-impl Response {
-    pub fn authority_generation(&self) -> u64 {
-        self.authority_generation
+impl ObservedGenerations {
+    pub fn authority(self) -> u64 {
+        self.authority
     }
 
-    pub fn target_generation(&self) -> u64 {
-        self.target_generation
+    pub fn target(self) -> u64 {
+        self.target
     }
 
-    pub fn key_generation(&self) -> u64 {
-        self.key_generation
+    pub fn key(self) -> u64 {
+        self.key
     }
 
-    pub fn writer_generation(&self) -> u64 {
-        self.writer_generation
+    pub fn writer(self) -> u64 {
+        self.writer
     }
 }

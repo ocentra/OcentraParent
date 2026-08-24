@@ -1,81 +1,51 @@
-use std::fmt;
+use zeroize::Zeroizing;
 
-use crate::constants;
-use crate::constants::{CORRELATION_BYTES, NONCE_BYTES, PROTOCOL_VERSION};
+use crate::constants::{
+    ATTESTATION_DIGEST_BYTES, AUTHENTICATION_TAG_BYTES, BOOTSTRAP_AUTHENTICATOR_BYTES,
+    CORRELATION_BYTES, NONCE_BYTES, OPAQUE_TOKEN_BYTES, SESSION_HANDLE_BYTES,
+    TRANSCRIPT_DIGEST_BYTES,
+};
 
+mod authentication;
 mod display;
+mod identity;
+mod protocol;
+mod token;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ProtocolVersion(pub(crate) u16);
 
-impl ProtocolVersion {
-    pub const CURRENT: Self = Self(PROTOCOL_VERSION);
-
-    pub fn current() -> Self {
-        Self::CURRENT
-    }
-
-    pub fn value(self) -> u16 {
-        self.0
-    }
-
-    pub(crate) fn decode(value: u16) -> Result<Self, ProtocolError> {
-        if value != PROTOCOL_VERSION {
-            return Err(ProtocolError::UnsupportedVersion(value));
-        }
-        Ok(Self(value))
-    }
-}
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ProtocolGeneration(pub(crate) u64);
 
 #[derive(Clone, Copy, Eq, PartialEq)]
 pub struct Nonce(pub(crate) [u8; NONCE_BYTES]);
 
-impl Nonce {
-    pub fn try_from_bytes(value: &[u8]) -> Result<Self, ProtocolError> {
-        let bytes = value
-            .try_into()
-            .map_err(|_error| ProtocolError::InvalidNonce)?;
-        if bytes == [0_u8; NONCE_BYTES] {
-            return Err(ProtocolError::InvalidNonce);
-        }
-        Ok(Self(bytes))
-    }
-
-    pub fn as_bytes(&self) -> &[u8; NONCE_BYTES] {
-        &self.0
-    }
-}
-
-impl fmt::Debug for Nonce {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str(constants::DEBUG_NONCE)
-    }
-}
-
 #[derive(Clone, Copy, Eq, PartialEq)]
 pub struct CorrelationId(pub(crate) [u8; CORRELATION_BYTES]);
 
-impl CorrelationId {
-    pub fn try_from_bytes(value: &[u8]) -> Result<Self, ProtocolError> {
-        let bytes = value
-            .try_into()
-            .map_err(|_error| ProtocolError::InvalidCorrelationId)?;
-        if bytes == [0_u8; CORRELATION_BYTES] {
-            return Err(ProtocolError::InvalidCorrelationId);
-        }
-        Ok(Self(bytes))
-    }
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub struct SessionHandle(pub(crate) [u8; SESSION_HANDLE_BYTES]);
 
-    pub fn as_bytes(&self) -> &[u8; CORRELATION_BYTES] {
-        &self.0
-    }
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub struct AttestationDigest(pub(crate) [u8; ATTESTATION_DIGEST_BYTES]);
+
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub struct SessionTranscriptDigest(pub(crate) [u8; TRANSCRIPT_DIGEST_BYTES]);
+
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub struct AuthenticationTag(pub(crate) [u8; AUTHENTICATION_TAG_BYTES]);
+
+pub struct BootstrapAuthenticator(Zeroizing<[u8; BOOTSTRAP_AUTHENTICATOR_BYTES]>);
+
+#[derive(Clone, Copy)]
+pub(crate) enum AuthenticationDomain {
+    BrokerAttestation,
+    Request,
+    Response,
 }
 
-impl fmt::Debug for CorrelationId {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter.write_str(constants::DEBUG_CORRELATION)
-    }
-}
+pub struct OpaquePreparedToken(Zeroizing<[u8; OPAQUE_TOKEN_BYTES]>);
 
 pub(crate) struct BindingEpochs {
     pub(crate) client_process_epoch: u64,
@@ -86,23 +56,6 @@ pub(crate) struct BindingEpochs {
     pub(crate) target_generation: u64,
     pub(crate) key_generation: u64,
     pub(crate) writer_generation: u64,
-}
-
-impl BindingEpochs {
-    pub(crate) fn validate(&self) -> Result<(), ProtocolError> {
-        if self.client_process_epoch == 0
-            || self.broker_epoch == 0
-            || self.broker_key_epoch == 0
-            || self.writer_lease_epoch == 0
-            || self.authority_generation == 0
-            || self.target_generation == 0
-            || self.key_generation == 0
-            || self.writer_generation == 0
-        {
-            return Err(ProtocolError::InvalidEpoch);
-        }
-        Ok(())
-    }
 }
 
 #[derive(Debug)]
@@ -125,8 +78,56 @@ pub enum ProtocolError {
     InvalidOpaqueToken,
     UnexpectedOpaqueToken,
     InvalidEpoch,
+    InvalidProcessId,
     InvalidSessionHandle,
     InvalidAttestationDigest,
+    InvalidTranscriptDigest,
+    InvalidAuthenticationTag,
+    AuthenticationFailed,
+    InvalidSequence,
+    InvalidExpiry,
+    InvalidBootstrap,
     Truncated,
     InvalidStatusForRequest,
+    InvalidDiscriminant(u8),
+    Transport,
+    Randomness,
+}
+
+impl ProtocolError {
+    fn from_randomness(_error: getrandom::Error) -> Self {
+        Self::Randomness
+    }
+
+    fn from_nonce_length(_error: std::array::TryFromSliceError) -> Self {
+        Self::InvalidNonce
+    }
+
+    fn from_correlation_length(_error: std::array::TryFromSliceError) -> Self {
+        Self::InvalidCorrelationId
+    }
+
+    fn from_session_handle_length(_error: std::array::TryFromSliceError) -> Self {
+        Self::InvalidSessionHandle
+    }
+
+    fn from_attestation_length(_error: std::array::TryFromSliceError) -> Self {
+        Self::InvalidAttestationDigest
+    }
+
+    fn from_transcript_length(_error: std::array::TryFromSliceError) -> Self {
+        Self::InvalidTranscriptDigest
+    }
+
+    fn from_authentication_tag_length(_error: std::array::TryFromSliceError) -> Self {
+        Self::InvalidAuthenticationTag
+    }
+
+    fn from_bootstrap_length(_error: std::array::TryFromSliceError) -> Self {
+        Self::InvalidBootstrap
+    }
+
+    fn from_authentication_failure(_error: ring::error::Unspecified) -> Self {
+        Self::AuthenticationFailed
+    }
 }

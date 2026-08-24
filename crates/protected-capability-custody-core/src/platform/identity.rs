@@ -32,6 +32,22 @@ impl PhysicalDatabaseIdentity {
     pub(crate) fn as_bytes(&self) -> &[u8; PHYSICAL_DATABASE_IDENTITY_BYTES] {
         &self.canonical
     }
+
+    pub(crate) fn from_bytes(value: &[u8]) -> Result<Self, PlatformError> {
+        let canonical: [u8; PHYSICAL_DATABASE_IDENTITY_BYTES] =
+            value.try_into().map_err(map_identity_length)?;
+        if canonical[..32] == [0_u8; 32]
+            || canonical[32..64] == [0_u8; 32]
+            || canonical[64..] == [0_u8; 32]
+        {
+            return Err(PlatformError::InvalidAttestation);
+        }
+        Ok(Self { canonical })
+    }
+}
+
+fn map_identity_length(_error: std::array::TryFromSliceError) -> PlatformError {
+    PlatformError::InvalidAttestation
 }
 
 impl std::fmt::Debug for PhysicalDatabaseIdentity {
@@ -67,9 +83,8 @@ impl DatabaseIdentity {
     }
 
     pub(crate) fn from_bytes(value: &[u8]) -> Result<Self, PlatformError> {
-        let canonical: [u8; DATABASE_IDENTITY_BYTES] = value
-            .try_into()
-            .map_err(|_| PlatformError::InvalidAttestation)?;
+        let canonical: [u8; DATABASE_IDENTITY_BYTES] =
+            value.try_into().map_err(map_identity_length)?;
         if canonical[..32] == [0_u8; 32]
             || canonical[32..64] == [0_u8; 32]
             || canonical[64..96] == [0_u8; 32]
