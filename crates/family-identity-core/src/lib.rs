@@ -3,6 +3,7 @@
 #[macro_use]
 mod family_identity_text_ids;
 pub mod account_identity_authority;
+pub mod account_identity_authority_issuer;
 pub mod account_identity_authority_producer;
 pub mod account_identity_authority_producer_error;
 pub mod account_identity_authority_repository;
