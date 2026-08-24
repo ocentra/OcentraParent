@@ -41,10 +41,15 @@ pub const BROKER_PIPE_NAME: &str = "\\\\.\\pipe\\ocentra-protected-capability-cu
 pub const BROKER_PIPE_NAME_PREFIX: &str = "\\\\.\\pipe\\ocentra-protected-capability-custody-v2-";
 pub const BROKER_EXECUTABLE_NAME: &str = "ocentra-protected-capability-custody-broker.exe";
 pub const BROKER_SERVICE_NAME: &str = "OcentraProtectedCapabilityCustodyBroker";
-pub const BROKER_PIPE_SDDL: &str = "D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;OW)";
-// Provisioned by the signed installer beside the broker executable as exactly
-// 32 raw SHA-256 bytes. The runtime never creates this file.
-pub const BROKER_DIGEST_MANIFEST_NAME: &str = "ocentra-protected-capability-custody-broker.sha256";
+// Provisioned by the signed installer in the SYSTEM-only registry key derived
+// from the fixed broker executable path. The runtime never creates or reads a
+// mutable sibling manifest.
+pub const BROKER_DIGEST_VALUE_NAME: &str = "broker-image-sha256";
+pub const CLIENT_TOKEN_SID_VALUE_NAME: &str = "client-token-sid";
+pub const CLIENT_TOKEN_INTEGRITY_VALUE_NAME: &str = "client-token-integrity";
+pub const CLIENT_TOKEN_SESSION_VALUE_NAME: &str = "client-token-session";
+pub const CLIENT_IMAGE_PATH_VALUE_NAME: &str = "client-image-path";
+pub const CLIENT_IMAGE_DIGEST_VALUE_NAME: &str = "client-image-sha256";
 pub const BROKER_PROJECT_QUALIFIER: &str = "com";
 pub const BROKER_PROJECT_ORGANIZATION: &str = "Ocentra";
 pub const BROKER_PROJECT_APPLICATION: &str = "OcentraParent";

@@ -1,4 +1,4 @@
-use crate::types::{BootstrapAuthenticator, Nonce, ProtocolError};
+use crate::types::{Nonce, ProtocolError};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct BootstrapIdentity {
@@ -48,7 +48,6 @@ impl BootstrapIdentity {
 
 pub struct BootstrapPacket {
     identity: BootstrapIdentity,
-    authenticator: BootstrapAuthenticator,
 }
 
 impl BootstrapPacket {
@@ -63,32 +62,19 @@ impl BootstrapPacket {
             client_session_id,
             Nonce::generate()?,
         )?;
-        Ok(Self {
-            identity,
-            authenticator: BootstrapAuthenticator::generate()?,
-        })
+        Ok(Self { identity })
     }
 
     pub fn identity(&self) -> BootstrapIdentity {
         self.identity
     }
 
-    pub fn authenticator(&self) -> &BootstrapAuthenticator {
-        &self.authenticator
+    pub fn into_identity(self) -> BootstrapIdentity {
+        self.identity
     }
 
-    pub fn into_parts(self) -> (BootstrapIdentity, BootstrapAuthenticator) {
-        (self.identity, self.authenticator)
-    }
-
-    pub(crate) fn from_decoded(
-        identity: BootstrapIdentity,
-        authenticator: BootstrapAuthenticator,
-    ) -> Self {
-        Self {
-            identity,
-            authenticator,
-        }
+    pub(crate) fn from_decoded(identity: BootstrapIdentity) -> Self {
+        Self { identity }
     }
 }
 
@@ -97,10 +83,6 @@ impl std::fmt::Debug for BootstrapPacket {
         formatter
             .debug_struct(crate::constants::DEBUG_BOOTSTRAP_PACKET)
             .field(crate::constants::DEBUG_FIELD_IDENTITY, &self.identity)
-            .field(
-                crate::constants::DEBUG_FIELD_AUTHENTICATOR,
-                &self.authenticator,
-            )
             .finish()
     }
 }

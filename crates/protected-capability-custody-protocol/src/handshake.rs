@@ -3,7 +3,8 @@ mod client;
 mod session;
 
 use crate::types::{
-    AttestationDigest, CorrelationId, Nonce, ProtocolGeneration, ProtocolVersion, SessionHandle,
+    AttestationDigest, BootstrapAuthenticator, CorrelationId, Nonce, ProtocolGeneration,
+    ProtocolVersion, SessionHandle,
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -48,5 +49,6 @@ pub struct UntrustedBrokerHello {
     pub(crate) watermark: u64,
     pub(crate) session_handle: SessionHandle,
     pub(crate) attestation_digest: AttestationDigest,
+    pub(crate) authenticator: BootstrapAuthenticator,
     pub(crate) session_expires_at_unix_millis: u64,
 }

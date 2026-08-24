@@ -1,12 +1,21 @@
-use ocentra_protected_capability_custody_core::broker_admission::BrokerPlatformSessionState;
+use ocentra_protected_capability_custody_core::broker_admission::{
+    BrokerPeerTokenIdentity, BrokerPlatformSessionState,
+};
 use ocentra_protected_capability_custody_protocol::request::authenticated::AuthenticatedRequest;
 use ocentra_protected_capability_custody_protocol::response::UntrustedResponse;
 use ocentra_protected_capability_custody_protocol::types::BootstrapAuthenticator;
+#[cfg(windows)]
+use widestring::U16CString;
 
 use crate::BrokerError;
 
+use super::authority::PeerProcessObservation;
+
 mod response;
 mod runtime;
+
+#[cfg(windows)]
+pub(crate) struct BrokerPipeSecurityDescriptor(pub(crate) U16CString);
 
 pub(crate) struct BrokerCustodyService {
     state: runtime::RuntimeState,
@@ -21,6 +30,30 @@ impl BrokerCustodyService {
 
     pub(crate) fn platform_session_state(&self) -> Option<BrokerPlatformSessionState> {
         self.state.platform_session_state()
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn authorize_client_peer(
+        &self,
+        observation: &PeerProcessObservation,
+        token: BrokerPeerTokenIdentity,
+    ) -> Result<(), BrokerError> {
+        self.state.authorize_client_peer(
+            observation.identity.process_id,
+            &observation.executable_path,
+            observation.executable_digest,
+            token,
+        )
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn broker_pipe_sddl(&self) -> Result<BrokerPipeSecurityDescriptor, BrokerError> {
+        self.state.broker_pipe_sddl()
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn peer_admission_available(&self) -> Result<(), BrokerError> {
+        self.state.peer_admission_available()
     }
 
     pub(crate) fn execute(

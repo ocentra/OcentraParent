@@ -4,7 +4,7 @@ use ocentra_protected_capability_custody_core::broker_admission::BrokerExecutabl
 use ocentra_protected_capability_custody_protocol::bootstrap::BootstrapPacket;
 use ocentra_protected_capability_custody_protocol::constants::BROKER_RESTART_ATTEMPTS;
 use ocentra_protected_capability_custody_protocol::handshake::UntrustedClientHello;
-use ocentra_protected_capability_custody_protocol::types::{CorrelationId, Nonce};
+use ocentra_protected_capability_custody_protocol::types::CorrelationId;
 use zeroize::Zeroizing;
 
 use super::{connect_pipe, io, peer, WindowsBrokerSession};
@@ -51,7 +51,10 @@ fn connect_once() -> Result<AuthenticatedBrokerSession, ClientError> {
         io::connection_deadline()?,
     )?;
     let client_hello = UntrustedClientHello::try_new(
-        Nonce::generate()?,
+        // The OS-created pipe connection owns the bootstrap nonce. Reusing it
+        // in the first hello binds the wire transcript to this exact pipe
+        // instance instead of accepting an independently replayable hello.
+        bootstrap.identity().pipe_nonce(),
         CorrelationId::generate()?,
         client_identity.process_id,
         client_identity.process_epoch,
@@ -69,12 +72,9 @@ fn connect_once() -> Result<AuthenticatedBrokerSession, ClientError> {
     let broker_hello =
         ocentra_protected_capability_custody_protocol::decode_broker_hello(broker_frame.as_ref())?;
     peer::authenticate_broker_hello(&stream, &broker_executable, &client_hello, &broker_hello)?;
-    let (_, authenticator) = bootstrap.into_parts();
-    let transcript_digest = broker_hello.verify_authenticated_provenance(
-        &client_hello,
-        io::unix_now_millis()?,
-        &authenticator,
-    )?;
+    let transcript_digest =
+        broker_hello.verify_authenticated_provenance(&client_hello, io::unix_now_millis()?)?;
+    let authenticator = broker_hello.clone_authenticator();
     Ok(AuthenticatedBrokerSession {
         inner: WindowsBrokerSession {
             stream,

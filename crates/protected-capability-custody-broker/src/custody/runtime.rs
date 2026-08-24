@@ -3,6 +3,9 @@ use ocentra_protected_capability_custody_core::broker_admission::{
 };
 use ocentra_protected_capability_custody_protocol::response::ResponseStatus;
 
+#[cfg(windows)]
+pub(super) mod admission;
+
 pub(super) enum RuntimeState {
     Ready {
         runtime: Box<BrokerCustodyRuntime>,

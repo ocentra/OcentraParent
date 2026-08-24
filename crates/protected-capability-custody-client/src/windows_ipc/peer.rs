@@ -99,7 +99,7 @@ fn process_executable_matches(
     expected: &BrokerExecutableGuard,
 ) -> Result<bool, ClientError> {
     expected
-        .revalidate()
+        .revalidate_client()
         .map_err(|_| ClientError::PeerAuthentication)?;
     let system = System::new_all();
     let observed = system

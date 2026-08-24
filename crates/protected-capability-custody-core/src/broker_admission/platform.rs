@@ -16,6 +16,7 @@ use crate::platform::record::BrokerRecord;
 #[cfg(windows)]
 use crate::platform::request::{BrokerLookup, TransitionRequest};
 mod acl;
+pub(super) mod admission;
 mod crypto;
 mod digest;
 mod guard;

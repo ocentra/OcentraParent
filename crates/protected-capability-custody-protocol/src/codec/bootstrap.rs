@@ -1,8 +1,8 @@
 use crate::bootstrap::{BootstrapIdentity, BootstrapPacket};
 use crate::codec::frame::reader::Cursor;
 use crate::codec::frame::{append_header, append_u64, decode_frame, encode_frame};
-use crate::constants::{BOOTSTRAP_AUTHENTICATOR_BYTES, MESSAGE_BOOTSTRAP, NONCE_BYTES};
-use crate::types::{BootstrapAuthenticator, Nonce, ProtocolError};
+use crate::constants::{MESSAGE_BOOTSTRAP, NONCE_BYTES};
+use crate::types::{Nonce, ProtocolError};
 
 pub(super) fn encode(packet: &BootstrapPacket) -> Result<Vec<u8>, ProtocolError> {
     let identity = packet.identity();
@@ -16,7 +16,6 @@ pub(super) fn encode(packet: &BootstrapPacket) -> Result<Vec<u8>, ProtocolError>
     append_u64(&mut payload, identity.client_process_epoch());
     payload.extend_from_slice(&identity.client_session_id().to_be_bytes());
     payload.extend_from_slice(identity.pipe_nonce().as_bytes());
-    payload.extend_from_slice(packet.authenticator().bootstrap_bytes());
     encode_frame(&payload)
 }
 
@@ -28,17 +27,11 @@ pub(super) fn decode(frame: &[u8]) -> Result<BootstrapPacket, ProtocolError> {
     let client_process_epoch = cursor.take_u64()?;
     let client_session_id = cursor.take_u32()?;
     let pipe_nonce = Nonce::try_from_bytes(cursor.take_exact(NONCE_BYTES)?)?;
-    let authenticator = BootstrapAuthenticator::try_from_bootstrap_bytes(
-        cursor.take_exact(BOOTSTRAP_AUTHENTICATOR_BYTES)?,
-    )?;
     cursor.finish()?;
-    Ok(BootstrapPacket::from_decoded(
-        BootstrapIdentity::try_new(
-            client_process_id,
-            client_process_epoch,
-            client_session_id,
-            pipe_nonce,
-        )?,
-        authenticator,
-    ))
+    Ok(BootstrapPacket::from_decoded(BootstrapIdentity::try_new(
+        client_process_id,
+        client_process_epoch,
+        client_session_id,
+        pipe_nonce,
+    )?))
 }

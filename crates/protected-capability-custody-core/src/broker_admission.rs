@@ -46,6 +46,17 @@ pub struct BrokerProcessAdmission {
     database: crate::path_security::PendingSecuredPath,
 }
 
+/// Opaque observation of the impersonated named-pipe client token. The SID is
+/// private and the type is neither cloneable nor constructible outside this
+/// crate, so a broker caller cannot mint an enrolled identity. The broker must
+/// obtain it while the interprocess impersonation guard is held, then revert
+/// before opening SYSTEM-only registry custody.
+pub struct BrokerPeerTokenIdentity {
+    pub(crate) token_sid: String,
+    pub(crate) integrity_level: u32,
+    pub(crate) session_id: u32,
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct BrokerPlatformSessionState {
     key_epoch: u64,

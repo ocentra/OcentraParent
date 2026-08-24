@@ -7,9 +7,7 @@ use std::time::Duration;
 
 use interprocess::os::windows::named_pipe::{pipe_mode, PipeListener, PipeListenerOptions};
 use interprocess::os::windows::security_descriptor::SecurityDescriptor;
-use ocentra_protected_capability_custody_protocol::constants::BROKER_PIPE_SDDL;
 use ocentra_protected_capability_custody_protocol::transport::pipe::BrokerPipeName;
-use widestring::U16CString;
 use windows_service::service::{
     ServiceControlAccept, ServiceExitCode, ServiceState, ServiceStatus, ServiceType,
 };
@@ -28,8 +26,13 @@ pub(super) fn run() -> Result<(), BrokerError> {
         ServiceState::StartPending,
         ServiceControlAccept::empty(),
     )?;
-    let listener = create_listener()?;
     let custody = BrokerCustodyService::open();
+    // Do not report Running or publish a pipe endpoint while the required
+    // process/token admission adapter is unavailable. A transport listener
+    // with a fail-closed peer path would still misrepresent service health.
+    custody.peer_admission_available()?;
+    let sddl = custody.broker_pipe_sddl()?;
+    let listener = create_listener(&sddl)?;
     set_status(
         &status_handle,
         ServiceState::Running,
@@ -49,9 +52,10 @@ pub(super) fn run() -> Result<(), BrokerError> {
     )
 }
 
-fn create_listener() -> Result<PipeListenerType, BrokerError> {
-    let sddl = U16CString::from_str(BROKER_PIPE_SDDL).map_err(map_sddl_error)?;
-    let descriptor = SecurityDescriptor::deserialize(&sddl).map_err(map_transport_error)?;
+fn create_listener(
+    sddl: &crate::custody::BrokerPipeSecurityDescriptor,
+) -> Result<PipeListenerType, BrokerError> {
+    let descriptor = SecurityDescriptor::deserialize(&sddl.0).map_err(map_transport_error)?;
     PipeListenerOptions::new()
         .path(BrokerPipeName::fixed().as_path())
         .nonblocking(true)
@@ -100,10 +104,6 @@ fn set_status(
 
 fn map_service_error<E>(_error: E) -> BrokerError {
     BrokerError::Transport
-}
-
-fn map_sddl_error(_error: widestring::error::ContainsNul<u16>) -> BrokerError {
-    BrokerError::InvalidLaunch
 }
 
 fn map_transport_error(_error: io::Error) -> BrokerError {

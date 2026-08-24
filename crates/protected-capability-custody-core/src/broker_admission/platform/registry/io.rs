@@ -14,6 +14,20 @@ use crate::platform::PlatformError;
 #[cfg(windows)]
 pub(super) fn read(registry_id: &str, name: &str) -> Result<Option<Vec<u8>>, PlatformError> {
     let key = super::open_key(registry_id)?;
+    read_from_key(&key, name)
+}
+
+#[cfg(windows)]
+pub(super) fn read_enrollment(
+    registry_id: &str,
+    name: &str,
+) -> Result<Option<Vec<u8>>, PlatformError> {
+    let key = super::open_enrollment_key(registry_id)?;
+    read_from_key(&key, name)
+}
+
+#[cfg(windows)]
+fn read_from_key(key: &winreg::RegKey, name: &str) -> Result<Option<Vec<u8>>, PlatformError> {
     match key.get_raw_value(name) {
         Ok(value) if value.vtype == REG_BINARY => {
             if value.bytes.len()
