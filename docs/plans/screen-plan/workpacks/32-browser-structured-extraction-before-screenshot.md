@@ -46,6 +46,13 @@ caller, so this is not runtime completion.
 
 Historical proof: `output/screen-plan-proof/31-32-screen-router-structured-extraction/proof-summary.json` covers the
 older router contract only. The current source packet has no accepted proof at
+
+Current reviewed topology is bounded to the existing schema/parser/runtime/
+router/capture roots listed in this workpack. The composition roots
+`crates/agent-service/src/screen_managed_browser_cdp_runtime.rs` and
+`crates/agent-service/src/screen_managed_browser_structured_route_composition.rs`,
+and the expected focused test/proof roots, remain missing. This is unwired
+source with no producer custody claim.
 `output/screen-plan-proof/32-browser-structured-extraction-before-screenshot/`.
 
 Non-claims: this is reviewed production source only. It does not claim an

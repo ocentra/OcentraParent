@@ -35,6 +35,16 @@ Add a parent-domain parent-surface read-model contract that consumes WP100 hando
 
 ## Evidence
 
+## Current reviewed topology
+
+The canonical head has no `packages/parent-domain` WP100 handoff source or
+test root. WP101 retains no implementation ownership of any shared app-game
+helper; the planned package and test roots remain explicitly absent.
+
+Implementation dependency: WP100 reviewed implementation. This orders a future
+source packet only; it does not promote READY/DONE or satisfy tests, proof,
+checklist, CI, review, or merge gates.
+
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.ts`
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules.ts`
 - `packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.test.ts`

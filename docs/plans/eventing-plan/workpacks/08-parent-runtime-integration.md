@@ -27,6 +27,12 @@ Current source checkpoint (2026-08-18):
   state, caller-provided tracking state, or an in-process bus as authority.
 - This is a safe fail-closed ingress seam only. It is not a validated parent
   publisher, consumer dispatch, child delivery, or replay implementation.
+
+Current reviewed topology remains bounded to the existing helper contracts and
+websocket/result surfaces. The planned owner
+`crates/parent-runtime-core/src/parent_runtime_intent_ingress.rs` and both
+expected ingress test roots remain absent. No live parent-runtime ingress,
+  durable journal, publish, event-id, or child-transport classification is made.
 - The functional owner remains missing at
   `crates/parent-runtime-core/src/parent_runtime_intent_ingress.rs`. That owner
   must consume opaque Account-session authority and the public Tracking/Policy

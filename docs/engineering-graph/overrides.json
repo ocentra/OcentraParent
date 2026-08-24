@@ -2666,6 +2666,42 @@
   ],
   "edges": [
     {
+      "from": "WP-app-game-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
+      "to": "WP-app-game-plan-99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.md",
+        "docs/plans/app-game-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md"
+      ],
+      "reason": "WP100 may follow only WP99's bounded reviewed implementation; no package source, tests, proof, or readiness is inferred.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
+      "to": "WP-app-game-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md",
+        "docs/plans/app-game-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md"
+      ],
+      "reason": "WP101 may follow only WP100's bounded reviewed implementation; its planned package and test roots remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "to": "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md",
+        "docs/plans/app-game-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md"
+      ],
+      "reason": "WP102 remains blocked on the absent service-handoff source/test roots; this edge is source ordering only.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
       "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
       "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
       "kind": "depends_on",
