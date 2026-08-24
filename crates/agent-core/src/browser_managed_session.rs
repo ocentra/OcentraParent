@@ -7,9 +7,6 @@ use std::{
 use chrono::{SecondsFormat, Utc};
 
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
-use ocentra_parent_agent_protocol::browser_managed::{
-    BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
-};
 #[path = "browser_managed_session/accessors.rs"]
 mod accessors;
 #[path = "browser_managed_session/capability.rs"]
@@ -30,30 +27,6 @@ pub struct BrowserManagedLaunchConfig {
 pub struct BrowserManagedBridgePortReservation {
     pub endpoint: SocketAddr,
     pub bridge_port: u16,
-}
-
-/// Opaque configuration issued by the browser owner.
-///
-/// The profile-store boundary deliberately exposes no constructor or public
-/// fields.  A path and its identity binding must come from the owner that
-/// derives the Ocentra-managed root; callers cannot select a deletion root or
-/// mint a binding by assembling this value at a public API boundary.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct BrowserManagedProfileStoreConfig {
-    profile_root_dir: PathBuf,
-    profile_id: String,
-    profile_scope_id: String,
-    device_id: String,
-    browser_family: BrowserFamily,
-    browser_channel: BrowserChannel,
-    policy_revision: String,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct BrowserManagedProfileStoreRecord {
-    profile_dir: PathBuf,
-    metadata_path: PathBuf,
-    entry: BrowserManagedProfileStoreEntry,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -126,14 +99,7 @@ pub enum BrowserManagedLaunchError {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum BrowserManagedProfileStoreError {
-    DefaultProfileRejected,
-    UnownedProfileRejected,
-    BindingMismatch,
-    MetadataCorrupt,
-    StoreBusy,
-    UnsafePath,
-    CleanupFailed,
-    Io,
+    ProtectedCustodyAdapterUnavailable,
 }
 
 impl BrowserManagedProfileStoreError {
@@ -148,22 +114,18 @@ impl BrowserManagedLaunchError {
     }
 }
 
-pub(crate) fn load_managed_browser_profile_store(
-    config: &BrowserManagedProfileStoreConfig,
-) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    store::load_managed_browser_profile_store(config)
+pub(crate) fn load_managed_browser_profile_store() -> Result<(), BrowserManagedProfileStoreError> {
+    store::load_managed_browser_profile_store()
 }
 
 pub(crate) fn create_or_repair_managed_browser_profile_store(
-    config: &BrowserManagedProfileStoreConfig,
-) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    store::create_or_repair_managed_browser_profile_store(config)
+) -> Result<(), BrowserManagedProfileStoreError> {
+    store::create_or_repair_managed_browser_profile_store()
 }
 
-pub(crate) fn delete_managed_browser_profile_store(
-    config: &BrowserManagedProfileStoreConfig,
-) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    store::delete_managed_browser_profile_store(config)
+pub(crate) fn delete_managed_browser_profile_store() -> Result<(), BrowserManagedProfileStoreError>
+{
+    store::delete_managed_browser_profile_store()
 }
 
 pub fn reserve_managed_browser_bridge_port(
@@ -253,22 +215,4 @@ impl BrowserManagedLaunch {
     pub fn retire(&self) -> bool {
         crate::browser_bridge_capture::retire_managed_browser_launch(self)
     }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-struct BrowserManagedProfileStorePaths {
-    profile_dir: PathBuf,
-    metadata_path: PathBuf,
-    deletion_path: PathBuf,
-    lock_path: PathBuf,
-}
-
-struct ProfileStoreRecordInput {
-    created_at: String,
-    updated_at: String,
-    lifecycle_state: BrowserManagedProfileLifecycleState,
-    missing_since: Option<String>,
-    repaired_at: Option<String>,
-    deleted_at: Option<String>,
-    repair_reason: Option<String>,
 }

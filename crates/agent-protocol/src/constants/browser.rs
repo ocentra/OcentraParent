@@ -446,6 +446,8 @@ pub const PROFILE_STORE_REASON_DELETE_PENDING: &str = "managed-profile-delete-pe
 pub const PROFILE_STORE_REASON_METADATA_CORRUPT: &str = "managed-profile-metadata-corrupt";
 pub const PROFILE_STORE_REASON_METADATA_MISSING: &str = "managed-profile-metadata-missing";
 pub const PROFILE_STORE_REASON_PROFILE_DIR_MISSING: &str = "managed-profile-dir-missing";
+pub const PROFILE_STORE_REASON_PROTECTED_CUSTODY_ADAPTER_UNAVAILABLE: &str =
+    "managed-profile-protected-custody-adapter-unavailable";
 pub const PROFILE_STORE_REASON_REPAIRED: &str = "managed-profile-repaired";
 pub const PROFILE_STORE_TEST_ROOT_DIR: &str = "managed-browser-profile-store-test";
 pub const PROFILE_STORE_TEST_DEVICE_ID: &str = "local-dev-agent";

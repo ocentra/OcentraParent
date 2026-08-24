@@ -1,94 +1,29 @@
-#[path = "store/atomic_write.rs"]
-mod atomic_write;
-#[path = "store/io.rs"]
-mod io;
-#[path = "store/load.rs"]
-mod load;
-#[path = "store/load_deletion_state.rs"]
-mod load_deletion_state;
-#[path = "store/load_state.rs"]
-mod load_state;
-#[path = "store/lock.rs"]
-mod lock;
-#[path = "store/mutate.rs"]
-mod mutate;
-#[path = "store/mutate_create.rs"]
-mod mutate_create;
-#[path = "store/mutate_create_state.rs"]
-mod mutate_create_state;
-#[path = "store/mutate_delete.rs"]
-mod mutate_delete;
-#[path = "store/mutate_delete_cleanup.rs"]
-mod mutate_delete_cleanup;
-#[path = "store/mutate_delete_state.rs"]
-mod mutate_delete_state;
-#[path = "store/path_guard.rs"]
-mod path_guard;
-#[path = "store/path_guard_io.rs"]
-mod path_guard_io;
-#[path = "store/path_guards.rs"]
-mod path_guards;
-#[path = "store/path_guards_mutation.rs"]
-mod path_guards_mutation;
-#[cfg(not(windows))]
-#[path = "store/path_guards_mutation_portable.rs"]
-mod path_guards_mutation_portable;
-#[cfg(windows)]
-#[path = "store/path_guards_mutation_windows.rs"]
-mod path_guards_mutation_windows;
-#[cfg(windows)]
-#[path = "store/path_guards_mutation_windows_delete.rs"]
-mod path_guards_mutation_windows_delete;
-#[path = "store/path_guards_platform.rs"]
-mod path_guards_platform;
-#[path = "store/path_guards_root.rs"]
-mod path_guards_root;
-#[path = "store/path_guards_root_component.rs"]
-mod path_guards_root_component;
-#[path = "store/path_guards_root_component_parse.rs"]
-mod path_guards_root_component_parse;
-#[path = "store/paths.rs"]
-mod paths;
-#[path = "store/record.rs"]
-mod record;
-#[path = "store/validation.rs"]
-mod validation;
-#[path = "store/validation_entry.rs"]
-mod validation_entry;
-#[path = "store/validation_entry_state.rs"]
-mod validation_entry_state;
-#[path = "store/validation_entry_state_repair.rs"]
-mod validation_entry_state_repair;
-#[path = "store/validation_path_metadata.rs"]
-mod validation_path_metadata;
-#[path = "store/validation_paths.rs"]
-mod validation_paths;
-#[path = "store/validation_timestamps.rs"]
-mod validation_timestamps;
+//! Managed profile storage is intentionally unavailable until a dependency-
+//! owned protected-custody adapter can authenticate an owner receipt/key and
+//! retain no-follow, handle-bound root/profile identity. This module exposes
+//! no path, metadata, or mutation fallback while that adapter is absent.
 
-use super::{
-    BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
-    BrowserManagedProfileStoreRecord,
-};
+use super::BrowserManagedProfileStoreError;
 
 pub(crate) fn profile_store_error_reason(error: &BrowserManagedProfileStoreError) -> &'static str {
-    record::profile_store_error_reason(error)
+    match error {
+        BrowserManagedProfileStoreError::ProtectedCustodyAdapterUnavailable => {
+            ocentra_parent_agent_protocol::constants::browser::
+                PROFILE_STORE_REASON_PROTECTED_CUSTODY_ADAPTER_UNAVAILABLE
+        }
+    }
 }
 
-pub(crate) fn load_managed_browser_profile_store(
-    config: &BrowserManagedProfileStoreConfig,
-) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    load::load_managed_browser_profile_store(config)
+pub(crate) fn load_managed_browser_profile_store() -> Result<(), BrowserManagedProfileStoreError> {
+    Err(BrowserManagedProfileStoreError::ProtectedCustodyAdapterUnavailable)
 }
 
 pub(crate) fn create_or_repair_managed_browser_profile_store(
-    config: &BrowserManagedProfileStoreConfig,
-) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    mutate::create_or_repair_managed_browser_profile_store(config)
+) -> Result<(), BrowserManagedProfileStoreError> {
+    Err(BrowserManagedProfileStoreError::ProtectedCustodyAdapterUnavailable)
 }
 
-pub(crate) fn delete_managed_browser_profile_store(
-    config: &BrowserManagedProfileStoreConfig,
-) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    mutate::delete_managed_browser_profile_store(config)
+pub(crate) fn delete_managed_browser_profile_store() -> Result<(), BrowserManagedProfileStoreError>
+{
+    Err(BrowserManagedProfileStoreError::ProtectedCustodyAdapterUnavailable)
 }
