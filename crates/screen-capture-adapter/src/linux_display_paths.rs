@@ -1,6 +1,6 @@
 use std::{
     ffi::OsStr,
-    path::{Path, PathBuf},
+    path::{Component, Path, PathBuf},
 };
 
 pub(super) fn x11_socket_path(display: &OsStr) -> Option<PathBuf> {
@@ -31,7 +31,15 @@ pub(super) fn wayland_socket_path(
     }
     let display = Path::new(display);
     if display.is_absolute() {
-        return Some(display.to_owned());
+        return None;
     }
-    Some(PathBuf::from(runtime_dir?.to_str()?).join(display))
+    let mut components = display.components();
+    if !matches!(
+        (components.next(), components.next()),
+        (Some(Component::Normal(_)), None)
+    ) {
+        return None;
+    }
+    let runtime_dir = Path::new(runtime_dir?.to_str()?);
+    runtime_dir.is_absolute().then(|| runtime_dir.join(display))
 }

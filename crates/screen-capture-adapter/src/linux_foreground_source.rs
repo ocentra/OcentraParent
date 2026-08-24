@@ -14,6 +14,12 @@ pub(crate) mod linux_display_readiness;
 #[path = "linux_process.rs"]
 pub(crate) mod linux_process;
 #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
+#[path = "linux_socket_connect.rs"]
+pub(crate) mod linux_socket_connect;
+#[cfg(all(target_os = "linux", not(target_env = "ohos")))]
+#[path = "linux_socket_security.rs"]
+pub(crate) mod linux_socket_security;
+#[cfg(all(target_os = "linux", not(target_env = "ohos")))]
 #[path = "linux_tools.rs"]
 pub(crate) mod linux_tools;
 
@@ -114,9 +120,9 @@ pub fn foreground_source_preflight() -> LinuxForegroundSourcePreflight {
 pub(crate) fn foreground_source_preflight_with_deadline(
     deadline: Instant,
 ) -> LinuxForegroundSourcePreflight {
-    let display = linux_display::display_probe();
-    let (xprop, xprop_observation, _) = linux_tools::probe_xprop(deadline);
-    let (xdotool, xdotool_observation, _) = linux_tools::probe_xdotool(deadline);
+    let display = linux_display::display_probe(deadline);
+    let (xprop, xprop_observation) = linux_tools::probe_xprop(deadline);
+    let (xdotool, xdotool_observation) = linux_tools::probe_xdotool(deadline);
     let active_window = if matches!(xprop_observation, LinuxActiveWindowObservation::Observed)
         || matches!(xdotool_observation, LinuxActiveWindowObservation::Observed)
     {

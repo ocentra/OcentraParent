@@ -16,10 +16,9 @@ ocentra-schema = { path = "../schema" }
 png = "0.18.1"
 serde_json = "1.0.145"
 sha2 = "0.10.9"
-tempfile = "3.27.0"
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.30.1", default-features = false, features = ["process", "signal"] }
+nix = { version = "0.30.1", default-features = false, features = ["fs", "poll", "process", "signal", "socket", "user"] }
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 xcap = { version = "0.9.6", default-features = false, features = ["wgc"] }

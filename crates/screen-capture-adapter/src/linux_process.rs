@@ -1,22 +1,25 @@
 use std::{
     ffi::OsString,
-    fs,
-    os::unix::process::CommandExt,
     path::{Path, PathBuf},
-    process::{Child, Command, Stdio},
-    thread,
-    time::{Duration, Instant},
+    time::Instant,
 };
 
+#[path = "linux_process_group_reap.rs"]
+mod group_reap;
+#[path = "linux_process_monitor.rs"]
+mod monitor;
 #[path = "linux_process_output.rs"]
 mod output;
-
-use nix::{
-    sys::signal::{killpg, Signal},
-    unistd::Pid,
-};
-
-const CHILD_POLL_INTERVAL: Duration = Duration::from_millis(10);
+#[path = "linux_process_output_io.rs"]
+mod output_io;
+#[path = "linux_process_runner.rs"]
+mod runner;
+#[path = "linux_process_termination.rs"]
+mod termination;
+#[path = "linux_tool_paths.rs"]
+mod tool_paths;
+#[path = "linux_tool_security.rs"]
+mod tool_security;
 pub(crate) const MAX_CHILD_STDOUT_BYTES: usize = 64 * 1024;
 
 #[derive(Debug)]
@@ -31,6 +34,7 @@ pub(crate) enum ChildOutcome {
     TimedOut,
     Exited(bool),
     OutputTooLarge,
+    OutputUnavailable,
 }
 
 impl ChildResult {
@@ -40,71 +44,9 @@ impl ChildResult {
 }
 
 pub(crate) fn executable_path(name: &str) -> Option<PathBuf> {
-    let paths = std::env::var_os("PATH")?;
-    std::env::split_paths(&paths).find_map(|path| {
-        let candidate = path.join(name);
-        (candidate.is_file() && executable_file(&candidate)).then_some(candidate)
-    })
-}
-
-fn executable_file(path: &Path) -> bool {
-    use std::os::unix::fs::PermissionsExt;
-
-    fs::metadata(path)
-        .map(|metadata| metadata.permissions().mode() & 0o111 != 0)
-        .unwrap_or(false)
+    tool_paths::executable_path(name)
 }
 
 pub(crate) fn run_child(program: &Path, args: &[OsString], deadline: Instant) -> ChildResult {
-    if Instant::now() >= deadline {
-        return ChildResult {
-            stdout: Vec::new(),
-            outcome: ChildOutcome::TimedOut,
-        };
-    }
-    let mut command = Command::new(program);
-    command
-        .args(args)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null())
-        .process_group(0);
-    let mut child = match command.spawn() {
-        Ok(child) => child,
-        Err(_) => return failed_spawn(),
-    };
-
-    loop {
-        match child.try_wait() {
-            Ok(Some(status)) => return output::exited_result(&mut child, status.success()),
-            Ok(None) => {}
-            Err(_) => {
-                terminate_child_group(&mut child);
-                return failed_spawn();
-            }
-        }
-
-        let now = Instant::now();
-        if now >= deadline {
-            terminate_child_group(&mut child);
-            return ChildResult {
-                stdout: Vec::new(),
-                outcome: ChildOutcome::TimedOut,
-            };
-        }
-        thread::sleep(CHILD_POLL_INTERVAL.min(deadline.saturating_duration_since(now)));
-    }
-}
-
-fn failed_spawn() -> ChildResult {
-    ChildResult {
-        stdout: Vec::new(),
-        outcome: ChildOutcome::SpawnFailed,
-    }
-}
-
-pub(crate) fn terminate_child_group(child: &mut Child) {
-    let child_pid = Pid::from_raw(child.id() as i32);
-    let _ = killpg(child_pid, Signal::SIGKILL);
-    let _ = child.kill();
-    let _ = child.wait();
+    runner::run_child(program, args, deadline)
 }

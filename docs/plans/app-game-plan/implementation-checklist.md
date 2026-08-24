@@ -360,11 +360,13 @@ delivery, and child-device delivery remain open.
 
 WP189 adds Rust-owned Linux display classification and X11/Wayland socket
 readiness behind a typed foreground-capture boundary. The source consumes only
-actual probe outcomes; WSLg/Docker presence alone does not mint a readiness ref.
-Tests, retained proof, and a current Linux deployment probe remain open, as do
-active foreground capture, App/Game ownership, raw window-title custody, Linux
-policy mechanisms, rollback, audit, adapter dispatch, platform enforcement,
-provider delivery, and child-device delivery.
+actual bounded socket outcomes from trusted canonical roots; WSLg/Docker
+presence alone does not mint a readiness ref. Linux xwd/convert capture remains
+fail-closed because a safe FD-backed owner handoff is not established. Tests,
+retained proof, and deployment probes remain open, as do active foreground
+capture, selected-window/title capture, App/Game ownership, raw window-title
+custody, Linux policy mechanisms, rollback, audit, adapter dispatch, platform
+enforcement, provider delivery, and child-device delivery.
 
 WP190 adds a parent-domain Android UsageEvents child-runtime replay consumer
 boundary over the redacted WP188 replay row. The child-runtime replay consumer
@@ -373,13 +375,17 @@ child-device delivery, Android authority, hide/suspend, adapter dispatch,
 platform enforcement, provider delivery, and broad blocking remain open.
 
 WP191 adds a Rust-owned Linux foreground source preflight over WP189. It carries
-typed WSLg/native display, X11/Wayland socket, xprop/xdotool, and opaque active
-window states; the asynchronous service handler runs the live probe behind
-bounded `spawn_blocking` and fails closed on timeout or join failure. Tests,
-retained proof, and Linux deployment validation remain open, as do active
-foreground capture, App/Game ownership, raw window title custody, Linux policy
-mechanisms, rollback, audit, adapter dispatch, platform enforcement, provider
-delivery, and child-device delivery.
+typed WSLg/native display, fixed trusted-tool checks, bounded X11/Wayland socket
+connects, xprop/xdotool outcomes, and opaque active-window states; stdout is
+drained nonblocking under one deadline and process groups have bounded cleanup.
+The asynchronous service handler runs the live probe behind bounded
+`spawn_blocking` and fails closed on timeout or join failure. Linux capture stays
+unavailable pending a safe FD-backed owner handoff; selected-window/title
+capture remains unavailable because raw-title search violates the metadata
+boundary. Tests, retained proof, and deployment validation remain open, as do
+active foreground capture, App/Game ownership, Linux policy mechanisms,
+rollback, audit, adapter dispatch, platform enforcement, provider delivery, and
+child-device delivery.
 
 WP192 adds a parent-domain Android authority preflight over the physical
 Android proof. Hide, suspend, uninstall-block, lock-task, and managed
@@ -404,12 +410,14 @@ rollback/audit custody execution, provider delivery, and child-device delivery
 remain open.
 
 WP204 adds bounded Rust xprop/xdotool probes over the Linux display boundary.
+Only fixed canonical system tools with trusted owners/modes are executable;
 `_NET_ACTIVE_WINDOW` is reduced to opaque observed/not-observed state, and
 service detail refs are attached only after a corresponding live probe
-succeeds. Tests, retained proof, and Linux deployment validation remain open;
-raw window titles, process names, foreground capture, App/Game ownership, Linux
-policy enforcement, rollback/audit, adapter dispatch, provider delivery, and
-child-device delivery remain open.
+succeeds. Tests, retained proof, and deployment validation remain open; Linux
+xwd/convert capture and selected-window/title capture are unavailable, while
+raw window titles, process names, foreground capture, App/Game ownership,
+Linux policy enforcement, rollback/audit, adapter dispatch, provider delivery,
+and child-device delivery remain open.
 
 WP205 carries the WP202-WP204 runtime detail refs into the shared platform proof
 status read model so Android Accessibility runtime, Windows local policy

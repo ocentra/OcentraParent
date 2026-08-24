@@ -5,22 +5,7 @@ use super::{
     LinuxActiveWindowObservation, LinuxToolProbe,
 };
 
-#[derive(Clone, Debug)]
-pub(crate) struct LinuxWindowSelector(u64);
-
-impl LinuxWindowSelector {
-    pub(crate) fn xwd_argument(&self) -> OsString {
-        OsString::from(format!("0x{:x}", self.0))
-    }
-}
-
-pub(crate) fn probe_xprop(
-    deadline: Instant,
-) -> (
-    LinuxToolProbe,
-    LinuxActiveWindowObservation,
-    Option<LinuxWindowSelector>,
-) {
+pub(crate) fn probe_xprop(deadline: Instant) -> (LinuxToolProbe, LinuxActiveWindowObservation) {
     let Some(program) = executable_path("xprop") else {
         return unavailable_observation();
     };
@@ -33,54 +18,30 @@ pub(crate) fn probe_xprop(
         deadline,
     );
     if !result.succeeded() {
-        return (tool_probe_for(&result), not_observed(), None);
+        return (tool_probe_for(&result), not_observed());
     }
-    let Some(window_id) = parse_xprop_window_id(&result.stdout) else {
-        return (LinuxToolProbe::Failed, not_observed(), None);
+    let Some(observed) = parse_xprop_observation(&result.stdout) else {
+        return (LinuxToolProbe::Failed, not_observed());
     };
-    if window_id == 0 {
-        return (LinuxToolProbe::Succeeded, not_observed(), None);
-    }
-    (
-        LinuxToolProbe::Succeeded,
-        LinuxActiveWindowObservation::Observed,
-        Some(LinuxWindowSelector(window_id)),
-    )
+    (LinuxToolProbe::Succeeded, observation(observed))
 }
 
-pub(crate) fn probe_xdotool(
-    deadline: Instant,
-) -> (
-    LinuxToolProbe,
-    LinuxActiveWindowObservation,
-    Option<LinuxWindowSelector>,
-) {
+pub(crate) fn probe_xdotool(deadline: Instant) -> (LinuxToolProbe, LinuxActiveWindowObservation) {
     let Some(program) = executable_path("xdotool") else {
-        return (LinuxToolProbe::Unavailable, not_observed(), None);
+        return (LinuxToolProbe::Unavailable, not_observed());
     };
     let result = run_child(&program, &[OsString::from("getactivewindow")], deadline);
     if !result.succeeded() {
-        return (tool_probe_for(&result), not_observed(), None);
+        return (tool_probe_for(&result), not_observed());
     }
-    let Some(window_id) = parse_decimal_window_id(&result.stdout) else {
-        return (LinuxToolProbe::Failed, not_observed(), None);
+    let Some(observed) = parse_decimal_observation(&result.stdout) else {
+        return (LinuxToolProbe::Failed, not_observed());
     };
-    if window_id == 0 {
-        return (LinuxToolProbe::Succeeded, not_observed(), None);
-    }
-    (
-        LinuxToolProbe::Succeeded,
-        LinuxActiveWindowObservation::Observed,
-        Some(LinuxWindowSelector(window_id)),
-    )
+    (LinuxToolProbe::Succeeded, observation(observed))
 }
 
-fn unavailable_observation() -> (
-    LinuxToolProbe,
-    LinuxActiveWindowObservation,
-    Option<LinuxWindowSelector>,
-) {
-    (LinuxToolProbe::Unavailable, not_observed(), None)
+fn unavailable_observation() -> (LinuxToolProbe, LinuxActiveWindowObservation) {
+    (LinuxToolProbe::Unavailable, not_observed())
 }
 
 fn not_observed() -> LinuxActiveWindowObservation {
@@ -93,29 +54,30 @@ fn tool_probe_for(result: &super::linux_process::ChildResult) -> LinuxToolProbe 
         ChildOutcome::TimedOut | ChildOutcome::Exited(false) | ChildOutcome::OutputTooLarge => {
             LinuxToolProbe::Failed
         }
+        ChildOutcome::OutputUnavailable => LinuxToolProbe::Unavailable,
         ChildOutcome::Exited(true) => LinuxToolProbe::Succeeded,
     }
 }
 
-fn parse_xprop_window_id(stdout: &[u8]) -> Option<u64> {
+fn parse_xprop_observation(stdout: &[u8]) -> Option<bool> {
     let text = std::str::from_utf8(stdout).ok()?;
     text.split_whitespace()
-        .filter_map(|token| token.strip_prefix("0x"))
-        .find_map(|token| u64::from_str_radix(token, 16).ok())
+        .find_map(|token| token.strip_prefix("0x"))
+        .filter(|token| !token.is_empty() && token.chars().all(|value| value.is_ascii_hexdigit()))
+        .map(|token| token.chars().any(|value| value != '0'))
 }
 
-fn parse_decimal_window_id(stdout: &[u8]) -> Option<u64> {
+fn parse_decimal_observation(stdout: &[u8]) -> Option<bool> {
     let text = std::str::from_utf8(stdout).ok()?;
     text.split_whitespace()
-        .find_map(|token| token.parse::<u64>().ok())
+        .find(|token| !token.is_empty() && token.chars().all(|value| value.is_ascii_digit()))
+        .map(|token| token.chars().any(|value| value != '0'))
 }
 
-pub(crate) fn capture_failure_status(
-    result: &super::linux_process::ChildResult,
-) -> ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus {
-    if matches!(result.outcome, ChildOutcome::Exited(false)) {
-        ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus::AccessDenied
+fn observation(observed: bool) -> LinuxActiveWindowObservation {
+    if observed {
+        LinuxActiveWindowObservation::Observed
     } else {
-        ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus::AdapterError
+        not_observed()
     }
 }

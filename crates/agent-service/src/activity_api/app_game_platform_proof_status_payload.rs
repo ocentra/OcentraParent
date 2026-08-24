@@ -85,8 +85,19 @@ pub async fn build_activity_app_game_platform_proof_status_report(
 pub fn app_game_platform_proof_status_read_model(
     generated_at: GeneratedAtText,
 ) -> AppGamePlatformProofStatusReadModel {
+    // Synchronous callers do not own a live probe. Keep this read model
+    // explicitly unavailable instead of minting static Linux evidence.
+    app_game_platform_proof_status_read_model_with_linux_preflight(
+        generated_at,
+        LinuxForegroundSourcePreflight::unavailable(),
+    )
+}
+
+pub fn app_game_platform_proof_status_read_model_with_linux_preflight(
+    generated_at: GeneratedAtText,
+    linux_preflight: LinuxForegroundSourcePreflight,
+) -> AppGamePlatformProofStatusReadModel {
     let host_capabilities = HostCapabilitySignals::detect();
-    let linux_preflight = LinuxForegroundSourcePreflight::unavailable();
     app_game_platform_proof_status_read_model_with_preflight(
         generated_at,
         &host_capabilities,

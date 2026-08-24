@@ -28,13 +28,18 @@ WSLg/Docker presence by itself outside the evidence boundary.
 
 - Rust production source now owns Linux display classification and X11/Wayland
   socket readiness in `crates/screen-capture-adapter/src/linux_display.rs`,
-  `linux_display_paths.rs`, and `linux_display_readiness.rs`.
+  `linux_display_paths.rs`, `linux_display_readiness.rs`,
+  `linux_socket_security.rs`, and `linux_socket_connect.rs`. Only fixed,
+  canonical runtime roots are accepted; arbitrary absolute `WAYLAND_DISPLAY`
+  values, symlink sockets, unsafe owners/modes, and unbounded connects fail
+  closed.
 - The agent-service platform status path consumes only the typed preflight and
   adds detail refs after the live probe reports readiness; WSL/Docker presence
   alone is not evidence.
-- Linux capture uses process-group-contained child tools, one aggregate
-  deadline, owner-held temporary files, capped artifacts, and Rust PNG
-  validation. Metadata remains identity-free.
+- Linux xwd/convert capture is intentionally unavailable. A compile-checked
+  FD-backed handoff was not established in this source-only phase, so no
+  replaceable temporary pathname is passed to an external capture tool.
+  Trusted display/source observation remains separate from capture custody.
 - No workpack tests, proof artifacts, or deployment validation were added in
   this source-only phase.
 
@@ -42,8 +47,8 @@ WSLg/Docker presence by itself outside the evidence boundary.
 
 Source-only validation is limited to focused Cargo checks, formatting, source
 shape/architecture, Enforcer coordination, graph validation, and diff guards.
-Linux-target compilation remains dependent on an available Linux C toolchain.
-No tests or proof commands were run.
+The adapter Linux library check passed under WSL; no tests or proof commands
+were run.
 
 ## Proof
 
@@ -60,6 +65,11 @@ Proved:
 Not proved:
 
 - Active foreground capture or App/Game ownership.
+- Linux xwd/convert capture custody; the exact missing owner is a safe
+  FD-backed handoff that keeps both external tools attached to the validated
+  producer-owned artifact.
+- Selected-window/title capture, which remains unavailable because raw-title
+  search is outside the metadata boundary.
 - Raw active-window title custody.
 - AppArmor, SELinux, package manager, Flatpak, Snap, rollback, audit, launch
   blocking, adapter dispatch, platform enforcement, provider delivery, or

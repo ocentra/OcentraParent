@@ -2117,6 +2117,7 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "libc",
+ "memoffset",
 ]
 
 [[package]]
@@ -2830,7 +2831,6 @@ dependencies = [
  "png",
  "serde_json",
  "sha2",
- "tempfile",
  "xcap",
 ]
 

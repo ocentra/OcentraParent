@@ -30,11 +30,16 @@ app identity remain out of custody.
 - Rust tool probing now runs bounded xprop and xdotool argv calls under
   process-group containment in
   `crates/screen-capture-adapter/src/linux_tools.rs` and
-  `crates/screen-capture-adapter/src/linux_process.rs`.
+  `crates/screen-capture-adapter/src/linux_process.rs`. Resolution uses only
+  fixed canonical system directories with lstat, trusted owner/mode, and
+  non-writable parent checks; arbitrary `PATH` tools are unavailable.
 - `_NET_ACTIVE_WINDOW` is reduced to typed observed/not-observed; private
-  selectors never enter public metadata or proof refs.
+  window IDs/selectors never enter public metadata or proof refs.
 - Service adds xprop/xdotool refs only when the corresponding live probe
   succeeds. Static WSL/Docker presence does not mint a proof ref.
+- Linux xwd/convert capture is disabled fail-closed until a safe FD-backed
+  handoff is established. Selected-window/title capture is unavailable because
+  raw-title search violates the metadata boundary.
 - No workpack tests, proof artifacts, or deployment validation were added in
   this source-only phase.
 
@@ -42,8 +47,8 @@ app identity remain out of custody.
 
 Source-only validation is limited to focused Cargo checks, formatting, source
 shape/architecture, Enforcer coordination, graph validation, and diff guards.
-Linux-target compilation remains dependent on an available Linux C toolchain.
-No tests or proof commands were run.
+The adapter Linux library check passed under WSL; no tests or proof commands
+were run.
 
 ## Proof
 

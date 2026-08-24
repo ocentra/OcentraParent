@@ -27,12 +27,18 @@ Windows/WSL host state, compose App/Game ownership, or authorize capture.
 
 - Rust source now exposes a typed Linux foreground-source preflight from
   `crates/screen-capture-adapter/src/linux_foreground_source.rs` with truthful
-  WSLg/native display, X11/Wayland socket, xprop/xdotool, and opaque active
-  window states.
+  WSLg/native display, fixed trusted-tool, X11/Wayland socket, xprop/xdotool,
+  and opaque active-window states. WSLg requires a WSL signal plus a trusted
+  `/mnt/wslg/runtime-dir` socket; WSL/Docker presence alone is unavailable.
 - The asynchronous platform proof handler runs the live probe in bounded
   `spawn_blocking` work and fails closed on timeout or join failure.
+- Child stdout is drained nonblocking under the shared deadline with a byte
+  cap; process groups are killed and reaped under a bounded cleanup grace.
 - The preflight is source capability only: it does not compose App/Game
   ownership, enforcement authority, or raw window identity.
+- Linux xwd/convert capture stays fail-closed because a safe FD-backed
+  producer-owned handoff is not yet established. Selected-window/title capture
+  is unavailable because raw-title search is outside the metadata boundary.
 - No workpack tests, proof artifacts, or deployment validation were added in
   this source-only phase.
 
@@ -40,8 +46,8 @@ Windows/WSL host state, compose App/Game ownership, or authorize capture.
 
 Source-only validation is limited to focused Cargo checks, formatting, source
 shape/architecture, Enforcer coordination, graph validation, and diff guards.
-Linux-target compilation remains dependent on an available Linux C toolchain.
-No tests or proof commands were run.
+The adapter Linux library check passed under WSL; no tests or proof commands
+were run.
 
 ## Proof
 
