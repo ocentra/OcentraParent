@@ -11977,20 +11977,14 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "**Incomplete, tests-only harness gap; no production-source gap**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
-          "roots": [
-            "packages/parent-domain/src/app-game-performance-health.ts",
-            "packages/parent-domain/src/app-game-performance-health-rules.ts",
-            "packages/parent-domain/src/app-game-performance-health-proof.ts"
-          ],
-          "testRoots": [
-            "packages/parent-domain/tests/app-game-performance-health.test.ts"
-          ]
+          "roots": [],
+          "testRoots": ["scripts/test/app-game-performance-health-proof.mjs"]
         },
         "dependencyReview": {
           "hardDependencies": [
@@ -12002,14 +11996,16 @@
             "docs/plans/app-plan/CODE_AUDIT.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Existing activity tests are not the specified performance harness; named performance source/test roots are absent."
+          "reason": "This is a tests-only performance acceptance row over the existing Rust/service/portal topology. The retired packages/parent-domain source roots were stale migration paths; the executable performance harness remains absent."
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [],
+          "implementation": [
+            "docs/plans/app-plan/workpacks/26-performance-and-service-health.md"
+          ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
@@ -12017,14 +12013,7 @@
         },
         "expected": {
           "proof": ["output/app-plan-proof/26-performance-and-service-health"],
-          "implementation": [
-            "packages/parent-domain/src/app-game-performance-health.ts",
-            "packages/parent-domain/src/app-game-performance-health-rules.ts",
-            "packages/parent-domain/src/app-game-performance-health-proof.ts"
-          ],
-          "tests": [
-            "packages/parent-domain/tests/app-game-performance-health.test.ts"
-          ]
+          "tests": ["scripts/test/app-game-performance-health-proof.mjs"]
         }
       }
     },
@@ -14700,23 +14689,14 @@
         "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model"
       ],
       "state": "blocked",
-      "lifecycleState": "planned",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "**Route-only; no App production source required; shared dependency validation open**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
-        "plannedSourceExpectation": {
-          "source": "docs/engineering-graph/code-map.json",
-          "roots": [
-            "packages/parent-domain/src/app-game-timer-service-handoff.ts"
-          ],
-          "testRoots": [
-            "packages/parent-domain/tests/app-game-timer-service-handoff.test.ts"
-          ]
-        },
         "dependencyReview": {
           "hardDependencies": [
             "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model"
@@ -14727,14 +14707,16 @@
             "docs/plans/app-plan/CODE_AUDIT.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Current mapped followthrough belongs to shared App Game; App parent-domain handoff source/test is absent and the packet remains redundant/route-only."
+          "reason": "No App-local production source is required. The retired packages/parent-domain handoff would duplicate the live Rust WP103 service route; this row is a route-only cross-record blocked on shared App Game WP101 validation."
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [],
+          "implementation": [
+            "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md"
+          ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
@@ -14743,12 +14725,6 @@
         "expected": {
           "proof": [
             "output/app-plan-proof/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff"
-          ],
-          "implementation": [
-            "packages/parent-domain/src/app-game-timer-service-handoff.ts"
-          ],
-          "tests": [
-            "packages/parent-domain/tests/app-game-timer-service-handoff.test.ts"
           ]
         }
       }
@@ -40622,7 +40598,7 @@
         "docs/plans/app-game-plan/workpacks/27-performance-and-service-health.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Existing activity tests are not the specified performance harness; named performance source/test roots are absent.",
+      "reason": "This is a tests-only performance acceptance row over the existing Rust/service/portal topology. The retired packages/parent-domain source roots were stale migration paths; the executable performance harness remains absent.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -40748,7 +40724,7 @@
         "docs/plans/app-game-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Current mapped followthrough belongs to shared App Game; App parent-domain handoff source/test is absent and the packet remains redundant/route-only.",
+      "reason": "No App-local production source is required. The retired packages/parent-domain handoff would duplicate the live Rust WP103 service route; this row is a route-only cross-record blocked on shared App Game WP101 validation.",
       "implementationGate": "reviewed-implementation"
     },
     {

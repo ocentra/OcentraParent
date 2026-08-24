@@ -27,10 +27,6 @@ observable, and degraded-state aware under normal and stressed local conditions.
 
 ## Touched Paths
 
-- `packages/parent-domain/src/app-game-performance-health.ts`
-- `packages/parent-domain/src/app-game-performance-health-rules.ts`
-- `packages/parent-domain/src/app-game-performance-health-proof.ts`
-- `packages/parent-domain/tests/app-game-performance-health.test.ts`
 - `scripts/test/app-game-performance-health-proof.mjs`
 - `output/app-plan-proof/26-performance-and-service-health`
 - Cross-recorded shared proof:
@@ -38,10 +34,19 @@ observable, and degraded-state aware under normal and stressed local conditions.
 
 ## Current reviewed topology
 
-The canonical head has none of the listed `packages/parent-domain`
-performance-health source, proof, or test roots. WP26 remains blocked on those
-missing roots and does not inherit ownership from generic app/game activity or
-read-model code.
+`packages/parent-domain` is a retired migration owner and is absent from the
+canonical workspace. Creating App-local TypeScript performance files there
+would produce an orphan package with no manifest, import, or runtime caller.
+The live app/game implementation remains Rust-first through the shared
+protocol, activity store, service capture, timer state, and portal projection
+routes. WP26 therefore owns tests and generated performance acceptance only;
+it has no missing production-source root. The executable scale harness remains
+absent and keeps this row open.
+
+## Code expectation
+
+Tests only. Do not create a new product package or parallel app/game business
+owner for this workpack.
 
 ## Tests And Proof
 
@@ -61,7 +66,8 @@ Fill this before reporting `DONE` or PR-ready:
 - [ ] Hub lock covers this workpack and exact implementation/docs paths.
 - [ ] Existing app/game source layout inspected; no parallel app-control truth created.
 - [ ] Before-state source snapshot recorded in `output/app-plan-proof/26-performance-and-service-health/00-source-snapshot.md`.
-- [ ] Contracts updated first where this workpack changes behavior.
+- [ ] Product contracts remain unchanged, or an explicit reason records why a
+      measured failure requires a separately owned runtime change.
 - [ ] Rust/service/portal parity is not changed by this row; the proof records generated-scale and existing portal intent smoke only.
 - [ ] Raw evidence artifacts captured for inventory rows, runtime rows, foreground transitions, journal records, replay observations, policy compile parses, portal intent rows, and degraded adapter health.
 - [ ] Tests/proof listed in this workpack and [test blueprint](../v0-5-native-apps-test-blueprint.md) are implemented or explicitly marked manual-required with reason.

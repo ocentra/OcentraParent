@@ -2700,18 +2700,9 @@
     },
     "WP-app-plan-26-performance-and-service-health": {
       "planSlug": "app-plan",
-      "roots": [
-        "packages/parent-domain/src/app-game-performance-health.ts",
-        "packages/parent-domain/src/app-game-performance-health-rules.ts",
-        "packages/parent-domain/src/app-game-performance-health-proof.ts",
-        "packages/parent-domain/tests/app-game-performance-health.test.ts"
-      ],
-      "plannedImplementationRoots": [
-        "packages/parent-domain/src/app-game-performance-health.ts",
-        "packages/parent-domain/src/app-game-performance-health-rules.ts",
-        "packages/parent-domain/src/app-game-performance-health-proof.ts"
-      ],
-      "expectedTestRoots": ["packages/parent-domain/tests/app-game-performance-health.test.ts"]
+      "codeExpectation": "tests-only",
+      "roots": ["scripts/test/app-game-performance-health-proof.mjs"],
+      "expectedTestRoots": ["scripts/test/app-game-performance-health-proof.mjs"]
     },
     "WP-app-plan-27-e2e-and-manual-proof-artifacts": {
       "planSlug": "app-plan",
@@ -3244,12 +3235,8 @@
     },
     "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff": {
       "planSlug": "app-plan",
-      "roots": [
-        "packages/parent-domain/src/app-game-timer-service-handoff.ts",
-        "packages/parent-domain/tests/app-game-timer-service-handoff.test.ts"
-      ],
-      "plannedImplementationRoots": ["packages/parent-domain/src/app-game-timer-service-handoff.ts"],
-      "expectedTestRoots": ["packages/parent-domain/tests/app-game-timer-service-handoff.test.ts"]
+      "codeExpectation": "no-code-required",
+      "roots": []
     },
     "WP-app-plan-103-timer-service-read-model-handoff": {
       "planSlug": "app-plan",

@@ -45,9 +45,9 @@ legacy package/script paths embedded in old workpack prose.
      metadata tests.
 6. **WP26 — performance harnesses**
    - Add the specified inventory/process/replay/policy/portal scale tests.
-7. **WP102 — route cleanup**
-   - Implement its bounded service-handoff model/test or explicitly merge and
-     retire the redundant packet into WP103.
+7. **WP102 — shared-route validation**
+   - Keep the retired parent-domain packet absent and validate the existing
+     WP101-to-WP103 Rust route during the owning test phase.
 
 ## Execution rules
 
