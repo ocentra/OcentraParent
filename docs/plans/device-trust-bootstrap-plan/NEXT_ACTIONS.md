@@ -1,20 +1,20 @@
 # Next Actions
 
-## WP01 runtime-fence source checkpoint — 2026-08-24
+## WP01 runtime-fence rejection checkpoint — 2026-08-24
 
-The independently repaired and reviewed Device-owned runtime-fence participant
-is integrated through `f5974c795`. Its durable SQLite reservation state binds
-action, target, signer, lifecycle generation, and current authority; it
-supports prepare/commit/abort/recover and treats prepared restart state or
-commit ambiguity as uncertain. The source phase is complete for this bounded
-participant packet.
+The previously integrated Device-owned runtime-fence packet was independently
+re-reviewed and rejected. Its committed rows lived in caller-path,
+same-user-writable SQLite and used a recomputable unkeyed digest, so a local
+writer could fabricate a committed outcome. It also broke existing databases
+by validating a new table without an explicit migration and had unbounded
+retention plus a full-ledger startup scan. The unsafe positive participant has
+therefore been withdrawn from the canonical source tree.
 
-Do not begin its test wave yet. First finish the remaining repository-wide
-production-source wave and accept the Protected Capability Custody foundation.
-Then mount the real Account WP05A coordinator/runtime caller and assign durable
-schema-migration/startup ownership without exporting Device currentness or raw
-participant handles. After the production composition is stable, write the
-missing participant tests and migrate the stale lifecycle contract tests.
+Do not write tests or compose Account WP05A against the withdrawn seam. First
+ship a real protected Device-owned receipt/key provider that excludes same-user
+writers, an owner-approved versioned migration with interruption recovery, and
+bounded retention/archive semantics. Only then may the private participant be
+implemented again, independently reviewed, and followed by its expected tests.
 Proof, precommit, PR, and CI remain later phases.
 
 ## Ordered runtime-owner routing (audit truth, not completion)

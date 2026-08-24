@@ -227,11 +227,9 @@ impl DeviceTrustLifecycleRepository {
             )
             .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
             device_trust_signer_registration::create_schema(&connection)?;
-            crate::device_trust_runtime_fence_participant::initialize_schema(&connection)?;
         }
         device_trust_lifecycle_schema::validate(&connection)?;
         device_trust_signer_registration::ensure_schema(&connection)?;
-        crate::device_trust_runtime_fence_participant::validate_schema(&connection)?;
         external_authority.reconcile(&connection)?;
         Ok(Self {
             connection,

@@ -24,7 +24,6 @@ mod device_trust_lifecycle_revocation;
 mod device_trust_lifecycle_schema;
 mod device_trust_lifecycle_schema_transition;
 mod device_trust_lifecycle_signer_authority;
-pub(crate) mod device_trust_runtime_fence_participant;
 pub mod device_trust_signer_registration;
 mod device_trust_signer_registration_revocation;
 mod device_trust_signer_registration_schema;

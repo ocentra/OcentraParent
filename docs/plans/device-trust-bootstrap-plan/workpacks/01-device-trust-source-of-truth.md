@@ -32,12 +32,10 @@ Purpose: define trust ownership, trust states, bootstrap lifecycle, and cross-pl
 - The lifecycle authority sidecar now serializes process writers through a sibling lock, reloads the current map before each generation update, and persists with an atomic replacement plus file/parent synchronization. Corrupt, missing-after-database, lock, and persistence failures remain unavailable rather than being treated as trusted.
 - `device_trust_ref` generation is opaque, CSPRNG-backed, and input-independent. Sealing remains manual-required because no specifically authorized high-risk device-trust sealing action exists; low-risk actions are never promoted.
 - Parent-presence decisions are transactionally enqueued beside custody state and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Visible tests cover accepted and replay outcomes, correlation and redaction, real delivery failure, restart recovery, and idempotent re-delivery. This workpack does not claim subscriber delivery, a broader event-bus runtime, or broader device-trust lifecycle completion.
-- A private durable Device Trust runtime-fence participant is integrated through
-  `f5974c795`. It binds prepare/commit/abort/recover to the exact action, target,
-  signer, lifecycle generation, and current authority digest, re-resolves owner
-  state inside the transaction, and reports prepared restart or persistence
-  ambiguity as uncertain. Its opaque handles/outcomes do not export Device
-  currentness to Account.
+- The attempted private runtime-fence participant integrated through
+  `f5974c795` was rejected and withdrawn. Its same-user-writable SQLite rows and
+  recomputable unkeyed digest allowed fabricated committed outcomes; it also
+  lacked an explicit existing-database migration and bounded retention.
 - This remains a partial, unchecked WP01 foundation/source. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, Unix production custody, or platform-wide path guarantees. It is not a shipped authority or production-caller route; its required tests, validation, authority bridge, and proof remain open.
 
 ## LAN WP26 dependency routing
@@ -53,21 +51,20 @@ must not be made to depend on a LAN consumer in return.
 
 ## Multi-owner effect-fence handoff
 
-WP01 is the Device Trust owner participant for Account WP05A. The private
-participant source now prepares, commits, aborts, and recovers an action-bound
-reservation against current trusted-device/signer binding, generation, and
-revocation state. It exposes only opaque participant handles/outcomes; Account
-may not copy Device Trust currentness or replay truth.
+WP01 owns the future Device Trust participant for Account WP05A. No accepted
+participant source currently exists. A replacement must prepare, commit, abort,
+and recover an action-bound reservation against current trusted-device/signer
+binding, generation, and revocation state while using protected Device-owned
+receipt custody that excludes same-user writers. Account may not copy Device
+Trust currentness or replay truth.
 
-The integrated source family is rooted at
+The planned source root remains
 `crates/family-identity-core/src/device_trust_runtime_fence_participant.rs` with
-the adjacent `device_trust_runtime_fence_{action,abort,commit,digest,error,prepare,recovery,schema,storage,target}.rs`
-modules plus the lifecycle authority fence/lock/reconciliation/store changes.
-The expected test root
+private adjacent helpers. The expected test root
 `crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs`
-is still absent. No production Account WP05A coordinator caller,
-startup/schema-migration owner, test, proof, runtime reachability, READY, or
-DONE claim is made.
+is absent. Protected receipt/key custody, startup/schema-migration ownership,
+bounded retention/archive policy, a production Account WP05A caller, tests,
+proof, runtime reachability, READY, and DONE are all missing.
 
 ## Downstream bridge order
 
@@ -114,22 +111,19 @@ guard checks passed. Expected-test migration, functional validation, proof,
 production platform/passkey callers, repo-wide Enforcer/architecture acceptance, platform
 custody, broader lifecycle composition, and DONE remain open.
 
-## Runtime-fence source consolidation — 2026-08-24
+## Runtime-fence source withdrawal — 2026-08-24
 
-The independently repaired/re-reviewed 18-path participant packet is
-integrated through `f5974c795`. It closes the bounded source gap recorded above:
-durable reservations, exact action/identity/signer/generation binding, owner
-currentness re-resolution, strict schema/row validation, lifecycle-authority
-lock ordering, committed digest verification, and fail-closed restart
-uncertainty are now implemented. Prepared rows cannot reconstruct commit
-authority after restart, and only an exact current committed row can recover a
-committed outcome.
+A later independent review rejected the integrated 18-path participant packet.
+Private Rust types did not make its persisted authority owner-authenticated:
+same-user SQLite writers could recompute the plain digest and fabricate a
+committed row. Existing databases had no explicit migration for the new table,
+and the unbounded ledger was scanned in full on every repository open. The
+participant/helper files and lifecycle schema hook are therefore removed.
 
-This packet does not close WP01. Protected Capability Custody WP01 remains the
-normal completion dependency; the Account WP05A coordinator/runtime caller,
-durable migration/startup ownership, the expected participant and migrated
-lifecycle tests, functional execution, proof, precommit, CI, and PR remain
-open.
+Protected Capability Custody WP01 (or another dependency-owned protected
+Device receipt provider), versioned migration, bounded retention/archive
+semantics, the Account WP05A caller, expected participant and migrated lifecycle
+tests, functional execution, proof, precommit, CI, and PR remain open.
 
 ## Negative cases
 

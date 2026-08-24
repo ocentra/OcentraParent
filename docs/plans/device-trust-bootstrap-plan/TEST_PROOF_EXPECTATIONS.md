@@ -43,14 +43,15 @@ Current device-trust coverage starts in:
 
 These plan-local tests currently prove document and route alignment only. They do not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle execution, or child uninstall execution by themselves.
 
-WP01's accepted runtime-fence source still requires this absent expected root:
+WP01's future replacement runtime-fence participant requires this absent expected root:
 
 ```text
 crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs
 ```
 
-After the repository production-source wave and real Account WP05A caller are
-stable, the test must prove exact action/target/signer/generation binding,
+After protected Device-owned receipt custody, explicit migration/retention
+ownership, and the real Account WP05A caller are stable, the test must prove
+exact action/target/signer/generation binding,
 prepare/commit/abort one-time semantics, concurrent reservation exclusion,
 current-state re-resolution, stale/revoked target rejection, corrupt schema and
 row rejection without repair, restart recovery, committed digest validation,

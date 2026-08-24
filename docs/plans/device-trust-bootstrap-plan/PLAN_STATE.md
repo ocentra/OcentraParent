@@ -69,15 +69,15 @@ Current direction from research and the pasted plan set:
 
 ## Production-code reachability audit (2026-08-16)
 
-This source audit was refreshed on the source-integration branch through
-`f5974c795`. It does not promote tests, proof artifacts, graph topology, or
-typed DTOs into runtime authority. WP01's bounded repository hardening is
-accepted source; no shipped caller yet owns the missing cryptographic/device
-authority.
+This source audit was refreshed after withdrawing the rejected runtime-fence
+packet. It does not promote tests, proof artifacts, graph topology, or typed
+DTOs into runtime authority. WP01's earlier bounded lifecycle/current-binding
+hardening remains accepted source; no shipped caller owns the missing
+cryptographic/device authority or protected participant custody.
 
 | Workpack | Reachable production code | Missing production authority / caller |
 | --- | --- | --- |
-| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar/transition journal, current device/signer binding, durable local event journal, trusted-device/signer-key registration, and the integrated private durable runtime-fence participant. The participant prepares, commits, aborts, and recovers an action/target/signer/generation-bound reservation while re-resolving current lifecycle authority; prepared restart state remains explicitly uncertain. Public household signer/verifier and participant-handle mint paths are absent. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped platform/passkey ceremony issuer or complete trust-state composition owner. No production Account WP05A coordinator caller or startup/migration owner mounts the participant. Its expected test root is absent, and functional validation, proof, production composition, and completion remain open. |
+| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar/transition journal, current device/signer binding, durable local event journal, and trusted-device/signer-key registration. Public household signer/verifier mint paths remain absent. The attempted runtime-fence participant was removed after review proved its same-user-writable SQLite rows and unkeyed digest could mint committed outcomes. | No protected Device-owned receipt/key provider, explicit existing-database migration, bounded retention/archive owner, production Account WP05A caller, shipped platform/passkey ceremony issuer, or complete trust-state composition owner exists. The future participant and expected test root are absent; functional validation, proof, production composition, and completion remain open. |
 | WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch source, `crates/family-identity-core` has current-authority and lifecycle-activation seams, and `crates/parent-runtime-core` plus the parent desktop have an opaque staged-handle facade and mounted custody-sealing command. | `require_authenticated_parent_authority()` is permanently unavailable before custody mutation; no ceremony issuer or custody-to-lifecycle startup composition reaches the source. Windows custody-open platform failures are typed unavailable; unsupported non-Windows startup is typed manual-required; the later authenticated-parent gate remains manual-required. The command does not perform lifecycle activation. Non-Windows custody and end-to-end sealing remain unavailable/manual-required; stale lifecycle/custody tests are not proof. |
 | WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries, a five-minute lifetime gate, and bounded atomic challenge/intent plus receipt/credential custody. | The graph is blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Planned `parent_step_up_target_authority.rs` and `parent_step_up_runtime.rs` do not exist. Actor parent-controller and target child/profile/device are not authoritatively separated for `RegisterLanSignerAnchor`; the authoritative Account writer/provider caller, passkey/OS-native signature provider, durable sign counter, shipped parent runtime, expected tests, proof, LAN handoff, and DONE remain open. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
@@ -242,26 +242,22 @@ overlap Data WP05 candidate `e91bb3de1`; that candidate must be rebased and
 semantically reconciled on top of this integrated fail-closed boundary before
 its own integration claim.
 
-## WP01 runtime-fence source integration — 2026-08-24
+## WP01 runtime-fence source withdrawal — 2026-08-24
 
-The independently repaired and reviewed Device-owned runtime-fence source is
-integrated through `f5974c795`. The 18-path packet keeps the reservation ledger
-inside `family-identity-core`, uses durable SQLite custody, binds every state
-transition to the exact action, target identity, signer, lifecycle generation,
-and authority digest, and re-resolves current Device Trust state before
-commit/recovery. Handles and outcomes remain opaque and non-cloneable; a
-prepared row cannot be reconstructed into commit authority after restart and
-therefore recovers as uncertain. Schema/currentness validation and lifecycle
-authority lock ordering are inside the transaction boundary, and persistence
-or commit ambiguity fails closed.
+The 18-path runtime-fence packet integrated through `f5974c795` failed a later
+independent review and has been withdrawn. Its caller-path SQLite ledger stored
+committed outcomes authenticated only by a recomputable unkeyed SHA-256 digest;
+a same-user writer could therefore fabricate a committed outcome. The packet
+also made pre-existing valid Device Trust databases fail because it validated a
+new table without an explicit migration, and it retained an unbounded ledger
+that was fully scanned at startup.
 
-This is accepted production source only. No shipped Account WP05A coordinator,
-startup/runtime composition, database-migration owner, or platform ceremony
-caller reaches the participant. The expected unit test root is absent, the
-existing lifecycle contract tests still require later migration, and no proof,
-precommit, CI, PR, or DONE claim follows. WP01 remains blocked on Protected
-Capability Custody WP01 for normal completion even though the reviewed source
-phase was legal through the graph's implementation gate.
+No positive participant source remains in canonical. Reintroduction requires a
+real protected Device-owned receipt/key provider that excludes same-user
+writers, an owner-approved versioned and interruption-safe migration, bounded
+retention/archive semantics, and a production Account WP05A caller. The future
+expected unit test, lifecycle test migration, functional execution, proof,
+precommit, CI, PR, and DONE all remain open.
 
 ## Conditional WP02 sealing gate — 2026-08-17
 
@@ -443,9 +439,9 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
   complete trust lifecycle, activation, recovery, or cross-platform custody
   implementation.
 - Parent-presence decisions are correlated and redacted, inserted transactionally into the canonical parent-presence SQLite outbox, and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Pending rows drain on restart, and stable event identities make recovery idempotent. This is durable local journal evidence only; it does not claim subscriber delivery, a broader event-bus runtime, or complete device-trust lifecycle integration.
-- The private runtime-fence participant is now present, but no complete shipped
-  device-trust state machine or coordinator composition exists beyond the
-  bounded owner-side source.
+- The attempted private runtime-fence participant was withdrawn as unsafe; no
+  complete shipped device-trust state machine, protected owner participant, or
+  coordinator composition exists.
 - No merged cross-platform local key sealing implementation exists; the merged
   DPAPI/registry-epoch vertical slice is Windows-only.
 - A fail-closed record-backed parent-step-up authority and receipt contract are
@@ -468,15 +464,13 @@ review, or main merge.
 
 ## 2026-08-24 multi-owner fencing handoff
 
-WP01 now contains the Device-owned private reservation participant required by
-Account WP05A. Account may eventually coordinate only its opaque
-prepared/committed/aborted/uncertain result; it may not copy Device Trust
-currentness, signer authority, generation, digest, or replay state. No
-production coordinator caller is mounted yet. WP03 separately retains
-parent-step-up ceremony and nonce/sign-count custody and remains blocked on its
-Account/Cloudflare/WP01 authority chain plus a real passkey/OS authority. The
-integrated participant source does not authorize runtime reachability, tests,
-proof, or DONE.
+WP01 still owns the future Device reservation participant required by Account
+WP05A, but no accepted participant source currently exists. Account may
+eventually coordinate only an opaque owner-authenticated result; it may not copy
+Device Trust currentness, signer authority, generation, digest, or replay state.
+WP03 separately retains parent-step-up ceremony and nonce/sign-count custody and
+remains blocked on its Account/Cloudflare/WP01 authority chain plus a real
+passkey/OS authority. No runtime reachability, test, proof, or DONE claim exists.
 
 ## Execution Gate
 
