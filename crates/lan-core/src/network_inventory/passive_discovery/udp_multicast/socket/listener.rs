@@ -34,13 +34,22 @@ pub(super) fn receive_bounded(
 ) -> LanPassiveDiscoveryUdpReceiveBatch {
     let mut datagrams = Vec::with_capacity(max_datagram_count);
     let mut issue = None;
-    let mut buffer = vec![0_u8; LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES];
-    while datagrams.len() < max_datagram_count {
+    let mut buffer = vec![0_u8; LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES.saturating_add(1)];
+    let mut receive_attempts = 0_usize;
+    let max_receive_attempts = max_datagram_count.saturating_add(1);
+    while datagrams.len() < max_datagram_count && receive_attempts < max_receive_attempts {
+        receive_attempts = receive_attempts.saturating_add(1);
         match listener.socket.recv_from(&mut buffer) {
-            Ok((received, _peer)) => datagrams.push(LanPassiveDiscoveryUdpDatagram {
-                source: listener.source,
-                payload: buffer[..received].to_vec(),
-            }),
+            Ok((received, _peer)) if received <= LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES => {
+                datagrams.push(LanPassiveDiscoveryUdpDatagram {
+                    source: listener.source,
+                    payload: buffer[..received].to_vec(),
+                })
+            }
+            Ok((_received, _peer)) => {
+                // A datagram that filled MAX+1 bytes is a bounded oversize drop.
+                // Never pass a possibly truncated payload to protocol ingestion.
+            }
             Err(error)
                 if error.kind() == std::io::ErrorKind::WouldBlock
                     || error.kind() == std::io::ErrorKind::TimedOut =>

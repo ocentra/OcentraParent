@@ -43,6 +43,7 @@ impl LanPairingRuntime {
             )),
             lan_ai_provider_heartbeat: Arc::new(Mutex::new(None)),
             lan_ai_job_leases: Arc::new(Mutex::new(Vec::new())),
+            browser_discovery_scan_worker: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id: None,
             signed_child_agent_parent_device_id: None,
@@ -105,6 +106,7 @@ impl LanPairingRuntime {
             )),
             lan_ai_provider_heartbeat: Arc::new(Mutex::new(None)),
             lan_ai_job_leases: Arc::new(Mutex::new(Vec::new())),
+            browser_discovery_scan_worker: Arc::new(Mutex::new(None)),
             persistence,
             local_child_device_id: runtime_context.local_child_device_id.map(|value| value.0),
             signed_child_agent_parent_device_id: runtime_context

@@ -155,8 +155,10 @@ fn bind_reusable_udp_socket(
 }
 
 fn local_ipv4_multicast_interface() -> Option<Ipv4Addr> {
-    crate::network_inventory_hardware::local_network_identity()?
-        .ip_address?
-        .parse::<Ipv4Addr>()
-        .ok()
+    crate::network_inventory_hardware::local_network_identity_with_timeout(Duration::from_millis(
+        250,
+    ))?
+    .ip_address?
+    .parse::<Ipv4Addr>()
+    .ok()
 }

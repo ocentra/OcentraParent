@@ -1,3 +1,4 @@
+use chrono::{DateTime, Duration, Utc};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingChallengeRequest;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
@@ -17,7 +18,6 @@ use crate::{
     lan_pairing_audit::{challenge_issued_audit_fields, rejected_control_audit_fields},
     lan_pairing_browser_add_device_state::browser_add_device_fields,
     lan_pairing_payload::parse_challenge_request,
-    time::timestamp_now,
 };
 
 #[path = "lan_pairing_status/selection.rs"]
@@ -127,10 +127,40 @@ fn validate_challenge_request(
     if origin.0.as_deref() != Some(request.origin.as_str()) {
         return Err(LanPairingRejectionReason::WrongOrigin);
     }
-    if timestamp_now::<String>().as_str() > request.expires_at.as_str() {
+    if request.child_device_id.trim().is_empty()
+        || request.parent_device_id.trim().is_empty()
+        || request.route_id.trim().is_empty()
+        || request.origin.trim().is_empty()
+        || request.issued_at.trim().is_empty()
+        || request.expires_at.trim().is_empty()
+        || command.message_id.trim().is_empty()
+        || command.source.peer_id.trim().is_empty()
+    {
+        return Err(LanPairingRejectionReason::Anonymous);
+    }
+    let Some(issued_at) = strict_timestamp(&LanPairingText(request.issued_at.clone())) else {
+        return Err(LanPairingRejectionReason::Malformed);
+    };
+    let Some(expires_at) = strict_timestamp(&LanPairingText(request.expires_at.clone())) else {
+        return Err(LanPairingRejectionReason::Malformed);
+    };
+    let now = Utc::now();
+    if issued_at > now
+        || expires_at <= now
+        || expires_at <= issued_at
+        || expires_at - issued_at
+            > Duration::seconds(constants::lan_pairing::LAN_PAIRING_CHALLENGE_MAX_LIFETIME_SECONDS)
+    {
         return Err(LanPairingRejectionReason::Stale);
     }
     Ok(())
+}
+
+fn strict_timestamp(value: &LanPairingText) -> Option<DateTime<Utc>> {
+    let parsed = DateTime::parse_from_rfc3339(value.0.as_str())
+        .ok()?
+        .with_timezone(&Utc);
+    (parsed.to_rfc3339_opts(chrono::SecondsFormat::Millis, true) == value.0).then_some(parsed)
 }
 
 fn challenge_state_for_request(
@@ -141,6 +171,8 @@ fn challenge_state_for_request(
     challenge_id.push_str(&request.child_device_id);
     challenge_id.push(constants::delimiter::HYPHEN);
     challenge_id.push_str(&command.source.peer_id);
+    challenge_id.push(constants::delimiter::HYPHEN);
+    challenge_id.push_str(&command.message_id);
     let mut proof_digest = String::from(constants::lan_pairing::PROOF_DIGEST_PREVIEW_PREFIX);
     proof_digest.push_str(&request.child_device_id);
     proof_digest.push(constants::delimiter::HYPHEN);

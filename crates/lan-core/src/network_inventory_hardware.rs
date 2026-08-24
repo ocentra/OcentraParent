@@ -2,6 +2,8 @@ mod gpu;
 pub mod linux_identity;
 pub mod network_identity_support;
 
+use std::time::{Duration, Instant};
+
 use self::gpu::{
     cpu_core_summary, gpu_drivers, gpu_memory, gpu_names, memory_summary, nvidia_smi_gpus,
     nvidia_summary,
@@ -117,6 +119,50 @@ pub(crate) fn local_network_identity() -> Option<LocalNetworkIdentity> {
         );
     }
     None
+}
+
+pub(crate) fn local_network_identity_with_timeout(
+    timeout: Duration,
+) -> Option<LocalNetworkIdentity> {
+    if timeout.is_zero() {
+        return None;
+    }
+    let started_at = Instant::now();
+    if cfg!(target_os = "windows") {
+        return preferred_windows_local_network_identity(&command_json_records_with_budget(
+            constants::lan_pairing::POWERSHELL_EXE,
+            &local_network_identity_args(),
+            timeout,
+        ));
+    }
+    if cfg!(any(target_os = "linux", target_os = "android")) {
+        let dns_servers = linux_dns_servers_from_resolv_conf();
+        let route_records = command_json_records_with_budget(
+            constants::lan_pairing::IP_EXE,
+            &linux_route_args(),
+            timeout,
+        );
+        let remaining = timeout.saturating_sub(started_at.elapsed());
+        let address_records = command_json_records_with_budget(
+            constants::lan_pairing::IP_EXE,
+            &linux_address_args(),
+            remaining,
+        );
+        return preferred_linux_local_network_identity(
+            &route_records,
+            &address_records,
+            &dns_servers,
+        );
+    }
+    None
+}
+
+fn command_json_records_with_budget(
+    program: &str,
+    args: &[&str],
+    timeout: Duration,
+) -> Vec<serde_json::Value> {
+    crate::network_inventory_command::command_json_records_with_timeout(program, args, timeout)
 }
 
 fn computer_system_args() -> [&'static str; 5] {

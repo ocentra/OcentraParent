@@ -1,3 +1,4 @@
+use chrono::Utc;
 use ocentra_lan_core::network_inventory::{
     discovery_evidence_sources_for_network_device, local_agent_device_ref,
     LanNetworkInventoryDevice,
@@ -205,7 +206,17 @@ fn build_live_read_model(
     observed_at: &LanPairingText,
 ) -> LanBrowserAddDeviceReadModel {
     let network_devices = scan_result.devices.clone();
-    let has_network_devices = !network_devices.is_empty();
+    let has_current_physical_scan =
+        scan_result
+            .current_scan_snapshot
+            .as_ref()
+            .is_some_and(|snapshot| {
+                scan_history::scan_history_is_recent(
+                    &LanPairingText(snapshot.updated_at.clone()),
+                    Utc::now(),
+                )
+            });
+    let has_network_devices = has_current_physical_scan && !network_devices.is_empty();
     let discovery_source = if has_network_devices {
         LanPairingDiscoverySource::PhysicalHouseholdLan
     } else {

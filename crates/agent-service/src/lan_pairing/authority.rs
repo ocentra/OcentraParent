@@ -86,3 +86,12 @@ pub(crate) fn is_write_intent(intent: &LanParentIntentEnvelope) -> bool {
             | LanPairingIntentKind::LanAiJobSubmit
     )
 }
+
+pub(crate) fn is_household_device_decision_intent(intent: &LanParentIntentEnvelope) -> bool {
+    matches!(
+        intent.intent_kind,
+        LanPairingIntentKind::RuleUpdate
+            | LanPairingIntentKind::ApprovalDecision
+            | LanPairingIntentKind::ConfigurationUpdate
+    )
+}

@@ -1,6 +1,7 @@
 use std::{
     path::PathBuf,
-    sync::{Arc, Mutex},
+    sync::{atomic::AtomicBool, Arc, Mutex},
+    thread::JoinHandle,
 };
 
 #[path = "lan_pairing/authority.rs"]
@@ -28,7 +29,7 @@ mod runtime_device_ref;
 #[path = "lan_pairing/runtime_rejection.rs"]
 mod runtime_rejection;
 #[path = "lan_pairing/runtime_validation.rs"]
-mod runtime_validation;
+pub(crate) mod runtime_validation;
 
 use ocentra_lan_core::lan_pairing::LanSignedChildAgentReplayGuard;
 use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryListenerState;
@@ -61,6 +62,7 @@ pub struct LanPairingRuntime {
     pub(crate) passive_discovery_listener_state: Arc<Mutex<LanPassiveDiscoveryListenerState>>,
     pub(crate) lan_ai_provider_heartbeat: Arc<Mutex<Option<LanAiProviderHeartbeatState>>>,
     pub(crate) lan_ai_job_leases: Arc<Mutex<Vec<LanAiJobLeaseState>>>,
+    pub(crate) browser_discovery_scan_worker: Arc<Mutex<Option<LanBrowserDiscoveryScanWorker>>>,
     pub(crate) persistence: LanPairingRegistryPersistence,
     pub(crate) local_child_device_id: Option<String>,
     pub(crate) signed_child_agent_parent_device_id: Option<String>,
@@ -68,6 +70,12 @@ pub struct LanPairingRuntime {
     pub(crate) signed_child_agent_route_id: String,
     pub(crate) device_roles: DeviceRoleRuntimeReadModel,
     pub(crate) lan_ai_provider_capabilities: Vec<String>,
+}
+
+#[derive(Debug)]
+pub(crate) struct LanBrowserDiscoveryScanWorker {
+    pub(crate) cancellation: Arc<AtomicBool>,
+    pub(crate) join: JoinHandle<()>,
 }
 
 #[derive(Clone, Debug)]
