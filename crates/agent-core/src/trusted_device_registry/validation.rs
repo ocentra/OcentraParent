@@ -1,4 +1,3 @@
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingRejectionReason, LanParentIntentEnvelope,
 };
@@ -27,14 +26,7 @@ impl TrustedDeviceRegistry {
             require_selected_pairing,
         )?;
 
-        if self.accepted_intent_ids.len()
-            >= constants::lan_pairing::LAN_PAIRING_MAX_ACCEPTED_INTENT_HISTORY
-        {
-            if let Some(oldest) = self.accepted_intent_ids.iter().next().cloned() {
-                self.accepted_intent_ids.remove(&oldest);
-            }
-        }
-        self.accepted_intent_ids.insert(intent.intent_id.clone());
+        self.remember_accepted_intent_id(intent.intent_id.clone());
         Ok(())
     }
 }

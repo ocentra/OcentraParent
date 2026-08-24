@@ -5,7 +5,6 @@ use std::{
 };
 
 use fs2::FileExt;
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingRejectionReason, LanSelectedRouteTarget,
 };
@@ -114,16 +113,7 @@ impl TrustedDeviceRegistry {
                 "trusted device registry changed before mutation",
             ));
         }
-        persisted
-            .accepted_intent_ids
-            .extend(self.accepted_intent_ids.iter().cloned());
-        while persisted.accepted_intent_ids.len()
-            > constants::lan_pairing::LAN_PAIRING_MAX_ACCEPTED_INTENT_HISTORY
-        {
-            if let Some(oldest) = persisted.accepted_intent_ids.iter().next().cloned() {
-                persisted.accepted_intent_ids.remove(&oldest);
-            }
-        }
+        persisted.merge_accepted_intent_ids(self.accepted_intent_ids.iter().cloned());
         replay_history::merge_challenge_ids(self, &mut persisted);
         let result = mutation(&mut persisted)?;
         persisted.save_json(registry_path)?;

@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, VecDeque};
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
@@ -13,6 +13,7 @@ mod helpers;
 mod json_persistence;
 mod known_household_devices;
 mod persistence;
+mod replay;
 mod signer_authority;
 pub mod signer_authority_types;
 mod validation;
@@ -28,8 +29,8 @@ pub struct TrustedDeviceRegistry {
     pub(crate) entries: Vec<LanTrustedDeviceRegistryEntry>,
     pub(crate) household_device_decisions: Vec<LanHouseholdDeviceDecision>,
     pub(crate) known_household_devices: Vec<LanCanonicalHouseholdDevice>,
-    accepted_intent_ids: BTreeSet<String>,
-    accepted_challenge_ids: BTreeSet<String>,
+    accepted_intent_ids: VecDeque<String>,
+    accepted_challenge_ids: VecDeque<String>,
     signer_anchors: BTreeMap<String, LanTrustedDeviceSignerAnchor>,
     signer_anchor_generations: BTreeMap<String, u64>,
     pub(crate) selected_pairing_id: Option<String>,
@@ -47,8 +48,8 @@ impl TrustedDeviceRegistry {
             entries,
             household_device_decisions: Vec::new(),
             known_household_devices: Vec::new(),
-            accepted_intent_ids: BTreeSet::new(),
-            accepted_challenge_ids: BTreeSet::new(),
+            accepted_intent_ids: VecDeque::new(),
+            accepted_challenge_ids: VecDeque::new(),
             signer_anchors: BTreeMap::new(),
             signer_anchor_generations: BTreeMap::new(),
             selected_pairing_id: None,
@@ -78,17 +79,18 @@ impl TrustedDeviceRegistry {
     }
 
     pub fn record_challenge_request(&mut self, challenge_id: &str) -> bool {
-        if challenge_id.trim().is_empty() || self.accepted_challenge_ids.contains(challenge_id) {
+        if challenge_id.trim().is_empty()
+            || self
+                .accepted_challenge_ids
+                .iter()
+                .any(|candidate| candidate == challenge_id)
+        {
             return false;
         }
-        if self.accepted_challenge_ids.len()
-            >= constants::lan_pairing::LAN_PAIRING_MAX_ACCEPTED_INTENT_HISTORY
-        {
-            if let Some(oldest) = self.accepted_challenge_ids.iter().next().cloned() {
-                self.accepted_challenge_ids.remove(&oldest);
-            }
-        }
-        self.accepted_challenge_ids.insert(challenge_id.to_string());
+        replay::remember_bounded_replay_id(
+            &mut self.accepted_challenge_ids,
+            challenge_id.to_string(),
+        );
         true
     }
 

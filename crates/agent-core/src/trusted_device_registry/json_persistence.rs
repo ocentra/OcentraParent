@@ -41,6 +41,7 @@ impl TrustedDeviceRegistry {
         registry
             .validate_persisted_authority_state()
             .map_err(|_error| io::Error::from(io::ErrorKind::InvalidData))?;
+        load::reject_untrusted_paired_entries(&registry)?;
         Ok(registry)
     }
 

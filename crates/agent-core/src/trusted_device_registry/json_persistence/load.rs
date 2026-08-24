@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, VecDeque};
 use std::io;
 
 use ocentra_parent_agent_protocol::{constants, lan_pairing::LanTrustedDeviceRegistryEntry};
@@ -46,23 +46,32 @@ pub(super) fn from_json_text(content: &str) -> Option<TrustedDeviceRegistry> {
     // a present field must deserialize or the whole registry load fails closed.
     registry.accepted_intent_ids = bounded_replay_ids(match value.get(ACCEPTED_INTENT_IDS_KEY) {
         Some(intent_ids) => serde_json::from_value(intent_ids.clone()).ok()?,
-        None => BTreeSet::new(),
+        None => VecDeque::new(),
     });
     registry.accepted_challenge_ids =
         bounded_replay_ids(match value.get(ACCEPTED_CHALLENGE_IDS_KEY) {
             Some(challenge_ids) => serde_json::from_value(challenge_ids.clone()).ok()?,
-            None => BTreeSet::new(),
+            None => VecDeque::new(),
         });
     Some(registry)
 }
 
-fn bounded_replay_ids(mut ids: BTreeSet<String>) -> BTreeSet<String> {
-    while ids.len() > constants::lan_pairing::LAN_PAIRING_MAX_ACCEPTED_INTENT_HISTORY {
-        if let Some(oldest) = ids.iter().next().cloned() {
-            ids.remove(&oldest);
-        }
+fn bounded_replay_ids(ids: VecDeque<String>) -> VecDeque<String> {
+    let mut bounded = VecDeque::new();
+    for id in ids {
+        super::super::replay::remember_bounded_replay_id(&mut bounded, id);
     }
-    ids
+    bounded
+}
+
+pub(super) fn reject_untrusted_paired_entries(registry: &TrustedDeviceRegistry) -> io::Result<()> {
+    if registry.entries.iter().any(|entry| {
+        entry.trust_state
+            == ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState::Paired
+    }) {
+        return Err(io::Error::from(io::ErrorKind::InvalidData));
+    }
+    Ok(())
 }
 
 fn bounded_household_decisions(
