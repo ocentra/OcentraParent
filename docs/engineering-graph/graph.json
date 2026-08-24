@@ -24377,15 +24377,18 @@
       "metadata": {
         "planSlug": "protected-capability-custody-foundation-plan",
         "indexPath": "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — existing core source mapped; isolated broker/client source, expected tests, callers, proof, and completion remain open.",
+        "statusText": "Validation blocked — existing core mapped; package topology, narrow facade, tests, callers, proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
+            "crates/protected-capability-custody-core/src/lib.rs",
+            "crates/protected-capability-custody-core/src/broker_admission.rs",
+            "crates/protected-capability-custody-protocol/src/lib.rs",
+            "crates/protected-capability-custody-broker/src/lib.rs",
             "crates/protected-capability-custody-broker/src/main.rs",
-            "crates/protected-capability-custody-broker/src/protocol.rs",
             "crates/protected-capability-custody-broker/src/windows_ipc.rs",
             "crates/protected-capability-custody-broker/src/authority.rs",
             "crates/protected-capability-custody-broker/src/custody.rs",
@@ -24394,13 +24397,17 @@
             "crates/protected-capability-custody-client/src/admission.rs"
           ],
           "testRoots": [
-            "crates/protected-capability-custody-core/tests/unit/binding.rs",
-            "crates/protected-capability-custody-core/tests/unit/storage_schema.rs",
-            "crates/protected-capability-custody-core/tests/unit/transition_state.rs",
-            "crates/protected-capability-custody-core/tests/security/path_and_replica_integrity.rs",
-            "crates/protected-capability-custody-core/tests/recovery/custody_reconciliation.rs",
-            "crates/protected-capability-custody-core/tests/concurrency/broker_reservation_races.rs",
-            "crates/protected-capability-custody-core/tests/integration/windows_broker_custody.rs"
+            "crates/protected-capability-custody-core/src/binding_test.rs",
+            "crates/protected-capability-custody-core/src/storage_schema_test.rs",
+            "crates/protected-capability-custody-core/src/custody_transition_test.rs",
+            "crates/protected-capability-custody-core/src/path_security_test.rs",
+            "crates/protected-capability-custody-core/src/custody_reconciliation_test.rs",
+            "crates/protected-capability-custody-protocol/tests/wire_contract.rs",
+            "crates/protected-capability-custody-broker/tests/authority.rs",
+            "crates/protected-capability-custody-broker/tests/reservation_races.rs",
+            "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
+            "crates/protected-capability-custody-client/tests/admission.rs",
+            "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
           ]
         },
         "dependencyReview": {
@@ -24413,7 +24420,7 @@
           "reason": "Neutral foundation route for the existing fail-closed protected-capability custody core. The core is substantive but inert outside its crate: admission/platform authority is private and SQLite is only a checked replica. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque factory, expected tests, proof, and production callers are absent. This review authorizes only implementation-phase source work; it does not claim normal READY, runtime reachability, tests, proof, PR readiness, or DONE."
         },
         "stateOverride": {
-          "reason": "Existing protected-capability-custody-core source is substantive and fail-closed but inert outside its crate. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque admission, expected tests, proof, and production caller are absent. Validation state preserves the open completion contract while implementation phase authorization is derived separately; no normal READY, runtime, PR, merge, or DONE claim is made.",
+          "reason": "The graph schema permits only the validation routing override here; it is used as a safety block because the staged workspace metadata, neutral protocol package, isolated Windows broker/client manifests and targets, narrow core broker-admission facade, expected tests, proof, and production caller are absent. Implementation phase authorization is derived separately and does not imply READY, runtime reachability, PR, merge, or DONE.",
           "evidence": [
             "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
             "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
@@ -24437,8 +24444,11 @@
         },
         "expected": {
           "implementation": [
+            "crates/protected-capability-custody-core/src/lib.rs",
+            "crates/protected-capability-custody-core/src/broker_admission.rs",
+            "crates/protected-capability-custody-protocol/src/lib.rs",
+            "crates/protected-capability-custody-broker/src/lib.rs",
             "crates/protected-capability-custody-broker/src/main.rs",
-            "crates/protected-capability-custody-broker/src/protocol.rs",
             "crates/protected-capability-custody-broker/src/windows_ipc.rs",
             "crates/protected-capability-custody-broker/src/authority.rs",
             "crates/protected-capability-custody-broker/src/custody.rs",
@@ -24447,13 +24457,17 @@
             "crates/protected-capability-custody-client/src/admission.rs"
           ],
           "tests": [
-            "crates/protected-capability-custody-core/tests/unit/binding.rs",
-            "crates/protected-capability-custody-core/tests/unit/storage_schema.rs",
-            "crates/protected-capability-custody-core/tests/unit/transition_state.rs",
-            "crates/protected-capability-custody-core/tests/security/path_and_replica_integrity.rs",
-            "crates/protected-capability-custody-core/tests/recovery/custody_reconciliation.rs",
-            "crates/protected-capability-custody-core/tests/concurrency/broker_reservation_races.rs",
-            "crates/protected-capability-custody-core/tests/integration/windows_broker_custody.rs"
+            "crates/protected-capability-custody-core/src/binding_test.rs",
+            "crates/protected-capability-custody-core/src/storage_schema_test.rs",
+            "crates/protected-capability-custody-core/src/custody_transition_test.rs",
+            "crates/protected-capability-custody-core/src/path_security_test.rs",
+            "crates/protected-capability-custody-core/src/custody_reconciliation_test.rs",
+            "crates/protected-capability-custody-protocol/tests/wire_contract.rs",
+            "crates/protected-capability-custody-broker/tests/authority.rs",
+            "crates/protected-capability-custody-broker/tests/reservation_races.rs",
+            "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
+            "crates/protected-capability-custody-client/tests/admission.rs",
+            "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
           ]
         }
       }

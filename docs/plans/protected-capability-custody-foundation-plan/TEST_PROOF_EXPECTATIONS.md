@@ -12,15 +12,27 @@
 
 ## Expected test roots
 
-The following roots are obligations for WP01 and are currently absent:
+The following roots are obligations for WP01 and are currently absent. The
+core-owned roots are unit modules under `src/` because storage, path, and
+authority internals are intentionally private. The package-level roots test
+only their public boundaries.
 
-- `crates/protected-capability-custody-core/tests/unit/binding.rs`
-- `crates/protected-capability-custody-core/tests/unit/storage_schema.rs`
-- `crates/protected-capability-custody-core/tests/unit/transition_state.rs`
-- `crates/protected-capability-custody-core/tests/security/path_and_replica_integrity.rs`
-- `crates/protected-capability-custody-core/tests/recovery/custody_reconciliation.rs`
-- `crates/protected-capability-custody-core/tests/concurrency/broker_reservation_races.rs`
-- `crates/protected-capability-custody-core/tests/integration/windows_broker_custody.rs`
+Core-owned unit modules:
+
+- `crates/protected-capability-custody-core/src/binding_test.rs`
+- `crates/protected-capability-custody-core/src/storage_schema_test.rs`
+- `crates/protected-capability-custody-core/src/custody_transition_test.rs`
+- `crates/protected-capability-custody-core/src/path_security_test.rs`
+- `crates/protected-capability-custody-core/src/custody_reconciliation_test.rs`
+
+Protocol, broker, and client package tests:
+
+- `crates/protected-capability-custody-protocol/tests/wire_contract.rs`
+- `crates/protected-capability-custody-broker/tests/authority.rs`
+- `crates/protected-capability-custody-broker/tests/reservation_races.rs`
+- `crates/protected-capability-custody-broker/tests/windows_broker_custody.rs`
+- `crates/protected-capability-custody-client/tests/admission.rs`
+- `crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs`
 
 ## Required coverage
 
@@ -30,7 +42,8 @@ tampering, generation/revocation/replay, restart reconciliation, uncertain
 prepared state, concurrent reservation races, broker authentication and client
 identity mismatch, ACL/path/key ownership, watermark/lease monotonicity, and
 Windows process restart. A fixture, mock broker, same-process DPAPI helper,
-mutex/file-lock substitute, or caller-provided attestation is not product proof.
+mutex/file-lock substitute, private-source path import, or caller-provided
+attestation is not product proof.
 
 The integration test may be Windows-only. Unsupported platforms must report the
 typed manual-required/unavailable state rather than silently substituting an
@@ -43,13 +56,20 @@ cover the touched crate and broker/client packages, then run:
 
 ```text
 cargo check -p ocentra-protected-capability-custody-core
-cargo test -p ocentra-protected-capability-custody-core --tests
-npm run lint:architecture -- --files crates/protected-capability-custody-core
+cargo check -p ocentra-protected-capability-custody-protocol
+cargo check -p ocentra-protected-capability-custody-broker
+cargo check -p ocentra-protected-capability-custody-client
+cargo test -p ocentra-protected-capability-custody-core --lib
+cargo test -p ocentra-protected-capability-custody-protocol --tests
+cargo test -p ocentra-protected-capability-custody-broker --tests
+cargo test -p ocentra-protected-capability-custody-client --tests
+npm run lint:architecture -- --files crates/protected-capability-custody-core crates/protected-capability-custody-protocol crates/protected-capability-custody-broker crates/protected-capability-custody-client
 npm run hub:guard -- --paths <exact-touched-paths> --operation commit
 ```
 
-The exact broker/client package commands are selected when those crates exist.
-Do not run the repo-wide gate from this docs-only route.
+The package commands become runnable only after the real manifests and targets
+are added and activated in the workspace. Do not run the repo-wide gate from
+this docs-only route.
 
 ## Proof requirements
 

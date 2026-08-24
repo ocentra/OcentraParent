@@ -13,7 +13,7 @@
 ## Current status
 
 The plan is an active neutral foundation route with one workpack in
-implementation-only authorization. The existing
+planned/implementation-only authorization. The existing
 `crates/protected-capability-custody-core` source is substantive and
 fail-closed, but it is not an operating custody system:
 
@@ -23,13 +23,17 @@ fail-closed, but it is not an operating custody system:
 - no isolated broker process, authenticated OS IPC, broker-owned ACL/path/key/
   watermark/write-lease authority, opaque external factory, or production
   caller exists;
+- the broker, client, and neutral wire-contract packages are not yet active
+  workspace members; their real manifests and targets remain implementation
+  obligations recorded in the graph;
 - the expected unit, security, recovery, concurrency, and Windows integration
   tests are not present;
 - no current proof, pre-commit, CI, PR, or merge claim exists for this route.
 
-The graph records the route as `validation` and separately authorizes only the
-implementation phase. It must not derive ordinary READY or DONE from this
-source map.
+The graph records the route as `planned` and separately authorizes only the
+implementation phase. The planned package registration in the root Cargo
+metadata is not active workspace membership. It must not derive ordinary READY
+or DONE from this source map.
 
 ## Owning boundary
 
@@ -55,6 +59,33 @@ crates/protected-capability-custody-core/src/platform/
 crates/protected-capability-custody-core/src/storage.rs
 crates/protected-capability-custody-core/src/storage/
 ```
+
+The implementation packet must also map and validate this concrete package
+topology before activation:
+
+```text
+crates/protected-capability-custody-core/src/broker_admission.rs
+crates/protected-capability-custody-protocol/Cargo.toml
+crates/protected-capability-custody-protocol/src/lib.rs
+crates/protected-capability-custody-broker/Cargo.toml
+crates/protected-capability-custody-broker/src/lib.rs
+crates/protected-capability-custody-broker/src/main.rs
+crates/protected-capability-custody-broker/src/windows_ipc.rs
+crates/protected-capability-custody-broker/src/authority.rs
+crates/protected-capability-custody-broker/src/custody.rs
+crates/protected-capability-custody-client/Cargo.toml
+crates/protected-capability-custody-client/src/lib.rs
+crates/protected-capability-custody-client/src/windows_ipc.rs
+crates/protected-capability-custody-client/src/admission.rs
+```
+
+`broker_admission.rs` is a narrow core-owned facade seam: it may expose only
+typed broker-entry/request/result operations after authenticated process/IPC
+validation. It must not expose `CustodyAdmission`, `CurrentBindingPort`,
+`PlatformCustodyOwner`, `PlatformDatabaseGuard`, or any constructor that lets a
+caller implement or mint those sealed owner traits. The neutral protocol crate
+owns the wire contract consumed by both broker and client; the broker binary
+does not own a client-visible copy of that contract.
 
 ## Consumer routing
 

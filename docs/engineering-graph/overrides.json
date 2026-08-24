@@ -9267,8 +9267,8 @@
     {
       "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
       "state": "validation",
-      "reason": "Existing protected-capability-custody-core source is substantive and fail-closed but inert outside its crate. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque admission, expected tests, proof, and production caller are absent. Validation state preserves the open completion contract while implementation phase authorization is derived separately; no normal READY, runtime, PR, merge, or DONE claim is made.",
-      "statusText": "Validation — existing core source mapped; isolated broker/client source, expected tests, callers, proof, and completion remain open.",
+      "reason": "The graph schema permits only the validation routing override here; it is used as a safety block because the staged workspace metadata, neutral protocol package, isolated Windows broker/client manifests and targets, narrow core broker-admission facade, expected tests, proof, and production caller are absent. Implementation phase authorization is derived separately and does not imply READY, runtime reachability, PR, merge, or DONE.",
+      "statusText": "Validation blocked — existing core mapped; package topology, narrow facade, tests, callers, proof, and completion remain open.",
       "needsReview": false,
       "evidence": [
         "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",

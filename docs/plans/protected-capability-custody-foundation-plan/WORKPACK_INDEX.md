@@ -16,12 +16,21 @@ test roots are expected but missing.
 
 | Status | Workpack | Source boundary | Required proof tier | Open condition |
 | --- | --- | --- | --- | --- |
-| validation / implementation-only authorization | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Existing fail-closed core plus the missing isolated Windows broker/client boundary | P0 security/persistence/platform | No broker process, authenticated IPC, external factory/caller, expected tests, proof, or runtime composition exists. |
+| planned / implementation-only authorization | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Existing fail-closed core plus the planned neutral protocol, isolated Windows broker, client, and narrow core facade seam | P0 security/persistence/platform | No active broker/protocol/client packages, authenticated IPC, external factory/caller, expected tests, proof, or runtime composition exists. |
 
 ## Ownership and dependency rules
 
 - The core owns typed custody state, binding validation, path security, storage
   replica checks, and fail-closed transitions.
+- The neutral protocol package owns the one shared broker/client wire contract;
+  neither the broker binary nor the client may duplicate it.
+- The root Cargo metadata records the future package members, but activation is
+  deferred until real manifests and non-placeholder `lib`/`main` targets exist
+  and focused package validation is available.
+- The core's future `broker_admission.rs` facade is the only planned cross-crate
+  seam. It retains sealed owner traits and opaque admission inside the core; it
+  does not make `CustodyAdmission`, platform guards, or authority implementations
+  public.
 - A future broker process owns protected OS authority. Its client consumes only
   authenticated typed opaque results.
 - Account WP05A is the coordinator consumer. Device Trust WP01 and WP03 are
