@@ -24,6 +24,7 @@ pub enum ResponseStatus {
 
 pub struct UntrustedResponseFacts {
     pub nonce: Nonce,
+    pub broker_nonce: Nonce,
     pub correlation: CorrelationId,
     pub client_process_epoch: u64,
     pub session_handle: SessionHandle,
@@ -46,6 +47,7 @@ pub struct UntrustedResponseFacts {
 pub struct Response {
     pub(crate) version: ProtocolVersion,
     pub(crate) nonce: Nonce,
+    pub(crate) broker_nonce: Nonce,
     pub(crate) correlation: CorrelationId,
     pub(crate) client_process_epoch: u64,
     pub(crate) session_handle: SessionHandle,
@@ -85,6 +87,7 @@ impl Response {
         Ok(Self {
             version: ProtocolVersion::CURRENT,
             nonce: facts.nonce,
+            broker_nonce: facts.broker_nonce,
             correlation: facts.correlation,
             client_process_epoch: facts.client_process_epoch,
             session_handle: facts.session_handle,

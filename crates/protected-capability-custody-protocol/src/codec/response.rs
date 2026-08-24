@@ -11,9 +11,10 @@ use crate::response::{Response, ResponseStatus, UntrustedResponseFacts};
 use crate::types::{CorrelationId, Nonce, ProtocolError};
 
 pub(super) fn encode(response: &Response) -> Result<Vec<u8>, ProtocolError> {
-    let mut payload = Vec::with_capacity(256);
+    let mut payload = Vec::with_capacity(288);
     append_header(&mut payload, MESSAGE_RESPONSE, response.version());
     payload.extend_from_slice(response.nonce().as_bytes());
+    payload.extend_from_slice(response.broker_nonce().as_bytes());
     payload.extend_from_slice(response.correlation().as_bytes());
     append_u64(&mut payload, response.client_process_epoch());
     payload.extend_from_slice(response.session_handle().as_bytes());
@@ -38,6 +39,7 @@ pub(super) fn decode(frame: &[u8]) -> Result<Response, ProtocolError> {
     let mut cursor = Cursor::new(payload);
     let version = cursor.take_header(MESSAGE_RESPONSE)?;
     let nonce = Nonce::try_from_bytes(cursor.take_exact(NONCE_BYTES)?)?;
+    let broker_nonce = Nonce::try_from_bytes(cursor.take_exact(NONCE_BYTES)?)?;
     let correlation = CorrelationId::try_from_bytes(cursor.take_exact(CORRELATION_BYTES)?)?;
     let client_process_epoch = cursor.take_u64()?;
     let session_handle = SessionHandle::try_from_bytes(cursor.take_exact(SESSION_HANDLE_BYTES)?)?;
@@ -61,6 +63,7 @@ pub(super) fn decode(frame: &[u8]) -> Result<Response, ProtocolError> {
     cursor.finish()?;
     Response::from_parts(UntrustedResponseFacts {
         nonce,
+        broker_nonce,
         correlation,
         client_process_epoch,
         session_handle,

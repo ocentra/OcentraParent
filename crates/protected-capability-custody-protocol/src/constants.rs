@@ -1,6 +1,7 @@
 pub const PROTOCOL_VERSION: u16 = 1;
 pub const PROTOCOL_DOMAIN: &str = "ocentra.protected-capability-custody.protocol.v1";
 pub const REQUEST_DIGEST_DOMAIN: &str = "ocentra.protected-capability-custody.request.v1";
+pub const OPAQUE_TOKEN_DIGEST_DOMAIN: &str = "ocentra.protected-capability-custody.token.v1";
 pub const FRAME_PREFIX_BYTES: usize = 4;
 pub const NONCE_BYTES: usize = 32;
 pub const CORRELATION_BYTES: usize = 16;

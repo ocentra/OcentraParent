@@ -10,9 +10,10 @@ use crate::target::{Action, TargetDescriptor, TargetKind};
 use crate::types::{CorrelationId, Nonce, ProtocolError};
 
 pub(super) fn encode(request: &Request) -> Result<Vec<u8>, ProtocolError> {
-    let mut payload = Vec::with_capacity(320);
+    let mut payload = Vec::with_capacity(352);
     append_header(&mut payload, MESSAGE_REQUEST, request.version());
     payload.extend_from_slice(request.nonce().as_bytes());
+    payload.extend_from_slice(request.broker_nonce().as_bytes());
     payload.extend_from_slice(request.correlation().as_bytes());
     append_u64(&mut payload, request.client_process_epoch());
     append_u64(&mut payload, request.broker_epoch());
@@ -38,6 +39,7 @@ pub(super) fn decode(frame: &[u8]) -> Result<Request, ProtocolError> {
     let mut cursor = Cursor::new(payload);
     let version = cursor.take_header(MESSAGE_REQUEST)?;
     let nonce = Nonce::try_from_bytes(cursor.take_exact(NONCE_BYTES)?)?;
+    let broker_nonce = Nonce::try_from_bytes(cursor.take_exact(NONCE_BYTES)?)?;
     let correlation = CorrelationId::try_from_bytes(cursor.take_exact(CORRELATION_BYTES)?)?;
     let client_process_epoch = cursor.take_u64()?;
     let broker_epoch = cursor.take_u64()?;
@@ -59,6 +61,7 @@ pub(super) fn decode(frame: &[u8]) -> Result<Request, ProtocolError> {
     cursor.finish()?;
     Request::try_from_untrusted_wire_values(UntrustedRequestWireValues {
         nonce,
+        broker_nonce,
         correlation,
         client_process_epoch,
         broker_epoch,

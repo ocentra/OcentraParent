@@ -10,7 +10,10 @@ impl ResponseStatus {
                 request_kind,
                 RequestKind::Prepare | RequestKind::Recover | RequestKind::ResolveAmbiguity
             ),
-            Self::PrepareAmbiguous => matches!(request_kind, RequestKind::Prepare),
+            Self::PrepareAmbiguous => matches!(
+                request_kind,
+                RequestKind::Prepare | RequestKind::Recover | RequestKind::ResolveAmbiguity
+            ),
             Self::Committed => matches!(
                 request_kind,
                 RequestKind::Commit | RequestKind::Recover | RequestKind::ResolveAmbiguity

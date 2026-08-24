@@ -8,12 +8,13 @@ impl Response {
     pub fn is_bound_to(&self, request: &Request) -> bool {
         self.version == request.version()
             && self.nonce == request.nonce()
+            && self.broker_nonce == request.broker_nonce()
             && self.correlation == request.correlation()
             && self.client_process_epoch == request.client_process_epoch()
             && self.session_handle == request.session_handle()
             && self.attestation_digest == request.attestation_digest()
             && self.request_kind == request.kind()
-            && self.request_digest == request.operation_digest()
+            && self.request_digest == request.request_digest()
             && self.status.is_compatible_with(request.kind())
             && self.broker_epoch == request.broker_epoch()
             && self.broker_key_epoch == request.broker_key_epoch()
@@ -31,6 +32,10 @@ impl Response {
 
     pub fn nonce(&self) -> Nonce {
         self.nonce
+    }
+
+    pub fn broker_nonce(&self) -> Nonce {
+        self.broker_nonce
     }
 
     pub fn correlation(&self) -> CorrelationId {

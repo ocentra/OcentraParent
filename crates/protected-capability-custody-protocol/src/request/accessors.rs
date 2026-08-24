@@ -12,6 +12,10 @@ impl Request {
         self.nonce
     }
 
+    pub fn broker_nonce(&self) -> Nonce {
+        self.broker_nonce
+    }
+
     pub fn correlation(&self) -> CorrelationId {
         self.correlation
     }

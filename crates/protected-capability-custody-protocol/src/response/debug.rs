@@ -10,6 +10,7 @@ impl fmt::Debug for Response {
             .debug_struct(constants::DEBUG_RESPONSE)
             .field(constants::DEBUG_FIELD_VERSION, &self.version)
             .field(constants::DEBUG_FIELD_NONCE, &self.nonce)
+            .field(constants::DEBUG_FIELD_BROKER_NONCE, &self.broker_nonce)
             .field(constants::DEBUG_FIELD_CORRELATION, &self.correlation)
             .field(
                 constants::DEBUG_FIELD_CLIENT_PROCESS_EPOCH,

@@ -37,6 +37,7 @@ impl RequestKind {
 
 pub struct UntrustedRequestWireValues {
     pub nonce: Nonce,
+    pub broker_nonce: Nonce,
     pub correlation: CorrelationId,
     pub client_process_epoch: u64,
     pub broker_epoch: u64,
@@ -60,6 +61,7 @@ pub struct UntrustedRequestWireValues {
 pub struct Request {
     pub(crate) version: ProtocolVersion,
     pub(crate) nonce: Nonce,
+    pub(crate) broker_nonce: Nonce,
     pub(crate) correlation: CorrelationId,
     pub(crate) client_process_epoch: u64,
     pub(crate) broker_epoch: u64,
@@ -104,6 +106,7 @@ impl Request {
         Ok(Self {
             version: ProtocolVersion::CURRENT,
             nonce: values.nonce,
+            broker_nonce: values.broker_nonce,
             correlation: values.correlation,
             client_process_epoch: values.client_process_epoch,
             broker_epoch: values.broker_epoch,

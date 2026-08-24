@@ -6,6 +6,7 @@ impl Request {
     pub fn is_bound_to(&self, hello: &BrokerHello) -> bool {
         self.version == hello.version()
             && self.nonce == hello.client_nonce()
+            && self.broker_nonce == hello.broker_nonce()
             && self.correlation == hello.correlation()
             && self.client_process_epoch == hello.client_process_epoch()
             && self.broker_epoch == hello.broker_epoch()
