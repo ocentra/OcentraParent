@@ -2,9 +2,7 @@ use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
 };
 use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
-use ocentra_parent_screen_capture_adapter::linux_foreground_source::{
-    foreground_source_preflight, LinuxForegroundSourcePreflight,
-};
+use ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxForegroundSourcePreflight;
 
 use super::app_game_adapter_host_capabilities_paths::{
     android_sdk_adb_available, executable_available, EnvironmentName, ExecutableName,
@@ -23,8 +21,6 @@ pub(super) struct HostCapabilitySignals {
     pub(super) android_adb: bool,
     pub(super) android_adb_path: bool,
     pub(super) android_adb_sdk: bool,
-    pub(super) linux_wsl: bool,
-    pub(super) linux_docker: bool,
 }
 
 impl HostCapabilitySignals {
@@ -40,8 +36,6 @@ impl HostCapabilitySignals {
                 .any(|available| available),
             android_adb_path,
             android_adb_sdk,
-            linux_wsl: executable_available(ExecutableName(proof::EXE_WSL)),
-            linux_docker: executable_available(ExecutableName(proof::EXE_DOCKER)),
         }
     }
 
@@ -87,10 +81,6 @@ impl HostCapabilitySignals {
 
     pub(super) fn linux_state(&self) -> CapabilityState {
         CapabilityState(APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED)
-    }
-
-    pub(super) fn linux_foreground_source_preflight() -> LinuxForegroundSourcePreflight {
-        foreground_source_preflight()
     }
 
     pub(super) fn linux_state_for(

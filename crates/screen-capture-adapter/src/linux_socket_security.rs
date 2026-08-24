@@ -4,6 +4,9 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 
+#[path = "linux_socket_security_chain.rs"]
+mod chain;
+
 use nix::unistd::geteuid;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -64,18 +67,14 @@ fn trusted_runtime_root(path: &Path) -> Option<TrustedSocketRoot> {
 }
 
 fn trusted_x11_directory(path: &Path) -> bool {
-    let Some(metadata) = fs::symlink_metadata(path).ok() else {
-        return false;
-    };
-    let mode = metadata.permissions().mode();
-    metadata.file_type().is_dir()
-        && owner_allowed(metadata.uid(), true)
-        && mode & 0o1000 != 0
-        && mode & 0o002 != 0
+    chain::trusted_directory_chain(path, true, true)
 }
 
 fn trusted_native_runtime_directory(path: &Path) -> bool {
-    let Some(relative) = path.strip_prefix("/run/user").ok() else {
+    let Ok(canonical_path) = fs::canonicalize(path) else {
+        return false;
+    };
+    let Some(relative) = canonical_path.strip_prefix("/run/user").ok() else {
         return false;
     };
     let mut components = relative.components();
@@ -91,20 +90,15 @@ fn trusted_native_runtime_directory(path: &Path) -> bool {
     let Ok(uid) = uid_text.parse::<u32>() else {
         return false;
     };
-    uid == geteuid().as_raw() && trusted_runtime_directory(path, false)
+    uid == geteuid().as_raw() && trusted_runtime_directory(&canonical_path, true)
 }
 
 fn trusted_runtime_directory(path: &Path, allow_root: bool) -> bool {
-    let Some(metadata) = fs::symlink_metadata(path).ok() else {
-        return false;
-    };
-    metadata.file_type().is_dir()
-        && owner_allowed(metadata.uid(), allow_root)
-        && metadata.permissions().mode() & 0o022 == 0
+    chain::trusted_directory_chain(path, allow_root, false)
 }
 
 fn owner_allowed(owner: u32, allow_root: bool) -> bool {
-    owner == geteuid().as_raw() || (allow_root && owner == 0)
+    chain::owner_allowed(owner, allow_root)
 }
 
 fn socket_owner_allowed(root: TrustedSocketRoot, owner: u32) -> bool {

@@ -18,11 +18,17 @@ use super::linux_socket_security::validated_socket;
 const SOCKET_CONNECT_LIMIT: Duration = Duration::from_millis(100);
 
 pub(super) fn socket_ready(path: &Path, deadline: Instant) -> bool {
-    let Some((canonical_path, _)) = validated_socket(path) else {
+    let Some((canonical_path, root)) = validated_socket(path) else {
         return false;
     };
     let remaining = deadline.saturating_duration_since(Instant::now());
     if remaining.is_zero() {
+        return false;
+    }
+    let Some((revalidated_path, revalidated_root)) = validated_socket(path) else {
+        return false;
+    };
+    if revalidated_path != canonical_path || revalidated_root != root {
         return false;
     }
     let Ok(address) = UnixAddr::new(&canonical_path) else {

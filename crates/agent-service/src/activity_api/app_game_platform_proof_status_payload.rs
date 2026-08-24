@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE,
@@ -57,15 +55,13 @@ pub async fn build_activity_app_game_platform_proof_status_report(
 ) -> AgentEventEnvelope {
     let generated_at = GeneratedAtText(timestamp_now());
     let host_capabilities = HostCapabilitySignals::detect();
-    let linux_preflight = match tokio::time::timeout(
-        Duration::from_secs(3),
-        tokio::task::spawn_blocking(HostCapabilitySignals::linux_foreground_source_preflight),
-    )
-    .await
-    {
-        Ok(Ok(preflight)) => preflight,
-        Ok(Err(_)) | Err(_) => LinuxForegroundSourcePreflight::unavailable(),
-    };
+    // The live Linux foreground tool path is intentionally not spawned from a
+    // request. No retained subprocess owner can guarantee custody across
+    // setsid/pid-namespace escapes, so this production handler stays
+    // unavailable until an owned single-flight worker with a real OS custody
+    // primitive exists. Callers that own a verified preflight may still use
+    // the explicit read-model seam below.
+    let linux_preflight = LinuxForegroundSourcePreflight::unavailable();
     let read_model = app_game_platform_proof_status_read_model_with_preflight(
         generated_at,
         &host_capabilities,

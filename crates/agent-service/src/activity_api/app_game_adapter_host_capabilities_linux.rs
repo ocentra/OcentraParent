@@ -10,6 +10,9 @@ impl HostCapabilitySignals {
         &self,
         preflight: &LinuxForegroundSourcePreflight,
     ) -> EvidenceRefs {
+        if !preflight.source_ready() {
+            return EvidenceRefs(Vec::new());
+        }
         let mut refs = display_refs(preflight).0;
         refs.extend(socket_refs(preflight).0);
         refs.extend(source_refs(preflight).0);
@@ -20,6 +23,9 @@ impl HostCapabilitySignals {
         &self,
         preflight: &LinuxForegroundSourcePreflight,
     ) -> ProbeRefs {
+        if !preflight.source_ready() {
+            return ProbeRefs(Vec::new());
+        }
         ProbeRefs(
             [
                 matches!(preflight.xprop, LinuxToolProbe::Succeeded)

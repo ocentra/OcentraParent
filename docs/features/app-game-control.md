@@ -1735,9 +1735,10 @@ diagnostics, or raw private source rows.
       launch blocking, rollback, audit, broad blocking, platform enforcement,
       provider delivery, and child-device delivery remain unclaimed.
 - [ ] Platform proof status has a typed Linux detail-ref path, pending tests and
-      retained live evidence. The service attaches display/socket/tool refs only
-      after the corresponding probe succeeds; Android durable replay and Linux
-      active foreground capture remain open, as do platform enforcement,
+      retained live evidence. The service attaches Linux refs only after a
+      separately owned source-ready preflight succeeds; no display/socket
+      result alone mints a tool or active-window ref. Android durable replay
+      and Linux active foreground capture remain open, as do platform enforcement,
       adapter dispatch, provider delivery, child-device delivery, raw private
       source rows, raw target values, and private diagnostics.
 - [x] Android UsageEvents replay readiness is parent-safe and count-only. The
@@ -1748,13 +1749,13 @@ diagnostics, or raw private source rows.
       activity data, child runtime delivery, Device Owner/Profile Owner
       authority, hide/suspend, adapter dispatch, or platform enforcement.
 - [ ] Linux foreground capture readiness has a Rust source boundary but remains
-      validation-open. A typed display/socket preflight can produce a
-      parent-safe readiness state only after an actual Linux probe; xwd/convert
-      capture is intentionally unavailable until a safe FD-backed owner handoff
-      is established. This lane did not run tests or proof and does not claim
-      active foreground capture, selected-window/title capture, App/Game
-      ownership, adapter dispatch, Linux policy enforcement, provider delivery,
-      or child-device delivery.
+      validation-open. A typed display/socket preflight can report only a
+      trusted bounded socket outcome; remote/invalid `DISPLAY`, pure Wayland,
+      xprop/xdotool, and xwd/convert capture are unavailable until separate
+      process/artifact custody owners exist. This lane did not run tests or
+      proof and does not claim active foreground capture, selected-window/title
+      capture, App/Game ownership, adapter dispatch, Linux policy enforcement,
+      provider delivery, or child-device delivery.
 - [x] Android UsageEvents child-runtime replay is count-only and non-promoting.
       The parent-domain child-runtime replay row now consumes the redacted
       UsageEvents replay readiness row and attaches a child-runtime replay
@@ -1763,12 +1764,14 @@ diagnostics, or raw private source rows.
       Owner authority, hide/suspend, adapter dispatch, broad blocking, provider
       delivery, and platform enforcement remain unclaimed.
 - [ ] Linux foreground source preflight is typed and fail-closed, pending tests
-      and live proof. Rust source reports WSLg/native display only after trusted
-      runtime/socket checks, fixed canonical xprop/xdotool outcomes, bounded
-      stdout/process cleanup, and opaque active-window state; it does not report
-      a current host result, raw window identity, App/Game ownership,
-      enforcement authority, or capture claim. Selected-window/title capture is
-      unavailable because raw-title search violates the metadata boundary.
+      and live proof. Rust source reports trusted WSLg/native display/socket
+      outcomes only; remote/invalid `DISPLAY`, pure Wayland, xprop/xdotool,
+      and active-window state remain unavailable because no owned process
+      custody primitive exists. The service does not spawn an orphanable
+      per-request worker. It does not report a current host result, raw window
+      identity, App/Game ownership, enforcement authority, or capture claim.
+      Selected-window/title capture is unavailable because raw-title search
+      violates the metadata boundary.
       AppArmor/SELinux/package-manager enforcement, rollback, audit, adapter
       dispatch, provider delivery, and child-device delivery remain unclaimed.
 - [x] Android authority preflight is explicit and non-promoting. The
@@ -1872,17 +1875,19 @@ diagnostics, or raw private source rows.
       Service enablement, event sample observation, overlay runtime execution,
       Device Owner/Profile Owner authority, provider delivery, and Play policy
       proof remain open.
-- [ ] Linux active-window tool probing is opaque and source-only. Rust uses
-      fixed canonical, owner/mode-validated xprop/xdotool argv calls with
-      process-group containment and bounded nonblocking stdout drain, reducing
-      `_NET_ACTIVE_WINDOW` to observed/not-observed; no test or proof artifact
-      was produced and no static ref is emitted. Raw window titles, raw process
+- [ ] Linux active-window tool probing is explicitly unavailable and
+      source-only. Rust does not spawn xprop/xdotool because process-group
+      containment cannot prove custody across setsid/pid-namespace escapes;
+      `_NET_ACTIVE_WINDOW` therefore remains observed/not-observed in the type
+      but is never observed by the runtime path. No test or proof artifact was
+      produced and no static ref is emitted. Raw window titles, raw process
       names, selected-window/title capture, App/Game ownership, foreground
       capture, adapter dispatch, platform enforcement, provider delivery, and
       child-device delivery remain unclaimed.
-- [ ] Platform proof status has a runtime detail-ref path pending live probe
-      success, tests, and retained proof. Linux refs are derived only from typed
-      preflight outcomes; Docker/WSL presence is not evidence. Android
+- [ ] Platform proof status has a runtime detail-ref path pending an owned
+      source-ready probe, tests, and retained proof. Linux refs are derived
+      only from typed preflight outcomes and are empty for the unavailable
+      runtime path; Docker/WSL presence is not evidence. Android
       Accessibility, Windows local policy, and existing physical-device rows
       remain separate, with adapter dispatch, broad blocking, platform
       enforcement, provider delivery, child-device delivery, raw policy XML,

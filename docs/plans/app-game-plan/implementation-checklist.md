@@ -360,13 +360,15 @@ delivery, and child-device delivery remain open.
 
 WP189 adds Rust-owned Linux display classification and X11/Wayland socket
 readiness behind a typed foreground-capture boundary. The source consumes only
-actual bounded socket outcomes from trusted canonical roots; WSLg/Docker
-presence alone does not mint a readiness ref. Linux xwd/convert capture remains
-fail-closed because a safe FD-backed owner handoff is not established. Tests,
-retained proof, and deployment probes remain open, as do active foreground
-capture, selected-window/title capture, App/Game ownership, raw window-title
-custody, Linux policy mechanisms, rollback, audit, adapter dispatch, platform
-enforcement, provider delivery, and child-device delivery.
+actual bounded socket outcomes from a complete trusted ancestor chain; remote/
+invalid `DISPLAY`, arbitrary `WAYLAND_DISPLAY`, and WSLg/Docker presence alone
+do not mint a readiness ref. Linux xwd/convert capture and xprop/xdotool
+subprocess probing remain fail-closed because safe artifact/process custody is
+not established. Tests, retained proof, and deployment probes remain open, as
+do active foreground capture, selected-window/title capture, App/Game
+ownership, raw window-title custody, Linux policy mechanisms, rollback, audit,
+adapter dispatch, platform enforcement, provider delivery, and child-device
+delivery.
 
 WP190 adds a parent-domain Android UsageEvents child-runtime replay consumer
 boundary over the redacted WP188 replay row. The child-runtime replay consumer
@@ -375,11 +377,11 @@ child-device delivery, Android authority, hide/suspend, adapter dispatch,
 platform enforcement, provider delivery, and broad blocking remain open.
 
 WP191 adds a Rust-owned Linux foreground source preflight over WP189. It carries
-typed WSLg/native display, fixed trusted-tool checks, bounded X11/Wayland socket
-connects, xprop/xdotool outcomes, and opaque active-window states; stdout is
-drained nonblocking under one deadline and process groups have bounded cleanup.
-The asynchronous service handler runs the live probe behind bounded
-`spawn_blocking` and fails closed on timeout or join failure. Linux capture stays
+typed WSLg/native display and complete trusted X11/Wayland socket outcomes, but
+remote/invalid `DISPLAY`, pure Wayland, xprop/xdotool, and active-window state
+remain unavailable. The asynchronous service handler does not use an orphanable
+per-request `spawn_blocking`; it returns unavailable until an owned single-
+flight worker with a real process-custody primitive exists. Linux capture stays
 unavailable pending a safe FD-backed owner handoff; selected-window/title
 capture remains unavailable because raw-title search violates the metadata
 boundary. Tests, retained proof, and deployment validation remain open, as do
@@ -409,15 +411,15 @@ publisher rules, adapter dispatch, broad blocking, platform enforcement,
 rollback/audit custody execution, provider delivery, and child-device delivery
 remain open.
 
-WP204 adds bounded Rust xprop/xdotool probes over the Linux display boundary.
-Only fixed canonical system tools with trusted owners/modes are executable;
-`_NET_ACTIVE_WINDOW` is reduced to opaque observed/not-observed state, and
-service detail refs are attached only after a corresponding live probe
-succeeds. Tests, retained proof, and deployment validation remain open; Linux
-xwd/convert capture and selected-window/title capture are unavailable, while
-raw window titles, process names, foreground capture, App/Game ownership,
-Linux policy enforcement, rollback/audit, adapter dispatch, provider delivery,
-and child-device delivery remain open.
+WP204 keeps xprop/xdotool probing explicitly unavailable over the Linux display
+boundary. No subprocess is spawned without a real OS primitive that guarantees
+custody across escaped descendants; `_NET_ACTIVE_WINDOW` therefore remains
+opaque but unobserved, and service detail refs are empty unless a separately
+owned source-ready preflight is supplied. Tests, retained proof, and deployment
+validation remain open; Linux xwd/convert capture and selected-window/title
+capture are unavailable, while raw window titles, process names, foreground
+capture, App/Game ownership, Linux policy enforcement, rollback/audit, adapter
+dispatch, provider delivery, and child-device delivery remain open.
 
 WP205 carries the WP202-WP204 runtime detail refs into the shared platform proof
 status read model so Android Accessibility runtime, Windows local policy

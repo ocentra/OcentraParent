@@ -17,23 +17,27 @@
 
 ## Scope
 
-Turn Linux display/socket readiness and bounded foreground-tool probes from
-WP189 into a typed foreground source preflight.
+Turn Linux display/socket readiness from WP189 into a typed foreground source
+preflight while keeping foreground-tool execution unavailable until a real
+process-custody primitive exists.
 
 This source phase proves only the preflight shape. It does not assert a current
 Windows/WSL host state, compose App/Game ownership, or authorize capture.
 
 ## Implementation
 
-- Rust source now exposes a typed Linux foreground-source preflight from
+- Rust source exposes a typed Linux foreground-source preflight from
   `crates/screen-capture-adapter/src/linux_foreground_source.rs` with truthful
-  WSLg/native display, fixed trusted-tool, X11/Wayland socket, xprop/xdotool,
-  and opaque active-window states. WSLg requires a WSL signal plus a trusted
-  `/mnt/wslg/runtime-dir` socket; WSL/Docker presence alone is unavailable.
-- The asynchronous platform proof handler runs the live probe in bounded
-  `spawn_blocking` work and fails closed on timeout or join failure.
-- Child stdout is drained nonblocking under the shared deadline with a byte
-  cap; process groups are killed and reaped under a bounded cleanup grace.
+  WSLg/native display and trusted X11/Wayland socket states. WSLg requires a
+  WSL signal plus a complete trusted `/mnt/wslg/runtime-dir` ancestor/socket
+  chain; WSL/Docker presence alone is unavailable. Remote/invalid `DISPLAY`
+  and pure Wayland cannot make the foreground source ready.
+- The asynchronous platform proof handler does not spawn a per-request live
+  probe. It returns the typed unavailable state until an owned single-flight
+  worker with a real OS process-custody primitive is available; the explicit
+  read-model seam remains non-authoritative input for later validation.
+- xprop/xdotool subprocess probing is removed fail-closed. The source never
+  exposes an active-window result or ref from display/socket readiness alone.
 - The preflight is source capability only: it does not compose App/Game
   ownership, enforcement authority, or raw window identity.
 - Linux xwd/convert capture stays fail-closed because a safe FD-backed
@@ -54,16 +58,19 @@ were run.
 No proof artifact exists. The expected Linux preflight test roots are absent and
 this workpack is not DONE or proof-complete.
 
-## Boundaries
+## Boundaries (validation-open; not completion)
 
-Proved:
+Source-only boundary:
 
-- Production source defines a typed, bounded foreground-source preflight with
-  fail-closed probe outcomes.
+- Production source retains a typed, bounded display/socket preflight with
+  fail-closed foreground-source and tool outcomes for later tests; this
+  source-only edit does not prove the behavior.
 
 Not proved:
 
 - Active foreground capture or App/Game ownership.
+- Live xprop/xdotool probing; safe process custody across escaped descendants is
+  not established.
 - Raw active-window title custody.
 - AppArmor, SELinux, package manager, Flatpak, Snap, rollback, audit, launch
   blocking, adapter dispatch, platform enforcement, provider delivery, or
