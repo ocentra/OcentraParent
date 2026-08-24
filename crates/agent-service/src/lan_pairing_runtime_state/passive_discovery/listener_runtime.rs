@@ -43,6 +43,7 @@ struct PassiveDiscoveryListenerRuntime {
     next_capability_persist_attempt: Instant,
     next_maintenance: Instant,
     signal_sequence: u64,
+    next_listener_index: usize,
 }
 
 struct PassiveDiscoveryListenerSlot {

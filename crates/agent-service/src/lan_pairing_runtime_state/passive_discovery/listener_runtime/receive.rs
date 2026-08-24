@@ -8,7 +8,10 @@ use ocentra_lan_core::network_inventory::passive_discovery::{
 };
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 
-use super::super::{LanPassiveDiscoveryRefreshSignal, PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE};
+use super::super::{
+    LanPassiveDiscoveryRefreshSignal, PASSIVE_DISCOVERY_MAX_CYCLE_DURATION,
+    PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE, PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE,
+};
 use super::PassiveDiscoveryListenerRuntime;
 
 impl PassiveDiscoveryListenerRuntime {
@@ -16,11 +19,37 @@ impl PassiveDiscoveryListenerRuntime {
         &mut self,
         listener_state: &Arc<Mutex<LanPassiveDiscoveryListenerState>>,
     ) {
-        for listener_index in 0..self.listener_slots.len() {
-            self.receive_listener(listener_state, listener_index);
+        let listener_count = self.listener_slots.len();
+        if listener_count == 0 {
+            return;
+        }
+        let cycle_started = Instant::now();
+        let mut received_datagrams = 0;
+        for offset in 0..listener_count {
+            let listener_index = (self.next_listener_index + offset) % listener_count;
+            if received_datagrams >= PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE
+                || cycle_started.elapsed() >= PASSIVE_DISCOVERY_MAX_CYCLE_DURATION
+            {
+                std::thread::yield_now();
+                break;
+            }
+            let remaining_budget = PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE
+                .saturating_sub(received_datagrams)
+                .min(PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE);
+            received_datagrams = received_datagrams.saturating_add(self.receive_listener(
+                listener_state,
+                listener_index,
+                remaining_budget,
+            ));
+            self.next_listener_index = (listener_index + 1) % listener_count;
             if !is_running(listener_state) {
                 break;
             }
+        }
+        if received_datagrams >= PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE
+            || cycle_started.elapsed() >= PASSIVE_DISCOVERY_MAX_CYCLE_DURATION
+        {
+            std::thread::yield_now();
         }
     }
 
@@ -28,18 +57,19 @@ impl PassiveDiscoveryListenerRuntime {
         &mut self,
         listener_state: &Arc<Mutex<LanPassiveDiscoveryListenerState>>,
         listener_index: usize,
-    ) {
+        max_datagram_count: usize,
+    ) -> usize {
         let Some(listener) = self.listener_slots[listener_index].listener.as_ref() else {
-            return;
+            return 0;
         };
-        let (datagrams, issue) = listener
-            .receive_bounded(PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE)
-            .into_parts();
+        let (datagrams, issue) = listener.receive_bounded(max_datagram_count).into_parts();
+        let received_datagram_count = datagrams.len();
         self.ingest_datagrams(listener_state, datagrams);
         if let Some(issue) = issue {
             self.listener_slots[listener_index].record_failure(issue, Instant::now());
             self.persist_capability();
         }
+        received_datagram_count
     }
 
     fn ingest_datagrams(

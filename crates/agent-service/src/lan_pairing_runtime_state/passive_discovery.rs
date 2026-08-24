@@ -27,6 +27,8 @@ use crate::lan_pairing::LanPairingRuntime;
 const PASSIVE_DISCOVERY_INTERVAL: Duration = Duration::from_secs(180);
 const PASSIVE_DISCOVERY_READ_TIMEOUT: Duration = Duration::from_millis(50);
 const PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE: usize = 8;
+const PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE: usize = 48;
+const PASSIVE_DISCOVERY_MAX_CYCLE_DURATION: Duration = Duration::from_millis(50);
 const PASSIVE_DISCOVERY_RETRY_BASE: Duration = Duration::from_secs(1);
 const PASSIVE_DISCOVERY_RETRY_MAX: Duration = Duration::from_secs(60);
 const PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL: Duration = Duration::from_secs(120);

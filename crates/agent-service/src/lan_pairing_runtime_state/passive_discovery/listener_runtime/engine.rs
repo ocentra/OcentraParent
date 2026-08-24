@@ -49,6 +49,7 @@ impl PassiveDiscoveryListenerRuntime {
             next_capability_persist_attempt: now,
             next_maintenance: now,
             signal_sequence: 0,
+            next_listener_index: 0,
         }
     }
 
@@ -110,14 +111,15 @@ impl PassiveDiscoveryListenerRuntime {
             return;
         }
         let pipeline_health = self.pipeline_health.snapshot();
-        let capability = LanPassiveDiscoveryRuntimeCapability::from_sources(
-            self.listener_slots
-                .iter()
-                .map(|slot| slot.capability(now))
-                .collect(),
-            pipeline_health.clone(),
-        );
-        if self.capability_store.save(&capability) {
+        let sources = self
+            .listener_slots
+            .iter()
+            .map(|slot| slot.capability(now))
+            .collect::<Vec<_>>();
+        if self
+            .capability_store
+            .save_sources(&sources, &pipeline_health)
+        {
             self.last_persisted_pipeline_health = Some(pipeline_health);
             self.capability_persist_failures = 0;
             self.next_capability_persist_attempt = now;
