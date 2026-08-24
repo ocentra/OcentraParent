@@ -1,9 +1,9 @@
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 use super::{
     linux_socket_connect::socket_ready,
     linux_socket_security::{is_trusted_wslg_runtime, is_trusted_wslg_socket},
-    LinuxDisplayReadiness, LinuxProbeDeadline, LinuxSocketReadiness,
+    LinuxDisplayReadiness, LinuxSocketReadiness,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -47,10 +47,10 @@ pub(super) fn display_readiness(
 
 pub(super) fn socket_readiness(
     path: Option<&Path>,
-    deadline: &LinuxProbeDeadline,
+    remaining: &impl Fn() -> Duration,
 ) -> LinuxSocketReadiness {
     match path {
-        Some(path) if socket_ready(path, deadline).is_some() => LinuxSocketReadiness::Ready,
+        Some(path) if socket_ready(path, remaining).is_some() => LinuxSocketReadiness::Ready,
         Some(_) => LinuxSocketReadiness::Missing,
         None => LinuxSocketReadiness::Unavailable,
     }

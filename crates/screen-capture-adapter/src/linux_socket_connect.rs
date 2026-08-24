@@ -13,16 +13,16 @@ use nix::{
     },
 };
 
-use super::{linux_socket_security::validated_socket, LinuxProbeDeadline};
+use super::linux_socket_security::validated_socket;
 
 const SOCKET_CONNECT_LIMIT: Duration = Duration::from_millis(100);
 
-pub(super) fn socket_ready(path: &Path, deadline: &LinuxProbeDeadline) -> Option<()> {
+pub(super) fn socket_ready(path: &Path, remaining: &impl Fn() -> Duration) -> Option<()> {
     let Some((canonical_path, root)) = validated_socket(path) else {
         return None;
     };
-    let remaining = deadline.remaining();
-    if remaining.is_zero() {
+    let remaining_budget = remaining();
+    if remaining_budget.is_zero() {
         return None;
     }
     let Some((revalidated_path, revalidated_root)) = validated_socket(path) else {
@@ -45,19 +45,19 @@ pub(super) fn socket_ready(path: &Path, deadline: &LinuxProbeDeadline) -> Option
     match connect(socket.as_raw_fd(), &address) {
         Ok(()) => Some(()),
         Err(Errno::EINPROGRESS | Errno::EALREADY | Errno::EAGAIN) => {
-            wait_for_socket(socket.as_fd(), deadline)
+            wait_for_socket(socket.as_fd(), remaining)
         }
         Err(_) => None,
     }
 }
 
-fn wait_for_socket(fd: impl AsFd, deadline: &LinuxProbeDeadline) -> Option<()> {
-    let remaining = deadline.remaining();
-    if remaining.is_zero() {
+fn wait_for_socket(fd: impl AsFd, remaining: &impl Fn() -> Duration) -> Option<()> {
+    let remaining_budget = remaining();
+    if remaining_budget.is_zero() {
         return None;
     }
-    let timeout =
-        PollTimeout::try_from(SOCKET_CONNECT_LIMIT.min(remaining)).unwrap_or(PollTimeout::ZERO);
+    let timeout = PollTimeout::try_from(SOCKET_CONNECT_LIMIT.min(remaining_budget))
+        .unwrap_or(PollTimeout::ZERO);
     let mut poll_fds = [PollFd::new(
         fd.as_fd(),
         PollFlags::POLLOUT | PollFlags::POLLERR | PollFlags::POLLHUP,
