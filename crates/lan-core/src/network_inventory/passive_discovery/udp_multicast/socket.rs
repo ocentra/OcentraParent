@@ -64,3 +64,11 @@ pub(super) fn receive_bounded(
 ) -> LanPassiveDiscoveryUdpReceiveBatch {
     listener::receive_bounded(listener, max_datagram_count)
 }
+
+pub(super) fn receive_bounded_with_timeout(
+    listener: &LanPassiveDiscoveryUdpListener,
+    max_datagram_count: usize,
+    read_timeout: Duration,
+) -> LanPassiveDiscoveryUdpReceiveBatch {
+    listener::receive_bounded_with_timeout(listener, max_datagram_count, read_timeout)
+}

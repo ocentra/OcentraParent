@@ -6,6 +6,7 @@ use super::super::super::{
     LanPassiveDiscoveryUdpReceiveBatch,
 };
 use super::super::errors::listener_io_issue;
+mod timeout;
 
 pub(super) fn receive_bounded(
     listener: &LanPassiveDiscoveryUdpListener,
@@ -28,6 +29,14 @@ pub(super) fn receive_bounded(
         }
     }
     LanPassiveDiscoveryUdpReceiveBatch { datagrams, issue }
+}
+
+pub(super) fn receive_bounded_with_timeout(
+    listener: &LanPassiveDiscoveryUdpListener,
+    max_datagram_count: usize,
+    read_timeout: std::time::Duration,
+) -> LanPassiveDiscoveryUdpReceiveBatch {
+    timeout::receive_bounded_with_timeout(listener, max_datagram_count, read_timeout)
 }
 
 enum ReceiveStep {
