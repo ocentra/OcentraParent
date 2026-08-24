@@ -2,9 +2,10 @@ use std::time::Duration;
 
 use super::super::{
     LanPassiveDiscoveryListenerState, LanPassiveDiscoverySource,
-    LanPassiveDiscoveryUdpMulticastCaptureOutcome,
+    LanPassiveDiscoveryUdpListenerIssue, LanPassiveDiscoveryUdpMulticastCaptureOutcome,
+    LanPassiveDiscoveryUdpMulticastSupport,
 };
-use super::{LanPassiveDiscoveryUdpDatagram, LanPassiveDiscoveryUdpListener};
+use super::{LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpReceiveBatch};
 
 mod errors;
 mod listener;
@@ -15,17 +16,34 @@ pub(super) fn collect_udp_multicast_passive_packets(
     max_datagram_count: usize,
     read_timeout: Duration,
 ) -> LanPassiveDiscoveryUdpMulticastCaptureOutcome {
+    let support = super::support::udp_multicast_support(source);
+    if matches!(
+        support,
+        LanPassiveDiscoveryUdpMulticastSupport::Unsupported { .. }
+    ) {
+        return LanPassiveDiscoveryUdpMulticastCaptureOutcome::Unsupported(support);
+    }
     let listener = match bind_passive_udp_listener(source, read_timeout) {
         Ok(listener) => listener,
-        Err(outcome) => return outcome,
+        Err(issue) => {
+            return LanPassiveDiscoveryUdpMulticastCaptureOutcome::Failed {
+                source,
+                received_datagram_count: 0,
+                issue,
+            };
+        }
     };
-    let datagrams = listener
-        .receive_bounded(max_datagram_count)
-        .unwrap_or_default();
+    let (datagrams, issue) = listener.receive_bounded(max_datagram_count).into_parts();
     let received_datagram_count = datagrams.len();
     for datagram in datagrams {
-        let _ =
-            super::ingest::ingest_passive_datagram(state, &datagram.source(), datagram.payload());
+        let _receipt = datagram.ingest_into(state);
+    }
+    if let Some(issue) = issue {
+        return LanPassiveDiscoveryUdpMulticastCaptureOutcome::Failed {
+            source,
+            received_datagram_count,
+            issue,
+        };
     }
     LanPassiveDiscoveryUdpMulticastCaptureOutcome::Captured {
         source,
@@ -36,13 +54,13 @@ pub(super) fn collect_udp_multicast_passive_packets(
 pub(super) fn bind_passive_udp_listener(
     source: LanPassiveDiscoverySource,
     read_timeout: Duration,
-) -> Result<LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpMulticastCaptureOutcome> {
+) -> Result<LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpListenerIssue> {
     listener::bind_passive_udp_listener(source, read_timeout)
 }
 
 pub(super) fn receive_bounded(
     listener: &LanPassiveDiscoveryUdpListener,
     max_datagram_count: usize,
-) -> std::io::Result<Vec<LanPassiveDiscoveryUdpDatagram>> {
+) -> LanPassiveDiscoveryUdpReceiveBatch {
     listener::receive_bounded(listener, max_datagram_count)
 }

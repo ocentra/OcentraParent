@@ -57,49 +57,8 @@ pub(crate) fn network_device_scan_result_for_command(
                 reused_recent_snapshot: true,
             };
         }
-        let previous_devices = previous_scan_snapshot
-            .as_ref()
-            .map(|snapshot| snapshot.devices.as_slice())
-            .unwrap_or_default();
-        let scan_truth = scan_truth_context(runtime, previous_scan_snapshot.as_ref(), now);
         let refresh_mode = refresh_mode_for_command(&command.command);
-        let mut scan_plan = plan_lan_discovery_scan_with_active_refresh_suppression(
-            &scan_truth.identity_hint_devices,
-            previous_devices,
-            refresh_mode,
-            &scan_truth.scan_suppression_devices,
-        );
-        scan_plan.targeted_arp_refresh_evidence = targeted_arp_refresh_evidence_for_scan(
-            previous_devices,
-            refresh_mode,
-            &scan_truth.scan_suppression_devices,
-        );
-        let inventory_refresh_mode = inventory_refresh_mode_after_targeted_refresh(refresh_mode);
-        let selected_interface_scope = scan_plan.selected_interface.as_deref();
-        let allowed_snmp_response_observer = |payload: &[u8]| {
-            let _ = runtime.record_allowed_snmp_probe_response_packet(payload);
-        };
-        let devices = discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer(
-            &scan_truth.identity_hint_devices,
-            previous_devices,
-            inventory_refresh_mode,
-            &scan_truth.scan_suppression_devices,
-            &scan_truth.scan_suppression_devices,
-            selected_interface_scope,
-            Some(&allowed_snmp_response_observer),
-        );
-        return persisted_scan_result_or_fail(
-            runtime,
-            devices,
-            LanScanHistoryMetadata {
-                scan_id: scan_session_id(now).0,
-                paired_registry_truth_count: scan_truth.paired_registry_truth_count,
-                recent_previous_agent_truth_count: scan_truth.recent_previous_agent_truth_count,
-                durable_household_truth_count: scan_truth.durable_household_truth_count,
-                scan_plan,
-            },
-            previous_scan_snapshot,
-        );
+        return execute_physical_lan_scan(runtime, previous_scan_snapshot, now, refresh_mode);
     }
     LanNetworkDeviceScanResult::default()
 }
@@ -134,6 +93,67 @@ pub(super) fn refresh_network_device_scan_history(
     command: &AgentCommandEnvelope,
 ) -> LanNetworkDeviceScanResult {
     network_device_scan_result_for_command(runtime, command)
+}
+
+pub(crate) fn refresh_network_device_scan_history_from_passive_runtime(
+    runtime: &LanPairingRuntime,
+) -> LanNetworkDeviceScanResult {
+    execute_physical_lan_scan(
+        runtime,
+        load_scan_history_snapshot(runtime),
+        Utc::now(),
+        LanDiscoveryRefreshMode::Passive,
+    )
+}
+
+fn execute_physical_lan_scan(
+    runtime: &LanPairingRuntime,
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+    refresh_mode: LanDiscoveryRefreshMode,
+) -> LanNetworkDeviceScanResult {
+    let previous_devices = previous_scan_snapshot
+        .as_ref()
+        .map(|snapshot| snapshot.devices.as_slice())
+        .unwrap_or_default();
+    let scan_truth = scan_truth_context(runtime, previous_scan_snapshot.as_ref(), now);
+    let mut scan_plan = plan_lan_discovery_scan_with_active_refresh_suppression(
+        &scan_truth.identity_hint_devices,
+        previous_devices,
+        refresh_mode,
+        &scan_truth.scan_suppression_devices,
+    );
+    scan_plan.targeted_arp_refresh_evidence = targeted_arp_refresh_evidence_for_scan(
+        previous_devices,
+        refresh_mode,
+        &scan_truth.scan_suppression_devices,
+    );
+    let inventory_refresh_mode = inventory_refresh_mode_after_targeted_refresh(refresh_mode);
+    let selected_interface_scope = scan_plan.selected_interface.as_deref();
+    let allowed_snmp_response_observer = |payload: &[u8]| {
+        let _ = runtime.record_allowed_snmp_probe_response_packet(payload);
+    };
+    let devices = discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer(
+        &scan_truth.identity_hint_devices,
+        previous_devices,
+        inventory_refresh_mode,
+        &scan_truth.scan_suppression_devices,
+        &scan_truth.scan_suppression_devices,
+        selected_interface_scope,
+        Some(&allowed_snmp_response_observer),
+    );
+    persisted_scan_result_or_fail(
+        runtime,
+        devices,
+        LanScanHistoryMetadata {
+            scan_id: scan_session_id(now).0,
+            paired_registry_truth_count: scan_truth.paired_registry_truth_count,
+            recent_previous_agent_truth_count: scan_truth.recent_previous_agent_truth_count,
+            durable_household_truth_count: scan_truth.durable_household_truth_count,
+            scan_plan,
+        },
+        previous_scan_snapshot,
+    )
 }
 
 pub(crate) fn cached_localhost_status_scan_result(

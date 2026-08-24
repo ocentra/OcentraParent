@@ -2672,6 +2672,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "socket2",
  "thiserror 2.0.18",
  "x509-parser",
 ]
@@ -2758,6 +2759,7 @@ dependencies = [
 name = "ocentra-parent-agent-service"
 version = "0.1.1"
 dependencies = [
+ "atomicwrites",
  "axum",
  "base64",
  "chrono",

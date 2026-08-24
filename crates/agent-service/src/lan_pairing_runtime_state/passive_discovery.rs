@@ -1,7 +1,11 @@
+#[path = "passive_discovery/capability_store.rs"]
+pub(crate) mod capability_store;
 #[path = "passive_discovery/change_triggers.rs"]
 mod change_triggers;
 #[path = "passive_discovery/listener_runtime.rs"]
 mod listener_runtime;
+#[path = "passive_discovery/reconciliation.rs"]
+mod reconciliation;
 #[path = "passive_discovery/runtime_slice.rs"]
 mod runtime_slice;
 
@@ -21,7 +25,8 @@ use crate::lan_pairing::LanPairingRuntime;
 const PASSIVE_DISCOVERY_INTERVAL: Duration = Duration::from_secs(180);
 const PASSIVE_DISCOVERY_READ_TIMEOUT: Duration = Duration::from_millis(50);
 const PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE: usize = 8;
-const PASSIVE_DISCOVERY_REBIND_INTERVAL: Duration = Duration::from_secs(5);
+const PASSIVE_DISCOVERY_RETRY_BASE: Duration = Duration::from_secs(1);
+const PASSIVE_DISCOVERY_RETRY_MAX: Duration = Duration::from_secs(60);
 
 const PASSIVE_DISCOVERY_UDP_SOURCES: [LanPassiveDiscoverySource; 6] = [
     LanPassiveDiscoverySource::Dhcp,
@@ -61,7 +66,6 @@ pub(super) struct LanPassiveDiscoveryRuntimeSliceOutcome {
 #[derive(Clone)]
 pub(crate) struct LanPassiveDiscoveryServiceRuntime {
     _owner: Arc<LanPassiveDiscoveryServiceOwner>,
-    _refresh_signal: watch::Receiver<Option<LanPassiveDiscoveryRefreshSignal>>,
 }
 
 struct LanPassiveDiscoveryServiceOwner {
@@ -79,9 +83,10 @@ impl Drop for LanPassiveDiscoveryServiceOwner {
 }
 
 pub(crate) fn spawn_lan_passive_discovery_runtime(runtime: LanPairingRuntime) {
-    let (_sender, receiver) = refresh_signal_channel();
-    drop(receiver);
-    listener_runtime::spawn(runtime, _sender);
+    capability_store::record_starting(&runtime);
+    let (sender, receiver) = refresh_signal_channel();
+    listener_runtime::spawn(runtime.clone(), sender);
+    reconciliation::spawn(runtime, receiver);
 }
 
 pub(crate) fn start_lan_passive_discovery_service_runtime(
@@ -90,12 +95,11 @@ pub(crate) fn start_lan_passive_discovery_service_runtime(
     let owner = Arc::new(LanPassiveDiscoveryServiceOwner {
         listener_state: Arc::downgrade(&runtime.passive_discovery_listener_state),
     });
+    capability_store::record_starting(&runtime);
     let (sender, receiver) = refresh_signal_channel();
-    listener_runtime::spawn(runtime, sender);
-    LanPassiveDiscoveryServiceRuntime {
-        _owner: owner,
-        _refresh_signal: receiver,
-    }
+    listener_runtime::spawn(runtime.clone(), sender);
+    reconciliation::spawn(runtime, receiver);
+    LanPassiveDiscoveryServiceRuntime { _owner: owner }
 }
 
 fn refresh_signal_channel() -> (
@@ -114,4 +118,16 @@ pub(crate) fn local_network_change_triggers(
 
 pub(crate) fn passive_discovery_udp_sources() -> &'static [LanPassiveDiscoverySource] {
     &PASSIVE_DISCOVERY_UDP_SOURCES
+}
+
+impl LanPassiveDiscoveryRefreshSignal {
+    fn is_coherent_after(&self, previous_sequence: u64) -> bool {
+        if self.sequence <= previous_sequence || self.observed_at.trim().is_empty() {
+            return false;
+        }
+        match self.trigger_reason {
+            LanPassiveDiscoveryTriggerReason::PassivePacketObserved => self.source.is_some(),
+            _ => self.source.is_none(),
+        }
+    }
 }
