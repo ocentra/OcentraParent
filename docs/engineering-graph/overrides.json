@@ -12,6 +12,17 @@
       ]
     },
     {
+      "id": "WP-browser-plan-06-managed-profile-store",
+      "hardDependencies": [],
+      "reason": "The 2026-08-24 canonical source audit found a useful Browser-owned filesystem contract but not accepted production custody: persisted identity is reconstructed from caller input, corrupt metadata is masked during repair, mutations are neither atomic nor serialized, filesystem indirection is not rejected, and an unused service helper carries development/test identity. This review authorizes only the bounded WP06 source repair and does not claim tests, proof, launch/runtime authority, PR readiness, or DONE.",
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/NEXT_ACTIONS.md",
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-browser-plan-07-managed-chromium-launcher",
       "hardDependencies": ["WP-browser-plan-06-managed-profile-store"],
       "reason": "Canonical f80b47c6a is an accepted fail-closed source baseline: it removes unreachable service launch state, env/dev authority, placeholder polling, and Browser-to-Screen composition, leaving production status manual-required. The owner-issued retained runtime and integration test roots remain absent; existing tests are stale. This does not authorize runtime, normal READY, proof, PR readiness, or DONE.",

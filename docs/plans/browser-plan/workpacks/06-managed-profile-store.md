@@ -16,9 +16,14 @@
 
 ## Where We Are
 
-`crates/agent-core/src/browser_managed_session.rs` rejects default/unowned paths
-in launch planning, but the complete profile store lifecycle is not yet a
-product-ready subsystem.
+The 2026-08-24 canonical source audit found a useful filesystem/profile
+contract, but not a production-ready custody owner. The current store rejects
+obvious default-profile paths, while persisted identity is reconstructed from
+caller input instead of validated, corrupt metadata is silently treated as
+missing during repair, writes are not atomic or serialized, and path ownership
+does not reject link/reparse escapes. The unused service helper also embeds
+development/test scope, device, and policy identifiers and must not become a
+runtime authority.
 
 ## Where We Want To Be
 
@@ -38,8 +43,11 @@ repairable, redacted in UI, and rejected when unsafe.
 ## Touched Paths
 
 - `crates/agent-core/src/browser_managed_session.rs`
+- `crates/agent-core/src/browser_managed_session/store/validation.rs`
+- `crates/agent-core/src/browser_managed_session/store/atomic_write.rs`
+- `crates/agent-core/src/browser_managed_session/store/lock.rs`
+- `crates/agent-core/src/browser_managed_session/store/*.rs`
 - `crates/agent-service/src/browser_runtime_paths.rs`
-- `packages/activity-domain/src/browser*.ts`
 - `crates/agent-protocol/src/browser_managed.rs`
 
 ## Tests And Proof
@@ -70,42 +78,30 @@ Fill this before reporting `DONE` or PR-ready:
 - [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
-## Implementation Note
+## Current Production-Source Decision (2026-08-24)
 
-WP06 is complete on `codex/browser-plan-implementation` with proof under
-`output/browser-plan-proof/06-managed-profile-store/`.
+Source repair is authorized only for the Browser-owned profile store boundary.
+The accepted source must:
 
-Implemented:
+- preserve an exact immutable profile/device/browser/scope binding across
+  reload and reject mismatched, malformed, corrupt, or unknown persisted state;
+- serialize mutations and use crash-safe replacement rather than exposing
+  partial JSON as the current record;
+- reject filesystem indirection that escapes the Ocentra-owned profile root;
+- preserve explicit create, load, repair, missing, and delete lifecycle
+  semantics without converting corruption into a fresh profile;
+- keep development/test identifiers out of the product runtime path; and
+- expose no launch, bridge, exact-URL, policy, or enforcement authority.
 
-- `@ocentra-parent/activity-domain` managed profile store contracts in
-  `browser-managed-profile-store.ts`, plus a package export for direct imports.
-- Redacted profile summary fields on `BrowserManagedSessionStatusSchema`:
-  profile root ref, profile scope id, profile lifecycle state, and policy
-  revision.
-- Rust protocol parity for `BrowserManagedProfileStoreEntry` and
-  `BrowserManagedProfileLifecycleState`.
-- Core filesystem lifecycle helpers for create, load, repair, delete, missing
-  state, default-profile rejection, and unowned-profile rejection.
-- Service runtime path resolution through the profile store before managed
-  launch planning; service payloads expose only redacted refs and lifecycle
-  labels.
-
-Validation:
-
-- `cmd /c npm run type-check --workspace @ocentra-parent/activity-domain`
-- `cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser.test.ts browser-managed-profile-store.test.ts browser-platform-inventory-matrix.test.ts browser-inventory.test.ts`
-- `cargo fmt --package ocentra-parent-agent-core --package ocentra-parent-agent-service --package ocentra-parent-agent-protocol`
-- `cargo test -p ocentra-parent-agent-protocol browser_managed`
-- `cargo test -p ocentra-parent-agent-core managed_browser`
-- `cargo test -p ocentra-parent-agent-service browser_runtime`
-- `cmd /c npm run lint:schema-boundaries`
-
-No product capability checklist update was needed: this proves owned profile
-store lifecycle and redacted service DTOs, but does not upgrade real browser
-launch, bridge connectivity, exact URL evidence, or a user-visible product
-capability row.
+The source wave intentionally does not write tests or proof. The later test
+wave must cover corruption, identity substitution, link/reparse escape,
+concurrent mutation, interrupted replacement, restart/reload, and deletion
+recovery before this workpack can enter validation.
 
 ## Manual-Required Gaps
 
-Profile existence does not prove browser launch, bridge connectivity, or exact
-URL evidence.
+Profile existence does not prove browser launch, bridge connectivity, exact
+URL evidence, parent policy authority, or product runtime composition. WP07
+must consume only an owner-retained profile binding after this storage boundary
+is accepted; it must not rebuild authority from paths, environment variables,
+or service request fields.

@@ -15196,15 +15196,25 @@
       "path": "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "active — audited production-source repair; tests/proof deferred",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/browser-plan/PLAN_STATE.md",
+            "docs/plans/browser-plan/NEXT_ACTIONS.md",
+            "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "The 2026-08-24 canonical source audit found a useful Browser-owned filesystem contract but not accepted production custody: persisted identity is reconstructed from caller input, corrupt metadata is masked during repair, mutations are neither atomic nor serialized, filesystem indirection is not rejected, and an unused service helper carries development/test identity. This review authorizes only the bounded WP06 source repair and does not claim tests, proof, launch/runtime authority, PR readiness, or DONE."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

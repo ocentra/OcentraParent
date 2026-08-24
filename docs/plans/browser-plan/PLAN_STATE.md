@@ -226,7 +226,11 @@ Current implementation is concentrated in `crates/schema`,
 ## Open gaps / missing product runtime
 
 - Browser inventory is not a complete product read model across installed, running, supported, unsupported, managed, unmanaged, packaged, and portable browsers.
-- Managed profile store repair, custody, redaction, and restart semantics need explicit workpack proof.
+- Browser WP06 has a bounded production-source repair active after the
+  2026-08-24 audit found caller-reconstructed persisted identity, corrupt
+  metadata masking, non-atomic/unserialized mutation, filesystem-indirection
+  escape risk, and unused service development/test identifiers. Tests,
+  retained proof, runtime composition, and acceptance remain open.
 - Active tab proof is still separate from target-list proof. `/json/list` target rows should remain `unknown` active state until focus/activation proof exists.
 - Managed browser intervention proof exists as a harness, but product-level warning/blocking still needs typed policy decision refs, journaled action refs, audit refs, child-facing delivery state, and portal proof.
 - Unmanaged browser URL evidence remains not claimed. Unmanaged process terminate/warn states exist only as scoped proof paths, not broad OS blocking.

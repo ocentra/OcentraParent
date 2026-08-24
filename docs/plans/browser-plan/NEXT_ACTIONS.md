@@ -27,22 +27,29 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. Canonical `f80b47c6a` is the accepted fail-closed WP07/WP09 source baseline.
+1. Finish and independently review the bounded WP06 production-source repair:
+   strict persisted binding validation, corruption rejection, serialized
+   crash-safe mutation, owned-root/link safety, and removal of service-side
+   development/test identity. Do not add launch, bridge, policy, or
+   enforcement authority in WP06.
+2. Canonical `f80b47c6a` is the accepted fail-closed WP07/WP09 source baseline.
    It removes unreachable launch state, env/dev profile authority, placeholder
    bridge polling, and the dead Browser-to-Screen runtime surface. Production
    managed-browser status is explicitly manual-required.
-2. Do not recreate the deleted surface. The next source packet requires a
+3. Do not recreate the deleted surface. After WP06 source acceptance, the WP07
+   source packet requires a
    private owner-issued start/stop lifecycle, retained launch custody, pre/post
    I/O process/port/profile revalidation, confirmed teardown, and explicit
    restart/expiry state. WP09 follows WP07 and may bind targets only from that
    retained owner state; active tab remains `Unknown`.
-3. After the repository-wide source wave, repair the exact stale Browser tests
+4. After the repository-wide source wave, repair the exact stale Browser tests
    using old helper arities/private launch fields, then write the missing WP07
    and WP09 integration roots together. Include owner mismatch, process
    replacement, teardown, restart/expiry, malformed/oversized/timeout,
    disappearance/navigation, no-active-tab-claim, and manual-required Screen
    handoff.
-4. WP07 and WP09 remain blocked/open. No test, build, proof, PR_READY, runtime,
+5. WP06 is source-active; WP07 and WP09 remain blocked/open. No test, build,
+   proof, PR_READY, runtime,
    or DONE claim follows from the source consolidation.
 
 ## PR readiness guard
