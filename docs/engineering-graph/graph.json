@@ -8987,23 +8987,46 @@
       "path": "docs/plans/app-game-plan/workpacks/189-app-game-linux-foreground-capture-readiness.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+            "crates/screen-capture-adapter/src/lib.rs",
+            "crates/screen-capture-adapter/src/linux_display.rs",
+            "crates/screen-capture-adapter/src/linux_display_paths.rs",
+            "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+            "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+            "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+            "crates/screen-capture-adapter/src/linux_x11.rs",
+            "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+          ],
+          "testRoots": [
+            "crates/screen-capture-adapter/tests/unit/linux_x11_capture.rs",
+            "crates/screen-capture-adapter/tests/security/linux_capture_custody.rs",
+            "crates/agent-service/tests/unit/app_game_linux_capture_readiness.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/app-game-plan/workpacks/189-app-game-linux-foreground-capture-readiness.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
@@ -9012,6 +9035,28 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/189-app-game-linux-foreground-capture-readiness"
+          ],
+          "implementation": [
+            "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+            "crates/screen-capture-adapter/src/lib.rs",
+            "crates/screen-capture-adapter/src/linux_display.rs",
+            "crates/screen-capture-adapter/src/linux_display_paths.rs",
+            "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+            "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+            "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+            "crates/screen-capture-adapter/src/linux_x11.rs",
+            "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+          ],
+          "tests": [
+            "crates/screen-capture-adapter/tests/unit/linux_x11_capture.rs",
+            "crates/screen-capture-adapter/tests/security/linux_capture_custody.rs",
+            "crates/agent-service/tests/unit/app_game_linux_capture_readiness.rs"
           ]
         }
       }
@@ -9059,23 +9104,46 @@
       "path": "docs/plans/app-game-plan/workpacks/191-app-game-linux-foreground-source-preflight.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+            "crates/screen-capture-adapter/src/lib.rs",
+            "crates/screen-capture-adapter/src/linux_display.rs",
+            "crates/screen-capture-adapter/src/linux_display_paths.rs",
+            "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+            "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+            "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+            "crates/screen-capture-adapter/src/linux_x11.rs",
+            "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+          ],
+          "testRoots": [
+            "crates/screen-capture-adapter/tests/unit/linux_foreground_source_preflight.rs",
+            "crates/agent-service/tests/unit/app_game_linux_source_preflight.rs",
+            "crates/agent-protocol/tests/contract/app_game_linux_source_preflight.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/app-game-plan/workpacks/191-app-game-linux-foreground-source-preflight.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
@@ -9084,6 +9152,28 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/191-app-game-linux-foreground-source-preflight"
+          ],
+          "implementation": [
+            "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+            "crates/screen-capture-adapter/src/lib.rs",
+            "crates/screen-capture-adapter/src/linux_display.rs",
+            "crates/screen-capture-adapter/src/linux_display_paths.rs",
+            "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+            "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+            "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+            "crates/screen-capture-adapter/src/linux_x11.rs",
+            "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+          ],
+          "tests": [
+            "crates/screen-capture-adapter/tests/unit/linux_foreground_source_preflight.rs",
+            "crates/agent-service/tests/unit/app_game_linux_source_preflight.rs",
+            "crates/agent-protocol/tests/contract/app_game_linux_source_preflight.rs"
           ]
         }
       }
@@ -9311,23 +9401,46 @@
       "path": "docs/plans/app-game-plan/workpacks/204-app-game-linux-active-window-tool-proof.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+            "crates/screen-capture-adapter/src/lib.rs",
+            "crates/screen-capture-adapter/src/linux_display.rs",
+            "crates/screen-capture-adapter/src/linux_display_paths.rs",
+            "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+            "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+            "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+            "crates/screen-capture-adapter/src/linux_x11.rs",
+            "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+          ],
+          "testRoots": [
+            "crates/screen-capture-adapter/tests/unit/linux_active_window_tools.rs",
+            "crates/agent-service/tests/unit/app_game_linux_active_window_tool_proof.rs",
+            "crates/agent-protocol/tests/contract/app_game_linux_active_window_tool_proof.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/app-game-plan/workpacks/204-app-game-linux-active-window-tool-proof.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
@@ -9336,6 +9449,28 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/204-app-game-linux-active-window-tool-proof"
+          ],
+          "implementation": [
+            "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+            "crates/screen-capture-adapter/src/lib.rs",
+            "crates/screen-capture-adapter/src/linux_display.rs",
+            "crates/screen-capture-adapter/src/linux_display_paths.rs",
+            "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+            "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+            "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security.rs",
+            "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+            "crates/screen-capture-adapter/src/linux_x11.rs",
+            "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+          ],
+          "tests": [
+            "crates/screen-capture-adapter/tests/unit/linux_active_window_tools.rs",
+            "crates/agent-service/tests/unit/app_game_linux_active_window_tool_proof.rs",
+            "crates/agent-protocol/tests/contract/app_game_linux_active_window_tool_proof.rs"
           ]
         }
       }

@@ -56,6 +56,8 @@ pub(crate) mod app_game_adapter_dispatch_result_payload;
 pub(crate) mod app_game_adapter_execution_readiness_payload;
 #[path = "activity_api/app_game_adapter_host_capabilities.rs"]
 mod app_game_adapter_host_capabilities;
+#[path = "activity_api/app_game_adapter_host_capabilities_linux.rs"]
+mod app_game_adapter_host_capabilities_linux;
 #[path = "activity_api/app_game_adapter_host_capabilities_paths.rs"]
 mod app_game_adapter_host_capabilities_paths;
 #[path = "activity_api/app_game_boundary_read_model_payload.rs"]

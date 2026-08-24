@@ -2117,6 +2117,7 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "libc",
+ "memoffset",
 ]
 
 [[package]]
@@ -2823,6 +2824,7 @@ version = "0.1.1"
 dependencies = [
  "base64",
  "crc32fast",
+ "nix",
  "ocentra-parent-agent-core",
  "ocentra-parent-agent-protocol",
  "ocentra-schema",
