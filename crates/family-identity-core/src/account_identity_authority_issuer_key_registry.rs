@@ -1,10 +1,17 @@
 use ed25519_dalek::VerifyingKey;
-use rusqlite::{Connection, OptionalExtension, Row, params};
+use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 
 use super::key_custody::AccountIdentityIssuerSigningHandle;
 use super::service_binding::AccountIdentityIssuerServiceBinding;
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_authority_issuer::AccountIdentityIssuerError;
+
+#[path = "account_identity_authority_issuer_key_registry_receipts.rs"]
+pub(crate) mod receipts;
+#[path = "account_identity_authority_issuer_key_registry_rows.rs"]
+pub(crate) mod rows;
+#[path = "account_identity_authority_issuer_key_registry_schema.rs"]
+pub(crate) mod schema;
 
 pub(crate) const KEY_REGISTRY_SCHEMA_SQL: &str =
     "CREATE TABLE IF NOT EXISTS account_identity_issuer_key_registry (
@@ -17,6 +24,7 @@ pub(crate) const KEY_REGISTRY_SCHEMA_SQL: &str =
         key_state TEXT NOT NULL CHECK (key_state IN ('active','revoked')),
         authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
         revoked_generation INTEGER,
+        service_label TEXT NOT NULL CHECK (length(service_label) > 0),
         PRIMARY KEY (account_id, household_id, service_binding_id, key_version),
         UNIQUE (key_id)
     ) STRICT;
@@ -24,6 +32,39 @@ pub(crate) const KEY_REGISTRY_SCHEMA_SQL: &str =
         ON account_identity_issuer_key_registry (
             account_id, household_id, service_binding_id, key_state, key_version
         );";
+
+pub(crate) const TRANSPORT_RECEIPT_SCHEMA_SQL: &str =
+    "CREATE TABLE IF NOT EXISTS account_identity_issuer_transport_receipt (
+        receipt_id TEXT PRIMARY KEY CHECK (length(receipt_id) > 0),
+        account_id TEXT NOT NULL CHECK (length(account_id) > 0),
+        household_id TEXT NOT NULL CHECK (length(household_id) > 0),
+        service_binding_id TEXT NOT NULL CHECK (length(service_binding_id) > 0),
+        service_label TEXT NOT NULL CHECK (length(service_label) > 0),
+        authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
+        key_id TEXT NOT NULL CHECK (length(key_id) > 0),
+        key_version INTEGER NOT NULL CHECK (key_version > 0),
+        issued_at_millis INTEGER NOT NULL CHECK (issued_at_millis >= 0),
+        expires_at_millis INTEGER NOT NULL CHECK (expires_at_millis > issued_at_millis),
+        receipt_state TEXT NOT NULL CHECK (receipt_state IN ('issued','consumed')),
+        consumed_at_millis INTEGER,
+        CHECK (
+            (receipt_state = 'issued' AND consumed_at_millis IS NULL)
+            OR (receipt_state = 'consumed' AND consumed_at_millis IS NOT NULL)
+        )
+    ) STRICT;
+    CREATE INDEX IF NOT EXISTS account_identity_issuer_transport_receipt_lookup
+        ON account_identity_issuer_transport_receipt (
+            account_id, household_id, service_binding_id, key_id, key_version, receipt_state
+        );";
+
+pub(crate) const CLOCK_SCHEMA_SQL: &str =
+    "CREATE TABLE IF NOT EXISTS account_identity_issuer_clock (
+        clock_id INTEGER PRIMARY KEY CHECK (clock_id = 1),
+        last_unix_millis INTEGER NOT NULL CHECK (last_unix_millis >= 0)
+    ) STRICT;
+    INSERT INTO account_identity_issuer_clock (clock_id, last_unix_millis)
+        VALUES (1, 0)
+        ON CONFLICT(clock_id) DO NOTHING;";
 
 pub(crate) struct RegisteredIssuerKey {
     pub(crate) handle: AccountIdentityIssuerSigningHandle,
@@ -33,7 +74,10 @@ pub(crate) struct RegisteredIssuerKey {
 pub(crate) fn ensure_schema(connection: &Connection) -> Result<(), AccountIdentityIssuerError> {
     connection
         .execute_batch(KEY_REGISTRY_SCHEMA_SQL)
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)
+        .and_then(|_| connection.execute_batch(TRANSPORT_RECEIPT_SCHEMA_SQL))
+        .and_then(|_| connection.execute_batch(CLOCK_SCHEMA_SQL))
+        .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
+    schema::validate(connection)
 }
 
 pub(crate) fn register(
@@ -50,9 +94,7 @@ pub(crate) fn register(
     let household_id = authority.household_id().to_string();
     let service_binding_id = binding.binding_id().to_owned();
     let authority_generation = to_sql_generation(authority.authority_generation())?;
-    let transaction = connection
-        .transaction()
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
+    let transaction = begin_immediate(connection)?;
     let latest_version: Option<i64> = transaction
         .query_row(
             "SELECT MAX(key_version) FROM account_identity_issuer_key_registry
@@ -83,8 +125,8 @@ pub(crate) fn register(
         .execute(
             "INSERT INTO account_identity_issuer_key_registry (
                 account_id, household_id, service_binding_id, key_id, key_version,
-                public_key, key_state, authority_generation, revoked_generation
-             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'active', ?7, NULL)",
+                public_key, key_state, authority_generation, revoked_generation, service_label
+             ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'active', ?7, NULL, ?8)",
             params![
                 account_id,
                 household_id,
@@ -93,6 +135,7 @@ pub(crate) fn register(
                 key_version,
                 public_key_bytes.as_slice(),
                 authority_generation,
+                binding.service().label(),
             ],
         )
         .map_err(|_| AccountIdentityIssuerError::KeyAlreadyRegistered)?;
@@ -120,7 +163,8 @@ pub(crate) fn revoke(
     {
         return Err(AccountIdentityIssuerError::BindingMismatch);
     }
-    let changed = connection
+    let transaction = begin_immediate(connection)?;
+    let changed = transaction
         .execute(
             "UPDATE account_identity_issuer_key_registry
              SET key_state = 'revoked', revoked_generation = ?6
@@ -136,6 +180,9 @@ pub(crate) fn revoke(
             ],
         )
         .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
+    transaction
+        .commit()
+        .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
     (changed == 1)
         .then_some(())
         .ok_or(AccountIdentityIssuerError::KeyUnavailable)
@@ -149,7 +196,8 @@ pub(crate) fn current(
     ensure_binding(authority, binding)?;
     let row = connection
         .query_row(
-            "SELECT key_id, key_version, public_key
+            "SELECT key_id, key_version, public_key, service_label, authority_generation,
+                    revoked_generation
              FROM account_identity_issuer_key_registry
              WHERE account_id = ?1 AND household_id = ?2 AND service_binding_id = ?3
                AND key_state = 'active'
@@ -161,143 +209,44 @@ pub(crate) fn current(
                 binding.binding_id(),
             ],
             |row| {
-                let key_id = row.get::<_, String>(0)?;
-                let key_version = row.get::<_, i64>(1)?;
-                let public_key = row.get::<_, Vec<u8>>(2)?;
-                Ok((key_id, key_version, public_key))
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, i64>(1)?,
+                    row.get::<_, Vec<u8>>(2)?,
+                    row.get::<_, String>(3)?,
+                    row.get::<_, i64>(4)?,
+                    row.get::<_, Option<i64>>(5)?,
+                ))
             },
         )
         .optional()
         .map_err(|_| AccountIdentityIssuerError::Unavailable)?
         .ok_or(AccountIdentityIssuerError::KeyUnavailable)?;
-    let (key_id, key_version, public_key) = row;
-    let key_version = from_sql_generation(key_version)?;
+    let (key_id, key_version, public_key, service_label, generation, revoked) = row;
+    if service_label != binding.service().label()
+        || generation != to_sql_generation(authority.authority_generation())?
+        || revoked.is_some()
+    {
+        return Err(AccountIdentityIssuerError::InvalidKeyRecord);
+    }
     let public_key: [u8; 32] = public_key
         .try_into()
         .map_err(|_| AccountIdentityIssuerError::InvalidPublicKey)?;
-    registered_key(binding, key_id, key_version, public_key)
+    registered_key(
+        binding,
+        key_id,
+        from_sql_generation(key_version)?,
+        public_key,
+    )
 }
 
 pub(crate) fn validate_durable_state(
     connection: &Connection,
 ) -> Result<u64, AccountIdentityIssuerError> {
-    let mut statement = connection
-        .prepare(
-            "SELECT account_id, household_id, service_binding_id, key_id, key_version,
-                    public_key, key_state, authority_generation, revoked_generation
-             FROM account_identity_issuer_key_registry",
-        )
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
-    let mut rows = statement
-        .query([])
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
-    let duplicate_active_binding = connection
-        .query_row(
-            "SELECT 1
-             FROM account_identity_issuer_key_registry
-             WHERE key_state = 'active'
-             GROUP BY account_id, household_id, service_binding_id
-             HAVING COUNT(*) > 1
-             LIMIT 1",
-            [],
-            |_row| Ok(()),
-        )
-        .optional()
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?
-        .is_some();
-    if duplicate_active_binding {
-        return Err(AccountIdentityIssuerError::InvalidKeyRecord);
-    }
-    let mut active_count = 0_u64;
-    while let Some(row) = rows
-        .next()
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?
-    {
-        if validate_durable_key_row(row)? {
-            active_count = active_count
-                .checked_add(1)
-                .ok_or(AccountIdentityIssuerError::InvalidKeyRecord)?;
-        }
-    }
+    let active_count = rows::validate(connection)?;
+    receipts::validate_transport_receipts(connection)?;
+    receipts::validate_clock_state(connection)?;
     Ok(active_count)
-}
-
-struct DurableKeyRow {
-    account_id: String,
-    household_id: String,
-    binding_id: String,
-    key_id: String,
-    key_version: i64,
-    public_key: Vec<u8>,
-    key_state: String,
-    authority_generation: i64,
-    revoked_generation: Option<i64>,
-}
-
-fn validate_durable_key_row(row: &Row<'_>) -> Result<bool, AccountIdentityIssuerError> {
-    let durable = DurableKeyRow {
-        account_id: row
-            .get(0)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
-        household_id: row
-            .get(1)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
-        binding_id: row
-            .get(2)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
-        key_id: row
-            .get(3)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
-        key_version: row
-            .get(4)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
-        public_key: row
-            .get(5)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
-        key_state: row
-            .get(6)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
-        authority_generation: row
-            .get(7)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
-        revoked_generation: row
-            .get(8)
-            .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?,
-    };
-    validate_durable_key_record(&durable)
-}
-
-fn validate_durable_key_record(
-    durable: &DurableKeyRow,
-) -> Result<bool, AccountIdentityIssuerError> {
-    let has_valid_shape = !durable.account_id.trim().is_empty()
-        && !durable.household_id.trim().is_empty()
-        && !durable.binding_id.trim().is_empty()
-        && !durable.key_id.trim().is_empty()
-        && durable.key_version > 0
-        && durable.authority_generation > 0
-        && durable.public_key.len() == 32;
-    if !has_valid_shape {
-        return Err(AccountIdentityIssuerError::InvalidKeyRecord);
-    }
-    let public_key: [u8; 32] = durable
-        .public_key
-        .clone()
-        .try_into()
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
-    let verifying_key = VerifyingKey::from_bytes(&public_key)
-        .map_err(|_| AccountIdentityIssuerError::InvalidKeyRecord)?;
-    let key_id_matches =
-        crate::account_identity_authority_producer::expected_key_id(&verifying_key)
-            == durable.key_id;
-    if !key_id_matches {
-        return Err(AccountIdentityIssuerError::InvalidKeyRecord);
-    }
-    match durable.key_state.as_str() {
-        "active" => Ok(durable.revoked_generation.is_none()),
-        "revoked" => Ok(durable.revoked_generation.is_some()),
-        _ => Err(AccountIdentityIssuerError::InvalidKeyRecord),
-    }
 }
 
 fn registered_key(
@@ -333,6 +282,14 @@ fn ensure_binding(
         && binding.household_id() == authority.household_id().to_string())
     .then_some(())
     .ok_or(AccountIdentityIssuerError::BindingMismatch)
+}
+
+pub(crate) fn begin_immediate(
+    connection: &mut Connection,
+) -> Result<Transaction<'_>, AccountIdentityIssuerError> {
+    connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|_| AccountIdentityIssuerError::Unavailable)
 }
 
 fn to_sql_generation(value: u64) -> Result<i64, AccountIdentityIssuerError> {

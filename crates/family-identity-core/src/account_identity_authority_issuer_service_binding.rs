@@ -15,6 +15,15 @@ impl AccountIdentityIssuerService {
             Self::CloudflareAccountAuthority => "ocentra.account-authority-producer.cloudflare",
         }
     }
+
+    pub(crate) fn from_label(label: &str) -> Option<Self> {
+        match label {
+            "ocentra.account-authority-producer.cloudflare" => {
+                Some(Self::CloudflareAccountAuthority)
+            }
+            _ => None,
+        }
+    }
 }
 
 /// An Account-owned binding for one authenticated consumer boundary.  The
@@ -42,16 +51,8 @@ impl AccountIdentityIssuerServiceBinding {
         {
             return Err(super::AccountIdentityIssuerError::InvalidServiceBinding);
         }
-        let mut digest = Sha256::new();
-        digest.update(b"ocentra.account-issuer.service-binding.v1\0");
-        digest.update(service.label().as_bytes());
-        digest.update([0]);
-        digest.update(account_id.as_bytes());
-        digest.update([0]);
-        digest.update(household_id.as_bytes());
-        digest.update([0]);
-        digest.update(authority_generation.to_be_bytes());
-        let binding_id = format!("sha256:{:x}", digest.finalize());
+        let binding_id =
+            Self::expected_binding_id(service, &account_id, &household_id, authority_generation);
         Ok(Self {
             service,
             account_id,
@@ -63,6 +64,24 @@ impl AccountIdentityIssuerServiceBinding {
 
     pub(crate) fn service(&self) -> AccountIdentityIssuerService {
         self.service
+    }
+
+    pub(crate) fn expected_binding_id(
+        service: AccountIdentityIssuerService,
+        account_id: &str,
+        household_id: &str,
+        authority_generation: u64,
+    ) -> String {
+        let mut digest = Sha256::new();
+        digest.update(b"ocentra.account-issuer.service-binding.v1\0");
+        digest.update(service.label().as_bytes());
+        digest.update([0]);
+        digest.update(account_id.as_bytes());
+        digest.update([0]);
+        digest.update(household_id.as_bytes());
+        digest.update([0]);
+        digest.update(authority_generation.to_be_bytes());
+        format!("sha256:{:x}", digest.finalize())
     }
 
     pub(crate) fn account_id(&self) -> &str {
@@ -106,7 +125,7 @@ pub(crate) struct AccountIdentityIssuerAuthenticatedBinding {
 }
 
 impl AccountIdentityIssuerAuthenticatedBinding {
-    pub(super) fn new(binding: &AccountIdentityIssuerServiceBinding) -> Self {
+    pub(crate) fn new(binding: &AccountIdentityIssuerServiceBinding) -> Self {
         Self {
             binding_id: binding.binding_id.clone(),
         }
