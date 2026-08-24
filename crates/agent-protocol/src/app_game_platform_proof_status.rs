@@ -77,7 +77,7 @@ pub struct AppGamePlatformProofStatusRow {
     pub host_capability_state: String,
     pub host_capability_evidence_refs: Vec<String>,
     pub host_capability_probe_refs: Vec<String>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub linux_docker_host_preflight: Option<AppGameLinuxDockerHostPreflight>,
     pub product_meanings: Vec<String>,
     pub proof_refs: Vec<String>,

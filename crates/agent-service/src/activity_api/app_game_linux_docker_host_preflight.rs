@@ -3,17 +3,21 @@ use ocentra_parent_agent_protocol::{
     constants::v08_supported_adapter_runtime_proof as proof,
 };
 
+use std::time::Instant;
+
 use super::{
     app_game_adapter_host_capabilities_paths::{resolve_executable, ExecutableName},
     app_game_linux_docker_host_preflight_process::{
         run_docker_probe, DockerProbeArguments, DockerProbeOutput,
     },
     app_game_linux_docker_host_preflight_state::{build_preflight, DockerPreflightState},
+    app_game_linux_docker_host_preflight_wait::DOCKER_PREFLIGHT_TIMEOUT,
 };
 
 const MAX_DOCKER_INVENTORY_COUNT: u64 = 10_000_000;
 
 pub(super) fn detect_linux_docker_host_preflight() -> AppGameLinuxDockerHostPreflight {
+    let deadline = Instant::now() + DOCKER_PREFLIGHT_TIMEOUT;
     let Some(executable) = resolve_executable(ExecutableName(proof::EXE_DOCKER)) else {
         return build_preflight(DockerPreflightState::NOT_DETECTED, false, false, None, None);
     };
@@ -21,16 +25,19 @@ pub(super) fn detect_linux_docker_host_preflight() -> AppGameLinuxDockerHostPref
     let daemon_visible = probe_has_nonempty_text(run_docker_probe(
         &executable,
         DockerProbeArguments(&proof::DOCKER_VERSION_ARGUMENTS),
+        deadline,
     ));
     let context_count = parse_context_count(run_docker_probe(
         &executable,
         DockerProbeArguments(&proof::DOCKER_CONTEXT_ARGUMENTS),
+        deadline,
     ));
     let inventory = daemon_visible
         .then(|| {
             parse_inventory_counts(run_docker_probe(
                 &executable,
                 DockerProbeArguments(&proof::DOCKER_INVENTORY_ARGUMENTS),
+                deadline,
             ))
         })
         .flatten();

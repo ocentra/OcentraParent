@@ -35,8 +35,13 @@ names, container ids, raw paths, or private daemon diagnostics.
 
 ## Files
 
+- `crates/agent-service/Cargo.toml`
+- `Cargo.lock`
 - `crates/agent-protocol/src/app_game_platform_proof_status.rs`
 - `crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs`
+- `crates/agent-service/src/activity_api.rs`
+- `crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs`
+- `crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs`
 - `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight.rs`
 - `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_output.rs`
 - `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_process.rs`
@@ -67,12 +72,14 @@ Expected test roots for the later test-writing wave:
 
 Production source is drafted in the Rust protocol, agent-service, and
 parent-runtime owners. The service resolves an exact Docker executable without
-a shell, probes CLI/daemon/context/image/container visibility on a bounded
-blocking worker, caps output and inventory counts, kills timed-out processes,
-discards stderr, and emits only readiness/count state. Parent rendering exposes
-the redacted state without raw paths, context names, image names, container
-identifiers, or private diagnostics. Protocol rows remain backward compatible,
-and all adapter/enforcement/delivery claims remain false.
+a shell, runs each direct child in an owned Unix process group or Windows Job
+Object, applies one aggregate preflight deadline across the probes, caps output
+and inventory counts, performs non-blocking bounded termination, discards
+stderr, and emits only readiness/count state. Parent rendering exposes the
+redacted state without raw paths, context names, image names, container
+identifiers, or private diagnostics. Absent optional Docker rows deserialize
+from older payloads and are omitted again when serialized, while all
+adapter/enforcement/delivery claims remain false.
 
 The three affected production libraries compile together. Expected tests have
 not been written or run, existing struct-literal tests require the later
@@ -84,6 +91,7 @@ DONE claim is made.
 - Docker CLI/daemon/context/image/container visibility is represented as typed
   parent-domain readiness.
 - Context, image, and container details are redacted to counts only.
-- Linux platform proof status can carry `linux-docker-host-preflight-ref`.
+- Linux platform proof status can carry the source/probe reference
+  `linux-docker-host-preflight-ref`; this is not retained runtime proof.
 - Container policy, platform enforcement, adapter dispatch, and child delivery
   remain false.

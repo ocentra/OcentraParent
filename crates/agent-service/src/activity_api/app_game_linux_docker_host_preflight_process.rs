@@ -1,12 +1,12 @@
-use std::{
-    process::{Command, Stdio},
-    thread,
-};
+use std::{process::Stdio, thread, time::Instant};
+
+use command_group::{AsyncCommandGroup, AsyncGroupChild};
+use tokio::process::Command;
 
 use super::{
     app_game_adapter_host_capabilities_paths::ResolvedExecutablePath,
-    app_game_linux_docker_host_preflight_output::read_bounded,
-    app_game_linux_docker_host_preflight_wait::wait_bounded,
+    app_game_linux_docker_host_preflight_output::read_bounded_until,
+    app_game_linux_docker_host_preflight_wait::{terminate_group_bounded, wait_bounded},
 };
 
 #[cfg(windows)]
@@ -32,32 +32,68 @@ impl DockerProbeOutput {
 pub(super) fn run_docker_probe(
     executable: &ResolvedExecutablePath,
     arguments: DockerProbeArguments,
+    deadline: Instant,
 ) -> DockerProbeOutput {
-    let mut command = Command::new(&executable.0);
+    let executable = executable.clone();
+    // The runtime helper is joined; stdout is owned by its cancellable async
+    // future, so this is not a detached reader thread or an unbounded wait.
+    let Ok(worker) = thread::Builder::new()
+        .spawn(move || run_docker_probe_on_runtime(executable, arguments, deadline))
+    else {
+        return DockerProbeOutput::unavailable();
+    };
+    worker
+        .join()
+        .unwrap_or_else(|_| DockerProbeOutput::unavailable())
+}
+
+fn run_docker_probe_on_runtime(
+    executable: ResolvedExecutablePath,
+    arguments: DockerProbeArguments,
+    deadline: Instant,
+) -> DockerProbeOutput {
+    let Ok(runtime) = tokio::runtime::Builder::new_current_thread()
+        .enable_io()
+        .enable_time()
+        .build()
+    else {
+        return DockerProbeOutput::unavailable();
+    };
+    runtime.block_on(run_docker_probe_async(executable, arguments, deadline))
+}
+
+async fn run_docker_probe_async(
+    executable: ResolvedExecutablePath,
+    arguments: DockerProbeArguments,
+    deadline: Instant,
+) -> DockerProbeOutput {
+    if Instant::now() >= deadline {
+        return DockerProbeOutput::unavailable();
+    }
+
+    let mut command = Command::new(executable.0);
     command
         .args(arguments.0)
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::null());
-    configure_process(&mut command);
-
-    let mut child = match command.spawn() {
+    let mut child = match spawn_process_group(&mut command) {
         Ok(child) => child,
         Err(_) => return DockerProbeOutput::unavailable(),
     };
-    let stdout = match child.stdout.take() {
+    let stdout = match child.inner().stdout.take() {
         Some(stdout) => stdout,
         None => {
-            let _ = child.kill();
-            let _ = child.wait();
+            terminate_group_bounded(&mut child, deadline).await;
             return DockerProbeOutput::unavailable();
         }
     };
-    let reader = thread::spawn(move || read_bounded(stdout));
-    let status = wait_bounded(&mut child);
-    let captured = match reader.join() {
-        Ok(captured) => captured,
-        Err(_) => return DockerProbeOutput::unavailable(),
+    let captured = read_bounded_until(stdout, deadline).await;
+    let status = if captured.timed_out || captured.overflow || captured.read_error {
+        terminate_group_bounded(&mut child, deadline).await;
+        None
+    } else {
+        wait_bounded(&mut child, deadline).await
     };
 
     DockerProbeOutput {
@@ -69,11 +105,15 @@ pub(super) fn run_docker_probe(
 }
 
 #[cfg(windows)]
-fn configure_process(command: &mut Command) {
-    use std::os::windows::process::CommandExt;
-
-    command.creation_flags(CREATE_NO_WINDOW);
+fn spawn_process_group(command: &mut Command) -> std::io::Result<AsyncGroupChild> {
+    command
+        .group()
+        .creation_flags(CREATE_NO_WINDOW)
+        .kill_on_drop(true)
+        .spawn()
 }
 
 #[cfg(not(windows))]
-fn configure_process(_command: &mut Command) {}
+fn spawn_process_group(command: &mut Command) -> std::io::Result<AsyncGroupChild> {
+    command.group().kill_on_drop(true).spawn()
+}

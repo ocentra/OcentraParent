@@ -10,7 +10,7 @@ const DOCKER_CONTEXTS_LABEL: &str = "Docker contexts";
 const DOCKER_IMAGES_LABEL: &str = "Docker images";
 const DOCKER_CONTAINERS_LABEL: &str = "Docker containers";
 const DOCKER_IDENTIFIERS_REDACTED_LABEL: &str = "Docker identifiers redacted";
-const DOCKER_PROOF_REFS_LABEL: &str = "Docker proof refs";
+const DOCKER_SOURCE_PROBE_REFS_LABEL: &str = "Docker source/probe refs";
 const DOCKER_OPEN_GAPS_LABEL: &str = "Docker open gaps";
 const INVENTORY_UNAVAILABLE_LABEL: &str = "unavailable";
 
@@ -177,7 +177,7 @@ fn linux_docker_host_preflight_details(
             app_game_ready_warn_value(preflight.identifiers_redacted),
         ),
         app_game_detail(
-            DOCKER_PROOF_REFS_LABEL,
+            DOCKER_SOURCE_PROBE_REFS_LABEL,
             app_game_join_strings(&preflight.proof_refs),
         ),
         app_game_detail(
