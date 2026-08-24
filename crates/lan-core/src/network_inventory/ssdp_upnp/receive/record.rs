@@ -1,14 +1,13 @@
 use std::collections::HashSet;
 use std::sync::atomic::AtomicBool;
-use std::time::Duration;
+use std::time::Instant;
 
-use super::super::{
-    fetch_ssdp_description, parse_ssdp_response, SsdpDiscoveryError, SsdpDiscoveryRecord,
-};
+use super::super::description::fetch_ssdp_description_until;
+use super::super::{parse_ssdp_response, SsdpDiscoveryError, SsdpDiscoveryRecord};
 
 pub(super) fn add_ssdp_record(
     response_bytes: &[u8],
-    description_timeout: Duration,
+    aggregate_deadline: Instant,
     seen: &mut HashSet<String>,
     results: &mut Vec<SsdpDiscoveryRecord>,
     cancellation: Option<&AtomicBool>,
@@ -24,7 +23,9 @@ pub(super) fn add_ssdp_record(
     }
     let description = response
         .description_fetch_allowed()
-        .then(|| fetch_ssdp_description(&response.location, description_timeout).ok())
+        .then(|| {
+            fetch_ssdp_description_until(&response.location, aggregate_deadline, cancellation).ok()
+        })
         .flatten();
     if is_cancelled(cancellation) {
         return Ok(());

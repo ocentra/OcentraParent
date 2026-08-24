@@ -6,7 +6,6 @@ use std::{
 
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
-use super::probe::probe_service_identity;
 use super::targets::service_identity_probe_targets;
 use super::{
     apply_service_identity_probe, runtime_service_identity_probe_settings,
@@ -24,6 +23,14 @@ struct ProbeCandidate {
 struct ProbeResult {
     index: usize,
     probe_match: Option<LanServiceIdentityProbeObservation>,
+}
+
+#[derive(Clone, Copy)]
+struct ProbeRuntime<'a> {
+    settings: ServiceIdentityProbeSettings,
+    deadline: Instant,
+    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'a>,
+    cancellation: Option<&'a AtomicBool>,
 }
 
 pub(super) fn enrich_service_identity_probes(
@@ -55,9 +62,12 @@ pub(super) fn enrich_service_identity_probes(
             probe_batch(
                 batch,
                 &targets,
-                settings,
-                deadline,
-                allowed_snmp_response_observer,
+                ProbeRuntime {
+                    settings,
+                    deadline,
+                    allowed_snmp_response_observer,
+                    cancellation,
+                },
             ),
         );
         if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
@@ -88,19 +98,10 @@ fn probe_candidates(
 fn probe_batch(
     batch: &[ProbeCandidate],
     targets: &[ProbeTarget],
-    settings: ServiceIdentityProbeSettings,
-    deadline: Instant,
-    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    runtime: ProbeRuntime<'_>,
 ) -> Vec<ProbeResult> {
     thread::scope(|scope| {
-        let handles = spawn_probe_handles(
-            scope,
-            batch,
-            targets,
-            settings,
-            deadline,
-            allowed_snmp_response_observer,
-        );
+        let handles = spawn_probe_handles(scope, batch, targets, runtime);
         handles
             .into_iter()
             .filter_map(|handle| handle.join().ok())
@@ -112,22 +113,21 @@ fn spawn_probe_handles<'scope, 'env>(
     scope: &'scope thread::Scope<'scope, 'env>,
     batch: &'scope [ProbeCandidate],
     targets: &'scope [ProbeTarget],
-    settings: ServiceIdentityProbeSettings,
-    deadline: Instant,
-    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'env>,
+    runtime: ProbeRuntime<'env>,
 ) -> Vec<thread::ScopedJoinHandle<'scope, ProbeResult>> {
     batch
         .iter()
         .map(|candidate| {
             scope.spawn(move || ProbeResult {
                 index: candidate.index,
-                probe_match: probe_service_identity(
+                probe_match: super::probe::probe_service_identity_with_cancellation(
                     &candidate.ip_address,
                     Some(candidate.device_id.as_str()),
                     targets,
-                    settings,
-                    deadline,
-                    allowed_snmp_response_observer,
+                    runtime.settings,
+                    runtime.deadline,
+                    runtime.allowed_snmp_response_observer,
+                    runtime.cancellation,
                 ),
             })
         })

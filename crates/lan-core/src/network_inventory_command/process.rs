@@ -1,13 +1,22 @@
 use std::{
-    process::{Child, Command, Output, Stdio},
-    sync::atomic::{AtomicBool, Ordering},
-    thread::sleep,
+    process::{Output, Stdio},
+    sync::atomic::AtomicBool,
+    thread,
     time::{Duration, Instant},
 };
 
+use command_group::{AsyncCommandGroup, AsyncGroupChild};
 use ocentra_parent_agent_protocol::constants;
+use tokio::process::Command;
 
 use super::values::clean_string;
+
+mod executable;
+mod output;
+mod wait;
+
+#[cfg(windows)]
+const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
 pub(super) fn command_stdout(program: &str, args: &[&str]) -> Option<String> {
     let timeout =
@@ -20,7 +29,7 @@ pub(super) fn command_stdout_with_timeout(
     args: &[&str],
     timeout: Duration,
 ) -> Option<String> {
-    let output = command_output_with_timeout(program, args, timeout)?;
+    let output = command_output_with_timeout_and_cancellation(program, args, timeout, None)?;
     output
         .status
         .success()
@@ -33,12 +42,8 @@ pub(super) fn command_succeeded_with_timeout(
     args: &[&str],
     timeout: Duration,
 ) -> bool {
-    command_output_with_timeout(program, args, timeout)
-        .is_some_and(|output| output.status.success())
-}
-
-fn command_output_with_timeout(program: &str, args: &[&str], timeout: Duration) -> Option<Output> {
     command_output_with_timeout_and_cancellation(program, args, timeout, None)
+        .is_some_and(|output| output.status.success())
 }
 
 pub(super) fn command_stdout_with_timeout_and_cancellation(
@@ -65,65 +70,83 @@ fn command_output_with_timeout_and_cancellation(
     if timeout.is_zero() {
         return None;
     }
-    let mut child = Command::new(program)
-        .args(args)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .ok()?;
-    let started_at = Instant::now();
-
-    loop {
-        if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
-            terminate_process_tree(&mut child);
-            return None;
-        }
-        if child.try_wait().ok().flatten().is_some() {
-            return child.wait_with_output().ok();
-        }
-        let elapsed = started_at.elapsed();
-        if elapsed >= timeout {
-            terminate_process_tree(&mut child);
-            return None;
-        }
-        let remaining = timeout.saturating_sub(elapsed);
-        sleep(remaining.min(Duration::from_millis(25)));
-    }
+    let deadline = Instant::now().checked_add(timeout)?;
+    thread::scope(|scope| {
+        let worker = thread::Builder::new()
+            .name("lan-network-inventory-command".to_string())
+            .spawn_scoped(scope, || {
+                run_on_current_thread_runtime(program, args, deadline, cancellation)
+            })
+            .ok()?;
+        worker.join().ok().flatten()
+    })
 }
 
-fn terminate_process_tree(child: &mut Child) {
-    #[cfg(windows)]
-    terminate_windows_process_tree(child);
+fn run_on_current_thread_runtime(
+    program: &str,
+    args: &[&str],
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<Output> {
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_io()
+        .enable_time()
+        .build()
+        .ok()?;
+    runtime.block_on(command_output_async(program, args, deadline, cancellation))
+}
 
-    // The platform-specific tree terminator is best effort. Always terminate
-    // and reap the owned child as a final boundary so a timed-out command
-    // cannot leave a child handle or pipe held by this worker.
-    let _ = child.kill();
-    let _ = child.wait();
+async fn command_output_async(
+    program: &str,
+    args: &[&str],
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<Output> {
+    let executable = executable::resolve_trusted_executable(program)?;
+    let mut command = Command::new(executable);
+    command
+        .args(args)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped());
+    let mut child = spawn_process_group(&mut command).ok()?;
+    let group = wait::ProcessGroup::capture(&child);
+    let Some(stdout) = child.inner().stdout.take() else {
+        wait::terminate_group_bounded(&mut child, group, false, deadline).await;
+        return None;
+    };
+    let Some(stderr) = child.inner().stderr.take() else {
+        wait::terminate_group_bounded(&mut child, group, false, deadline).await;
+        return None;
+    };
+    let terminate = AtomicBool::new(false);
+
+    let (stdout, stderr, status) = tokio::join!(
+        output::read_bounded_until(stdout, deadline, cancellation, &terminate),
+        output::read_bounded_until(stderr, deadline, cancellation, &terminate),
+        wait::wait_bounded(&mut child, group, deadline, cancellation, &terminate),
+    );
+    let status = status?;
+    if !stdout.complete() || !stderr.complete() {
+        return None;
+    }
+    Some(Output {
+        status,
+        stdout: stdout.bytes,
+        stderr: stderr.bytes,
+    })
 }
 
 #[cfg(windows)]
-fn terminate_windows_process_tree(child: &mut Child) {
-    let pid = child.id().to_string();
-    let Ok(mut taskkill) = Command::new("taskkill")
-        .args(["/PID", pid.as_str(), "/T", "/F"])
-        .stdin(Stdio::null())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
+fn spawn_process_group(command: &mut Command) -> std::io::Result<AsyncGroupChild> {
+    command
+        .group()
+        .creation_flags(CREATE_NO_WINDOW)
+        .kill_on_drop(true)
         .spawn()
-    else {
-        return;
-    };
-    let deadline = Instant::now() + Duration::from_secs(2);
-    loop {
-        match taskkill.try_wait() {
-            Ok(Some(_)) => break,
-            Ok(None) if Instant::now() < deadline => sleep(Duration::from_millis(10)),
-            _ => {
-                let _ = taskkill.kill();
-                let _ = taskkill.wait();
-                break;
-            }
-        }
-    }
+}
+
+#[cfg(not(windows))]
+fn spawn_process_group(command: &mut Command) -> std::io::Result<AsyncGroupChild> {
+    command.group().kill_on_drop(true).spawn()
 }

@@ -8,6 +8,7 @@ use ocentra_parent_agent_protocol::lan_pairing::{
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
 };
+pub mod controller_lease;
 mod current_authority_validation;
 mod helpers;
 mod json_persistence;
@@ -17,6 +18,7 @@ mod replay;
 mod signer_authority;
 pub mod signer_authority_types;
 mod validation;
+use self::controller_lease::LanTrustedControllerLease;
 use self::helpers::{
     household_scan_truth_device, merge_known_household_device_by_canonical_id,
     push_unique_scan_truth_device,
@@ -24,7 +26,7 @@ use self::helpers::{
 use self::known_household_devices::restore_known_household_device;
 use self::signer_authority_types::LanTrustedDeviceSignerAnchor;
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct TrustedDeviceRegistry {
     pub(crate) entries: Vec<LanTrustedDeviceRegistryEntry>,
     pub(crate) household_device_decisions: Vec<LanHouseholdDeviceDecision>,
@@ -33,6 +35,7 @@ pub struct TrustedDeviceRegistry {
     accepted_challenge_ids: VecDeque<String>,
     signer_anchors: BTreeMap<String, LanTrustedDeviceSignerAnchor>,
     signer_anchor_generations: BTreeMap<String, u64>,
+    pub(crate) controller_lease: Option<LanTrustedControllerLease>,
     pub(crate) selected_pairing_id: Option<String>,
     pub(crate) selected_route_stale_at: Option<String>,
     pub(crate) selected_route_offline_at: Option<String>,
@@ -52,6 +55,7 @@ impl TrustedDeviceRegistry {
             accepted_challenge_ids: VecDeque::new(),
             signer_anchors: BTreeMap::new(),
             signer_anchor_generations: BTreeMap::new(),
+            controller_lease: None,
             selected_pairing_id: None,
             selected_route_stale_at: None,
             selected_route_offline_at: None,

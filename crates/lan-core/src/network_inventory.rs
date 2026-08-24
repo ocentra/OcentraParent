@@ -12,7 +12,7 @@ pub mod service_identity;
 pub mod ssdp_upnp;
 pub mod windows_neighbors;
 
-use std::{collections::HashMap, sync::atomic::AtomicBool};
+use std::{collections::HashMap, sync::atomic::AtomicBool, time::Instant};
 
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingDeviceRef,
@@ -298,6 +298,24 @@ pub fn plan_lan_discovery_scan_with_active_refresh_suppression(
         previous_devices,
         refresh_mode,
         active_refresh_suppression_devices,
+    )
+}
+
+pub fn plan_lan_discovery_scan_until(
+    identity_hint_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+    refresh_mode: LanDiscoveryRefreshMode,
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+    deadline: Instant,
+    cancellation: &AtomicBool,
+) -> LanDiscoveryScanPlan {
+    api::cancellation::plan_lan_discovery_scan_until(
+        identity_hint_devices,
+        previous_devices,
+        refresh_mode,
+        active_refresh_suppression_devices,
+        deadline,
+        cancellation,
     )
 }
 

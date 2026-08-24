@@ -60,7 +60,7 @@ pub fn windows_lan_neighbors_with_cancellation(
     if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
         return Vec::new();
     }
-    let netbios_names = netbios::windows_netbios_cache_names();
+    let netbios_names = netbios::windows_netbios_cache_names_with_cancellation(cancellation);
     let identity_hint_inventory = LanIdentityHintInventory::from_devices(identity_hint_devices);
     let previous_inventory = LanPreviousNetworkInventory::from_devices(previous_devices);
     let observed_at = Utc::now().to_rfc3339();

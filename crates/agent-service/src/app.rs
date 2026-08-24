@@ -33,7 +33,7 @@ pub struct AppState {
     browser_policy: BrowserPolicyRuntime,
     browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
-    _passive_discovery_runtime: LanPassiveDiscoveryServiceRuntime,
+    _passive_discovery_runtime: Option<LanPassiveDiscoveryServiceRuntime>,
 }
 
 pub fn router(network: NetworkPolicy) -> Router {
@@ -41,7 +41,7 @@ pub fn router(network: NetworkPolicy) -> Router {
     let lan_pairing = LanPairingRuntime::from_env();
     spawn_lan_mdns_advertisement_runtime(lan_pairing.clone());
     let passive_discovery_runtime =
-        start_lan_passive_discovery_service_runtime(lan_pairing.clone());
+        start_lan_passive_discovery_service_runtime(lan_pairing.clone()).ok();
     let state = AppState {
         network,
         lan_pairing,

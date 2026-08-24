@@ -6,19 +6,114 @@ use std::{
 
 use fs2::FileExt;
 use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingRejectionReason, LanSelectedRouteTarget,
+    LanPairingRejectionReason, LanParentIntentEnvelope, LanSelectedRouteTarget,
 };
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-    LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
-};
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
+use ocentra_parent_agent_protocol::LanPairingParentAuthority;
 use serde_json::Value;
 
+use super::controller_lease::LanControllerLeaseMutation;
 use super::TrustedDeviceRegistry;
 
+mod device_state;
 mod intent;
 mod replay_history;
 
 impl TrustedDeviceRegistry {
+    pub fn select_pairing_for_intent(
+        &mut self,
+        intent: &LanParentIntentEnvelope,
+        origin: Option<&str>,
+        observed_at: &str,
+    ) -> Result<LanSelectedRouteTarget, LanPairingRejectionReason> {
+        self.apply_intent(intent, origin, observed_at, false, |candidate| {
+            ensure_controller_lease_if_required(candidate, intent, observed_at)?;
+            let selected = candidate.select_pairing(
+                &intent.pairing_id,
+                &intent.target_child_device_id,
+                &intent.route_id,
+                &intent.expires_at,
+            )?;
+            let _ = candidate.clear_selected_route_reachability();
+            Ok(selected)
+        })
+    }
+
+    pub fn select_pairing_for_intent_persisted(
+        &mut self,
+        registry_path: &Path,
+        intent: &LanParentIntentEnvelope,
+        origin: Option<&str>,
+        observed_at: &str,
+    ) -> io::Result<Result<LanSelectedRouteTarget, LanPairingRejectionReason>> {
+        let intent_for_effect = intent.clone();
+        let observed_at_for_effect = observed_at.to_owned();
+        self.apply_intent_persisted(
+            registry_path,
+            intent,
+            origin,
+            observed_at,
+            false,
+            move |candidate| {
+                ensure_controller_lease_if_required(
+                    candidate,
+                    &intent_for_effect,
+                    &observed_at_for_effect,
+                )?;
+                let selected = candidate.select_pairing(
+                    &intent_for_effect.pairing_id,
+                    &intent_for_effect.target_child_device_id,
+                    &intent_for_effect.route_id,
+                    &intent_for_effect.expires_at,
+                )?;
+                let _ = candidate.clear_selected_route_reachability();
+                Ok(selected)
+            },
+        )
+    }
+
+    pub fn revoke_pairing_for_intent(
+        &mut self,
+        intent: &LanParentIntentEnvelope,
+        origin: Option<&str>,
+        observed_at: &str,
+    ) -> Result<(), LanPairingRejectionReason> {
+        self.apply_intent(intent, origin, observed_at, false, |candidate| {
+            ensure_controller_lease_if_required(candidate, intent, observed_at)?;
+            revoke_pairing_for_intent(candidate, &intent.pairing_id, observed_at)
+        })
+    }
+
+    pub fn revoke_pairing_for_intent_persisted(
+        &mut self,
+        registry_path: &Path,
+        intent: &LanParentIntentEnvelope,
+        origin: Option<&str>,
+        observed_at: &str,
+    ) -> io::Result<Result<(), LanPairingRejectionReason>> {
+        let intent_for_effect = intent.clone();
+        let observed_at_for_effect = observed_at.to_owned();
+        self.apply_intent_persisted(
+            registry_path,
+            intent,
+            origin,
+            observed_at,
+            false,
+            move |candidate| {
+                ensure_controller_lease_if_required(
+                    candidate,
+                    &intent_for_effect,
+                    &observed_at_for_effect,
+                )?;
+                revoke_pairing_for_intent(
+                    candidate,
+                    &intent_for_effect.pairing_id,
+                    &observed_at_for_effect,
+                )
+            },
+        )
+    }
+
     pub fn record_challenge_request_persisted(
         &mut self,
         registry_path: &Path,
@@ -40,57 +135,52 @@ impl TrustedDeviceRegistry {
         })
     }
 
-    pub fn merge_known_household_devices_persisted(
+    pub fn apply_household_device_decision_for_intent(
         &mut self,
-        registry_path: &Path,
-        devices: Vec<LanCanonicalHouseholdDevice>,
-    ) -> io::Result<bool> {
-        self.mutate_persisted_registry(registry_path, move |candidate| {
-            Ok(candidate.merge_known_household_devices(devices))
+        intent: &LanParentIntentEnvelope,
+        origin: Option<&str>,
+        observed_at: &str,
+        decision: LanHouseholdDeviceDecision,
+    ) -> Result<(), LanPairingRejectionReason> {
+        self.apply_intent(intent, origin, observed_at, true, move |candidate| {
+            ensure_controller_lease_if_required(candidate, intent, observed_at)?;
+            if candidate.has_household_device_decision(decision.action_id.as_str()) {
+                return Err(LanPairingRejectionReason::Replayed);
+            }
+            let _changed = candidate.apply_household_device_decision(decision);
+            Ok(())
         })
     }
 
-    pub fn select_pairing_persisted(
+    pub fn apply_household_device_decision_for_intent_persisted(
         &mut self,
         registry_path: &Path,
-        pairing_id: &str,
-        target_child_device_id: &str,
-        route_id: &str,
-        stale_at: &str,
-    ) -> io::Result<Result<LanSelectedRouteTarget, LanPairingRejectionReason>> {
-        self.mutate_persisted_registry(registry_path, |candidate| {
-            let selected =
-                candidate.select_pairing(pairing_id, target_child_device_id, route_id, stale_at);
-            if selected.is_ok() {
-                let _ = candidate.clear_selected_route_reachability();
-            }
-            Ok(selected)
-        })
-    }
-
-    pub fn revoke_pairing_persisted(
-        &mut self,
-        registry_path: &Path,
-        pairing_id: &str,
-        revoked_at: &str,
-    ) -> io::Result<bool> {
-        self.mutate_persisted_registry(registry_path, |candidate| {
-            if !candidate
-                .entries
-                .iter()
-                .any(|entry| entry.pairing_id == pairing_id)
-            {
-                return Ok(false);
-            }
-            let generation = candidate.next_authority_generation(pairing_id)?;
-            let revoked = candidate.revoke_pairing(pairing_id, revoked_at);
-            if revoked {
-                candidate
-                    .signer_anchor_generations
-                    .insert(pairing_id.to_string(), generation);
-            }
-            Ok(revoked)
-        })
+        intent: &LanParentIntentEnvelope,
+        origin: Option<&str>,
+        observed_at: &str,
+        decision: LanHouseholdDeviceDecision,
+    ) -> io::Result<Result<(), LanPairingRejectionReason>> {
+        let intent_for_effect = intent.clone();
+        let observed_at_for_effect = observed_at.to_owned();
+        self.apply_intent_persisted(
+            registry_path,
+            intent,
+            origin,
+            observed_at,
+            true,
+            move |candidate| {
+                ensure_controller_lease_if_required(
+                    candidate,
+                    &intent_for_effect,
+                    &observed_at_for_effect,
+                )?;
+                if candidate.has_household_device_decision(decision.action_id.as_str()) {
+                    return Err(LanPairingRejectionReason::Replayed);
+                }
+                let _changed = candidate.apply_household_device_decision(decision);
+                Ok(())
+            },
+        )
     }
 
     fn mutate_persisted_registry<T>(
@@ -142,6 +232,41 @@ impl TrustedDeviceRegistry {
             }),
         }
     }
+}
+
+fn ensure_controller_lease_if_required(
+    registry: &mut TrustedDeviceRegistry,
+    intent: &LanParentIntentEnvelope,
+    observed_at: &str,
+) -> Result<(), LanPairingRejectionReason> {
+    if intent.parent_authority == LanPairingParentAuthority::ActiveController {
+        registry.apply_controller_lease(intent, observed_at, LanControllerLeaseMutation::Ensure)?;
+    }
+    Ok(())
+}
+
+fn revoke_pairing_for_intent(
+    registry: &mut TrustedDeviceRegistry,
+    pairing_id: &str,
+    revoked_at: &str,
+) -> Result<(), LanPairingRejectionReason> {
+    if !registry
+        .entries
+        .iter()
+        .any(|entry| entry.pairing_id == pairing_id)
+    {
+        return Err(LanPairingRejectionReason::Anonymous);
+    }
+    let generation = registry
+        .next_authority_generation(pairing_id)
+        .map_err(|_error| LanPairingRejectionReason::Malformed)?;
+    if !registry.revoke_pairing(pairing_id, revoked_at) {
+        return Err(LanPairingRejectionReason::Anonymous);
+    }
+    registry
+        .signer_anchor_generations
+        .insert(pairing_id.to_string(), generation);
+    Ok(())
 }
 
 fn same_durable_registry_state(

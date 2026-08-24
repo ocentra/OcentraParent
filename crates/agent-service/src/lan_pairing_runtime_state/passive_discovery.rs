@@ -12,11 +12,10 @@ mod reconciliation;
 mod runtime_slice;
 #[path = "passive_discovery/service_owner.rs"]
 mod service_owner;
+#[path = "passive_discovery/start.rs"]
+mod start;
 
-use std::{
-    sync::{atomic::AtomicBool, Arc},
-    time::Duration,
-};
+use std::{sync::Arc, time::Duration};
 
 use ocentra_lan_core::network_inventory::passive_discovery::{
     LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
@@ -87,42 +86,16 @@ pub(crate) struct LanPassiveDiscoveryServiceRuntime {
     _owner: Arc<LanPassiveDiscoveryServiceOwner>,
 }
 
-pub(crate) fn spawn_lan_passive_discovery_runtime(runtime: LanPairingRuntime) {
-    let pipeline_health = pipeline_health::LanPassiveDiscoveryPipelineHealth::starting();
-    capability_store::record_starting(&runtime, &pipeline_health.snapshot());
-    let (sender, receiver) = refresh_signal_channel();
-    let _ = listener_runtime::spawn(runtime.clone(), sender, pipeline_health.clone());
-    reconciliation::spawn(
-        runtime,
-        receiver,
-        pipeline_health,
-        Arc::new(AtomicBool::new(false)),
-    );
+pub(crate) fn spawn_lan_passive_discovery_runtime(
+    runtime: LanPairingRuntime,
+) -> std::io::Result<LanPassiveDiscoveryServiceRuntime> {
+    start_lan_passive_discovery_service_runtime(runtime)
 }
 
 pub(crate) fn start_lan_passive_discovery_service_runtime(
     runtime: LanPairingRuntime,
-) -> LanPassiveDiscoveryServiceRuntime {
-    let pipeline_health = pipeline_health::LanPassiveDiscoveryPipelineHealth::starting();
-    capability_store::record_starting(&runtime, &pipeline_health.snapshot());
-    let (sender, receiver) = refresh_signal_channel();
-    let listener_state = Arc::downgrade(&runtime.passive_discovery_listener_state);
-    let listener_join =
-        listener_runtime::spawn(runtime.clone(), sender, pipeline_health.clone()).ok();
-    let reconciliation_stop = Arc::new(AtomicBool::new(false));
-    let reconciliation_join = reconciliation::spawn(
-        runtime,
-        receiver,
-        pipeline_health,
-        reconciliation_stop.clone(),
-    );
-    let owner = Arc::new(LanPassiveDiscoveryServiceOwner::new(
-        listener_state,
-        listener_join,
-        reconciliation_stop,
-        reconciliation_join,
-    ));
-    LanPassiveDiscoveryServiceRuntime { _owner: owner }
+) -> std::io::Result<LanPassiveDiscoveryServiceRuntime> {
+    start::start(runtime)
 }
 
 fn refresh_signal_channel() -> (

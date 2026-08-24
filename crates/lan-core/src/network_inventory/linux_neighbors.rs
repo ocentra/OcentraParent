@@ -42,9 +42,15 @@ pub fn linux_lan_neighbors_with_cancellation(
     let trusted_inventory = LanIdentityHintInventory::from_devices(identity_hint_devices);
     let previous_inventory = LanPreviousNetworkInventory::from_devices(previous_devices);
     let observed_at = Utc::now().to_rfc3339();
+    let ip_neighbors = match cancellation {
+        Some(cancellation) => {
+            observations::linux_ip_neigh_observations_with_cancellation(&observed_at, cancellation)
+        }
+        None => observations::linux_ip_neigh_observations_with_observed_at(&observed_at),
+    };
     let observations =
         merge::merge_neighbor_observations(filter_neighbor_observations_for_selected_interface(
-            observations::linux_ip_neigh_observations_with_observed_at(&observed_at)
+            ip_neighbors
                 .into_iter()
                 .chain(observations::linux_proc_net_arp_observations_with_observed_at(&observed_at))
                 .collect(),

@@ -15,6 +15,7 @@ mod load;
 
 const SIGNER_ANCHORS_KEY: &str = "signerAnchors";
 const SIGNER_ANCHOR_GENERATIONS_KEY: &str = "signerAnchorGenerations";
+const CONTROLLER_LEASE_KEY: &str = "controllerLease";
 pub(super) const ACCEPTED_INTENT_IDS_KEY: &str = "acceptedIntentIds";
 pub(super) const ACCEPTED_CHALLENGE_IDS_KEY: &str = "acceptedChallengeIds";
 
@@ -40,6 +41,9 @@ impl TrustedDeviceRegistry {
         }
         registry
             .validate_persisted_authority_state()
+            .map_err(|_error| io::Error::from(io::ErrorKind::InvalidData))?;
+        registry
+            .validate_controller_lease_state()
             .map_err(|_error| io::Error::from(io::ErrorKind::InvalidData))?;
         load::reject_untrusted_paired_entries(&registry)?;
         Ok(registry)
@@ -93,6 +97,7 @@ impl TrustedDeviceRegistry {
             constants::lan_pairing::REGISTRY_KEY_KNOWN_HOUSEHOLD_DEVICES: &self.known_household_devices,
             SIGNER_ANCHORS_KEY: &self.signer_anchors,
             SIGNER_ANCHOR_GENERATIONS_KEY: &self.signer_anchor_generations,
+            CONTROLLER_LEASE_KEY: &self.controller_lease,
             ACCEPTED_INTENT_IDS_KEY: &self.accepted_intent_ids,
             ACCEPTED_CHALLENGE_IDS_KEY: &self.accepted_challenge_ids,
             constants::field::LAN_SELECTED_PAIRING_ID: self.selected_pairing_id,

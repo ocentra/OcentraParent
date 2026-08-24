@@ -1,6 +1,6 @@
 use std::io::{Read, Write};
 use std::net::{Ipv4Addr, SocketAddr, TcpStream};
-use std::sync::Arc;
+use std::sync::{atomic::AtomicBool, Arc};
 
 use rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
 use rustls::pki_types::{CertificateDer, ServerName, UnixTime};
@@ -86,6 +86,27 @@ pub fn probe_service_identity(
         settings,
         deadline,
         allowed_snmp_response_observer,
+        None,
+    )
+}
+
+pub(super) fn probe_service_identity_with_cancellation(
+    ip_address: &str,
+    device_id: Option<&str>,
+    targets: &[ProbeTarget],
+    settings: ServiceIdentityProbeSettings,
+    deadline: std::time::Instant,
+    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    cancellation: Option<&AtomicBool>,
+) -> Option<LanServiceIdentityProbeObservation> {
+    identity::probe_service_identity(
+        ip_address,
+        device_id,
+        targets,
+        settings,
+        deadline,
+        allowed_snmp_response_observer,
+        cancellation,
     )
 }
 

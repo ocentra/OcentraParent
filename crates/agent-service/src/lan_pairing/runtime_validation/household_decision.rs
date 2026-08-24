@@ -27,15 +27,7 @@ pub(crate) fn validate_household_device_decision(
     validate_timestamps(intent, decision)?;
     super::validate_command_target(runtime, command, intent)?;
     validate_write_authority(intent)?;
-    let already_applied = runtime
-        .registry
-        .lock()
-        .map(|registry| registry.has_household_device_decision(decision.action_id.as_str()))
-        .unwrap_or(true);
-    if already_applied {
-        return Err(LanPairingRejectionReason::Replayed);
-    }
-    super::validate_intent_result(runtime, origin, intent)
+    Ok(())
 }
 
 fn validate_shape(

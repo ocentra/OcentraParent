@@ -69,20 +69,28 @@ Before this workpack can be called `DONE`, add and run the following scoped
 test roots against real runtime paths (without test doubles):
 
 - `crates/agent-core/tests/unit/trusted_device_registry.rs` — wire pairing
-  proofs remain contract-only; revoked pairing ids cannot be resurrected; an
-  accepted intent is rejected after restart/replay.
+  proofs remain contract-only; revoked pairing ids cannot be resurrected;
+  present malformed optional state fails closed; rejected mutations leave no
+  partial route, decision, lease, or replay state; and an accepted intent is
+  rejected after restart/replay.
 - `crates/agent-service/tests/unit/lan_pairing_runtime_state.rs` — a missing
   registry initializes exactly once, malformed present state stays unavailable,
-  and accepted intent ids survive reload.
+  controller lease effects and replay acceptance persist atomically, listener
+  or reconciliation spawn failure persists unavailable health, and accepted
+  intent ids survive reload.
 - `crates/agent-service/tests/unit/lan_pairing_browser_runtime.rs` — scan
-  cancellation, supersession, listener shutdown, and reconciliation drop are
-  bounded with no mutex-held join.
+  cancellation, supersession, listener shutdown, reconciliation drop, and
+  blocking-worker cancellation are bounded with owned joins and no
+  mutex-held or detached join.
 - `crates/agent-service/tests/integration/lan_pairing_runtime.rs` — durable
   restart and atomic intent-consumption behavior through the service route.
 - `crates/lan-core/tests/unit/network_inventory_ssdp_upnp.rs` — cancellation,
   response/record bounds, description timeout, and oversized-response handling.
 - `crates/lan-core/tests/unit/network_inventory_command.rs` — timeout and
-  cancellation terminate and reap the owned process tree on the target OS.
+  cancellation concurrently drains bounded output, terminates and reaps the
+  owned process tree on the target OS, rejects overflow and descendant-held
+  pipes, and resolves only allowlisted executables under canonical protected
+  OS roots without ambient `PATH` or current-directory lookup.
 
 These paths are expected-test routing, not completion evidence. The existing
 acceptance checkboxes and proof note remain open until the tests, retained

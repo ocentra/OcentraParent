@@ -1,4 +1,9 @@
-use std::sync::{atomic::AtomicBool, Arc};
+use std::{
+    io,
+    sync::{atomic::AtomicBool, Arc},
+    thread::JoinHandle,
+    time::Duration,
+};
 
 use tokio::time::Instant;
 
@@ -16,6 +21,8 @@ mod signal;
 mod wake;
 
 use self::wake::ReconciliationWake;
+
+const PASSIVE_DISCOVERY_RECONCILIATION_THREAD_NAME: &str = "lan-passive-discovery-reconciliation";
 
 struct PassiveDiscoveryReconciliationRuntime {
     runtime: LanPairingRuntime,
@@ -35,26 +42,34 @@ pub(super) fn spawn(
     refresh_signal: LanPassiveDiscoveryRefreshSignalReceiver,
     pipeline_health: LanPassiveDiscoveryPipelineHealth,
     stop: Arc<AtomicBool>,
-) -> tokio::task::JoinHandle<()> {
+) -> io::Result<JoinHandle<()>> {
     let stop_for_runtime = stop.clone();
     let capability_store = LanPassiveDiscoveryCapabilityStore::for_runtime(&runtime);
-    tokio::spawn(async move {
-        PassiveDiscoveryReconciliationRuntime {
-            runtime,
-            refresh_signal,
-            pipeline_health,
-            capability_store,
-            observed_sequence: 0,
-            last_attempt_at: None,
-            pending_passive_refresh: false,
-            retry_pending: false,
-            automatic_refresh_at: None,
-            stop: stop_for_runtime,
-        }
-        .run()
-        .await;
-    })
+    let async_runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_time()
+        .build()?;
+    std::thread::Builder::new()
+        .name(PASSIVE_DISCOVERY_RECONCILIATION_THREAD_NAME.to_string())
+        .spawn(move || {
+            async_runtime.block_on(
+                PassiveDiscoveryReconciliationRuntime {
+                    runtime,
+                    refresh_signal,
+                    pipeline_health,
+                    capability_store,
+                    observed_sequence: 0,
+                    last_attempt_at: None,
+                    pending_passive_refresh: false,
+                    retry_pending: false,
+                    automatic_refresh_at: None,
+                    stop: stop_for_runtime,
+                }
+                .run(),
+            );
+        })
 }
+
+pub(super) const RECONCILIATION_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
 impl PassiveDiscoveryReconciliationRuntime {
     async fn run(mut self) {

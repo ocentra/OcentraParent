@@ -34,6 +34,8 @@ pub(super) enum LanPassiveDiscoveryPipelineState {
 pub(super) enum LanPassiveDiscoveryPipelineIssue {
     ScanHistoryPersistenceFailed,
     ReconciliationJoinFailed,
+    ReconciliationRuntimeSpawnFailed,
+    ListenerRuntimeSpawnFailed,
     ListenerRuntimeExited,
     PipelineHealthStateUnavailable,
 }

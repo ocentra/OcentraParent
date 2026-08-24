@@ -3,9 +3,10 @@ use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
-use ocentra_parent_agent_protocol::LanPairingParentAuthority;
 
-use crate::lan_pairing::authority::{validate_registry_selection_intent, validate_write_authority};
+use crate::lan_pairing::authority::{
+    validate_registry_control_intent, validate_registry_selection_intent, validate_write_authority,
+};
 use crate::lan_pairing::LanPairingRuntime;
 use crate::time::timestamp_now;
 
@@ -63,34 +64,10 @@ pub(super) fn validate_intent_result(
     origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    let observed_at: String = timestamp_now();
     if crate::lan_pairing::authority::is_write_intent(intent) {
         validate_write_authority(intent)?;
     }
-    if intent.parent_authority == LanPairingParentAuthority::ActiveController {
-        runtime.validate_controller_lease(intent, &*observed_at)?;
-    }
-    runtime
-        .registry
-        .lock()
-        .map(|mut registry| match &runtime.persistence {
-            crate::lan_pairing::LanPairingRegistryPersistence::InMemory => {
-                registry.validate_intent(intent, origin.0.as_deref(), &observed_at)
-            }
-            crate::lan_pairing::LanPairingRegistryPersistence::LocalJsonRegistry(path) => registry
-                .validate_intent_persisted(
-                    path.as_path(),
-                    intent,
-                    origin.0.as_deref(),
-                    &observed_at,
-                )
-                .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)
-                .and_then(|result| result),
-            crate::lan_pairing::LanPairingRegistryPersistence::UnavailableLocalJsonRegistry => {
-                Err(LanPairingRejectionReason::SignedChildAgentContextUnavailable)
-            }
-        })
-        .unwrap_or(Err(LanPairingRejectionReason::Malformed))
+    validate_registry_control_intent(runtime, origin.0.as_deref(), intent)
 }
 
 pub(super) fn validate_selection_intent_result(
@@ -98,22 +75,22 @@ pub(super) fn validate_selection_intent_result(
     origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    let observed_at: String = timestamp_now();
     validate_write_authority(intent)?;
-    runtime.validate_controller_lease(intent, &*observed_at)?;
     validate_registry_selection_intent(runtime, origin.0.as_deref(), intent)
 }
 
 pub(super) fn select_pairing_result(
     runtime: &LanPairingRuntime,
+    origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    registry_mutation::select_pairing_result(runtime, intent)
+    registry_mutation::select_pairing_result(runtime, origin, intent)
 }
 
 pub(super) fn revoke_pairing(
     runtime: &LanPairingRuntime,
+    origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    registry_mutation::revoke_pairing(runtime, intent)
+    registry_mutation::revoke_pairing(runtime, origin, intent)
 }

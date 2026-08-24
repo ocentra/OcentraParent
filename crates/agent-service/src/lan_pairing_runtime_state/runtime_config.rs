@@ -34,7 +34,6 @@ impl LanPairingRuntime {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
             challenges: Arc::new(Mutex::new(Vec::new())),
-            controller_lease: Arc::new(Mutex::new(None)),
             signed_child_agent_replay_guard: Arc::new(Mutex::new(
                 LanSignedChildAgentReplayGuard::new(),
             )),
@@ -86,7 +85,6 @@ impl LanPairingRuntime {
         Self {
             registry: Arc::new(Mutex::new(registry)),
             challenges: Arc::new(Mutex::new(Vec::new())),
-            controller_lease: Arc::new(Mutex::new(None)),
             signed_child_agent_replay_guard: Arc::new(Mutex::new(
                 LanSignedChildAgentReplayGuard::new(),
             )),

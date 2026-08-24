@@ -2,11 +2,11 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     Mutex, OnceLock,
 };
+use std::time::Instant;
 
 use chrono::{DateTime, Utc};
 use ocentra_lan_core::network_inventory::{
     discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer_with_cancellation,
-    plan_lan_discovery_scan_with_active_refresh_suppression,
     targeted_arp_refresh_evidence_for_scan, LanDiscoveryRefreshMode, LanNetworkInventoryDevice,
 };
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
@@ -28,6 +28,8 @@ pub(crate) mod cancellation;
 mod execution_lease;
 #[path = "physical_lan_scan/persisted_result.rs"]
 mod persisted_result;
+#[path = "physical_lan_scan/planning.rs"]
+mod planning;
 #[path = "physical_lan_scan/scan_truth.rs"]
 mod scan_truth;
 #[path = "physical_lan_scan/suppression_device.rs"]
@@ -95,13 +97,7 @@ pub(crate) fn refresh_network_device_scan_history_from_passive_runtime_with_canc
     runtime: &LanPairingRuntime,
     cancellation: &AtomicBool,
 ) -> LanNetworkDeviceScanResult {
-    cancellation::execute_physical_lan_scan(
-        runtime,
-        None,
-        Utc::now(),
-        LanDiscoveryRefreshMode::Passive,
-        Some(cancellation),
-    )
+    cancellation::execute_passive_reconciliation_scan(runtime, cancellation)
 }
 
 fn execute_physical_lan_scan(
@@ -116,6 +112,7 @@ fn execute_physical_lan_scan(
         now,
         refresh_mode,
         None,
+        None,
     )
 }
 
@@ -125,6 +122,7 @@ fn execute_physical_lan_scan_locked(
     now: DateTime<Utc>,
     refresh_mode: LanDiscoveryRefreshMode,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) -> LanNetworkDeviceScanResult {
     if cancellation.is_some_and(|cancellation| cancellation.load(Ordering::Acquire)) {
         return failed_scan_result(previous_scan_snapshot);
@@ -134,12 +132,16 @@ fn execute_physical_lan_scan_locked(
         .map(|snapshot| snapshot.devices.as_slice())
         .unwrap_or_default();
     let scan_truth = scan_truth_context(runtime, previous_scan_snapshot.as_ref(), now);
-    let mut scan_plan = plan_lan_discovery_scan_with_active_refresh_suppression(
+    let Some(mut scan_plan) = planning::plan_for_scan(
         &scan_truth.identity_hint_devices,
         previous_devices,
         refresh_mode,
         &scan_truth.scan_suppression_devices,
-    );
+        deadline,
+        cancellation,
+    ) else {
+        return failed_scan_result(previous_scan_snapshot);
+    };
     scan_plan.targeted_arp_refresh_evidence = targeted_arp_refresh_evidence_for_scan(
         previous_devices,
         refresh_mode,

@@ -98,13 +98,14 @@ pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_s
     selected_interface_scope: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
 ) -> Vec<LanNetworkInventoryDevice> {
+    let selected_interface = service_identity_selected_interface_scope(selected_interface_scope);
     cancellation::discover_lan_network_devices_with_cancellation(
         identity_hint_devices,
         previous_devices,
         refresh_mode,
         active_refresh_suppression_devices,
         probe_suppression_devices,
-        selected_interface_scope,
+        selected_interface.as_deref(),
         allowed_snmp_response_observer,
         None,
     )

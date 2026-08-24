@@ -6,6 +6,7 @@ use std::{
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
@@ -57,8 +58,12 @@ fn start_background_browser_discovery_scan(
         .lock()
         .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?
         .take();
-    if let Some(worker) = previous_worker {
-        worker.cancel_and_join();
+    if let Some(worker) = previous_worker.and_then(|worker| worker.cancel_and_join().err()) {
+        worker_slot
+            .lock()
+            .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?
+            .replace(worker);
+        return Err(LanPairingRejectionReason::SignedChildAgentContextUnavailable);
     }
     let worker_cancellation = cancellation.clone();
     let worker_runtime = runtime.clone_for_background_scan();
@@ -104,7 +109,9 @@ pub(crate) fn browser_add_device_request_event(
             {
                 return rejection_event(command, &reason, Some(&intent), &origin);
             }
-            if let Err(reason) = apply_household_device_decision(runtime, decision) {
+            if let Err(reason) =
+                apply_household_device_decision(runtime, &origin, &intent, decision)
+            {
                 return rejection_event(command, &reason, Some(&intent), &origin);
             }
             return retag_lan_pairing_event(
@@ -135,13 +142,16 @@ pub(crate) fn browser_add_device_request_event(
 
 fn apply_household_device_decision(
     runtime: &LanPairingRuntime,
+    origin: &LanPairingOptionalText,
+    intent: &ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope,
     decision: LanHouseholdDeviceDecision,
 ) -> Result<(), LanPairingRejectionReason> {
     let mut registry = runtime
         .registry
         .lock()
         .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?;
-    runtime.apply_household_device_decision(&mut registry, decision)
+    let observed_at = LanPairingText(timestamp_now());
+    runtime.apply_household_device_decision(&mut registry, intent, origin, &observed_at, decision)
 }
 
 fn retag_lan_pairing_event(

@@ -1,4 +1,5 @@
 use std::net::{Ipv4Addr, SocketAddr, TcpStream};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 use super::super::snmp::probe_snmp_identity_query;
@@ -17,21 +18,24 @@ pub(super) fn probe_service_identity(
     settings: ServiceIdentityProbeSettings,
     deadline: std::time::Instant,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    cancellation: Option<&AtomicBool>,
 ) -> Option<LanServiceIdentityProbeObservation> {
     for target in targets {
-        if std::time::Instant::now() >= deadline {
+        if unavailable(deadline, cancellation) {
             return None;
         }
-        if let Some(probe_match) = probe_service_identity_on_target(ip_address, *target) {
+        if let Some(probe_match) =
+            probe_service_identity_on_target_until(ip_address, *target, deadline, cancellation)
+        {
             return Some(probe_match);
         }
     }
-    if settings.allow_wsd_identity_query && std::time::Instant::now() < deadline {
+    if settings.allow_wsd_identity_query && !unavailable(deadline, cancellation) {
         if let Some(probe_match) = probe_wsd_identity_query(ip_address, device_id) {
             return Some(probe_match);
         }
     }
-    if settings.allow_snmp_identity_query && std::time::Instant::now() < deadline {
+    if settings.allow_snmp_identity_query && !unavailable(deadline, cancellation) {
         return probe_snmp_identity_query(ip_address, allowed_snmp_response_observer);
     }
     None
@@ -41,14 +45,23 @@ pub(super) fn probe_service_identity_on_target(
     ip_address: &str,
     target: ProbeTarget,
 ) -> Option<LanServiceIdentityProbeObservation> {
+    let deadline = std::time::Instant::now()
+        + Duration::from_millis(SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS);
+    probe_service_identity_on_target_until(ip_address, target, deadline, None)
+}
+
+fn probe_service_identity_on_target_until(
+    ip_address: &str,
+    target: ProbeTarget,
+    deadline: std::time::Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<LanServiceIdentityProbeObservation> {
     let ip_address = ip_address.parse::<Ipv4Addr>().ok()?;
     let endpoint = SocketAddr::new(ip_address.into(), target.port);
     for path in target.request_paths {
-        let timeout = Duration::from_millis(SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS);
+        let timeout = probe_timeout(deadline, cancellation)?;
         let stream = TcpStream::connect_timeout(&endpoint, timeout).ok()?;
-        let read_timeout = Some(Duration::from_millis(
-            SERVICE_IDENTITY_PROBE_READ_TIMEOUT_MS,
-        ));
+        let read_timeout = Some(probe_timeout(deadline, cancellation)?);
         let _ = stream.set_read_timeout(read_timeout);
         let _ = stream.set_write_timeout(read_timeout);
         let probe_match = match target.transport {
@@ -62,4 +75,22 @@ pub(super) fn probe_service_identity_on_target(
         }
     }
     None
+}
+
+fn probe_timeout(
+    deadline: std::time::Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<Duration> {
+    if unavailable(deadline, cancellation) {
+        return None;
+    }
+    let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+    Some(remaining.min(Duration::from_millis(
+        SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS.max(SERVICE_IDENTITY_PROBE_READ_TIMEOUT_MS),
+    )))
+}
+
+fn unavailable(deadline: std::time::Instant, cancellation: Option<&AtomicBool>) -> bool {
+    cancellation.is_some_and(|value| value.load(Ordering::Acquire))
+        || std::time::Instant::now() >= deadline
 }

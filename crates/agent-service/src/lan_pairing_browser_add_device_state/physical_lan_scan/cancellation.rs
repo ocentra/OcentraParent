@@ -23,6 +23,11 @@ use super::{
     LanNetworkDeviceScanResult,
 };
 
+const PASSIVE_RECONCILIATION_SCAN_BUDGET: Duration = Duration::from_millis(3_500);
+
+#[path = "cancellation/watchdog.rs"]
+mod watchdog;
+
 pub(crate) fn refresh_network_device_scan_history_with_cancellation(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
@@ -57,7 +62,39 @@ pub(crate) fn refresh_network_device_scan_history_with_cancellation(
         now,
         refresh_mode_for_command(&command.command),
         Some(cancellation),
+        None,
     )
+}
+
+pub(super) fn execute_passive_reconciliation_scan(
+    runtime: &LanPairingRuntime,
+    external_cancellation: &AtomicBool,
+) -> LanNetworkDeviceScanResult {
+    let deadline = Instant::now() + PASSIVE_RECONCILIATION_SCAN_BUDGET;
+    let scan_cancellation = AtomicBool::new(external_cancellation.load(Ordering::Acquire));
+    let finished = AtomicBool::new(false);
+    thread::scope(|scope| {
+        let watcher = scope.spawn(|| {
+            watchdog::wait(
+                deadline,
+                external_cancellation,
+                &scan_cancellation,
+                &finished,
+            );
+        });
+        let result = execute_physical_lan_scan(
+            runtime,
+            None,
+            Utc::now(),
+            LanDiscoveryRefreshMode::Passive,
+            Some(&scan_cancellation),
+            Some(deadline),
+        );
+        finished.store(true, Ordering::Release);
+        scan_cancellation.store(true, Ordering::Release);
+        let _watcher_joined = watcher.join();
+        result
+    })
 }
 
 pub(super) fn execute_physical_lan_scan(
@@ -66,6 +103,7 @@ pub(super) fn execute_physical_lan_scan(
     now: DateTime<Utc>,
     refresh_mode: LanDiscoveryRefreshMode,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) -> LanNetworkDeviceScanResult {
     if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
         return failed_scan_result(previous_scan_snapshot);
@@ -74,10 +112,11 @@ pub(super) fn execute_physical_lan_scan(
     // reconciliation must be able to return even when a foreground scan is
     // still finishing its bounded network work.
     const EXECUTION_LOCK_WAIT: Duration = Duration::from_secs(5);
+    let lock_deadline = deadline.unwrap_or_else(|| Instant::now() + EXECUTION_LOCK_WAIT);
     let Some(_execution_guard) = acquire_execution_guard(
         super::physical_lan_scan_execution_lock(),
         cancellation,
-        EXECUTION_LOCK_WAIT,
+        lock_deadline,
     ) else {
         return failed_scan_result(previous_scan_snapshot);
     };
@@ -97,15 +136,15 @@ pub(super) fn execute_physical_lan_scan(
         now,
         refresh_mode,
         cancellation,
+        deadline,
     )
 }
 
 fn acquire_execution_guard<'a>(
     lock: &'a Mutex<()>,
     cancellation: Option<&AtomicBool>,
-    timeout: Duration,
+    deadline: Instant,
 ) -> Option<MutexGuard<'a, ()>> {
-    let deadline = Instant::now() + timeout;
     while Instant::now() < deadline {
         if let Ok(guard) = lock.try_lock() {
             return Some(guard);
