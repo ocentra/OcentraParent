@@ -2,7 +2,7 @@
 
 > **Plan:** Account Identity Family
 > **Workpack:** WP09
-> **Status:** independently reviewed durable issuer core is integrated at canonical `4f6245e51`; protected signer, authenticated binding/delivery adapters, production caller, Cloudflare consumer, expected tests, proof, and normal completion remain open.
+> **Status:** independently reviewed durable issuer core is integrated at canonical `4f6245e51`; the protected signer is blocked on Protected Custody WP01, while authenticated binding/delivery adapters, production caller, Cloudflare consumer, expected tests, proof, and normal completion remain open.
 
 ## Agent capsule
 
@@ -17,9 +17,9 @@ Provide the missing Account-owned durable issuer and authenticated producer hand
 
 ## Ownership
 
-WP09 owns durable issuer and signing-key custody, monotonic versioned public-key registration and revocation, the authenticated Account producer service-binding adapter, Account-side startup reload and recovery, and the typed handoff over WP08's existing sealed wire contract.
+WP09 owns durable Account issuer/key lineage and signing semantics, monotonic versioned public-key registration and revocation, the authenticated Account producer service-binding adapter, Account-side startup reload and recovery, and the typed handoff over WP08's existing sealed wire contract. Secret key material and protected signing admission remain in Protected Custody WP01.
 
-WP08 remains the owner of the canonical sealed Account authority and wire contract. Cloudflare WP06 owns its private consumer, D1/DO/KV persistence, migration, and Cloudflare-side storage proof. WP09 does not own Cloudflare files, Worker bindings, migrations, provider verification, Device Trust, Account WP02 authority, or Account WP05A effect fencing.
+WP08 remains the owner of the canonical sealed Account authority and wire contract. Protected Custody WP01 owns the isolated broker/client, authenticated OS IPC, and protected key/admission custody that the Account signer must consume; WP09 must not replace it with in-process DPAPI, caller-selected keys, mutex/file-lock custody, or a private parallel broker. Cloudflare WP06 owns its private consumer, D1/DO/KV persistence, migration, and Cloudflare-side storage proof. WP09 does not own Cloudflare files, Worker bindings, migrations, provider verification, Device Trust, Account WP02 authority, or Account WP05A effect fencing.
 
 ## Reviewed source and expected-test boundary
 
@@ -72,7 +72,12 @@ Live caller review after integration found no implementation of `AccountIdentity
 
 ## Dependency route
 
-WP09 has exactly one direct prerequisite: Account WP08. The WP08 sealed contract is a reviewed-implementation prerequisite, so the implementation ordering edge is reviewed-implementation; the normal completion gate remains WP08 DONE. WP09 has no dependency on Account WP02, Account WP05A, Device Trust WP01 or WP03, or Cloudflare source.
+WP09 has two direct prerequisites: Account WP08 and Protected Custody WP01.
+WP08 supplies the reviewed sealed Account contract; Protected Custody WP01
+supplies the neutral isolated broker/client and opaque protected signing
+admission. Both are reviewed-implementation source-order gates and normal
+completion dependencies. WP09 has no dependency on Account WP02, Account
+WP05A, Device Trust WP01 or WP03, or Cloudflare source.
 
 Cloudflare WP06 retains its direct WP08 dependency and adds WP09 as an additional reviewed-implementation prerequisite for the durable issuer/key custody and authenticated producer binding. This does not transfer Account ownership or claim Cloudflare runtime readiness.
 

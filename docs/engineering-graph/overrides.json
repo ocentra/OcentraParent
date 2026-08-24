@@ -2653,15 +2653,19 @@
     },
     {
       "id": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
-      "hardDependencies": ["WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"],
+      "hardDependencies": [
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+      ],
       "evidence": [
         "docs/plans/account-identity-family-plan/AGENTS.md",
         "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
         "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "WP09's Account-owned durable issuer/key lineage, private service-binding and delivery traits, startup reconciliation, and household-scoped receipt/wire outbox are independently reviewed and integrated through canonical 4f6245e51. A live caller trace found no protected signer, binding authenticator, delivery owner, production caller, or authenticated current-key handoff. WP08 remains the only direct prerequisite and a reviewed-implementation source-order gate; normal completion remains gated on WP08 DONE. Three production roots and seven expected test roots remain absent. No Account WP02, WP05A, Device Trust, Cloudflare runtime, test, proof, READY, or DONE claim is made."
+      "reason": "WP09's Account-owned durable issuer/key lineage, private service-binding and delivery traits, startup reconciliation, and household-scoped receipt/wire outbox are independently reviewed and integrated through canonical 4f6245e51. A live caller trace found no protected signer, binding authenticator, delivery owner, production caller, or authenticated current-key handoff. WP08 supplies the sealed Account contract; Protected Custody WP01 must supply the isolated broker/client and opaque protected signing admission. Both are direct source-order and normal completion prerequisites. Three production roots and seven expected test roots remain absent. No Account WP02, WP05A, Device Trust, Cloudflare runtime, test, proof, READY, or DONE claim is made."
     }
   ],
   "edges": [
@@ -2750,7 +2754,20 @@
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Account WP09 consumes WP08's canonical sealed Account authority and typed wire contract as its only direct source-order prerequisite. It must not duplicate the schema or mint caller-selected authority.",
+      "reason": "Account WP09 consumes WP08's canonical sealed Account authority and typed wire contract as its Account-contract source-order prerequisite. Protected Custody WP01 separately owns protected signing admission and secret-material custody. WP09 must not duplicate the schema or mint caller-selected authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Account WP09 consumes only the neutral isolated broker/client and opaque protected signing admission from Protected Custody WP01. Account retains issuer/currentness/delivery semantics and may not recreate key custody or caller-mint protected authority.",
       "implementationGate": "reviewed-implementation"
     },
     {
