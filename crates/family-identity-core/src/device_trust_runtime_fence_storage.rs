@@ -6,7 +6,8 @@ use crate::{
 };
 
 use super::{
-    schema, target, DeviceTrustRuntimeFenceError, DeviceTrustRuntimeFenceTarget, StoredReservation,
+    digest, schema, target, DeviceTrustRuntimeFenceError, DeviceTrustRuntimeFenceTarget,
+    StoredReservation,
 };
 
 pub(super) fn read_reservation(
@@ -28,7 +29,6 @@ pub(super) fn read_reservation(
     stored
         .map(|stored| {
             validate_stored(&stored)?;
-            target_from_stored(&stored)?;
             Ok(stored)
         })
         .transpose()
@@ -85,6 +85,12 @@ pub(super) fn validate_schema(connection: &Connection) -> Result<(), DeviceTrust
     schema::validate_schema(connection)
 }
 
+pub(super) fn validate_operational_schema(
+    connection: &Connection,
+) -> Result<(), DeviceTrustRuntimeFenceError> {
+    schema::validate_operational_schema(connection)
+}
+
 pub(super) fn validate_rows(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {
     let mut statement = connection
         .prepare(
@@ -101,7 +107,6 @@ pub(super) fn validate_rows(connection: &Connection) -> Result<(), DeviceTrustRu
     for row in rows {
         let stored = row.map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?;
         validate_stored(&stored)?;
-        target_from_stored(&stored)?;
     }
     Ok(())
 }
@@ -139,6 +144,16 @@ fn validate_stored(stored: &StoredReservation) -> Result<(), DeviceTrustRuntimeF
     ] {
         validate_canonical_identity(identity)
             .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?;
+    }
+    let target = target_from_stored(stored)?;
+    if stored.state == "committed"
+        && stored.outcome_digest.as_deref()
+            != Some(
+                digest::outcome_digest(&stored.operation_id, &stored.reservation_ref, &target)
+                    .as_str(),
+            )
+    {
+        return Err(DeviceTrustRuntimeFenceError::Unavailable);
     }
     Ok(())
 }
