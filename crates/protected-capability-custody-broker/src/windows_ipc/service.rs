@@ -54,6 +54,9 @@ fn run_registered(
     status_handle: &ServiceStatusHandle,
     stopping: &AtomicBool,
 ) -> Result<(), BrokerError> {
+    // Capability-only preflight must fail before broker admission selects the
+    // storage path or creates SQLite, its journal, or the writer lock.
+    BrokerCustodyService::preflight_service_start()?;
     let custody = BrokerCustodyService::open();
     // Do not report Running or publish a pipe endpoint while the required
     // process/token admission adapter is unavailable. A transport listener

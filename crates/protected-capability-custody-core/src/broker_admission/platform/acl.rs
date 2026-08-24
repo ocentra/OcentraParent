@@ -35,6 +35,14 @@ const TRUSTED_INSTALLER_SID: &str = concat!(
 const INHERIT_ONLY_ACE: u8 = 0x08;
 
 #[cfg(windows)]
+pub(super) fn registry_custody_adapter_available() -> Result<(), PlatformError> {
+    // The current dependency set cannot prove registry owner, protected-DACL,
+    // deny ordering, and pinned parent-chain custody. This is a static
+    // capability check: it deliberately does not open a key or create state.
+    Err(PlatformError::DeploymentRequired)
+}
+
+#[cfg(windows)]
 pub(super) fn validate_path(path: &Path) -> Result<(), PlatformError> {
     let text = path.to_str().ok_or(PlatformError::InvalidAttestation)?;
     let acl = ACL::from_file_path(text, false).map_err(map_acl_error)?;

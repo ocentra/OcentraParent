@@ -26,6 +26,15 @@ impl BrokerProcessAdmission {
 }
 
 impl BrokerCustodyRuntime {
+    /// Proves that every sealed Windows adapter required for service startup
+    /// is linked before broker admission can select or create any storage.
+    /// This preflight is capability-only and performs no filesystem, registry,
+    /// listener, or durable-state operation.
+    pub fn preflight_service_start() -> Result<(), BrokerRuntimeError> {
+        Self::peer_admission_available()?;
+        platform::preflight_service_start().map_err(error_status::platform)
+    }
+
     /// Opens the neutral custody runtime for the fixed database selected by
     /// the isolated broker process. This is not caller-selected authority.
     pub fn open_broker_owned(

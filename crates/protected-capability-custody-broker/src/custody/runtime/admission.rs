@@ -10,6 +10,10 @@ use crate::custody::BrokerPipeSecurityDescriptor;
 
 use super::RuntimeState;
 
+pub(crate) fn preflight_service_start() -> Result<(), crate::BrokerError> {
+    BrokerCustodyRuntime::preflight_service_start().map_err(map_peer_error)
+}
+
 impl RuntimeState {
     pub(crate) fn authorize_client_peer(
         &self,

@@ -36,6 +36,20 @@ impl BrokerPlatformOwner {
     }
 }
 
+pub(super) fn preflight_service_start() -> Result<(), PlatformError> {
+    #[cfg(windows)]
+    {
+        // These checks are capability-only. They must not open registry keys,
+        // create files, acquire writer custody, or advance durable state.
+        acl::registry_custody_adapter_available()?;
+        anti_rollback::provider_available()
+    }
+    #[cfg(not(windows))]
+    {
+        Err(PlatformError::Unavailable)
+    }
+}
+
 impl TrustedPlatformOwner for BrokerPlatformOwner {}
 
 impl PlatformCustodyOwner for BrokerPlatformOwner {

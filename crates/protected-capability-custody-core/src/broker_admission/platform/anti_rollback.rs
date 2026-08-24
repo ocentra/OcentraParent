@@ -29,6 +29,8 @@ pub(super) struct MutationPermit {
 
 #[cfg(windows)]
 trait MonotonicRegistryCustodyProvider {
+    fn preflight_available(&self) -> Result<(), PlatformError>;
+
     fn read_checkpoint_and_verify_snapshot(
         &self,
         registry_id: &str,
@@ -56,6 +58,10 @@ struct MissingMonotonicRegistryCustodyProvider;
 
 #[cfg(windows)]
 impl MonotonicRegistryCustodyProvider for MissingMonotonicRegistryCustodyProvider {
+    fn preflight_available(&self) -> Result<(), PlatformError> {
+        Err(PlatformError::DeploymentRequired)
+    }
+
     fn read_checkpoint_and_verify_snapshot(
         &self,
         _registry_id: &str,
@@ -89,6 +95,13 @@ impl MonotonicRegistryCustodyProvider for MissingMonotonicRegistryCustodyProvide
 #[cfg(windows)]
 fn provider() -> MissingMonotonicRegistryCustodyProvider {
     MissingMonotonicRegistryCustodyProvider
+}
+
+#[cfg(windows)]
+pub(super) fn provider_available() -> Result<(), PlatformError> {
+    // Availability is checked without opening registry custody or advancing a
+    // checkpoint. The concrete provider remains the only source of truth.
+    provider().preflight_available()
 }
 
 #[cfg(windows)]

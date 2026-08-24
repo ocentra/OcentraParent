@@ -22,6 +22,11 @@ pub(crate) struct BrokerCustodyService {
 }
 
 impl BrokerCustodyService {
+    #[cfg(windows)]
+    pub(crate) fn preflight_service_start() -> Result<(), BrokerError> {
+        runtime::admission::preflight_service_start()
+    }
+
     pub(crate) fn open() -> Self {
         Self {
             state: runtime::RuntimeState::open(),
