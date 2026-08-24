@@ -91,6 +91,19 @@ pub(crate) fn refresh_network_device_scan_history_from_passive_runtime(
     execute_physical_lan_scan(runtime, None, Utc::now(), LanDiscoveryRefreshMode::Passive)
 }
 
+pub(crate) fn refresh_network_device_scan_history_from_passive_runtime_with_cancellation(
+    runtime: &LanPairingRuntime,
+    cancellation: &AtomicBool,
+) -> LanNetworkDeviceScanResult {
+    cancellation::execute_physical_lan_scan(
+        runtime,
+        None,
+        Utc::now(),
+        LanDiscoveryRefreshMode::Passive,
+        Some(cancellation),
+    )
+}
+
 fn execute_physical_lan_scan(
     runtime: &LanPairingRuntime,
     previous_scan_snapshot: Option<LanScanHistorySnapshot>,

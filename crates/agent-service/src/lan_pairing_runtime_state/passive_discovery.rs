@@ -10,20 +10,23 @@ mod pipeline_health;
 mod reconciliation;
 #[path = "passive_discovery/runtime_slice.rs"]
 mod runtime_slice;
+#[path = "passive_discovery/service_owner.rs"]
+mod service_owner;
 
 use std::{
-    sync::{Arc, Mutex, Weak},
-    thread::JoinHandle,
+    sync::{atomic::AtomicBool, Arc},
     time::Duration,
 };
 
 use ocentra_lan_core::network_inventory::passive_discovery::{
-    LanPassiveDiscoveryListenerState, LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
+    LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
 };
 use ocentra_lan_core::network_inventory::LanPassiveRuntimeLocalNetworkIdentity;
 use tokio::sync::watch;
 
 use crate::lan_pairing::LanPairingRuntime;
+
+use self::service_owner::LanPassiveDiscoveryServiceOwner;
 
 const PASSIVE_DISCOVERY_INTERVAL: Duration = Duration::from_secs(180);
 const PASSIVE_DISCOVERY_READ_TIMEOUT: Duration = Duration::from_millis(50);
@@ -84,32 +87,17 @@ pub(crate) struct LanPassiveDiscoveryServiceRuntime {
     _owner: Arc<LanPassiveDiscoveryServiceOwner>,
 }
 
-struct LanPassiveDiscoveryServiceOwner {
-    listener_state: Weak<Mutex<LanPassiveDiscoveryListenerState>>,
-    listener_join: Mutex<Option<JoinHandle<()>>>,
-}
-
-impl Drop for LanPassiveDiscoveryServiceOwner {
-    fn drop(&mut self) {
-        if let Some(listener_state) = self.listener_state.upgrade() {
-            if let Ok(mut listener_state) = listener_state.lock() {
-                listener_state.stop();
-            }
-        }
-        if let Ok(mut listener_join) = self.listener_join.lock() {
-            if let Some(listener_join) = listener_join.take() {
-                let _ = listener_join.join();
-            }
-        }
-    }
-}
-
 pub(crate) fn spawn_lan_passive_discovery_runtime(runtime: LanPairingRuntime) {
     let pipeline_health = pipeline_health::LanPassiveDiscoveryPipelineHealth::starting();
     capability_store::record_starting(&runtime, &pipeline_health.snapshot());
     let (sender, receiver) = refresh_signal_channel();
     let _ = listener_runtime::spawn(runtime.clone(), sender, pipeline_health.clone());
-    reconciliation::spawn(runtime, receiver, pipeline_health);
+    reconciliation::spawn(
+        runtime,
+        receiver,
+        pipeline_health,
+        Arc::new(AtomicBool::new(false)),
+    );
 }
 
 pub(crate) fn start_lan_passive_discovery_service_runtime(
@@ -121,11 +109,19 @@ pub(crate) fn start_lan_passive_discovery_service_runtime(
     let listener_state = Arc::downgrade(&runtime.passive_discovery_listener_state);
     let listener_join =
         listener_runtime::spawn(runtime.clone(), sender, pipeline_health.clone()).ok();
-    reconciliation::spawn(runtime, receiver, pipeline_health);
-    let owner = Arc::new(LanPassiveDiscoveryServiceOwner {
+    let reconciliation_stop = Arc::new(AtomicBool::new(false));
+    let reconciliation_join = reconciliation::spawn(
+        runtime,
+        receiver,
+        pipeline_health,
+        reconciliation_stop.clone(),
+    );
+    let owner = Arc::new(LanPassiveDiscoveryServiceOwner::new(
         listener_state,
-        listener_join: Mutex::new(listener_join),
-    });
+        listener_join,
+        reconciliation_stop,
+        reconciliation_join,
+    ));
     LanPassiveDiscoveryServiceRuntime { _owner: owner }
 }
 

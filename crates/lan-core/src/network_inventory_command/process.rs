@@ -1,5 +1,5 @@
 use std::{
-    process::{Command, Output, Stdio},
+    process::{Child, Command, Output, Stdio},
     sync::atomic::{AtomicBool, Ordering},
     thread::sleep,
     time::{Duration, Instant},
@@ -75,8 +75,7 @@ fn command_output_with_timeout_and_cancellation(
 
     loop {
         if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
-            let _ = child.kill();
-            let _ = child.wait();
+            terminate_process_tree(&mut child);
             return None;
         }
         if child.try_wait().ok().flatten().is_some() {
@@ -84,11 +83,47 @@ fn command_output_with_timeout_and_cancellation(
         }
         let elapsed = started_at.elapsed();
         if elapsed >= timeout {
-            let _ = child.kill();
-            let _ = child.wait();
+            terminate_process_tree(&mut child);
             return None;
         }
         let remaining = timeout.saturating_sub(elapsed);
         sleep(remaining.min(Duration::from_millis(25)));
+    }
+}
+
+fn terminate_process_tree(child: &mut Child) {
+    #[cfg(windows)]
+    terminate_windows_process_tree(child);
+
+    // The platform-specific tree terminator is best effort. Always terminate
+    // and reap the owned child as a final boundary so a timed-out command
+    // cannot leave a child handle or pipe held by this worker.
+    let _ = child.kill();
+    let _ = child.wait();
+}
+
+#[cfg(windows)]
+fn terminate_windows_process_tree(child: &mut Child) {
+    let pid = child.id().to_string();
+    let Ok(mut taskkill) = Command::new("taskkill")
+        .args(["/PID", pid.as_str(), "/T", "/F"])
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+    else {
+        return;
+    };
+    let deadline = Instant::now() + Duration::from_secs(2);
+    loop {
+        match taskkill.try_wait() {
+            Ok(Some(_)) => break,
+            Ok(None) if Instant::now() < deadline => sleep(Duration::from_millis(10)),
+            _ => {
+                let _ = taskkill.kill();
+                let _ = taskkill.wait();
+                break;
+            }
+        }
     }
 }

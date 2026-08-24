@@ -84,7 +84,7 @@ impl LanPairingRuntime {
         runtime_context: LanPairingRuntimeContext,
     ) -> Self {
         let (registry, persistence) =
-            match TrustedDeviceRegistry::load_json_strict(path.0.as_path()) {
+            match TrustedDeviceRegistry::load_or_initialize_json_strict(path.0.as_path()) {
                 Ok(registry) => (
                     registry,
                     LanPairingRegistryPersistence::LocalJsonRegistry(path.0.clone()),

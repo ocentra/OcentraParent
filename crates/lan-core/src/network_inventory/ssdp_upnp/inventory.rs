@@ -1,4 +1,5 @@
 use std::net::SocketAddr;
+use std::sync::atomic::AtomicBool;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
@@ -6,16 +7,34 @@ use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 use super::http::parse_allowed_http_location;
 use super::http::text::{parse_udn, short_ssdp_label};
 use super::merge::{merge_ssdp_network_inventory_device, ssdp_hint_evidence};
-use super::{
-    discover_ssdp_upnp_records, discover_ssdp_upnp_records_at, LanNetworkInventoryDevice,
-    SsdpDiscoveryRecord,
-};
+use super::{discover_ssdp_upnp_records_at, LanNetworkInventoryDevice, SsdpDiscoveryRecord};
 
 pub(super) fn enrich_ssdp_upnp_devices(
     devices: &mut Vec<LanNetworkInventoryDevice>,
     selected_interface: Option<&str>,
 ) {
-    if let Ok(records) = discover_ssdp_upnp_records() {
+    enrich_ssdp_upnp_devices_with_cancellation(devices, selected_interface, None);
+}
+
+pub(crate) fn enrich_ssdp_upnp_devices_with_cancellation(
+    devices: &mut Vec<LanNetworkInventoryDevice>,
+    selected_interface: Option<&str>,
+    cancellation: Option<&AtomicBool>,
+) {
+    if cancellation.is_some_and(|value| value.load(std::sync::atomic::Ordering::Acquire)) {
+        return;
+    }
+    if let Ok(records) = super::discovery::discover_ssdp_upnp_devices_with_cancellation(
+        "ssdp:all",
+        SocketAddr::new(
+            std::net::IpAddr::V4(std::net::Ipv4Addr::new(239, 255, 255, 250)),
+            1900,
+        ),
+        std::time::Duration::from_millis(super::SSDP_DISCOVERY_TIMEOUT_MS),
+        1,
+        std::time::Duration::from_millis(super::SSDP_DISCOVERY_TIMEOUT_MS),
+        cancellation,
+    ) {
         merge_ssdp_records(devices, records, selected_interface);
     }
 }

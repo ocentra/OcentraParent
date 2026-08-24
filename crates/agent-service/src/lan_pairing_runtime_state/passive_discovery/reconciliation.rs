@@ -1,3 +1,5 @@
+use std::sync::{atomic::AtomicBool, Arc};
+
 use tokio::time::Instant;
 
 use crate::lan_pairing::LanPairingRuntime;
@@ -25,13 +27,16 @@ struct PassiveDiscoveryReconciliationRuntime {
     pending_passive_refresh: bool,
     retry_pending: bool,
     automatic_refresh_at: Option<Instant>,
+    stop: Arc<AtomicBool>,
 }
 
 pub(super) fn spawn(
     runtime: LanPairingRuntime,
     refresh_signal: LanPassiveDiscoveryRefreshSignalReceiver,
     pipeline_health: LanPassiveDiscoveryPipelineHealth,
-) {
+    stop: Arc<AtomicBool>,
+) -> tokio::task::JoinHandle<()> {
+    let stop_for_runtime = stop.clone();
     let capability_store = LanPassiveDiscoveryCapabilityStore::for_runtime(&runtime);
     tokio::spawn(async move {
         PassiveDiscoveryReconciliationRuntime {
@@ -44,18 +49,22 @@ pub(super) fn spawn(
             pending_passive_refresh: false,
             retry_pending: false,
             automatic_refresh_at: None,
+            stop: stop_for_runtime,
         }
         .run()
         .await;
-    });
+    })
 }
 
 impl PassiveDiscoveryReconciliationRuntime {
     async fn run(mut self) {
-        while self.run_once().await {}
+        while !self.stop.load(std::sync::atomic::Ordering::Acquire) && self.run_once().await {}
     }
 
     async fn run_once(&mut self) -> bool {
+        if self.stop.load(std::sync::atomic::Ordering::Acquire) {
+            return false;
+        }
         let wake = wake::next(&mut self.refresh_signal, self.automatic_refresh_at).await;
 
         match wake {

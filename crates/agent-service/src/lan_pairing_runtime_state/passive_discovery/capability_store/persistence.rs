@@ -1,7 +1,9 @@
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io::{self, Write};
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
+use std::thread;
+use std::time::Duration;
 
 use atomicwrites::{AllowOverwrite, AtomicFile};
 
@@ -82,9 +84,22 @@ fn with_path_lock<T>(
         .entry(path.clone())
         .or_insert_with(|| Arc::new(Mutex::new(())))
         .clone();
-    let _process_guard = process_lock.lock().ok()?;
+    let _process_guard = acquire_process_lock(&process_lock)?;
     let _cross_process_guard = super::path_lock::acquire(path)?;
     Some(operation())
+}
+
+fn acquire_process_lock(lock: &Mutex<()>) -> Option<MutexGuard<'_, ()>> {
+    const RETRY_COUNT: usize = 100;
+    const RETRY_DELAY: Duration = Duration::from_millis(5);
+    for _ in 0..RETRY_COUNT {
+        match lock.try_lock() {
+            Ok(guard) => return Some(guard),
+            Err(std::sync::TryLockError::WouldBlock) => thread::sleep(RETRY_DELAY),
+            Err(std::sync::TryLockError::Poisoned(_)) => return None,
+        }
+    }
+    None
 }
 
 fn load_unlocked(

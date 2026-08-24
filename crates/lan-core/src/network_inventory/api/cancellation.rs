@@ -63,9 +63,10 @@ pub(in crate::network_inventory) fn discover_lan_network_devices_with_cancellati
         cancellation,
     );
     if !cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
-        super::super::ssdp_upnp::enrich_ssdp_upnp_devices(
+        super::super::ssdp_upnp::inventory::enrich_ssdp_upnp_devices_with_cancellation(
             &mut devices,
             selected_interface.as_deref(),
+            cancellation,
         );
     }
     devices

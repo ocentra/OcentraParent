@@ -1,24 +1,28 @@
 use std::collections::HashSet;
 use std::net::{SocketAddr, UdpSocket};
+use std::sync::atomic::AtomicBool;
 use std::time::{Duration, Instant};
 
 use super::http::io_error;
-use super::{
-    fetch_ssdp_description, parse_ssdp_response, SsdpDiscoveryError, SsdpDiscoveryRecord,
-    SSDP_MAX_RESPONSE_BYTES,
-};
+use super::{SsdpDiscoveryError, SsdpDiscoveryRecord, SSDP_MAX_RESPONSE_BYTES};
 
-pub(super) fn collect_ssdp_records(
+mod record;
+
+pub(super) fn collect_ssdp_records_with_cancellation(
     socket: &UdpSocket,
     request: &[u8],
     target: SocketAddr,
     response_timeout: Duration,
     attempts: usize,
     description_timeout: Duration,
+    cancellation: Option<&AtomicBool>,
 ) -> Result<Vec<SsdpDiscoveryRecord>, SsdpDiscoveryError> {
     let mut results = Vec::new();
     let mut seen = HashSet::new();
     for _ in 0..attempts {
+        if is_cancelled(cancellation) || results.len() >= super::SSDP_MAX_RECORDS {
+            break;
+        }
         socket
             .send_to(request, target)
             .map_err(|error| io_error(&error))?;
@@ -28,6 +32,7 @@ pub(super) fn collect_ssdp_records(
             description_timeout,
             &mut seen,
             &mut results,
+            cancellation,
         )?;
     }
     Ok(results)
@@ -39,9 +44,17 @@ fn receive_ssdp_attempt(
     description_timeout: Duration,
     seen: &mut HashSet<String>,
     results: &mut Vec<SsdpDiscoveryRecord>,
+    cancellation: Option<&AtomicBool>,
 ) -> Result<(), SsdpDiscoveryError> {
     let deadline = Instant::now() + response_timeout;
+    let mut received_responses = 0;
     loop {
+        if is_cancelled(cancellation)
+            || results.len() >= super::SSDP_MAX_RECORDS
+            || received_responses >= super::SSDP_MAX_RESPONSES_PER_ATTEMPT
+        {
+            return Ok(());
+        }
         let remaining = deadline.saturating_duration_since(Instant::now());
         if remaining.is_zero() {
             return Ok(());
@@ -51,39 +64,24 @@ fn receive_ssdp_attempt(
             .map_err(|error| io_error(&error))?;
         let mut buffer = vec![0_u8; SSDP_MAX_RESPONSE_BYTES];
         match socket.recv_from(&mut buffer) {
-            Ok((size, _)) => add_ssdp_record(&buffer[..size], description_timeout, seen, results)?,
+            Ok((size, _)) => {
+                received_responses = received_responses.saturating_add(1);
+                record::add_ssdp_record(
+                    &buffer[..size],
+                    description_timeout,
+                    seen,
+                    results,
+                    cancellation,
+                )?
+            }
             Err(error) if is_ssdp_timeout(&error) => return Ok(()),
             Err(error) => return Err(io_error(&error)),
         }
     }
 }
 
-fn add_ssdp_record(
-    response_bytes: &[u8],
-    description_timeout: Duration,
-    seen: &mut HashSet<String>,
-    results: &mut Vec<SsdpDiscoveryRecord>,
-) -> Result<(), SsdpDiscoveryError> {
-    let response = match parse_ssdp_response(response_bytes) {
-        Ok(response) => response,
-        Err(SsdpDiscoveryError::MalformedResponse)
-        | Err(SsdpDiscoveryError::MissingLocation)
-        | Err(SsdpDiscoveryError::MissingSearchTarget)
-        | Err(SsdpDiscoveryError::MissingUsn) => return Ok(()),
-        Err(error) => return Err(error),
-    };
-    if !seen.insert(response.dedup_key()) {
-        return Ok(());
-    }
-    let description = response
-        .description_fetch_allowed()
-        .then(|| fetch_ssdp_description(&response.location, description_timeout).ok())
-        .flatten();
-    results.push(SsdpDiscoveryRecord {
-        response,
-        description,
-    });
-    Ok(())
+fn is_cancelled(cancellation: Option<&AtomicBool>) -> bool {
+    cancellation.is_some_and(|value| value.load(std::sync::atomic::Ordering::Acquire))
 }
 
 fn is_ssdp_timeout(error: &std::io::Error) -> bool {

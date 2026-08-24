@@ -62,6 +62,32 @@ triggers.
   `cargo lint-architecture crates/lan-core/src/network_inventory/passive_discovery.rs crates/lan-core/tests/unit/network_inventory_passive_discovery.rs`
 - Proof note: `output/lan-plan-proof/07-passive-discovery-listeners/01-local-validation.md`
 
+## Expected Test Topology (currently absent)
+
+The current source packet has no retained tests for the repaired boundaries.
+Before this workpack can be called `DONE`, add and run the following scoped
+test roots against real runtime paths (without test doubles):
+
+- `crates/agent-core/tests/unit/trusted_device_registry.rs` — wire pairing
+  proofs remain contract-only; revoked pairing ids cannot be resurrected; an
+  accepted intent is rejected after restart/replay.
+- `crates/agent-service/tests/unit/lan_pairing_runtime_state.rs` — a missing
+  registry initializes exactly once, malformed present state stays unavailable,
+  and accepted intent ids survive reload.
+- `crates/agent-service/tests/unit/lan_pairing_browser_runtime.rs` — scan
+  cancellation, supersession, listener shutdown, and reconciliation drop are
+  bounded with no mutex-held join.
+- `crates/agent-service/tests/integration/lan_pairing_runtime.rs` — durable
+  restart and atomic intent-consumption behavior through the service route.
+- `crates/lan-core/tests/unit/network_inventory_ssdp_upnp.rs` — cancellation,
+  response/record bounds, description timeout, and oversized-response handling.
+- `crates/lan-core/tests/unit/network_inventory_command.rs` — timeout and
+  cancellation terminate and reap the owned process tree on the target OS.
+
+These paths are expected-test routing, not completion evidence. The existing
+acceptance checkboxes and proof note remain open until the tests, retained
+proof, and whole-plan validation are produced.
+
 ## Parallel Ownership Notes
 
 Protocol-specific listener work can split by source, but all listeners must feed

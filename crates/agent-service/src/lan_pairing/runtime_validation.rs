@@ -73,7 +73,23 @@ pub(super) fn validate_intent_result(
     runtime
         .registry
         .lock()
-        .map(|mut registry| registry.validate_intent(intent, origin.0.as_deref(), &observed_at))
+        .map(|mut registry| match &runtime.persistence {
+            crate::lan_pairing::LanPairingRegistryPersistence::InMemory => {
+                registry.validate_intent(intent, origin.0.as_deref(), &observed_at)
+            }
+            crate::lan_pairing::LanPairingRegistryPersistence::LocalJsonRegistry(path) => registry
+                .validate_intent_persisted(
+                    path.as_path(),
+                    intent,
+                    origin.0.as_deref(),
+                    &observed_at,
+                )
+                .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)
+                .and_then(|result| result),
+            crate::lan_pairing::LanPairingRegistryPersistence::UnavailableLocalJsonRegistry => {
+                Err(LanPairingRejectionReason::SignedChildAgentContextUnavailable)
+            }
+        })
         .unwrap_or(Err(LanPairingRejectionReason::Malformed))
 }
 

@@ -1,4 +1,11 @@
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::{
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Mutex, MutexGuard,
+    },
+    thread,
+    time::{Duration, Instant},
+};
 
 use chrono::{DateTime, Utc};
 use ocentra_lan_core::network_inventory::LanDiscoveryRefreshMode;
@@ -63,9 +70,20 @@ pub(super) fn execute_physical_lan_scan(
     if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
         return failed_scan_result(previous_scan_snapshot);
     }
-    let Ok(_execution_guard) = super::physical_lan_scan_execution_lock().lock() else {
+    // Never wait indefinitely behind another active scan. A cancelled
+    // reconciliation must be able to return even when a foreground scan is
+    // still finishing its bounded network work.
+    const EXECUTION_LOCK_WAIT: Duration = Duration::from_secs(5);
+    let Some(_execution_guard) = acquire_execution_guard(
+        super::physical_lan_scan_execution_lock(),
+        cancellation,
+        EXECUTION_LOCK_WAIT,
+    ) else {
         return failed_scan_result(previous_scan_snapshot);
     };
+    if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+        return failed_scan_result(previous_scan_snapshot);
+    }
     let Some(_cross_process_execution_lease) = super::execution_lease::acquire(runtime) else {
         return failed_scan_result(previous_scan_snapshot);
     };
@@ -80,4 +98,22 @@ pub(super) fn execute_physical_lan_scan(
         refresh_mode,
         cancellation,
     )
+}
+
+fn acquire_execution_guard<'a>(
+    lock: &'a Mutex<()>,
+    cancellation: Option<&AtomicBool>,
+    timeout: Duration,
+) -> Option<MutexGuard<'a, ()>> {
+    let deadline = Instant::now() + timeout;
+    while Instant::now() < deadline {
+        if let Ok(guard) = lock.try_lock() {
+            return Some(guard);
+        }
+        if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+            return None;
+        }
+        thread::sleep(Duration::from_millis(10));
+    }
+    None
 }

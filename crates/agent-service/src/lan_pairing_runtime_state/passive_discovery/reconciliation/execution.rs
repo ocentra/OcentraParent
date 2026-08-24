@@ -2,7 +2,8 @@ use tokio::time::Instant;
 
 use crate::lan_pairing::LanPairingRuntime;
 use crate::lan_pairing_browser_add_device_state::physical_lan_scan::{
-    refresh_network_device_scan_history_from_passive_runtime, LanNetworkDeviceScanResult,
+    refresh_network_device_scan_history_from_passive_runtime_with_cancellation,
+    LanNetworkDeviceScanResult,
 };
 
 use super::super::pipeline_health::LanPassiveDiscoveryPipelineIssue;
@@ -14,8 +15,11 @@ impl PassiveDiscoveryReconciliationRuntime {
         let attempted_at = Instant::now();
         self.last_attempt_at = Some(attempted_at);
         let runtime = self.runtime.clone();
+        let stop = self.stop.clone();
         let reconciliation = tokio::task::spawn_blocking(move || {
-            refresh_network_device_scan_history_from_passive_runtime(&runtime)
+            refresh_network_device_scan_history_from_passive_runtime_with_cancellation(
+                &runtime, &stop,
+            )
         })
         .await;
 

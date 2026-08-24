@@ -7,8 +7,7 @@ use std::{
 use fs2::FileExt;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason, LanSelectedRouteTarget,
-    LanTrustedDeviceRegistryEntry,
+    LanPairingRejectionReason, LanSelectedRouteTarget,
 };
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
@@ -17,6 +16,7 @@ use serde_json::Value;
 
 use super::TrustedDeviceRegistry;
 
+mod intent;
 mod replay_history;
 
 impl TrustedDeviceRegistry {
@@ -48,25 +48,6 @@ impl TrustedDeviceRegistry {
     ) -> io::Result<bool> {
         self.mutate_persisted_registry(registry_path, move |candidate| {
             Ok(candidate.merge_known_household_devices(devices))
-        })
-    }
-
-    pub fn accept_pairing_proof_persisted(
-        &mut self,
-        registry_path: &Path,
-        proof: &LanPairingProof,
-        child_device: LanPairingDeviceRef,
-        parent_device: LanPairingDeviceRef,
-        trusted_at: &str,
-    ) -> io::Result<LanTrustedDeviceRegistryEntry> {
-        self.mutate_persisted_registry(registry_path, move |candidate| {
-            let generation = candidate.next_authority_generation(proof.pairing_id.as_str())?;
-            let entry =
-                candidate.accept_pairing_proof(proof, child_device, parent_device, trusted_at);
-            candidate
-                .signer_anchor_generations
-                .insert(proof.pairing_id.clone(), generation);
-            Ok(entry)
         })
     }
 
