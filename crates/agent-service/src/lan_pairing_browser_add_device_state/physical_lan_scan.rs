@@ -1,3 +1,5 @@
+use std::sync::{Mutex, OnceLock};
+
 use chrono::{DateTime, Utc};
 use ocentra_lan_core::network_inventory::{
     discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer,
@@ -25,6 +27,8 @@ mod suppression_device;
 
 use self::persisted_result::persisted_scan_result_or_fail;
 use self::suppression_device::scan_session_id;
+
+static PHYSICAL_LAN_SCAN_EXECUTION_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub(crate) struct LanNetworkDeviceScanResult {
@@ -112,6 +116,19 @@ fn execute_physical_lan_scan(
     now: DateTime<Utc>,
     refresh_mode: LanDiscoveryRefreshMode,
 ) -> LanNetworkDeviceScanResult {
+    let Ok(_execution_guard) = physical_lan_scan_execution_lock().lock() else {
+        return failed_scan_result(previous_scan_snapshot);
+    };
+    let previous_scan_snapshot = load_scan_history_snapshot(runtime).or(previous_scan_snapshot);
+    execute_physical_lan_scan_locked(runtime, previous_scan_snapshot, now, refresh_mode)
+}
+
+fn execute_physical_lan_scan_locked(
+    runtime: &LanPairingRuntime,
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+    refresh_mode: LanDiscoveryRefreshMode,
+) -> LanNetworkDeviceScanResult {
     let previous_devices = previous_scan_snapshot
         .as_ref()
         .map(|snapshot| snapshot.devices.as_slice())
@@ -154,6 +171,24 @@ fn execute_physical_lan_scan(
         },
         previous_scan_snapshot,
     )
+}
+
+fn failed_scan_result(
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+) -> LanNetworkDeviceScanResult {
+    LanNetworkDeviceScanResult {
+        devices: previous_scan_snapshot
+            .as_ref()
+            .map(|snapshot| snapshot.devices.clone())
+            .unwrap_or_default(),
+        current_scan_snapshot: None,
+        previous_scan_snapshot,
+        reused_recent_snapshot: true,
+    }
+}
+
+fn physical_lan_scan_execution_lock() -> &'static Mutex<()> {
+    PHYSICAL_LAN_SCAN_EXECUTION_LOCK.get_or_init(|| Mutex::new(()))
 }
 
 pub(crate) fn cached_localhost_status_scan_result(

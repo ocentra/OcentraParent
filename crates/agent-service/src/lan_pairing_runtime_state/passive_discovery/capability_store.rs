@@ -1,13 +1,10 @@
 use std::fs;
-use std::io::{self, Write};
 use std::path::PathBuf;
 use std::time::Duration;
 
-use atomicwrites::{AllowOverwrite, AtomicFile};
 use chrono::{DateTime, Utc};
 use ocentra_lan_core::network_inventory::passive_discovery::{
     LanPassiveDiscoverySource, LanPassiveDiscoveryUdpListenerIssue,
-    LanPassiveDiscoveryUdpListenerIssueKind,
 };
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
@@ -15,7 +12,18 @@ use serde::{Deserialize, Serialize};
 use crate::lan_pairing::{LanPairingRegistryPersistence, LanPairingRuntime};
 use crate::time::timestamp_now;
 
-const CAPABILITY_SCHEMA_VERSION: u16 = 1;
+use super::pipeline_health::{
+    LanPassiveDiscoveryPipelineHealthSnapshot, LanPassiveDiscoveryPipelineState,
+};
+
+#[path = "capability_store/availability.rs"]
+mod availability;
+#[path = "capability_store/persistence.rs"]
+mod persistence;
+#[path = "capability_store/validation.rs"]
+mod validation;
+
+const CAPABILITY_SCHEMA_VERSION: u16 = 2;
 const CAPABILITY_FILE_SUFFIX: &str = "-lan-passive-runtime.json";
 const CAPABILITY_MAX_AGE: Duration = Duration::from_secs(420);
 
@@ -24,7 +32,7 @@ pub(super) struct LanPassiveDiscoveryCapabilityStore {
     path: Option<LanPassiveDiscoveryCapabilityPath>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct LanPassiveDiscoveryCapabilityPath(PathBuf);
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -67,6 +75,7 @@ pub(crate) struct LanPassiveDiscoveryRuntimeCapability {
     expected_listener_count: usize,
     active_listener_count: usize,
     sources: Vec<LanPassiveDiscoverySourceCapability>,
+    pipeline_health: LanPassiveDiscoveryPipelineHealthSnapshot,
 }
 
 impl LanPassiveDiscoveryCapabilityStore {
@@ -80,30 +89,47 @@ impl LanPassiveDiscoveryCapabilityStore {
         let Some(path) = self.path.as_ref() else {
             return false;
         };
-        if let Some(parent) = path.0.parent() {
-            if fs::create_dir_all(parent).is_err() {
-                return false;
-            }
-        }
-        write_capability(path, capability).is_ok()
+        persistence::save(path, capability)
     }
 
     fn load(&self) -> Option<LanPassiveDiscoveryRuntimeCapability> {
         let path = self.path.as_ref()?;
+        if persistence::failed(path) {
+            return None;
+        }
         let json = fs::read_to_string(&path.0).ok()?;
-        serde_json::from_str(&json).ok()
+        let capability = serde_json::from_str(&json).ok()?;
+        validation::validate_and_rederive(capability)
+    }
+
+    pub(super) fn save_pipeline_health(
+        &self,
+        pipeline_health: &LanPassiveDiscoveryPipelineHealthSnapshot,
+    ) -> bool {
+        let sources = self
+            .load()
+            .map(|capability| capability.sources)
+            .unwrap_or_else(pending_source_capabilities);
+        self.save(&LanPassiveDiscoveryRuntimeCapability::from_sources(
+            sources,
+            pipeline_health.clone(),
+        ))
     }
 }
 
 impl LanPassiveDiscoveryRuntimeCapability {
-    pub(super) fn from_sources(sources: Vec<LanPassiveDiscoverySourceCapability>) -> Self {
+    pub(super) fn from_sources(
+        sources: Vec<LanPassiveDiscoverySourceCapability>,
+        pipeline_health: LanPassiveDiscoveryPipelineHealthSnapshot,
+    ) -> Self {
         let active_listener_count = sources
             .iter()
             .filter(|source| {
                 source.availability == LanPassiveDiscoverySourceAvailability::Listening
             })
             .count();
-        let availability = availability_for_sources(&sources, active_listener_count);
+        let availability =
+            availability::for_sources(&sources, active_listener_count, &pipeline_health);
         Self {
             schema_version: CAPABILITY_SCHEMA_VERSION,
             process_id: std::process::id(),
@@ -112,11 +138,15 @@ impl LanPassiveDiscoveryRuntimeCapability {
             expected_listener_count: sources.len(),
             active_listener_count,
             sources,
+            pipeline_health,
         }
     }
 
-    pub(super) fn stopped(sources: Vec<LanPassiveDiscoverySourceCapability>) -> Self {
-        let mut capability = Self::from_sources(sources);
+    pub(super) fn stopped(
+        sources: Vec<LanPassiveDiscoverySourceCapability>,
+        pipeline_health: LanPassiveDiscoveryPipelineHealthSnapshot,
+    ) -> Self {
+        let mut capability = Self::from_sources(sources, pipeline_health);
         for source in &mut capability.sources {
             source.availability = LanPassiveDiscoverySourceAvailability::Stopped;
             source.retry_delay_millis = None;
@@ -132,6 +162,7 @@ impl LanPassiveDiscoveryRuntimeCapability {
             LanPassiveDiscoveryRuntimeAvailability::Available
                 | LanPassiveDiscoveryRuntimeAvailability::Degraded
         ) && self.active_listener_count > 0
+            && self.pipeline_health.state == LanPassiveDiscoveryPipelineState::Healthy
     }
 }
 
@@ -145,43 +176,16 @@ pub(crate) fn current_runtime_capability(
         .unwrap_or_else(unavailable_capability)
 }
 
-pub(super) fn record_starting(runtime: &LanPairingRuntime) {
-    let sources = super::passive_discovery_udp_sources()
-        .iter()
-        .copied()
-        .map(pending_source_capability)
-        .collect();
-    let capability = LanPassiveDiscoveryRuntimeCapability::from_sources(sources);
+pub(super) fn record_starting(
+    runtime: &LanPairingRuntime,
+    pipeline_health: &LanPassiveDiscoveryPipelineHealthSnapshot,
+) {
+    let capability = LanPassiveDiscoveryRuntimeCapability::from_sources(
+        pending_source_capabilities(),
+        pipeline_health.clone(),
+    );
     let store = LanPassiveDiscoveryCapabilityStore::for_runtime(runtime);
     let _persisted = store.save(&capability);
-}
-
-fn availability_for_sources(
-    sources: &[LanPassiveDiscoverySourceCapability],
-    active_listener_count: usize,
-) -> LanPassiveDiscoveryRuntimeAvailability {
-    if active_listener_count == sources.len() && !sources.is_empty() {
-        return LanPassiveDiscoveryRuntimeAvailability::Available;
-    }
-    if active_listener_count > 0 {
-        return LanPassiveDiscoveryRuntimeAvailability::Degraded;
-    }
-    if sources.iter().any(source_requires_apple_manual_action) {
-        return LanPassiveDiscoveryRuntimeAvailability::ManualRequired;
-    }
-    if sources.iter().all(|source| {
-        source.availability == LanPassiveDiscoverySourceAvailability::PendingBind
-            && source.issue.is_none()
-    }) {
-        return LanPassiveDiscoveryRuntimeAvailability::Starting;
-    }
-    LanPassiveDiscoveryRuntimeAvailability::Unavailable
-}
-
-fn source_requires_apple_manual_action(source: &LanPassiveDiscoverySourceCapability) -> bool {
-    source.issue.as_ref().is_some_and(|issue| {
-        issue.kind == LanPassiveDiscoveryUdpListenerIssueKind::AppleLocalNetworkPermissionRequired
-    })
 }
 
 fn capability_is_current(capability: &LanPassiveDiscoveryRuntimeCapability) -> bool {
@@ -206,11 +210,7 @@ fn capability_is_current(capability: &LanPassiveDiscoveryRuntimeCapability) -> b
 }
 
 fn unavailable_capability() -> LanPassiveDiscoveryRuntimeCapability {
-    let sources = super::passive_discovery_udp_sources()
-        .iter()
-        .copied()
-        .map(pending_source_capability)
-        .collect::<Vec<_>>();
+    let sources = pending_source_capabilities();
     LanPassiveDiscoveryRuntimeCapability {
         schema_version: CAPABILITY_SCHEMA_VERSION,
         process_id: std::process::id(),
@@ -219,7 +219,16 @@ fn unavailable_capability() -> LanPassiveDiscoveryRuntimeCapability {
         expected_listener_count: sources.len(),
         active_listener_count: 0,
         sources,
+        pipeline_health: LanPassiveDiscoveryPipelineHealthSnapshot::unavailable(),
     }
+}
+
+fn pending_source_capabilities() -> Vec<LanPassiveDiscoverySourceCapability> {
+    super::passive_discovery_udp_sources()
+        .iter()
+        .copied()
+        .map(pending_source_capability)
+        .collect()
 }
 
 fn pending_source_capability(
@@ -248,17 +257,4 @@ fn capability_path(runtime: &LanPairingRuntime) -> Option<LanPassiveDiscoveryCap
     Some(LanPassiveDiscoveryCapabilityPath(
         registry_path.with_file_name(format!("{file_stem}{CAPABILITY_FILE_SUFFIX}")),
     ))
-}
-
-fn write_capability(
-    path: &LanPassiveDiscoveryCapabilityPath,
-    capability: &LanPassiveDiscoveryRuntimeCapability,
-) -> io::Result<()> {
-    let json = serde_json::to_vec_pretty(capability).map_err(io::Error::other)?;
-    AtomicFile::new(&path.0, AllowOverwrite)
-        .write(|file| {
-            file.write_all(&json)?;
-            file.sync_all()
-        })
-        .map_err(|error| io::Error::other(error.to_string()))
 }

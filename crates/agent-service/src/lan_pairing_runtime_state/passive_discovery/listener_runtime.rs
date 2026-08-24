@@ -7,7 +7,6 @@ use ocentra_lan_core::network_inventory::passive_discovery::{
     LanPassiveDiscoveryUdpListenerIssue,
 };
 use ocentra_parent_agent_protocol::constants::lan_pairing as lan_pairing_constants;
-use tokio::sync::watch;
 
 use crate::{
     lan_pairing::LanPairingRuntime,
@@ -19,9 +18,12 @@ use super::{
         LanPassiveDiscoveryCapabilityStore, LanPassiveDiscoverySourceAvailability,
         LanPassiveDiscoverySourceCapability,
     },
+    pipeline_health::{
+        LanPassiveDiscoveryPipelineHealth, LanPassiveDiscoveryPipelineHealthSnapshot,
+    },
     PASSIVE_DISCOVERY_RETRY_BASE, PASSIVE_DISCOVERY_RETRY_MAX,
 };
-use super::{LanPassiveDiscoveryRefreshSignal, LanPassiveDiscoveryRuntimeObservedState};
+use super::{LanPassiveDiscoveryRefreshSignalSender, LanPassiveDiscoveryRuntimeObservedState};
 
 #[path = "listener_runtime/engine.rs"]
 mod engine;
@@ -31,10 +33,14 @@ mod receive;
 struct PassiveDiscoveryListenerRuntime {
     listener_state: Weak<Mutex<LanPassiveDiscoveryListenerState>>,
     heartbeat: Weak<Mutex<Option<LanAiProviderHeartbeatState>>>,
-    refresh_sender: watch::Sender<Option<LanPassiveDiscoveryRefreshSignal>>,
+    refresh_sender: LanPassiveDiscoveryRefreshSignalSender,
     observed_state: LanPassiveDiscoveryRuntimeObservedState,
     listener_slots: Vec<PassiveDiscoveryListenerSlot>,
     capability_store: LanPassiveDiscoveryCapabilityStore,
+    pipeline_health: LanPassiveDiscoveryPipelineHealth,
+    last_persisted_pipeline_health: Option<LanPassiveDiscoveryPipelineHealthSnapshot>,
+    capability_persist_failures: u32,
+    next_capability_persist_attempt: Instant,
     next_maintenance: Instant,
     signal_sequence: u64,
 }
@@ -49,7 +55,8 @@ struct PassiveDiscoveryListenerSlot {
 
 pub(super) fn spawn(
     runtime: LanPairingRuntime,
-    refresh_sender: watch::Sender<Option<LanPassiveDiscoveryRefreshSignal>>,
+    refresh_sender: LanPassiveDiscoveryRefreshSignalSender,
+    pipeline_health: LanPassiveDiscoveryPipelineHealth,
 ) {
     let initial_refresh_signal = runtime.record_passive_rescan_trigger(
         LanPassiveDiscoveryTriggerReason::AppResumed,
@@ -64,6 +71,7 @@ pub(super) fn spawn(
             heartbeat,
             refresh_sender,
             capability_store,
+            pipeline_health,
         );
         if let Some(initial_refresh_signal) = initial_refresh_signal {
             listener_runtime.send_refresh_signals(vec![initial_refresh_signal]);
