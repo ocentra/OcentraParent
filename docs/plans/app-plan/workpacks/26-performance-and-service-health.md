@@ -36,6 +36,13 @@ observable, and degraded-state aware under normal and stressed local conditions.
 - Cross-recorded shared proof:
   `output/app-game-plan-proof/27-performance-and-service-health`
 
+## Current reviewed topology
+
+The canonical head has none of the listed `packages/parent-domain`
+performance-health source, proof, or test roots. WP26 remains blocked on those
+missing roots and does not inherit ownership from generic app/game activity or
+read-model code.
+
 ## Tests And Proof
 
 - Inventory normalize 1,000 apps under target threshold.

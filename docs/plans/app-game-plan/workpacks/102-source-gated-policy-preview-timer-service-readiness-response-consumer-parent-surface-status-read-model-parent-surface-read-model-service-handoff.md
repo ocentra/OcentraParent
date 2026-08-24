@@ -35,6 +35,16 @@ Add a parent-domain service handoff that consumes WP101 parent-safe read-model r
 
 ## Evidence
 
+## Current reviewed topology
+
+The canonical head has no `packages/parent-domain` WP102 service-handoff source
+or test root. WP102 does not own any shared app-game helper; the planned
+package and test roots remain explicitly absent.
+
+Implementation dependency: WP101 reviewed implementation. This orders a future
+source packet only; it does not promote READY/DONE or satisfy tests, proof,
+checklist, CI, review, or merge gates.
+
 - `packages/parent-domain/src/app-game-timer-service-handoff.ts`
 - `packages/parent-domain/src/app-game-timer-service-handoff-rules.ts`
 - `packages/parent-domain/tests/app-game-timer-service-handoff.test.ts`

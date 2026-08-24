@@ -35,6 +35,18 @@ Add a parent-domain-only handoff that consumes WP99 response-consumer parent-sur
 
 ## Evidence
 
+## Current reviewed topology
+
+The canonical head has no `packages/parent-domain` WP99 handoff source or test
+root. The only reviewed implementation retained for this bounded chain is the
+Rust-owned `crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs`
+boundary consumed through the existing contract test. No shared helper or
+package/test/proof root is implied as WP100 ownership.
+
+Implementation dependency: WP99 reviewed implementation. This orders a future
+source packet only; it does not promote READY/DONE or satisfy tests, proof,
+checklist, CI, review, or merge gates.
+
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.ts`
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff-rules.ts`
 - `packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.test.ts`
