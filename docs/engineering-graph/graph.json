@@ -24420,7 +24420,7 @@
           "reason": "Neutral foundation route for the existing fail-closed protected-capability custody core. The core is substantive but inert outside its crate: admission/platform authority is private and SQLite is only a checked replica. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque factory, expected tests, proof, and production callers are absent. This review authorizes only implementation-phase source work; it does not claim normal READY, runtime reachability, tests, proof, PR readiness, or DONE."
         },
         "stateOverride": {
-          "reason": "The graph schema permits only the validation routing override here; it is used as a safety block because the staged workspace metadata, neutral protocol package, isolated Windows broker/client manifests and targets, narrow core broker-admission facade, expected tests, proof, and production caller are absent. Implementation phase authorization is derived separately and does not imply READY, runtime reachability, PR, merge, or DONE.",
+          "reason": "The graph schema permits only the validation routing override here; it is used as a safety block because the graph-required root manifest, neutral protocol package, isolated Windows broker/client manifests and targets, active workspace membership, narrow core broker-admission facade, expected tests, proof, and production caller are absent. Implementation phase authorization is derived separately and does not imply READY, runtime reachability, PR, merge, or DONE.",
           "evidence": [
             "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
             "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
@@ -24468,6 +24468,48 @@
             "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
             "crates/protected-capability-custody-client/tests/admission.rs",
             "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
+          ]
+        },
+        "workspaceRequirements": {
+          "rootManifest": "Cargo.toml",
+          "packages": [
+            {
+              "manifest": "crates/protected-capability-custody-protocol/Cargo.toml",
+              "package": "ocentra-protected-capability-custody-protocol",
+              "activeMember": true,
+              "requiredTargets": [
+                {
+                  "kind": "lib",
+                  "path": "crates/protected-capability-custody-protocol/src/lib.rs"
+                }
+              ]
+            },
+            {
+              "manifest": "crates/protected-capability-custody-broker/Cargo.toml",
+              "package": "ocentra-protected-capability-custody-broker",
+              "activeMember": true,
+              "requiredTargets": [
+                {
+                  "kind": "lib",
+                  "path": "crates/protected-capability-custody-broker/src/lib.rs"
+                },
+                {
+                  "kind": "bin",
+                  "path": "crates/protected-capability-custody-broker/src/main.rs"
+                }
+              ]
+            },
+            {
+              "manifest": "crates/protected-capability-custody-client/Cargo.toml",
+              "package": "ocentra-protected-capability-custody-client",
+              "activeMember": true,
+              "requiredTargets": [
+                {
+                  "kind": "lib",
+                  "path": "crates/protected-capability-custody-client/src/lib.rs"
+                }
+              ]
+            }
           ]
         }
       }

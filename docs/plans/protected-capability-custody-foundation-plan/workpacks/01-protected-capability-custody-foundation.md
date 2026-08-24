@@ -48,9 +48,10 @@ The implementation phase must add a real isolated Windows broker process and a
 client boundary. The shared wire contract belongs to the neutral
 `protected-capability-custody-protocol` package; it must not be copied into the
 broker binary or client. The expected package topology is recorded in the code
-map as planned roots under `protected-capability-custody-protocol`,
-`protected-capability-custody-broker`, and `protected-capability-custody-client`;
-none of those packages is active in this checkout. The source packet must
+ map as implementation roots plus graph-native workspace requirements under
+ `protected-capability-custody-protocol`, `protected-capability-custody-broker`,
+ and `protected-capability-custody-client`; none of those packages is active in
+ this checkout. The source packet must
 establish authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease
 decisions, opaque admission/factory state, startup/restart reconciliation, and
 fail-closed unavailable-platform results.

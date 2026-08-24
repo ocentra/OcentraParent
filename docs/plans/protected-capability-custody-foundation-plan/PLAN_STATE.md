@@ -13,7 +13,7 @@
 ## Current status
 
 The plan is an active neutral foundation route with one workpack in
-planned/implementation-only authorization. The existing
+validation and implementation-only authorization. The existing
 `crates/protected-capability-custody-core` source is substantive and
 fail-closed, but it is not an operating custody system:
 
@@ -30,10 +30,12 @@ fail-closed, but it is not an operating custody system:
   tests are not present;
 - no current proof, pre-commit, CI, PR, or merge claim exists for this route.
 
-The graph records the route as `planned` and separately authorizes only the
-implementation phase. The planned package registration in the root Cargo
-metadata is not active workspace membership. It must not derive ordinary READY
-or DONE from this source map.
+The graph records the route as `validation` and separately authorizes only the
+implementation phase. The graph-owned workspace requirements require the root
+manifest, each package manifest, required `lib`/`bin` targets, and active Cargo
+workspace membership; `cargo metadata --no-deps` is authoritative. File
+presence, comments, or an opaque Cargo metadata block cannot satisfy those
+requirements or derive ordinary READY or DONE.
 
 ## Owning boundary
 

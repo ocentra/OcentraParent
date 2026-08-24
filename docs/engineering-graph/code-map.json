@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "authority": "Reviewed plan-to-runtime ownership map; file counts are live topology, not acceptance.",
+  "schemaVersion": 2,
+  "authority": "Reviewed plan-to-runtime ownership map; file counts are live topology, not acceptance. Schema 2 adds graph-native Cargo workspace/package requirements.",
   "plans": {
     "account-identity-family-plan": [
       "crates/family-identity-core",
@@ -9992,7 +9992,49 @@
         "crates/protected-capability-custody-client/tests/admission.rs",
         "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
       ],
-      "note": "Existing core source is substantive and fail-closed but inert outside its crate: admission/platform authority is private and SQLite is only a checked replica. The staged root Cargo metadata records future protocol/broker/client package members without activating absent targets. The implementation packet must add the neutral protocol package, broker library/process, client library, and a narrow core broker_admission.rs facade while retaining sealed owner traits and opaque admission. Core private behavior is tested in core-owned unit modules; protocol, broker process/race/Windows, and client admission/IPC tests live in their owning packages without dependency cycles. A real isolated Windows process with authenticated OS IPC must own ACL/path/key/watermark/write-lease authority and opaque admission; in-process broker, same-process DPAPI, mutex/file-lock custody, caller attestation, fake/no-op adapters, tests, proof, READY, and DONE are not claimed."
+      "workspaceRequirements": {
+        "rootManifest": "Cargo.toml",
+        "packages": [
+          {
+            "manifest": "crates/protected-capability-custody-protocol/Cargo.toml",
+            "package": "ocentra-protected-capability-custody-protocol",
+            "activeMember": true,
+            "requiredTargets": [
+              {
+                "kind": "lib",
+                "path": "crates/protected-capability-custody-protocol/src/lib.rs"
+              }
+            ]
+          },
+          {
+            "manifest": "crates/protected-capability-custody-broker/Cargo.toml",
+            "package": "ocentra-protected-capability-custody-broker",
+            "activeMember": true,
+            "requiredTargets": [
+              {
+                "kind": "lib",
+                "path": "crates/protected-capability-custody-broker/src/lib.rs"
+              },
+              {
+                "kind": "bin",
+                "path": "crates/protected-capability-custody-broker/src/main.rs"
+              }
+            ]
+          },
+          {
+            "manifest": "crates/protected-capability-custody-client/Cargo.toml",
+            "package": "ocentra-protected-capability-custody-client",
+            "activeMember": true,
+            "requiredTargets": [
+              {
+                "kind": "lib",
+                "path": "crates/protected-capability-custody-client/src/lib.rs"
+              }
+            ]
+          }
+        ]
+      },
+      "note": "Existing core source is substantive and fail-closed but inert outside its crate: admission/platform authority is private and SQLite is only a checked replica. The graph-owned workspaceRequirements require explicit protocol/broker/client manifests, lib/bin targets, and active Cargo workspace membership; cargo metadata is authoritative, so file presence or comments cannot satisfy registration. The implementation packet must add the neutral protocol package, broker library/process, client library, and a narrow core broker_admission.rs facade while retaining sealed owner traits and opaque admission. Core private behavior is tested in core-owned unit modules; protocol, broker process/race/Windows, and client admission/IPC tests live in their owning packages without dependency cycles. A real isolated Windows process with authenticated OS IPC must own ACL/path/key/watermark/write-lease authority and opaque admission; in-process broker, same-process DPAPI, mutex/file-lock custody, caller attestation, fake/no-op adapters, tests, proof, READY, and DONE are not claimed."
     }
   }
 }

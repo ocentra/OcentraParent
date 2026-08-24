@@ -18,5 +18,5 @@ Status: reset for the new neutral route.
 - [ ] Reconcile checklist and graph state from current evidence.
 - [ ] Prepare one coherent PR only after the repo-wide final gate is assigned.
 
-The existing core source does not check these rows. Planned paths and graph
+The existing core source does not check these rows. Mapped paths and graph
 ownership are routing evidence, not execution evidence.

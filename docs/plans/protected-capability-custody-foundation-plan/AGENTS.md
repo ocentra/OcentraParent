@@ -32,10 +32,10 @@ Account, Device Trust, Data Custody, policy, or provider authority.
   authenticated client boundary. It must not turn the current process into a
   broker or use same-process DPAPI, mutex/file-lock custody, caller attestation,
   mocks, fake success, or no-op adapters.
-- The neutral protocol package is the single wire-contract owner. Broker and
-  client manifests/targets are planned until real non-placeholder targets exist;
-  root Cargo metadata records the staged registration without activating empty
-  workspace members.
+- The neutral protocol package is the single wire-contract owner. The graph
+  records the broker/client manifests and required targets as implementation
+  obligations; active workspace membership is verified from `cargo metadata
+  --no-deps`, never from comments, file presence, or opaque metadata.
 - The core may expose only a narrow broker-entry/facade seam. Keep
   `CustodyAdmission`, authority/platform owner traits, and platform guards
   sealed/core-private; a cross-crate caller must not implement or mint them.

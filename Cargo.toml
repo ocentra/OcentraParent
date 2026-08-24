@@ -49,18 +49,6 @@ version = "0.1.1"
 edition = "2021"
 license = "UNLICENSED"
 
-# Protected-capability custody package registration is intentionally staged.
-# These packages remain planned until real manifests and non-placeholder
-# targets land in the implementation packet; they must not be activated as
-# workspace members by a docs-only route.
-[workspace.metadata.ocentra-protected-capability-custody]
-planned_members = [
-  "crates/protected-capability-custody-protocol",
-  "crates/protected-capability-custody-broker",
-  "crates/protected-capability-custody-client",
-]
-activation_rule = "Activate only with real Cargo.toml plus lib/main targets and focused package validation."
-
 [workspace.lints.rust]
 unsafe_code = "forbid"
 
