@@ -21,13 +21,53 @@ impl AccountIdentityIssuer {
         let Some(attempt) = attempt else {
             return Ok(false);
         };
-        let acknowledgement = self
-            .delivery_owner
-            .as_deref()
-            .ok_or(AccountIdentityIssuerError::DeliveryUnavailable)?
-            .deliver(&attempt)?;
+        let acknowledgement = self.deliver_or_release(authority, service, &attempt)?;
         self.acknowledge_delivery(authority, service, &attempt, &acknowledgement)?;
         Ok(true)
+    }
+
+    fn deliver_or_release(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        service: service_binding::AccountIdentityIssuerService,
+        attempt: &outbox::AccountIdentityIssuerDeliveryAttempt,
+    ) -> Result<outbox::AccountIdentityIssuerDeliveryAcknowledgement, AccountIdentityIssuerError>
+    {
+        let delivery_result = self
+            .delivery_owner
+            .as_deref()
+            .ok_or(AccountIdentityIssuerError::DeliveryUnavailable)
+            .and_then(|owner| owner.deliver(attempt));
+        match delivery_result {
+            Ok(acknowledgement) => Ok(acknowledgement),
+            Err(error) => {
+                self.release_delivery_claim(authority, service, attempt)?;
+                Err(error)
+            }
+        }
+    }
+
+    fn release_delivery_claim(
+        &mut self,
+        authority: &VerifiedAccountIdentityAuthority,
+        service: service_binding::AccountIdentityIssuerService,
+        attempt: &outbox::AccountIdentityIssuerDeliveryAttempt,
+    ) -> Result<(), AccountIdentityIssuerError> {
+        self.store.validate_identity()?;
+        let authenticator = self.binding_authenticator.as_deref();
+        let transaction = self
+            .store
+            .repository_mut()
+            .begin_account_issuer_transaction()
+            .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
+        let now = key_registry::receipts::trusted_now(&transaction)?;
+        currentness::ensure_exact_current(&transaction, authority, now)?;
+        let binding = currentness::binding_for_current(authority, service)?;
+        let _authenticated = currentness::authenticate_binding(authenticator, authority, &binding)?;
+        outbox::release(&transaction, authority, &binding, attempt)?;
+        transaction
+            .commit()
+            .map_err(|_| AccountIdentityIssuerError::Unavailable)
     }
 
     fn claim_pending_delivery(

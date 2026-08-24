@@ -8,6 +8,10 @@ use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_authority_producer::AccountIdentityAuthorityProducerCustody;
 use crate::account_identity_authority_producer_error::AccountIdentityAuthorityProducerError;
 
+#[path = "account_identity_authority_issuer_cloudflare_delivery.rs"]
+mod cloudflare_delivery;
+#[path = "account_identity_authority_issuer_current_key_record.rs"]
+mod current_key_record;
 #[path = "account_identity_authority_issuer_currentness.rs"]
 mod currentness;
 #[path = "account_identity_authority_issuer_delivery.rs"]
@@ -18,6 +22,10 @@ mod key_custody;
 mod key_registry;
 #[path = "account_identity_authority_issuer_outbox.rs"]
 mod outbox;
+#[path = "account_identity_authority_issuer_protected_signer.rs"]
+mod protected_signer;
+#[path = "account_identity_authority_issuer_runtime.rs"]
+pub(crate) mod runtime;
 #[path = "account_identity_authority_issuer_service_binding.rs"]
 mod service_binding;
 #[path = "account_identity_authority_issuer_startup.rs"]
@@ -153,9 +161,10 @@ impl AccountIdentityIssuer {
         &mut self,
         signer: Box<dyn key_custody::AccountIdentityIssuerSignerAdapter>,
     ) {
-        self.signer = Some(key_custody::AccountIdentityIssuerKeyCustody::from_signer(
-            signer,
-        ));
+        self.signer = Some(
+            protected_signer::AccountIdentityIssuerProtectedSigner::from_platform_owner(signer)
+                .into_custody(),
+        );
     }
 
     pub(crate) fn install_binding_authenticator(

@@ -3,6 +3,7 @@ use rusqlite::{params, OptionalExtension, Transaction};
 
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 
+use super::super::current_key_record::AccountIdentityIssuerCurrentPublicKeyRecord;
 use super::super::key_registry::RegisteredIssuerKey;
 use super::super::service_binding::AccountIdentityIssuerServiceBinding;
 use super::super::AccountIdentityIssuerError;
@@ -26,7 +27,15 @@ pub(crate) fn claim_next(
         };
         match super::super::transport::verify(&wire, authority, binding, registered, now) {
             Ok(verified) if verified.receipt_id() == receipt_id => {
-                return claim_selected(transaction, authority, binding, receipt_id, wire, now);
+                return claim_selected(
+                    transaction,
+                    authority,
+                    binding,
+                    registered,
+                    receipt_id,
+                    wire,
+                    now,
+                );
             }
             _ => reconcile::supersede_receipt(transaction, &receipt_id, now)?,
         }
@@ -37,10 +46,14 @@ fn claim_selected(
     transaction: &Transaction<'_>,
     authority: &VerifiedAccountIdentityAuthority,
     binding: &AccountIdentityIssuerServiceBinding,
+    registered: &RegisteredIssuerKey,
     receipt_id: String,
     wire: Vec<u8>,
     now: DateTime<Utc>,
 ) -> Result<Option<AccountIdentityIssuerDeliveryAttempt>, AccountIdentityIssuerError> {
+    let current_key_record = AccountIdentityIssuerCurrentPublicKeyRecord::from_registered(
+        authority, binding, registered,
+    )?;
     let claim_id = opaque_digest("delivery-claim")?;
     let claim_expires_at = now
         .checked_add_signed(Duration::seconds(CLAIM_LEASE_SECONDS))
@@ -74,6 +87,7 @@ fn claim_selected(
         household_id: authority.household_id().to_string(),
         authority_generation: authority.authority_generation(),
         wire,
+        current_key_record,
     }))
 }
 

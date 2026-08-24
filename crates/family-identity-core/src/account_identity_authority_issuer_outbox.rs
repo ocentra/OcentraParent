@@ -7,6 +7,7 @@ use sha2::{Digest, Sha256};
 
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 
+use super::current_key_record::AccountIdentityIssuerCurrentPublicKeyRecord;
 use super::service_binding::{AccountIdentityIssuerService, AccountIdentityIssuerServiceBinding};
 use super::transport::AccountIdentityIssuerTransport;
 use super::AccountIdentityIssuerError;
@@ -75,6 +76,7 @@ pub(crate) struct AccountIdentityIssuerDeliveryAttempt {
     household_id: String,
     authority_generation: u64,
     wire: Vec<u8>,
+    current_key_record: AccountIdentityIssuerCurrentPublicKeyRecord,
 }
 
 impl AccountIdentityIssuerDeliveryAttempt {
@@ -88,6 +90,32 @@ impl AccountIdentityIssuerDeliveryAttempt {
 
     pub(crate) fn service(&self) -> AccountIdentityIssuerService {
         self.service
+    }
+
+    pub(crate) fn cloudflare_delivery_parts(
+        &self,
+    ) -> (
+        &str,
+        &str,
+        AccountIdentityIssuerService,
+        &str,
+        &str,
+        &str,
+        u64,
+        &[u8],
+        &AccountIdentityIssuerCurrentPublicKeyRecord,
+    ) {
+        (
+            &self.receipt_id,
+            &self.claim_id,
+            self.service,
+            &self.binding_id,
+            &self.account_id,
+            &self.household_id,
+            self.authority_generation,
+            &self.wire,
+            &self.current_key_record,
+        )
     }
 }
 
@@ -112,7 +140,7 @@ pub(crate) struct AccountIdentityIssuerDeliveryAcknowledgement {
 impl AccountIdentityIssuerDeliveryAcknowledgement {
     /// Only a sealed Account-owned delivery adapter can mint success from a
     /// verified Cloudflare acknowledgement.
-    fn new(
+    pub(super) fn new(
         attempt: &AccountIdentityIssuerDeliveryAttempt,
         acknowledgement_id: String,
     ) -> Result<Self, AccountIdentityIssuerError> {
@@ -128,8 +156,9 @@ impl AccountIdentityIssuerDeliveryAcknowledgement {
 }
 
 /// Future Account-owned adapter seam for an idempotent Cloudflare handoff.
-/// The acknowledgement constructor remains private to this module, so no
-/// sibling implementation can manufacture successful delivery evidence.
+/// The acknowledgement constructor is visible only to this issuer boundary
+/// and its sealed owner adapters, so unrelated crate callers cannot mint
+/// successful delivery evidence.
 pub(crate) trait AccountIdentityIssuerDeliveryOwnerAdapter: Send + Sync {
     fn deliver(
         &self,

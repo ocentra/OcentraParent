@@ -135,6 +135,10 @@ impl AccountIdentityIssuerAuthenticatedBinding {
         }
     }
 
+    pub(super) fn from_authenticated_owner(binding: &AccountIdentityIssuerServiceBinding) -> Self {
+        Self::new(binding)
+    }
+
     pub(crate) fn binding_id(&self) -> &str {
         &self.binding_id
     }
