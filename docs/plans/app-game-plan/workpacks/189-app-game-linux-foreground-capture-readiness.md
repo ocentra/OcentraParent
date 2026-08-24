@@ -17,49 +17,49 @@
 
 ## Scope
 
-Turn WSLg display and X11/Wayland socket proof into a parent-domain foreground
-capture readiness row.
+Turn Linux display and X11/Wayland socket probing into a typed foreground
+capture readiness boundary.
 
-This does not prove active foreground capture. It records that the display layer
-is ready on this Windows/WSL host and that an active-window capture tool/source
-is still missing.
+This source phase does not prove active foreground capture or a current host
+state. It records only what an actual Linux probe can establish and keeps
+WSLg/Docker presence by itself outside the evidence boundary.
 
 ## Implementation
 
-- Added `packages/parent-domain/src/app-game-linux-foreground-capture-readiness.ts`.
-- Added focused tests for WSLg display-ready/capture-tool-missing readiness,
-  display-not-ready fallback, and rejection of raw window title or enforcement
-  claim upgrades.
-- Updated parent-domain platform proof status so an attached Linux foreground
-  readiness row adds `linux-foreground-capture-readiness-ref` while keeping
-  `linux-foreground-capture-not-proved` open.
-- Added `scripts/test/app-game-linux-foreground-capture-readiness-proof.mjs`.
+- Rust production source now owns Linux display classification and X11/Wayland
+  socket readiness in `crates/screen-capture-adapter/src/linux_display.rs`,
+  `linux_display_paths.rs`, and `linux_display_readiness.rs`.
+- The agent-service platform status path consumes only the typed preflight and
+  adds detail refs after the live probe reports readiness; WSL/Docker presence
+  alone is not evidence.
+- Linux capture uses process-group-contained child tools, one aggregate
+  deadline, owner-held temporary files, capped artifacts, and Rust PNG
+  validation. Metadata remains identity-free.
+- No workpack tests, proof artifacts, or deployment validation were added in
+  this source-only phase.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-linux-foreground-capture-readiness app-game-platform-proof-status
-cmd /c node scripts/test/app-game-linux-foreground-capture-readiness-proof.mjs
-```
+Source-only validation is limited to focused Cargo checks, formatting, source
+shape/architecture, Enforcer coordination, graph validation, and diff guards.
+Linux-target compilation remains dependent on an available Linux C toolchain.
+No tests or proof commands were run.
 
 ## Proof
 
-- `test-results/app-game-linux-foreground-capture-readiness-proof/proof.json`
-- `output/app-game-plan-proof/189-app-game-linux-foreground-capture-readiness/proof.json`
+No proof artifact exists. The expected Linux capture/readiness test roots are
+absent and this workpack is not DONE or proof-complete.
 
 ## Boundaries
 
 Proved:
 
-- WSLg display and X11/Wayland socket proof can feed a parent-safe foreground
-  capture readiness row.
-- The Linux platform proof status row can carry a foreground readiness ref.
+- The production source shape can produce typed, redacted display and socket
+  readiness from an actual Linux probe.
 
 Not proved:
 
-- Active foreground capture.
+- Active foreground capture or App/Game ownership.
 - Raw active-window title custody.
 - AppArmor, SELinux, package manager, Flatpak, Snap, rollback, audit, launch
   blocking, adapter dispatch, platform enforcement, provider delivery, or

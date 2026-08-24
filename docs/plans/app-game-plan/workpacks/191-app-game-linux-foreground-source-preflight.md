@@ -17,48 +17,47 @@
 
 ## Scope
 
-Turn Linux WSLg display and socket readiness from WP189 into a foreground source
-preflight row.
+Turn Linux display/socket readiness and bounded foreground-tool probes from
+WP189 into a typed foreground source preflight.
 
-This proves the display/source preflight shape only. On this Windows/WSL host,
-the active-window tool is still missing, so active foreground capture remains
-open.
+This source phase proves only the preflight shape. It does not assert a current
+Windows/WSL host state, compose App/Game ownership, or authorize capture.
 
 ## Implementation
 
-- Added `packages/parent-domain/src/app-game-linux-foreground-source-preflight.ts`.
-- Added focused tests for the current WSLg display-ready/tool-missing host,
-  hypothetical tool-available preflight readiness, and rejection of raw window
-  title, foreground-capture, and enforcement overclaims.
-- Added the combined platform runtime proof harness in
-  `scripts/test/app-game-platform-runtime-readiness-batch.mjs`.
+- Rust source now exposes a typed Linux foreground-source preflight from
+  `crates/screen-capture-adapter/src/linux_foreground_source.rs` with truthful
+  WSLg/native display, X11/Wayland socket, xprop/xdotool, and opaque active
+  window states.
+- The asynchronous platform proof handler runs the live probe in bounded
+  `spawn_blocking` work and fails closed on timeout or join failure.
+- The preflight is source capability only: it does not compose App/Game
+  ownership, enforcement authority, or raw window identity.
+- No workpack tests, proof artifacts, or deployment validation were added in
+  this source-only phase.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-usage-events-child-runtime-replay app-game-linux-foreground-source-preflight
-cmd /c node scripts/test/app-game-platform-runtime-readiness-batch.mjs
-```
+Source-only validation is limited to focused Cargo checks, formatting, source
+shape/architecture, Enforcer coordination, graph validation, and diff guards.
+Linux-target compilation remains dependent on an available Linux C toolchain.
+No tests or proof commands were run.
 
 ## Proof
 
-- `test-results/app-game-platform-runtime-readiness-batch/proof.json`
-- `output/app-game-plan-proof/190-191-platform-runtime-readiness-batch/proof.json`
+No proof artifact exists. The expected Linux preflight test roots are absent and
+this workpack is not DONE or proof-complete.
 
 ## Boundaries
 
 Proved:
 
-- WSLg display and X11/Wayland socket readiness can feed a foreground source
-  preflight boundary.
-- The current host is blocked on active-window tool availability before
-  foreground capture can be claimed.
+- Production source defines a typed, bounded foreground-source preflight with
+  fail-closed probe outcomes.
 
 Not proved:
 
-- Active foreground capture.
+- Active foreground capture or App/Game ownership.
 - Raw active-window title custody.
 - AppArmor, SELinux, package manager, Flatpak, Snap, rollback, audit, launch
   blocking, adapter dispatch, platform enforcement, provider delivery, or

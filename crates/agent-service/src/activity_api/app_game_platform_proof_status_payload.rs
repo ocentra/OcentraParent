@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE,
@@ -35,6 +37,7 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::AppGamePlatformProofStatusRow;
+use ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxForegroundSourcePreflight;
 
 use super::app_game_adapter_execution_readiness_payload::GeneratedAtText;
 use super::app_game_adapter_host_capabilities::HostCapabilitySignals;
@@ -53,7 +56,21 @@ pub async fn build_activity_app_game_platform_proof_status_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let generated_at = GeneratedAtText(timestamp_now());
-    let read_model = app_game_platform_proof_status_read_model(generated_at);
+    let host_capabilities = HostCapabilitySignals::detect();
+    let linux_preflight = match tokio::time::timeout(
+        Duration::from_secs(3),
+        tokio::task::spawn_blocking(HostCapabilitySignals::linux_foreground_source_preflight),
+    )
+    .await
+    {
+        Ok(Ok(preflight)) => preflight,
+        Ok(Err(_)) | Err(_) => LinuxForegroundSourcePreflight::unavailable(),
+    };
+    let read_model = app_game_platform_proof_status_read_model_with_preflight(
+        generated_at,
+        &host_capabilities,
+        &linux_preflight,
+    );
     build_event(
         constants::event_id::ACTIVITY_APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_REPORTED,
         &command.message_id,
@@ -69,7 +86,20 @@ pub fn app_game_platform_proof_status_read_model(
     generated_at: GeneratedAtText,
 ) -> AppGamePlatformProofStatusReadModel {
     let host_capabilities = HostCapabilitySignals::detect();
-    let rows = platform_status_rows(&generated_at, &host_capabilities);
+    let linux_preflight = LinuxForegroundSourcePreflight::unavailable();
+    app_game_platform_proof_status_read_model_with_preflight(
+        generated_at,
+        &host_capabilities,
+        &linux_preflight,
+    )
+}
+
+fn app_game_platform_proof_status_read_model_with_preflight(
+    generated_at: GeneratedAtText,
+    host_capabilities: &HostCapabilitySignals,
+    linux_preflight: &LinuxForegroundSourcePreflight,
+) -> AppGamePlatformProofStatusReadModel {
+    let rows = platform_status_rows(&generated_at, host_capabilities, linux_preflight);
     let enforcement_ready_count = rows
         .iter()
         .filter(|row| {
@@ -140,11 +170,12 @@ pub fn app_game_platform_proof_status_payload(
 fn platform_status_rows(
     generated_at: &GeneratedAtText,
     host_capabilities: &HostCapabilitySignals,
+    linux_preflight: &LinuxForegroundSourcePreflight,
 ) -> Vec<AppGamePlatformProofStatusRow> {
     vec![
         windows_status_row(generated_at),
         android_status_row(generated_at, host_capabilities),
-        linux_status_row(generated_at, host_capabilities),
+        linux_status_row(generated_at, host_capabilities, linux_preflight),
         platform_not_applicable_status_row(
             generated_at,
             TextValue(APP_GAME_PARENT_PLATFORM_MACOS),
@@ -215,8 +246,9 @@ fn android_status_row(
 fn linux_status_row(
     generated_at: &GeneratedAtText,
     host_capabilities: &HostCapabilitySignals,
+    linux_preflight: &LinuxForegroundSourcePreflight,
 ) -> AppGamePlatformProofStatusRow {
-    let host_state = host_capabilities.linux_state().0;
+    let host_state = host_capabilities.linux_state_for(linux_preflight).0;
     platform_status_row(&PlatformStatusSpec {
         generated_at,
         platform: TextValue(APP_GAME_PARENT_PLATFORM_LINUX),
@@ -227,14 +259,13 @@ fn linux_status_row(
         },
         authority_state: TextValue(APP_GAME_PLATFORM_AUTHORITY_VISIBILITY_ONLY),
         host_capability_state: TextValue(host_state),
-        host_capability_evidence_refs: TextList(host_capabilities.linux_evidence_refs().0),
-        host_capability_probe_refs: TextList(host_capabilities.linux_probe_refs().0),
-        proof_refs: TextList(vec![
-            proof::REF_LINUX_WSL_HOST_TOOLCHAIN.to_string(),
-            proof::REF_LINUX_WSLG_DISPLAY.to_string(),
-            proof::REF_LINUX_WSLG_X11_SOCKET.to_string(),
-            proof::REF_LINUX_WSLG_WAYLAND_SOCKET.to_string(),
-        ]),
+        host_capability_evidence_refs: TextList(
+            host_capabilities.linux_evidence_refs_for(linux_preflight).0,
+        ),
+        host_capability_probe_refs: TextList(
+            host_capabilities.linux_probe_refs_for(linux_preflight).0,
+        ),
+        proof_refs: TextList(host_capabilities.linux_proof_refs_for(linux_preflight).0),
         open_gaps: TextList(vec![
             APP_GAME_PLATFORM_GAP_LINUX_NATIVE_SERVICE.to_string(),
             APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE.to_string(),

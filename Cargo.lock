@@ -2823,12 +2823,14 @@ version = "0.1.1"
 dependencies = [
  "base64",
  "crc32fast",
+ "nix",
  "ocentra-parent-agent-core",
  "ocentra-parent-agent-protocol",
  "ocentra-schema",
  "png",
  "serde_json",
  "sha2",
+ "tempfile",
  "xcap",
 ]
 

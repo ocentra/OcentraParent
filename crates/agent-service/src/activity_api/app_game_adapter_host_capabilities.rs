@@ -2,6 +2,9 @@ use ocentra_parent_agent_protocol::app_game_adapter_execution_readiness::{
     APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE, APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
 };
 use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
+use ocentra_parent_screen_capture_adapter::linux_foreground_source::{
+    foreground_source_preflight, LinuxForegroundSourcePreflight,
+};
 
 use super::app_game_adapter_host_capabilities_paths::{
     android_sdk_adb_available, executable_available, EnvironmentName, ExecutableName,
@@ -27,10 +30,14 @@ pub(super) struct HostCapabilitySignals {
 impl HostCapabilitySignals {
     pub(super) fn detect() -> Self {
         let android_adb_path = executable_available(ExecutableName(proof::EXE_ADB));
-        let android_adb_sdk = android_sdk_adb_available(EnvironmentName(proof::ENV_ANDROID_HOME))
-            || android_sdk_adb_available(EnvironmentName(proof::ENV_ANDROID_SDK_ROOT));
+        let android_adb_sdk = [proof::ENV_ANDROID_HOME, proof::ENV_ANDROID_SDK_ROOT]
+            .into_iter()
+            .map(EnvironmentName)
+            .any(android_sdk_adb_available);
         Self {
-            android_adb: android_adb_path || android_adb_sdk,
+            android_adb: [android_adb_path, android_adb_sdk]
+                .into_iter()
+                .any(|available| available),
             android_adb_path,
             android_adb_sdk,
             linux_wsl: executable_available(ExecutableName(proof::EXE_WSL)),
@@ -71,39 +78,30 @@ impl HostCapabilitySignals {
     }
 
     pub(super) fn linux_evidence_refs(&self) -> EvidenceRefs {
-        EvidenceRefs(
-            [
-                self.linux_wsl
-                    .then_some(proof::REF_LINUX_WSL_HOST_TOOLCHAIN.to_string()),
-                self.linux_docker
-                    .then_some(proof::REF_LINUX_DOCKER_HOST_TOOLCHAIN.to_string()),
-            ]
-            .into_iter()
-            .flatten()
-            .collect(),
-        )
+        EvidenceRefs(Vec::new())
     }
 
     pub(super) fn linux_probe_refs(&self) -> ProbeRefs {
-        ProbeRefs(
-            [
-                self.linux_wsl
-                    .then_some(proof::REF_LINUX_WSL_PATH_PROBE.to_string()),
-                self.linux_docker
-                    .then_some(proof::REF_LINUX_DOCKER_PATH_PROBE.to_string()),
-            ]
-            .into_iter()
-            .flatten()
-            .collect(),
-        )
+        ProbeRefs(Vec::new())
     }
 
     pub(super) fn linux_state(&self) -> CapabilityState {
+        CapabilityState(APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED)
+    }
+
+    pub(super) fn linux_foreground_source_preflight() -> LinuxForegroundSourcePreflight {
+        foreground_source_preflight()
+    }
+
+    pub(super) fn linux_state_for(
+        &self,
+        preflight: &LinuxForegroundSourcePreflight,
+    ) -> CapabilityState {
         CapabilityState(
             [
                 APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
                 APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
-            ][(self.linux_wsl || self.linux_docker) as usize],
+            ][preflight.source_ready() as usize],
         )
     }
 }

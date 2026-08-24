@@ -17,7 +17,8 @@
 
 ## Scope
 
-Probe Linux/WSL active-window tooling without claiming foreground capture.
+Define bounded Linux/WSL active-window tool probes without claiming foreground
+capture.
 
 This closes the tool-detection part of the Linux foreground gap by checking for
 `xdotool` or `xprop` and reducing `_NET_ACTIVE_WINDOW` to an opaque
@@ -26,31 +27,35 @@ app identity remain out of custody.
 
 ## Implementation
 
-- Added `packages/parent-domain/src/app-game-linux-active-window-tool-proof.ts`.
-- Added
-  `packages/parent-domain/tests/app-game-linux-active-window-tool-proof.test.ts`.
-- Added `scripts/test/app-game-linux-active-window-tool-proof.mjs`.
+- Rust tool probing now runs bounded xprop and xdotool argv calls under
+  process-group containment in
+  `crates/screen-capture-adapter/src/linux_tools.rs` and
+  `crates/screen-capture-adapter/src/linux_process.rs`.
+- `_NET_ACTIVE_WINDOW` is reduced to typed observed/not-observed; private
+  selectors never enter public metadata or proof refs.
+- Service adds xprop/xdotool refs only when the corresponding live probe
+  succeeds. Static WSL/Docker presence does not mint a proof ref.
+- No workpack tests, proof artifacts, or deployment validation were added in
+  this source-only phase.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-linux-active-window-tool-proof
-cmd /c node scripts/test/app-game-linux-active-window-tool-proof.mjs
-```
+Source-only validation is limited to focused Cargo checks, formatting, source
+shape/architecture, Enforcer coordination, graph validation, and diff guards.
+Linux-target compilation remains dependent on an available Linux C toolchain.
+No tests or proof commands were run.
 
 ## Proof
 
-- `test-results/app-game-linux-active-window-tool-proof/proof.json`
-- `output/app-game-plan-proof/204-app-game-linux-active-window-tool-proof/proof.json`
+No proof artifact exists. The expected Linux active-window tool test roots are
+absent and this workpack is not DONE or proof-complete.
 
 ## Boundaries
 
 Proved:
 
-- WSL active-window probe tooling can be detected without installing packages.
-- Active-window refs are reduced to an opaque observed/not-observed state.
+- Production source bounds active-window tool probing and reduces the result to
+  an opaque observed/not-observed state.
 - Raw window title custody, raw process-name custody, foreground capture,
   adapter dispatch, platform enforcement, and child-device delivery remain
   unclaimed.

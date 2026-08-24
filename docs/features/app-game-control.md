@@ -1725,23 +1725,20 @@ diagnostics, or raw private source rows.
       Owner/Profile Owner authority, hide/suspend, broad blocking, platform
       enforcement, provider delivery, and child-device delivery remain
       unclaimed.
-- [x] Linux WSLg display readiness proof is redacted and non-promoting. The
-      Linux WSL runtime harness now records WSLg display readiness plus X11 and
-      Wayland socket states from the local WSL2 Ubuntu host without storing raw
-      process rows, package rows, distro names, host paths, or foreground window
-      titles. Linux platform proof status keeps active foreground capture open
-      until a real foreground source exists; AppArmor/SELinux/package
-      restrictions, launch blocking, rollback, audit, broad blocking, platform
-      enforcement, provider delivery, and child-device delivery remain
-      unclaimed.
-- [x] Platform proof status carries Android/Linux detail refs. The live service
-      row now exposes Android physical-device and UsageEvents foreground refs
-      plus Linux WSLg display, X11 socket, and Wayland socket refs through the
-      same parent-safe platform proof status surface. Android durable replay and
-      Linux active foreground capture remain open gaps, and the row still does
-      not claim platform enforcement, adapter dispatch, provider delivery,
-      child-device delivery, raw private source rows, raw target values, or
-      private diagnostics.
+- [ ] Linux display/socket readiness source is present but not proof-complete.
+      Rust production code classifies WSLg/native Linux and checks X11/Wayland
+      sockets without publishing paths, titles, or process rows. No Linux probe
+      or retained proof was run in this source-only phase; static WSL/Docker
+      presence does not mint a detail ref. Active foreground capture,
+      App/Game ownership, policy restrictions, launch blocking, rollback, audit,
+      broad blocking, platform enforcement, provider delivery, and child-device
+      delivery remain unclaimed.
+- [ ] Platform proof status has a typed Linux detail-ref path, pending tests and
+      retained live evidence. The service attaches display/socket/tool refs only
+      after the corresponding probe succeeds; Android durable replay and Linux
+      active foreground capture remain open, as do platform enforcement,
+      adapter dispatch, provider delivery, child-device delivery, raw private
+      source rows, raw target values, and private diagnostics.
 - [x] Android UsageEvents replay readiness is parent-safe and count-only. The
       parent-domain replay read model turns the redacted physical-device
       UsageEvents foreground sample counts into a durable-replay-ready runtime
@@ -1749,12 +1746,12 @@ diagnostics, or raw private source rows.
       status. It still does not store raw UsageEvents rows, package names, raw
       activity data, child runtime delivery, Device Owner/Profile Owner
       authority, hide/suspend, adapter dispatch, or platform enforcement.
-- [x] Linux foreground capture readiness is explicit and non-promoting. The
-      parent-domain readiness row now turns WSLg display plus X11/Wayland socket
-      proof into a parent-safe `display-ready-capture-tool-missing` state. It
-      makes the missing active-window source visible without storing raw window
-      titles or claiming foreground capture, adapter dispatch, Linux policy
-      enforcement, provider delivery, or child-device delivery.
+- [ ] Linux foreground capture readiness has a Rust source boundary but remains
+      validation-open. A typed display/socket preflight can produce a
+      parent-safe readiness state only after an actual Linux probe; this lane
+      did not run tests or proof and does not claim active foreground capture,
+      App/Game ownership, adapter dispatch, Linux policy enforcement, provider
+      delivery, or child-device delivery.
 - [x] Android UsageEvents child-runtime replay is count-only and non-promoting.
       The parent-domain child-runtime replay row now consumes the redacted
       UsageEvents replay readiness row and attaches a child-runtime replay
@@ -1762,12 +1759,13 @@ diagnostics, or raw private source rows.
       raw activity data. Android child-device delivery, Device Owner/Profile
       Owner authority, hide/suspend, adapter dispatch, broad blocking, provider
       delivery, and platform enforcement remain unclaimed.
-- [x] Linux foreground source preflight is explicit and non-promoting. The
-      parent-domain preflight row now consumes the WSLg display/X11/Wayland
-      readiness row and reports this host as `foreground-tool-install-required`
-      before active foreground capture can be claimed. Raw window title custody,
-      AppArmor/SELinux/package-manager enforcement, rollback, audit, adapter
-      dispatch, provider delivery, and child-device delivery remain unclaimed.
+- [ ] Linux foreground source preflight is typed and fail-closed, pending tests
+      and live proof. Rust source reports WSLg/native display, X11/Wayland
+      sockets, bounded xprop/xdotool outcomes, and opaque active-window state;
+      it does not report a current host result, raw window identity, App/Game
+      ownership, enforcement authority, or capture claim. AppArmor/SELinux/
+      package-manager enforcement, rollback, audit, adapter dispatch, provider
+      delivery, and child-device delivery remain unclaimed.
 - [x] Android authority preflight is explicit and non-promoting. The
       parent-domain preflight row now maps the physical Android policy-state
       proof into hide, suspend, uninstall-block, lock-task, and managed
@@ -1869,22 +1867,21 @@ diagnostics, or raw private source rows.
       Service enablement, event sample observation, overlay runtime execution,
       Device Owner/Profile Owner authority, provider delivery, and Play policy
       proof remain open.
-- [x] Linux active-window tool proof is opaque and non-promoting. The WSL proof
-      now detects available active-window tooling and reduces
-      `_NET_ACTIVE_WINDOW` to an opaque observed/not-observed state only. Raw
-      window titles, raw process names, foreground capture, adapter dispatch,
-      platform enforcement, provider delivery, and child-device delivery remain
-      unclaimed; active foreground capture and Linux policy enforcement remain
-      open.
-- [x] Platform proof status carries runtime detail refs. The shared
-      parent-domain platform status model now accepts Android Accessibility
-      runtime, Windows local policy evidence, and Linux active-window tool proof
-      refs beside the existing physical-device, authority, foreground,
-      Docker/WSL, Windows broad-blocking, and Apple CI/manual rows. The rows
-      remain visibility-only and keep adapter dispatch, broad blocking,
-      platform enforcement, provider delivery, child-device delivery, raw
-      policy XML, raw executable paths, raw service names, raw event rows, raw
-      window titles, and private diagnostics unclaimed.
+- [ ] Linux active-window tool probing is opaque and source-only. Rust uses
+      bounded xprop/xdotool argv calls with process-group containment and reduces
+      `_NET_ACTIVE_WINDOW` to observed/not-observed; no test or proof artifact was
+      produced and no static ref is emitted. Raw window titles, raw process
+      names, App/Game ownership, foreground capture, adapter dispatch, platform
+      enforcement, provider delivery, and child-device delivery remain
+      unclaimed.
+- [ ] Platform proof status has a runtime detail-ref path pending live probe
+      success, tests, and retained proof. Linux refs are derived only from typed
+      preflight outcomes; Docker/WSL presence is not evidence. Android
+      Accessibility, Windows local policy, and existing physical-device rows
+      remain separate, with adapter dispatch, broad blocking, platform
+      enforcement, provider delivery, child-device delivery, raw policy XML,
+      raw executable paths, raw service names, raw event rows, raw window titles,
+      and private diagnostics unclaimed.
 - [x] Child-device delivery readiness is explicit and non-promoting. The
       parent-domain read model now maps the existing child UX provider-status
       handoff into child-transport-required, manual-required, and unavailable

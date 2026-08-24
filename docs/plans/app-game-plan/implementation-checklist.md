@@ -358,13 +358,13 @@ UsageEvents rows, package names, child runtime replay consumer, Android
 authority, hide/suspend, adapter dispatch, platform enforcement, provider
 delivery, and child-device delivery remain open.
 
-WP189 adds a parent-domain Linux foreground-capture readiness row over the WSLg
-display/X11/Wayland socket proof. The row reports the current host as display
-ready but capture-tool missing and lets platform proof status carry
-`linux-foreground-capture-readiness-ref`; active foreground capture, raw
-window-title custody, Linux policy mechanisms, rollback, audit, adapter
-dispatch, platform enforcement, provider delivery, and child-device delivery
-remain open.
+WP189 adds Rust-owned Linux display classification and X11/Wayland socket
+readiness behind a typed foreground-capture boundary. The source consumes only
+actual probe outcomes; WSLg/Docker presence alone does not mint a readiness ref.
+Tests, retained proof, and a current Linux deployment probe remain open, as do
+active foreground capture, App/Game ownership, raw window-title custody, Linux
+policy mechanisms, rollback, audit, adapter dispatch, platform enforcement,
+provider delivery, and child-device delivery.
 
 WP190 adds a parent-domain Android UsageEvents child-runtime replay consumer
 boundary over the redacted WP188 replay row. The child-runtime replay consumer
@@ -372,11 +372,14 @@ gap is closed for count-only replay, while raw UsageEvents rows, package names,
 child-device delivery, Android authority, hide/suspend, adapter dispatch,
 platform enforcement, provider delivery, and broad blocking remain open.
 
-WP191 adds a parent-domain Linux foreground source preflight over WP189. The
-current Windows/WSL host is display-ready but active-window-tool missing, so
-active foreground capture, raw window title custody, Linux policy mechanisms,
-rollback, audit, adapter dispatch, platform enforcement, provider delivery,
-and child-device delivery remain open.
+WP191 adds a Rust-owned Linux foreground source preflight over WP189. It carries
+typed WSLg/native display, X11/Wayland socket, xprop/xdotool, and opaque active
+window states; the asynchronous service handler runs the live probe behind
+bounded `spawn_blocking` and fails closed on timeout or join failure. Tests,
+retained proof, and Linux deployment validation remain open, as do active
+foreground capture, App/Game ownership, raw window title custody, Linux policy
+mechanisms, rollback, audit, adapter dispatch, platform enforcement, provider
+delivery, and child-device delivery.
 
 WP192 adds a parent-domain Android authority preflight over the physical
 Android proof. Hide, suspend, uninstall-block, lock-task, and managed
@@ -400,11 +403,13 @@ publisher rules, adapter dispatch, broad blocking, platform enforcement,
 rollback/audit custody execution, provider delivery, and child-device delivery
 remain open.
 
-WP204 adds a Linux/WSL active-window tool proof over existing WSLg display
-readiness. The proof records active-window tool availability and opaque
-active-window ref state only; raw window titles, process names, foreground
-capture, Linux policy enforcement, rollback/audit, adapter dispatch, provider
-delivery, and child-device delivery remain open.
+WP204 adds bounded Rust xprop/xdotool probes over the Linux display boundary.
+`_NET_ACTIVE_WINDOW` is reduced to opaque observed/not-observed state, and
+service detail refs are attached only after a corresponding live probe
+succeeds. Tests, retained proof, and Linux deployment validation remain open;
+raw window titles, process names, foreground capture, App/Game ownership, Linux
+policy enforcement, rollback/audit, adapter dispatch, provider delivery, and
+child-device delivery remain open.
 
 WP205 carries the WP202-WP204 runtime detail refs into the shared platform proof
 status read model so Android Accessibility runtime, Windows local policy
