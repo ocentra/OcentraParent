@@ -33,11 +33,10 @@ export async function sendToBridge(
   endpoint: string,
   options: BridgeSendOptions = {}
 ): Promise<void> {
-  if (entries.length === 0) {
+  const sanitizedEntries = sanitizeBridgeBatchForCustody(entries);
+  if (sanitizedEntries.length === 0) {
     return;
   }
-
-  const sanitizedEntries = sanitizeBridgeBatchForCustody(entries);
 
   const normalized = bridgeEndpoint(endpoint);
   if (options.skipHealthCheck !== true) {
@@ -150,10 +149,14 @@ export class BridgeTransport {
   }
 
   async emit(entries: readonly BridgeEntry[], endpoint?: string): Promise<void> {
+    const sanitizedEntries = sanitizeBridgeBatchForCustody(entries);
+    if (sanitizedEntries.length === 0) {
+      return;
+    }
     const target = endpoint ?? this.defaultEndpoint;
     if (target == null || target.trim().length === 0) {
       throw new Error('log bridge endpoint is required');
     }
-    await sendToBridge(entries, target, { skipHealthCheck: this.skipHealthCheck });
+    await sendToBridge(sanitizedEntries, target, { skipHealthCheck: this.skipHealthCheck });
   }
 }

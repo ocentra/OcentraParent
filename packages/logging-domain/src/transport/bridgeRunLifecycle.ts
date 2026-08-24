@@ -7,6 +7,7 @@ import { generatedStaleRunInfoWarning } from '../parent-log-runtime';
 import { sendBridgeJson } from './bridgeHttp';
 import {
   BridgeLifecycleConflictError,
+  BridgeLifecycleManualRequiredError,
   bridgeLifecycleClearCountersMutation,
   type BridgeLifecycleStateStore,
 } from './bridgeLifecycleState';
@@ -64,7 +65,11 @@ export async function handleBridgeRunStarted(
       lifecycle.completeStart();
     });
     sendBridgeJson(response, 200, { ok: true, ...(warning == null ? {} : { warning }) });
-  } catch {
+  } catch (error) {
+    if (error === BridgeLifecycleManualRequiredError) {
+      sendBridgeJson(response, 423, { ok: false, error: 'bridge lifecycle requires operator resolution' });
+      return;
+    }
     sendBridgeJson(response, 503, { ok: false, error: 'log bridge storage unavailable' });
   }
 }
@@ -89,6 +94,10 @@ export async function handleBridgeFlush(
     });
     sendBridgeJson(response, 200, { ok: true, ...result });
   } catch (error) {
+    if (error === BridgeLifecycleManualRequiredError) {
+      sendBridgeJson(response, 423, { ok: false, error: 'bridge lifecycle requires operator resolution' });
+      return;
+    }
     if (error === BridgeLifecycleConflictError) {
       sendBridgeJson(response, 409, { ok: false, error: 'unknown bridge run' });
       return;

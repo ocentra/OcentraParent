@@ -1,19 +1,21 @@
-import path from 'node:path';
 import type { BridgeEntry } from './bridgeLogPayload';
 import {
   MaximumTrackedBridgeRuns,
-  emptyBridgeLifecycleState,
   parseBridgeLifecycleState,
   type BridgeRunCounter,
+  type BridgeLifecycleOperatorState,
   type BridgeRunInfoState,
   type BridgeRunStartState,
   type PersistedBridgeLifecycleState,
 } from './bridgeLifecycleStateCodec';
-import { durableReplaceLocalArtifact, readLocalArtifactText } from '../local-artifact-file';
 import { withLocalArtifactLock } from '../local-artifact-lock';
 import type { LocalArtifactMutation } from '../local-artifact-transaction';
-
-const MaximumLifecycleBytes = 256 * 1024;
+import {
+  bridgeLifecyclePath,
+  loadBridgeLifecycleState,
+  replaceBridgeLifecycleState,
+  serializeBridgeLifecycleState,
+} from './bridgeLifecycleRecovery';
 
 export interface BridgeFlushState {
   readonly runId: string;
@@ -22,22 +24,7 @@ export interface BridgeFlushState {
 }
 
 export const BridgeLifecycleConflictError = new Error('bridge lifecycle conflict');
-
-function lifecyclePath(rootDir: string): string {
-  return path.join(rootDir, '.bridge', 'lifecycle-state.json');
-}
-
-function loadState(rootDir: string): PersistedBridgeLifecycleState {
-  const content = readLocalArtifactText(lifecyclePath(rootDir), rootDir, MaximumLifecycleBytes);
-  if (content == null) {
-    return emptyBridgeLifecycleState();
-  }
-  try {
-    return parseBridgeLifecycleState(JSON.parse(content) as unknown);
-  } catch {
-    throw new Error('invalid bridge lifecycle state');
-  }
-}
+export const BridgeLifecycleManualRequiredError = new Error('bridge lifecycle requires operator resolution');
 
 function upsertCounter(
   counters: readonly BridgeRunCounter[],
@@ -53,10 +40,6 @@ function upsertCounter(
   return [...counters.filter((counter) => counter.runId !== runId), update(current)]
     .sort((left, right) => left.updatedAt - right.updatedAt)
     .slice(-MaximumTrackedBridgeRuns);
-}
-
-function serializeState(state: PersistedBridgeLifecycleState): string {
-  return `${JSON.stringify(parseBridgeLifecycleState(state))}\n`;
 }
 
 function reconcileCounters(
@@ -84,38 +67,41 @@ export function bridgeLifecycleReconciliationMutation(
   if (affectedRunIds.size === 0) {
     return null;
   }
-  const filePath = lifecyclePath(rootDir);
-  const state = loadState(rootDir);
+  const filePath = bridgeLifecyclePath(rootDir);
+  const state = loadBridgeLifecycleState(rootDir);
   const next = { ...state, runCounters: reconcileCounters(state, remainingCounts, affectedRunIds) };
-  return { kind: 'replace', filePath, payload: serializeState(next) };
+  return { kind: 'replace', filePath, payload: serializeBridgeLifecycleState(next) };
 }
 
 export function bridgeLifecycleClearCountersMutation(rootDir: string): LocalArtifactMutation {
-  const state = loadState(rootDir);
+  const state = loadBridgeLifecycleState(rootDir);
   return {
     kind: 'replace',
-    filePath: lifecyclePath(rootDir),
-    payload: serializeState({ ...state, runCounters: [] }),
+    filePath: bridgeLifecyclePath(rootDir),
+    payload: serializeBridgeLifecycleState({ ...state, runCounters: [] }),
   };
 }
 
 export class BridgeLifecycleStateStore {
   private readonly rootDir: string;
-  private readonly filePath: string;
 
   constructor(rootDir: string) {
     this.rootDir = rootDir;
-    this.filePath = lifecyclePath(rootDir);
-    loadState(rootDir);
+    loadBridgeLifecycleState(rootDir);
   }
 
   runInfo(): BridgeRunInfoState {
-    return { ...loadState(this.rootDir).activeRun };
+    return { ...loadBridgeLifecycleState(this.rootDir).activeRun };
   }
 
   pendingStart(): BridgeRunStartState | null {
-    const pending = loadState(this.rootDir).pendingStart;
+    const pending = loadBridgeLifecycleState(this.rootDir).pendingStart;
     return pending == null ? null : { ...pending };
+  }
+
+  operatorState(): BridgeLifecycleOperatorState | null {
+    const state = loadBridgeLifecycleState(this.rootDir).operatorState;
+    return state == null ? null : { ...state };
   }
 
   prepareStart(run: BridgeRunStartState): void {
@@ -196,8 +182,12 @@ export class BridgeLifecycleStateStore {
 
   private mutate(update: (state: PersistedBridgeLifecycleState) => PersistedBridgeLifecycleState): void {
     withLocalArtifactLock(this.rootDir, () => {
-      const nextState = parseBridgeLifecycleState(update(loadState(this.rootDir)));
-      durableReplaceLocalArtifact(this.filePath, serializeState(nextState), this.rootDir);
+      const current = loadBridgeLifecycleState(this.rootDir);
+      if (current.operatorState != null) {
+        throw BridgeLifecycleManualRequiredError;
+      }
+      const nextState = parseBridgeLifecycleState(update(current));
+      replaceBridgeLifecycleState(this.rootDir, nextState);
     });
   }
 }

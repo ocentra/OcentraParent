@@ -8,6 +8,7 @@ import {
 } from '../test-log/types';
 import type { BridgeRunStartState } from './bridgeLifecycleStateCodec';
 import { readBridgeRequestBody } from './bridgeHttp';
+import { normalizeWipeFileSelector } from '../test-log/wipeFileSelector';
 
 function requestObject(rawBody: string): Record<string, unknown> {
   const value = rawBody.trim().length === 0 ? {} : (JSON.parse(rawBody) as unknown);
@@ -36,10 +37,7 @@ function optionalString(value: unknown): string | null {
 
 function optionalFilePath(value: unknown): string | null {
   const filePath = optionalString(value);
-  if (filePath != null && filePath.length > 4_096) {
-    throw new Error('invalid bridge file selector');
-  }
-  return filePath;
+  return filePath == null ? null : normalizeWipeFileSelector(filePath);
 }
 
 export async function parseRunStartedRequest(request: http.IncomingMessage): Promise<BridgeRunStartState> {

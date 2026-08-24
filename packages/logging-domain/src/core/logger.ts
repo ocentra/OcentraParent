@@ -18,13 +18,10 @@ import {
   type TestSuiteType,
 } from '../test-log/types';
 import { createParentLogDecisionProvider } from './logDecisionProvider';
-import { createParentLogConfig } from './logConfig';
-import {
-  BridgeLogQueue,
-  type AmbiguousBridgeDeliveryResolution,
-  type BridgeQueueDeliveryState,
-} from './bridgeLogQueue';
+import { type AmbiguousBridgeDeliveryResolution, type BridgeQueueDeliveryState } from './bridgeLogQueue';
+import type { BridgeQueueStorage } from './bridgeLogQueuePersistence';
 import { serializeStructuredLogDataForCustody } from './structuredLogCustody';
+import { MaximumMetadataBytes, sanitizeLogText } from './logTextCustody';
 import type { BridgeEntry } from '../transport/bridgeLogPayload';
 import { parseStackTrace, type StackFrame } from './stackTraceParser';
 import {
@@ -34,6 +31,7 @@ import {
   resolveGeneratedLoggerContext,
   resolveGeneratedLoggerSource,
 } from '../stack-trace-runtime';
+import { LoggerBridgeDelivery } from './loggerBridgeDelivery';
 
 const TestLogOriginLookup: Readonly<Record<string, TestLogOriginValue>> = {
   [TestLogOrigin.AgentService]: TestLogOrigin.AgentService,
@@ -54,6 +52,13 @@ export interface LoggerRuntimeConfig {
   readonly environment?: string | null;
   readonly correlationId?: string | null;
   readonly skipHealthCheck?: boolean;
+  readonly bridgeQueueStorage?: BridgeQueueStorage | null;
+}
+
+export interface LoggerQueueDeliveryState extends BridgeQueueDeliveryState {
+  readonly rejectedEntries: number;
+  readonly filteredEntries: number;
+  readonly lastRejection: string | null;
 }
 
 interface LoggerRegistration {
@@ -120,27 +125,35 @@ export class Logger {
   static readonly instance = new Logger();
 
   private readonly registrations = new Map<string, LoggerRegistration>();
-  private readonly bridgeQueue = new BridgeLogQueue(() => {
+  private readonly bridgeDelivery = new LoggerBridgeDelivery(() => {
     const runtime = this.resolveRuntimeConfig();
     return { endpoint: runtime.bridgeEndpoint, skipHealthCheck: runtime.skipHealthCheck };
   });
   private runtimeConfig: Partial<LoggerRuntimeConfig> = {};
   private runSequence = 0;
   private generatedRunId: string | null = null;
+  private rejectedEntries = 0;
+  private filteredEntries = 0;
+  private lastRejection: string | null = null;
 
   configure(config: Partial<LoggerRuntimeConfig>): void {
-    this.runtimeConfig = {
+    const nextConfig = {
       ...this.runtimeConfig,
       ...config,
     };
+    this.bridgeDelivery.configure(nextConfig.bridgeEndpoint, nextConfig.bridgeQueueStorage);
+    this.runtimeConfig = nextConfig;
   }
 
   reset(): void {
     this.registrations.clear();
-    this.bridgeQueue.reset();
+    this.bridgeDelivery.reset();
     this.runtimeConfig = {};
     this.runSequence = 0;
     this.generatedRunId = null;
+    this.rejectedEntries = 0;
+    this.filteredEntries = 0;
+    this.lastRejection = null;
   }
 
   register(moduleUrl: string): void {
@@ -172,27 +185,53 @@ export class Logger {
   }
 
   async flushLogQueue(): Promise<void> {
-    await this.bridgeQueue.flush();
+    await this.bridgeDelivery.flush();
   }
 
   async flush(): Promise<void> {
     await this.flushLogQueue();
   }
 
-  logQueueDeliveryState(): BridgeQueueDeliveryState {
-    return this.bridgeQueue.deliveryState();
+  logQueueDeliveryState(): LoggerQueueDeliveryState {
+    const state = this.bridgeDelivery.deliveryState();
+    return {
+      ...state,
+      rejectedEntries: this.rejectedEntries,
+      filteredEntries: this.filteredEntries,
+      lastRejection: this.lastRejection,
+    };
   }
 
   resolveAmbiguousLogDelivery(resolution: AmbiguousBridgeDeliveryResolution): void {
-    this.bridgeQueue.resolveAmbiguousDelivery(resolution);
+    this.bridgeDelivery.resolveAmbiguousDelivery(resolution);
   }
 
   private log(level: LogLevelValue, message: string, stackTrace: StackTrace, data?: unknown): void {
-    const frames = parseStackTrace(stackTrace);
-    const location = this.resolveLogLocation(frames);
-    const runtime = this.resolveRuntimeConfig();
-    if (this.shouldStoreLog(level, location, runtime.runId)) {
-      this.bridgeQueue.enqueue(this.buildBridgeEntry(level, message, stackTrace, data, runtime, location));
+    try {
+      if (!this.bridgeDelivery.configured()) {
+        return;
+      }
+      const frames = parseStackTrace(stackTrace);
+      const location = this.resolveLogLocation(frames);
+      const runtime = this.resolveRuntimeConfig();
+      if (this.shouldStoreLog(level, location, runtime.runId)) {
+        this.bridgeDelivery.enqueue(this.buildBridgeEntry(level, message, stackTrace, data, runtime, location));
+      } else {
+        this.filteredEntries += 1;
+      }
+    } catch (error) {
+      this.rejectedEntries += 1;
+      this.lastRejection = this.safeRejectionMessage(error);
+    }
+  }
+
+  private safeRejectionMessage(error: unknown): string {
+    try {
+      return error instanceof Error
+        ? sanitizeLogText(error.message, 'log rejection reason', MaximumMetadataBytes)
+        : 'log entry was rejected by custody';
+    } catch {
+      return 'log entry was rejected by custody';
     }
   }
 
@@ -298,9 +337,8 @@ export class Logger {
   }
 
   private resolveRuntimeConfig(): ResolvedRuntimeConfig {
-    const bridgeConfig = createParentLogConfig();
     return {
-      bridgeEndpoint: this.runtimeConfig.bridgeEndpoint ?? bridgeConfig.bridgeUrl,
+      bridgeEndpoint: this.runtimeConfig.bridgeEndpoint ?? null,
       runId: this.resolveRunId(),
       testName: this.resolveTestName(),
       scope: this.resolveScope(),
@@ -309,7 +347,7 @@ export class Logger {
       origin: this.resolveOrigin(),
       environment: this.resolveEnvironment(),
       correlationId: this.runtimeConfig.correlationId ?? null,
-      skipHealthCheck: this.runtimeConfig.skipHealthCheck ?? bridgeConfig.skipBridgeHealth,
+      skipHealthCheck: this.runtimeConfig.skipHealthCheck ?? false,
     };
   }
 

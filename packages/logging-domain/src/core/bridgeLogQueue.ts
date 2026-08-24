@@ -1,6 +1,6 @@
 import type { BridgeEntry } from '../transport/bridgeLogPayload';
 import { sendToBridge } from '../transport/bridgeTransport';
-import { BridgeLogQueuePersistence } from './bridgeLogQueuePersistence';
+import { BridgeLogQueuePersistence, type BridgeQueueStorage } from './bridgeLogQueuePersistence';
 import {
   BridgeLogQueueState,
   type AmbiguousBridgeDeliveryResolution as QueueStateResolution,
@@ -13,7 +13,7 @@ interface BridgeLogQueueRuntime {
 }
 
 export interface BridgeQueueDeliveryState {
-  readonly status: 'ready' | 'ambiguous' | 'persistence-unavailable';
+  readonly status: 'unconfigured' | 'ready' | 'ambiguous' | 'persistence-unavailable';
   readonly queuedEntries: number;
   readonly queuedBytes: number;
   readonly ambiguousBatchSize: number;
@@ -23,14 +23,22 @@ export type AmbiguousBridgeDeliveryResolution = QueueStateResolution;
 
 export class BridgeLogQueue {
   private readonly state = new BridgeLogQueueState();
-  private readonly persistence = new BridgeLogQueuePersistence();
+  private readonly persistence: BridgeLogQueuePersistence;
   private flushInFlight: Promise<void> | null = null;
 
-  constructor(private readonly resolveRuntime: () => BridgeLogQueueRuntime) {
+  constructor(
+    private readonly resolveRuntime: () => BridgeLogQueueRuntime,
+    storage: BridgeQueueStorage
+  ) {
+    this.persistence = new BridgeLogQueuePersistence(storage);
     const persisted = this.persistence.restore();
     if (persisted != null) {
       this.state.apply(persisted);
     }
+  }
+
+  storageIs(storage: BridgeQueueStorage): boolean {
+    return this.persistence.storageIs(storage);
   }
 
   enqueue(entry: BridgeEntry): void {
@@ -38,8 +46,8 @@ export class BridgeLogQueue {
   }
 
   reset(): void {
-    if (this.flushInFlight != null || this.state.deliveryStatus() === 'ambiguous') {
-      throw new Error('log bridge queue cannot be reset while delivery ownership is unresolved');
+    if (this.flushInFlight != null || this.state.deliveryStatus() === 'ambiguous' || this.state.queuedEntries() > 0) {
+      throw new Error('log bridge queue cannot be reset while delivery ownership is pending');
     }
     this.persistence.clear();
     this.state.apply(this.state.resetState());

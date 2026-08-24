@@ -2,14 +2,47 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const IgnorableDirectorySyncErrors = new Set(['EBADF', 'EINVAL', 'EISDIR', 'EPERM']);
-let directorySyncAvailable = process.platform !== 'win32';
+
+export const LocalArtifactMutationUnsupportedCode = 'LOCAL_ARTIFACT_MUTATION_UNSUPPORTED';
+
+export interface LocalArtifactMutationCapability {
+  readonly status: 'unsupported';
+  readonly platform: NodeJS.Platform;
+  readonly reason: 'node-runtime-missing-handle-relative-mutation';
+}
+
+export class LocalArtifactMutationUnsupportedError extends Error {
+  readonly code = LocalArtifactMutationUnsupportedCode;
+  readonly capability: LocalArtifactMutationCapability;
+
+  constructor(capability: LocalArtifactMutationCapability = localArtifactMutationCapability()) {
+    super(
+      `local artifact mutation is unsupported on ${capability.platform}: ` +
+        'the Node.js filesystem API cannot bind rename and unlink to an opened directory handle'
+    );
+    this.name = 'LocalArtifactMutationUnsupportedError';
+    this.capability = capability;
+  }
+}
 
 export interface LocalArtifactIdentity {
   readonly device: number;
   readonly inode: number;
 }
 
-export type LocalArtifactDirectoryDurability = 'synced' | 'recovery-intent-only';
+export type LocalArtifactDirectoryDurability = 'synced' | 'recovery-intent-only' | 'mutation-unsupported';
+
+export function localArtifactMutationCapability(): LocalArtifactMutationCapability {
+  return {
+    status: 'unsupported',
+    platform: process.platform,
+    reason: 'node-runtime-missing-handle-relative-mutation',
+  };
+}
+
+export function assertLocalArtifactMutationSupported(): never {
+  throw new LocalArtifactMutationUnsupportedError();
+}
 
 function requireOwnedPath(condition: boolean, message: string): void {
   if (!condition) {
@@ -92,6 +125,7 @@ export function assertExistingOwnedAncestors(targetPath: string): void {
 }
 
 export function ensureOwnedDirectory(dirPath: string): string {
+  assertLocalArtifactMutationSupported();
   const targetPath = resolveLocalArtifactPath(dirPath);
   assertExistingOwnedAncestors(targetPath);
   fs.mkdirSync(targetPath, { recursive: true, mode: 0o700 });
@@ -109,7 +143,7 @@ function normalizePathForComparison(filePath: string): string {
 }
 
 export function localArtifactDirectoryDurability(): LocalArtifactDirectoryDurability {
-  return directorySyncAvailable ? 'synced' : 'recovery-intent-only';
+  return 'mutation-unsupported';
 }
 
 export function ensureLocalArtifactRoot(rootDir: string): string {
@@ -120,7 +154,6 @@ export function ensureLocalArtifactRoot(rootDir: string): string {
 
 export function syncOwnedDirectory(dirPath: string): boolean {
   if (process.platform === 'win32') {
-    directorySyncAvailable = false;
     return false;
   }
   let descriptor: number | null = null;
@@ -132,7 +165,6 @@ export function syncOwnedDirectory(dirPath: string): boolean {
     if (!IgnorableDirectorySyncErrors.has(code)) {
       throw error;
     }
-    directorySyncAvailable = false;
     return false;
   } finally {
     if (descriptor != null) {

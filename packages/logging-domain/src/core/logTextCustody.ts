@@ -14,7 +14,7 @@ export function utf8Bytes(value: string): number {
 }
 
 export function assertBoundedText(value: string, label: string, maximumBytes: number): void {
-  if (utf8Bytes(value) > maximumBytes) {
+  if (value.length > maximumBytes || utf8Bytes(value) > maximumBytes) {
     throw new Error(`${label} exceeds its custody limit`);
   }
 }

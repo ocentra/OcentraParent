@@ -3,6 +3,23 @@ import type http from 'node:http';
 const MaximumBridgeRequestBytes = 1024 * 1024;
 const LoopbackHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
 
+export function isBridgeLoopbackAddress(value: string | undefined): boolean {
+  if (value == null) {
+    return false;
+  }
+  const normalized = value.toLowerCase();
+  return (
+    normalized === 'localhost' ||
+    normalized === '127.0.0.1' ||
+    normalized === '::1' ||
+    normalized === '::ffff:127.0.0.1'
+  );
+}
+
+export function isBridgeLoopbackRequest(request: http.IncomingMessage): boolean {
+  return isBridgeLoopbackAddress(request.socket.localAddress) && isBridgeLoopbackAddress(request.socket.remoteAddress);
+}
+
 function loopbackOrigin(value: string): string | null {
   try {
     const origin = new URL(value);
