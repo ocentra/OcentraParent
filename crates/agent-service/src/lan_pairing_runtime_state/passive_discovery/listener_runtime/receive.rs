@@ -24,11 +24,13 @@ impl PassiveDiscoveryListenerRuntime {
             return;
         }
         let cycle_started = Instant::now();
+        let cycle_deadline = cycle_started + PASSIVE_DISCOVERY_MAX_CYCLE_DURATION;
         let mut received_datagrams = 0;
         for offset in 0..listener_count {
             let listener_index = (self.next_listener_index + offset) % listener_count;
+            let remaining_cycle_time = cycle_deadline.saturating_duration_since(Instant::now());
             if received_datagrams >= PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE
-                || cycle_started.elapsed() >= PASSIVE_DISCOVERY_MAX_CYCLE_DURATION
+                || remaining_cycle_time.is_zero()
             {
                 std::thread::yield_now();
                 break;
@@ -40,6 +42,7 @@ impl PassiveDiscoveryListenerRuntime {
                 listener_state,
                 listener_index,
                 remaining_budget,
+                cycle_deadline,
             ));
             self.next_listener_index = (listener_index + 1) % listener_count;
             if !is_running(listener_state) {
@@ -58,11 +61,14 @@ impl PassiveDiscoveryListenerRuntime {
         listener_state: &Arc<Mutex<LanPassiveDiscoveryListenerState>>,
         listener_index: usize,
         max_datagram_count: usize,
+        cycle_deadline: Instant,
     ) -> usize {
         let Some(listener) = self.listener_slots[listener_index].listener.as_ref() else {
             return 0;
         };
-        let (datagrams, issue) = listener.receive_bounded(max_datagram_count).into_parts();
+        let (datagrams, issue) = listener
+            .receive_bounded_until(max_datagram_count, cycle_deadline)
+            .into_parts();
         let received_datagram_count = datagrams.len();
         self.ingest_datagrams(listener_state, datagrams);
         if let Some(issue) = issue {

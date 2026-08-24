@@ -1,5 +1,5 @@
 use std::net::Ipv4Addr;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use super::super::super::{
     LanPassiveDiscoverySource, LanPassiveDiscoveryUdpListenerIssue,
@@ -31,6 +31,22 @@ pub(super) fn receive_bounded(
     max_datagram_count: usize,
 ) -> super::super::LanPassiveDiscoveryUdpReceiveBatch {
     receive::receive_bounded(listener, max_datagram_count)
+}
+
+pub(super) fn receive_bounded_with_timeout(
+    listener: &LanPassiveDiscoveryUdpListener,
+    max_datagram_count: usize,
+    read_timeout: Duration,
+) -> super::super::LanPassiveDiscoveryUdpReceiveBatch {
+    receive::receive_bounded_with_timeout(listener, max_datagram_count, read_timeout)
+}
+
+pub(super) fn receive_bounded_until(
+    listener: &LanPassiveDiscoveryUdpListener,
+    max_datagram_count: usize,
+    deadline: Instant,
+) -> super::super::LanPassiveDiscoveryUdpReceiveBatch {
+    receive::receive_bounded_until(listener, max_datagram_count, deadline)
 }
 
 fn socket_for_support(

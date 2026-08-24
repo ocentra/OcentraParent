@@ -12,6 +12,8 @@ mod drain;
 mod ingest;
 mod socket;
 mod support;
+#[path = "udp_multicast/timeout.rs"]
+mod timeout;
 
 pub struct LanPassiveDiscoveryUdpListener {
     source: LanPassiveDiscoverySource,
