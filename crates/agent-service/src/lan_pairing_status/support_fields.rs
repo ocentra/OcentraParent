@@ -6,6 +6,7 @@ use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use crate::{
     fields::fields_from_pairs,
     lan_pairing::{extend_log_fields, LanPairingRuntime},
+    lan_pairing_runtime_state::passive_discovery::capability_store::current_runtime_capability,
 };
 
 use super::{pairing_status, state_projection};
@@ -79,9 +80,18 @@ pub(super) fn support_surface_fields(runtime: &LanPairingRuntime) -> LogFields {
         ),
     ]);
     extend_log_fields(&mut fields, lan_ai_provider_support_fields());
+    extend_log_fields(&mut fields, passive_discovery_support_fields(runtime));
     extend_log_fields(&mut fields, mdns_advertisement_support_fields(runtime));
     extend_log_fields(&mut fields, signed_child_agent_support_fields(runtime));
     fields
+}
+
+fn passive_discovery_support_fields(runtime: &LanPairingRuntime) -> LogFields {
+    let capability = current_runtime_capability(runtime);
+    fields_from_pairs(vec![(
+        constants::field::LAN_PASSIVE_DISCOVERY_RUNTIME_CAPABILITY,
+        LogFieldValue::String(serde_json::to_string(&capability).unwrap_or_default()),
+    )])
 }
 
 fn mdns_advertisement_support_fields(runtime: &LanPairingRuntime) -> LogFields {

@@ -1,17 +1,14 @@
-use std::net::{Ipv4Addr, UdpSocket};
 use std::time::Duration;
 
-use self::errors::{
-    bind_passive_udp_socket, join_passive_multicast_group, parse_passive_multicast_group,
-};
 use super::super::{
     LanPassiveDiscoveryListenerState, LanPassiveDiscoverySource,
-    LanPassiveDiscoveryUdpMulticastCaptureOutcome, LanPassiveDiscoveryUdpMulticastSupport,
+    LanPassiveDiscoveryUdpListenerIssue, LanPassiveDiscoveryUdpMulticastCaptureOutcome,
+    LanPassiveDiscoveryUdpMulticastSupport,
 };
-use super::ingest::drain_udp_socket_packets;
-use super::support::udp_multicast_support;
+use super::{LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpReceiveBatch};
 
 mod errors;
+mod listener;
 
 pub(super) fn collect_udp_multicast_passive_packets(
     state: &mut LanPassiveDiscoveryListenerState,
@@ -19,48 +16,51 @@ pub(super) fn collect_udp_multicast_passive_packets(
     max_datagram_count: usize,
     read_timeout: Duration,
 ) -> LanPassiveDiscoveryUdpMulticastCaptureOutcome {
-    let support = udp_multicast_support(source);
-    let (socket, multicast_group) =
-        match passive_udp_socket_for_support(source, &support, read_timeout) {
-            Ok(value) => value,
-            Err(outcome) => return outcome,
-        };
-    if let Some(multicast_group) = multicast_group {
-        if let Err(outcome) = join_passive_multicast_group(&socket, source, multicast_group) {
-            return outcome;
+    let support = super::support::udp_multicast_support(source);
+    if matches!(
+        support,
+        LanPassiveDiscoveryUdpMulticastSupport::Unsupported { .. }
+    ) {
+        return LanPassiveDiscoveryUdpMulticastCaptureOutcome::Unsupported(support);
+    }
+    let listener = match bind_passive_udp_listener(source, read_timeout) {
+        Ok(listener) => listener,
+        Err(issue) => {
+            return LanPassiveDiscoveryUdpMulticastCaptureOutcome::Failed {
+                source,
+                received_datagram_count: 0,
+                issue,
+            };
         }
+    };
+    let (datagrams, issue) = listener.receive_bounded(max_datagram_count).into_parts();
+    let received_datagram_count = datagrams.len();
+    for datagram in datagrams {
+        let _receipt = datagram.ingest_into(state);
+    }
+    if let Some(issue) = issue {
+        return LanPassiveDiscoveryUdpMulticastCaptureOutcome::Failed {
+            source,
+            received_datagram_count,
+            issue,
+        };
     }
     LanPassiveDiscoveryUdpMulticastCaptureOutcome::Captured {
         source,
-        received_datagram_count: drain_udp_socket_packets(
-            &socket,
-            state,
-            source,
-            max_datagram_count,
-        ),
+        received_datagram_count,
     }
 }
 
-fn passive_udp_socket_for_support(
+pub(super) fn bind_passive_udp_listener(
     source: LanPassiveDiscoverySource,
-    support: &LanPassiveDiscoveryUdpMulticastSupport,
     read_timeout: Duration,
-) -> Result<(UdpSocket, Option<Ipv4Addr>), LanPassiveDiscoveryUdpMulticastCaptureOutcome> {
-    match support {
-        LanPassiveDiscoveryUdpMulticastSupport::Available {
-            multicast_group,
-            port,
-            ..
-        } => Ok((
-            bind_passive_udp_socket(source, *port, read_timeout, true)?,
-            Some(parse_passive_multicast_group(source, multicast_group)?),
-        )),
-        LanPassiveDiscoveryUdpMulticastSupport::AvailableBroadcast { port, .. } => Ok((
-            bind_passive_udp_socket(source, *port, read_timeout, false)?,
-            None,
-        )),
-        LanPassiveDiscoveryUdpMulticastSupport::Unsupported { .. } => Err(
-            LanPassiveDiscoveryUdpMulticastCaptureOutcome::Unsupported(support.clone()),
-        ),
-    }
+) -> Result<LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpListenerIssue> {
+    listener::bind_passive_udp_listener(source, read_timeout)
+}
+
+pub(super) fn receive_bounded(
+    listener: &LanPassiveDiscoveryUdpListener,
+    max_datagram_count: usize,
+) -> LanPassiveDiscoveryUdpReceiveBatch {
+    listener::receive_bounded(listener, max_datagram_count)
 }
