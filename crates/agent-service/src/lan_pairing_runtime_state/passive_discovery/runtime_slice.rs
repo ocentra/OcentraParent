@@ -25,12 +25,23 @@ impl LanPairingRuntime {
         &self,
         trigger_reason: LanPassiveDiscoveryTriggerReason,
         summary: impl Into<LanPairingText>,
-    ) {
+    ) -> Option<LanPassiveDiscoveryRefreshSignal> {
         let observed_at: LanPairingText = timestamp_now::<String>().into();
         let summary = summary.into();
         if let Ok(mut state) = self.passive_discovery_listener_state.lock() {
-            let _ = state.record_rescan_trigger(trigger_reason, &observed_at.0, &summary.0);
+            return (state.record_rescan_trigger(
+                trigger_reason.clone(),
+                &observed_at.0,
+                &summary.0,
+            ) == LanPassiveDiscoveryRecordOutcome::Recorded)
+                .then(|| LanPassiveDiscoveryRefreshSignal {
+                    sequence: 0,
+                    source: None,
+                    trigger_reason,
+                    observed_at: observed_at.0,
+                });
         }
+        None
     }
 
     pub(crate) fn collect_passive_discovery_runtime_slice(

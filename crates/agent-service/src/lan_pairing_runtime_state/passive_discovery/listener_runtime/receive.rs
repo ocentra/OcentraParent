@@ -1,21 +1,14 @@
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
-use ocentra_lan_core::network_inventory::passive_discovery::udp_multicast::{
-    ingest_passive_datagram_with_observed_at, LanPassiveDiscoveryUdpDatagram,
-};
+use ocentra_lan_core::network_inventory::passive_discovery::udp_multicast::LanPassiveDiscoveryUdpDatagram;
 use ocentra_lan_core::network_inventory::passive_discovery::{
     LanPassiveDiscoveryListenerState, LanPassiveDiscoveryPacketIngestOutcome,
     LanPassiveDiscoveryTriggerReason,
 };
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 
-use crate::time::timestamp_now;
-
-use super::super::{
-    LanPassiveDiscoveryRefreshSignal, PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE,
-    PASSIVE_DISCOVERY_REBIND_INTERVAL,
-};
+use super::super::{LanPassiveDiscoveryRefreshSignal, PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE};
 use super::PassiveDiscoveryListenerRuntime;
 
 impl PassiveDiscoveryListenerRuntime {
@@ -23,9 +16,8 @@ impl PassiveDiscoveryListenerRuntime {
         &mut self,
         listener_state: &Arc<Mutex<LanPassiveDiscoveryListenerState>>,
     ) {
-        let mut listener_index = 0;
-        while listener_index < self.listeners.len() {
-            listener_index = self.receive_listener(listener_state, listener_index);
+        for listener_index in 0..self.listener_slots.len() {
+            self.receive_listener(listener_state, listener_index);
             if !is_running(listener_state) {
                 break;
             }
@@ -36,19 +28,17 @@ impl PassiveDiscoveryListenerRuntime {
         &mut self,
         listener_state: &Arc<Mutex<LanPassiveDiscoveryListenerState>>,
         listener_index: usize,
-    ) -> usize {
-        let datagrams = self.listeners[listener_index]
-            .receive_bounded(PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE);
-        match datagrams {
-            Ok(datagrams) => {
-                self.ingest_datagrams(listener_state, datagrams);
-                listener_index + 1
-            }
-            Err(_error) => {
-                self.listeners.remove(listener_index);
-                self.next_rebind = Instant::now() + PASSIVE_DISCOVERY_REBIND_INTERVAL;
-                listener_index
-            }
+    ) {
+        let Some(listener) = self.listener_slots[listener_index].listener.as_ref() else {
+            return;
+        };
+        let (datagrams, issue) = listener
+            .receive_bounded(PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE)
+            .into_parts();
+        self.ingest_datagrams(listener_state, datagrams);
+        if let Some(issue) = issue {
+            self.listener_slots[listener_index].record_failure(issue, Instant::now());
+            self.persist_capability();
         }
     }
 
@@ -94,21 +84,15 @@ fn normalized_refresh_signal(
     state: &mut LanPassiveDiscoveryListenerState,
     datagram: LanPassiveDiscoveryUdpDatagram,
 ) -> Option<LanPassiveDiscoveryRefreshSignal> {
-    let observed_at: String = timestamp_now();
-    let outcome = ingest_passive_datagram_with_observed_at(
-        state,
-        &datagram.source(),
-        datagram.payload(),
-        &observed_at,
-    );
-    if outcome != LanPassiveDiscoveryPacketIngestOutcome::Recorded {
+    let receipt = datagram.ingest_into(state);
+    if receipt.outcome() != &LanPassiveDiscoveryPacketIngestOutcome::Recorded {
         return None;
     }
     Some(LanPassiveDiscoveryRefreshSignal {
         sequence: 0,
-        source: Some(datagram.source()),
+        source: Some(receipt.source()),
         trigger_reason: LanPassiveDiscoveryTriggerReason::PassivePacketObserved,
-        observed_at,
+        observed_at: receipt.observed_at().to_string(),
     })
 }
 

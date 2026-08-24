@@ -3,8 +3,8 @@ use std::time::Duration;
 
 use super::{
     LanPassiveDiscoveryListenerState, LanPassiveDiscoveryPacketIngestOutcome,
-    LanPassiveDiscoverySource, LanPassiveDiscoveryUdpMulticastCaptureOutcome,
-    LanPassiveDiscoveryUdpMulticastSupport,
+    LanPassiveDiscoverySource, LanPassiveDiscoveryUdpListenerIssue,
+    LanPassiveDiscoveryUdpMulticastCaptureOutcome, LanPassiveDiscoveryUdpMulticastSupport,
 };
 
 mod ingest;
@@ -22,15 +22,25 @@ pub struct LanPassiveDiscoveryUdpDatagram {
     payload: Vec<u8>,
 }
 
+#[derive(Debug)]
+pub struct LanPassiveDiscoveryUdpReceiveBatch {
+    datagrams: Vec<LanPassiveDiscoveryUdpDatagram>,
+    issue: Option<LanPassiveDiscoveryUdpListenerIssue>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct LanPassiveDiscoveryUdpDatagramIngestReceipt {
+    source: LanPassiveDiscoverySource,
+    observed_at: String,
+    outcome: LanPassiveDiscoveryPacketIngestOutcome,
+}
+
 impl LanPassiveDiscoveryUdpListener {
     pub fn source(&self) -> LanPassiveDiscoverySource {
         self.source
     }
 
-    pub fn receive_bounded(
-        &self,
-        max_datagram_count: usize,
-    ) -> std::io::Result<Vec<LanPassiveDiscoveryUdpDatagram>> {
+    pub fn receive_bounded(&self, max_datagram_count: usize) -> LanPassiveDiscoveryUdpReceiveBatch {
         socket::receive_bounded(self, max_datagram_count)
     }
 }
@@ -42,6 +52,49 @@ impl LanPassiveDiscoveryUdpDatagram {
 
     pub fn payload(&self) -> &[u8] {
         &self.payload
+    }
+
+    pub fn ingest_into(
+        self,
+        state: &mut LanPassiveDiscoveryListenerState,
+    ) -> LanPassiveDiscoveryUdpDatagramIngestReceipt {
+        let observed_at = chrono::Utc::now().to_rfc3339();
+        let outcome = ingest::ingest_native_passive_datagram_with_observed_at(
+            state,
+            &self.source,
+            &self.payload,
+            &observed_at,
+        );
+        LanPassiveDiscoveryUdpDatagramIngestReceipt {
+            source: self.source,
+            observed_at,
+            outcome,
+        }
+    }
+}
+
+impl LanPassiveDiscoveryUdpDatagramIngestReceipt {
+    pub fn source(&self) -> LanPassiveDiscoverySource {
+        self.source
+    }
+
+    pub fn observed_at(&self) -> &str {
+        &self.observed_at
+    }
+
+    pub fn outcome(&self) -> &LanPassiveDiscoveryPacketIngestOutcome {
+        &self.outcome
+    }
+}
+
+impl LanPassiveDiscoveryUdpReceiveBatch {
+    pub fn into_parts(
+        self,
+    ) -> (
+        Vec<LanPassiveDiscoveryUdpDatagram>,
+        Option<LanPassiveDiscoveryUdpListenerIssue>,
+    ) {
+        (self.datagrams, self.issue)
     }
 }
 
@@ -63,7 +116,7 @@ pub fn collect_udp_multicast_passive_packets(
 pub fn bind_passive_udp_listener(
     source: LanPassiveDiscoverySource,
     read_timeout: Duration,
-) -> Result<LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpMulticastCaptureOutcome> {
+) -> Result<LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpListenerIssue> {
     socket::bind_passive_udp_listener(source, read_timeout)
 }
 
@@ -84,10 +137,12 @@ pub fn ingest_allowed_snmp_response_packet(
     state: &mut LanPassiveDiscoveryListenerState,
     payload: &[u8],
 ) -> LanPassiveDiscoveryPacketIngestOutcome {
-    ingest::ingest_passive_datagram(
+    let observed_at = chrono::Utc::now().to_rfc3339();
+    ingest::ingest_native_passive_datagram_with_observed_at(
         state,
         &LanPassiveDiscoverySource::AllowedSnmpResponse,
         payload,
+        &observed_at,
     )
 }
 

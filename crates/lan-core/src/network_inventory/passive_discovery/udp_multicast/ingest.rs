@@ -63,6 +63,15 @@ pub(super) fn ingest_passive_datagram_with_observed_at(
         ) => {}
         outcome => return outcome,
     }
+    ingest_native_passive_datagram_with_observed_at(state, source, payload, observed_at)
+}
+
+pub(super) fn ingest_native_passive_datagram_with_observed_at(
+    state: &mut LanPassiveDiscoveryListenerState,
+    source: &LanPassiveDiscoverySource,
+    payload: &[u8],
+    observed_at: &str,
+) -> LanPassiveDiscoveryPacketIngestOutcome {
     let Some(summary) = passive_native_datagram_summary(*source, payload) else {
         return LanPassiveDiscoveryPacketIngestOutcome::Rejected(
             LanPassiveDiscoveryPacketParseError::MalformedPayload,

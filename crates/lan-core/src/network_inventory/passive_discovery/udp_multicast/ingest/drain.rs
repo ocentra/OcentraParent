@@ -19,7 +19,7 @@ pub(super) fn drain_udp_socket_packets_with_observed_at(
             Ok((received, _)) => {
                 received_datagram_count += 1;
                 let observed_at = observed_at();
-                let _ = super::ingest_passive_datagram_with_observed_at(
+                let _ = super::ingest_native_passive_datagram_with_observed_at(
                     state,
                     &source,
                     &buffer[..received],
