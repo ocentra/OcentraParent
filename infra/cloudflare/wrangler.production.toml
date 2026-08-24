@@ -75,8 +75,3 @@ class_name = "EntitlementSnapshotDO"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["BillingControlDO", "ReferralControlDO", "EntitlementSnapshotDO"]
-
-# The package deploy command selects this named environment explicitly. Keep
-# the dedicated production config as the inherited base while declaring the
-# selector so Wrangler cannot silently fall back to an unnamed environment.
-[env.production]
