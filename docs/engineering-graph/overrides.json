@@ -9453,6 +9453,20 @@
       ],
       "reason": "Parity documentation and its proof root are present, but repo-wide docs formatting validation remains red outside this packet; no runtime, payment, or deployment readiness is claimed.",
       "statusText": "Validation - parity docs/proof present; repo-wide docs formatting validation remains red outside this packet; no runtime, payment, or deployment readiness claim."
+    },
+    {
+      "id": "WP-lan-plan-06-bounded-arp-sweep",
+      "state": "validation",
+      "needsReview": false,
+      "reason": "The bounded LAN refresh path is reachable, but the production stimulation result is discarded before physical_lan_scan recollects targeted-ARP evidence. The second collection can be throttled for the same target/interface, so persisted scan metadata can miss the actual observation. One owner-correct capture -> normalize/merge -> persist source handoff is implementation-authorized; tests, proof, checklist review, PR readiness, and DONE remain open.",
+      "statusText": "Validation - implementation incomplete / source repair authorized; stimulated targeted-ARP evidence ownership is open; tests, proof, checklist review, and completion remain open.",
+      "evidence": [
+        "docs/plans/lan-plan/PLAN_STATE.md",
+        "docs/plans/lan-plan/NEXT_ACTIONS.md",
+        "docs/plans/lan-plan/WORKPACK_INDEX.md",
+        "docs/plans/lan-plan/workpacks/06-bounded-arp-sweep.md",
+        "docs/engineering-graph/code-map.json"
+      ]
     }
   ],
   "proofOverrides": [

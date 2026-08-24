@@ -43,6 +43,25 @@ costly service-identity probes off devices that are already durably known as
 paired, child-agent-backed, revoked/ignored, or network-infrastructure rows
 through the persisted registry plus previous canonical household truth.
 
+## Current Production-Source Gap - 2026-08-24
+
+The bounded stimulation path is reachable, but the targeted-ARP evidence
+ownership is not complete. The production discovery call invokes
+`stimulate_bounded_ipv4_neighbors`, which obtains the targeted-ARP observation
+and then discards its returned evidence. `physical_lan_scan` immediately calls
+`targeted_arp_refresh_evidence_for_scan` again to populate
+`scan_plan.targeted_arp_refresh_evidence`. That second collection can hit the
+same target/interface throttle, so persisted scan metadata can report a
+throttled or empty result even when the stimulation produced the observation.
+
+The required source repair is one owner-correct capture -> normalize/merge ->
+persist handoff for the actual stimulation result. It must preserve selected
+interface, target identity, outcome, and throttle/failure semantics; it must
+not recollect solely for persistence, bypass the rate limit, or fabricate
+evidence. This is an implementation gap and is implementation-authorized by
+the engineering graph. Tests, retained proof, checklist review, PR readiness,
+and DONE remain open.
+
 ## Where We Want To Be
 
 The scanner can sweep selected local IPv4 subnets with safe caps. `/24` sized
@@ -58,6 +77,9 @@ configured cap.
 - [x] Deduplicate repeated ARP replies without losing evidence.
 - [x] Record sweep session id, selected interface, response window, and skipped
       host counts.
+- [ ] Carry the actual stimulated targeted-ARP result through one
+      owner-correct capture -> normalize/merge -> persistence handoff without
+      a second throttled recollection or synthetic evidence.
 
 ## Acceptance And Proof
 
@@ -92,6 +114,11 @@ Current proof:
   without requiring packet drivers in CI.
 - Focused proof note:
   `output/lan-plan-proof/06-bounded-arp-sweep/01-ip-reuse-suppression-fix.md`
+
+These focused tests cover the bounded packet-IO and scan-history slices, but do
+not yet exercise the production caller's single stimulation-result ownership
+through normalization and persisted scan metadata. The source repair must land
+before those tests and the retained proof can be reconsidered for this row.
 
 ## Parallel Ownership Notes
 

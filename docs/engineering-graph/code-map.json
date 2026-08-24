@@ -6270,13 +6270,20 @@
       "planSlug": "lan-plan",
       "roots": [
         "crates/lan-core/src/network_inventory/active_refresh",
+        "crates/lan-core/src/network_inventory/active_refresh/capture.rs",
         "crates/lan-core/src/network_inventory_command.rs",
         "crates/lan-core/src/network_inventory_command",
         "crates/lan-core/tests/unit/network_inventory_active_refresh.rs",
         "crates/lan-core/tests/unit/network_inventory_command.rs",
         "crates/agent-service/src/lan_pairing_browser_add_device_state/physical_lan_scan.rs",
+        "crates/agent-service/src/lan_pairing_browser_add_device_state/physical_lan_scan/targeted_arp_capture.rs",
         "crates/agent-service/tests/unit/lan_pairing_browser_add_device_state_physical_lan_scan.rs"
-      ]
+      ],
+      "plannedImplementationRoots": [
+        "crates/lan-core/src/network_inventory/active_refresh/capture.rs",
+        "crates/agent-service/src/lan_pairing_browser_add_device_state/physical_lan_scan/targeted_arp_capture.rs"
+      ],
+      "note": "The bounded active-refresh path is reachable, but the production stimulation result is discarded before physical_lan_scan recollects targeted-ARP evidence. The second collection can be throttled for the same target/interface, so persisted scan metadata can miss the actual observation. These two planned owner-handoff roots represent the missing capture -> normalize/merge -> persist source packet; no rate-limit bypass, synthetic evidence, tests, proof, or DONE is implied."
     },
     "WP-lan-plan-07-passive-discovery-listeners": {
       "planSlug": "lan-plan",

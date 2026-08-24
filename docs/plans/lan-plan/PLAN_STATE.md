@@ -7,7 +7,9 @@
 > Doc: `LAN Plan State`
 > Kind: current executable status and open gaps.
 > Read when: first, before opening workpacks or proof paths.
-> Stop rule: do not widen beyond the selected workpack from here; `21-26` are active LAN follow-on scope, with `23`, `25`, and `26` currently open.
+> Stop rule: do not widen beyond the selected workpack from here; `06` and
+> `21-26` are active LAN follow-on scope, with `06`, `23`, `25`, and `26`
+> currently open.
 > Proves: current plan model, current slice status, and next execution route only.
 > Does not prove: final completion of open workpacks, physical household proof, or sibling plan completion.
 > Proof rule: any status claim here must point at an existing artifact or an explicit open/manual-required gap.
@@ -18,8 +20,8 @@
 
 - Plan state: active
 - Authoritative execution model: `01-26`
-- Active open follow-on workpacks: `23`, `25`, `26`
-- Current completed slices: `Slice A`, `B1`, `B2`, `01`, `02`, `03`, `05`, `06`, `10`, `12`, `13`, `14`, `15`, `21`, `22`, `24`
+- Active open follow-on workpacks: `06`, `23`, `25`, `26`
+- Current completed slices: `Slice A`, `B1`, `B2`, `01`, `02`, `03`, `05`, `10`, `12`, `13`, `14`, `15`, `21`, `22`, `24`
 - Slice A evidence root: `output/lan-plan-proof/00-plan-model-reconciliation/`
 - B1 evidence root: `output/lan-plan-proof/01-lan-b1-proof-regeneration/`
 - B2 evidence root: `output/lan-plan-proof/02-lan-b2-test-truth-repair/`
@@ -252,6 +254,24 @@ incomplete, and the newly routed WP26 is intentionally open:
 Manual household/router/platform artifacts remain separate Phase 3 gates and do
 not turn the other 22 code-present rows into missing-code work.
 
+## WP06 Source Truth Correction - 2026-08-24
+
+The bounded active-refresh path is reachable, but its production evidence
+ownership is incomplete. The discovery path stimulates targeted ARP through
+`stimulate_bounded_ipv4_neighbors`, whose returned evidence is discarded. The
+`physical_lan_scan` caller then immediately invokes a second targeted-ARP
+collection to populate persisted scan metadata. Because the throttle is
+per-target/interface, that second collection can be reported as throttled and
+the persisted plan can miss the actual observation produced by the stimulation.
+
+WP06 is therefore `implementation incomplete / implementation-authorized`, not
+complete: the source repair must carry the actual stimulation result through
+one owner-correct capture -> normalize/merge -> persist handoff, preserving
+the existing rate limit and failure semantics. It must not recollect merely to
+populate metadata, bypass throttling, or fabricate an observation. Tests,
+retained proof, checklist review, PR readiness, and DONE remain open and are
+not implied by this correction.
+
 ## Open Execution Buckets
 
 ## Production Reachability Audit - 2026-08-16
@@ -268,7 +288,7 @@ physical household evidence, and platform artifacts remain separate gates.
 | 03 | `AgentLanPairingStatusGet`/discovery scan -> `physical_lan_scan` -> `lan-core::network_inventory_hardware` | Real local-interface selection and scan-plan attribution are reachable. | OS/platform coverage and manual interface proof remain open. |
 | 04 | `physical_lan_scan` -> `windows_neighbors`/`linux_neighbors`/`macos_neighbors` | Real OS neighbor-table readers and normalization are reachable. | macOS live/manual platform proof remains open; no local parser gap identified. |
 | 05 | active discovery command -> `stimulate_bounded_ipv4_neighbors` -> packet/neighbor refresh | Bounded targeted ARP refresh is a real production call with subnet/interface scope. | Packet/manual household proof remains open. |
-| 06 | active discovery command -> bounded IPv4 target planner and refresh suppression | Real bounded sweep path is reachable and reuses durable MAC-bound suppression truth. | Physical reachability and packet proof remain open. |
+| 06 | active discovery command -> bounded IPv4 stimulation -> service scan-plan persistence | The bounded sweep path is reachable, but the stimulation-owned targeted-ARP evidence is discarded before `physical_lan_scan` recollects it. That second collection can be throttled, so persisted scan metadata can miss the actual stimulated observation. | Production source repair is open: one owner-correct capture -> normalize/merge -> persist handoff must retain the real observation without bypassing rate limits or fabricating evidence; tests and proof remain open. |
 | 07 | `app::router` passive runtime -> raw ARP/DHCP and UDP multicast collectors -> listener state | Long-running bounded passive runtime and source parsers are reachable. | DHCP longevity, platform packet behavior, and manual proof remain open. |
 | 08 | scan -> `enrich_mdns_dns_sd_devices` -> real mDNS query/parse/merge | mDNS/DNS-SD socket query and bounded parser are reachable from production scan. | Packet/manual proof; mDNS never establishes child authority alone. |
 | 09 | scan -> `enrich_ssdp_upnp_devices` -> bounded M-SEARCH/descriptor fetch/merge | SSDP/UPnP socket and private-location descriptor path is reachable and bounded. | Packet/manual proof; infrastructure remains non-enrollable. |
@@ -300,15 +320,16 @@ manual/controlled seam and cannot substitute for WP26.
 
 - Local Rust implementation complete; manual/packet proof remains: `04`, `07`,
   `08`, `09`, `11`, `17`
-- Production implementation gap: `26` (real ingress, durable custody, authority
+- Production implementation gaps: `06` (single-owner stimulated targeted-ARP
+  evidence capture/normalization/persistence) and `26` (real ingress, durable custody, authority
   composition, and private Eventing WP10 handoff). WP18 is an existing code
   input, not the ingress owner.
 - Phase 1 validation/proof/wrapper gaps: `16` integrated delivery validation,
   `20` absent aggregate verifiers, and `25` rollout gate.
 - Physical/manual final gates after Phase 1: `04`, `07`, `08`, `09`, `11`,
   `16`, `17`, `18`, `19`, `20`, `23`, `25`, `26`
-- Locally closed rows and truth-synced summaries: `01`, `02`, `03`, `05`,
-  `06`, `10`, `12`, `13`, `14`, `15`, `21`, `22`, `24`
+- Locally closed rows and truth-synced summaries: `01`, `02`, `03`, `05`, `10`,
+  `12`, `13`, `14`, `15`, `21`, `22`, `24`
 
 ## Remaining Gaps For Real Completion
 

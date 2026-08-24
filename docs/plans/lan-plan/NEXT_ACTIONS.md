@@ -27,6 +27,21 @@ workpack/checklist status and does not replace the assigned workpack.
 
 ## Highest-open workpacks by current remaining work
 
+### WP06 stimulated-ARP evidence ownership
+
+WP06 is not complete. The active discovery path stimulates a bounded targeted
+ARP refresh, but the returned evidence is discarded by the discovery owner and
+`physical_lan_scan` immediately recollects it for scan-plan persistence. The
+second collection can be throttled for the same target/interface, so the
+persisted metadata can lose the observation that actually resulted from the
+stimulation.
+
+- [06 Bounded ARP Sweep](workpacks/06-bounded-arp-sweep.md): implementation is
+  explicitly authorized for a single owner-correct capture -> normalize/merge
+  -> persist handoff. Preserve the existing throttle and failure semantics; do
+  not recollect solely for persistence, bypass rate limits, or synthesize
+  evidence. Tests, retained proof, checklist review, and DONE remain open.
+
 ### WP26 authority gate
 
 WP26 is a partial code draft, not a READY or completion packet. Do not add a
@@ -91,9 +106,13 @@ only on a demonstrated private-key/install custody requirement.
   registry JSON plus previous canonical household state. Bounded active refresh
   now suppresses a stored child/paired IP only when live neighbor state still
   confirms the same MAC, so stale IP-only truth cannot hide a reused address.
-  Durable truth still feeds passive identity hints for matching neighbors. This
-  is not closure for Workpack `11`; safe-port probing and broader bounded
-  service-proof remain open.
+  Durable truth still feeds passive identity hints for matching neighbors. The
+  bounded sweep source is not yet complete: the stimulation-owned targeted-ARP
+  result is currently discarded before `physical_lan_scan` recollects it, and
+  that second collection can be throttled. WP06 therefore needs the
+  owner-correct capture -> normalize/merge -> persist repair before its prior
+  local proof can be treated as current. This is not closure for Workpack `11`;
+  safe-port probing and broader bounded service-proof remain open.
 - The latest `02`/`15` slice now persists canonical `knownHouseholdDevices`
   into trusted-registry JSON, merges evidence `firstSeenAt`/`lastSeenAt`
   across updates, restores that known-device store into the add-device read
