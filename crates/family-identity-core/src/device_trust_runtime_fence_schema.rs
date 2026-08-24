@@ -24,9 +24,8 @@ const TABLE_SQL: &str = concat!(
 );
 
 pub(super) fn create_schema(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {
-    connection
-        .execute_batch(
-            "CREATE TABLE device_trust_runtime_fence_reservation (
+    match connection.execute_batch(
+        "CREATE TABLE device_trust_runtime_fence_reservation (
                 operation_id TEXT NOT NULL PRIMARY KEY,
                 reservation_ref TEXT NOT NULL UNIQUE CHECK (length(reservation_ref) = 64),
                 action_code INTEGER NOT NULL CHECK (action_code BETWEEN 0 AND 10),
@@ -43,16 +42,25 @@ pub(super) fn create_schema(connection: &Connection) -> Result<(), DeviceTrustRu
                 reservation_state TEXT NOT NULL CHECK (reservation_state IN ('prepared', 'committed', 'aborted')),
                 outcome_digest TEXT CHECK (outcome_digest IS NULL OR length(outcome_digest) = 64)
             ) STRICT;",
-        )
-        .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)
+    ) {
+        Ok(()) => Ok(()),
+        Err(_) => validate_operational_schema(connection),
+    }
 }
 
 pub(super) fn validate_schema(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {
+    validate_operational_schema(connection)?;
+    super::storage::validate_rows(connection)
+}
+
+pub(super) fn validate_operational_schema(
+    connection: &Connection,
+) -> Result<(), DeviceTrustRuntimeFenceError> {
     validate_table_sql(connection)?;
     validate_columns(connection)?;
     validate_indexes(connection)?;
     reject_unowned_objects(connection)?;
-    super::storage::validate_rows(connection)
+    Ok(())
 }
 
 fn validate_table_sql(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {

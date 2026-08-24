@@ -13,9 +13,9 @@ impl DeviceTrustRuntimeFenceParticipant<'_> {
         &mut self,
         reservation: &DeviceTrustRuntimeFenceReservation,
     ) -> Result<DeviceTrustRuntimeFenceOutcome, DeviceTrustRuntimeFenceError> {
-        storage::validate_schema(&self.repository.connection)?;
         let fence = self.repository.external_authority.read_fence()?;
         let transaction = self.repository.transaction()?;
+        storage::validate_operational_schema(&transaction)?;
         let _current =
             target::current_target_in_transaction(&transaction, &reservation.target, &fence)?;
         let stored = storage::read_reservation(&transaction, &reservation.operation_id)?
@@ -70,7 +70,7 @@ fn commit_prepared(
     }
     transaction
         .commit()
-        .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?;
+        .map_err(|_| DeviceTrustRuntimeFenceError::RecoveryUncertain)?;
     Ok(DeviceTrustRuntimeFenceOutcome {
         operation_id: reservation.operation_id.clone(),
         reservation_ref: reservation.reservation_ref.clone(),
@@ -98,7 +98,7 @@ fn commit_existing(
     }
     transaction
         .commit()
-        .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?;
+        .map_err(|_| DeviceTrustRuntimeFenceError::RecoveryUncertain)?;
     Ok(DeviceTrustRuntimeFenceOutcome {
         operation_id: reservation.operation_id.clone(),
         reservation_ref: reservation.reservation_ref.clone(),

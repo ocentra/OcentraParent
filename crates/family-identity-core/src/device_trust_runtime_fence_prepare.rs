@@ -21,11 +21,11 @@ impl DeviceTrustRuntimeFenceParticipant<'_> {
         action_value: HouseholdAuthorityAction,
         binding: &CurrentChildDeviceTrustBinding,
     ) -> Result<DeviceTrustRuntimeFenceReservation, DeviceTrustRuntimeFenceError> {
-        storage::validate_schema(&self.repository.connection)?;
         storage::validate_operation(operation_id)?;
         let expected = target::from_binding(action_value, binding)?;
         let fence = self.repository.external_authority.read_fence()?;
         let transaction = self.repository.transaction()?;
+        storage::validate_operational_schema(&transaction)?;
         let _current = target::current_target_in_transaction(&transaction, &expected, &fence)?;
         let existing = storage::read_reservation(&transaction, operation_id)?;
         if let Some(existing) = existing {
@@ -60,7 +60,7 @@ impl DeviceTrustRuntimeFenceParticipant<'_> {
             .map_err(|error| storage::classify_insert_error(&transaction, operation_id, error))?;
         transaction
             .commit()
-            .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?;
+            .map_err(|_| DeviceTrustRuntimeFenceError::RecoveryUncertain)?;
         Ok(DeviceTrustRuntimeFenceReservation {
             operation_id: operation_id.to_owned(),
             reservation_ref,
@@ -79,17 +79,13 @@ fn prepare_existing(
         return Err(DeviceTrustRuntimeFenceError::OperationConflict);
     }
     let result = match existing.state.as_str() {
-        "prepared" => Ok(DeviceTrustRuntimeFenceReservation {
-            operation_id: existing.operation_id,
-            reservation_ref: existing.reservation_ref,
-            target: existing_target,
-        }),
+        "prepared" => Err(DeviceTrustRuntimeFenceError::RecoveryUncertain),
         "committed" => Err(DeviceTrustRuntimeFenceError::ReservationAlreadyCommitted),
         "aborted" => Err(DeviceTrustRuntimeFenceError::ReservationAborted),
         _ => Err(DeviceTrustRuntimeFenceError::Unavailable),
     };
     transaction
         .commit()
-        .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?;
+        .map_err(|_| DeviceTrustRuntimeFenceError::RecoveryUncertain)?;
     result
 }

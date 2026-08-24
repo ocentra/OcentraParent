@@ -13,8 +13,8 @@ impl DeviceTrustRuntimeFenceParticipant<'_> {
         &mut self,
         reservation: &DeviceTrustRuntimeFenceReservation,
     ) -> Result<(), DeviceTrustRuntimeFenceError> {
-        storage::validate_schema(&self.repository.connection)?;
         let transaction = self.repository.transaction()?;
+        storage::validate_operational_schema(&transaction)?;
         let stored = storage::read_reservation(&transaction, &reservation.operation_id)?
             .ok_or(DeviceTrustRuntimeFenceError::ReservationMissing)?;
         if stored.reservation_ref != reservation.reservation_ref
@@ -52,5 +52,5 @@ fn abort_stored(
     }
     transaction
         .commit()
-        .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)
+        .map_err(|_| DeviceTrustRuntimeFenceError::RecoveryUncertain)
 }
