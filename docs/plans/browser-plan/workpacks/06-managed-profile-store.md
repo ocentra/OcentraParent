@@ -16,14 +16,16 @@
 
 ## Where We Are
 
-Canonical source has Browser-managed profile contracts and filesystem helpers,
-but it does not have an authenticated custody owner or an atomic, recoverable
-profile lifecycle. Source-only branch
-`codex/browser-wp06-repair-round3-aug24` at `5671c06a2` was independently
-rejected on 2026-08-24 and is not integrated. Its plain JSON authority remains
-same-user forgeable, returned records retain only paths rather than owner-bound
-handles, portable no-follow coverage is incomplete, and create/delete/recovery
-remain fail-closed stubs.
+Canonical source now includes the independently accepted safety correction from
+`codex/browser-wp06-repair-round3-aug24` at `93f875134`. It removes the
+same-user-forgeable JSON/path authority, public caller-built store
+configuration/record, env/temp-directory mutation caller, and the rejected
+path-only mutation/recovery helpers. The remaining store boundary is private
+and every load/create/repair/delete attempt returns
+`ProtectedCustodyAdapterUnavailable`; no `Ready`, `Deleted`, or custody
+record can be produced. WP06 still has no authenticated protected-custody
+owner, retained handle-bound root/profile identity, safe platform mutation and
+recovery adapter, production caller, expected tests, or proof.
 
 ## Where We Want To Be
 
@@ -46,7 +48,9 @@ repairable, redacted in UI, and rejected when unsafe.
 - `crates/agent-core/src/browser_managed_session/store.rs`
 - `crates/agent-core/src/browser_managed_session/store/`
 - `crates/agent-protocol/src/browser_managed.rs`
+- `crates/agent-protocol/src/constants/browser.rs`
 - `crates/agent-service/src/browser_runtime_paths.rs`
+- `crates/agent-service/src/browser_runtime_status.rs`
 
 ## Tests And Proof
 
@@ -84,9 +88,9 @@ Fill this before reporting `DONE` or PR-ready:
 - [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
-## Independent Source Decision (2026-08-24)
+## Independent Source Decisions (2026-08-24)
 
-The first bounded repair is rejected for production integration:
+The first bounded repair at `5671c06a2` was rejected:
 
 - `BrowserManagedProfileStoreEntry` is unauthenticated JSON. A same-user writer
   can preserve attacker-readable constants, replace a profile directory, and
@@ -102,15 +106,25 @@ The first bounded repair is rejected for production integration:
 - no production caller constructs the private configuration or consumes the
   repaired store.
 
-The repair must keep `Ready` and terminal deletion unavailable until a
-dependency-owned protected-custody owner provides an authenticated receipt/key
-and retained root/profile identity. Each supported platform needs real safe
-mutation/open custody; unsupported platforms must reject rather than fall back
-to path-only checks. This source decision writes no test, proof, runtime,
-PR_READY, or `DONE` claim.
+The superseding `93f875134` packet is accepted only as a fail-closed source
+correction. It deletes those unsafe helpers, makes the status entry
+serialize-only with private fields and no public constructor, removes the
+production env/temp-directory store caller, and exposes no successful mutation
+or custody result. The five expected test roots are intentionally deferred to
+the consolidated test-source wave.
+
+The next source packet must supply a dependency-owned protected-custody owner
+with an authenticated opaque receipt/key, retained root/profile identity,
+platform-safe open/mutation/recovery, and a real service caller. Unsupported
+platforms must reject rather than fall back to path-only checks. The separate
+WP07 launch path still accepts a caller-supplied managed-looking profile path;
+it has no production caller today and must remain blocked until it consumes an
+owner-issued WP06 binding. No test, proof, runtime readiness, PR_READY, or
+`DONE` claim follows from this safety packet.
 
 ## Manual-Required Gaps
 
 Profile existence does not prove owner custody, browser launch, bridge
 connectivity, exact URL evidence, parent policy authority, or product runtime
-composition. WP07 remains blocked on an accepted WP06 owner boundary.
+composition. WP07 remains blocked until WP06 has an actual protected owner
+binding, not merely this accepted fail-closed boundary.

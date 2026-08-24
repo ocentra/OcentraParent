@@ -229,26 +229,59 @@ impl BrowserUnmanagedDetectionReason {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+/// Redacted browser status metadata, not a custody authority.
+///
+/// A decoded `ready` or `deleted` value must not be used as proof of an
+/// Ocentra-owned profile. The Browser store may expose those states only
+/// after a dependency-owned protected-custody broker authenticates the owner
+/// receipt and retains handle-bound root/profile identity. Plain JSON,
+/// caller keys, hashes, and paths are never sufficient authority.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BrowserManagedProfileStoreEntry {
-    pub schema_version: u16,
-    pub profile_id: String,
-    pub profile_path_ref: String,
-    pub profile_root_ref: String,
-    pub profile_scope_id: String,
-    pub device_id: String,
-    pub browser_family: BrowserFamily,
-    pub browser_channel: BrowserChannel,
-    pub lifecycle_state: BrowserManagedProfileLifecycleState,
-    pub custody_label: BrowserCustodyLabel,
-    pub policy_revision: String,
-    pub created_at: String,
-    pub updated_at: String,
-    pub missing_since: Option<String>,
-    pub repaired_at: Option<String>,
-    pub deleted_at: Option<String>,
-    pub repair_reason: Option<String>,
+    schema_version: u16,
+    profile_id: String,
+    profile_path_ref: String,
+    profile_root_ref: String,
+    profile_scope_id: String,
+    device_id: String,
+    browser_family: BrowserFamily,
+    browser_channel: BrowserChannel,
+    lifecycle_state: BrowserManagedProfileLifecycleState,
+    custody_label: BrowserCustodyLabel,
+    policy_revision: String,
+    created_at: String,
+    updated_at: String,
+    missing_since: Option<String>,
+    repaired_at: Option<String>,
+    deleted_at: Option<String>,
+    repair_reason: Option<String>,
+}
+
+impl BrowserManagedProfileStoreEntry {
+    pub fn profile_id(&self) -> &str {
+        &self.profile_id
+    }
+
+    pub fn profile_path_ref(&self) -> &str {
+        &self.profile_path_ref
+    }
+
+    pub fn profile_root_ref(&self) -> &str {
+        &self.profile_root_ref
+    }
+
+    pub fn profile_scope_id(&self) -> &str {
+        &self.profile_scope_id
+    }
+
+    pub fn lifecycle_state(&self) -> BrowserManagedProfileLifecycleState {
+        self.lifecycle_state
+    }
+
+    pub fn policy_revision(&self) -> &str {
+        &self.policy_revision
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

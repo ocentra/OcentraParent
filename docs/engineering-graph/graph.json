@@ -15527,7 +15527,7 @@
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation blocked — WP06 source rejected; protected owner, retained path custody, platform mutation/recovery, caller, tests, and proof remain open.",
+        "statusText": "Validation blocked — fail-closed WP06 safety source accepted; protected owner, retained custody, platform mutation/recovery, caller, tests, and proof remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -15537,14 +15537,14 @@
             "crates/agent-protocol/src/browser_managed.rs",
             "crates/agent-core/src/browser_managed_session.rs",
             "crates/agent-core/src/browser_managed_session/store.rs",
-            "crates/agent-core/src/browser_managed_session/store/validation_entry.rs",
-            "crates/agent-core/src/browser_managed_session/store/load.rs",
-            "crates/agent-core/src/browser_managed_session/store/path_guards.rs",
-            "crates/agent-core/src/browser_managed_session/store/path_guards_platform.rs",
-            "crates/agent-core/src/browser_managed_session/store/atomic_write.rs",
-            "crates/agent-core/src/browser_managed_session/store/mutate_create_state.rs",
-            "crates/agent-core/src/browser_managed_session/store/mutate_delete_state.rs",
-            "crates/agent-service/src/browser_runtime_paths.rs"
+            "crates/agent-protocol/src/constants/browser.rs",
+            "crates/agent-service/src/browser_runtime_paths.rs",
+            "crates/agent-service/src/browser_runtime_status.rs",
+            "crates/agent-core/src/browser_managed_session/store/authority.rs",
+            "crates/agent-core/src/browser_managed_session/store/custody.rs",
+            "crates/agent-core/src/browser_managed_session/store/platform.rs",
+            "crates/agent-core/src/browser_managed_session/store/recovery.rs",
+            "crates/agent-service/src/browser_managed_profile_runtime.rs"
           ],
           "testRoots": [
             "crates/agent-protocol/tests/contract/browser_managed_profile_store.rs",
@@ -15568,7 +15568,7 @@
           "reason": "Independent review rejected source-only head 5671c06a2: persisted JSON/path state is not authenticated owner authority, path custody is not retained, no-follow/TOCTOU coverage is incomplete, lifecycle mutation/recovery is inert, and no production caller exists. WP06 must remain blocked on the neutral protected-custody owner plus a repaired Browser adapter and five exact expected test roots; no integration, READY, proof, or DONE is claimed."
         },
         "stateOverride": {
-          "reason": "The graph schema permits only a validation safety override here. Independent review rejected source-only head 5671c06a2 for unauthenticated same-user-forgeable state, dropped path custody, incomplete no-follow/TOCTOU protection, inert mutation/recovery, and no caller. A protected owner adapter, retained identity, safe platform primitives, all five expected tests, proof, and integration remain absent.",
+          "reason": "Independent review accepted 93f875134 only as a fail-closed source correction: caller-mintable JSON/path authority, public store config/record, env/temp-dir mutation, and rejected path-only helpers are removed. The private store cannot produce Ready or Deleted and returns ProtectedCustodyAdapterUnavailable for every operation. A dependency-owned protected owner, retained identity, safe platform mutation/recovery, a real caller, all five expected tests, proof, and completion remain absent; WP07 cannot consume caller-supplied managed-looking paths as authority.",
           "evidence": [
             "docs/plans/browser-plan/PLAN_STATE.md",
             "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
@@ -15592,14 +15592,14 @@
             "crates/agent-protocol/src/browser_managed.rs",
             "crates/agent-core/src/browser_managed_session.rs",
             "crates/agent-core/src/browser_managed_session/store.rs",
-            "crates/agent-core/src/browser_managed_session/store/validation_entry.rs",
-            "crates/agent-core/src/browser_managed_session/store/load.rs",
-            "crates/agent-core/src/browser_managed_session/store/path_guards.rs",
-            "crates/agent-core/src/browser_managed_session/store/path_guards_platform.rs",
-            "crates/agent-core/src/browser_managed_session/store/atomic_write.rs",
-            "crates/agent-core/src/browser_managed_session/store/mutate_create_state.rs",
-            "crates/agent-core/src/browser_managed_session/store/mutate_delete_state.rs",
-            "crates/agent-service/src/browser_runtime_paths.rs"
+            "crates/agent-protocol/src/constants/browser.rs",
+            "crates/agent-service/src/browser_runtime_paths.rs",
+            "crates/agent-service/src/browser_runtime_status.rs",
+            "crates/agent-core/src/browser_managed_session/store/authority.rs",
+            "crates/agent-core/src/browser_managed_session/store/custody.rs",
+            "crates/agent-core/src/browser_managed_session/store/platform.rs",
+            "crates/agent-core/src/browser_managed_session/store/recovery.rs",
+            "crates/agent-service/src/browser_managed_profile_runtime.rs"
           ],
           "tests": [
             "crates/agent-protocol/tests/contract/browser_managed_profile_store.rs",

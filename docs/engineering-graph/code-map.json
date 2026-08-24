@@ -1594,14 +1594,14 @@
         "crates/agent-protocol/src/browser_managed.rs",
         "crates/agent-core/src/browser_managed_session.rs",
         "crates/agent-core/src/browser_managed_session/store.rs",
-        "crates/agent-core/src/browser_managed_session/store/validation_entry.rs",
-        "crates/agent-core/src/browser_managed_session/store/load.rs",
-        "crates/agent-core/src/browser_managed_session/store/path_guards.rs",
-        "crates/agent-core/src/browser_managed_session/store/path_guards_platform.rs",
-        "crates/agent-core/src/browser_managed_session/store/atomic_write.rs",
-        "crates/agent-core/src/browser_managed_session/store/mutate_create_state.rs",
-        "crates/agent-core/src/browser_managed_session/store/mutate_delete_state.rs",
+        "crates/agent-protocol/src/constants/browser.rs",
         "crates/agent-service/src/browser_runtime_paths.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-core/src/browser_managed_session/store/authority.rs",
+        "crates/agent-core/src/browser_managed_session/store/custody.rs",
+        "crates/agent-core/src/browser_managed_session/store/platform.rs",
+        "crates/agent-core/src/browser_managed_session/store/recovery.rs",
+        "crates/agent-service/src/browser_managed_profile_runtime.rs",
         "crates/agent-protocol/tests/contract/browser_managed_profile_store.rs",
         "crates/agent-core/tests/unit/browser_managed_profile_store_authority.rs",
         "crates/agent-core/tests/unit/browser_managed_profile_store_path_custody.rs",
@@ -1612,14 +1612,14 @@
         "crates/agent-protocol/src/browser_managed.rs",
         "crates/agent-core/src/browser_managed_session.rs",
         "crates/agent-core/src/browser_managed_session/store.rs",
-        "crates/agent-core/src/browser_managed_session/store/validation_entry.rs",
-        "crates/agent-core/src/browser_managed_session/store/load.rs",
-        "crates/agent-core/src/browser_managed_session/store/path_guards.rs",
-        "crates/agent-core/src/browser_managed_session/store/path_guards_platform.rs",
-        "crates/agent-core/src/browser_managed_session/store/atomic_write.rs",
-        "crates/agent-core/src/browser_managed_session/store/mutate_create_state.rs",
-        "crates/agent-core/src/browser_managed_session/store/mutate_delete_state.rs",
-        "crates/agent-service/src/browser_runtime_paths.rs"
+        "crates/agent-protocol/src/constants/browser.rs",
+        "crates/agent-service/src/browser_runtime_paths.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-core/src/browser_managed_session/store/authority.rs",
+        "crates/agent-core/src/browser_managed_session/store/custody.rs",
+        "crates/agent-core/src/browser_managed_session/store/platform.rs",
+        "crates/agent-core/src/browser_managed_session/store/recovery.rs",
+        "crates/agent-service/src/browser_managed_profile_runtime.rs"
       ],
       "expectedTestRoots": [
         "crates/agent-protocol/tests/contract/browser_managed_profile_store.rs",
@@ -1628,7 +1628,7 @@
         "crates/agent-core/tests/unit/browser_managed_profile_store_recovery.rs",
         "crates/agent-service/tests/integration/browser_managed_profile_store_runtime.rs"
       ],
-      "note": "Canonical source has protocol and Browser-owned filesystem/profile helpers, but independent review rejected source-only head 5671c06a2. Persisted JSON/path state is not authenticated owner authority, returned records do not retain handle-bound path custody, no-follow/TOCTOU coverage is incomplete, mutation/recovery primitives are unavailable, and there is no production caller. The repair requires dependency-owned protected custody plus retained root/profile identity and safe platform mutation; the five exact expected test roots remain absent. No source acceptance, READY, proof, or DONE is claimed."
+      "note": "Independent review accepted 93f875134 only as a fail-closed safety correction. Canonical now removes caller-mintable JSON/path authority, public store config/record, env/temp-dir mutation, and rejected path-only helpers. The remaining private store always returns ProtectedCustodyAdapterUnavailable and cannot produce Ready or Deleted. Missing planned owners are the protected receipt/key adapter, retained handle-bound custody, safe platform mutation/recovery, and real service caller; all five expected tests, proof, READY, and DONE remain absent. WP07 must consume the future owner-issued binding rather than mint authority from a managed-looking path."
     },
     "WP-browser-plan-07-managed-chromium-launcher": {
       "planSlug": "browser-plan",

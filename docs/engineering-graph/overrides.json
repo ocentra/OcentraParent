@@ -9400,8 +9400,8 @@
     {
       "id": "WP-browser-plan-06-managed-profile-store",
       "state": "validation",
-      "reason": "The graph schema permits only a validation safety override here. Independent review rejected source-only head 5671c06a2 for unauthenticated same-user-forgeable state, dropped path custody, incomplete no-follow/TOCTOU protection, inert mutation/recovery, and no caller. A protected owner adapter, retained identity, safe platform primitives, all five expected tests, proof, and integration remain absent.",
-      "statusText": "Validation blocked — WP06 source rejected; protected owner, retained path custody, platform mutation/recovery, caller, tests, and proof remain open.",
+      "reason": "Independent review accepted 93f875134 only as a fail-closed source correction: caller-mintable JSON/path authority, public store config/record, env/temp-dir mutation, and rejected path-only helpers are removed. The private store cannot produce Ready or Deleted and returns ProtectedCustodyAdapterUnavailable for every operation. A dependency-owned protected owner, retained identity, safe platform mutation/recovery, a real caller, all five expected tests, proof, and completion remain absent; WP07 cannot consume caller-supplied managed-looking paths as authority.",
+      "statusText": "Validation blocked — fail-closed WP06 safety source accepted; protected owner, retained custody, platform mutation/recovery, caller, tests, and proof remain open.",
       "needsReview": false,
       "evidence": [
         "docs/plans/browser-plan/PLAN_STATE.md",

@@ -27,14 +27,15 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. Repair WP06 from the independent rejection of `5671c06a2`: replace
-   same-user-forgeable JSON/path authority with a dependency-owned protected
-   owner receipt/key and retained root/profile identity; implement safe
-   platform-specific no-follow mutation/recovery or fail closed where the
-   required adapter does not exist. Do not claim `Ready` from path existence.
-2. Re-run independent source review before any WP06 integration. Only after
-   acceptance, write the five named protocol/core/service test roots; do not
-   churn source and tests one line at a time.
+1. Continue WP06 from the independently accepted fail-closed `93f875134`
+   safety boundary: add the dependency-owned protected owner receipt/key,
+   retained root/profile identity, safe platform-specific no-follow
+   mutation/recovery, and real service caller. Keep unsupported platforms
+   unavailable and never claim `Ready` from path existence.
+2. After that coherent source packet is independently accepted, write the five
+   named protocol/core/service test roots together; do not churn source and
+   tests one line at a time. Existing tests using removed public store config,
+   old error variants, and public status-entry fields are stale.
 3. Canonical `f80b47c6a` is the accepted fail-closed WP07/WP09 source baseline.
    It removes unreachable launch state, env/dev profile authority, placeholder
    bridge polling, and the dead Browser-to-Screen runtime surface. Production
@@ -50,7 +51,9 @@ This file is the short resume list for the next worker. It is derived from open 
    replacement, teardown, restart/expiry, malformed/oversized/timeout,
    disappearance/navigation, no-active-tab-claim, and manual-required Screen
    handoff.
-6. WP06, WP07, and WP09 remain blocked/open. No test, build, proof, PR_READY,
+6. WP06, WP07, and WP09 remain blocked/open. WP07's public launch seam may not
+   mint CDP authority from a caller-supplied managed-looking path; it must
+   consume the future owner-issued WP06 binding. No test, build, proof, PR_READY,
    runtime, or DONE claim follows from a pushed source branch.
 
 ## PR readiness guard
