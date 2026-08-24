@@ -9502,6 +9502,23 @@
   ],
   "completionEvidenceOverrides": [
     {
+      "id": "WP-app-game-plan-16-parent-portal-app-game-dashboard-surfaces",
+      "implementation": [
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx"
+      ],
+      "reason": "A live import/render trace confirms the tracked vendor intent and SVG renderer are mounted by the production portal route. The existing route scaffold checks only a shallow dashboard presence contract; focused intent/state-matrix and hostile-metadata tests are still absent, and Game budgets remains an honest policy-proof-pending placeholder without a service read-model row. No validation, proof, READY, or DONE claim is made.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/16-parent-portal-app-game-dashboard-surfaces.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
       "implementation": [
         "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs",

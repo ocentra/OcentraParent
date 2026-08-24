@@ -6908,7 +6908,18 @@
         "crates/agent-core/src/activity_store_app_game",
         "crates/agent-core/tests/unit/activity_store_app_game",
         "crates/agent-service/src/activity_capture/app_game.rs",
-        "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
+        "crates/agent-service/tests/unit/app_game_activity_read_models.rs",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/tests/e2e/portal-route-scaffold-product-activity.ts"
+      ],
+      "expectedTestRoots": [
+        "apps/portal/tests/unit/app-game-dashboard-intent.test.ts",
+        "apps/portal/tests/e2e/app-game-dashboard-state-matrix.spec.ts"
       ]
     },
     "WP-app-game-plan-17-unknown-app-game-approval-flow": {

@@ -56,7 +56,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP13 Sessionization And Duration Engine | Rust protocol + ActivityStore/source/service tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP14 Journal And SQLite Ingest | Rust protocol + ActivityStore/source/service tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP15 Read Models And Service Events | Rust protocol + ActivityStore/source/service tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
-| WP16 Parent Portal App/Game Dashboard Surfaces | Current Rust/service/portal boundary; legacy TS owner removed | **Incomplete** | No cohesive parent surface and focused UI matrix covers installed, running, foreground, sessions, rollups, unknown/risk, drill-in, and hostile/long metadata states. |
+| WP16 Parent Portal App/Game Dashboard Surfaces | Rust/service read models + tracked vendor dashboard + production portal bridge + shallow route scaffold | **Incomplete: production surface present; expected-test wave open** | The production App/Game Sessions route renders the cohesive dashboard, capability matrix, source rows, and evidence drawer. Missing focused intent/state-matrix and hostile/long-metadata tests keep Phase 1 open; Game budgets remains an honest `policy proof pending` placeholder because the service read model carries no budget row. |
 | WP17 Unknown App/Game Approval Flow | Rust-owned candidate and durable lifecycle in `ocentra-app-game-core` + contract tests | **Complete for bounded Phase 1; Phase 2 green** | Typed candidate/request/response/expiry events, synchronized journal restart/replay, idempotency, and fail-closed response tests landed at `fd536480b`; Phase 3 proof and service/UI/notification/adapter consumers remain open. |
 | WP18 Native Game Budgets And Launcher Policy | Rust-owned native-game budget composition in `ocentra-app-game-core` + contract tests | **Complete for bounded Phase 1; Phase 2 green** | Known games and parent-approved candidates count; launcher-only/unapproved candidates are excluded; incoherent/duplicate/bypass inputs fail closed; advisory signals never dispatch. Landed at `0ee4525d8`; persistence, service/portal/notification/adapter integration, retained proof, and Phase 3 remain open. |
 | WP19 Policy Target Compiler For App/Game Rules | Rust-owned compiler in `ocentra-app-game-core` + contract tests | **Complete for bounded Phase 1; Phase 2 green** | All 25 target kinds and fail-closed identity/category/schedule/evidence/capability/authority paths are implemented and tested at `bf81b400d`; retained Phase 3 proof and downstream service consumption remain open. |
@@ -266,8 +266,9 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 1. WP62-WP65: implement notification provider/preference ownership,
    preflight, and receipt-backed status producers.
-2. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
-   and hostile/oversized metadata tests.
+2. WP48 and WP63: finish the remaining parent source-panel production gaps. In
+   the later test wave, add WP16 and WP159 state-matrix and hostile/oversized
+   metadata coverage; do not duplicate WP16's already mounted dashboard.
 3. WP188-WP202 and WP204: finish Android replay/test coverage and Linux foreground
    acquisition instead of relying on readiness/status rows.
 4. WP207 and WP211-WP222: add tracked Android child-runtime persistence, replay,

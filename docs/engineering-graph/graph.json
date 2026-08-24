@@ -5290,24 +5290,41 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "possibly done"
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "apps/portal/tests/unit/app-game-dashboard-intent.test.ts",
+            "apps/portal/tests/e2e/app-game-dashboard-state-matrix.spec.ts"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "A live import/render trace confirms the tracked vendor intent and SVG renderer are mounted by the production portal route. The existing route scaffold checks only a shallow dashboard presence contract; focused intent/state-matrix and hostile-metadata tests are still absent, and Game budgets remains an honest policy-proof-pending placeholder without a service read-model row. No validation, proof, READY, or DONE claim is made.",
+          "evidence": [
+            "docs/plans/app-game-plan/CODE_AUDIT.md",
+            "docs/plans/app-game-plan/workpacks/16-parent-portal-app-game-dashboard-surfaces.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/16-parent-portal-app-game-dashboard-surfaces.md"
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+            "apps/portal/src/vendor-parent-portal-surface.js",
+            "apps/portal/src/ParentPortalRoute.tsx"
           ],
           "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
@@ -5317,6 +5334,10 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/16-parent-portal-app-game-dashboard-surfaces"
+          ],
+          "tests": [
+            "apps/portal/tests/unit/app-game-dashboard-intent.test.ts",
+            "apps/portal/tests/e2e/app-game-dashboard-state-matrix.spec.ts"
           ]
         }
       }

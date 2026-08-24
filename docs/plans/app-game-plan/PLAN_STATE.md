@@ -39,7 +39,7 @@ discrepancy remains stale and is not completion evidence.
 
 | Workpacks | Reachable production caller and material effect | Remaining production gap / authority boundary |
 | --- | --- | --- |
-| WP01-WP16 | `service_runtime` starts recurring Windows capture; agent-core sources inventory, process, foreground, launcher, and app/game observations; encrypted journal/SQLite and activity-surface read models persist and expose evidence. WP10's accepted source shares one process snapshot and generation-safe process identity across launcher and foreground capture while retaining the generic window identity. | WP10's complete expected-test refresh and focused execution are open. Identity merge, richer subscriptions, dedicated portal evidence rows, and non-Windows acquisition are absent. Existing read models are evidence, not policy or control. |
+| WP01-WP16 | `service_runtime` starts recurring Windows capture; agent-core sources inventory, process, foreground, launcher, and app/game observations; encrypted journal/SQLite and activity-surface read models persist and expose evidence. WP10's accepted source shares one process snapshot and generation-safe process identity across launcher and foreground capture while retaining the generic window identity. The production portal route imports the tracked vendor surface and renders WP16's dashboard, source status, capability matrix, and evidence drawer. | WP10's complete expected-test refresh and focused execution are open. WP16 lacks its focused intent/state/hostile-metadata test family, and its Game budgets tile remains `policy proof pending` because no budget row reaches the service read model. Identity merge, richer subscriptions, and non-Windows acquisition remain absent. Existing read models are evidence, not policy or control. |
 | WP17 | Rust typed unknown-candidate producer and Eventing request/response/expiry/replay lifecycle are callable only inside app-game-core. | No service composition feeds a parent approval request into child delivery or an adapter. |
 | WP18-WP20 | Rust game-budget, policy-target compiler, and time-budget evaluator compositions consume bounded stored summaries and remain dry-run. | No parent-authored live rule/context producer, service evaluator caller, scheduler/timer runtime, or enforcement handoff. |
 | WP21-WP22 | Controlled child-UX tokens/outbox contracts exist; the timer command path validates current session evidence and can attempt Windows termination by PID/name. | No child delivery/UI/provider runtime. Timer authority is narrow: executable path, process start time, and owner-SID hardening are not carried into this PID/name path; the authenticated native termination resolver is a separate unused path. |
@@ -73,6 +73,15 @@ adapter execution (WP166-WP176). Tests, Enforcer validation, proof, and CI
 remain deferred.
 
 ## Active production-code follow-up - 2026-08-16
+
+- WP16's cohesive production dashboard is present and reachable through
+  `ParentPortalRoute.tsx` -> `vendor-parent-portal-surface.js` -> the tracked
+  vendor `ParentPortalSvgSurface.tsx`. The surface renders service rows,
+  source/freshness status, capability limitations, counts, and evidence. The
+  existing Playwright route scaffold is shallow; the expected intent/state
+  matrix and hostile/long-metadata tests are absent. Game budgets is explicitly
+  `policy proof pending` because no budget row reaches the service read model.
+  This removes the false "no cohesive surface" source gap without closing WP16.
 
 - WP102 is an explicit no-code supersession decision, not another source gap.
   Its proposed `packages/parent-domain` intermediate would duplicate the real
