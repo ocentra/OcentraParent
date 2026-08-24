@@ -3,7 +3,7 @@ use sha2::{Digest, Sha256};
 
 use super::{Record, StorageError};
 use crate::binding::{Binding, BINDING_VERSION};
-use crate::platform::{record::BrokerRecord, DatabaseIdentity, SealedState};
+use crate::platform::{identity::DatabaseIdentity, record::BrokerRecord, SealedState};
 
 mod transition;
 

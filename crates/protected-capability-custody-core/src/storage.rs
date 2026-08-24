@@ -3,8 +3,9 @@ use std::path::Path;
 use rusqlite::{params, Connection, OpenFlags, OptionalExtension, Transaction};
 use thiserror::Error;
 
-use crate::platform::{DatabaseIdentity, SealedState};
+use crate::platform::{identity::DatabaseIdentity, SealedState};
 
+mod configuration;
 mod record;
 mod schema;
 
@@ -46,24 +47,36 @@ impl From<rusqlite::Error> for StorageError {
     }
 }
 
-pub(crate) fn open(path: &Path) -> Result<(Connection, [u8; 32]), StorageError> {
+pub(crate) fn open_connection(path: &Path) -> Result<(Connection, bool), StorageError> {
     let was_empty = std::fs::metadata(path)
         .map_err(|_| StorageError::Unavailable)?
         .len()
         == 0;
-    let flags = OpenFlags::SQLITE_OPEN_READ_WRITE | OpenFlags::SQLITE_OPEN_NO_MUTEX;
-    let mut connection = Connection::open_with_flags(path, flags)?;
-    connection.execute_batch(
-        "PRAGMA foreign_keys = ON; PRAGMA synchronous = FULL; PRAGMA trusted_schema = OFF;",
-    )?;
-    let instance = schema::initialize_or_validate(&mut connection, was_empty)?;
-    Ok((connection, instance))
+    let flags = OpenFlags::SQLITE_OPEN_READ_WRITE
+        | OpenFlags::SQLITE_OPEN_NO_MUTEX
+        | OpenFlags::SQLITE_OPEN_PRIVATE_CACHE
+        | OpenFlags::SQLITE_OPEN_NOFOLLOW;
+    Connection::open_with_flags(path, flags)
+        .map(|connection| (connection, was_empty))
+        .map_err(StorageError::from)
+}
+
+pub(crate) fn configure(connection: &mut Connection) -> Result<(), StorageError> {
+    configuration::configure(connection)
+}
+
+pub(crate) fn initialize_or_validate(
+    connection: &mut Connection,
+    was_empty: bool,
+) -> Result<[u8; 32], StorageError> {
+    schema::initialize_or_validate(connection, was_empty)
 }
 
 pub(crate) fn validate_all(
     connection: &Connection,
     identity: DatabaseIdentity,
 ) -> Result<(), StorageError> {
+    configuration::validate(connection)?;
     schema::validate(connection)?;
     schema::validate_integrity(connection)?;
     let mut statement = connection.prepare(&select_sql("ORDER BY record_id"))?;
@@ -82,13 +95,6 @@ pub(crate) fn load_by_lookup(
     digest: &[u8; 32],
 ) -> Result<Option<Record>, StorageError> {
     load_one(connection, "WHERE lookup_digest = ?1", digest)
-}
-
-pub(crate) fn load_by_id(
-    connection: &Connection,
-    record_id: &[u8; 32],
-) -> Result<Option<Record>, StorageError> {
-    load_one(connection, "WHERE record_id = ?1", record_id)
 }
 
 pub(crate) fn insert(transaction: &Transaction<'_>, value: &Record) -> Result<(), StorageError> {

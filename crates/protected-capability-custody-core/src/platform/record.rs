@@ -1,26 +1,26 @@
 use std::fmt;
 
-use super::{DatabaseIdentity, SealContext, SealedState};
+use super::{identity::DatabaseIdentity, SealContext, SealedState};
 
-pub struct BrokerRecord {
-    pub record_namespace: Vec<u8>,
-    pub schema_version: u32,
-    pub binding_version: u16,
-    pub database_identity: DatabaseIdentity,
-    pub record_id: [u8; 32],
-    pub lookup_digest: [u8; 32],
-    pub binding_digest: [u8; 32],
-    pub canonical_binding: Vec<u8>,
-    pub state: SealedState,
-    pub sequence: u64,
-    pub key_epoch: u64,
-    pub writer_epoch: u64,
-    pub anti_rollback_watermark: u64,
-    pub sealed: Vec<u8>,
+pub(crate) struct BrokerRecord {
+    pub(crate) record_namespace: Vec<u8>,
+    pub(crate) schema_version: u32,
+    pub(crate) binding_version: u16,
+    pub(crate) database_identity: DatabaseIdentity,
+    pub(crate) record_id: [u8; 32],
+    pub(crate) lookup_digest: [u8; 32],
+    pub(crate) binding_digest: [u8; 32],
+    pub(crate) canonical_binding: Vec<u8>,
+    pub(crate) state: SealedState,
+    pub(crate) sequence: u64,
+    pub(crate) key_epoch: u64,
+    pub(crate) writer_epoch: u64,
+    pub(crate) anti_rollback_watermark: u64,
+    pub(crate) sealed: Vec<u8>,
 }
 
 impl BrokerRecord {
-    pub fn seal_context(&self) -> SealContext<'_> {
+    pub(crate) fn seal_context(&self) -> SealContext<'_> {
         SealContext {
             record_namespace: &self.record_namespace,
             schema_version: self.schema_version,

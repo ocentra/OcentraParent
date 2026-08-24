@@ -2,28 +2,29 @@ use getrandom::fill;
 use rusqlite::TransactionBehavior;
 
 use super::reconcile;
+use super::scope::OperationScope;
+use super::support::sqlite::{finish_step, lock_connection, map_error as map_storage_error};
 use super::support::{
-    attest_path, lock_connection, lock_operation, map_platform_error, map_storage_error, prepared,
-    resolve_current, transition, validate_transition,
+    attest_path, local_replica_failure, map_transition_failure, prepared, transition,
+    validate_transition,
 };
-use super::{CustodyError, CustodyStore, PreparedCapability};
-use crate::authority::CurrentBindingPort;
+use super::{CustodyError, CustodyStore, PreparedCapability, TransitionPhase};
 use crate::binding::BindingLocator;
-use crate::platform::{PlatformCustodyPort, SealedState};
+use crate::platform::SealedState;
 use crate::storage;
 
-pub(super) fn run<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
+pub(super) fn run(
+    store: &CustodyStore,
     locator: &BindingLocator,
 ) -> Result<PreparedCapability, CustodyError> {
-    let _operation = lock_operation(store)?;
-    match reconcile::current(store, locator) {
+    let scope = OperationScope::acquire(store, locator)?;
+    match reconcile::current(store, &scope) {
         Ok(record) => return existing(record.state),
         Err(CustodyError::Missing) => {}
         Err(error) => return Err(error),
     }
+    let binding = scope.binding().clone();
     let attestation = attest_path(store.platform.as_ref(), &store.secured_path)?;
-    let binding = resolve_current(store.authority.as_ref(), locator)?;
     let record_id = random_record_id()?;
     let lookup_digest = binding.locator().lookup_digest();
     let binding_digest = binding.digest();
@@ -40,15 +41,16 @@ pub(super) fn run<P: PlatformCustodyPort, A: CurrentBindingPort>(
     let broker = store
         .platform
         .reserve(request)
-        .map_err(map_platform_error)?;
+        .map_err(|error| map_transition_failure(error, TransitionPhase::Prepare))?;
     let record = validate_transition(
         store.platform.as_ref(),
         &broker,
         request,
         &store.secured_path,
     )?;
-    persist(store, &record)?;
-    Ok(prepared(&record))
+    persist(store, &record)
+        .map_err(|error| local_replica_failure(error, TransitionPhase::Prepare))?;
+    Ok(prepared(&record, &binding))
 }
 
 fn random_record_id() -> Result<[u8; 32], CustodyError> {
@@ -60,22 +62,29 @@ fn random_record_id() -> Result<[u8; 32], CustodyError> {
     Ok(record_id)
 }
 
-fn persist<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
-    record: &storage::Record,
-) -> Result<(), CustodyError> {
+fn persist(store: &CustodyStore, record: &storage::Record) -> Result<(), CustodyError> {
+    store
+        .secured_path
+        .revalidate()
+        .map_err(super::support::map_path_error)?;
     let mut connection = lock_connection(store)?;
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_| CustodyError::Database)?;
-    if storage::load_by_lookup(&transaction, &record.lookup_digest)
-        .map_err(map_storage_error)?
-        .is_some()
-    {
-        return Err(CustodyError::Conflict);
-    }
-    storage::insert(&transaction, record).map_err(map_storage_error)?;
-    transaction.commit().map_err(|_| CustodyError::Database)
+    let result = (|| {
+        storage::validate_all(&connection, store.secured_path.identity())
+            .map_err(map_storage_error)?;
+        let transaction = connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| CustodyError::Database)?;
+        if storage::load_by_lookup(&transaction, &record.lookup_digest)
+            .map_err(map_storage_error)?
+            .is_some()
+        {
+            return Err(CustodyError::Conflict);
+        }
+        storage::insert(&transaction, record).map_err(map_storage_error)?;
+        transaction.commit().map_err(|_| CustodyError::Database)
+    })();
+    drop(connection);
+    finish_step(store, result)
 }
 
 fn existing(state: SealedState) -> Result<PreparedCapability, CustodyError> {

@@ -2,114 +2,59 @@ use std::path::Path;
 
 use thiserror::Error;
 
-pub mod record;
-pub mod request;
+pub(crate) mod identity;
+pub(crate) mod record;
+pub(crate) mod request;
 
+use identity::{DatabaseIdentity, PhysicalDatabaseIdentity};
 use record::BrokerRecord;
 use request::{BrokerLookup, TransitionRequest};
 
+mod sealed {
+    /// Implement only beside the isolated production broker adapter. There is
+    /// intentionally no blanket implementation.
+    pub(crate) trait TrustedPlatformOwner {}
+
+    /// Implement only for the owned guard returned by that trusted adapter.
+    /// Keeping this separate prevents a future adapter from returning an
+    /// arbitrary caller-implemented broker port after admission.
+    pub(crate) trait TrustedDatabaseGuard {}
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum SecurityLevel {
-    Unavailable,
+pub(crate) enum SecurityLevel {
     InProcessOnly,
     SameUserIsolated,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum DatabasePathSecurity {
-    Unavailable,
-    OwnerOnlyNoFollowStable,
-}
-
-const DATABASE_IDENTITY_BYTES: usize = 96;
-
-#[derive(Clone, Copy, Eq, PartialEq)]
-pub struct DatabaseIdentity {
-    canonical: [u8; DATABASE_IDENTITY_BYTES],
-}
-
-impl DatabaseIdentity {
-    pub fn as_bytes(&self) -> &[u8; DATABASE_IDENTITY_BYTES] {
-        &self.canonical
-    }
-
-    pub(crate) fn from_parts(
-        canonical_path_digest: [u8; 32],
-        physical_file_digest: [u8; 32],
-        database_instance_id: [u8; 32],
-    ) -> Result<Self, PlatformError> {
-        if canonical_path_digest == [0_u8; 32]
-            || physical_file_digest == [0_u8; 32]
-            || database_instance_id == [0_u8; 32]
-        {
-            return Err(PlatformError::InvalidAttestation);
-        }
-        let mut canonical = [0_u8; DATABASE_IDENTITY_BYTES];
-        canonical[..32].copy_from_slice(&canonical_path_digest);
-        canonical[32..64].copy_from_slice(&physical_file_digest);
-        canonical[64..].copy_from_slice(&database_instance_id);
-        Ok(Self { canonical })
-    }
-
-    pub(crate) fn from_bytes(value: &[u8]) -> Result<Self, PlatformError> {
-        let canonical: [u8; DATABASE_IDENTITY_BYTES] = value
-            .try_into()
-            .map_err(|_| PlatformError::InvalidAttestation)?;
-        if canonical[..32] == [0_u8; 32]
-            || canonical[32..64] == [0_u8; 32]
-            || canonical[64..] == [0_u8; 32]
-        {
-            return Err(PlatformError::InvalidAttestation);
-        }
-        Ok(Self { canonical })
-    }
-}
-
-impl std::fmt::Debug for DatabaseIdentity {
-    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter
-            .debug_struct("DatabaseIdentity")
-            .field("opaque", &"<redacted>")
-            .finish()
-    }
+pub(crate) enum DatabasePathSecurity {
+    BrokerExclusiveWriterNoFollowRollbackJournal,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct PlatformAttestation {
-    pub security_level: SecurityLevel,
-    pub database_path_security: DatabasePathSecurity,
-    pub key_epoch: u64,
-    pub writer_epoch: u64,
-    pub watermark_floor: u64,
-    pub database_identity: DatabaseIdentity,
+pub(crate) struct PlatformAttestation {
+    security_level: SecurityLevel,
+    database_path_security: DatabasePathSecurity,
+    pub(crate) key_epoch: u64,
+    pub(crate) writer_epoch: u64,
+    pub(crate) watermark_floor: u64,
+    pub(crate) database_identity: DatabaseIdentity,
 }
 
 impl PlatformAttestation {
-    pub fn new(
-        security_level: SecurityLevel,
-        database_path_security: DatabasePathSecurity,
-        key_epoch: u64,
-        writer_epoch: u64,
-        watermark_floor: u64,
-        database_identity: DatabaseIdentity,
-    ) -> Result<Self, PlatformError> {
-        if key_epoch == 0 || writer_epoch == 0 {
-            return Err(PlatformError::InvalidAttestation);
-        }
-        Ok(Self {
-            security_level,
-            database_path_security,
-            key_epoch,
-            writer_epoch,
-            watermark_floor,
-            database_identity,
-        })
+    pub(crate) fn security_level(self) -> SecurityLevel {
+        self.security_level
+    }
+
+    pub(crate) fn database_path_security(self) -> DatabasePathSecurity {
+        self.database_path_security
     }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
-pub enum SealedState {
+pub(crate) enum SealedState {
     Prepared = 1,
     CommitAmbiguous = 2,
     AbortAmbiguous = 3,
@@ -118,24 +63,24 @@ pub enum SealedState {
 }
 
 #[derive(Clone, Copy)]
-pub struct SealContext<'a> {
-    pub record_namespace: &'a [u8],
-    pub schema_version: u32,
-    pub binding_version: u16,
-    pub database_identity: DatabaseIdentity,
-    pub record_id: &'a [u8; 32],
-    pub lookup_digest: &'a [u8; 32],
-    pub binding_digest: &'a [u8; 32],
-    pub canonical_binding: &'a [u8],
-    pub state: SealedState,
-    pub sequence: u64,
-    pub key_epoch: u64,
-    pub writer_epoch: u64,
-    pub anti_rollback_watermark: u64,
+pub(crate) struct SealContext<'a> {
+    pub(crate) record_namespace: &'a [u8],
+    pub(crate) schema_version: u32,
+    pub(crate) binding_version: u16,
+    pub(crate) database_identity: DatabaseIdentity,
+    pub(crate) record_id: &'a [u8; 32],
+    pub(crate) lookup_digest: &'a [u8; 32],
+    pub(crate) binding_digest: &'a [u8; 32],
+    pub(crate) canonical_binding: &'a [u8],
+    pub(crate) state: SealedState,
+    pub(crate) sequence: u64,
+    pub(crate) key_epoch: u64,
+    pub(crate) writer_epoch: u64,
+    pub(crate) anti_rollback_watermark: u64,
 }
 
 #[derive(Debug, Error)]
-pub enum PlatformError {
+pub(crate) enum PlatformError {
     #[error("platform custody is unavailable")]
     Unavailable,
     #[error("platform custody rejected the request")]
@@ -154,15 +99,40 @@ pub enum PlatformError {
     InvalidAttestation,
 }
 
-/// This port must be implemented by an authenticated, isolated same-user
-/// broker. Direct in-process sealing is intentionally rejected by the core.
-pub trait PlatformCustodyPort: Send + Sync {
-    /// Validate ACLs, owner-only mutation, no-follow opens, and stable OS file
-    /// identity for the exact database before returning
-    /// `OwnerOnlyNoFollowStable`. The core also holds no-follow file/parent
-    /// handles, but rejects the adapter unless both layers attest the path. The
-    /// broker must durably bind the physical-file identity to the database
-    /// instance identifier on first use and reject later instance rebinding.
+#[derive(Debug, Error)]
+pub(crate) enum TransitionFailure {
+    #[error("platform transition was definitely not applied")]
+    DefinitelyNotApplied(#[source] PlatformError),
+    #[error("platform transition outcome is unknown")]
+    OutcomeUnknown,
+}
+
+/// Admission owner implemented only beside an authenticated, isolated broker.
+/// It must acquire an OS-enforced writer lease for the exact database, journal,
+/// and parent namespace before SQLite is opened. The returned owned guard must
+/// retain that lease until it is dropped; direct in-process DPAPI or a token
+/// that merely asserts custody is not an implementation of this interface.
+pub(crate) trait PlatformCustodyOwner: sealed::TrustedPlatformOwner + Send + Sync {
+    /// Acquire exclusion first, then revalidate the supplied physical identity,
+    /// owner ACL, empty tracked journal, and absence of WAL/SHM before return.
+    /// The adapter must fail rather than return a guard if an untrusted writer
+    /// can still mutate or create any of those paths while the guard is alive.
+    fn acquire_database(
+        &self,
+        canonical_path: &Path,
+        physical_identity: PhysicalDatabaseIdentity,
+    ) -> Result<Box<dyn PlatformDatabaseGuard>, PlatformError>;
+}
+
+/// Opaque lifetime guard for the broker's exclusive database-writer custody.
+/// All sealing operations are reachable only through this guard, so the core
+/// cannot accidentally drop writer custody while SQLite or broker state is in
+/// use. No external crate can implement or construct this interface.
+pub(crate) trait PlatformDatabaseGuard: sealed::TrustedDatabaseGuard + Send + Sync {
+    /// Validate owner ACLs, isolated writer custody, no-follow opens, stable OS
+    /// file identity, the tracked PERSIST rollback journal, and absence of
+    /// WAL/SHM state. Bind the pre-open physical identity to the authenticated
+    /// database instance on first use and reject copies or later rebinding.
     fn attest_database(
         &self,
         canonical_path: &Path,
@@ -170,21 +140,25 @@ pub trait PlatformCustodyPort: Send + Sync {
     ) -> Result<PlatformAttestation, PlatformError>;
 
     /// Atomically reserve the lookup key, advance the external watermark, seal
-    /// the complete next context, and durably publish it before returning.
-    fn reserve(&self, next: TransitionRequest<'_>) -> Result<BrokerRecord, PlatformError>;
+    /// the complete canonical binding and state (never a caller digest alone),
+    /// authenticate the complete context as AAD, and durably publish it.
+    fn reserve(&self, next: TransitionRequest<'_>) -> Result<BrokerRecord, TransitionFailure>;
 
     /// Atomically compare every field of `prior`, advance the external
-    /// watermark, seal the next context, and durably publish it.
+    /// watermark, seal the complete next binding/state, authenticate the
+    /// complete next context as AAD, and durably publish it.
     fn advance(
         &self,
         prior: &BrokerRecord,
         next: TransitionRequest<'_>,
-    ) -> Result<BrokerRecord, PlatformError>;
+    ) -> Result<BrokerRecord, TransitionFailure>;
 
     /// Return the broker's durable current state for the exact domain-separated
     /// lookup, or `None` only when no reservation has ever existed.
     fn current(&self, lookup: BrokerLookup<'_>) -> Result<Option<BrokerRecord>, PlatformError>;
 
-    /// Authenticate the seal against every field in this context.
-    fn verify(&self, context: SealContext<'_>, sealed: &[u8]) -> Result<(), PlatformError>;
+    /// Open the isolated seal, require its full binding/state payload to match,
+    /// and authenticate every field of this context as AAD.
+    fn open_and_verify(&self, context: SealContext<'_>, sealed: &[u8])
+        -> Result<(), PlatformError>;
 }

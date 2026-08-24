@@ -1,43 +1,44 @@
 use rusqlite::TransactionBehavior;
 
+use super::super::scope::OperationScope;
+use super::super::support::sqlite::{finish_step, lock_connection, map_error as map_storage_error};
 use super::super::support::{
-    attest_path, lock_connection, map_storage_error, resolve_current, terminal_state, transition,
+    attest_path, local_replica_failure, map_transition_failure, terminal_state, transition,
     validate_attestation, validate_current, validate_transition,
 };
-use super::super::{CustodyError, CustodyStore};
-use crate::authority::CurrentBindingPort;
-use crate::binding::Binding;
-use crate::platform::{PlatformCustodyPort, SealedState};
+use super::super::{CustodyError, CustodyStore, TransitionPhase};
+use crate::platform::SealedState;
 use crate::storage::{self, Record};
 
-pub(super) fn resolve_record<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
+pub(super) fn resolve_record(
+    store: &CustodyStore,
+    scope: &OperationScope<'_>,
     record: Record,
 ) -> Result<Record, CustodyError> {
-    if matches!(
-        record.state,
-        SealedState::CommitAmbiguous | SealedState::AbortAmbiguous
-    ) {
-        let terminal = terminal_state(record.state)?;
-        return advance(store, record, terminal);
-    }
-    Ok(record)
+    let phase = match record.state {
+        SealedState::CommitAmbiguous => TransitionPhase::CommitTerminal,
+        SealedState::AbortAmbiguous => TransitionPhase::AbortTerminal,
+        _ => return Ok(record),
+    };
+    let terminal = terminal_state(record.state)?;
+    advance(store, scope, record, terminal, phase)
 }
 
-pub(super) fn advance<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
+pub(super) fn advance(
+    store: &CustodyStore,
+    scope: &OperationScope<'_>,
     prior: Record,
     next_state: SealedState,
+    phase: TransitionPhase,
 ) -> Result<Record, CustodyError> {
-    let binding = Binding::decode(&prior.canonical_binding).map_err(|_| CustodyError::Tampered)?;
+    let binding = scope.binding().clone();
+    validate_current(&prior, &binding)?;
     let attestation = attest_path(store.platform.as_ref(), &store.secured_path)?;
-    let current = resolve_current(store.authority.as_ref(), binding.locator())?;
-    validate_current(&prior, &current)?;
     validate_attestation(&prior, attestation)?;
-    let lookup_digest = current.locator().lookup_digest();
-    let binding_digest = current.digest();
+    let lookup_digest = binding.locator().lookup_digest();
+    let binding_digest = binding.digest();
     let request = transition(
-        &current,
+        &binding,
         &prior.record_id,
         &lookup_digest,
         &binding_digest,
@@ -55,23 +56,19 @@ pub(super) fn advance<P: PlatformCustodyPort, A: CurrentBindingPort>(
     let broker = store
         .platform
         .advance(&prior_broker, request)
-        .map_err(|_| ambiguity(next_state))?;
+        .map_err(|error| map_transition_failure(error, phase))?;
     let next = validate_transition(
         store.platform.as_ref(),
         &broker,
         request,
         &store.secured_path,
-    )
-    .map_err(|_| ambiguity(next_state))?;
-    let persisted = persist(store, &prior, next).map_err(|_| ambiguity(next_state))?;
-    let latest = resolve_current(store.authority.as_ref(), binding.locator())
-        .map_err(|_| ambiguity(next_state))?;
-    validate_current(&persisted, &latest).map_err(|_| ambiguity(next_state))?;
-    Ok(persisted)
+    )?;
+    persist(store, &binding, &prior, next).map_err(|error| local_replica_failure(error, phase))
 }
 
-fn persist<P: PlatformCustodyPort, A: CurrentBindingPort>(
-    store: &CustodyStore<P, A>,
+fn persist(
+    store: &CustodyStore,
+    binding: &crate::binding::Binding,
     prior: &Record,
     next: Record,
 ) -> Result<Record, CustodyError> {
@@ -79,28 +76,25 @@ fn persist<P: PlatformCustodyPort, A: CurrentBindingPort>(
         .secured_path
         .revalidate()
         .map_err(super::super::support::map_path_error)?;
-    let binding = Binding::decode(&next.canonical_binding).map_err(|_| CustodyError::Tampered)?;
-    let current = resolve_current(store.authority.as_ref(), binding.locator())?;
-    validate_current(prior, &current)?;
-    validate_current(&next, &current)?;
+    validate_current(prior, binding)?;
+    validate_current(&next, binding)?;
     let mut connection = lock_connection(store)?;
-    storage::validate_all(&connection, store.secured_path.identity()).map_err(map_storage_error)?;
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_| CustodyError::Database)?;
-    let changed =
-        storage::compare_and_replace(&transaction, prior, &next).map_err(map_storage_error)?;
-    if !changed {
-        return Err(CustodyError::Conflict);
-    }
-    transaction.commit().map_err(|_| CustodyError::Database)?;
-    Ok(next)
-}
-
-fn ambiguity(state: SealedState) -> CustodyError {
-    if matches!(state, SealedState::CommitAmbiguous | SealedState::Committed) {
-        CustodyError::CommitAmbiguous
-    } else {
-        CustodyError::AbortAmbiguous
-    }
+    let result = (|| {
+        storage::validate_all(&connection, store.secured_path.identity())
+            .map_err(map_storage_error)?;
+        let transaction = connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| CustodyError::Database)?;
+        let changed =
+            storage::compare_and_replace(&transaction, prior, &next).map_err(map_storage_error)?;
+        if !changed {
+            return Err(CustodyError::Conflict);
+        }
+        transaction
+            .commit()
+            .map_err(|_| CustodyError::Database)
+            .map(|()| next)
+    })();
+    drop(connection);
+    finish_step(store, result)
 }
