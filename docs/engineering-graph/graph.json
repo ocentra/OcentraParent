@@ -15201,7 +15201,7 @@
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
-        "statusText": "active — audited production-source repair; tests/proof deferred",
+        "statusText": "active — source drafted; independent review pending; tests/proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -15213,7 +15213,7 @@
             "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "The 2026-08-24 canonical source audit found a useful Browser-owned filesystem contract but not accepted production custody: persisted identity is reconstructed from caller input, corrupt metadata is masked during repair, mutations are neither atomic nor serialized, filesystem indirection is not rejected, and an unused service helper carries development/test identity. This review authorizes only the bounded WP06 source repair and does not claim tests, proof, launch/runtime authority, PR readiness, or DONE."
+          "reason": "The 2026-08-24 canonical source audit reopened WP06 for real custody defects. Source-only head 63d913b93 now carries the bounded persisted-binding, corruption, atomicity, serialization, filesystem-indirection, deletion-recovery, and dev-helper repair with focused compile/static guards passing. Independent source review and canonical integration remain pending; tests, proof, pre-commit, CI, launch/runtime authority, PR readiness, and DONE are not claimed."
         }
       },
       "completion": {

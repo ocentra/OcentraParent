@@ -27,11 +27,12 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. Finish and independently review the bounded WP06 production-source repair:
-   strict persisted binding validation, corruption rejection, serialized
-   crash-safe mutation, owned-root/link safety, and removal of service-side
-   development/test identity. Do not add launch, bridge, policy, or
-   enforcement authority in WP06.
+1. Independently review source-only WP06 head `63d913b93`. Recheck immutable
+   binding/lifecycle validation, corruption rejection, bounded cross-process
+   serialization, crash-safe replacement/deletion recovery, link/reparse
+   safety, and absence of service-side development/test identity. Repair any
+   P0/P1/P2 source finding before canonical integration. Do not add launch,
+   bridge, policy, Screen, or enforcement authority in WP06.
 2. Canonical `f80b47c6a` is the accepted fail-closed WP07/WP09 source baseline.
    It removes unreachable launch state, env/dev profile authority, placeholder
    bridge polling, and the dead Browser-to-Screen runtime surface. Production
@@ -48,9 +49,9 @@ This file is the short resume list for the next worker. It is derived from open 
    replacement, teardown, restart/expiry, malformed/oversized/timeout,
    disappearance/navigation, no-active-tab-claim, and manual-required Screen
    handoff.
-5. WP06 is source-active; WP07 and WP09 remain blocked/open. No test, build,
-   proof, PR_READY, runtime,
-   or DONE claim follows from the source consolidation.
+5. WP06 is source-drafted and review-pending; WP07 and WP09 remain
+   blocked/open. No test, proof, pre-commit, CI, PR_READY, runtime, or DONE
+   claim follows from the pushed source packet.
 
 ## PR readiness guard
 

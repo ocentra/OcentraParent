@@ -31,10 +31,11 @@ This file records documentation health and consistency checks for the plan. It i
 - The browser-plan docs still require localized cleanup where older generated summaries or legacy ownership notes conflict with the audited source/test truth.
 - `browser-domain` direct sibling dependencies are migration-sensitive unless they are approved public helper/contract consumption.
 - Reference/settings inventory workpacks are large and must not be treated as implementation scope unless explicitly selected.
-- WP06's historical completion wording was stale: the 2026-08-24 source audit
-  found unresolved persisted-binding, corruption, atomicity, concurrency, and
-  owned-root safety defects plus an unused service helper carrying
-  development/test identity. Treat WP06 as source-active, not complete.
+- WP06's historical completion wording was stale. Source-only head `63d913b93`
+  now carries a focused-check-clean repair for the audited persisted-binding,
+  corruption, atomicity, concurrency, owned-root, and dev-helper defects, but
+  it is still awaiting independent review and canonical integration. Treat
+  WP06 as source-drafted, not accepted or complete; tests/proof remain open.
 
 ## Required hygiene before PR_READY
 

@@ -17,13 +17,12 @@
 ## Where We Are
 
 The 2026-08-24 canonical source audit found a useful filesystem/profile
-contract, but not a production-ready custody owner. The current store rejects
-obvious default-profile paths, while persisted identity is reconstructed from
-caller input instead of validated, corrupt metadata is silently treated as
-missing during repair, writes are not atomic or serialized, and path ownership
-does not reject link/reparse escapes. The unused service helper also embeds
-development/test scope, device, and policy identifiers and must not become a
-runtime authority.
+contract, but not a production-ready custody owner. Source-only branch
+`codex/browser-wp06-custody-repair-aug24` at `63d913b93` now carries a bounded
+repair for the audited defects. It is pushed and focused-check clean, but it is
+not canonical or accepted until an independent source review passes. Tests,
+proof, pre-commit, CI, runtime composition, and `DONE` remain deliberately
+open.
 
 ## Where We Want To Be
 
@@ -97,6 +96,25 @@ The source wave intentionally does not write tests or proof. The later test
 wave must cover corruption, identity substitution, link/reparse escape,
 concurrent mutation, interrupted replacement, restart/reload, and deletion
 recovery before this workpack can enter validation.
+
+## Source Packet Checkpoint (2026-08-24)
+
+The pushed `63d913b93` packet removes caller-supplied time and the unreachable
+service helper that embedded development/test identity. The Browser-owned store
+now validates exact immutable persisted bindings and lifecycle/timestamp shape,
+rejects unknown metadata fields and filesystem indirection, serializes mutation
+with a bounded cross-process lock, uses synced atomic metadata replacement, and
+uses a staged, restart-resumable delete lifecycle with an explicit
+`managed-profile-delete-pending` state reason. It does not mint launch, bridge,
+policy, Screen, or enforcement authority.
+
+Focused library checks for `agent-protocol`, `agent-core`, and `agent-service`
+passed, along with rustfmt, architecture, source-shape, no-test-doubles,
+validation-bypass, re-export, diff, lane, and hub guards. The packet was
+committed with `--no-verify` because this is the code-first wave; the stale
+Browser tests still reference the removed caller time/dev service helper and
+must be repaired and expanded in the later test wave. No test execution or
+proof claim follows from this checkpoint.
 
 ## Manual-Required Gaps
 
