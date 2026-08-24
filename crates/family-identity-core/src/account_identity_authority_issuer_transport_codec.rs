@@ -16,10 +16,10 @@ pub(super) const DOMAIN_SEPARATOR: &[u8] = b"ocentra.account-issuer.transport.v1
 const VERSION: &str = "v1";
 const AUDIENCE: &str = "ocentra.account-authority-producer.cloudflare";
 pub(super) const NONCE_BYTES: usize = 32;
-const SIGNATURE_BYTES: usize = 64;
+pub(super) const SIGNATURE_BYTES: usize = 64;
 const MAX_FIELD_BYTES: usize = 1024;
 const OUTER_STRING_FIELDS: usize = 11;
-const MAX_OUTER_WIRE_BYTES: usize = DOMAIN_SEPARATOR.len()
+pub(super) const MAX_OUTER_WIRE_BYTES: usize = DOMAIN_SEPARATOR.len()
     + OUTER_STRING_FIELDS * (4 + MAX_FIELD_BYTES)
     + NONCE_BYTES
     + 4
@@ -55,9 +55,7 @@ pub(super) fn parse(
     let nonce = cursor.read_fixed::<NONCE_BYTES>()?;
     let inner_wire = cursor.read_bytes()?;
     cursor.finish()?;
-    if inner_wire.len() > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_MAX_WIRE_BYTES {
-        return Err(AccountIdentityIssuerError::InvalidTransport);
-    }
+    validate_inner_wire(&inner_wire)?;
     if version != VERSION || audience != AUDIENCE {
         return Err(AccountIdentityIssuerError::InvalidTransport);
     }
@@ -100,9 +98,17 @@ pub(super) fn parse(
         authority_generation,
         key_id,
         key_version,
+        issued_at,
+        expires_at,
         receipt_id,
         inner_wire,
     })
+}
+
+fn validate_inner_wire(inner_wire: &[u8]) -> Result<(), AccountIdentityIssuerError> {
+    (inner_wire.len() <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_MAX_WIRE_BYTES)
+        .then_some(())
+        .ok_or(AccountIdentityIssuerError::InvalidTransport)
 }
 
 pub(super) fn encode(

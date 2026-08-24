@@ -74,12 +74,14 @@ impl AccountIdentityIssuerServiceBinding {
     ) -> String {
         let mut digest = Sha256::new();
         digest.update(b"ocentra.account-issuer.service-binding.v1\0");
-        digest.update(service.label().as_bytes());
-        digest.update([0]);
-        digest.update(account_id.as_bytes());
-        digest.update([0]);
-        digest.update(household_id.as_bytes());
-        digest.update([0]);
+        for value in [
+            service.label().as_bytes(),
+            account_id.as_bytes(),
+            household_id.as_bytes(),
+        ] {
+            digest.update((value.len() as u64).to_be_bytes());
+            digest.update(value);
+        }
         digest.update(authority_generation.to_be_bytes());
         format!("sha256:{:x}", digest.finalize())
     }
@@ -125,7 +127,9 @@ pub(crate) struct AccountIdentityIssuerAuthenticatedBinding {
 }
 
 impl AccountIdentityIssuerAuthenticatedBinding {
-    pub(crate) fn new(binding: &AccountIdentityIssuerServiceBinding) -> Self {
+    /// Minted only next to the Account-owned authenticator implementation.
+    /// Sibling crate modules cannot echo a caller-supplied digest into success.
+    fn new(binding: &AccountIdentityIssuerServiceBinding) -> Self {
         Self {
             binding_id: binding.binding_id.clone(),
         }
@@ -137,7 +141,9 @@ impl AccountIdentityIssuerAuthenticatedBinding {
 }
 
 /// The platform/consumer adapter that proves the service-binding context.
-/// Without this adapter, every producer operation remains unavailable.
+/// Success evidence is mintable only inside this Account-owned module. A
+/// sibling can provide transport to a future adapter, but cannot echo a
+/// caller-supplied digest into an authenticated result.
 pub(crate) trait AccountIdentityIssuerServiceBindingAuthenticator: Send + Sync {
     fn authenticate(
         &self,

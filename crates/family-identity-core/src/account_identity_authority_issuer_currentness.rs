@@ -1,67 +1,74 @@
-use std::path::Path;
+use chrono::{DateTime, Utc};
+use ocentra_schema::account_identity_authority::{
+    AccountIdentityCurrentMemberDeviceAuthorityHandoff, AccountIdentityMappingStatus,
+    AccountIdentityProvider, AccountIdentityRole, AccountIdentitySessionFreshnessState,
+    AccountIdentitySupportReceiptRevocationState,
+};
+use rusqlite::{params, OptionalExtension, Transaction};
 
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_authority_issuer::AccountIdentityIssuerError;
 
 use super::service_binding::{
-    AccountIdentityIssuerAuthenticatedBinding, AccountIdentityIssuerServiceBinding,
-    AccountIdentityIssuerServiceBindingAuthenticator,
+    AccountIdentityIssuerAuthenticatedBinding, AccountIdentityIssuerService,
+    AccountIdentityIssuerServiceBinding, AccountIdentityIssuerServiceBindingAuthenticator,
 };
 
-/// Account-owned currentness boundary. Implementations must acquire a durable
-/// lease from the Account repository; a caller-held snapshot is not sufficient
-/// to authorize issuer mutation or signing.
-pub(crate) trait AccountIdentityIssuerAuthorityResolver: Send + Sync {
-    fn acquire_current(
-        &self,
-        observed: &VerifiedAccountIdentityAuthority,
-    ) -> Result<Box<dyn AccountIdentityIssuerAuthorityLease>, AccountIdentityIssuerError>;
-}
-
-/// A non-mintable Account currentness lease held across the issuer operation.
-/// The owner must keep revocation/rotation from committing while the lease is
-/// live and must fail `assert_current` if the observed authority is stale.
-pub(crate) trait AccountIdentityIssuerAuthorityLease: Send {
-    fn authority(&self) -> &VerifiedAccountIdentityAuthority;
-    fn assert_current(&self) -> Result<(), AccountIdentityIssuerError>;
-}
-
-pub(crate) struct CurrentIssuerContext {
-    lease: Box<dyn AccountIdentityIssuerAuthorityLease>,
-    binding: AccountIdentityIssuerServiceBinding,
-}
-
-impl CurrentIssuerContext {
-    pub(crate) fn authority(&self) -> &VerifiedAccountIdentityAuthority {
-        self.lease.authority()
-    }
-
-    pub(crate) fn binding(&self) -> &AccountIdentityIssuerServiceBinding {
-        &self.binding
-    }
-
-    pub(crate) fn assert_current(&self) -> Result<(), AccountIdentityIssuerError> {
-        self.lease.assert_current()
-    }
-}
-
-pub(crate) fn acquire_current_context(
-    resolver: Option<&dyn AccountIdentityIssuerAuthorityResolver>,
+/// Resolve the durable Account row while the caller holds the same SQLite
+/// `BEGIN IMMEDIATE` transaction used for the issuer transition. Exact handoff
+/// equality covers provider subject, member/device/session identity, support
+/// receipt, generations, and target binding; a caller-held snapshot is never
+/// accepted merely because account and household ids still match.
+pub(crate) fn ensure_exact_current(
+    transaction: &Transaction<'_>,
     observed: &VerifiedAccountIdentityAuthority,
-    requested_binding: &AccountIdentityIssuerServiceBinding,
-) -> Result<CurrentIssuerContext, AccountIdentityIssuerError> {
-    let resolver = resolver.ok_or(AccountIdentityIssuerError::CurrentAuthorityUnavailable)?;
-    let lease = resolver.acquire_current(observed)?;
-    let current = lease.authority();
-    if current.account_id() != observed.account_id()
-        || current.household_id() != observed.household_id()
+    now: DateTime<Utc>,
+) -> Result<(), AccountIdentityIssuerError> {
+    let row = transaction
+        .query_row(
+            "SELECT mapping_status, authority_generation, session_id,
+                    session_generation, authority_json
+             FROM account_identity_current_authority
+             WHERE provider = ?1 AND provider_subject = ?2 LIMIT 1",
+            params![
+                provider_label(observed.provider()),
+                observed.provider_subject().as_str()
+            ],
+            |row| {
+                Ok((
+                    row.get::<_, String>(0)?,
+                    row.get::<_, i64>(1)?,
+                    row.get::<_, String>(2)?,
+                    row.get::<_, i64>(3)?,
+                    row.get::<_, String>(4)?,
+                ))
+            },
+        )
+        .optional()
+        .map_err(|_| AccountIdentityIssuerError::CurrentAuthorityUnavailable)?
+        .ok_or(AccountIdentityIssuerError::CurrentAuthorityUnavailable)?;
+    let handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff = serde_json::from_str(&row.4)
+        .map_err(|_| AccountIdentityIssuerError::CurrentAuthorityRejected)?;
+    handoff
+        .validate_shape()
+        .map_err(|_| AccountIdentityIssuerError::CurrentAuthorityRejected)?;
+    if row.0 != "active"
+        || handoff.mapping.status != AccountIdentityMappingStatus::Active
+        || row.1 != to_sql_generation(observed.authority_generation())?
+        || row.2 != observed.session_id().as_str()
+        || row.3 != to_sql_generation(observed.session_generation())?
+        || observed.handoff() != &handoff
     {
         return Err(AccountIdentityIssuerError::CurrentAuthorityRejected);
     }
-    let binding =
-        AccountIdentityIssuerServiceBinding::from_authority(current, requested_binding.service())?;
-    lease.assert_current()?;
-    Ok(CurrentIssuerContext { lease, binding })
+    validate_temporal_currentness(&handoff, now)
+}
+
+pub(crate) fn binding_for_current(
+    authority: &VerifiedAccountIdentityAuthority,
+    service: AccountIdentityIssuerService,
+) -> Result<AccountIdentityIssuerServiceBinding, AccountIdentityIssuerError> {
+    AccountIdentityIssuerServiceBinding::from_authority(authority, service)
 }
 
 pub(crate) fn authenticate_binding(
@@ -80,20 +87,46 @@ pub(crate) fn authenticate_binding(
         .ok_or(AccountIdentityIssuerError::ServiceBindingRejected)
 }
 
-pub(crate) fn validate_durable_path(path: &Path) -> Result<(), AccountIdentityIssuerError> {
-    if !path.is_absolute() || path.as_os_str().is_empty() {
-        return Err(AccountIdentityIssuerError::NonDurableStorage);
+fn validate_temporal_currentness(
+    handoff: &AccountIdentityCurrentMemberDeviceAuthorityHandoff,
+    now: DateTime<Utc>,
+) -> Result<(), AccountIdentityIssuerError> {
+    if handoff.member.session_freshness_state != AccountIdentitySessionFreshnessState::Fresh {
+        return Err(AccountIdentityIssuerError::CurrentAuthorityRejected);
     }
-    let path_text = path.to_string_lossy().to_ascii_lowercase();
-    if path_text == ":memory:"
-        || path_text.starts_with("file:")
-        || path_text.contains("mode=memory")
-        || path_text.contains("cache=shared")
+    let session_expires_at = DateTime::parse_from_rfc3339(&handoff.member.session_expires_at)
+        .map_err(|_| AccountIdentityIssuerError::CurrentAuthorityRejected)?
+        .with_timezone(&Utc);
+    if session_expires_at <= now {
+        return Err(AccountIdentityIssuerError::CurrentAuthorityRejected);
+    }
+    let Some(receipt) = handoff.member.support_receipt.as_ref() else {
+        return (handoff.member.role != AccountIdentityRole::SupportAdmin)
+            .then_some(())
+            .ok_or(AccountIdentityIssuerError::CurrentAuthorityRejected);
+    };
+    let issued_at = DateTime::parse_from_rfc3339(&receipt.issued_at)
+        .map_err(|_| AccountIdentityIssuerError::CurrentAuthorityRejected)?
+        .with_timezone(&Utc);
+    let expires_at = DateTime::parse_from_rfc3339(&receipt.expires_at)
+        .map_err(|_| AccountIdentityIssuerError::CurrentAuthorityRejected)?
+        .with_timezone(&Utc);
+    if receipt.revocation_state != AccountIdentitySupportReceiptRevocationState::Active
+        || issued_at > now
+        || now >= expires_at
     {
-        return Err(AccountIdentityIssuerError::NonDurableStorage);
-    }
-    if path.exists() && path.is_dir() {
-        return Err(AccountIdentityIssuerError::NonDurableStorage);
+        return Err(AccountIdentityIssuerError::CurrentAuthorityRejected);
     }
     Ok(())
+}
+
+fn provider_label(provider: &AccountIdentityProvider) -> &'static str {
+    match provider {
+        AccountIdentityProvider::Authjs => "authjs",
+        AccountIdentityProvider::Firebase => "firebase",
+    }
+}
+
+fn to_sql_generation(value: u64) -> Result<i64, AccountIdentityIssuerError> {
+    i64::try_from(value).map_err(|_| AccountIdentityIssuerError::CurrentAuthorityRejected)
 }

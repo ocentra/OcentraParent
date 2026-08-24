@@ -2,7 +2,10 @@ use std::fmt;
 
 use ed25519_dalek::VerifyingKey;
 
+use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_authority_issuer::AccountIdentityIssuerError;
+
+use super::service_binding::AccountIdentityIssuerServiceBinding;
 
 /// An opaque reference to a key held by an external protected signer.
 ///
@@ -81,11 +84,36 @@ impl fmt::Debug for AccountIdentityIssuerSigningHandle {
 /// This crate intentionally provides no process-local or SQLite-backed
 /// implementation.
 pub(crate) trait AccountIdentityIssuerSignerAdapter: Send + Sync {
+    fn provision_public_key(
+        &self,
+        authority: &VerifiedAccountIdentityAuthority,
+        binding: &AccountIdentityIssuerServiceBinding,
+    ) -> Result<AccountIdentityIssuerProvisionedPublicKey, AccountIdentityIssuerError>;
+
     fn sign(
         &self,
         handle: &AccountIdentityIssuerSigningHandle,
         signing_bytes: &[u8],
     ) -> Result<[u8; 64], AccountIdentityIssuerError>;
+}
+
+/// Successful key provisioning can be minted only beside the Account-owned
+/// protected signer adapter. Other crate modules cannot submit arbitrary
+/// public bytes and make them the current issuer key.
+pub(crate) struct AccountIdentityIssuerProvisionedPublicKey {
+    bytes: [u8; 32],
+}
+
+impl AccountIdentityIssuerProvisionedPublicKey {
+    fn new(bytes: [u8; 32]) -> Result<Self, AccountIdentityIssuerError> {
+        VerifyingKey::from_bytes(&bytes)
+            .map_err(|_| AccountIdentityIssuerError::InvalidPublicKey)?;
+        Ok(Self { bytes })
+    }
+
+    pub(super) fn bytes(&self) -> [u8; 32] {
+        self.bytes
+    }
 }
 
 pub(crate) struct AccountIdentityIssuerKeyCustody {
@@ -103,6 +131,14 @@ impl AccountIdentityIssuerKeyCustody {
         signing_bytes: &[u8],
     ) -> Result<[u8; 64], AccountIdentityIssuerError> {
         self.signer.sign(handle, signing_bytes)
+    }
+
+    pub(crate) fn provision_public_key(
+        &self,
+        authority: &VerifiedAccountIdentityAuthority,
+        binding: &AccountIdentityIssuerServiceBinding,
+    ) -> Result<AccountIdentityIssuerProvisionedPublicKey, AccountIdentityIssuerError> {
+        self.signer.provision_public_key(authority, binding)
     }
 }
 

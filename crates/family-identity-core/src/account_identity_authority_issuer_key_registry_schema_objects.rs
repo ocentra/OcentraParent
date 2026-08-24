@@ -9,10 +9,12 @@ pub(super) fn validate(connection: &Connection) -> Result<(), AccountIdentityIss
         "account_identity_issuer_key_registry",
         "account_identity_issuer_transport_receipt",
         "account_identity_issuer_clock",
+        "account_identity_issuer_transport_outbox",
     ];
     let allowed_indexes = [
         "account_identity_issuer_key_registry_current",
         "account_identity_issuer_transport_receipt_lookup",
+        "account_identity_issuer_transport_outbox_delivery",
     ];
     let mut statement = connection
         .prepare(

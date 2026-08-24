@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use ed25519_dalek::VerifyingKey;
-use rusqlite::{Connection, OptionalExtension, Row};
+use rusqlite::{Connection, Row};
 
 use super::super::service_binding::{
     AccountIdentityIssuerService, AccountIdentityIssuerServiceBinding,
@@ -9,21 +9,7 @@ use super::super::service_binding::{
 use super::AccountIdentityIssuerError;
 
 pub(crate) fn validate(connection: &Connection) -> Result<u64, AccountIdentityIssuerError> {
-    let duplicate_active = connection
-        .query_row(
-            "SELECT 1 FROM account_identity_issuer_key_registry
-             WHERE key_state = 'active'
-             GROUP BY account_id, household_id, service_binding_id
-             HAVING COUNT(*) > 1 LIMIT 1",
-            [],
-            |_row| Ok(()),
-        )
-        .optional()
-        .map_err(|_| AccountIdentityIssuerError::Unavailable)?
-        .is_some();
-    if duplicate_active {
-        return Err(AccountIdentityIssuerError::InvalidKeyRecord);
-    }
+    super::lineage::validate(connection)?;
     let mut statement = connection
         .prepare(
             "SELECT account_id, household_id, service_binding_id, key_id, key_version,
@@ -142,10 +128,14 @@ fn validate_record(
         return Err(AccountIdentityIssuerError::InvalidKeyRecord);
     }
     match durable.key_state.as_str() {
-        "active" => Ok(durable.revoked_generation.is_none()),
-        "revoked" => Ok(durable
-            .revoked_generation
-            .is_some_and(|value| value > 0 && value >= durable.authority_generation)),
+        "active" if durable.revoked_generation.is_none() => Ok(true),
+        "revoked"
+            if durable
+                .revoked_generation
+                .is_some_and(|value| value > 0 && value >= durable.authority_generation) =>
+        {
+            Ok(false)
+        }
         _ => Err(AccountIdentityIssuerError::InvalidKeyRecord),
     }
 }
