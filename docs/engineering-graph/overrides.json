@@ -9502,6 +9502,38 @@
   ],
   "completionEvidenceOverrides": [
     {
+      "id": "WP-app-game-plan-48-portal-source-freshness-surface",
+      "implementation": [
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx"
+      ],
+      "reason": "A live production trace confirms service-backed sourceStatusRows flow into the dashboard intent and render as source counts, freshness, capability, timestamp, and evidence state. The named focused intent test is absent, and the existing route scaffold asserts only headings/count labels. No validation, proof, policy, adapter, READY, or DONE claim is made.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-63-source-freshness-source-panel-polish",
+      "implementation": [
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx"
+      ],
+      "reason": "A live production trace confirms the split source-panel intent groups app-use/game rows and the mounted SVG surface renders its metrics. The named focused intent test is absent, and the shallow route scaffold does not cover fresh/manual/degraded grouping or hostile metadata. No validation, proof, runtime authority, READY, or DONE claim is made.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-app-game-plan-16-parent-portal-app-game-dashboard-surfaces",
       "implementation": [
         "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",

@@ -10427,22 +10427,44 @@
       "path": "docs/plans/app-game-plan/workpacks/48-portal-source-freshness-surface.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "A live production trace confirms service-backed sourceStatusRows flow into the dashboard intent and render as source counts, freshness, capability, timestamp, and evidence state. The named focused intent test is absent, and the existing route scaffold asserts only headings/count labels. No validation, proof, policy, adapter, READY, or DONE claim is made.",
+          "evidence": [
+            "docs/plans/app-game-plan/CODE_AUDIT.md",
+            "docs/plans/app-game-plan/workpacks/48-portal-source-freshness-surface.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/48-portal-source-freshness-surface.md"
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+            "apps/portal/src/vendor-parent-portal-surface.js",
+            "apps/portal/src/ParentPortalRoute.tsx"
           ],
           "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
@@ -10452,6 +10474,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/48-portal-source-freshness-surface"
+          ],
+          "tests": [
+            "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"
           ]
         }
       }
@@ -10535,22 +10560,44 @@
       "path": "docs/plans/app-game-plan/workpacks/63-source-freshness-source-panel-polish.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "A live production trace confirms the split source-panel intent groups app-use/game rows and the mounted SVG surface renders its metrics. The named focused intent test is absent, and the shallow route scaffold does not cover fresh/manual/degraded grouping or hostile metadata. No validation, proof, runtime authority, READY, or DONE claim is made.",
+          "evidence": [
+            "docs/plans/app-game-plan/CODE_AUDIT.md",
+            "docs/plans/app-game-plan/workpacks/63-source-freshness-source-panel-polish.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/63-source-freshness-source-panel-polish.md"
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+            "apps/portal/src/vendor-parent-portal-surface.js",
+            "apps/portal/src/ParentPortalRoute.tsx"
           ],
           "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
@@ -10560,6 +10607,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/63-source-freshness-source-panel-polish"
+          ],
+          "tests": [
+            "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"
           ]
         }
       }

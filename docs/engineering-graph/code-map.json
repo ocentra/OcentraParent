@@ -7204,8 +7204,16 @@
       "roots": [
         "apps/portal/generated/parent-ui-bridge.ts",
         "apps/portal/src/live-activity-state.ts",
-        "apps/portal/tests/live-activity/live-activity-state.test.ts"
-      ]
+        "apps/portal/tests/live-activity/live-activity-state.test.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/tests/e2e/portal-route-scaffold-product-activity.ts"
+      ],
+      "expectedTestRoots": ["apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"]
     },
     "WP-app-game-plan-49-category-risk-policy-routing": {
       "planSlug": "app-game-plan",
@@ -7353,8 +7361,15 @@
       "planSlug": "app-game-plan",
       "roots": [
         "apps/portal/generated/parent-ui-bridge.ts",
-        "apps/portal/tests/live-activity/live-activity-state.test.ts"
-      ]
+        "apps/portal/tests/live-activity/live-activity-state.test.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/tests/e2e/portal-route-scaffold-product-activity.ts"
+      ],
+      "expectedTestRoots": ["apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"]
     },
     "WP-app-game-plan-64-notification-provider-status-handoff": {
       "planSlug": "app-game-plan",

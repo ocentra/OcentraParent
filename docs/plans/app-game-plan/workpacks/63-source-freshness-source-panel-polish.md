@@ -61,3 +61,17 @@ output/app-game-plan-proof/63-source-freshness-source-panel-polish
 Feature docs and plan checklists are updated because the source panel data seam
 now exists. `docs/product-capability-checklist.md` is not updated in this slice
 because the dedicated source panel is not yet a rendered parent-visible surface.
+
+## Live Code/Test Re-Audit - 2026-08-24
+
+- `app-game-source-panel-intent.ts` is tracked and production-reachable from the
+  dashboard intent. It groups App use/Game rows and computes fresh,
+  manual-required, evidence, capability, and last-observed presentation state.
+- `ParentPortalSvgSurface.tsx` now renders those source-panel metrics in the
+  mounted App/Game Sessions dashboard; the old "not yet rendered" wording is
+  stale.
+- The named `apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`
+  is absent. The shallow route scaffold does not prove grouping, degraded or
+  manual-required semantics, or hostile/long metadata.
+- Production source is present; expected-test writing, focused execution,
+  proof, checklist acceptance, READY, and DONE remain open.
