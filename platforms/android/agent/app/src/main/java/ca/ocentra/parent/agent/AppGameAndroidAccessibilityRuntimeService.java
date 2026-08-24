@@ -307,12 +307,6 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         }
     }
 
-    private static void clearPersistenceRetryRequired() {
-        synchronized (STATE_LOCK) {
-            persistenceRetryRequired = false;
-        }
-    }
-
     private static final class PersistenceCoordinator {
         private final Object lock = new Object();
         private ThreadPoolExecutor worker = createWorker();
@@ -320,41 +314,44 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         private boolean stopping;
 
         void enqueue(final Context context) {
+            boolean retryRequired = false;
             synchronized (lock) {
                 if (worker.isShutdown() || worker.isTerminating()) {
                     if (!worker.isTerminated()) {
-                        markPersistenceRetryRequired();
-                        return;
+                        retryRequired = true;
+                    } else {
+                        worker = createWorker();
+                        taskQueued = false;
+                        stopping = false;
                     }
-                    worker = createWorker();
-                    taskQueued = false;
-                    stopping = false;
                 }
-                if (stopping || taskQueued) {
-                    if (stopping) {
-                        markPersistenceRetryRequired();
-                    }
-                    return;
-                }
-                taskQueued = true;
-                clearPersistenceRetryRequired();
-                final ThreadPoolExecutor taskWorker = worker;
-                try {
-                    taskWorker.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            boolean persisted = false;
-                            try {
-                                persisted = persistPending(context);
-                            } finally {
-                                taskFinished(taskWorker, context, persisted);
-                            }
+                if (!retryRequired) {
+                    if (stopping || taskQueued) {
+                        retryRequired = stopping;
+                    } else {
+                        taskQueued = true;
+                        final ThreadPoolExecutor taskWorker = worker;
+                        try {
+                            taskWorker.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    boolean persisted = false;
+                                    try {
+                                        persisted = persistPending(context);
+                                    } finally {
+                                        taskFinished(taskWorker, context, persisted);
+                                    }
+                                }
+                            });
+                        } catch (RejectedExecutionException error) {
+                            taskQueued = false;
+                            retryRequired = true;
                         }
-                    });
-                } catch (RejectedExecutionException error) {
-                    taskQueued = false;
-                    markPersistenceRetryRequired();
+                    }
                 }
+            }
+            if (retryRequired) {
+                markPersistenceRetryRequired();
             }
         }
 
