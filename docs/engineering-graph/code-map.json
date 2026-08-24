@@ -9922,6 +9922,60 @@
       ],
       "expectedTestRoots": ["crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs"],
       "note": "New blocked composition/custody-mount owner. The planned parent-runtime roots are absent and remain gated on Account WP05 true authority transaction/CAS, key/import custody, producer artifact custody, WP09 provider operation capability, and WP10 owner-derived outcomes; no private traits become public and no runtime completeness is implied."
+    },
+    "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation": {
+      "planSlug": "protected-capability-custody-foundation-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/protected-capability-custody-core/Cargo.toml",
+        "crates/protected-capability-custody-core/src/lib.rs",
+        "crates/protected-capability-custody-core/src/authority.rs",
+        "crates/protected-capability-custody-core/src/binding.rs",
+        "crates/protected-capability-custody-core/src/binding",
+        "crates/protected-capability-custody-core/src/custody.rs",
+        "crates/protected-capability-custody-core/src/custody",
+        "crates/protected-capability-custody-core/src/path_security.rs",
+        "crates/protected-capability-custody-core/src/path_security",
+        "crates/protected-capability-custody-core/src/platform.rs",
+        "crates/protected-capability-custody-core/src/platform",
+        "crates/protected-capability-custody-core/src/storage.rs",
+        "crates/protected-capability-custody-core/src/storage",
+        "crates/protected-capability-custody-broker/src/main.rs",
+        "crates/protected-capability-custody-broker/src/protocol.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+        "crates/protected-capability-custody-broker/src/authority.rs",
+        "crates/protected-capability-custody-broker/src/custody.rs",
+        "crates/protected-capability-custody-client/src/lib.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc.rs",
+        "crates/protected-capability-custody-client/src/admission.rs",
+        "crates/protected-capability-custody-core/tests/unit/binding.rs",
+        "crates/protected-capability-custody-core/tests/unit/storage_schema.rs",
+        "crates/protected-capability-custody-core/tests/unit/transition_state.rs",
+        "crates/protected-capability-custody-core/tests/security/path_and_replica_integrity.rs",
+        "crates/protected-capability-custody-core/tests/recovery/custody_reconciliation.rs",
+        "crates/protected-capability-custody-core/tests/concurrency/broker_reservation_races.rs",
+        "crates/protected-capability-custody-core/tests/integration/windows_broker_custody.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/protected-capability-custody-broker/src/main.rs",
+        "crates/protected-capability-custody-broker/src/protocol.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+        "crates/protected-capability-custody-broker/src/authority.rs",
+        "crates/protected-capability-custody-broker/src/custody.rs",
+        "crates/protected-capability-custody-client/src/lib.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc.rs",
+        "crates/protected-capability-custody-client/src/admission.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/protected-capability-custody-core/tests/unit/binding.rs",
+        "crates/protected-capability-custody-core/tests/unit/storage_schema.rs",
+        "crates/protected-capability-custody-core/tests/unit/transition_state.rs",
+        "crates/protected-capability-custody-core/tests/security/path_and_replica_integrity.rs",
+        "crates/protected-capability-custody-core/tests/recovery/custody_reconciliation.rs",
+        "crates/protected-capability-custody-core/tests/concurrency/broker_reservation_races.rs",
+        "crates/protected-capability-custody-core/tests/integration/windows_broker_custody.rs"
+      ],
+      "note": "Existing core source is substantive and fail-closed but inert outside its crate: admission/platform authority is private and SQLite is only a checked replica. The planned broker/client roots are absent and are an expected topology, not implementation evidence. A real isolated Windows process with authenticated OS IPC must own ACL/path/key/watermark/write-lease authority and opaque admission; in-process broker, same-process DPAPI, mutex/file-lock custody, caller attestation, fake/no-op adapters, tests, proof, READY, and DONE are not claimed."
     }
   }
 }
