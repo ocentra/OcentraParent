@@ -34,7 +34,8 @@ final class AppGameAndroidUsageEventsReplayStore {
             try {
                 if (preferences.getBoolean(HAS_SNAPSHOT, false)) {
                     Snapshot existing = readLocked(preferences);
-                    if (existing == null || existing.generation == Long.MAX_VALUE) {
+                    if (existing == null || existing.generation == Long.MAX_VALUE ||
+                        observedAtEpochMillis < existing.observedAtEpochMillis) {
                         return false;
                     }
                     generation = existing.generation + 1L;

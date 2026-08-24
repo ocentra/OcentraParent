@@ -43,6 +43,7 @@ public final class ChildAgentCompositionService extends Service {
     private ChildAgentComposition composition;
     private RuntimeStateSnapshot runtimeState = RuntimeStateSnapshot.empty();
     private boolean refreshQueued;
+    private boolean refreshDirty;
     private boolean stopping;
     private CountDownLatch refreshCompletion = new CountDownLatch(0);
     private String shutdownState = "running";
@@ -125,12 +126,21 @@ public final class ChildAgentCompositionService extends Service {
     private void requestRuntimeRefresh() {
         final CountDownLatch completion = new CountDownLatch(1);
         synchronized (runtimeStateLock) {
-            if (stopping || refreshQueued) {
+            if (stopping) {
+                return;
+            }
+            if (refreshQueued) {
+                refreshDirty = true;
                 return;
             }
             refreshQueued = true;
+            refreshDirty = false;
             refreshCompletion = completion;
         }
+        enqueueRuntimeRefresh(completion);
+    }
+
+    private void enqueueRuntimeRefresh(final CountDownLatch completion) {
         try {
             runtimeWorker.execute(new Runnable() {
                 @Override
@@ -146,6 +156,7 @@ public final class ChildAgentCompositionService extends Service {
         } catch (RejectedExecutionException error) {
             synchronized (runtimeStateLock) {
                 refreshQueued = false;
+                refreshDirty = false;
                 completion.countDown();
                 runtimeState = RuntimeStateSnapshot.failed("worker-rejected-refresh");
             }
@@ -201,11 +212,24 @@ public final class ChildAgentCompositionService extends Service {
         } catch (RuntimeException error) {
             nextState = RuntimeStateSnapshot.failed(error.getClass().getSimpleName());
         }
+        CountDownLatch rerunCompletion = null;
         synchronized (runtimeStateLock) {
             if (!stopping) {
                 runtimeState = nextState;
             }
-            refreshQueued = false;
+            if (stopping) {
+                refreshQueued = false;
+                refreshDirty = false;
+            } else if (refreshDirty) {
+                refreshDirty = false;
+                rerunCompletion = new CountDownLatch(1);
+                refreshCompletion = rerunCompletion;
+            } else {
+                refreshQueued = false;
+            }
+        }
+        if (rerunCompletion != null) {
+            enqueueRuntimeRefresh(rerunCompletion);
         }
     }
 
