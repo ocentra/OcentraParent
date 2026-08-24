@@ -44,6 +44,8 @@ names, container ids, raw paths, or private daemon diagnostics.
 - `crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs`
 - `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight.rs`
 - `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_output.rs`
+- `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_paths.rs`
+- `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_path_security.rs`
 - `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_process.rs`
 - `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_state.rs`
 - `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_wait.rs`
@@ -63,6 +65,11 @@ Expected test roots for the later test-writing wave:
 - Focused Docker process timeout, bounded-output, malformed-output, partial,
   unavailable, and ready-state tests using a real child-process fixture rather
   than an in-memory adapter.
+- Exact fixture cases include a direct child exiting while a descendant stays
+  alive, descendants inheriting and not inheriting stdout, failed/expired group
+  cleanup, empty/whitespace/malformed context rows, and untrusted/symlinked/
+  writable/non-root Docker executable candidates or writable path ancestors
+  outside protected roots.
 - Focused service payload and parent-rendering tests proving count-only custody,
   no raw identifiers/diagnostics, and explicit false execution/delivery claims.
 - Focused Rust formatting, library checks, architecture, source-shape,
@@ -71,15 +78,19 @@ Expected test roots for the later test-writing wave:
 ## Current source state - 2026-08-24
 
 Production source is drafted in the Rust protocol, agent-service, and
-parent-runtime owners. The service resolves an exact Docker executable without
-a shell, runs each direct child in an owned Unix process group or Windows Job
-Object, applies one aggregate preflight deadline across the probes, caps output
-and inventory counts, performs non-blocking bounded termination, discards
-stderr, and emits only readiness/count state. Parent rendering exposes the
-redacted state without raw paths, context names, image names, container
-identifiers, or private diagnostics. Absent optional Docker rows deserialize
-from older payloads and are omitted again when serialized, while all
-adapter/enforcement/delivery claims remain false.
+parent-runtime owners. The service resolves Docker only from fixed protected
+roots without a shell. Unix candidates must be canonical root-owned regular
+executables under a root-owned non-writable directory; Windows candidates must
+remain directly under the canonical protected Program Files Docker installation
+root. Each direct child runs in an owned Unix process group or Windows Job
+Object. One aggregate preflight deadline covers all probes, while a separate
+bounded cleanup grace can only make a probe unavailable: direct-child success
+is retained only after remaining descendants are terminated and cleanup is
+proved. Output and inventory counts are capped, stderr is discarded, and empty
+or malformed context output is unavailable rather than ready. Parent rendering
+exposes only redacted readiness/count state. Absent optional Docker rows
+deserialize from older payloads and are omitted again when serialized, while
+all adapter/enforcement/delivery claims remain false.
 
 The three affected production libraries compile together. Expected tests have
 not been written or run, existing struct-literal tests require the later

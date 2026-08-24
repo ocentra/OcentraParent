@@ -70,6 +70,10 @@ pub(crate) mod app_game_child_runtime_transport_receipt_payload;
 mod app_game_linux_docker_host_preflight;
 #[path = "activity_api/app_game_linux_docker_host_preflight_output.rs"]
 mod app_game_linux_docker_host_preflight_output;
+#[path = "activity_api/app_game_linux_docker_host_preflight_path_security.rs"]
+mod app_game_linux_docker_host_preflight_path_security;
+#[path = "activity_api/app_game_linux_docker_host_preflight_paths.rs"]
+mod app_game_linux_docker_host_preflight_paths;
 #[path = "activity_api/app_game_linux_docker_host_preflight_process.rs"]
 mod app_game_linux_docker_host_preflight_process;
 #[path = "activity_api/app_game_linux_docker_host_preflight_state.rs"]

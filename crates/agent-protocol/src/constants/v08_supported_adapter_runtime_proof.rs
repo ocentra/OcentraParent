@@ -150,6 +150,15 @@ pub const ENV_ANDROID_SDK_ROOT: &str = "ANDROID_SDK_ROOT";
 pub const EXE_ADB: &str = "adb";
 pub const EXE_WSL: &str = "wsl";
 pub const EXE_DOCKER: &str = "docker";
+#[cfg(unix)]
+pub const LINUX_DOCKER_TRUSTED_ROOTS: [&str; 3] = ["/usr/bin", "/bin", "/usr/local/bin"];
+#[cfg(windows)]
+pub const WINDOWS_DOCKER_TRUSTED_ROOTS: [&str; 1] =
+    [r"C:\Program Files\Docker\Docker\resources\bin"];
+#[cfg(windows)]
+pub const WINDOWS_DOCKER_EXECUTABLE: &str = "docker.exe";
+#[cfg(windows)]
+pub const WINDOWS_DOCKER_PROTECTED_ANCESTOR: &str = r"C:\Program Files";
 pub const DOCKER_VERSION_ARGUMENTS: [&str; 3] = ["version", "--format", "{{.Server.Version}}"];
 pub const DOCKER_CONTEXT_ARGUMENTS: [&str; 4] = ["context", "ls", "--format", "1"];
 pub const DOCKER_INVENTORY_ARGUMENTS: [&str; 3] =

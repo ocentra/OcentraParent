@@ -6,7 +6,7 @@ use ocentra_parent_agent_protocol::{
 use std::time::Instant;
 
 use super::{
-    app_game_adapter_host_capabilities_paths::{resolve_executable, ExecutableName},
+    app_game_linux_docker_host_preflight_paths::resolve_trusted_docker_executable,
     app_game_linux_docker_host_preflight_process::{
         run_docker_probe, DockerProbeArguments, DockerProbeOutput,
     },
@@ -18,8 +18,14 @@ const MAX_DOCKER_INVENTORY_COUNT: u64 = 10_000_000;
 
 pub(super) fn detect_linux_docker_host_preflight() -> AppGameLinuxDockerHostPreflight {
     let deadline = Instant::now() + DOCKER_PREFLIGHT_TIMEOUT;
-    let Some(executable) = resolve_executable(ExecutableName(proof::EXE_DOCKER)) else {
-        return build_preflight(DockerPreflightState::NOT_DETECTED, false, false, None, None);
+    let Some(executable) = resolve_trusted_docker_executable() else {
+        return build_preflight(
+            DockerPreflightState::PROBE_UNAVAILABLE,
+            false,
+            false,
+            None,
+            None,
+        );
     };
 
     let daemon_visible = probe_has_nonempty_text(run_docker_probe(
@@ -72,10 +78,11 @@ fn parse_context_count(output: DockerProbeOutput) -> Option<u64> {
         return None;
     }
     let value = std::str::from_utf8(&output.stdout).ok()?;
-    value.lines().try_fold(0_u64, |count, line| {
-        (line.trim() == proof::DOCKER_CONTEXT_COUNT_MARKER && count < MAX_DOCKER_INVENTORY_COUNT)
+    let count = value.lines().try_fold(0_u64, |count, line| {
+        (line == proof::DOCKER_CONTEXT_COUNT_MARKER && count < MAX_DOCKER_INVENTORY_COUNT)
             .then_some(count + 1)
-    })
+    })?;
+    (count > 0).then_some(count)
 }
 
 fn parse_inventory_counts(output: DockerProbeOutput) -> Option<(u64, u64)> {

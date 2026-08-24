@@ -9511,6 +9511,8 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight.rs",
         "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_output.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_paths.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_path_security.rs",
         "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_process.rs",
         "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_state.rs",
         "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_wait.rs",

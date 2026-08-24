@@ -6,7 +6,9 @@ use tokio::process::Command;
 use super::{
     app_game_adapter_host_capabilities_paths::ResolvedExecutablePath,
     app_game_linux_docker_host_preflight_output::read_bounded_until,
-    app_game_linux_docker_host_preflight_wait::{terminate_group_bounded, wait_bounded},
+    app_game_linux_docker_host_preflight_wait::{
+        terminate_group_bounded, wait_bounded, DockerProcessGroup,
+    },
 };
 
 #[cfg(windows)]
@@ -81,19 +83,20 @@ async fn run_docker_probe_async(
         Ok(child) => child,
         Err(_) => return DockerProbeOutput::unavailable(),
     };
+    let group = DockerProcessGroup::capture(&child);
     let stdout = match child.inner().stdout.take() {
         Some(stdout) => stdout,
         None => {
-            terminate_group_bounded(&mut child, deadline).await;
+            terminate_group_bounded(&mut child, group, false).await;
             return DockerProbeOutput::unavailable();
         }
     };
     let captured = read_bounded_until(stdout, deadline).await;
     let status = if captured.timed_out || captured.overflow || captured.read_error {
-        terminate_group_bounded(&mut child, deadline).await;
+        terminate_group_bounded(&mut child, group, false).await;
         None
     } else {
-        wait_bounded(&mut child, deadline).await
+        wait_bounded(&mut child, group, deadline).await
     };
 
     DockerProbeOutput {
@@ -115,5 +118,7 @@ fn spawn_process_group(command: &mut Command) -> std::io::Result<AsyncGroupChild
 
 #[cfg(not(windows))]
 fn spawn_process_group(command: &mut Command) -> std::io::Result<AsyncGroupChild> {
+    // Drop-kill is panic defense only. Probe success still requires the
+    // explicit bounded kill/reap/group-absence proof in wait_bounded.
     command.group().kill_on_drop(true).spawn()
 }

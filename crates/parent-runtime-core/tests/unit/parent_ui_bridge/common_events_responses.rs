@@ -586,6 +586,7 @@ pub(crate) fn app_game_platform_proof_status_response_event() -> AgentEventEnvel
             host_capability_state: "host-visible".to_string(),
             host_capability_evidence_refs: vec!["event.platform.windows.host-visible".to_string()],
             host_capability_probe_refs: vec!["probe.platform.windows".to_string()],
+            linux_docker_host_preflight: None,
             product_meanings: vec!["native-app".to_string()],
             proof_refs: vec!["event.platform.windows.proof.1".to_string()],
             open_gaps: vec!["broad-installed-app-blocking-not-proved".to_string()],
