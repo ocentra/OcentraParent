@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::binding::{Binding, BindingLocator};
 
-mod sealed {
+pub(crate) mod sealed {
     /// Implement only beside the dependency-owned production authority
     /// adapter. There is intentionally no blanket implementation.
     pub(crate) trait TrustedAuthorityOwner {}

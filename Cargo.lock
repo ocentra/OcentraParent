@@ -939,6 +939,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "doctest-file"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2db04e74f0a9a93103b50e90b96024c9b2bdca8bce6a632ec71b88736d3d359"
+
+[[package]]
 name = "downcast-rs"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1115,6 +1121,16 @@ name = "fiat-crypto"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
+
+[[package]]
+name = "field-offset"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38e2275cc4e4fc009b0669731a1e5ab7ebf11f469eaede2bab9309a5b4d6057f"
+dependencies = [
+ "memoffset",
+ "rustc_version",
+]
 
 [[package]]
 name = "file-id"
@@ -1765,6 +1781,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "879f10e63c20629ecabbb64a8010319738c66a5cd0c29b02d63d272b03751d01"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "interprocess"
+version = "2.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "798de1433ba514cc6c04c4144c2469af81396e4906195218737c776d47769572"
+dependencies = [
+ "doctest-file",
+ "libc",
+ "recvmsg",
+ "widestring 1.2.1",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2854,18 +2883,60 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-protected-capability-custody-broker"
+version = "0.1.1"
+dependencies = [
+ "getrandom 0.3.4",
+ "interprocess",
+ "ocentra-protected-capability-custody-core",
+ "ocentra-protected-capability-custody-protocol",
+ "sysinfo",
+ "widestring 1.2.1",
+ "windows-service",
+ "zeroize",
+]
+
+[[package]]
+name = "ocentra-protected-capability-custody-client"
+version = "0.1.1"
+dependencies = [
+ "dunce",
+ "interprocess",
+ "ocentra-protected-capability-custody-core",
+ "ocentra-protected-capability-custody-protocol",
+ "sysinfo",
+ "zeroize",
+]
+
+[[package]]
 name = "ocentra-protected-capability-custody-core"
 version = "0.1.1"
 dependencies = [
  "dunce",
  "file-id",
+ "fs2",
  "getrandom 0.3.4",
+ "ocentra-protected-capability-custody-protocol",
  "rusqlite",
  "rustix 1.1.4",
  "same-file",
  "sha2",
  "thiserror 2.0.18",
+ "windows-acl",
+ "windows-dpapi",
  "windows-sys 0.61.2",
+ "winreg",
+ "zeroize",
+]
+
+[[package]]
+name = "ocentra-protected-capability-custody-protocol"
+version = "0.1.1"
+dependencies = [
+ "getrandom 0.3.4",
+ "ring",
+ "sha2",
+ "zeroize",
 ]
 
 [[package]]
@@ -3445,6 +3516,12 @@ dependencies = [
  "x509-parser",
  "yasna",
 ]
+
+[[package]]
+name = "recvmsg"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3edd4d5d42c92f0a659926464d4cce56b562761267ecf0f469d85b7de384175"
 
 [[package]]
 name = "regex"
@@ -4673,6 +4750,12 @@ dependencies = [
 
 [[package]]
 name = "widestring"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c168940144dd21fd8046987c16a46a33d5fc84eec29ef9dcddc2ac9e31526b7c"
+
+[[package]]
+name = "widestring"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72069c3113ab32ab29e5584db3c6ec55d416895e60715417b5b883a357c3e471"
@@ -4740,6 +4823,18 @@ dependencies = [
  "windows-core 0.62.2",
  "windows-future 0.3.2",
  "windows-numerics 0.3.1",
+]
+
+[[package]]
+name = "windows-acl"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "177b1723986bcb4c606058e77f6e8614b51c7f9ad2face6f6fd63dd5c8b3cec3"
+dependencies = [
+ "field-offset",
+ "libc",
+ "widestring 0.4.3",
+ "winapi",
 ]
 
 [[package]]
@@ -4889,6 +4984,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7781fa89eaf60850ac3d2da7af8e5242a5ea78d1a11c49bf2910bb5a73853eb5"
 dependencies = [
  "windows-link 0.2.1",
+]
+
+[[package]]
+name = "windows-service"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "857224b3b211c6f3616921f081ee54721ee3ad2ace2fac6a6337e032f7b4dcf2"
+dependencies = [
+ "bitflags 2.13.0",
+ "widestring 1.2.1",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -5377,7 +5483,7 @@ dependencies = [
  "serde",
  "thiserror 2.0.18",
  "url",
- "widestring",
+ "widestring 1.2.1",
  "windows 0.62.2",
  "xcb",
  "zbus",

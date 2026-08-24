@@ -6,7 +6,6 @@ mod scope;
 mod support;
 
 use std::fmt;
-use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 use rusqlite::Connection;
@@ -16,13 +15,6 @@ use crate::authority::CurrentBindingPort;
 use crate::binding::BindingLocator;
 use crate::path_security::{PendingSecuredPath, SecuredPath};
 use crate::platform::{PlatformCustodyOwner, PlatformDatabaseGuard};
-
-/// Opaque admission assembled only by a trusted in-crate platform owner.
-/// There is intentionally no public constructor until that owner exists.
-pub(crate) struct CustodyAdmission {
-    platform_owner: Arc<dyn PlatformCustodyOwner>,
-    authority: Arc<dyn CurrentBindingPort>,
-}
 
 pub struct CustodyStore {
     // Field order is security-relevant: SQLite must close before the broker's
@@ -41,6 +33,12 @@ pub struct PreparedCapability {
     pub(super) locator: BindingLocator,
 }
 
+pub(crate) struct PreparedTokenParts {
+    pub(crate) record_id: [u8; 32],
+    pub(crate) lookup_digest: [u8; 32],
+    pub(crate) sequence: u64,
+}
+
 pub struct CommittedCapability {
     pub(super) record_id: [u8; 32],
     pub(super) lookup_digest: [u8; 32],
@@ -53,6 +51,25 @@ impl fmt::Debug for PreparedCapability {
             .debug_struct("PreparedCapability")
             .field("opaque", &"<redacted>")
             .finish()
+    }
+}
+
+impl PreparedCapability {
+    pub(crate) fn into_token_parts(self) -> PreparedTokenParts {
+        PreparedTokenParts {
+            record_id: self.record_id,
+            lookup_digest: self.lookup_digest,
+            sequence: self.sequence,
+        }
+    }
+
+    pub(crate) fn from_token_parts(parts: &PreparedTokenParts, locator: BindingLocator) -> Self {
+        Self {
+            record_id: parts.record_id,
+            lookup_digest: parts.lookup_digest,
+            sequence: parts.sequence,
+            locator,
+        }
     }
 }
 
@@ -152,12 +169,11 @@ pub enum CustodyError {
 }
 
 impl CustodyStore {
-    pub(crate) fn open(path: &Path, admission: CustodyAdmission) -> Result<Self, CustodyError> {
-        let CustodyAdmission {
-            platform_owner,
-            authority,
-        } = admission;
-        let mut pending_path = PendingSecuredPath::open(path).map_err(support::map_path_error)?;
+    pub(crate) fn open_pending(
+        mut pending_path: PendingSecuredPath,
+        platform_owner: Arc<dyn PlatformCustodyOwner>,
+        authority: Arc<dyn CurrentBindingPort>,
+    ) -> Result<Self, CustodyError> {
         pending_path
             .secure_rollback_journal()
             .map_err(support::map_path_error)?;
@@ -205,6 +221,15 @@ impl CustodyStore {
             secured_path,
             platform,
         })
+    }
+
+    pub(crate) fn broker_session_epochs(&self) -> Result<(u64, u64, u64), CustodyError> {
+        let attestation = support::attest_path(self.platform.as_ref(), &self.secured_path)?;
+        Ok((
+            attestation.key_epoch,
+            attestation.writer_epoch,
+            attestation.watermark_floor,
+        ))
     }
 
     pub fn prepare(&self, locator: &BindingLocator) -> Result<PreparedCapability, CustodyError> {

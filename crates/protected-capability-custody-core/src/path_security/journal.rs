@@ -76,7 +76,7 @@ pub(super) fn reject_untracked_sidecars(database: &Path) -> Result<(), PathSecur
     Ok(())
 }
 
-fn sidecar(database: &Path, suffix: &str) -> PathBuf {
+pub(super) fn sidecar(database: &Path, suffix: &str) -> PathBuf {
     let mut value = OsString::from(database.as_os_str());
     value.push(suffix);
     PathBuf::from(value)

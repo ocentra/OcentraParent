@@ -14,11 +14,24 @@ pub(super) fn components(path: &Path) -> Result<(), PathSecurityError> {
         }
         let metadata =
             std::fs::symlink_metadata(&current).map_err(|_| PathSecurityError::Unavailable)?;
-        if metadata.file_type().is_symlink() {
+        if metadata.file_type().is_symlink() || is_reparse_point(&metadata) {
             return Err(PathSecurityError::UnsafePath);
         }
     }
     Ok(())
+}
+
+#[cfg(windows)]
+fn is_reparse_point(metadata: &std::fs::Metadata) -> bool {
+    use std::os::windows::fs::MetadataExt;
+    use windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_REPARSE_POINT;
+
+    metadata.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0
+}
+
+#[cfg(not(windows))]
+fn is_reparse_point(_metadata: &std::fs::Metadata) -> bool {
+    false
 }
 
 pub(super) fn metadata(path: &Path) -> Result<(), PathSecurityError> {

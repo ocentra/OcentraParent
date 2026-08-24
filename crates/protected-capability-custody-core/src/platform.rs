@@ -10,7 +10,7 @@ use identity::{DatabaseIdentity, PhysicalDatabaseIdentity};
 use record::BrokerRecord;
 use request::{BrokerLookup, TransitionRequest};
 
-mod sealed {
+pub(crate) mod sealed {
     /// Implement only beside the isolated production broker adapter. There is
     /// intentionally no blanket implementation.
     pub(crate) trait TrustedPlatformOwner {}
@@ -23,8 +23,7 @@ mod sealed {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum SecurityLevel {
-    InProcessOnly,
-    SameUserIsolated,
+    DedicatedServiceIsolated,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -43,6 +42,23 @@ pub(crate) struct PlatformAttestation {
 }
 
 impl PlatformAttestation {
+    pub(crate) fn isolated_broker(
+        key_epoch: u64,
+        writer_epoch: u64,
+        watermark_floor: u64,
+        database_identity: DatabaseIdentity,
+    ) -> Self {
+        Self {
+            security_level: SecurityLevel::DedicatedServiceIsolated,
+            database_path_security:
+                DatabasePathSecurity::BrokerExclusiveWriterNoFollowRollbackJournal,
+            key_epoch,
+            writer_epoch,
+            watermark_floor,
+            database_identity,
+        }
+    }
+
     pub(crate) fn security_level(self) -> SecurityLevel {
         self.security_level
     }
@@ -83,6 +99,8 @@ pub(crate) struct SealContext<'a> {
 pub(crate) enum PlatformError {
     #[error("platform custody is unavailable")]
     Unavailable,
+    #[error("platform custody deployment is not provisioned")]
+    DeploymentRequired,
     #[error("platform custody rejected the request")]
     Rejected,
     #[error("platform custody detected tampering")]

@@ -9334,8 +9334,8 @@
     {
       "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
       "state": "validation",
-      "reason": "The graph schema permits only the validation routing override here; it is used as a safety block because the graph-required root manifest, neutral protocol package, isolated Windows broker/client manifests and targets, active workspace membership, narrow core broker-admission facade, expected tests, proof, and production caller are absent. Implementation phase authorization is derived separately and does not imply READY, runtime reachability, PR, merge, or DONE.",
-      "statusText": "Validation blocked — existing core mapped; package topology, narrow facade, tests, callers, proof, and completion remain open.",
+      "reason": "The graph schema permits only the validation routing override here. Independently reviewed production source now satisfies the required root manifest, neutral protocol package, isolated broker/client manifests and targets, active workspace membership, and narrow sealed core broker-admission facade. The safety block remains because safe pinned Windows process/token observation, exact protected registry owner/DACL/parent-chain verification, non-restorable monotonic authority, installer/SCM enrollment, a real production caller, expected tests, proof, and runtime availability are absent. Source integration does not imply READY, PR, merge, or DONE.",
+      "statusText": "Validation blocked — reviewed fail-closed source integrated; protected Windows adapters, installer/caller, tests, proof, and completion remain open.",
       "needsReview": false,
       "evidence": [
         "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",

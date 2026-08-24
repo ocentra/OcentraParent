@@ -47,6 +47,12 @@ pub(super) fn read_raw(row: &Row<'_>) -> rusqlite::Result<RawRecord> {
 }
 
 pub(super) fn from_raw(raw: RawRecord) -> Result<Record, StorageError> {
+    if raw.canonical_binding.len() > MAX_CANONICAL_BYTES
+        || raw.sealed.len() > MAX_SEALED_BYTES
+        || raw.database_identity.len() > 128
+    {
+        return Err(StorageError::Tampered);
+    }
     let value = Record {
         record_id: array(raw.record_id)?,
         lookup_digest: array(raw.lookup_digest)?,

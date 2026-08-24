@@ -1,10 +1,11 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-23 after canonical graph dependency reviews at
-`1595bb38b9e77c19d8000ce5c5b344de91ff7b35` (parent
-`007654fb69f188c75ff1de6470e89bfd28903a52`) and this residual-source
-disposition review. This supersedes the retained 2026-08-19 and
-2026-08-18 snapshots below.
+Snapshot: 2026-08-24 after the independently reviewed Protected Capability
+Custody source consolidation, based on canonical parent
+`55455764b652c46af6d27fbf36853604da3cc448`. This supersedes the retained
+2026-08-23, 2026-08-19, and 2026-08-18 snapshots below. Exact branch counts and
+worktree counts later in this document remain labelled historical until the
+post-source-wave cleanup audit refreshes them.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
@@ -14,9 +15,9 @@ claim. Refresh Git ancestry and patch identity before deleting any ref.
 
 | Ref | Head | Custody state |
 | --- | --- | --- |
-| `origin/main` | `eb4e66a791` | Release baseline. It has no commit missing from consolidation and is 462 commits behind this snapshot. |
-| `origin/develop` | `4ece515282` | Promotion baseline. It has no commit missing from consolidation and is 459 commits behind this snapshot. |
-| `origin/codex/eventing-wp09-production` | `1595bb38b9e77c19d8000ce5c5b344de91ff7b35`; parent `007654fb69f188c75ff1de6470e89bfd28903a52` | Canonical source-consolidation line after the Account/Device and Cloudflare/Policy/Payment graph reviews. Expected tests remain deliberately deferred until the source wave is complete. |
+| `origin/main` | `eb4e66a791` | Historical release baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim main parity. |
+| `origin/develop` | `4ece515282` | Historical promotion baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim develop parity. |
+| `origin/codex/eventing-wp09-production` | Protected Custody source-consolidation update based on `55455764b652c46af6d27fbf36853604da3cc448` | Canonical source-consolidation line. The fail-closed Protected Custody core/protocol/broker/client source is integrated, but protected OS/installer adapters, its real caller, and expected tests remain deliberately open. |
 | `origin/production` | `683a07cf31` | Historical production ref; not the current integration line. |
 | archive refs | `ac9f65bb4a`, `405e7fc77e` | Coverage for historical local/remote tips. Retain through source/test consolidation and promotion. |
 
@@ -24,7 +25,7 @@ Open pull requests at this snapshot: **0**. No source packet is allowed to skip
 independent review, the later expected-test wave, focused validation,
 precommit, or CI merely because it is pushed.
 
-## Current residual source disposition — 2026-08-23
+## Current residual source disposition — 2026-08-24
 
 This is the current commit-level disposition for the reviewed residual packets.
 It records custody and integration decisions only; it does not promote a
@@ -43,13 +44,18 @@ cherry-pick any stale branch tip wholesale.
 | Data docs/authority variants: `8a92cce1f`, `ec129d668`, `8da579cc70245a3c822045f8a8a74d929fb311a9`, `e9d729d5` | `8a92cce1` is docs-only; `ec129d668` is caller-selected authority/drop and rejected; `8da579cc7` effect-ledger alternate and `e9d729d5` mount contract are dropped. No direct integration. |
 | Data WP08 ordered source: `2d826b6c2bc1de807fea6c6d1f406a6310df1122` → `60973ed54118a76aaa2f5708b78f7fa5b88dfa63` → `19c0b492` → `7c232efbfb1c4c4c5f227332e3a66734432276fe` | Genuinely missing production source, but blocked behind Account WP05. Any future packet must repair atomic effect-consume/staging semantics before tests or readiness. |
 | Screen producer residual: `c02334244e7032a67bdc034e4a428bac8613f296` | Do not cherry-pick wholesale. Later salvage is limited to `crates/agent-service/src/screen_managed_browser_cdp_runtime.rs`; composition/caller source is still missing. Skip `structured_extraction.js` (format/comment-only equivalent). |
+| Protected Custody WP01: `3d8231e796c1a5e303ef8f2084f9980277c69b86` | Independently approved and source-integrated in this snapshot. The service is deliberately unavailable before state creation; safe pinned process/token observation, exact protected registry custody, non-restorable monotonic authority, installer/SCM enrollment, a real caller, tests, and proof remain open. |
+| Device Trust WP01 participant: `5f0280f711a6d66c96338e45382d17594aca39aa` | Rejected and quarantined. Its runtime-fence files are byte-identical to withdrawn `f5974c795`; same-user SQLite mutation plus an unkeyed digest can fabricate completion, and migration/retention are absent. Do not integrate. |
+| Cloudflare WP02: `29172d2e5b19ec6b7beaa72cd8b2c416896cb026` | Tree-identical to canonical after exact transplant. Preserve until final cleanup checks, but no integration is required and it carries no unique source. |
+| AppGame WP197: `75dbad64ca5354205659171df948cf097b016289` | Independently rejected and under source repair for environment poisoning, executable identity/TOCTOU, Unix cancellation cleanup, unauthenticated LAN triggering, and permissive daemon-output parsing. Do not integrate this head. |
+| Browser WP06: `5671c06a2de873b15f71aa9fe961b8fc441a7961` | Source packet remains in independent adversarial review. Preserve its branch/worktree; do not integrate or delete before verdict and repair disposition. |
 
 Archives and all residual/local branches remain preserved. No remote or local
 branch/worktree deletion is authorized by this review; cleanup waits for
 canonical promotion through `develop` to `main`, then fresh PR/local-dirty,
 ancestry/patch-identity, and Enforcer-claim checks.
 
-## Current remote branch disposition
+## 2026-08-23 remote branch disposition snapshot
 
 There are 64 non-archive `origin/codex/*` refs including canonical, plus two
 archive coverage refs:
@@ -158,7 +164,7 @@ patch custody:
 - `codex/eventing-wp11-typed-delivery`
 - `codex/payment-source-wave`
 
-## Current registered E-drive worktrees
+## 2026-08-23 registered E-drive worktree snapshot
 
 There are 55 registered Ocentra Parent worktrees. At the pre-commit audit:
 

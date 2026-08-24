@@ -4,6 +4,9 @@ use rusqlite::{params, Connection, OptionalExtension, TransactionBehavior};
 use super::{StorageError, METADATA_TABLE_NAME, TABLE_NAME};
 
 const APPLICATION_ID: i64 = 1_329_811_523;
+const MAX_SCHEMA_OBJECTS: usize = 2;
+const MAX_SCHEMA_COLUMNS: usize = 14;
+const MAX_METADATA_BYTES: usize = 64;
 const CREATE_METADATA_SQL: &str = "CREATE TABLE protected_capability_custody_metadata (
     singleton INTEGER NOT NULL PRIMARY KEY CHECK (singleton = 1),
     record_namespace BLOB NOT NULL,
@@ -105,6 +108,7 @@ fn objects(connection: &Connection) -> Result<Vec<(String, String)>, StorageErro
     )?;
     let result = statement
         .query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?
+        .take(MAX_SCHEMA_OBJECTS + 1)
         .collect::<Result<Vec<_>, rusqlite::Error>>()
         .map_err(StorageError::from)?;
     Ok(result)
@@ -190,6 +194,7 @@ fn validate_columns(
                 row.get::<_, i64>(5)?,
             ))
         })?
+        .take(MAX_SCHEMA_COLUMNS + 1)
         .collect::<Result<Vec<_>, rusqlite::Error>>()?;
     let matches = columns.len() == expected.len()
         && columns.iter().zip(expected).all(|(actual, expected)| {
@@ -219,6 +224,9 @@ fn load_instance_id(connection: &Connection) -> Result<[u8; 32], StorageError> {
         [],
         |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
     )?;
+    if namespace.len() > MAX_METADATA_BYTES || instance.len() > MAX_METADATA_BYTES {
+        return Err(StorageError::Tampered);
+    }
     let instance: [u8; 32] = instance.try_into().map_err(|_| StorageError::Tampered)?;
     if namespace != crate::RECORD_NAMESPACE
         || schema_version != i64::from(crate::STORAGE_SCHEMA_VERSION)

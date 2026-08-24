@@ -58,6 +58,10 @@ pub(super) fn open_guarded(
     if metadata.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0 {
         return Err(PathSecurityError::UnsafePath);
     }
+    // The no-follow handle denies delete/rename sharing before the ID lookup;
+    // the retained handle is also compared on every revalidation.  The path
+    // lookup therefore cannot silently bind a replacement between validation
+    // and identity capture.
     let identity =
         file_id::get_high_res_file_id(path).map_err(|_| PathSecurityError::Unavailable)?;
     let digest = digest_file_id(identity)?;
