@@ -2,10 +2,10 @@ use super::{
     linux_display_paths::{wayland_socket_path, x11_socket_path},
     linux_display_readiness::{
         display_readiness, socket_readiness, wsl_environment_hint, wslg_environment_hint,
+        DisplayConfiguration, DisplayConfigurationValidity, LinuxWslEnvironmentHint,
     },
-    LinuxDisplayEnvironment, LinuxDisplayReadiness, LinuxSocketReadiness,
+    LinuxDisplayEnvironment, LinuxDisplayReadiness, LinuxProbeDeadline, LinuxSocketReadiness,
 };
-use std::time::Instant;
 
 pub(super) struct DisplayProbe {
     pub(super) environment: LinuxDisplayEnvironment,
@@ -14,7 +14,7 @@ pub(super) struct DisplayProbe {
     pub(super) wayland_socket: LinuxSocketReadiness,
 }
 
-pub(super) fn display_probe(deadline: Instant) -> DisplayProbe {
+pub(super) fn display_probe(deadline: &LinuxProbeDeadline) -> DisplayProbe {
     let display = std::env::var_os("DISPLAY");
     let wayland_display = std::env::var_os("WAYLAND_DISPLAY");
     let runtime_dir = std::env::var_os("XDG_RUNTIME_DIR");
@@ -22,25 +22,43 @@ pub(super) fn display_probe(deadline: Instant) -> DisplayProbe {
     let wayland_path = wayland_socket_path(wayland_display.as_deref(), runtime_dir.as_deref());
     let x11_socket = socket_readiness(x11_path.as_deref(), deadline);
     let wayland_socket = socket_readiness(wayland_path.as_deref(), deadline);
-    let configured = display.is_some() || wayland_display.is_some();
-    let valid_configuration = x11_path.is_some() || wayland_path.is_some();
-    let socket_ready = matches!(x11_socket, LinuxSocketReadiness::Ready)
-        || matches!(wayland_socket, LinuxSocketReadiness::Ready);
+    let configured = if display.is_some() || wayland_display.is_some() {
+        DisplayConfiguration::Configured
+    } else {
+        DisplayConfiguration::Unconfigured
+    };
+    let valid_configuration = if x11_path.is_some() || wayland_path.is_some() {
+        DisplayConfigurationValidity::Valid
+    } else {
+        DisplayConfigurationValidity::Invalid
+    };
+    let socket_ready = if matches!(x11_socket, LinuxSocketReadiness::Ready)
+        || matches!(wayland_socket, LinuxSocketReadiness::Ready)
+    {
+        LinuxSocketReadiness::Ready
+    } else {
+        LinuxSocketReadiness::Missing
+    };
     let readiness = display_readiness(configured, valid_configuration, socket_ready);
     let environment = match readiness {
         super::LinuxDisplayReadiness::Ready
-            if wslg_environment_hint(
-                runtime_dir
-                    .as_deref()
-                    .and_then(|value| value.to_str())
-                    .map(std::path::Path::new),
-                wayland_path.as_deref(),
-                wayland_socket,
+            if matches!(
+                wslg_environment_hint(
+                    runtime_dir
+                        .as_deref()
+                        .and_then(|value| value.to_str())
+                        .map(std::path::Path::new),
+                    wayland_path.as_deref(),
+                    wayland_socket,
+                ),
+                LinuxWslEnvironmentHint::Present
             ) =>
         {
             LinuxDisplayEnvironment::Wslg
         }
-        super::LinuxDisplayReadiness::Ready if wsl_environment_hint() => {
+        super::LinuxDisplayReadiness::Ready
+            if matches!(wsl_environment_hint(), LinuxWslEnvironmentHint::Present) =>
+        {
             LinuxDisplayEnvironment::Unknown
         }
         super::LinuxDisplayReadiness::Ready => LinuxDisplayEnvironment::Native,

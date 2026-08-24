@@ -1811,13 +1811,13 @@ diagnostics, or raw private source rows.
       system-app allowlist proof, rollback proof, audit custody proof, adapter
       dispatch, and child-device delivery remain open.
 - [x] Platform proof status consumes platform preflight detail refs. The
-      parent-domain status model now carries Windows broad-blocking authority,
-      Android owner-authority, and Android Accessibility overlay preflight refs
-      alongside the existing Android physical-device/UsageEvents and Linux WSL
-      refs. Windows broad blocking, Android owner authority, Android overlay
-      runtime, Linux foreground/policy mechanisms, adapter dispatch, platform
-      enforcement, provider delivery, child-device delivery, raw private
-      rows/targets, and private diagnostics remain unclaimed.
+      parent-domain status model carries typed Windows, Android, and Linux
+      detail refs when a separately owned source-ready preflight supplies
+      them; the unavailable Linux runtime path emits no refs. Windows broad
+      blocking, Android owner authority, Android overlay runtime, Linux
+      foreground/policy mechanisms, adapter dispatch, platform enforcement,
+      provider delivery, child-device delivery, raw private rows/targets, and
+      private diagnostics remain unclaimed.
 - [x] Apple platform proof is CI-required and non-promoting. The parent-domain
       Apple CI preflight maps existing macOS and iOS manual artifact gates into
       CI-required rows and feeds them into the shared platform proof status

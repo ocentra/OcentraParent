@@ -1,7 +1,7 @@
 use std::{
     os::fd::{AsFd, AsRawFd},
     path::Path,
-    time::{Duration, Instant},
+    time::Duration,
 };
 
 use nix::{
@@ -13,26 +13,26 @@ use nix::{
     },
 };
 
-use super::linux_socket_security::validated_socket;
+use super::{linux_socket_security::validated_socket, LinuxProbeDeadline};
 
 const SOCKET_CONNECT_LIMIT: Duration = Duration::from_millis(100);
 
-pub(super) fn socket_ready(path: &Path, deadline: Instant) -> bool {
+pub(super) fn socket_ready(path: &Path, deadline: &LinuxProbeDeadline) -> Option<()> {
     let Some((canonical_path, root)) = validated_socket(path) else {
-        return false;
+        return None;
     };
-    let remaining = deadline.saturating_duration_since(Instant::now());
+    let remaining = deadline.remaining();
     if remaining.is_zero() {
-        return false;
+        return None;
     }
     let Some((revalidated_path, revalidated_root)) = validated_socket(path) else {
-        return false;
+        return None;
     };
     if revalidated_path != canonical_path || revalidated_root != root {
-        return false;
+        return None;
     }
     let Ok(address) = UnixAddr::new(&canonical_path) else {
-        return false;
+        return None;
     };
     let Ok(socket) = socket(
         AddressFamily::Unix,
@@ -40,21 +40,21 @@ pub(super) fn socket_ready(path: &Path, deadline: Instant) -> bool {
         SockFlag::SOCK_NONBLOCK | SockFlag::SOCK_CLOEXEC,
         None,
     ) else {
-        return false;
+        return None;
     };
     match connect(socket.as_raw_fd(), &address) {
-        Ok(()) => true,
+        Ok(()) => Some(()),
         Err(Errno::EINPROGRESS | Errno::EALREADY | Errno::EAGAIN) => {
             wait_for_socket(socket.as_fd(), deadline)
         }
-        Err(_) => false,
+        Err(_) => None,
     }
 }
 
-fn wait_for_socket(fd: impl AsFd, deadline: Instant) -> bool {
-    let remaining = deadline.saturating_duration_since(Instant::now());
+fn wait_for_socket(fd: impl AsFd, deadline: &LinuxProbeDeadline) -> Option<()> {
+    let remaining = deadline.remaining();
     if remaining.is_zero() {
-        return false;
+        return None;
     }
     let timeout =
         PollTimeout::try_from(SOCKET_CONNECT_LIMIT.min(remaining)).unwrap_or(PollTimeout::ZERO);
@@ -63,15 +63,16 @@ fn wait_for_socket(fd: impl AsFd, deadline: Instant) -> bool {
         PollFlags::POLLOUT | PollFlags::POLLERR | PollFlags::POLLHUP,
     )];
     if poll(&mut poll_fds, timeout).is_err() {
-        return false;
+        return None;
     }
-    let Some(revents) = poll_fds[0].revents() else {
-        return false;
+    let Some(revents) = poll_fds.first().and_then(|poll_fd| poll_fd.revents()) else {
+        return None;
     };
     if !revents.intersects(PollFlags::POLLOUT | PollFlags::POLLERR | PollFlags::POLLHUP) {
-        return false;
+        return None;
     }
-    getsockopt(&fd, SocketError)
-        .map(|error| error == 0)
-        .unwrap_or(false)
+    let Ok(error) = getsockopt(&fd, SocketError) else {
+        return None;
+    };
+    (error == 0).then_some(())
 }

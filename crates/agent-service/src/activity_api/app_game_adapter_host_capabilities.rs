@@ -88,10 +88,14 @@ impl HostCapabilitySignals {
         preflight: &LinuxForegroundSourcePreflight,
     ) -> CapabilityState {
         CapabilityState(
-            [
-                APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED,
-                APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE,
-            ][preflight.source_ready() as usize],
+            match preflight.source_ready() {
+                ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxSourceReadiness::Ready => {
+                    APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE
+                }
+                ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxSourceReadiness::Unavailable => {
+                    APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED
+                }
+            },
         )
     }
 }

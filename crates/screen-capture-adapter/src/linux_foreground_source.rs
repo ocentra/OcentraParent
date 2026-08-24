@@ -52,6 +52,32 @@ pub enum LinuxActiveWindowObservation {
     NotObserved,
 }
 
+#[cfg(all(target_os = "linux", not(target_env = "ohos")))]
+struct LinuxProbeDeadline {
+    // BRAND-INVARIANT: this monotonic deadline is private to the bounded
+    // source-preflight seam and is constructed only at its entry point.
+    instant: Instant,
+}
+
+#[cfg(all(target_os = "linux", not(target_env = "ohos")))]
+impl LinuxProbeDeadline {
+    fn bounded() -> Self {
+        Self {
+            instant: Instant::now() + Duration::from_secs(2),
+        }
+    }
+
+    fn remaining(&self) -> Duration {
+        self.instant.saturating_duration_since(Instant::now())
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LinuxSourceReadiness {
+    Ready,
+    Unavailable,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct LinuxForegroundSourcePreflight {
     pub display_environment: LinuxDisplayEnvironment,
@@ -61,6 +87,8 @@ pub struct LinuxForegroundSourcePreflight {
     pub xprop: LinuxToolProbe,
     pub xdotool: LinuxToolProbe,
     pub active_window: LinuxActiveWindowObservation,
+    // BRAND-INVARIANT: only an owner-controlled OS custody boundary may set
+    // this attestation; unavailable/default construction keeps it false.
     source_attested: bool,
 }
 
@@ -78,18 +106,27 @@ impl LinuxForegroundSourcePreflight {
         }
     }
 
-    pub fn display_ready(self) -> bool {
-        matches!(self.display, LinuxDisplayReadiness::Ready)
+    pub fn display_ready(self) -> LinuxDisplayReadiness {
+        self.display
     }
 
-    pub fn socket_ready(self) -> bool {
-        matches!(self.x11_socket, LinuxSocketReadiness::Ready)
+    pub fn socket_ready(self) -> LinuxSocketReadiness {
+        if matches!(self.x11_socket, LinuxSocketReadiness::Ready)
             || matches!(self.wayland_socket, LinuxSocketReadiness::Ready)
+        {
+            LinuxSocketReadiness::Ready
+        } else if matches!(self.x11_socket, LinuxSocketReadiness::Unavailable)
+            && matches!(self.wayland_socket, LinuxSocketReadiness::Unavailable)
+        {
+            LinuxSocketReadiness::Unavailable
+        } else {
+            LinuxSocketReadiness::Missing
+        }
     }
 
-    pub fn source_ready(self) -> bool {
-        self.source_attested
-            && self.display_ready()
+    pub fn source_ready(self) -> LinuxSourceReadiness {
+        if self.source_attested
+            && matches!(self.display_ready(), LinuxDisplayReadiness::Ready)
             && matches!(
                 self.display_environment,
                 LinuxDisplayEnvironment::Native | LinuxDisplayEnvironment::Wslg
@@ -99,17 +136,28 @@ impl LinuxForegroundSourcePreflight {
             && matches!(self.x11_socket, LinuxSocketReadiness::Ready)
             && (matches!(self.xprop, LinuxToolProbe::Succeeded)
                 || matches!(self.xdotool, LinuxToolProbe::Succeeded))
+        {
+            LinuxSourceReadiness::Ready
+        } else {
+            LinuxSourceReadiness::Unavailable
+        }
     }
 
-    pub fn active_window_observed(self) -> bool {
-        self.source_ready() && matches!(self.active_window, LinuxActiveWindowObservation::Observed)
+    pub fn active_window_observed(self) -> LinuxActiveWindowObservation {
+        if matches!(self.source_ready(), LinuxSourceReadiness::Ready)
+            && matches!(self.active_window, LinuxActiveWindowObservation::Observed)
+        {
+            LinuxActiveWindowObservation::Observed
+        } else {
+            LinuxActiveWindowObservation::NotObserved
+        }
     }
 }
 
 pub fn foreground_source_preflight() -> LinuxForegroundSourcePreflight {
     #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
     {
-        return foreground_source_preflight_with_deadline(Instant::now() + Duration::from_secs(2));
+        return foreground_source_preflight_with_deadline(LinuxProbeDeadline::bounded());
     }
 
     #[cfg(not(all(target_os = "linux", not(target_env = "ohos"))))]
@@ -119,10 +167,10 @@ pub fn foreground_source_preflight() -> LinuxForegroundSourcePreflight {
 }
 
 #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
-pub(crate) fn foreground_source_preflight_with_deadline(
-    deadline: Instant,
+fn foreground_source_preflight_with_deadline(
+    deadline: LinuxProbeDeadline,
 ) -> LinuxForegroundSourcePreflight {
-    let display = linux_display::display_probe(deadline);
+    let display = linux_display::display_probe(&deadline);
 
     // External xprop/xdotool execution is intentionally disabled. The source
     // phase has no OS primitive that guarantees custody of a process group

@@ -1,26 +1,56 @@
-use std::{path::Path, time::Instant};
+use std::path::Path;
 
 use super::{
     linux_socket_connect::socket_ready,
     linux_socket_security::{is_trusted_wslg_runtime, is_trusted_wslg_socket},
-    LinuxDisplayReadiness, LinuxSocketReadiness,
+    LinuxDisplayReadiness, LinuxProbeDeadline, LinuxSocketReadiness,
 };
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum DisplayConfiguration {
+    Configured,
+    Unconfigured,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum DisplayConfigurationValidity {
+    Valid,
+    Invalid,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum LinuxWslEnvironmentHint {
+    Present,
+    Absent,
+}
+
 pub(super) fn display_readiness(
-    configured: bool,
-    valid_configuration: bool,
-    socket_ready: bool,
+    configured: DisplayConfiguration,
+    valid_configuration: DisplayConfigurationValidity,
+    socket_ready: LinuxSocketReadiness,
 ) -> LinuxDisplayReadiness {
-    match (configured, valid_configuration, socket_ready) {
-        (false, _, _) | (true, true, false) => LinuxDisplayReadiness::Missing,
-        (true, _, true) => LinuxDisplayReadiness::Ready,
-        (true, false, false) => LinuxDisplayReadiness::Invalid,
+    match (
+        configured,
+        valid_configuration,
+        matches!(socket_ready, LinuxSocketReadiness::Ready),
+    ) {
+        (DisplayConfiguration::Unconfigured, _, _)
+        | (DisplayConfiguration::Configured, DisplayConfigurationValidity::Valid, false) => {
+            LinuxDisplayReadiness::Missing
+        }
+        (DisplayConfiguration::Configured, _, true) => LinuxDisplayReadiness::Ready,
+        (DisplayConfiguration::Configured, DisplayConfigurationValidity::Invalid, false) => {
+            LinuxDisplayReadiness::Invalid
+        }
     }
 }
 
-pub(super) fn socket_readiness(path: Option<&Path>, deadline: Instant) -> LinuxSocketReadiness {
+pub(super) fn socket_readiness(
+    path: Option<&Path>,
+    deadline: &LinuxProbeDeadline,
+) -> LinuxSocketReadiness {
     match path {
-        Some(path) if socket_ready(path, deadline) => LinuxSocketReadiness::Ready,
+        Some(path) if socket_ready(path, deadline).is_some() => LinuxSocketReadiness::Ready,
         Some(_) => LinuxSocketReadiness::Missing,
         None => LinuxSocketReadiness::Unavailable,
     }
@@ -30,16 +60,32 @@ pub(super) fn wslg_environment_hint(
     runtime_dir: Option<&Path>,
     wayland_path: Option<&Path>,
     wayland_socket: LinuxSocketReadiness,
-) -> bool {
-    matches!(wayland_socket, LinuxSocketReadiness::Ready)
-        && runtime_dir.is_some_and(is_trusted_wslg_runtime)
-        && wayland_path.is_some_and(is_trusted_wslg_socket)
-        && wsl_environment_hint()
+) -> LinuxWslEnvironmentHint {
+    if !matches!(wayland_socket, LinuxSocketReadiness::Ready) {
+        return LinuxWslEnvironmentHint::Absent;
+    }
+    let Some(runtime_dir) = runtime_dir else {
+        return LinuxWslEnvironmentHint::Absent;
+    };
+    let Some(wayland_path) = wayland_path else {
+        return LinuxWslEnvironmentHint::Absent;
+    };
+    if is_trusted_wslg_runtime(runtime_dir).is_none()
+        || is_trusted_wslg_socket(wayland_path).is_none()
+        || !matches!(wsl_environment_hint(), LinuxWslEnvironmentHint::Present)
+    {
+        LinuxWslEnvironmentHint::Absent
+    } else {
+        LinuxWslEnvironmentHint::Present
+    }
 }
 
-pub(super) fn wsl_environment_hint() -> bool {
-    ["WSL_INTEROP", "WSL_DISTRO_NAME"]
-        .into_iter()
-        .filter_map(std::env::var_os)
-        .any(|value| !value.is_empty())
+pub(super) fn wsl_environment_hint() -> LinuxWslEnvironmentHint {
+    let interop_present = std::env::var_os("WSL_INTEROP").is_some_and(|value| !value.is_empty());
+    let distro_present = std::env::var_os("WSL_DISTRO_NAME").is_some_and(|value| !value.is_empty());
+    if interop_present || distro_present {
+        LinuxWslEnvironmentHint::Present
+    } else {
+        LinuxWslEnvironmentHint::Absent
+    }
 }
