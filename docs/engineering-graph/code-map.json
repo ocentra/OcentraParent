@@ -1020,23 +1020,69 @@
     },
     "WP-ai-plan-03-contract-boundary-and-effect-schemas": {
       "planSlug": "ai-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
-        "crates/agent-protocol/src/schema_domain_ai_wire.rs",
-        "crates/agent-protocol/src/schema_domain_mirrors.rs",
-        "crates/agent-protocol/tests/contract/schema_domain_ai_wire.rs"
-      ]
+        "crates/schema/src/ai_contracts.rs",
+        "crates/schema/src/ai_contracts/identity.rs",
+        "crates/schema/src/ai_contracts/work.rs",
+        "crates/schema/src/ai_contracts/context.rs",
+        "crates/schema/src/ai_contracts/result.rs",
+        "crates/schema/src/ai_contracts/memory.rs",
+        "crates/schema/src/ai_contracts/journal.rs",
+        "crates/schema/src/ai_contracts/explanation.rs",
+        "crates/schema/src/ai_contracts/remote_assistant.rs",
+        "crates/schema/src/ai_contracts_ts.rs",
+        "crates/schema/src/bin/export_ai_contract_types.rs",
+        "crates/schema/tests/contract/ai_contracts.rs",
+        "crates/schema/tests/contract/ai_contracts_negative.rs",
+        "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+      ],
+      "plannedImplementationRoots": [
+        "crates/schema/src/ai_contracts.rs",
+        "crates/schema/src/ai_contracts/identity.rs",
+        "crates/schema/src/ai_contracts/work.rs",
+        "crates/schema/src/ai_contracts/context.rs",
+        "crates/schema/src/ai_contracts/result.rs",
+        "crates/schema/src/ai_contracts/memory.rs",
+        "crates/schema/src/ai_contracts/journal.rs",
+        "crates/schema/src/ai_contracts/explanation.rs",
+        "crates/schema/src/ai_contracts/remote_assistant.rs",
+        "crates/schema/src/ai_contracts_ts.rs",
+        "crates/schema/src/bin/export_ai_contract_types.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/schema/tests/contract/ai_contracts.rs",
+        "crates/schema/tests/contract/ai_contracts_negative.rs",
+        "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+      ],
+      "note": "The prior schema_domain_ai_wire mapping is self/test-referenced agent-protocol compatibility source, not the Rust-owned canonical cross-boundary AI family required by WP03. The missing owner must cover typed identity, work lifecycle, evidence context, result, memory/graph provenance, journal, explanation, prompt/runtime references, and remote-assistant separation in crates/schema with generated edge parity. No production source, caller, expected tests, proof, READY, or DONE is claimed by the generic mirror."
     },
     "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts": {
       "planSlug": "ai-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "crates/agent-protocol/src/local_ai.rs",
         "crates/agent-protocol/src/local_ai_runtime.rs",
         "crates/agent-protocol/src/local_ai_runtime",
         "crates/agent-protocol/src/parent_assistant.rs",
         "crates/agent-protocol/src/parent_assistant",
+        "crates/agent-protocol/src/ai_contracts.rs",
         "crates/agent-protocol/tests/unit/local_ai_runtime_tests.rs",
-        "crates/agent-protocol/tests/unit/parent_assistant_tests.rs"
-      ]
+        "crates/agent-protocol/tests/unit/parent_assistant_tests.rs",
+        "crates/agent-protocol/tests/contract/ai_contracts.rs",
+        "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+      ],
+      "plannedImplementationRoots": [
+        "crates/agent-protocol/src/local_ai.rs",
+        "crates/agent-protocol/src/local_ai_runtime.rs",
+        "crates/agent-protocol/src/parent_assistant.rs",
+        "crates/agent-protocol/src/ai_contracts.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/agent-protocol/tests/contract/ai_contracts.rs",
+        "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+      ],
+      "note": "Existing local-AI runtime and parent-assistant shapes are partial reachable consumers, not complete parity for WP03's canonical general AI family. WP04 must consume the Rust-owned schema contract through explicit wire adapters without duplicating ownership, stringly route/event truth, or public re-export shims. The canonical owner, generated TypeScript parity, negative decoder family, and complete cross-boundary tests remain missing."
     },
     "WP-ai-plan-05-local-model-runtime-status-hardening": {
       "planSlug": "ai-plan",

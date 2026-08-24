@@ -26,6 +26,30 @@
       ]
     },
     {
+      "id": "WP-ai-plan-03-contract-boundary-and-effect-schemas",
+      "hardDependencies": [],
+      "reason": "Live source review confirms the old schema_domain_ai_wire roots are self/test-referenced agent-protocol compatibility shapes, not WP03's missing Rust-owned canonical cross-boundary AI contract family. A bounded source packet may add the crates/schema owner and real reachable consumer, while tests, proof, runtime/provider readiness, policy authority, and DONE remain open.",
+      "evidence": [
+        "docs/plans/ai-plan/PLAN_STATE.md",
+        "docs/plans/ai-plan/NEXT_ACTIONS.md",
+        "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
+      "hardDependencies": [
+        "WP-ai-plan-03-contract-boundary-and-effect-schemas"
+      ],
+      "reason": "WP04 has partial local-AI/assistant Rust shapes, but complete protocol and generated edge parity cannot be accepted before WP03 owns the canonical general AI family. Source work may prepare an explicit consumer adapter; it must not duplicate schema ownership or create public re-export shims.",
+      "evidence": [
+        "docs/plans/ai-plan/PLAN_STATE.md",
+        "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+        "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-browser-plan-07-managed-chromium-launcher",
       "hardDependencies": ["WP-browser-plan-06-managed-profile-store"],
       "reason": "Canonical f80b47c6a is an accepted fail-closed source baseline: it removes unreachable service launch state, env/dev authority, placeholder polling, and Browser-to-Screen composition, leaving production status manual-required. The owner-issued retained runtime and integration test roots remain absent; existing tests are stale. This does not authorize runtime, normal READY, proof, PR readiness, or DONE.",
@@ -2683,6 +2707,20 @@
     }
   ],
   "edges": [
+    {
+      "from": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
+      "to": "WP-ai-plan-03-contract-boundary-and-effect-schemas",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/ai-plan/PLAN_STATE.md",
+        "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+        "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Protocol parity must consume the Rust-owned canonical general AI family; current local runtime/assistant shapes do not satisfy that owner boundary.",
+      "implementationGate": "reviewed-implementation"
+    },
     {
       "from": "WP-app-game-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
       "to": "WP-app-game-plan-99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff",

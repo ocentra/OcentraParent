@@ -1328,20 +1328,69 @@
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/schema/src/ai_contracts.rs",
+            "crates/schema/src/ai_contracts/identity.rs",
+            "crates/schema/src/ai_contracts/work.rs",
+            "crates/schema/src/ai_contracts/context.rs",
+            "crates/schema/src/ai_contracts/result.rs",
+            "crates/schema/src/ai_contracts/memory.rs",
+            "crates/schema/src/ai_contracts/journal.rs",
+            "crates/schema/src/ai_contracts/explanation.rs",
+            "crates/schema/src/ai_contracts/remote_assistant.rs",
+            "crates/schema/src/ai_contracts_ts.rs",
+            "crates/schema/src/bin/export_ai_contract_types.rs"
+          ],
+          "testRoots": [
+            "crates/schema/tests/contract/ai_contracts.rs",
+            "crates/schema/tests/contract/ai_contracts_negative.rs",
+            "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/ai-plan/PLAN_STATE.md",
+            "docs/plans/ai-plan/NEXT_ACTIONS.md",
+            "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Live source review confirms the old schema_domain_ai_wire roots are self/test-referenced agent-protocol compatibility shapes, not WP03's missing Rust-owned canonical cross-boundary AI contract family. A bounded source packet may add the crates/schema owner and real reachable consumer, while tests, proof, runtime/provider readiness, policy authority, and DONE remain open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/ai-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/ai-plan/implementation-checklist.md"],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "crates/schema/src/ai_contracts.rs",
+            "crates/schema/src/ai_contracts/identity.rs",
+            "crates/schema/src/ai_contracts/work.rs",
+            "crates/schema/src/ai_contracts/context.rs",
+            "crates/schema/src/ai_contracts/result.rs",
+            "crates/schema/src/ai_contracts/memory.rs",
+            "crates/schema/src/ai_contracts/journal.rs",
+            "crates/schema/src/ai_contracts/explanation.rs",
+            "crates/schema/src/ai_contracts/remote_assistant.rs",
+            "crates/schema/src/ai_contracts_ts.rs",
+            "crates/schema/src/bin/export_ai_contract_types.rs"
+          ],
+          "tests": [
+            "crates/schema/tests/contract/ai_contracts.rs",
+            "crates/schema/tests/contract/ai_contracts_negative.rs",
+            "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+          ]
         }
       }
     },
@@ -1351,28 +1400,63 @@
       "title": "04 - Rust Protocol Parity For AI Contracts",
       "path": "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
       "parent": "PLAN-ai-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": ["WP-ai-plan-03-contract-boundary-and-effect-schemas"],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-protocol/src/local_ai.rs",
+            "crates/agent-protocol/src/local_ai_runtime.rs",
+            "crates/agent-protocol/src/parent_assistant.rs",
+            "crates/agent-protocol/src/ai_contracts.rs"
+          ],
+          "testRoots": [
+            "crates/agent-protocol/tests/contract/ai_contracts.rs",
+            "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-ai-plan-03-contract-boundary-and-effect-schemas"
+          ],
+          "evidence": [
+            "docs/plans/ai-plan/PLAN_STATE.md",
+            "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+            "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "WP04 has partial local-AI/assistant Rust shapes, but complete protocol and generated edge parity cannot be accepted before WP03 owns the canonical general AI family. Source work may prepare an explicit consumer adapter; it must not duplicate schema ownership or create public re-export shims."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/ai-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/ai-plan/implementation-checklist.md"],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "crates/agent-protocol/src/local_ai.rs",
+            "crates/agent-protocol/src/local_ai_runtime.rs",
+            "crates/agent-protocol/src/parent_assistant.rs",
+            "crates/agent-protocol/src/ai_contracts.rs"
+          ],
+          "tests": [
+            "crates/agent-protocol/tests/contract/ai_contracts.rs",
+            "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+          ]
         }
       }
     },
@@ -34427,6 +34511,20 @@
       "to": "WP-v0-8-enforcement-control-plan-20-rollout-docs-ci-pr-gate",
       "kind": "contains",
       "confidence": "structural"
+    },
+    {
+      "from": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
+      "to": "WP-ai-plan-03-contract-boundary-and-effect-schemas",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/ai-plan/PLAN_STATE.md",
+        "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+        "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Protocol parity must consume the Rust-owned canonical general AI family; current local runtime/assistant shapes do not satisfy that owner boundary.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-app-game-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
