@@ -9,6 +9,9 @@ import { readLocalArtifactText, statLocalArtifact } from '../local-artifact-file
 import { withLocalArtifactLock } from '../local-artifact-lock';
 import { applyLocalArtifactTransaction } from '../local-artifact-transaction';
 import { assertExistingOwnedPath } from '../local-artifact-path';
+import { MaximumBridgeBatchBytes, sanitizeAppLogBatchForCustody } from '../core/logCustody';
+import { utf8Bytes } from '../core/logTextCustody';
+import { sanitizeGeneratedPathSegment } from '../local-test-log-paths';
 
 const MaximumAppLogFileBytes = 64 * 1024 * 1024;
 
@@ -18,9 +21,20 @@ export function appendAppLogEntries(
   entries: readonly AppLogEntry[],
   rootDir?: string
 ): string {
+  const normalizedEntries = sanitizeAppLogBatchForCustody(entries);
+  if (normalizedEntries.length === 0) {
+    throw new Error('app log append requires at least one custodied entry');
+  }
+  const normalizedSessionId = sanitizeGeneratedPathSegment(sessionId);
+  if (normalizedEntries.some((entry) => entry.scope !== scope || entry.sessionId !== normalizedSessionId)) {
+    throw new Error('app log append metadata does not match its declared target');
+  }
   const resolvedRoot = rootDir ?? getDefaultLogRoot();
-  const filePath = getAppSessionFilePath(scope, sessionId, resolvedRoot);
-  const payload = entries.map((entry) => JSON.stringify(AppLogEntrySchema.parse(entry))).join('\n');
+  const filePath = getAppSessionFilePath(scope, normalizedSessionId, resolvedRoot);
+  const payload = normalizedEntries.map((entry) => JSON.stringify(entry)).join('\n');
+  if (utf8Bytes(payload) > MaximumBridgeBatchBytes) {
+    throw new Error('app log append batch exceeds its custody limit');
+  }
   durableAppendLocalArtifact(filePath, `${payload}\n`, resolvedRoot);
   return filePath;
 }

@@ -3,12 +3,17 @@ import { getDefaultLogRoot } from './ndjsonPaths';
 import { groupGeneratedTestLogEntriesByFilePath, splitGeneratedNdjsonContent } from '../local-test-log';
 import { durableAppendLocalArtifact } from '../local-artifact-append';
 import { readLocalArtifactText } from '../local-artifact-file';
+import { MaximumBridgeBatchBytes, sanitizeStoredTestLogBatchForCustody } from '../core/logCustody';
+import { utf8Bytes } from '../core/logTextCustody';
 
 const MaximumNdjsonFileBytes = 64 * 1024 * 1024;
 
 export function appendTestLogEntries(entries: readonly StoredTestLogLine[], rootDir?: string): string[] {
   const resolvedRoot = rootDir ?? getDefaultLogRoot();
-  const normalizedEntries = entries.map((rawEntry) => StoredTestLogLineSchema.parse(rawEntry));
+  const normalizedEntries = sanitizeStoredTestLogBatchForCustody(entries);
+  if (utf8Bytes(JSON.stringify(normalizedEntries)) > MaximumBridgeBatchBytes) {
+    throw new Error('test log append batch exceeds its custody limit');
+  }
   const grouped = groupGeneratedTestLogEntriesByFilePath(normalizedEntries, resolvedRoot);
 
   for (const [filePath, fileEntries] of grouped.entries()) {

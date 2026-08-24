@@ -43,12 +43,16 @@ if (config.bridgeMode === 'disabled' || config.bridgeUrl == null) {
 }
 const port = parsePort(process.env.OCENTRA_PARENT_LOG_BRIDGE_PORT);
 const host = parseHost(process.env.OCENTRA_PARENT_LOG_BRIDGE_HOST, config.bridgeMode === 'local');
+if (port === 0 && config.bridgeMode !== 'local') {
+  throw new Error('dynamic log bridge ports require local bridge composition');
+}
 assertLocalEndpointMatchesPort(config.bridgeMode, config.bridgeUrl, port);
 
 const server = createBridgeServer({
   host,
   port,
   rootDir: process.env.OCENTRA_PARENT_LOG_DIR,
+  destructiveOperations: config.bridgeMode === 'local' ? 'loopback-only' : 'disabled',
 });
 
 server.listen(port, host, () => {
@@ -57,5 +61,7 @@ server.listen(port, host, () => {
     throw new Error('log bridge did not expose a TCP listening address');
   }
   const displayHost = address.address.includes(':') ? `[${address.address}]` : address.address;
-  process.stdout.write(`Logging bridge listening on http://${displayHost}:${address.port}\n`);
+  const listeningEndpoint = `http://${displayHost}:${address.port}`;
+  process.env.OCENTRA_PARENT_LOG_BRIDGE_URL = listeningEndpoint;
+  process.stdout.write(`Logging bridge listening on ${listeningEndpoint}\n`);
 });

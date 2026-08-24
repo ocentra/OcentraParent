@@ -1,5 +1,10 @@
 import { RunType, type RunType as RunTypeValue, type TestLogScope, type TestSuiteType } from '../test-log/types';
-import { parseBridgeRunCounter, parseBridgeRunInfo, parseBridgeRunStart } from './bridgeLifecycleStateParsing';
+import {
+  parseBridgeLifecycleOperatorState,
+  parseBridgeRunCounter,
+  parseBridgeRunInfo,
+  parseBridgeRunStart,
+} from './bridgeLifecycleStateParsing';
 
 export const BridgeLifecycleSchemaVersion = 1;
 export const MaximumTrackedBridgeRuns = 64;
@@ -28,11 +33,19 @@ export interface BridgeRunCounter {
   readonly updatedAt: number;
 }
 
+export interface BridgeLifecycleOperatorState {
+  readonly status: 'manual-required';
+  readonly code: 'invalid-pending-start-selector' | 'invalid-lifecycle-record';
+  readonly observedAt: number;
+  readonly recordSha256: string;
+}
+
 export interface PersistedBridgeLifecycleState {
   readonly schemaVersion: typeof BridgeLifecycleSchemaVersion;
   readonly activeRun: BridgeRunInfoState;
   readonly pendingStart: BridgeRunStartState | null;
   readonly runCounters: readonly BridgeRunCounter[];
+  readonly operatorState: BridgeLifecycleOperatorState | null;
 }
 
 function invalid(): never {
@@ -45,6 +58,7 @@ export function emptyBridgeLifecycleState(): PersistedBridgeLifecycleState {
     activeRun: { runId: null, runType: RunType.Single, suiteType: null, scope: null, startedAt: null },
     pendingStart: null,
     runCounters: [],
+    operatorState: null,
   };
 }
 
@@ -68,5 +82,6 @@ export function parseBridgeLifecycleState(value: unknown): PersistedBridgeLifecy
     activeRun: parseBridgeRunInfo(input['activeRun']),
     pendingStart: input['pendingStart'] == null ? null : parseBridgeRunStart(input['pendingStart']),
     runCounters,
+    operatorState: input['operatorState'] == null ? null : parseBridgeLifecycleOperatorState(input['operatorState']),
   };
 }

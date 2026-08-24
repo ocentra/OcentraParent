@@ -2,7 +2,8 @@ import { MaximumQueuedBridgeBytes } from './logCustody';
 import { parsePersistedBridgeQueue, type PersistedBridgeQueue } from './bridgeLogQueueState';
 import { utf8Bytes } from './logTextCustody';
 
-interface QueueStorage {
+export interface BridgeQueueStorage {
+  readonly durability: 'persistent';
   getItem(key: string): string | null;
   setItem(key: string, value: string): void;
   removeItem(key: string): void;
@@ -11,29 +12,21 @@ interface QueueStorage {
 const StorageKey = 'ocentra.logging.bridge-queue.v1';
 const MaximumPersistedQueueBytes = MaximumQueuedBridgeBytes + 64 * 1024;
 
-function queueStorage(): QueueStorage | null {
-  try {
-    const storage = (globalThis as { readonly localStorage?: QueueStorage }).localStorage;
-    return storage == null ? null : storage;
-  } catch {
-    return null;
-  }
-}
-
 export class BridgeLogQueuePersistence {
   private blocked = false;
 
+  constructor(private readonly storage: BridgeQueueStorage) {}
+
   restore(): PersistedBridgeQueue | null {
-    const storage = queueStorage();
-    if (storage == null) {
-      return null;
-    }
     try {
-      const raw = storage.getItem(StorageKey);
+      const raw = this.storage.getItem(StorageKey);
+      if (raw != null && (raw.length > MaximumPersistedQueueBytes || utf8Bytes(raw) > MaximumPersistedQueueBytes)) {
+        throw new Error('persisted log bridge queue exceeds its custody limit');
+      }
       return raw == null ? null : parsePersistedBridgeQueue(raw);
     } catch {
       this.blocked = true;
-      return null;
+      throw new Error('durable log bridge queue state could not be restored');
     }
   }
 
@@ -41,16 +34,15 @@ export class BridgeLogQueuePersistence {
     if (this.blocked) {
       throw new Error('log bridge queue persistence is unavailable');
     }
-    const storage = queueStorage();
-    if (storage == null) {
-      throw new Error('durable log bridge queue storage is unavailable');
-    }
     const serialized = JSON.stringify(state);
     if (utf8Bytes(serialized) > MaximumPersistedQueueBytes) {
       throw new Error('persisted log bridge queue exceeds its custody limit');
     }
     try {
-      storage.setItem(StorageKey, serialized);
+      this.storage.setItem(StorageKey, serialized);
+      if (this.storage.getItem(StorageKey) !== serialized) {
+        throw new Error('durable log bridge queue write could not be verified');
+      }
     } catch (error) {
       this.blocked = true;
       throw error;
@@ -58,19 +50,27 @@ export class BridgeLogQueuePersistence {
   }
 
   clear(): void {
-    const storage = queueStorage();
-    if (storage == null && this.blocked) {
-      throw new Error('log bridge queue persistence cannot be cleared');
+    try {
+      this.storage.removeItem(StorageKey);
+      if (this.storage.getItem(StorageKey) != null) {
+        throw new Error('durable log bridge queue removal could not be verified');
+      }
+      this.blocked = false;
+    } catch (error) {
+      this.blocked = true;
+      throw error;
     }
-    storage?.removeItem(StorageKey);
-    this.blocked = false;
   }
 
   available(): boolean {
-    return !this.blocked && queueStorage() != null;
+    return !this.blocked;
   }
 
   isBlocked(): boolean {
     return this.blocked;
+  }
+
+  storageIs(storage: BridgeQueueStorage): boolean {
+    return this.storage === storage;
   }
 }

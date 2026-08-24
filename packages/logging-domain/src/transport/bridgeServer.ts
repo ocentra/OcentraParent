@@ -5,20 +5,22 @@ import { localArtifactDirectoryDurability } from '../local-artifact-path';
 import { recoverLocalArtifactAppends } from '../local-artifact-append';
 import { assertLoggingArtifactRootLayout } from '../local-artifact-tree';
 import { resolveGeneratedBridgeRoute } from '../parent-log-runtime';
-import { applyBridgeCorsHeaders, hasBridgeJsonContentType, sendBridgeJson } from './bridgeHttp';
+import {
+  applyBridgeCorsHeaders,
+  hasBridgeJsonContentType,
+  isBridgeLoopbackAddress,
+  sendBridgeJson,
+} from './bridgeHttp';
 import { handleBridgeLogs } from './bridgeLogIngress';
 import { BridgeLifecycleStateStore } from './bridgeLifecycleState';
-import {
-  handleBridgeFlush,
-  handleBridgeRunStarted,
-  recoverPendingBridgeStart,
-  sendBridgeRunInfo,
-} from './bridgeRunLifecycle';
+import { handleBridgeFlush, handleBridgeRunStarted, sendBridgeRunInfo } from './bridgeRunLifecycle';
+import { prepareBridgeControlRequest, recoverBridgeControlAtStartup } from './bridgeServerControl';
 
 export interface BridgeServerOptions {
   readonly host?: string;
   readonly port?: number;
   readonly rootDir?: string;
+  readonly destructiveOperations?: 'loopback-only' | 'disabled';
 }
 
 type BridgeRoute = ReturnType<typeof resolveGeneratedBridgeRoute>;
@@ -28,11 +30,21 @@ function routeBridgeRequest(
   request: http.IncomingMessage,
   response: http.ServerResponse,
   rootDir: string,
-  lifecycle: BridgeLifecycleStateStore
+  lifecycle: BridgeLifecycleStateStore,
+  destructiveOperations: 'loopback-only' | 'disabled'
 ): Promise<void> | void {
+  if (!prepareBridgeControlRequest(route, request, response, rootDir, lifecycle, destructiveOperations)) {
+    return;
+  }
   switch (route) {
-    case 'health':
-      return sendBridgeJson(response, 200, { ok: true, directoryDurability: localArtifactDirectoryDurability() });
+    case 'health': {
+      const operatorState = lifecycle.operatorState();
+      return sendBridgeJson(response, 200, {
+        ok: operatorState == null,
+        directoryDurability: localArtifactDirectoryDurability(),
+        operatorState,
+      });
+    }
     case 'run-info':
       return sendBridgeRunInfo(response, lifecycle.runInfo());
     case 'run-started':
@@ -47,11 +59,16 @@ function routeBridgeRequest(
 }
 
 export function createBridgeServer(options: BridgeServerOptions = {}): http.Server {
+  const configuredHost = options.host ?? '127.0.0.1';
+  const destructiveOperations = options.destructiveOperations ?? 'loopback-only';
+  if (destructiveOperations === 'loopback-only' && !isBridgeLoopbackAddress(configuredHost)) {
+    throw new Error('bridge control operations require an explicit loopback host');
+  }
   const rootDir = ensureLocalArtifactRoot(options.rootDir ?? getDefaultLogRoot());
   assertLoggingArtifactRootLayout(rootDir);
   recoverLocalArtifactAppends(rootDir);
   const lifecycle = new BridgeLifecycleStateStore(rootDir);
-  recoverPendingBridgeStart(rootDir, lifecycle);
+  recoverBridgeControlAtStartup(destructiveOperations, rootDir, lifecycle);
 
   return http.createServer(async (request, response) => {
     applyBridgeCorsHeaders(request, response);
@@ -65,14 +82,14 @@ export function createBridgeServer(options: BridgeServerOptions = {}): http.Serv
       return;
     }
     try {
-      recoverPendingBridgeStart(rootDir, lifecycle);
       const url = new URL(request.url ?? '/', 'http://127.0.0.1');
       await routeBridgeRequest(
         resolveGeneratedBridgeRoute(request.method ?? 'GET', url.pathname),
         request,
         response,
         rootDir,
-        lifecycle
+        lifecycle,
+        destructiveOperations
       );
     } catch {
       sendBridgeJson(response, 503, { ok: false, error: 'log bridge storage unavailable' });

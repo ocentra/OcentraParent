@@ -1,4 +1,3 @@
-import path from 'node:path';
 import type { RunType, TestLogScope, TestSuiteType } from './types';
 import { getDefaultLogRoot, getTestLogScopeDir, listNdjsonFiles } from './ndjsonPaths';
 import { readTestLogEntriesFromFile } from './ndjsonWriter';
@@ -6,6 +5,7 @@ import { matchesGeneratedWipeEntry } from '../local-test-log';
 import { withLocalArtifactLock } from '../local-artifact-lock';
 import type { LocalArtifactMutation } from '../local-artifact-transaction';
 import { applyTestLogMutation, replacementMapEntry } from './testLogMutation';
+import { normalizeWipeFileSelector } from './wipeFileSelector';
 
 export interface WipeNdjsonScopeOptions {
   readonly scope: TestLogScope;
@@ -29,28 +29,11 @@ interface PlannedWipeMutation {
   readonly keptEntries: ReturnType<typeof readTestLogEntriesFromFile>;
 }
 
-function normalizeRelativeFileSelector(value: string): string {
-  const slashed = value.trim().replace(/\\/gu, '/');
-  const normalized = path.posix.normalize(slashed);
-  if (
-    normalized.length === 0 ||
-    normalized.includes('\0') ||
-    normalized !== slashed ||
-    path.posix.isAbsolute(normalized) ||
-    /^[A-Za-z]:\//u.test(normalized) ||
-    normalized === '..' ||
-    normalized.startsWith('../')
-  ) {
-    throw new Error('wipe file selector must be an exact normalized relative path');
-  }
-  return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
-}
-
 function entryMatchesFile(entryFilePath: string | null, selector: string | null): boolean {
   if (selector == null) {
     return true;
   }
-  return entryFilePath != null && normalizeRelativeFileSelector(entryFilePath) === selector;
+  return entryFilePath != null && normalizeWipeFileSelector(entryFilePath) === selector;
 }
 
 function matchesWipeEntry(
@@ -66,7 +49,7 @@ function matchesWipeEntry(
 function planWipe(options: WipeNdjsonScopeOptions, rootDir: string): PlannedWipeMutation[] {
   const scopeDir = getTestLogScopeDir(options.scope, rootDir);
   const mutations: PlannedWipeMutation[] = [];
-  const selector = options.filePath == null ? null : normalizeRelativeFileSelector(options.filePath);
+  const selector = options.filePath == null ? null : normalizeWipeFileSelector(options.filePath);
   for (const filePath of listNdjsonFiles(scopeDir)) {
     const entries = readTestLogEntriesFromFile(filePath, rootDir);
     const keptEntries = entries.filter((entry) => !matchesWipeEntry(entry, options, selector));

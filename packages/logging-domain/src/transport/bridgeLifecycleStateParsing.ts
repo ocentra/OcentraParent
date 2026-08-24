@@ -1,5 +1,11 @@
 import { RunTypeSchema, TestLogScopeSchema, TestSuiteTypeSchema } from '../test-log/types';
-import type { BridgeRunCounter, BridgeRunInfoState, BridgeRunStartState } from './bridgeLifecycleStateCodec';
+import type {
+  BridgeLifecycleOperatorState,
+  BridgeRunCounter,
+  BridgeRunInfoState,
+  BridgeRunStartState,
+} from './bridgeLifecycleStateCodec';
+import { normalizeWipeFileSelector } from '../test-log/wipeFileSelector';
 
 function invalid(): never {
   throw new Error('invalid bridge lifecycle state');
@@ -32,8 +38,12 @@ function optional<T>(value: unknown, parse: (input: unknown) => T): T | null {
 }
 
 function optionalFilePath(value: unknown): string | null {
-  requireValid(value == null || (typeof value === 'string' && value.length <= 4_096));
-  return value == null ? null : (value as string);
+  requireValid(value == null || typeof value === 'string');
+  try {
+    return value == null ? null : normalizeWipeFileSelector(value as string);
+  } catch {
+    return invalid();
+  }
 }
 
 export function parseBridgeRunStart(value: unknown): BridgeRunStartState {
@@ -75,5 +85,21 @@ export function parseBridgeRunCounter(value: unknown): BridgeRunCounter {
     stored,
     flushed,
     updatedAt: nonNegativeInteger(input['updatedAt']),
+  };
+}
+
+export function parseBridgeLifecycleOperatorState(value: unknown): BridgeLifecycleOperatorState {
+  const input = record(value);
+  requireValid(
+    input['status'] === 'manual-required' &&
+      (input['code'] === 'invalid-pending-start-selector' || input['code'] === 'invalid-lifecycle-record') &&
+      typeof input['recordSha256'] === 'string' &&
+      /^[0-9a-f]{64}$/u.test(input['recordSha256'])
+  );
+  return {
+    status: 'manual-required',
+    code: input['code'] as BridgeLifecycleOperatorState['code'],
+    observedAt: nonNegativeInteger(input['observedAt']),
+    recordSha256: input['recordSha256'] as string,
   };
 }

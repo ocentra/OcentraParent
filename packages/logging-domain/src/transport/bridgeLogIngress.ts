@@ -31,14 +31,28 @@ export async function handleBridgeLogs(
     return;
   }
   try {
-    const conflict = withLocalArtifactLock(rootDir, () => {
+    const outcome = withLocalArtifactLock(rootDir, () => {
+      if (lifecycle.operatorState() != null) {
+        return 'manual-required' as const;
+      }
+      if (lifecycle.pendingStart() != null) {
+        return 'recovery-required' as const;
+      }
       if (generatedHasRunInfoConflict(lifecycle.runInfo(), payload)) {
-        return true;
+        return 'conflict' as const;
       }
       appendTestLogEntries(storedLogs, rootDir);
-      return false;
+      return 'stored' as const;
     });
-    if (conflict) {
+    if (outcome === 'manual-required') {
+      sendBridgeJson(response, 423, { ok: false, error: 'bridge lifecycle requires operator resolution' });
+      return;
+    }
+    if (outcome === 'recovery-required') {
+      sendBridgeJson(response, 423, { ok: false, error: 'bridge lifecycle recovery requires loopback control' });
+      return;
+    }
+    if (outcome === 'conflict') {
       sendBridgeJson(response, 409, { ok: false, error: 'stale run info mismatch' });
       return;
     }
