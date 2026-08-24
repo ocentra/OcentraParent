@@ -1,8 +1,8 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-24 after the independently reviewed Protected Capability
-Custody source consolidation, based on canonical parent
-`55455764b652c46af6d27fbf36853604da3cc448`. This supersedes the retained
+Snapshot: 2026-08-24 after the independently reviewed LAN WP07 deadline repair,
+based on canonical parent
+`ffaade68acec17325ac7b159bbd266b95a94561a`. This supersedes the retained
 2026-08-23, 2026-08-19, and 2026-08-18 snapshots below. Exact branch counts and
 worktree counts later in this document remain labelled historical until the
 post-source-wave cleanup audit refreshes them.
@@ -17,7 +17,7 @@ claim. Refresh Git ancestry and patch identity before deleting any ref.
 | --- | --- | --- |
 | `origin/main` | `eb4e66a791` | Historical release baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim main parity. |
 | `origin/develop` | `4ece515282` | Historical promotion baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim develop parity. |
-| `origin/codex/eventing-wp09-production` | Protected Custody source-consolidation update based on `55455764b652c46af6d27fbf36853604da3cc448` | Canonical source-consolidation line. The fail-closed Protected Custody core/protocol/broker/client source is integrated, but protected OS/installer adapters, its real caller, and expected tests remain deliberately open. |
+| `origin/codex/eventing-wp09-production` | LAN WP07 source-consolidation head `ffaade68acec17325ac7b159bbd266b95a94561a` | Canonical source-consolidation line. LAN WP07's absolute recurring-cycle deadline and panic-safe timeout restoration are integrated; their expected timing/lifecycle tests and physical proof remain open. Protected Custody remains fail-closed with its OS/installer adapters, real caller, and tests open. |
 | `origin/production` | `683a07cf31` | Historical production ref; not the current integration line. |
 | archive refs | `ac9f65bb4a`, `405e7fc77e` | Coverage for historical local/remote tips. Retain through source/test consolidation and promotion. |
 
@@ -50,6 +50,7 @@ cherry-pick any stale branch tip wholesale.
 | Cloudflare WP02: `29172d2e5b19ec6b7beaa72cd8b2c416896cb026` | Tree-identical to canonical after exact transplant. Preserve until final cleanup checks, but no integration is required and it carries no unique source. |
 | AppGame WP197: `75dbad64ca5354205659171df948cf097b016289` | Independently rejected and under source repair for environment poisoning, executable identity/TOCTOU, Unix cancellation cleanup, unauthenticated LAN triggering, and permissive daemon-output parsing. Do not integrate this head. |
 | Browser WP06: rejected `5671c06a2de873b15f71aa9fe961b8fc441a7961`; accepted safety correction `93f875134d19133123b5c2da8000841d728f54de` | The superseding source packet is independently accepted and narrowly integrated: caller-mintable JSON/path authority, public store config/record, env/temp-dir mutation, and rejected path-only helpers are removed. Store operations fail closed with no successful custody state. Protected owner/platform adapters, production caller, stale tests, proof, and WP07 owner-bound launch composition remain open. Do not merge either stale branch tip wholesale. |
+| LAN WP07: repaired packet `bf48d99100b8e96f0dc6763952b9e9ee5f003e55`; canonical integration `ffaade68acec17325ac7b159bbd266b95a94561a` | Independently reviewed source accepted and integrated narrowly. The stale branch tip must not be merged again. Slow-trickle/zero-deadline timing, socket-timeout restoration on success/error/unwind, six-listener rotation/cancellation tests, physical packet proof, and final validation remain open. |
 
 Archives and all residual/local branches remain preserved. No remote or local
 branch/worktree deletion is authorized by this review; cleanup waits for

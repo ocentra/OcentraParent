@@ -20368,7 +20368,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "partial/manual",
+        "statusText": "validation",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

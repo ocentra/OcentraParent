@@ -21,15 +21,18 @@ Sources: [20-step plan](../v0-9-lan-discovery-20-step-plan.md),
 
 ## Where We Are
 
-Current source implements/covers passive ARP weak hints via OS neighbor collectors,
-passive DHCP, mDNS, SSDP, WS-Discovery, LLMNR, and NetBIOS packet ingestion,
-plus Ocentra beacon observations recorded through the signed child
-hello or heartbeat path. Allowed SNMP response payloads now also feed the same
-bounded passive history path through both lan-core and agent-service runtime
-tests, and the fixture-backed native UDP/DHCP packet path now preserves
-explicit passive `observed_at` timestamps instead of inventing test-time wall
-clock values. A real long-running DHCP listener and broader packet/platform
-proof are still open.
+Canonical source at `ffaade68acec17325ac7b159bbd266b95a94561a` implements
+passive ARP weak hints via OS neighbor collectors plus passive DHCP, mDNS,
+SSDP, WS-Discovery, LLMNR, and NetBIOS packet ingestion. Ocentra beacon
+observations enter through the signed child hello or heartbeat path, and
+allowed SNMP responses feed the same bounded history. The recurring service
+runtime now creates one absolute `Instant` deadline per collection cycle,
+propagates it across all six UDP listeners, recomputes remaining time before
+every `recv_from`, stops at zero or sub-millisecond Windows remainder, and
+restores the socket's prior timeout through an RAII guard. Existing packet and
+scan-history tests cover the older ingestion paths, but the accepted deadline
+repair was source-only: its timing, restoration, rotation, and physical packet
+tests have not been written or run.
 
 ## Where We Want To Be
 
@@ -67,6 +70,16 @@ triggers.
 The current source packet has no retained tests for the repaired boundaries.
 Before this workpack can be called `DONE`, add and run the following scoped
 test roots against real runtime paths (without test doubles):
+
+- `crates/lan-core/tests/unit/passive_discovery_protocols.rs` — slow-trickle
+  traffic cannot reset or exceed the shared absolute deadline; a zero deadline
+  performs no receive; Windows sub-millisecond remainder exits before an
+  invalid socket timeout; and the prior socket timeout is restored after
+  success, receive/configuration error, and unwind.
+- `crates/agent-service/tests/unit/lan_pairing_runtime_state/passive_discovery.rs`
+  — the recurring runtime rotates all six listeners within one shared cycle
+  budget, stops promptly on cancellation, and does not multiply the cycle
+  deadline by listener or datagram count.
 
 - `crates/agent-core/tests/unit/trusted_device_registry.rs` — wire pairing
   proofs remain contract-only; revoked pairing ids cannot be resurrected;
