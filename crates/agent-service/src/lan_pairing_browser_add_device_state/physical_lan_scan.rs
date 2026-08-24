@@ -18,6 +18,8 @@ use super::scan_history::{
     LanScanHistorySnapshot,
 };
 
+#[path = "physical_lan_scan/execution_lease.rs"]
+mod execution_lease;
 #[path = "physical_lan_scan/persisted_result.rs"]
 mod persisted_result;
 #[path = "physical_lan_scan/scan_truth.rs"]
@@ -43,7 +45,10 @@ pub(crate) fn network_device_scan_result_for_command(
     command: &AgentCommandEnvelope,
 ) -> LanNetworkDeviceScanResult {
     let now = Utc::now();
-    let previous_scan_snapshot = load_scan_history_snapshot(runtime);
+    let previous_scan_snapshot = (!command_uses_physical_lan_scan(&command.command)
+        || command.target.route == AgentRoute::Localhost)
+        .then(|| load_scan_history_snapshot(runtime))
+        .flatten();
     if let Some(scan_result) =
         cached_scan_result_for_command(command, previous_scan_snapshot.clone(), now)
     {
@@ -102,12 +107,7 @@ pub(super) fn refresh_network_device_scan_history(
 pub(crate) fn refresh_network_device_scan_history_from_passive_runtime(
     runtime: &LanPairingRuntime,
 ) -> LanNetworkDeviceScanResult {
-    execute_physical_lan_scan(
-        runtime,
-        load_scan_history_snapshot(runtime),
-        Utc::now(),
-        LanDiscoveryRefreshMode::Passive,
-    )
+    execute_physical_lan_scan(runtime, None, Utc::now(), LanDiscoveryRefreshMode::Passive)
 }
 
 fn execute_physical_lan_scan(
@@ -117,6 +117,9 @@ fn execute_physical_lan_scan(
     refresh_mode: LanDiscoveryRefreshMode,
 ) -> LanNetworkDeviceScanResult {
     let Ok(_execution_guard) = physical_lan_scan_execution_lock().lock() else {
+        return failed_scan_result(previous_scan_snapshot);
+    };
+    let Some(_cross_process_execution_lease) = execution_lease::acquire(runtime) else {
         return failed_scan_result(previous_scan_snapshot);
     };
     let previous_scan_snapshot = load_scan_history_snapshot(runtime).or(previous_scan_snapshot);

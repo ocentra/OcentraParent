@@ -29,7 +29,9 @@ pub(super) fn is_coherent(health: &LanPassiveDiscoveryPipelineHealthSnapshot) ->
                 && health.issue.is_some()
         }
         LanPassiveDiscoveryPipelineState::Stopped => {
-            health.retry_delay_millis.is_none() && health.issue.is_none()
+            health.consecutive_failures == 0
+                && health.retry_delay_millis.is_none()
+                && health.issue.is_none()
         }
     }
 }

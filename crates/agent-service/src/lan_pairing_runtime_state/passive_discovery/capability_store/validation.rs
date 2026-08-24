@@ -63,6 +63,13 @@ fn source_is_coherent(
     source: &LanPassiveDiscoverySourceCapability,
     pipeline_state: &LanPassiveDiscoveryPipelineState,
 ) -> bool {
+    if source
+        .issue
+        .as_ref()
+        .is_some_and(|issue| issue.source != source.source)
+    {
+        return false;
+    }
     match source.availability {
         LanPassiveDiscoverySourceAvailability::PendingBind
         | LanPassiveDiscoverySourceAvailability::Listening => {
@@ -78,7 +85,9 @@ fn source_is_coherent(
                 && *pipeline_state != LanPassiveDiscoveryPipelineState::Stopped
         }
         LanPassiveDiscoverySourceAvailability::Stopped => {
-            source.retry_delay_millis.is_none()
+            source.consecutive_failures == 0
+                && source.retry_delay_millis.is_none()
+                && source.issue.is_none()
                 && *pipeline_state == LanPassiveDiscoveryPipelineState::Stopped
         }
     }

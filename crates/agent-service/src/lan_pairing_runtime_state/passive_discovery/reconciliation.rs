@@ -67,7 +67,7 @@ impl PassiveDiscoveryReconciliationRuntime {
             }
             ReconciliationWake::DeliberateSignal(false)
             | ReconciliationWake::PassiveSignal(false) => {
-                self.record_signal_channel_closed();
+                self.record_signal_channel_closed().await;
                 return false;
             }
             ReconciliationWake::AutomaticRefresh => self.handle_automatic_refresh().await,

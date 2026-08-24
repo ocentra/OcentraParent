@@ -19,35 +19,56 @@ impl PassiveDiscoveryReconciliationRuntime {
         })
         .await;
 
-        if let Some(issue) = reconciliation_issue(reconciliation) {
-            self.pipeline_health
-                .record_failure(issue, PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL);
+        let pipeline_health = self.pipeline_health.clone();
+        let capability_store = self.capability_store.clone();
+        let persisted_reconciliation = tokio::task::spawn_blocking(move || {
+            let issue = reconciliation_issue(reconciliation);
+            if let Some(issue) = issue {
+                pipeline_health
+                    .record_failure(issue, PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL);
+                let persisted = capability_store.save_pipeline_health(&pipeline_health.snapshot());
+                return (false, persisted);
+            }
+            pipeline_health.record_success();
+            let persisted = capability_store.save_pipeline_health(&pipeline_health.snapshot());
+            (true, persisted)
+        })
+        .await;
+
+        let Ok((reconciled, _persisted)) = persisted_reconciliation else {
             self.retry_pending = true;
             self.schedule_automatic_refresh(
                 attempted_at + PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL,
             );
-        } else {
-            self.pipeline_health.record_success();
+            return;
+        };
+        if reconciled {
             self.retry_pending = false;
             self.automatic_refresh_at = None;
+        } else {
+            self.retry_pending = true;
+            self.schedule_automatic_refresh(
+                attempted_at + PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL,
+            );
         }
-        let _persisted = self
-            .capability_store
-            .save_pipeline_health(&self.pipeline_health.snapshot());
     }
 
-    pub(super) fn record_signal_channel_closed(&self) {
-        if listener_is_running(&self.runtime) {
-            self.pipeline_health.record_failure(
-                LanPassiveDiscoveryPipelineIssue::ListenerRuntimeExited,
-                PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL,
-            );
-        } else {
-            self.pipeline_health.record_stopped();
-        }
-        let _persisted = self
-            .capability_store
-            .save_pipeline_health(&self.pipeline_health.snapshot());
+    pub(super) async fn record_signal_channel_closed(&self) {
+        let runtime = self.runtime.clone();
+        let pipeline_health = self.pipeline_health.clone();
+        let capability_store = self.capability_store.clone();
+        let _result = tokio::task::spawn_blocking(move || {
+            if listener_is_running(&runtime) {
+                pipeline_health.record_failure(
+                    LanPassiveDiscoveryPipelineIssue::ListenerRuntimeExited,
+                    PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL,
+                );
+            } else {
+                pipeline_health.record_stopped();
+            }
+            capability_store.save_pipeline_health(&pipeline_health.snapshot())
+        })
+        .await;
     }
 }
 

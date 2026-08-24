@@ -86,6 +86,7 @@ impl LanPassiveDiscoveryPipelineHealth {
     pub(super) fn record_stopped(&self) {
         if let Ok(mut state) = self.state.lock() {
             state.state = LanPassiveDiscoveryPipelineState::Stopped;
+            state.consecutive_failures = 0;
             state.retry_delay_millis = None;
             state.issue = None;
         }

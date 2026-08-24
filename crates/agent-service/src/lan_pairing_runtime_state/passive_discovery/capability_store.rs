@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -18,6 +17,8 @@ use super::pipeline_health::{
 
 #[path = "capability_store/availability.rs"]
 mod availability;
+#[path = "capability_store/path_lock.rs"]
+mod path_lock;
 #[path = "capability_store/persistence.rs"]
 mod persistence;
 #[path = "capability_store/validation.rs"]
@@ -92,33 +93,47 @@ impl LanPassiveDiscoveryCapabilityStore {
         persistence::save(path, capability)
     }
 
+    pub(super) fn save_sources(
+        &self,
+        sources: &[LanPassiveDiscoverySourceCapability],
+        pipeline_health: &LanPassiveDiscoveryPipelineHealthSnapshot,
+    ) -> bool {
+        let Some(path) = self.path.as_ref() else {
+            return false;
+        };
+        persistence::save_sources(path, sources, pipeline_health)
+    }
+
     fn load(&self) -> Option<LanPassiveDiscoveryRuntimeCapability> {
         let path = self.path.as_ref()?;
-        if persistence::failed(path) {
-            return None;
-        }
-        let json = fs::read_to_string(&path.0).ok()?;
-        let capability = serde_json::from_str(&json).ok()?;
-        validation::validate_and_rederive(capability)
+        persistence::load(path).and_then(validation::validate_and_rederive)
     }
 
     pub(super) fn save_pipeline_health(
         &self,
         pipeline_health: &LanPassiveDiscoveryPipelineHealthSnapshot,
     ) -> bool {
-        let sources = self
-            .load()
-            .map(|capability| capability.sources)
-            .unwrap_or_else(pending_source_capabilities);
-        self.save(&LanPassiveDiscoveryRuntimeCapability::from_sources(
-            sources,
-            pipeline_health.clone(),
-        ))
+        let Some(path) = self.path.as_ref() else {
+            return false;
+        };
+        persistence::save_pipeline_health(path, pipeline_health)
     }
 }
 
 impl LanPassiveDiscoveryRuntimeCapability {
     pub(super) fn from_sources(
+        sources: Vec<LanPassiveDiscoverySourceCapability>,
+        pipeline_health: LanPassiveDiscoveryPipelineHealthSnapshot,
+    ) -> Self {
+        let stopped = pipeline_health.state == LanPassiveDiscoveryPipelineState::Stopped;
+        let mut capability = Self::from_sources_unchecked(sources, pipeline_health);
+        if stopped {
+            normalize_stopped(&mut capability);
+        }
+        capability
+    }
+
+    fn from_sources_unchecked(
         sources: Vec<LanPassiveDiscoverySourceCapability>,
         pipeline_health: LanPassiveDiscoveryPipelineHealthSnapshot,
     ) -> Self {
@@ -146,13 +161,8 @@ impl LanPassiveDiscoveryRuntimeCapability {
         sources: Vec<LanPassiveDiscoverySourceCapability>,
         pipeline_health: LanPassiveDiscoveryPipelineHealthSnapshot,
     ) -> Self {
-        let mut capability = Self::from_sources(sources, pipeline_health);
-        for source in &mut capability.sources {
-            source.availability = LanPassiveDiscoverySourceAvailability::Stopped;
-            source.retry_delay_millis = None;
-        }
-        capability.availability = LanPassiveDiscoveryRuntimeAvailability::Stopped;
-        capability.active_listener_count = 0;
+        let mut capability = Self::from_sources_unchecked(sources, pipeline_health);
+        normalize_stopped(&mut capability);
         capability
     }
 
@@ -164,6 +174,17 @@ impl LanPassiveDiscoveryRuntimeCapability {
         ) && self.active_listener_count > 0
             && self.pipeline_health.state == LanPassiveDiscoveryPipelineState::Healthy
     }
+}
+
+fn normalize_stopped(capability: &mut LanPassiveDiscoveryRuntimeCapability) {
+    for source in &mut capability.sources {
+        source.availability = LanPassiveDiscoverySourceAvailability::Stopped;
+        source.consecutive_failures = 0;
+        source.retry_delay_millis = None;
+        source.issue = None;
+    }
+    capability.availability = LanPassiveDiscoveryRuntimeAvailability::Stopped;
+    capability.active_listener_count = 0;
 }
 
 pub(crate) fn current_runtime_capability(
@@ -193,9 +214,6 @@ fn capability_is_current(capability: &LanPassiveDiscoveryRuntimeCapability) -> b
         || capability.process_id != std::process::id()
     {
         return false;
-    }
-    if capability.availability == LanPassiveDiscoveryRuntimeAvailability::Stopped {
-        return true;
     }
     let Ok(observed_at) = DateTime::parse_from_rfc3339(&capability.observed_at) else {
         return false;
