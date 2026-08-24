@@ -2610,6 +2610,30 @@
         "docs/engineering-graph/code-map.json"
       ],
       "reason": "WP04 has real route-manifest, caller, contract, and test topology against the reviewed scaffold, but those surfaces do not prove provider, auth, Worker, payment, or runtime readiness."
+    },
+    {
+      "id": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/AGENTS.md",
+        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md",
+        "docs/plans/policy-control-plane-plan/TEST_PROOF_EXPECTATIONS.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real schedule/DST/budget/conflict contract owner and mapped tests exist, but no production caller, trusted clock, timer journal, or offline recovery runtime exists; no hard predecessor is justified and no implementation/runtime authorization is claimed."
+    },
+    {
+      "id": "WP-policy-control-plane-plan-08-policy-event-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/AGENTS.md",
+        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md",
+        "docs/plans/policy-control-plane-plan/TEST_PROOF_EXPECTATIONS.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real event/replay/dead-letter/redaction contract owner and mapped tests exist, but no production journal, dispatcher, or publisher exists; downstream Eventing/Network consumers must not be reversed into prerequisites and no implementation/runtime authorization is claimed."
     }
   ],
   "edges": [
@@ -9259,8 +9283,8 @@
     {
       "id": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
       "state": "validation",
-      "needsReview": true,
-      "reason": "Bounded schedule/time-budget/conflict semantics are validation-only; no trusted clock, timer journal, offline recovery runtime, or source-order packet is authorized. Keep the row validation with implementation review required; no hard predecessor is invented.",
+      "needsReview": false,
+      "reason": "Real schedule/DST/budget/conflict contract owner and mapped tests exist, but no production caller, trusted clock, timer journal, or offline recovery runtime exists; no hard predecessor is justified and no implementation/runtime authorization is claimed.",
       "evidence": [
         "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md"
@@ -9269,8 +9293,8 @@
     {
       "id": "WP-policy-control-plane-plan-08-policy-event-model",
       "state": "validation",
-      "needsReview": true,
-      "reason": "Bounded policy event semantics are validation-only; journal, replay, and dispatcher runtime ownership remains with Eventing WP06/WP08. No Policy implementation packet is authorized and no Eventing prerequisite is invented.",
+      "needsReview": false,
+      "reason": "Real event/replay/dead-letter/redaction contract owner and mapped tests exist, but no production journal, dispatcher, or publisher exists; downstream Eventing/Network consumers must not be reversed into prerequisites and no implementation/runtime authorization is claimed.",
       "evidence": [
         "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
