@@ -35,19 +35,49 @@ names, container ids, raw paths, or private daemon diagnostics.
 
 ## Files
 
-- `packages/parent-domain/src/app-game-linux-docker-host-preflight.ts`
-- `packages/parent-domain/tests/app-game-linux-docker-host-preflight.test.ts`
-- `packages/parent-domain/src/app-game-platform-proof-status.ts`
-- `packages/parent-domain/tests/app-game-platform-proof-status.test.ts`
-- `scripts/test/app-game-linux-docker-host-preflight-proof.mjs`
-- `scripts/test/app-game-platform-proof-status-proof.mjs`
+- `crates/agent-protocol/src/app_game_platform_proof_status.rs`
+- `crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs`
+- `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight.rs`
+- `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_output.rs`
+- `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_process.rs`
+- `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_state.rs`
+- `crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_wait.rs`
+- `crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs`
+
+Expected test roots for the later test-writing wave:
+
+- `crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs`
+- `crates/agent-service/tests/unit/app_game_linux_docker_host_preflight.rs`
+- `crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs`
+- `crates/parent-runtime-core/tests/integration/parent_ui_bridge.rs`
 
 ## Validation
 
-- `cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-linux-docker-host-preflight app-game-platform-proof-status`
-- `cmd /c node --check scripts/test/app-game-linux-docker-host-preflight-proof.mjs`
-- `cmd /c node scripts/test/app-game-linux-docker-host-preflight-proof.mjs`
-- `cmd /c node scripts/test/app-game-platform-proof-status-proof.mjs`
+- Focused protocol compatibility and no-claim contract tests.
+- Focused Docker process timeout, bounded-output, malformed-output, partial,
+  unavailable, and ready-state tests using a real child-process fixture rather
+  than an in-memory adapter.
+- Focused service payload and parent-rendering tests proving count-only custody,
+  no raw identifiers/diagnostics, and explicit false execution/delivery claims.
+- Focused Rust formatting, library checks, architecture, source-shape,
+  no-test-doubles, validation-bypass, and coordination guards.
+
+## Current source state - 2026-08-24
+
+Production source is drafted in the Rust protocol, agent-service, and
+parent-runtime owners. The service resolves an exact Docker executable without
+a shell, probes CLI/daemon/context/image/container visibility on a bounded
+blocking worker, caps output and inventory counts, kills timed-out processes,
+discards stderr, and emits only readiness/count state. Parent rendering exposes
+the redacted state without raw paths, context names, image names, container
+identifiers, or private diagnostics. Protocol rows remain backward compatible,
+and all adapter/enforcement/delivery claims remain false.
+
+The three affected production libraries compile together. Expected tests have
+not been written or run, existing struct-literal tests require the later
+protocol-field refresh, and no retained proof, pre-commit, CI, PR, READY, or
+DONE claim is made.
 
 ## Done Criteria
 

@@ -1,5 +1,18 @@
 use super::*;
-use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGamePlatformProofStatusRow;
+use ocentra_parent_agent_protocol::app_game_platform_proof_status::{
+    AppGameLinuxDockerHostPreflight, AppGamePlatformProofStatusRow,
+};
+
+const DOCKER_PREFLIGHT_LABEL: &str = "Docker preflight";
+const DOCKER_CLI_LABEL: &str = "Docker CLI";
+const DOCKER_DAEMON_LABEL: &str = "Docker daemon";
+const DOCKER_CONTEXTS_LABEL: &str = "Docker contexts";
+const DOCKER_IMAGES_LABEL: &str = "Docker images";
+const DOCKER_CONTAINERS_LABEL: &str = "Docker containers";
+const DOCKER_IDENTIFIERS_REDACTED_LABEL: &str = "Docker identifiers redacted";
+const DOCKER_PROOF_REFS_LABEL: &str = "Docker proof refs";
+const DOCKER_OPEN_GAPS_LABEL: &str = "Docker open gaps";
+const INVENTORY_UNAVAILABLE_LABEL: &str = "unavailable";
 
 pub(super) fn app_game_platform_proof_status_panel_snapshot(
     read_model: Option<&AppGamePlatformProofStatusReadModel>,
@@ -79,51 +92,105 @@ fn app_game_platform_row_snapshot(
     row: &AppGamePlatformProofStatusRow,
     product_claim: &str,
 ) -> ParentAppGamePanelRowSnapshot {
-    app_game_panel_row(
-        row.platform.clone(),
-        vec![
-            app_game_detail("Platform", row.platform.as_str()),
-            app_game_detail("Status", row.proof_state.as_str()),
-            app_game_detail("Authority state", row.authority_state.as_str()),
-            app_game_detail("Host capability", row.host_capability_state.as_str()),
-            app_game_detail(
-                "Host capability evidence",
-                app_game_join_strings(&row.host_capability_evidence_refs),
+    let mut details = vec![
+        app_game_detail("Platform", row.platform.as_str()),
+        app_game_detail("Status", row.proof_state.as_str()),
+        app_game_detail("Authority state", row.authority_state.as_str()),
+        app_game_detail("Host capability", row.host_capability_state.as_str()),
+        app_game_detail(
+            "Host capability evidence",
+            app_game_join_strings(&row.host_capability_evidence_refs),
+        ),
+        app_game_detail(
+            "Host capability probes",
+            app_game_join_strings(&row.host_capability_probe_refs),
+        ),
+    ];
+    if let Some(preflight) = row.linux_docker_host_preflight.as_ref() {
+        details.extend(linux_docker_host_preflight_details(preflight));
+    }
+    details.extend([
+        app_game_detail(
+            "Evidence references",
+            app_game_join_strings(&row.proof_refs),
+        ),
+        app_game_detail("Open gaps", app_game_join_strings(&row.open_gaps)),
+        app_game_detail(
+            "Adapter dispatch",
+            app_game_claimed_value(row.adapter_dispatch_claimed),
+        ),
+        app_game_detail(
+            "Broad blocking",
+            app_game_claimed_value(row.broad_installed_app_blocking_claimed),
+        ),
+        app_game_detail(
+            "Platform enforcement",
+            app_game_claimed_value(row.platform_enforcement_claimed),
+        ),
+        app_game_detail(
+            "Provider delivery",
+            app_game_claimed_value(row.provider_delivery_claimed),
+        ),
+        app_game_detail(
+            "Child delivery",
+            app_game_claimed_value(row.child_device_delivery_claimed),
+        ),
+        app_game_detail(
+            "Private diagnostics",
+            app_game_claimed_value(row.private_diagnostics_claimed),
+        ),
+        app_game_detail("Product claim", product_claim),
+    ]);
+    app_game_panel_row(row.platform.clone(), details)
+}
+
+fn linux_docker_host_preflight_details(
+    preflight: &AppGameLinuxDockerHostPreflight,
+) -> Vec<ParentAppGamePanelDetailSnapshot> {
+    vec![
+        app_game_detail(DOCKER_PREFLIGHT_LABEL, preflight.state.as_str()),
+        app_game_detail(
+            DOCKER_CLI_LABEL,
+            app_game_ready_warn_value(preflight.cli_visible),
+        ),
+        app_game_detail(
+            DOCKER_DAEMON_LABEL,
+            app_game_ready_warn_value(preflight.daemon_visible),
+        ),
+        app_game_detail(
+            DOCKER_CONTEXTS_LABEL,
+            inventory_count(preflight.context_inventory_visible, preflight.context_count),
+        ),
+        app_game_detail(
+            DOCKER_IMAGES_LABEL,
+            inventory_count(preflight.image_inventory_visible, preflight.image_count),
+        ),
+        app_game_detail(
+            DOCKER_CONTAINERS_LABEL,
+            inventory_count(
+                preflight.container_inventory_visible,
+                preflight.container_count,
             ),
-            app_game_detail(
-                "Host capability probes",
-                app_game_join_strings(&row.host_capability_probe_refs),
-            ),
-            app_game_detail(
-                "Evidence references",
-                app_game_join_strings(&row.proof_refs),
-            ),
-            app_game_detail("Open gaps", app_game_join_strings(&row.open_gaps)),
-            app_game_detail(
-                "Adapter dispatch",
-                app_game_claimed_value(row.adapter_dispatch_claimed),
-            ),
-            app_game_detail(
-                "Broad blocking",
-                app_game_claimed_value(row.broad_installed_app_blocking_claimed),
-            ),
-            app_game_detail(
-                "Platform enforcement",
-                app_game_claimed_value(row.platform_enforcement_claimed),
-            ),
-            app_game_detail(
-                "Provider delivery",
-                app_game_claimed_value(row.provider_delivery_claimed),
-            ),
-            app_game_detail(
-                "Child delivery",
-                app_game_claimed_value(row.child_device_delivery_claimed),
-            ),
-            app_game_detail(
-                "Private diagnostics",
-                app_game_claimed_value(row.private_diagnostics_claimed),
-            ),
-            app_game_detail("Product claim", product_claim),
-        ],
-    )
+        ),
+        app_game_detail(
+            DOCKER_IDENTIFIERS_REDACTED_LABEL,
+            app_game_ready_warn_value(preflight.identifiers_redacted),
+        ),
+        app_game_detail(
+            DOCKER_PROOF_REFS_LABEL,
+            app_game_join_strings(&preflight.proof_refs),
+        ),
+        app_game_detail(
+            DOCKER_OPEN_GAPS_LABEL,
+            app_game_join_strings(&preflight.open_gaps),
+        ),
+    ]
+}
+
+fn inventory_count(visible: bool, count: u64) -> String {
+    if visible {
+        count.to_string()
+    } else {
+        INVENTORY_UNAVAILABLE_LABEL.to_string()
+    }
 }

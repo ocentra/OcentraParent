@@ -39,6 +39,14 @@ impl HostCapabilitySignals {
         }
     }
 
+    pub(super) fn unavailable() -> Self {
+        Self {
+            android_adb: false,
+            android_adb_path: false,
+            android_adb_sdk: false,
+        }
+    }
+
     pub(super) fn android_evidence_refs(&self) -> EvidenceRefs {
         EvidenceRefs(
             self.android_adb

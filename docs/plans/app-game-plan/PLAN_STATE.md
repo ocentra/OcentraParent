@@ -57,7 +57,7 @@ discrepancy remains stale and is not completion evidence.
 | WP159-WP165 | Safety gates, rejection/readiness, dashboard detail, and count panels expose conservative status. | Static/readiness projections do not prove policy execution or native custody. |
 | WP166-WP176 | Portal action → parent-runtime → agent-service adapter-dispatch routing exists. Preflight can describe the scoped Windows timer; execute validates stored session evidence, while generic ProcessControl/TerminateProcess execution returns `ManualRequired`. | No trusted parent policy/compiler result reaches an authenticated native adapter. The scoped timer remains the separate PID/name path above; no broad app/game blocking or child-device adapter exists. |
 | WP178-WP180 | Host capability/readiness rows are generated from local capability probes. | They are capability/status projections, not a native provider or enforcement authority. |
-| WP181-WP222 | Android/Linux/physical-device, cross-platform preflight, child-delivery, and retained-proof packets have no shipped runtime caller in this tree. | Platform/provider ownership, delivery, receipt, rollback, and physical proof remain unimplemented or deferred. |
+| WP181-WP222 | WP197's bounded Docker host preflight is now reachable through the existing platform-status service command and parent bridge. The remaining Android/Linux/physical-device, cross-platform, child-delivery, and retained-proof packets are largely source-only, projection-only, or lack a shipped runtime caller. | WP197 expected tests/review remain open. Platform/provider ownership, delivery, receipt, rollback, and physical proof remain unimplemented or deferred across the family. |
 
 The one real shipped chain is therefore `service_runtime` → Windows
 acquisition → encrypted journal/SQLite → agent-service read models →
@@ -73,6 +73,17 @@ adapter execution (WP166-WP176). Tests, Enforcer validation, proof, and CI
 remain deferred.
 
 ## Active production-code follow-up - 2026-08-16
+
+- WP197 now has a Rust-owned production source path in agent-protocol,
+  agent-service, and parent-runtime. The existing platform-status command runs
+  bounded, no-shell Docker CLI/daemon/context/image/container probes on a
+  blocking worker and exposes only readiness/counts through the parent bridge.
+  It does not store raw paths, context/image/container identifiers, stderr, or
+  private diagnostics, and it does not claim container execution, adapter
+  dispatch, platform enforcement, provider delivery, or child delivery. The
+  production libraries compile; dedicated process tests and the existing
+  protocol/payload/parent fixture refresh are deferred to the test-writing
+  wave, so WP197 remains open and unreviewed.
 
 - WP48 and WP63 are the same kind of false source gap as WP16. The tracked
   dashboard consumes `sourceStatusRows`; the split source-panel intent groups

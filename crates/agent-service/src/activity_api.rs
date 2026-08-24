@@ -66,6 +66,16 @@ mod app_game_boundary_read_model_payload;
 mod app_game_boundary_read_model_payload_rows;
 #[path = "activity_api/app_game_child_runtime_transport_receipt_payload.rs"]
 pub(crate) mod app_game_child_runtime_transport_receipt_payload;
+#[path = "activity_api/app_game_linux_docker_host_preflight.rs"]
+mod app_game_linux_docker_host_preflight;
+#[path = "activity_api/app_game_linux_docker_host_preflight_output.rs"]
+mod app_game_linux_docker_host_preflight_output;
+#[path = "activity_api/app_game_linux_docker_host_preflight_process.rs"]
+mod app_game_linux_docker_host_preflight_process;
+#[path = "activity_api/app_game_linux_docker_host_preflight_state.rs"]
+mod app_game_linux_docker_host_preflight_state;
+#[path = "activity_api/app_game_linux_docker_host_preflight_wait.rs"]
+mod app_game_linux_docker_host_preflight_wait;
 #[path = "activity_api/app_game_notification_readiness_payload.rs"]
 mod app_game_notification_readiness_payload;
 #[path = "activity_api/app_game_platform_proof_status_payload.rs"]

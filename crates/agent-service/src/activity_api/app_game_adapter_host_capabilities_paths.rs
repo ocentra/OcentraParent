@@ -11,6 +11,9 @@ pub(super) struct EnvironmentName(pub(super) &'static str);
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct ExecutableCandidateNames(pub(super) Vec<String>);
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct ResolvedExecutablePath(pub(super) PathBuf);
+
 pub(super) fn android_sdk_adb_available(env_name: EnvironmentName) -> bool {
     match env::var_os(env_name.0) {
         Some(root) => {
@@ -25,14 +28,24 @@ pub(super) fn android_sdk_adb_available(env_name: EnvironmentName) -> bool {
 }
 
 pub(super) fn executable_available(executable: ExecutableName) -> bool {
+    resolve_executable(executable).is_some()
+}
+
+pub(super) fn resolve_executable(executable: ExecutableName) -> Option<ResolvedExecutablePath> {
     match env::var_os(proof::ENV_PATH) {
-        Some(paths) => env::split_paths(&paths).any(|path| {
+        Some(paths) => env::split_paths(&paths).find_map(|path| {
             executable_candidate_names(executable)
                 .0
                 .into_iter()
-                .any(|candidate| path.join(candidate).is_file())
+                .map(|candidate| path.join(candidate))
+                .find_map(|candidate| {
+                    let resolved = candidate.canonicalize().ok()?;
+                    resolved
+                        .is_file()
+                        .then_some(ResolvedExecutablePath(resolved))
+                })
         }),
-        None => false,
+        None => None,
     }
 }
 

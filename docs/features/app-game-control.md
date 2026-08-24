@@ -1827,12 +1827,14 @@ diagnostics, or raw private source rows.
       adapter dispatch, platform enforcement, provider delivery, and
       child-device delivery remain unclaimed.
 - [x] Linux Docker host preflight is explicit and non-promoting. The
-      parent-domain preflight row now records Docker CLI, daemon, context,
-      image, and container inventory visibility as parent-safe booleans and
-      counts. Docker context names, image names, container ids, raw paths, and
-      private daemon diagnostics are not stored. Container policy, adapter
-      dispatch, platform enforcement, provider delivery, and child-device
-      delivery remain unclaimed.
+      Rust protocol, agent-service, and parent-runtime path now records Docker
+      CLI, daemon, context, image, and container inventory visibility as
+      parent-safe booleans and bounded counts. Docker context names, image
+      names, container ids, raw paths, stderr, and private daemon diagnostics
+      are not stored. The source libraries compile, but focused protocol,
+      process-boundary, service-payload, and parent-rendering tests are still
+      unwritten. Container policy, adapter dispatch, platform enforcement,
+      provider delivery, and child-device delivery remain unclaimed.
 - [x] Android UsageEvents capability bridge is package-local and non-promoting.
       Android package source now includes an app/game UsageEvents capability
       bridge and MainActivity surfaces its bridge state. Parent-domain keeps
