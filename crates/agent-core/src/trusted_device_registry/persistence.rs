@@ -17,7 +17,20 @@ use serde_json::Value;
 
 use super::TrustedDeviceRegistry;
 
+mod replay_history;
+
 impl TrustedDeviceRegistry {
+    pub fn record_challenge_request_persisted(
+        &mut self,
+        registry_path: &Path,
+        challenge_id: &str,
+    ) -> io::Result<bool> {
+        let challenge_id = challenge_id.to_string();
+        self.mutate_persisted_registry(registry_path, move |candidate| {
+            Ok(candidate.record_challenge_request(challenge_id.as_str()))
+        })
+    }
+
     pub fn apply_household_device_decision_persisted(
         &mut self,
         registry_path: &Path,
@@ -130,6 +143,7 @@ impl TrustedDeviceRegistry {
                 persisted.accepted_intent_ids.remove(&oldest);
             }
         }
+        replay_history::merge_challenge_ids(self, &mut persisted);
         let result = mutation(&mut persisted)?;
         persisted.save_json(registry_path)?;
 
@@ -141,6 +155,7 @@ impl TrustedDeviceRegistry {
             ));
         }
         verified.accepted_intent_ids = persisted.accepted_intent_ids;
+        verified.accepted_challenge_ids = persisted.accepted_challenge_ids;
         *self = verified;
         Ok(result)
     }
@@ -172,6 +187,7 @@ fn same_durable_registry_state(
 fn remove_replay_history(value: &mut Value) {
     if let Some(object) = value.as_object_mut() {
         object.remove(super::json_persistence::ACCEPTED_INTENT_IDS_KEY);
+        object.remove(super::json_persistence::ACCEPTED_CHALLENGE_IDS_KEY);
     }
 }
 

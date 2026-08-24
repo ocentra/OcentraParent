@@ -183,22 +183,37 @@ impl LanPairingRuntime {
         }
     }
 
-    pub(crate) fn remember_challenge(&self, challenge: LanPairingChallengeState) {
-        if let Ok(mut challenges) = self.challenges.lock() {
-            challenges.retain(|candidate| {
-                !candidate.accepted
-                    && DateTime::parse_from_rfc3339(candidate.expires_at.as_str())
-                        .map(|expires_at| expires_at.with_timezone(&Utc) > Utc::now())
-                        .unwrap_or(false)
-                    && candidate.challenge_id != challenge.challenge_id
-            });
-            if challenges.len() >= constants::lan_pairing::LAN_PAIRING_MAX_CHALLENGE_HISTORY {
-                let remove_count = challenges.len()
-                    - constants::lan_pairing::LAN_PAIRING_MAX_CHALLENGE_HISTORY
-                    + 1;
-                challenges.drain(..remove_count);
-            }
-            challenges.push(challenge);
+    pub(crate) fn remember_challenge(
+        &self,
+        challenge: LanPairingChallengeState,
+    ) -> Result<(), LanPairingRejectionReason> {
+        let mut registry = self
+            .registry
+            .lock()
+            .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?;
+        let challenge_id = LanPairingText(challenge.challenge_id.clone());
+        if !self.record_challenge_request(&mut registry, &challenge_id)? {
+            return Err(LanPairingRejectionReason::Replayed);
         }
+        drop(registry);
+
+        let mut challenges = self
+            .challenges
+            .lock()
+            .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?;
+        challenges.retain(|candidate| {
+            !candidate.accepted
+                && DateTime::parse_from_rfc3339(candidate.expires_at.as_str())
+                    .map(|expires_at| expires_at.with_timezone(&Utc) > Utc::now())
+                    .unwrap_or(false)
+                && candidate.challenge_id != challenge.challenge_id
+        });
+        if challenges.len() >= constants::lan_pairing::LAN_PAIRING_MAX_CHALLENGE_HISTORY {
+            let remove_count =
+                challenges.len() - constants::lan_pairing::LAN_PAIRING_MAX_CHALLENGE_HISTORY + 1;
+            challenges.drain(..remove_count);
+        }
+        challenges.push(challenge);
+        Ok(())
     }
 }

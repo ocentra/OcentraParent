@@ -5,7 +5,7 @@ use std::sync::{
 
 use chrono::{DateTime, Utc};
 use ocentra_lan_core::network_inventory::{
-    discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer,
+    discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer_with_cancellation,
     plan_lan_discovery_scan_with_active_refresh_suppression,
     targeted_arp_refresh_evidence_for_scan, LanDiscoveryRefreshMode, LanNetworkInventoryDevice,
 };
@@ -137,7 +137,7 @@ fn execute_physical_lan_scan_locked(
     let allowed_snmp_response_observer = |payload: &[u8]| {
         let _ = runtime.record_allowed_snmp_probe_response_packet(payload);
     };
-    let devices = discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer(
+    let devices = discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer_with_cancellation(
         &scan_truth.identity_hint_devices,
         previous_devices,
         inventory_refresh_mode,
@@ -145,6 +145,7 @@ fn execute_physical_lan_scan_locked(
         &scan_truth.scan_suppression_devices,
         selected_interface_scope,
         Some(&allowed_snmp_response_observer),
+        cancellation,
     );
     if cancellation.is_some_and(|cancellation| cancellation.load(Ordering::Acquire)) {
         return failed_scan_result(previous_scan_snapshot);

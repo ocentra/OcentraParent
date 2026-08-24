@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 use std::net::Ipv4Addr;
-use std::time::Duration;
+use std::{
+    sync::atomic::{AtomicBool, Ordering},
+    time::Duration,
+};
 
 use chrono::Utc;
 use ocentra_parent_agent_protocol::constants;
@@ -8,7 +11,8 @@ use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
 use crate::network_inventory_command::{
-    command_json_records, command_json_records_with_timeout, normalize_mac_address, record_text,
+    command_json_records, command_json_records_with_timeout,
+    command_json_records_with_timeout_and_cancellation, normalize_mac_address, record_text,
     value_text,
 };
 
@@ -16,7 +20,9 @@ use super::neighbor_support::{
     interface_matches_selected_scope, is_household_unicast, is_supported_neighbor_ip,
     likely_router_address_text, normalize_neighbor_hostname, normalized_optional_interface_name,
 };
-use super::service_identity::{enrich_service_identity_probes, AllowedSnmpResponseObserver};
+use super::service_identity::{
+    enrich_service_identity_probes_with_cancellation, AllowedSnmpResponseObserver,
+};
 use super::{
     merge_neighbor_observations_by_mac, LanIdentityHintInventory, LanNeighborObservation,
     LanNetworkInventoryDevice, LanPreviousNetworkInventory,
@@ -33,37 +39,66 @@ pub fn windows_lan_neighbors(
     selected_interface: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
 ) -> Vec<LanNetworkInventoryDevice> {
+    windows_lan_neighbors_with_cancellation(
+        identity_hint_devices,
+        previous_devices,
+        probe_suppression_devices,
+        selected_interface,
+        allowed_snmp_response_observer,
+        None,
+    )
+}
+
+pub fn windows_lan_neighbors_with_cancellation(
+    identity_hint_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+    probe_suppression_devices: &[LanPairingDeviceRef],
+    selected_interface: Option<&str>,
+    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    cancellation: Option<&AtomicBool>,
+) -> Vec<LanNetworkInventoryDevice> {
+    if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+        return Vec::new();
+    }
     let netbios_names = netbios::windows_netbios_cache_names();
     let identity_hint_inventory = LanIdentityHintInventory::from_devices(identity_hint_devices);
     let previous_inventory = LanPreviousNetworkInventory::from_devices(previous_devices);
     let observed_at = Utc::now().to_rfc3339();
-    let mut devices = command_json_records(
-        constants::lan_pairing::POWERSHELL_EXE,
-        &[
-            constants::lan_pairing::POWERSHELL_NO_PROFILE_ARG,
-            constants::lan_pairing::POWERSHELL_EXECUTION_POLICY_ARG,
-            constants::lan_pairing::POWERSHELL_BYPASS_ARG,
-            constants::lan_pairing::POWERSHELL_COMMAND_ARG,
-            constants::lan_pairing::POWERSHELL_LAN_NEIGHBOR_COMMAND,
-        ],
-    )
-    .into_iter()
-    .filter_map(|record| {
-        network_device_from_windows_neighbor_with_observed_at(
-            &record,
-            &netbios_names,
-            &identity_hint_inventory,
-            &previous_inventory,
-            selected_interface,
-            &observed_at,
-        )
-    })
-    .collect::<Vec<_>>();
-    enrich_service_identity_probes(
+    let command_args = [
+        constants::lan_pairing::POWERSHELL_NO_PROFILE_ARG,
+        constants::lan_pairing::POWERSHELL_EXECUTION_POLICY_ARG,
+        constants::lan_pairing::POWERSHELL_BYPASS_ARG,
+        constants::lan_pairing::POWERSHELL_COMMAND_ARG,
+        constants::lan_pairing::POWERSHELL_LAN_NEIGHBOR_COMMAND,
+    ];
+    let records = match cancellation {
+        Some(cancellation) => command_json_records_with_timeout_and_cancellation(
+            constants::lan_pairing::POWERSHELL_EXE,
+            &command_args,
+            Duration::from_millis(constants::lan_pairing::LAN_NETWORK_INVENTORY_COMMAND_TIMEOUT_MS),
+            cancellation,
+        ),
+        None => command_json_records(constants::lan_pairing::POWERSHELL_EXE, &command_args),
+    };
+    let mut devices = records
+        .into_iter()
+        .filter_map(|record| {
+            network_device_from_windows_neighbor_with_observed_at(
+                &record,
+                &netbios_names,
+                &identity_hint_inventory,
+                &previous_inventory,
+                selected_interface,
+                &observed_at,
+            )
+        })
+        .collect::<Vec<_>>();
+    enrich_service_identity_probes_with_cancellation(
         &mut devices,
         probe_suppression_devices,
         selected_interface,
         allowed_snmp_response_observer,
+        cancellation,
     );
     devices
 }
