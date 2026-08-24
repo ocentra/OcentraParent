@@ -9069,28 +9069,9 @@
     "WP-app-game-plan-188-app-game-android-usage-events-replay": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java"
       ]
     },
     "WP-app-game-plan-189-app-game-linux-foreground-capture-readiness": {
@@ -9123,28 +9104,12 @@
     "WP-app-game-plan-190-app-game-android-usage-events-child-runtime-replay": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsChildRuntimeReplay.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml",
         "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java"
       ]
     },
     "WP-app-game-plan-191-app-game-linux-foreground-source-preflight": {
@@ -9177,28 +9142,9 @@
     "WP-app-game-plan-192-app-game-android-authority-preflight": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAuthorityPreflight.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml"
       ]
     },
     "WP-app-game-plan-193-app-game-windows-broad-blocking-authority-preflight": {
@@ -9231,28 +9177,10 @@
     "WP-app-game-plan-194-app-game-android-accessibility-overlay-preflight": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
         "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "platforms/android/agent/app/src/main/res/xml/app_game_accessibility_service.xml"
       ]
     },
     "WP-app-game-plan-195-app-game-platform-proof-status-preflight-detail-refs": {
