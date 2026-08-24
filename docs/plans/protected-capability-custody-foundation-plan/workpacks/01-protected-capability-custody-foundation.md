@@ -45,12 +45,24 @@ authority merely because it is durable.
 ## Required source boundary
 
 The implementation phase must add a real isolated Windows broker process and a
-client boundary. The expected source topology is recorded in the code map as
-planned roots under `protected-capability-custody-broker` and
-`protected-capability-custody-client`; those crates do not exist in this
-checkout. The source packet must establish authenticated OS IPC, broker-owned
-ACL/path/key/watermark/write-lease decisions, opaque admission/factory state,
-startup/restart reconciliation, and fail-closed unavailable-platform results.
+client boundary. The shared wire contract belongs to the neutral
+`protected-capability-custody-protocol` package; it must not be copied into the
+broker binary or client. The expected package topology is recorded in the code
+map as planned roots under `protected-capability-custody-protocol`,
+`protected-capability-custody-broker`, and `protected-capability-custody-client`;
+none of those packages is active in this checkout. The source packet must
+establish authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease
+decisions, opaque admission/factory state, startup/restart reconciliation, and
+fail-closed unavailable-platform results.
+
+The existing core must gain only a narrow, explicitly reviewed
+`src/broker_admission.rs` facade seam (and its module/dependency registration).
+That facade may accept authenticated broker/process inputs and return typed
+opaque outcomes, but it must retain `CustodyAdmission`,
+`CurrentBindingPort`, `PlatformCustodyOwner`, and `PlatformDatabaseGuard` behind
+the existing sealed/core-private boundary. The broker package must not
+implement those traits from outside the core or receive a caller-mintable
+constructor.
 
 The broker must be a separate OS process. Same-process DPAPI, an in-process
 broker, mutex/file-lock custody, caller attestation, caller-selected key or
@@ -61,10 +73,13 @@ action, generation, and broker state.
 ## Expected test source
 
 The complete test wave is intentionally deferred until the source packet is
-stable. It must add the seven roots named by
-`TEST_PROOF_EXPECTATIONS.md`, including binding/schema/transition units,
-path-and-replica security, restart reconciliation, concurrent broker races,
-and the Windows broker custody integration.
+stable. Internal core behavior must use core-owned unit-test modules under
+`src/` so private storage/path/authority state is tested without making those
+constructors public. Public protocol tests belong to the protocol package;
+broker process/race/Windows custody tests belong to the broker package; and
+client admission/IPC-authentication tests belong to the client package. No
+test may import private source with path tricks, use a mock/in-process broker,
+or create a dependency cycle merely to reach private state.
 
 ## Consumers and unlocks
 
@@ -80,8 +95,9 @@ Cloudflare, platform, caller, test, or proof blockers.
 
 ## Acceptance gates
 
-Keep WP01 open until the broker/client source exists, the seven expected test
-roots are written and run, the Windows process/IPC and owner-bound custody
-negative cases are retained, Enforcer/architecture checks pass, and proof and
-checklist state are current. Implementation-only authorization does not change
-normal READY, PR_READY, CI, merge, or DONE state.
+Keep WP01 open until the broker/client source exists, the complete core,
+protocol, broker, and client expected test roots are written and run, the
+Windows process/IPC and owner-bound custody negative cases are retained,
+Enforcer/architecture checks pass, and proof and checklist state are current.
+Implementation-only authorization does not change normal READY, PR_READY, CI,
+merge, or DONE state.

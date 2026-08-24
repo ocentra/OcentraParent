@@ -30,6 +30,10 @@ Each artifact must identify the exact command, exit/result, platform, owner,
 source/test paths, failure or manual-required state, and the claim it does not
 prove. A passing core unit test does not prove an isolated broker, OS ACL/key
 ownership, an authenticated caller, or production release readiness.
+The retained validation bundle must identify the neutral protocol package,
+broker package, client package, and core admission/facade seam separately;
+package compilation or protocol serialization alone does not prove broker
+process isolation, OS ownership, authenticated IPC, or consumer readiness.
 
 ## Current no-claim boundary
 
