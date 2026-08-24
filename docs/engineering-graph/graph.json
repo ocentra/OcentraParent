@@ -280,6 +280,21 @@
       }
     },
     {
+      "id": "PLAN-protected-capability-custody-foundation-plan",
+      "kind": "plan",
+      "title": "Protected Capability Custody Foundation Plan Workpack Index",
+      "path": "docs/plans/protected-capability-custody-foundation-plan",
+      "parent": "GOAL-ocentra-parent",
+      "dependsOn": [],
+      "state": "active",
+      "metadata": {
+        "planSlug": "protected-capability-custody-foundation-plan",
+        "indexPath": "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
+        "workpackCount": 1,
+        "dependencyConfidence": "unreviewed"
+      }
+    },
+    {
       "id": "PLAN-remote-access-plan",
       "kind": "plan",
       "title": "Remote Access Workpack Index",
@@ -932,6 +947,7 @@
       "path": "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
       "parent": "PLAN-account-identity-family-plan",
       "dependsOn": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
         "WP-account-identity-family-plan-02-identity-household-role-model",
         "WP-account-identity-family-plan-03-session-token-lifecycle",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
@@ -967,7 +983,8 @@
             "WP-account-identity-family-plan-03-session-token-lifecycle",
             "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
             "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
-            "WP-device-trust-bootstrap-plan-03-parent-step-up-auth"
+            "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+            "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
           ],
           "evidence": [
             "docs/plans/account-identity-family-plan/MULTI_OWNER_EFFECT_FENCING_DECISION.md",
@@ -18567,8 +18584,10 @@
       "title": "WP01 Device Trust Source Of Truth",
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
@@ -18587,7 +18606,9 @@
           ]
         },
         "dependencyReview": {
-          "hardDependencies": [],
+          "hardDependencies": [
+            "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+          ],
           "evidence": [
             "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
             "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
@@ -18702,6 +18723,7 @@
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
       "dependsOn": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
         "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
@@ -18731,7 +18753,8 @@
           "hardDependencies": [
             "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
             "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
-            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+            "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
           ],
           "evidence": [
             "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
@@ -24343,6 +24366,99 @@
       }
     },
     {
+      "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "workpack",
+      "title": "01 Protected Capability Custody Boundary",
+      "path": "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+      "parent": "PLAN-protected-capability-custody-foundation-plan",
+      "dependsOn": [],
+      "state": "validation",
+      "lifecycleState": "validation",
+      "metadata": {
+        "planSlug": "protected-capability-custody-foundation-plan",
+        "indexPath": "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
+        "statusText": "Validation — existing core source mapped; isolated broker/client source, expected tests, callers, proof, and completion remain open.",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/protected-capability-custody-broker/src/main.rs",
+            "crates/protected-capability-custody-broker/src/protocol.rs",
+            "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+            "crates/protected-capability-custody-broker/src/authority.rs",
+            "crates/protected-capability-custody-broker/src/custody.rs",
+            "crates/protected-capability-custody-client/src/lib.rs",
+            "crates/protected-capability-custody-client/src/windows_ipc.rs",
+            "crates/protected-capability-custody-client/src/admission.rs"
+          ],
+          "testRoots": [
+            "crates/protected-capability-custody-core/tests/unit/binding.rs",
+            "crates/protected-capability-custody-core/tests/unit/storage_schema.rs",
+            "crates/protected-capability-custody-core/tests/unit/transition_state.rs",
+            "crates/protected-capability-custody-core/tests/security/path_and_replica_integrity.rs",
+            "crates/protected-capability-custody-core/tests/recovery/custody_reconciliation.rs",
+            "crates/protected-capability-custody-core/tests/concurrency/broker_reservation_races.rs",
+            "crates/protected-capability-custody-core/tests/integration/windows_broker_custody.rs"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+            "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Neutral foundation route for the existing fail-closed protected-capability custody core. The core is substantive but inert outside its crate: admission/platform authority is private and SQLite is only a checked replica. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque factory, expected tests, proof, and production callers are absent. This review authorizes only implementation-phase source work; it does not claim normal READY, runtime reachability, tests, proof, PR readiness, or DONE."
+        },
+        "stateOverride": {
+          "reason": "Existing protected-capability-custody-core source is substantive and fail-closed but inert outside its crate. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque admission, expected tests, proof, and production caller are absent. Validation state preserves the open completion contract while implementation phase authorization is derived separately; no normal READY, runtime, PR, merge, or DONE claim is made.",
+          "evidence": [
+            "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+            "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        }
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [],
+          "tests": [
+            "docs/plans/protected-capability-custody-foundation-plan/TEST_PROOF_EXPECTATIONS.md"
+          ],
+          "proof": [],
+          "checklist": [
+            "docs/plans/protected-capability-custody-foundation-plan/CHECKLIST_INDEX.md"
+          ],
+          "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "crates/protected-capability-custody-broker/src/main.rs",
+            "crates/protected-capability-custody-broker/src/protocol.rs",
+            "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+            "crates/protected-capability-custody-broker/src/authority.rs",
+            "crates/protected-capability-custody-broker/src/custody.rs",
+            "crates/protected-capability-custody-client/src/lib.rs",
+            "crates/protected-capability-custody-client/src/windows_ipc.rs",
+            "crates/protected-capability-custody-client/src/admission.rs"
+          ],
+          "tests": [
+            "crates/protected-capability-custody-core/tests/unit/binding.rs",
+            "crates/protected-capability-custody-core/tests/unit/storage_schema.rs",
+            "crates/protected-capability-custody-core/tests/unit/transition_state.rs",
+            "crates/protected-capability-custody-core/tests/security/path_and_replica_integrity.rs",
+            "crates/protected-capability-custody-core/tests/recovery/custody_reconciliation.rs",
+            "crates/protected-capability-custody-core/tests/concurrency/broker_reservation_races.rs",
+            "crates/protected-capability-custody-core/tests/integration/windows_broker_custody.rs"
+          ]
+        }
+      }
+    },
+    {
       "id": "WP-remote-access-plan-01-remote-capability-fabric",
       "kind": "workpack",
       "title": "01-remote-capability-fabric",
@@ -29798,6 +29914,12 @@
     },
     {
       "from": "GOAL-ocentra-parent",
+      "to": "PLAN-protected-capability-custody-foundation-plan",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "GOAL-ocentra-parent",
       "to": "PLAN-remote-access-plan",
       "kind": "contains",
       "confidence": "structural"
@@ -33175,6 +33297,12 @@
       "confidence": "structural"
     },
     {
+      "from": "PLAN-protected-capability-custody-foundation-plan",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
       "from": "PLAN-remote-access-plan",
       "to": "WP-remote-access-plan-01-remote-capability-fabric",
       "kind": "contains",
@@ -33947,6 +34075,45 @@
       "to": "WP-v0-8-enforcement-control-plan-20-rollout-docs-ci-pr-gate",
       "kind": "contains",
       "confidence": "structural"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Account WP05A is a downstream coordinator consumer of neutral protected capability reservations. The protected owner remains separate; WP05A may consume only authenticated opaque outcomes and may not mint authority, choose keys, or replace the broker with in-process custody.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Device Trust WP01 is a downstream owner-participant consumer of the neutral protected custody boundary. Device identity, signer authority, currentness, and lifecycle remain Device-owned; this edge is source ordering only and does not authorize platform ceremony or runtime completion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Device Trust WP03 is a downstream ceremony/participant consumer of neutral protected custody. Parent/device authority and ceremony semantics stay Device-owned; the edge does not create a caller, bypass currentness, or make the parent step-up path ready.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
@@ -40511,8 +40678,8 @@
     }
   ],
   "migration": {
-    "importedPlans": 23,
-    "importedWorkpacks": 686,
+    "importedPlans": 24,
+    "importedWorkpacks": 687,
     "unindexedWorkpackArtifacts": [
       {
         "planId": "PLAN-account-identity-family-plan",
@@ -40806,6 +40973,12 @@
           "workpacks/policy Ui fix.md",
           "workpacks/portal and account Ui fix.md"
         ]
+      },
+      {
+        "planId": "PLAN-protected-capability-custody-foundation-plan",
+        "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
+        "path": "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
+        "workpackCount": 1
       },
       {
         "planId": "PLAN-remote-access-plan",

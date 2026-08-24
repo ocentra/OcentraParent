@@ -2,6 +2,16 @@
   "schemaVersion": 2,
   "workpackReviews": [
     {
+      "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "hardDependencies": [],
+      "reason": "Neutral foundation route for the existing fail-closed protected-capability custody core. The core is substantive but inert outside its crate: admission/platform authority is private and SQLite is only a checked replica. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque factory, expected tests, proof, and production callers are absent. This review authorizes only implementation-phase source work; it does not claim normal READY, runtime reachability, tests, proof, PR readiness, or DONE.",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-browser-plan-07-managed-chromium-launcher",
       "hardDependencies": ["WP-browser-plan-06-managed-profile-store"],
       "reason": "Canonical f80b47c6a is an accepted fail-closed source baseline: it removes unreachable service launch state, env/dev authority, placeholder polling, and Browser-to-Screen composition, leaving production status manual-required. The owner-issued retained runtime and integration test roots remain absent; existing tests are stale. This does not authorize runtime, normal READY, proof, PR readiness, or DONE.",
@@ -29,6 +39,7 @@
     {
       "id": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
       "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
         "WP-account-identity-family-plan-02-identity-household-role-model",
         "WP-account-identity-family-plan-03-session-token-lifecycle",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
@@ -114,7 +125,9 @@
     },
     {
       "id": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
-      "hardDependencies": [],
+      "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+      ],
       "evidence": [
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
@@ -322,6 +335,7 @@
     {
       "id": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
       "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
         "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
@@ -2651,6 +2665,45 @@
     }
   ],
   "edges": [
+    {
+      "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Account WP05A is a downstream coordinator consumer of neutral protected capability reservations. The protected owner remains separate; WP05A may consume only authenticated opaque outcomes and may not mint authority, choose keys, or replace the broker with in-process custody.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Device Trust WP01 is a downstream owner-participant consumer of the neutral protected custody boundary. Device identity, signer authority, currentness, and lifecycle remain Device-owned; this edge is source ordering only and does not authorize platform ceremony or runtime completion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Device Trust WP03 is a downstream ceremony/participant consumer of neutral protected custody. Parent/device authority and ceremony semantics stay Device-owned; the edge does not create a caller, bypass currentness, or make the parent step-up path ready.",
+      "implementationGate": "reviewed-implementation"
+    },
     {
       "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
       "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
@@ -9211,6 +9264,18 @@
     }
   ],
   "stateOverrides": [
+    {
+      "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "state": "validation",
+      "reason": "Existing protected-capability-custody-core source is substantive and fail-closed but inert outside its crate. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque admission, expected tests, proof, and production caller are absent. Validation state preserves the open completion contract while implementation phase authorization is derived separately; no normal READY, runtime, PR, merge, or DONE claim is made.",
+      "statusText": "Validation — existing core source mapped; isolated broker/client source, expected tests, callers, proof, and completion remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
       "state": "validation",
