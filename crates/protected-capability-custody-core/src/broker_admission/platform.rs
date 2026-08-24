@@ -2,8 +2,6 @@ use std::path::Path;
 
 #[cfg(windows)]
 use std::fs::File;
-#[cfg(windows)]
-use std::io::Read;
 
 use crate::platform::identity::PhysicalDatabaseIdentity;
 use crate::platform::sealed::{TrustedDatabaseGuard, TrustedPlatformOwner};
@@ -17,11 +15,9 @@ use crate::platform::identity::DatabaseIdentity;
 use crate::platform::record::BrokerRecord;
 #[cfg(windows)]
 use crate::platform::request::{BrokerLookup, TransitionRequest};
-#[cfg(windows)]
-use sha2::{Digest, Sha256};
-
 mod acl;
 mod crypto;
+mod digest;
 mod guard;
 mod record;
 mod registry;
@@ -155,6 +151,15 @@ pub(super) fn delete_registry_value(registry_id: &str, name: &str) -> Result<(),
 }
 
 #[cfg(windows)]
+pub(super) fn count_registry_values_with_prefix(
+    registry_id: &str,
+    prefix: &str,
+    limit: usize,
+) -> Result<usize, PlatformError> {
+    registry::count_values_with_prefix(registry_id, prefix, limit)
+}
+
+#[cfg(windows)]
 pub(super) fn encrypt_dpapi(
     registry_id: &str,
     plaintext: &[u8],
@@ -184,48 +189,7 @@ pub(super) fn validate_broker_executable(
 ) -> Result<(), PlatformError> {
     acl::validate_file(executable)?;
     acl::validate_path(path.parent().ok_or(PlatformError::InvalidAttestation)?)?;
-    validate_pinned_hash(executable)
-}
-
-#[cfg(windows)]
-fn validate_pinned_hash(executable: &File) -> Result<(), PlatformError> {
-    // The release installer must replace this with the signed, deployment-owned
-    // digest.  Until that provisioning step exists, admission is unavailable;
-    // accepting an unsigned or caller-selected sibling would be unsafe.
-    const DEPLOYED_BROKER_SHA256: Option<[u8; 32]> = None;
-    let expected = DEPLOYED_BROKER_SHA256.ok_or(PlatformError::Unavailable)?;
-    const MAX_EXECUTABLE_BYTES: u64 = 128 * 1024 * 1024;
-    let metadata = executable
-        .metadata()
-        .map_err(|_| PlatformError::Unavailable)?;
-    if metadata.len() == 0 || metadata.len() > MAX_EXECUTABLE_BYTES {
-        return Err(PlatformError::Tampered);
-    }
-    let mut reader = executable
-        .try_clone()
-        .map_err(|_| PlatformError::Unavailable)?;
-    let mut hasher = Sha256::new();
-    let mut buffer = [0_u8; 64 * 1024];
-    let mut total = 0_u64;
-    loop {
-        let read = reader
-            .read(&mut buffer)
-            .map_err(|_| PlatformError::Unavailable)?;
-        if read == 0 {
-            break;
-        }
-        total = total
-            .checked_add(read as u64)
-            .ok_or(PlatformError::Tampered)?;
-        if total > MAX_EXECUTABLE_BYTES {
-            return Err(PlatformError::Tampered);
-        }
-        hasher.update(&buffer[..read]);
-    }
-    if total != metadata.len() || hasher.finalize().as_slice() != expected.as_slice() {
-        return Err(PlatformError::Tampered);
-    }
-    Ok(())
+    digest::validate(executable, path)
 }
 
 #[cfg(not(windows))]

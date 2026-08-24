@@ -18,6 +18,9 @@ use crate::platform::PlatformError;
 #[cfg(windows)]
 #[path = "registry/io.rs"]
 mod registry_io;
+#[cfg(windows)]
+#[path = "registry/limits.rs"]
+mod registry_limits;
 
 #[cfg(windows)]
 const REGISTRY_ROOT: &str = "Software\\Ocentra\\ProtectedCapabilityCustody";
@@ -53,6 +56,15 @@ pub(super) fn write(registry_id: &str, name: &str, value: &[u8]) -> Result<(), P
 #[cfg(windows)]
 pub(super) fn delete(registry_id: &str, name: &str) -> Result<(), PlatformError> {
     registry_io::delete(registry_id, name)
+}
+
+#[cfg(windows)]
+pub(super) fn count_values_with_prefix(
+    registry_id: &str,
+    prefix: &str,
+    limit: usize,
+) -> Result<usize, PlatformError> {
+    registry_limits::count_values_with_prefix(registry_id, prefix, limit)
 }
 
 #[cfg(windows)]

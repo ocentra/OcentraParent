@@ -26,17 +26,40 @@ pub(super) struct LedgerState {
     pub(super) watermark: u64,
 }
 
-/// The custody watermark cannot be trusted when it is stored only in a
-/// user-restorable file or registry hive.  Production deployment must provide
-/// a broker/service or TPM-backed non-restorable anchor before this adapter is
-/// enabled.  There is deliberately no software fallback: snapshot restore is
-/// an unavailable state, never an opportunity to reset the watermark.
+/// Marker held for the entire state load/write operation after a dependency-
+/// owned anti-rollback provider has granted custody.  It intentionally has no
+/// serializable representation and cannot be constructed by the caller.
+#[cfg(windows)]
 struct NonRestorableAntiRollbackAnchor;
 
-impl NonRestorableAntiRollbackAnchor {
-    fn acquire() -> Result<Self, PlatformError> {
-        Err(PlatformError::Unavailable)
+/// Deployment-owned seam for a genuinely non-restorable monotonic anchor.
+/// Implementations belong to the service/TPM integration layer; the core must
+/// never substitute a registry, file, random value, or caller assertion.
+#[cfg(windows)]
+trait NonRestorableAntiRollbackProvider {
+    fn acquire(&self) -> Result<NonRestorableAntiRollbackAnchor, PlatformError>;
+}
+
+#[cfg(windows)]
+struct DeploymentAntiRollbackProvider;
+
+#[cfg(windows)]
+impl NonRestorableAntiRollbackProvider for DeploymentAntiRollbackProvider {
+    fn acquire(&self) -> Result<NonRestorableAntiRollbackAnchor, PlatformError> {
+        // No safe provider is linked into this build yet.  Refusing custody is
+        // the only correct result until the service/TPM dependency is shipped.
+        Err(PlatformError::DeploymentRequired)
     }
+}
+
+#[cfg(windows)]
+fn production_anti_rollback_provider() -> DeploymentAntiRollbackProvider {
+    DeploymentAntiRollbackProvider
+}
+
+#[cfg(windows)]
+fn acquire_non_restorable_anchor() -> Result<NonRestorableAntiRollbackAnchor, PlatformError> {
+    production_anti_rollback_provider().acquire()
 }
 
 #[cfg(windows)]
@@ -44,7 +67,7 @@ pub(super) fn load_or_create(
     registry_id: &str,
     physical_identity: PhysicalDatabaseIdentity,
 ) -> Result<LedgerState, PlatformError> {
-    let _anti_rollback_anchor = NonRestorableAntiRollbackAnchor::acquire()?;
+    let _anti_rollback_anchor = acquire_non_restorable_anchor()?;
     match registry::read(registry_id, STATE_VALUE_NAME)? {
         Some(sealed) => {
             let plaintext = Zeroizing::new(crypto::decrypt_state(registry_id, &sealed)?);

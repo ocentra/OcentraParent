@@ -91,6 +91,8 @@ impl BrokerCustodyOutcome {
 pub enum BrokerRuntimeError {
     #[error("current process is not the protected custody broker")]
     InvalidBrokerProcess,
+    #[error("protected custody deployment is not provisioned")]
+    DeploymentRequired,
     #[error("broker request is invalid")]
     InvalidRequest,
     #[error("broker custody runtime is unavailable")]

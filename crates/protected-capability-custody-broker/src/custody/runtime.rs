@@ -39,6 +39,7 @@ pub(super) fn runtime_error_status(error: &BrokerRuntimeError) -> ResponseStatus
             ResponseStatus::Rejected
         }
         BrokerRuntimeError::InvalidBrokerProcess
+        | BrokerRuntimeError::DeploymentRequired
         | BrokerRuntimeError::Unavailable
         | BrokerRuntimeError::Custody(_) => ResponseStatus::Unavailable,
     }

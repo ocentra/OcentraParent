@@ -36,6 +36,23 @@ pub(super) fn load_or_create_generations(
     }
 }
 
+#[cfg(windows)]
+pub(super) fn delete_generations(
+    registry_id: &str,
+    lookup_digest: &[u8; 32],
+) -> Result<(), AuthorityError> {
+    platform::delete_registry_value(registry_id, &binding_name(lookup_digest))
+        .map_err(map_platform_error)
+}
+
+#[cfg(not(windows))]
+pub(super) fn delete_generations(
+    _registry_id: &str,
+    _lookup_digest: &[u8; 32],
+) -> Result<(), AuthorityError> {
+    Err(AuthorityError::Unavailable)
+}
+
 #[cfg(not(windows))]
 pub(super) fn load_or_create_generations(
     _registry_id: &str,
@@ -51,6 +68,17 @@ fn create_generations(
     lookup_digest: &[u8; 32],
     value_name: &str,
 ) -> Result<ExpectedGenerations, AuthorityError> {
+    let binding_count = platform::count_registry_values_with_prefix(
+        registry_id,
+        BINDING_NAME_PREFIX,
+        ocentra_protected_capability_custody_protocol::constants::MAX_ACTIVE_AUTHORITY_BINDINGS,
+    )
+    .map_err(map_platform_error)?;
+    if binding_count
+        >= ocentra_protected_capability_custody_protocol::constants::MAX_ACTIVE_AUTHORITY_BINDINGS
+    {
+        return Err(AuthorityError::Unavailable);
+    }
     let generations = random_generations()?;
     let plaintext = Zeroizing::new(codec::encode(generations));
     let sealed = platform::encrypt_dpapi(

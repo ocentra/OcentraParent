@@ -99,6 +99,8 @@ pub(crate) struct SealContext<'a> {
 pub(crate) enum PlatformError {
     #[error("platform custody is unavailable")]
     Unavailable,
+    #[error("platform custody deployment is not provisioned")]
+    DeploymentRequired,
     #[error("platform custody rejected the request")]
     Rejected,
     #[error("platform custody detected tampering")]

@@ -22,6 +22,7 @@ pub const MAX_FRAME_BYTES: usize = 64 * 1024;
 pub const MAX_FIELD_BYTES: usize = 1024;
 pub const MAX_REGISTRY_VALUE_BYTES: usize = 64 * 1024;
 pub const MAX_CUSTODY_RECORDS: i64 = 4_096;
+pub const MAX_ACTIVE_AUTHORITY_BINDINGS: usize = 4_096;
 pub const MAX_DATABASE_PAGES: i64 = 16_384;
 pub const BROKER_ACCEPT_DEADLINE_MILLIS: u64 = 5_000;
 pub const BROKER_RESTART_ATTEMPTS: u8 = 3;
@@ -40,6 +41,9 @@ pub const BROKER_PIPE_NAME_PREFIX: &str = "\\\\.\\pipe\\ocentra-protected-capabi
 pub const BROKER_EXECUTABLE_NAME: &str = "ocentra-protected-capability-custody-broker.exe";
 pub const BROKER_PIPE_ARGUMENT: &str = "--pipe";
 pub const BROKER_PIPE_SDDL: &str = "D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;OW)";
+// Provisioned by the signed installer beside the broker executable as exactly
+// 32 raw SHA-256 bytes. The runtime never creates this file.
+pub const BROKER_DIGEST_MANIFEST_NAME: &str = "ocentra-protected-capability-custody-broker.sha256";
 pub const BROKER_PROJECT_QUALIFIER: &str = "com";
 pub const BROKER_PROJECT_ORGANIZATION: &str = "Ocentra";
 pub const BROKER_PROJECT_APPLICATION: &str = "OcentraParent";

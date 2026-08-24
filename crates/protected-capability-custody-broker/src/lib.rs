@@ -28,6 +28,7 @@ pub enum BrokerError {
     PeerAuthentication,
     Protocol(ocentra_protected_capability_custody_protocol::types::ProtocolError),
     Request,
+    DeploymentRequired,
     UnsupportedPlatform,
 }
 
@@ -44,8 +45,4 @@ impl From<ocentra_protected_capability_custody_protocol::types::ProtocolError> f
     fn from(error: ocentra_protected_capability_custody_protocol::types::ProtocolError) -> Self {
         Self::Protocol(error)
     }
-}
-
-pub(crate) fn map_transport_error(_error: std::io::Error) -> BrokerError {
-    BrokerError::Transport
 }
