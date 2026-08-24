@@ -458,6 +458,17 @@ function workspaceRequirementGaps(root, source) {
       }
       continue;
     }
+    if (packageMetadata.name !== packageRequirement.package) {
+      gaps.push(
+        `workspace: manifest ${manifest} declares package ${packageMetadata.name}, expected ${packageRequirement.package}`
+      );
+      for (const target of packageRequirement.requiredTargets ?? []) {
+        gaps.push(
+          `workspace: required ${target.kind} target ${target.path} cannot be confirmed because package name is mismatched`
+        );
+      }
+      continue;
+    }
     if (packageRequirement.activeMember === true && !metadata.workspaceMembers.has(packageMetadata.id)) {
       gaps.push(`workspace: package ${packageRequirement.package} is not an active workspace member (${manifest})`);
     }
