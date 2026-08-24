@@ -30,13 +30,17 @@ The source phase adds:
 
 - `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsChildRuntimeReplay.java`
 - `platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java`
 
 The consumer accepts only an owner-produced count snapshot, validates current
-timestamp/count bounds, rejects duplicate or older generations, and commits a
-redacted app-private readback. The manifest-declared child service invokes the
-consumer from its bounded worker and publishes synchronized immutable status;
-it does not claim device delivery or enforcement. Tests and proof remain
-absent.
+timestamp/count bounds, rejects duplicate or older generations, rejects
+corrupt or stale durable readback, and revalidates the committed record before
+reporting `CONSUMED`. The manifest-declared child service invokes the consumer
+from its bounded worker, publishes synchronized immutable status, and waits
+for bounded worker shutdown before closing native composition. The launcher
+activity now binds to that service and polls a redacted status projection, so
+the production consumer is reachable from an existing app lifecycle; it does
+not claim device delivery or enforcement. Tests and proof remain absent.
 
 ## Validation
 

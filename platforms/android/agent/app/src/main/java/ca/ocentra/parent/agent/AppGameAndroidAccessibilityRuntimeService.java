@@ -9,6 +9,13 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.accessibility.AccessibilityEvent;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 public final class AppGameAndroidAccessibilityRuntimeService extends AccessibilityService {
     public static final String FIELD_SERVICE_DECLARATION_STATE = "accessibility-service-declared";
     public static final String FIELD_SERVICE_RUNTIME_STATE = "accessibility-runtime-state";
@@ -40,6 +47,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
     public static final String DURABLE_STATE_PERSISTED = "accessibility-state-persisted";
     public static final String DURABLE_STATE_NOT_AVAILABLE = "accessibility-state-not-available";
     public static final String DURABLE_STATE_WRITE_FAILED = "accessibility-state-write-failed";
+    public static final String DURABLE_STATE_WRITE_PENDING = "accessibility-state-write-pending";
 
     private static final Object STATE_LOCK = new Object();
     private static final String STATE_PREFERENCES = "app_game_android_accessibility_state";
@@ -57,6 +65,10 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
     private static boolean stateLoaded;
     private static String settingsReadState = SETTINGS_READ_NO_CONTEXT;
     private static String durableState = DURABLE_STATE_NOT_AVAILABLE;
+    private static long stateVersion;
+    private static long persistedVersion;
+    private static boolean stateVersionExhausted;
+    private static final PersistenceCoordinator PERSISTENCE = new PersistenceCoordinator();
 
     public static Bundle createAccessibilityRuntimeBundle() {
         synchronized (STATE_LOCK) {
@@ -68,6 +80,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         synchronized (STATE_LOCK) {
             loadPersistedState(context);
             refreshEnabledState(context);
+            requestStatePersistenceLocked(context);
             return createBundle(true);
         }
     }
@@ -79,7 +92,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
             processServiceConnected = true;
             loadPersistedState(getApplicationContext());
             refreshEnabledState(getApplicationContext());
-            persistState(getApplicationContext());
+            requestStatePersistenceLocked(getApplicationContext());
         }
     }
 
@@ -91,7 +104,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         synchronized (STATE_LOCK) {
             observedWindowStateEventCount = incrementCount(observedWindowStateEventCount);
             lastObservedAt = System.currentTimeMillis();
-            persistState(getApplicationContext());
+            requestStatePersistenceLocked(getApplicationContext());
         }
     }
 
@@ -99,7 +112,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
     public void onInterrupt() {
         synchronized (STATE_LOCK) {
             processServiceConnected = false;
-            persistState(getApplicationContext());
+            requestStatePersistenceLocked(getApplicationContext());
         }
     }
 
@@ -107,9 +120,15 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
     public boolean onUnbind(Intent intent) {
         synchronized (STATE_LOCK) {
             processServiceConnected = false;
-            persistState(getApplicationContext());
+            requestStatePersistenceLocked(getApplicationContext());
         }
         return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        PERSISTENCE.shutdown();
+        super.onDestroy();
     }
 
     private static Bundle createBundle(boolean contextBound) {
@@ -186,6 +205,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         SharedPreferences preferences = context.getSharedPreferences(STATE_PREFERENCES, Context.MODE_PRIVATE);
         if (!preferences.getBoolean(PREF_HAS_STATE, false)) {
             stateLoaded = true;
+            persistedVersion = stateVersion;
             durableState = DURABLE_STATE_NOT_AVAILABLE;
             return;
         }
@@ -193,6 +213,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         lastObservedAt = Math.max(0L, preferences.getLong(PREF_LAST_OBSERVED_AT, 0L));
         enabledServiceCount = Math.max(0, preferences.getInt(PREF_ENABLED_SERVICE_COUNT, 0));
         serviceEnabled = preferences.getBoolean(PREF_SERVICE_ENABLED, false);
+        persistedVersion = stateVersion;
         durableState = DURABLE_STATE_PERSISTED;
         stateLoaded = true;
     }
@@ -229,27 +250,25 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
             }
             settingsAvailable = true;
             settingsReadState = SETTINGS_READ_AVAILABLE;
-            persistState(context);
         } catch (RuntimeException error) {
             settingsAvailable = false;
             settingsReadState = SETTINGS_READ_FAILED;
         }
     }
 
-    private static void persistState(Context context) {
+    private static void requestStatePersistenceLocked(Context context) {
         if (context == null) {
             durableState = DURABLE_STATE_NOT_AVAILABLE;
             return;
         }
-        boolean written = context.getSharedPreferences(STATE_PREFERENCES, Context.MODE_PRIVATE)
-            .edit()
-            .putBoolean(PREF_HAS_STATE, true)
-            .putLong(PREF_EVENT_COUNT, observedWindowStateEventCount)
-            .putLong(PREF_LAST_OBSERVED_AT, lastObservedAt)
-            .putInt(PREF_ENABLED_SERVICE_COUNT, enabledServiceCount)
-            .putBoolean(PREF_SERVICE_ENABLED, serviceEnabled)
-            .commit();
-        durableState = written ? DURABLE_STATE_PERSISTED : DURABLE_STATE_WRITE_FAILED;
+        if (stateVersion == Long.MAX_VALUE) {
+            stateVersionExhausted = true;
+            durableState = DURABLE_STATE_WRITE_FAILED;
+            return;
+        }
+        stateVersion += 1L;
+        durableState = DURABLE_STATE_WRITE_PENDING;
+        PERSISTENCE.enqueue(context.getApplicationContext());
     }
 
     private static long incrementCount(long count) {
@@ -258,5 +277,191 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
 
     private static int toIntCount(long count) {
         return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
+    }
+
+    private static void markDurableWriteFailed() {
+        synchronized (STATE_LOCK) {
+            durableState = DURABLE_STATE_WRITE_FAILED;
+        }
+    }
+
+    private static final class PersistenceCoordinator {
+        private final Object lock = new Object();
+        private ThreadPoolExecutor worker = createWorker();
+        private boolean taskQueued;
+        private boolean stopping;
+
+        void enqueue(final Context context) {
+            synchronized (lock) {
+                if (worker.isShutdown() || worker.isTerminating()) {
+                    if (!worker.isTerminated()) {
+                        return;
+                    }
+                    worker = createWorker();
+                    taskQueued = false;
+                    stopping = false;
+                }
+                if (stopping || taskQueued) {
+                    return;
+                }
+                taskQueued = true;
+                final ThreadPoolExecutor taskWorker = worker;
+                try {
+                    taskWorker.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                persistPending(context);
+                            } finally {
+                                taskFinished(taskWorker, context);
+                            }
+                        }
+                    });
+                } catch (RejectedExecutionException error) {
+                    taskQueued = false;
+                    markDurableWriteFailed();
+                }
+            }
+        }
+
+        void shutdown() {
+            final ThreadPoolExecutor taskWorker;
+            synchronized (lock) {
+                stopping = true;
+                taskWorker = worker;
+            }
+            taskWorker.shutdown();
+            boolean terminated = await(taskWorker, 250L);
+            if (!terminated) {
+                taskWorker.shutdownNow();
+                terminated = await(taskWorker, 100L);
+            }
+            synchronized (lock) {
+                if (worker == taskWorker) {
+                    taskQueued = false;
+                }
+            }
+            if (!terminated || hasPendingState()) {
+                markDurableWriteFailed();
+            }
+        }
+
+        private void persistPending(Context context) {
+            while (!Thread.currentThread().isInterrupted()) {
+                StateSnapshot snapshot;
+                synchronized (STATE_LOCK) {
+                    if (stateVersionExhausted) {
+                        durableState = DURABLE_STATE_WRITE_FAILED;
+                        return;
+                    }
+                    snapshot = new StateSnapshot(
+                        stateVersion,
+                        observedWindowStateEventCount,
+                        lastObservedAt,
+                        enabledServiceCount,
+                        serviceEnabled
+                    );
+                }
+                final boolean written;
+                try {
+                    written = context.getSharedPreferences(STATE_PREFERENCES, Context.MODE_PRIVATE)
+                        .edit()
+                        .putBoolean(PREF_HAS_STATE, true)
+                        .putLong(PREF_EVENT_COUNT, snapshot.eventCount)
+                        .putLong(PREF_LAST_OBSERVED_AT, snapshot.lastObservedAt)
+                        .putInt(PREF_ENABLED_SERVICE_COUNT, snapshot.enabledServiceCount)
+                        .putBoolean(PREF_SERVICE_ENABLED, snapshot.serviceEnabled)
+                        .commit();
+                } catch (RuntimeException error) {
+                    markDurableWriteFailed();
+                    return;
+                }
+                synchronized (STATE_LOCK) {
+                    if (!written) {
+                        durableState = DURABLE_STATE_WRITE_FAILED;
+                        return;
+                    }
+                    if (stateVersionExhausted) {
+                        durableState = DURABLE_STATE_WRITE_FAILED;
+                        return;
+                    }
+                    if (stateVersion == snapshot.version) {
+                        persistedVersion = snapshot.version;
+                        durableState = DURABLE_STATE_PERSISTED;
+                        return;
+                    }
+                    durableState = DURABLE_STATE_WRITE_PENDING;
+                }
+            }
+            markDurableWriteFailed();
+        }
+
+        private void taskFinished(ThreadPoolExecutor taskWorker, Context context) {
+            synchronized (lock) {
+                if (worker != taskWorker) {
+                    return;
+                }
+                taskQueued = false;
+            }
+            if (hasPendingState()) {
+                enqueue(context);
+            }
+        }
+
+        private static boolean hasPendingState() {
+            synchronized (STATE_LOCK) {
+                return !stateVersionExhausted && stateVersion > persistedVersion;
+            }
+        }
+
+        private static ThreadPoolExecutor createWorker() {
+            return new ThreadPoolExecutor(
+                1,
+                1,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<Runnable>(1),
+                new PersistenceThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy()
+            );
+        }
+
+        private static boolean await(ExecutorService executor, long timeoutMillis) {
+            try {
+                return executor.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException error) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+    }
+
+    private static final class StateSnapshot {
+        final long version;
+        final long eventCount;
+        final long lastObservedAt;
+        final int enabledServiceCount;
+        final boolean serviceEnabled;
+
+        StateSnapshot(
+            long version,
+            long eventCount,
+            long lastObservedAt,
+            int enabledServiceCount,
+            boolean serviceEnabled
+        ) {
+            this.version = version;
+            this.eventCount = eventCount;
+            this.lastObservedAt = lastObservedAt;
+            this.enabledServiceCount = enabledServiceCount;
+            this.serviceEnabled = serviceEnabled;
+        }
+    }
+
+    private static final class PersistenceThreadFactory implements ThreadFactory {
+        @Override
+        public Thread newThread(Runnable runnable) {
+            return new Thread(runnable, "ocentra-accessibility-state-persist");
+        }
     }
 }

@@ -31,9 +31,12 @@ The source phase extends
 and composes its redacted preflight from the manifest-declared child service.
 The service reads enabled services as `ComponentName` values, counts only
 redacted entries, tracks window-state events under a synchronized lock, and
-persists state with settings-read and durable-write failures kept distinct.
-The no-context status path reports no runtime or durable readiness. Tests and
-proof remain absent.
+persists state through a bounded, coalescing worker with settings-read,
+pending, and durable-write failures kept distinct. The accessibility service is
+exported for the Android system binding contract, while the no-context status
+path reports no runtime or durable readiness. The launcher activity renders the
+redacted preflight from the child service lifecycle. Tests and proof remain
+absent.
 
 ## Validation
 

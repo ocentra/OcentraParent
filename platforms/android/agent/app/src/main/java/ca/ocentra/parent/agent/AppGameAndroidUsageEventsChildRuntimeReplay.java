@@ -52,39 +52,70 @@ public final class AppGameAndroidUsageEventsChildRuntimeReplay {
         long consumedAt = System.currentTimeMillis();
         synchronized (REPLAY_LOCK) {
             SharedPreferences preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
-            long consumedGeneration = preferences.getLong(PREF_SOURCE_GENERATION, 0L);
-            if (preferences.getBoolean(PREF_CONSUMED, false) && generation <= consumedGeneration) {
-                result.putString(FIELD_CONSUMER_STATE, BLOCKED);
-                result.putString("blockReason", "child-runtime-replay-generation-not-newer");
-                result.putLong(FIELD_SOURCE_GENERATION, consumedGeneration);
+            try {
+                boolean consumed = preferences.getBoolean(PREF_CONSUMED, false);
+                StoredSnapshot existing = consumed ? readStoredRecord(preferences) : null;
+                if (consumed && existing == null) {
+                    result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                    result.putString("blockReason", "child-runtime-replay-corrupt-durable-record");
+                    return result;
+                }
+                if (!consumed && hasRecordFields(preferences)) {
+                    result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                    result.putString("blockReason", "child-runtime-replay-corrupt-durable-record");
+                    return result;
+                }
+                if (existing != null && generation <= existing.sourceGeneration) {
+                    result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                    result.putString(
+                        "blockReason",
+                        existing.isCurrent(consumedAt)
+                            ? "child-runtime-replay-generation-not-newer"
+                            : "child-runtime-replay-stale-durable-record"
+                    );
+                    result.putLong(FIELD_SOURCE_GENERATION, existing.sourceGeneration);
+                    return result;
+                }
+                boolean written = preferences.edit()
+                    .putBoolean(PREF_CONSUMED, true)
+                    .putString(PREF_SOURCE_STATE, source.sampleState())
+                    .putLong(PREF_EVENT_COUNT, eventCount)
+                    .putLong(PREF_FOREGROUND_EVENT_COUNT, foregroundEventCount)
+                    .putLong(PREF_OBSERVED_AT, observedAt)
+                    .putLong(PREF_SOURCE_GENERATION, generation)
+                    .putLong(PREF_CONSUMED_AT, consumedAt)
+                    .commit();
+                if (!written) {
+                    result.putString(FIELD_CONSUMER_STATE, WRITE_FAILED);
+                    result.putString("blockReason", "child-runtime-replay-durable-write-failed");
+                    return result;
+                }
+                StoredSnapshot persisted = readStoredRecord(preferences);
+                if (persisted == null || !persisted.matches(
+                    source.sampleState(),
+                    eventCount,
+                    foregroundEventCount,
+                    observedAt,
+                    generation,
+                    consumedAt
+                )) {
+                    result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                    result.putString("blockReason", "child-runtime-replay-corrupt-durable-record");
+                    return result;
+                }
+                if (!persisted.isCurrent(consumedAt)) {
+                    result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                    result.putString("blockReason", "child-runtime-replay-stale-durable-record");
+                    return result;
+                }
+                putConsumedResult(result, persisted);
                 return result;
-            }
-            boolean written = preferences.edit()
-                .putBoolean(PREF_CONSUMED, true)
-                .putString(PREF_SOURCE_STATE, source.sampleState())
-                .putLong(PREF_EVENT_COUNT, eventCount)
-                .putLong(PREF_FOREGROUND_EVENT_COUNT, foregroundEventCount)
-                .putLong(PREF_OBSERVED_AT, observedAt)
-                .putLong(PREF_SOURCE_GENERATION, generation)
-                .putLong(PREF_CONSUMED_AT, consumedAt)
-                .commit();
-            if (!written) {
-                result.putString(FIELD_CONSUMER_STATE, WRITE_FAILED);
-                result.putString("blockReason", "child-runtime-replay-durable-write-failed");
+            } catch (RuntimeException error) {
+                result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                result.putString("blockReason", "child-runtime-replay-corrupt-durable-record");
                 return result;
             }
         }
-        result.putString(FIELD_CONSUMER_STATE, CONSUMED);
-        result.putLong(FIELD_CONSUMED_AT_EPOCH_MILLIS, consumedAt);
-        result.putLong(FIELD_SOURCE_GENERATION, generation);
-        result.putString(FIELD_SOURCE_SAMPLE_STATE, source.sampleState());
-        result.putLong("eventCount", eventCount);
-        result.putLong("foregroundEventCount", foregroundEventCount);
-        result.putLong(
-            AppGameAndroidUsageEventsRuntimePreflight.FIELD_REPLAY_OBSERVED_AT_EPOCH_MILLIS,
-            observedAt
-        );
-        return result;
     }
 
     public static Bundle read(Context context) {
@@ -95,24 +126,144 @@ public final class AppGameAndroidUsageEventsChildRuntimeReplay {
                 result.putString("blockReason", "child-runtime-replay-context-unavailable");
                 return result;
             }
-            SharedPreferences preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
-            if (!preferences.getBoolean(PREF_CONSUMED, false)) {
-                Bundle result = baseResult();
-                result.putString(FIELD_CONSUMER_STATE, UNAVAILABLE);
+            Bundle result = baseResult();
+            try {
+                SharedPreferences preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
+                boolean consumed = preferences.getBoolean(PREF_CONSUMED, false);
+                if (!consumed) {
+                    if (hasRecordFields(preferences)) {
+                        result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                        result.putString("blockReason", "child-runtime-replay-corrupt-durable-record");
+                    } else {
+                        result.putString(FIELD_CONSUMER_STATE, UNAVAILABLE);
+                    }
+                    return result;
+                }
+                StoredSnapshot persisted = readStoredRecord(preferences);
+                if (persisted == null) {
+                    result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                    result.putString("blockReason", "child-runtime-replay-corrupt-durable-record");
+                    return result;
+                }
+                if (!persisted.isCurrent(System.currentTimeMillis())) {
+                    result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                    result.putString("blockReason", "child-runtime-replay-stale-durable-record");
+                    return result;
+                }
+                putConsumedResult(result, persisted);
+                return result;
+            } catch (RuntimeException error) {
+                result.putString(FIELD_CONSUMER_STATE, BLOCKED);
+                result.putString("blockReason", "child-runtime-replay-corrupt-durable-record");
                 return result;
             }
-            Bundle result = baseResult();
-            result.putString(FIELD_CONSUMER_STATE, CONSUMED);
-            result.putString(FIELD_SOURCE_SAMPLE_STATE, preferences.getString(PREF_SOURCE_STATE, "unknown"));
-            result.putLong(FIELD_CONSUMED_AT_EPOCH_MILLIS, preferences.getLong(PREF_CONSUMED_AT, 0L));
-            result.putLong(FIELD_SOURCE_GENERATION, preferences.getLong(PREF_SOURCE_GENERATION, 0L));
-            result.putLong("eventCount", preferences.getLong(PREF_EVENT_COUNT, 0L));
-            result.putLong("foregroundEventCount", preferences.getLong(PREF_FOREGROUND_EVENT_COUNT, 0L));
-            result.putLong(
-                AppGameAndroidUsageEventsRuntimePreflight.FIELD_REPLAY_OBSERVED_AT_EPOCH_MILLIS,
-                preferences.getLong(PREF_OBSERVED_AT, 0L)
-            );
-            return result;
+        }
+    }
+
+    private static void putConsumedResult(Bundle result, StoredSnapshot persisted) {
+        result.putString(FIELD_CONSUMER_STATE, CONSUMED);
+        result.putLong(FIELD_CONSUMED_AT_EPOCH_MILLIS, persisted.consumedAt);
+        result.putLong(FIELD_SOURCE_GENERATION, persisted.sourceGeneration);
+        result.putString(FIELD_SOURCE_SAMPLE_STATE, persisted.sourceState);
+        result.putLong("eventCount", persisted.eventCount);
+        result.putLong("foregroundEventCount", persisted.foregroundEventCount);
+        result.putLong(
+            AppGameAndroidUsageEventsRuntimePreflight.FIELD_REPLAY_OBSERVED_AT_EPOCH_MILLIS,
+            persisted.observedAt
+        );
+    }
+
+    private static StoredSnapshot readStoredRecord(SharedPreferences preferences) {
+        if (!hasRecordFields(preferences)) {
+            return null;
+        }
+        String sourceState = preferences.getString(PREF_SOURCE_STATE, null);
+        long eventCount = preferences.getLong(PREF_EVENT_COUNT, Long.MIN_VALUE);
+        long foregroundEventCount = preferences.getLong(
+            PREF_FOREGROUND_EVENT_COUNT,
+            Long.MIN_VALUE
+        );
+        long observedAt = preferences.getLong(PREF_OBSERVED_AT, Long.MIN_VALUE);
+        long sourceGeneration = preferences.getLong(PREF_SOURCE_GENERATION, Long.MIN_VALUE);
+        long consumedAt = preferences.getLong(PREF_CONSUMED_AT, Long.MIN_VALUE);
+        long now = System.currentTimeMillis();
+        if (!isValidSampleState(sourceState) || eventCount < 0L || foregroundEventCount < 0L ||
+            foregroundEventCount > eventCount || observedAt <= 0L ||
+            observedAt > now + 5000L || sourceGeneration <= 0L || consumedAt <= 0L ||
+            consumedAt > now + 5000L || consumedAt < observedAt) {
+            return null;
+        }
+        return new StoredSnapshot(
+            sourceState,
+            eventCount,
+            foregroundEventCount,
+            observedAt,
+            sourceGeneration,
+            consumedAt
+        );
+    }
+
+    private static boolean hasRecordFields(SharedPreferences preferences) {
+        return preferences.contains(PREF_SOURCE_STATE) ||
+            preferences.contains(PREF_EVENT_COUNT) ||
+            preferences.contains(PREF_FOREGROUND_EVENT_COUNT) ||
+            preferences.contains(PREF_OBSERVED_AT) ||
+            preferences.contains(PREF_SOURCE_GENERATION) ||
+            preferences.contains(PREF_CONSUMED_AT);
+    }
+
+    private static boolean isValidSampleState(String sampleState) {
+        return AppGameAndroidUsageEventsRuntimePreflight.SAMPLE_OBSERVED.equals(sampleState) ||
+            AppGameAndroidUsageEventsRuntimePreflight.SAMPLE_EMPTY.equals(sampleState);
+    }
+
+    private static final class StoredSnapshot {
+        final String sourceState;
+        final long eventCount;
+        final long foregroundEventCount;
+        final long observedAt;
+        final long sourceGeneration;
+        final long consumedAt;
+
+        StoredSnapshot(
+            String sourceState,
+            long eventCount,
+            long foregroundEventCount,
+            long observedAt,
+            long sourceGeneration,
+            long consumedAt
+        ) {
+            this.sourceState = sourceState;
+            this.eventCount = eventCount;
+            this.foregroundEventCount = foregroundEventCount;
+            this.observedAt = observedAt;
+            this.sourceGeneration = sourceGeneration;
+            this.consumedAt = consumedAt;
+        }
+
+        boolean matches(
+            String expectedSourceState,
+            long expectedEventCount,
+            long expectedForegroundEventCount,
+            long expectedObservedAt,
+            long expectedGeneration,
+            long expectedConsumedAt
+        ) {
+            return sourceState.equals(expectedSourceState) &&
+                eventCount == expectedEventCount &&
+                foregroundEventCount == expectedForegroundEventCount &&
+                observedAt == expectedObservedAt &&
+                sourceGeneration == expectedGeneration &&
+                consumedAt == expectedConsumedAt;
+        }
+
+        boolean isCurrent(long now) {
+            return observedAt <= now &&
+                now - observedAt <=
+                    AppGameAndroidUsageEventsRuntimePreflight.DEFAULT_SAMPLE_LOOKBACK_MILLIS &&
+                consumedAt <= now &&
+                now - consumedAt <=
+                    AppGameAndroidUsageEventsRuntimePreflight.DEFAULT_SAMPLE_LOOKBACK_MILLIS;
         }
     }
 

@@ -29,13 +29,17 @@ The source phase adds the Android production boundary at:
 
 - `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java`
 - `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java`
 - `platforms/android/agent/app/src/main/AndroidManifest.xml`
 
 The preflight checks the real child APK identity, reads only count-only
 `UsageEvents` rows, and commits a generation/timestamped count snapshot to
 app-private storage. The manifest declares the Android special permission
-needed for the AppOps grant path. Parent-domain projection, tests, and proof
-remain absent.
+needed for the AppOps grant path. The legacy parent activity starts with an
+explicitly unavailable status and schedules the query and persistence on a
+bounded worker with lifecycle cancellation; it never performs the UsageEvents
+query or replay commit on the UI thread. Parent-domain replay projection,
+tests, and proof remain absent.
 
 ## Validation
 
