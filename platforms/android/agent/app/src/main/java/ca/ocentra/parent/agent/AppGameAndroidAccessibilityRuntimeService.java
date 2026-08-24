@@ -48,6 +48,11 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
     public static final String DURABLE_STATE_NOT_AVAILABLE = "accessibility-state-not-available";
     public static final String DURABLE_STATE_WRITE_FAILED = "accessibility-state-write-failed";
     public static final String DURABLE_STATE_WRITE_PENDING = "accessibility-state-write-pending";
+    public static final String FIELD_DURABLE_RETRY_REQUIRED = "accessibility-durable-retry-required";
+    public static final String FIELD_DURABLE_RETRY_TRIGGER = "accessibility-durable-retry-trigger";
+    public static final String DURABLE_RETRY_TRIGGER_NONE = "none";
+    public static final String DURABLE_RETRY_TRIGGER_NEXT_CONTEXT_PREFLIGHT =
+        "next-context-preflight-or-service-lifecycle";
 
     private static final Object STATE_LOCK = new Object();
     private static final String STATE_PREFERENCES = "app_game_android_accessibility_state";
@@ -68,6 +73,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
     private static long stateVersion;
     private static long persistedVersion;
     private static boolean stateVersionExhausted;
+    private static boolean persistenceRetryRequired;
     private static final PersistenceCoordinator PERSISTENCE = new PersistenceCoordinator();
 
     public static Bundle createAccessibilityRuntimeBundle() {
@@ -127,6 +133,10 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
 
     @Override
     public void onDestroy() {
+        synchronized (STATE_LOCK) {
+            processServiceConnected = false;
+            requestStatePersistenceLocked(getApplicationContext());
+        }
         PERSISTENCE.shutdown();
         super.onDestroy();
     }
@@ -159,6 +169,16 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         bundle.putString(
             FIELD_DURABLE_STATE,
             contextBound ? durableState : DURABLE_STATE_NOT_AVAILABLE
+        );
+        bundle.putBoolean(
+            FIELD_DURABLE_RETRY_REQUIRED,
+            contextBound && persistenceRetryRequired
+        );
+        bundle.putString(
+            FIELD_DURABLE_RETRY_TRIGGER,
+            contextBound && persistenceRetryRequired
+                ? DURABLE_RETRY_TRIGGER_NEXT_CONTEXT_PREFLIGHT
+                : DURABLE_RETRY_TRIGGER_NONE
         );
         bundle.putString(
             FIELD_SETTINGS_READ_STATE,
@@ -263,6 +283,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         }
         if (stateVersion == Long.MAX_VALUE) {
             stateVersionExhausted = true;
+            persistenceRetryRequired = true;
             durableState = DURABLE_STATE_WRITE_FAILED;
             return;
         }
@@ -279,9 +300,16 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         return count > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) count;
     }
 
-    private static void markDurableWriteFailed() {
+    private static void markPersistenceRetryRequired() {
         synchronized (STATE_LOCK) {
+            persistenceRetryRequired = true;
             durableState = DURABLE_STATE_WRITE_FAILED;
+        }
+    }
+
+    private static void clearPersistenceRetryRequired() {
+        synchronized (STATE_LOCK) {
+            persistenceRetryRequired = false;
         }
     }
 
@@ -295,6 +323,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
             synchronized (lock) {
                 if (worker.isShutdown() || worker.isTerminating()) {
                     if (!worker.isTerminated()) {
+                        markPersistenceRetryRequired();
                         return;
                     }
                     worker = createWorker();
@@ -302,24 +331,29 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
                     stopping = false;
                 }
                 if (stopping || taskQueued) {
+                    if (stopping) {
+                        markPersistenceRetryRequired();
+                    }
                     return;
                 }
                 taskQueued = true;
+                clearPersistenceRetryRequired();
                 final ThreadPoolExecutor taskWorker = worker;
                 try {
                     taskWorker.execute(new Runnable() {
                         @Override
                         public void run() {
+                            boolean persisted = false;
                             try {
-                                persistPending(context);
+                                persisted = persistPending(context);
                             } finally {
-                                taskFinished(taskWorker, context);
+                                taskFinished(taskWorker, context, persisted);
                             }
                         }
                     });
                 } catch (RejectedExecutionException error) {
                     taskQueued = false;
-                    markDurableWriteFailed();
+                    markPersistenceRetryRequired();
                 }
             }
         }
@@ -342,17 +376,17 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
                 }
             }
             if (!terminated || hasPendingState()) {
-                markDurableWriteFailed();
+                markPersistenceRetryRequired();
             }
         }
 
-        private void persistPending(Context context) {
+        private boolean persistPending(Context context) {
             while (!Thread.currentThread().isInterrupted()) {
                 StateSnapshot snapshot;
                 synchronized (STATE_LOCK) {
                     if (stateVersionExhausted) {
                         durableState = DURABLE_STATE_WRITE_FAILED;
-                        return;
+                        return false;
                     }
                     snapshot = new StateSnapshot(
                         stateVersion,
@@ -373,37 +407,44 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
                         .putBoolean(PREF_SERVICE_ENABLED, snapshot.serviceEnabled)
                         .commit();
                 } catch (RuntimeException error) {
-                    markDurableWriteFailed();
-                    return;
+                    markPersistenceRetryRequired();
+                    return false;
                 }
                 synchronized (STATE_LOCK) {
                     if (!written) {
+                        persistenceRetryRequired = true;
                         durableState = DURABLE_STATE_WRITE_FAILED;
-                        return;
+                        return false;
                     }
                     if (stateVersionExhausted) {
                         durableState = DURABLE_STATE_WRITE_FAILED;
-                        return;
+                        return false;
                     }
                     if (stateVersion == snapshot.version) {
                         persistedVersion = snapshot.version;
+                        persistenceRetryRequired = false;
                         durableState = DURABLE_STATE_PERSISTED;
-                        return;
+                        return true;
                     }
                     durableState = DURABLE_STATE_WRITE_PENDING;
                 }
             }
-            markDurableWriteFailed();
+            markPersistenceRetryRequired();
+            return false;
         }
 
-        private void taskFinished(ThreadPoolExecutor taskWorker, Context context) {
+        private void taskFinished(
+            ThreadPoolExecutor taskWorker,
+            Context context,
+            boolean persisted
+        ) {
             synchronized (lock) {
                 if (worker != taskWorker) {
                     return;
                 }
                 taskQueued = false;
             }
-            if (hasPendingState()) {
+            if (persisted && hasPendingState()) {
                 enqueue(context);
             }
         }
