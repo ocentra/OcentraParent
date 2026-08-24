@@ -13,9 +13,11 @@ impl DeviceTrustRuntimeFenceParticipant<'_> {
         &mut self,
         reservation: &DeviceTrustRuntimeFenceReservation,
     ) -> Result<DeviceTrustRuntimeFenceOutcome, DeviceTrustRuntimeFenceError> {
-        let current = target::current_target(self.repository, &reservation.target)?;
-        target::ensure_current(&reservation.target, &current)?;
+        storage::validate_schema(&self.repository.connection)?;
+        let fence = self.repository.external_authority.read_fence()?;
         let transaction = self.repository.transaction()?;
+        let _current =
+            target::current_target_in_transaction(&transaction, &reservation.target, &fence)?;
         let stored = storage::read_reservation(&transaction, &reservation.operation_id)?
             .ok_or(DeviceTrustRuntimeFenceError::ReservationMissing)?;
         let stored_target = storage::target(&stored)?;

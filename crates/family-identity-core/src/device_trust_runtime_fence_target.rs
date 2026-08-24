@@ -1,10 +1,14 @@
 use crate::{
     device_trust_current_binding::CurrentChildDeviceTrustBinding,
     device_trust_lifecycle::{DeviceTrustLifecycleRepository, DeviceTrustLifecycleState},
+    device_trust_lifecycle_authority::authority_key,
+    device_trust_lifecycle_authority_lock::AuthorityReadFence,
     device_trust_lifecycle_schema::is_lower_hex,
+    device_trust_signer_registration,
     device_trust_signer_registration_validation::validate_canonical_identity,
     household_authority::HouseholdAuthorityAction,
 };
+use rusqlite::Transaction;
 
 use super::{action, DeviceTrustRuntimeFenceError, DeviceTrustRuntimeFenceTarget};
 
@@ -110,20 +114,54 @@ pub(super) fn clone_target(
     }
 }
 
-pub(super) fn current_target(
-    repository: &DeviceTrustLifecycleRepository,
+pub(super) fn current_target_in_transaction(
+    transaction: &Transaction<'_>,
     expected: &DeviceTrustRuntimeFenceTarget,
+    fence: &AuthorityReadFence,
 ) -> Result<DeviceTrustRuntimeFenceTarget, DeviceTrustRuntimeFenceError> {
-    let authority = repository
-        .current_signer_authority(
+    let (state, lifecycle_generation, installation_id, binding_generation, authority_generation) =
+        DeviceTrustLifecycleRepository::row(
+            transaction,
             &expected.family_id,
             &expected.trust_subject,
             &expected.parent_device_id,
-            &expected.child_device_id,
+        )?
+        .ok_or(DeviceTrustRuntimeFenceError::DeviceTrustUnavailable)?;
+    if state != "trusted" {
+        return Err(DeviceTrustRuntimeFenceError::DeviceTrustRevoked);
+    }
+    let authority = device_trust_signer_registration::current(
+        transaction,
+        &expected.family_id,
+        &expected.trust_subject,
+        &expected.parent_device_id,
+        &expected.child_device_id,
+    )
+    .map_err(DeviceTrustRuntimeFenceError::from)?;
+    if authority.installation_id() != installation_id
+        || authority.lifecycle_generation() != lifecycle_generation
+        || authority.installation_binding_generation() != binding_generation
+        || authority.authority_generation() != authority_generation
+    {
+        return Err(DeviceTrustRuntimeFenceError::DeviceTrustUnavailable);
+    }
+    if !fence
+        .matches(
+            &authority_key(
+                &expected.family_id,
+                &expected.trust_subject,
+                &expected.parent_device_id,
+            ),
+            authority_generation,
         )
-        .map_err(DeviceTrustRuntimeFenceError::from)?;
+        .map_err(DeviceTrustRuntimeFenceError::from)?
+    {
+        return Err(DeviceTrustRuntimeFenceError::DeviceTrustUnavailable);
+    }
     let binding = authority.into_current_child_device_trust_binding();
-    from_binding_code(expected.action_code, &binding)
+    let current = from_binding_code(expected.action_code, &binding)?;
+    ensure_current(expected, &current)?;
+    Ok(current)
 }
 
 pub(super) fn ensure_current(

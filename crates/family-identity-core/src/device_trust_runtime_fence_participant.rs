@@ -8,7 +8,10 @@
 
 use std::fmt;
 
-use crate::device_trust_lifecycle::{DeviceTrustLifecycleRepository, DeviceTrustLifecycleState};
+use crate::device_trust_lifecycle::{
+    DeviceTrustLifecycleError, DeviceTrustLifecycleRepository, DeviceTrustLifecycleState,
+};
+use rusqlite::Connection;
 
 #[path = "device_trust_runtime_fence_abort.rs"]
 mod abort;
@@ -24,6 +27,8 @@ mod error;
 mod prepare;
 #[path = "device_trust_runtime_fence_recovery.rs"]
 mod recovery;
+#[path = "device_trust_runtime_fence_schema.rs"]
+mod schema;
 #[path = "device_trust_runtime_fence_storage.rs"]
 mod storage;
 #[path = "device_trust_runtime_fence_target.rs"]
@@ -140,14 +145,23 @@ impl fmt::Debug for DeviceTrustRuntimeFenceOutcome {
 
 impl DeviceTrustRuntimeFenceParticipant<'_> {
     /// Attach the participant to an already opened Device Trust repository and
-    /// validate/create only its exact owner ledger. The lifecycle repository
-    /// has already validated its own tables before this method is called.
+    /// validate its exact owner ledger. Schema creation belongs only to the
+    /// lifecycle repository's initial-schema path; attach never migrates or
+    /// recreates an existing database.
     pub(crate) fn attach(
         repository: &mut DeviceTrustLifecycleRepository,
     ) -> Result<DeviceTrustRuntimeFenceParticipant<'_>, DeviceTrustRuntimeFenceError> {
-        storage::ensure_schema(&repository.connection)?;
+        storage::validate_schema(&repository.connection)?;
         Ok(DeviceTrustRuntimeFenceParticipant { repository })
     }
+}
+
+pub(crate) fn initialize_schema(connection: &Connection) -> Result<(), DeviceTrustLifecycleError> {
+    storage::create_schema(connection).map_err(|_error| DeviceTrustLifecycleError::Unavailable)
+}
+
+pub(crate) fn validate_schema(connection: &Connection) -> Result<(), DeviceTrustLifecycleError> {
+    storage::validate_schema(connection).map_err(|_error| DeviceTrustLifecycleError::Unavailable)
 }
 
 impl DeviceTrustRuntimeFenceOutcome {

@@ -6,35 +6,14 @@ use crate::{
 };
 
 use super::{
-    target, DeviceTrustRuntimeFenceError, DeviceTrustRuntimeFenceTarget, StoredReservation,
+    schema, target, DeviceTrustRuntimeFenceError, DeviceTrustRuntimeFenceTarget, StoredReservation,
 };
-
-const TABLE: &str = "device_trust_runtime_fence_reservation";
-const TABLE_SQL: &str = concat!(
-    "CREATETABLEDEVICE_TRUST_RUNTIME_FENCE_RESERVATION(",
-    "OPERATION_IDTEXTNOTNULLPRIMARYKEY,",
-    "RESERVATION_REFTEXTNOTNULLUNIQUECHECK(LENGTH(RESERVATION_REF)=64),",
-    "ACTION_CODEINTEGERNOTNULLCHECK(ACTION_CODEBETWEEN0AND10),",
-    "FAMILY_IDTEXTNOTNULL,",
-    "TRUST_SUBJECTTEXTNOTNULL,",
-    "PARENT_DEVICE_IDTEXTNOTNULL,",
-    "CHILD_DEVICE_IDTEXTNOTNULL,",
-    "INSTALLATION_IDTEXTNOTNULL,",
-    "SIGNER_KEY_IDTEXTNOTNULLCHECK(LENGTH(SIGNER_KEY_ID)=32),",
-    "SIGNER_KEY_SHA256TEXTNOTNULLCHECK(LENGTH(SIGNER_KEY_SHA256)=64),",
-    "LIFECYCLE_GENERATIONINTEGERNOTNULLCHECK(LIFECYCLE_GENERATION>0),",
-    "INSTALLATION_BINDING_GENERATIONINTEGERNOTNULLCHECK(INSTALLATION_BINDING_GENERATION>0),",
-    "AUTHORITY_GENERATIONINTEGERNOTNULLCHECK(AUTHORITY_GENERATION>0),",
-    "RESERVATION_STATETEXTNOTNULLCHECK(RESERVATION_STATEIN('PREPARED','COMMITTED','ABORTED')),",
-    "OUTCOME_DIGESTTEXTCHECK(OUTCOME_DIGESTISNULLORLENGTH(OUTCOME_DIGEST)=64)",
-    ")STRICT"
-);
 
 pub(super) fn read_reservation(
     connection: &Connection,
     operation_id: &str,
 ) -> Result<Option<StoredReservation>, DeviceTrustRuntimeFenceError> {
-    connection
+    let stored = connection
         .query_row(
             "SELECT operation_id, reservation_ref, action_code, family_id, trust_subject,
                     parent_device_id, child_device_id, installation_id, signer_key_id,
@@ -45,7 +24,37 @@ pub(super) fn read_reservation(
             read_stored_reservation,
         )
         .optional()
-        .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)
+        .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?;
+    stored
+        .map(|stored| {
+            validate_stored(&stored)?;
+            target_from_stored(&stored)?;
+            Ok(stored)
+        })
+        .transpose()
+}
+
+pub(super) fn classify_insert_error(
+    connection: &Connection,
+    operation_id: &str,
+    error: rusqlite::Error,
+) -> DeviceTrustRuntimeFenceError {
+    let uniqueness_violation = matches!(
+        error,
+        rusqlite::Error::SqliteFailure(ref failure, _)
+            if failure.extended_code == rusqlite::ffi::SQLITE_CONSTRAINT_PRIMARYKEY
+                || failure.extended_code == rusqlite::ffi::SQLITE_CONSTRAINT_UNIQUE
+    );
+    if uniqueness_violation
+        && read_reservation(connection, operation_id)
+            .ok()
+            .flatten()
+            .is_some()
+    {
+        DeviceTrustRuntimeFenceError::OperationConflict
+    } else {
+        DeviceTrustRuntimeFenceError::Unavailable
+    }
 }
 
 fn read_stored_reservation(row: &rusqlite::Row<'_>) -> rusqlite::Result<StoredReservation> {
@@ -68,50 +77,15 @@ fn read_stored_reservation(row: &rusqlite::Row<'_>) -> rusqlite::Result<StoredRe
     })
 }
 
-pub(super) fn ensure_schema(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {
-    connection
-        .execute_batch(
-            "CREATE TABLE IF NOT EXISTS device_trust_runtime_fence_reservation (
-                operation_id TEXT NOT NULL PRIMARY KEY,
-                reservation_ref TEXT NOT NULL UNIQUE CHECK (length(reservation_ref) = 64),
-                action_code INTEGER NOT NULL CHECK (action_code BETWEEN 0 AND 10),
-                family_id TEXT NOT NULL,
-                trust_subject TEXT NOT NULL,
-                parent_device_id TEXT NOT NULL,
-                child_device_id TEXT NOT NULL,
-                installation_id TEXT NOT NULL,
-                signer_key_id TEXT NOT NULL CHECK (length(signer_key_id) = 32),
-                signer_key_sha256 TEXT NOT NULL CHECK (length(signer_key_sha256) = 64),
-                lifecycle_generation INTEGER NOT NULL CHECK (lifecycle_generation > 0),
-                installation_binding_generation INTEGER NOT NULL CHECK (installation_binding_generation > 0),
-                authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
-                reservation_state TEXT NOT NULL CHECK (reservation_state IN ('prepared', 'committed', 'aborted')),
-                outcome_digest TEXT CHECK (outcome_digest IS NULL OR length(outcome_digest) = 64)
-            ) STRICT;",
-        )
-        .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?;
-    validate_table_sql(connection)?;
-    validate_rows(connection)
+pub(super) fn create_schema(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {
+    schema::create_schema(connection)
 }
 
-fn validate_table_sql(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {
-    let sql = connection
-        .query_row(
-            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?1 AND tbl_name = ?1",
-            [TABLE],
-            |row| row.get::<_, String>(0),
-        )
-        .optional()
-        .map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)?
-        .ok_or(DeviceTrustRuntimeFenceError::Unavailable)?;
-    let compact = compact_sql(&sql);
-    let with_if_not_exists = TABLE_SQL.replacen("CREATETABLE", "CREATETABLEIFNOTEXISTS", 1);
-    (compact == TABLE_SQL || compact == with_if_not_exists)
-        .then_some(())
-        .ok_or(DeviceTrustRuntimeFenceError::Unavailable)
+pub(super) fn validate_schema(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {
+    schema::validate_schema(connection)
 }
 
-fn validate_rows(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {
+pub(super) fn validate_rows(connection: &Connection) -> Result<(), DeviceTrustRuntimeFenceError> {
     let mut statement = connection
         .prepare(
             "SELECT operation_id, reservation_ref, action_code, family_id, trust_subject,
@@ -208,11 +182,4 @@ pub(super) fn to_sql_generation(value: u64) -> Result<i64, DeviceTrustRuntimeFen
 
 fn from_sql_generation(value: i64) -> Result<u64, DeviceTrustRuntimeFenceError> {
     u64::try_from(value).map_err(|_| DeviceTrustRuntimeFenceError::Unavailable)
-}
-
-fn compact_sql(sql: &str) -> String {
-    sql.chars()
-        .filter(|character| !character.is_ascii_whitespace())
-        .flat_map(char::to_uppercase)
-        .collect()
 }
