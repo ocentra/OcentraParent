@@ -23,3 +23,14 @@ pub(super) fn deleted_record_after_cleanup(
     guards.validate()?;
     Ok(super::load_state::stored_record(paths, persisted))
 }
+
+pub(super) fn remove_deletion_staging(
+    paths: &BrowserManagedProfileStorePaths,
+    guards: &ProfileStorePathGuards,
+) -> Result<(), BrowserManagedProfileStoreError> {
+    if guards.directory_exists(&paths.deletion_path)? {
+        guards.remove_directory(&paths.deletion_path)?;
+        super::atomic_write::sync_parent_directory(&paths.deletion_path)?;
+    }
+    Ok(())
+}

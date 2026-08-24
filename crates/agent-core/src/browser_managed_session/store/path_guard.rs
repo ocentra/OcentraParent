@@ -6,6 +6,7 @@ use std::{
 use super::super::BrowserManagedProfileStoreError;
 use super::path_guard_io::reject_indirection;
 use super::path_guards::GuardedPathKind;
+use super::path_guards_mutation::{remove_directory_tree, rename_guarded};
 use super::path_guards_platform::{
     metadata_is_indirection, open_guarded, stable_file_identity, StableFileIdentity,
 };
@@ -28,6 +29,15 @@ impl StablePathGuard {
         Self::from_file(path, file, kind)
     }
 
+    pub(super) fn open_for_destructive_operation(
+        path: &Path,
+        kind: GuardedPathKind,
+    ) -> Result<Self, BrowserManagedProfileStoreError> {
+        reject_indirection(path)?;
+        let file = open_guarded(path, kind, false, false)?;
+        Self::from_file(path, file, kind)
+    }
+
     pub(super) fn from_file(
         path: &Path,
         file: File,
@@ -39,7 +49,7 @@ impl StablePathGuard {
         if !kind.matches(&metadata) || metadata_is_indirection(&metadata) {
             return Err(BrowserManagedProfileStoreError::UnsafePath);
         }
-        let identity = stable_file_identity(path, &file, &metadata)?;
+        let identity = stable_file_identity(&file, &metadata)?;
         Ok(Self {
             path: path.to_path_buf(),
             file,
@@ -57,10 +67,28 @@ impl StablePathGuard {
         if !self.kind.matches(&metadata) || metadata_is_indirection(&metadata) {
             return Err(BrowserManagedProfileStoreError::UnsafePath);
         }
-        if stable_file_identity(&self.path, &current, &metadata)? != self.identity {
+        if stable_file_identity(&current, &metadata)? != self.identity {
             return Err(BrowserManagedProfileStoreError::UnsafePath);
         }
         Ok(())
+    }
+
+    pub(super) fn rename_to(
+        &self,
+        target: &Path,
+        parent: &StablePathGuard,
+    ) -> Result<(), BrowserManagedProfileStoreError> {
+        self.validate()?;
+        parent.validate()?;
+        if target.parent() != Some(parent.path.as_path()) {
+            return Err(BrowserManagedProfileStoreError::UnsafePath);
+        }
+        rename_guarded(&self.path, target, &self.file, &parent.file)
+    }
+
+    pub(super) fn remove_tree(&self) -> Result<(), BrowserManagedProfileStoreError> {
+        self.validate()?;
+        remove_directory_tree(&self.path, &self.file)
     }
 }
 

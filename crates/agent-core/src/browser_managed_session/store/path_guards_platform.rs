@@ -1,17 +1,18 @@
 use std::{
     fs::{self, File, OpenOptions},
+    io,
     path::Path,
 };
 
 use super::super::BrowserManagedProfileStoreError;
 use super::path_guards::GuardedPathKind;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(super) enum StableFileIdentity {
     #[cfg(unix)]
     Unix { device: u64, inode: u64 },
     #[cfg(windows)]
-    Windows { file_id: file_id::FileId },
+    Windows { handle: same_file::Handle },
 }
 
 pub(super) fn metadata_is_indirection(metadata: &fs::Metadata) -> bool {
@@ -32,7 +33,6 @@ pub(super) fn metadata_is_indirection(metadata: &fs::Metadata) -> bool {
 }
 
 pub(super) fn stable_file_identity(
-    path: &Path,
     file: &File,
     metadata: &fs::Metadata,
 ) -> Result<StableFileIdentity, BrowserManagedProfileStoreError> {
@@ -40,7 +40,7 @@ pub(super) fn stable_file_identity(
     {
         use std::os::unix::fs::MetadataExt;
 
-        let _ = (path, file);
+        let _ = file;
         return Ok(StableFileIdentity::Unix {
             device: metadata.dev(),
             inode: metadata.ino(),
@@ -48,26 +48,29 @@ pub(super) fn stable_file_identity(
     }
     #[cfg(windows)]
     {
-        let _ = (file, metadata);
+        let _ = metadata;
         return Ok(StableFileIdentity::Windows {
-            file_id: file_id::get_high_res_file_id(path)
-                .map_err(|_error| BrowserManagedProfileStoreError::Io)?,
+            handle: same_file::Handle::from_file(
+                file.try_clone()
+                    .map_err(|_error| BrowserManagedProfileStoreError::Io)?,
+            )
+            .map_err(|_error| BrowserManagedProfileStoreError::Io)?,
         });
     }
     #[cfg(not(any(unix, windows)))]
     {
-        let _ = (path, file, metadata);
+        let _ = (file, metadata);
         Err(BrowserManagedProfileStoreError::Io)
     }
 }
 
 #[cfg(windows)]
-pub(super) fn open_guarded(
+pub(super) fn open_guarded_io(
     path: &Path,
     kind: GuardedPathKind,
     create: bool,
     deny_delete: bool,
-) -> Result<File, BrowserManagedProfileStoreError> {
+) -> io::Result<File> {
     use std::os::windows::fs::OpenOptionsExt;
 
     const FILE_FLAG_BACKUP_SEMANTICS: u32 = 0x0200_0000;
@@ -90,18 +93,16 @@ pub(super) fn open_guarded(
         flags |= FILE_FLAG_BACKUP_SEMANTICS;
     }
     options.share_mode(share_mode).custom_flags(flags);
-    options
-        .open(path)
-        .map_err(|_error| BrowserManagedProfileStoreError::Io)
+    options.open(path)
 }
 
 #[cfg(unix)]
-pub(super) fn open_guarded(
+pub(super) fn open_guarded_io(
     path: &Path,
     kind: GuardedPathKind,
     create: bool,
     _deny_delete: bool,
-) -> Result<File, BrowserManagedProfileStoreError> {
+) -> io::Result<File> {
     use std::os::unix::fs::OpenOptionsExt;
 
     let mut options = OpenOptions::new();
@@ -116,18 +117,16 @@ pub(super) fn open_guarded(
     options.custom_flags(0x0002_0000);
     #[cfg(any(target_os = "macos", target_os = "ios"))]
     options.custom_flags(0x0000_0100);
-    options
-        .open(path)
-        .map_err(|_error| BrowserManagedProfileStoreError::Io)
+    options.open(path)
 }
 
 #[cfg(not(any(unix, windows)))]
-pub(super) fn open_guarded(
+pub(super) fn open_guarded_io(
     path: &Path,
     kind: GuardedPathKind,
     create: bool,
     _deny_delete: bool,
-) -> Result<File, BrowserManagedProfileStoreError> {
+) -> io::Result<File> {
     let mut options = OpenOptions::new();
     options.read(true);
     if matches!(kind, GuardedPathKind::File) {
@@ -136,7 +135,15 @@ pub(super) fn open_guarded(
     if create {
         options.create(true);
     }
-    options
-        .open(path)
+    options.open(path)
+}
+
+pub(super) fn open_guarded(
+    path: &Path,
+    kind: GuardedPathKind,
+    create: bool,
+    deny_delete: bool,
+) -> Result<File, BrowserManagedProfileStoreError> {
+    open_guarded_io(path, kind, create, deny_delete)
         .map_err(|_error| BrowserManagedProfileStoreError::Io)
 }

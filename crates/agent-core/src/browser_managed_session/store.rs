@@ -14,18 +14,39 @@ mod lock;
 mod mutate;
 #[path = "store/mutate_create.rs"]
 mod mutate_create;
+#[path = "store/mutate_create_state.rs"]
+mod mutate_create_state;
 #[path = "store/mutate_delete.rs"]
 mod mutate_delete;
 #[path = "store/mutate_delete_cleanup.rs"]
 mod mutate_delete_cleanup;
+#[path = "store/mutate_delete_state.rs"]
+mod mutate_delete_state;
 #[path = "store/path_guard.rs"]
 mod path_guard;
 #[path = "store/path_guard_io.rs"]
 mod path_guard_io;
 #[path = "store/path_guards.rs"]
 mod path_guards;
+#[path = "store/path_guards_mutation.rs"]
+mod path_guards_mutation;
+#[cfg(not(windows))]
+#[path = "store/path_guards_mutation_portable.rs"]
+mod path_guards_mutation_portable;
+#[cfg(windows)]
+#[path = "store/path_guards_mutation_windows.rs"]
+mod path_guards_mutation_windows;
+#[cfg(windows)]
+#[path = "store/path_guards_mutation_windows_delete.rs"]
+mod path_guards_mutation_windows_delete;
 #[path = "store/path_guards_platform.rs"]
 mod path_guards_platform;
+#[path = "store/path_guards_root.rs"]
+mod path_guards_root;
+#[path = "store/path_guards_root_component.rs"]
+mod path_guards_root_component;
+#[path = "store/path_guards_root_component_parse.rs"]
+mod path_guards_root_component_parse;
 #[path = "store/paths.rs"]
 mod paths;
 #[path = "store/record.rs"]

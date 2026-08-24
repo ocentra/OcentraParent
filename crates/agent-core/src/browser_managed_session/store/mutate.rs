@@ -1,5 +1,3 @@
-use std::fs;
-
 use super::super::{
     BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
     BrowserManagedProfileStorePaths, BrowserManagedProfileStoreRecord,
@@ -33,15 +31,10 @@ fn ensure_profile_root(
     paths: &BrowserManagedProfileStorePaths,
 ) -> Result<(), BrowserManagedProfileStoreError> {
     super::validation::validate_profile_store_paths(config, paths)?;
-    let root_missing = match fs::symlink_metadata(&config.profile_root_dir) {
-        Ok(_) => false,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => true,
-        Err(_) => return Err(BrowserManagedProfileStoreError::Io),
-    };
-    if root_missing {
-        fs::create_dir_all(&config.profile_root_dir)
-            .map_err(|_error| BrowserManagedProfileStoreError::Io)?;
+    let root_guard = super::path_guards_root::ensure_directory_chain(&config.profile_root_dir)?;
+    if config.profile_root_dir.parent().is_some() {
         super::atomic_write::sync_parent_directory(&config.profile_root_dir)?;
     }
+    root_guard.validate()?;
     super::validation::validate_profile_store_paths(config, paths)
 }

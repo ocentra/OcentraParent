@@ -33,6 +33,7 @@ tungstenite = "0.24.0"
 [target.'cfg(windows)'.dependencies]
 active-win-pos-rs = "0.10.1"
 file-id = "0.2.3"
+same-file = "1.0.6"
 winreg = "0.56.0"
 
 [[test]]

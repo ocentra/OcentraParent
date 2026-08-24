@@ -132,6 +132,7 @@ pub enum BrowserManagedProfileStoreError {
     MetadataCorrupt,
     StoreBusy,
     UnsafePath,
+    CleanupFailed,
     Io,
 }
 

@@ -17,14 +17,30 @@ pub(crate) fn validate_profile_store_config(
 ) -> Result<(), BrowserManagedProfileStoreError> {
     if !config.profile_root_dir.is_absolute()
         || config.profile_root_dir.as_os_str().is_empty()
-        || config.profile_id.trim().is_empty()
-        || config.profile_scope_id.trim().is_empty()
-        || config.device_id.trim().is_empty()
-        || config.policy_revision.trim().is_empty()
+        || !bounded_non_empty(
+            &config.profile_id,
+            ocentra_parent_agent_protocol::constants::browser::PROFILE_STORE_MAX_PROFILE_ID_BYTES,
+        )
+        || !bounded_non_empty(
+            &config.profile_scope_id,
+            ocentra_parent_agent_protocol::constants::browser::PROFILE_STORE_MAX_PROFILE_SCOPE_ID_BYTES,
+        )
+        || !bounded_non_empty(
+            &config.device_id,
+            ocentra_parent_agent_protocol::constants::browser::PROFILE_STORE_MAX_DEVICE_ID_BYTES,
+        )
+        || !bounded_non_empty(
+            &config.policy_revision,
+            ocentra_parent_agent_protocol::constants::browser::PROFILE_STORE_MAX_POLICY_REVISION_BYTES,
+        )
     {
         return Err(BrowserManagedProfileStoreError::UnownedProfileRejected);
     }
     Ok(())
+}
+
+fn bounded_non_empty(value: &str, max_bytes: usize) -> bool {
+    !value.trim().is_empty() && value.len() <= max_bytes
 }
 
 pub(crate) fn validate_profile_store_paths(

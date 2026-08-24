@@ -1,5 +1,3 @@
-use std::fs;
-
 use ocentra_parent_agent_protocol::{
     browser_managed::{BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry},
     constants,
@@ -18,7 +16,15 @@ pub(super) fn create_or_repair_locked(
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
     let stored_entry = super::io::read_profile_store_entry(config, &paths, guards)?;
     if guards.directory_exists(&paths.deletion_path)? {
-        return super::mutate_delete::complete_pending_deletion(
+        return super::mutate_delete_state::complete_pending_deletion(
+            config,
+            paths,
+            stored_entry,
+            guards,
+        );
+    }
+    if super::mutate_create_state::is_pending_deletion(stored_entry.as_ref()) {
+        return super::mutate_create_state::resume_pending_deletion(
             config,
             paths,
             stored_entry,
@@ -80,7 +86,12 @@ fn create_new_profile(
     );
     super::io::write_profile_store_entry(config, &paths, &pending.entry, guards)?;
 
-    create_profile_dir_or_remove(config, &paths, &pending.profile_dir, guards)?;
+    super::mutate_create_state::create_profile_dir_or_remove(
+        config,
+        &paths,
+        &pending.profile_dir,
+        guards,
+    )?;
 
     let now = super::validation::timestamp_now();
     let record = super::record::profile_store_record(
@@ -96,7 +107,7 @@ fn create_new_profile(
             repair_reason: Some(constants::browser::PROFILE_STORE_REASON_CREATED.to_string()),
         },
     );
-    persist_ready_or_remove(config, &paths, &record, guards)?;
+    super::mutate_create_state::persist_ready_or_remove(config, &paths, &record, guards, true)?;
     Ok(record)
 }
 
@@ -124,7 +135,12 @@ fn repair_missing_profile(
     );
     super::io::write_profile_store_entry(config, &paths, &pending.entry, guards)?;
 
-    create_profile_dir_or_remove(config, &paths, &paths.profile_dir, guards)?;
+    super::mutate_create_state::create_profile_dir_or_remove(
+        config,
+        &paths,
+        &paths.profile_dir,
+        guards,
+    )?;
 
     let now = super::validation::timestamp_now();
     let record = super::record::profile_store_record(
@@ -140,7 +156,7 @@ fn repair_missing_profile(
             repair_reason: Some(constants::browser::PROFILE_STORE_REASON_REPAIRED.to_string()),
         },
     );
-    persist_ready_or_remove(config, &paths, &record, guards)?;
+    super::mutate_create_state::persist_ready_or_remove(config, &paths, &record, guards, true)?;
     Ok(record)
 }
 
@@ -164,35 +180,6 @@ fn repair_pending_profile(
             repair_reason: Some(constants::browser::PROFILE_STORE_REASON_REPAIRED.to_string()),
         },
     );
-    persist_ready_or_remove(config, &paths, &record, guards)?;
+    super::mutate_create_state::persist_ready_or_remove(config, &paths, &record, guards, false)?;
     Ok(record)
-}
-
-fn persist_ready_or_remove(
-    config: &BrowserManagedProfileStoreConfig,
-    paths: &BrowserManagedProfileStorePaths,
-    record: &BrowserManagedProfileStoreRecord,
-    guards: &ProfileStorePathGuards,
-) -> Result<(), BrowserManagedProfileStoreError> {
-    if let Err(error) = super::io::write_profile_store_entry(config, paths, &record.entry, guards) {
-        let _ = guards.remove_directory(&record.profile_dir);
-        return Err(error);
-    }
-    Ok(())
-}
-
-fn create_profile_dir_or_remove(
-    config: &BrowserManagedProfileStoreConfig,
-    paths: &BrowserManagedProfileStorePaths,
-    profile_dir: &std::path::Path,
-    guards: &ProfileStorePathGuards,
-) -> Result<(), BrowserManagedProfileStoreError> {
-    fs::create_dir(profile_dir).map_err(|_error| BrowserManagedProfileStoreError::Io)?;
-    if let Err(error) = super::atomic_write::sync_parent_directory(profile_dir)
-        .and_then(|()| super::validation::validate_profile_store_paths(config, paths))
-    {
-        let _ = guards.remove_directory(profile_dir);
-        return Err(error);
-    }
-    Ok(())
 }

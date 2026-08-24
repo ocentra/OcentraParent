@@ -2716,6 +2716,7 @@ dependencies = [
  "ocentra-tracking-core",
  "roxmltree",
  "rusqlite",
+ "same-file",
  "serde",
  "serde_json",
  "sha2",

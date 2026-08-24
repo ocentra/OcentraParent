@@ -32,6 +32,11 @@ pub(crate) fn write_profile_store_entry(
     guards.validate()?;
     let contents = serde_json::to_string_pretty(entry)
         .map_err(|_error| BrowserManagedProfileStoreError::Io)?;
+    if contents.len()
+        > ocentra_parent_agent_protocol::constants::browser::PROFILE_STORE_MAX_METADATA_BYTES
+    {
+        return Err(BrowserManagedProfileStoreError::MetadataCorrupt);
+    }
     super::atomic_write::replace_and_sync(&paths.metadata_path, contents.as_bytes())?;
     guards.validate()?;
     let persisted = read_profile_store_entry(config, paths, guards)?

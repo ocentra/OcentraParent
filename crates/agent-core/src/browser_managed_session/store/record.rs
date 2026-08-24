@@ -20,7 +20,9 @@ pub(crate) fn profile_store_error_reason(error: &BrowserManagedProfileStoreError
         BrowserManagedProfileStoreError::MetadataCorrupt => {
             constants::value::MANAGED_BROWSER_PROFILE_METADATA_CORRUPT
         }
-        BrowserManagedProfileStoreError::StoreBusy | BrowserManagedProfileStoreError::Io => {
+        BrowserManagedProfileStoreError::StoreBusy
+        | BrowserManagedProfileStoreError::CleanupFailed
+        | BrowserManagedProfileStoreError::Io => {
             constants::value::MANAGED_BROWSER_PROFILE_STORE_IO_ERROR
         }
     }
