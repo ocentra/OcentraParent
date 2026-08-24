@@ -301,7 +301,7 @@ manual-required; this source does not fabricate provider or Account authority.
 ```text
 WP01 provider decision and custody boundary
 WP08 Rust-owned schema, sealed authority, and local repository/CAS
-WP02 target-aware actor/target action authority
+    (Account WP09 issuer/key custody, authenticated producer binding, and startup reload/recovery || WP02 target-aware actor/target action authority)
 Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider caller
 Device Trust WP03 live Account/Device Trust ceremony composition
 Cloudflare WP08 runner/proof
@@ -314,6 +314,9 @@ WP06 security proof and route gate
 
 WP06 is last because it consumes proof from every earlier workpack.
 
+## 2026-08-24 Account WP09 issuer/key custody and Cloudflare handoff
+
+Account WP09 is the planned Account-owned durable issuer and signing-key custody route. It owns monotonic versioned public-key registration/revocation, the authenticated Account producer service-binding adapter, Account startup reload/recovery, and the typed handoff over WP08's existing sealed wire contract. Its only direct prerequisite is Account WP08, with a reviewed-implementation edge; normal completion remains gated on WP08 DONE. The five planned implementation roots and four expected test roots are absent, and the existing crates/family-identity-core/src/lib.rs shared root is not a planned WP09 implementation root. No source, test, Cloudflare runtime, READY, or DONE claim is made. Cloudflare WP06 retains WP08 and additionally consumes WP09 at implementation ordering; Account WP02, WP05A, and Device Trust remain separate authorities.
 ## 2026-08-18 multi-owner effect-fence routing correction
 
 The earlier Account-only CAS wording is retired as an implementation route.

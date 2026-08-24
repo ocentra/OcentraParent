@@ -127,7 +127,8 @@
       "hardDependencies": [
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-account-identity-family-plan-02-identity-household-role-model",
-        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff"
       ],
       "evidence": [
         "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
@@ -135,9 +136,10 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Independent source review accepted Cloudflare WP06's D1 authority packet plus canonical da84e6ee3's bounded duplicate-key-rejecting decoder and private one-shot Account producer verifier. The runtime remains a safe verified-provider read/manual boundary because Account provides no durable signer/public-key registry or authenticated Cloudflare service binding; parameterless mutation readiness stays manual-required and no caller-scalar mutation API exists. Runtime mutation composition, higher authority, all six expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
+      "reason": "Independent source review accepted Cloudflare WP06's D1 authority packet plus canonical da84e6ee3's bounded duplicate-key-rejecting decoder and private one-shot Account producer verifier. The runtime remains a safe verified-provider read/manual boundary because Account provides no durable signer/public-key registry or authenticated Cloudflare service binding; parameterless mutation readiness stays manual-required and no caller-scalar mutation API exists. Runtime mutation composition, higher authority, all six expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open. Account WP09 is an additional reviewed-implementation source prerequisite for durable issuer/key custody and authenticated producer binding; this does not claim Cloudflare runtime readiness or transfer Account ownership."
     },
     {
       "id": "WP-account-identity-family-plan-03-session-token-lifecycle",
@@ -2634,9 +2636,47 @@
         "docs/engineering-graph/code-map.json"
       ],
       "reason": "Real event/replay/dead-letter/redaction contract owner and mapped tests exist, but no production journal, dispatcher, or publisher exists; downstream Eventing/Network consumers must not be reversed into prerequisites and no implementation/runtime authorization is claimed."
+    },
+    {
+      "id": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "hardDependencies": ["WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"],
+      "evidence": [
+        "docs/plans/account-identity-family-plan/AGENTS.md",
+        "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP09 owns the planned Account-side durable issuer and signing-key custody, monotonic versioned public-key registry/revocation, authenticated Account producer service-binding adapter, startup reload/recovery, and typed handoff over WP08's existing sealed wire contract. WP08 is the only direct prerequisite and is a reviewed-implementation source-order gate; normal completion remains gated on WP08 DONE. No Account WP02, WP05A, Device Trust, Cloudflare source, duplicated schema/wire, caller-selected authority, mock/no-op/in-memory custody, source, tests, proof, READY, or DONE claim is made."
     }
   ],
   "edges": [
+    {
+      "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Account WP09 consumes WP08's canonical sealed Account authority and typed wire contract as its only direct source-order prerequisite. It must not duplicate the schema or mint caller-selected authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "to": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Cloudflare WP06 consumes the Account-owned authenticated producer binding and durable issuer/key custody from WP09 while retaining its direct WP08 contract dependency. This is implementation ordering only and does not transfer Account ownership or claim Cloudflare runtime readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
     {
       "from": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
       "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",

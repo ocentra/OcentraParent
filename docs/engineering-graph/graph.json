@@ -35,7 +35,7 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "workpackCount": 9,
+        "workpackCount": 10,
         "dependencyConfidence": "unreviewed"
       }
     },
@@ -1138,6 +1138,85 @@
             "docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        }
+      }
+    },
+    {
+      "id": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "kind": "workpack",
+      "title": "WP09 Account Issuer Key Custody And Cloudflare Handoff",
+      "path": "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+      "parent": "PLAN-account-identity-family-plan",
+      "dependsOn": [
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
+      ],
+      "state": "blocked",
+      "lifecycleState": "planned",
+      "metadata": {
+        "planSlug": "account-identity-family-plan",
+        "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "statusText": "planned / normal completion gated / tests, adapter, and Cloudflare composition open",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/family-identity-core/src/account_identity_authority_issuer.rs",
+            "crates/family-identity-core/src/account_identity_authority_issuer_key_custody.rs",
+            "crates/family-identity-core/src/account_identity_authority_issuer_key_registry.rs",
+            "crates/family-identity-core/src/account_identity_authority_issuer_service_binding.rs",
+            "crates/family-identity-core/src/account_identity_authority_issuer_startup.rs"
+          ],
+          "testRoots": [
+            "crates/family-identity-core/tests/contract/account_identity_authority_issuer.rs",
+            "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_custody.rs",
+            "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_registry.rs",
+            "crates/family-identity-core/tests/unit/account_identity_authority_issuer_startup.rs"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
+          ],
+          "evidence": [
+            "docs/plans/account-identity-family-plan/AGENTS.md",
+            "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+            "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+            "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "WP09 owns the planned Account-side durable issuer and signing-key custody, monotonic versioned public-key registry/revocation, authenticated Account producer service-binding adapter, startup reload/recovery, and typed handoff over WP08's existing sealed wire contract. WP08 is the only direct prerequisite and is a reviewed-implementation source-order gate; normal completion remains gated on WP08 DONE. No Account WP02, WP05A, Device Trust, Cloudflare source, duplicated schema/wire, caller-selected authority, mock/no-op/in-memory custody, source, tests, proof, READY, or DONE claim is made."
+        }
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [],
+          "tests": [
+            "docs/plans/account-identity-family-plan/TEST_PROOF_EXPECTATIONS.md"
+          ],
+          "proof": ["docs/proof/account-identity-family-plan"],
+          "checklist": [
+            "docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md"
+          ],
+          "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "crates/family-identity-core/src/account_identity_authority_issuer.rs",
+            "crates/family-identity-core/src/account_identity_authority_issuer_key_custody.rs",
+            "crates/family-identity-core/src/account_identity_authority_issuer_key_registry.rs",
+            "crates/family-identity-core/src/account_identity_authority_issuer_service_binding.rs",
+            "crates/family-identity-core/src/account_identity_authority_issuer_startup.rs"
+          ],
+          "tests": [
+            "crates/family-identity-core/tests/contract/account_identity_authority_issuer.rs",
+            "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_custody.rs",
+            "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_registry.rs",
+            "crates/family-identity-core/tests/unit/account_identity_authority_issuer_startup.rs"
+          ]
         }
       }
     },
@@ -17261,6 +17340,7 @@
       "path": "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
       "parent": "PLAN-cloudflare-control-plane-plan",
       "dependsOn": [
+        "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
         "WP-account-identity-family-plan-02-identity-household-role-model"
@@ -17297,6 +17377,7 @@
           "hardDependencies": [
             "WP-account-identity-family-plan-02-identity-household-role-model",
             "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+            "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
             "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
           ],
           "evidence": [
@@ -17305,9 +17386,10 @@
             "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
             "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
             "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+            "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Independent source review accepted Cloudflare WP06's D1 authority packet plus canonical da84e6ee3's bounded duplicate-key-rejecting decoder and private one-shot Account producer verifier. The runtime remains a safe verified-provider read/manual boundary because Account provides no durable signer/public-key registry or authenticated Cloudflare service binding; parameterless mutation readiness stays manual-required and no caller-scalar mutation API exists. Runtime mutation composition, higher authority, all six expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
+          "reason": "Independent source review accepted Cloudflare WP06's D1 authority packet plus canonical da84e6ee3's bounded duplicate-key-rejecting decoder and private one-shot Account producer verifier. The runtime remains a safe verified-provider read/manual boundary because Account provides no durable signer/public-key registry or authenticated Cloudflare service binding; parameterless mutation readiness stays manual-required and no caller-scalar mutation API exists. Runtime mutation composition, higher authority, all six expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open. Account WP09 is an additional reviewed-implementation source prerequisite for durable issuer/key custody and authenticated producer binding; this does not claim Cloudflare runtime readiness or transfer Account ownership."
         },
         "completionEvidenceOverride": {
           "reason": "Canonical da84e6ee3 includes the reviewed bounded JSON decoder and private one-shot Account producer verifier. WP06 remains a verified-provider read/manual boundary because Account durable signer/public-key custody and authenticated service-binding/registry distribution are missing. Runtime mutation readiness is parameterless and manual-required; the existing writer remains producer-gated and requires a real verified handoff plus D1 atomic currentness/revocation/CAS recheck. Six expected WP06 test roots are missing. No public route, Firebase authority, env/fixture/request key, caller-supplied scalar, validation, proof, deployment, READY, or DONE claim is permitted.",
@@ -29805,6 +29887,12 @@
       "confidence": "structural"
     },
     {
+      "from": "PLAN-account-identity-family-plan",
+      "to": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
       "from": "PLAN-ai-plan",
       "to": "WP-ai-plan-01-source-index-and-repo-reconciliation",
       "kind": "contains",
@@ -33859,6 +33947,32 @@
       "to": "WP-v0-8-enforcement-control-plan-20-rollout-docs-ci-pr-gate",
       "kind": "contains",
       "confidence": "structural"
+    },
+    {
+      "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Account WP09 consumes WP08's canonical sealed Account authority and typed wire contract as its only direct source-order prerequisite. It must not duplicate the schema or mint caller-selected authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "to": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Cloudflare WP06 consumes the Account-owned authenticated producer binding and durable issuer/key custody from WP09 while retaining its direct WP08 contract dependency. This is implementation ordering only and does not transfer Account ownership or claim Cloudflare runtime readiness.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
@@ -40398,7 +40512,7 @@
   ],
   "migration": {
     "importedPlans": 23,
-    "importedWorkpacks": 685,
+    "importedWorkpacks": 686,
     "unindexedWorkpackArtifacts": [
       {
         "planId": "PLAN-account-identity-family-plan",
@@ -40497,7 +40611,7 @@
         "planId": "PLAN-account-identity-family-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "workpackCount": 9
+        "workpackCount": 10
       },
       {
         "scope": "PLAN-account-identity-family-plan:unindexed-workpack-files",
