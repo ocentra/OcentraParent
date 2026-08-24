@@ -33,6 +33,11 @@ pub(super) fn load_existing_profile_state(
         Some(entry) if entry.lifecycle_state == BrowserManagedProfileLifecycleState::Ready => {
             Ok(stored_record(paths, entry))
         }
+        Some(entry)
+            if entry.lifecycle_state == BrowserManagedProfileLifecycleState::RepairRequired =>
+        {
+            Ok(stored_record(paths, entry))
+        }
         Some(_) => Err(BrowserManagedProfileStoreError::MetadataCorrupt),
         None => Ok(repair_required_record(
             config,

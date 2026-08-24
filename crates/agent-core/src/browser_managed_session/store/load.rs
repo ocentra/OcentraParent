@@ -1,3 +1,5 @@
+use std::io::ErrorKind;
+
 use super::super::{
     BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
     BrowserManagedProfileStorePaths, BrowserManagedProfileStoreRecord,
@@ -12,7 +14,10 @@ pub(crate) fn load_managed_browser_profile_store(
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
     let paths = managed_profile_store_paths(config)?;
     super::validation::validate_profile_store_paths(config, &paths)?;
-    if !config.profile_root_dir.exists() {
+    if matches!(
+        std::fs::symlink_metadata(&config.profile_root_dir),
+        Err(error) if error.kind() == ErrorKind::NotFound
+    ) {
         let now = timestamp_now();
         return Ok(super::load_state::missing_record(
             config,
@@ -21,24 +26,25 @@ pub(crate) fn load_managed_browser_profile_store(
             now,
         ));
     }
-    with_profile_store_lock(&paths, || {
+    with_profile_store_lock(&paths, |guards| {
         super::validation::validate_profile_store_paths(config, &paths)?;
-        load_locked(config, paths.clone())
+        load_locked(config, paths.clone(), guards)
     })
 }
 
 fn load_locked(
     config: &BrowserManagedProfileStoreConfig,
     paths: BrowserManagedProfileStorePaths,
+    guards: &super::path_guards::ProfileStorePathGuards,
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    let stored_entry = read_profile_store_entry(config, &paths)?;
+    let stored_entry = read_profile_store_entry(config, &paths, guards)?;
     let now = timestamp_now();
 
-    if paths.deletion_path.is_dir() {
+    if guards.directory_exists(&paths.deletion_path)? {
         return super::load_deletion_state::load_deletion_state(config, paths, stored_entry, now);
     }
 
-    if !paths.profile_dir.is_dir() {
+    if !guards.directory_exists(&paths.profile_dir)? {
         return super::load_state::load_missing_profile_state(config, paths, stored_entry, now);
     }
 

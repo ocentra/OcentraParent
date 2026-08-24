@@ -1,25 +1,24 @@
-use std::{fs, io::ErrorKind};
-
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileStoreEntry;
 
 use super::super::{
     BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
     BrowserManagedProfileStorePaths,
 };
+use super::path_guards::ProfileStorePathGuards;
 
 pub(crate) fn read_profile_store_entry(
     config: &BrowserManagedProfileStoreConfig,
     paths: &BrowserManagedProfileStorePaths,
+    guards: &ProfileStorePathGuards,
 ) -> Result<Option<BrowserManagedProfileStoreEntry>, BrowserManagedProfileStoreError> {
-    match fs::read_to_string(&paths.metadata_path) {
-        Ok(contents) => {
+    match guards.read_text(&paths.metadata_path)? {
+        Some(contents) => {
             let entry = serde_json::from_str(&contents)
                 .map_err(|_error| BrowserManagedProfileStoreError::MetadataCorrupt)?;
             super::validation::validate_stored_entry(config, &entry)?;
             Ok(Some(entry))
         }
-        Err(error) if error.kind() == ErrorKind::NotFound => Ok(None),
-        Err(_) => Err(BrowserManagedProfileStoreError::Io),
+        None => Ok(None),
     }
 }
 
@@ -27,12 +26,15 @@ pub(crate) fn write_profile_store_entry(
     config: &BrowserManagedProfileStoreConfig,
     paths: &BrowserManagedProfileStorePaths,
     entry: &BrowserManagedProfileStoreEntry,
+    guards: &ProfileStorePathGuards,
 ) -> Result<(), BrowserManagedProfileStoreError> {
     super::validation::validate_stored_entry(config, entry)?;
+    guards.validate()?;
     let contents = serde_json::to_string_pretty(entry)
         .map_err(|_error| BrowserManagedProfileStoreError::Io)?;
     super::atomic_write::replace_and_sync(&paths.metadata_path, contents.as_bytes())?;
-    let persisted = read_profile_store_entry(config, paths)?
+    guards.validate()?;
+    let persisted = read_profile_store_entry(config, paths, guards)?
         .ok_or(BrowserManagedProfileStoreError::MetadataCorrupt)?;
     if persisted == *entry {
         Ok(())

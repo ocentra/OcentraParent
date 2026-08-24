@@ -10,6 +10,9 @@ pub(super) fn validate_entry_state(
 ) -> Result<(), BrowserManagedProfileStoreError> {
     match entry.lifecycle_state {
         BrowserManagedProfileLifecycleState::Ready => validate_ready_state(entry),
+        BrowserManagedProfileLifecycleState::RepairRequired => {
+            super::validation_entry_state_repair::validate_repair_required_state(entry)
+        }
         BrowserManagedProfileLifecycleState::Deleted => validate_deleted_state(entry),
         _ => Err(BrowserManagedProfileStoreError::MetadataCorrupt),
     }

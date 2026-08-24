@@ -32,22 +32,28 @@ pub struct BrowserManagedBridgePortReservation {
     pub bridge_port: u16,
 }
 
+/// Opaque configuration issued by the browser owner.
+///
+/// The profile-store boundary deliberately exposes no constructor or public
+/// fields.  A path and its identity binding must come from the owner that
+/// derives the Ocentra-managed root; callers cannot select a deletion root or
+/// mint a binding by assembling this value at a public API boundary.
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct BrowserManagedProfileStoreConfig {
-    pub profile_root_dir: PathBuf,
-    pub profile_id: String,
-    pub profile_scope_id: String,
-    pub device_id: String,
-    pub browser_family: BrowserFamily,
-    pub browser_channel: BrowserChannel,
-    pub policy_revision: String,
+pub(crate) struct BrowserManagedProfileStoreConfig {
+    profile_root_dir: PathBuf,
+    profile_id: String,
+    profile_scope_id: String,
+    device_id: String,
+    browser_family: BrowserFamily,
+    browser_channel: BrowserChannel,
+    policy_revision: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct BrowserManagedProfileStoreRecord {
-    pub profile_dir: PathBuf,
-    pub metadata_path: PathBuf,
-    pub entry: BrowserManagedProfileStoreEntry,
+pub(crate) struct BrowserManagedProfileStoreRecord {
+    profile_dir: PathBuf,
+    metadata_path: PathBuf,
+    entry: BrowserManagedProfileStoreEntry,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -141,19 +147,19 @@ impl BrowserManagedLaunchError {
     }
 }
 
-pub fn load_managed_browser_profile_store(
+pub(crate) fn load_managed_browser_profile_store(
     config: &BrowserManagedProfileStoreConfig,
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
     store::load_managed_browser_profile_store(config)
 }
 
-pub fn create_or_repair_managed_browser_profile_store(
+pub(crate) fn create_or_repair_managed_browser_profile_store(
     config: &BrowserManagedProfileStoreConfig,
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
     store::create_or_repair_managed_browser_profile_store(config)
 }
 
-pub fn delete_managed_browser_profile_store(
+pub(crate) fn delete_managed_browser_profile_store(
     config: &BrowserManagedProfileStoreConfig,
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
     store::delete_managed_browser_profile_store(config)

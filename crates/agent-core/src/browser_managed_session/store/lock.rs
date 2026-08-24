@@ -1,5 +1,4 @@
 use std::{
-    fs::OpenOptions,
     io::ErrorKind,
     thread,
     time::{Duration, Instant},
@@ -8,28 +7,25 @@ use std::{
 use fs2::FileExt;
 
 use super::super::{BrowserManagedProfileStoreError, BrowserManagedProfileStorePaths};
+use super::path_guards::ProfileStorePathGuards;
 
 const LOCK_WAIT_LIMIT: Duration = Duration::from_secs(5);
 const LOCK_RETRY_INTERVAL: Duration = Duration::from_millis(10);
 
 pub(crate) fn with_profile_store_lock<T>(
     paths: &BrowserManagedProfileStorePaths,
-    operation: impl FnOnce() -> Result<T, BrowserManagedProfileStoreError>,
+    operation: impl FnOnce(&ProfileStorePathGuards) -> Result<T, BrowserManagedProfileStoreError>,
 ) -> Result<T, BrowserManagedProfileStoreError> {
-    super::validation::validate_path_chain_for_lock(&paths.lock_path)?;
-    let lock = OpenOptions::new()
-        .create(true)
-        .read(true)
-        .write(true)
-        .truncate(false)
-        .open(&paths.lock_path)
-        .map_err(|_error| BrowserManagedProfileStoreError::Io)?;
-    acquire_with_deadline(&lock)?;
-    let result = operation();
-    match (result, FileExt::unlock(&lock)) {
-        (Ok(value), Ok(())) => Ok(value),
-        (Ok(_), Err(_)) => Err(BrowserManagedProfileStoreError::Io),
-        (Err(error), _) => Err(error),
+    let guards = ProfileStorePathGuards::open(paths)?;
+    acquire_with_deadline(guards.lock_file())?;
+    let result = operation(&guards);
+    let validation = guards.validate();
+    let unlock = FileExt::unlock(guards.lock_file());
+    match (result, validation, unlock) {
+        (Ok(value), Ok(()), Ok(())) => Ok(value),
+        (Ok(_), Err(error), _) => Err(error),
+        (Ok(_), Ok(()), Err(_)) => Err(BrowserManagedProfileStoreError::Io),
+        (Err(error), _, _) => Err(error),
     }
 }
 

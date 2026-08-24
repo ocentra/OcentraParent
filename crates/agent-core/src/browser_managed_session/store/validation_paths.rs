@@ -21,7 +21,9 @@ pub(super) fn validate_profile_store_paths(
     validate_existing_kind(&paths.metadata_path, ExistingKind::File)?;
     validate_existing_kind(&paths.lock_path, ExistingKind::File)?;
 
-    if paths.profile_dir.exists() && paths.deletion_path.exists() {
+    if fs::symlink_metadata(&paths.profile_dir).is_ok()
+        && fs::symlink_metadata(&paths.deletion_path).is_ok()
+    {
         Err(BrowserManagedProfileStoreError::MetadataCorrupt)
     } else {
         Ok(())

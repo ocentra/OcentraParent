@@ -16,6 +16,16 @@ mod mutate;
 mod mutate_create;
 #[path = "store/mutate_delete.rs"]
 mod mutate_delete;
+#[path = "store/mutate_delete_cleanup.rs"]
+mod mutate_delete_cleanup;
+#[path = "store/path_guard.rs"]
+mod path_guard;
+#[path = "store/path_guard_io.rs"]
+mod path_guard_io;
+#[path = "store/path_guards.rs"]
+mod path_guards;
+#[path = "store/path_guards_platform.rs"]
+mod path_guards_platform;
 #[path = "store/paths.rs"]
 mod paths;
 #[path = "store/record.rs"]
@@ -26,6 +36,8 @@ mod validation;
 mod validation_entry;
 #[path = "store/validation_entry_state.rs"]
 mod validation_entry_state;
+#[path = "store/validation_entry_state_repair.rs"]
+mod validation_entry_state_repair;
 #[path = "store/validation_path_metadata.rs"]
 mod validation_path_metadata;
 #[path = "store/validation_paths.rs"]
