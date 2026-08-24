@@ -12,13 +12,15 @@ use super::super::{
 pub(crate) fn profile_store_error_reason(error: &BrowserManagedProfileStoreError) -> &'static str {
     match error {
         BrowserManagedProfileStoreError::DefaultProfileRejected
-        | BrowserManagedProfileStoreError::UnownedProfileRejected => {
+        | BrowserManagedProfileStoreError::UnownedProfileRejected
+        | BrowserManagedProfileStoreError::BindingMismatch
+        | BrowserManagedProfileStoreError::UnsafePath => {
             constants::value::MANAGED_BROWSER_INVALID_PROFILE
         }
         BrowserManagedProfileStoreError::MetadataCorrupt => {
             constants::value::MANAGED_BROWSER_PROFILE_METADATA_CORRUPT
         }
-        BrowserManagedProfileStoreError::Io => {
+        BrowserManagedProfileStoreError::StoreBusy | BrowserManagedProfileStoreError::Io => {
             constants::value::MANAGED_BROWSER_PROFILE_STORE_IO_ERROR
         }
     }
@@ -45,7 +47,7 @@ pub(crate) fn profile_store_record(
             custody_label: BrowserCustodyLabel::ChildDeviceLocal,
             policy_revision: config.policy_revision.clone(),
             created_at: input.created_at,
-            updated_at: config.now.clone(),
+            updated_at: input.updated_at,
             missing_since: input.missing_since,
             repaired_at: input.repaired_at,
             deleted_at: input.deleted_at,

@@ -435,6 +435,7 @@ pub const PROFILE_STORE_LIFECYCLE_UNOWNED_PROFILE: &str = "unowned-profile";
 pub const PROFILE_STORE_LIFECYCLE_UNAVAILABLE: &str = "unavailable";
 pub const PROFILE_STORE_REASON_CREATED: &str = "managed-profile-created";
 pub const PROFILE_STORE_REASON_DELETED: &str = "managed-profile-deleted";
+pub const PROFILE_STORE_REASON_DELETE_PENDING: &str = "managed-profile-delete-pending";
 pub const PROFILE_STORE_REASON_METADATA_CORRUPT: &str = "managed-profile-metadata-corrupt";
 pub const PROFILE_STORE_REASON_METADATA_MISSING: &str = "managed-profile-metadata-missing";
 pub const PROFILE_STORE_REASON_PROFILE_DIR_MISSING: &str = "managed-profile-dir-missing";

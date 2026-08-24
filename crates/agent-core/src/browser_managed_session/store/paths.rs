@@ -7,9 +7,12 @@ use super::super::{
     BrowserManagedProfileStorePaths,
 };
 
+const PROFILE_DELETE_STAGING_SUFFIX: &str = ".deleting";
+
 pub(crate) fn managed_profile_store_paths(
     config: &BrowserManagedProfileStoreConfig,
 ) -> Result<BrowserManagedProfileStorePaths, BrowserManagedProfileStoreError> {
+    super::validation::validate_profile_store_config(config)?;
     let profile_dir = config.profile_root_dir.join(&config.profile_id);
     if default_profile_path_rejected(&config.profile_root_dir)
         || default_profile_path_rejected(&profile_dir)
@@ -27,9 +30,14 @@ pub(crate) fn managed_profile_store_paths(
 
     let mut metadata_file_name = config.profile_id.clone();
     metadata_file_name.push_str(constants::browser::PROFILE_STORE_METADATA_SUFFIX);
+    let metadata_path = config.profile_root_dir.join(metadata_file_name);
+    let mut deletion_file_name = config.profile_id.clone();
+    deletion_file_name.push_str(PROFILE_DELETE_STAGING_SUFFIX);
     Ok(BrowserManagedProfileStorePaths {
         profile_dir,
-        metadata_path: config.profile_root_dir.join(metadata_file_name),
+        lock_path: metadata_path.with_extension("lock"),
+        metadata_path,
+        deletion_path: config.profile_root_dir.join(deletion_file_name),
     })
 }
 

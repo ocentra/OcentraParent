@@ -1,67 +1,46 @@
 use super::super::{
     BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
-    BrowserManagedProfileStoreRecord, ProfileStoreRecordInput,
+    BrowserManagedProfileStorePaths, BrowserManagedProfileStoreRecord,
 };
-use super::io::read_profile_store_entry;
-use super::paths::managed_profile_store_paths;
-use super::record::profile_store_record;
-use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileLifecycleState;
-use ocentra_parent_agent_protocol::constants;
+use super::{
+    io::read_profile_store_entry, lock::with_profile_store_lock,
+    paths::managed_profile_store_paths, validation::timestamp_now,
+};
 
 pub(crate) fn load_managed_browser_profile_store(
     config: &BrowserManagedProfileStoreConfig,
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
     let paths = managed_profile_store_paths(config)?;
-    let stored_entry = read_profile_store_entry(&paths.metadata_path)?;
-    let created_at = stored_entry
-        .as_ref()
-        .map(|entry| entry.created_at.clone())
-        .unwrap_or_else(|| config.now.clone());
+    super::validation::validate_profile_store_paths(config, &paths)?;
+    if !config.profile_root_dir.exists() {
+        let now = timestamp_now();
+        return Ok(super::load_state::missing_record(
+            config,
+            paths,
+            now.clone(),
+            now,
+        ));
+    }
+    with_profile_store_lock(&paths, || {
+        super::validation::validate_profile_store_paths(config, &paths)?;
+        load_locked(config, paths.clone())
+    })
+}
+
+fn load_locked(
+    config: &BrowserManagedProfileStoreConfig,
+    paths: BrowserManagedProfileStorePaths,
+) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
+    let stored_entry = read_profile_store_entry(config, &paths)?;
+    let now = timestamp_now();
+
+    if paths.deletion_path.is_dir() {
+        return super::load_deletion_state::load_deletion_state(config, paths, stored_entry, now);
+    }
 
     if !paths.profile_dir.is_dir() {
-        return Ok(profile_store_record(
-            config,
-            paths,
-            ProfileStoreRecordInput {
-                created_at,
-                lifecycle_state: BrowserManagedProfileLifecycleState::Missing,
-                missing_since: Some(config.now.clone()),
-                repaired_at: None,
-                deleted_at: None,
-                repair_reason: Some(
-                    constants::browser::PROFILE_STORE_REASON_PROFILE_DIR_MISSING.to_string(),
-                ),
-            },
-        ));
+        return super::load_state::load_missing_profile_state(config, paths, stored_entry, now);
     }
 
-    if stored_entry.is_none() {
-        return Ok(profile_store_record(
-            config,
-            paths,
-            ProfileStoreRecordInput {
-                created_at,
-                lifecycle_state: BrowserManagedProfileLifecycleState::RepairRequired,
-                missing_since: None,
-                repaired_at: None,
-                deleted_at: None,
-                repair_reason: Some(
-                    constants::browser::PROFILE_STORE_REASON_METADATA_MISSING.to_string(),
-                ),
-            },
-        ));
-    }
-
-    Ok(profile_store_record(
-        config,
-        paths,
-        ProfileStoreRecordInput {
-            created_at,
-            lifecycle_state: BrowserManagedProfileLifecycleState::Ready,
-            missing_since: None,
-            repaired_at: None,
-            deleted_at: None,
-            repair_reason: None,
-        },
-    ))
+    super::load_state::load_existing_profile_state(config, paths, stored_entry, now)
 }

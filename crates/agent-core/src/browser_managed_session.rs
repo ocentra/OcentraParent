@@ -41,7 +41,6 @@ pub struct BrowserManagedProfileStoreConfig {
     pub browser_family: BrowserFamily,
     pub browser_channel: BrowserChannel,
     pub policy_revision: String,
-    pub now: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -123,7 +122,10 @@ pub enum BrowserManagedLaunchError {
 pub enum BrowserManagedProfileStoreError {
     DefaultProfileRejected,
     UnownedProfileRejected,
+    BindingMismatch,
     MetadataCorrupt,
+    StoreBusy,
+    UnsafePath,
     Io,
 }
 
@@ -250,10 +252,13 @@ impl BrowserManagedLaunch {
 struct BrowserManagedProfileStorePaths {
     profile_dir: PathBuf,
     metadata_path: PathBuf,
+    deletion_path: PathBuf,
+    lock_path: PathBuf,
 }
 
 struct ProfileStoreRecordInput {
     created_at: String,
+    updated_at: String,
     lifecycle_state: BrowserManagedProfileLifecycleState,
     missing_since: Option<String>,
     repaired_at: Option<String>,
