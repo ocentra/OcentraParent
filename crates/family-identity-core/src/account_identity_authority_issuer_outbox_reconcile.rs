@@ -79,6 +79,7 @@ fn expire_rows(
                 SET delivery_state = 'expired', claim_id = NULL,
                     claim_expires_at_millis = NULL, terminal_at_millis = ?1
               WHERE outbox.account_id = ?2 AND outbox.service_label = ?3
+                AND outbox.household_id = ?4
                 AND outbox.delivery_state IN ('pending','claimed')
                 AND EXISTS (
                     SELECT 1 FROM account_identity_issuer_transport_receipt AS receipt
@@ -89,6 +90,7 @@ fn expire_rows(
                 now.timestamp_millis(),
                 authority.account_id().to_string(),
                 binding.service().label(),
+                authority.household_id().to_string(),
             ],
         )
         .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
@@ -107,6 +109,7 @@ fn supersede_stale_rows(
                 SET delivery_state = 'superseded', claim_id = NULL,
                     claim_expires_at_millis = NULL, terminal_at_millis = ?1
               WHERE outbox.account_id = ?2 AND outbox.service_label = ?3
+                AND outbox.household_id = ?4
                 AND outbox.delivery_state IN ('pending','claimed')
                 AND (
                     outbox.household_id != ?4
