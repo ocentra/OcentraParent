@@ -11,6 +11,40 @@ mod ingest;
 mod socket;
 mod support;
 
+pub struct LanPassiveDiscoveryUdpListener {
+    source: LanPassiveDiscoverySource,
+    socket: UdpSocket,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct LanPassiveDiscoveryUdpDatagram {
+    source: LanPassiveDiscoverySource,
+    payload: Vec<u8>,
+}
+
+impl LanPassiveDiscoveryUdpListener {
+    pub fn source(&self) -> LanPassiveDiscoverySource {
+        self.source
+    }
+
+    pub fn receive_bounded(
+        &self,
+        max_datagram_count: usize,
+    ) -> std::io::Result<Vec<LanPassiveDiscoveryUdpDatagram>> {
+        socket::receive_bounded(self, max_datagram_count)
+    }
+}
+
+impl LanPassiveDiscoveryUdpDatagram {
+    pub fn source(&self) -> LanPassiveDiscoverySource {
+        self.source
+    }
+
+    pub fn payload(&self) -> &[u8] {
+        &self.payload
+    }
+}
+
 pub fn udp_multicast_support(
     source: LanPassiveDiscoverySource,
 ) -> LanPassiveDiscoveryUdpMulticastSupport {
@@ -24,6 +58,13 @@ pub fn collect_udp_multicast_passive_packets(
     read_timeout: Duration,
 ) -> LanPassiveDiscoveryUdpMulticastCaptureOutcome {
     socket::collect_udp_multicast_passive_packets(state, source, max_datagram_count, read_timeout)
+}
+
+pub fn bind_passive_udp_listener(
+    source: LanPassiveDiscoverySource,
+    read_timeout: Duration,
+) -> Result<LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpMulticastCaptureOutcome> {
+    socket::bind_passive_udp_listener(source, read_timeout)
 }
 
 pub fn collect_allowed_snmp_response_packets(

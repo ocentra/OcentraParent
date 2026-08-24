@@ -16,7 +16,9 @@ use crate::{
     lan_pairing::LanPairingRuntime,
     lan_pairing_runtime_state::{
         mdns_advertisement::spawn_lan_mdns_advertisement_runtime,
-        passive_discovery::spawn_lan_passive_discovery_runtime,
+        passive_discovery::{
+            start_lan_passive_discovery_service_runtime, LanPassiveDiscoveryServiceRuntime,
+        },
     },
     network::NetworkPolicy,
     screen_settings_runtime::ScreenSettingsRuntime,
@@ -31,19 +33,22 @@ pub struct AppState {
     browser_policy: BrowserPolicyRuntime,
     browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
+    _passive_discovery_runtime: LanPassiveDiscoveryServiceRuntime,
 }
 
 pub fn router(network: NetworkPolicy) -> Router {
     let cors_layer = network.cors_layer();
     let lan_pairing = LanPairingRuntime::from_env();
     spawn_lan_mdns_advertisement_runtime(lan_pairing.clone());
-    spawn_lan_passive_discovery_runtime(lan_pairing.clone());
+    let passive_discovery_runtime =
+        start_lan_passive_discovery_service_runtime(lan_pairing.clone());
     let state = AppState {
         network,
         lan_pairing,
         browser_policy: BrowserPolicyRuntime::from_env(),
         browser_runtime: BrowserManagedRuntime::new(),
         screen_settings: ScreenSettingsRuntime::from_env(),
+        _passive_discovery_runtime: passive_discovery_runtime,
     };
     Router::new()
         .route(constants::endpoint::HEALTH, get(health))
