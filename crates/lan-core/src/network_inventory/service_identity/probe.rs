@@ -111,7 +111,6 @@ pub(super) fn probe_service_identity_with_cancellation(
 }
 
 use self::http::{probe_service_identity_over_http_until, probe_service_identity_over_https_until};
-use self::transport::poll_timeout;
 
 pub fn probe_service_identity_on_target(
     ip_address: &str,

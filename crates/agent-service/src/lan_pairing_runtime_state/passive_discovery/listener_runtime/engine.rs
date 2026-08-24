@@ -20,8 +20,6 @@ use super::{retry_delay, PassiveDiscoveryListenerRuntime, PassiveDiscoveryListen
 
 const PASSIVE_DISCOVERY_IDLE_WAIT: Duration = Duration::from_millis(25);
 
-#[path = "engine/bind.rs"]
-mod bind;
 #[path = "engine/startup.rs"]
 mod startup;
 

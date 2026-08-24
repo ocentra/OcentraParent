@@ -7,6 +7,8 @@ use super::{
     LanPassiveDiscoveryUdpMulticastCaptureOutcome, LanPassiveDiscoveryUdpMulticastSupport,
 };
 
+#[path = "../passive_discovery_udp_multicast_drain.rs"]
+mod drain;
 mod ingest;
 mod socket;
 mod support;

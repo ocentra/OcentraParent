@@ -1,6 +1,6 @@
 use std::net::UdpSocket;
 
-use super::super::super::{
+use super::super::{
     LanPassiveDiscoveryListenerState, LanPassiveDiscoverySource,
     LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES,
 };
@@ -18,27 +18,33 @@ pub(super) fn drain_udp_socket_packets_with_observed_at(
     let mut buffer = vec![0_u8; LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES.saturating_add(1)];
     while received_datagram_count < max_datagram_count && receive_attempts < max_receive_attempts {
         receive_attempts = receive_attempts.saturating_add(1);
-        match socket.recv_from(&mut buffer) {
-            Ok((received, _)) => {
-                received_datagram_count += 1;
-                if received <= LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES {
-                    let observed_at = observed_at();
-                    let _ = super::ingest_native_passive_datagram_with_observed_at(
-                        state,
-                        &source,
-                        &buffer[..received],
-                        &observed_at,
-                    );
-                }
-            }
-            Err(error)
-                if error.kind() == std::io::ErrorKind::WouldBlock
-                    || error.kind() == std::io::ErrorKind::TimedOut =>
-            {
-                break;
-            }
-            Err(_) => break,
+        if !receive_one(socket, state, source, observed_at, &mut buffer) {
+            break;
         }
+        received_datagram_count += 1;
     }
     received_datagram_count
+}
+
+fn receive_one(
+    socket: &UdpSocket,
+    state: &mut LanPassiveDiscoveryListenerState,
+    source: LanPassiveDiscoverySource,
+    observed_at: &mut dyn FnMut() -> String,
+    buffer: &mut [u8],
+) -> bool {
+    let Ok((received, _)) = socket.recv_from(buffer) else {
+        return false;
+    };
+    if received > LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES {
+        return true;
+    }
+    let observed_at = observed_at();
+    let _ = super::ingest::ingest_native_passive_datagram_with_observed_at(
+        state,
+        &source,
+        &buffer[..received],
+        &observed_at,
+    );
+    true
 }

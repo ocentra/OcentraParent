@@ -8,8 +8,8 @@ use super::super::super::{
 use super::super::support::udp_multicast_support;
 use super::super::LanPassiveDiscoveryUdpListener;
 use super::errors::{
-    bind_passive_udp_socket, join_passive_multicast_group, listener_io_issue,
-    parse_passive_multicast_group, unsupported_source_issue,
+    bind_passive_udp_socket, join_passive_multicast_group, parse_passive_multicast_group,
+    unsupported_source_issue,
 };
 
 mod receive;

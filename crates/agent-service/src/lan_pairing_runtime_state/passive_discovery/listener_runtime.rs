@@ -35,6 +35,8 @@ enum PassiveDiscoveryListenerStartup {
     Unavailable,
 }
 
+#[path = "../passive_discovery_listener_bind.rs"]
+mod bind;
 #[path = "listener_runtime/engine.rs"]
 mod engine;
 #[path = "listener_runtime/receive.rs"]

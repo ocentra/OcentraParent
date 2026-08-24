@@ -9,15 +9,13 @@ use super::super::{
     LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
 };
 
-mod drain;
-
 pub(super) fn drain_udp_socket_packets(
     socket: &UdpSocket,
     state: &mut LanPassiveDiscoveryListenerState,
     source: LanPassiveDiscoverySource,
     max_datagram_count: usize,
 ) -> usize {
-    drain::drain_udp_socket_packets_with_observed_at(
+    super::drain::drain_udp_socket_packets_with_observed_at(
         socket,
         state,
         source,
@@ -33,7 +31,7 @@ pub(super) fn drain_udp_socket_packets_with_observed_at(
     max_datagram_count: usize,
     observed_at: &mut dyn FnMut() -> String,
 ) -> usize {
-    drain::drain_udp_socket_packets_with_observed_at(
+    super::drain::drain_udp_socket_packets_with_observed_at(
         socket,
         state,
         source,

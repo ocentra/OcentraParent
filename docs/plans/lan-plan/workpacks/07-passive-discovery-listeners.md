@@ -21,7 +21,7 @@ Sources: [20-step plan](../v0-9-lan-discovery-20-step-plan.md),
 
 ## Where We Are
 
-Current proof now covers passive ARP weak hints via OS neighbor collectors,
+Current source implements/covers passive ARP weak hints via OS neighbor collectors,
 passive DHCP, mDNS, SSDP, WS-Discovery, LLMNR, and NetBIOS packet ingestion,
 plus Ocentra beacon observations recorded through the signed child
 hello or heartbeat path. Allowed SNMP response payloads now also feed the same
@@ -40,14 +40,14 @@ triggers.
 
 ## Requirement Checklist
 
-- [x] Listen for ARP, mDNS, SSDP, LLMNR, NetBIOS, and Ocentra agent beacons
-      where the platform allows. Current local proof also covers allowed SNMP
+- [ ] Listen for ARP, mDNS, SSDP, LLMNR, NetBIOS, and Ocentra agent beacons
+      where the platform allows. Current source also routes allowed SNMP
       response history bridging on the existing passive path.
-- [x] Use passive evidence to update last-seen and candidate identity only.
-- [x] Trigger rescan on Wi-Fi SSID change, default gateway change, IP change,
+- [ ] Use passive evidence to update last-seen and candidate identity only.
+- [ ] Trigger rescan on Wi-Fi SSID change, default gateway change, IP change,
       interface up/down, app resume, and child heartbeat loss.
-- [x] Keep passive listeners bounded and stoppable with service lifecycle.
-- [x] Record source and trigger reason for passive updates.
+- [ ] Keep passive listeners bounded and stoppable with service lifecycle.
+- [ ] Record source and trigger reason for passive updates.
 
 ## Acceptance And Proof
 
