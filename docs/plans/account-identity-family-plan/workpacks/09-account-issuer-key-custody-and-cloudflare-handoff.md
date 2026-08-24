@@ -70,6 +70,17 @@ Focused formatting, library compilation, architecture, Enforcer source-shape/no-
 
 Live caller review after integration found no implementation of `AccountIdentityIssuerSignerAdapter`, `AccountIdentityIssuerServiceBindingAuthenticator`, or `AccountIdentityIssuerDeliveryOwnerAdapter`, and no production call to `deliver_next_pending`. All installation and delivery methods are crate-private, and the delivery attempt exposes the wire but not an authenticated current public-key registry record that a Cloudflare consumer can use. The accepted files are therefore a durable fail-closed core, not a complete producer adapter or runtime. The graph keeps WP09 implementation open until the protected signer, authenticated Cloudflare delivery packet/ack path, and production lifecycle caller exist.
 
+The later source attempt at `d496f08a7f5feca35d5d1479e983566924e3801c`
+does not close those gaps and is rejected from consolidation. Its
+`AccountIdentityIssuerProtectedSigner` only wraps a caller-supplied signer
+trait object; it does not call the Protected Custody broker/client. Its sealed
+Cloudflare owner port has no shipped implementor or constructible owner
+response, and the added runtime has no production caller. That is dormant
+adapter scaffolding, not protected signing or authenticated delivery. The
+current-key-record binding introduced in the same packet can be reconsidered
+only with a real protected signer, Cloudflare consumer, and production
+composition; the branch must not be merged or cherry-picked wholesale.
+
 ## Dependency route
 
 WP09 has two direct prerequisites: Account WP08 and Protected Custody WP01.
