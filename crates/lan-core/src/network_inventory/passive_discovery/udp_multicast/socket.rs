@@ -1,4 +1,5 @@
-use std::time::Duration;
+use std::net::UdpSocket;
+use std::time::{Duration, Instant};
 
 use super::super::{
     LanPassiveDiscoveryListenerState, LanPassiveDiscoverySource,
@@ -71,4 +72,59 @@ pub(super) fn receive_bounded_with_timeout(
     read_timeout: Duration,
 ) -> LanPassiveDiscoveryUdpReceiveBatch {
     listener::receive_bounded_with_timeout(listener, max_datagram_count, read_timeout)
+}
+
+pub(super) fn receive_bounded_until(
+    listener: &LanPassiveDiscoveryUdpListener,
+    max_datagram_count: usize,
+    deadline: Instant,
+) -> LanPassiveDiscoveryUdpReceiveBatch {
+    listener::receive_bounded_until(listener, max_datagram_count, deadline)
+}
+
+pub(super) fn remaining_read_timeout(deadline: Instant) -> Option<Duration> {
+    let remaining = deadline.saturating_duration_since(Instant::now());
+    if remaining.is_zero() {
+        return None;
+    }
+    #[cfg(windows)]
+    if remaining < Duration::from_millis(1) {
+        return None;
+    }
+    Some(remaining)
+}
+
+pub(super) struct ReadTimeoutRestoreGuard<'a> {
+    socket: &'a UdpSocket,
+    previous_timeout: Option<Duration>,
+    armed: bool,
+}
+
+impl<'a> ReadTimeoutRestoreGuard<'a> {
+    pub(super) fn new(socket: &'a UdpSocket, previous_timeout: Option<Duration>) -> Self {
+        Self {
+            socket,
+            previous_timeout,
+            armed: true,
+        }
+    }
+
+    pub(super) fn restore(&mut self) -> std::io::Result<()> {
+        if !self.armed {
+            return Ok(());
+        }
+        let result = self.socket.set_read_timeout(self.previous_timeout);
+        if result.is_ok() {
+            self.armed = false;
+        }
+        result
+    }
+}
+
+impl Drop for ReadTimeoutRestoreGuard<'_> {
+    fn drop(&mut self) {
+        if self.armed {
+            let _ = self.socket.set_read_timeout(self.previous_timeout);
+        }
+    }
 }

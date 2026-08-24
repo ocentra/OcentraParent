@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use super::super::super::super::{
     LanPassiveDiscoveryUdpListenerIssueKind, LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES,
 };
@@ -31,12 +33,22 @@ pub(super) fn receive_bounded(
     LanPassiveDiscoveryUdpReceiveBatch { datagrams, issue }
 }
 
+pub(super) fn receive_bounded_until(
+    listener: &LanPassiveDiscoveryUdpListener,
+    max_datagram_count: usize,
+    deadline: Instant,
+) -> LanPassiveDiscoveryUdpReceiveBatch {
+    timeout::receive_bounded_until(listener, max_datagram_count, deadline)
+}
+
 pub(super) fn receive_bounded_with_timeout(
     listener: &LanPassiveDiscoveryUdpListener,
     max_datagram_count: usize,
     read_timeout: std::time::Duration,
 ) -> LanPassiveDiscoveryUdpReceiveBatch {
-    timeout::receive_bounded_with_timeout(listener, max_datagram_count, read_timeout)
+    let started = Instant::now();
+    let deadline = started.checked_add(read_timeout).unwrap_or(started);
+    timeout::receive_bounded_until(listener, max_datagram_count, deadline)
 }
 
 enum ReceiveStep {
@@ -45,7 +57,7 @@ enum ReceiveStep {
     Failed(super::super::super::super::LanPassiveDiscoveryUdpListenerIssue),
 }
 
-fn receive_one(
+pub(super) fn receive_one(
     listener: &LanPassiveDiscoveryUdpListener,
     buffer: &mut [u8],
     datagrams: &mut Vec<LanPassiveDiscoveryUdpDatagram>,
