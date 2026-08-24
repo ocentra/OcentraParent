@@ -48,7 +48,7 @@ cherry-pick any stale branch tip wholesale.
 | Device Trust WP01 participant: `5f0280f711a6d66c96338e45382d17594aca39aa` | Rejected and quarantined. Its runtime-fence files are byte-identical to withdrawn `f5974c795`; same-user SQLite mutation plus an unkeyed digest can fabricate completion, and migration/retention are absent. Do not integrate. |
 | Cloudflare WP02: `29172d2e5b19ec6b7beaa72cd8b2c416896cb026` | Tree-identical to canonical after exact transplant. Preserve until final cleanup checks, but no integration is required and it carries no unique source. |
 | AppGame WP197: `75dbad64ca5354205659171df948cf097b016289` | Independently rejected and under source repair for environment poisoning, executable identity/TOCTOU, Unix cancellation cleanup, unauthenticated LAN triggering, and permissive daemon-output parsing. Do not integrate this head. |
-| Browser WP06: `5671c06a2de873b15f71aa9fe961b8fc441a7961` | Source packet remains in independent adversarial review. Preserve its branch/worktree; do not integrate or delete before verdict and repair disposition. |
+| Browser WP06: `5671c06a2de873b15f71aa9fe961b8fc441a7961` | Independently rejected and quarantined. Plain JSON/path state is same-user forgeable, custody is not retained through use, portable no-follow/TOCTOU coverage is incomplete, lifecycle mutation/recovery is inert, and no caller exists. A new source repair is active; do not integrate this head. |
 
 Archives and all residual/local branches remain preserved. No remote or local
 branch/worktree deletion is authorized by this review; cleanup waits for

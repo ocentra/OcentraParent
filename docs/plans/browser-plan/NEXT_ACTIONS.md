@@ -27,23 +27,31 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. Canonical `f80b47c6a` is the accepted fail-closed WP07/WP09 source baseline.
+1. Repair WP06 from the independent rejection of `5671c06a2`: replace
+   same-user-forgeable JSON/path authority with a dependency-owned protected
+   owner receipt/key and retained root/profile identity; implement safe
+   platform-specific no-follow mutation/recovery or fail closed where the
+   required adapter does not exist. Do not claim `Ready` from path existence.
+2. Re-run independent source review before any WP06 integration. Only after
+   acceptance, write the five named protocol/core/service test roots; do not
+   churn source and tests one line at a time.
+3. Canonical `f80b47c6a` is the accepted fail-closed WP07/WP09 source baseline.
    It removes unreachable launch state, env/dev profile authority, placeholder
    bridge polling, and the dead Browser-to-Screen runtime surface. Production
    managed-browser status is explicitly manual-required.
-2. Do not recreate the deleted surface. The next source packet requires a
+4. Do not recreate the deleted surface. The next WP07 source packet requires a
    private owner-issued start/stop lifecycle, retained launch custody, pre/post
    I/O process/port/profile revalidation, confirmed teardown, and explicit
    restart/expiry state. WP09 follows WP07 and may bind targets only from that
    retained owner state; active tab remains `Unknown`.
-3. After the repository-wide source wave, repair the exact stale Browser tests
+5. After the repository-wide source wave, repair the exact stale Browser tests
    using old helper arities/private launch fields, then write the missing WP07
    and WP09 integration roots together. Include owner mismatch, process
    replacement, teardown, restart/expiry, malformed/oversized/timeout,
    disappearance/navigation, no-active-tab-claim, and manual-required Screen
    handoff.
-4. WP07 and WP09 remain blocked/open. No test, build, proof, PR_READY, runtime,
-   or DONE claim follows from the source consolidation.
+6. WP06, WP07, and WP09 remain blocked/open. No test, build, proof, PR_READY,
+   runtime, or DONE claim follows from a pushed source branch.
 
 ## PR readiness guard
 

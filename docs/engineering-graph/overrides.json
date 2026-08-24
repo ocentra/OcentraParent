@@ -4,10 +4,24 @@
     {
       "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
       "hardDependencies": [],
-      "reason": "Neutral foundation route for the existing fail-closed protected-capability custody core. The core is substantive but inert outside its crate: admission/platform authority is private and SQLite is only a checked replica. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque factory, expected tests, proof, and production callers are absent. This review authorizes only implementation-phase source work; it does not claim normal READY, runtime reachability, tests, proof, PR readiness, or DONE.",
+      "reason": "Independently reviewed fail-closed source now includes the core, neutral protocol, separate broker/client packages, active workspace targets, and narrow sealed admission facade. Protected Windows process/token/registry/monotonic adapters, installer/SCM enrollment, a real caller, expected tests, proof, and runtime availability remain absent. This review records source integration only; it does not claim normal READY, PR readiness, or DONE.",
       "evidence": [
         "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
         "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-browser-plan-06-managed-profile-store",
+      "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+      ],
+      "reason": "Independent review rejected source-only head 5671c06a2: persisted JSON/path state is not authenticated owner authority, path custody is not retained, no-follow/TOCTOU coverage is incomplete, lifecycle mutation/recovery is inert, and no production caller exists. WP06 must remain blocked on the neutral protected-custody owner plus a repaired Browser adapter and five exact expected test roots; no integration, READY, proof, or DONE is claimed.",
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/NEXT_ACTIONS.md",
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
         "docs/engineering-graph/code-map.json"
       ]
     },
@@ -6251,6 +6265,20 @@
       "implementationGate": "reviewed-implementation"
     },
     {
+      "from": "WP-browser-plan-06-managed-profile-store",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP06 requires the neutral protected-custody owner for authenticated receipt/key and retained path identity. The current Protected Custody source is deliberately unavailable until its OS/installer adapters exist, so Browser may repair only its fail-closed source boundary and cannot claim runtime authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
       "from": "WP-browser-plan-07-managed-chromium-launcher",
       "to": "WP-browser-plan-06-managed-profile-store",
       "kind": "depends_on",
@@ -9331,6 +9359,18 @@
     }
   ],
   "stateOverrides": [
+    {
+      "id": "WP-browser-plan-06-managed-profile-store",
+      "state": "validation",
+      "reason": "The graph schema permits only a validation safety override here. Independent review rejected source-only head 5671c06a2 for unauthenticated same-user-forgeable state, dropped path custody, incomplete no-follow/TOCTOU protection, inert mutation/recovery, and no caller. A protected owner adapter, retained identity, safe platform primitives, all five expected tests, proof, and integration remain absent.",
+      "statusText": "Validation blocked — WP06 source rejected; protected owner, retained path custody, platform mutation/recovery, caller, tests, and proof remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
       "state": "validation",

@@ -15435,31 +15435,95 @@
       "title": "06 Managed Profile Store",
       "path": "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
       "parent": "PLAN-browser-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+      ],
+      "state": "blocked",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "Validation blocked — WP06 source rejected; protected owner, retained path custody, platform mutation/recovery, caller, tests, and proof remain open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-protocol/src/browser_managed.rs",
+            "crates/agent-core/src/browser_managed_session.rs",
+            "crates/agent-core/src/browser_managed_session/store.rs",
+            "crates/agent-core/src/browser_managed_session/store/validation_entry.rs",
+            "crates/agent-core/src/browser_managed_session/store/load.rs",
+            "crates/agent-core/src/browser_managed_session/store/path_guards.rs",
+            "crates/agent-core/src/browser_managed_session/store/path_guards_platform.rs",
+            "crates/agent-core/src/browser_managed_session/store/atomic_write.rs",
+            "crates/agent-core/src/browser_managed_session/store/mutate_create_state.rs",
+            "crates/agent-core/src/browser_managed_session/store/mutate_delete_state.rs",
+            "crates/agent-service/src/browser_runtime_paths.rs"
+          ],
+          "testRoots": [
+            "crates/agent-protocol/tests/contract/browser_managed_profile_store.rs",
+            "crates/agent-core/tests/unit/browser_managed_profile_store_authority.rs",
+            "crates/agent-core/tests/unit/browser_managed_profile_store_path_custody.rs",
+            "crates/agent-core/tests/unit/browser_managed_profile_store_recovery.rs",
+            "crates/agent-service/tests/integration/browser_managed_profile_store_runtime.rs"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+          ],
+          "evidence": [
+            "docs/plans/browser-plan/PLAN_STATE.md",
+            "docs/plans/browser-plan/NEXT_ACTIONS.md",
+            "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+            "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Independent review rejected source-only head 5671c06a2: persisted JSON/path state is not authenticated owner authority, path custody is not retained, no-follow/TOCTOU coverage is incomplete, lifecycle mutation/recovery is inert, and no production caller exists. WP06 must remain blocked on the neutral protected-custody owner plus a repaired Browser adapter and five exact expected test roots; no integration, READY, proof, or DONE is claimed."
+        },
+        "stateOverride": {
+          "reason": "The graph schema permits only a validation safety override here. Independent review rejected source-only head 5671c06a2 for unauthenticated same-user-forgeable state, dropped path custody, incomplete no-follow/TOCTOU protection, inert mutation/recovery, and no caller. A protected owner adapter, retained identity, safe platform primitives, all five expected tests, proof, and integration remain absent.",
+          "evidence": [
+            "docs/plans/browser-plan/PLAN_STATE.md",
+            "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/browser-plan/workpacks/06-managed-profile-store.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/browser-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/browser-plan/implementation-checklist.md"],
           "adr": []
         },
         "expected": {
-          "proof": ["output/browser-plan-proof/06-managed-profile-store"]
+          "proof": ["output/browser-plan-proof/06-managed-profile-store"],
+          "implementation": [
+            "crates/agent-protocol/src/browser_managed.rs",
+            "crates/agent-core/src/browser_managed_session.rs",
+            "crates/agent-core/src/browser_managed_session/store.rs",
+            "crates/agent-core/src/browser_managed_session/store/validation_entry.rs",
+            "crates/agent-core/src/browser_managed_session/store/load.rs",
+            "crates/agent-core/src/browser_managed_session/store/path_guards.rs",
+            "crates/agent-core/src/browser_managed_session/store/path_guards_platform.rs",
+            "crates/agent-core/src/browser_managed_session/store/atomic_write.rs",
+            "crates/agent-core/src/browser_managed_session/store/mutate_create_state.rs",
+            "crates/agent-core/src/browser_managed_session/store/mutate_delete_state.rs",
+            "crates/agent-service/src/browser_runtime_paths.rs"
+          ],
+          "tests": [
+            "crates/agent-protocol/tests/contract/browser_managed_profile_store.rs",
+            "crates/agent-core/tests/unit/browser_managed_profile_store_authority.rs",
+            "crates/agent-core/tests/unit/browser_managed_profile_store_path_custody.rs",
+            "crates/agent-core/tests/unit/browser_managed_profile_store_recovery.rs",
+            "crates/agent-service/tests/integration/browser_managed_profile_store_runtime.rs"
+          ]
         }
       }
     },
@@ -24649,7 +24713,7 @@
             "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Neutral foundation route for the existing fail-closed protected-capability custody core. The core is substantive but inert outside its crate: admission/platform authority is private and SQLite is only a checked replica. The isolated Windows broker/client, authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease authority, opaque factory, expected tests, proof, and production callers are absent. This review authorizes only implementation-phase source work; it does not claim normal READY, runtime reachability, tests, proof, PR readiness, or DONE."
+          "reason": "Independently reviewed fail-closed source now includes the core, neutral protocol, separate broker/client packages, active workspace targets, and narrow sealed admission facade. Protected Windows process/token/registry/monotonic adapters, installer/SCM enrollment, a real caller, expected tests, proof, and runtime availability remain absent. This review records source integration only; it does not claim normal READY, PR readiness, or DONE."
         },
         "stateOverride": {
           "reason": "The graph schema permits only the validation routing override here. Independently reviewed production source now satisfies the required root manifest, neutral protocol package, isolated broker/client manifests and targets, active workspace membership, and narrow sealed core broker-admission facade. The safety block remains because safe pinned Windows process/token observation, exact protected registry owner/DACL/parent-chain verification, non-restorable monotonic authority, installer/SCM enrollment, a real production caller, expected tests, proof, and runtime availability are absent. Source integration does not imply READY, PR, merge, or DONE.",
@@ -37946,6 +38010,20 @@
         "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md"
       ],
       "reason": "Actual source audit routes Browser WP05 cross-platform inventory through the Windows inventory adapter boundary in WP04; this reviewed-implementation gate records source order only.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-06-managed-profile-store",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP06 requires the neutral protected-custody owner for authenticated receipt/key and retained path identity. The current Protected Custody source is deliberately unavailable until its OS/installer adapters exist, so Browser may repair only its fail-closed source boundary and cannot claim runtime authority.",
       "implementationGate": "reviewed-implementation"
     },
     {

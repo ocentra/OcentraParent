@@ -36,6 +36,13 @@ honest manual-required source baseline with no live owner; WP09 remains blocked
 on WP07 and has no production target/Screen caller. Their existing tests are
 stale and the two expected integration roots are absent.
 
+2026-08-24 WP06 correction: source-only head `5671c06a2` is independently
+rejected and not canonical. Plain JSON is not owner authentication, path-only
+records do not retain custody, no-follow coverage is incomplete, lifecycle
+mutation/recovery is inert, and no production caller exists. A protected owner
+adapter, handle-bound path identity, real platform mutation primitives, and the
+five expected test roots remain open.
+
 | Status  | Workpack                                                                                            |   Size | Boxes                 |
 | ------- | --------------------------------------------------------------------------------------------------- | -----: | --------------------- |
 | open    | [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md)     |  5,608 | 0/16 checked; 16 open |
@@ -43,7 +50,7 @@ stale and the two expected integration roots are absent.
 | open    | [03 Browser Inventory Model](workpacks/03-browser-inventory-model.md)                               |  5,926 | 0/16 checked; 16 open |
 | open    | [04 Windows Browser Inventory Adapter](workpacks/04-windows-browser-inventory-adapter.md)           | 14,183 | 0/16 checked; 16 open |
 | open    | [05 Cross-Platform Inventory Matrix](workpacks/05-cross-platform-inventory-matrix.md)               | 21,493 | 0/16 checked; 16 open |
-| open    | [06 Managed Profile Store](workpacks/06-managed-profile-store.md)                                   |  5,199 | 0/16 checked; 16 open |
+| validation blocked — source rejected; protected owner/platform repair active | [06 Managed Profile Store](workpacks/06-managed-profile-store.md) | 5,199 | 0/16 checked; 16 open |
 | blocked / manual-required source baseline, tests stale | [07 Managed Chromium Launcher](workpacks/07-managed-chromium-launcher.md) | 5,377 | 0/16 checked; 16 open |
 | open    | [08 Bridge Custody And Security](workpacks/08-bridge-custody-and-security.md)                       |  3,712 | 0/16 checked; 16 open |
 | blocked on WP07 / parser source only, tests stale | [09 CDP Version And Target Adapter](workpacks/09-cdp-version-and-target-adapter.md) | 4,576 | 0/16 checked; 16 open |
