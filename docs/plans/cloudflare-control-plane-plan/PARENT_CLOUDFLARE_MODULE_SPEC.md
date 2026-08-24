@@ -53,8 +53,8 @@ The module script contract is:
   "test:property": "tsx scripts/test-runner.ts --type=property",
   "test:fuzz": "tsx scripts/test-runner.ts --type=fuzz",
   "test:all-cloudflare": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run test:contract && npm run test:security && npm run test:property && npm run test:fuzz",
-  "deploy:dev": "wrangler deploy --env development",
-  "deploy": "wrangler deploy --config wrangler.production.toml --env production"
+  "deploy:dev": "npm run contracts:build && wrangler deploy",
+  "deploy": "npm run contracts:build && wrangler deploy --config wrangler.production.toml"
 }
 ```
 

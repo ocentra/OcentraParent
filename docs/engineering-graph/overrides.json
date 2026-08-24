@@ -152,7 +152,7 @@
         "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Independent source review accepted Cloudflare WP06's D1 authority packet plus canonical da84e6ee3's bounded duplicate-key-rejecting decoder and private one-shot Account producer verifier. The runtime remains a safe verified-provider read/manual boundary because Account provides no durable signer/public-key registry or authenticated Cloudflare service binding; parameterless mutation readiness stays manual-required and no caller-scalar mutation API exists. Runtime mutation composition, higher authority, all six expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open. Account WP09 is an additional reviewed-implementation source prerequisite for durable issuer/key custody and authenticated producer binding; this does not claim Cloudflare runtime readiness or transfer Account ownership."
+      "reason": "Independent source review accepted Cloudflare WP06's D1 authority packet plus canonical da84e6ee3's bounded duplicate-key-rejecting decoder and private one-shot WP08 inner-wire verifier. Account WP09 now supplies a durable fail-closed issuer core, but a live caller trace found no Account protected signer, binding/delivery adapter, production caller, or authenticated current-key handoff. Cloudflare also lacks its private issuer transport, current-key registry consumer, and runtime mount; parameterless mutation readiness stays manual-required and no caller-scalar mutation API exists. Three Cloudflare production roots, all nine expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open. WP09 remains a reviewed-implementation prerequisite; this does not claim Cloudflare runtime readiness or transfer Account ownership."
     },
     {
       "id": "WP-account-identity-family-plan-03-session-token-lifecycle",
@@ -2661,7 +2661,7 @@
         "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "WP09 owns the planned Account-side durable issuer and signing-key custody, monotonic versioned public-key registry/revocation, authenticated Account producer service-binding adapter, startup reload/recovery, and typed handoff over WP08's existing sealed wire contract. WP08 is the only direct prerequisite and is a reviewed-implementation source-order gate; normal completion remains gated on WP08 DONE. No Account WP02, WP05A, Device Trust, Cloudflare source, duplicated schema/wire, caller-selected authority, mock/no-op/in-memory custody, source, tests, proof, READY, or DONE claim is made."
+      "reason": "WP09's Account-owned durable issuer/key lineage, private service-binding and delivery traits, startup reconciliation, and household-scoped receipt/wire outbox are independently reviewed and integrated through canonical 4f6245e51. A live caller trace found no protected signer, binding authenticator, delivery owner, production caller, or authenticated current-key handoff. WP08 remains the only direct prerequisite and a reviewed-implementation source-order gate; normal completion remains gated on WP08 DONE. Three production roots and seven expected test roots remain absent. No Account WP02, WP05A, Device Trust, Cloudflare runtime, test, proof, READY, or DONE claim is made."
     }
   ],
   "edges": [
@@ -9742,24 +9742,6 @@
         "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md",
         "docs/PLAN_CODE_STATUS_MATRIX.md",
         "docs/engineering-graph/code-map.json"
-      ]
-    },
-    {
-      "id": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
-      "implementation": [
-        "infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts",
-        "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
-        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
-        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
-        "infra/cloudflare/src/auth/verifier.ts",
-        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
-        "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
-      ],
-      "reason": "Canonical da84e6ee3 includes the reviewed bounded JSON decoder and private one-shot Account producer verifier. WP06 remains a verified-provider read/manual boundary because Account durable signer/public-key custody and authenticated service-binding/registry distribution are missing. Runtime mutation readiness is parameterless and manual-required; the existing writer remains producer-gated and requires a real verified handoff plus D1 atomic currentness/revocation/CAS recheck. Six expected WP06 test roots are missing. No public route, Firebase authority, env/fixture/request key, caller-supplied scalar, validation, proof, deployment, READY, or DONE claim is permitted.",
-      "evidence": [
-        "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
-        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
-        "docs/PLAN_CODE_STATUS_MATRIX.md"
       ]
     },
     {
