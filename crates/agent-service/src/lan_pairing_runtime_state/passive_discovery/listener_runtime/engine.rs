@@ -5,7 +5,6 @@ use std::{
 };
 
 use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryListenerState;
-use tokio::sync::watch;
 
 use crate::lan_pairing_runtime_state::provider_heartbeat::LanAiProviderHeartbeatState;
 
@@ -13,11 +12,11 @@ use super::super::{
     capability_store::{LanPassiveDiscoveryCapabilityStore, LanPassiveDiscoveryRuntimeCapability},
     passive_discovery_udp_sources,
     runtime_slice::collect_runtime_slice,
-    LanPassiveDiscoveryRefreshSignal, LanPassiveDiscoveryRuntimeObservedState,
+    LanPassiveDiscoveryRefreshSignalSender, LanPassiveDiscoveryRuntimeObservedState,
     PASSIVE_DISCOVERY_INTERVAL,
 };
 use super::receive::is_running;
-use super::{PassiveDiscoveryListenerRuntime, PassiveDiscoveryListenerSlot};
+use super::{retry_delay, PassiveDiscoveryListenerRuntime, PassiveDiscoveryListenerSlot};
 
 const PASSIVE_DISCOVERY_IDLE_WAIT: Duration = Duration::from_millis(25);
 
@@ -28,8 +27,9 @@ impl PassiveDiscoveryListenerRuntime {
     pub(super) fn new(
         listener_state: Weak<Mutex<LanPassiveDiscoveryListenerState>>,
         heartbeat: Weak<Mutex<Option<LanAiProviderHeartbeatState>>>,
-        refresh_sender: watch::Sender<Option<LanPassiveDiscoveryRefreshSignal>>,
+        refresh_sender: LanPassiveDiscoveryRefreshSignalSender,
         capability_store: LanPassiveDiscoveryCapabilityStore,
+        pipeline_health: super::super::pipeline_health::LanPassiveDiscoveryPipelineHealth,
     ) -> Self {
         let now = Instant::now();
         Self {
@@ -43,6 +43,10 @@ impl PassiveDiscoveryListenerRuntime {
                 .map(|source| PassiveDiscoveryListenerSlot::pending(source, now))
                 .collect(),
             capability_store,
+            pipeline_health,
+            last_persisted_pipeline_health: None,
+            capability_persist_failures: 0,
+            next_capability_persist_attempt: now,
             next_maintenance: now,
             signal_sequence: 0,
         }
@@ -63,10 +67,12 @@ impl PassiveDiscoveryListenerRuntime {
             }
             self.bind_due_listeners();
             self.receive_listener_cycle(&listener_state);
+            self.persist_capability_if_health_changed();
             if self.active_listener_count() == 0 {
                 thread::sleep(PASSIVE_DISCOVERY_IDLE_WAIT);
             }
         }
+        self.pipeline_health.record_stopped();
         self.persist_stopped_capability();
     }
 
@@ -98,24 +104,47 @@ impl PassiveDiscoveryListenerRuntime {
         self.persist_capability();
     }
 
-    pub(super) fn persist_capability(&self) {
+    pub(super) fn persist_capability(&mut self) {
         let now = Instant::now();
+        if now < self.next_capability_persist_attempt {
+            return;
+        }
+        let pipeline_health = self.pipeline_health.snapshot();
         let capability = LanPassiveDiscoveryRuntimeCapability::from_sources(
             self.listener_slots
                 .iter()
                 .map(|slot| slot.capability(now))
                 .collect(),
+            pipeline_health.clone(),
         );
-        let _persisted = self.capability_store.save(&capability);
+        if self.capability_store.save(&capability) {
+            self.last_persisted_pipeline_health = Some(pipeline_health);
+            self.capability_persist_failures = 0;
+            self.next_capability_persist_attempt = now;
+            return;
+        }
+        self.capability_persist_failures = self.capability_persist_failures.saturating_add(1);
+        self.next_capability_persist_attempt = now + retry_delay(self.capability_persist_failures);
     }
 
-    fn persist_stopped_capability(&self) {
+    fn persist_capability_if_health_changed(&mut self) {
+        let current_health = self.pipeline_health.snapshot();
+        if self.capability_persist_failures > 0
+            || self.last_persisted_pipeline_health.as_ref() != Some(&current_health)
+        {
+            self.persist_capability();
+        }
+    }
+
+    fn persist_stopped_capability(&mut self) {
         let now = Instant::now();
+        let pipeline_health = self.pipeline_health.snapshot();
         let capability = LanPassiveDiscoveryRuntimeCapability::stopped(
             self.listener_slots
                 .iter()
                 .map(|slot| slot.capability(now))
                 .collect(),
+            pipeline_health,
         );
         let _persisted = self.capability_store.save(&capability);
     }

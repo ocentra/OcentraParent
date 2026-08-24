@@ -4,6 +4,8 @@ pub(crate) mod capability_store;
 mod change_triggers;
 #[path = "passive_discovery/listener_runtime.rs"]
 mod listener_runtime;
+#[path = "passive_discovery/pipeline_health.rs"]
+mod pipeline_health;
 #[path = "passive_discovery/reconciliation.rs"]
 mod reconciliation;
 #[path = "passive_discovery/runtime_slice.rs"]
@@ -27,6 +29,7 @@ const PASSIVE_DISCOVERY_READ_TIMEOUT: Duration = Duration::from_millis(50);
 const PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE: usize = 8;
 const PASSIVE_DISCOVERY_RETRY_BASE: Duration = Duration::from_secs(1);
 const PASSIVE_DISCOVERY_RETRY_MAX: Duration = Duration::from_secs(60);
+const PASSIVE_DISCOVERY_RECONCILIATION_MIN_INTERVAL: Duration = Duration::from_secs(120);
 
 const PASSIVE_DISCOVERY_UDP_SOURCES: [LanPassiveDiscoverySource; 6] = [
     LanPassiveDiscoverySource::Dhcp,
@@ -57,6 +60,16 @@ pub(crate) struct LanPassiveDiscoveryRefreshSignal {
     observed_at: String,
 }
 
+struct LanPassiveDiscoveryRefreshSignalSender {
+    deliberate: watch::Sender<Option<LanPassiveDiscoveryRefreshSignal>>,
+    passive: watch::Sender<Option<LanPassiveDiscoveryRefreshSignal>>,
+}
+
+struct LanPassiveDiscoveryRefreshSignalReceiver {
+    deliberate: watch::Receiver<Option<LanPassiveDiscoveryRefreshSignal>>,
+    passive: watch::Receiver<Option<LanPassiveDiscoveryRefreshSignal>>,
+}
+
 pub(super) struct LanPassiveDiscoveryRuntimeSliceOutcome {
     running: bool,
     network_changed: bool,
@@ -83,10 +96,11 @@ impl Drop for LanPassiveDiscoveryServiceOwner {
 }
 
 pub(crate) fn spawn_lan_passive_discovery_runtime(runtime: LanPairingRuntime) {
-    capability_store::record_starting(&runtime);
+    let pipeline_health = pipeline_health::LanPassiveDiscoveryPipelineHealth::starting();
+    capability_store::record_starting(&runtime, &pipeline_health.snapshot());
     let (sender, receiver) = refresh_signal_channel();
-    listener_runtime::spawn(runtime.clone(), sender);
-    reconciliation::spawn(runtime, receiver);
+    listener_runtime::spawn(runtime.clone(), sender, pipeline_health.clone());
+    reconciliation::spawn(runtime, receiver, pipeline_health);
 }
 
 pub(crate) fn start_lan_passive_discovery_service_runtime(
@@ -95,18 +109,30 @@ pub(crate) fn start_lan_passive_discovery_service_runtime(
     let owner = Arc::new(LanPassiveDiscoveryServiceOwner {
         listener_state: Arc::downgrade(&runtime.passive_discovery_listener_state),
     });
-    capability_store::record_starting(&runtime);
+    let pipeline_health = pipeline_health::LanPassiveDiscoveryPipelineHealth::starting();
+    capability_store::record_starting(&runtime, &pipeline_health.snapshot());
     let (sender, receiver) = refresh_signal_channel();
-    listener_runtime::spawn(runtime.clone(), sender);
-    reconciliation::spawn(runtime, receiver);
+    listener_runtime::spawn(runtime.clone(), sender, pipeline_health.clone());
+    reconciliation::spawn(runtime, receiver, pipeline_health);
     LanPassiveDiscoveryServiceRuntime { _owner: owner }
 }
 
 fn refresh_signal_channel() -> (
-    watch::Sender<Option<LanPassiveDiscoveryRefreshSignal>>,
-    watch::Receiver<Option<LanPassiveDiscoveryRefreshSignal>>,
+    LanPassiveDiscoveryRefreshSignalSender,
+    LanPassiveDiscoveryRefreshSignalReceiver,
 ) {
-    watch::channel(None)
+    let (deliberate_sender, deliberate_receiver) = watch::channel(None);
+    let (passive_sender, passive_receiver) = watch::channel(None);
+    (
+        LanPassiveDiscoveryRefreshSignalSender {
+            deliberate: deliberate_sender,
+            passive: passive_sender,
+        },
+        LanPassiveDiscoveryRefreshSignalReceiver {
+            deliberate: deliberate_receiver,
+            passive: passive_receiver,
+        },
+    )
 }
 
 pub(crate) fn local_network_change_triggers(
@@ -128,6 +154,20 @@ impl LanPassiveDiscoveryRefreshSignal {
         match self.trigger_reason {
             LanPassiveDiscoveryTriggerReason::PassivePacketObserved => self.source.is_some(),
             _ => self.source.is_none(),
+        }
+    }
+}
+
+impl LanPassiveDiscoveryRefreshSignalSender {
+    fn send_replace(
+        &self,
+        signal: Option<LanPassiveDiscoveryRefreshSignal>,
+    ) -> Option<LanPassiveDiscoveryRefreshSignal> {
+        match signal.as_ref().map(|signal| &signal.trigger_reason) {
+            Some(LanPassiveDiscoveryTriggerReason::PassivePacketObserved) => {
+                self.passive.send_replace(signal)
+            }
+            _ => self.deliberate.send_replace(signal),
         }
     }
 }
