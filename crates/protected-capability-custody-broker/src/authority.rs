@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_protected_capability_custody_core::broker_admission::BrokerPlatformSessionState;
@@ -18,12 +17,6 @@ pub(crate) struct ProcessIdentity {
 
 pub(crate) struct BrokerSessionAuthority {
     values: BrokerSessionWireValues,
-}
-
-pub(crate) struct PeerProcessObservation {
-    pub(crate) identity: ProcessIdentity,
-    pub(crate) executable_path: PathBuf,
-    pub(crate) executable_digest: [u8; 32],
 }
 
 impl BrokerSessionAuthority {
@@ -64,7 +57,7 @@ pub(crate) fn current_process_identity() -> Result<ProcessIdentity, BrokerError>
     process_identity(process_id)
 }
 
-pub(crate) fn process_identity(process_id: u32) -> Result<ProcessIdentity, BrokerError> {
+fn process_identity(process_id: u32) -> Result<ProcessIdentity, BrokerError> {
     if process_id == 0 {
         return Err(BrokerError::PeerAuthentication);
     }
@@ -85,19 +78,6 @@ pub(crate) fn process_identity(process_id: u32) -> Result<ProcessIdentity, Broke
         process_epoch,
         session_id,
     })
-}
-
-/// The safe dependencies in this crate expose a named-pipe PID, but do not
-/// expose a pinned Windows process handle. A `sysinfo::Process` snapshot is
-/// not an OS identity proof: the PID can be reused between metadata reads and
-/// it cannot provide token integrity/session or signer provenance. Refuse the
-/// connection until a dedicated Windows admission adapter supplies one
-/// OpenProcess handle, derives all observations from it, and keeps it alive
-/// through transcript admission.
-pub(crate) fn peer_process_observation(
-    _process_id: u32,
-) -> Result<PeerProcessObservation, BrokerError> {
-    Err(BrokerError::DeploymentRequired)
 }
 
 pub(crate) fn unix_now_millis() -> Result<u64, BrokerError> {

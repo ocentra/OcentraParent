@@ -30,11 +30,10 @@ pub struct BrokerCustodyRuntime {
     _executable: BrokerExecutableGuard,
 }
 
-/// A validated, non-cloneable handle to the fixed sibling broker executable.
-/// It denies write/delete sharing while the client session is alive, so the
-/// authenticated child cannot be replaced after preflight.
+/// A validated, non-cloneable handle to the running fixed-install broker
+/// executable. The pinned file handle denies replacement while the service
+/// runtime is alive.
 pub struct BrokerExecutableGuard {
-    canonical_path: std::path::PathBuf,
     _executable_handle: std::fs::File,
 }
 
@@ -46,16 +45,30 @@ pub struct BrokerProcessAdmission {
     database: crate::path_security::PendingSecuredPath,
 }
 
-/// Opaque observation of the impersonated named-pipe client token. The SID is
-/// private and the type is neither cloneable nor constructible outside this
-/// crate, so a broker caller cannot mint an enrolled identity. The broker must
-/// obtain it while the interprocess impersonation guard is held, then revert
-/// before opening SYSTEM-only registry custody.
-pub struct BrokerPeerTokenIdentity {
-    pub(crate) token_sid: String,
-    pub(crate) integrity_level: u32,
-    pub(crate) session_id: u32,
+/// Opaque admission for one exact named-pipe peer. A future Windows adapter
+/// must retain one `OpenProcess` handle while deriving PID, creation epoch,
+/// canonical image, image digest, and liveness; observe SID, integrity, and
+/// token session from the impersonated pipe token; match both PID and session
+/// to the pipe; and keep the process handle alive through authorization.
+///
+/// The current safe dependency set cannot construct this type. Keeping its
+/// only field private prevents callers from substituting PID/path snapshots or
+/// self-asserted token values.
+pub struct BrokerPeerAdmissionObservation {
+    _private: PeerAdmissionPrivate,
 }
+
+struct PeerAdmissionPrivate;
+
+/// Opaque proof that the retained OS peer observation was revalidated and
+/// bound to the exact bootstrap/client-hello transcript immediately before
+/// broker session key release. The missing platform adapter is the sole
+/// intended constructor.
+pub struct BrokerAuthorizedClientTranscript {
+    _private: AuthorizedTranscriptPrivate,
+}
+
+struct AuthorizedTranscriptPrivate;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct BrokerPlatformSessionState {

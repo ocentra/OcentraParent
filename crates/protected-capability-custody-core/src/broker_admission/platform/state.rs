@@ -15,7 +15,7 @@ const STATE_VERSION: u16 = 1;
 #[cfg(windows)]
 const STATE_BYTES: usize = 126;
 #[cfg(windows)]
-const STATE_VALUE_NAME: &str = "state";
+pub(super) const STATE_VALUE_NAME: &str = "state";
 
 #[cfg(windows)]
 #[derive(Clone, Copy)]
@@ -26,48 +26,11 @@ pub(super) struct LedgerState {
     pub(super) watermark: u64,
 }
 
-/// Marker held for the entire state load/write operation after a dependency-
-/// owned anti-rollback provider has granted custody.  It intentionally has no
-/// serializable representation and cannot be constructed by the caller.
-#[cfg(windows)]
-struct NonRestorableAntiRollbackAnchor;
-
-/// Deployment-owned seam for a genuinely non-restorable monotonic anchor.
-/// Implementations belong to the service/TPM integration layer; the core must
-/// never substitute a registry, file, random value, or caller assertion.
-#[cfg(windows)]
-trait NonRestorableAntiRollbackProvider {
-    fn acquire(&self) -> Result<NonRestorableAntiRollbackAnchor, PlatformError>;
-}
-
-#[cfg(windows)]
-struct DeploymentAntiRollbackProvider;
-
-#[cfg(windows)]
-impl NonRestorableAntiRollbackProvider for DeploymentAntiRollbackProvider {
-    fn acquire(&self) -> Result<NonRestorableAntiRollbackAnchor, PlatformError> {
-        // No safe provider is linked into this build yet.  Refusing custody is
-        // the only correct result until the service/TPM dependency is shipped.
-        Err(PlatformError::DeploymentRequired)
-    }
-}
-
-#[cfg(windows)]
-fn production_anti_rollback_provider() -> DeploymentAntiRollbackProvider {
-    DeploymentAntiRollbackProvider
-}
-
-#[cfg(windows)]
-fn acquire_non_restorable_anchor() -> Result<NonRestorableAntiRollbackAnchor, PlatformError> {
-    production_anti_rollback_provider().acquire()
-}
-
 #[cfg(windows)]
 pub(super) fn load_or_create(
     registry_id: &str,
     physical_identity: PhysicalDatabaseIdentity,
 ) -> Result<LedgerState, PlatformError> {
-    let _anti_rollback_anchor = acquire_non_restorable_anchor()?;
     match registry::read(registry_id, STATE_VALUE_NAME)? {
         Some(sealed) => {
             let plaintext = Zeroizing::new(crypto::decrypt_state(registry_id, &sealed)?);
@@ -88,6 +51,12 @@ pub(super) fn load_or_create(
 
 #[cfg(windows)]
 pub(super) fn write(registry_id: &str, state: LedgerState) -> Result<(), PlatformError> {
+    let sealed = seal(registry_id, state)?;
+    registry::write(registry_id, STATE_VALUE_NAME, &sealed)
+}
+
+#[cfg(windows)]
+pub(super) fn seal(registry_id: &str, state: LedgerState) -> Result<Vec<u8>, PlatformError> {
     let mut plaintext = Zeroizing::new(Vec::with_capacity(STATE_BYTES));
     plaintext.extend_from_slice(&STATE_MAGIC);
     plaintext.extend_from_slice(&STATE_VERSION.to_be_bytes());
@@ -95,8 +64,7 @@ pub(super) fn write(registry_id: &str, state: LedgerState) -> Result<(), Platfor
     plaintext.extend_from_slice(&state.key_epoch.to_be_bytes());
     plaintext.extend_from_slice(&state.writer_epoch.to_be_bytes());
     plaintext.extend_from_slice(&state.watermark.to_be_bytes());
-    let sealed = crypto::encrypt_state(registry_id, plaintext.as_ref())?;
-    registry::write(registry_id, STATE_VALUE_NAME, &sealed)
+    crypto::encrypt_state(registry_id, plaintext.as_ref())
 }
 
 #[cfg(windows)]

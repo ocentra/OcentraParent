@@ -1,6 +1,8 @@
 use ocentra_protected_capability_custody_core::broker_admission::{
-    BrokerPeerTokenIdentity, BrokerPlatformSessionState,
+    BrokerAuthorizedClientTranscript, BrokerPeerAdmissionObservation, BrokerPlatformSessionState,
 };
+use ocentra_protected_capability_custody_protocol::bootstrap::BootstrapPacket;
+use ocentra_protected_capability_custody_protocol::handshake::UntrustedClientHello;
 use ocentra_protected_capability_custody_protocol::request::authenticated::AuthenticatedRequest;
 use ocentra_protected_capability_custody_protocol::response::UntrustedResponse;
 use ocentra_protected_capability_custody_protocol::types::BootstrapAuthenticator;
@@ -8,8 +10,6 @@ use ocentra_protected_capability_custody_protocol::types::BootstrapAuthenticator
 use widestring::U16CString;
 
 use crate::BrokerError;
-
-use super::authority::PeerProcessObservation;
 
 mod response;
 mod runtime;
@@ -35,15 +35,20 @@ impl BrokerCustodyService {
     #[cfg(windows)]
     pub(crate) fn authorize_client_peer(
         &self,
-        observation: &PeerProcessObservation,
-        token: BrokerPeerTokenIdentity,
+        observation: &BrokerPeerAdmissionObservation,
     ) -> Result<(), BrokerError> {
-        self.state.authorize_client_peer(
-            observation.identity.process_id,
-            &observation.executable_path,
-            observation.executable_digest,
-            token,
-        )
+        self.state.authorize_client_peer(observation)
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn authorize_client_transcript(
+        &self,
+        observation: &BrokerPeerAdmissionObservation,
+        bootstrap: &BootstrapPacket,
+        hello: &UntrustedClientHello,
+    ) -> Result<BrokerAuthorizedClientTranscript, BrokerError> {
+        self.state
+            .authorize_client_transcript(observation, bootstrap, hello)
     }
 
     #[cfg(windows)]

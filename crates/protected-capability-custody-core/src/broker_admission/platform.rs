@@ -17,6 +17,7 @@ use crate::platform::record::BrokerRecord;
 use crate::platform::request::{BrokerLookup, TransitionRequest};
 mod acl;
 pub(super) mod admission;
+mod anti_rollback;
 mod crypto;
 mod digest;
 mod guard;
@@ -149,15 +150,6 @@ pub(super) fn write_registry_value(
 #[cfg(windows)]
 pub(super) fn delete_registry_value(registry_id: &str, name: &str) -> Result<(), PlatformError> {
     registry::delete(registry_id, name)
-}
-
-#[cfg(windows)]
-pub(super) fn count_registry_values_with_prefix(
-    registry_id: &str,
-    prefix: &str,
-    limit: usize,
-) -> Result<usize, PlatformError> {
-    registry::count_values_with_prefix(registry_id, prefix, limit)
 }
 
 #[cfg(windows)]

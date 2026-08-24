@@ -1,14 +1,17 @@
-use std::path::Path;
 use std::sync::Arc;
 
 use ocentra_protected_capability_custody_protocol::request::{
     authenticated::AuthenticatedRequest, RequestKind,
 };
+use ocentra_protected_capability_custody_protocol::{
+    bootstrap::BootstrapPacket, handshake::UntrustedClientHello,
+};
 
 use super::{
-    authority, error_status, finalize, platform, prepare, recover, wire, BrokerCustodyOutcome,
-    BrokerCustodyRuntime, BrokerPeerTokenIdentity, BrokerPlatformSessionState,
-    BrokerProcessAdmission, BrokerRuntimeError,
+    authority, error_status, finalize, platform, prepare, recover, wire,
+    BrokerAuthorizedClientTranscript, BrokerCustodyOutcome, BrokerCustodyRuntime,
+    BrokerPeerAdmissionObservation, BrokerPlatformSessionState, BrokerProcessAdmission,
+    BrokerRuntimeError,
 };
 
 impl BrokerProcessAdmission {
@@ -51,12 +54,19 @@ impl BrokerCustodyRuntime {
         })
     }
 
-    /// The safe named-pipe dependency provides impersonation RAII but does not
-    /// expose the impersonated token's SID, integrity level, and session as a
-    /// single pinned observation. Refuse admission until the dedicated
-    /// Windows token adapter supplies all three from that token. In
-    /// particular, do not substitute same-user or stream-session metadata.
-    pub fn observe_impersonated_client() -> Result<BrokerPeerTokenIdentity, BrokerRuntimeError> {
+    /// Observes one exact named-pipe peer while the caller holds the pipe's
+    /// RAII impersonation guard. The future adapter must open and retain one
+    /// Windows process handle, derive PID/creation epoch/image/digest from that
+    /// handle, revalidate liveness, read SID/integrity/session from the
+    /// impersonated token, and bind both PID and session to the pipe values.
+    /// No sysinfo, path-only, same-user, or split-snapshot substitute is valid.
+    pub fn observe_impersonated_named_pipe_client(
+        pipe_process_id: u32,
+        pipe_session_id: u32,
+    ) -> Result<BrokerPeerAdmissionObservation, BrokerRuntimeError> {
+        if pipe_process_id == 0 || pipe_session_id == 0 {
+            return Err(BrokerRuntimeError::InvalidRequest);
+        }
         Err(BrokerRuntimeError::DeploymentRequired)
     }
 
@@ -67,34 +77,32 @@ impl BrokerCustodyRuntime {
         Err(BrokerRuntimeError::DeploymentRequired)
     }
 
-    /// Authorizes the one OS-observed pipe peer against the broker's
-    /// SYSTEM-only enrollment key. The caller cannot mint the token identity;
-    /// it can only pass the opaque observation returned above.
+    /// Authorizes the one pinned observation returned by the missing platform
+    /// adapter. This remains unavailable until the adapter can keep its process
+    /// handle live through enrollment comparison and immediately revalidate it
+    /// before the broker emits `BrokerHello`.
     pub fn authorize_client_peer(
         &self,
-        process_id: u32,
-        executable_path: &Path,
-        executable_digest: [u8; 32],
-        token: BrokerPeerTokenIdentity,
+        observation: &BrokerPeerAdmissionObservation,
     ) -> Result<(), BrokerRuntimeError> {
-        #[cfg(windows)]
-        {
-            platform::admission::authorize_client_peer(
-                &self.registry_id,
-                process_id,
-                executable_path,
-                executable_digest,
-                &token.token_sid,
-                token.integrity_level,
-                token.session_id,
-            )
-            .map_err(error_status::platform)
-        }
-        #[cfg(not(windows))]
-        {
-            let _ = (process_id, executable_path, executable_digest, token);
-            Err(BrokerRuntimeError::Unavailable)
-        }
+        let _ = (self, observation);
+        Err(BrokerRuntimeError::DeploymentRequired)
+    }
+
+    /// Revalidates the retained process handle and binds its PID, creation
+    /// epoch, token SID/integrity/session, and pipe PID/session to this exact
+    /// bootstrap/client-hello nonce and transcript immediately before the
+    /// broker releases session key material. This separate sealed result keeps
+    /// a future adapter from authenticating once, dropping its handle, and
+    /// then trusting a reusable PID or caller-asserted epoch.
+    pub fn authorize_client_transcript(
+        &self,
+        observation: &BrokerPeerAdmissionObservation,
+        bootstrap: &BootstrapPacket,
+        hello: &UntrustedClientHello,
+    ) -> Result<BrokerAuthorizedClientTranscript, BrokerRuntimeError> {
+        let _ = (self, observation, bootstrap, hello);
+        Err(BrokerRuntimeError::DeploymentRequired)
     }
 
     /// Builds the listener ACL from the installer-owned enrollment record.

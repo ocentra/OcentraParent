@@ -25,7 +25,35 @@ pub(super) fn run() -> Result<(), BrokerError> {
         &status_handle,
         ServiceState::StartPending,
         ServiceControlAccept::empty(),
+        ServiceExitCode::NO_ERROR,
     )?;
+    let result = run_registered(&status_handle, &stopping);
+    match result {
+        Ok(()) => set_status(
+            &status_handle,
+            ServiceState::Stopped,
+            ServiceControlAccept::empty(),
+            ServiceExitCode::NO_ERROR,
+        ),
+        Err(error) => {
+            // SCM is the service's production diagnostic boundary. Publish a
+            // terminal non-zero state even when startup fails before a pipe is
+            // created, then return the original error to the dispatcher path.
+            let _status_result = set_status(
+                &status_handle,
+                ServiceState::Stopped,
+                ServiceControlAccept::empty(),
+                super::service_status::exit_code(&error),
+            );
+            Err(error)
+        }
+    }
+}
+
+fn run_registered(
+    status_handle: &ServiceStatusHandle,
+    stopping: &AtomicBool,
+) -> Result<(), BrokerError> {
     let custody = BrokerCustodyService::open();
     // Do not report Running or publish a pipe endpoint while the required
     // process/token admission adapter is unavailable. A transport listener
@@ -34,21 +62,18 @@ pub(super) fn run() -> Result<(), BrokerError> {
     let sddl = custody.broker_pipe_sddl()?;
     let listener = create_listener(&sddl)?;
     set_status(
-        &status_handle,
+        status_handle,
         ServiceState::Running,
         ServiceControlAccept::STOP | ServiceControlAccept::SHUTDOWN,
+        ServiceExitCode::NO_ERROR,
     )?;
 
-    serve_until_stopped(&listener, &stopping, &custody)?;
+    serve_until_stopped(&listener, stopping, &custody)?;
     set_status(
-        &status_handle,
+        status_handle,
         ServiceState::StopPending,
         ServiceControlAccept::empty(),
-    )?;
-    set_status(
-        &status_handle,
-        ServiceState::Stopped,
-        ServiceControlAccept::empty(),
+        ServiceExitCode::NO_ERROR,
     )
 }
 
@@ -88,13 +113,14 @@ fn set_status(
     status_handle: &ServiceStatusHandle,
     state: ServiceState,
     controls_accepted: ServiceControlAccept,
+    exit_code: ServiceExitCode,
 ) -> Result<(), BrokerError> {
     status_handle
         .set_service_status(ServiceStatus {
             service_type: ServiceType::OWN_PROCESS,
             current_state: state,
             controls_accepted,
-            exit_code: ServiceExitCode::NO_ERROR,
+            exit_code,
             checkpoint: 0,
             wait_hint: Duration::from_secs(5),
             process_id: None,

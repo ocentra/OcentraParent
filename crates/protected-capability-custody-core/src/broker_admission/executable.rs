@@ -12,19 +12,6 @@ use windows_sys::Win32::Storage::FileSystem::{
 use super::{error_status, platform, BrokerExecutableGuard, BrokerRuntimeError};
 
 impl BrokerExecutableGuard {
-    pub fn open_client_sibling() -> Result<Self, BrokerRuntimeError> {
-        open_exact(
-            fixed_install_root().join(
-                ocentra_protected_capability_custody_protocol::constants::BROKER_EXECUTABLE_NAME,
-            ),
-            ExecutableValidation::Client,
-        )
-    }
-
-    pub fn path(&self) -> &Path {
-        &self.canonical_path
-    }
-
     pub(super) fn open_current_broker() -> Result<Self, BrokerRuntimeError> {
         let current = std::env::current_exe().map_err(error_status::broker_executable)?;
         let expected_root = fixed_install_root()
@@ -32,20 +19,7 @@ impl BrokerExecutableGuard {
         if current != expected_root {
             return Err(BrokerRuntimeError::InvalidBrokerProcess);
         }
-        open_exact(current, ExecutableValidation::Broker)
-    }
-
-    pub fn revalidate(&self) -> Result<(), BrokerRuntimeError> {
-        platform::validate_broker_executable(&self._executable_handle, &self.canonical_path)
-            .map_err(|error| error_status::broker_platform_admission(&error))
-    }
-
-    pub fn revalidate_client(&self) -> Result<(), BrokerRuntimeError> {
-        platform::admission::validate_client_executable(
-            &self._executable_handle,
-            &self.canonical_path,
-        )
-        .map_err(|error| error_status::broker_platform_admission(&error))
+        open_exact(current)
     }
 }
 
@@ -55,16 +29,7 @@ fn fixed_install_root() -> PathBuf {
     ))
 }
 
-#[derive(Clone, Copy)]
-enum ExecutableValidation {
-    Broker,
-    Client,
-}
-
-fn open_exact(
-    candidate: PathBuf,
-    validation: ExecutableValidation,
-) -> Result<BrokerExecutableGuard, BrokerRuntimeError> {
+fn open_exact(candidate: PathBuf) -> Result<BrokerExecutableGuard, BrokerRuntimeError> {
     reject_reparse_components(&candidate)?;
     let lexical_handle = open_pinned(&candidate)?;
     validate_pinned_file(&lexical_handle)?;
@@ -92,17 +57,9 @@ fn open_exact(
     if lexical != canonical_handle {
         return Err(BrokerRuntimeError::InvalidBrokerProcess);
     }
-    match validation {
-        ExecutableValidation::Broker => {
-            platform::validate_broker_executable(&executable_handle, &canonical)
-        }
-        ExecutableValidation::Client => {
-            platform::admission::validate_client_executable(&executable_handle, &canonical)
-        }
-    }
-    .map_err(|error| error_status::broker_platform_admission(&error))?;
+    platform::validate_broker_executable(&executable_handle, &canonical)
+        .map_err(|error| error_status::broker_platform_admission(&error))?;
     Ok(BrokerExecutableGuard {
-        canonical_path: canonical,
         _executable_handle: executable_handle,
     })
 }

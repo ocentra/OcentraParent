@@ -39,8 +39,12 @@ pub(super) fn current(
     validate_record(&record, lookup)?;
     let mut ledger = guard.state.lock().map_err(map_poison)?;
     if record.anti_rollback_watermark > ledger.watermark {
-        ledger.watermark = record.anti_rollback_watermark;
-        state::write(&guard.registry_id, *ledger)?;
+        let repaired = state::LedgerState {
+            watermark: record.anti_rollback_watermark,
+            ..*ledger
+        };
+        state::write(&guard.registry_id, repaired)?;
+        *ledger = repaired;
     }
     Ok(Some(record))
 }
@@ -78,15 +82,11 @@ pub(super) fn read_ciphertext(
 }
 
 #[cfg(windows)]
-pub(super) fn write_ciphertext(
-    registry_id: &str,
-    lookup_digest: &[u8; 32],
-    sealed: &[u8],
-) -> Result<(), PlatformError> {
+pub(super) fn validate_ciphertext(sealed: &[u8]) -> Result<(), PlatformError> {
     if sealed.is_empty() || sealed.len() > MAX_SEALED_BYTES {
         return Err(PlatformError::InvalidAttestation);
     }
-    registry::write(registry_id, &record_name(lookup_digest), sealed)
+    Ok(())
 }
 
 #[cfg(windows)]
@@ -141,7 +141,7 @@ fn validate_record(record: &BrokerRecord, lookup: BrokerLookup<'_>) -> Result<()
 }
 
 #[cfg(windows)]
-fn record_name(lookup_digest: &[u8; 32]) -> String {
+pub(super) fn record_name(lookup_digest: &[u8; 32]) -> String {
     let mut name = String::from(RECORD_NAME_PREFIX);
     name.push_str(&registry::hex(lookup_digest));
     name

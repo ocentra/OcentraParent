@@ -1,5 +1,5 @@
 use crate::authority::AuthorityError;
-use ocentra_protected_capability_custody_protocol::request::{ExpectedGenerations, RequestKind};
+use ocentra_protected_capability_custody_protocol::request::ExpectedGenerations;
 #[cfg(windows)]
 use zeroize::Zeroizing;
 
@@ -10,11 +10,10 @@ const BINDING_NAME_PREFIX: &str = "binding-";
 const CURRENT_BINDING_ENTROPY_DOMAIN: &[u8] = b"ocentra.pcc.current-binding.v1";
 
 #[cfg(windows)]
-pub(super) fn load_or_create_generations(
+pub(super) fn load_generations(
     registry_id: &str,
     lookup_digest: &[u8; 32],
-    kind: RequestKind,
-) -> Result<(ExpectedGenerations, bool), AuthorityError> {
+) -> Result<Option<ExpectedGenerations>, AuthorityError> {
     let value_name = binding_name(lookup_digest);
     match platform::read_registry_value(registry_id, &value_name).map_err(map_platform_error)? {
         Some(sealed) => {
@@ -26,91 +25,18 @@ pub(super) fn load_or_create_generations(
                 )
                 .map_err(map_platform_error)?,
             );
-            codec::decode(plaintext.as_ref()).map(|generations| (generations, false))
+            codec::decode(plaintext.as_ref()).map(Some)
         }
-        None if kind == RequestKind::Prepare => {
-            create_generations(registry_id, lookup_digest, &value_name)
-                .map(|generations| (generations, true))
-        }
-        None => Err(AuthorityError::Rejected),
+        None => Ok(None),
     }
-}
-
-#[cfg(windows)]
-pub(super) fn delete_generations(
-    registry_id: &str,
-    lookup_digest: &[u8; 32],
-) -> Result<(), AuthorityError> {
-    platform::delete_registry_value(registry_id, &binding_name(lookup_digest))
-        .map_err(map_platform_error)
 }
 
 #[cfg(not(windows))]
-pub(super) fn delete_generations(
+pub(super) fn load_generations(
     _registry_id: &str,
     _lookup_digest: &[u8; 32],
-) -> Result<(), AuthorityError> {
+) -> Result<Option<ExpectedGenerations>, AuthorityError> {
     Err(AuthorityError::Unavailable)
-}
-
-#[cfg(not(windows))]
-pub(super) fn load_or_create_generations(
-    _registry_id: &str,
-    _lookup_digest: &[u8; 32],
-    _kind: RequestKind,
-) -> Result<(ExpectedGenerations, bool), AuthorityError> {
-    Err(AuthorityError::Unavailable)
-}
-
-#[cfg(windows)]
-fn create_generations(
-    registry_id: &str,
-    lookup_digest: &[u8; 32],
-    value_name: &str,
-) -> Result<ExpectedGenerations, AuthorityError> {
-    let binding_count = platform::count_registry_values_with_prefix(
-        registry_id,
-        BINDING_NAME_PREFIX,
-        ocentra_protected_capability_custody_protocol::constants::MAX_ACTIVE_AUTHORITY_BINDINGS,
-    )
-    .map_err(map_platform_error)?;
-    if binding_count
-        >= ocentra_protected_capability_custody_protocol::constants::MAX_ACTIVE_AUTHORITY_BINDINGS
-    {
-        return Err(AuthorityError::Unavailable);
-    }
-    let generations = random_generations()?;
-    let plaintext = Zeroizing::new(codec::encode(generations));
-    let sealed = platform::encrypt_dpapi(
-        registry_id,
-        plaintext.as_ref(),
-        &binding_entropy(registry_id, lookup_digest),
-    )
-    .map_err(map_platform_error)?;
-    platform::write_registry_value(registry_id, value_name, &sealed).map_err(map_platform_error)?;
-    Ok(generations)
-}
-
-#[cfg(windows)]
-fn random_generations() -> Result<ExpectedGenerations, AuthorityError> {
-    ExpectedGenerations::try_new(
-        random_nonzero_u64()?,
-        random_nonzero_u64()?,
-        random_nonzero_u64()?,
-        random_nonzero_u64()?,
-    )
-    .map_err(map_protocol_error)
-}
-
-#[cfg(windows)]
-fn random_nonzero_u64() -> Result<u64, AuthorityError> {
-    let mut bytes = [0_u8; 8];
-    getrandom::fill(&mut bytes).map_err(map_random_error)?;
-    let value = u64::from_be_bytes(bytes);
-    if value == 0 {
-        return Err(AuthorityError::Unavailable);
-    }
-    Ok(value)
 }
 
 #[cfg(windows)]
@@ -130,17 +56,5 @@ fn binding_entropy(registry_id: &str, lookup_digest: &[u8; 32]) -> Vec<u8> {
 
 #[cfg(windows)]
 fn map_platform_error(_error: crate::platform::PlatformError) -> AuthorityError {
-    AuthorityError::Unavailable
-}
-
-#[cfg(windows)]
-fn map_protocol_error(
-    _error: ocentra_protected_capability_custody_protocol::types::ProtocolError,
-) -> AuthorityError {
-    AuthorityError::Rejected
-}
-
-#[cfg(windows)]
-fn map_random_error(_error: getrandom::Error) -> AuthorityError {
     AuthorityError::Unavailable
 }

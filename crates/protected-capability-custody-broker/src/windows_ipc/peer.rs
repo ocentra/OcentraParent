@@ -12,9 +12,7 @@ use ocentra_protected_capability_custody_protocol::handshake::{
 };
 use zeroize::Zeroizing;
 
-use crate::authority::{
-    current_process_identity, peer_process_observation, unix_now_millis, BrokerSessionAuthority,
-};
+use crate::authority::{current_process_identity, unix_now_millis, BrokerSessionAuthority};
 use crate::custody::BrokerCustodyService;
 use crate::BrokerError;
 
@@ -32,22 +30,32 @@ pub(super) fn serve(
     // handle alive through digest/admission and capture the token under this
     // RAII impersonation scope before protected registry custody is opened.
     let peer_process_id = stream.client_process_id().map_err(map_transport_error)?;
-    let observation = peer_process_observation(peer_process_id)?;
-    let token = {
+    let peer_session_id = stream.client_session_id().map_err(map_transport_error)?;
+    let observation = {
         let _impersonation = stream.impersonate_client().map_err(map_transport_error)?;
-        BrokerCustodyRuntime::observe_impersonated_client().map_err(map_runtime_error)?
+        BrokerCustodyRuntime::observe_impersonated_named_pipe_client(
+            peer_process_id,
+            peer_session_id,
+        )
+        .map_err(map_runtime_error)?
     };
-    custody.authorize_client_peer(&observation, token)?;
+    custody.authorize_client_peer(&observation)?;
 
     let bootstrap_frame = Zeroizing::new(super::io::read_frame(stream, deadline)?);
     let bootstrap =
         ocentra_protected_capability_custody_protocol::decode_bootstrap(bootstrap_frame.as_ref())?;
-    authenticate_pipe_client(stream, &bootstrap, &observation)?;
+    authenticate_pipe_client(stream, &bootstrap)?;
 
     let client_frame = Zeroizing::new(super::io::read_frame(stream, deadline)?);
     let client_hello =
         ocentra_protected_capability_custody_protocol::decode_client_hello(client_frame.as_ref())?;
     authenticate_client_hello(stream, &bootstrap, &client_hello)?;
+
+    // The observation owns the future pinned process handle. Revalidate it at
+    // the last possible point before the broker creates and emits session key
+    // material, closing the PID-reuse window between admission and hello.
+    let _authorized_transcript =
+        custody.authorize_client_transcript(&observation, &bootstrap, &client_hello)?;
 
     let broker_identity = current_process_identity()?;
     let session = BrokerSessionAuthority::generate(
@@ -83,16 +91,12 @@ pub(super) fn serve(
 fn authenticate_pipe_client(
     stream: &PipeStream,
     bootstrap: &BootstrapPacket,
-    observation: &crate::authority::PeerProcessObservation,
 ) -> Result<(), BrokerError> {
     let identity = bootstrap.identity();
     let peer_process_id = stream.client_process_id().map_err(map_transport_error)?;
     let peer_session_id = stream.client_session_id().map_err(map_transport_error)?;
     if peer_process_id != identity.client_process_id()
         || peer_session_id != identity.client_session_id()
-        || observation.identity.process_id != identity.client_process_id()
-        || observation.identity.process_epoch != identity.client_process_epoch()
-        || observation.identity.session_id != identity.client_session_id()
     {
         return Err(BrokerError::PeerAuthentication);
     }

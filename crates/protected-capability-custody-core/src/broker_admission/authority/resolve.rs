@@ -13,32 +13,31 @@ pub(super) fn resolve_for_request(
 ) -> Result<ExpectedGenerations, AuthorityError> {
     let lookup_digest = locator.lookup_digest();
     let mut bindings = authority.bindings.lock().map_err(map_poison_error)?;
-    let (generations, created) =
-        storage::load_or_create_generations(&authority.registry_id, &lookup_digest, kind)?;
-    if (created && expected != ExpectedGenerations::initial_binding())
-        || (!created && generations != expected)
-    {
-        cleanup_created(&authority.registry_id, &lookup_digest, created)?;
+    let Some(generations) = storage::load_generations(&authority.registry_id, &lookup_digest)?
+    else {
+        // First Prepare needs one protected transaction that commits generated
+        // authority generations together with the custody reservation and its
+        // recoverable response/token. Persisting generations first strands all
+        // retries from `initial_binding` if custody fails or the broker crashes.
+        // The transaction owner is not linked, so refuse without writing.
+        return if kind == RequestKind::Prepare && expected == ExpectedGenerations::initial_binding()
+        {
+            Err(AuthorityError::Unavailable)
+        } else {
+            Err(AuthorityError::Rejected)
+        };
+    };
+    if generations != expected {
         return Err(AuthorityError::Rejected);
     }
-    let binding = match binding_for(locator, generations) {
-        Ok(binding) => binding,
-        Err(error) => {
-            cleanup_created(&authority.registry_id, &lookup_digest, created)?;
-            return Err(error);
-        }
-    };
+    let binding = binding_for(locator, generations)?;
     match bindings.get(&lookup_digest) {
         Some(current) if current == &binding => {}
-        Some(_) => {
-            cleanup_created(&authority.registry_id, &lookup_digest, created)?;
-            return Err(AuthorityError::Rejected);
-        }
+        Some(_) => return Err(AuthorityError::Rejected),
         None => {
             if bindings.len()
                 >= ocentra_protected_capability_custody_protocol::constants::MAX_ACTIVE_AUTHORITY_BINDINGS
             {
-                cleanup_created(&authority.registry_id, &lookup_digest, created)?;
                 return Err(AuthorityError::Unavailable);
             }
             bindings.insert(lookup_digest, binding);
@@ -69,17 +68,6 @@ fn binding_for(
 
 fn map_binding_error(_error: crate::binding::BindingError) -> AuthorityError {
     AuthorityError::Rejected
-}
-
-fn cleanup_created(
-    registry_id: &str,
-    lookup_digest: &[u8; 32],
-    created: bool,
-) -> Result<(), AuthorityError> {
-    if created {
-        storage::delete_generations(registry_id, lookup_digest)?;
-    }
-    Ok(())
 }
 
 fn map_poison_error<T>(_error: std::sync::PoisonError<T>) -> AuthorityError {

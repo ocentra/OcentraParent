@@ -1,20 +1,16 @@
 #[cfg(windows)]
-use std::borrow::Cow;
+#[path = "read.rs"]
+mod registry_read;
 #[cfg(windows)]
-use std::io;
-
-#[cfg(windows)]
-use winreg::enums::REG_BINARY;
-#[cfg(windows)]
-use winreg::RegValue;
+#[path = "write.rs"]
+mod registry_write;
 
 #[cfg(windows)]
 use crate::platform::PlatformError;
 
 #[cfg(windows)]
 pub(super) fn read(registry_id: &str, name: &str) -> Result<Option<Vec<u8>>, PlatformError> {
-    let key = super::open_key(registry_id)?;
-    read_from_key(&key, name)
+    registry_read::runtime(registry_id, name)
 }
 
 #[cfg(windows)]
@@ -22,51 +18,23 @@ pub(super) fn read_enrollment(
     registry_id: &str,
     name: &str,
 ) -> Result<Option<Vec<u8>>, PlatformError> {
-    let key = super::open_enrollment_key(registry_id)?;
-    read_from_key(&key, name)
-}
-
-#[cfg(windows)]
-fn read_from_key(key: &winreg::RegKey, name: &str) -> Result<Option<Vec<u8>>, PlatformError> {
-    match key.get_raw_value(name) {
-        Ok(value) if value.vtype == REG_BINARY => {
-            if value.bytes.len()
-                > ocentra_protected_capability_custody_protocol::constants::MAX_REGISTRY_VALUE_BYTES
-            {
-                return Err(PlatformError::Tampered);
-            }
-            Ok(Some(value.bytes.into_owned()))
-        }
-        Ok(_) => Err(PlatformError::Tampered),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
-        Err(error) => Err(super::map_io_error(error)),
-    }
+    registry_read::enrollment(registry_id, name)
 }
 
 #[cfg(windows)]
 pub(super) fn write(registry_id: &str, name: &str, value: &[u8]) -> Result<(), PlatformError> {
-    if value.len()
-        > ocentra_protected_capability_custody_protocol::constants::MAX_REGISTRY_VALUE_BYTES
-    {
-        return Err(PlatformError::InvalidAttestation);
-    }
-    let key = super::open_key(registry_id)?;
-    key.set_raw_value(
-        name,
-        &RegValue {
-            bytes: Cow::Borrowed(value),
-            vtype: REG_BINARY,
-        },
-    )
-    .map_err(super::map_io_error)
+    registry_write::one(registry_id, name, value)
 }
 
 #[cfg(windows)]
 pub(super) fn delete(registry_id: &str, name: &str) -> Result<(), PlatformError> {
-    let key = super::open_key(registry_id)?;
-    match key.delete_value(name) {
-        Ok(()) => Ok(()),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
-        Err(error) => Err(super::map_io_error(error)),
-    }
+    registry_write::delete(registry_id, name)
+}
+
+#[cfg(windows)]
+pub(super) fn write_batch(
+    registry_id: &str,
+    mutations: &[super::RuntimeMutation<'_>],
+) -> Result<(), super::RuntimeBatchFailure> {
+    registry_write::batch(registry_id, mutations)
 }
