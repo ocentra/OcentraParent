@@ -1,6 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, UdpSocket};
 use std::sync::atomic::AtomicBool;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use super::http::{io_error, mx_seconds_for_timeout, normalize_search_target};
 use super::{
@@ -35,6 +35,7 @@ pub(super) fn discover_ssdp_upnp_devices(
         attempts,
         description_timeout,
         None,
+        None,
     )
 }
 
@@ -45,6 +46,7 @@ pub(super) fn discover_ssdp_upnp_devices_with_cancellation(
     attempts: usize,
     description_timeout: Duration,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) -> Result<Vec<SsdpDiscoveryRecord>, SsdpDiscoveryError> {
     if cancellation.is_some_and(|value| value.load(std::sync::atomic::Ordering::Acquire)) {
         return Ok(Vec::new());
@@ -66,6 +68,7 @@ pub(super) fn discover_ssdp_upnp_devices_with_cancellation(
         attempts.clamp(1, SSDP_MAX_ATTEMPTS),
         description_timeout,
         cancellation,
+        deadline,
     )
 }
 

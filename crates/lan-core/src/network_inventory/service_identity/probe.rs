@@ -14,7 +14,7 @@ use super::{
 mod http;
 mod identity;
 mod tls;
-mod transport;
+pub(super) mod transport;
 
 #[derive(Debug)]
 pub struct AcceptAnyServerCertVerifier;
@@ -109,6 +109,9 @@ pub(super) fn probe_service_identity_with_cancellation(
         cancellation,
     )
 }
+
+use self::http::{probe_service_identity_over_http_until, probe_service_identity_over_https_until};
+use self::transport::poll_timeout;
 
 pub fn probe_service_identity_on_target(
     ip_address: &str,

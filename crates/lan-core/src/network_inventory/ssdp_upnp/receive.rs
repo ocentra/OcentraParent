@@ -7,6 +7,7 @@ use super::http::io_error;
 use super::{SsdpDiscoveryError, SsdpDiscoveryRecord, SSDP_MAX_RESPONSE_BYTES};
 
 mod record;
+mod send;
 
 pub(super) fn collect_ssdp_records_with_cancellation(
     socket: &UdpSocket,
@@ -16,6 +17,7 @@ pub(super) fn collect_ssdp_records_with_cancellation(
     attempts: usize,
     description_timeout: Duration,
     cancellation: Option<&AtomicBool>,
+    outer_deadline: Option<Instant>,
 ) -> Result<Vec<SsdpDiscoveryRecord>, SsdpDiscoveryError> {
     let mut results = Vec::new();
     let mut seen = HashSet::new();
@@ -23,9 +25,11 @@ pub(super) fn collect_ssdp_records_with_cancellation(
     let response_budget =
         response_timeout.saturating_mul(u32::try_from(attempts).unwrap_or(u32::MAX));
     let aggregate_budget = response_budget.saturating_add(description_timeout);
-    let aggregate_deadline = started_at
+    let local_deadline = started_at
         .checked_add(aggregate_budget)
         .unwrap_or(started_at);
+    let aggregate_deadline =
+        outer_deadline.map_or(local_deadline, |outer| outer.min(local_deadline));
     for _ in 0..attempts {
         if is_cancelled(cancellation)
             || Instant::now() >= aggregate_deadline
@@ -33,9 +37,7 @@ pub(super) fn collect_ssdp_records_with_cancellation(
         {
             break;
         }
-        socket
-            .send_to(request, target)
-            .map_err(|error| io_error(&error))?;
+        send::send_request_until(socket, request, target, aggregate_deadline, cancellation)?;
         receive_ssdp_attempt(
             socket,
             response_timeout,
@@ -73,7 +75,7 @@ fn receive_ssdp_attempt(
             return Ok(());
         }
         socket
-            .set_read_timeout(Some(remaining))
+            .set_read_timeout(Some(remaining.min(SSDP_IO_POLL_SLICE)))
             .map_err(|error| io_error(&error))?;
         let mut buffer = vec![0_u8; SSDP_MAX_RESPONSE_BYTES];
         match socket.recv_from(&mut buffer) {
@@ -87,11 +89,13 @@ fn receive_ssdp_attempt(
                     cancellation,
                 )?
             }
-            Err(error) if is_ssdp_timeout(&error) => return Ok(()),
+            Err(error) if is_ssdp_timeout(&error) => continue,
             Err(error) => return Err(io_error(&error)),
         }
     }
 }
+
+const SSDP_IO_POLL_SLICE: Duration = Duration::from_millis(50);
 
 fn is_cancelled(cancellation: Option<&AtomicBool>) -> bool {
     cancellation.is_some_and(|value| value.load(std::sync::atomic::Ordering::Acquire))

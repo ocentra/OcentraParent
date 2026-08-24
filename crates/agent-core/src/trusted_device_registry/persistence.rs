@@ -17,7 +17,6 @@ use super::TrustedDeviceRegistry;
 
 mod device_state;
 mod intent;
-mod replay_history;
 
 impl TrustedDeviceRegistry {
     pub fn select_pairing_for_intent(
@@ -203,8 +202,6 @@ impl TrustedDeviceRegistry {
                 "trusted device registry changed before mutation",
             ));
         }
-        persisted.merge_accepted_intent_ids(self.accepted_intent_ids.iter().cloned());
-        replay_history::merge_challenge_ids(self, &mut persisted);
         let result = mutation(&mut persisted)?;
         persisted.save_json(registry_path)?;
 

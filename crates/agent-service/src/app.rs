@@ -39,9 +39,12 @@ pub struct AppState {
 pub fn router(network: NetworkPolicy) -> Router {
     let cors_layer = network.cors_layer();
     let lan_pairing = LanPairingRuntime::from_env();
-    spawn_lan_mdns_advertisement_runtime(lan_pairing.clone());
-    let passive_discovery_runtime =
-        start_lan_passive_discovery_service_runtime(lan_pairing.clone()).ok();
+    let passive_discovery_runtime = if lan_pairing.durable_pairing_registry_available() {
+        spawn_lan_mdns_advertisement_runtime(lan_pairing.clone());
+        start_lan_passive_discovery_service_runtime(lan_pairing.clone()).ok()
+    } else {
+        None
+    };
     let state = AppState {
         network,
         lan_pairing,

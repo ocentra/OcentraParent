@@ -80,8 +80,11 @@ pub fn stimulate_bounded_ipv4_neighbors(
     active_refresh_suppression_devices: &[LanPairingDeviceRef],
     previous_devices: &[LanNetworkInventoryDevice],
     cancellation: Option<&AtomicBool>,
+    outer_deadline: Option<Instant>,
 ) {
-    let deadline = Instant::now() + Duration::from_millis(TARGETED_ARP_REFRESH_SCAN_BUDGET_MS);
+    let local_deadline =
+        Instant::now() + Duration::from_millis(TARGETED_ARP_REFRESH_SCAN_BUDGET_MS);
+    let deadline = outer_deadline.map_or(local_deadline, |outer| outer.min(local_deadline));
     if is_cancelled(cancellation) {
         return;
     }

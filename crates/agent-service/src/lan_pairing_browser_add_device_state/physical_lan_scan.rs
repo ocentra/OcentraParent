@@ -161,6 +161,7 @@ fn execute_physical_lan_scan_locked(
         selected_interface_scope,
         Some(&allowed_snmp_response_observer),
         cancellation,
+        deadline,
     );
     if cancellation.is_some_and(|cancellation| cancellation.load(Ordering::Acquire)) {
         return failed_scan_result(previous_scan_snapshot);

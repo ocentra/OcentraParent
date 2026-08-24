@@ -108,6 +108,7 @@ pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_s
         selected_interface.as_deref(),
         allowed_snmp_response_observer,
         None,
+        None,
     )
 }
 

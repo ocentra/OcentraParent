@@ -14,6 +14,13 @@ mod challenge_request;
 mod known_device_merge;
 
 impl LanPairingRuntime {
+    pub(crate) fn durable_pairing_registry_available(&self) -> bool {
+        matches!(
+            self.persistence,
+            LanPairingRegistryPersistence::LocalJsonRegistry(_)
+        )
+    }
+
     pub(crate) fn persistence_mode(&self) -> LanPairingText {
         match &self.persistence {
             LanPairingRegistryPersistence::InMemory

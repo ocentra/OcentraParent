@@ -54,17 +54,17 @@ fn start_background_browser_discovery_scan(
 ) -> Result<(), LanPairingRejectionReason> {
     let cancellation = Arc::new(AtomicBool::new(false));
     let worker_slot = runtime.browser_discovery_scan_worker.clone();
-    let previous_worker = worker_slot
+    let mut worker_slot_guard = worker_slot
         .lock()
-        .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?
-        .take();
-    if let Some(worker) = previous_worker.and_then(|worker| worker.cancel_and_join().err()) {
-        worker_slot
-            .lock()
-            .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?
-            .replace(worker);
-        return Err(LanPairingRejectionReason::SignedChildAgentContextUnavailable);
-    }
+        .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?;
+    worker_slot_guard
+        .take()
+        .map(LanBrowserDiscoveryScanWorker::cancel_and_join)
+        .transpose()
+        .map_err(|worker| {
+            worker_slot_guard.replace(worker);
+            LanPairingRejectionReason::SignedChildAgentContextUnavailable
+        })?;
     let worker_cancellation = cancellation.clone();
     let worker_runtime = runtime.clone_for_background_scan();
     let join = thread::Builder::new()
@@ -77,13 +77,10 @@ fn start_background_browser_discovery_scan(
             );
         })
         .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?;
-    worker_slot
-        .lock()
-        .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?
-        .replace(LanBrowserDiscoveryScanWorker {
-            cancellation,
-            join: Some(join),
-        });
+    worker_slot_guard.replace(LanBrowserDiscoveryScanWorker {
+        cancellation,
+        join: Some(join),
+    });
     Ok(())
 }
 

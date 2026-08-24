@@ -21,10 +21,7 @@ pub(super) const ACCEPTED_CHALLENGE_IDS_KEY: &str = "acceptedChallengeIds";
 
 impl TrustedDeviceRegistry {
     pub fn load_json(path: &Path) -> Self {
-        read_to_string(path)
-            .ok()
-            .and_then(|content| load::from_json_text(&content))
-            .unwrap_or_default()
+        Self::load_json_strict(path).unwrap_or_default()
     }
 
     pub fn load_json_strict(path: &Path) -> io::Result<Self> {

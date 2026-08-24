@@ -9,7 +9,8 @@ use crate::network_inventory_hardware::local_network_identity_until;
 
 use super::super::active_refresh::scan_plan_for_identity;
 use super::service_identity::AllowedSnmpResponseObserver;
-use super::{LanDiscoveryRefreshMode, LanDiscoveryScanPlan, LanNetworkInventoryDevice};
+use super::{LanDiscoveryRefreshMode, LanNetworkInventoryDevice};
+use crate::network_inventory::LanDiscoveryScanPlan;
 
 pub(in crate::network_inventory) fn plan_lan_discovery_scan_until(
     identity_hint_devices: &[LanPairingDeviceRef],
@@ -38,8 +39,9 @@ pub(in crate::network_inventory) fn discover_lan_network_devices_with_cancellati
     selected_interface_scope: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) -> Vec<LanNetworkInventoryDevice> {
-    if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+    if unavailable(cancellation, deadline) {
         return Vec::new();
     }
     if refresh_mode == LanDiscoveryRefreshMode::ActiveSubnetRefresh {
@@ -47,6 +49,7 @@ pub(in crate::network_inventory) fn discover_lan_network_devices_with_cancellati
             active_refresh_suppression_devices,
             previous_devices,
             cancellation,
+            deadline,
         );
     }
     // This cancellation-aware path receives the interface resolved by the
@@ -64,6 +67,7 @@ pub(in crate::network_inventory) fn discover_lan_network_devices_with_cancellati
             selected_interface.as_deref(),
             allowed_snmp_response_observer,
             cancellation,
+            deadline,
         )
     } else if cfg!(any(target_os = "linux", target_os = "android")) {
         super::super::linux_neighbors::linux_lan_neighbors_with_cancellation(
@@ -73,6 +77,7 @@ pub(in crate::network_inventory) fn discover_lan_network_devices_with_cancellati
             selected_interface.as_deref(),
             allowed_snmp_response_observer,
             cancellation,
+            deadline,
         )
     } else if cfg!(target_os = "macos") {
         super::super::macos_neighbors::macos_lan_neighbors_with_cancellation(
@@ -82,6 +87,7 @@ pub(in crate::network_inventory) fn discover_lan_network_devices_with_cancellati
             selected_interface.as_deref(),
             allowed_snmp_response_observer,
             cancellation,
+            deadline,
         )
     } else {
         Vec::new()
@@ -90,13 +96,20 @@ pub(in crate::network_inventory) fn discover_lan_network_devices_with_cancellati
         &mut devices,
         selected_interface.as_deref(),
         cancellation,
+        deadline,
     );
-    if !cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+    if !unavailable(cancellation, deadline) {
         super::super::ssdp_upnp::inventory::enrich_ssdp_upnp_devices_with_cancellation(
             &mut devices,
             selected_interface.as_deref(),
             cancellation,
+            deadline,
         );
     }
     devices
+}
+
+fn unavailable(cancellation: Option<&AtomicBool>, deadline: Option<Instant>) -> bool {
+    cancellation.is_some_and(|value| value.load(Ordering::Acquire))
+        || deadline.is_some_and(|deadline| Instant::now() >= deadline)
 }

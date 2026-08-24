@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::net::Ipv4Addr;
 use std::{
     sync::atomic::{AtomicBool, Ordering},
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use chrono::Utc;
@@ -46,6 +46,7 @@ pub fn windows_lan_neighbors(
         selected_interface,
         allowed_snmp_response_observer,
         None,
+        None,
     )
 }
 
@@ -56,6 +57,7 @@ pub fn windows_lan_neighbors_with_cancellation(
     selected_interface: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) -> Vec<LanNetworkInventoryDevice> {
     if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
         return Vec::new();
@@ -99,6 +101,7 @@ pub fn windows_lan_neighbors_with_cancellation(
         selected_interface,
         allowed_snmp_response_observer,
         cancellation,
+        deadline,
     );
     devices
 }

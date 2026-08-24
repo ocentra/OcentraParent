@@ -18,6 +18,7 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 use serde::{Deserialize, Serialize};
 
 use super::LanNetworkInventoryDevice;
+use std::{sync::atomic::AtomicBool, time::Instant};
 
 pub type AllowedSnmpResponseObserver<'a> = Option<&'a (dyn Fn(&[u8]) + Send + Sync)>;
 pub type HttpResponseParts<'a> = (u16, Vec<(String, String)>, &'a [u8]);
@@ -147,6 +148,7 @@ pub fn enrich_service_identity_probes(
         selected_interface,
         allowed_snmp_response_observer,
         None,
+        None,
     )
 }
 
@@ -156,6 +158,7 @@ pub fn enrich_service_identity_probes_with_cancellation(
     selected_interface: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) {
     enrichment::enrich_service_identity_probes(
         devices,
@@ -163,6 +166,7 @@ pub fn enrich_service_identity_probes_with_cancellation(
         selected_interface,
         allowed_snmp_response_observer,
         cancellation,
+        deadline,
     )
 }
 
@@ -215,4 +219,3 @@ pub fn runtime_service_identity_probe_settings() -> ServiceIdentityProbeSettings
 pub fn env_flag_enabled(name: &str) -> bool {
     settings::env_flag_enabled(name)
 }
-use std::sync::atomic::AtomicBool;

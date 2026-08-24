@@ -46,7 +46,7 @@ impl TrustedDeviceRegistry {
         Self::default()
     }
 
-    pub fn from_entries(entries: Vec<LanTrustedDeviceRegistryEntry>) -> Self {
+    fn from_entries(entries: Vec<LanTrustedDeviceRegistryEntry>) -> Self {
         Self {
             entries,
             household_device_decisions: Vec::new(),

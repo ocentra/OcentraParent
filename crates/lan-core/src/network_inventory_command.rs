@@ -11,6 +11,11 @@ pub struct TargetedArpProbeCommand {
     pub args: Vec<String>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum ProtectedCommandAdapterState {
+    Unavailable,
+}
+
 pub(crate) fn command_json_records(program: &str, args: &[&str]) -> Vec<serde_json::Value> {
     json::command_json_records(program, args)
 }
@@ -48,12 +53,25 @@ pub(crate) fn command_stdout_with_timeout(
     process::command_stdout_with_timeout(program, args, timeout)
 }
 
+pub(crate) fn command_stdout_with_timeout_and_cancellation(
+    program: &str,
+    args: &[&str],
+    timeout: Duration,
+    cancellation: &AtomicBool,
+) -> Option<String> {
+    process::command_stdout_with_timeout_and_cancellation(program, args, timeout, cancellation)
+}
+
 pub(crate) fn command_succeeded_with_timeout(
     program: &str,
     args: &[&str],
     timeout: Duration,
 ) -> bool {
     process::command_succeeded_with_timeout(program, args, timeout)
+}
+
+pub(crate) const fn protected_command_adapter_state() -> ProtectedCommandAdapterState {
+    process::protected_adapter_state()
 }
 
 pub fn targeted_arp_probe_commands(

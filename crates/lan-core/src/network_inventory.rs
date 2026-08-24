@@ -274,6 +274,7 @@ pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_s
     selected_interface_scope: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) -> Vec<LanNetworkInventoryDevice> {
     api::cancellation::discover_lan_network_devices_with_cancellation(
         identity_hint_devices,
@@ -284,6 +285,7 @@ pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_s
         selected_interface_scope,
         allowed_snmp_response_observer,
         cancellation,
+        deadline,
     )
 }
 

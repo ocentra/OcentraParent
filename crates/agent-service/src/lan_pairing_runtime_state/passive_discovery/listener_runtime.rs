@@ -1,5 +1,5 @@
-use std::sync::{Arc, Mutex, Weak};
-use std::thread::JoinHandle;
+use std::sync::{mpsc, Arc, Mutex, Weak};
+use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
 use ocentra_lan_core::network_inventory::passive_discovery::udp_multicast::LanPassiveDiscoveryUdpListener;
@@ -27,6 +27,13 @@ use super::{
 use super::{LanPassiveDiscoveryRefreshSignalSender, LanPassiveDiscoveryRuntimeObservedState};
 
 const PASSIVE_DISCOVERY_LISTENER_THREAD_NAME: &str = "lan-passive-discovery-listener";
+const PASSIVE_DISCOVERY_LISTENER_START_TIMEOUT: Duration = Duration::from_secs(2);
+const PASSIVE_DISCOVERY_LISTENER_JOIN_TIMEOUT: Duration = Duration::from_secs(5);
+
+enum PassiveDiscoveryListenerStartup {
+    Ready,
+    Unavailable,
+}
 
 #[path = "listener_runtime/engine.rs"]
 mod engine;
@@ -69,7 +76,8 @@ pub(super) fn spawn(
     let capability_store = LanPassiveDiscoveryCapabilityStore::for_runtime(&runtime);
     let listener_state = Arc::downgrade(&runtime.passive_discovery_listener_state);
     let heartbeat = Arc::downgrade(&runtime.lan_ai_provider_heartbeat);
-    std::thread::Builder::new()
+    let (startup_sender, startup_receiver) = mpsc::sync_channel(1);
+    let join = std::thread::Builder::new()
         .name(PASSIVE_DISCOVERY_LISTENER_THREAD_NAME.to_string())
         .spawn(move || {
             let mut listener_runtime = PassiveDiscoveryListenerRuntime::new(
@@ -79,11 +87,48 @@ pub(super) fn spawn(
                 capability_store,
                 pipeline_health,
             );
+            if !listener_runtime.prepare_startup() {
+                let _ = startup_sender.send(PassiveDiscoveryListenerStartup::Unavailable);
+                return;
+            }
+            if startup_sender
+                .send(PassiveDiscoveryListenerStartup::Ready)
+                .is_err()
+            {
+                return;
+            }
             if let Some(initial_refresh_signal) = initial_refresh_signal {
                 listener_runtime.send_refresh_signals(vec![initial_refresh_signal]);
             }
             listener_runtime.run();
-        })
+        })?;
+
+    match startup_receiver.recv_timeout(PASSIVE_DISCOVERY_LISTENER_START_TIMEOUT) {
+        Ok(PassiveDiscoveryListenerStartup::Ready) => Ok(join),
+        Ok(PassiveDiscoveryListenerStartup::Unavailable)
+        | Err(mpsc::RecvTimeoutError::Disconnected) => {
+            stop_and_join_startup_worker(&runtime, join);
+            Err(std::io::Error::from(std::io::ErrorKind::AddrNotAvailable))
+        }
+        Err(mpsc::RecvTimeoutError::Timeout) => {
+            stop_and_join_startup_worker(&runtime, join);
+            Err(std::io::Error::from(std::io::ErrorKind::TimedOut))
+        }
+    }
+}
+
+fn stop_and_join_startup_worker(runtime: &LanPairingRuntime, join: JoinHandle<()>) {
+    if let Ok(mut listener_state) = runtime.passive_discovery_listener_state.lock() {
+        listener_state.stop();
+    }
+    let deadline = Instant::now() + PASSIVE_DISCOVERY_LISTENER_JOIN_TIMEOUT;
+    while !join.is_finished() && Instant::now() < deadline {
+        thread::sleep(Duration::from_millis(5));
+    }
+    if !join.is_finished() {
+        std::process::abort();
+    }
+    let _joined = join.join();
 }
 
 impl PassiveDiscoveryListenerSlot {

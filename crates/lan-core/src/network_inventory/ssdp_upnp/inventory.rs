@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 use std::sync::atomic::AtomicBool;
+use std::time::Instant;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
@@ -13,13 +14,14 @@ pub(super) fn enrich_ssdp_upnp_devices(
     devices: &mut Vec<LanNetworkInventoryDevice>,
     selected_interface: Option<&str>,
 ) {
-    enrich_ssdp_upnp_devices_with_cancellation(devices, selected_interface, None);
+    enrich_ssdp_upnp_devices_with_cancellation(devices, selected_interface, None, None);
 }
 
 pub(crate) fn enrich_ssdp_upnp_devices_with_cancellation(
     devices: &mut Vec<LanNetworkInventoryDevice>,
     selected_interface: Option<&str>,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) {
     if cancellation.is_some_and(|value| value.load(std::sync::atomic::Ordering::Acquire)) {
         return;
@@ -34,6 +36,7 @@ pub(crate) fn enrich_ssdp_upnp_devices_with_cancellation(
         1,
         std::time::Duration::from_millis(super::SSDP_DISCOVERY_TIMEOUT_MS),
         cancellation,
+        deadline,
     ) {
         merge_ssdp_records(devices, records, selected_interface);
     }

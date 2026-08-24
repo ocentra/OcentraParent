@@ -36,6 +36,18 @@ impl TrustedDeviceRegistry {
         observed_at: &str,
         mutation: LanControllerLeaseMutation,
     ) -> Result<(), LanPairingRejectionReason> {
+        let mut candidate = self.clone();
+        candidate.apply_controller_lease_candidate(intent, observed_at, mutation)?;
+        *self = candidate;
+        Ok(())
+    }
+
+    fn apply_controller_lease_candidate(
+        &mut self,
+        intent: &LanParentIntentEnvelope,
+        observed_at: &str,
+        mutation: LanControllerLeaseMutation,
+    ) -> Result<(), LanPairingRejectionReason> {
         let validated = validation::validate_candidate(intent, observed_at)?;
         validation::clear_expired_or_invalid(self, validated.observed_at)?;
         let relationship = match self.controller_lease.as_ref() {

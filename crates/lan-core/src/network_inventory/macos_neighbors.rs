@@ -1,5 +1,5 @@
 use std::net::Ipv4Addr;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use std::{collections::HashMap, sync::atomic::AtomicBool};
 
 use chrono::Utc;
@@ -50,6 +50,7 @@ pub fn macos_lan_neighbors(
         selected_interface,
         allowed_snmp_response_observer,
         None,
+        None,
     )
 }
 
@@ -60,6 +61,7 @@ pub fn macos_lan_neighbors_with_cancellation(
     selected_interface: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) -> Vec<LanNetworkInventoryDevice> {
     let identity_hint_inventory = LanIdentityHintInventory::from_devices(identity_hint_devices);
     let previous_inventory = LanPreviousNetworkInventory::from_devices(previous_devices);
@@ -82,6 +84,7 @@ pub fn macos_lan_neighbors_with_cancellation(
         selected_interface,
         allowed_snmp_response_observer,
         cancellation,
+        deadline,
     );
     devices
 }

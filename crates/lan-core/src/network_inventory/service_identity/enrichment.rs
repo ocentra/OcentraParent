@@ -39,6 +39,7 @@ pub(super) fn enrich_service_identity_probes(
     selected_interface: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
     cancellation: Option<&AtomicBool>,
+    outer_deadline: Option<Instant>,
 ) {
     let Some(selected_interface) = selected_interface.filter(|value| !value.trim().is_empty())
     else {
@@ -48,7 +49,9 @@ pub(super) fn enrich_service_identity_probes(
     if targets.is_empty() {
         return;
     }
-    let deadline = Instant::now() + Duration::from_millis(SERVICE_IDENTITY_PROBE_SCAN_BUDGET_MS);
+    let local_deadline =
+        Instant::now() + Duration::from_millis(SERVICE_IDENTITY_PROBE_SCAN_BUDGET_MS);
+    let deadline = outer_deadline.map_or(local_deadline, |outer| outer.min(local_deadline));
     let candidates = probe_candidates(devices, probe_suppression_devices, selected_interface);
     let settings = runtime_service_identity_probe_settings();
     for batch in candidates.chunks(SERVICE_IDENTITY_PROBE_MAX_CONCURRENCY) {

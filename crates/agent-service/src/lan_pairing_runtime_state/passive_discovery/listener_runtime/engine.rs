@@ -22,6 +22,8 @@ const PASSIVE_DISCOVERY_IDLE_WAIT: Duration = Duration::from_millis(25);
 
 #[path = "engine/bind.rs"]
 mod bind;
+#[path = "engine/startup.rs"]
+mod startup;
 
 impl PassiveDiscoveryListenerRuntime {
     pub(super) fn new(

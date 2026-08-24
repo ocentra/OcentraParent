@@ -1,6 +1,7 @@
 use std::{
     net::Ipv4Addr,
     sync::atomic::{AtomicBool, Ordering},
+    time::Instant,
 };
 
 use ocentra_parent_agent_protocol::constants;
@@ -104,21 +105,22 @@ pub fn enrich_mdns_dns_sd_devices(
     devices: &mut Vec<LanNetworkInventoryDevice>,
     selected_interface: Option<&str>,
 ) {
-    enrich_mdns_dns_sd_devices_with_cancellation(devices, selected_interface, None);
+    enrich_mdns_dns_sd_devices_with_cancellation(devices, selected_interface, None, None);
 }
 
 pub fn enrich_mdns_dns_sd_devices_with_cancellation(
     devices: &mut Vec<LanNetworkInventoryDevice>,
     selected_interface: Option<&str>,
     cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
 ) {
-    if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+    if unavailable(cancellation, deadline) {
         return;
     }
-    let Some(discovery) = query::query_mdns_dns_sd_with_cancellation(cancellation) else {
+    let Some(discovery) = query::query_mdns_dns_sd_with_cancellation(cancellation, deadline) else {
         return;
     };
-    if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+    if unavailable(cancellation, deadline) {
         return;
     }
     merge::merge_mdns_dns_sd_discovery_with_selected_interface(
@@ -126,6 +128,11 @@ pub fn enrich_mdns_dns_sd_devices_with_cancellation(
         &discovery,
         selected_interface,
     );
+}
+
+fn unavailable(cancellation: Option<&AtomicBool>, deadline: Option<Instant>) -> bool {
+    cancellation.is_some_and(|value| value.load(Ordering::Acquire))
+        || deadline.is_some_and(|deadline| Instant::now() >= deadline)
 }
 
 pub fn parse_dns_name(payload: &[u8], offset: usize) -> Option<(String, usize)> {
