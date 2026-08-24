@@ -9,6 +9,8 @@ use crate::lan_pairing::authority::{validate_registry_selection_intent, validate
 use crate::lan_pairing::LanPairingRuntime;
 use crate::time::timestamp_now;
 
+#[path = "runtime_validation/household_decision.rs"]
+pub(crate) mod household_decision;
 #[path = "runtime_validation/registry_mutation.rs"]
 mod registry_mutation;
 

@@ -5,6 +5,7 @@ use std::{
 };
 
 use fs2::FileExt;
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason, LanSelectedRouteTarget,
     LanTrustedDeviceRegistryEntry,
@@ -12,6 +13,7 @@ use ocentra_parent_agent_protocol::lan_pairing::{
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
 };
+use serde_json::Value;
 
 use super::TrustedDeviceRegistry;
 
@@ -112,13 +114,22 @@ impl TrustedDeviceRegistry {
         FileExt::lock_exclusive(&lock_file)?;
 
         let mut persisted = Self::load_json_strict(registry_path)?;
-        if persisted.to_json_value() != self.to_json_value() {
+        if !same_durable_registry_state(&persisted, self) {
             return Err(io::Error::new(
                 io::ErrorKind::WouldBlock,
                 "trusted device registry changed before mutation",
             ));
         }
-        persisted.accepted_intent_ids = self.accepted_intent_ids.clone();
+        persisted
+            .accepted_intent_ids
+            .extend(self.accepted_intent_ids.iter().cloned());
+        while persisted.accepted_intent_ids.len()
+            > constants::lan_pairing::LAN_PAIRING_MAX_ACCEPTED_INTENT_HISTORY
+        {
+            if let Some(oldest) = persisted.accepted_intent_ids.iter().next().cloned() {
+                persisted.accepted_intent_ids.remove(&oldest);
+            }
+        }
         let result = mutation(&mut persisted)?;
         persisted.save_json(registry_path)?;
 
@@ -144,6 +155,23 @@ impl TrustedDeviceRegistry {
                 )
             }),
         }
+    }
+}
+
+fn same_durable_registry_state(
+    persisted: &TrustedDeviceRegistry,
+    current: &TrustedDeviceRegistry,
+) -> bool {
+    let mut persisted_value = persisted.to_json_value();
+    let mut current_value = current.to_json_value();
+    remove_replay_history(&mut persisted_value);
+    remove_replay_history(&mut current_value);
+    persisted_value == current_value
+}
+
+fn remove_replay_history(value: &mut Value) {
+    if let Some(object) = value.as_object_mut() {
+        object.remove(super::json_persistence::ACCEPTED_INTENT_IDS_KEY);
     }
 }
 

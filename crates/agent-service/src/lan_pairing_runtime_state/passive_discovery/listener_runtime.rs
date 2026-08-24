@@ -1,4 +1,5 @@
 use std::sync::{Arc, Mutex, Weak};
+use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
 use ocentra_lan_core::network_inventory::passive_discovery::udp_multicast::LanPassiveDiscoveryUdpListener;
@@ -24,6 +25,8 @@ use super::{
     PASSIVE_DISCOVERY_RETRY_BASE, PASSIVE_DISCOVERY_RETRY_MAX,
 };
 use super::{LanPassiveDiscoveryRefreshSignalSender, LanPassiveDiscoveryRuntimeObservedState};
+
+const PASSIVE_DISCOVERY_LISTENER_THREAD_NAME: &str = "lan-passive-discovery-listener";
 
 #[path = "listener_runtime/engine.rs"]
 mod engine;
@@ -58,7 +61,7 @@ pub(super) fn spawn(
     runtime: LanPairingRuntime,
     refresh_sender: LanPassiveDiscoveryRefreshSignalSender,
     pipeline_health: LanPassiveDiscoveryPipelineHealth,
-) {
+) -> std::io::Result<JoinHandle<()>> {
     let initial_refresh_signal = runtime.record_passive_rescan_trigger(
         LanPassiveDiscoveryTriggerReason::AppResumed,
         lan_pairing_constants::PASSIVE_DISCOVERY_RUNTIME_STARTED_SUMMARY,
@@ -66,19 +69,21 @@ pub(super) fn spawn(
     let capability_store = LanPassiveDiscoveryCapabilityStore::for_runtime(&runtime);
     let listener_state = Arc::downgrade(&runtime.passive_discovery_listener_state);
     let heartbeat = Arc::downgrade(&runtime.lan_ai_provider_heartbeat);
-    tokio::task::spawn_blocking(move || {
-        let mut listener_runtime = PassiveDiscoveryListenerRuntime::new(
-            listener_state,
-            heartbeat,
-            refresh_sender,
-            capability_store,
-            pipeline_health,
-        );
-        if let Some(initial_refresh_signal) = initial_refresh_signal {
-            listener_runtime.send_refresh_signals(vec![initial_refresh_signal]);
-        }
-        listener_runtime.run();
-    });
+    std::thread::Builder::new()
+        .name(PASSIVE_DISCOVERY_LISTENER_THREAD_NAME.to_string())
+        .spawn(move || {
+            let mut listener_runtime = PassiveDiscoveryListenerRuntime::new(
+                listener_state,
+                heartbeat,
+                refresh_sender,
+                capability_store,
+                pipeline_health,
+            );
+            if let Some(initial_refresh_signal) = initial_refresh_signal {
+                listener_runtime.send_refresh_signals(vec![initial_refresh_signal]);
+            }
+            listener_runtime.run();
+        })
 }
 
 impl PassiveDiscoveryListenerSlot {

@@ -13,18 +13,23 @@ pub(super) fn drain_udp_socket_packets_with_observed_at(
     observed_at: &mut dyn FnMut() -> String,
 ) -> usize {
     let mut received_datagram_count = 0_usize;
-    let mut buffer = vec![0_u8; LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES];
-    while received_datagram_count < max_datagram_count {
+    let mut receive_attempts = 0_usize;
+    let max_receive_attempts = max_datagram_count.saturating_add(1);
+    let mut buffer = vec![0_u8; LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES.saturating_add(1)];
+    while received_datagram_count < max_datagram_count && receive_attempts < max_receive_attempts {
+        receive_attempts = receive_attempts.saturating_add(1);
         match socket.recv_from(&mut buffer) {
             Ok((received, _)) => {
                 received_datagram_count += 1;
-                let observed_at = observed_at();
-                let _ = super::ingest_native_passive_datagram_with_observed_at(
-                    state,
-                    &source,
-                    &buffer[..received],
-                    &observed_at,
-                );
+                if received <= LAN_PASSIVE_DISCOVERY_MAX_PACKET_BYTES {
+                    let observed_at = observed_at();
+                    let _ = super::ingest_native_passive_datagram_with_observed_at(
+                        state,
+                        &source,
+                        &buffer[..received],
+                        &observed_at,
+                    );
+                }
             }
             Err(error)
                 if error.kind() == std::io::ErrorKind::WouldBlock

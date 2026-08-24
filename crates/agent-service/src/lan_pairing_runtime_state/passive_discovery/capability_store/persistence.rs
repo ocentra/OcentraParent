@@ -26,7 +26,10 @@ pub(super) fn save(
     path: &LanPassiveDiscoveryCapabilityPath,
     capability: &LanPassiveDiscoveryRuntimeCapability,
 ) -> bool {
-    with_path_lock(path, || save_validated_unlocked(path, capability)).unwrap_or(false)
+    with_path_lock(path, || save_validated_unlocked(path, capability)).unwrap_or_else(|| {
+        record_failure(path);
+        false
+    })
 }
 
 pub(super) fn save_pipeline_health(
@@ -42,7 +45,10 @@ pub(super) fn save_pipeline_health(
             LanPassiveDiscoveryRuntimeCapability::from_sources(sources, pipeline_health.clone());
         save_validated_unlocked(path, &capability)
     })
-    .unwrap_or(false)
+    .unwrap_or_else(|| {
+        record_failure(path);
+        false
+    })
 }
 
 pub(super) fn save_sources(
@@ -51,15 +57,16 @@ pub(super) fn save_sources(
     pipeline_health: &LanPassiveDiscoveryPipelineHealthSnapshot,
 ) -> bool {
     with_path_lock(path, || {
-        let pipeline_health = load_unlocked(path)
-            .and_then(super::validation::validate_and_rederive)
-            .map(|capability| capability.pipeline_health)
-            .unwrap_or_else(|| pipeline_health.clone());
-        let capability =
-            LanPassiveDiscoveryRuntimeCapability::from_sources(sources.to_vec(), pipeline_health);
+        let capability = LanPassiveDiscoveryRuntimeCapability::from_sources(
+            sources.to_vec(),
+            pipeline_health.clone(),
+        );
         save_validated_unlocked(path, &capability)
     })
-    .unwrap_or(false)
+    .unwrap_or_else(|| {
+        record_failure(path);
+        false
+    })
 }
 
 fn with_path_lock<T>(
@@ -107,6 +114,7 @@ fn save_validated_unlocked(
     capability: &LanPassiveDiscoveryRuntimeCapability,
 ) -> bool {
     let Some(capability) = super::validation::validate_and_rederive(capability.clone()) else {
+        record_failure(path);
         return false;
     };
     save_unlocked(path, &capability)

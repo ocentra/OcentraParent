@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason,
     LanPairingTrustState, LanParentIntentEnvelope, LanTrustedDeviceRegistryEntry,
@@ -62,6 +63,14 @@ impl TrustedDeviceRegistry {
         &self.household_device_decisions
     }
 
+    pub fn has_household_device_decision(&self, action_id: &str) -> bool {
+        !action_id.is_empty()
+            && self
+                .household_device_decisions
+                .iter()
+                .any(|decision| decision.action_id == action_id)
+    }
+
     pub fn known_household_devices(&self) -> &[LanCanonicalHouseholdDevice] {
         &self.known_household_devices
     }
@@ -91,6 +100,14 @@ impl TrustedDeviceRegistry {
     ) -> bool {
         self.household_device_decisions
             .retain(|candidate| candidate.action_id != decision.action_id);
+        if self.household_device_decisions.len()
+            >= constants::lan_pairing::LAN_PAIRING_MAX_HOUSEHOLD_DECISION_HISTORY
+        {
+            let remove_count = self.household_device_decisions.len()
+                - constants::lan_pairing::LAN_PAIRING_MAX_HOUSEHOLD_DECISION_HISTORY
+                + 1;
+            self.household_device_decisions.drain(..remove_count);
+        }
         self.household_device_decisions.push(decision);
         true
     }

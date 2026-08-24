@@ -1,4 +1,7 @@
-use std::sync::{Mutex, OnceLock};
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Mutex, OnceLock,
+};
 
 use chrono::{DateTime, Utc};
 use ocentra_lan_core::network_inventory::{
@@ -6,7 +9,7 @@ use ocentra_lan_core::network_inventory::{
     plan_lan_discovery_scan_with_active_refresh_suppression,
     targeted_arp_refresh_evidence_for_scan, LanDiscoveryRefreshMode, LanNetworkInventoryDevice,
 };
-use ocentra_parent_agent_protocol::lan_pairing::{LanPairingDeviceRef, LanPairingText};
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentRoute,
 };
@@ -14,10 +17,13 @@ use ocentra_parent_agent_protocol::transport::{
 use crate::lan_pairing::LanPairingRuntime;
 
 use super::scan_history::{
-    load_scan_history_snapshot, save_scan_history, scan_history_is_recent, LanScanHistoryMetadata,
-    LanScanHistorySnapshot,
+    load_scan_history_snapshot, save_scan_history, LanScanHistoryMetadata, LanScanHistorySnapshot,
 };
 
+#[path = "physical_lan_scan/cache.rs"]
+mod cache;
+#[path = "physical_lan_scan/cancellation.rs"]
+pub(crate) mod cancellation;
 #[path = "physical_lan_scan/execution_lease.rs"]
 mod execution_lease;
 #[path = "physical_lan_scan/persisted_result.rs"]
@@ -50,14 +56,14 @@ pub(crate) fn network_device_scan_result_for_command(
         .then(|| load_scan_history_snapshot(runtime))
         .flatten();
     if let Some(scan_result) =
-        cached_scan_result_for_command(command, previous_scan_snapshot.clone(), now)
+        cache::cached_scan_result_for_command(command, previous_scan_snapshot.clone(), now)
     {
         return scan_result;
     }
 
     if command_uses_physical_lan_scan(&command.command) {
         if let Some(previous_devices) =
-            cached_status_snapshot_devices(command, previous_scan_snapshot.as_ref(), now)
+            cache::cached_status_snapshot_devices(command, previous_scan_snapshot.as_ref(), now)
         {
             return LanNetworkDeviceScanResult {
                 devices: previous_devices,
@@ -70,31 +76,6 @@ pub(crate) fn network_device_scan_result_for_command(
         return execute_physical_lan_scan(runtime, previous_scan_snapshot, now, refresh_mode);
     }
     LanNetworkDeviceScanResult::default()
-}
-
-fn cached_scan_result_for_command(
-    command: &AgentCommandEnvelope,
-    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
-    now: DateTime<Utc>,
-) -> Option<LanNetworkDeviceScanResult> {
-    cached_localhost_status_scan_result(command, previous_scan_snapshot.clone(), now)
-        .or_else(|| cached_runtime_event_stream_scan_result(command, previous_scan_snapshot, now))
-}
-
-pub(crate) fn cached_runtime_event_stream_scan_result(
-    command: &AgentCommandEnvelope,
-    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
-    now: DateTime<Utc>,
-) -> Option<LanNetworkDeviceScanResult> {
-    if command.command != AgentCommandName::AgentLanRuntimeEventChainStreamGet
-        || command.target.route != AgentRoute::LocalNetwork
-    {
-        return None;
-    }
-    Some(cached_scan_result_from_snapshot(
-        previous_scan_snapshot,
-        now,
-    ))
 }
 
 pub(super) fn refresh_network_device_scan_history(
@@ -116,14 +97,13 @@ fn execute_physical_lan_scan(
     now: DateTime<Utc>,
     refresh_mode: LanDiscoveryRefreshMode,
 ) -> LanNetworkDeviceScanResult {
-    let Ok(_execution_guard) = physical_lan_scan_execution_lock().lock() else {
-        return failed_scan_result(previous_scan_snapshot);
-    };
-    let Some(_cross_process_execution_lease) = execution_lease::acquire(runtime) else {
-        return failed_scan_result(previous_scan_snapshot);
-    };
-    let previous_scan_snapshot = load_scan_history_snapshot(runtime).or(previous_scan_snapshot);
-    execute_physical_lan_scan_locked(runtime, previous_scan_snapshot, now, refresh_mode)
+    cancellation::execute_physical_lan_scan(
+        runtime,
+        previous_scan_snapshot,
+        now,
+        refresh_mode,
+        None,
+    )
 }
 
 fn execute_physical_lan_scan_locked(
@@ -131,7 +111,11 @@ fn execute_physical_lan_scan_locked(
     previous_scan_snapshot: Option<LanScanHistorySnapshot>,
     now: DateTime<Utc>,
     refresh_mode: LanDiscoveryRefreshMode,
+    cancellation: Option<&AtomicBool>,
 ) -> LanNetworkDeviceScanResult {
+    if cancellation.is_some_and(|cancellation| cancellation.load(Ordering::Acquire)) {
+        return failed_scan_result(previous_scan_snapshot);
+    }
     let previous_devices = previous_scan_snapshot
         .as_ref()
         .map(|snapshot| snapshot.devices.as_slice())
@@ -162,6 +146,9 @@ fn execute_physical_lan_scan_locked(
         selected_interface_scope,
         Some(&allowed_snmp_response_observer),
     );
+    if cancellation.is_some_and(|cancellation| cancellation.load(Ordering::Acquire)) {
+        return failed_scan_result(previous_scan_snapshot);
+    }
     persisted_scan_result_or_fail(
         runtime,
         devices,
@@ -180,75 +167,17 @@ fn failed_scan_result(
     previous_scan_snapshot: Option<LanScanHistorySnapshot>,
 ) -> LanNetworkDeviceScanResult {
     LanNetworkDeviceScanResult {
-        devices: previous_scan_snapshot
-            .as_ref()
-            .map(|snapshot| snapshot.devices.clone())
-            .unwrap_or_default(),
+        // A failed or cancelled scan has no current physical-LAN authority.
+        // Preserve the prior snapshot for bounded continuity hints only.
+        devices: Vec::new(),
         current_scan_snapshot: None,
         previous_scan_snapshot,
-        reused_recent_snapshot: true,
+        reused_recent_snapshot: false,
     }
 }
 
 fn physical_lan_scan_execution_lock() -> &'static Mutex<()> {
     PHYSICAL_LAN_SCAN_EXECUTION_LOCK.get_or_init(|| Mutex::new(()))
-}
-
-pub(crate) fn cached_localhost_status_scan_result(
-    command: &AgentCommandEnvelope,
-    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
-    now: DateTime<Utc>,
-) -> Option<LanNetworkDeviceScanResult> {
-    if command.command != AgentCommandName::AgentLanPairingStatusGet
-        || command.target.route != AgentRoute::Localhost
-    {
-        return None;
-    }
-
-    Some(cached_scan_result_from_snapshot(
-        previous_scan_snapshot,
-        now,
-    ))
-}
-
-fn cached_scan_result_from_snapshot(
-    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
-    now: DateTime<Utc>,
-) -> LanNetworkDeviceScanResult {
-    let Some(snapshot) = previous_scan_snapshot else {
-        return LanNetworkDeviceScanResult::default();
-    };
-    if !scan_history_is_recent(&LanPairingText(snapshot.updated_at.clone()), now) {
-        return LanNetworkDeviceScanResult {
-            previous_scan_snapshot: Some(snapshot),
-            ..LanNetworkDeviceScanResult::default()
-        };
-    }
-
-    LanNetworkDeviceScanResult {
-        devices: snapshot.devices.clone(),
-        previous_scan_snapshot: Some(snapshot.clone()),
-        current_scan_snapshot: Some(snapshot),
-        reused_recent_snapshot: true,
-    }
-}
-
-pub(crate) fn cached_status_snapshot_devices(
-    command: &AgentCommandEnvelope,
-    previous_scan_snapshot: Option<&LanScanHistorySnapshot>,
-    now: DateTime<Utc>,
-) -> Option<Vec<LanNetworkInventoryDevice>> {
-    if command.command != AgentCommandName::AgentLanPairingStatusGet
-        || command.target.route != AgentRoute::Localhost
-    {
-        return None;
-    }
-    let previous_scan_snapshot = previous_scan_snapshot?;
-    scan_history_is_recent(
-        &LanPairingText(previous_scan_snapshot.updated_at.clone()),
-        now,
-    )
-    .then(|| previous_scan_snapshot.devices.clone())
 }
 
 pub(crate) struct LanScanTruthContext {

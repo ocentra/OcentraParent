@@ -14,6 +14,7 @@ use super::{
 
 const SIGNER_ANCHORS_KEY: &str = "signerAnchors";
 const SIGNER_ANCHOR_GENERATIONS_KEY: &str = "signerAnchorGenerations";
+pub(super) const ACCEPTED_INTENT_IDS_KEY: &str = "acceptedIntentIds";
 
 impl TrustedDeviceRegistry {
     pub fn load_json(path: &Path) -> Self {
@@ -71,14 +72,26 @@ impl TrustedDeviceRegistry {
             optional_string(&value, constants::field::LAN_SELECTED_ROUTE_STALE_AT);
         registry.selected_route_offline_at =
             optional_string(&value, constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT);
-        registry.household_device_decisions =
-            household_device_decisions_from_json(&value).unwrap_or_default();
+        registry.household_device_decisions = bounded_household_decisions(
+            household_device_decisions_from_json(&value).unwrap_or_default(),
+        );
         registry.known_household_devices =
             known_household_devices_from_json(&value).unwrap_or_default();
         registry.signer_anchor_generations = value
             .get(SIGNER_ANCHOR_GENERATIONS_KEY)
             .and_then(|generations| serde_json::from_value(generations.clone()).ok())
             .unwrap_or_default();
+        registry.accepted_intent_ids = value
+            .get(ACCEPTED_INTENT_IDS_KEY)
+            .and_then(|intent_ids| serde_json::from_value(intent_ids.clone()).ok())
+            .unwrap_or_default();
+        while registry.accepted_intent_ids.len()
+            > constants::lan_pairing::LAN_PAIRING_MAX_ACCEPTED_INTENT_HISTORY
+        {
+            if let Some(oldest) = registry.accepted_intent_ids.iter().next().cloned() {
+                registry.accepted_intent_ids.remove(&oldest);
+            }
+        }
         Some(registry)
     }
 
@@ -90,11 +103,25 @@ impl TrustedDeviceRegistry {
             constants::lan_pairing::REGISTRY_KEY_KNOWN_HOUSEHOLD_DEVICES: &self.known_household_devices,
             SIGNER_ANCHORS_KEY: &self.signer_anchors,
             SIGNER_ANCHOR_GENERATIONS_KEY: &self.signer_anchor_generations,
+            ACCEPTED_INTENT_IDS_KEY: &self.accepted_intent_ids,
             constants::field::LAN_SELECTED_PAIRING_ID: self.selected_pairing_id,
             constants::field::LAN_SELECTED_ROUTE_STALE_AT: self.selected_route_stale_at,
             constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT: self.selected_route_offline_at,
         })
     }
+}
+
+fn bounded_household_decisions(
+    decisions: Vec<ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision>,
+) -> Vec<
+    ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision,
+> {
+    let max = constants::lan_pairing::LAN_PAIRING_MAX_HOUSEHOLD_DECISION_HISTORY;
+    if decisions.len() <= max {
+        return decisions;
+    }
+    let skip = decisions.len() - max;
+    decisions.into_iter().skip(skip).collect()
 }
 
 fn reject_untrusted_signer_anchors(value: &Value) -> io::Result<()> {
