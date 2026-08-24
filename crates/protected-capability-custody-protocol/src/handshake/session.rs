@@ -4,7 +4,10 @@ use super::{BrokerSessionWireValues, UntrustedClientHello};
 
 impl BrokerSessionWireValues {
     pub fn try_new(self, now_unix_millis: u64) -> Result<Self, ProtocolError> {
-        if self.broker_process_id == 0 || self.broker_session_id == 0 {
+        // SCM services run in Windows session 0. The broker session is bound
+        // to the authenticated server PID and executable, so zero is a valid
+        // service session identifier; client sessions remain nonzero.
+        if self.broker_process_id == 0 {
             return Err(ProtocolError::InvalidProcessId);
         }
         if self.broker_epoch == 0

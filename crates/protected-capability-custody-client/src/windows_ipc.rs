@@ -1,24 +1,29 @@
+mod connect;
+mod connect_pipe;
+mod io;
+mod peer;
+mod session;
+
+use interprocess::os::windows::named_pipe::{pipe_mode, DuplexPipeStream};
+use ocentra_protected_capability_custody_core::broker_admission::BrokerExecutableGuard;
+use ocentra_protected_capability_custody_protocol::handshake::UntrustedBrokerHello;
+use ocentra_protected_capability_custody_protocol::types::{
+    BootstrapAuthenticator, SessionTranscriptDigest,
+};
+
 use crate::admission::AuthenticatedBrokerSession;
 use crate::ClientError;
 
-pub(crate) struct WindowsBrokerSession;
+type PipeStream = DuplexPipeStream<pipe_mode::Bytes>;
 
-impl WindowsBrokerSession {
-    pub(crate) fn execute(
-        self,
-        _request: crate::admission::ClientRequest,
-    ) -> Result<crate::admission::AuthenticatedResponse, ClientError> {
-        Err(ClientError::DeploymentRequired)
-    }
+pub(crate) struct WindowsBrokerSession {
+    pub(super) stream: PipeStream,
+    pub(super) broker_hello: UntrustedBrokerHello,
+    pub(super) transcript_digest: SessionTranscriptDigest,
+    pub(super) authenticator: BootstrapAuthenticator,
+    pub(super) _broker_executable: BrokerExecutableGuard,
 }
 
-/// The client cannot safely create the privileged custody broker. The old
-/// same-token child process path was removed: it could not establish the
-/// SYSTEM/LocalService service identity, SCM launch ownership, or service
-/// endpoint DACL required by the protocol. A signed installer/service
-/// workpack must provide that boundary before this function can return a
-/// session. Keeping the failure typed prevents callers from treating an
-/// ordinary child process as an isolated broker.
 pub(crate) fn connect() -> Result<AuthenticatedBrokerSession, ClientError> {
-    Err(ClientError::DeploymentRequired)
+    connect::connect()
 }

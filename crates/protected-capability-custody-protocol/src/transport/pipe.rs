@@ -2,12 +2,16 @@ use std::ffi::OsStr;
 use std::fmt;
 use std::path::Path;
 
-use crate::constants::{BROKER_PIPE_NAME_PREFIX, DEBUG_BROKER_PIPE_NAME};
+use crate::constants::{BROKER_PIPE_NAME, BROKER_PIPE_NAME_PREFIX, DEBUG_BROKER_PIPE_NAME};
 use crate::types::{Nonce, ProtocolError};
 
 pub struct BrokerPipeName(String);
 
 impl BrokerPipeName {
+    pub fn fixed() -> Self {
+        Self(BROKER_PIPE_NAME.to_owned())
+    }
+
     pub fn from_nonce(pipe_nonce: Nonce) -> Self {
         let mut value = String::with_capacity(BROKER_PIPE_NAME_PREFIX.len() + 64);
         value.push_str(BROKER_PIPE_NAME_PREFIX);

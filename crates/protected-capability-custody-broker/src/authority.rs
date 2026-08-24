@@ -70,7 +70,7 @@ pub(crate) fn process_identity(process_id: u32) -> Result<ProcessIdentity, Broke
         .session_id()
         .map(Pid::as_u32)
         .ok_or(BrokerError::PeerAuthentication)?;
-    if process_epoch == 0 || session_id == 0 {
+    if process_epoch == 0 {
         return Err(BrokerError::PeerAuthentication);
     }
     Ok(ProcessIdentity {

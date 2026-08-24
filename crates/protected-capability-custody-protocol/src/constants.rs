@@ -37,9 +37,10 @@ pub const BROKER_DATA_ROOT_UTF16: &[u16] = &[
 pub const SESSION_TTL_MILLIS: u64 = 5 * 60 * 1000;
 pub const MAX_REQUEST_TTL_MILLIS: u64 = 30 * 1000;
 pub const INITIAL_SESSION_SEQUENCE: u64 = 1;
+pub const BROKER_PIPE_NAME: &str = "\\\\.\\pipe\\ocentra-protected-capability-custody-v2";
 pub const BROKER_PIPE_NAME_PREFIX: &str = "\\\\.\\pipe\\ocentra-protected-capability-custody-v2-";
 pub const BROKER_EXECUTABLE_NAME: &str = "ocentra-protected-capability-custody-broker.exe";
-pub const BROKER_PIPE_ARGUMENT: &str = "--pipe";
+pub const BROKER_SERVICE_NAME: &str = "OcentraProtectedCapabilityCustodyBroker";
 pub const BROKER_PIPE_SDDL: &str = "D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;OW)";
 // Provisioned by the signed installer beside the broker executable as exactly
 // 32 raw SHA-256 bytes. The runtime never creates this file.
