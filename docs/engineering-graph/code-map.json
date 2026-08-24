@@ -7602,9 +7602,9 @@
     "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model": {
       "planSlug": "app-game-plan",
       "roots": [
-        "packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.ts",
-        "packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-rules.ts",
-        "packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.test.ts"
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs",
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/tail.rs",
+        "crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"
       ]
     },
     "WP-app-game-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff": {

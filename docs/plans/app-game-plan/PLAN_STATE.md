@@ -20,9 +20,9 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **170** have current production source plus expected checked-in tests for their
+- **171** have current production source plus expected checked-in tests for their
   bounded scope; **19** are reviewed no-code coordination/proof/reference
-  packets; **31** retain a concrete production-code or expected-test gap.
+  packets; **30** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -73,6 +73,13 @@ adapter execution (WP166-WP176). Tests, Enforcer validation, proof, and CI
 remain deferred.
 
 ## Active production-code follow-up - 2026-08-16
+
+- WP101's retired `packages/parent-domain` roots were also a false code gap.
+  The Rust-owned parent-safe read-model contract shapes and builder in
+  `parent_surface_status.rs` and `tail.rs`, together with the real
+  `app_game_source_gated_policy_preview_timer_followthrough` contract test,
+  satisfy bounded Phase 1 source/test writing. Focused execution, proof,
+  product runtime, and parent rendering remain open.
 
 - WP100's retired `packages/parent-domain` roots were a false code gap. The
   Rust-owned shapes and builder in `parent_surface_status.rs` and `tail.rs`,
