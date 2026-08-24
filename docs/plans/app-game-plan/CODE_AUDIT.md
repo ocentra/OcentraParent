@@ -22,10 +22,10 @@ is release-ready. Those are Phase 2 and Phase 3.
   engineering graph.
 - 171/220 have current production source plus the expected checked-in tests
   for their bounded scope.
-- 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
+- 20/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 190/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 30/220 retain a concrete production-code or expected-test gap.
+- 191/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 29/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -134,7 +134,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP99 Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Handoff | Rust app-game-core timer handoff model + contract tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP100 Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Read-Model Handoff | Rust `app-game-core` WP100 shapes/builder plus the real followthrough contract test | **Complete for bounded Phase 1** | The retired `packages/parent-domain` roots were a false ownership expectation. `parent_surface_status.rs`, `tail.rs`, and the checked-in Rust contract test own the bounded no-claim handoff; focused execution and proof remain later phases. |
 | WP101 Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Read-Model Contract | Rust `app-game-core` WP101 contract shapes/builder plus the real followthrough contract test | **Complete for bounded Phase 1** | The retired `packages/parent-domain` roots were a false ownership expectation. `parent_surface_status.rs`, `tail.rs`, and the checked-in Rust contract test own the bounded parent-safe read-model contract; focused execution and proof remain later phases. |
-| WP102 Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Read-Model Service Handoff | No current `packages/parent-domain` source or test root; no shared helper ownership | **Incomplete / blocked** | The documented service-handoff builder/test is absent. Keep the row blocked; do not infer implementation from generic app-game Rust roots or retire it without an explicit owner decision. |
+| WP102 Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Read-Model Service Handoff | Reviewed no-code supersession decision; WP103 owns the real Rust protocol/service boundary and tests | **No-code-required / validation** | Do not create a dead intermediate builder in the retired `packages/parent-domain`. WP103's `agent-protocol` contract and `agent-service` runtime payload replace this redundant handoff. WP103 focused execution/proof and WP101 runtime reachability remain open. |
 | WP103 Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Read-Model Service Read-Model Handoff | Rust app-game-core timer handoff model + contract tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP104 Source-Gated Policy Preview Timer Service Event Handoff | Rust app-game-core timer handoff model + contract tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP105 Source-Gated Policy Preview Timer Service Read API Handoff | Rust app-game-core timer handoff model + contract tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |

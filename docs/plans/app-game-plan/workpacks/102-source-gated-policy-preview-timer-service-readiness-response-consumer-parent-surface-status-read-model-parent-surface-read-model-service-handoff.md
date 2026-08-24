@@ -16,42 +16,63 @@
 
 ## Scope
 
-Add a parent-domain service handoff that consumes WP101 parent-safe read-model rows and records which native app/native game rows still require service read-model/event/API proof before any runtime service wiring can expose parent-surface read-model data.
+Record the reviewed ownership decision for the proposed service handoff after
+WP101. The intermediate `parent-domain` packet is retired as redundant because
+WP103 already owns the real Rust protocol and agent-service parent-surface
+read-model boundary.
 
 ## Boundaries
 
 - Keep browser-game work in `browser-plan`.
 - Keep native apps and native games as separate row targets on the shared app/game evidence spine.
-- Do not add package exports in this slice because another lane owns `packages/parent-domain/package.json`.
+- Do not recreate the retired `packages/parent-domain` business owner or add a
+  duplicate test-only builder.
 - Do not implement service commands, service handlers, service read-model emission, service events, read APIs, response consumers, runtime persistence, parent-surface rendering, portal UI, Rust protocol, timer runtime, scheduler storage, audit logs, rollback execution, adapter dispatch, child delivery, platform enforcement, or raw private source rows.
 
 ## Implementation Checklist
 
-- [ ] Add parent-domain service handoff schemas, builder, no-claim flags, and state rules.
-- [ ] Add focused parser/builder tests using the real WP101 proof output.
+- [x] Record that no new WP102 product source or test is required.
+- [x] Route the real service boundary to WP103's Rust protocol, agent-service
+      implementation, and checked-in tests.
 - [ ] Add proof harness and app-game/app proof artifacts.
-- [ ] Update feature/checklist/README docs with the no-claim decision.
-- [ ] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
+- [x] Update this route with the no-code supersession decision.
+- [x] Leave `docs/product-capability-checklist.md` unchanged because no feature
+      status moved.
 
 ## Evidence
 
 ## Current reviewed topology
 
-The canonical head has no `packages/parent-domain` WP102 service-handoff source
-or test root. WP102 does not own any shared app-game helper; the planned
-package and test roots remain explicitly absent.
+The canonical head intentionally has no `packages/parent-domain` WP102
+service-handoff source or test root. Those paths describe a removed business
+owner and would add a dead intermediate builder with no production caller.
 
-Implementation dependency: WP101 reviewed implementation. This orders a future
-source packet only; it does not promote READY/DONE or satisfy tests, proof,
-checklist, CI, review, or merge gates.
+WP103 already owns the intended executable boundary:
 
-- `packages/parent-domain/src/app-game-timer-service-handoff.ts`
-- `packages/parent-domain/src/app-game-timer-service-handoff-rules.ts`
-- `packages/parent-domain/tests/app-game-timer-service-handoff.test.ts`
-- `scripts/test/app-game-timer-service-handoff-proof.mjs`
+- `crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs`
+  defines the serialized parent-safe timer surface contract.
+- `crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs`
+  builds the real service payload from the current app/game service read model.
+- `crates/agent-protocol/tests/contract/app_game_timer_parent_surface_read_model_tests.rs`
+  and
+  `crates/agent-service/tests/unit/app_game_timer_parent_surface_payload_tests.rs`
+  are the checked-in contract and service tests.
+
+WP102 is therefore a reviewed no-code-required supersession packet. It does not
+claim WP103 focused execution/proof or a live caller from the bounded WP101
+builder chain.
+
+Dependencies: WP101's reviewed bounded contract and WP103's reviewed Rust
+implementation. These dependencies validate the ownership decision only; they
+do not promote READY/DONE or satisfy focused execution, proof, CI, review, or
+merge gates.
+
 - `output/app-game-plan-proof/102-timer-service-handoff`
 - `test-results/app-game-timer-service-handoff-proof/proof.json`
 
 ## Known Gaps
 
-Package exports, service read-model emission, service read APIs, response consumers, runtime persistence, parent-surface rendering, portal rendering, Rust protocol parity, service runtime, adapter dispatch, child-device delivery, platform enforcement, and raw source row exposure remain unclaimed.
+Focused execution, proof artifacts, the live linkage from WP101 into product
+runtime, runtime persistence, parent-surface rendering, portal rendering,
+adapter dispatch, child-device delivery, platform enforcement, and raw source
+row exposure remain unclaimed.

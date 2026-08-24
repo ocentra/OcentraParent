@@ -7609,11 +7609,9 @@
     },
     "WP-app-game-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff": {
       "planSlug": "app-game-plan",
-      "roots": [
-        "packages/parent-domain/src/app-game-timer-service-handoff.ts",
-        "packages/parent-domain/src/app-game-timer-service-handoff-rules.ts",
-        "packages/parent-domain/tests/app-game-timer-service-handoff.test.ts"
-      ]
+      "codeExpectation": "no-code-required",
+      "roots": [],
+      "note": "Reviewed no-code supersession: the proposed retired parent-domain intermediate has no production caller and would duplicate WP103's real Rust protocol and agent-service parent-surface read-model boundary. WP103 focused execution/proof and the live product-runtime linkage remain open."
     },
     "WP-app-game-plan-103-timer-service-read-model-handoff": {
       "planSlug": "app-game-plan",

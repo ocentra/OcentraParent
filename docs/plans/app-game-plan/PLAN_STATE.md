@@ -21,8 +21,8 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
 - **171** have current production source plus expected checked-in tests for their
-  bounded scope; **19** are reviewed no-code coordination/proof/reference
-  packets; **30** retain a concrete production-code or expected-test gap.
+  bounded scope; **20** are reviewed no-code coordination/proof/reference
+  packets; **29** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -73,6 +73,14 @@ adapter execution (WP166-WP176). Tests, Enforcer validation, proof, and CI
 remain deferred.
 
 ## Active production-code follow-up - 2026-08-16
+
+- WP102 is an explicit no-code supersession decision, not another source gap.
+  Its proposed `packages/parent-domain` intermediate would duplicate the real
+  Rust protocol and agent-service parent-surface read-model boundary already
+  owned by WP103. No production caller consumes the WP101 test-only builder, so
+  generating a second dead builder would not advance runtime reachability.
+  WP103 focused execution/proof and the missing live handoff from the bounded
+  WP101 contract into product runtime remain open.
 
 - WP101's retired `packages/parent-domain` roots were also a false code gap.
   The Rust-owned parent-safe read-model contract shapes and builder in

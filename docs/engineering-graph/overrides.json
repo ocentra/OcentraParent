@@ -2702,7 +2702,21 @@
         "docs/plans/app-game-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md",
         "docs/plans/app-game-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md"
       ],
-      "reason": "WP102 remains blocked on the absent service-handoff source/test roots; this edge is source ordering only.",
+      "reason": "WP102 is a reviewed no-code supersession decision: it may be evaluated only after WP101's bounded contract, but no retired parent-domain implementation or test is required. WP103 owns the real Rust service boundary. This edge does not promote focused execution, proof, runtime reachability, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "to": "WP-app-game-plan-103-timer-service-read-model-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md",
+        "docs/plans/app-game-plan/workpacks/103-timer-service-read-model-handoff.md",
+        "crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs"
+      ],
+      "reason": "WP102 carries no product source because WP103 is the reviewed Rust protocol and agent-service implementation that supersedes the proposed intermediate. WP103 validation is required before the retirement decision can close; no focused execution, proof, READY, or DONE is inferred.",
       "implementationGate": "reviewed-implementation"
     },
     {
