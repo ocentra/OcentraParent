@@ -19,6 +19,10 @@ use crate::BrokerError;
 type PipeListenerType = PipeListener<pipe_mode::Bytes, pipe_mode::Bytes>;
 
 pub(super) fn run() -> Result<(), BrokerError> {
+    // Fail before registering with SCM or publishing any service status. This
+    // capability-only check performs no filesystem, registry, pipe, or durable
+    // state operation; broker start repeats it before storage admission.
+    BrokerCustodyService::preflight_service_start()?;
     let stopping = Arc::new(AtomicBool::new(false));
     let status_handle = super::service_control::register(&stopping)?;
     set_status(
@@ -54,9 +58,6 @@ fn run_registered(
     status_handle: &ServiceStatusHandle,
     stopping: &AtomicBool,
 ) -> Result<(), BrokerError> {
-    // Capability-only preflight must fail before broker admission selects the
-    // storage path or creates SQLite, its journal, or the writer lock.
-    BrokerCustodyService::preflight_service_start()?;
     let custody = BrokerCustodyService::open();
     // Do not report Running or publish a pipe endpoint while the required
     // process/token admission adapter is unavailable. A transport listener

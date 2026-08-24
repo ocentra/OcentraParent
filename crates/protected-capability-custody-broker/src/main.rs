@@ -21,9 +21,9 @@ static SERVICE_FAILED: AtomicBool = AtomicBool::new(false);
 
 #[cfg(windows)]
 fn service_main(_arguments: Vec<OsString>) {
-    // `run_service` publishes a terminal non-zero SCM status on every error;
-    // retain an independent process-exit signal for failures before status
-    // registration or if SCM rejects the final status update.
+    // `run_service` publishes a terminal non-zero SCM status only after its
+    // preflight permits status registration. Retain an independent process-exit
+    // signal for preflight failures and for rejected final status updates.
     if run_service().is_err() {
         SERVICE_FAILED.store(true, Ordering::Release);
     }

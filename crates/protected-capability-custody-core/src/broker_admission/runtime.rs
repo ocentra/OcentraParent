@@ -15,7 +15,7 @@ use super::{
 };
 
 impl BrokerProcessAdmission {
-    pub fn for_current_process() -> Result<Self, BrokerRuntimeError> {
+    fn for_current_process() -> Result<Self, BrokerRuntimeError> {
         let executable = super::BrokerExecutableGuard::open_current_broker()?;
         let database = super::storage_path::open_fixed_database()?;
         Ok(Self {
@@ -35,11 +35,18 @@ impl BrokerCustodyRuntime {
         platform::preflight_service_start().map_err(error_status::platform)
     }
 
+    /// Starts custody through the one cross-crate broker-owner seam. The
+    /// capability-only preflight is deliberately the first operation, before
+    /// executable admission can select or create the fixed storage path.
+    pub fn start_broker_owned() -> Result<Self, BrokerRuntimeError> {
+        Self::preflight_service_start()?;
+        let admission = BrokerProcessAdmission::for_current_process()?;
+        Self::open_broker_owned(admission)
+    }
+
     /// Opens the neutral custody runtime for the fixed database selected by
     /// the isolated broker process. This is not caller-selected authority.
-    pub fn open_broker_owned(
-        admission: BrokerProcessAdmission,
-    ) -> Result<Self, BrokerRuntimeError> {
+    fn open_broker_owned(admission: BrokerProcessAdmission) -> Result<Self, BrokerRuntimeError> {
         let BrokerProcessAdmission {
             _executable,
             database,

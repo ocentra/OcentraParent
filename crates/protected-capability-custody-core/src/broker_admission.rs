@@ -33,14 +33,14 @@ pub struct BrokerCustodyRuntime {
 /// A validated, non-cloneable handle to the running fixed-install broker
 /// executable. The pinned file handle denies replacement while the service
 /// runtime is alive.
-pub struct BrokerExecutableGuard {
+struct BrokerExecutableGuard {
     _executable_handle: std::fs::File,
 }
 
 /// Opaque admission proving that the current OS process is the dedicated
 /// protected-custody broker executable. Its fields are private and it is not
 /// cloneable, so ordinary in-process callers cannot mint broker admission.
-pub struct BrokerProcessAdmission {
+struct BrokerProcessAdmission {
     _executable: BrokerExecutableGuard,
     database: crate::path_security::PendingSecuredPath,
 }

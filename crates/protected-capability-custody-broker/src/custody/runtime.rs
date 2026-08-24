@@ -1,5 +1,5 @@
 use ocentra_protected_capability_custody_core::broker_admission::{
-    BrokerCustodyRuntime, BrokerPlatformSessionState, BrokerProcessAdmission, BrokerRuntimeError,
+    BrokerCustodyRuntime, BrokerPlatformSessionState, BrokerRuntimeError,
 };
 use ocentra_protected_capability_custody_protocol::response::ResponseStatus;
 
@@ -49,10 +49,8 @@ pub(super) fn runtime_error_status(error: &BrokerRuntimeError) -> ResponseStatus
 }
 
 fn open_runtime() -> Result<(BrokerCustodyRuntime, BrokerPlatformSessionState), ResponseStatus> {
-    let admission = BrokerProcessAdmission::for_current_process()
-        .map_err(|error| runtime_error_status(&error))?;
-    let runtime = BrokerCustodyRuntime::open_broker_owned(admission)
-        .map_err(|error| runtime_error_status(&error))?;
+    let runtime =
+        BrokerCustodyRuntime::start_broker_owned().map_err(|error| runtime_error_status(&error))?;
     let platform = runtime
         .platform_session_state()
         .map_err(|error| runtime_error_status(&error))?;
