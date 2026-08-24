@@ -1,5 +1,7 @@
 import { MaximumQueuedBridgeBytes } from './logCustody';
-import { parsePersistedBridgeQueue, type PersistedBridgeQueue } from './bridgeLogQueueState';
+import type { PersistedBridgeQueue } from './bridgeLogQueueState';
+import { parsePersistedBridgeQueue } from './bridgeLogQueueStateParsing';
+import { BridgeQueuePersistenceManualRequiredError } from './bridgeQueuePersistenceManualRequiredError';
 import { utf8Bytes } from './logTextCustody';
 
 export interface BridgeQueueStorage {
@@ -18,15 +20,24 @@ export class BridgeLogQueuePersistence {
   constructor(private readonly storage: BridgeQueueStorage) {}
 
   restore(): PersistedBridgeQueue | null {
+    let raw: string | null;
     try {
-      const raw = this.storage.getItem(StorageKey);
-      if (raw != null && (raw.length > MaximumPersistedQueueBytes || utf8Bytes(raw) > MaximumPersistedQueueBytes)) {
-        throw new Error('persisted log bridge queue exceeds its custody limit');
-      }
-      return raw == null ? null : parsePersistedBridgeQueue(raw);
+      raw = this.storage.getItem(StorageKey);
     } catch {
       this.blocked = true;
-      throw new Error('durable log bridge queue state could not be restored');
+      throw new Error('durable log bridge queue state could not be read');
+    }
+    if (raw == null) {
+      return null;
+    }
+    try {
+      if (raw.length > MaximumPersistedQueueBytes || utf8Bytes(raw) > MaximumPersistedQueueBytes) {
+        throw new Error('persisted log bridge queue exceeds its custody limit');
+      }
+      return parsePersistedBridgeQueue(raw);
+    } catch {
+      this.blocked = true;
+      throw new BridgeQueuePersistenceManualRequiredError();
     }
   }
 

@@ -52,7 +52,7 @@ export function sanitizeLogPath(value: string | null, label: string): string | n
   assertBoundedText(value, label, MaximumMetadataBytes);
   const normalized = value.replace(/\\/gu, '/');
   const segments = normalized.split('/');
-  if (/^(?:[A-Za-z]:\/|\/|\/\/)/u.test(normalized) || segments.includes('..')) {
+  if (/^(?:[A-Za-z]:|\/|\/\/)/u.test(normalized) || segments.includes('..')) {
     return RedactedPathValue;
   }
   return sanitizeLogText(normalized, label, MaximumMetadataBytes);
