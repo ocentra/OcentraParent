@@ -2573,6 +2573,43 @@
         "docs/plans/app-plan/CODE_AUDIT.md",
         "docs/engineering-graph/code-map.json"
       ]
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-00-games-infra-parity-extraction",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/AGENTS.md",
+        "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/00-games-infra-parity-extraction.md",
+        "docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md",
+        "docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Reviewed no-dependency result: this no-code-required parity extraction owns documented keep/adapt/strip decisions only; it has no production or test roots, runtime caller, authority, or custody boundary. This explicit reviewed empty dependency set does not promote runtime, implementation, or completion state."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "hardDependencies": ["WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/STORAGE_BINDING_MODEL.md",
+        "docs/plans/cloudflare-control-plane-plan/DEPLOYMENT_MODEL.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP02 configuration and binding source can be authored against the reviewed Cloudflare module scaffold, while placeholder/manual-required fixtures prove no deployment or environment readiness."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+      "hardDependencies": ["WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md",
+        "docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP04 has real route-manifest, caller, contract, and test topology against the reviewed scaffold, but those surfaces do not prove provider, auth, Worker, payment, or runtime readiness."
     }
   ],
   "edges": [
@@ -9079,6 +9116,34 @@
       ],
       "reason": "Current mapped followthrough belongs to shared App Game; App parent-domain handoff source/test is absent and the packet remains redundant/route-only.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP02 configuration and binding source can be authored against the reviewed Cloudflare module scaffold, while placeholder/manual-required fixtures prove no deployment or environment readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP04 has real route-manifest, caller, contract, and test topology against the reviewed scaffold, but those surfaces do not prove provider, auth, Worker, payment, or runtime readiness.",
+      "implementationGate": "reviewed-implementation"
     }
   ],
   "stateOverrides": [
@@ -9210,6 +9275,19 @@
         "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
       ]
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-00-games-infra-parity-extraction",
+      "state": "validation",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/00-games-infra-parity-extraction.md",
+        "docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md",
+        "docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md",
+        "docs/plans/cloudflare-control-plane-plan/TEST_PROOF_EXPECTATIONS.md"
+      ],
+      "reason": "Parity documentation and its proof root are present, but repo-wide docs formatting validation remains red outside this packet; no runtime, payment, or deployment readiness is claimed.",
+      "statusText": "Validation - parity docs/proof present; repo-wide docs formatting validation remains red outside this packet; no runtime, payment, or deployment readiness claim."
     }
   ],
   "proofOverrides": [
