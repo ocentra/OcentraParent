@@ -45,7 +45,7 @@ fn validate_key_registry(connection: &Connection) -> Result<(), AccountIdentityI
         &[
             "account_id",
             "household_id",
-            "service_binding_id",
+            "service_label",
             "key_state",
             "key_version",
         ],
@@ -135,7 +135,7 @@ fn validate_clock(connection: &Connection) -> Result<(), AccountIdentityIssuerEr
     validate_index_catalog(connection, "account_identity_issuer_clock", &[])
 }
 
-fn validate_table_sql(
+pub(super) fn validate_table_sql(
     connection: &Connection,
     table: &str,
     schema: &str,
@@ -161,7 +161,7 @@ fn validate_table_sql(
         .ok_or(AccountIdentityIssuerError::InvalidDurableSchema)
 }
 
-fn validate_index_sql(
+pub(super) fn validate_index_sql(
     connection: &Connection,
     index: &str,
     schema: &str,
@@ -195,7 +195,7 @@ fn compact_sql(value: &str) -> String {
         .collect()
 }
 
-fn validate_columns(
+pub(super) fn validate_columns(
     connection: &Connection,
     table: &str,
     expected: &[(&str, &str, i64, i64)],
@@ -234,7 +234,7 @@ fn validate_columns(
     Ok(())
 }
 
-fn validate_index(
+pub(super) fn validate_index(
     connection: &Connection,
     table: &str,
     expected_name: &str,

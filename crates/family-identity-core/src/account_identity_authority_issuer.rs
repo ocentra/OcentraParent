@@ -1,5 +1,4 @@
 use std::path::Path;
-use std::time::Duration;
 
 use ed25519_dalek::VerifyingKey;
 use ocentra_schema::account_identity_authority::AccountIdentityCurrentMemberDeviceAuthorityHandoff;
@@ -10,17 +9,23 @@ use crate::account_identity_authority_producer::AccountIdentityAuthorityProducer
 use crate::account_identity_authority_producer_error::AccountIdentityAuthorityProducerError;
 
 #[path = "account_identity_authority_issuer_currentness.rs"]
-pub(crate) mod currentness;
+mod currentness;
+#[path = "account_identity_authority_issuer_delivery.rs"]
+mod delivery;
 #[path = "account_identity_authority_issuer_key_custody.rs"]
-pub(crate) mod key_custody;
+mod key_custody;
 #[path = "account_identity_authority_issuer_key_registry.rs"]
-pub(crate) mod key_registry;
+mod key_registry;
+#[path = "account_identity_authority_issuer_outbox.rs"]
+mod outbox;
 #[path = "account_identity_authority_issuer_service_binding.rs"]
-pub(crate) mod service_binding;
+mod service_binding;
 #[path = "account_identity_authority_issuer_startup.rs"]
 pub mod startup;
+#[path = "account_identity_authority_issuer_store.rs"]
+mod store;
 #[path = "account_identity_authority_issuer_transport.rs"]
-pub(crate) mod transport;
+mod transport;
 
 use startup::AccountIdentityIssuerStartupState;
 
@@ -43,12 +48,15 @@ pub enum AccountIdentityIssuerError {
     InvalidDurableSchema,
     DurableIntegrityFailure,
     NonDurableStorage,
+    ProtectedStoreUnavailable,
     InvalidClock,
     ClockRollback,
     ReplayDetected,
     InvalidTransport,
     TransportExpired,
     TransportContextMismatch,
+    DeliveryUnavailable,
+    DeliveryAcknowledgementRejected,
     Producer(AccountIdentityAuthorityProducerError),
 }
 
@@ -60,36 +68,66 @@ impl std::fmt::Display for AccountIdentityIssuerError {
 
 impl std::error::Error for AccountIdentityIssuerError {}
 
+/// Preserve the Account repository's strict unknown-object boundary. Issuer
+/// objects may be absent, but if any exist then the complete canonical schema,
+/// indexes, integrity, and durable rows must validate together.
+pub(crate) fn validate_optional_repository_schema(connection: &Connection) -> Result<(), ()> {
+    let object_count: i64 = connection
+        .query_row(
+            "SELECT COUNT(*) FROM sqlite_master
+             WHERE name LIKE 'account_identity_issuer_%'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|_| ())?;
+    if object_count == 0 {
+        return Ok(());
+    }
+    key_registry::schema::validate(connection).map_err(|_| ())?;
+    key_registry::validate_durable_state(connection)
+        .map(|_| ())
+        .map_err(|_| ())
+}
+
 /// Account-owned durable issuer boundary.
 ///
-/// The SQLite file stores only public keys, versions, revocation state, and
-/// identity/service-binding metadata. Private signing material is never
-/// accepted by this type. Issuance remains unavailable until a real protected
-/// signer and authenticated service-binding adapter are installed by the
-/// owning runtime.
+/// Account current authority and issuer state share one protected SQLite file
+/// and one locking domain. The file stores only public key/registry, receipt,
+/// clock, and delivery metadata; private signing material is never accepted.
+/// Issuance and delivery remain unavailable until real sealed owner adapters
+/// are installed.
 pub struct AccountIdentityIssuer {
-    connection: Connection,
+    store: store::AccountIdentityIssuerStore,
     signer: Option<key_custody::AccountIdentityIssuerKeyCustody>,
     binding_authenticator:
         Option<Box<dyn service_binding::AccountIdentityIssuerServiceBindingAuthenticator>>,
-    authority_resolver: Option<Box<dyn currentness::AccountIdentityIssuerAuthorityResolver>>,
+    delivery_owner: Option<Box<dyn outbox::AccountIdentityIssuerDeliveryOwnerAdapter>>,
     startup_state: AccountIdentityIssuerStartupState,
 }
 
 impl AccountIdentityIssuer {
     pub fn open(path: impl AsRef<Path>) -> Result<Self, AccountIdentityIssuerError> {
-        currentness::validate_durable_path(path.as_ref())?;
-        let connection =
-            Connection::open(path).map_err(|_| AccountIdentityIssuerError::Unavailable)?;
-        connection
-            .busy_timeout(Duration::from_secs(5))
-            .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
-        let startup_state = startup::initialize(&connection)?;
+        let store = store::AccountIdentityIssuerStore::open(path.as_ref())?;
+        Self::from_store(store)
+    }
+
+    pub(crate) fn open_with_protected_store_owner(
+        path: impl AsRef<Path>,
+        owner: &dyn store::AccountIdentityIssuerProtectedStoreOwner,
+    ) -> Result<Self, AccountIdentityIssuerError> {
+        let store = owner.open_protected_store(path.as_ref())?;
+        Self::from_store(store)
+    }
+
+    fn from_store(
+        store: store::AccountIdentityIssuerStore,
+    ) -> Result<Self, AccountIdentityIssuerError> {
+        let startup_state = startup::recover(store.repository().account_issuer_connection())?;
         Ok(Self {
-            connection,
+            store,
             signer: None,
             binding_authenticator: None,
-            authority_resolver: None,
+            delivery_owner: None,
             startup_state,
         })
     }
@@ -99,26 +137,18 @@ impl AccountIdentityIssuer {
     }
 
     /// Re-run durable validation after an external restart/recovery boundary.
-    /// No in-memory key cache is treated as authoritative.
+    /// No in-memory key or outbox cache is treated as authoritative.
     pub fn recover_startup(
         &mut self,
     ) -> Result<AccountIdentityIssuerStartupState, AccountIdentityIssuerError> {
-        self.startup_state = startup::recover(&self.connection)?;
+        self.store.validate_identity()?;
+        self.startup_state = startup::recover(self.store.repository().account_issuer_connection())?;
+        self.store.validate_identity()?;
         Ok(self.startup_state)
     }
 
-    pub(crate) fn service_binding(
-        &self,
-        authority: &VerifiedAccountIdentityAuthority,
-        service: service_binding::AccountIdentityIssuerService,
-    ) -> Result<service_binding::AccountIdentityIssuerServiceBinding, AccountIdentityIssuerError>
-    {
-        service_binding::AccountIdentityIssuerServiceBinding::from_authority(authority, service)
-    }
-
-    /// Install a real platform signer. The adapter must keep private key
-    /// bytes outside this process and reject handles it did not receive from
-    /// the durable issuer registry.
+    /// Install a real platform signer. The adapter must keep private key bytes
+    /// outside this process and reject handles absent from its protected store.
     pub(crate) fn install_signer(
         &mut self,
         signer: Box<dyn key_custody::AccountIdentityIssuerSignerAdapter>,
@@ -135,177 +165,151 @@ impl AccountIdentityIssuer {
         self.binding_authenticator = Some(authenticator);
     }
 
-    pub(crate) fn install_authority_resolver(
+    pub(crate) fn install_delivery_owner(
         &mut self,
-        resolver: Box<dyn currentness::AccountIdentityIssuerAuthorityResolver>,
+        delivery_owner: Box<dyn outbox::AccountIdentityIssuerDeliveryOwnerAdapter>,
     ) {
-        self.authority_resolver = Some(resolver);
+        self.delivery_owner = Some(delivery_owner);
     }
 
-    /// Register a public verification key for the exact current Account and
-    /// household binding. Registration rotates the previous active version in
-    /// one SQLite transaction; callers cannot select the issuer key id.
+    /// Register a public verification key for exact current Account authority.
+    /// The current row, authenticated service binding, version rotation, and
+    /// new row commit are linearized by one SQLite `BEGIN IMMEDIATE`.
     pub(crate) fn register_public_key(
         &mut self,
         authority: &VerifiedAccountIdentityAuthority,
-        binding: &service_binding::AccountIdentityIssuerServiceBinding,
-        public_key: [u8; 32],
-    ) -> Result<key_custody::AccountIdentityIssuerSigningHandle, AccountIdentityIssuerError> {
-        let context = currentness::acquire_current_context(
-            self.authority_resolver.as_deref(),
-            authority,
-            binding,
-        )?;
-        let current_authority = context.authority();
-        let current_binding = context.binding();
-        currentness::authenticate_binding(
-            self.binding_authenticator.as_deref(),
-            current_authority,
-            current_binding,
-        )?;
-        let handle = key_registry::register(
-            &mut self.connection,
-            current_authority,
-            current_binding,
-            public_key,
-        )?
-        .handle;
-        context.assert_current()?;
-        Ok(handle)
+        service: service_binding::AccountIdentityIssuerService,
+    ) -> Result<(), AccountIdentityIssuerError> {
+        self.store.validate_identity()?;
+        let authenticator = self.binding_authenticator.as_deref();
+        let signer = self
+            .signer
+            .as_ref()
+            .ok_or(AccountIdentityIssuerError::SignerCustodyUnavailable)?;
+        let transaction = self
+            .store
+            .repository_mut()
+            .begin_account_issuer_transaction()
+            .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
+        let now = key_registry::receipts::trusted_now(&transaction)?;
+        currentness::ensure_exact_current(&transaction, authority, now)?;
+        let binding = currentness::binding_for_current(authority, service)?;
+        let _authenticated = currentness::authenticate_binding(authenticator, authority, &binding)?;
+        let provisioned = signer.provision_public_key(authority, &binding)?;
+        outbox::reconcile::supersede_for_rotation(&transaction, authority, &binding, now)?;
+        key_registry::register(&transaction, authority, &binding, provisioned.bytes())?;
+        transaction
+            .commit()
+            .map_err(|_| AccountIdentityIssuerError::Unavailable)
     }
 
     pub(crate) fn revoke_public_key(
         &mut self,
         authority: &VerifiedAccountIdentityAuthority,
-        binding: &service_binding::AccountIdentityIssuerServiceBinding,
-        handle: &key_custody::AccountIdentityIssuerSigningHandle,
+        service: service_binding::AccountIdentityIssuerService,
     ) -> Result<(), AccountIdentityIssuerError> {
-        let context = currentness::acquire_current_context(
-            self.authority_resolver.as_deref(),
-            authority,
-            binding,
-        )?;
-        let current_authority = context.authority();
-        let current_binding = context.binding();
-        currentness::authenticate_binding(
-            self.binding_authenticator.as_deref(),
-            current_authority,
-            current_binding,
-        )?;
-        key_registry::revoke(
-            &mut self.connection,
-            current_authority,
-            current_binding,
-            handle,
-        )?;
-        context.assert_current()
+        self.store.validate_identity()?;
+        let authenticator = self.binding_authenticator.as_deref();
+        let transaction = self
+            .store
+            .repository_mut()
+            .begin_account_issuer_transaction()
+            .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
+        let now = key_registry::receipts::trusted_now(&transaction)?;
+        currentness::ensure_exact_current(&transaction, authority, now)?;
+        let binding = currentness::binding_for_current(authority, service)?;
+        let _authenticated = currentness::authenticate_binding(authenticator, authority, &binding)?;
+        outbox::reconcile::supersede_for_rotation(&transaction, authority, &binding, now)?;
+        key_registry::revoke(&transaction, authority, &binding)?;
+        transaction
+            .commit()
+            .map_err(|_| AccountIdentityIssuerError::Unavailable)
     }
 
-    /// Sign only with the durable current key selected by Account. The
-    /// binding and authority are checked before the producer envelope is
-    /// constructed; there is no key selector in this API.
+    /// Sign only with the durable current key selected by Account. Issuance,
+    /// replay receipt creation, and durable outbox enqueue commit together.
     pub(crate) fn issue_current_authority(
         &mut self,
         authority: &VerifiedAccountIdentityAuthority,
-        binding: &service_binding::AccountIdentityIssuerServiceBinding,
+        service: service_binding::AccountIdentityIssuerService,
     ) -> Result<transport::AccountIdentityIssuerTransport, AccountIdentityIssuerError> {
-        let context = currentness::acquire_current_context(
-            self.authority_resolver.as_deref(),
-            authority,
-            binding,
-        )?;
-        let current_authority = context.authority();
-        let current_binding = context.binding();
-        currentness::authenticate_binding(
-            self.binding_authenticator.as_deref(),
-            current_authority,
-            current_binding,
-        )?;
+        self.store.validate_identity()?;
+        let authenticator = self.binding_authenticator.as_deref();
         let signer = self
             .signer
             .as_ref()
             .ok_or(AccountIdentityIssuerError::SignerCustodyUnavailable)?;
-        let transaction = key_registry::begin_immediate(&mut self.connection)?;
+        let transaction = self
+            .store
+            .repository_mut()
+            .begin_account_issuer_transaction()
+            .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
         let now = key_registry::receipts::trusted_now(&transaction)?;
-        let registered = key_registry::current(&transaction, current_authority, current_binding)?;
-        context.assert_current()?;
+        currentness::ensure_exact_current(&transaction, authority, now)?;
+        let binding = currentness::binding_for_current(authority, service)?;
+        let _authenticated = currentness::authenticate_binding(authenticator, authority, &binding)?;
+        let registered = key_registry::current(&transaction, authority, &binding)?;
         let custody = key_custody::RegisteredProducerCustody::new(
             &registered.handle,
             registered.verifying_key,
             signer,
         );
-        let inner =
-            crate::account_identity_authority_producer::issue_at(current_authority, &custody, now)
-                .map_err(AccountIdentityIssuerError::Producer)?;
-        let transport = transport::issue(
-            current_authority,
-            current_binding,
-            &registered,
-            &custody,
-            inner,
-            now,
-        )?;
-        context.assert_current()?;
+        let inner = crate::account_identity_authority_producer::issue_at(authority, &custody, now)
+            .map_err(AccountIdentityIssuerError::Producer)?;
+        let transport = transport::issue(authority, &binding, &registered, &custody, inner, now)?;
         key_registry::receipts::record_transport_receipt(
             &transaction,
             transport.receipt_id(),
-            current_authority,
-            current_binding,
+            authority,
+            &binding,
             transport.key_id(),
             transport.key_version(),
             transport.issued_at(),
             transport.expires_at(),
         )?;
+        outbox::enqueue(&transaction, authority, &binding, &transport)?;
         transaction
             .commit()
             .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
-        context.assert_current()?;
         Ok(transport)
     }
 
-    /// Verify a producer wire against the active durable key for this exact
-    /// service binding. Consumers must still re-resolve current Account
-    /// authority before accepting the returned handoff.
+    /// Verify and consume one producer transport against exact current Account
+    /// authority and the current durable issuer key in the same transaction.
     pub(crate) fn verify_current_authority(
         &mut self,
         authority: &VerifiedAccountIdentityAuthority,
-        binding: &service_binding::AccountIdentityIssuerServiceBinding,
+        service: service_binding::AccountIdentityIssuerService,
         wire: &[u8],
     ) -> Result<AccountIdentityCurrentMemberDeviceAuthorityHandoff, AccountIdentityIssuerError>
     {
-        let context = currentness::acquire_current_context(
-            self.authority_resolver.as_deref(),
-            authority,
-            binding,
-        )?;
-        let current_authority = context.authority();
-        let current_binding = context.binding();
-        currentness::authenticate_binding(
-            self.binding_authenticator.as_deref(),
-            current_authority,
-            current_binding,
-        )?;
-        let transaction = key_registry::begin_immediate(&mut self.connection)?;
+        self.store.validate_identity()?;
+        let authenticator = self.binding_authenticator.as_deref();
+        let transaction = self
+            .store
+            .repository_mut()
+            .begin_account_issuer_transaction()
+            .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
         let now = key_registry::receipts::trusted_now(&transaction)?;
-        let registered = key_registry::current(&transaction, current_authority, current_binding)?;
-        context.assert_current()?;
-        let verified =
-            transport::verify(wire, current_authority, current_binding, &registered, now)?;
-        context.assert_current()?;
+        currentness::ensure_exact_current(&transaction, authority, now)?;
+        let binding = currentness::binding_for_current(authority, service)?;
+        let _authenticated = currentness::authenticate_binding(authenticator, authority, &binding)?;
+        let registered = key_registry::current(&transaction, authority, &binding)?;
+        let verified = transport::verify(wire, authority, &binding, &registered, now)?;
         key_registry::receipts::consume_transport_receipt(
             &transaction,
             verified.receipt_id(),
-            current_authority,
-            current_binding,
+            authority,
+            &binding,
             verified.key_id(),
             verified.key_version(),
             now,
         )?;
+        let handoff = verified.into_handoff();
         transaction
             .commit()
             .map_err(|_| AccountIdentityIssuerError::Unavailable)?;
-        context.assert_current()?;
-        Ok(verified.into_handoff())
+        Ok(handoff)
     }
 }
 
