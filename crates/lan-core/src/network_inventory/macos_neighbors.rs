@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use std::net::Ipv4Addr;
 use std::time::Duration;
+use std::{collections::HashMap, sync::atomic::AtomicBool};
 
 use chrono::Utc;
 use ocentra_parent_agent_protocol::constants;
@@ -18,7 +18,9 @@ use super::neighbor_support::{
     previous_inventory_label, remember_neighbor_identity, trusted_device_hostname,
     trusted_device_label, trusted_device_platform,
 };
-use super::service_identity::{enrich_service_identity_probes, AllowedSnmpResponseObserver};
+use super::service_identity::{
+    enrich_service_identity_probes_with_cancellation, AllowedSnmpResponseObserver,
+};
 use super::{
     merge_neighbor_observations_by_mac, LanIdentityHintInventory, LanNeighborObservation,
     LanNetworkInventoryDevice, LanPreviousNetworkInventory,
@@ -38,6 +40,24 @@ pub fn macos_lan_neighbors(
     selected_interface: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
 ) -> Vec<LanNetworkInventoryDevice> {
+    macos_lan_neighbors_with_cancellation(
+        identity_hint_devices,
+        previous_devices,
+        probe_suppression_devices,
+        selected_interface,
+        allowed_snmp_response_observer,
+        None,
+    )
+}
+
+pub fn macos_lan_neighbors_with_cancellation(
+    identity_hint_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+    probe_suppression_devices: &[LanPairingDeviceRef],
+    selected_interface: Option<&str>,
+    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    cancellation: Option<&AtomicBool>,
+) -> Vec<LanNetworkInventoryDevice> {
     let identity_hint_inventory = LanIdentityHintInventory::from_devices(identity_hint_devices);
     let previous_inventory = LanPreviousNetworkInventory::from_devices(previous_devices);
     let observed_at = Utc::now().to_rfc3339();
@@ -54,11 +74,12 @@ pub fn macos_lan_neighbors(
         )
     })
     .collect::<Vec<_>>();
-    enrich_service_identity_probes(
+    enrich_service_identity_probes_with_cancellation(
         &mut devices,
         probe_suppression_devices,
         selected_interface,
         allowed_snmp_response_observer,
+        cancellation,
     );
     devices
 }

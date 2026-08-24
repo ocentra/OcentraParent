@@ -1,4 +1,5 @@
 use std::net::{SocketAddrV4, UdpSocket};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 use chrono::Utc;
@@ -8,6 +9,15 @@ use super::packet::{encode_mdns_query, mdns_query_names};
 use super::{MdnsDnsSdDiscovery, MDNS_IPV4_MULTICAST, MDNS_PORT, MDNS_RESPONSE_TIMEOUT_MS};
 
 pub fn query_mdns_dns_sd() -> Option<MdnsDnsSdDiscovery> {
+    query_mdns_dns_sd_with_cancellation(None)
+}
+
+pub fn query_mdns_dns_sd_with_cancellation(
+    cancellation: Option<&AtomicBool>,
+) -> Option<MdnsDnsSdDiscovery> {
+    if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+        return None;
+    }
     let socket = UdpSocket::bind(("0.0.0.0", 0)).ok()?;
     let _ = socket.set_read_timeout(Some(Duration::from_millis(MDNS_RESPONSE_TIMEOUT_MS)));
     let _ = socket.set_write_timeout(Some(Duration::from_millis(MDNS_RESPONSE_TIMEOUT_MS)));
@@ -20,6 +30,9 @@ pub fn query_mdns_dns_sd() -> Option<MdnsDnsSdDiscovery> {
     let observed_at = Utc::now().to_rfc3339();
     let mut buffered_packets = Vec::new();
     loop {
+        if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+            return None;
+        }
         let mut buffer = [0_u8; 4096];
         match socket.recv_from(&mut buffer) {
             Ok((received, _source)) => {

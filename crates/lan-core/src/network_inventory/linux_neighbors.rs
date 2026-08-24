@@ -1,11 +1,13 @@
-use std::collections::HashMap;
 use std::time::Duration;
+use std::{collections::HashMap, sync::atomic::AtomicBool};
 
 use chrono::Utc;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
 use super::neighbor_support::filter_neighbor_observations_for_selected_interface;
-use super::service_identity::{enrich_service_identity_probes, AllowedSnmpResponseObserver};
+use super::service_identity::{
+    enrich_service_identity_probes_with_cancellation, AllowedSnmpResponseObserver,
+};
 use super::{LanIdentityHintInventory, LanNetworkInventoryDevice, LanPreviousNetworkInventory};
 
 pub mod identity;
@@ -18,6 +20,24 @@ pub fn linux_lan_neighbors(
     probe_suppression_devices: &[LanPairingDeviceRef],
     selected_interface: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+) -> Vec<LanNetworkInventoryDevice> {
+    linux_lan_neighbors_with_cancellation(
+        identity_hint_devices,
+        previous_devices,
+        probe_suppression_devices,
+        selected_interface,
+        allowed_snmp_response_observer,
+        None,
+    )
+}
+
+pub fn linux_lan_neighbors_with_cancellation(
+    identity_hint_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+    probe_suppression_devices: &[LanPairingDeviceRef],
+    selected_interface: Option<&str>,
+    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    cancellation: Option<&AtomicBool>,
 ) -> Vec<LanNetworkInventoryDevice> {
     let trusted_inventory = LanIdentityHintInventory::from_devices(identity_hint_devices);
     let previous_inventory = LanPreviousNetworkInventory::from_devices(previous_devices);
@@ -40,11 +60,12 @@ pub fn linux_lan_neighbors(
             )
         })
         .collect::<Vec<_>>();
-    enrich_service_identity_probes(
+    enrich_service_identity_probes_with_cancellation(
         &mut devices,
         probe_suppression_devices,
         selected_interface,
         allowed_snmp_response_observer,
+        cancellation,
     );
     devices
 }

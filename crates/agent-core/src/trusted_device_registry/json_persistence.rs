@@ -1,4 +1,9 @@
-use std::{collections::BTreeMap, fs::read_to_string, io, path::Path};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs::read_to_string,
+    io,
+    path::Path,
+};
 
 use atomicwrites::{AllowOverwrite, AtomicFile};
 use ocentra_parent_agent_protocol::{constants, lan_pairing::LanTrustedDeviceRegistryEntry};
@@ -15,6 +20,7 @@ use super::{
 const SIGNER_ANCHORS_KEY: &str = "signerAnchors";
 const SIGNER_ANCHOR_GENERATIONS_KEY: &str = "signerAnchorGenerations";
 pub(super) const ACCEPTED_INTENT_IDS_KEY: &str = "acceptedIntentIds";
+pub(super) const ACCEPTED_CHALLENGE_IDS_KEY: &str = "acceptedChallengeIds";
 
 impl TrustedDeviceRegistry {
     pub fn load_json(path: &Path) -> Self {
@@ -81,17 +87,18 @@ impl TrustedDeviceRegistry {
             .get(SIGNER_ANCHOR_GENERATIONS_KEY)
             .and_then(|generations| serde_json::from_value(generations.clone()).ok())
             .unwrap_or_default();
-        registry.accepted_intent_ids = value
-            .get(ACCEPTED_INTENT_IDS_KEY)
-            .and_then(|intent_ids| serde_json::from_value(intent_ids.clone()).ok())
-            .unwrap_or_default();
-        while registry.accepted_intent_ids.len()
-            > constants::lan_pairing::LAN_PAIRING_MAX_ACCEPTED_INTENT_HISTORY
-        {
-            if let Some(oldest) = registry.accepted_intent_ids.iter().next().cloned() {
-                registry.accepted_intent_ids.remove(&oldest);
-            }
-        }
+        // Missing replay fields are an explicit legacy migration to empty history;
+        // a present field must deserialize or the whole registry load fails closed.
+        registry.accepted_intent_ids =
+            bounded_replay_ids(match value.get(ACCEPTED_INTENT_IDS_KEY) {
+                Some(intent_ids) => serde_json::from_value(intent_ids.clone()).ok()?,
+                None => BTreeSet::new(),
+            });
+        registry.accepted_challenge_ids =
+            bounded_replay_ids(match value.get(ACCEPTED_CHALLENGE_IDS_KEY) {
+                Some(challenge_ids) => serde_json::from_value(challenge_ids.clone()).ok()?,
+                None => BTreeSet::new(),
+            });
         Some(registry)
     }
 
@@ -104,11 +111,21 @@ impl TrustedDeviceRegistry {
             SIGNER_ANCHORS_KEY: &self.signer_anchors,
             SIGNER_ANCHOR_GENERATIONS_KEY: &self.signer_anchor_generations,
             ACCEPTED_INTENT_IDS_KEY: &self.accepted_intent_ids,
+            ACCEPTED_CHALLENGE_IDS_KEY: &self.accepted_challenge_ids,
             constants::field::LAN_SELECTED_PAIRING_ID: self.selected_pairing_id,
             constants::field::LAN_SELECTED_ROUTE_STALE_AT: self.selected_route_stale_at,
             constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT: self.selected_route_offline_at,
         })
     }
+}
+
+fn bounded_replay_ids(mut ids: BTreeSet<String>) -> BTreeSet<String> {
+    while ids.len() > constants::lan_pairing::LAN_PAIRING_MAX_ACCEPTED_INTENT_HISTORY {
+        if let Some(oldest) = ids.iter().next().cloned() {
+            ids.remove(&oldest);
+        }
+    }
+    ids
 }
 
 fn bounded_household_decisions(

@@ -75,7 +75,27 @@ pub struct LanPairingRuntime {
 #[derive(Debug)]
 pub(crate) struct LanBrowserDiscoveryScanWorker {
     pub(crate) cancellation: Arc<AtomicBool>,
-    pub(crate) join: JoinHandle<()>,
+    pub(crate) join: Option<JoinHandle<()>>,
+}
+
+impl LanBrowserDiscoveryScanWorker {
+    pub(crate) fn cancel_and_join(mut self) {
+        self.cancellation
+            .store(true, std::sync::atomic::Ordering::Release);
+        if let Some(join) = self.join.take() {
+            let _ = join.join();
+        }
+    }
+}
+
+impl Drop for LanBrowserDiscoveryScanWorker {
+    fn drop(&mut self) {
+        self.cancellation
+            .store(true, std::sync::atomic::Ordering::Release);
+        if let Some(join) = self.join.take() {
+            let _ = join.join();
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -96,6 +116,14 @@ pub(crate) enum LanPairingRegistryPersistence {
     InMemory,
     LocalJsonRegistry(PathBuf),
     UnavailableLocalJsonRegistry,
+}
+
+impl LanPairingRuntime {
+    pub(crate) fn clone_for_background_scan(&self) -> Self {
+        let mut runtime = self.clone();
+        runtime.browser_discovery_scan_worker = Arc::new(Mutex::new(None));
+        runtime
+    }
 }
 
 pub enum LanCommandDecision {

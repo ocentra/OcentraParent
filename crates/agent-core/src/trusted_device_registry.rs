@@ -29,6 +29,7 @@ pub struct TrustedDeviceRegistry {
     pub(crate) household_device_decisions: Vec<LanHouseholdDeviceDecision>,
     pub(crate) known_household_devices: Vec<LanCanonicalHouseholdDevice>,
     accepted_intent_ids: BTreeSet<String>,
+    accepted_challenge_ids: BTreeSet<String>,
     signer_anchors: BTreeMap<String, LanTrustedDeviceSignerAnchor>,
     signer_anchor_generations: BTreeMap<String, u64>,
     pub(crate) selected_pairing_id: Option<String>,
@@ -47,6 +48,7 @@ impl TrustedDeviceRegistry {
             household_device_decisions: Vec::new(),
             known_household_devices: Vec::new(),
             accepted_intent_ids: BTreeSet::new(),
+            accepted_challenge_ids: BTreeSet::new(),
             signer_anchors: BTreeMap::new(),
             signer_anchor_generations: BTreeMap::new(),
             selected_pairing_id: None,
@@ -73,6 +75,21 @@ impl TrustedDeviceRegistry {
 
     pub fn known_household_devices(&self) -> &[LanCanonicalHouseholdDevice] {
         &self.known_household_devices
+    }
+
+    pub fn record_challenge_request(&mut self, challenge_id: &str) -> bool {
+        if challenge_id.trim().is_empty() || self.accepted_challenge_ids.contains(challenge_id) {
+            return false;
+        }
+        if self.accepted_challenge_ids.len()
+            >= constants::lan_pairing::LAN_PAIRING_MAX_ACCEPTED_INTENT_HISTORY
+        {
+            if let Some(oldest) = self.accepted_challenge_ids.iter().next().cloned() {
+                self.accepted_challenge_ids.remove(&oldest);
+            }
+        }
+        self.accepted_challenge_ids.insert(challenge_id.to_string());
+        true
     }
 
     pub fn scan_truth_devices(&self) -> Vec<LanPairingDeviceRef> {

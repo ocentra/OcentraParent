@@ -146,6 +146,23 @@ pub fn enrich_service_identity_probes(
         probe_suppression_devices,
         selected_interface,
         allowed_snmp_response_observer,
+        None,
+    )
+}
+
+pub fn enrich_service_identity_probes_with_cancellation(
+    devices: &mut [LanNetworkInventoryDevice],
+    probe_suppression_devices: &[LanPairingDeviceRef],
+    selected_interface: Option<&str>,
+    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    cancellation: Option<&AtomicBool>,
+) {
+    enrichment::enrich_service_identity_probes(
+        devices,
+        probe_suppression_devices,
+        selected_interface,
+        allowed_snmp_response_observer,
+        cancellation,
     )
 }
 
@@ -198,3 +215,4 @@ pub fn runtime_service_identity_probe_settings() -> ServiceIdentityProbeSettings
 pub fn env_flag_enabled(name: &str) -> bool {
     settings::env_flag_enabled(name)
 }
+use std::sync::atomic::AtomicBool;

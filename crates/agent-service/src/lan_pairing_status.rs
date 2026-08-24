@@ -72,21 +72,30 @@ pub(crate) fn pairing_challenge_status_event(
 ) -> AgentEventEnvelope {
     let origin = LanPairingOptionalText(origin.0);
     match parse_challenge_request(&command.payload) {
-        Ok(request) => match validate_challenge_request(runtime, &origin, &command, &request) {
-            Ok(()) => {
-                let challenge = challenge_state_for_request(&command, &request);
-                runtime.remember_challenge(challenge.clone());
-                let mut event = pairing_status_event(runtime, command);
-                extend_log_fields(
-                    &mut event.payload,
-                    challenge_issued_audit_fields(&challenge),
-                );
-                event
-            }
-            Err(reason) => challenge_rejection_event(command, &reason, &origin),
-        },
+        Ok(request) => validated_pairing_challenge_status_event(runtime, origin, command, request),
         Err(reason) => challenge_rejection_event(command, &reason, &origin),
     }
+}
+
+fn validated_pairing_challenge_status_event(
+    runtime: &LanPairingRuntime,
+    origin: LanPairingOptionalText,
+    command: AgentCommandEnvelope,
+    request: LanPairingChallengeRequest,
+) -> AgentEventEnvelope {
+    if let Err(reason) = validate_challenge_request(runtime, &origin, &command, &request) {
+        return challenge_rejection_event(command, &reason, &origin);
+    }
+    let challenge = challenge_state_for_request(&command, &request);
+    if let Err(reason) = runtime.remember_challenge(challenge.clone()) {
+        return challenge_rejection_event(command, &reason, &origin);
+    }
+    let mut event = pairing_status_event(runtime, command);
+    extend_log_fields(
+        &mut event.payload,
+        challenge_issued_audit_fields(&challenge),
+    );
+    event
 }
 
 fn pairing_status(runtime: &LanPairingRuntime) -> LanPairingStatus {

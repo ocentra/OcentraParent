@@ -1,5 +1,8 @@
-use std::thread;
 use std::time::{Duration, Instant};
+use std::{
+    sync::atomic::{AtomicBool, Ordering},
+    thread,
+};
 
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
@@ -28,6 +31,7 @@ pub(super) fn enrich_service_identity_probes(
     probe_suppression_devices: &[LanPairingDeviceRef],
     selected_interface: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    cancellation: Option<&AtomicBool>,
 ) {
     let Some(selected_interface) = selected_interface.filter(|value| !value.trim().is_empty())
     else {
@@ -41,7 +45,9 @@ pub(super) fn enrich_service_identity_probes(
     let candidates = probe_candidates(devices, probe_suppression_devices, selected_interface);
     let settings = runtime_service_identity_probe_settings();
     for batch in candidates.chunks(SERVICE_IDENTITY_PROBE_MAX_CONCURRENCY) {
-        if Instant::now() >= deadline {
+        if Instant::now() >= deadline
+            || cancellation.is_some_and(|value| value.load(Ordering::Acquire))
+        {
             break;
         }
         apply_probe_results(
@@ -54,6 +60,9 @@ pub(super) fn enrich_service_identity_probes(
                 allowed_snmp_response_observer,
             ),
         );
+        if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+            break;
+        }
     }
 }
 

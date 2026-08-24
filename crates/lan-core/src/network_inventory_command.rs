@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{sync::atomic::AtomicBool, time::Duration};
 
 mod json;
 mod probes;
@@ -21,6 +21,15 @@ pub(crate) fn command_json_records_with_timeout(
     timeout: Duration,
 ) -> Vec<serde_json::Value> {
     json::command_json_records_with_timeout(program, args, timeout)
+}
+
+pub(crate) fn command_json_records_with_timeout_and_cancellation(
+    program: &str,
+    args: &[&str],
+    timeout: Duration,
+    cancellation: &AtomicBool,
+) -> Vec<serde_json::Value> {
+    json::command_json_records_with_timeout_and_cancellation(program, args, timeout, cancellation)
 }
 
 pub(crate) fn command_json_single(program: &str, args: &[&str]) -> Option<serde_json::Value> {
