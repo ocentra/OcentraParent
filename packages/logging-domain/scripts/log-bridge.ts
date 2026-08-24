@@ -47,12 +47,14 @@ if (port === 0 && config.bridgeMode !== 'local') {
   throw new Error('dynamic log bridge ports require local bridge composition');
 }
 assertLocalEndpointMatchesPort(config.bridgeMode, config.bridgeUrl, port);
+const bridgeAccessMode = config.bridgeMode === 'local' ? 'loopback-only' : 'disabled';
 
 const server = createBridgeServer({
   host,
   port,
   rootDir: process.env.OCENTRA_PARENT_LOG_DIR,
-  destructiveOperations: config.bridgeMode === 'local' ? 'loopback-only' : 'disabled',
+  destructiveOperations: bridgeAccessMode,
+  logIngestion: bridgeAccessMode,
 });
 
 server.listen(port, host, () => {

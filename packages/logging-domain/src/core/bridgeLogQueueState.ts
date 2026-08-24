@@ -17,46 +17,6 @@ export interface PersistedBridgeQueue {
 
 export type AmbiguousBridgeDeliveryResolution = 'assume-stored' | 'retry-accepting-duplicates';
 
-const MaximumPersistedQueueBytes = MaximumQueuedBridgeBytes + 64 * 1024;
-
-export function parsePersistedBridgeQueue(raw: string): PersistedBridgeQueue {
-  if (new TextEncoder().encode(raw).byteLength > MaximumPersistedQueueBytes) {
-    throw new Error('persisted log bridge queue exceeds its custody limit');
-  }
-  const value = JSON.parse(raw) as unknown;
-  if (typeof value !== 'object' || value == null || Array.isArray(value)) {
-    throw new Error('invalid persisted log bridge queue');
-  }
-  const input = value as Record<string, unknown>;
-  if (
-    input['schemaVersion'] !== 1 ||
-    (input['status'] !== 'ready' && input['status'] !== 'ambiguous') ||
-    !Number.isSafeInteger(input['ambiguousBatchSize']) ||
-    !Array.isArray(input['entries']) ||
-    input['entries'].length > MaximumQueuedBridgeEntries
-  ) {
-    throw new Error('invalid persisted log bridge queue');
-  }
-  const entries = input['entries'].map(sanitizeBridgeEntryForCustody);
-  const ambiguousBatchSize = input['ambiguousBatchSize'] as number;
-  const validAmbiguity =
-    input['status'] === 'ambiguous'
-      ? ambiguousBatchSize > 0 && ambiguousBatchSize <= entries.length
-      : ambiguousBatchSize === 0;
-  if (
-    !validAmbiguity ||
-    entries.reduce((sum, entry) => sum + bridgeEntryCustodyBytes(entry), 0) > MaximumQueuedBridgeBytes
-  ) {
-    throw new Error('invalid persisted log bridge queue');
-  }
-  return {
-    schemaVersion: 1,
-    status: input['status'] as PersistedBridgeQueue['status'],
-    ambiguousBatchSize,
-    entries,
-  };
-}
-
 export class BridgeLogQueueState {
   private entries: BridgeEntry[] = [];
   private status: PersistedBridgeQueue['status'] = 'ready';
@@ -98,6 +58,14 @@ export class BridgeLogQueueState {
   }
 
   ambiguousState(batchSize: number): PersistedBridgeQueue {
+    if (
+      !Number.isSafeInteger(batchSize) ||
+      batchSize <= 0 ||
+      batchSize > MaximumBridgeBatchEntries ||
+      batchSize > this.entries.length
+    ) {
+      throw new Error('invalid ambiguous log bridge delivery batch');
+    }
     return { schemaVersion: 1, status: 'ambiguous', ambiguousBatchSize: batchSize, entries: [...this.entries] };
   }
 
