@@ -10,7 +10,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -36,12 +38,16 @@ public final class ChildAgentCompositionService extends Service {
         TimeUnit.MILLISECONDS,
         new ArrayBlockingQueue<Runnable>(1),
         new RuntimeWorkerThreadFactory(),
-        new ThreadPoolExecutor.DiscardOldestPolicy()
+        new ThreadPoolExecutor.AbortPolicy()
     );
     private ChildAgentComposition composition;
     private RuntimeStateSnapshot runtimeState = RuntimeStateSnapshot.empty();
     private boolean refreshQueued;
     private boolean stopping;
+    private CountDownLatch refreshCompletion = new CountDownLatch(0);
+    private String shutdownState = "running";
+    private String compositionCloseState = "open";
+    private boolean compositionClosed;
 
     @Override
     public void onCreate() {
@@ -69,12 +75,34 @@ public final class ChildAgentCompositionService extends Service {
 
     @Override
     public void onDestroy() {
+        final CountDownLatch completion;
         synchronized (runtimeStateLock) {
             stopping = true;
+            shutdownState = "stop-requested";
+            completion = refreshCompletion;
         }
-        runtimeWorker.shutdownNow();
-        if (composition != null) {
-            composition.close();
+        runtimeWorker.shutdown();
+        boolean workerTerminated = await(runtimeWorker, 250L);
+        if (!workerTerminated) {
+            List<Runnable> cancelledTasks = runtimeWorker.shutdownNow();
+            if (!cancelledTasks.isEmpty()) {
+                completion.countDown();
+            }
+            workerTerminated = await(runtimeWorker, 100L);
+        }
+        boolean refreshCompleted = completion.getCount() == 0L;
+        boolean safeToClose = workerTerminated && refreshCompleted;
+        synchronized (runtimeStateLock) {
+            shutdownState = safeToClose ? "worker-stopped" : "worker-stop-timeout-fail-closed";
+            if (!safeToClose) {
+                compositionCloseState = "deferred-worker-timeout";
+            }
+            if (!safeToClose) {
+                runtimeState = RuntimeStateSnapshot.failed("worker-shutdown-timeout");
+            }
+        }
+        if (safeToClose) {
+            closeCompositionAfterWorkerStop();
         }
         super.onDestroy();
     }
@@ -86,28 +114,69 @@ public final class ChildAgentCompositionService extends Service {
 
         public Bundle runtimeStatus() {
             synchronized (runtimeStateLock) {
-                return runtimeState.toBundle();
+                Bundle status = runtimeState.toBundle();
+                status.putString("shutdownState", shutdownState);
+                status.putString("compositionCloseState", compositionCloseState);
+                return status;
             }
         }
     }
 
     private void requestRuntimeRefresh() {
+        final CountDownLatch completion = new CountDownLatch(1);
         synchronized (runtimeStateLock) {
             if (stopping || refreshQueued) {
                 return;
             }
             refreshQueued = true;
+            refreshCompletion = completion;
         }
         try {
             runtimeWorker.execute(new Runnable() {
                 @Override
                 public void run() {
-                    refreshRuntimeStateOnWorker();
+                    try {
+                        refreshRuntimeStateOnWorker();
+                    } finally {
+                        completion.countDown();
+                        closeCompositionAfterWorkerStop();
+                    }
                 }
             });
         } catch (RejectedExecutionException error) {
             synchronized (runtimeStateLock) {
                 refreshQueued = false;
+                completion.countDown();
+                runtimeState = RuntimeStateSnapshot.failed("worker-rejected-refresh");
+            }
+        }
+    }
+
+    private void closeCompositionAfterWorkerStop() {
+        ChildAgentComposition compositionToClose;
+        synchronized (runtimeStateLock) {
+            if (!stopping || compositionClosed) {
+                return;
+            }
+            compositionClosed = true;
+            compositionCloseState = "closing";
+            compositionToClose = composition;
+        }
+        if (compositionToClose == null) {
+            synchronized (runtimeStateLock) {
+                compositionCloseState = "closed-after-worker-stop";
+            }
+            return;
+        }
+        try {
+            compositionToClose.close();
+            synchronized (runtimeStateLock) {
+                compositionCloseState = "closed-after-worker-stop";
+            }
+        } catch (RuntimeException error) {
+            synchronized (runtimeStateLock) {
+                compositionCloseState = "close-failed";
+                runtimeState = RuntimeStateSnapshot.failed("composition-close-failed");
             }
         }
     }
@@ -275,6 +344,15 @@ public final class ChildAgentCompositionService extends Service {
         @Override
         public Thread newThread(Runnable runnable) {
             return new Thread(runnable, "ocentra-child-runtime-preflight");
+        }
+    }
+
+    private static boolean await(ExecutorService executor, long timeoutMillis) {
+        try {
+            return executor.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+            return false;
         }
     }
 }

@@ -32,7 +32,9 @@ and composes it from the manifest-declared child service. It queries the real
 `DevicePolicyManager` for this APK's device/profile-owner state and blocks
 action rows before adapter dispatch when owner authority is absent. It records
 that owner provisioning and a `DeviceAdminReceiver` are not wired; no caller
-can mint owner authority. Tests and proof remain absent.
+can mint owner authority. The launcher activity binds to the child service
+and renders the redacted authority preflight state without creating authority.
+Tests and proof remain absent.
 
 ## Validation
 

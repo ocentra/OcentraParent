@@ -47,6 +47,46 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
 
     private AppGameAndroidUsageEventsRuntimePreflight() {}
 
+    public static Bundle createUnavailableRuntimePreflightBundle() {
+        Bundle status = new Bundle();
+        status.putString("schemaVersion", SCHEMA_VERSION);
+        status.putString("packageId", PACKAGE_ID);
+        status.putString("nativeBridgeClass", NATIVE_BRIDGE_CLASS);
+        status.putString(FIELD_PERMISSION_CHECK_STATE, PERMISSION_CHECK_UNAVAILABLE);
+        status.putString(FIELD_RUNTIME_COLLECTION_STATE, COLLECTION_BLOCKED);
+        status.putString("usageStatsServiceState", "service-unavailable");
+        status.putString(FIELD_SAMPLE_STATE, SAMPLE_UNAVAILABLE);
+        status.putLong("sampleLookbackMillis", DEFAULT_SAMPLE_LOOKBACK_MILLIS);
+        status.putInt(FIELD_SAMPLE_EVENT_COUNT, 0);
+        status.putInt(FIELD_FOREGROUND_EVENT_COUNT, 0);
+        status.putLong(FIELD_SAMPLE_EVENT_COUNT_LONG, 0L);
+        status.putLong(FIELD_FOREGROUND_EVENT_COUNT_LONG, 0L);
+        status.putString(FIELD_DURABLE_REPLAY_STATE, DURABLE_REPLAY_NOT_AVAILABLE);
+        status.putBoolean(FIELD_REPLAY_CURRENT, false);
+        status.putString(FIELD_REPLAY_SAMPLE_STATE, SAMPLE_UNAVAILABLE);
+        putReplayCounts(status, 0L, 0L, 0L, 0L);
+        status.putStringArray("commands", new String[] { COMMAND_RUNTIME_PREFLIGHT_GET });
+        status.putStringArray("events", new String[] { EVENT_RUNTIME_PREFLIGHT_REPORTED });
+        status.putStringArray("proofRefs", new String[0]);
+        status.putStringArray(
+            "openGaps",
+            new String[] {
+                "android-usage-events-runtime-preflight-context-unavailable",
+                "android-usage-events-child-runtime-replay-proof-not-proved",
+                "android-child-runtime-delivery-not-proved",
+                "android-platform-enforcement-not-proved"
+            }
+        );
+        status.putBoolean("rawUsageEventsStored", false);
+        status.putBoolean("packageNamesStored", false);
+        status.putBoolean("rawActivityRowsStored", false);
+        status.putBoolean("runtimeCollectionClaimed", false);
+        status.putBoolean("adapterDispatchClaimed", false);
+        status.putBoolean("platformEnforcementClaimed", false);
+        status.putBoolean("childDeviceDeliveryClaimed", false);
+        return status;
+    }
+
     public static ChildRuntimeSource createChildRuntimeSource(Context context) {
         return new ChildRuntimeSource(createRuntimePreflightBundle(context));
     }
@@ -55,10 +95,16 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
         String permissionState = usageStatsPermissionState(context);
         Bundle status = createBaseBundle(context, permissionState);
         CountOnlySample sample = collectCountOnlySample(context, permissionState);
+        if (Thread.currentThread().isInterrupted()) {
+            return createUnavailableRuntimePreflightBundle();
+        }
         putSample(status, sample);
         AppGameAndroidUsageEventsReplayStore.Snapshot persisted = null;
         String durableState = DURABLE_REPLAY_NOT_AVAILABLE;
         if (sample.current) {
+            if (Thread.currentThread().isInterrupted()) {
+                return createUnavailableRuntimePreflightBundle();
+            }
             long observedAt = System.currentTimeMillis();
             durableState = AppGameAndroidUsageEventsReplayStore.persist(
                 context,
@@ -149,6 +195,9 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
     }
 
     private static CountOnlySample countUsageEvents(UsageStatsManager usageStatsManager) {
+        if (Thread.currentThread().isInterrupted()) {
+            return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
+        }
         long endTime = System.currentTimeMillis();
         long startTime = endTime - DEFAULT_SAMPLE_LOOKBACK_MILLIS;
         final UsageEvents usageEvents;
@@ -157,13 +206,16 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
         } catch (RuntimeException error) {
             return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
         }
-        if (usageEvents == null) {
+        if (usageEvents == null || Thread.currentThread().isInterrupted()) {
             return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
         }
         UsageEvents.Event event = new UsageEvents.Event();
         long totalEventCount = 0L;
         long foregroundEventCount = 0L;
         while (usageEvents.hasNextEvent()) {
+            if (Thread.currentThread().isInterrupted()) {
+                return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
+            }
             usageEvents.getNextEvent(event);
             totalEventCount = incrementCount(totalEventCount);
             if (isForegroundEvent(event)) {

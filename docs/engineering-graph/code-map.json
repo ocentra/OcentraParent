@@ -9071,7 +9071,8 @@
       "roots": [
         "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java",
         "platforms/android/agent/app/src/main/AndroidManifest.xml",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java"
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java"
       ]
     },
     "WP-app-game-plan-189-app-game-linux-foreground-capture-readiness": {
@@ -9144,6 +9145,7 @@
       "roots": [
         "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAuthorityPreflight.java",
         "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
         "platforms/android/agent/app/src/main/AndroidManifest.xml"
       ]
     },
@@ -9179,6 +9181,7 @@
       "roots": [
         "platforms/android/agent/app/src/main/AndroidManifest.xml",
         "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
         "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
         "platforms/android/agent/app/src/main/res/xml/app_game_accessibility_service.xml"
       ]
