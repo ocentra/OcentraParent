@@ -34,7 +34,10 @@ impl StablePathGuard {
         kind: GuardedPathKind,
     ) -> Result<Self, BrowserManagedProfileStoreError> {
         reject_indirection(path)?;
-        let file = open_guarded(path, kind, false, false)?;
+        // Destructive mutation is fail-closed in the platform helpers.  Keep
+        // delete sharing denied even while acquiring this observational guard
+        // so no future caller can accidentally widen the substitution window.
+        let file = open_guarded(path, kind, false, true)?;
         Self::from_file(path, file, kind)
     }
 

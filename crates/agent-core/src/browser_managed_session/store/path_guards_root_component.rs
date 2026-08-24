@@ -1,4 +1,4 @@
-use std::{fs, io::ErrorKind, path::Path};
+use std::{io::ErrorKind, path::Path};
 
 use super::super::BrowserManagedProfileStoreError;
 use super::path_guard::StablePathGuard;
@@ -21,9 +21,11 @@ pub(super) fn open_or_create_guard(
 }
 
 fn create_directory(path: &Path) -> Result<(), BrowserManagedProfileStoreError> {
-    match fs::create_dir(path) {
-        Ok(()) => Ok(()),
-        Err(error) if error.kind() == ErrorKind::AlreadyExists => Ok(()),
-        Err(_error) => Err(BrowserManagedProfileStoreError::Io),
-    }
+    let _ = path;
+    // There is no handle-relative, no-follow directory-create primitive in
+    // this crate's safe Rust boundary.  A name-based create here would make
+    // the retained root guard non-authoritative under a junction/symlink
+    // substitution race.  Refuse the operation instead of creating an
+    // unowned root and pretending that later validation closes the race.
+    Err(BrowserManagedProfileStoreError::UnsafePath)
 }

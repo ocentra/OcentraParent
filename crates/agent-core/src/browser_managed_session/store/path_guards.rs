@@ -35,7 +35,13 @@ impl ProfileStorePathGuards {
             .profile_dir
             .parent()
             .ok_or(BrowserManagedProfileStoreError::UnsafePath)?;
-        let root_guard = StablePathGuard::open(root, GuardedPathKind::Directory, true)?;
+        // Open/create the root as part of the retained guard set.  The prior
+        // caller-side bootstrap opened a root guard and dropped it before the
+        // lock/mutation operation, leaving a substitution window.  Keeping the
+        // guard here makes root custody span the complete operation.  Missing
+        // roots fail closed in `open_or_create_guard`; this boundary must not
+        // create an attacker-swappable path on behalf of a caller.
+        let root_guard = super::path_guards_root::ensure_directory_chain(root)?;
         let ancestors = open_ancestor_guards(root)?;
         let lock = open_or_create(&paths.lock_path, true)?;
         let guards = Self {

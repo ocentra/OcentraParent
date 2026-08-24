@@ -1,4 +1,4 @@
-use std::{fs, path::Path};
+use std::path::Path;
 
 use ocentra_parent_agent_protocol::{
     browser_managed::{BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry},
@@ -56,14 +56,11 @@ pub(super) fn create_profile_dir_or_remove(
     profile_dir: &Path,
     guards: &ProfileStorePathGuards,
 ) -> Result<(), BrowserManagedProfileStoreError> {
-    fs::create_dir(profile_dir).map_err(|_error| BrowserManagedProfileStoreError::Io)?;
-    if let Err(error) = super::atomic_write::sync_parent_directory(profile_dir)
-        .and_then(|()| super::validation::validate_profile_store_paths(config, paths))
-    {
-        return guards
-            .remove_directory(profile_dir)
-            .map_err(|_cleanup_error| BrowserManagedProfileStoreError::CleanupFailed)
-            .and(Err(error));
-    }
-    Ok(())
+    let _ = (config, paths, profile_dir, guards);
+    // Creating a profile directory by name and reopening it for rollback is
+    // the same substitution race as destructive deletion.  Do not create an
+    // object that this source-only boundary cannot later bind to an immutable
+    // handle.  The caller receives an explicit unsafe/manual-required result;
+    // no attacker-swappable path is created and no rollback is attempted.
+    Err(BrowserManagedProfileStoreError::UnsafePath)
 }

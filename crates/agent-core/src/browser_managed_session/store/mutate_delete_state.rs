@@ -1,7 +1,4 @@
-use ocentra_parent_agent_protocol::{
-    browser_managed::{BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry},
-    constants,
-};
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileStoreEntry;
 
 use super::super::{
     BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
@@ -15,24 +12,13 @@ pub(super) fn complete_pending_deletion(
     stored_entry: Option<BrowserManagedProfileStoreEntry>,
     guards: &ProfileStorePathGuards,
 ) -> Result<BrowserManagedProfileStoreRecord, BrowserManagedProfileStoreError> {
-    let entry = stored_entry.ok_or(BrowserManagedProfileStoreError::MetadataCorrupt)?;
-    match entry.lifecycle_state {
-        BrowserManagedProfileLifecycleState::Ready => {
-            let record = super::mutate_delete::deleted_record(config, paths.clone(), Some(&entry));
-            super::io::write_profile_store_entry(config, &paths, &record.entry, guards)?;
-        }
-        BrowserManagedProfileLifecycleState::RepairRequired
-            if entry.repair_reason.as_deref()
-                == Some(constants::browser::PROFILE_STORE_REASON_DELETE_PENDING) =>
-        {
-            let record = super::mutate_delete::deleted_record(config, paths.clone(), Some(&entry));
-            super::io::write_profile_store_entry(config, &paths, &record.entry, guards)?;
-        }
-        BrowserManagedProfileLifecycleState::Deleted => {}
-        _ => return Err(BrowserManagedProfileStoreError::MetadataCorrupt),
-    }
-    super::mutate_delete_cleanup::remove_deletion_staging(&paths, guards)?;
-    super::mutate_delete_cleanup::deleted_record_after_cleanup(config, paths, guards)
+    let _ = (config, paths, stored_entry, guards);
+    // A `.deleting` directory and a DELETE_PENDING reason are not an
+    // authenticated transaction binding.  Do not promote terminal `Deleted`
+    // state or remove the directory during restart recovery.  A future
+    // owner-issued handle-relative transaction must provide the binding before
+    // this path can be enabled.
+    Err(BrowserManagedProfileStoreError::UnsafePath)
 }
 
 pub(super) fn stage_profile_for_deletion(
@@ -40,23 +26,10 @@ pub(super) fn stage_profile_for_deletion(
     stored_entry: Option<&BrowserManagedProfileStoreEntry>,
     guards: &ProfileStorePathGuards,
 ) -> Result<(), BrowserManagedProfileStoreError> {
-    if !guards.directory_exists(&paths.profile_dir)? {
-        return Ok(());
-    }
-    match stored_entry {
-        Some(entry) if entry.lifecycle_state == BrowserManagedProfileLifecycleState::Ready => {}
-        Some(entry)
-            if entry.lifecycle_state == BrowserManagedProfileLifecycleState::RepairRequired
-                && entry.repair_reason.as_deref()
-                    == Some(constants::browser::PROFILE_STORE_REASON_DELETE_PENDING) => {}
-        _ => return Err(BrowserManagedProfileStoreError::MetadataCorrupt),
-    }
-    guards.validate_path(
-        &paths.profile_dir,
-        super::path_guards::guarded_directory_path_kind(),
-    )?;
-    guards.rename_directory(&paths.profile_dir, &paths.deletion_path)?;
-    super::atomic_write::sync_parent_directory(&paths.profile_dir)?;
-    guards.validate()?;
-    Ok(())
+    let _ = (paths, stored_entry, guards);
+    // Persisting a plain marker before a name-based rename would still allow
+    // a substituted profile to be moved.  Since the safe owner-issued
+    // handle-relative primitive is not available under `forbid(unsafe_code)`,
+    // reject the entire transition before changing any path or metadata.
+    Err(BrowserManagedProfileStoreError::UnsafePath)
 }
