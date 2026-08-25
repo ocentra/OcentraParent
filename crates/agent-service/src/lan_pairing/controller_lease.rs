@@ -5,10 +5,10 @@ use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 
-#[path = "../lan_pairing_controller_lease_mutations.rs"]
-mod lease_mutations;
 #[path = "../lan_pairing_controller_lease_validation.rs"]
 mod lease_validation;
+
+use ocentra_parent_agent_core::trusted_device_registry::controller_lease::LanControllerLeaseMutation;
 
 #[derive(Clone, Debug)]
 pub(crate) struct LanControllerLeaseState {
@@ -28,7 +28,7 @@ pub(crate) fn controller_lease_renew(
         origin,
         command,
         LanPairingAuditEventType::ControllerLeaseRenewed,
-        super::controller_lease_flow::controller_lease_renew,
+        LanControllerLeaseMutation::Renew,
     )
 }
 
@@ -42,7 +42,7 @@ pub(crate) fn controller_lease_release(
         origin,
         command,
         LanPairingAuditEventType::ControllerLeaseReleased,
-        super::controller_lease_flow::controller_lease_release,
+        LanControllerLeaseMutation::Release,
     )
 }
 

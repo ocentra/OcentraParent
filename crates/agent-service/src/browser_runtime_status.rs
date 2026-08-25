@@ -3,7 +3,6 @@ use ocentra_parent_agent_protocol::browser::BrowserChannel;
 use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
 use ocentra_parent_agent_protocol::browser::BrowserFamily;
 use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
-use ocentra_parent_agent_protocol::browser_managed::BrowserBridgeKind;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileLifecycleState;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedState;
@@ -259,12 +258,12 @@ fn managed_launch_base_status(
     status.browser_family = Some(launch.browser_family());
     status.browser_channel = Some(launch.browser_channel());
     status.process_id = Some(launch.process_id());
-    status.profile_id = Some(profile_store_entry.profile_id.clone());
-    status.profile_path_ref = Some(profile_store_entry.profile_path_ref.clone());
-    status.profile_root_ref = Some(profile_store_entry.profile_root_ref.clone());
-    status.profile_scope_id = Some(profile_store_entry.profile_scope_id.clone());
-    status.profile_lifecycle_state = Some(profile_store_entry.lifecycle_state);
-    status.policy_revision = Some(profile_store_entry.policy_revision.clone());
+    status.profile_id = Some(profile_store_entry.profile_id().to_owned());
+    status.profile_path_ref = Some(profile_store_entry.profile_path_ref().to_owned());
+    status.profile_root_ref = Some(profile_store_entry.profile_root_ref().to_owned());
+    status.profile_scope_id = Some(profile_store_entry.profile_scope_id().to_owned());
+    status.profile_lifecycle_state = Some(profile_store_entry.lifecycle_state());
+    status.policy_revision = Some(profile_store_entry.policy_revision().to_owned());
     status.started_at = Some(started_at.into().0);
     status
 }
@@ -307,10 +306,10 @@ fn apply_profile_store_entry(
     status: &mut BrowserManagedSessionStatus,
     entry: BrowserManagedProfileStoreEntry,
 ) {
-    status.profile_id = Some(entry.profile_id);
-    status.profile_path_ref = Some(entry.profile_path_ref);
-    status.profile_root_ref = Some(entry.profile_root_ref);
-    status.profile_scope_id = Some(entry.profile_scope_id);
-    status.profile_lifecycle_state = Some(entry.lifecycle_state);
-    status.policy_revision = Some(entry.policy_revision);
+    status.profile_id = Some(entry.profile_id().to_owned());
+    status.profile_path_ref = Some(entry.profile_path_ref().to_owned());
+    status.profile_root_ref = Some(entry.profile_root_ref().to_owned());
+    status.profile_scope_id = Some(entry.profile_scope_id().to_owned());
+    status.profile_lifecycle_state = Some(entry.lifecycle_state());
+    status.policy_revision = Some(entry.policy_revision().to_owned());
 }

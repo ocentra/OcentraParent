@@ -55,9 +55,10 @@ revalidates the canonical scheduler bridge read model before writing atomic
 records. Invalid source rows/counts/claims remain rejected; provider delivery,
 retry workers, quiet-hours timers, child delivery, and UI remain unclaimed.
 
-The 15 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
-WP26, WP48, WP49, WP62, WP63, WP64, WP65, and
-WP102.
+The 15 Phase 1 gaps are WP15, WP16, WP17, WP18, WP19, WP20, WP26, WP48,
+WP49, WP62, WP63, WP64, WP65, and WP102. WP26 is a tests-only performance
+harness gap. WP102 is a route-only shared-dependency validation gap. Neither
+requires new App production source.
 
 ## Production reachability audit (2026-08-16)
 
@@ -244,8 +245,9 @@ not be promoted as runtime policy/timer support.
 3. WP19/WP20 time-budget runtime composition and child UX.
 4. WP62-WP65 notification preference/status pipeline.
 5. WP15/WP48/WP63 parent inventory/freshness UI.
-6. WP26 load/performance harnesses.
-7. WP102 implement or explicitly merge/retire into WP103.
+6. WP26 load/performance harnesses; no App product source is missing.
+7. WP102 shared WP101/WP103 validation; keep the retired parent-domain packet
+   absent.
 
 ## Completion boundary
 

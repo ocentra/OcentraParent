@@ -232,12 +232,14 @@ Expected evidence for `B2`:
 ## Code-First Audit Correction - 2026-08-15
 
 All 25 pre-existing LAN workpacks have reviewed implementation/test ownership in
-the engineering graph. Twenty-two have their bounded Phase 1 production code
-and expected tests written. Three pre-existing validation/wrapper rows remain
-incomplete, and the newly routed WP26 is intentionally open:
+the engineering graph. Twenty-one have their bounded Phase 1 production code
+and expected tests written. Four pre-existing expected-test/validation/wrapper
+rows remain incomplete, and the newly routed WP26 is intentionally open:
 
 - `18` supplies the existing signed-envelope verification/freshness boundary
   consumed by WP26. It does not own or claim a production beacon receiver.
+- `07` has accepted recurring-listener deadline source, but its shared-budget,
+  timeout-restoration, rotation, and cancellation tests are not written.
 - `16` has a production delivery chain but lacks the integrated backend replay
   -> real Tauri `AppHandle` -> portal-listener validation.
 - `20` is proof-only and its named aggregate verifier programs are absent.
@@ -250,7 +252,8 @@ incomplete, and the newly routed WP26 is intentionally open:
   no code, test, or proof closure claim.
 
 Manual household/router/platform artifacts remain separate Phase 3 gates and do
-not turn the other 22 code-present rows into missing-code work.
+not turn the other 21 code-and-expected-test-complete rows into missing-code
+work.
 
 ## Open Execution Buckets
 
@@ -269,7 +272,7 @@ physical household evidence, and platform artifacts remain separate gates.
 | 04 | `physical_lan_scan` -> `windows_neighbors`/`linux_neighbors`/`macos_neighbors` | Real OS neighbor-table readers and normalization are reachable. | macOS live/manual platform proof remains open; no local parser gap identified. |
 | 05 | active discovery command -> `stimulate_bounded_ipv4_neighbors` -> packet/neighbor refresh | Bounded targeted ARP refresh is a real production call with subnet/interface scope. | Packet/manual household proof remains open. |
 | 06 | active discovery command -> bounded IPv4 target planner and refresh suppression | Real bounded sweep path is reachable and reuses durable MAC-bound suppression truth. | Physical reachability and packet proof remain open. |
-| 07 | `app::router` passive runtime -> raw ARP/DHCP and UDP multicast collectors -> listener state | Long-running bounded passive runtime and source parsers are reachable. | DHCP longevity, platform packet behavior, and manual proof remain open. |
+| 07 | `app::router` passive runtime -> raw ARP/DHCP and UDP multicast collectors -> listener state | Canonical `ffaade68a` reaches a recurring runtime with one absolute cycle deadline, per-receive remaining-time enforcement, and panic-safe timeout restoration. | Slow-trickle/zero-deadline timing, timeout restoration on success/error/unwind, six-listener rotation/cancellation tests, platform packet behavior, and manual proof remain open. |
 | 08 | scan -> `enrich_mdns_dns_sd_devices` -> real mDNS query/parse/merge | mDNS/DNS-SD socket query and bounded parser are reachable from production scan. | Packet/manual proof; mDNS never establishes child authority alone. |
 | 09 | scan -> `enrich_ssdp_upnp_devices` -> bounded M-SEARCH/descriptor fetch/merge | SSDP/UPnP socket and private-location descriptor path is reachable and bounded. | Packet/manual proof; infrastructure remains non-enrollable. |
 | 10 | platform neighbor readers -> reverse-DNS/NetBIOS/LLMNR name evidence | Real platform enrichment is reachable as weak name-only evidence. | No production gap; names cannot establish identity or assignment. |
@@ -298,13 +301,16 @@ persistent registration source and WP03 owns the one-time parent ceremony.
 The current typed WebSocket observation command remains an explicit
 manual/controlled seam and cannot substitute for WP26.
 
-- Local Rust implementation complete; manual/packet proof remains: `04`, `07`,
-  `08`, `09`, `11`, `17`
+- Local Rust implementation complete; manual/packet proof remains: `04`, `08`,
+  `09`, `11`, `17`
+- Source accepted but expected-test delta remains: `07` (shared absolute
+  deadline, timeout restoration, listener rotation, and cancellation)
 - Production implementation gap: `26` (real ingress, durable custody, authority
   composition, and private Eventing WP10 handoff). WP18 is an existing code
   input, not the ingress owner.
-- Phase 1 validation/proof/wrapper gaps: `16` integrated delivery validation,
-  `20` absent aggregate verifiers, and `25` rollout gate.
+- Phase 1 expected-test/validation/proof/wrapper gaps: `07` deadline/lifecycle
+  tests, `16` integrated delivery validation, `20` absent aggregate verifiers,
+  and `25` rollout gate.
 - Physical/manual final gates after Phase 1: `04`, `07`, `08`, `09`, `11`,
   `16`, `17`, `18`, `19`, `20`, `23`, `25`, `26`
 - Locally closed rows and truth-synced summaries: `01`, `02`, `03`, `05`,
@@ -314,7 +320,8 @@ manual/controlled seam and cannot substitute for WP26.
 
 - real second-device household proof
 - router/firewall reachability proof
-- long-running passive DHCP listener proof plus broader passive
+- shared-deadline, timeout-restoration, listener-rotation, and cancellation
+  tests for the recurring passive runtime, followed later by broader passive
   trigger/platform/manual cross-checks
 - live macOS/manual neighbor-table proof for the now locally complete W04
   parser path

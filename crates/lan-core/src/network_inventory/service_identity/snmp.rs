@@ -1,5 +1,7 @@
 use std::net::{Ipv4Addr, SocketAddr, UdpSocket};
+use std::sync::atomic::AtomicBool;
 use std::time::Duration;
+use std::time::Instant;
 
 use super::{
     AllowedSnmpResponseObservation, LanServiceIdentityProbeObservation,
@@ -10,6 +12,7 @@ use super::{
 pub mod parse;
 
 mod ber;
+mod io;
 
 pub fn probe_snmp_identity_query(
     ip_address: &str,
@@ -24,16 +27,41 @@ pub fn probe_snmp_identity_query_at_endpoint(
     endpoint: SocketAddr,
     allowed_snmp_response_observer: super::AllowedSnmpResponseObserver<'_>,
 ) -> Option<LanServiceIdentityProbeObservation> {
+    let deadline = Instant::now() + Duration::from_millis(SERVICE_IDENTITY_PROBE_READ_TIMEOUT_MS);
+    probe_snmp_identity_query_at_endpoint_until(
+        endpoint,
+        allowed_snmp_response_observer,
+        deadline,
+        None,
+    )
+}
+
+pub(super) fn probe_snmp_identity_query_until(
+    ip_address: &str,
+    allowed_snmp_response_observer: super::AllowedSnmpResponseObserver<'_>,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<LanServiceIdentityProbeObservation> {
+    let ip_address = ip_address.parse::<Ipv4Addr>().ok()?;
+    probe_snmp_identity_query_at_endpoint_until(
+        SocketAddr::new(ip_address.into(), 161),
+        allowed_snmp_response_observer,
+        deadline,
+        cancellation,
+    )
+}
+
+fn probe_snmp_identity_query_at_endpoint_until(
+    endpoint: SocketAddr,
+    allowed_snmp_response_observer: super::AllowedSnmpResponseObserver<'_>,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<LanServiceIdentityProbeObservation> {
     let socket = UdpSocket::bind(SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0)).ok()?;
-    let read_timeout = Some(Duration::from_millis(
-        SERVICE_IDENTITY_PROBE_READ_TIMEOUT_MS,
-    ));
-    let _ = socket.set_read_timeout(read_timeout);
-    let _ = socket.set_write_timeout(read_timeout);
     let request = encode_snmp_identity_request(SNMP_REQUEST_ID);
-    socket.send_to(&request, endpoint).ok()?;
+    io::send_until(&socket, &request, endpoint, deadline, cancellation)?;
     let mut response = vec![0_u8; SERVICE_IDENTITY_PROBE_MAX_RESPONSE_BYTES.min(2048)];
-    let (read, _) = socket.recv_from(&mut response).ok()?;
+    let read = io::receive_until(&socket, &mut response, deadline, cancellation)?;
     let response = &response[..read];
     let observation = parse_snmp_probe_observation(response, SNMP_REQUEST_ID)?;
     if let Some(observer) = allowed_snmp_response_observer {

@@ -44,7 +44,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [23 app ai classifier digest boundary](workpacks/23-app-ai-classifier-digest-boundary.md) | Complete |
 | [24 platform extension checklist and proof routing](workpacks/24-platform-extension-checklist-and-proof-routing.md) | Complete, coordination-only |
 | [25 install and uninstall approval handoff](workpacks/25-install-and-uninstall-approval-handoff.md) | Complete, bounded handoff |
-| [26 performance and service health](workpacks/26-performance-and-service-health.md) | **Incomplete** |
+| [26 performance and service health](workpacks/26-performance-and-service-health.md) | **Incomplete, tests-only harness gap; no production-source gap** |
 | [27 e2e and manual proof artifacts](workpacks/27-e2e-and-manual-proof-artifacts.md) | Complete, proof-routing only |
 | [28 rollout checklist and pr gate](workpacks/28-rollout-checklist-and-pr-gate.md) | Complete, coordination-only |
 | [29 rust protocol evidence identity parity](workpacks/29-rust-protocol-evidence-identity-parity.md) | Complete |
@@ -107,7 +107,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [99 source gated policy preview timer service readiness response consumer parent surface status read model parent surface handoff](workpacks/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.md) | Complete, bounded projection |
 | [100 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model handoff](workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md) | Complete, bounded projection |
 | [101 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model](workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md) | Complete, bounded projection |
-| [102 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model service handoff](workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md) | **Incomplete** |
+| [102 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model service handoff](workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md) | **Route-only; no App production source required; shared dependency validation open** |
 | [103 timer service read model handoff](workpacks/103-timer-service-read-model-handoff.md) | Complete |
 | [104 timer service event handoff](workpacks/104-timer-service-event-handoff.md) | Complete |
 | [105 timer service read api handoff](workpacks/105-timer-service-read-api-handoff.md) | Complete |

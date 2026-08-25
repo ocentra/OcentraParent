@@ -215,7 +215,35 @@ pub enum LanPassiveDiscoveryUdpMulticastCaptureOutcome {
         source: LanPassiveDiscoverySource,
         received_datagram_count: usize,
     },
+    Failed {
+        source: LanPassiveDiscoverySource,
+        received_datagram_count: usize,
+        issue: LanPassiveDiscoveryUdpListenerIssue,
+    },
     Unsupported(LanPassiveDiscoveryUdpMulticastSupport),
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanPassiveDiscoveryUdpListenerIssueKind {
+    UnsupportedSource,
+    InvalidMulticastGroup,
+    SocketConfigurationFailed,
+    BindFailed,
+    AddressInUse,
+    PermissionDenied,
+    NoLocalIpv4Interface,
+    AppleLocalNetworkPermissionRequired,
+    MulticastJoinFailed,
+    ReceiveFailed,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LanPassiveDiscoveryUdpListenerIssue {
+    pub source: LanPassiveDiscoverySource,
+    pub kind: LanPassiveDiscoveryUdpListenerIssueKind,
+    pub os_error_code: Option<i32>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

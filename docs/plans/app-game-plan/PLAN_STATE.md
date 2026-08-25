@@ -20,9 +20,9 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **168** have current production source plus expected checked-in tests for their
-  bounded scope; **19** are reviewed no-code coordination/proof/reference
-  packets; **33** retain a concrete production-code or expected-test gap.
+- **171** have current production source plus expected checked-in tests for their
+  bounded scope; **20** are reviewed no-code coordination/proof/reference
+  packets; **29** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -39,18 +39,18 @@ discrepancy remains stale and is not completion evidence.
 
 | Workpacks | Reachable production caller and material effect | Remaining production gap / authority boundary |
 | --- | --- | --- |
-| WP01-WP16 | `service_runtime` starts recurring Windows capture; agent-core sources inventory, process, foreground, launcher, and app/game observations; encrypted journal/SQLite and activity-surface read models persist and expose evidence. WP10's accepted source shares one process snapshot and generation-safe process identity across launcher and foreground capture while retaining the generic window identity. | WP10's complete expected-test refresh and focused execution are open. Identity merge, richer subscriptions, dedicated portal evidence rows, and non-Windows acquisition are absent. Existing read models are evidence, not policy or control. |
+| WP01-WP16 | `service_runtime` starts recurring Windows capture; agent-core sources inventory, process, foreground, launcher, and app/game observations; encrypted journal/SQLite and activity-surface read models persist and expose evidence. WP10's accepted source shares one process snapshot and generation-safe process identity across launcher and foreground capture while retaining the generic window identity. The production portal route imports the tracked vendor surface and renders WP16's dashboard, source status, capability matrix, and evidence drawer. | WP10's complete expected-test refresh and focused execution are open. WP16 lacks its focused intent/state/hostile-metadata test family, and its Game budgets tile remains `policy proof pending` because no budget row reaches the service read model. Identity merge, richer subscriptions, and non-Windows acquisition remain absent. Existing read models are evidence, not policy or control. |
 | WP17 | Rust typed unknown-candidate producer and Eventing request/response/expiry/replay lifecycle are callable only inside app-game-core. | No service composition feeds a parent approval request into child delivery or an adapter. |
 | WP18-WP20 | Rust game-budget, policy-target compiler, and time-budget evaluator compositions consume bounded stored summaries and remain dry-run. | No parent-authored live rule/context producer, service evaluator caller, scheduler/timer runtime, or enforcement handoff. |
 | WP21-WP22 | Controlled child-UX tokens/outbox contracts exist; the timer command path validates current session evidence and can attempt Windows termination by PID/name. | No child delivery/UI/provider runtime. Timer authority is narrow: executable path, process start time, and owner-SID hardening are not carried into this PID/name path; the authenticated native termination resolver is a separate unused path. |
 | WP23-WP28 | Proof, extension, install/store, performance, and rollout/reference packets have no shipped app/game control caller. | They remain proof/reference or missing-platform-owner work, not production implementation. |
 | WP29-WP31 | Rust protocol parity and journal/SQLite storage persist staged authority/classifier rows. | No live classifier execution, policy consumer, dedicated service event, or portal authority/classifier surface. |
-| WP32-WP48 | Existing service activity-surface composition carries staged evidence/identity/authority/classifier refs into app-use/games read models. | The refs are projection evidence; no trusted policy/compiler/evaluator caller or dedicated live portal consumer was found. |
+| WP32-WP48 | Existing service activity-surface composition carries staged evidence/identity/authority/classifier refs into app-use/games read models. The mounted WP48 portal dashboard consumes `sourceStatusRows` and renders source counts, freshness, capability, timestamp, and evidence summaries. | The refs are projection evidence, not trusted policy/compiler/evaluator authority. WP48's named focused intent test is absent, and the shallow route scaffold does not prove empty/stale/degraded semantics. |
 | WP49, WP177 | `app_game_policy_readiness_sources` calls risk detection and the protocol → service → parent-runtime readiness row path is reachable. | This is readiness/status only. It does not invoke the compiler/evaluator with parent-authored policy or authorize an adapter. |
 | WP51 | The evaluator is a Rust library consumed by app-game-core dry-run composition. | No external service/runtime caller supplies trusted policy context. |
 | WP52-WP54, WP56 | Policy-readiness, notification intent, portal, and notification service read-model builders are reachable projections. | No authority, provider delivery, child delivery, receipt, or enforcement effect follows from these rows. |
 | WP58-WP62, WP64-WP65 | Local outbox, scheduler, audit-history, provider/preference preflight, and status bridges validate and project persisted rows; missing or unsafe input remains manual-required/unavailable. | No production scheduler writer/runtime, provider credentials, preference mutation, delivery, receipt, or child runtime caller exists. |
-| WP63, WP66-WP70 | Source-freshness, parent-surface intent/renderer/read-model, and policy-preview handoffs are callable projections. | They do not create policy authority, live notification delivery, timer execution, or adapter execution. |
+| WP63, WP66-WP70 | WP63's split source-panel intent groups App use/Game freshness rows and the mounted SVG surface renders its metrics; the remaining parent-surface intent/renderer/read-model and policy-preview handoffs are callable projections. | WP63's focused grouping/hostile-metadata test is absent. These projections do not create policy authority, live notification delivery, timer execution, or adapter execution. |
 | WP73-WP76 | Source-gated freshness/preview read models can consume the existing activity summaries. | No source-gated policy scheduler or evaluator execution consumes them. |
 | WP78-WP108 | Timer handoff, persistence, rollback, readiness, service event/read API, and parent-surface chains are implemented as typed/status projections. | No parent-authored policy-to-scheduler runtime or durable live timer delivery is wired through the chain. |
 | WP109-WP158 | Timer parent surfaces, child UX, preference/setup, local outbox, provider/preference and receipt handoff contracts are reachable where composed. | They stop at fail-closed/manual-required handoffs; child UI, provider runtime, service delivery, receipts, and native execution are absent. |
@@ -73,6 +73,44 @@ adapter execution (WP166-WP176). Tests, Enforcer validation, proof, and CI
 remain deferred.
 
 ## Active production-code follow-up - 2026-08-16
+
+- WP48 and WP63 are the same kind of false source gap as WP16. The tracked
+  dashboard consumes `sourceStatusRows`; the split source-panel intent groups
+  App use/Game rows; and the mounted SVG renders source freshness metrics. The
+  workpacks remain open because their named focused intent test is absent and
+  the shallow route scaffold does not prove empty/stale/degraded grouping or
+  hostile metadata. No source-authority, policy, delivery, or adapter claim
+  follows from the presentation path.
+
+- WP16's cohesive production dashboard is present and reachable through
+  `ParentPortalRoute.tsx` -> `vendor-parent-portal-surface.js` -> the tracked
+  vendor `ParentPortalSvgSurface.tsx`. The surface renders service rows,
+  source/freshness status, capability limitations, counts, and evidence. The
+  existing Playwright route scaffold is shallow; the expected intent/state
+  matrix and hostile/long-metadata tests are absent. Game budgets is explicitly
+  `policy proof pending` because no budget row reaches the service read model.
+  This removes the false "no cohesive surface" source gap without closing WP16.
+
+- WP102 is an explicit no-code supersession decision, not another source gap.
+  Its proposed `packages/parent-domain` intermediate would duplicate the real
+  Rust protocol and agent-service parent-surface read-model boundary already
+  owned by WP103. No production caller consumes the WP101 test-only builder, so
+  generating a second dead builder would not advance runtime reachability.
+  WP103 focused execution/proof and the missing live handoff from the bounded
+  WP101 contract into product runtime remain open.
+
+- WP101's retired `packages/parent-domain` roots were also a false code gap.
+  The Rust-owned parent-safe read-model contract shapes and builder in
+  `parent_surface_status.rs` and `tail.rs`, together with the real
+  `app_game_source_gated_policy_preview_timer_followthrough` contract test,
+  satisfy bounded Phase 1 source/test writing. Focused execution, proof,
+  product runtime, and parent rendering remain open.
+
+- WP100's retired `packages/parent-domain` roots were a false code gap. The
+  Rust-owned shapes and builder in `parent_surface_status.rs` and `tail.rs`,
+  together with the real `app_game_source_gated_policy_preview_timer_followthrough`
+  contract test, satisfy bounded Phase 1 source/test writing. Focused execution,
+  proof, product runtime, and parent rendering remain open.
 
 - WP58 now has a fail-closed production boundary in
   `crates/app-game-core/src/app_game_notification_local_outbox_bridge.rs` and

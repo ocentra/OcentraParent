@@ -65,7 +65,7 @@ release-ready. Those are Phase 2 and Phase 3.
 | WP23 AI classifier digest boundary | Evidence refs, digest/confidence bounds, evidence-only authority, serialization, and negative tests exist. | **Complete for Phase 1** | Provider execution/quality is outside this boundary. |
 | WP24 Platform extension routing | Coordination-only routing correctly keeps unsupported platform actions manual-required. | **Complete for bounded Phase 1** | Platform owners must supply real adapters/proof. |
 | WP25 Install/uninstall approval handoff | The bounded handoff can cite inventory/install/uninstall/tamper evidence without inventing adapter authority. | **Complete for bounded Phase 1** | Store/package-manager interception and approval UX are adjacent product work. |
-| WP26 Performance/service health | Capture cadence/limits and degraded states have ordinary tests. | **Incomplete** | The specified 1k-app, 500-process, 100k-observation, 1k-policy, and 500-row portal performance/load harnesses do not exist. |
+| WP26 Performance/service health | Capture cadence/limits and degraded states have ordinary tests; the retired `packages/parent-domain` roots have no manifest or caller and are not production gaps. | **Incomplete, tests-only** | The specified 1k-app, 500-process, 100k-observation, 1k-policy, and 500-row portal performance/load harnesses do not exist. |
 | WP27 E2E/manual proof artifacts | Proof-routing packet owns no product source. | **Complete for bounded Phase 1** | Phase 3 scenarios remain to be generated. |
 | WP28 Rollout/PR gate | Coordination-only rollout packet owns no product source. | **Complete for bounded Phase 1** | It cannot close until Phase 2/3 acceptance is complete. |
 | WP29 Rust evidence/identity parity | Shared Rust evidence, identity, merge, AI digest shapes and protocol tests exist. | **Complete for Phase 1** | Runtime enrichment is separately owned. |
@@ -128,7 +128,7 @@ release-ready. Those are Phase 2 and Phase 3.
 | WP99 Status-read-model parent-surface handoff | Tested Rust handoff exists. | **Complete for bounded Phase 1** | No renderer claim. |
 | WP100 Parent-surface read-model handoff | Tested Rust handoff exists. | **Complete for bounded Phase 1** | No service/portal claim. |
 | WP101 Parent-surface read model | Tested Rust terminal projection exists. | **Complete for bounded Phase 1** | It remains a pure model, not live composition. |
-| WP102 Parent-surface read-model service handoff | No current implementation matches the documented builder/test after legacy parent-domain removal. | **Incomplete** | Add the bounded Rust service-handoff model/test or retire/merge this redundant packet into the actual WP103 service model. |
+| WP102 Parent-surface read-model service handoff | The legacy parent-domain packet is retired; the live Rust route already reaches the WP103 service model through websocket command dispatch, activity reports, durable ActivityStore/timer state, and typed events. | **Route-only; no App source required** | Shared WP101/WP103 validation remains open; do not recreate the retired package. |
 | WP103 Timer service read model | Typed protocol model and agent-service builder/report with tests exist. | **Complete for Phase 1** | Runtime acceptance remains Phase 2. |
 | WP104 Timer service event | Agent service emits the typed timer parent-surface report/event with tests. | **Complete for Phase 1** | Transport proof remains later. |
 | WP105 Timer service read API | Activity API command/report routing for the timer surface is written and tested. | **Complete for Phase 1** | Phase 2 must rerun focused service tests. |
@@ -150,8 +150,8 @@ release-ready. Those are Phase 2 and Phase 3.
 5. WP15 + WP48 + WP63: finish the cohesive inventory/running/foreground/session
    and source-freshness parent UI with security/large-metadata tests.
 6. WP26: add the specified load/performance harnesses.
-7. WP102: either implement the remaining bounded service-handoff model or
-   delete/merge the redundant packet with WP103 through an explicit plan edit.
+7. WP102: validate the shared WP101/WP103 route in its owning test phase; no
+   App-local implementation packet remains.
 
 ## Release interpretation
 

@@ -198,7 +198,13 @@ export const BINDING_OWNERSHIP = {
 } as const satisfies Record<TrackedBindingKey, BindingOwnership>;
 
 export function parseAllowedOrigins(env: Env): string[] {
-  return env.CORS_ALLOWED_ORIGINS.split(',')
+  const configuredOrigins: unknown = env.CORS_ALLOWED_ORIGINS;
+  if (typeof configuredOrigins !== 'string') {
+    return [];
+  }
+
+  return configuredOrigins
+    .split(',')
     .map((entry) => entry.trim())
     .filter(Boolean);
 }
@@ -220,10 +226,18 @@ export function resolveAuthAdapterMode(env: Env): string {
 }
 
 export function isLocalFixtureEnvironment(env: Pick<Env, 'ENVIRONMENT'>): boolean {
-  const environment = String(env.ENVIRONMENT ?? '')
-    .trim()
-    .toLowerCase();
+  const configuredEnvironment: unknown = env.ENVIRONMENT;
+  const environment = typeof configuredEnvironment === 'string' ? configuredEnvironment.trim().toLowerCase() : '';
   return environment === 'local' || environment === 'test' || environment === 'development';
+}
+
+function isProductionEnvironment(env: Pick<Env, 'ENVIRONMENT'>): boolean {
+  const configuredEnvironment: unknown = env.ENVIRONMENT;
+  return typeof configuredEnvironment === 'string' && configuredEnvironment.trim().toLowerCase() === 'production';
+}
+
+function hasWildcardOrigin(origin: unknown): boolean {
+  return typeof origin === 'string' && origin.trim().includes('*');
 }
 
 export function getMissingBindings(env: Env): ReadonlyArray<RequiredBindingKey> {
@@ -251,13 +265,24 @@ export function validateEnv(env: Env): string[] {
   }
 
   for (const key of REQUIRED_ENV_KEYS) {
-    if (!env[key] || String(env[key]).trim() === '') {
+    const configuredValue: unknown = env[key];
+    if (typeof configuredValue !== 'string' || configuredValue.trim() === '') {
       errors.push(`missing required env: ${key}`);
     }
   }
 
-  if (parseAllowedOrigins(env).length === 0) {
+  const allowedOrigins = parseAllowedOrigins(env);
+  if (allowedOrigins.length === 0) {
     errors.push('CORS_ALLOWED_ORIGINS must include at least one origin');
+  }
+
+  if (isProductionEnvironment(env)) {
+    if (hasWildcardOrigin(env.APP_ORIGIN)) {
+      errors.push('APP_ORIGIN must not contain a wildcard in production');
+    }
+    if (allowedOrigins.some(hasWildcardOrigin)) {
+      errors.push('CORS_ALLOWED_ORIGINS must not contain a wildcard in production');
+    }
   }
 
   if (env.REQUEST_MAX_BYTES && (!/^\d+$/.test(env.REQUEST_MAX_BYTES) || Number(env.REQUEST_MAX_BYTES) <= 0)) {
@@ -300,12 +325,7 @@ export function validateEnv(env: Env): string[] {
     }
   }
 
-  if (
-    String(env.ENVIRONMENT ?? '')
-      .trim()
-      .toLowerCase() === 'production' &&
-    !env.INTERNAL_QUEUE_SHARED_SECRET?.trim()
-  ) {
+  if (isProductionEnvironment(env) && !env.INTERNAL_QUEUE_SHARED_SECRET?.trim()) {
     errors.push('missing required env: INTERNAL_QUEUE_SHARED_SECRET');
   }
 

@@ -4,7 +4,7 @@ use std::time::Duration;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
-use rusqlite::Connection;
+use rusqlite::{Connection, Transaction, TransactionBehavior};
 
 use crate::account_identity_authority::{
     AccountIdentityCurrentMemberAuthorityProducer, VerifiedAccountIdentityAuthority,
@@ -63,6 +63,16 @@ impl SqliteAccountIdentityAuthorityRepository {
     ) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         let connection = Connection::open(path)
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        Self::from_owned_connection(connection, session_policy)
+    }
+
+    /// Finish Account repository initialization on a connection opened by an
+    /// Account-owned protected store boundary. This keeps authority state and
+    /// issuer state in one SQLite locking domain without reopening the path.
+    pub(crate) fn from_owned_connection(
+        connection: Connection,
+        session_policy: SessionLifecyclePolicy,
+    ) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         connection
             .busy_timeout(Duration::from_secs(5))
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
@@ -100,6 +110,22 @@ impl SqliteAccountIdentityAuthorityRepository {
             connection,
             session_policy,
         })
+    }
+
+    /// Begin the Account-owned issuer transition on the same connection that
+    /// owns current authority. `BEGIN IMMEDIATE` prevents a competing Account
+    /// CAS from committing between exact currentness resolution and the issuer
+    /// mutation/receipt commit.
+    pub(crate) fn begin_account_issuer_transaction(
+        &mut self,
+    ) -> Result<Transaction<'_>, AccountIdentityAuthorityRepositoryError> {
+        self.connection
+            .transaction_with_behavior(TransactionBehavior::Immediate)
+            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)
+    }
+
+    pub(crate) fn account_issuer_connection(&self) -> &Connection {
+        &self.connection
     }
 }
 

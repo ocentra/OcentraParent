@@ -9,15 +9,13 @@ use super::super::{
     LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
 };
 
-mod drain;
-
 pub(super) fn drain_udp_socket_packets(
     socket: &UdpSocket,
     state: &mut LanPassiveDiscoveryListenerState,
     source: LanPassiveDiscoverySource,
     max_datagram_count: usize,
 ) -> usize {
-    drain::drain_udp_socket_packets_with_observed_at(
+    super::drain::drain_udp_socket_packets_with_observed_at(
         socket,
         state,
         source,
@@ -33,7 +31,7 @@ pub(super) fn drain_udp_socket_packets_with_observed_at(
     max_datagram_count: usize,
     observed_at: &mut dyn FnMut() -> String,
 ) -> usize {
-    drain::drain_udp_socket_packets_with_observed_at(
+    super::drain::drain_udp_socket_packets_with_observed_at(
         socket,
         state,
         source,
@@ -63,6 +61,15 @@ pub(super) fn ingest_passive_datagram_with_observed_at(
         ) => {}
         outcome => return outcome,
     }
+    ingest_native_passive_datagram_with_observed_at(state, source, payload, observed_at)
+}
+
+pub(super) fn ingest_native_passive_datagram_with_observed_at(
+    state: &mut LanPassiveDiscoveryListenerState,
+    source: &LanPassiveDiscoverySource,
+    payload: &[u8],
+    observed_at: &str,
+) -> LanPassiveDiscoveryPacketIngestOutcome {
     let Some(summary) = passive_native_datagram_summary(*source, payload) else {
         return LanPassiveDiscoveryPacketIngestOutcome::Rejected(
             LanPassiveDiscoveryPacketParseError::MalformedPayload,

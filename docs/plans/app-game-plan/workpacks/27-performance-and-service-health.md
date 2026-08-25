@@ -41,7 +41,18 @@ bounded at realistic app/game scale.
 The app/game subsystem has performance limits, health states, and proof for
 large-enough parent households.
 
-## Completion Update - 2026-06-03
+## Current reviewed topology and no-claim boundary
+
+The canonical head contains generic app/game observation, journal, and
+read-model roots only. It does not contain the performance-health source,
+rules, proof helper, or expected test listed by this workpack. Those absent
+`packages/parent-domain` roots remain an explicit gap; the generic activity
+roots do not establish performance-health ownership or completion.
+
+The historical completion text below is retained as history only and is not
+current source/test truth.
+
+## Historical completion update - 2026-06-03
 
 Proof pack:
 

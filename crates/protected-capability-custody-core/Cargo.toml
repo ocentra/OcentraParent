@@ -1,0 +1,32 @@
+[package]
+name = "ocentra-protected-capability-custody-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+fs2 = "0.4.3"
+dunce = "1.0.5"
+file-id = "0.2.3"
+getrandom = "0.3.4"
+rusqlite = { version = "0.39.0", features = ["bundled", "limits"] }
+same-file = "1.0.6"
+sha2 = "0.10.9"
+thiserror = "2.0.18"
+ocentra-protected-capability-custody-protocol = { path = "../protected-capability-custody-protocol" }
+zeroize = "1.8.2"
+
+[target.'cfg(unix)'.dependencies]
+rustix = { version = "1.1.2", features = ["fs", "process"] }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Storage_FileSystem"] }
+windows-dpapi = "0.2.0"
+windows-acl = "0.3.0"
+winreg = "0.56.0"
