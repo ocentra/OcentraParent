@@ -67,17 +67,18 @@ pub fn macos_lan_neighbors_with_cancellation(
     let previous_inventory = LanPreviousNetworkInventory::from_devices(previous_devices);
     let observed_at = Utc::now().to_rfc3339();
     let observations = cancellation::arp_observations(&observed_at, cancellation);
-    let mut devices =
-        filter_neighbor_observations_for_selected_interface(observations, selected_interface)
-            .into_iter()
-            .filter_map(|observation| {
-                network_device_from_macos_observation(
-                    observation,
-                    &identity_hint_inventory,
-                    &previous_inventory,
-                )
-            })
-            .collect::<Vec<_>>();
+    let observations =
+        filter_neighbor_observations_for_selected_interface(observations, selected_interface);
+    let mut devices = merge_neighbor_observations_by_mac(observations)
+        .into_iter()
+        .filter_map(|observation| {
+            network_device_from_macos_observation(
+                observation,
+                &identity_hint_inventory,
+                &previous_inventory,
+            )
+        })
+        .collect::<Vec<_>>();
     enrich_service_identity_probes_with_cancellation(
         &mut devices,
         probe_suppression_devices,
