@@ -1966,7 +1966,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
   if (validationErrors.length > 0) {
     return json(500, {
       error: 'environment-validation-failed',
-      validationErrors,
+      status: 'manual-required',
     });
   }
 
