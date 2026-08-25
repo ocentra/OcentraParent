@@ -435,7 +435,9 @@
       "crates/protected-capability-custody-core",
       "crates/protected-capability-custody-protocol",
       "crates/protected-capability-custody-broker",
-      "crates/protected-capability-custody-client"
+      "crates/protected-capability-custody-client",
+      "crates/ocentra-protected-capability-custody-windows-ffi",
+      "crates/ocentra-protected-capability-custody-windows"
     ],
     "remote-access-plan": [
       "crates/schema/src/remote_capability_fabric.rs",
@@ -10252,6 +10254,10 @@
         "crates/protected-capability-custody-client/src/lib.rs",
         "crates/protected-capability-custody-client/src/windows_ipc.rs",
         "crates/protected-capability-custody-client/src/admission.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs",
+        "crates/ocentra-protected-capability-custody-windows/Cargo.toml",
+        "crates/ocentra-protected-capability-custody-windows/src/lib.rs",
         "crates/protected-capability-custody-core/src/binding_test.rs",
         "crates/protected-capability-custody-core/src/storage_schema_test.rs",
         "crates/protected-capability-custody-core/src/custody_transition_test.rs",
@@ -10262,7 +10268,9 @@
         "crates/protected-capability-custody-broker/tests/reservation_races.rs",
         "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
         "crates/protected-capability-custody-client/tests/admission.rs",
-        "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
+        "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs",
+        "crates/ocentra-protected-capability-custody-windows/tests/windows_adapter_custody.rs",
+        "crates/ocentra-protected-capability-custody-windows/tests/tpm_nv_counter.rs"
       ],
       "plannedImplementationRoots": [
         "crates/protected-capability-custody-core/src/lib.rs",
@@ -10275,7 +10283,9 @@
         "crates/protected-capability-custody-broker/src/custody.rs",
         "crates/protected-capability-custody-client/src/lib.rs",
         "crates/protected-capability-custody-client/src/windows_ipc.rs",
-        "crates/protected-capability-custody-client/src/admission.rs"
+        "crates/protected-capability-custody-client/src/admission.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs",
+        "crates/ocentra-protected-capability-custody-windows/src/lib.rs"
       ],
       "expectedTestRoots": [
         "crates/protected-capability-custody-core/src/binding_test.rs",
@@ -10288,7 +10298,9 @@
         "crates/protected-capability-custody-broker/tests/reservation_races.rs",
         "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
         "crates/protected-capability-custody-client/tests/admission.rs",
-        "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
+        "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs",
+        "crates/ocentra-protected-capability-custody-windows/tests/windows_adapter_custody.rs",
+        "crates/ocentra-protected-capability-custody-windows/tests/tpm_nv_counter.rs"
       ],
       "workspaceRequirements": {
         "rootManifest": "Cargo.toml",
@@ -10340,10 +10352,32 @@
                 "path": "crates/protected-capability-custody-client/src/lib.rs"
               }
             ]
+          },
+          {
+            "manifest": "crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml",
+            "package": "ocentra-protected-capability-custody-windows-ffi",
+            "activeMember": true,
+            "requiredTargets": [
+              {
+                "kind": "lib",
+                "path": "crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs"
+              }
+            ]
+          },
+          {
+            "manifest": "crates/ocentra-protected-capability-custody-windows/Cargo.toml",
+            "package": "ocentra-protected-capability-custody-windows",
+            "activeMember": true,
+            "requiredTargets": [
+              {
+                "kind": "lib",
+                "path": "crates/ocentra-protected-capability-custody-windows/src/lib.rs"
+              }
+            ]
           }
         ]
       },
-      "note": "Fail-closed source is integrated through 1b46b5935 from origin/codex/protected-capability-custody-repair-round3-aug24 at 3d8231e796. Core, protocol, broker, and client topology is present, but safe Windows process/token/registry/monotonic adapters, installer/SCM enrollment, a real caller, all 11 expected tests, proof, and runtime readiness remain absent; startup remains unavailable."
+      "note": "Fail-closed source is integrated through 1b46b5935 from origin/codex/protected-capability-custody-repair-round3-aug24 at 3d8231e796. ADR-PCC-002 now routes two absent Windows adapter packages: a package-scoped unsafe raw Win32/TBS/TPM/owned-handle FFI module and a safe opaque in-process broker adapter. Installer/SCM enrollment, TPM2 NV monotonic authority, a real caller, all 11 existing tests plus two adapter/TPM test roots, proof, and runtime readiness remain absent; startup remains unavailable."
     }
   }
 }

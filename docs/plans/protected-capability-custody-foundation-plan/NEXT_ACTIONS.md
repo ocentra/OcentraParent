@@ -9,25 +9,33 @@
 
 <!-- /agent-capsule -->
 
-1. Implement the dependency-owned safe Windows adapters required by the
-   integrated broker source: pinned `OpenProcess` identity plus impersonated
-   token SID/integrity/session observation, exact registry owner/DACL and parent
-   chain validation, and a real non-restorable monotonic provider. Do not widen
-   visibility of the sealed core authority to obtain those observations.
-2. Add installer/SCM-owned immutable enrollment for the broker identity, client
-   SID/image, registry roots, and service configuration, then compose the first
-   real enrolled production caller. The broker, not the client or SQLite
-   replica, must own protected decisions and opaque admission.
-3. Preserve fail-closed behavior before any storage, registry, journal,
+1. Add the planned `ocentra-protected-capability-custody-windows-ffi` package
+   as the only package-scoped unsafe module. It may contain only raw Win32,
+   TBS, TPM2, and owned-handle wrappers, with `unsafe_op_in_unsafe_fn` denied
+   and all other lint denies retained. It must not own custody decisions,
+   enrollment, persistence, or a caller interface.
+2. Add the planned safe
+   `ocentra-protected-capability-custody-windows` package with a small opaque
+   adapter interface. It must retain/revalidate pipe/process/token handles,
+   SID/integrity/session, image+SCM identity, exact registry owner/protected
+   DACL/ACE/ancestor chain, nonce/expiry/replay, and TPM2 NV/TBS monotonic
+   generation. Do not widen visibility of the sealed core authority.
+3. Link that adapter into the existing broker in-process at one
+   dispatch/open-session seam, then add installer/SCM-owned immutable
+   pre-provisioning and the first real enrolled production caller. No second
+   helper process/protocol, caller-supplied identity/attestation, or disk
+   generation restore is allowed.
+4. Preserve fail-closed behavior before any storage, registry, journal,
    listener, bootstrap, or service-ready mutation for missing identity, wrong
    owner, revoked or stale generation, path escape, replay, restart ambiguity,
    unavailable broker, and unsupported platforms.
-4. After source is complete, write the full expected test family listed in
-   `TEST_PROOF_EXPECTATIONS.md`: core-owned binding/storage/state/path/
-   reconciliation units, protocol wire-contract tests, broker authority/race/
-   Windows process tests, and client admission/IPC-authentication tests.
-5. Run focused core/protocol/broker/client compilation, source-shape/Enforcer
-   checks, and the selected tests. Then
+5. After all production source is complete, write the full expected test family
+   listed in `TEST_PROOF_EXPECTATIONS.md`: retain the 11 core/protocol/broker/
+   client roots, then add the absent Windows adapter custody and TPM2 NV/TBS
+   monotonic-counter roots. Tests must exercise the real interface and must not
+   bless a disconnected helper, fake authority, or caller assertion.
+6. Run focused core/protocol/broker/client/Windows-adapter compilation,
+   source-shape/Enforcer checks, and the selected tests. Then
    update the checklist and retained proof; repo-wide Enforcer, pre-commit, one
    PR, long CI, and promotion remain final gates.
 

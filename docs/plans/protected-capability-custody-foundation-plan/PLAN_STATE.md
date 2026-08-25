@@ -48,6 +48,39 @@ requirements now observe the root manifest, each package manifest, required
 not derive ordinary READY or DONE while the protected adapters, tests, caller,
 proof, and release gates remain open.
 
+## ADR-PCC-002 routing checkpoint — 2026-08-25
+
+ADR-PCC-002 selects one Rust Windows front-door process: the existing protected
+broker links the existing custody core and one safe Windows adapter in-process.
+There is no second helper process or helper protocol. The graph now records
+these absent planned production roots and workspace obligations:
+
+```text
+crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml
+crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs
+crates/ocentra-protected-capability-custody-windows/Cargo.toml
+crates/ocentra-protected-capability-custody-windows/src/lib.rs
+```
+
+The FFI package is limited to raw Win32/TBS/TPM/owned-handle wrappers with a
+package-scoped unsafe allowance, `unsafe_op_in_unsafe_fn` denied, and all other
+lint denies retained. The safe package exposes a small opaque adapter interface
+only to the broker's existing dispatch/open-session seam. Installer-only
+immutable enrollment must pin broker/client image+SCM identity, exact protected
+registry owner/DACL/ACE/ancestor chain, and a TPM2 NV counter/index reached via
+TBS. The adapter must retain/revalidate pipe/process/token handles, SID,
+integrity, session, nonce/expiry/replay, and monotonic generation. TPM reset,
+missing/deleted NV index, TBS failure, or enrollment mismatch fails closed and
+requires re-pair; disk state never restores the generation.
+
+This is graph implementation-phase routing only. If the graph derives
+implementation authorization, it authorizes only the missing production repair
+roots; the normal WP01 lifecycle remains `validation`, not READY or DONE. The
+current broker/client stubs remain blocked until the replacement exists. The
+11 existing expected test roots remain absent, with adapter/TPM test
+expectations recorded as absent planned tests only. Account WP05A, Device Trust
+WP01/WP03, and Browser WP06 remain blocked downstream consumers.
+
 ## Owning boundary
 
 The neutral owner is the protected-custody plan and its future broker/client
@@ -106,7 +139,8 @@ downstream consumers of this neutral boundary. These are source-order/unlock
 relationships only. They do not transfer ownership, create a caller, or close
 their existing authority and platform gaps. No edge points from this neutral
 plan back to Account or Device Trust, so the route does not create a dependency
-cycle.
+cycle. Browser WP06 is likewise downstream and remains blocked on this owner;
+its persisted profile/path state cannot become protected authority.
 
 ## Exit conditions
 

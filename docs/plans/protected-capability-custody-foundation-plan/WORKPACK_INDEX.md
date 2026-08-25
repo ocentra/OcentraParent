@@ -16,9 +16,15 @@ separate: the core/protocol/broker/client production roots are live topology,
 while the protected Windows adapters, production caller, and test roots remain
 expected and missing.
 
+The implementation-only repair route is governed by
+[ADR-PCC-002](adr/ADR-PCC-002.md). It selects one existing Rust Windows
+front-door process with an in-process safe adapter; it does not authorize a
+second helper process, helper protocol, caller-supplied identity, or fake
+authority.
+
 | Status | Workpack | Source boundary | Required proof tier | Open condition |
 | --- | --- | --- | --- | --- |
-| validation / independently reviewed source integrated; adapters/tests open | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Active fail-closed core, neutral protocol, isolated Windows broker, client, and narrow core facade source | P0 security/persistence/platform | Safe pinned process/token and registry ACL owners, non-restorable monotonic authority, installer/SCM enrollment, a real caller, expected tests, proof, and runtime availability remain absent. |
+| validation / implementation-only repair authorized by graph; normal state remains validation | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Active fail-closed core, neutral protocol, isolated Windows broker, client, narrow core facade, plus planned Windows FFI/adapter manifests and targets | P0 security/persistence/platform | Safe pinned process/token and registry ACL owners, non-restorable monotonic authority, installer/SCM enrollment, a real caller, expected tests, proof, and runtime availability remain absent. |
 
 ## Ownership and dependency rules
 
@@ -37,8 +43,22 @@ expected and missing.
 - The broker source is a separate process boundary and its client consumes only
   typed opaque results. Successful protected admission remains disabled until
   the missing OS/installer authority adapters exist.
+- ADR-PCC-002 adds two planned, absent workspace members: the tiny
+  `ocentra-protected-capability-custody-windows-ffi` raw-wrapper module and the
+  safe `ocentra-protected-capability-custody-windows` adapter module. The FFI
+  package is the only package allowed to contain its scoped unsafe Win32/TBS/TPM
+  wrappers; the safe adapter is the only in-process Windows seam used by the
+  broker. Their manifests and `lib` targets are graph obligations, not source
+  presence.
+- The future adapter must verify retained pipe/process/token handles, SID,
+  integrity, session, image/SCM identity, exact registry owner/protected
+  DACL/ACE/ancestor chain, nonce/expiry/replay, and TPM2 NV/TBS monotonic
+  generation. TPM reset, missing/deleted NV index, or enrollment mismatch is
+  fail closed and requires re-pair; disk state cannot restore the generation.
 - Account WP05A is the coordinator consumer. Device Trust WP01 and WP03 are
   owner-participant/ceremony consumers. Their graph edges are implementation
   ordering only; their source, tests, proof, and DONE rows remain open.
+- Browser WP06 is also a blocked downstream consumer; it cannot treat a
+  persisted profile or path record as protected authority.
 - No plan may copy the core's private constructors, mint an opaque handle, or
   replace the broker with an in-process lock/DPAPI/file path.

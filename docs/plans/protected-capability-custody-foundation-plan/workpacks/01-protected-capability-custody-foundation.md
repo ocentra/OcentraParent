@@ -84,6 +84,48 @@ capability, fake success, and no-op adapters are forbidden. The client may
 receive only typed opaque results bound to the authenticated owner, target,
 action, generation, and broker state.
 
+## ADR-PCC-002 implementation-only repair route
+
+The missing source repair is one Windows front-door process: the existing
+`ocentra-protected-capability-custody-broker` links the existing custody core
+and one safe Windows adapter in-process. It does not add a helper process or a
+second protocol. The external seam remains one broker dispatch/open-session
+path; the broker derives identity from authenticated Windows peer observation,
+not from caller fields.
+
+The graph records these absent planned production roots:
+
+```text
+crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml
+crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs
+crates/ocentra-protected-capability-custody-windows/Cargo.toml
+crates/ocentra-protected-capability-custody-windows/src/lib.rs
+```
+
+The FFI module is limited to raw Win32/TBS/TPM calls and owned-handle wrappers.
+Its manifest carries the package-scoped unsafe allowance, denies
+`unsafe_op_in_unsafe_fn`, and retains all other lint denies. The safe adapter
+module consumes only those wrappers and exposes a small opaque interface for
+the broker's existing admission seam. No raw handle, identity constructor,
+attestation, key selector, or capability minting crosses to a caller.
+
+Installer-only immutable enrollment must pre-provision the broker image/SCM
+identity, enrolled client SID/image, protected registry owner and DACL/ACE
+ancestor chain, and TPM2 NV counter/index through an elevated owner/MDM/OEM
+ceremony. The adapter must retain and revalidate pipe/process/token handles,
+SID/integrity/session, image+SCM identity, exact registry custody,
+nonce/expiry/replay, and TPM2 NV/TBS monotonic generation before session or
+custody state is emitted. TPM reset, missing/deleted NV index, TBS failure, or
+enrollment mismatch fails closed and requires re-pair; disk, JSON, SQLite, and
+rollback state cannot restore the generation.
+
+Implementation order is raw owned-handle/TBS/TPM wrappers, safe observation and
+enrollment adapter, in-process broker link at the single seam, installer/SCM
+provisioning, and then a real production caller. The current broker/client
+stubs remain blocked until the replacement exists. This route is implementation
+phase authorization only; normal validation state, tests, proof, PR, merge,
+READY, and DONE remain open.
+
 ## Expected test source
 
 The complete test wave is intentionally deferred until the source packet is
@@ -102,6 +144,7 @@ or create a dependency cycle merely to reach private state.
 | Account WP05A Runtime Effect Fencing Coordinator | implementation dependency | Consumes opaque owner reservation outcomes; does not own broker authority or SQLite custody. |
 | Device Trust WP01 Device Trust Source of Truth | implementation dependency | Consumes neutral protected custody for owner-participant persistence; retains device identity/currentness and signer authority. |
 | Device Trust WP03 Parent Step-Up Auth | implementation dependency | Consumes neutral protected custody for ceremony/participant handoff; retains parent/device authority and ceremony semantics. |
+| Browser WP06 Managed Profile Store | blocked implementation dependency | May consume only future authenticated opaque outcomes; it cannot use persisted JSON/path state as protected authority. |
 
 These are downstream source-order relationships only. They do not make any
 consumer runtime-ready and do not remove their existing Account, Device Trust,
