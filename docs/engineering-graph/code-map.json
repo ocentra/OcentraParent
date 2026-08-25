@@ -2387,7 +2387,13 @@
         "crates/entitlement-core/src/entitlement_access_reasons.rs",
         "crates/entitlement-core/src/entitlement_access_reasons_policy.rs",
         "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_issuer.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_ports.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier.rs",
         "crates/entitlement-core/src/entitlement_snapshot_values.rs",
+        "crates/child-runtime/src/runtime_gate.rs",
         "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs",
         "crates/entitlement-core/tests/unit/capability_access.rs",
         "crates/entitlement-core/tests/unit/capability_gate.rs",
@@ -2395,7 +2401,8 @@
         "crates/schema/tests/contract/billing_entitlement_runtime_proof.rs",
         "packages/schema-domain/src/billing-entitlement-runtime-proof.ts",
         "packages/schema-domain/src/generated-billing-entitlement-runtime-proof.ts"
-      ]
+      ],
+      "note": "Reviewed 2026-08-25 against canonical 643c137dc. The entitlement crate derives an unsigned projection and keeps issuer, verifier, installed-package, and currentness composition crate-private/manual-required; no non-test caller of child-runtime preflight or decision recording was found. The mapped signed_snapshot_delivery.rs file imports removed signed-derivation/context APIs, while schema/TypeScript roots are proof-consumer topology. Expected WP04 assertions, focused tests, proof, CI, PR, READY, and DONE remain open."
     },
     "WP-payment-subscription-plan-05-invoice-tax-refund-dispute": {
       "planSlug": "payment-subscription-plan",
