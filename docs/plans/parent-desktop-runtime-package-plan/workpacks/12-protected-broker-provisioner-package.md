@@ -15,9 +15,11 @@
 ## Purpose
 
 Define the parent-side Windows package boundary for the protected broker and its
-installer-only enrollment/provisioner handoff. This workpack is a routing
-contract for the package mechanics that are currently absent; it is not an
-installer implementation or a substitute for protected-custody authority.
+installer-only enrollment/provisioner handoff. Protected WP01's private
+FFI/core source boundary is accepted at canonical `9375b0e10`, but this
+workpack remains a routing contract for the package mechanics that are absent;
+it is not an installer implementation or a substitute for protected-custody
+authority.
 
 ## Ownership boundary
 
@@ -29,11 +31,12 @@ Parent Client Runtime Distribution owns:
 - install, repair, upgrade, rollback, uninstall, and explicit deprovisioning
   lifecycle outcomes for this parent artifact.
 
-Protected Capability Custody WP01 owns the private core/FFI Windows adapter,
-enrollment provenance, exact registry/SCM/peer validation, TPM policy and
-non-exportable-handle validation, and opaque admission/transcript outcomes.
-The package may invoke an approved owner-side provisioner, but it may not mint,
-parse, transport, or expose protected authority.
+Protected Capability Custody WP01 owns authority creation, the private core/FFI
+Windows adapter, enrollment format/provenance, exact registry/SCM/peer
+validation, TPM policy and non-exportable-handle validation, and opaque
+admission/transcript outcomes. The package may invoke the fixed owner-approved
+provisioner, but it may not mint, parse, transport, or expose protected
+authority.
 
 Setup owns the user-facing setup journey and readiness state. The child-agent
 distribution plan owns child MSI/package lifecycle. Existing child-agent WiX,
@@ -49,11 +52,20 @@ scripts/release/windows/parent-protected-custody.wxs
 scripts/release/windows/build-parent-protected-custody-package.ps1
 ```
 
-The directory is the ownership boundary for the future custom action,
-installer-only provisioner invocation, package lifecycle/build helpers, and
-upgrade/rollback/uninstall coordination. Generated MSI, checksum, and signing
-outputs belong under `target/release-packages/`; they are release artifacts,
-not committed source. The existing child-agent
+The BIN-only provisioner source is owned and mapped by Protected WP01. WP12
+does not own its Cargo manifest, `src/main.rs`, or private
+`src/provisioning/` directory; it invokes and packages the fixed owner-approved
+binary. It has no `src/lib.rs` and no public API. Its operation is fixed by the
+Protected/package owner and may depend on the Windows FFI only as the approved
+second consumer alongside the protected core. The provisioner does not accept
+a caller/MSI-provided path, TPM index or policy, `authValue`, SID, image
+identity, generation, lease, capability, or success assertion.
+
+The parent package scripts directory is the ownership boundary for the future
+custom action, installer-only binary invocation, package lifecycle/build
+helpers, and upgrade/rollback/uninstall coordination. Generated MSI, checksum,
+and signing outputs belong under `target/release-packages/`; they are release
+artifacts, not committed source. The existing child-agent
 `scripts/release/windows/OcentraParentAgent.wxs` and its build script remain
 outside this workpack.
 
@@ -61,6 +73,9 @@ outside this workpack.
 
 - Provisioning runs only from an elevated, installer-owned install/repair or
   explicitly owner-approved deprovisioning context.
+- The BIN-only provisioner performs one fixed installer-owned operation through
+  private `src/provisioning/` modules; it does not expose a library, public
+  callable API, or general-purpose FFI wrapper to broker/client/other callers.
 - No untrusted MSI property, command-line argument, setup field, environment
   value, or parent caller may supply an `authValue`, TPM index, TPM policy, SID,
   path, image identity, SCM identity, generation, lease, capability, or success

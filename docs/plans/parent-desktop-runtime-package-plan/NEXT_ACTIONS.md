@@ -39,17 +39,27 @@
   `scripts/release/windows/parent-protected-custody/`, with the manifest at
   `scripts/release/windows/parent-protected-custody.wxs` and the package build
   entry at `scripts/release/windows/build-parent-protected-custody-package.ps1`.
+- [ ] Invoke and package Protected WP01's owner-approved BIN-only provisioner
+  binary. The Cargo manifest, `src/main.rs`, and private `src/provisioning/`
+  source are WP01-owned; WP12 owns no library/public API and accepts no
+  caller/MSI-provided path, TPM index/policy, `authValue`, identity, generation,
+  lease, capability, or success input.
 - [ ] Consume Protected WP01's private core/FFI enrollment contract without
   exposing or accepting raw `authValue`, TPM index/policy, SID, path, image,
   generation, lease, capability, or caller-supplied success.
+- [ ] Keep Protected WP01 as the sole owner of the provisioner source,
+  authority creation, TPM policy, enrollment format, and non-exportable-handle
+  acceptance; WP12 owns only binary invocation and
+  install/repair/upgrade/rollback/uninstall lifecycle.
 - [ ] Define real install/repair/upgrade/rollback/uninstall and explicit
   deprovisioning outcomes; preserve TPM generation and fail closed on missing
   or contradictory enrollment.
 - [ ] Add the package/lifecycle tests and retained proof under the WP12 roots;
   no package success, signing/checksum, or service registration may claim
   protected authority or runtime readiness.
-- [ ] Keep WP12 blocked until Protected WP01's owner boundary, the real package
-  implementation, expected tests, focused execution, and proof are accepted.
+- [ ] Keep WP12 blocked until the accepted Protected WP01 owner boundary is
+  consumed by real package invocation/lifecycle implementation, expected
+  tests, focused execution, and proof.
 
 ## WP01 closeout
 
