@@ -6,3 +6,5 @@ pub(crate) mod auth;
 pub(crate) mod handles;
 #[path = "tpm_codec_policy.rs"]
 pub(crate) mod policy;
+#[path = "tpm_codec_signer.rs"]
+pub(crate) mod signer;

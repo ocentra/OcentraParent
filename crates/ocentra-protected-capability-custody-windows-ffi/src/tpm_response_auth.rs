@@ -1,29 +1,25 @@
-//! Strict TPM2 response authorization-area validation.
+//! Strict single-session response authorization decoding.
 
+use super::super::codec_types::auth::SecretNonce;
 use super::super::cursor::SliceCursor;
-use crate::{Error, Result, MAX_BUFFER_BYTES};
+use crate::tpm::TPM_SESSION_CONTINUE;
+use crate::{Error, Result};
 
-const MAX_RESPONSE_SESSIONS: usize = 3;
-const MAX_NONCE_BYTES: usize = 64;
-const MAX_HMAC_BYTES: usize = 64;
+pub(crate) struct ResponseAuthorization {
+    pub(crate) nonce_tpm: SecretNonce,
+    pub(crate) attributes: u8,
+}
 
-pub(super) fn validate(bytes: &[u8]) -> Result<()> {
-    if bytes.is_empty() || bytes.len() > MAX_BUFFER_BYTES {
+pub(super) fn decode_exactly_one(bytes: &[u8]) -> Result<ResponseAuthorization> {
+    let mut cursor = SliceCursor::new(bytes);
+    let nonce_tpm = SecretNonce::from_tpm(cursor.take_tpm2b()?)?;
+    let attributes = cursor.take_u8()?;
+    let hmac = cursor.take_tpm2b()?;
+    if !cursor.is_empty() || attributes & !TPM_SESSION_CONTINUE != 0 || !hmac.is_empty() {
         return Err(Error::MalformedTpm);
     }
-    let mut cursor = SliceCursor::new(bytes);
-    let mut session_count = 0usize;
-    while !cursor.is_empty() {
-        session_count = session_count.checked_add(1).ok_or(Error::BufferTooLarge)?;
-        if session_count > MAX_RESPONSE_SESSIONS {
-            return Err(Error::MalformedTpm);
-        }
-        let nonce = cursor.take_tpm2b()?;
-        let attributes = cursor.take_u8()?;
-        let hmac = cursor.take_tpm2b()?;
-        if nonce.len() > MAX_NONCE_BYTES || hmac.len() > MAX_HMAC_BYTES || attributes & 0x18 != 0 {
-            return Err(Error::MalformedTpm);
-        }
-    }
-    Ok(())
+    Ok(ResponseAuthorization {
+        nonce_tpm,
+        attributes,
+    })
 }

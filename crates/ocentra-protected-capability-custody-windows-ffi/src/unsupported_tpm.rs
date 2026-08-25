@@ -17,7 +17,7 @@ impl OwnedTbsContext {
         Err(Error::UnsupportedPlatform)
     }
 
-    pub fn observe_nv_public(&self, _index: u32) -> Result<TpmNvPublicObservation> {
+    pub fn observe_fixed_counter_public(&self) -> Result<TpmNvPublicObservation> {
         Err(Error::UnsupportedPlatform)
     }
 }

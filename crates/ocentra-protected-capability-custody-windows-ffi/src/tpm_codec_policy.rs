@@ -1,170 +1,86 @@
-//! Private policy, NV-public, and transient-object codec inputs.
+//! Fixed policy and NV-public digest mechanics.
 
 use super::auth::Sha256Digest;
-use super::handles::{NonNullHandle, NvIndex};
-use crate::{Error, InputFault, Result};
+use super::handles::FixedNvOperation;
+use super::signer::TpmPolicySignerPublic;
+use crate::tpm::{
+    TPM_CC_POLICY_COMMAND_CODE, TPM_CC_POLICY_OR, TPM_CC_POLICY_SIGNED, TPM_MAX_POLICY_OR_DIGESTS,
+};
 
-const MAX_POLICY_SIGNATURE_BYTES: usize = 4096;
+const POLICY_REF: [u8; 25] = [
+    111, 99, 101, 110, 116, 114, 97, 46, 112, 99, 99, 46, 110, 118, 45, 99, 111, 117, 110, 116,
+    101, 114, 46, 118, 49,
+];
+const POLICY_EXPIRATION: i32 = 0;
 
-#[derive(Debug, Eq, PartialEq)]
-pub(crate) struct NvPublicDefinition {
-    pub(crate) index: NvIndex,
-    pub(crate) attributes: u32,
-    pub(crate) auth_policy: Sha256Digest,
-    pub(crate) data_size: u16,
+pub(crate) struct FixedPolicyProfile {
+    read_branch: Sha256Digest,
+    increment_branch: Sha256Digest,
+    counter_policy: Sha256Digest,
 }
 
-impl NvPublicDefinition {
-    pub(crate) fn from_enrollment(
-        index: NvIndex,
-        attributes: u32,
-        auth_policy: Sha256Digest,
-        data_size: u16,
-    ) -> Result<Self> {
-        if attributes == 0 || data_size == 0 {
-            return Err(Error::InvalidInput(InputFault::TpmCommandShapeInvalid));
-        }
-        Ok(Self {
-            index,
-            attributes,
-            auth_policy,
-            data_size,
-        })
-    }
-}
-
-#[derive(Debug, Eq, PartialEq)]
-pub(crate) struct ExternalObject {
-    sensitive: Vec<u8>,
-    public: Vec<u8>,
-}
-
-impl ExternalObject {
-    pub(crate) fn from_tpm2b_fields(sensitive: &[u8], public: &[u8]) -> Result<Self> {
-        if public.is_empty()
-            || sensitive.len() > u16::MAX as usize
-            || public.len() > u16::MAX as usize
-        {
-            return Err(Error::InvalidInput(InputFault::TpmCommandShapeInvalid));
-        }
-        Ok(Self {
-            sensitive: sensitive.to_vec(),
-            public: public.to_vec(),
-        })
-    }
-
-    pub(crate) fn sensitive(&self) -> &[u8] {
-        &self.sensitive
-    }
-
-    pub(crate) fn public(&self) -> &[u8] {
-        &self.public
-    }
-}
-
-#[derive(Debug, Eq, PartialEq)]
-pub(crate) struct PolicySignature(Vec<u8>);
-
-impl PolicySignature {
-    pub(crate) fn from_verified_signature(bytes: &[u8]) -> Result<Self> {
-        if bytes.is_empty()
-            || bytes.len() > MAX_POLICY_SIGNATURE_BYTES
-            || !is_sha256_signature(bytes)
-        {
-            return Err(Error::InvalidInput(InputFault::TpmCommandShapeInvalid));
-        }
-        Ok(Self(bytes.to_vec()))
-    }
-
-    pub(crate) fn as_bytes(&self) -> &[u8] {
-        &self.0
-    }
-}
-
-#[derive(Debug, Eq, PartialEq)]
-pub(crate) struct PolicyOrDigests(Vec<Sha256Digest>);
-
-impl PolicyOrDigests {
-    pub(crate) fn from_enrollment(digests: Vec<Sha256Digest>) -> Result<Self> {
-        if !(2..=super::super::TPM_MAX_POLICY_OR_DIGESTS).contains(&digests.len()) {
-            return Err(Error::InvalidInput(InputFault::TpmCommandShapeInvalid));
-        }
-        Ok(Self(digests))
-    }
-
-    pub(crate) fn iter(&self) -> impl Iterator<Item = &Sha256Digest> {
-        self.0.iter()
-    }
-
-    pub(crate) fn len(&self) -> usize {
-        self.0.len()
-    }
-}
-
-#[derive(Debug, Eq, PartialEq)]
-pub(crate) struct PolicySessionStart {
-    pub(crate) tpm_key: NonNullHandle,
-    pub(crate) bind: NonNullHandle,
-    pub(crate) nonce_caller: super::auth::Nonce,
-}
-
-impl PolicySessionStart {
-    pub(crate) fn from_enrollment(
-        tpm_key: NonNullHandle,
-        bind: NonNullHandle,
-        nonce_caller: super::auth::Nonce,
-    ) -> Self {
+impl FixedPolicyProfile {
+    pub(crate) fn for_signer(signer: &TpmPolicySignerPublic) -> Self {
+        let signed = signed_policy_digest(signer.name());
+        let read_branch = command_policy_digest(signed, FixedNvOperation::Read);
+        let increment_branch = command_policy_digest(signed, FixedNvOperation::Increment);
+        let counter_policy = or_policy_digest(&[read_branch, increment_branch]);
         Self {
-            tpm_key,
-            bind,
-            nonce_caller,
+            read_branch,
+            increment_branch,
+            counter_policy,
         }
+    }
+
+    pub(crate) fn policy_ref(&self) -> &'static [u8] {
+        &POLICY_REF
+    }
+
+    pub(crate) fn expiration(&self) -> i32 {
+        POLICY_EXPIRATION
+    }
+
+    pub(crate) fn counter_policy(&self) -> &Sha256Digest {
+        &self.counter_policy
+    }
+
+    pub(crate) fn branches(&self) -> [&Sha256Digest; 2] {
+        [&self.read_branch, &self.increment_branch]
     }
 }
 
-fn is_sha256_signature(bytes: &[u8]) -> bool {
-    let mut cursor = 0usize;
-    let Ok(algorithm) = take_u16(bytes, &mut cursor) else {
-        return false;
-    };
-    let result = match algorithm {
-        0x0014 | 0x0016 => {
-            let Ok(hash) = take_u16(bytes, &mut cursor) else {
-                return false;
-            };
-            hash == super::super::TPM_ALG_SHA256
-                && take_tpm2b(bytes, &mut cursor).is_ok_and(|value| !value.is_empty())
-        }
-        0x0018 | 0x001a | 0x001b | 0x001c => {
-            let Ok(hash) = take_u16(bytes, &mut cursor) else {
-                return false;
-            };
-            hash == super::super::TPM_ALG_SHA256
-                && take_tpm2b(bytes, &mut cursor).is_ok_and(|value| !value.is_empty())
-                && take_tpm2b(bytes, &mut cursor).is_ok_and(|value| !value.is_empty())
-        }
-        _ => false,
-    };
-    result && cursor == bytes.len()
+impl TpmPolicySignerPublic {
+    /// The exact policy digest provisioned on the fixed NV counter.
+    pub fn fixed_counter_policy_digest(&self) -> [u8; 32] {
+        *FixedPolicyProfile::for_signer(self)
+            .counter_policy()
+            .as_bytes()
+    }
 }
 
-fn take_u16(bytes: &[u8], cursor: &mut usize) -> Result<u16> {
-    let end = cursor.checked_add(2).ok_or(Error::MalformedTpm)?;
-    if end > bytes.len() {
-        return Err(Error::MalformedTpm);
-    }
-    let value = u16::from_be_bytes([bytes[*cursor], bytes[*cursor + 1]]);
-    *cursor = end;
-    Ok(value)
+fn signed_policy_digest(signer_name: &[u8]) -> Sha256Digest {
+    let zero = [0u8; 32];
+    let name_update =
+        Sha256Digest::hash(&[&zero, &TPM_CC_POLICY_SIGNED.to_be_bytes(), signer_name]);
+    Sha256Digest::hash(&[name_update.as_bytes(), &POLICY_REF])
 }
 
-fn take_tpm2b<'a>(bytes: &'a [u8], cursor: &mut usize) -> Result<&'a [u8]> {
-    let length = usize::from(take_u16(bytes, cursor)?);
-    let end = cursor.checked_add(length).ok_or(Error::MalformedTpm)?;
-    if end > bytes.len() {
-        return Err(Error::MalformedTpm);
+fn command_policy_digest(previous: Sha256Digest, operation: FixedNvOperation) -> Sha256Digest {
+    Sha256Digest::hash(&[
+        previous.as_bytes(),
+        &TPM_CC_POLICY_COMMAND_CODE.to_be_bytes(),
+        &operation.command_code().to_be_bytes(),
+    ])
+}
+
+fn or_policy_digest(branches: &[Sha256Digest]) -> Sha256Digest {
+    debug_assert!(branches.len() <= TPM_MAX_POLICY_OR_DIGESTS);
+    let zero = [0u8; 32];
+    let mut input = Vec::with_capacity(36 + branches.len() * 32);
+    input.extend_from_slice(&zero);
+    input.extend_from_slice(&TPM_CC_POLICY_OR.to_be_bytes());
+    for digest in branches {
+        input.extend_from_slice(digest.as_bytes());
     }
-    let value = &bytes[*cursor..end];
-    *cursor = end;
-    Ok(value)
+    Sha256Digest::hash(&[&input])
 }

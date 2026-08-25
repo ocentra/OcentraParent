@@ -1,7 +1,6 @@
 //! Strict TPM2 command encoders and command-shape helpers.
 
-use super::codec_types::handles::NvIndex;
-use super::{TPM_CC_NV_READ_PUBLIC, TPM_HEADER_BYTES, TPM_ST_NO_SESSIONS};
+use super::{FIXED_COUNTER_INDEX, TPM_CC_NV_READ_PUBLIC, TPM_HEADER_BYTES, TPM_ST_NO_SESSIONS};
 use crate::{Error, InputFault, Result, MAX_BUFFER_BYTES};
 
 #[path = "tpm_command_nv.rs"]
@@ -10,10 +9,9 @@ pub(crate) mod nv;
 pub(crate) mod policy;
 
 /// Encode the no-session public-area observation used during admission.
-pub(crate) fn encode_nv_read_public(index: u32) -> Result<Vec<u8>> {
-    let index = NvIndex::from_enrollment(index)?;
+pub(crate) fn encode_nv_read_public() -> Result<Vec<u8>> {
     let mut command = header(TPM_ST_NO_SESSIONS, TPM_CC_NV_READ_PUBLIC, 4)?;
-    push_u32(&mut command, index.raw());
+    push_u32(&mut command, FIXED_COUNTER_INDEX);
     finish(command)
 }
 

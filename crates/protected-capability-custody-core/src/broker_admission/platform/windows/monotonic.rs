@@ -12,11 +12,11 @@ pub(super) fn preflight(enrollment: &VerifiedEnrollment) -> Result<(), PlatformE
     let context = OwnedTbsContext::open().map_err(map_ffi_error)?;
     let expected = enrollment.tpm();
     let first = context
-        .observe_nv_public(expected.index())
+        .observe_fixed_counter_public()
         .map_err(map_ffi_error)?;
     expected.verify(&first)?;
     let second = context
-        .observe_nv_public(expected.index())
+        .observe_fixed_counter_public()
         .map_err(map_ffi_error)?;
     if first != second {
         return Err(PlatformError::Tampered);

@@ -34,10 +34,6 @@ pub(super) struct EnrollmentRecord {
 }
 
 impl TpmPublicEnrollment {
-    pub(super) fn index(&self) -> u32 {
-        self.index
-    }
-
     pub(super) fn verify(&self, observed: &TpmNvPublicObservation) -> Result<(), PlatformError> {
         let expected_name = tpm_name(observed);
         if observed.nv_index() != self.index

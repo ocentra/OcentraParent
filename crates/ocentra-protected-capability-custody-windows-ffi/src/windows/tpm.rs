@@ -4,6 +4,9 @@ use super::handles::TbsContextInner;
 use crate::tpm;
 use crate::{Error, InputFault, OwnedTbsContext, Result, TpmNvPublicObservation, MAX_BUFFER_BYTES};
 use std::ptr;
+use windows_sys::Win32::Security::Cryptography::{
+    BCryptGenRandom, BCRYPT_USE_SYSTEM_PREFERRED_RNG,
+};
 use windows_sys::Win32::System::TpmBaseServices::{
     Tbsi_Context_Create, Tbsi_Is_Tpm_Present, Tbsip_Submit_Command, TBS_COMMAND_LOCALITY_ZERO,
     TBS_COMMAND_PRIORITY_NORMAL, TBS_CONTEXT_PARAMS, TBS_CONTEXT_PARAMS2, TBS_CONTEXT_PARAMS2_0,
@@ -69,12 +72,26 @@ impl OwnedTbsContext {
         Ok(output)
     }
 
-    pub fn observe_nv_public(&self, index: u32) -> Result<TpmNvPublicObservation> {
-        if index == 0 {
-            return Err(Error::InvalidInput(InputFault::TpmNvIndexInvalid));
+    pub fn observe_fixed_counter_public(&self) -> Result<TpmNvPublicObservation> {
+        let response = self.submit(&tpm::command::encode_nv_read_public()?)?;
+        tpm::response::decode_nv_read_public(&response, tpm::FIXED_COUNTER_INDEX)
+    }
+
+    pub(crate) fn random_nonce(&self) -> Result<[u8; crate::tpm::TPM_SHA256_BYTES]> {
+        let mut nonce = [0u8; crate::tpm::TPM_SHA256_BYTES];
+        let status = unsafe {
+            BCryptGenRandom(
+                ptr::null_mut(),
+                nonce.as_mut_ptr(),
+                u32::try_from(nonce.len())?,
+                BCRYPT_USE_SYSTEM_PREFERRED_RNG,
+            )
+        };
+        if status != 0 {
+            crate::tpm::codec_types::auth::clear_bytes(&mut nonce);
+            return Err(Error::Win32(status as u32));
         }
-        let response = self.submit(&tpm::command::encode_nv_read_public(index)?)?;
-        tpm::response::decode_nv_read_public(&response, index)
+        Ok(nonce)
     }
 }
 
@@ -85,12 +102,9 @@ fn validate_tpm_command(command: &[u8]) -> Result<()> {
     let command_code = u32::from_be_bytes([command[6], command[7], command[8], command[9]]);
     let supported = matches!(
         command_code,
-        crate::tpm::TPM_CC_NV_UNDEFINE_SPACE
-            | crate::tpm::TPM_CC_NV_DEFINE_SPACE
-            | crate::tpm::TPM_CC_NV_INCREMENT
+        crate::tpm::TPM_CC_NV_INCREMENT
             | crate::tpm::TPM_CC_NV_READ
             | crate::tpm::TPM_CC_POLICY_SIGNED
-            | crate::tpm::TPM_CC_POLICY_CPHASH
             | crate::tpm::TPM_CC_LOAD_EXTERNAL
             | crate::tpm::TPM_CC_NV_READ_PUBLIC
             | crate::tpm::TPM_CC_POLICY_COMMAND_CODE

@@ -5,8 +5,9 @@
 //! comparisons, persistence, transcript construction, and authority remain
 //! in the private core adapter.  In particular, no public API accepts caller
 //! attestation or returns a raw Windows handle.
-//! This package is non-publishable and its only permitted workspace consumer
-//! is that private core adapter; it is not a general platform utility.
+//! This package is non-publishable. Its only permitted workspace consumers
+//! are the private core adapter and the exact elevated provisioning binary;
+//! it is not a general platform utility.
 
 #![deny(unsafe_op_in_unsafe_fn)]
 
@@ -245,3 +246,41 @@ pub type OwnedService = owned_types::OwnedService;
 
 /// A TBS context retained for bounded TPM2 NV mechanics.
 pub type OwnedTbsContext = owned_types::OwnedTbsContext;
+
+/// Strict RSA-3072/PSS-SHA256 public material for the fixed TPM policy signer.
+#[cfg(windows)]
+pub type TpmPolicySignerPublic = tpm::codec_types::signer::TpmPolicySignerPublic;
+
+/// One fixed-width PCP signature accepted by the prepared TPM policy flow.
+#[cfg(windows)]
+pub type TpmPolicySignature = tpm::codec_types::signer::TpmPolicySignature;
+
+/// A one-use TPM counter read awaiting the enrolled PCP signature.
+#[cfg(windows)]
+pub type PreparedTpmCounterRead<'a> = tpm::session::facade::PreparedTpmCounterRead<'a>;
+
+/// A one-use TPM counter increment awaiting the enrolled PCP signature.
+#[cfg(windows)]
+pub type PreparedTpmCounterIncrement<'a> = tpm::session::facade::PreparedTpmCounterIncrement<'a>;
+
+/// Result of a fixed TPM NV counter increment after the command crossed TBS.
+///
+/// `Uncertain` is not a retry signal. The caller must start a fresh signed
+/// fixed-counter read and reconcile it against its previously observed value;
+/// blindly repeating the increment could advance the counter twice.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TpmCounterIncrementOutcome {
+    /// A strict success response proved that the TPM accepted the increment.
+    Committed,
+    /// TBS did not return a response whose success or failure could be proved.
+    Uncertain(TpmCounterIncrementUncertainty),
+}
+
+/// Why an increment result needs reconciliation through a new signed read.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TpmCounterIncrementUncertainty {
+    /// The TBS submission boundary did not return a TPM response.
+    Transport,
+    /// A response arrived but its success framing or authorization was invalid.
+    MalformedResponse,
+}
