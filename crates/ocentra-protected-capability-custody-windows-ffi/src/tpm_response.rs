@@ -5,6 +5,11 @@ use super::TPM_ST_NO_SESSIONS;
 use crate::{Error, Result, TpmNvPublicObservation};
 use sha2::{Digest, Sha256};
 
+#[path = "tpm_response_auth.rs"]
+pub(crate) mod auth;
+#[path = "tpm_response_sessions.rs"]
+pub(crate) mod sessions;
+
 /// Decode a strict TPM2 `NV_ReadPublic` response.
 pub(crate) fn decode_nv_read_public(
     response: &[u8],
@@ -36,7 +41,6 @@ pub(crate) fn decode_nv_read_public(
         name: name.to_vec(),
     })
 }
-
 fn verify_nv_name(public: &[u8], name: &[u8], name_algorithm: u16) -> Result<()> {
     const TPM_ALG_SHA256: u16 = 0x000b;
     const SHA256_BYTES: usize = 32;

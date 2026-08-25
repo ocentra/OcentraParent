@@ -62,7 +62,7 @@ impl OwnedTbsContext {
             return Err(Error::Tpm(status));
         }
         let output_length = usize::try_from(output_length)?;
-        if output_length > output.len() {
+        if output_length < 10 || output_length > output.len() {
             return Err(Error::BufferTooLarge);
         }
         output.truncate(output_length);
@@ -82,7 +82,26 @@ fn validate_tpm_command(command: &[u8]) -> Result<()> {
     let declared_size =
         u32::from_be_bytes([command[2], command[3], command[4], command[5]]) as usize;
     let tag = u16::from_be_bytes([command[0], command[1]]);
-    if declared_size != command.len() || (tag != 0x8001 && tag != 0x8002) {
+    let command_code = u32::from_be_bytes([command[6], command[7], command[8], command[9]]);
+    let supported = matches!(
+        command_code,
+        crate::tpm::TPM_CC_NV_UNDEFINE_SPACE
+            | crate::tpm::TPM_CC_NV_DEFINE_SPACE
+            | crate::tpm::TPM_CC_NV_INCREMENT
+            | crate::tpm::TPM_CC_NV_READ
+            | crate::tpm::TPM_CC_POLICY_SIGNED
+            | crate::tpm::TPM_CC_POLICY_CPHASH
+            | crate::tpm::TPM_CC_LOAD_EXTERNAL
+            | crate::tpm::TPM_CC_NV_READ_PUBLIC
+            | crate::tpm::TPM_CC_POLICY_COMMAND_CODE
+            | crate::tpm::TPM_CC_POLICY_OR
+            | crate::tpm::TPM_CC_START_AUTH_SESSION
+            | crate::tpm::TPM_CC_FLUSH_CONTEXT
+    );
+    if declared_size != command.len()
+        || (tag != crate::tpm::TPM_ST_NO_SESSIONS && tag != crate::tpm::TPM_ST_SESSIONS)
+        || !supported
+    {
         return Err(Error::MalformedTpm);
     }
     Ok(())

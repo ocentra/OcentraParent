@@ -1,26 +1,47 @@
-//! Bounded TPM2 command encoders.
+//! Strict TPM2 command encoders and command-shape helpers.
 
+use super::codec_types::handles::NvIndex;
 use super::{TPM_CC_NV_READ_PUBLIC, TPM_HEADER_BYTES, TPM_ST_NO_SESSIONS};
-use crate::{Error, InputFault, Result};
+use crate::{Error, InputFault, Result, MAX_BUFFER_BYTES};
 
-/// Encode a no-session TPM2 `NV_ReadPublic` command.
+#[path = "tpm_command_nv.rs"]
+pub(crate) mod nv;
+#[path = "tpm_command_policy.rs"]
+pub(crate) mod policy;
+
+/// Encode the no-session public-area observation used during admission.
 pub(crate) fn encode_nv_read_public(index: u32) -> Result<Vec<u8>> {
-    if index == 0 {
-        return Err(Error::InvalidInput(InputFault::TpmNvIndexInvalid));
-    }
+    let index = NvIndex::from_enrollment(index)?;
     let mut command = header(TPM_ST_NO_SESSIONS, TPM_CC_NV_READ_PUBLIC, 4)?;
-    push_u32(&mut command, index);
-    Ok(command)
+    push_u32(&mut command, index.raw());
+    finish(command)
 }
 
-fn header(tag: u16, command_code: u32, body_bytes: usize) -> Result<Vec<u8>> {
-    header_with_tag(tag, command_code, body_bytes)
+pub(super) fn validate_tpm2b_input(bytes: &[u8]) -> Result<()> {
+    if bytes.len() > u16::MAX as usize || bytes.len() > MAX_BUFFER_BYTES {
+        return Err(Error::InvalidInput(InputFault::TpmCommandShapeInvalid));
+    }
+    Ok(())
 }
 
-fn header_with_tag(tag: u16, command_code: u32, body_bytes: usize) -> Result<Vec<u8>> {
+pub(super) fn push_tpm2b(output: &mut Vec<u8>, bytes: &[u8]) -> Result<()> {
+    validate_tpm2b_input(bytes)?;
+    push_u16(output, u16::try_from(bytes.len())?);
+    output.extend_from_slice(bytes);
+    Ok(())
+}
+
+pub(super) fn checked_u32_len(length: usize) -> Result<u32> {
+    Ok(u32::try_from(length)?)
+}
+
+pub(super) fn header(tag: u16, command_code: u32, body_bytes: usize) -> Result<Vec<u8>> {
     let size = TPM_HEADER_BYTES
         .checked_add(body_bytes)
         .ok_or(Error::BufferTooLarge)?;
+    if size > MAX_BUFFER_BYTES {
+        return Err(Error::BufferTooLarge);
+    }
     let size = u32::try_from(size)?;
     let mut command = Vec::with_capacity(size as usize);
     push_u16(&mut command, tag);
@@ -29,10 +50,25 @@ fn header_with_tag(tag: u16, command_code: u32, body_bytes: usize) -> Result<Vec
     Ok(command)
 }
 
-fn push_u16(output: &mut Vec<u8>, value: u16) {
+pub(super) fn finish(command: Vec<u8>) -> Result<Vec<u8>> {
+    if command.len() < TPM_HEADER_BYTES {
+        return Err(Error::MalformedTpm);
+    }
+    let declared = u32::from_be_bytes([command[2], command[3], command[4], command[5]]) as usize;
+    if declared != command.len() || declared > MAX_BUFFER_BYTES {
+        return Err(Error::MalformedTpm);
+    }
+    Ok(command)
+}
+
+pub(super) fn push_u16(output: &mut Vec<u8>, value: u16) {
     output.extend_from_slice(&value.to_be_bytes());
 }
 
-fn push_u32(output: &mut Vec<u8>, value: u32) {
+pub(super) fn push_i32(output: &mut Vec<u8>, value: i32) {
+    output.extend_from_slice(&value.to_be_bytes());
+}
+
+pub(super) fn push_u32(output: &mut Vec<u8>, value: u32) {
     output.extend_from_slice(&value.to_be_bytes());
 }

@@ -58,6 +58,25 @@ impl<'a> ResponseCursor<'a> {
         self.take(length)
     }
 
+    pub(super) fn take_u8(&mut self) -> Result<u8> {
+        Ok(self.take(1)?[0])
+    }
+
+    pub(super) fn take_u32(&mut self) -> Result<u32> {
+        let bytes = self.take(4)?;
+        Ok(u32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]))
+    }
+
+    pub(super) fn take_remaining(&mut self) -> &'a [u8] {
+        let value = &self.bytes[self.position..];
+        self.position = self.bytes.len();
+        value
+    }
+
+    pub(super) fn remaining_len(&self) -> usize {
+        self.bytes.len() - self.position
+    }
+
     pub(super) fn take_u16(&mut self) -> Result<u16> {
         let bytes = self.take(2)?;
         Ok(u16::from_be_bytes([bytes[0], bytes[1]]))
@@ -99,6 +118,10 @@ impl<'a> SliceCursor<'a> {
     pub(super) fn take_u32(&mut self) -> Result<u32> {
         let bytes = self.take(4)?;
         Ok(u32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]))
+    }
+
+    pub(super) fn take_u8(&mut self) -> Result<u8> {
+        Ok(self.take(1)?[0])
     }
 
     pub(super) fn take_tpm2b(&mut self) -> Result<&'a [u8]> {
