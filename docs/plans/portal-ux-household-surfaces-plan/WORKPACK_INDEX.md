@@ -23,7 +23,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | checked | [10 LAN Pairing State Consumption](workpacks/10-lan-pairing-state-consumption.md)                     | 3,257 | 11/11 checked; 0 open |
 | checked | [01 Service-Backed Shell And Navigation](workpacks/01-service-backed-shell-and-navigation.md)         | 5,408 | 8/8 checked; 0 open   |
 | checked | [02 Household First-Run And Profiles](workpacks/02-household-first-run-and-profiles.md)               | 5,470 | 8/8 checked; 0 open   |
-| checked | [03 Device Inventory And Source States](workpacks/03-device-inventory-and-source-states.md)           | 3,254 | 5/5 checked; 0 open   |
+| source accepted / validation open | [03 Device Inventory And Source States](workpacks/03-device-inventory-and-source-states.md) | 4,685 | 5/5 checked; focused projection test and proof open |
 | checked | [04 Selected Device Context](workpacks/04-selected-device-context.md)                                 | 1,027 | 5/5 checked; 0 open   |
 | open    | [05 Policy Authoring Control Center](workpacks/05-policy-authoring-control-center.md)                 | 3,935 | 0/5 checked; 5 open   |
 | open    | [06 Schedules, Time Budgets, And Templates](workpacks/06-schedules-time-budgets-and-templates.md)     | 1,071 | 0/5 checked; 5 open   |

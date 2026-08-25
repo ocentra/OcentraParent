@@ -24103,17 +24103,28 @@
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
-        "statusText": "checked",
+        "statusText": "source accepted / validation open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Canonical b6d8d12ea includes the accepted Portal WP03 source commits aa5f4579e and adba0c9c1. The bounded activity-ui-intent.ts projection now preserves revoked state when either the incoming row or the matched existing slot is revoked, including the later selected preferState update; a true identity/slot change remains separate. This records implementation-phase source evidence only. The focused projection test, service-backed validation record, proof root, checklist evidence, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/portal-ux-household-surfaces-plan/PLAN_STATE.md",
+            "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/portal-ux-household-surfaces-plan/workpacks/03-device-inventory-and-source-states.md"
+            "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts"
           ],
           "tests": [
             "docs/plans/portal-ux-household-surfaces-plan/TEST_PROOF_EXPECTATIONS.md"

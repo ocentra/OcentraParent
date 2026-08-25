@@ -102,7 +102,7 @@ owners or deferred validation/proof, not a missing portal-only substitute.
 | --- | --- | --- |
 | WP01 | Shell/navigation is shipped through `ParentPortalRoute` and Rust `parent_ui_bridge` snapshots via Tauri/dev-web bridge. | Runtime composition/auth/session authority and full service-backed route validation remain open. |
 | WP02 | First-run/profile panel consumes a Rust route snapshot, with explicit unavailable wording when live state is absent. | No live account/setup/trust source is supplied by the portal; onboarding truth remains sibling-owned. |
-| WP03 | Device inventory/source panels consume Rust parent-runtime LAN/read-model snapshots. | Physical/provider pairing, freshness, and device-authority validation remain open; UI cannot promote LAN evidence. |
+| WP03 | Device inventory/source panels consume Rust parent-runtime LAN/read-model snapshots; canonical `b6d8d12ea` includes the accepted `activity-ui-intent.ts` absorbing-revocation projection fix. | Focused projection coverage for both revocation update directions and true identity/slot changes, the named proof root, and physical/provider pairing, freshness, and device-authority validation remain open; UI cannot promote LAN evidence. |
 | WP04 | Selected-device context is held by typed portal state and route context. | Selection is not device authority and has no portal-owned mutation path. |
 | WP05 | `PolicyPreviewRoutePanel` stages/cancels/requests confirmation through typed actions; Rust `parent_ui_bridge/policy_preview/authoring.rs` validates and creates the typed command from the staged trusted preview. | Downstream policy mutation, co-parent authZ, rollback, unsupported targets, delivery, and enforcement remain open; this existing bounded path needs no duplicate portal seam. |
 | WP06 | Schedule route/nav entries exist. | No real schedule/time-budget read model or action reaches the shipped portal. |
@@ -121,11 +121,19 @@ owners or deferred validation/proof, not a missing portal-only substitute.
 | WP19 | No production source. | Documentation/checklist synchronization only. |
 | WP20 | No production source. | Manual user review only. |
 
-The graph validator still reports checked-in graph/source drift with the same
-703-node count but differing source-derived content; this audit did not
-bootstrap or edit graph JSON. Existing WP01-WP04/WP10 shell and LAN slices are
-source-present but validation-only, and WP05 is a bounded fail-closed seam—not
-portal proof of policy application or enforcement.
+The 2026-08-16 audit above predates the current graph refresh. The 2026-08-25
+WP03 source packet ran `npm run --silent graph:validate` successfully against
+the current canonical checkout, reporting 713 nodes and 1,276 edges. WP03 is
+still validation-only because implementation, focused tests, proof, and
+checklist evidence are not all reviewed; the source packet does not imply
+READY, PR readiness, or DONE.
+
+## Current Portal WP03 Source Truth (2026-08-25)
+
+- Canonical source is `b6d8d12ead5965cea80625431fdc67e518702403`; accepted commits `aa5f4579e` and `adba0c9c1` are both in `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts`.
+- The production flow is Rust LAN read model -> `ParentPortalRoute`/vendor surface caller -> `ParentPortalSvgSurface` -> Portal LAN slot projection. Collection order is canonical -> discovered -> trusted -> pairing -> selected. The selected `preferState` update cannot clear a revoked state for a matching slot, while an actual identity/slot change remains distinct.
+- Existing service-backed route/E2E and live-activity surfaces are present, but the focused projection test for absorbing revocation and identity semantics is absent. The expected WP03 proof root is also absent; no test, proof, CI, or pre-commit command was run for this source-only packet.
+- This is a code-derived source truth record only. The remaining test/proof gaps and external pairing/freshness/device-authority boundary keep WP03 in validation and do not authorize READY or DONE.
 
 ## Open gaps / missing product runtime
 
