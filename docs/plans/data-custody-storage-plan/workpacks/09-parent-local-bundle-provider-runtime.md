@@ -2,7 +2,7 @@
 
 > Plan: `data-custody-storage-plan`
 > Workpack: `WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime`
-> Status: planned source work; Account WP05 participant/CAS source, implementation, tests, proof, and PR readiness are open.
+> Status: planned source work; Account WP05 base and WP05A owner-coordinator source, implementation, tests, proof, and PR readiness are open.
 
 # WP09 Parent Local Bundle Provider Runtime
 
@@ -61,8 +61,17 @@ owned by the WP05 `crates/parent-runtime-core` route listed in
   restore/migration ledger, and restart reconciliation seam; WP09 returns
   owner-bound provider operation outcomes to that base and does not persist a
   second ledger or depend on the later WP11 composition mount.
-- Account WP05 supplies the current household/member/device/session/capability/
-  lease composer when a job requires authority.
+- Account WP05 remains the authorization consumer and base Account handoff.
+  Account WP05A supplies the durable multi-owner coordinator outcome for
+  ParentOwner/step-up-bound data actions and the typed Data handoff when a
+  provider operation requires authority. Its remote-view/remote-control
+  capability and controller-lease reservations are outside this Data route.
+  WP05A consumes the existing WP08-owned transaction-scoped Account
+  repository/read/CAS seam; WP09 does not duplicate Account authority or
+  create a second reservation ledger.
+- The coordinator outcome remains jointly dependent on Account, Device Trust,
+  Parent Step-Up, and Protected Custody WP01 owner boundaries; missing
+  protected admission or any owner result remains blocked/manual-required.
 - Conditional handoffs only: if the selected implementation requires a
   trusted-device signer/readiness input, route that input to the exact Device
   Trust owner; if it requires a shared durable event/retry primitive, route
@@ -87,7 +96,8 @@ owned by the WP05 `crates/parent-runtime-core` route listed in
 
 ## Ownership correction (2026-08-18)
 
-WP09 is a downstream pure storage/adapter-port route from the WP05 base layer.
+WP09 is a downstream pure storage/adapter-port route from the WP05 base layer
+and the Account WP05A multi-owner data-action handoff.
 The durable parent scheduler/job lifecycle, restart reconciliation, and
 Eventing/outbox composition are WP05 responsibilities. No provider SDK, OAuth
 flow, filesystem adapter, caller-supplied authority, duplicate ledger, or

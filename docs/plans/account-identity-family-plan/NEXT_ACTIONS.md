@@ -38,7 +38,10 @@ authority/lifecycle facts. The dependency-first production sequence is:
 ```text
 accepted WP08 schema + sealed authority + local repository/CAS
   -> WP02 target-aware actor/target resolver with unavailable capability/lease/step-up actions fail-closed
-  -> Account WP05 durable opaque-effect CAS repository/fence/schema/recovery owner
+  -> Account WP05A durable opaque-effect coordinator/fence/schema/recovery owner
+     (remote-view/remote-control capability and controller-lease reservations;
+      consume the existing WP08 Account repository/read/CAS seam)
+  -> Account WP05 authorization consumer
   -> Data Custody WP08 confirmation staging/consume may consume the typed Account handoff
   -> Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider-to-Account caller
   -> Device Trust WP03 RegisterLanSignerAnchor actor/target composition
@@ -194,7 +197,9 @@ Account WP02/WP08 -> sealed Account authority source; WP05A private Account part
 Account WP03 -> session freshness/revocation participant
 Device Trust WP01 -> trusted-device currentness participant
 Device Trust WP03 -> parent-step-up reservation participant
-WP05A -> coordinator/recovery plus private Account participant, capability, and controller-lease reservations
+WP05A -> coordinator/recovery plus private Account participant and
+         remote-view/remote-control capability/controller-lease reservations
+         (Protected Custody WP01 admission is a direct prerequisite)
 WP05 -> Account authorization consumer and typed downstream handoffs
 ```
 

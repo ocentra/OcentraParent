@@ -21,7 +21,9 @@
    Device Trust gate and current manual-required default. This is routed through
    Account WP08's sealed current authority, Account WP04's correlated
    export/delete handoff, and Account WP05's current
-   household/member/device/session/capability/lease authorization composer.
+   household/member/device/session authorization composer for the Data
+   ParentOwner and step-up handoff; remote capability/lease reservations are
+   outside these Data routes.
 2. Preserve the reviewed WP05 base packet and close its dependency-owned
    composition gaps in this order: Account WP05 current authority/fence, Data
    WP09 provider-neutral byte custody, WP10 producer handoffs, WP11
@@ -33,7 +35,12 @@
    the sealed import-custody port needs an owner-side adapter design. Do not add
    another WP05-only seam or make the private port public. WP09/WP10 consume the
    WP05 base independently and must not duplicate these ledgers or depend on
-   WP11. After Account WP05's durable opaque-effect CAS/recovery owner is
+   WP11. Account WP05A is the separate durable multi-owner coordinator for
+   `ExportDeleteData`/`ImportRestoreData`-style ParentOwner and step-up-bound
+   actions plus the typed Data handoff; remote-view/remote-control capability
+   and controller-lease reservations are outside this Data route. It consumes
+   the existing WP08 Account repository/read/CAS seam.
+   After Account WP05A's durable opaque-effect coordinator/recovery owner is
    reviewed,
    finish WP08's trusted confirmation receipt plus reachable `Applied`/`Partial`
    decision path. Do not stage or consume a confirmation through a caller-made
@@ -74,11 +81,17 @@ must remain opaque blockers rather than being fabricated.
 
 ## 2026-08-18 base/composition routing correction
 
-The legal source route is now `WP05 base -> Account WP05 participant/CAS source -> (WP09, WP10) -> WP11 composition/mount`.
+The legal source route is now `WP05 base -> Account WP05A owner coordinator -> (WP09, WP10) -> WP11 composition/mount`.
+WP05 remains the direct base dependency for every Data runtime workpack;
+WP05A is an additional direct reviewed-implementation dependency for the
+Account/Device Trust/step-up/Protected Custody data-action outcome and typed
+handoff; remote capability/lease is outside these Data workpacks. It does not
+replace WP05's ledgers.
 Reviewed-implementation gates let WP09/WP10 consume source-accepted Data
 foundations without waiting for their tests or DONE, while the missing Account
-WP05 participant/CAS source remains a real blocker. WP11 is blocked on Account
-WP05's true authority transaction/CAS and recovery
+WP05A owner-coordinator source remains a real blocker. WP11 is blocked on
+Account WP05A's true durable multi-owner coordinator/recovery for the Data
+actions plus Account WP05's base authority transaction/CAS and recovery
 owner, key/import custody, producer artifact custody, WP09 provider operation
 capability, and WP10 owner-derived outcomes. Its only planned roots are
 `crates/parent-runtime-core/src/data_custody_runtime_composition.rs`,

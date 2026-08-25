@@ -69,6 +69,11 @@ All docs in this plan folder, grouped by role. Use this for lookup, not default 
 - [ROUTE_INDEX.md](ROUTE_INDEX.md) (654 bytes)
 - [WORKPACK_INDEX.md](WORKPACK_INDEX.md) (6,555 bytes)
 
+## Decisions
+
+- [DECISIONS.md](DECISIONS.md) — ADR-AI-001 neutral leaf ownership for the
+  shared AI contract family; routing only, with migration and tests open.
+
 ## Source Inventory
 
 - [source-index.md](source-index.md) (16,059 bytes)

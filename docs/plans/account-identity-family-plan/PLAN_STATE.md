@@ -328,8 +328,15 @@ Account WP05A (`workpacks/05-runtime-effect-fencing-coordinator.md`) is now the
 planned coordinator/recovery route. It owns only opaque operation identity,
 prepare/commit/abort/recover ordering, exact-idempotent committed replay, and
 the private Account participant plus capability/controller-lease reservation
-adapters. Account WP02/WP08 remain the Account source of truth consumed through
-that adapter; Device Trust WP01 and Device Trust WP03 remain separate owner participants.
+adapters for `start remote view` and `start remote control`. Other action rows
+retain their own owner gates. Account WP02/WP08 remain the Account source of
+truth consumed through that adapter; its existing transaction-scoped seam is
+`account_identity_authority_repository.rs`,
+`account_identity_authority_repository_read.rs`, and
+`account_identity_authority_repository_cas.rs`, owned by WP08 and not WP05A
+completion. Protected Custody WP01 is a direct prerequisite for the protected
+admission outcome. Device Trust WP01 and Device Trust WP03 remain separate
+owner participants; no implementation completion is claimed.
 The coordinator must fail closed on unavailable, mismatched, revoked, expired,
 or restart-uncertain reservations and must not claim distributed transaction
 atomicity. Account WP05 consumes this handoff; Data WP08/WP09/WP10/WP11 remain

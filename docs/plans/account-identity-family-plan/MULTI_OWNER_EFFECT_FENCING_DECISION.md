@@ -17,8 +17,11 @@ private owner interface for one exact effect target:
 - Device Trust owns trusted-device binding and signer/currentness generation.
 - Parent Step-Up owns the action-bound, one-time challenge/receipt reservation
   and platform verification result.
-- Account authorization owns capability and controller-lease reservations;
-  those reservations remain action-, target-, generation-, and expiry-bound.
+- Account authorization owns only the capability and controller-lease
+  reservations required by the current `start remote view` and `start remote
+  control` action rows; those reservations remain action-, target-,
+  generation-, and expiry-bound. Other matrix actions keep their own owner
+  gates and must not be pulled into a broad Account reservation.
 - The coordinator owns only the effect idempotency record, reservation
   ordering, commit/abort state, crash recovery, and exact outcome replay.
 
@@ -47,19 +50,36 @@ fixture, or in-process bus can satisfy the protocol.
   actor-versus-target binding. WP05A owns the private Account participant
   adapter that consumes that authority; it does not create a duplicate
   repository.
-- Account WP05 owns capability/lease authorization and consumes the new
-  coordinator; it does not duplicate Device Trust or step-up state.
+- Account WP05 owns the authorization consumer and consumes the new
+  coordinator; WP05A supplies only the Account-side remote-view/remote-control
+  capability and controller-lease reservations. Neither workpack duplicates
+  Device Trust or step-up state.
+- Protected Custody WP01 is a direct hard dependency for the protected
+  admission/capability boundary. Account consumes its opaque, fail-closed
+  outcome and does not recreate broker, signer, or key custody.
 - Device Trust WP03 owns the parent-step-up target resolver, platform
   verification, nonce/sign-count custody, and its private coordinator
   participant.
 - The new Account WP05A workpack owns the coordinator schema/recovery, the
-  private Account participant adapter, and Account-side capability/lease
-  reservation adapters. It is not a replacement for any owner repository.
+  private Account participant adapter, and Account-side reservation adapters
+  only for `start remote view` and `start remote control`. It is not a
+  replacement for any owner repository.
 - Policy WP01 consumes the resulting typed Account/Device Trust authority and
   remains the policy source owner; it does not store or fence account/device
   truth.
 - Data WP08/WP09/WP10/WP11 remain blocked until the owner participants and
   coordinator recovery source are reviewed; they consume opaque outcomes only.
+
+The private Account participant must consume the existing transaction-scoped
+Account authority reservation seam owned by WP08:
+
+- `crates/family-identity-core/src/account_identity_authority_repository.rs`
+- `crates/family-identity-core/src/account_identity_authority_repository_read.rs`
+- `crates/family-identity-core/src/account_identity_authority_repository_cas.rs`
+
+Those files are existing Account source, not WP05A completion. WP05A adds the
+missing coordinator/participant integration around them without duplicating
+authority or turning a persisted snapshot into permission.
 
 ## Failure and test obligations
 

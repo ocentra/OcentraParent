@@ -28,16 +28,17 @@ handoff and tracking boundary, not a general evaluator/runtime.
 
 ## Current WP03 source checkpoint — 2026-08-25
 
-WP03's Rust-owned source is now present in the canonical tree through
-`f9225e24a`, including the schema contract modules, exporter, and generated
+WP03's Rust-owned source is present in the canonical tree at `83382d67b`,
+including the journal/result digest modules, schema exporter, and generated
 TypeScript edge surface. The packet changed source/metadata only; it did not
-add a general production caller. The expected test source is still missing at
-`crates/schema/tests/contract/ai_contracts.rs`,
-`crates/schema/tests/contract/ai_contracts_negative.rs`, and
+add a general production caller. ADR-AI-001 now routes a source-preserving move
+to the neutral `ocentra-ai-contracts` leaf at `crates/ai-contracts`; that move
+and the WP04 adapter are the next implementation-only tasks. The expected test
+source is still missing at `crates/ai-contracts/tests/contract/ai_contracts.rs`,
+`crates/ai-contracts/tests/contract/ai_contracts_negative.rs`, and
 `packages/schema-domain/tests/contract/ai-contracts.test.ts`. Therefore this
-audit moves WP03 from “missing canonical source” to “source integrated; caller
-and expected tests open”; it does not promote Phase 1 closure, proof, READY, or
-DONE.
+audit records implementation-only source evidence with caller, migration,
+tests, proof, READY, and DONE open.
 
 ## Summary
 
@@ -54,7 +55,7 @@ No row below is a Phase 2 or Phase 3 claim.
 | ---: | --- | --- | --- |
 | 01 | Complete | Current repository and external TabAgent reference roots were reconciled during this audit. | Keep the source index synchronized when owners move. |
 | 02 | Complete | This audit and the refreshed current snapshot now separate implemented, partial, missing, and proof-only state. | Refresh after each merged AI slice. |
-| 03 | Incomplete | Rust-owned AI contract family is integrated in `crates/schema` through `f9225e24a`; generated `packages/schema-domain` edge source is present. | No general production caller; the three WP03 contract/negative test roots remain absent, so canonical source is not test-complete or Phase 1 closed. |
+| 03 | Incomplete | Rust-owned AI contract family is reviewed at `83382d67b` in `crates/schema`, including journal/result digests and generated `packages/schema-domain` edge source. | Source-preserving move to `crates/ai-contracts`, explicit WP04 adapter, no general production caller, and the three WP03 contract/negative/parity test roots remain open; Phase 1 is not closed. |
 | 04 | Incomplete | Rust structs/constants and serialization tests exist for runtime status, context wire, parent assistant, and memory graph. | No complete generated TypeScript parity fixture/negative decoder set for the whole AI contract family. |
 | 05 | Complete | Typed runtime/load/degraded/unavailable states, service payload/readiness logic, portal runtime card, and focused source tests exist. | Execute focused tests in Phase 2. |
 | 06 | Complete | Typed task capabilities, resource classes, local-only boundary, scheduler state, household fallback ordering, and rejection tests exist. | Execute focused protocol/service/route tests in Phase 2. |

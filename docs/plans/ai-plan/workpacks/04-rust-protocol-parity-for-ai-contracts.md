@@ -22,8 +22,11 @@ values, serialization tests, and TypeScript parity proof.
 ## Where We Are
 
 Rust service has local AI runtime, provider scheduler, chat generation, parent
-assistant, policy preview, and memory graph pieces. AI result/context parity must
-be explicit before runtime consumers grow.
+assistant, policy preview, and memory graph pieces. The canonical shared family
+is being routed to the neutral `ocentra-ai-contracts` leaf selected by
+ADR-AI-001; WP04 must consume that crate through an explicit adapter rather than
+copying contracts or re-exporting them. AI result/context parity must be
+explicit before runtime consumers grow.
 
 ## Checklist
 
@@ -40,9 +43,10 @@ be explicit before runtime consumers grow.
 
 ## Graph ownership correction — 2026-08-25
 
-WP04 owns the Rust protocol parity source and
-`crates/agent-protocol/tests/contract/ai_contracts.rs`. The shared
+WP04 owns the Rust protocol parity source, its explicit adapter over
+`ocentra-ai-contracts`, and `crates/agent-protocol/tests/contract/ai_contracts.rs`. The shared
 `packages/schema-domain/tests/contract/ai-contracts.test.ts` parity test is
 owned by AI WP03; WP04 consumes it through the reviewed `WP04 -> WP03`
-dependency and does not claim a second copy. No source, test, proof, READY, or
-DONE claim is made by this routing correction.
+dependency and does not claim a second copy. A real protocol caller is required
+after the adapter. No source migration completion, test, proof, READY, or DONE
+claim is made by this routing correction.

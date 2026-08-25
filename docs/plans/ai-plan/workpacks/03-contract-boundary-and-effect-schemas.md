@@ -22,24 +22,31 @@ All AI input, output, runtime, queue, route, memory, graph, explanation, and rem
 
 ### Current source checkpoint — 2026-08-25
 
-The Rust-owned contract source is integrated through `f9225e24a`, with the
-generated `packages/schema-domain` edge surface retained. This does not close
-the workpack: no general production caller is mapped and the expected test
-source is absent at:
+The Rust-owned contract source is integrated at canonical `83382d67b`. The
+packet includes the journal and result digest bindings in
+`crates/schema/src/ai_contracts/journal/digest.rs` and
+`crates/schema/src/ai_contracts/result/digest.rs`, the exporter, and the
+generated `packages/schema-domain` edge surface. Independent source review is
+implementation-only: no general production caller is mapped and the expected
+test source is absent at:
 
-- `crates/schema/tests/contract/ai_contracts.rs`
-- `crates/schema/tests/contract/ai_contracts_negative.rs`
+- `crates/ai-contracts/tests/contract/ai_contracts.rs`
+- `crates/ai-contracts/tests/contract/ai_contracts_negative.rs`
 - `packages/schema-domain/tests/contract/ai-contracts.test.ts`
 
-Write those tests as a complete boundary family, then validate the real caller
-and negative cases. No proof, CI, READY, or DONE claim follows from source
-presence alone.
+ADR-AI-001 (`docs/plans/ai-plan/DECISIONS.md`) selects the source-preserving
+neutral leaf crate `crates/ai-contracts` / `ocentra-ai-contracts`. The move,
+schema/protocol dependency update, explicit WP04 adapter, tests, caller,
+focused validation, proof, CI, READY, and DONE remain open. Do not treat the
+current schema source or the review at `83382d67b` as completion.
 
 Historical notes referenced `packages/parent-domain` as the AI contract home. That is stale for current central-schema direction. Current routing is:
 
 ```text
-crates/schema or the owning Rust crate:
-  canonical shared AI shapes and parsers.
+crates/ai-contracts (`ocentra-ai-contracts`), after the source-preserving move:
+  canonical shared AI shapes and parsers in a neutral leaf crate.
+crates/schema:
+  current reviewed source during migration, then a direct consumer only.
 packages/schema-domain:
   temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 packages/ai-domain:
@@ -53,8 +60,10 @@ Do not add new cross-plan canonical AI contracts to `parent-domain`, `browser-do
 ## Owner Path
 
 ```text
-Primary owner: crates/schema or the owning Rust crate
-Allowed consumers: schema-domain as temporary edge validation only, ai-domain, child-ai-core, screen-ai-core, agent-protocol, agent-service, portal-domain/apps/portal when selected
+Primary owner: crates/ai-contracts (`ocentra-ai-contracts`) after migration
+Allowed consumers: crates/schema and crates/agent-protocol as direct consumers,
+  schema-domain as generated parity/edge validation, ai-domain, child-ai-core,
+  screen-ai-core, agent-service, portal-domain/apps/portal when selected
 Forbidden owner drift: browser/screen/tracking/network/app-game/policy/enforcement/portal runtime packages defining their own AI contract copies
 ```
 
@@ -108,7 +117,11 @@ This workpack can prove contract/schema readiness for the selected shape family 
 WP03 is the sole owner of the shared TypeScript parity test
 `packages/schema-domain/tests/contract/ai-contracts.test.ts`, alongside the
 canonical Rust AI contract source and generated schema-domain edge source
-listed in `code-map.json`. AI WP04 owns its Rust protocol contract test and is
-an explicit consumer of this parity packet (`WP04 -> WP03`); it must not claim
-the shared TypeScript test or duplicate WP03 schema ownership. This is a
-metadata-only routing correction and does not add tests, proof, or completion.
+listed in `code-map.json`. The next implementation owner is the
+source-preserving `ocentra-ai-contracts` leaf migration; it must not add a
+public re-export or move authority constructors into the new crate. AI WP04
+owns its Rust protocol contract test and explicit wire adapter and is an
+explicit consumer of this parity packet (`WP04 -> WP03`); it must not claim the
+shared TypeScript test or duplicate WP03 schema ownership. This is a routing
+correction with implementation-only evidence; it does not add tests, proof, or
+completion.
