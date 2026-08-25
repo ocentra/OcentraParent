@@ -14,14 +14,14 @@
 
 Provide the one neutral protected-capability custody boundary that other owners
 can consume without obtaining or manufacturing protected authority. The
-fail-closed core, neutral protocol, broker, client, Windows FFI mechanics, and
-private core Windows adapter are reviewed and integrated at canonical
-`9375b0e10` from source branch `8df832f2d`. The graph records 99 implementation
-files, 0 tests, and no Cargo workspace requirement gaps for the accepted
-core/FFI packages; the planned provisioner manifest, workspace member, and BIN
-target remain missing. The broker remains deliberately unavailable before state
-creation because installer-owned TPM policy/non-exportable handle authority is
-still unavailable.
+fail-closed core, neutral protocol, broker, client, Windows FFI mechanics,
+private core Windows adapter, and WP01-owned BIN-only provisioner preflight are
+reviewed and integrated at canonical `a6d7d9adf`. The graph records 114
+implementation files, 0 tests, and no Cargo workspace requirement gaps for
+the mapped packages. The provisioner only reads/revalidates enrolled state and
+always returns `ExternalProvisioningRequired`; it cannot create or publish
+enrollment. The broker remains deliberately unavailable before state creation:
+startup returns `DeploymentRequired` and has no reachable success path.
 
 The installer-side enrollment boundary is deliberately split. Parent Client
 Runtime Distribution WP12 owns the parent Windows MSI/WiX package, the
@@ -34,9 +34,11 @@ lease, capability, or success assertion; the TPM authorization secret stays
 behind the approved non-exportable handle and policy.
 
 The accepted source packet is implementation evidence, not operational
-completion: focused host/Windows checks and Enforcer/architecture/guard checks
-passed, while the installer, caller, 13 expected tests, proof, CI, READY, and
-DONE remain open.
+completion: focused source/compile and Enforcer/architecture/guard checks
+passed, while external OEM/firmware/MDM platform authority, installer
+mutation/owner handoff, independent current observations, monotonic provider,
+real transport callers, 13 expected tests, proof, CI, READY, and DONE remain
+open.
 
 ## Existing production source
 
@@ -70,12 +72,13 @@ crates/protected-capability-custody-core/src/broker_admission/platform/windows.r
 crates/protected-capability-custody-core/src/broker_admission/platform/windows/
 ```
 
-The 2026-08-25 source packet was independently reviewed on branch
-`8df832f2d` and integrated at canonical `9375b0e10`; the graph maps 99
-implementation files and 0 tests with no workspace requirement gaps for the
-accepted core/FFI packages. The planned provisioner manifest, workspace member,
-and BIN target remain missing. The packet adds the isolated-process/package
-boundary, one shared bounded wire protocol,
+The 2026-08-25 source packet and read-only provisioner preflight were
+independently reviewed and integrated at canonical `a6d7d9adf`; the graph maps
+114 implementation files and 0 tests with no workspace requirement gaps for
+the mapped packages. The provisioner manifest, workspace member, BIN target,
+and private provisioning modules are present, but they only perform
+readback/revalidation and cannot complete enrollment. The packet adds the
+isolated-process/package boundary, one shared bounded wire protocol,
 opaque request/result types, startup preflight, dynamic enrolled-client pipe
 ACL construction, split immutable-enrollment/runtime registry custody, and a
 narrow core-owned broker entry plus the raw Windows FFI and private core adapter
@@ -91,13 +94,15 @@ READY, and DONE remain open.
 ## Required source boundary
 
 The source topology now contains the separate Windows broker, client, neutral
-`protected-capability-custody-protocol`, and Windows FFI packages as active
-Cargo workspace members, with private `cfg(windows)` adapter modules inside the
-core package. This is source presence, not operating custody. The remaining
-production boundary is the installer-owned TPM policy and
-non-exportable handle, the WP01-owned BIN-only provisioner source and WP12
-package invocation/lifecycle, and a real enrolled caller. The expected
-provisioner source roots are:
+`protected-capability-custody-protocol`, Windows FFI package, and WP01-owned
+BIN-only provisioner as active Cargo workspace members, with private
+`cfg(windows)` adapter modules inside the core package. This is source presence,
+not operating custody. The remaining production boundary is external
+OEM/firmware/MDM `TPM_RH_PLATFORM` authority and NV define/undefine lifecycle,
+authenticated owner handoff, protected registry/SCM mutation, independent
+broker/client/token current observations, an enrolled counter generation, the
+core monotonic provider, WP12 package invocation/lifecycle, and real transport
+callers. The provisioner source roots are:
 
 ```text
 crates/ocentra-protected-capability-custody-provisioner/Cargo.toml
@@ -105,8 +110,9 @@ crates/ocentra-protected-capability-custody-provisioner/src/main.rs
 crates/ocentra-protected-capability-custody-provisioner/src/provisioning/
 ```
 
-Until those owners exist, startup must remain unavailable and must not create
-or mutate custody state.
+The read-only preflight cannot create or mutate enrollment. Until those owner
+boundaries exist, startup must remain unavailable and must not create or mutate
+custody state.
 
 The core now exposes only the narrow, explicitly reviewed
 `src/broker_admission.rs` facade seam. That facade accepts broker-owned inputs
@@ -128,12 +134,12 @@ The accepted source repair is one Windows front-door process: the existing
 protocol, while core depends on one tiny FFI package and owns the safe adapter
 privately. It does not add a helper process, a second protocol, or a public
 adapter crate. The external seam remains one broker dispatch/open-session
-path; the broker derives identity from authenticated Windows peer observation,
-not from caller fields. This source route was reviewed on `8df832f2d` and
-integrated at canonical `9375b0e10`; the graph records 99 implementation files,
-0 tests, and no workspace requirement gaps for the accepted core/FFI packages.
-The planned provisioner manifest, workspace member, and BIN target remain
-missing.
+ path; the broker derives identity from authenticated Windows peer observation,
+ not from caller fields. This source route and the read-only provisioner were
+ reviewed and integrated at canonical `a6d7d9adf`; the graph records 114
+ implementation files, 0 tests, and no workspace requirement gaps for the
+ mapped packages. The provisioner never establishes enrollment and always
+ fails closed.
 
 The integrated FFI package is limited to raw Win32/TBS/TPM calls and safe
 owned-handle RAII wrappers. Its manifest uses package-local lint tables, not
@@ -164,11 +170,12 @@ requires re-pair; disk, JSON, SQLite, and rollback state cannot restore the
 generation.
 
 The source implementation order is complete through the raw owned-handle/TBS/
-TPM wrappers, private core enrollment/peer/SCM/monotonic modules, and existing
-core runtime seam. The remaining order is the WP01-owned BIN-only provisioner
-source and installer/SCM provisioning, WP12 package invocation/lifecycle, and
-then a real production caller. This route remains in validation; tests, proof,
-PR, merge, READY, and DONE remain open.
+TPM wrappers, private core enrollment/peer/SCM/monotonic modules, existing
+core runtime seam, and read-only provisioner preflight. The remaining order is
+external platform/installer authority and mutation, authenticated owner
+handoff, independent current observations, monotonic counter integration,
+WP12 package invocation/lifecycle, and then real transport callers. This route
+remains in validation; tests, proof, PR, merge, READY, and DONE remain open.
 
 ## Expected test source
 

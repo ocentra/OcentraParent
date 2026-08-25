@@ -2,21 +2,21 @@
 
 ## Status
 
-Accepted for implementation-only routing on 2026-08-25. The FFI/private-core
-source shape was independently reviewed on branch `8df832f2d` and integrated
-at canonical `9375b0e10`; this ADR still does not claim installer enrollment,
-runtime availability, tests, proof, READY, or DONE.
+Accepted for implementation-only routing on 2026-08-25. The CNG/TPM,
+FFI/private-core, and read-only provisioner source shape was independently
+reviewed and integrated at canonical `a6d7d9adf`; this ADR still does not claim
+installer enrollment, runtime availability, tests, proof, READY, or DONE.
 
 ## Context
 
-The canonical implementation baseline is `9375b0e10`. The protected-custody
-core, neutral wire package, broker process, client, Windows FFI mechanics, and
-private core Windows adapter are real Rust source. The broker still fails closed
-before custody state creation because installer-owned TPM policy and the
-non-exportable handle authority are not available. The graph records 99
-implementation files, 0 tests, and no workspace requirement gaps for the
-accepted core/FFI packages; the planned provisioner manifest, workspace member,
-and BIN target remain missing. Focused host and Windows checks plus
+The canonical implementation baseline is `a6d7d9adf`. The protected-custody
+core, neutral wire package, broker process, client, Windows FFI mechanics,
+private core Windows adapter, and BIN-only provisioner preflight are real Rust
+source. The broker still fails closed before custody state creation, and the
+preflight always returns `ExternalProvisioningRequired`, because external
+installer/platform authority and owner handoff are not available. The graph
+records 114 implementation files, 0 tests, and no workspace requirement gaps
+for the mapped packages. Focused source/compile and
 architecture/Enforcer/guard checks passed.
 
 The actual core API already owns the protected construction boundary. Its
@@ -110,6 +110,14 @@ the authorization secret behind the TPM-owned non-exportable handle and the
 approved TPM policy; the private core adapter verifies only the resulting
 installer-owned enrollment facts and never accepts the raw secret as input.
 
+The fixed NV index and policy identify the expected object but are distinct from
+authorization by the `TPM_RH_PLATFORM` hierarchy. LocalSystem, process
+elevation, TBS, PCP signing, or an OS account does not grant platform hierarchy
+authority. The ceremony must obtain that authority from the external
+OEM/firmware/MDM owner path; an empty authorization or caller-supplied
+authorization is never a fallback. The current provisioner only performs
+readback/revalidation and returns `ExternalProvisioningRequired`.
+
 WP12 places its committed package and lifecycle source under
 `scripts/release/windows/parent-protected-custody/`, its WiX manifest at
 `scripts/release/windows/parent-protected-custody.wxs`, and its build wiring at
@@ -182,8 +190,9 @@ snapshot, or caller-selected key/capability is permitted.
 
 ## Integrated production roots and remaining workspace obligations
 
-The FFI and private core Windows roots below are integrated source at canonical
-`9375b0e10`; graph mapping records reviewed topology, not runtime completion:
+The FFI, private core Windows, and provisioner roots below are integrated source
+at canonical `a6d7d9adf`; graph mapping records reviewed topology, not runtime
+completion:
 
 ```text
 crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml
@@ -193,6 +202,9 @@ crates/protected-capability-custody-core/src/broker_admission/platform/windows/e
 crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs
 crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs
 crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs
+crates/ocentra-protected-capability-custody-provisioner/Cargo.toml
+crates/ocentra-protected-capability-custody-provisioner/src/main.rs
+crates/ocentra-protected-capability-custody-provisioner/src/provisioning/
 ```
 
 The FFI manifest is an active workspace member with a real `lib` target, the
@@ -206,12 +218,15 @@ only. No second Windows manifest, public adapter target, or broker protocol is
 planned.
 
 The source implementation order through raw owned-handle/TBS/TPM wrappers,
-private core Windows enrollment/peer/SCM/monotonic modules, and construction
-through the existing core runtime seams is integrated. The remaining order is
-the WP01-owned provisioner source/installer authority, the Parent Runtime WP12
-installer-side MSI/WiX invocation/lifecycle contract, then the first real
-production caller. The broker remains unavailable through those intermediate
-steps.
+private core Windows enrollment/peer/SCM/monotonic modules, construction
+through the existing core runtime seams, and the read-only provisioner
+preflight is integrated. The remaining order is external
+OEM/firmware/MDM `TPM_RH_PLATFORM` and NV lifecycle authority, authenticated
+owner handoff, protected registry/SCM mutation, independent broker/client/token
+observations, enrolled counter generation, the core monotonic provider, the
+Parent Runtime WP12 installer-side MSI/WiX invocation/lifecycle contract, then
+real transport callers. The broker remains unavailable through those
+intermediate steps.
 
 The installer-side contract is intentionally narrow: WP12 owns package
 identity, elevated custom-action scheduling, artifact/build wiring, upgrade and

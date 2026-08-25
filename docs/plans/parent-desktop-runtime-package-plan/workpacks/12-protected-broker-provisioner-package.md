@@ -16,10 +16,13 @@
 
 Define the parent-side Windows package boundary for the protected broker and its
 installer-only enrollment/provisioner handoff. Protected WP01's private
-FFI/core source boundary is accepted at canonical `9375b0e10`, but this
-workpack remains a routing contract for the package mechanics that are absent;
-it is not an installer implementation or a substitute for protected-custody
-authority.
+FFI/core source boundary and the WP01-owned BIN-only read-only preflight are
+accepted at canonical `a6d7d9adf`, but this workpack remains a routing contract
+for the parent package mechanics that are absent. The preflight only
+revalidates existing enrollment and always returns
+`ExternalProvisioningRequired`; it does not establish protected authority or
+make a package ready. This workpack is not an installer implementation or a
+substitute for protected-custody authority.
 
 ## Ownership boundary
 
@@ -90,6 +93,11 @@ outside this workpack.
   record into authority.
 - Missing, contradictory, revoked, stale, or unavailable protected enrollment
   fails closed before the package reports a protected broker as ready.
+- The fixed TPM NV index/policy is not `TPM_RH_PLATFORM` hierarchy authority;
+  LocalSystem, elevation, TBS, PCP signing, or an OS account cannot substitute
+  for the external OEM/firmware/MDM owner ceremony. Empty or caller-supplied
+  authorization is forbidden, and the current WP01 preflight therefore has no
+  reachable success path.
 
 ## Upgrade, rollback, and uninstall contract
 

@@ -14,35 +14,35 @@
 
 ## Source-consolidation checkpoint — 2026-08-25
 
-The independently reviewed Protected WP01 source packet is integrated. The
-reviewed source branch was `8df832f2d`; canonical merge commit
-`9375b0e10` records the integrated FFI/private-core packet. The current graph
-topology records 99 implementation files and 0 tests, with no Cargo workspace
-requirement gaps for the accepted core/FFI packages. The planned provisioner
-manifest, workspace member, and BIN target remain missing (`cargo metadata
---no-deps` remains authoritative). Focused host and Windows checks,
-architecture/source-shape and Enforcer guards, and
-the lane/hub guards passed for this source packet. This is source acceptance
-evidence only: no tests, proof, pre-commit, CI, PR, READY, or DONE claim is
-made here.
+The independently reviewed Protected WP01 source packet and the subsequent
+read-only provisioner preflight are integrated at canonical `a6d7d9adf`. This
+includes the CNG/TPM mechanics, the private core adapter, and the active
+BIN-only provisioner package (`Cargo.toml`, `src/main.rs`, and
+`src/provisioning/`). The graph topology records 114 implementation files and
+0 tests, with no Cargo workspace requirement gaps for the mapped packages.
+The provisioner is a preflight only: it reads and revalidates enrolled state,
+then always returns `ExternalProvisioningRequired`; it cannot create or publish
+enrollment. Focused source/compile, architecture/source-shape, Enforcer, and
+lane/hub guards passed for the source packets. This is source truth only: no
+tests, proof, pre-commit, CI, PR, READY, or DONE claim is made here.
 
 The plan remains an active neutral foundation route with one workpack in
-`validation`. The FFI mechanics and private core Windows adapter source are
-now present, but the system is still not operating protected custody:
+`validation`. Protected custody is still not operational:
 
-- admission/open/platform authority remains sealed inside the core;
+- startup remains `DeploymentRequired` before DB/state/listener mutation and
+  there is no reachable success path;
+- external OEM/firmware/MDM authority for `TPM_RH_PLATFORM` and NV
+  define/undefine lifecycle, authenticated owner handoff, protected
+  registry/SCM mutation, and enrolled counter generation remain unavailable;
+- independent broker/client/token current observations and the core monotonic
+  provider, plus real broker/client transport callers, remain open;
 - SQLite remains a checked replica, not protected authority;
-- the separate broker/client/protocol boundary and private FFI/core adapter
-  source exist, while runtime admission remains unavailable;
-- startup returns `DeploymentRequired` before DB/state/listener mutation when
-  the required TPM policy and non-exportable handle authority are unavailable;
-- installer/provisioner enrollment and a real production caller remain open;
 - all 13 expected test roots remain absent, as do retained proof and release
   evidence.
 
-The graph records the route as `validation`. Source acceptance and focused
-compilation do not derive ordinary READY or DONE while the TPM policy/handle,
-installer, caller, test, proof, and release gates remain open.
+The graph records the route as `validation`. Accepted mechanics and a
+read-only preflight do not derive READY or DONE while the external authority,
+caller, test, proof, and release gates remain open.
 
 ## Installer-side ownership checkpoint — 2026-08-25
 
@@ -53,10 +53,11 @@ invocation, build/release wiring, and upgrade/rollback/uninstall contract. Its
 expected package roots are `scripts/release/windows/parent-protected-custody/`,
 `scripts/release/windows/parent-protected-custody.wxs`, and
 `scripts/release/windows/build-parent-protected-custody-package.ps1`. WP12
-invokes and packages the fixed installer-owned provisioner binary but does not
-own its source. The BIN-only provisioner package, its Cargo manifest, `src/main.rs`,
-and private `src/provisioning/` implementation directory are Protected WP01
-source roots recorded in the graph. Generated
+  invokes and packages the fixed installer-owned provisioner binary but does not
+  own its source. The BIN-only provisioner package, its Cargo manifest, `src/main.rs`,
+  and private `src/provisioning/` implementation directory are now present as
+  Protected WP01 source roots recorded in the graph. They implement only a
+  read-only preflight and never establish enrollment. Generated
 MSI/checksum/signing outputs belong under `target/release-packages/` and are not
 source truth.
 
@@ -78,7 +79,7 @@ ADR-PCC-002 selects one Rust Windows front-door process: the existing protected
 broker continues to depend on core and protocol, while core depends on one tiny
 Windows FFI crate. The safe adapter is private `cfg(windows)` core modules;
 there is no second helper process, helper protocol, or public adapter crate.
-The FFI/private-core source roots below are integrated at `9375b0e10` and are
+The FFI/private-core source roots below are integrated at `a6d7d9adf` and are
 reviewed source truth, not merely absent planned roots:
 
 ```text
@@ -89,6 +90,9 @@ crates/protected-capability-custody-core/src/broker_admission/platform/windows/e
 crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs
 crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs
 crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs
+crates/ocentra-protected-capability-custody-provisioner/Cargo.toml
+crates/ocentra-protected-capability-custody-provisioner/src/main.rs
+crates/ocentra-protected-capability-custody-provisioner/src/provisioning/
 ```
 
 The FFI package is limited to raw Win32/TBS/TPM calls and safe owned-handle RAII
@@ -102,7 +106,10 @@ Rust/Clippy deny except `unsafe_code`. Core and broker continue inheriting
 existing broker-facing runtime methods. Installer-only immutable enrollment
 must pin broker/client image+SCM identity, exact protected registry
 owner/DACL/ACE/ancestor chain, and a TPM2 NV counter/index reached via TBS.
-The broker retains the pipe stream/handle for the request lifetime; core retains
+The fixed NV index/policy defines the expected object but is distinct from
+`TPM_RH_PLATFORM` hierarchy authority. LocalSystem, elevation, TBS, or a PCP
+signer does not grant platform hierarchy authorization; there is no empty-auth
+or caller-supplied-auth fallback. The broker retains the pipe stream/handle for the request lifetime; core retains
 process/token/image observations, and pipe process/session IDs are re-queried
 immediately before transcript authorization. TPM reset, missing/deleted NV
 index, TBS failure, or enrollment mismatch fails closed and requires re-pair;
@@ -111,9 +118,10 @@ disk state never restores the generation.
 This is graph implementation-phase routing only. If the graph derives
 implementation authorization, it authorizes only the remaining production
 roots; the normal WP01 lifecycle remains `validation`, not READY or DONE. The
-broker/client/FFI/private-core source is present, but runtime remains blocked
-until the TPM policy/non-exportable handle and installer/caller boundaries are
-operational. All 13 expected test roots remain absent, with these core-private
+broker/client/FFI/private-core and read-only provisioner source is present, but
+runtime remains blocked by external platform/installer authority,
+authenticated owner handoff, independent current observations, monotonic
+provider, and real transport caller boundaries. All 13 expected test roots remain absent, with these core-private
 adapter/TPM test expectations recorded as absent planned tests only:
 
 ```text
@@ -197,9 +205,11 @@ its persisted profile/path state cannot become protected authority.
 ## Exit conditions
 
 The workpack can leave validation only after the integrated source is backed by
-the required TPM policy/non-exportable handle authority, installer/SCM
-provisioning, and a production caller; focused source and boundary validation
-are green; all 13 expected tests are written and executed;
+external OEM/firmware/MDM `TPM_RH_PLATFORM` authority and NV lifecycle,
+authenticated owner handoff, protected registry/SCM provisioning, independent
+broker/client/token observations, a core monotonic provider, and a production
+transport caller; focused source and boundary validation are green; all 13
+expected tests are written and executed;
 the broker owns the protected operation; restart/recovery and concurrent
 reservations are covered; and retained proof/checklist/merge evidence is
 current. Until then, keep the state open and report the exact missing adapter

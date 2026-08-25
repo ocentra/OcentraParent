@@ -229,10 +229,7 @@
       "scripts/release/android",
       "scripts/release/ios"
     ],
-    "cloudflare-control-plane-plan": [
-      "infra/cloudflare",
-      "packages/schema-domain"
-    ],
+    "cloudflare-control-plane-plan": ["infra/cloudflare", "packages/schema-domain"],
     "data-custody-storage-plan": [
       "crates/schema",
       "crates/storage-custody-core",
@@ -251,11 +248,7 @@
       "crates/child-runtime-android-bridge",
       "crates/child-enforcement-core"
     ],
-    "eventing-plan": [
-      "crates/ocentra-eventing",
-      "crates/agent-protocol",
-      "crates/agent-service"
-    ],
+    "eventing-plan": ["crates/ocentra-eventing", "crates/agent-protocol", "crates/agent-service"],
     "lan-plan": [
       "crates/lan-core/src",
       "crates/lan-core/tests",
@@ -407,11 +400,7 @@
       "scripts/release/parent-ios",
       "scripts/release/parent-desktop-release-support-proof.mjs"
     ],
-    "payment-subscription-plan": [
-      "crates/billing-core",
-      "crates/entitlement-core",
-      "infra/cloudflare"
-    ],
+    "payment-subscription-plan": ["crates/billing-core", "crates/entitlement-core", "infra/cloudflare"],
     "policy-control-plane-plan": [
       "crates/policy-control-core",
       "crates/agent-service",
@@ -854,9 +843,7 @@
         "crates/family-identity-core/src/household_authority_runtime_fence_capability.rs",
         "crates/family-identity-core/src/household_authority_runtime_fence_lease.rs"
       ],
-      "expectedTestRoots": [
-        "crates/family-identity-core/tests/unit/household_authority_runtime_fence.rs"
-      ],
+      "expectedTestRoots": ["crates/family-identity-core/tests/unit/household_authority_runtime_fence.rs"],
       "note": "New planned owner route. The coordinator owns only opaque operation identity, prepare/commit/abort/recover ordering, exact committed-outcome replay, a private Account participant adapter, and Account-side capability/lease reservation adapters for start remote view/control only. It consumes the existing WP08 transaction-scoped Account repository/read/CAS seam and Protected Custody WP01 opaque admission outcome. Account WP02/WP08 retain Account source truth; Device Trust WP01 and WP03 retain separate source-of-truth participants. No source or tests exist yet; uncertainty and cross-store non-atomicity must fail closed."
     },
     "WP-account-identity-family-plan-06-security-proof-and-route-gate": {
@@ -1157,9 +1144,7 @@
         "crates/agent-protocol/src/parent_assistant.rs",
         "crates/agent-protocol/src/ai_contracts.rs"
       ],
-      "expectedTestRoots": [
-        "crates/agent-protocol/tests/contract/ai_contracts.rs"
-      ],
+      "expectedTestRoots": ["crates/agent-protocol/tests/contract/ai_contracts.rs"],
       "note": "Existing local-AI runtime and parent-assistant shapes are partial reachable consumers, not complete parity for WP03's canonical general AI family. WP04 owns the Rust protocol contract test and explicit adapter over the neutral ocentra-ai-contracts leaf; the shared packages/schema-domain/tests/contract/ai-contracts.test.ts parity test is WP03-owned and is not a WP04 claim. WP04 must consume through explicit wire adapters without duplicating schema ownership, stringly route/event truth, public re-export shims, or authority constructors. The source migration, real protocol caller, generated TypeScript parity, negative decoder family, and complete cross-boundary tests remain missing."
     },
     "WP-ai-plan-05-local-model-runtime-status-hardening": {
@@ -1357,10 +1342,7 @@
     },
     "WP-ai-plan-23-evidence-backed-semantic-memory": {
       "planSlug": "ai-plan",
-      "roots": [
-        "crates/agent-protocol/src/local_ai.rs",
-        "crates/agent-protocol/tests/unit/policy_tests.rs"
-      ]
+      "roots": ["crates/agent-protocol/src/local_ai.rs", "crates/agent-protocol/tests/unit/policy_tests.rs"]
     },
     "WP-ai-plan-24-knowledge-graph-reference-contract": {
       "planSlug": "ai-plan",
@@ -1726,12 +1708,8 @@
         "crates/agent-service/src/browser_runtime_impl/managed_runtime.rs",
         "crates/agent-service/tests/integration/browser_managed_runtime.rs"
       ],
-      "plannedImplementationRoots": [
-        "crates/agent-service/src/browser_runtime_impl/managed_runtime.rs"
-      ],
-      "expectedTestRoots": [
-        "crates/agent-service/tests/integration/browser_managed_runtime.rs"
-      ],
+      "plannedImplementationRoots": ["crates/agent-service/src/browser_runtime_impl/managed_runtime.rs"],
+      "expectedTestRoots": ["crates/agent-service/tests/integration/browser_managed_runtime.rs"],
       "note": "Canonical f80b47c6a removes the dead/unreachable service launch state, environment/dev profile authority, placeholder bridge poll, and Browser-to-Screen surface. Production status is explicitly manual-required. A future private owner-issued retained runtime remains a missing planned implementation root; the existing Browser tests are stale against private launch/status APIs and the expected integration root is absent. No runtime, validation, proof, PR readiness, or DONE claim is made."
     },
     "WP-browser-plan-08-bridge-custody-and-security": {
@@ -1759,12 +1737,8 @@
         "crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs",
         "crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"
       ],
-      "plannedImplementationRoots": [
-        "crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs"
-      ],
-      "expectedTestRoots": [
-        "crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"
-      ],
+      "plannedImplementationRoots": ["crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs"],
+      "expectedTestRoots": ["crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"],
       "note": "Core CDP parsing/capture authority remains private and tab-list-only with active state Unknown. Canonical f80b47c6a removes the dead service Browser-to-Screen surface. WP09 is blocked on a real WP07 owner-issued retained launch; the same-launch binding and integration test roots remain absent, and existing tests need private-boundary migration. Tests, focused validation, proof, PR readiness, and DONE remain open."
     },
     "WP-browser-plan-10-tab-evidence-mapper": {
@@ -1992,9 +1966,7 @@
     },
     "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "crates/child-runtime/tests/integration/windows_service_distribution.rs"
-      ],
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/windows_service_distribution.rs"],
       "roots": [
         "scripts/release/windows/OcentraParentAgent.wxs",
         "scripts/release/windows/OcentraParentAgentService.xml",
@@ -2005,31 +1977,19 @@
     },
     "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "crates/child-runtime/tests/integration/macos_service_distribution.rs"
-      ],
-      "roots": [
-        "scripts/release/macos/build-agent-package.sh",
-        "scripts/release/macos/ca.ocentra.parent.agent.plist"
-      ],
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/macos_service_distribution.rs"],
+      "roots": ["scripts/release/macos/build-agent-package.sh", "scripts/release/macos/ca.ocentra.parent.agent.plist"],
       "note": "Source partial: canonical child plist identity, trusted startup, external health, signing/notarization ownership, and lifecycle callbacks remain missing; real-host tests are not written."
     },
     "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "crates/child-runtime/tests/integration/linux_service_distribution.rs"
-      ],
-      "roots": [
-        "scripts/release/linux/build-agent-package.sh",
-        "scripts/release/linux/ocentra-parent-agent.service"
-      ],
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/linux_service_distribution.rs"],
+      "roots": ["scripts/release/linux/build-agent-package.sh", "scripts/release/linux/ocentra-parent-agent.service"],
       "note": "Source partial: canonical child package/unit identity, trusted startup, external health, fail-closed lifecycle, signing/feed, and cleanup ownership remain missing; host/distro tests are not written."
     },
     "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "crates/child-runtime-android-bridge/tests/integration/trust_bound_lifecycle.rs"
-      ],
+      "expectedTestRoots": ["crates/child-runtime-android-bridge/tests/integration/trust_bound_lifecycle.rs"],
       "roots": [
         "crates/child-runtime-android-bridge/src/ffi/runtime.rs",
         "crates/child-runtime-android-bridge/src/ffi/bridge_lifecycle.rs",
@@ -2045,9 +2005,7 @@
     },
     "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "platforms/ios/tests/child_capability_identity.test.mjs"
-      ],
+      "expectedTestRoots": ["platforms/ios/tests/child_capability_identity.test.mjs"],
       "roots": [
         "crates/schema/src/child_ios_entitlement_capability_proof.rs",
         "crates/schema/src/child_ios_entitlement_capability_proof",
@@ -2060,19 +2018,13 @@
     },
     "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "crates/child-runtime/tests/integration/service_supervision.rs"
-      ],
-      "roots": [
-        "crates/child-runtime/src/service_supervision.rs"
-      ],
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/service_supervision.rs"],
+      "roots": ["crates/child-runtime/src/service_supervision.rs"],
       "note": "Source incomplete: manager declarations are static; no executable health-aware lifecycle/supervision owner, platform callback, backoff, or teardown source exists. Lifecycle tests are missing."
     },
     "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "crates/child-runtime/tests/integration/parent_authorized_removal.rs"
-      ],
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/parent_authorized_removal.rs"],
       "roots": [
         "crates/child-runtime/src/removal/removal_boundary.rs",
         "crates/child-runtime/src/removal/removal_record.rs",
@@ -2084,9 +2036,7 @@
     },
     "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "crates/agent-updater/tests/integration/handoff_update_runtime.rs"
-      ],
+      "expectedTestRoots": ["crates/agent-updater/tests/integration/handoff_update_runtime.rs"],
       "roots": [
         "crates/schema/src/child_signing_store_device_owner_matrix.rs",
         "crates/schema/src/child_signing_store_device_owner_matrix",
@@ -2102,9 +2052,7 @@
     },
     "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "crates/child-runtime/tests/integration/device_trust_handoff.rs"
-      ],
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/device_trust_handoff.rs"],
       "roots": [
         "crates/schema/src/setup_device_trust_handoff.rs",
         "crates/schema/src/setup_device_trust_handoff",
@@ -2119,12 +2067,8 @@
     },
     "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "expectedTestRoots": [
-        "scripts/test/child-runtime-release-gate.mjs"
-      ],
-      "roots": [
-        "scripts/test/child-runtime-release-gate.mjs"
-      ],
+      "expectedTestRoots": ["scripts/test/child-runtime-release-gate.mjs"],
+      "roots": ["scripts/test/child-runtime-release-gate.mjs"],
       "note": "Source missing: documentation and workflow aggregation exist, but no executable aggregate gate owns canonical identity, trust, lifecycle, removal, updater/handoff, platform, proof, and release blocker composition. Aggregate tests are missing.",
       "codeExpectation": "tests-only"
     },
@@ -2298,10 +2242,7 @@
     "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid": {
       "planSlug": "cloudflare-control-plane-plan",
       "codeExpectation": "tests-only",
-      "roots": [
-        "infra/cloudflare/scripts/test-runner.ts",
-        "infra/cloudflare/tests"
-      ]
+      "roots": ["infra/cloudflare/scripts/test-runner.ts", "infra/cloudflare/tests"]
     },
     "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke": {
       "planSlug": "cloudflare-control-plane-plan",
@@ -2716,10 +2657,8 @@
         "scripts/release/windows/parent-protected-custody/tests",
         "tests/repo-tooling/parent-protected-custody-package.test.mjs"
       ],
-      "expectedTestRoots": [
-        "tests/repo-tooling/parent-protected-custody-package.test.mjs"
-      ],
-      "note": "Routing-only parent-side MSI/WiX/custom-action/build and upgrade/rollback/uninstall boundary. Protected WP01 owns the separate fixed BIN-only provisioner source and its private FFI use; WP12 only invokes and packages that owner-approved binary. No raw authValue or caller-supplied authority is allowed; existing child-agent WiX is out of scope. Package scripts, lifecycle tests, proof, signing, and runtime readiness remain absent."
+      "expectedTestRoots": ["tests/repo-tooling/parent-protected-custody-package.test.mjs"],
+      "note": "Routing-only parent-side MSI/WiX/custom-action/build and upgrade/rollback/uninstall boundary. Protected WP01 owns the separate fixed BIN-only provisioner source and its private FFI use; the current BIN is a read-only preflight that always returns ExternalProvisioningRequired, and WP12 only invokes and packages that owner-approved binary. No raw authValue or caller-supplied authority is allowed; fixed NV index policy is distinct from TPM_RH_PLATFORM authority, and external OEM/firmware/MDM owner handoff remains unavailable. Existing child-agent WiX is out of scope. Package scripts, lifecycle tests, proof, signing, and runtime readiness remain absent."
     },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
@@ -2947,12 +2886,8 @@
     "WP-app-plan-26-performance-and-service-health": {
       "planSlug": "app-plan",
       "codeExpectation": "tests-only",
-      "roots": [
-        "scripts/test/app-game-performance-health-proof.mjs"
-      ],
-      "expectedTestRoots": [
-        "scripts/test/app-game-performance-health-proof.mjs"
-      ]
+      "roots": ["scripts/test/app-game-performance-health-proof.mjs"],
+      "expectedTestRoots": ["scripts/test/app-game-performance-health-proof.mjs"]
     },
     "WP-app-plan-27-e2e-and-manual-proof-artifacts": {
       "planSlug": "app-plan",
@@ -3720,16 +3655,12 @@
         "crates/family-identity-core/src/parent_step_up_runtime_fence_participant.rs",
         "crates/parent-runtime-core/src/parent_step_up_runtime_fence_participant.rs"
       ],
-      "expectedTestRoots": [
-        "crates/family-identity-core/tests/unit/parent_step_up_runtime_fence_participant.rs"
-      ],
+      "expectedTestRoots": ["crates/family-identity-core/tests/unit/parent_step_up_runtime_fence_participant.rs"],
       "note": "The prior bounded ceremony custody source remains real, but the reviewed RegisterLanSignerAnchor actor/target authority owner, parent-runtime composition, and private runtime-fence participant are absent. The future path must consume live Account current authority plus Device Trust current binding without treating request identifiers or the actor parent-controller device as the target child device."
     },
     "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge": {
       "planSlug": "device-trust-bootstrap-plan",
-      "roots": [
-        "tests/device-trust-bootstrap-plan/contract/phone-qr-approval-bridge.test.mjs"
-      ]
+      "roots": ["tests/device-trust-bootstrap-plan/contract/phone-qr-approval-bridge.test.mjs"]
     },
     "WP-device-trust-bootstrap-plan-05-entitlement-device-license": {
       "planSlug": "device-trust-bootstrap-plan",
@@ -3835,9 +3766,7 @@
     "WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption": {
       "planSlug": "device-trust-bootstrap-plan",
       "codeExpectation": "tests-only",
-      "roots": [
-        "tests/device-trust-bootstrap-plan/contract/dependency-adoption.test.mjs"
-      ]
+      "roots": ["tests/device-trust-bootstrap-plan/contract/dependency-adoption.test.mjs"]
     },
     "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate": {
       "planSlug": "device-trust-bootstrap-plan",
@@ -4718,10 +4647,7 @@
     "WP-screen-plan-30-test-suite-playwright-rollout-pr-gate": {
       "planSlug": "screen-plan",
       "codeExpectation": "tests-only",
-      "roots": [
-        "scripts/test/screen-plan-closure-audit.mjs",
-        "scripts/test/screen-plan-external-gates-proof.mjs"
-      ]
+      "roots": ["scripts/test/screen-plan-closure-audit.mjs", "scripts/test/screen-plan-external-gates-proof.mjs"]
     },
     "WP-screen-plan-31-screen-intelligence-router": {
       "planSlug": "screen-plan",
@@ -4768,9 +4694,7 @@
         "crates/screen-capture-adapter/src/managed_browser_cdp.rs",
         "crates/screen-ai-core/tests/unit/pipeline_decision.rs"
       ],
-      "plannedImplementationRoots": [
-        "crates/agent-service/src/screen_managed_browser_structured_route_composition.rs"
-      ],
+      "plannedImplementationRoots": ["crates/agent-service/src/screen_managed_browser_structured_route_composition.rs"],
       "note": "Reviewed fail-closed production source now provides a bounded CDP structural probe, opaque producer binding, redacted/digest-only handoff, frozen-capture safety checks, and neutral screen-router input. Commit 55fc8ba13 deleted and rejected the prior screen_managed_browser_cdp_runtime.rs root, so it is not an accepted implementation target. No executable service caller composes the browser owner with policy safe-disclosure authority, unknown sensitivity never authorizes capture or NoScreenNeeded, and the planned structured-route composition owner plus all focused tests remain absent."
     },
     "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path": {
@@ -4803,23 +4727,17 @@
     "WP-screen-plan-34-ocr-tesseract-baseline": {
       "planSlug": "screen-plan",
       "codeExpectation": "tests-only",
-      "roots": [
-        "scripts/test/screen-ocr-tesseract-baseline-proof.mjs"
-      ]
+      "roots": ["scripts/test/screen-ocr-tesseract-baseline-proof.mjs"]
     },
     "WP-screen-plan-35-ocr-paddleocr-ppocr-evaluation": {
       "planSlug": "screen-plan",
       "codeExpectation": "tests-only",
-      "roots": [
-        "scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs"
-      ]
+      "roots": ["scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs"]
     },
     "WP-screen-plan-36-small-vlm-guided-classifier-evaluation": {
       "planSlug": "screen-plan",
       "codeExpectation": "code-and-tests",
-      "expectedTestRoots": [
-        "scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"
-      ],
+      "expectedTestRoots": ["scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"],
       "roots": [
         "crates/screen-ai-core/src/screen_ai_pipeline",
         "crates/screen-ai-core/src/screen_ai_pipeline_logic.rs",
@@ -4870,9 +4788,7 @@
     "WP-screen-plan-40-detector-prompt-packs-and-schema-tests": {
       "planSlug": "screen-plan",
       "codeExpectation": "tests-only",
-      "roots": [
-        "scripts/test/screen-detector-prompt-pack-proof.mjs"
-      ]
+      "roots": ["scripts/test/screen-detector-prompt-pack-proof.mjs"]
     },
     "WP-screen-plan-screen-control-settings-inventory": {
       "planSlug": "screen-plan",
@@ -5051,10 +4967,7 @@
     },
     "WP-tracking-plan-19-nearby-place-provider-abstraction": {
       "planSlug": "tracking-plan",
-      "roots": [
-        "crates/tracking-core/src/nearby_place.rs",
-        "crates/tracking-core/tests/unit/nearby_place.rs"
-      ]
+      "roots": ["crates/tracking-core/src/nearby_place.rs", "crates/tracking-core/tests/unit/nearby_place.rs"]
     },
     "WP-tracking-plan-20-google-places-and-poi-provider-adapter": {
       "planSlug": "tracking-plan",
@@ -5132,10 +5045,7 @@
     },
     "WP-tracking-plan-28-temporary-live-tracking-mode": {
       "planSlug": "tracking-plan",
-      "roots": [
-        "crates/tracking-core/src/temporary_live.rs",
-        "crates/tracking-core/tests/rollback/temporary_live.rs"
-      ]
+      "roots": ["crates/tracking-core/src/temporary_live.rs", "crates/tracking-core/tests/rollback/temporary_live.rs"]
     },
     "WP-tracking-plan-29-missing-device-mode": {
       "planSlug": "tracking-plan",
@@ -5841,9 +5751,7 @@
     "WP-data-custody-storage-plan-06-report-query-custody": {
       "planSlug": "data-custody-storage-plan",
       "codeExpectation": "code-and-tests",
-      "expectedTestRoots": [
-        "packages/schema-domain/tests/contract/report-query-custody.test.ts"
-      ],
+      "expectedTestRoots": ["packages/schema-domain/tests/contract/report-query-custody.test.ts"],
       "roots": [
         "crates/family-identity-core/src/account_identity_authority.rs",
         "crates/family-identity-core/src/account_identity_authority_capability.rs",
@@ -6346,9 +6254,7 @@
         "crates/agent-service/tests/enforcement_eventing_journal.rs",
         "crates/agent-service/tests/parent_runtime_intent_ingress.rs"
       ],
-      "plannedImplementationRoots": [
-        "crates/parent-runtime-core/src/parent_runtime_intent_ingress.rs"
-      ],
+      "plannedImplementationRoots": ["crates/parent-runtime-core/src/parent_runtime_intent_ingress.rs"],
       "expectedTestRoots": [
         "crates/agent-service/tests/parent_runtime_intent_ingress.rs",
         "crates/parent-runtime-core/tests/integration/parent_runtime_intent_ingress.rs"
@@ -6515,16 +6421,12 @@
     "WP-eventing-plan-12-rollout-proof-and-pr-gate": {
       "planSlug": "eventing-plan",
       "codeExpectation": "tests-only",
-      "roots": [
-        "scripts/test/eventing-rollout-proof.mjs"
-      ]
+      "roots": ["scripts/test/eventing-rollout-proof.mjs"]
     },
     "WP-eventing-plan-13-test-folder-layout-regression-audit": {
       "planSlug": "eventing-plan",
       "codeExpectation": "tests-only",
-      "roots": [
-        "crates/ocentra-eventing/tests"
-      ]
+      "roots": ["crates/ocentra-eventing/tests"]
     },
     "WP-lan-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "lan-plan",
@@ -7469,12 +7371,8 @@
     },
     "WP-app-game-plan-48-portal-source-freshness-surface": {
       "planSlug": "app-game-plan",
-      "roots": [
-        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts"
-      ],
-      "expectedTestRoots": [
-        "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"
-      ]
+      "roots": ["vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts"],
+      "expectedTestRoots": ["apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"]
     },
     "WP-app-game-plan-49-category-risk-policy-routing": {
       "planSlug": "app-game-plan",
@@ -7620,9 +7518,7 @@
     },
     "WP-app-game-plan-63-source-freshness-source-panel-polish": {
       "planSlug": "app-game-plan",
-      "roots": [
-        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts"
-      ]
+      "roots": ["vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts"]
     },
     "WP-app-game-plan-64-notification-provider-status-handoff": {
       "planSlug": "app-game-plan",
@@ -10193,12 +10089,8 @@
         "crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs",
         "crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"
       ],
-      "plannedImplementationRoots": [
-        "crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs"
-      ],
-      "expectedTestRoots": [
-        "crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"
-      ],
+      "plannedImplementationRoots": ["crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs"],
+      "expectedTestRoots": ["crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"],
       "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, job retry/restart custody, and provider-neutral adapter are not implemented yet. Direct dependencies retain the WP05 base authority-consumer seam and add Account WP05A's multi-owner coordinator/recovery typed Data handoff for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions; WP05A is the owner-coordinator route, not WP05. Remote-view/remote-control capability and controller-lease reservations are outside this Data route."
     },
     "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs": {
@@ -10208,12 +10100,8 @@
         "crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs",
         "crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"
       ],
-      "plannedImplementationRoots": [
-        "crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"
-      ],
-      "expectedTestRoots": [
-        "crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"
-      ],
+      "plannedImplementationRoots": ["crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"],
+      "expectedTestRoots": ["crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"],
       "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes. Direct dependencies retain the WP05 base authority-consumer seam and add Account WP05A's multi-owner coordinator/recovery typed Data handoff for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions; WP05A is the owner-coordinator route, not WP05. Remote-view/remote-control capability and controller-lease reservations are outside this Data route."
     },
     "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount": {
@@ -10228,9 +10116,7 @@
         "crates/parent-runtime-core/src/data_custody_runtime_composition.rs",
         "crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs"
       ],
-      "expectedTestRoots": [
-        "crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs"
-      ],
+      "expectedTestRoots": ["crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs"],
       "note": "New blocked composition/custody-mount owner. The planned parent-runtime roots are absent and remain gated on the Account WP05 base authority transaction/CAS handoff, the Account WP05A multi-owner outcome for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions and typed Data handoff jointly resolved with Device Trust and Protected Custody, key/import custody, producer artifact custody, WP09 provider operation capability, and WP10 owner-derived outcomes. Remote-view/remote-control capability and controller-lease reservations are outside this Data route; no private traits become public and no runtime completeness is implied."
     },
     "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation": {
@@ -10275,6 +10161,20 @@
         "crates/ocentra-protected-capability-custody-provisioner/Cargo.toml",
         "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
         "crates/ocentra-protected-capability-custody-provisioner/src/provisioning",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/ceremony.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/cng.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/constants.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/enrollment.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/error.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/mod.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_digest.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_security.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm_error.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/state.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm_error.rs",
         "crates/protected-capability-custody-core/src/binding_test.rs",
         "crates/protected-capability-custody-core/src/storage_schema_test.rs",
         "crates/protected-capability-custody-core/src/custody_transition_test.rs",
@@ -10307,7 +10207,21 @@
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs",
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
-        "crates/ocentra-protected-capability-custody-provisioner/src/main.rs"
+        "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/ceremony.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/cng.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/constants.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/enrollment.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/error.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/mod.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_digest.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_security.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm_error.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/state.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm_error.rs"
       ],
       "expectedTestRoots": [
         "crates/protected-capability-custody-core/src/binding_test.rs",
@@ -10399,7 +10313,7 @@
           }
         ]
       },
-      "note": "Independently reviewed Protected WP01 source branch 8df832f2d is integrated at canonical 9375b0e10. The graph maps 99 implementation files, 0 tests, and no Cargo workspace requirement gaps for the accepted core/FFI source; it also records the expected WP01-owned fixed BIN-only provisioner package at its Cargo manifest, main target, and private provisioning directory. The packet contains the package-local-unsafe Windows FFI mechanics and private cfg(windows) core broker-admission modules preserving opaque peer/transcript construction, pub(crate) platform guards, BrokerPlatformOwner, and existing broker runtime methods. Core is the current FFI consumer; the WP01-owned BIN-only provisioner is the only other permitted FFI consumer, while broker/client/other consumers remain prohibited. Installer-owned TPM policy/non-exportable handle enrollment, a real caller, all 13 expected tests, proof, and runtime readiness remain absent; startup stays DeploymentRequired before DB/state/listener."
+      "note": "Independently reviewed Protected WP01 CNG/TPM and read-only provisioner source is integrated at canonical a6d7d9adf. The graph maps 114 implementation files, 0 tests, and no Cargo workspace requirement gaps for the mapped core/FFI/provisioner source; exact provisioner Cargo, main, and provisioning modules are mapped. The packet contains package-local-unsafe Windows FFI mechanics, private cfg(windows) core broker-admission modules preserving opaque peer/transcript construction, pub(crate) platform guards, BrokerPlatformOwner, existing broker runtime methods, and a BIN-only preflight that only reads/revalidates enrolled state and always returns ExternalProvisioningRequired. Core is the current FFI consumer; the WP01-owned BIN-only provisioner is the only other permitted FFI consumer, while broker/client/other consumers remain prohibited. External OEM/firmware/MDM TPM_RH_PLATFORM authority and NV define/undefine lifecycle, authenticated owner handoff, protected registry/SCM mutation, independent broker/client/token observations, enrolled counter generation, core monotonic provider, real transport callers, all 13 expected tests, proof, and runtime readiness remain absent; startup stays DeploymentRequired before DB/state/listener."
     }
   }
 }

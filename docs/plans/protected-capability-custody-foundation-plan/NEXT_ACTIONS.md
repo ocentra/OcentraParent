@@ -9,20 +9,22 @@
 
 <!-- /agent-capsule -->
 
-1. The FFI package and private `cfg(windows)` core adapter source is accepted
-   and integrated at canonical `9375b0e10` from reviewed branch `8df832f2d`.
-   Preserve the package-local unsafe boundary, private enrollment/peer/SCM/
-   monotonic policy, and sealed core constructors. The graph records 99
-   implementation files, 0 tests, and no workspace requirement gaps for the
-   accepted core/FFI packages; the planned provisioner manifest, workspace
-   member, and BIN target remain missing. This is not READY or DONE evidence.
-2. Complete the protected runtime authority that remains unavailable:
-   installer-owned TPM policy and non-exportable handle enrollment, with
-   fail-closed `DeploymentRequired` before DB/state/listener mutation when the
-   record is absent, contradictory, revoked, stale, or unavailable. WP01 owns
-   the fixed BIN-only provisioner source and protected acceptance/opaque
-   outcomes; Parent Runtime WP12 owns only package invocation and lifecycle.
-3. Add the real enrolled production caller only after the protected owner and
+1. Preserve the accepted CNG/TPM mechanics, private `cfg(windows)` core
+   adapter, and the WP01-owned BIN-only provisioner source integrated at
+   canonical `a6d7d9adf`. The graph records 114 implementation files, 0 tests,
+   and no workspace requirement gaps. The provisioner is only a read-only
+   preflight: it revalidates enrollment and always returns
+   `ExternalProvisioningRequired`; it cannot create or publish enrollment.
+   This is not READY or DONE evidence.
+2. Obtain the external protected runtime authority that remains unavailable:
+   OEM/firmware/MDM authorization for `TPM_RH_PLATFORM` plus NV define/undefine
+   lifecycle, authenticated owner handoff, protected registry/SCM mutation,
+   enrolled counter generation, independent broker/client/token observations,
+   and the core monotonic provider. Startup must remain fail-closed
+   `DeploymentRequired` before DB/state/listener mutation; there is no reachable
+   success path in the current checkout. Parent Runtime WP12 owns only package
+   invocation and lifecycle.
+3. Add real broker/client transport callers only after the protected owner and
    WP12 package boundaries exist. No second helper process/protocol,
    caller-supplied identity/attestation, raw `authValue`, disk generation
    restore, or caller-minted authority is allowed.

@@ -22677,7 +22677,7 @@
             "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "WP12 is the parent-side package owner for the protected broker/provisioner MSI/WiX, elevated custom-action/build boundary, and upgrade/rollback/uninstall contract. It consumes the Protected WP01 private core/FFI enrollment boundary and the WP03 parent desktop package surface. It may not accept raw authValue or caller authority, edit the child-agent installer, or claim protected readiness; source, tests, proof, signing, and runtime availability remain open."
+          "reason": "WP12 is the parent-side package owner for the protected broker/provisioner MSI/WiX, elevated custom-action/build boundary, and upgrade/rollback/uninstall contract. It consumes the Protected WP01 private core/FFI enrollment boundary and the WP03 parent desktop package surface. WP01's current BIN preflight only revalidates enrolled state and always returns ExternalProvisioningRequired; it does not establish protected authority. WP12 may not accept raw authValue or caller authority, edit the child-agent installer, or claim protected readiness; package source, tests, proof, signing, and runtime availability remain open. External OEM/firmware/MDM TPM_RH_PLATFORM authority and authenticated owner handoff remain outside this package route."
         }
       },
       "completion": {
@@ -24877,7 +24877,7 @@
       "metadata": {
         "planSlug": "protected-capability-custody-foundation-plan",
         "indexPath": "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation blocked — reviewed FFI/private-core source integrated; TPM policy/provisioner, installer enrollment, caller, 13 tests, proof, and completion remain open.",
+        "statusText": "Validation blocked — CNG/TPM and read-only provisioner source integrated; external platform authority, owner handoff, callers, 13 tests, proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -24901,7 +24901,21 @@
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs",
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
-            "crates/ocentra-protected-capability-custody-provisioner/src/main.rs"
+            "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/ceremony.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/cng.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/constants.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/enrollment.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/error.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/mod.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_digest.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_security.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm_error.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/state.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm_error.rs"
           ],
           "testRoots": [
             "crates/protected-capability-custody-core/src/binding_test.rs",
@@ -24927,10 +24941,10 @@
             "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Fail-closed protected-custody source is integrated through 1b46b5935 from source packet 3d8231e796. ADR-PCC-002 routes the missing repair in order: raw Win32/TBS/TPM/owned-handle FFI, private core Windows enrollment/peer/SCM/monotonic modules at the existing runtime seams, installer/SCM enrollment, then a real caller. Core depends on the FFI package; broker dependency remains core/protocol. The private modules preserve BrokerPeerAdmissionObservation/Transcript construction, pub(crate) sealed guards, BrokerPlatformOwner, and existing runtime methods. Safe process/token/registry/monotonic authority, enrollment, caller, 11 existing tests plus two core-private adapter/TPM test roots, proof, and runtime availability remain absent; source routing does not imply READY or DONE."
+          "reason": "Protected WP01 CNG/TPM mechanics, private core Windows adapter, and the WP01-owned BIN-only read-only preflight are integrated at a6d7d9adf. ADR-PCC-002 preserves one broker front door, package-local raw FFI, private core enrollment/peer/SCM/monotonic modules, and no public authority constructor. The preflight only reads/revalidates enrolled state and always returns ExternalProvisioningRequired; it cannot create or publish enrollment. External OEM/firmware/MDM TPM_RH_PLATFORM authority and NV define/undefine lifecycle, authenticated owner handoff, protected registry/SCM mutation, independent current observations, enrolled counter generation, core monotonic provider, real transport callers, 13 tests, proof, and runtime availability remain absent; source routing does not imply READY or DONE."
         },
         "stateOverride": {
-          "reason": "Independently reviewed source branch 8df832f2d is integrated at canonical 9375b0e10. The Windows FFI mechanics, private core process/token/image/registry/SCM observations, exact TPM NV public/Name verification, and fail-closed preflight before database/state/listener mutation are present; the workspace requirements for those accepted packages have no gaps. Runtime remains unavailable because installer-owned TPM policy/non-exportable authorization, the WP01-owned BIN-only provisioner package, immutable enrollment ceremony, and a real production caller are absent. All 13 expected tests, proof, pre-commit, CI, PR, and completion remain open. This does not imply READY, runtime availability, PR readiness, merge to main, or DONE.",
+          "reason": "Independently reviewed CNG/TPM mechanics, private core adapter, and the WP01-owned BIN-only read-only provisioner preflight are integrated at canonical a6d7d9adf. The graph maps 114 implementation files, 0 tests, and no workspace requirement gaps for the mapped packages. The preflight only reads/revalidates enrolled state and always returns ExternalProvisioningRequired; it cannot create or publish enrollment. Runtime remains unavailable because external OEM/firmware/MDM TPM_RH_PLATFORM authority and NV define/undefine lifecycle, authenticated owner handoff, protected registry/SCM mutation, independent broker/client/token observations, enrolled counter generation, the core monotonic provider, and real transport callers are absent. All 13 expected tests, proof, pre-commit, CI, PR, and completion remain open. This does not imply READY, runtime availability, PR readiness, merge to main, or DONE.",
           "evidence": [
             "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
             "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
@@ -24972,7 +24986,21 @@
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs",
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
-            "crates/ocentra-protected-capability-custody-provisioner/src/main.rs"
+            "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/ceremony.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/cng.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/constants.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/enrollment.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/error.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/mod.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_digest.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_security.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm_error.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/state.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm_error.rs"
           ],
           "tests": [
             "crates/protected-capability-custody-core/src/binding_test.rs",

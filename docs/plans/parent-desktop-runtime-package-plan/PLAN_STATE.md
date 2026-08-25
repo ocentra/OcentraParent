@@ -1,6 +1,6 @@
 # Parent Client Runtime Distribution Plan State
 
-Status: WP03 parent desktop shell and WP06 parent local-service route bridge have independently accepted refreshed production source but are active until their complete expected-test wave, focused execution, and proof revalidation finish. WP01, WP02, WP04, WP08, and WP09 retain their earlier bounded closure; remaining implementation and proof for later workpacks remain open. Protected WP01's private FFI/core source boundary is now accepted at canonical `9375b0e10`; WP12 remains blocked as a package-only contract until its real installer/provisioner/package evidence exists.
+Status: WP03 parent desktop shell and WP06 parent local-service route bridge have independently accepted refreshed production source but are active until their complete expected-test wave, focused execution, and proof revalidation finish. WP01, WP02, WP04, WP08, and WP09 retain their earlier bounded closure; remaining implementation and proof for later workpacks remain open. Protected WP01's CNG/TPM mechanics, private FFI/core boundary, and read-only BIN provisioner preflight are integrated at canonical `a6d7d9adf`; the preflight always fails closed with `ExternalProvisioningRequired`, and WP12 remains blocked as a package-only contract until its real installer/package evidence exists.
 
 Research status: aligned against the current repo parent client surfaces, the existing desktop/mobile proof scripts, and the runtime-distribution guidance in the pasted apply set. The historical `parent-desktop-runtime-package-plan` path is retained for compatibility only.
 
@@ -114,7 +114,7 @@ graph, proof, test, CI, package, store, or release status.
 | WP09 launch smoke | `scripts/dev/dev-parent-desktop.mjs`, platform smoke scripts, and Tauri launch anchors | Launch scripts and package smoke are reachable validation paths only; they do not add product runtime behavior or readiness authority. | No code; validation-only. |
 | WP10 setup handoff | `parent-runtime-core` Start-route panel projection and `apps/portal/src/SetupFirstRunRoutePanel.tsx` | The surface explicitly reports setup runtime unavailable; no setup producer or install-state handoff caller is present in this plan. Setup journey owner remains external. | No code; setup owner blocked. |
 | WP11 proof/CI gate | CI workflows and release-support proof scripts | Aggregates evidence only; no product runtime caller or authority. CI/proof work is deferred by phase. | No code; proof/CI-only. |
-| WP12 protected broker provisioner | Planned parent-side MSI/WiX/custom-action/build/lifecycle roots under `scripts/release/windows/parent-protected-custody/` and its package test roots; it invokes the WP01-owned BIN-only provisioner | No real custom action, package invocation, protected enrollment, or lifecycle test family is present. The WP01-owned BIN has no library/public API and accepts no caller/MSI-provided path, index, policy, auth, identity, or success input. Existing child-agent WiX is not a substitute. | Routing-only; blocked on real package invocation/test/proof evidence after consuming the accepted Protected WP01 owner boundary. |
+| WP12 protected broker provisioner | Planned parent-side MSI/WiX/custom-action/build/lifecycle roots under `scripts/release/windows/parent-protected-custody/` and its package test roots; it invokes the WP01-owned BIN-only provisioner | No real custom action, package invocation, protected enrollment, or lifecycle test family is present. The WP01-owned BIN is read-only preflight with no library/public API; it always fails closed and accepts no caller/MSI-provided path, index, policy, auth, identity, or success input. External platform authority/owner handoff remains unavailable. Existing child-agent WiX is not a substitute. | Routing-only; blocked on real package invocation/test/proof evidence after consuming the accepted Protected WP01 owner boundary. |
 
 Open gaps:
 
@@ -123,9 +123,11 @@ Open gaps:
 - Focused parent-client SBOM artifact proof is still blocked/manual-required in WP08 until a bounded artifact owner path is routed.
 - Parent launch smoke rows now exist, but web local launch and parent-mobile artifact launch remain blocked or manual-required until their owning portal/mobile surfaces close the recorded blockers.
 - Setup handoff contracts are not explicit in a single source.
-- Parent-side protected broker/provisioner MSI/WiX, fixed BIN-only provisioner,
-  custom-action, build, and upgrade/rollback/uninstall contract is routed as
-  WP12; its source, installer ceremony, tests, and proof remain absent.
+- Parent-side protected broker/provisioner MSI/WiX, fixed BIN-only provisioner
+  invocation, custom-action, build, and upgrade/rollback/uninstall contract is
+  routed as WP12; its package source, installer ceremony, tests, and proof
+  remain absent. WP01's current preflight does not establish enrollment or
+  protected readiness.
 - Child-agent distribution proof is owned by `child-agent-runtime-distribution-plan`, not this plan.
 - WP01 scope and route-boundary reconciliation is complete.
 - WP02 hosted parent web portal distribution is complete, but production publishing, account backend/runtime, setup readiness, and child runtime authority remain explicit non-claims outside this workpack.

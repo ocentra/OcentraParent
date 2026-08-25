@@ -11,11 +11,12 @@
 <!-- /agent-capsule -->
 
 Choose exactly one workpack. The source map and graph-native workspace
-requirements are deliberately separate: the core/protocol/broker/client/FFI
-and private core Windows production roots are now live, reviewed topology at
-canonical `9375b0e10`, while the WP01-owned installer-side BIN-only provisioner,
-the Parent Runtime WP12 package/lifecycle invocation, production caller, and
-13 test roots remain expected and missing.
+requirements are deliberately separate: the core/protocol/broker/client/FFI,
+private core Windows production roots, and the WP01-owned BIN-only provisioner
+preflight are live, reviewed topology at canonical `a6d7d9adf`. The preflight
+only revalidates existing enrollment and always fails with
+`ExternalProvisioningRequired`; Parent Runtime WP12 package/lifecycle
+invocation, production callers, and 13 test roots remain open.
 
 The implementation-only repair route is governed by
 [ADR-PCC-002](adr/ADR-PCC-002.md). It selects one existing Rust Windows
@@ -25,7 +26,7 @@ identity, public proof construction, or fake authority.
 
 | Status | Workpack | Source boundary | Required proof tier | Open condition |
 | --- | --- | --- | --- | --- |
-| validation / source accepted; runtime and test closure open | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Active fail-closed core, neutral protocol, isolated Windows broker, client, private FFI mechanics, and private core Windows adapter at reviewed canonical `9375b0e10` (99 implementation files / 0 tests) | P0 security/persistence/platform | TPM policy/non-exportable handle authority, installer/provisioner enrollment, a real caller, 13 expected tests, proof, and runtime availability remain absent. |
+| validation / source accepted; runtime and test closure open | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Active fail-closed core, neutral protocol, isolated Windows broker, client, private FFI mechanics, private core Windows adapter, and read-only BIN provisioner preflight at reviewed canonical `a6d7d9adf` (114 implementation files / 0 tests) | P0 security/persistence/platform | External OEM/firmware/MDM `TPM_RH_PLATFORM` + NV lifecycle, authenticated owner handoff, protected registry/SCM mutation, independent current observations, monotonic provider, real transport caller, 13 expected tests, proof, and runtime availability remain absent. |
 
 ## Ownership and dependency rules
 
@@ -58,8 +59,9 @@ identity, public proof construction, or fake authority.
   manifest, `src/main.rs`, and private `src/provisioning/` directory. It has no
   library or public API, performs only the fixed installer-owned operation, and
   may not accept caller/MSI-provided path, index, policy, auth, identity, or
-  success values. WP12 only invokes/packages this binary and owns its MSI/WiX,
-  build, and lifecycle roots; the package source remains absent.
+  success values. The preflight cannot establish enrollment and leaves startup
+  fail-closed. WP12 only invokes/packages this binary and owns its MSI/WiX,
+  build, and lifecycle roots; the WP12 package source remains absent.
 - The future core adapter must verify retained pipe/process/token handles, SID,
   integrity, session, image/SCM identity, exact registry owner/protected
   DACL/ACE/ancestor chain, nonce/expiry/replay, and TPM2 NV/TBS monotonic
