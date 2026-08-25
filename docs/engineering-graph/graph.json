@@ -24877,7 +24877,7 @@
       "metadata": {
         "planSlug": "protected-capability-custody-foundation-plan",
         "indexPath": "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation blocked — ADR-PCC-002 private-core repair route recorded; Windows FFI/core adapter, installer/caller, tests, proof, and completion remain open.",
+        "statusText": "Validation blocked — reviewed FFI/private-core source integrated; TPM policy/provisioner, installer enrollment, caller, 13 tests, proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -24900,7 +24900,8 @@
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs",
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs",
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
-            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs"
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/main.rs"
           ],
           "testRoots": [
             "crates/protected-capability-custody-core/src/binding_test.rs",
@@ -24929,7 +24930,7 @@
           "reason": "Fail-closed protected-custody source is integrated through 1b46b5935 from source packet 3d8231e796. ADR-PCC-002 routes the missing repair in order: raw Win32/TBS/TPM/owned-handle FFI, private core Windows enrollment/peer/SCM/monotonic modules at the existing runtime seams, installer/SCM enrollment, then a real caller. Core depends on the FFI package; broker dependency remains core/protocol. The private modules preserve BrokerPeerAdmissionObservation/Transcript construction, pub(crate) sealed guards, BrokerPlatformOwner, and existing runtime methods. Safe process/token/registry/monotonic authority, enrollment, caller, 11 existing tests plus two core-private adapter/TPM test roots, proof, and runtime availability remain absent; source routing does not imply READY or DONE."
         },
         "stateOverride": {
-          "reason": "The graph schema permits only the validation lifecycle override here. ADR-PCC-002 records the implementation-only source order and the graph may separately derive implementation authorization for the absent FFI manifest/lib and private core Windows module roots. Independently reviewed production source satisfies the existing root manifest, neutral protocol package, isolated broker/client manifests and targets, active workspace membership, and narrow sealed core broker-admission facade. Core will depend on the FFI crate while broker remains core/protocol-only; private modules preserve opaque peer/transcript construction and pub(crate) platform guards. The safety block remains because the FFI crate, private core process/token observation, exact protected registry owner/DACL/parent-chain verification, TPM2 NV/TBS non-restorable monotonic authority, installer/SCM enrollment, a real production caller, 11 existing tests plus two core-private adapter/TPM test roots, proof, and runtime availability are absent. This does not imply READY, PR, merge, or DONE.",
+          "reason": "Independently reviewed source branch 8df832f2d is integrated at canonical 9375b0e10. The Windows FFI mechanics, private core process/token/image/registry/SCM observations, exact TPM NV public/Name verification, and fail-closed preflight before database/state/listener mutation are present; the workspace requirements for those accepted packages have no gaps. Runtime remains unavailable because installer-owned TPM policy/non-exportable authorization, the WP01-owned BIN-only provisioner package, immutable enrollment ceremony, and a real production caller are absent. All 13 expected tests, proof, pre-commit, CI, PR, and completion remain open. This does not imply READY, runtime availability, PR readiness, merge to main, or DONE.",
           "evidence": [
             "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
             "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
@@ -24970,7 +24971,8 @@
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs",
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs",
             "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
-            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs"
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/main.rs"
           ],
           "tests": [
             "crates/protected-capability-custody-core/src/binding_test.rs",
@@ -25047,6 +25049,17 @@
                 {
                   "kind": "lib",
                   "path": "crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs"
+                }
+              ]
+            },
+            {
+              "manifest": "crates/ocentra-protected-capability-custody-provisioner/Cargo.toml",
+              "package": "ocentra-protected-capability-custody-provisioner",
+              "activeMember": true,
+              "requiredTargets": [
+                {
+                  "kind": "bin",
+                  "path": "crates/ocentra-protected-capability-custody-provisioner/src/main.rs"
                 }
               ]
             }

@@ -2719,7 +2719,7 @@
       "expectedTestRoots": [
         "tests/repo-tooling/parent-protected-custody-package.test.mjs"
       ],
-      "note": "Routing-only parent-side MSI/WiX/custom-action/build and upgrade/rollback/uninstall boundary. Protected WP01 owns private core/FFI enrollment acceptance, TPM policy, non-exportable handle, exact registry/SCM/peer authority, and opaque proofs. No raw authValue or caller-supplied authority is allowed; existing child-agent WiX is out of scope. Source, tests, proof, signing, and runtime readiness remain absent."
+      "note": "Routing-only parent-side MSI/WiX/custom-action/build and upgrade/rollback/uninstall boundary. Protected WP01 owns the separate fixed BIN-only provisioner source and its private FFI use; WP12 only invokes and packages that owner-approved binary. No raw authValue or caller-supplied authority is allowed; existing child-agent WiX is out of scope. Package scripts, lifecycle tests, proof, signing, and runtime readiness remain absent."
     },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
@@ -10272,6 +10272,9 @@
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs",
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/Cargo.toml",
+        "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning",
         "crates/protected-capability-custody-core/src/binding_test.rs",
         "crates/protected-capability-custody-core/src/storage_schema_test.rs",
         "crates/protected-capability-custody-core/src/custody_transition_test.rs",
@@ -10303,7 +10306,8 @@
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs",
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs",
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs"
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/main.rs"
       ],
       "expectedTestRoots": [
         "crates/protected-capability-custody-core/src/binding_test.rs",
@@ -10381,10 +10385,21 @@
                 "path": "crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs"
               }
             ]
+          },
+          {
+            "manifest": "crates/ocentra-protected-capability-custody-provisioner/Cargo.toml",
+            "package": "ocentra-protected-capability-custody-provisioner",
+            "activeMember": true,
+            "requiredTargets": [
+              {
+                "kind": "bin",
+                "path": "crates/ocentra-protected-capability-custody-provisioner/src/main.rs"
+              }
+            ]
           }
         ]
       },
-      "note": "Fail-closed source is integrated through 1b46b5935 from origin/codex/protected-capability-custody-repair-round3-aug24 at 3d8231e796. ADR-PCC-002 now routes one absent package-local-unsafe Windows FFI crate plus private cfg(windows) core broker-admission modules that preserve opaque peer/transcript construction, pub(crate) platform guards, BrokerPlatformOwner, and existing broker runtime methods. The broker retains core/protocol dependencies only; installer/SCM enrollment, TPM2 NV monotonic authority, a real caller, all 11 existing tests plus two core-private adapter/TPM test roots, proof, and runtime readiness remain absent; startup remains unavailable."
+      "note": "Independently reviewed Protected WP01 source branch 8df832f2d is integrated at canonical 9375b0e10. The graph maps 99 implementation files, 0 tests, and no Cargo workspace requirement gaps for the accepted core/FFI source; it also records the expected WP01-owned fixed BIN-only provisioner package at its Cargo manifest, main target, and private provisioning directory. The packet contains the package-local-unsafe Windows FFI mechanics and private cfg(windows) core broker-admission modules preserving opaque peer/transcript construction, pub(crate) platform guards, BrokerPlatformOwner, and existing broker runtime methods. Core is the current FFI consumer; the WP01-owned BIN-only provisioner is the only other permitted FFI consumer, while broker/client/other consumers remain prohibited. Installer-owned TPM policy/non-exportable handle enrollment, a real caller, all 13 expected tests, proof, and runtime readiness remain absent; startup stays DeploymentRequired before DB/state/listener."
     }
   }
 }

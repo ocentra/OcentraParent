@@ -14,39 +14,35 @@
 
 ## Source-consolidation checkpoint — 2026-08-25
 
-The fail-closed four-package source packet is integrated through
-`1b46b5935` (source branch `origin/codex/protected-capability-custody-repair-round3-aug24`
-at `3d8231e796`). Core, protocol, broker, and client source are present, but
-safe pinned Windows process/token observation, protected registry owner/DACL
-verification, installer/SCM enrollment, and a real production caller remain
-missing. All 11 expected core/protocol/broker/client test roots are absent.
-The broker therefore remains unavailable before custody state creation. No
-tests, proof, CI, PR, READY, or DONE claim changes here.
+The independently reviewed Protected WP01 source packet is integrated. The
+reviewed source branch was `8df832f2d`; canonical merge commit
+`9375b0e10` records the integrated FFI/private-core packet. The current graph
+topology records 99 implementation files and 0 tests, with no Cargo workspace
+requirement gaps for the accepted core/FFI packages. The planned provisioner
+manifest, workspace member, and BIN target remain missing (`cargo metadata
+--no-deps` remains authoritative). Focused host and Windows checks,
+architecture/source-shape and Enforcer guards, and
+the lane/hub guards passed for this source packet. This is source acceptance
+evidence only: no tests, proof, pre-commit, CI, PR, READY, or DONE claim is
+made here.
 
-The plan is an active neutral foundation route with one workpack in
-validation. Independently reviewed production source now includes the core,
-neutral protocol, isolated broker process, client, and narrow broker-admission
-facade as active Cargo workspace members. It is still not an operating custody
-system:
+The plan remains an active neutral foundation route with one workpack in
+`validation`. The FFI mechanics and private core Windows adapter source are
+now present, but the system is still not operating protected custody:
 
-- admission/open/platform authority is sealed inside the crate;
-- the SQLite state is a checked replica, not the authority for protected
-  capability custody;
-- the separate broker/client/protocol boundary and bounded wire source exist,
-  but successful peer admission remains unavailable before state creation;
-- no safe pinned Windows process/token observation, exact protected registry
-  owner/DACL/parent-chain verifier, non-restorable monotonic provider, immutable
-  broker/SCM anchor, installer/SCM enrollment, or production caller exists;
-- the expected unit, security, recovery, concurrency, and Windows integration
-  tests are not present;
-- no current proof, pre-commit, CI, PR, or merge claim exists for this route.
+- admission/open/platform authority remains sealed inside the core;
+- SQLite remains a checked replica, not protected authority;
+- the separate broker/client/protocol boundary and private FFI/core adapter
+  source exist, while runtime admission remains unavailable;
+- startup returns `DeploymentRequired` before DB/state/listener mutation when
+  the required TPM policy and non-exportable handle authority are unavailable;
+- installer/provisioner enrollment and a real production caller remain open;
+- all 13 expected test roots remain absent, as do retained proof and release
+  evidence.
 
-The graph records the route as `validation`. Its graph-owned workspace
-requirements now observe the root manifest, each package manifest, required
-`lib`/`bin` targets, and active Cargo workspace membership; `cargo metadata
---no-deps` remains authoritative. Source presence and focused compilation do
-not derive ordinary READY or DONE while the protected adapters, tests, caller,
-proof, and release gates remain open.
+The graph records the route as `validation`. Source acceptance and focused
+compilation do not derive ordinary READY or DONE while the TPM policy/handle,
+installer, caller, test, proof, and release gates remain open.
 
 ## Installer-side ownership checkpoint — 2026-08-25
 
@@ -56,14 +52,19 @@ parent-side Windows MSI/WiX package, elevated custom-action/provisioner
 invocation, build/release wiring, and upgrade/rollback/uninstall contract. Its
 expected package roots are `scripts/release/windows/parent-protected-custody/`,
 `scripts/release/windows/parent-protected-custody.wxs`, and
-`scripts/release/windows/build-parent-protected-custody-package.ps1`; generated
+`scripts/release/windows/build-parent-protected-custody-package.ps1`. WP12
+invokes and packages the fixed installer-owned provisioner binary but does not
+own its source. The BIN-only provisioner package, its Cargo manifest, `src/main.rs`,
+and private `src/provisioning/` implementation directory are Protected WP01
+source roots recorded in the graph. Generated
 MSI/checksum/signing outputs belong under `target/release-packages/` and are not
 source truth.
 
 Protected WP01 remains the sole owner of the private core/FFI Windows adapter,
 enrollment provenance, registry/SCM/peer authority, TPM policy and
-non-exportable-handle validation, and opaque admission/transcript proofs. The
-parent package may invoke an approved elevated provisioner but may not expose
+non-exportable-handle validation, opaque admission/transcript proofs, and the
+fixed BIN-only provisioner source boundary. The parent package may invoke an
+approved elevated provisioner but may not expose
 or accept a raw TPM `authValue`, TPM index/policy, SID, path, image identity,
 generation, lease, capability, or success flag from MSI properties, command
 line, setup, or a production caller. This is routing only: the package roots,
@@ -76,9 +77,9 @@ gains one additional workpack.
 ADR-PCC-002 selects one Rust Windows front-door process: the existing protected
 broker continues to depend on core and protocol, while core depends on one tiny
 Windows FFI crate. The safe adapter is private `cfg(windows)` core modules;
-there is no second helper process, helper protocol, or public adapter crate. The
-graph now records these absent planned production roots and workspace
-obligations:
+there is no second helper process, helper protocol, or public adapter crate.
+The FFI/private-core source roots below are integrated at `9375b0e10` and are
+reviewed source truth, not merely absent planned roots:
 
 ```text
 crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml
@@ -108,10 +109,11 @@ index, TBS failure, or enrollment mismatch fails closed and requires re-pair;
 disk state never restores the generation.
 
 This is graph implementation-phase routing only. If the graph derives
-implementation authorization, it authorizes only the missing production repair
+implementation authorization, it authorizes only the remaining production
 roots; the normal WP01 lifecycle remains `validation`, not READY or DONE. The
-current broker/client stubs remain blocked until the replacement exists. The
-11 existing expected test roots remain absent, with these core-private
+broker/client/FFI/private-core source is present, but runtime remains blocked
+until the TPM policy/non-exportable handle and installer/caller boundaries are
+operational. All 13 expected test roots remain absent, with these core-private
 adapter/TPM test expectations recorded as absent planned tests only:
 
 ```text
@@ -165,9 +167,12 @@ crates/protected-capability-custody-client/src/windows_ipc.rs
 crates/protected-capability-custody-client/src/admission.rs
 ```
 
-The planned implementation roots are one FFI manifest/lib and the private
-`cfg(windows)` core module tree named in the ADR. No second adapter manifest,
-package, public target, or workspace obligation is present.
+The integrated implementation roots are one FFI manifest/lib, the private
+`cfg(windows)` core module tree named in the ADR, and the expected WP01-owned
+BIN-only provisioner manifest, `main` target, and private provisioning
+directory. No second adapter manifest or public target is present. Parent
+Runtime WP12 owns only the package invocation/lifecycle roots and consumes the
+WP01-owned binary.
 
 `broker_admission.rs` is a narrow core-owned facade seam: it may expose only
 typed broker-entry/request/result operations after authenticated process/IPC
@@ -191,10 +196,10 @@ its persisted profile/path state cannot become protected authority.
 
 ## Exit conditions
 
-The workpack can leave validation only after the real FFI crate, private core
-Windows adapter modules, installer/SCM enrollment, and a production caller
-exist; focused source and
-boundary validation are green; all expected tests are written and executed;
+The workpack can leave validation only after the integrated source is backed by
+the required TPM policy/non-exportable handle authority, installer/SCM
+provisioning, and a production caller; focused source and boundary validation
+are green; all 13 expected tests are written and executed;
 the broker owns the protected operation; restart/recovery and concurrent
 reservations are covered; and retained proof/checklist/merge evidence is
 current. Until then, keep the state open and report the exact missing adapter

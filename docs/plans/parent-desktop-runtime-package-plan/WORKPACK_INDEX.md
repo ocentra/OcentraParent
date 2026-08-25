@@ -51,9 +51,12 @@ WP07 handles signing/store/notarization matrix before release claims.
 WP08 handles update/rollback/checksum/SBOM.
 WP09 handles launch smoke by artifact/platform.
 WP10 handles setup handoff contract only.
-WP12 handles the parent-side protected broker/provisioner MSI/WiX and lifecycle
-contract; it consumes Protected WP01's accepted owner boundary and the WP03
-desktop package surface, without owning protected authority.
+WP12 handles the parent-side protected broker/provisioner MSI/WiX, invokes the
+fixed WP01-owned BIN-only provisioner, and owns the package/lifecycle contract;
+it consumes Protected WP01's accepted owner boundary and the WP03 desktop
+package surface, without owning protected authority or the provisioner Cargo
+source. The provisioner has no library or public API and may not accept
+caller/MSI-provided path, index, policy, auth, identity, or success values.
 WP11 is last and consumes all previous proof roots, including WP12.
 ```
 

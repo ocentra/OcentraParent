@@ -13,22 +13,30 @@
 ## Intent
 
 Provide the one neutral protected-capability custody boundary that other owners
-can consume without obtaining or manufacturing protected authority. The current
-`ocentra-protected-capability-custody-core` is a real fail-closed substrate for
-binding, custody transitions, path validation, platform records, and checked
-SQLite replica state. The neutral protocol, broker, and client packages plus the
-core-owned admission facade are now active production source, but the broker is
-deliberately unavailable before state creation because the required protected
-Windows authority adapters and installer-owned enrollment do not yet exist.
+can consume without obtaining or manufacturing protected authority. The
+fail-closed core, neutral protocol, broker, client, Windows FFI mechanics, and
+private core Windows adapter are reviewed and integrated at canonical
+`9375b0e10` from source branch `8df832f2d`. The graph records 99 implementation
+files, 0 tests, and no Cargo workspace requirement gaps for the accepted
+core/FFI packages; the planned provisioner manifest, workspace member, and BIN
+target remain missing. The broker remains deliberately unavailable before state
+creation because installer-owned TPM policy/non-exportable handle authority is
+still unavailable.
 
 The installer-side enrollment boundary is deliberately split. Parent Client
-Runtime Distribution WP12 owns the parent Windows MSI/WiX package, elevated
-custom-action/provisioner invocation, build wiring, and upgrade/rollback/
-uninstall lifecycle. This workpack owns the private core/FFI acceptance of the
-installer-provisioned record and the opaque protected outcome. Neither WP12 nor
-any parent caller may submit a raw `authValue`, TPM index/policy, SID, path,
-generation, lease, capability, or success assertion; the TPM authorization
-secret stays behind the approved non-exportable handle and policy.
+Runtime Distribution WP12 owns the parent Windows MSI/WiX package, the
+installer-only BIN provisioner invocation, build wiring, and
+upgrade/rollback/uninstall lifecycle. This workpack owns the private core/FFI
+acceptance of the installer-provisioned record, TPM policy, non-exportable
+handle validation, and opaque protected outcome. Neither WP12 nor any parent
+caller may submit a raw `authValue`, TPM index/policy, SID, path, generation,
+lease, capability, or success assertion; the TPM authorization secret stays
+behind the approved non-exportable handle and policy.
+
+The accepted source packet is implementation evidence, not operational
+completion: focused host/Windows checks and Enforcer/architecture/guard checks
+passed, while the installer, caller, 13 expected tests, proof, CI, READY, and
+DONE remain open.
 
 ## Existing production source
 
@@ -56,31 +64,49 @@ crates/protected-capability-custody-broker/Cargo.toml
 crates/protected-capability-custody-broker/src/
 crates/protected-capability-custody-client/Cargo.toml
 crates/protected-capability-custody-client/src/
+crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml
+crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/
 ```
 
-The 2026-08-24 source packet was independently reviewed for consolidation. It
-adds the isolated-process/package boundary, one shared bounded wire protocol,
+The 2026-08-25 source packet was independently reviewed on branch
+`8df832f2d` and integrated at canonical `9375b0e10`; the graph maps 99
+implementation files and 0 tests with no workspace requirement gaps for the
+accepted core/FFI packages. The planned provisioner manifest, workspace member,
+and BIN target remain missing. The packet adds the isolated-process/package
+boundary, one shared bounded wire protocol,
 opaque request/result types, startup preflight, dynamic enrolled-client pipe
 ACL construction, split immutable-enrollment/runtime registry custody, and a
-narrow core-owned broker entry. Internal authority constructors remain private.
+narrow core-owned broker entry plus the raw Windows FFI and private core adapter
+modules. Internal authority constructors remain private.
 The service fails with `DeploymentRequired` before opening storage, registry,
 journal, listener, bootstrap, or service-ready state when protected admission is
-unavailable. SQLite remains a checked replica; it cannot become the authority
-merely because it is durable.
+unavailable because the required TPM policy/non-exportable handle authority is
+not available. SQLite remains a checked replica; it cannot become the authority
+merely because it is durable. Focused host/Windows checks and Enforcer,
+architecture, source-shape, and guard checks passed; tests, proof, CI, PR,
+READY, and DONE remain open.
 
 ## Required source boundary
 
-The source topology now contains a separate Windows broker binary, a client
-boundary, and the neutral `protected-capability-custody-protocol` wire owner as
-active Cargo workspace members. This is source presence, not operating custody.
-The remaining production boundary is one FFI package owned by core plus
-private `cfg(windows)` modules under `broker_admission/platform/windows*`. It
-must provide a safe pinned Windows `OpenProcess` observation, impersonated
-token SID/integrity/session observation, exact registry owner/DACL/parent-chain
-verification, a non-restorable monotonic provider, immutable broker/SCM
-identity, installer/SCM provisioning, and a real enrolled caller. Until those
-owners exist, startup must remain unavailable and must not create or mutate
-custody state.
+The source topology now contains the separate Windows broker, client, neutral
+`protected-capability-custody-protocol`, and Windows FFI packages as active
+Cargo workspace members, with private `cfg(windows)` adapter modules inside the
+core package. This is source presence, not operating custody. The remaining
+production boundary is the installer-owned TPM policy and
+non-exportable handle, the WP01-owned BIN-only provisioner source and WP12
+package invocation/lifecycle, and a real enrolled caller. The expected
+provisioner source roots are:
+
+```text
+crates/ocentra-protected-capability-custody-provisioner/Cargo.toml
+crates/ocentra-protected-capability-custody-provisioner/src/main.rs
+crates/ocentra-protected-capability-custody-provisioner/src/provisioning/
+```
+
+Until those owners exist, startup must remain unavailable and must not create
+or mutate custody state.
 
 The core now exposes only the narrow, explicitly reviewed
 `src/broker_admission.rs` facade seam. That facade accepts broker-owned inputs
@@ -97,33 +123,28 @@ action, generation, and broker state.
 
 ## ADR-PCC-002 implementation-only repair route
 
-The missing source repair is one Windows front-door process: the existing
+The accepted source repair is one Windows front-door process: the existing
 `ocentra-protected-capability-custody-broker` continues depending on core and
 protocol, while core depends on one tiny FFI package and owns the safe adapter
 privately. It does not add a helper process, a second protocol, or a public
 adapter crate. The external seam remains one broker dispatch/open-session
 path; the broker derives identity from authenticated Windows peer observation,
-not from caller fields.
+not from caller fields. This source route was reviewed on `8df832f2d` and
+integrated at canonical `9375b0e10`; the graph records 99 implementation files,
+0 tests, and no workspace requirement gaps for the accepted core/FFI packages.
+The planned provisioner manifest, workspace member, and BIN target remain
+missing.
 
-The graph records these absent planned production roots:
-
-```text
-crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml
-crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs
-crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs
-crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs
-crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs
-crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs
-crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs
-```
-
-The FFI package is limited to raw Win32/TBS/TPM calls and safe owned-handle RAII
-wrappers. Its manifest must use package-local lint tables, not
+The integrated FFI package is limited to raw Win32/TBS/TPM calls and safe
+owned-handle RAII wrappers. Its manifest uses package-local lint tables, not
 `[lints] workspace = true`, set `unsafe_code = "allow"` and
 `unsafe_op_in_unsafe_fn = "deny"`, and manually mirror every workspace
 Rust/Clippy deny except `unsafe_code`. The safe adapter is private core code;
-core and broker continue inheriting `[lints] workspace = true`. The private
-modules preserve construction of `BrokerPeerAdmissionObservation` and
+core and broker continue inheriting `[lints] workspace = true`. Only the core
+and the exact WP01-owned BIN-only provisioner package may depend on this FFI
+crate; broker, client, and all other consumers remain prohibited from depending
+on it. The
+private modules preserve construction of `BrokerPeerAdmissionObservation` and
 `BrokerAuthorizedClientTranscript`, the `pub(crate)` sealed platform
 traits/guards, `BrokerPlatformOwner`, and the existing broker-facing runtime
 methods. No raw handle, identity constructor, attestation, key selector, or
@@ -142,16 +163,16 @@ missing/deleted NV index, TBS failure, or enrollment mismatch fails closed and
 requires re-pair; disk, JSON, SQLite, and rollback state cannot restore the
 generation.
 
-Implementation order is raw owned-handle/TBS/TPM wrappers, private core
-enrollment/peer/SCM/monotonic modules, construction through the existing core
-runtime methods, installer/SCM provisioning, and then a real production caller.
-The current broker/client stubs remain blocked until the replacement exists.
-This route is implementation phase authorization only; normal validation state,
-tests, proof, PR, merge, READY, and DONE remain open.
+The source implementation order is complete through the raw owned-handle/TBS/
+TPM wrappers, private core enrollment/peer/SCM/monotonic modules, and existing
+core runtime seam. The remaining order is the WP01-owned BIN-only provisioner
+source and installer/SCM provisioning, WP12 package invocation/lifecycle, and
+then a real production caller. This route remains in validation; tests, proof,
+PR, merge, READY, and DONE remain open.
 
 ## Expected test source
 
-The complete test wave is intentionally deferred until the source packet is
+The complete 13-test wave is intentionally deferred until the source packet is
 stable. Internal core behavior must use core-owned unit-test modules under
 `src/` so private storage/path/authority state is tested without making those
 constructors public. The two planned Windows tests are:
@@ -182,10 +203,10 @@ Cloudflare, platform, caller, test, or proof blockers.
 
 ## Acceptance gates
 
-Keep WP01 open until the FFI crate, private core Windows adapter modules,
-installer/SCM enrollment, and real production caller exist; the complete core,
-protocol, broker, and client expected test roots are written and run; the
-Windows process/IPC and owner-bound custody negative cases are retained;
+Keep WP01 open until the integrated source is joined to installer-owned TPM
+policy/non-exportable handle enrollment, WP12 provisioning, and a real
+production caller; all 13 expected test roots are written and run; the Windows
+process/IPC and owner-bound custody negative cases are retained;
 Enforcer/architecture checks pass; and proof/checklist state is current.
 Independently reviewed source consolidation does not change normal READY,
 PR_READY, CI, merge, or DONE state.
