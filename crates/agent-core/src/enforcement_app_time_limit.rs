@@ -1,17 +1,13 @@
 use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
 use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
 use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementAction, EnforcementAdapterKind, EnforcementAdapterResultCode,
-    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
-    EnforcementMode, EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
-    EnforcementUnavailableReason, ParentPlatform,
+    EnforcementAction, EnforcementAdapterKind, EnforcementCapabilityState,
+    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementMode,
+    EnforcementPermissionState, EnforcementUnavailableReason, ParentPlatform,
 };
 use ocentra_parent_agent_protocol::policy_constants;
 
-use crate::enforcement_adapter::{
-    terminate_owned_process, unavailable_adapter_outcome, EnforcementAdapterOutcome,
-    OwnedProcessTerminationTarget,
-};
+use crate::enforcement_adapter::{unavailable_adapter_outcome, EnforcementAdapterOutcome};
 
 #[path = "enforcement_app_time_limit_platform.rs"]
 mod enforcement_app_time_limit_platform;
@@ -99,18 +95,15 @@ pub fn app_time_limit_target_from_action(
 }
 
 pub fn expire_app_time_limit_for_owned_process(
-    target: AppTimeLimitAdapterTarget,
+    _target: AppTimeLimitAdapterTarget,
     completed_at: &str,
 ) -> EnforcementAdapterOutcome {
-    let outcome = terminate_owned_process(
-        OwnedProcessTerminationTarget {
-            pid: target.pid,
-            expected_process_name: target.expected_process_name,
-        },
-        completed_at,
-    );
-
-    time_limit_outcome_from_process_outcome(outcome, completed_at)
+    // Timer state currently carries policy/action/session evidence but not the
+    // authenticated delivery grant and managed-process binding required to
+    // authorize an OS effect. Keep expiry fail-closed until that executor is
+    // composed instead of forwarding caller-shaped PID/name evidence to the
+    // raw process adapter.
+    unavailable_app_time_limit_outcome(EnforcementUnavailableReason::ManualRequired, completed_at)
 }
 
 pub fn unavailable_app_time_limit_outcome(
@@ -118,28 +111,6 @@ pub fn unavailable_app_time_limit_outcome(
     completed_at: &str,
 ) -> EnforcementAdapterOutcome {
     unavailable_adapter_outcome(unavailable_reason, completed_at)
-}
-
-fn time_limit_outcome_from_process_outcome(
-    outcome: EnforcementAdapterOutcome,
-    completed_at: &str,
-) -> EnforcementAdapterOutcome {
-    if outcome.status == EnforcementResultStatus::ActuallyEnforced
-        || (outcome.status == EnforcementResultStatus::NoOp
-            && outcome.adapter_result_code == EnforcementAdapterResultCode::ProcessAlreadyExited)
-    {
-        return EnforcementAdapterOutcome {
-            status: EnforcementResultStatus::Expired,
-            adapter_result_code: outcome.adapter_result_code,
-            completed_at: Some(completed_at.to_string()),
-            unavailable_reason: None,
-            failed_reason: None,
-            rollback_token: outcome.rollback_token,
-            rollback_state: EnforcementRollbackState::NotRequired,
-        };
-    }
-
-    outcome
 }
 
 #[cfg(not(windows))]
