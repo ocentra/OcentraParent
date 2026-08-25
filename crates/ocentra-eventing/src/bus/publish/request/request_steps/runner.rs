@@ -1,3 +1,4 @@
+use crate::request::RequestRegistry;
 use crate::{EventMetadata, EventingError, RequestEvent, RequestId, RequestOptions, RequestReport};
 
 use super::super::EventBus;
@@ -20,6 +21,11 @@ where
     let bus_for_publish = bus.clone();
     let mut publish =
         tokio::spawn(async move { bus_for_publish.publish_root(event, metadata).await });
+    let _request_cancellation = RequestCancellation::new(
+        bus.requests.clone(),
+        request_id.clone(),
+        publish.abort_handle(),
+    );
     let mut timeout = bus.clock.sleep(options.timeout());
     let mut publish_report = None;
     let mut response_payload = None;
@@ -64,4 +70,31 @@ where
     complete_request::<E>(request_id, &mut publish_report, &mut response_payload)?.ok_or_else(
         || EventingError::invalid_value("request_state", "publish or response result missing"),
     )
+}
+
+struct RequestCancellation {
+    requests: RequestRegistry,
+    request_id: RequestId,
+    publish_abort: tokio::task::AbortHandle,
+}
+
+impl RequestCancellation {
+    fn new(
+        requests: RequestRegistry,
+        request_id: RequestId,
+        publish_abort: tokio::task::AbortHandle,
+    ) -> Self {
+        Self {
+            requests,
+            request_id,
+            publish_abort,
+        }
+    }
+}
+
+impl Drop for RequestCancellation {
+    fn drop(&mut self) {
+        self.requests.cancel_pending(&self.request_id);
+        self.publish_abort.abort();
+    }
 }

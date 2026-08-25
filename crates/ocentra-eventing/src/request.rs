@@ -155,6 +155,18 @@ impl RequestRegistry {
         removed
     }
 
+    pub(crate) fn cancel_pending(&self, request_id: &RequestId) -> bool {
+        let mut state = self.state.lock().expect_value("request registry lock");
+        let is_pending = matches!(
+            state.entries.get(request_id),
+            Some(entry) if entry.state == RequestState::Pending
+        );
+        if !is_pending {
+            return false;
+        }
+        state.entries.remove(request_id).is_some()
+    }
+
     pub(crate) fn metrics(&self) -> EventRequestMetrics {
         let state = self.state.lock().expect_value("request registry lock");
         EventRequestMetrics {
