@@ -22670,15 +22670,27 @@
         "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/entitlement-core/src/entitlement_snapshot.rs",
+            "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
+            "crates/schema/src/billing_entitlement_proof.rs",
+            "crates/schema/src/billing_entitlement_values_ts.rs"
+          ],
+          "testRoots": [
+            "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs",
+            "crates/schema/tests/contract/billing_entitlement_proof.rs",
+            "crates/schema/tests/contract/billing_entitlement_values.rs"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md"
-          ],
+          "implementation": [],
           "tests": [
             "docs/plans/payment-subscription-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
@@ -22687,6 +22699,19 @@
             "docs/plans/payment-subscription-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "crates/entitlement-core/src/entitlement_snapshot.rs",
+            "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
+            "crates/schema/src/billing_entitlement_proof.rs",
+            "crates/schema/src/billing_entitlement_values_ts.rs"
+          ],
+          "tests": [
+            "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs",
+            "crates/schema/tests/contract/billing_entitlement_proof.rs",
+            "crates/schema/tests/contract/billing_entitlement_values.rs"
+          ]
         }
       }
     },

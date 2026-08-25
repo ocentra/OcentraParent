@@ -2213,8 +2213,10 @@
     },
     "WP-payment-subscription-plan-01-product-pricing-entitlement": {
       "planSlug": "payment-subscription-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
         "crates/schema/src/billing_entitlement.snapshot-and-device-limit.template.txt",
         "crates/schema/src/billing_entitlement_values.template.txt",
         "crates/schema/src/billing_entitlement_proof.rs",
@@ -2225,8 +2227,21 @@
         "packages/schema-domain/src/billing-entitlement-values.ts",
         "packages/schema-domain/src/generated-billing-entitlement.ts",
         "packages/schema-domain/src/generated-billing-entitlement-values.ts",
-        "packages/schema-domain/src/generated-billing-entitlement-proof.ts"
-      ]
+        "packages/schema-domain/src/generated-billing-entitlement-proof.ts",
+        "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
+        "crates/schema/src/billing_entitlement_proof.rs",
+        "crates/schema/src/billing_entitlement_values_ts.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs",
+        "crates/schema/tests/contract/billing_entitlement_proof.rs",
+        "crates/schema/tests/contract/billing_entitlement_values.rs"
+      ],
+      "note": "Live Rust source owns checked base/referral/paid-seat derivation and an unsigned-only projection. No production caller, durable provider billing/referral ledger, Account/Device-Trust authority composition, or issuer bridge reaches it. The focused entitlement-core derivation test root is absent; generated TypeScript is edge parity only. No test, proof, READY, or DONE claim follows."
     },
     "WP-payment-subscription-plan-02-checkout-billing-portal": {
       "planSlug": "payment-subscription-plan",
