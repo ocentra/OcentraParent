@@ -1,8 +1,8 @@
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::{env, net::{IpAddr, Ipv4Addr, SocketAddr}};
 
 use axum::{
     extract::Json,
-    http::{Method, StatusCode},
+    http::{HeaderValue, Method, StatusCode},
     routing::post,
     Router,
 };
@@ -21,7 +21,7 @@ use ocentra_schema::parent_ui_bridge::{
     PARENT_DEV_BRIDGE_DISPATCH_PATH, PARENT_DEV_BRIDGE_LOAD_ROUTE_PATH,
 };
 use serde::Deserialize;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ParentDevBridgeFailure(String);
@@ -58,6 +58,9 @@ struct ParentDevBridgeDispatchRequest {
 }
 
 struct ParentDevBridgeAgentAddress(String);
+
+#[derive(Clone, Copy)]
+struct AllowedOriginsTextRef<'a>(&'a str);
 
 pub fn configured_parent_dev_bridge_address() -> Option<SocketAddr> {
     let port = std::env::var(constants::env_var::PARENT_DEV_BRIDGE_PORT)
@@ -149,12 +152,39 @@ fn parent_dev_bridge_router() -> Router {
             PARENT_DEV_BRIDGE_DISPATCH_PATH,
             post(parent_dev_bridge_dispatch),
         )
-        .layer(
-            CorsLayer::new()
-                .allow_origin(Any)
-                .allow_methods([Method::POST, Method::OPTIONS])
-                .allow_headers(Any),
-        )
+        .layer(parent_dev_bridge_cors_layer())
+}
+
+fn parent_dev_bridge_cors_layer() -> CorsLayer {
+    CorsLayer::new()
+        .allow_origin(AllowOrigin::list(read_allowed_origins()))
+        .allow_methods([Method::POST, Method::OPTIONS])
+        .allow_headers(Any)
+}
+
+fn read_allowed_origins() -> Vec<HeaderValue> {
+    env::var(constants::env_var::AGENT_ALLOWED_ORIGINS)
+        .ok()
+        .map(|value| parse_allowed_origins(AllowedOriginsTextRef(&value)))
+        .filter(|origins| !origins.is_empty())
+        .unwrap_or_else(default_allowed_origins)
+}
+
+fn parse_allowed_origins(input: AllowedOriginsTextRef<'_>) -> Vec<HeaderValue> {
+    input
+        .0
+        .split(constants::delimiter::LIST)
+        .map(str::trim)
+        .filter(|origin| !origin.is_empty())
+        .filter_map(|origin| HeaderValue::from_str(origin).ok())
+        .collect()
+}
+
+fn default_allowed_origins() -> Vec<HeaderValue> {
+    constants::bind::DEFAULT_ALLOWED_ORIGINS
+        .iter()
+        .map(|origin| HeaderValue::from_static(origin))
+        .collect()
 }
 
 pub fn log_parent_dev_bridge_error(
