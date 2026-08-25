@@ -1,3 +1,4 @@
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
 use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterAuditReferenceState;
@@ -211,28 +212,33 @@ fn artifact_status_specs() -> [EntrySpec; 3] {
 }
 
 fn app_game_timer_spec() -> EntrySpec {
-    implemented_spec(ImplementedSpecInput {
+    EntrySpec {
         proof_entry_id: proof::ENTRY_ID_APP_GAME_TIMER,
         runtime_boundary: V08SupportedAdapterRuntimeBoundary::WindowsAppGameOwnedProcessTimeLimit,
+        platform: ParentPlatform::Windows,
         adapter_capability: V08SupportedAdapterCapability::AppGameOwnedProcessTimeLimit,
+        runtime_state: V08SupportedAdapterRuntimeState::ManualRequired,
+        adapter_result: V08SupportedAdapterResult::ManualProofRequired,
+        platform_support_state: V08SupportedAdapterPlatformSupportState::ManualRequired,
         target_identity_state: V08SupportedAdapterTargetIdentityState::ProcessSessionEvidenceBacked,
         rollback_reference_state: V08SupportedAdapterRollbackReferenceState::TimerRecoveryBacked,
+        audit_reference_state: V08SupportedAdapterAuditReferenceState::AuditReferenceBacked,
+        refusal_reason: V08SupportedAdapterRefusalReason::ManualArtifactRequired,
         evidence_refs: &[
             proof::REF_APP_SESSION_EVIDENCE,
             proof::REF_OWNED_PROCESS_IDENTITY,
             proof::REF_TIMER_STATE,
         ],
-        linked_proof_commands: &[
-            proof::COMMAND_APP_TIME_LIMIT_ADAPTER,
-            proof::COMMAND_ENFORCEMENT_TIMER_CARGO,
-        ],
-        linked_proof_artifacts: &[
-            proof::ARTIFACT_APP_TIME_LIMIT_PROOF,
-            proof::ARTIFACT_ENFORCEMENT_TIMER_STATE,
+        linked_proof_commands: &[proof::COMMAND_ENFORCEMENT_TIMER_CARGO],
+        linked_proof_artifacts: &[proof::ARTIFACT_ENFORCEMENT_TIMER_STATE],
+        manual_proof_requirements: &[
+            enforcement_constants::ARTIFACT_APP_TIME_LIMIT_EXECUTOR,
+            proof::REQUIREMENT_ROLLBACK,
+            proof::REQUIREMENT_AUDIT_CUSTODY,
         ],
         claim_boundary: proof::CLAIM_APP_GAME_TIMER,
         fallback_behavior: proof::FALLBACK_APP_GAME_TIMER,
-    })
+    }
 }
 
 fn network_observe_spec() -> EntrySpec {

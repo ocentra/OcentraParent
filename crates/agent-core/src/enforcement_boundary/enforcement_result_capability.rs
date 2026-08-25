@@ -1,6 +1,8 @@
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
 use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementAction, EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementResult,
-    EnforcementResultStatus, EnforcementRollbackState, EnforcementUnavailableReason,
+    EnforcementAction, EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementMode,
+    EnforcementResult, EnforcementResultStatus, EnforcementRollbackState,
+    EnforcementUnavailableReason,
 };
 
 use super::enforcement_result_parts::EnforcementResultParts;
@@ -11,6 +13,14 @@ pub(super) fn capability_state_result(
     input: &EnforcementBoundaryInput,
     action: &EnforcementAction,
 ) -> Option<EnforcementResult> {
+    if input.capability.capability_state == EnforcementCapabilityState::ManualRequired
+        && time_limit_scheduling_is_available(input, action)
+    {
+        // Timer scheduling is a durable state transition. It does not authorize
+        // the missing owned-process expiry effect, which remains manual-required.
+        return None;
+    }
+
     match input.capability.capability_state {
         EnforcementCapabilityState::Unavailable | EnforcementCapabilityState::ManualRequired => {
             let unavailable_reason = capability_unavailable_reason(&input.capability);
@@ -49,6 +59,22 @@ pub(super) fn capability_state_result(
         | EnforcementCapabilityState::Degraded
         | EnforcementCapabilityState::DryRun => None,
     }
+}
+
+fn time_limit_scheduling_is_available(
+    input: &EnforcementBoundaryInput,
+    action: &EnforcementAction,
+) -> bool {
+    action.mode == EnforcementMode::TimeLimit
+        && action.expires_at.is_some()
+        && matches!(
+            action.target.target_type,
+            PolicyTargetType::App | PolicyTargetType::Process
+        )
+        && input
+            .capability
+            .supported_actions
+            .contains(&EnforcementMode::TimeLimit)
 }
 
 fn adapter_result_code_for_unavailable_reason(

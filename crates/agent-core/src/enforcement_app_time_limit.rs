@@ -42,11 +42,11 @@ pub fn app_time_limit_capability(checked_at: &str) -> EnforcementCapabilityStatu
             schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
             platform: ParentPlatform::Windows,
             adapter_kind: EnforcementAdapterKind::ProcessControl,
-            capability_state: EnforcementCapabilityState::Supported,
-            permission_state: EnforcementPermissionState::NotRequired,
-            dependency_state: EnforcementDependencyState::Installed,
+            capability_state: EnforcementCapabilityState::ManualRequired,
+            permission_state: EnforcementPermissionState::Unknown,
+            dependency_state: EnforcementDependencyState::Unknown,
             supported_actions: vec![EnforcementMode::TimeLimit],
-            degraded_reason: None,
+            degraded_reason: Some(enforcement_constants::UNAVAILABLE_MANUAL_REQUIRED.to_string()),
             last_checked_at: checked_at.to_string(),
         }
     }
