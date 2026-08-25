@@ -326,10 +326,26 @@ pub fn targeted_arp_refresh_evidence_for_scan(
     refresh_mode: LanDiscoveryRefreshMode,
     active_refresh_suppression_devices: &[LanPairingDeviceRef],
 ) -> Vec<LanTargetedArpRefreshEvidence> {
-    api::targeted_arp_refresh_evidence_for_scan(
+    api::targeted_arp_refresh::targeted_arp_refresh_evidence_for_scan(
         previous_devices,
         refresh_mode,
         active_refresh_suppression_devices,
+    )
+}
+
+pub fn targeted_arp_refresh_evidence_for_scan_plan_until(
+    scan_plan: &LanDiscoveryScanPlan,
+    previous_devices: &[LanNetworkInventoryDevice],
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+    cancellation: Option<&AtomicBool>,
+    outer_deadline: Option<Instant>,
+) -> Vec<LanTargetedArpRefreshEvidence> {
+    api::targeted_arp_refresh::targeted_arp_refresh_evidence_for_scan_plan_until(
+        scan_plan,
+        previous_devices,
+        active_refresh_suppression_devices,
+        cancellation,
+        outer_deadline,
     )
 }
 

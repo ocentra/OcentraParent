@@ -8,7 +8,7 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 
 use crate::network_inventory_hardware::{local_hardware_profile, local_network_identity};
 
-use super::active_refresh::{scan_plan_for_identity, targeted_arp_refresh_evidence_for_identity};
+use super::active_refresh::scan_plan_for_identity;
 use super::helpers::{
     discovered_child_device_ref, discovery_hint_sources, discovery_state_for_reachability,
 };
@@ -16,10 +16,11 @@ use super::neighbor_support::{discovery_evidence_source_from_scan_source, effect
 use super::service_identity::{self, AllowedSnmpResponseObserver};
 use super::{
     LanDiscoveryRefreshMode, LanManualInterfaceSelection, LanNetworkInventoryDevice,
-    LanPassiveRuntimeLocalNetworkIdentity, LanTargetedArpRefreshEvidence,
+    LanPassiveRuntimeLocalNetworkIdentity,
 };
 
 pub(super) mod cancellation;
+pub(super) mod targeted_arp_refresh;
 
 pub fn discover_lan_network_devices() -> Vec<LanNetworkInventoryDevice> {
     discover_lan_network_devices_with_hints(&[], &[])
@@ -168,22 +169,6 @@ pub fn plan_lan_discovery_scan_with_manual_interface_selection(
         previous_devices,
         refresh_mode,
         active_refresh_suppression_devices,
-    )
-}
-
-pub fn targeted_arp_refresh_evidence_for_scan(
-    previous_devices: &[LanNetworkInventoryDevice],
-    refresh_mode: LanDiscoveryRefreshMode,
-    active_refresh_suppression_devices: &[LanPairingDeviceRef],
-) -> Vec<LanTargetedArpRefreshEvidence> {
-    if refresh_mode != LanDiscoveryRefreshMode::ActiveSubnetRefresh {
-        return Vec::new();
-    }
-    let identity = local_network_identity();
-    targeted_arp_refresh_evidence_for_identity(
-        identity.as_ref(),
-        active_refresh_suppression_devices,
-        previous_devices,
     )
 }
 
