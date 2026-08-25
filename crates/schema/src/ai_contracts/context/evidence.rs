@@ -77,4 +77,14 @@ impl AiEvidenceReference {
     pub fn validation(&self) -> AiReferenceValidationState {
         self.validation
     }
+
+    pub(crate) fn is_grounding_safe(&self) -> bool {
+        matches!(self.validation, AiReferenceValidationState::Validated)
+            && !matches!(
+                self.custody,
+                AiCustodyState::Deleted | AiCustodyState::Unavailable
+            )
+            && matches!(self.retention, AiRetentionState::Active)
+            && !matches!(self.redaction, AiRedactionState::RejectedPrivatePayload)
+    }
 }

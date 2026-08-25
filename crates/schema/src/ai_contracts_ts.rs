@@ -495,7 +495,6 @@ export interface AiRemoteAssistantWireRequest {
   familyId: AiFamilyId;
   authorizationReferenceId: AiAuthorizationReferenceId;
   prompt: AiRemoteAssistantWirePrompt;
-  runtime: AiRuntimeReference | null;
   requestedAt: AiTimestamp;
   state: AiRemoteAssistantState;
 }

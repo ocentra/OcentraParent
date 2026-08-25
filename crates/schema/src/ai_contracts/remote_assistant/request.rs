@@ -1,5 +1,5 @@
 use super::{AiRemoteAssistantRequest, AiRemoteAssistantState};
-use crate::ai_contracts::context::{AiPromptReference, AiRuntimeReference};
+use crate::ai_contracts::context::AiPromptReference;
 use crate::ai_contracts::identity::{AiRemoteAssistantRequestId, AiSchemaVersion, AiTimestamp};
 use crate::ai_contracts::validate_contract_schema_version;
 
@@ -9,7 +9,7 @@ impl AiRemoteAssistantRequest {
         request_id: AiRemoteAssistantRequestId,
         source_bundle: super::AiRemoteAssistantSourceBundle,
         prompt: AiPromptReference,
-        runtime: Option<AiRuntimeReference>,
+        runtime: super::AiRemoteAssistantOwnerResolvedRuntime,
         requested_at: AiTimestamp,
     ) -> Result<Self, &'static str> {
         validate_contract_schema_version(&schema_version)?;
@@ -28,7 +28,7 @@ impl AiRemoteAssistantRequest {
             request_id,
             source_bundle,
             prompt,
-            runtime,
+            runtime: runtime.into_runtime(),
             requested_at,
             state: AiRemoteAssistantState::Submitted,
         })

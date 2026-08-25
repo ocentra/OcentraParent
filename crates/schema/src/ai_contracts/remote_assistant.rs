@@ -13,6 +13,7 @@ use super::{
 mod authorization;
 mod request;
 mod result;
+mod runtime;
 mod source;
 mod wire;
 
@@ -79,8 +80,16 @@ pub struct AiRemoteAssistantRequest {
     state: AiRemoteAssistantState,
 }
 
-/// An untrusted wire prompt. Its task cannot be converted into `AiSafeText`
-/// here; a trusted owner must inspect it and provide an owner-issued prompt.
+/// Owner-resolved runtime metadata. It cannot cross the wire boundary or be
+/// deserialized; only a trusted in-process owner can introduce this marker.
+#[derive(Clone, Debug, PartialEq)]
+pub(crate) struct AiRemoteAssistantOwnerResolvedRuntime {
+    runtime: Option<AiRuntimeReference>,
+}
+
+/// An untrusted wire prompt. Authorization consumes this exact task through an
+/// owner-held redaction receipt; it cannot be silently replaced by another
+/// trusted prompt.
 #[derive(Clone, PartialEq)]
 pub struct AiRemoteAssistantWirePrompt {
     template_id: super::identity::AiPromptTemplateId,
@@ -98,7 +107,6 @@ pub struct AiRemoteAssistantWireRequest {
     family_id: AiFamilyId,
     authorization_reference_id: AiAuthorizationReferenceId,
     prompt: AiRemoteAssistantWirePrompt,
-    runtime: Option<AiRuntimeReference>,
     requested_at: AiTimestamp,
     state: AiRemoteAssistantState,
 }

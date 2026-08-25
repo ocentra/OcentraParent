@@ -60,4 +60,11 @@ impl AiMemoryReference {
     pub fn provenance(&self) -> &super::AiProvenanceLink {
         &self.provenance
     }
+
+    pub(crate) fn is_grounding_safe(&self) -> bool {
+        !matches!(
+            self.custody,
+            AiCustodyState::Deleted | AiCustodyState::Unavailable
+        ) && matches!(self.retention, AiRetentionState::Active)
+    }
 }

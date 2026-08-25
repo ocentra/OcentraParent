@@ -9,6 +9,7 @@ pub mod explanation;
 pub mod identity;
 pub mod journal;
 pub mod memory;
+mod reference_inventory;
 pub mod remote_assistant;
 pub mod result;
 pub mod work;
@@ -159,6 +160,12 @@ impl AiText {
 /// must inspect it and issue an `AiRedactionReceipt` in-process.
 #[derive(Clone, Eq, PartialEq)]
 pub struct AiUntrustedText(String);
+
+impl AiUntrustedText {
+    fn into_owner_text(self) -> String {
+        self.0
+    }
+}
 
 impl<'de> Deserialize<'de> for AiUntrustedText {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>

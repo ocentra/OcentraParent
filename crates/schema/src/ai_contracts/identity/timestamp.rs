@@ -1,4 +1,7 @@
 use std::cmp::Ordering;
+use std::fmt::{Display, Formatter};
+
+use serde::Deserialize;
 
 use super::AiTimestamp;
 
@@ -56,6 +59,16 @@ fn parse_canonical_utc(value: &str) -> Option<AiUtcInstant> {
 }
 
 impl AiTimestamp {
+    pub fn parse(value: impl Into<String>) -> Option<Self> {
+        let value = value.into();
+        parse_canonical_utc(&value)?;
+        Some(Self(value))
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+
     pub(crate) fn is_well_formed(&self) -> bool {
         parse_canonical_utc(self.as_str()).is_some()
     }
@@ -77,5 +90,22 @@ impl AiTimestamp {
 
     fn compare(&self, other: &Self) -> Option<Ordering> {
         Some(parse_canonical_utc(self.as_str())?.cmp(&parse_canonical_utc(other.as_str())?))
+    }
+}
+
+impl<'de> Deserialize<'de> for AiTimestamp {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        Self::parse(value)
+            .ok_or_else(|| serde::de::Error::custom("AI timestamp must be a canonical UTC instant"))
+    }
+}
+
+impl Display for AiTimestamp {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(self.as_str())
     }
 }

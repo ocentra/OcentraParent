@@ -87,7 +87,11 @@ ai_identifier!(AiCapabilityId, "AI capability id");
 ai_identifier!(AiAuthorizationReferenceId, "AI authorization reference id");
 ai_identifier!(AiRemoteAssistantRequestId, "AI remote assistant request id");
 ai_identifier!(AiRemoteAssistantResultId, "AI remote assistant result id");
-ai_identifier!(AiTimestamp, "AI timestamp");
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize)]
+#[serde(transparent)]
+pub struct AiTimestamp(String);
+
 ai_identifier!(AiDigest, "AI digest");
 
 impl AiSchemaVersion {

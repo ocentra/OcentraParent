@@ -6,6 +6,7 @@ use crate::ai_contracts::context::{
 };
 use crate::ai_contracts::identity::AiFamilyId;
 use crate::ai_contracts::memory::{AiGraphReference, AiMemoryReference};
+use crate::ai_contracts::reference_inventory::AiReferenceInventory;
 use crate::ai_contracts::AiSafeText;
 
 impl AiResultPayload {
@@ -20,39 +21,29 @@ impl AiResultPayload {
         prompt: AiPromptReference,
         runtime: Option<AiRuntimeReference>,
     ) -> Result<Self, &'static str> {
-        let evidence_ids = evidence
+        let inventory = AiReferenceInventory::new(&evidence, &memory, &graph, &rules)?;
+        let claim_ids = claims
             .iter()
-            .map(|item| item.evidence_reference_id())
-            .collect::<HashSet<_>>();
-        let memory_ids = memory
-            .iter()
-            .map(|item| item.memory_reference_id())
-            .collect::<HashSet<_>>();
-        let graph_ids = graph
-            .iter()
-            .map(|item| item.graph_reference_id())
-            .collect::<HashSet<_>>();
-        let rule_ids = rules
-            .iter()
-            .map(|rule| rule.rule_id())
+            .map(super::AiClaim::claim_id)
             .collect::<HashSet<_>>();
         let claims_grounded = claims.iter().all(|claim| {
-            claim
-                .evidence_reference_ids()
-                .iter()
-                .all(|id| evidence_ids.contains(id))
+            claim.has_unique_reference_ids()
+                && claim
+                    .evidence_reference_ids()
+                    .iter()
+                    .all(|id| inventory.contains_evidence(id))
                 && claim
                     .memory_reference_ids()
                     .iter()
-                    .all(|id| memory_ids.contains(id))
+                    .all(|id| inventory.contains_memory(id))
                 && claim
                     .graph_reference_ids()
                     .iter()
-                    .all(|id| graph_ids.contains(id))
+                    .all(|id| inventory.contains_graph(id))
                 && claim
                     .rule_reference_ids()
                     .iter()
-                    .all(|id| rule_ids.contains(id))
+                    .all(|id| inventory.contains_rule(id))
         });
         if evidence.iter().any(|item| item.family_id() != &family_id)
             || memory.iter().any(|item| item.family_id() != &family_id)
@@ -61,6 +52,7 @@ impl AiResultPayload {
             || claims
                 .iter()
                 .any(|claim| claim.subject().family_id() != &family_id)
+            || claim_ids.len() != claims.len()
             || !claims_grounded
         {
             return Err("AI result payload contains a family-mismatched identity");

@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use super::{AiExplanation, AiExplanationState};
 use crate::ai_contracts::context::{
     AiEvidenceReference, AiPromptReference, AiRuleReference, AiRuntimeReference,
@@ -8,6 +6,7 @@ use crate::ai_contracts::identity::{
     AiExplanationId, AiFamilyId, AiRequestId, AiResultId, AiSchemaVersion, AiTimestamp,
 };
 use crate::ai_contracts::memory::{AiGraphReference, AiMemoryReference};
+use crate::ai_contracts::reference_inventory::AiReferenceInventory;
 use crate::ai_contracts::{
     validate_contract_schema_version, AiAuthorityBoundary, AiDegradedState, AiRedactionState,
     AiRetentionState, AiValidationState,
@@ -15,36 +14,23 @@ use crate::ai_contracts::{
 
 fn citations_are_grounded(
     sections: &[super::AiExplanationSection],
-    evidence: &[AiEvidenceReference],
-    memory: &[AiMemoryReference],
-    graph: &[AiGraphReference],
+    inventory: &AiReferenceInventory<'_>,
 ) -> bool {
-    let evidence_ids = evidence
-        .iter()
-        .map(|item| item.evidence_reference_id())
-        .collect::<HashSet<_>>();
-    let memory_ids = memory
-        .iter()
-        .map(|item| item.memory_reference_id())
-        .collect::<HashSet<_>>();
-    let graph_ids = graph
-        .iter()
-        .map(|item| item.graph_reference_id())
-        .collect::<HashSet<_>>();
     sections.iter().all(|section| {
         section.citations().iter().all(|citation| {
-            citation
-                .evidence_reference_ids()
-                .iter()
-                .all(|id| evidence_ids.contains(id))
+            citation.has_unique_reference_ids()
+                && citation
+                    .evidence_reference_ids()
+                    .iter()
+                    .all(|id| inventory.contains_evidence(id))
                 && citation
                     .memory_reference_ids()
                     .iter()
-                    .all(|id| memory_ids.contains(id))
+                    .all(|id| inventory.contains_memory(id))
                 && citation
                     .graph_reference_ids()
                     .iter()
-                    .all(|id| graph_ids.contains(id))
+                    .all(|id| inventory.contains_graph(id))
         })
     })
 }
@@ -101,8 +87,9 @@ impl AiExplanation {
         generated_at: AiTimestamp,
     ) -> Result<Self, &'static str> {
         validate_contract_schema_version(&schema_version)?;
+        let inventory = AiReferenceInventory::new(&evidence, &memory, &graph, &rules)?;
         let valid_content = !sections.is_empty()
-            && citations_are_grounded(&sections, &evidence, &memory, &graph)
+            && citations_are_grounded(&sections, &inventory)
             && redaction.is_safe()
             && !matches!(
                 retention,

@@ -92,4 +92,19 @@ impl AiGraphReference {
             || !self.source_evidence_reference_ids.is_empty()
             || self.source_result_id.is_some()
     }
+
+    pub(crate) fn source_memory_reference_id(&self) -> Option<&AiMemoryReferenceId> {
+        self.source_memory_reference_id.as_ref()
+    }
+
+    pub(crate) fn source_evidence_reference_ids(&self) -> &[AiEvidenceReferenceId] {
+        &self.source_evidence_reference_ids
+    }
+
+    pub(crate) fn is_grounding_safe(&self) -> bool {
+        !matches!(
+            self.custody,
+            AiCustodyState::Deleted | AiCustodyState::Unavailable
+        ) && matches!(self.retention, AiRetentionState::Active)
+    }
 }

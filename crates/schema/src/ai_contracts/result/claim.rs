@@ -1,9 +1,19 @@
+use std::collections::HashSet;
+use std::hash::Hash;
+
 use super::{AiClaim, AiResultKind};
 use crate::ai_contracts::identity::{
     AiEvidenceReferenceId, AiGraphReferenceId, AiMemoryReferenceId, AiResultId, AiRuleId,
     AiSubjectIdentity,
 };
 use crate::ai_contracts::{AiAuthorityBoundary, AiConfidence, AiSafeText};
+
+fn unique_ids<T>(ids: &[T]) -> bool
+where
+    T: Eq + Hash,
+{
+    ids.iter().collect::<HashSet<_>>().len() == ids.len()
+}
 
 impl AiClaim {
     pub(crate) fn new(
@@ -17,7 +27,12 @@ impl AiClaim {
         graph_reference_ids: Vec<AiGraphReferenceId>,
         rule_reference_ids: Vec<AiRuleId>,
     ) -> Result<Self, &'static str> {
-        if !matches!(result_kind, AiResultKind::NoClaim) && evidence_reference_ids.is_empty() {
+        if (!matches!(result_kind, AiResultKind::NoClaim) && evidence_reference_ids.is_empty())
+            || !unique_ids(&evidence_reference_ids)
+            || !unique_ids(&memory_reference_ids)
+            || !unique_ids(&graph_reference_ids)
+            || !unique_ids(&rule_reference_ids)
+        {
             return Err("AI claims require at least one evidence reference");
         }
         Ok(Self {
@@ -64,5 +79,12 @@ impl AiClaim {
 
     pub fn authority_boundary(&self) -> AiAuthorityBoundary {
         self.authority_boundary
+    }
+
+    pub(super) fn has_unique_reference_ids(&self) -> bool {
+        unique_ids(&self.evidence_reference_ids)
+            && unique_ids(&self.memory_reference_ids)
+            && unique_ids(&self.graph_reference_ids)
+            && unique_ids(&self.rule_reference_ids)
     }
 }
