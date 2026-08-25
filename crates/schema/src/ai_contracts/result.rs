@@ -2,14 +2,15 @@ use serde::{Deserialize, Serialize};
 
 use super::context::{AiEvidenceReference, AiPromptReference, AiRuleReference, AiRuntimeReference};
 use super::identity::{
-    AiEvidenceReferenceId, AiExplanationId, AiFamilyId, AiGraphReferenceId, AiMemoryReferenceId,
-    AiPolicyReferenceId, AiRequestId, AiResultId, AiRuleId, AiSchemaVersion, AiSubjectIdentity,
-    AiTimestamp, AiWorkItemId,
+    AiDigest, AiEvidenceReferenceId, AiExplanationId, AiFamilyId, AiGraphReferenceId,
+    AiMemoryReferenceId, AiPolicyReferenceId, AiRequestId, AiResultId, AiRuleId, AiSchemaVersion,
+    AiSubjectIdentity, AiTimestamp, AiWorkItemId,
 };
 use super::memory::{AiGraphReference, AiMemoryReference};
 use super::{AiAuthorityBoundary, AiConfidence, AiDegradedState, AiSafeText, AiValidationState};
 
 mod claim;
+mod digest;
 mod document;
 mod handoff;
 mod payload;
@@ -78,6 +79,7 @@ pub struct AiResult {
     degraded_state: AiDegradedState,
     payload: Option<AiResultPayload>,
     explanation_id: Option<AiExplanationId>,
+    digest: AiDigest,
     authority_boundary: AiAuthorityBoundary,
 }
 

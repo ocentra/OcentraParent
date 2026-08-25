@@ -298,6 +298,7 @@ export interface AiGraphReference {
   sourceMemoryReferenceId: AiMemoryReferenceId | null;
   sourceEvidenceReferenceIds: AiEvidenceReferenceId[];
   sourceResultId: AiResultId | null;
+  sourceResultDigest: AiDigest | null;
   generatedAt: AiTimestamp;
   expiresAt: AiTimestamp | null;
   custody: AiCustodyState;
@@ -310,6 +311,7 @@ export interface AiJournalPayloadReference {
   workItemId: AiWorkItemId | null;
   resultId: AiResultId | null;
   explanationId: AiExplanationId | null;
+  contentDigest: AiDigest;
 }
 export interface AiJournalEntry {
   journalEntryId: AiJournalEntryId;
@@ -372,6 +374,7 @@ export interface AiResult {
   degradedState: AiDegradedState;
   payload: AiResultPayload | null;
   explanationId: AiExplanationId | null;
+  digest: AiDigest;
   authorityBoundary: AiAuthorityBoundary;
 }
 export interface AiPolicyHandoff {
@@ -421,6 +424,7 @@ export interface AiDurableWorkLifecycle {
   workItemId: AiWorkItemId;
   requestId: AiRequestId;
   records: AiWorkLifecycleRecord[];
+  maxAttempts: number;
   lastSequence: number;
   durability: AiDurabilityState;
 }

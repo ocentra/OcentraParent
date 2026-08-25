@@ -2,7 +2,9 @@ use std::collections::HashSet;
 use std::hash::Hash;
 
 use super::context::{AiEvidenceReference, AiRuleReference};
-use super::identity::{AiEvidenceReferenceId, AiGraphReferenceId, AiMemoryReferenceId, AiRuleId};
+use super::identity::{
+    AiDigest, AiEvidenceReferenceId, AiGraphReferenceId, AiMemoryReferenceId, AiResultId, AiRuleId,
+};
 use super::memory::{AiGraphReference, AiMemoryReference};
 
 pub(super) struct AiReferenceInventory<'a> {
@@ -24,9 +26,22 @@ fn known_unique_evidence(
     ids: &[AiEvidenceReferenceId],
     inventory: &HashSet<&AiEvidenceReferenceId>,
 ) -> bool {
-    !ids.is_empty()
-        && unique_set(ids.iter(), ids.len()).is_some()
-        && ids.iter().all(|id| inventory.contains(id))
+    unique_set(ids.iter(), ids.len()).is_some() && ids.iter().all(|id| inventory.contains(id))
+}
+
+fn valid_result_binding(result_id: Option<&AiResultId>, digest: Option<&AiDigest>) -> bool {
+    result_id.is_some() == digest.is_some() && digest.is_none_or(AiDigest::is_canonical)
+}
+
+fn valid_grounding(
+    evidence_ids: &[AiEvidenceReferenceId],
+    evidence_inventory: &HashSet<&AiEvidenceReferenceId>,
+    result_id: Option<&AiResultId>,
+    digest: Option<&AiDigest>,
+) -> bool {
+    known_unique_evidence(evidence_ids, evidence_inventory)
+        && valid_result_binding(result_id, digest)
+        && (!evidence_ids.is_empty() || result_id.is_some())
 }
 
 impl<'a> AiReferenceInventory<'a> {
@@ -64,14 +79,21 @@ impl<'a> AiReferenceInventory<'a> {
         if evidence.iter().any(|item| !item.is_grounding_safe())
             || memory.iter().any(|item| {
                 !item.is_grounding_safe()
-                    || !known_unique_evidence(
+                    || !valid_grounding(
                         item.provenance().source_evidence_reference_ids(),
                         &evidence_ids,
+                        item.provenance().source_result_id(),
+                        item.provenance().source_digest(),
                     )
             })
             || graph.iter().any(|item| {
                 !item.is_grounding_safe()
-                    || !known_unique_evidence(item.source_evidence_reference_ids(), &evidence_ids)
+                    || !valid_grounding(
+                        item.source_evidence_reference_ids(),
+                        &evidence_ids,
+                        item.source_result_id(),
+                        item.source_result_digest(),
+                    )
                     || item
                         .source_memory_reference_id()
                         .is_some_and(|id| !memory_ids.contains(id))

@@ -1,3 +1,4 @@
+use super::digest::digest_for;
 use super::{AiJournalEntry, AiJournalEntryKind, AiJournalPayloadKind};
 use crate::ai_contracts::identity::{AiDigest, AiJournalEntryId, AiJournalStreamId, AiTimestamp};
 use crate::ai_contracts::{AiCustodyState, AiDurabilityState, AiRedactionState, AiRetentionState};
@@ -14,7 +15,6 @@ impl AiJournalEntry {
         redaction: AiRedactionState,
         durability: AiDurabilityState,
         occurred_at: AiTimestamp,
-        digest: AiDigest,
     ) -> Result<Self, &'static str> {
         if !matches!(durability, AiDurabilityState::Durable)
             || matches!(
@@ -52,6 +52,18 @@ impl AiJournalEntry {
         if !kind_matches_payload {
             return Err("AI journal entry kind does not match payload kind");
         }
+        let digest = digest_for(
+            &journal_entry_id,
+            &stream_id,
+            sequence,
+            kind,
+            &payload,
+            custody,
+            retention,
+            redaction,
+            durability,
+            &occurred_at,
+        )?;
         Ok(Self {
             journal_entry_id,
             stream_id,
@@ -85,5 +97,25 @@ impl AiJournalEntry {
 
     pub fn durability(&self) -> AiDurabilityState {
         self.durability
+    }
+
+    pub fn digest(&self) -> &AiDigest {
+        &self.digest
+    }
+
+    pub(crate) fn has_valid_digest_binding(&self) -> bool {
+        digest_for(
+            &self.journal_entry_id,
+            &self.stream_id,
+            self.sequence,
+            self.kind,
+            &self.payload,
+            self.custody,
+            self.retention,
+            self.redaction,
+            self.durability,
+            &self.occurred_at,
+        )
+        .is_ok_and(|expected| expected == self.digest)
     }
 }

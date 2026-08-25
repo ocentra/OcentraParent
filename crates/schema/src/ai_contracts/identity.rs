@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter};
 
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use super::AI_CONTRACT_SCHEMA_VERSION;
 
@@ -92,7 +93,49 @@ ai_identifier!(AiRemoteAssistantResultId, "AI remote assistant result id");
 #[serde(transparent)]
 pub struct AiTimestamp(String);
 
-ai_identifier!(AiDigest, "AI digest");
+/// A digest is only issued by this crate from a length-framed canonical
+/// binding.  It intentionally has no public parser or deserializer: a wire
+/// caller may observe a digest, but cannot present an arbitrary string as a
+/// verified digest to a contract constructor.
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize)]
+#[serde(transparent)]
+pub struct AiDigest(String);
+
+impl AiDigest {
+    pub(crate) fn from_canonical_binding(domain: &[u8], fields: &[&[u8]]) -> Self {
+        let mut digest = Sha256::new();
+        Self::update_length_framed(&mut digest, domain);
+        for field in fields {
+            Self::update_length_framed(&mut digest, field);
+        }
+        let bytes: [u8; 32] = digest.finalize().into();
+        let mut encoded = String::with_capacity(bytes.len() * 2);
+        for byte in bytes {
+            encoded.push(Self::HEX[(byte >> 4) as usize] as char);
+            encoded.push(Self::HEX[(byte & 0x0f) as usize] as char);
+        }
+        Self(encoded)
+    }
+
+    pub(crate) fn is_canonical(&self) -> bool {
+        self.0.len() == 64
+            && self
+                .0
+                .bytes()
+                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+
+    fn update_length_framed(digest: &mut Sha256, value: &[u8]) {
+        digest.update((value.len() as u64).to_be_bytes());
+        digest.update(value);
+    }
+
+    const HEX: &'static [u8; 16] = b"0123456789abcdef";
+}
 
 impl AiSchemaVersion {
     pub fn current() -> Self {

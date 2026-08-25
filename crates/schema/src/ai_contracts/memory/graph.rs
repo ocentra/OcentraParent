@@ -1,4 +1,4 @@
-use super::{AiGraphEdgeKind, AiGraphNodeKind, AiGraphReference};
+use super::{AiGraphEdgeKind, AiGraphNodeKind, AiGraphReference, AiResultProvenanceReceipt};
 use crate::ai_contracts::identity::{
     AiEvidenceReferenceId, AiFamilyId, AiGraphNodeId, AiGraphReferenceId, AiMemoryReferenceId,
     AiResultId, AiTimestamp,
@@ -25,12 +25,23 @@ impl AiGraphReference {
         edge_kind: AiGraphEdgeKind,
         source_memory_reference_id: Option<AiMemoryReferenceId>,
         source_evidence_reference_ids: Vec<AiEvidenceReferenceId>,
-        source_result_id: Option<AiResultId>,
+        source_result: Option<AiResultProvenanceReceipt>,
         generated_at: AiTimestamp,
         expires_at: Option<AiTimestamp>,
         custody: AiCustodyState,
         retention: AiRetentionState,
     ) -> Result<Self, &'static str> {
+        if source_result
+            .as_ref()
+            .is_some_and(|receipt| !receipt.is_for_family(&family_id))
+        {
+            return Err("AI graph result family does not match its graph family");
+        }
+        let (source_result_id, source_result_digest) = source_result
+            .map(AiResultProvenanceReceipt::into_parts)
+            .map_or((None, None), |(result_id, digest)| {
+                (Some(result_id), Some(digest))
+            });
         let grounded = !source_evidence_reference_ids.is_empty()
             || source_memory_reference_id.is_some()
             || source_result_id.is_some();
@@ -40,6 +51,10 @@ impl AiGraphReference {
             || expires_at
                 .as_ref()
                 .is_some_and(|expires| !generated_at.precedes(expires))
+            || source_result_id.is_some() != source_result_digest.is_some()
+            || source_result_digest
+                .as_ref()
+                .is_some_and(|digest| !digest.is_canonical())
             || matches!(
                 custody,
                 AiCustodyState::Deleted | AiCustodyState::Unavailable
@@ -60,6 +75,7 @@ impl AiGraphReference {
             source_memory_reference_id,
             source_evidence_reference_ids,
             source_result_id,
+            source_result_digest,
             generated_at,
             expires_at,
             custody,
@@ -91,6 +107,14 @@ impl AiGraphReference {
         self.source_memory_reference_id.is_some()
             || !self.source_evidence_reference_ids.is_empty()
             || self.source_result_id.is_some()
+    }
+
+    pub(crate) fn source_result_id(&self) -> Option<&AiResultId> {
+        self.source_result_id.as_ref()
+    }
+
+    pub(crate) fn source_result_digest(&self) -> Option<&crate::ai_contracts::identity::AiDigest> {
+        self.source_result_digest.as_ref()
     }
 
     pub(crate) fn source_memory_reference_id(&self) -> Option<&AiMemoryReferenceId> {

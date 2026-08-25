@@ -1,6 +1,7 @@
+use super::digest::digest_for;
 use super::{AiOutputValidationState, AiResult};
 use crate::ai_contracts::identity::{
-    AiExplanationId, AiFamilyId, AiRequestId, AiResultId, AiSchemaVersion, AiTimestamp,
+    AiDigest, AiExplanationId, AiFamilyId, AiRequestId, AiResultId, AiSchemaVersion, AiTimestamp,
     AiWorkItemId,
 };
 use crate::ai_contracts::{
@@ -32,6 +33,21 @@ impl AiResult {
         {
             return Err("AI result validation, family, or payload state is inconsistent");
         }
+        let authority_boundary = AiAuthorityBoundary::EvidenceOnly;
+        let digest = digest_for(
+            &schema_version,
+            &family_id,
+            &result_id,
+            &request_id,
+            &work_item_id,
+            &generated_at,
+            validation,
+            output_validation,
+            degraded_state,
+            payload.as_ref(),
+            explanation_id.as_ref(),
+            authority_boundary,
+        )?;
         Ok(Self {
             schema_version,
             family_id,
@@ -44,7 +60,8 @@ impl AiResult {
             degraded_state,
             payload,
             explanation_id,
-            authority_boundary: AiAuthorityBoundary::EvidenceOnly,
+            digest,
+            authority_boundary,
         })
     }
 
@@ -74,5 +91,9 @@ impl AiResult {
 
     pub fn authority_boundary(&self) -> AiAuthorityBoundary {
         self.authority_boundary
+    }
+
+    pub fn digest(&self) -> &AiDigest {
+        &self.digest
     }
 }

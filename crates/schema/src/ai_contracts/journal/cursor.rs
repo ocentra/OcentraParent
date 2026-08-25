@@ -38,15 +38,18 @@ impl AiJournalAppendResult {
         next_sequence: u64,
         durability: AiDurabilityState,
     ) -> Result<Self, &'static str> {
-        if !matches!(durability, AiDurabilityState::Durable)
-            || next_sequence
-                != if accepted {
-                    entry.sequence().checked_add(1)
-                } else {
-                    Some(entry.sequence())
-                }
-                .unwrap_or(u64::MAX)
-        {
+        if !matches!(durability, AiDurabilityState::Durable) {
+            return Err("AI journal append result does not describe a durable sequence");
+        }
+        let expected_next_sequence = if accepted {
+            entry
+                .sequence()
+                .checked_add(1)
+                .ok_or("AI journal append cannot advance beyond the maximum sequence")?
+        } else {
+            entry.sequence()
+        };
+        if next_sequence != expected_next_sequence {
             return Err("AI journal append result does not describe a durable sequence");
         }
         Ok(Self {
