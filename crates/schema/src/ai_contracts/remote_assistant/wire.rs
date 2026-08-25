@@ -135,6 +135,9 @@ impl AiRemoteAssistantWireRequest {
         prompt_redaction: AiRedactionReceipt,
         trusted_now: AiTimestamp,
     ) -> Result<AiRemoteAssistantRequest, &'static str> {
+        if trusted_now != self.requested_at {
+            return Err("AI remote wire request timestamp is not bound to trusted submission time");
+        }
         if authorization.authorization_reference_id() != &self.authorization_reference_id
             || authorization.family_id() != Some(&self.family_id)
             || source.request_id() != &self.request_id
