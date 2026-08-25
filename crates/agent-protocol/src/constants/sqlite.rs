@@ -87,6 +87,11 @@ FROM activity_events
 WHERE event_id = ?1 AND kind = ?2
 LIMIT 1;";
 
+pub const UPDATE_ENFORCEMENT_AUDIT_FIELDS_BY_EVENT_ID: &str = "
+UPDATE activity_events
+SET fields_json = ?1
+WHERE event_id = ?2 AND kind = ?3;";
+
 pub const SELECT_POLICY_PREVIEW_ACTIVITY: &str = "
 SELECT
   event_id,

@@ -5,7 +5,8 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use ocentra_parent_agent_protocol::constants;
 
 use crate::network_inventory_command::{
-    command_succeeded_with_timeout, normalize_mac_address, targeted_arp_probe_commands,
+    command_succeeded_with_timeout, normalize_mac_address, protected_command_adapter_state,
+    targeted_arp_probe_commands, ProtectedCommandAdapterState,
 };
 
 use super::super::{LanTargetedArpRefreshEvidence, LanTargetedArpRefreshOutcome};
@@ -33,6 +34,9 @@ pub fn targeted_arp_refresh_targets_with_evidence_until(
     targets: &[TargetedArpRefreshTarget],
     deadline: Instant,
 ) -> Vec<LanTargetedArpRefreshEvidence> {
+    if protected_command_adapter_state() == ProtectedCommandAdapterState::Unavailable {
+        return Vec::new();
+    }
     targeted_arp_refresh_targets_with_packet_io_until(
         targets,
         deadline,

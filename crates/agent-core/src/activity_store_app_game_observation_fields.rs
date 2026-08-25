@@ -11,12 +11,17 @@ use crate::activity_store_app_game_rows::AppGameStoreRow;
 #[path = "activity_store_app_game_observation_fields/helpers.rs"]
 mod helpers;
 
-use self::helpers::{boolean_field, number_field, process_identity_from_pid};
+use self::helpers::boolean_field;
 
 pub(crate) fn process_identity(row: &AppGameStoreRow) -> String {
-    number_field(&row.fields, constants::field::PID)
-        .map(process_identity_from_pid)
-        .unwrap_or_else(|| row.subject_id.clone())
+    if row.kind == constants::activity_event_kind::WINDOW_FOCUSED {
+        if let Some(process_identity) =
+            helpers::string_field(&row.fields, constants::field::PROCESS_IDENTITY)
+        {
+            return process_identity;
+        }
+    }
+    row.subject_id.clone()
 }
 
 pub(crate) fn display_name(row: &AppGameStoreRow) -> String {

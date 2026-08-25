@@ -109,7 +109,7 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 | WP03 | worker entrypoint, env validation, request-size guard, origin/CORS behavior, kill-switch, scheduled hook shape |
 | WP04 | route manifest, route groups, domain contract ownership, no ad hoc route strings |
 | WP05 | auth/admin/support/webhook states, adapter boundary, provider blockers |
-| WP06 | DO/D1/KV/R2/Queue ownership, idempotency/cache/ledger/queue separation |
+| WP06 | DO/D1/KV/R2/Queue ownership plus Account D1 authoritative create/update/revoke/currentness/CAS, verified-provider-to-sealed-authority caller, idempotency, restart, and stale-generation rejection |
 | WP07 | local dev, seed, fixture, teardown, emulator/miniflare/wrangler blockers |
 | WP08 | test runner, exact assertion matrix, unit/integration/security/property/e2e family mapping |
 | WP09 | portal-to-worker smoke, redacted request/response proof, no child private payloads |
@@ -119,17 +119,53 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 
 ## Account authority storage handoff
 
-WP06 consumes, but does not define, Account WP08's Rust-owned contract. Its
-proof must name `infra/cloudflare/wrangler.toml`, `src/env.ts`, the selected
-account-identity D1/DO/KV declarations, binding-specific account migration
-directory (or equivalent mapping), store, migration, and
+The Account WP08 producer transport is mapped at canonical source `c5ed3ce5c`,
+and Account WP09's durable issuer/key-registry/outbox core is integrated at
+`4f6245e51`. Cloudflare's bounded duplicate-key-rejecting decoder and private
+one-shot WP08 inner-wire verifier are accepted at `da84e6ee3`. Live caller
+tracing nevertheless finds no Account protected signer, binding/delivery
+adapter, production caller, authenticated current-key handoff, or Cloudflare
+issuer consumer/runtime. Expected Cloudflare WP06 test roots remain unwritten:
+
+```text
+infra/cloudflare/tests/unit/account-identity-authority-producer-transport.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-issuer-transport.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-issuer-key-registry.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-issuer-runtime.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts
+infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts
+```
+
+The private transport verifier and JSON decoder are production-source roots,
+not test substitutes. The nine expected test roots must cover the Account
+service-binding/delivery adapter, durable public-key registry,
+key-id hash checking and rotation/revocation, bounded canonical wire parsing,
+signature and timestamp checks, verified-provider subject binding without
+Firebase authority substitution, D1 currentness/revocation/CAS and
+stale-generation/restart/concurrency negatives, and the absence of any public
+caller-scalar mutation route. The registry must remain Account-owned and
+durable; a missing/untrusted registry or binding is manual-required, never a
+fallback to an env key, Firebase key, request key, fixture, or caller row. No
+test or proof claim is made by this source acceptance.
+
+WP06 consumes, but does not define, Account WP08's Rust-owned contract or
+Account WP02's target-aware action authority. Its proof must name
+`infra/cloudflare/wrangler.toml`, `src/env.ts`, the selected account-identity
+D1 declarations, binding-specific account migration directory, read store,
+authoritative writer/currentness/revocation/CAS owner, provider caller, and
 `tests/integration/account-identity-d1-migration.test.ts`; retain the migration
 result from `cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`, the module integration result from
 `npm --prefix infra/cloudflare run test:integration`, and the focused
 architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/storage/account-identity-store.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
-Current source declares only billing storage bindings and no binding-specific
-account migration mapping, so this migration command is blocked and must never
-be run against `BILLING_D1` as a substitute.
+Current source declares the isolated Account binding and ordered migrations,
+implements the Account-owned writer/currentness/revocation/CAS boundary, and
+mounts verified-provider current-authority resolution through the verifier.
+The mutation producer is not mounted in the Worker entrypoint, the migration
+has not been applied, and the full expected-test source is absent. The command
+remains deferred and must never be run against `BILLING_D1` as a substitute.
 WP06 also retains the direct focused command
 `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`
 in `03-account-identity-d1-migration-test.md`; the aggregate integration script
@@ -137,9 +173,10 @@ cannot substitute for or silently omit that required migration/adapter result.
 
 Cloudflare WP08 follows WP06. It maps the selected account-identity integration
 assertion and its module-runner result to the Cloudflare proof root and the
-Account WP06 aggregation handoff. Missing source, command output, or proof is
-recorded as an exact blocker and keeps Cloudflare WP06/WP08 and Account WP06
-blocked; neither packet may substitute a test double or claim account authority.
+Account WP06 aggregation handoff. Missing runtime composition, expected-test
+source, command output, or proof is recorded as an exact blocker and keeps
+Cloudflare WP06/WP08 and Account WP06 blocked; neither packet may substitute a
+test double or claim account authority.
 The runner consumes the module-local generated billing-contract route, not
 `packages/billing-domain/src/*`. Its current preflight
 `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` is empty,
@@ -156,6 +193,9 @@ missing binding fails clearly
 private/admin/support route lacks owner proof
 provider/webhook assumption blocked until provider proof
 account/session and trusted-device authority remain dependency-gated until owning-plan proof exists
+verified provider subject cannot substitute for target-aware sealed Account authority
+read-adapter success cannot substitute for authoritative write/update/revoke/CAS currentness
+stale generation, revoked mapping, provider/account mismatch, restart, and concurrent CAS fail closed
 D1/KV/R2/Queue claim has clear owner and purpose
 local dev proof is not production deployment proof
 payment remains blocked until WP12 handoff proof exists and is consumed

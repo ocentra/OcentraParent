@@ -46,6 +46,12 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP02 TypeScript Logging Package Parity
 
+Current source/test overlay (2026-08-17):
+
+- [x] Canonical structured-redaction policy and explicit package export are integrated.
+- [ ] Add redaction tests for sensitive nesting, arrays/cycles, unsupported primitives/objects, Date/URL, custom `toJSON`, throwing getters/proxies, and JSON-stringify safety.
+- [ ] Extend package-export tests for the canonical redaction and logging-contract surfaces.
+
 - [ ] `src/test-log` parity modules added/adapted.
 - [ ] `src/transport` parity modules added/adapted.
 - [ ] `src/app-log` parity modules added/adapted or explicit deferral recorded.
@@ -60,6 +66,12 @@ test-results/logging-domain-parity-<proof-mode>/
 - [ ] Workpack completion section filled.
 
 ## WP03 Parent Logging Architecture and Routing
+
+Current source/test overlay (2026-08-17):
+
+- [x] Vite dev and preview middleware use the canonical writer; duplicate redaction ownership is removed.
+- [ ] Add a real middleware/writer boundary test rather than relying only on the stand-in HTTP server.
+- [ ] Add writer request-schema, method, invalid JSON, size-limit, and redaction negatives.
 
 - [x] Local-dev-observability and product-safe logging separated in docs/API.
 - [x] Parent scopes defined.
@@ -121,6 +133,11 @@ test-results/logging-domain-parity-<proof-mode>/
 
 ## WP07 MCP Query Interface
 
+Current source/test overlay (2026-08-17):
+
+- [x] Query reads enforce canonical realpath containment, reject symlink components/entries, and redact malformed-NDJSON artifact identifiers.
+- [ ] Add symlink/junction, lexical-prefix escape, missing-path, recursive-entry, and malformed-NDJSON diagnostic tests.
+
 - [ ] Existing parent MCP framework audited.
 - [ ] Existing MCP reused/upgraded or absence recorded.
 - [ ] Shared query service added for CLI and MCP.
@@ -141,6 +158,12 @@ test-results/logging-domain-parity-<proof-mode>/
 - [ ] Proof root and workpack completion section filled.
 
 ## WP08 Logger Instrumentation and Adoption
+
+Current source/test overlay (2026-08-17):
+
+- [x] Shared logger serialization consumes the canonical fail-closed sanitizer.
+- [ ] Prove bridge serialization preserves redaction markers and never throws for unsupported/reflection-failure values.
+- [ ] Prove root/property/array custom-`toJSON` key semantics and one-call behavior.
 
 - [x] Parent TypeScript logger usage pattern implemented or documented at API boundary.
 - [x] Parent Rust logger usage pattern implemented through logging-core.

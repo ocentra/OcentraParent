@@ -101,6 +101,12 @@
 - [x] Workpack completion section filled. Proof: `docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md`
 - [x] No restore-ready overclaim made. Proof: `docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md`
 
+WP05 checklist rows above cover the bounded bundle/preflight/base contract
+packet and retained historical proof only. Durable runtime composition/custody
+mounting, external Account/key/provider/producer handoffs, and its expected
+integration test are tracked separately under WP11 below; these rows do not
+close WP05 runtime reachability or plan completion.
+
 ## WP06 Report Query Custody
 
 - [x] Derived source matrix defined. Proof: `output/data-custody-storage-plan-proof/06-report-query-custody/00-derived-source-matrix-proof.md`
@@ -132,6 +138,47 @@
 - [ ] Workpack completion section filled.
 - [ ] No settings-ready overclaim made.
 
+## WP09 Parent Local Bundle Provider Runtime
+
+- [ ] Production source owner and shipped caller are mapped and reviewed.
+- [ ] Parent-local encrypted bundle byte persistence and retrieval are implemented.
+- [ ] Exact-byte hash/signature, household, version, and key-context verification is implemented.
+- [ ] Atomic write, recovery, and corruption quarantine behavior is implemented.
+- [ ] Manual and scheduled job retry, restart, and idempotency custody is implemented.
+- [ ] Provider-neutral adapter behavior preserves explicit no-provider, no-fallback, and manual-required states.
+- [ ] Required positive, negative, interruption, replay, and redaction test source is written and reviewed.
+- [ ] Focused tests and focused architecture/Enforcer gates pass or an exact blocker is recorded.
+- [ ] Required proof artifacts are written under `output/data-custody-storage-plan-proof/09-parent-local-bundle-provider-runtime/`.
+- [ ] Workpack completion section and plan indexes are synchronized without a custody-ready overclaim.
+
+## WP10 Restore Orchestration And Producer Handoffs
+
+- [ ] Production source owner and shipped caller are mapped and reviewed.
+- [ ] Durable preflight, apply, migration, rollback, and idempotency orchestration state is implemented.
+- [ ] Trusted Account authority and confirmation are bound to household, operation, expiry, and replay state.
+- [ ] Data-class producer/consumer handoffs return owner-derived outcomes before receipt advancement.
+- [ ] Tombstone, retention, and no-resurrection constraints are enforced across restore and migration.
+- [ ] Crash/restart, partial failure, retry, rollback, and idempotency behavior is implemented.
+- [ ] Required positive, negative, interruption, replay, and no-fake-receipt test source is written and reviewed.
+- [ ] Focused tests and focused architecture/Enforcer gates pass or an exact blocker is recorded.
+- [ ] Required proof artifacts are written under `output/data-custody-storage-plan-proof/10-restore-orchestration-and-producer-handoffs/`.
+- [ ] Workpack completion section and plan indexes are synchronized without a restore-ready overclaim.
+
+## WP11 Runtime Composition And Custody Mount
+
+- [ ] WP05 base ledgers, reconciliation, Eventing/outbox, and manual-required gates are mounted without a second ledger.
+- [ ] Account WP05 true authority transaction/CAS and recovery handoff is owner-resolved.
+- [ ] Key/import custody and integrity binding are owner-resolved.
+- [ ] Producer-owned sealed artifact custody is bound to the WP05 operation.
+- [ ] WP09 provider operation capability and opaque outcome are mounted.
+- [ ] WP10 owner-derived producer outcomes, partial, and manual-required states are mounted.
+- [ ] Missing, stale, revoked, ambiguous, no-fake-success, and no-resurrection negatives are covered.
+- [ ] Private mount traits remain private and request/JSON authority selectors are rejected.
+- [ ] Expected integration test source is written and reviewed at `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`.
+- [ ] Focused test, architecture, generated, single-source, and Enforcer gates pass or an exact blocker is recorded.
+- [ ] Required proof artifacts are written under `output/data-custody-storage-plan-proof/11-runtime-composition-and-custody-mount/`.
+- [ ] Workpack completion section and plan indexes are synchronized without a runtime-complete overclaim.
+
 ## WP07 Rollout Proof And Route Gate
 
 - [ ] WP01 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
@@ -141,10 +188,12 @@
 - [ ] WP05 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
 - [ ] WP06 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
 - [ ] WP08 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
+- [ ] WP09 proof root accepted by a clean-checkout aggregate gate. Blocker: production source and expected tests are not implemented.
+- [ ] WP10 proof root accepted by a clean-checkout aggregate gate. Blocker: production source and expected tests are not implemented.
 - [ ] Route/index aggregate proof published from a clean checkout.
 - [ ] Privacy language review published from a clean checkout.
 - [ ] Manual-required gap register published from a clean checkout.
 - [ ] Adjacent handoff proof published from a clean checkout.
-- [x] Focused retention lifecycle validation passes. Commands: `cargo test -p ocentra-storage-custody-core --test unit retention_delete_tombstone_store`; `cargo test -p ocentra-child-runtime --test unit_runtime_gate tombstone`. Durable proof pointer: [`docs/proof/data-custody-storage-plan/07-rollout-focused-validation.md`](../../proof/data-custody-storage-plan/07-rollout-focused-validation.md). Test owners: `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs`; `crates/child-runtime/tests/unit/runtime_gate.rs`.
+- [ ] Current focused retention/custody lifecycle validation passes. Blocker: the durable store moved to `crates/child-runtime`, while `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs` and `crates/child-runtime/tests/unit/runtime_gate.rs` still import the deleted core module. Migrate the expected tests first, then execute the focused child-runtime/storage-custody matrix. The older `docs/proof` pointer records a previous surface and is not current acceptance.
 - [x] PLAN_STATE and WORKPACK_INDEX reflect the limited lifecycle proof and aggregate blocker.
 - [x] No PR_READY claim is made without accepted aggregate proof roots.

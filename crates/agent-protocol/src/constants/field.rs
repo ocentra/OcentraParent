@@ -51,6 +51,8 @@ pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_REQUEST: &str =
     "trackingRetentionSettingsWriteRequest";
 pub const ACTIVITY_TRACKING_RETENTION_SETTINGS_WRITE_RESULT: &str =
     "trackingRetentionSettingsWriteResult";
+pub const PARENT_RUNTIME_INTENT_INGRESS_REQUEST: &str = "parentRuntimeIntentIngressRequest";
+pub const PARENT_RUNTIME_INTENT_INGRESS_RESULT: &str = "parentRuntimeIntentIngressResult";
 pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REQUEST: &str =
     "policyRequestAssistantPreviewConfirmRequest";
 pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT: &str =
@@ -142,6 +144,8 @@ pub const CIPHER: &str = "cipher";
 pub const CIPHERTEXT: &str = "ciphertext";
 pub const COMMAND: &str = "command";
 pub const COMMAND_ID: &str = "commandId";
+pub const REQUEST_NONCE: &str = "requestNonce";
+pub const REQUEST_NONCE_DIGEST: &str = "requestNonceDigest";
 pub const CORRELATION_ID: &str = "correlationId";
 pub const CREATED_AT: &str = "createdAt";
 pub const CUSTODY_LABEL: &str = "custodyLabel";
@@ -285,6 +289,7 @@ pub const LAN_AI_JOB_STATUS: &str = "lanAiJobStatus";
 pub const LAN_AI_JOB_STATE: &str = "lanAiJobState";
 pub const LAN_DISCOVERY_STATE: &str = "discoveryState";
 pub const LAN_DISCOVERY_STATUS: &str = "discoveryStatus";
+pub const LAN_PASSIVE_DISCOVERY_RUNTIME_CAPABILITY: &str = "lanPassiveDiscoveryRuntimeCapability";
 pub const LAN_ADD_DEVICE_READ_MODEL: &str = "addDeviceReadModel";
 pub const LAN_ADD_DEVICE_STATE: &str = "addDeviceState";
 pub const LAN_RUNTIME_EVENT_CHAIN_STREAM: &str = "lanRuntimeEventChainStream";
@@ -516,6 +521,7 @@ pub const DELETED_AT: &str = "deletedAt";
 pub const REPAIR_REASON: &str = "repairReason";
 pub const QUERY_VISIBILITY: &str = "queryVisibility";
 pub const PROCESS_ATTRIBUTION_STATUS: &str = "processAttributionStatus";
+pub const PROCESS_IDENTITY: &str = "processIdentity";
 pub const PROCESS_NAME: &str = "processName";
 pub const PROCESS_PATH: &str = "processPath";
 pub const PUBLISHER_SIGNATURE_REF: &str = "publisherSignatureRef";

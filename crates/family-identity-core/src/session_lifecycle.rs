@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
-
 use crate::family_identity::SessionFreshnessState;
 use crate::household_authority::AuditRequirementState;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SessionCredentialKind {
@@ -168,7 +167,7 @@ pub struct SessionCredentialIssuanceDecision {
     pub failure_reason: Option<SessionTokenFailureReason>,
 }
 
-pub fn authorize_session_token_action(input: SessionTokenInput) -> SessionTokenDecision {
+pub(crate) fn authorize_session_token_action(input: SessionTokenInput) -> SessionTokenDecision {
     if let Some(failure_reason) = session_token_failure_reason(&input) {
         return rejected(input.action, failure_reason);
     }
@@ -181,7 +180,7 @@ pub fn authorize_session_token_action(input: SessionTokenInput) -> SessionTokenD
     }
 }
 
-pub fn authorize_session_credential_issuance(
+pub(crate) fn authorize_session_credential_issuance(
     input: SessionCredentialIssuanceInput,
 ) -> SessionCredentialIssuanceDecision {
     if let Some(failure_reason) = session_credential_issuance_failure_reason(&input) {
@@ -221,6 +220,16 @@ pub fn authorize_session_credential_issuance(
         audit_redaction_state: TokenAuditRedactionState::Redacted,
         failure_reason: None,
     }
+}
+
+/// Projects untrusted session facts into a failure hint for non-authorizing read models.
+///
+/// `None` is not proof of an authorized session. Runtime authorization must come
+/// from repository-owned credential custody through `SqliteAccountIdentityAuthorityRepository`.
+pub fn session_token_failure_reason_for_read_model(
+    input: &SessionTokenInput,
+) -> Option<SessionTokenFailureReason> {
+    session_token_failure_reason(input)
 }
 
 fn rejected(

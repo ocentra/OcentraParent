@@ -71,10 +71,16 @@ Failure conditions:
 
 ## Completion
 
-- Status: complete for WP04 only; no broader plan, provider-runtime, or PR readiness claim is made.
+- Status: production source accepted for the shared WP04 state machine and child-runtime custody execution boundary; current expected tests, focused execution, and proof refresh remain open.
 - Proof root: `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/`
-- Canonical owners: `crates/schema` for the shared retention/delete contract and `crates/storage-custody-core` for the delete/tombstone runtime state machine.
+- Canonical owners: `crates/schema` for the shared retention/delete contract, `crates/storage-custody-core` for generic delete/tombstone state derivation, and `crates/child-runtime` for the durable child-side tombstone/effect store and execution lifecycle.
 - TS/shared edge note: no new `packages/schema-domain` surface was needed for WP04. TS ownership was not widened.
+
+## Source-wave checkpoint (2026-08-17)
+
+- The durable tombstone store moved from `storage-custody-core` to its actual child-runtime owner, with symlink rejection, atomic intent/terminal mutation, replay protection, and effect-ledger reconciliation kept together.
+- The old `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs` owner is stale and must be migrated or rewritten in the expected-test wave; the deleted core module must not be restored as a re-export.
+- No tests were written or run in this source wave, so the recorded proof/validation list below is historical rather than acceptance of the moved implementation.
 
 ## Required states proved
 

@@ -73,3 +73,17 @@ has parent-visible portal source freshness rendering proof. The capability
 remains in progress because policy consumption, live provider quality, runtime
 evaluation, production notifications, broad blocking, and cross-platform proof
 remain open.
+
+## Live Code/Test Re-Audit - 2026-08-24
+
+- The production path now exists: service-backed `sourceStatusRows` flow through
+  `app-game-dashboard-intent.ts`, the split source-panel intent, and the mounted
+  `ParentPortalSvgSurface.tsx` into the App/Game Sessions route.
+- The rendered surface exposes source row/fresh counts plus capability,
+  timestamp, and evidence summaries. It does not mint policy or source
+  authority.
+- The named `apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`
+  is not checked in. The existing Playwright route scaffold asserts only source
+  headings/count labels, not empty/stale/degraded behavior.
+- Production source is present; expected-test writing, focused execution,
+  proof, checklist acceptance, READY, and DONE remain open.

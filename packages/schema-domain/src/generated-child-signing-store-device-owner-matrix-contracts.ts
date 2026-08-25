@@ -324,7 +324,7 @@ export const GeneratedChildSigningStoreDeviceOwnerMatrixProof =
         artifactKind: 'ios-simulator-app-zip',
         distributionMode: 'unsigned-simulator-zip',
         artifactProofState: 'simulator-scaffold',
-        artifactPackageRef: 'target/release-packages/ios/ocentra-parent-agent-ios-simulator-latest.zip',
+        artifactPackageRef: 'target/release-packages/ios/ocentra-child-agent-ios-simulator-latest.zip',
         proofSource: 'ios-entitlement-proof',
         proofRefs: [
           'packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts',

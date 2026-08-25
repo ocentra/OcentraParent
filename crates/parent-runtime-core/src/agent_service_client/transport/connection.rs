@@ -1,14 +1,21 @@
-use std::net::{TcpStream, ToSocketAddrs};
-use std::time::Duration;
+use std::net::TcpStream;
+use std::time::{Duration, Instant};
 
+#[path = "connection_resolution.rs"]
+mod connection_resolution;
+#[path = "deadline_stream.rs"]
+pub(super) mod deadline_stream;
+use self::connection_resolution::resolve_socket_addrs;
+use self::deadline_stream::DeadlineTcpStream;
 use super::read_impl::is_io_timeout;
 
 pub(super) fn connect_agent_stream(
     agent_addr: &str,
     url: &str,
     timeout: Duration,
-) -> Result<TcpStream, String> {
-    let socket_addrs = resolve_socket_addrs(agent_addr)?;
+    deadline: Instant,
+) -> Result<DeadlineTcpStream, String> {
+    let socket_addrs = resolve_socket_addrs(agent_addr, timeout, deadline)?;
     if socket_addrs.is_empty() {
         return Err(format!(
             "agent-service address {agent_addr} did not resolve to any socket addresses"
@@ -17,13 +24,27 @@ pub(super) fn connect_agent_stream(
 
     let mut last_error = None;
     for socket_addr in socket_addrs {
-        match TcpStream::connect_timeout(&socket_addr, timeout) {
+        let remaining = remaining_timeout(deadline).map_err(|_| {
+            format!(
+                "agent-service WebSocket connect timed out after {}ms at {url}",
+                timeout.as_millis()
+            )
+        })?;
+        match TcpStream::connect_timeout(&socket_addr, remaining) {
             Ok(stream) => {
-                configure_socket_timeouts(&stream, timeout, url)?;
+                let stream = DeadlineTcpStream::new(stream, deadline);
+                configure_socket_timeouts(&stream, remaining_timeout(deadline)?, url)?;
                 return Ok(stream);
             }
             Err(error) => last_error = Some(error),
         }
+    }
+
+    if remaining_timeout(deadline).is_err() {
+        return Err(format!(
+            "agent-service WebSocket connect timed out after {}ms at {url}",
+            timeout.as_millis()
+        ));
     }
 
     Err(format!(
@@ -32,15 +53,15 @@ pub(super) fn connect_agent_stream(
     ))
 }
 
-fn resolve_socket_addrs(agent_addr: &str) -> Result<Vec<std::net::SocketAddr>, String> {
-    agent_addr
-        .to_socket_addrs()
-        .map(|socket_addrs| socket_addrs.collect())
-        .map_err(|error| format!("agent-service address {agent_addr} did not resolve: {error}"))
+pub(super) fn remaining_timeout(deadline: Instant) -> Result<Duration, String> {
+    match deadline.checked_duration_since(Instant::now()) {
+        Some(remaining) if !remaining.is_zero() => Ok(remaining),
+        _ => Err("agent-service WebSocket overall deadline exhausted".to_string()),
+    }
 }
 
-fn configure_socket_timeouts(
-    stream: &TcpStream,
+pub(super) fn configure_socket_timeouts(
+    stream: &DeadlineTcpStream,
     timeout: Duration,
     url: &str,
 ) -> Result<(), String> {

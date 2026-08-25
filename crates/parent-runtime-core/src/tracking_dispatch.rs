@@ -1,11 +1,12 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    bus::EventBus, envelope::DomainEvent, envelope::EventContract, envelope::EventMetadata,
-    envelope::EventSource, error::EventingError, ids::AggregateKey, ids::CorrelationId,
-    ids::EventCustody, ids::EventId, ids::EventType, ids::IdempotencyKey, ids::RecordedAt,
-    ids::RuntimeInstanceId, ids::RuntimeRole, ids::SchemaVersion, ids::SourceComponent,
-    ids::SourceService, ids::TargetHandler, request::RequestOptions, request::RequestReport,
+    bus::publisher::RootEventPublisher, envelope::DomainEvent, envelope::EventContract,
+    envelope::EventMetadata, envelope::EventSource, error::EventingError, ids::AggregateKey,
+    ids::CorrelationId, ids::EventCustody, ids::EventId, ids::EventType, ids::IdempotencyKey,
+    ids::RecordedAt, ids::RuntimeInstanceId, ids::RuntimeRole, ids::SchemaVersion,
+    ids::SourceComponent, ids::SourceService, ids::TargetHandler, request::RequestOptions,
+    request::RequestReport,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::{
@@ -97,7 +98,7 @@ pub struct ParentRuntimeDispatchDecision {
 impl ParentRuntimeDispatchDecision {
     pub async fn publish_tracking_child_check_in_request(
         &self,
-        bus: &EventBus,
+        bus: &RootEventPublisher,
         event: TrackingChildCheckInRequestedEvent,
     ) -> Result<Option<RequestReport<TrackingChildCheckInRequestReceipt>>, EventingError> {
         if self.child_runtime_publish_state != ChildRuntimePublishState::Publish {

@@ -13,6 +13,13 @@ pub(super) fn fmt_request_error(
         EventingError::DuplicateRequest { request_id } => {
             write!(formatter, "duplicate request id: {}", request_id.as_str())
         }
+        EventingError::RequestTypeMismatch { request_id } => {
+            write!(
+                formatter,
+                "event request type mismatch for request id: {}",
+                request_id.as_str()
+            )
+        }
         EventingError::RequestTimedOut { request_id } => {
             write!(
                 formatter,

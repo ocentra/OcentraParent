@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use ocentra_parent_agent_core::network_event_runtime::NetworkRuntimeJournalPath;
 use ocentra_parent_agent_protocol::constants;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -84,4 +85,17 @@ pub fn activity_journal_key_path() -> ActivityJournalKeyPath {
                 path
             }),
     )
+}
+
+pub fn network_runtime_journal_path() -> NetworkRuntimeJournalPath {
+    let path = env::var(constants::env_var::NETWORK_RUNTIME_JOURNAL_PATH)
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| {
+            let mut path = activity_db_path().0;
+            path.set_file_name(
+                constants::activity_store::DEFAULT_NETWORK_RUNTIME_JOURNAL_FILE_NAME,
+            );
+            path
+        });
+    NetworkRuntimeJournalPath::new(path)
 }

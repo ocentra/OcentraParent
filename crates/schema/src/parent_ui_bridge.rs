@@ -98,6 +98,7 @@ pub const PARENT_ROUTE_HASH_PREFIX: &str = "#";
 pub const PARENT_ROUTE_HASH_QUERY_SEPARATOR: &str = "?";
 pub const PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX: &str = "parent-route-subscription-";
 pub const PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS: u64 = 1000;
+pub const PARENT_DEV_BRIDGE_REQUEST_TIMEOUT_MS: u64 = 5000;
 pub const PARENT_SCREEN_SETTINGS_COMMAND_SCHEMA_VERSION: u16 = 1;
 pub const PARENT_SCREEN_SETTINGS_REQUEST_ID_PREFIX: &str = "screen-settings-request-";
 pub const PARENT_SCREEN_SETTINGS_UPDATE_KIND_GET: &str = "get";
@@ -771,6 +772,75 @@ pub struct ParentPortalShellStatusSnapshot {
     pub route_capability_state: String,
     pub data_source_label: String,
     pub cards: Vec<ParentPortalShellStatusCardSnapshot>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthState {
+    Ready,
+    Degraded,
+    Unavailable,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthRoute {
+    Localhost,
+    LocalNetwork,
+    CloudRelay,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthTransport {
+    #[serde(rename = "websocket")]
+    WebSocket,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthAuthenticationState {
+    Unauthenticated,
+    Unavailable,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum ParentServiceHealthReason {
+    Ready,
+    TransportUnavailable,
+    RouteDependencyUnavailable,
+    ResponseSchemaMismatch,
+    ResponseIdentityMismatch,
+    ResponsePayloadMismatch,
+    ResponseNonceMismatch,
+    ResponseEventIdMismatch,
+    ResponseTimestampMissing,
+    ResponseTimestampStale,
+    ServiceVersionMissing,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentServiceHealthTraceSnapshot {
+    pub request_id: Option<String>,
+    pub correlation_id: Option<String>,
+    pub response_event_id: Option<String>,
+    pub request_sent_at: Option<String>,
+    pub response_sent_at: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentServiceHealthSnapshot {
+    pub state: ParentServiceHealthState,
+    pub route: Option<ParentServiceHealthRoute>,
+    pub protocol_schema_version: Option<u16>,
+    pub service_version: Option<String>,
+    pub transport: Option<ParentServiceHealthTransport>,
+    pub authentication_state: ParentServiceHealthAuthenticationState,
+    pub reason: ParentServiceHealthReason,
+    pub trace: ParentServiceHealthTraceSnapshot,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -1708,6 +1778,8 @@ pub struct ParentRouteSnapshot {
     pub agent_endpoint: String,
     pub data_source: ParentRouteDataSource,
     pub summary: ParentRouteSummary,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub service_health: Option<ParentServiceHealthSnapshot>,
     pub diagnostic_panels_enabled: bool,
     pub parent_portal_rows: Option<Vec<ParentPortalRowSnapshot>>,
     pub parent_portal_shell_status: Option<ParentPortalShellStatusSnapshot>,

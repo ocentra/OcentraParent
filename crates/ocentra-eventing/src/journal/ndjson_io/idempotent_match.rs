@@ -31,21 +31,20 @@ pub(super) fn matching_append_by_event_id(
     envelope: &StoredEventEnvelope,
     expected_phase: JournalDispatchPhase,
 ) -> Result<Option<JournalAppend>, EventingError> {
-    let Some(entry) = entries
-        .into_iter()
-        .find(|entry| entry.envelope.event_id == envelope.event_id)
-    else {
-        return Ok(None);
-    };
-    if entry.phase != expected_phase
-        || entry.envelope.contract != envelope.contract
-        || entry.envelope.correlation_id != envelope.correlation_id
-    {
-        return Err(EventingError::DuplicateEventId {
-            event_id: envelope.event_id.clone(),
-        });
+    for entry in entries {
+        if entry.envelope.event_id != envelope.event_id {
+            continue;
+        }
+        if entry.envelope != *envelope {
+            return Err(EventingError::DuplicateEventId {
+                event_id: envelope.event_id.clone(),
+            });
+        }
+        if entry.phase == expected_phase {
+            return Ok(Some(entry.append));
+        }
     }
-    Ok(Some(entry.append))
+    Ok(None)
 }
 
 pub(super) fn is_legacy_idempotent_candidate(

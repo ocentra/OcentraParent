@@ -1,3 +1,4 @@
+use chrono::Utc;
 use ocentra_lan_core::network_inventory::{
     discovery_evidence_sources_for_network_device, local_agent_device_ref,
     LanNetworkInventoryDevice,
@@ -36,6 +37,7 @@ pub(crate) mod scan_history;
 
 use crate::fields::fields_from_pairs;
 use crate::lan_pairing_browser_add_device_scan::{push_if_absent, same_physical_network_device};
+use crate::lan_pairing_runtime_state::passive_discovery::capability_store::current_runtime_capability;
 use crate::{lan_pairing::LanPairingRuntime, time::timestamp_now};
 
 use self::discovery_projection::{
@@ -150,12 +152,16 @@ pub(crate) fn browser_add_device_read_model(
         &observed_at,
     );
     let current_canonical_household_devices = model.canonical_household_devices.clone();
-    restore_live_canonical_household_devices(
+    if restore_live_canonical_household_devices(
         &mut model,
         runtime,
         &current_canonical_household_devices,
         &observed_at,
-    );
+    )
+    .is_err()
+    {
+        model.canonical_household_devices = current_canonical_household_devices.clone();
+    }
     let expected_snapshot = scan_result.current_scan_snapshot.as_ref();
     let persisted_projection = if !scan_result.reused_recent_snapshot
         || command.command == AgentCommandName::AgentLanPairingStatusGet
@@ -200,7 +206,17 @@ fn build_live_read_model(
     observed_at: &LanPairingText,
 ) -> LanBrowserAddDeviceReadModel {
     let network_devices = scan_result.devices.clone();
-    let has_network_devices = !network_devices.is_empty();
+    let has_current_physical_scan =
+        scan_result
+            .current_scan_snapshot
+            .as_ref()
+            .is_some_and(|snapshot| {
+                scan_history::scan_history_is_recent(
+                    &LanPairingText(snapshot.updated_at.clone()),
+                    Utc::now(),
+                )
+            });
+    let has_network_devices = has_current_physical_scan && !network_devices.is_empty();
     let discovery_source = if has_network_devices {
         LanPairingDiscoverySource::PhysicalHouseholdLan
     } else {
@@ -209,7 +225,7 @@ fn build_live_read_model(
     build_lan_add_device_read_model(LanAddDeviceReadModelInput {
         generated_at: observed_at.0.clone(),
         discovery_source,
-        service_data_available: true,
+        service_data_available: current_runtime_capability(runtime).service_data_available(),
         platform_data_available: platform_data_available_for_scan_result(scan_result),
         add_device_state: discovery_state_for(discovery_state),
         local_service_discovery_state: discovery_state_for(discovery_state),
@@ -246,13 +262,14 @@ fn restore_live_canonical_household_devices(
     runtime: &LanPairingRuntime,
     current_canonical_household_devices: &[ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice],
     observed_at: &LanPairingText,
-) {
-    persist_known_household_devices(runtime, current_canonical_household_devices);
+) -> Result<(), ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason> {
+    persist_known_household_devices(runtime, current_canonical_household_devices)?;
     model.canonical_household_devices = merged_known_household_devices_for_read_model(
         runtime,
         current_canonical_household_devices,
         observed_at,
     );
+    Ok(())
 }
 
 fn replay_history_model(

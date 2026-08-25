@@ -128,10 +128,122 @@ npm run lint:architecture -- --files packages/family-domain
 
 Provider implementation remains tied to WP01. Device trust/step-up proof remains tied to device-trust-bootstrap-plan.
 
-## Fill before DONE
+## 2026-08-17 current code/test correction
+
+The Rust session evaluator and its focused tests cover credential separation,
+expiry/skew classification, replay/revocation rejection, freshness, creation,
+rotation decisions, and scoped issuance. Provisioning consumes the pairing
+decision. This remains a decision library: callers provide lifecycle/replay and
+freshness facts, and credential issuance has no production caller.
+
+Production source still required:
+
+- durable token-digest/session/refresh-family storage;
+- repository-owned rotation generation, replay registry, logout/global-revoke
+  epoch, issued/expiry calculation, and audit emission;
+- real account browser/session routes consuming server-derived WP08 identity;
+- controller-lease and support/admin credential classes where the owning routes
+  require them.
+
+Expected test source still required:
+
+- concurrent atomic refresh rotation and replay-after-restart;
+- logout/global revoke, malformed/backdated state, and clock-skew edges;
+- exact redacted audit records and recovery from partial persistence;
+- CSRF, origin, and fetch-metadata negatives on the actual account route.
+
+### Accepted replacement source delta
+
+The accepted `35edb2830` source stores session identity, generation, expiry,
+freshness, and revocation in the current Account authority repository and adds
+an owner-derived session lifecycle record. Callers no longer supply freshness
+or replay authority as trusted booleans. A shipped provider/account session
+route, refresh/revoke orchestration, and the complete expiry/skew/replay/
+restart/concurrency/browser-negative expected-test family remain open.
+
+The remote packet `ac03afee3a` is rejected/quarantined: its public
+deserializable session record accepted caller-provided replay/freshness state,
+had no token custody or durable repository, and allowed terminal/backdated
+rewrites. It is not WP03 progress.
+
+## 2026-08-18 candidate production source boundary
+
+The repaired Cloudflare source packet supplies the WP03 production/runtime
+composition, without reviving caller-minted session facts or evaluators.
+Independent coordinator re-review accepted this source boundary after the
+persisted-row casing repair and exact rotate-first D1 binding review; the
+reachable source is:
+
+- `infra/cloudflare/migrations/account-identity/0005_account_browser_session_custody.sql`
+  and `0006_account_browser_session_refresh_custody.sql` remain historical
+  custody definitions; forward `0007_account_browser_session_custody_hardening.sql`
+  rebuilds them as STRICT, fails closed by aborting on invalid legacy rows, and
+  publishes the runtime schema-version sentinel only after the full copy. Its
+  non-sensitive quarantine attempt is not retained when the migration
+  transaction rolls back;
+- `infra/cloudflare/src/storage/account-browser-session-codec.ts` and
+  `account-browser-session-store.ts` for opaque cookies, non-forgeable
+  Account authority capabilities, same-boundary currentness revalidation,
+  refresh-family CAS, exact CSRF digest checks, refresh-bound logout/revoke,
+  and redacted audit custody;
+- `infra/cloudflare/src/auth/account-identity-authority-caller.ts`,
+  `verifier.ts`, and `providers/firebase-auth.ts` for the final WP06 provider
+  result distinction and provider-to-Account authority caller; and
+- `infra/cloudflare/src/auth/browser-session-routes.ts` plus `routes.ts` for
+  origin/fetch-metadata request safety, bounded correlation, login/refresh/
+  logout/global-revoke reachability, and secure `__Host-` cookies where legal.
+
+The session store rejects structurally forged capabilities at runtime, permits
+only parent/controller/support browser roles (observer and child roles never
+map to parent), binds refresh and CSRF credentials to one session family, and
+uses a durable generation fence for global revoke. Rotation is one D1 CAS
+sequence: the old refresh digest is rotated first, then consumed only by the
+new generation/current digest, then audited; a failed CAS commits neither
+consumed custody nor audit. Session mutation/audit custody is guarded so a
+successful mutation without its audit outcome rolls back. Access expiry does
+not block refresh-bound logout or global revoke, while an optional access
+cookie must still bind to the same session.
+
+The deliberate NULL guard makes a concurrent rotate CAS loss abort the whole
+D1 batch and surface `manual-required`; it does not attempt a second mutation
+after the transaction has rolled back. A later reuse of the durable consumed
+digest takes the replay-revocation path. This narrow in-flight race remains an
+expected test and operational-reconciliation gap.
+
+Every public store operation captures trusted `Date.now()` inside the store;
+callers may provide only bounded request correlation. The forward `0007`
+custody rebuild is SQLite `STRICT` with digest, timestamp, generation,
+lifetime, status, and correlation checks; the store requires its exact version
+sentinel before any authority-bearing read or mutation. D1 rows are decoded
+through an exact runtime validator that rejects malformed types, digest reuse,
+timestamp or generation violations, inconsistent revocation state, and
+incomplete or mismatched support receipt bindings before any identity or
+mutation is accepted. The verified capability carries the complete support
+receipt provenance and the create CAS compares every field.
+
+The expected runtime test source is still absent and must be added by the
+test/proof phase:
+
+- `infra/cloudflare/tests/unit/account-browser-session-store.test.ts`
+- `infra/cloudflare/tests/unit/account-browser-session-routes.test.ts`
+- `infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts`
+- `infra/cloudflare/tests/integration/account-browser-session-real.test.ts`
+
+The source is integrated at consolidation head `3d1cb513c` and accepted only
+for implementation topology. It does not claim applied D1 migrations, live
+Worker deployment, tests, retained proof, precommit, CI, PR, or DONE. The
+final WP06 mutation-readiness seam remains parameterless/manual-required; no
+caller-side authority is fabricated.
+
+## Superseded historical record (not current status)
+
+> Everything in this historical block predates the Cloudflare runtime packet.
+> Its artifact list, command results, and completion wording are provenance
+> only; they do not establish current WP03 acceptance, production reachability,
+> retained proof, or DONE status. The candidate boundary above is authoritative.
 
 - Workpack id and branch: `WP03 Session Token Lifecycle`; `codex/tracking-plan-full-continuation-a`.
-- Current status: complete for the local contract/proof slice. `00-credential-type-matrix.md`, `01-session-lifecycle-proof.md`, `02-token-expiry-replay-proof.md`, `03-refresh-revocation-proof.md`, `04-session-freshness-proof.md`, `05-csrf-origin-proof.md`, `06-token-redaction-proof.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/03-session-token-lifecycle/`.
+- Historical status (superseded): it claimed completion for a local contract/proof slice and listed prior output artifacts; that claim is not current WP03 source or proof status.
 - Contract/source changes in this slice: no new WP03-owned production TypeScript or Rust logic was required. The owned session contract was already present in `packages/family-domain/src/session-lifecycle.ts`, and the proof closure is derived from existing TypeScript and Rust session/token coverage plus an explicit blocker note where this slice does not own a real browser request surface.
 - Touched files:
   - `docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md`

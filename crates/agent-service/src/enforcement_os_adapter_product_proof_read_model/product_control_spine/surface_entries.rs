@@ -130,21 +130,17 @@ fn managed_browser_entry(
         browser_domain,
         ProofEntryId(browser_proof::ENTRY_ID_MANAGED_INTERVENTION),
     );
-    linked_entry(LinkedEntrySpec {
+    manual_entry(ManualEntrySpec {
         entry_id: spine::ENTRY_ID_MANAGED_BROWSER_SESSION,
         surface: V08EnforcementProductControlSurface::WindowsManagedBrowserSessionIntervention,
         surface_kind: V08EnforcementProductControlSurfaceKind::ManagedBrowser,
         capability: V08EnforcementProductControlCapabilityName::ManagedBrowserControl,
-        product_claim_state: V08EnforcementProductControlClaimState::ImplementedBoundary,
-        adapter_execution_state: V08EnforcementProductControlExecutionState::ExecutesRealService,
-        device_policy_state: V08EnforcementProductControlDevicePolicyState::ControlCapable,
-        parent_visible_actions: &[
-            V08EnforcementProductControlParentAction::Observe,
-            V08EnforcementProductControlParentAction::Warn,
-            V08EnforcementProductControlParentAction::TimeLimit,
+        manual_proof_requirements: &[
+            browser_proof::REQUIREMENT_MANAGED_PROFILE,
+            browser_proof::REQUIREMENT_ACTIVE_TAB,
+            browser_proof::REQUIREMENT_ROLLBACK,
+            browser_proof::REQUIREMENT_AUDIT_CUSTODY,
         ],
-        linked_proof_commands: &[spine::COMMAND_MANAGED_BROWSER_PROOF],
-        linked_proof_artifacts: &[spine::ARTIFACT_MANAGED_BROWSER_PROOF],
         claim_boundary: browser_proof::CLAIM_MANAGED_INTERVENTION,
         fallback_behavior: browser_proof::FALLBACK_MANAGED_INTERVENTION,
         generated_at: generated_at.0.as_str(),

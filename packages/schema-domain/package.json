@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Generated/thin validation and edge-decoder helpers over Rust-owned contracts.",
   "exports": {
+    "./ai-contracts": {
+      "import": "./dist/generated-ai-contracts.js",
+      "types": "./dist/generated-ai-contracts.d.ts"
+    },
     "./account-identity-authority": {
       "import": "./dist/account-identity-authority.js",
       "types": "./dist/account-identity-authority.d.ts"
@@ -292,6 +296,10 @@
     "./policy-compiler": {
       "import": "./dist/policy-compiler.js",
       "types": "./dist/policy-compiler.d.ts"
+    },
+    "./report-query-custody": {
+      "import": "./dist/report-query-custody.js",
+      "types": "./dist/report-query-custody.d.ts"
     },
     "./social-alert-report-intent": {
       "import": "./dist/social-alert-report-intent.js",

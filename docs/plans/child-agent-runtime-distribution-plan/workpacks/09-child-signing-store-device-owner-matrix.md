@@ -34,7 +34,7 @@ Purpose: define the signing, store, and device-owner matrix for child artifacts 
 
 ## Execution truth
 
-Status: production code drafted / test-deferred. The Windows child updater now enforces deterministic child-only manifest policy, strict artifact/hash inputs, signature verification, and fail-closed installer consumption when an external verifier and trusted public key are absent. Other platform signing/store/device-owner rows remain explicit manual-required or unsigned boundaries.
+Status: source partial / integration missing. Windows updater enforcement and a typed platform matrix exist; live WP10 handoff consumption, scheduling/restart ownership, non-Windows update/signing/store implementation, tests, validation, and proof remain open.
 
 ## Production code boundary
 
@@ -45,7 +45,25 @@ Status: production code drafted / test-deferred. The Windows child updater now e
 - Windows MSI is the only platform-owned update consumer in this slice. macOS/Linux/Android/iOS signing, store, and device-owner states remain manual-required or unsigned as documented below.
 - Existing deferred updater contract fixtures still use legacy `OcentraParent*` identities and must be migrated before validation; no test result is inferred from this code pass.
 
-Owner surface:
+The updater binary/CLI invokes the Windows update path directly and never calls `consume_setup_device_trust_handoff`. No production scheduler, durable retry/restart state, or setup/device-trust handoff caller connects the typed projection to update execution. macOS, Linux, Android, and iOS remain matrix statements/manual-required states rather than platform update/store implementations.
+
+## Required production source outcome
+
+- consume WP10's live durable handoff before update/install execution and retain its no-claim/manual-required state;
+- own scheduler/retry/restart and installer outcome handoff without treating process completion as installed service health;
+- finish platform-specific signing/store/update ownership or retain explicit unsupported/manual-required results;
+- use canonical package identities from WP02-WP06 and never infer device authority from the matrix.
+
+Implementation dependencies: Child WP02-WP06 and WP10 reviewed implementation. Normal READY/DONE remains strict.
+
+## Expected test-source gap
+
+- live handoff acceptance/rejection, replay/expiry/manual-required behavior, scheduler retry, restart, and installer result projection;
+- signature, key, manifest, checksum, artifact-name, and service-identity negative cases through the production update path;
+- crash/restart and cleanup of updater-owned temporary custody;
+- platform-specific signing/store/device-owner behavior and explicit unsupported/manual-required outcomes.
+
+Historical contract/proof owner surface (not runtime completion):
 
 - `crates/schema/src/child_signing_store_device_owner_matrix.rs`
 - `crates/schema/src/child_signing_store_device_owner_matrix_ts.rs`
@@ -62,7 +80,7 @@ Proof root:
 - `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/`
 - runtime proof JSON: `test-results/child-signing-store-device-owner-matrix/proof.json`
 
-## Proved matrix states
+## Contract matrix states (not runtime proof)
 
 - Windows: `windows-msi-service-package`, direct MSI download, `unsigned` child artifact, signed updater manifest only, store `not-applicable`, device-owner/managed-profile/supervision `not-applicable`.
 - macOS: `macos-launchd-pkg`, direct pkg download, `unsigned` child artifact, store `not-applicable`, device-owner/managed-profile/supervision `not-applicable`.
@@ -94,11 +112,11 @@ Proof root:
 - `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/child-signing-store-device-owner-matrix.ts packages/schema-domain/src/generated/child-signing-store-device-owner-matrix-contracts.ts packages/schema-domain/tests/proof/child-signing-store-device-owner-matrix.test.ts scripts/test/child-signing-store-device-owner-matrix.mjs`
 - `cargo lint-architecture crates/schema/src/child_signing_store_device_owner_matrix.rs crates/schema/src/child_signing_store_device_owner_matrix_ts.rs crates/schema/src/bin/export_child_signing_store_device_owner_matrix_contract_types.rs crates/schema/tests/contract/child_signing_store_device_owner_matrix.rs crates/schema/src/lib.rs crates/schema/tests/contract.rs`
 
-## External non-gating blocker
+## Historical validation note
 
 - `cmd /c npm run build --workspace @ocentra-parent/schema-domain` is currently red outside the WP09 owner surface.
 - Exact failing files are `packages/schema-domain/src/generated/parent-owned-sync-export-contracts.ts`, `packages/schema-domain/src/parent-owned-sync-export-validation.ts`, and `packages/schema-domain/src/parent-owned-sync-export.ts`.
-- WP09 completion is based on the focused Rust contract, thin adapter, proof runner, and focused architecture gates above; it does not claim the unrelated package-wide build is green.
+- The earlier focused contract packet did not establish the missing updater/handoff/platform runtime source and does not close WP09.
 
 ## Production-pass checklist
 

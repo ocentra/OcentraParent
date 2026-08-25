@@ -11,7 +11,29 @@ use self::rust_owned_command::dispatch_parent_ui_action_rust_owned_command;
 use self::state::ActionDispatchState;
 use super::*;
 
-pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentUiActionResult {
+pub(super) fn dispatch_parent_ui_action_impl(
+    action: &ParentUiAction,
+    service_health: Option<&ParentAgentServiceHealth>,
+) -> ParentUiActionResult {
+    if let Some(health) = service_health.filter(|health| !health.is_ready()) {
+        let lan_route_query = LanRouteQuery::Unavailable(health.redacted_detail());
+        let message = health.redacted_detail();
+        let snapshot = build_parent_route_snapshot(
+            action.route.clone(),
+            &lan_route_query,
+            None,
+            None,
+            Some(health),
+        );
+        return ParentUiActionResult {
+            schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
+            accepted: false,
+            connection_state: ParentBridgeConnectionState::Error,
+            message,
+            snapshot: Some(snapshot),
+            events: Vec::new(),
+        };
+    }
     let action_owned = matches!(
         action.action,
         ParentUiActionKind::RefreshRoute
@@ -30,33 +52,53 @@ pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentU
             | ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested
     );
     let lan_route_query = lan_route_query_for_action(action);
-    let connection_state = connection_state_for_route(&action.route, &lan_route_query);
     let mut state = ActionDispatchState::new(
         action_owned && !matches!(lan_route_query, LanRouteQuery::Unavailable(_)),
         dispatch_parent_ui_action_message(action, &lan_route_query),
         lan_route_query.events().to_vec(),
     );
-    let policy_authoring_handled =
-        dispatch_parent_ui_action_policy_authoring(action, &lan_route_query, &mut state);
-    if !policy_authoring_handled {
-        dispatch_parent_ui_action_network_flow_refresh(action, &mut state);
-        dispatch_parent_ui_action_agent_command(action, action_owned, &mut state);
-        dispatch_parent_ui_action_rust_owned_command(action, action_owned, &mut state);
+    if reject_unavailable_lan_route_query(&lan_route_query, &mut state) {
+    } else if matches!(
+        action.action,
+        ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested
+    ) && !lan_route::is_lan_command_route(&action.route)
+    {
+        state.reject("LAN discovery scan is available only on LAN-owned routes");
+    } else {
+        let policy_authoring_handled =
+            dispatch_parent_ui_action_policy_authoring(action, &lan_route_query, &mut state);
+        if !policy_authoring_handled {
+            dispatch_parent_ui_action_network_flow_refresh(action, &mut state);
+            dispatch_parent_ui_action_agent_command(action, action_owned, &mut state);
+            dispatch_parent_ui_action_rust_owned_command(action, action_owned, &mut state);
+        }
     }
     let snapshot = build_parent_route_snapshot(
         action.route.clone(),
         &lan_route_query,
         state.network_flow_snapshot.as_ref(),
         Some(&state.snapshot_overlay),
+        service_health,
     );
-
     ParentUiActionResult {
         schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
         accepted: state.accepted,
-        connection_state,
+        connection_state: snapshot.connection_state.clone(),
         message: state.message,
         snapshot: Some(snapshot),
         events: state.events,
+    }
+}
+
+fn reject_unavailable_lan_route_query(
+    lan_route_query: &LanRouteQuery,
+    state: &mut ActionDispatchState,
+) -> bool {
+    if matches!(lan_route_query, LanRouteQuery::Unavailable(_)) {
+        state.reject("parent Rust facade required LAN route state is unavailable");
+        true
+    } else {
+        false
     }
 }
 
@@ -65,8 +107,11 @@ fn dispatch_parent_ui_action_message(
     lan_route_query: &LanRouteQuery,
 ) -> String {
     match lan_route_query {
-        LanRouteQuery::Unavailable(error) if lan_route::is_lan_surface_route(&action.route) => {
-            error.clone()
+        LanRouteQuery::Unavailable(error) => error.clone(),
+        _ if matches!(action.action, ParentUiActionKind::AgentCommandRequested)
+            && !lan_route::is_lan_command_route(&action.route) =>
+        {
+            "parent Rust facade forwarded generic agent command request".to_string()
         }
         _ => action_result_message(action),
     }

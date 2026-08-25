@@ -1,5 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, UdpSocket};
-use std::time::Duration;
+use std::sync::atomic::AtomicBool;
+use std::time::{Duration, Instant};
 
 use super::http::{io_error, mx_seconds_for_timeout, normalize_search_target};
 use super::{
@@ -27,6 +28,29 @@ pub(super) fn discover_ssdp_upnp_devices(
     attempts: usize,
     description_timeout: Duration,
 ) -> Result<Vec<SsdpDiscoveryRecord>, SsdpDiscoveryError> {
+    discover_ssdp_upnp_devices_with_cancellation(
+        search_target,
+        target,
+        response_timeout,
+        attempts,
+        description_timeout,
+        None,
+        None,
+    )
+}
+
+pub(super) fn discover_ssdp_upnp_devices_with_cancellation(
+    search_target: &str,
+    target: SocketAddr,
+    response_timeout: Duration,
+    attempts: usize,
+    description_timeout: Duration,
+    cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
+) -> Result<Vec<SsdpDiscoveryRecord>, SsdpDiscoveryError> {
+    if cancellation.is_some_and(|value| value.load(std::sync::atomic::Ordering::Acquire)) {
+        return Ok(Vec::new());
+    }
     let socket = bind_ssdp_socket(target)?;
     socket
         .set_read_timeout(Some(response_timeout))
@@ -36,13 +60,15 @@ pub(super) fn discover_ssdp_upnp_devices(
         target,
         mx_seconds_for_timeout(response_timeout),
     );
-    super::receive::collect_ssdp_records(
+    super::receive::collect_ssdp_records_with_cancellation(
         &socket,
         &request,
         target,
         response_timeout,
         attempts.clamp(1, SSDP_MAX_ATTEMPTS),
         description_timeout,
+        cancellation,
+        deadline,
     )
 }
 

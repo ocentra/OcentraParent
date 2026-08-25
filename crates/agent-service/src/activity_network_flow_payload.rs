@@ -201,6 +201,10 @@ fn process_pairs(row: Option<&ActivityNetworkFlowObservation>) -> Vec<FieldPair>
             constants::field::PROCESS_NAME,
             optional_string(row.and_then(|value| value.process_name.as_deref().map(TextValueRef))),
         ),
+        (
+            constants::field::ASSOCIATED_PID_COUNT,
+            optional_usize(row.and_then(|value| value.associated_pid_count)),
+        ),
     ]
     .into_iter()
     .map(|(key, value)| FieldPair { key, value })
@@ -272,7 +276,9 @@ fn runtime_delivery_pairs(
             LogFieldValue::String(
                 delivery
                     .map(|value| value.journal_state.as_str())
-                    .unwrap_or("unavailable-manual-required")
+                    .unwrap_or(
+                        constants::network_flow::NETWORK_RUNTIME_JOURNAL_STATE_UNAVAILABLE_MANUAL_REQUIRED,
+                    )
                     .to_string(),
             ),
         ),

@@ -23,7 +23,7 @@ Use this index to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only w
 | done | [WP03 Parent Install Journey](workpacks/03-parent-install-journey.md) | 13/13 | `docs/expectations/release-installer.md`, `parent-desktop-runtime-package-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/03-parent-install-journey/` |
 | done | [WP04 Child Install Permission Journey](workpacks/04-child-install-permission-journey.md) | 14/14 | `docs/expectations/platforms.md`, `child-agent-runtime-distribution-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/04-child-install-permission-journey/` |
 | done | [WP05 Pairing Readiness Recovery](workpacks/05-pairing-readiness-recovery.md) | 13/13 | `docs/expectations/lan-pairing.md`, `lan-plan/AGENTS.md` | `output/setup-install-provisioning-plan-proof/05-pairing-readiness-recovery/` |
-| done | [WP07 First-Run Setup UI And State Machine](workpacks/07-first-run-setup-ui-and-state-machine.md) | 14/14 | `docs/expectations/family-setup.md`, `docs/expectations/portal.md` | `output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/` |
+| validation / accepted fail-closed source / tests stale | [WP07 First-Run Setup UI And State Machine](workpacks/07-first-run-setup-ui-and-state-machine.md) | 14/14 historical proof; current source/test overlay open | `docs/expectations/family-setup.md`, `docs/expectations/portal.md` | `output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/` |
 | done-but-blocked-for-whole-plan | [WP06 Rollout Proof And Route Gate](workpacks/06-rollout-proof-and-route-gate.md) | 15/15 | all prior workpack proof roots | `output/setup-install-provisioning-plan-proof/06-rollout-proof-and-route-gate/` |
 
 ## Status interpretation
@@ -33,6 +33,12 @@ Done means the setup-plan-owned workpack proof root/checklist closed for its loc
 Done does not mean deployed site, account readiness, signed installer readiness, child runtime readiness, trusted pairing, custody readiness, policy baseline readiness, entitlement readiness, or production onboarding readiness.
 WP06 can be done as a blocker/aggregation pack while whole-plan PR_READY remains false.
 ```
+
+WP07's checked count is historical proof state. Current source at `8922eaf50`
+is a reviewed, reachable, fail-closed manual-required boundary; it is not the
+required first-run state machine. The current Rust, portal-domain, portal-unit,
+and E2E tests still target the removed panel and must be rewritten in the later
+expected-test phase. Do not derive DONE from the checked count.
 
 ## Default execution order
 

@@ -14,10 +14,14 @@ export interface Env {
   REQUEST_MAX_BYTES?: string;
   BILLING_ROUTE_KILL_SWITCH?: string;
   AUTH_ADAPTER_MODE?: string;
+  FIREBASE_PROJECT_ID?: string;
+  FIREBASE_CLOCK_SKEW_SECONDS?: string;
+  FIREBASE_JWKS_CACHE_SECONDS?: string;
   INTERACTIVE_CSRF_TOKEN?: string;
   INTERNAL_QUEUE_SHARED_SECRET?: string;
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_WEBHOOK_TOLERANCE_SECONDS?: string;
   RAZORPAY_KEY_ID?: string;
   RAZORPAY_KEY_SECRET?: string;
   PAYPAL_CLIENT_ID?: string;
@@ -39,6 +43,7 @@ export interface Env {
 }
 
 export const DEFAULT_REQUEST_MAX_BYTES = 1024 * 1024;
+export const FIREBASE_PROJECT_ID_PATTERN = /^[a-z][a-z0-9-]{4,28}[a-z0-9]$/;
 
 const REQUIRED_ENV_KEYS = ['ENVIRONMENT', 'APP_ORIGIN', 'CORS_ALLOWED_ORIGINS'] as const;
 export const REQUIRED_BINDING_KEYS = [
@@ -56,10 +61,14 @@ const OPTIONAL_ENV_KEYS = [
   'REQUEST_MAX_BYTES',
   'BILLING_ROUTE_KILL_SWITCH',
   'AUTH_ADAPTER_MODE',
+  'FIREBASE_PROJECT_ID',
+  'FIREBASE_CLOCK_SKEW_SECONDS',
+  'FIREBASE_JWKS_CACHE_SECONDS',
   'INTERACTIVE_CSRF_TOKEN',
   'INTERNAL_QUEUE_SHARED_SECRET',
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
+  'STRIPE_WEBHOOK_TOLERANCE_SECONDS',
   'RAZORPAY_KEY_ID',
   'RAZORPAY_KEY_SECRET',
   'PAYPAL_CLIENT_ID',
@@ -99,13 +108,14 @@ export const BINDING_OWNERSHIP = {
     readinessState: 'required',
   },
   ACCOUNT_IDENTITY_D1: {
-    owner: 'account-identity-store',
-    purpose: 'minimal provider-subject to Ocentra account mapping',
+    owner: 'account-identity-authority',
+    purpose: 'durable provider-subject to current account/member/role/device/session authority mapping',
     bindingFamily: 'd1',
-    privacyBoundary: 'provider subject and account metadata only; no child telemetry or raw claims',
+    privacyBoundary:
+      'provider subject, account/member/device identifiers, current household target binding, session provenance, and support receipt metadata only; no child telemetry or raw claims',
     childDataStorage: 'forbidden',
     readinessState: 'manual-required',
-    rejectedUse: 'must not become household, child, device, role, or session storage',
+    rejectedUse: 'must not accept caller-supplied household, child, device, role, session, or receipt authority',
   },
   BILLING_DO: {
     owner: 'billing-control-do',
@@ -188,7 +198,13 @@ export const BINDING_OWNERSHIP = {
 } as const satisfies Record<TrackedBindingKey, BindingOwnership>;
 
 export function parseAllowedOrigins(env: Env): string[] {
-  return env.CORS_ALLOWED_ORIGINS.split(',')
+  const configuredOrigins: unknown = env.CORS_ALLOWED_ORIGINS;
+  if (typeof configuredOrigins !== 'string') {
+    return [];
+  }
+
+  return configuredOrigins
+    .split(',')
     .map((entry) => entry.trim())
     .filter(Boolean);
 }
@@ -207,6 +223,21 @@ export function isRouteKillSwitchEnabled(env: Env): boolean {
 
 export function resolveAuthAdapterMode(env: Env): string {
   return env.AUTH_ADAPTER_MODE?.trim() || 'local-safe-fixture';
+}
+
+export function isLocalFixtureEnvironment(env: Pick<Env, 'ENVIRONMENT'>): boolean {
+  const configuredEnvironment: unknown = env.ENVIRONMENT;
+  const environment = typeof configuredEnvironment === 'string' ? configuredEnvironment.trim().toLowerCase() : '';
+  return environment === 'local' || environment === 'test' || environment === 'development';
+}
+
+function isProductionEnvironment(env: Pick<Env, 'ENVIRONMENT'>): boolean {
+  const configuredEnvironment: unknown = env.ENVIRONMENT;
+  return typeof configuredEnvironment === 'string' && configuredEnvironment.trim().toLowerCase() === 'production';
+}
+
+function hasWildcardOrigin(origin: unknown): boolean {
+  return typeof origin === 'string' && origin.trim().includes('*');
 }
 
 export function getMissingBindings(env: Env): ReadonlyArray<RequiredBindingKey> {
@@ -234,21 +265,68 @@ export function validateEnv(env: Env): string[] {
   }
 
   for (const key of REQUIRED_ENV_KEYS) {
-    if (!env[key] || String(env[key]).trim() === '') {
+    const configuredValue: unknown = env[key];
+    if (typeof configuredValue !== 'string' || configuredValue.trim() === '') {
       errors.push(`missing required env: ${key}`);
     }
   }
 
-  if (parseAllowedOrigins(env).length === 0) {
+  const allowedOrigins = parseAllowedOrigins(env);
+  if (allowedOrigins.length === 0) {
     errors.push('CORS_ALLOWED_ORIGINS must include at least one origin');
+  }
+
+  if (isProductionEnvironment(env)) {
+    if (hasWildcardOrigin(env.APP_ORIGIN)) {
+      errors.push('APP_ORIGIN must not contain a wildcard in production');
+    }
+    if (allowedOrigins.some(hasWildcardOrigin)) {
+      errors.push('CORS_ALLOWED_ORIGINS must not contain a wildcard in production');
+    }
   }
 
   if (env.REQUEST_MAX_BYTES && (!/^\d+$/.test(env.REQUEST_MAX_BYTES) || Number(env.REQUEST_MAX_BYTES) <= 0)) {
     errors.push('REQUEST_MAX_BYTES must be a positive integer when provided');
   }
 
+  if (
+    !env.STRIPE_WEBHOOK_TOLERANCE_SECONDS ||
+    !/^\d+$/.test(env.STRIPE_WEBHOOK_TOLERANCE_SECONDS) ||
+    Number(env.STRIPE_WEBHOOK_TOLERANCE_SECONDS) <= 0 ||
+    Number(env.STRIPE_WEBHOOK_TOLERANCE_SECONDS) > 86_400
+  ) {
+    errors.push('STRIPE_WEBHOOK_TOLERANCE_SECONDS must be a positive integer no greater than 86400');
+  }
+
   if (!env.ENTITLEMENT_SIGNING_KEY_REF) {
     errors.push('missing required env: ENTITLEMENT_SIGNING_KEY_REF');
+  }
+
+  if (!isLocalFixtureEnvironment(env) && resolveAuthAdapterMode(env) === 'local-safe-fixture') {
+    errors.push('AUTH_ADAPTER_MODE local-safe-fixture is not permitted outside local/test/development');
+  }
+
+  if (resolveAuthAdapterMode(env) === 'provider-verified') {
+    const projectId = env.FIREBASE_PROJECT_ID?.trim();
+    if (!projectId) errors.push('missing required env: FIREBASE_PROJECT_ID');
+    else if (!FIREBASE_PROJECT_ID_PATTERN.test(projectId)) {
+      errors.push(
+        'FIREBASE_PROJECT_ID must be 6-30 characters, start with a lowercase letter, and end with a lowercase letter or digit'
+      );
+    }
+    for (const [name, maximum] of [
+      ['FIREBASE_CLOCK_SKEW_SECONDS', 300],
+      ['FIREBASE_JWKS_CACHE_SECONDS', 3600],
+    ] as const) {
+      const value = env[name];
+      if (value !== undefined && (!/^\d+$/.test(value) || Number(value) <= 0 || Number(value) > maximum)) {
+        errors.push(`${name} must be a positive integer no greater than ${maximum}`);
+      }
+    }
+  }
+
+  if (isProductionEnvironment(env) && !env.INTERNAL_QUEUE_SHARED_SECRET?.trim()) {
+    errors.push('missing required env: INTERNAL_QUEUE_SHARED_SECRET');
   }
 
   if (env.ENVIRONMENT !== 'test' && !env.INTERACTIVE_CSRF_TOKEN) {

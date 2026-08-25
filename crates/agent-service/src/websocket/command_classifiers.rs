@@ -34,25 +34,12 @@ pub(super) fn is_activity_command(command: &AgentCommandName) -> bool {
             | AgentCommandName::AgentActivityNetworkReadModelGet
             | AgentCommandName::AgentActivityTrackingReadModelGet
             | AgentCommandName::AgentActivityTrackingRetentionSettingsWrite
+            | AgentCommandName::AgentParentRuntimeIntentIngressPublish
     )
 }
 
 pub(super) fn is_lan_runtime_command(command: &AgentCommandName) -> bool {
-    matches!(
-        command,
-        AgentCommandName::AgentLanPairingProofSubmit
-            | AgentCommandName::AgentLanPairingRouteSelect
-            | AgentCommandName::AgentLanPairingRouteRevoke
-            | AgentCommandName::AgentLanPairingStatusGet
-            | AgentCommandName::AgentLanRuntimeEventChainStreamGet
-            | AgentCommandName::AgentLanPairingBrowserDiscoveryScan
-            | AgentCommandName::AgentLanPairingAddDeviceRequest
-            | AgentCommandName::AgentLanPairingControllerLeaseRenew
-            | AgentCommandName::AgentLanPairingControllerLeaseRelease
-            | AgentCommandName::AgentLanPairingControllerLeaseTakeover
-            | AgentCommandName::AgentLanAiProviderStatusGet
-            | AgentCommandName::AgentLanAiJobSubmit
-    )
+    command.is_lan_command()
 }
 
 pub(super) fn is_browser_policy_command(command: &AgentCommandName) -> bool {

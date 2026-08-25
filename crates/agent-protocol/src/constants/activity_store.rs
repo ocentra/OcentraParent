@@ -5,6 +5,7 @@ pub const MEMORY_GRAPH_EDGE_ENTRY_KIND: &str = "edge";
 pub const MEMORY_GRAPH_DERIVATION_RUN_ID: &str = "activity-memory-graph-derived-index";
 pub const DEFAULT_FILE_NAME: &str = "activity.sqlite";
 pub const DEFAULT_JOURNAL_FILE_NAME: &str = "activity.ndjson";
+pub const DEFAULT_NETWORK_RUNTIME_JOURNAL_FILE_NAME: &str = "network-runtime.ndjson";
 pub const DEFAULT_JOURNAL_KEY_FILE_NAME: &str = "activity-journal.key";
 pub const FILE_EXTENSION: &str = "sqlite";
 pub const WAL_FILE_EXTENSION: &str = "sqlite-wal";

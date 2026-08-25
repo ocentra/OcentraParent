@@ -204,7 +204,7 @@ fn candidate_refs(
     event: &ocentra_eventing::envelope::StoredEventEnvelope,
 ) -> Option<ActionIntentHandoffRefs> {
     let decoded = event.decode::<BrowserRuntimeEventPayload>().ok()?;
-    candidate_refs_from_payload(&decoded.payload)
+    candidate_refs_from_payload(decoded.payload())
 }
 
 fn candidate_refs_from_payload(

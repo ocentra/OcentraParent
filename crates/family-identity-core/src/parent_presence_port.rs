@@ -14,7 +14,19 @@ use crate::parent_presence_store::{
 };
 use crate::trust_bootstrap_validation::parent_presence_verification_failure_reason;
 
+#[path = "parent_presence_port_step_up.rs"]
+mod step_up;
+
 impl ParentPresenceVerificationPort {
+    /// Open the durable custody owner used by the native parent step-up
+    /// composition. The portal boundary never receives this port.
+    pub(crate) fn open_for_parent_step_up(
+        store_path: impl Into<PathBuf>,
+        clock: impl Fn() -> ParentPresenceObservedAt + Send + Sync + 'static,
+    ) -> Result<Self, ParentPresenceStorageFailureReason> {
+        Self::with_clock(store_path, clock)
+    }
+
     pub fn open(
         store_path: impl Into<PathBuf>,
     ) -> Result<Self, ParentPresenceStorageFailureReason> {
@@ -84,6 +96,27 @@ impl ParentPresenceVerificationPort {
         &mut self,
         input: ParentPresenceVerificationInput,
     ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
+        self.verify_and_consume_inner(input, None)
+    }
+
+    pub(crate) fn verify_and_consume_step_up(
+        &mut self,
+        input: ParentPresenceVerificationInput,
+        credential_id: &str,
+        credential_algorithm: i32,
+        credential_sign_count: u32,
+    ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
+        self.verify_and_consume_inner(
+            input,
+            Some((credential_id, credential_algorithm, credential_sign_count)),
+        )
+    }
+
+    fn verify_and_consume_inner(
+        &mut self,
+        input: ParentPresenceVerificationInput,
+        verified_credential: Option<(&str, i32, u32)>,
+    ) -> Result<ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason> {
         let ParentPresenceVerificationInput {
             correlation_id,
             challenge_ref,
@@ -100,11 +133,14 @@ impl ParentPresenceVerificationPort {
             .prepare(&accepted_artifact, &observed_at)
             .map_err(|_error| ParentPresenceVerificationFailureReason::CustodyUnavailable)?;
         let decision_observed_at = observed_at.clone();
-        let consumed =
-            self.store
-                .consume_challenge(&challenge_ref, &accepted_pending, |challenge| {
-                    parent_presence_verification_failure_reason(challenge, &assertion, &observed_at)
-                });
+        let consumed = self.store.consume_challenge(
+            &challenge_ref,
+            &accepted_pending,
+            |challenge| {
+                parent_presence_verification_failure_reason(challenge, &assertion, &observed_at)
+            },
+            verified_credential,
+        );
 
         let accepted = matches!(&consumed, Ok(ConsumeChallengeResult::Accepted(_)));
         let (artifact, result) = finish_parent_presence_verification(

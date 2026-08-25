@@ -36,6 +36,20 @@ If either side lacks required proof, record the exact blocker in its command
 log: WP11 remains blocked and WP04 remains unscheduled/manual-required. A
 precise blocker records the gap; it does not satisfy either prerequisite.
 
+For the completed-command retry/recovery slice, focused validation must cover:
+
+- the 7-test `enforcement_eventing_retry_production_tests` family, including
+  exact persisted-payload replay, real completion time, identity mismatch,
+  before-only state, after-without-store, incomplete report, incomplete V3
+  replay, and corrupted report-journal identity without adapter reexecution;
+- the exact ActivityStore enforcement-audit replacement and missing-row
+  regressions;
+- focused Rust compile/format, architecture, routed Enforcer checks, diff
+  check, and hub guard for the touched files.
+
+Passing this focused slice does not satisfy the absent WP11 proof root or the
+remaining approval/denial/expiry/override transition-family obligations.
+
 ## Common commands
 
 Use the subset relevant to the selected workpack:

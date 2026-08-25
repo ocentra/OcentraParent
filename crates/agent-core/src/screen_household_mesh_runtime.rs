@@ -28,9 +28,12 @@ impl ScreenHouseholdMeshReport {
             event
                 .decode::<ScreenHouseholdMeshEventPayload>()
                 .map(|envelope| {
-                    envelope.payload.custody_boundary.raw_screenshot_transferred
+                    envelope
+                        .payload()
+                        .custody_boundary
+                        .raw_screenshot_transferred
                         || envelope
-                            .payload
+                            .payload()
                             .custody_boundary
                             .raw_screenshot_retained_by_provider
                 })

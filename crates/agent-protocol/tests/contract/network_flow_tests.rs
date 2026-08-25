@@ -71,6 +71,7 @@ fn network_flow_observation_serializes_to_contract_shape() {
             constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED.to_string(),
         process_id: Some(4242),
         process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+        associated_pid_count: Some(1),
         counters: ActivityNetworkFlowCounters {
             connection_count: 1,
             bytes_sent: None,
@@ -880,6 +881,7 @@ fn network_runtime_event_payload_fixture() -> NetworkRuntimeEventPayload {
         destination_domain: Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
         process_id: Some(4242),
         process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+        associated_pid_count: 1,
         evidence_scope: NetworkEvidenceScope::MetadataOnly,
         evidence_grade: NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata,
         evidence_grade_contract: NetworkEvidenceGrade::B,

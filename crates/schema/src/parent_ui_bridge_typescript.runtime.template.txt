@@ -85,6 +85,7 @@ export type ParentScreenSettingsServiceRequestId =
 export const ParentHostBridgeRuntime = {
   SchemaVersion: __PARENT_UI_BRIDGE_SCHEMA_VERSION__,
   DevRouteSubscriptionPollMs: __PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS__,
+  DevBridgeRequestTimeoutMs: __PARENT_DEV_BRIDGE_REQUEST_TIMEOUT_MS__,
   RouteHashPrefix: '__PARENT_ROUTE_HASH_PREFIX__',
   RouteHashQuerySeparator: '__PARENT_ROUTE_HASH_QUERY_SEPARATOR__',
   RouteSubscriptionEventPrefix: '__PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX__',

@@ -49,6 +49,15 @@ Agent-service dev logs must delegate to `crates/logging-core`; the current sourc
 
 `/api/dev/log-snapshot` must be documented as a snapshot/status endpoint, not the primary local log store.
 
+## Accepted source-wave reconciliation (2026-08-17)
+
+The accepted source head `735df89de` keeps portal routing bridge-first and
+sanitizes the compatibility fallback before its JSON body is serialized.
+The fallback therefore uses the same generated-policy-backed sanitizer as the
+shared `Logger`; it does not introduce a local regex or alternate sensitive-key
+policy. This records source routing only. Route tests, focused validation,
+proof, and any external portal/service composition remain deferred.
+
 ## Required decisions
 
 Choose and implement one portal route strategy:
@@ -150,6 +159,16 @@ Remaining blocker for full-workpack closeout:
 - the portal dev-log consumer slice is now proved in output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/
 - source inspection closes the production reachability question for the Rust-side mapping: `app::health`, `service_runtime::run_agent_service`, and `activity_capture` call `agent-service::dev_log`, which invokes `logging-core::DevLogger`; the remaining row is focused validation/proof, deferred in this code-only pass
 ```
+
+## Accepted source and expected-test delta (2026-08-17)
+
+Vite dev and preview middleware now consume `scripts/dev/dev-log-writer.mjs`,
+which imports the canonical logging-domain redaction surface. The duplicated
+Vite redaction policy is removed. Existing portal route tests still use a
+stand-in server and do not prove this real middleware/writer boundary. The
+expected-test phase must cover allowed method, invalid JSON, request-size and
+schema rejection, field redaction, and actual Vite middleware routing. No
+focused-validation or proof claim is made by this source packet.
 
 ## Fill before DONE or PR-ready
 

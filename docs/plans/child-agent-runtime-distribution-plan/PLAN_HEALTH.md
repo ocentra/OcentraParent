@@ -3,7 +3,7 @@
 ## Route health
 
 - Canonical child distribution route exists.
-- Artifact parity and proof remain open.
+- Production source, expected test source, artifact parity, runtime reachability, and proof remain open.
 - All workpacks remain open until their selected proof roots contain real artifacts, command logs, negative cases, and no-claim boundaries.
 
 ## Consistency warnings
@@ -14,10 +14,18 @@
 - Setup can be merged incorrectly with package proof.
 - Parent-client claims can leak into this plan.
 - Uninstall/tamper proof is missing.
+- Shipped desktop and Android startup do not supply a current Device Trust source.
+- Current child ingress is in-process only; no authenticated product ingress or external health endpoint is composed.
+- Public removal APIs and the setup-handoff projection have no production caller.
+- The iOS source identity is child-owned; its smoke/workflow consumers, Apple signing/provisioning, device/store proof, and expected tests remain open.
+- Static service-manager restart declarations are not a live lifecycle implementation.
+- WP11 has documentation/proof aggregation but no executable aggregate gate.
 - Current proof-root routing is `output/child-agent-runtime-distribution-plan-proof/<workpack-file-stem>/`; stale legacy proof paths must not raise status.
 
-## Required hygiene before PR_READY
+## Required source-first hygiene before PR_READY
 
+- Finish the graph-legal coherent production-source packet.
+- Add its complete expected test-source packet before running focused validation.
 - Update the assigned workpack.
 - Update the relevant checklist/proof row.
 - Update `PLAN_STATE.md` and `NEXT_ACTIONS.md` if current state changes.
@@ -49,8 +57,8 @@
 
 ### State
 
-- Current state: canonical child distribution scope exists, but artifact parity, platform lifecycle proof, setup handoff proof, tamper/uninstall proof, respawn proof, and release aggregation remain open.
-- Current action: keep package, runtime, setup, trust, platform, and release claims separated before any DONE/PR_READY claim.
+- Current state: canonical scope and several bounded components exist, but trusted startup, authenticated ingress/health, canonical iOS identity, platform lifecycle, removal callbacks, live handoff/update consumption, expected tests, and the executable aggregate gate remain open.
+- Current action: execute WP06 and graph-legal WP10 source first, then follow the dependency order in `WORKPACK_INDEX.md`.
 
 ### Decision routes and failure controls
 

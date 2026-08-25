@@ -103,6 +103,9 @@ pub const REJECTION_PROCESS_ID_REQUIRED: &str = "enforcement-process-id-required
 pub const REJECTION_POLICY_VERSION_REQUIRED: &str = "enforcement-policy-version-required";
 pub const REJECTION_RULE_ID_REQUIRED: &str = "enforcement-rule-id-required";
 pub const REJECTION_REASON_CODE_REQUIRED: &str = "enforcement-reason-code-required";
+pub const REJECTION_RETRY_IDENTITY_MISMATCH: &str = "enforcement-retry-identity-mismatch";
+pub const REJECTION_RETRY_RECONCILIATION_REQUIRED: &str =
+    "enforcement-retry-reconciliation-required";
 pub const REJECTION_ACTIVE_TIMER_STATE_REQUIRED: &str = "enforcement-active-timer-state-required";
 pub const REJECTION_ACTIVE_TIMER_STATE_MISMATCH: &str = "enforcement-active-timer-state-mismatch";
 pub const REJECTION_PARENT_ACTION_REQUIRED: &str = "enforcement-parent-action-required";

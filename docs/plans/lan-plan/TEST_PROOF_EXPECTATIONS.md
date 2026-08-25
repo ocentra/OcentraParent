@@ -63,6 +63,43 @@ proof, or a default validation surface.
 
 Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
 
+## WP26 Signed Child Beacon Ingress And Household Mesh Authority Handoff
+
+WP26 is code, test, and proof open. Its canonical generated proof root is:
+
+```text
+output/lan-plan-proof/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff/
+test-results/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff/proof.json
+```
+
+The selected validation packet must use the real shipped child/runtime peer
+ingress and organized Rust test groups owned by the ingress, protocol, service,
+and runtime surfaces. It must not use a fixture, mock, fake socket, replacement
+transport, or controlled observation command as a production caller.
+
+Expected real tests include:
+
+- signed child beacon/hello and heartbeat ingress acceptance;
+- atomic custody and restart recovery for accepted and rejected messages;
+- duplicate message, nonce, replay, and idempotency rejection without a second
+  authorization or handoff;
+- stale, expired, missed-heartbeat, and offline state transitions;
+- revoked device/route, expired lease, unpaired child, wrong household, wrong
+  family, wrong device, wrong parent, wrong route, and wrong target rejection;
+- provider-policy/provider-route denial before any authorization handoff;
+- W15 + W18 + W19 composition after restart and selected-route recovery;
+- a boundary negative proving portal/UI cannot accept the ingress or publish the
+  downstream authorization/business event;
+- the private typed Eventing WP10 authorization handoff only after all LAN
+  validation, custody, route, revocation, target, and provider-policy guards
+  pass.
+
+The proof packet must retain the source snapshot, exact command log, real
+ingress/restart/duplicate/stale/revoked/wrong-family/wrong-target/provider-policy
+negative output, and the Eventing WP10 handoff reference. Missing output or
+test-results artifacts keep WP26 open/manual-required and do not prove physical
+two-device household readiness.
+
 ## Command ownership notes
 
 - The Rust schema crate owns canonical LAN contract/read-model/proof shapes when shapes cross crate/app/plan boundaries.
@@ -141,5 +178,5 @@ unit tests not used as integration/e2e/security coverage
 source matrix not used as physical discovery proof
 portal projection not used as LAN truth proof
 B1/B2 proof not used as signed hello/heartbeat/service/physical/relay proof
-active workpacks 21-25 require their own current completion proof and test truth
+active workpacks 21-26 require their own current completion proof and test truth
 ```

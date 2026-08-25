@@ -1,45 +1,14 @@
-import { randomUUID } from 'node:crypto';
-import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-
-const DevLogField = {
-  Port: 'port',
-};
-
-const DevLogEnvironment = {
-  Directory: 'OCENTRA_PARENT_DEV_LOG_DIR',
-};
-
-const DevLogFile = {
-  DirectoryName: 'dev',
-  Extension: 'ndjson',
-};
-
-const DevLogEndpoint = {
-  Write: '/__ocentra-parent-dev-log',
-};
-
-const DevLogIdPrefix = {
-  DevServer: 'dev-server-log-',
-};
-
-const DevLogMessage = {
-  DevServerStarted: 'Vite dev server started.',
-};
-
-const LogLevel = {
-  Info: 'info',
-};
-
-const LogSource = {
-  DevServer: 'dev-server',
-};
-
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const devLogRequestBodyLimitBytes = 1024 * 256;
+import {
+  DevLogField,
+  DevLogMessage,
+  setupDevLogMiddleware,
+  writeDevServerLog,
+} from '../../scripts/dev/dev-log-writer.mjs';
 
 function resolveConfiguredPort(server) {
   return server.config.server.port ?? server.config.preview.port ?? 0;
@@ -47,71 +16,6 @@ function resolveConfiguredPort(server) {
 
 function vendorModule(relativePath) {
   return fileURLToPath(new URL(relativePath, import.meta.url));
-}
-
-async function appendDevLog(entry) {
-  const filePath = resolveDevLogFile(entry.source);
-  await mkdir(dirname(filePath), { recursive: true });
-  await appendFile(filePath, `${JSON.stringify(entry)}\n`, 'utf8');
-}
-
-function resolveDevLogFile(source) {
-  const directory = process.env[DevLogEnvironment.Directory] ?? join(repoRoot, '.logs', DevLogFile.DirectoryName);
-  const day = new Date().toISOString().slice(0, 10);
-  return join(directory, `${source}-${day}.${DevLogFile.Extension}`);
-}
-
-async function writeDevServerLog(message, fields = {}) {
-  await appendDevLog({
-    schemaVersion: 1,
-    id: `${DevLogIdPrefix.DevServer}${randomUUID()}`,
-    timestamp: new Date().toISOString(),
-    level: LogLevel.Info,
-    source: LogSource.DevServer,
-    message,
-    fields,
-  });
-}
-
-function setupDevLogMiddleware(middlewares) {
-  middlewares.use(DevLogEndpoint.Write, async (request, response) => {
-    if (request.method !== 'POST') {
-      response.statusCode = 405;
-      response.end();
-      return;
-    }
-
-    try {
-      const body = await readBoundedRequestBody(request);
-      await appendDevLog(JSON.parse(body));
-      response.statusCode = 204;
-      response.end();
-    } catch {
-      response.statusCode = 400;
-      response.end();
-    }
-  });
-}
-
-function readBoundedRequestBody(request) {
-  return new Promise((resolveBody, rejectBody) => {
-    const chunks = [];
-    let size = 0;
-
-    request.on('data', (chunk) => {
-      size += chunk.length;
-      if (size > devLogRequestBodyLimitBytes) {
-        rejectBody(new Error('dev log request body too large'));
-        request.destroy();
-        return;
-      }
-      chunks.push(Buffer.from(chunk));
-    });
-    request.on('end', () => {
-      resolveBody(Buffer.concat(chunks).toString('utf8'));
-    });
-    request.on('error', rejectBody);
-  });
 }
 
 const savedFrameLayoutFile = fileURLToPath(new URL('./public/portal-frame-layout.json', import.meta.url));

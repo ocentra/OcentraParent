@@ -5,11 +5,14 @@ pub(super) const PARENT_STORAGE_ROW_ID_VALUE: &str = "parent-storage-settings-ro
 pub(super) const PARENT_STORAGE_LAST_SUCCESS_AT_VALUE: &str = "2026-06-28T19:10:00.000Z";
 pub(super) const PARENT_STORAGE_LAST_FAILURE_AT_VALUE: &str = "2026-06-28T19:12:00.000Z";
 pub(super) const PARENT_STORAGE_RESTORE_PREVIEW_ID_VALUE: &str = "restore-preview-proof-1";
+pub(super) const PARENT_STORAGE_HOUSEHOLD_REF_VALUE: &str = "household-proof-1";
 pub(super) const PARENT_STORAGE_RESTORE_PREVIEW_CREATED_AT_VALUE: &str = "2026-06-28T19:14:00.000Z";
 pub(super) const PARENT_STORAGE_PRODUCT_VERSION_VALUE: &str = "2026.06.28";
 pub(super) const PARENT_STORAGE_EXPORT_SCHEMA_VERSION_VALUE: &str =
     "export-import-backup-recovery-proof";
 pub(super) const PARENT_STORAGE_APPLY_DECISION_ID_VALUE: &str = "apply-decision-proof-1";
+pub(super) const PARENT_STORAGE_APPLY_INTENT_DIGEST_VALUE: &str =
+    "d21a05fd04a3e1f8a18b8d4131683513b898d8642d38a65a55ce9d6cc30799f2";
 pub(super) const PARENT_STORAGE_DELETE_LOCAL_EVIDENCE_ACTION_ID: &str = "delete-local-evidence";
 pub(super) const PARENT_STORAGE_DELETE_PARENT_CACHE_ACTION_ID: &str = "delete-parent-cache";
 pub(super) const PARENT_STORAGE_DELETE_GENERATED_REPORT_ACTION_ID: &str = "delete-generated-report";
@@ -79,7 +82,9 @@ pub(super) const PARENT_STORAGE_KNOWN_GAP_AUTOMATIC_PROVIDER_DELETE_OR_APPLY: &s
 pub(super) const PARENT_STORAGE_EXPECT_CONTRACT_VERSION: &str = "contract version";
 pub(super) const PARENT_STORAGE_EXPECT_ROW_ID: &str = "row id";
 pub(super) const PARENT_STORAGE_EXPECT_PREVIEW_ID: &str = "preview id";
+pub(super) const PARENT_STORAGE_EXPECT_HOUSEHOLD_REF: &str = "household reference";
 pub(super) const PARENT_STORAGE_EXPECT_APPLY_ID: &str = "apply id";
+pub(super) const PARENT_STORAGE_EXPECT_APPLY_INTENT_DIGEST: &str = "apply intent digest";
 pub(super) const PARENT_STORAGE_EXPECT_ACTION_ID: &str = "action id";
 pub(super) const PARENT_STORAGE_EXPECT_TIMESTAMP: &str = "timestamp";
 

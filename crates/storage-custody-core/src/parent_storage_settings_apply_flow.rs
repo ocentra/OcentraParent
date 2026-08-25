@@ -7,6 +7,8 @@ mod parent_storage_settings_apply_flow_actions;
 mod parent_storage_settings_apply_flow_apply;
 #[path = "parent_storage_settings_apply_flow_card.rs"]
 mod parent_storage_settings_apply_flow_card;
+#[path = "parent_storage_settings_apply_flow_intent_digest.rs"]
+mod parent_storage_settings_apply_flow_intent_digest;
 #[path = "parent_storage_settings_apply_flow_preview.rs"]
 mod parent_storage_settings_apply_flow_preview;
 #[path = "parent_storage_settings_apply_flow_proof.rs"]
@@ -27,6 +29,7 @@ pub struct ParentStorageModeCardInput {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParentStorageRestorePreviewInput {
     pub preview_id: contracts::ParentStoragePreviewId,
+    pub household_ref: contracts::ParentStorageHouseholdRef,
     pub preview_state: contracts::ParentStoragePreviewState,
     pub created_at: contracts::ParentStorageTimestamp,
     pub product_version: String,
@@ -40,15 +43,15 @@ pub struct ParentStorageRestorePreviewInput {
     pub manual_required_note: Option<String>,
 }
 
+/// Contract-only apply intent. It contains no authority, confirmation state,
+/// executor result, or provider-side effect claim.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParentStorageApplyDecisionInput {
     pub apply_id: contracts::ParentStorageApplyId,
-    pub apply_state: contracts::ParentStorageApplyState,
     pub will_change: Vec<sync_contracts::ParentOwnedSyncExportDataClass>,
     pub will_not_change: Vec<sync_contracts::ParentOwnedSyncExportDataClass>,
     pub preserved_tombstones: Vec<sync_contracts::ParentOwnedSyncExportDataClass>,
     pub manual_review_required: Vec<String>,
-    pub rollback_available: bool,
     pub manual_required_note: Option<String>,
 }
 
@@ -72,11 +75,15 @@ pub enum ParentStorageSettingsApplyFlowError {
     ManualRequiredMustStayVisible,
     DisabledModeMustStayDisabled,
     RestorePreviewMustRequireConfirmation,
+    PartialRestoreStateMustMatchFlag,
     PartialRestoreMustNameRejectedSections,
+    ImportPreviewPassedMustBeComplete,
     WrongHouseholdPreviewMustNotMatch,
     WrongDevicePreviewMustNotMatch,
-    ApplyMustStayConfirmationGated,
     ApplyCannotProceedWithoutPreview,
+    ApplyIntentDigestUnavailable,
+    DeleteActionNotesMustStayVisible,
+    DisconnectNotesMustStayVisible,
     DisconnectCannotDeleteProviderData,
     DeleteActionMustStaySeparateFromDisconnect,
     DuplicateDeleteActionKind(contracts::ParentStorageDeleteActionKind),
@@ -96,6 +103,9 @@ pub fn derive_parent_storage_restore_preview(
     parent_storage_settings_apply_flow_preview::derive_parent_storage_restore_preview(input)
 }
 
+/// Derive confirmation readiness only. Terminal Applied/Partial states require
+/// a future digest-bound household authority and post-side-effect executor
+/// receipt; neither can be supplied through this public contract boundary.
 pub fn derive_parent_storage_apply_decision(
     preview: &contracts::ParentStorageRestorePreview,
     input: ParentStorageApplyDecisionInput,

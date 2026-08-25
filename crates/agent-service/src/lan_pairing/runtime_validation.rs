@@ -3,11 +3,17 @@ use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
-use ocentra_parent_agent_protocol::LanPairingParentAuthority;
 
-use crate::lan_pairing::authority::{validate_registry_selection_intent, validate_write_authority};
+use crate::lan_pairing::authority::{
+    validate_registry_control_intent, validate_registry_selection_intent, validate_write_authority,
+};
 use crate::lan_pairing::LanPairingRuntime;
 use crate::time::timestamp_now;
+
+#[path = "runtime_validation/household_decision.rs"]
+pub(crate) mod household_decision;
+#[path = "runtime_validation/registry_mutation.rs"]
+mod registry_mutation;
 
 pub(super) fn validate_pairing_proof_target(
     runtime: &LanPairingRuntime,
@@ -58,18 +64,10 @@ pub(super) fn validate_intent_result(
     origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    let observed_at: String = timestamp_now();
     if crate::lan_pairing::authority::is_write_intent(intent) {
         validate_write_authority(intent)?;
     }
-    if intent.parent_authority == LanPairingParentAuthority::ActiveController {
-        runtime.validate_controller_lease(intent, &*observed_at)?;
-    }
-    runtime
-        .registry
-        .lock()
-        .map(|mut registry| registry.validate_intent(intent, origin.0.as_deref(), &observed_at))
-        .unwrap_or(Err(LanPairingRejectionReason::Malformed))
+    validate_registry_control_intent(runtime, origin.0.as_deref(), intent)
 }
 
 pub(super) fn validate_selection_intent_result(
@@ -77,50 +75,22 @@ pub(super) fn validate_selection_intent_result(
     origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    let observed_at: String = timestamp_now();
     validate_write_authority(intent)?;
-    runtime.validate_controller_lease(intent, &*observed_at)?;
     validate_registry_selection_intent(runtime, origin.0.as_deref(), intent)
 }
 
 pub(super) fn select_pairing_result(
     runtime: &LanPairingRuntime,
+    origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    runtime
-        .registry
-        .lock()
-        .map(|mut registry| {
-            let selected = registry.select_pairing(
-                &intent.pairing_id,
-                &intent.target_child_device_id,
-                &intent.route_id,
-                &intent.expires_at,
-            );
-            if selected.is_ok() {
-                let _ = registry.clear_selected_route_reachability();
-                runtime.persist_registry(&registry);
-            }
-            selected
-        })
-        .unwrap_or(Err(LanPairingRejectionReason::Malformed))
-        .map(|_| ())
+    registry_mutation::select_pairing_result(runtime, origin, intent)
 }
 
 pub(super) fn revoke_pairing(
     runtime: &LanPairingRuntime,
+    origin: &LanPairingOptionalText,
     intent: &LanParentIntentEnvelope,
-) -> bool {
-    let revoked_at: String = timestamp_now();
-    runtime
-        .registry
-        .lock()
-        .map(|mut registry| {
-            let revoked = registry.revoke_pairing(&intent.pairing_id, &revoked_at);
-            if revoked {
-                runtime.persist_registry(&registry);
-            }
-            revoked
-        })
-        .unwrap_or(false)
+) -> Result<(), LanPairingRejectionReason> {
+    registry_mutation::revoke_pairing(runtime, origin, intent)
 }

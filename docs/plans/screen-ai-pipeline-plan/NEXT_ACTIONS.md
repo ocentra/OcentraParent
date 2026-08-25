@@ -34,6 +34,10 @@ This file is the short resume list for the next worker. It is derived from the a
 
 ## Audit-first blockers before any new checked status
 
+- Keep WP04 fail closed after `7dc09c25f`: do not restore the removed synthetic
+  decision/action/rule/explanation values. Route the real resolver through
+  `policy-control-plane-plan`, then rewrite the stale Screen AI policy-reference
+  tests during the test-source phase.
 - Restore retained proof under `output/screen-ai-pipeline-proof/`; the root does not currently exist in this checkout.
 - Add `docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md` before any slice-level closure claim; it is currently missing.
 - Reconcile proof artifact shape for the assigned workpack: current docs mix scenario-local `proof-summary.json` artifacts with the richer numbered bundle defined in `pipeline-proof-matrix.md`.

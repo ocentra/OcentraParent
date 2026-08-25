@@ -33,42 +33,29 @@ Purpose: define the child Android package, install proof, and device-owner gap p
 - Android gaps are hidden behind generic mobile wording
 - parent-client distribution claims leak into this slice
 
-## Execution truth
+## Live source truth
 
-Status: production code drafted / test-deferred.
+Status: source partial; implementation correction and all test/validation/proof gates remain open.
 
-The Android package builder now uses `OCENTRA_CHILD_ANDROID_VERSION` and rejects
-the legacy parent-scoped version input. The Android package now owns a `ca.ocentra.child.agent` identity, a child
-activity/foreground-service entrypoint, and an app-private `child-runtime/`
-composition directory. Existing parent-package Android capability adapters are
-deliberately retained behind the child shell. A Rust-owned JNI bridge now
-initializes and queries the existing `ocentra-child-runtime` service through a
-typed native boundary. The Gradle package task uses `cargo-ndk` to stage the
-bridge for configured ABIs (arm64-v8a by default); missing cargo-ndk, missing
-ABI output, and failed native loading remain manual-required. External
-transport, device authority, install/runtime lifecycle, and store readiness
-remain open.
+The Android app uses `ca.ocentra.child.agent`, a child activity, a foreground composition service, app-private durable paths, a Rust JNI bridge, and a cargo-ndk staging hook. These are real package/runtime source boundaries.
 
-## Code-drafted boundary
+The JNI bridge calls `ChildAgentService::initialize_with_paths(ChildAgentServicePaths::from_root(...))`, which supplies no `ChildAgentTrustBindingSource`. Startup therefore remains fail-closed/manual-required. Java exposes local Binder health only and `ChildAgentComposition` reports transport as `NOT_IMPLEMENTED`; no authenticated product ingress exists. Device Owner, managed profile, store authority, and platform removal integration are also absent.
 
-- The package identity and launcher now target the child agent.
-- `ChildAgentCompositionService` owns the Android lifecycle entrypoint.
-- `crates/child-runtime-android-bridge` owns the JNI exports for native start,
-  readiness, domain-flow count, last error, and stop; it delegates startup to
-  `ChildAgentService::initialize_with_paths`, including its durable recovery
-  gate.
-- `ChildAgentComposition` loads that library when present and maps native
-  readiness into typed Java health. Missing library, startup failure, query
-  failure, recovery pending, and revoked trust remain explicit non-ready
-  states; bridge failure is `RUST_RUNTIME_MANUAL_REQUIRED`.
-- Existing parent-package capability/proof adapters remain explicitly declared
-  as legacy platform components behind the child shell; their proof route
-  remains deferred and does not define child runtime readiness.
-- The JNI bridge is a local composition boundary only. It does not expose
-  network transport, package/install authority, Device Owner, managed profile,
-  or Android store/signing claims.
-- `platforms/android/agent/app/build.gradle` owns the cargo-ndk staging hook;
-  native packaging and ABI/device validation remain deferred.
+## Required production source outcome
 
-Tests, validation, proof, device-owner/managed-profile evidence, and release
-readiness are deferred to the later global validation phase.
+- consume WP10's reviewed current-trust startup and authenticated ingress/health boundary through JNI without copying or minting trust;
+- keep foreground lifecycle, native load/ABI failures, and restart/stop states observable;
+- own Android device-owner/managed-profile/manual-required state and removal callback boundaries explicitly;
+- preserve app-private custody and canonical child identity.
+
+Implementation dependency: Child WP10 reviewed implementation. Normal READY/DONE remains strict.
+
+## Expected test-source gap
+
+- correct the existing bridge test that expects `Ready` without a trust source;
+- prove missing/stale/revoked trust stays non-ready and current trust can reach ready;
+- cover JNI load/start/query/stop, foreground restart, authenticated ingress, and health;
+- cover ABI packaging, install/launch/remove, device-owner/managed-profile, store, and manual-required states on appropriate targets;
+- reject parent identity and fake transport/device authority.
+
+Historical Android protocol/capability proof and debug APK artifacts do not establish trusted startup, transport, Device Owner, managed profile, store, removal, or release completion.

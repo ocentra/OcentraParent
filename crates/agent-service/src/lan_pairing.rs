@@ -1,6 +1,8 @@
 use std::{
     path::PathBuf,
-    sync::{Arc, Mutex},
+    sync::{atomic::AtomicBool, Arc, Mutex},
+    thread::{self, JoinHandle},
+    time::{Duration, Instant},
 };
 
 #[path = "lan_pairing/authority.rs"]
@@ -28,7 +30,7 @@ mod runtime_device_ref;
 #[path = "lan_pairing/runtime_rejection.rs"]
 mod runtime_rejection;
 #[path = "lan_pairing/runtime_validation.rs"]
-mod runtime_validation;
+pub(crate) mod runtime_validation;
 
 use ocentra_lan_core::lan_pairing::LanSignedChildAgentReplayGuard;
 use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryListenerState;
@@ -50,17 +52,15 @@ use crate::{
     lan_pairing_status::pairing_status_event,
 };
 
-use self::controller_lease::LanControllerLeaseState;
-
 #[derive(Clone, Debug)]
 pub struct LanPairingRuntime {
     pub(crate) registry: Arc<Mutex<TrustedDeviceRegistry>>,
     pub(crate) challenges: Arc<Mutex<Vec<LanPairingChallengeState>>>,
-    pub(crate) controller_lease: Arc<Mutex<Option<LanControllerLeaseState>>>,
     pub(crate) signed_child_agent_replay_guard: Arc<Mutex<LanSignedChildAgentReplayGuard>>,
     pub(crate) passive_discovery_listener_state: Arc<Mutex<LanPassiveDiscoveryListenerState>>,
     pub(crate) lan_ai_provider_heartbeat: Arc<Mutex<Option<LanAiProviderHeartbeatState>>>,
     pub(crate) lan_ai_job_leases: Arc<Mutex<Vec<LanAiJobLeaseState>>>,
+    pub(crate) browser_discovery_scan_worker: Arc<Mutex<Option<LanBrowserDiscoveryScanWorker>>>,
     pub(crate) persistence: LanPairingRegistryPersistence,
     pub(crate) local_child_device_id: Option<String>,
     pub(crate) signed_child_agent_parent_device_id: Option<String>,
@@ -68,6 +68,49 @@ pub struct LanPairingRuntime {
     pub(crate) signed_child_agent_route_id: String,
     pub(crate) device_roles: DeviceRoleRuntimeReadModel,
     pub(crate) lan_ai_provider_capabilities: Vec<String>,
+}
+
+#[derive(Debug)]
+pub(crate) struct LanBrowserDiscoveryScanWorker {
+    pub(crate) cancellation: Arc<AtomicBool>,
+    pub(crate) join: Option<JoinHandle<()>>,
+}
+
+impl LanBrowserDiscoveryScanWorker {
+    pub(crate) fn cancel_and_join(mut self) -> Result<(), Self> {
+        self.cancellation
+            .store(true, std::sync::atomic::Ordering::Release);
+        let deadline = Instant::now() + Duration::from_secs(5);
+        while self.join.as_ref().is_some_and(|join| !join.is_finished())
+            && Instant::now() < deadline
+        {
+            thread::sleep(Duration::from_millis(5));
+        }
+        if self.join.as_ref().is_some_and(|join| !join.is_finished()) {
+            return Err(self);
+        }
+        if self.join.take().is_some_and(|join| join.join().is_err()) {
+            return Err(self);
+        }
+        Ok(())
+    }
+}
+
+impl Drop for LanBrowserDiscoveryScanWorker {
+    fn drop(&mut self) {
+        self.cancellation
+            .store(true, std::sync::atomic::Ordering::Release);
+        if let Some(join) = self.join.take() {
+            let deadline = Instant::now() + Duration::from_secs(5);
+            while !join.is_finished() && Instant::now() < deadline {
+                thread::sleep(Duration::from_millis(5));
+            }
+            if !join.is_finished() {
+                std::process::abort();
+            }
+            let _joined = join.join();
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -87,6 +130,15 @@ pub(crate) struct LanPairingChallengeState {
 pub(crate) enum LanPairingRegistryPersistence {
     InMemory,
     LocalJsonRegistry(PathBuf),
+    UnavailableLocalJsonRegistry,
+}
+
+impl LanPairingRuntime {
+    pub(crate) fn clone_for_background_scan(&self) -> Self {
+        let mut runtime = self.clone();
+        runtime.browser_discovery_scan_worker = Arc::new(Mutex::new(None));
+        runtime
+    }
 }
 
 pub enum LanCommandDecision {

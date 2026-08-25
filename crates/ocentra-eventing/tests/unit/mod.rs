@@ -1,5 +1,4 @@
 use ocentra_eventing::bus;
-use ocentra_eventing::bus::publisher::EventPublisher;
 use ocentra_eventing::bus::reports::dead_letter::dead_letter_recorded_event_type;
 use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::{DispatchMode, EventBus, ShutdownMode};
@@ -27,6 +26,8 @@ use ocentra_eventing::request::{
 };
 use ocentra_eventing::testkit::EventRecorder;
 
+#[path = "causal.rs"]
+mod causal;
 #[path = "clock_manual.rs"]
 mod clock_manual;
 #[path = "envelope.rs"]

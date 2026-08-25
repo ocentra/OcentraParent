@@ -4,13 +4,13 @@ import android.os.Bundle;
 
 public final class AppGameAndroidUsageEventsCapabilityProof {
     public static final String SCHEMA_VERSION = "app-game-android-usage-events-capability-proof";
-    public static final String PACKAGE_ID = "ca.ocentra.parent.agent";
+    public static final String PACKAGE_ID = "ca.ocentra.child.agent";
     public static final String NATIVE_BRIDGE_CLASS =
         "ca.ocentra.parent.agent.AppGameAndroidUsageEventsCapabilityProof";
-    public static final String BRIDGE_STATE = "package-local-scaffold";
-    public static final String PERMISSION_STATE = "settings-grant-required";
-    public static final String EVENT_COLLECTION_STATE = "runtime-grant-not-proved";
-    public static final String REPLAY_CONSUMER_STATE = "parent-domain-boundary-only";
+    public static final String BRIDGE_STATE = "package-local-runtime";
+    public static final String PERMISSION_STATE = "runtime-preflight-required";
+    public static final String EVENT_COLLECTION_STATE = "count-only-runtime-preflight";
+    public static final String REPLAY_CONSUMER_STATE = "child-runtime-service-consumer";
     public static final String FIELD_USAGE_EVENTS_BRIDGE_STATE = "usageEventsBridgeState";
     public static final String COMMAND_USAGE_EVENTS_CAPABILITY_GET =
         "app-game.android.usage-events.capability.get";
@@ -32,6 +32,7 @@ public final class AppGameAndroidUsageEventsCapabilityProof {
         status.putString("permissionState", PERMISSION_STATE);
         status.putString("eventCollectionState", EVENT_COLLECTION_STATE);
         status.putString("replayConsumerState", REPLAY_CONSUMER_STATE);
+        status.putBoolean("childRuntimeServiceConsumerReachable", true);
         status.putStringArray(
             "commands",
             new String[] {
@@ -46,24 +47,20 @@ public final class AppGameAndroidUsageEventsCapabilityProof {
                 EVENT_USAGE_EVENTS_REPLAY_BOUNDARY_REPORTED
             }
         );
-        status.putStringArray(
-            "proofRefs",
-            new String[] {
-                "android-usage-events-capability-bridge-ref",
-                "android-package-local-usage-events-proof-ref"
-            }
-        );
+        status.putStringArray("proofRefs", new String[0]);
         status.putStringArray(
             "openGaps",
             new String[] {
                 "android-usage-stats-settings-grant-not-proved",
                 "android-usage-events-runtime-collection-not-proved",
+                "android-usage-events-child-runtime-replay-proof-not-proved",
                 "android-child-runtime-delivery-not-proved",
                 "android-platform-enforcement-not-proved"
             }
         );
         status.putBoolean("rawUsageEventsStored", false);
         status.putBoolean("packageNamesStored", false);
+        status.putBoolean("rawActivityRowsStored", false);
         status.putBoolean("adapterDispatchClaimed", false);
         status.putBoolean("platformEnforcementClaimed", false);
         status.putBoolean("childDeviceDeliveryClaimed", false);

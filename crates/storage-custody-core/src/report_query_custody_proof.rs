@@ -1,40 +1,76 @@
+use chrono::Utc;
+use ocentra_family_identity_core::account_identity_authority::VerifiedAccountIdentityAuthority;
 use std::collections::BTreeSet;
 
 use ocentra_schema::report_query_custody as contracts;
 
 use super::{
-    derive_report_query_custody_row, ReportQueryCustodyDerivationError,
-    ReportQueryCustodyDerivationInput,
+    report_query_custody_source::ReportQueryCustodySourceResolution,
+    report_query_custody_verified_proof::ValidatedReportQueryCustodyProofSnapshot,
+    ReportQueryCustodyDerivationError,
 };
 
 pub(super) fn build_report_query_custody_proof(
     request: &contracts::ReportQueryCustodyRequest,
-    inputs: Vec<ReportQueryCustodyDerivationInput>,
+    sources: Vec<ReportQueryCustodySourceResolution>,
     updated_at: contracts::ParentTimestamp,
-) -> Result<contracts::ReportQueryCustodyContractProof, ReportQueryCustodyDerivationError> {
-    let mut rows = inputs
-        .into_iter()
-        .map(|input| derive_report_query_custody_row(request, input))
-        .collect::<Result<Vec<_>, _>>()?;
+    authority: &VerifiedAccountIdentityAuthority,
+) -> Result<ValidatedReportQueryCustodyProofSnapshot, ReportQueryCustodyDerivationError> {
+    let resolved_at = Utc::now();
+    super::report_query_custody_request_validate::validate_report_query_custody_request_at(
+        request,
+        authority,
+        resolved_at,
+    )?;
+    super::report_query_custody_proof_validate::validate_page_result_limit(request, sources.len())?;
 
-    rows.sort_by_key(|row| row.page_index);
-
-    if rows
-        .iter()
-        .enumerate()
-        .any(|(index, row)| row.page_index != index as u32 + 1)
-    {
-        return Err(ReportQueryCustodyDerivationError::NonSequentialPageIndex);
-    }
-
-    let mut seen_cursor_refs = BTreeSet::new();
-    for row in &rows {
-        if !seen_cursor_refs.insert(row.cursor_ref.to_string()) {
+    let mut rows: Vec<contracts::ReportQueryCustodyRow> = Vec::with_capacity(sources.len());
+    let mut seen_cursor_refs: BTreeSet<contracts::ReportQueryCustodyCursorRef> = BTreeSet::new();
+    let mut seen_source_refs: BTreeSet<contracts::ReportQueryCustodySourceRef> = BTreeSet::new();
+    let mut seen_sort_keys: BTreeSet<contracts::ReportQueryCustodySortKey> = BTreeSet::new();
+    for source in sources {
+        let row = super::report_query_custody_row::derive_report_query_custody_row_at(
+            request,
+            source,
+            authority,
+            resolved_at,
+        )?;
+        if !seen_cursor_refs.insert(row.cursor_ref.clone()) {
             return Err(ReportQueryCustodyDerivationError::DuplicateCursorRef);
         }
+        if !seen_source_refs.insert(row.row_id.clone()) {
+            return Err(ReportQueryCustodyDerivationError::DuplicateSourceRef);
+        }
+        if !seen_sort_keys.insert(row.stable_sort_key.clone()) {
+            return Err(ReportQueryCustodyDerivationError::DuplicateStableSortKey);
+        }
+        if row.page_index != (rows.len() as u32).saturating_add(1) {
+            return Err(ReportQueryCustodyDerivationError::NonSequentialPageIndex);
+        }
+        if let Some(next_cursor_ref) = row.next_cursor_ref.as_ref() {
+            if seen_cursor_refs.contains(next_cursor_ref) {
+                return Err(ReportQueryCustodyDerivationError::CursorContinuityMismatch);
+            }
+        }
+        if let Some(previous) = rows.last() {
+            if previous.next_cursor_ref.as_ref() != Some(&row.cursor_ref) {
+                return Err(ReportQueryCustodyDerivationError::CursorContinuityMismatch);
+            }
+            if previous.source_cursor_ref != row.source_cursor_ref {
+                return Err(ReportQueryCustodyDerivationError::SourceCursorContinuityMismatch);
+            }
+            if previous.stable_sort_key >= row.stable_sort_key {
+                return Err(ReportQueryCustodyDerivationError::NonMonotonicStableSortKey);
+            }
+        } else if row.cursor_ref.to_string() != request.requested_cursor.to_string() {
+            return Err(ReportQueryCustodyDerivationError::CursorContinuityMismatch);
+        }
+        rows.push(row);
     }
 
-    Ok(contracts::ReportQueryCustodyContractProof {
+    super::report_query_custody_proof_validate::validate_required_states(&rows)?;
+
+    let contract = contracts::ReportQueryCustodyContractProof {
         schema_version: contracts::REPORT_QUERY_CUSTODY_SCHEMA_VERSION.to_string(),
         contract_version: contracts::ParentContractSchemaVersion::parse("v0.6")
             .ok_or(ReportQueryCustodyDerivationError::InvalidContractVersion)?,
@@ -48,5 +84,8 @@ pub(super) fn build_report_query_custody_proof(
         second_truth_store_claimed: false,
         raw_child_evidence_claimed: false,
         updated_at,
-    })
+    };
+    Ok(ValidatedReportQueryCustodyProofSnapshot::from_contract(
+        contract,
+    ))
 }

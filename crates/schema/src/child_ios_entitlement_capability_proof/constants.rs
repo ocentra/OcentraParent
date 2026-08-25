@@ -1,6 +1,6 @@
 pub const CHILD_IOS_ENTITLEMENT_CAPABILITY_PROOF_SCHEMA_VERSION: &str =
     "child-ios-entitlement-capability-proof";
-pub const CHILD_IOS_ENTITLEMENT_BUNDLE_ID: &str = "ca.ocentra.parent.agent";
+pub const CHILD_IOS_ENTITLEMENT_BUNDLE_ID: &str = "ca.ocentra.child.agent";
 pub const CHILD_IOS_ENTITLEMENT_CLASS_NAME: &str = "AgentStatusViewController";
 pub const CHILD_IOS_ENTITLEMENT_UPDATED_AT: &str = "2026-05-31T00:00:00.000Z";
 

@@ -1,22 +1,20 @@
 #![forbid(unsafe_code)]
 
-use ed25519_dalek::{SigningKey, VerifyingKey};
-use ocentra_eventing::bus::EventBus;
+use ed25519_dalek::SigningKey;
+use ocentra_eventing::bus::publisher::RootEventPublisher;
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityInput, ParentStepUpValidationInput,
 };
-use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityCurrentState;
 use ocentra_family_identity_core::parent_step_up_proof::{
     ParentDeviceTrustCurrentState, ParentStepUpProofVerifier, VerifiedParentStepUpProof,
 };
 use ocentra_schema::authenticated_delivery_grant::{
-    AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
-    AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
+    AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 
-use self::authority::{AuthenticatedDeliveryGrantAuthorityVerifier, SignedAuthorityBindings};
+use self::authority::SignedAuthorityBindings;
 use self::issuance_milestone::EventBusAuthenticatedDeliveryGrantIssuancePublisher;
 use crate::policy_authority::PolicyControlDecision;
 use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
@@ -27,7 +25,7 @@ use std::sync::Arc;
 #[cfg(debug_assertions)]
 use std::sync::Mutex;
 
-pub mod authority;
+pub(crate) mod authority;
 pub mod issuance_milestone;
 mod lifecycle;
 mod validation;
@@ -124,7 +122,7 @@ pub enum DeliveryGrantEvidenceState {
     Unstable,
 }
 
-pub struct AuthenticatedDeliveryGrantIssuance<'a> {
+pub(crate) struct AuthenticatedDeliveryGrantIssuance<'a> {
     /// Caller context only. Issuance derives its durable audit correlation from
     /// verified authority material and never trusts this value for that chain.
     pub correlation_id: CorrelationId,
@@ -161,12 +159,9 @@ pub enum AuthenticatedDeliveryGrantIssuanceError {
     MilestonePublicationFailed,
 }
 
-pub struct AuthenticatedDeliveryGrantIssuer {
+pub(crate) struct AuthenticatedDeliveryGrantIssuer {
     issuer_key_id: String,
     signing_key: SigningKey,
-    authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier,
-    household_authority_current_state_resolver:
-        Arc<dyn Fn() -> HouseholdAuthorityCurrentState + Send + Sync>,
     parent_device_trust_current_state_resolver:
         Arc<dyn Fn() -> ParentDeviceTrustCurrentState + Send + Sync>,
     step_up_verifier: ParentStepUpProofVerifier,
@@ -177,50 +172,9 @@ pub struct AuthenticatedDeliveryGrantIssuer {
 }
 
 impl AuthenticatedDeliveryGrantIssuer {
-    pub fn from_platform_key_with_provenance_verifiers<F, G>(
-        issuer_key_id: impl Into<String>,
-        platform_protected_key: [u8; 32],
-        authority_key: VerifyingKey,
-        household_authority_key: VerifyingKey,
-        household_authority_current_state_resolver: F,
-        step_up_key: VerifyingKey,
-        parent_device_trust_current_state_resolver: G,
-    ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError>
-    where
-        F: Fn() -> HouseholdAuthorityCurrentState + Send + Sync + 'static,
-        G: Fn() -> ParentDeviceTrustCurrentState + Send + Sync + 'static,
-    {
-        let issuer_key_id = issuer_key_id.into();
-        if issuer_key_id.trim().is_empty()
-            || issuer_key_id.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
-        {
-            return Err(AuthenticatedDeliveryGrantIssuanceError::InvalidIssuerKeyId);
-        }
-        let signing_key = SigningKey::from_bytes(&platform_protected_key);
-        Ok(Self {
-            issuer_key_id,
-            signing_key,
-            authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier::new(
-                authority_key,
-                household_authority_key,
-            ),
-            household_authority_current_state_resolver: Arc::new(
-                household_authority_current_state_resolver,
-            ),
-            parent_device_trust_current_state_resolver: Arc::new(
-                parent_device_trust_current_state_resolver,
-            ),
-            step_up_verifier: ParentStepUpProofVerifier::new(step_up_key),
-            issuance_publisher: None,
-            trusted_issuance_now: None,
-            #[cfg(debug_assertions)]
-            trusted_issuance_now_sequence: None,
-        })
-    }
-
-    pub fn with_event_bus_issuance_publisher(
+    pub(crate) fn with_event_bus_issuance_publisher(
         mut self,
-        event_bus: EventBus,
+        event_bus: RootEventPublisher,
     ) -> Result<Self, EventingError> {
         self.issuance_publisher = Some(EventBusAuthenticatedDeliveryGrantIssuancePublisher::new(
             event_bus,
@@ -228,7 +182,7 @@ impl AuthenticatedDeliveryGrantIssuer {
         Ok(self)
     }
 
-    pub fn verifying_key(&self) -> VerifyingKey {
+    pub(crate) fn verifying_key(&self) -> ed25519_dalek::VerifyingKey {
         self.signing_key.verifying_key()
     }
 
@@ -266,7 +220,7 @@ impl AuthenticatedDeliveryGrantIssuer {
         None
     }
 
-    pub fn issue(
+    pub(crate) fn issue(
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
@@ -282,7 +236,7 @@ impl AuthenticatedDeliveryGrantIssuer {
         }
     }
 
-    pub async fn issue_async(
+    pub(crate) async fn issue_async(
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {

@@ -1,121 +1,110 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 
 use ocentra_family_identity_core::household_authority::HouseholdAuthorityAction;
-use ocentra_family_identity_core::household_authority_proof::VerifiedHouseholdAuthority;
+use ocentra_family_identity_core::household_authority_runtime_composer::HouseholdAuthorityRuntimeEffectAuthorization;
 
+#[path = "export_import_backup_recovery_backup_job_state.rs"]
+pub mod export_import_backup_recovery_backup_job_state;
+#[path = "export_import_backup_recovery_backup_schedule.rs"]
+pub mod export_import_backup_recovery_backup_schedule;
 #[path = "export_import_backup_recovery_build.rs"]
 mod export_import_backup_recovery_build;
+#[path = "export_import_backup_recovery_bundle_preflight_binding.rs"]
+pub mod export_import_backup_recovery_bundle_preflight_binding;
+#[path = "export_import_backup_recovery_compensation.rs"]
+pub mod export_import_backup_recovery_compensation;
 #[path = "export_import_backup_recovery_import.rs"]
 mod export_import_backup_recovery_import;
+#[path = "export_import_backup_recovery_migration.rs"]
+mod export_import_backup_recovery_migration;
+#[path = "export_import_backup_recovery_migration_execution.rs"]
+pub mod export_import_backup_recovery_migration_execution;
 #[path = "export_import_backup_recovery_restore.rs"]
 mod export_import_backup_recovery_restore;
+#[path = "export_import_backup_recovery_restore_execution_plan.rs"]
+pub mod export_import_backup_recovery_restore_execution_plan;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ExportBundleBuildRequest {
+pub struct BackupRequestInput {
     pub bundle_id: contracts::ExportImportBundleId,
-    pub product_version: contracts::ExportImportProductVersion,
-    pub created_at: contracts::ExportImportTimestamp,
-    pub household: contracts::ExportImportHouseholdReference,
-    pub source_device_id: Option<contracts::ExportImportDeviceId>,
-    pub bundle_type: contracts::ExportImportBundleType,
-    pub key_ref: contracts::ExportImportKeyRef,
-    pub manifest_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
-    pub tombstone_cursor: Option<contracts::ExportImportTombstoneCursor>,
-    pub retention_notes: Vec<String>,
-    pub proof_tier: contracts::ExportImportProofTier,
-    pub migration_ref: Option<contracts::ExportImportMigrationRef>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ExportPayloadSectionInput {
-    pub data_class: contracts::ExportImportDataClass,
-    pub payload_ref: contracts::ExportImportPayloadRef,
-    pub payload_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
-    pub encrypted: bool,
-    pub retention_state: contracts::ExportImportSectionRetentionState,
-    pub support_default_decryptable: bool,
-    pub included_in_human_summary: bool,
-    pub notes: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ExportHumanSummaryInput {
-    pub headline: String,
-    pub excluded_data_classes: Vec<contracts::ExportImportDataClass>,
-    pub raw_payload_redacted: bool,
-    pub support_safe: bool,
-    pub notes: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ExportBundleBuildError {
-    EmptySections,
-    MissingManifestIntegrity,
-    MissingPayloadIntegrity(contracts::ExportImportDataClass),
-    SectionNotEncrypted(contracts::ExportImportDataClass),
-    SupportDefaultDecryptForbidden(contracts::ExportImportDataClass),
-    DuplicateDataClass(contracts::ExportImportDataClass),
-    SummaryMustBeRedacted,
-    SummaryMustBeSupportSafe,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ImportBundleContext {
-    pub local_household_id: contracts::ExportImportHouseholdId,
-    pub local_product_version: contracts::ExportImportProductVersion,
-    pub available_key_refs: Vec<contracts::ExportImportKeyRef>,
-    pub supported_schema_versions: Vec<String>,
-    pub blocked_restore_data_classes: Vec<contracts::ExportImportDataClass>,
-    pub known_device_ids: Vec<contracts::ExportImportDeviceId>,
-    pub target_device_id: Option<contracts::ExportImportDeviceId>,
-    pub migration_supported: bool,
-    pub manifest_integrity_ok: bool,
-    pub payload_integrity_failures: Vec<contracts::ExportImportDataClass>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RestoreApplyRequest {
-    pub confirmed: bool,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RestoreExecutorReceipt {
-    pub execution_ref: String,
-    pub state: contracts::ExportImportRestoreApplyState,
-    pub applied_sections: Vec<contracts::ExportImportSectionDecision>,
-    pub rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-    pub idempotent: bool,
-    pub tombstones_preserved: bool,
-    pub duplicates_created: bool,
+    pub cadence: contracts::ExportImportBackupCadence,
+    pub household_id: contracts::ExportImportHouseholdId,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RestoreExecutorFailure {
-    Unavailable,
+pub enum BackupRequestError {
+    AuthorityActionRequired,
+    HouseholdMismatch,
 }
 
-pub trait RestoreExecutor {
-    fn execute_restore(
-        &mut self,
-        preflight: &contracts::ExportImportImportPreflight,
-        request: &RestoreApplyRequest,
-    ) -> Result<RestoreExecutorReceipt, RestoreExecutorFailure>;
+const BACKUP_SCHEDULED_MANUAL_REQUIRED_NOTE: &str =
+    "Scheduled backup remains manual-required until a trusted scheduler and provider runtime exist.";
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ExportBundleBuildRequest {
+    pub(crate) bundle_id: contracts::ExportImportBundleId,
+    pub(crate) product_version: contracts::ExportImportProductVersion,
+    pub(crate) created_at: contracts::ExportImportTimestamp,
+    pub(crate) household: contracts::ExportImportHouseholdReference,
+    pub(crate) source_device_id: Option<contracts::ExportImportDeviceId>,
+    pub(crate) bundle_type: contracts::ExportImportBundleType,
+    pub(crate) key_ref: contracts::ExportImportKeyRef,
+    pub(crate) manifest_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
+    pub(crate) tombstone_cursor: Option<contracts::ExportImportTombstoneCursor>,
+    pub(crate) retention_notes: Vec<String>,
+    pub(crate) proof_tier: contracts::ExportImportProofTier,
+    pub(crate) migration_ref: Option<contracts::ExportImportMigrationRef>,
 }
 
-#[derive(Debug, Default)]
-pub struct UnavailableRestoreExecutor;
-
-impl RestoreExecutor for UnavailableRestoreExecutor {
-    fn execute_restore(
-        &mut self,
-        _preflight: &contracts::ExportImportImportPreflight,
-        _request: &RestoreApplyRequest,
-    ) -> Result<RestoreExecutorReceipt, RestoreExecutorFailure> {
-        Err(RestoreExecutorFailure::Unavailable)
-    }
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ExportPayloadSectionInput {
+    pub(crate) data_class: contracts::ExportImportDataClass,
+    pub(crate) payload_ref: contracts::ExportImportPayloadRef,
+    pub(crate) payload_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
+    pub(crate) retention_state: contracts::ExportImportSectionRetentionState,
+    pub(crate) included_in_human_summary: bool,
+    pub(crate) notes: String,
 }
 
-pub fn derive_export_bundle(
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ExportHumanSummaryInput {
+    pub(crate) headline: String,
+    pub(crate) excluded_data_classes: Vec<contracts::ExportImportDataClass>,
+    pub(crate) raw_payload_redacted: bool,
+    pub(crate) support_safe: bool,
+    pub(crate) notes: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ExportBundleBuildError {
+    EncryptionCustodyUnavailable,
+}
+
+/// Import context is assembled by the storage owner, never from a wire or UI
+/// payload. No public constructor exists until durable key, integrity, and
+/// tombstone-cursor custody are available, so callers cannot mint an accepted
+/// preview from booleans or advance revocation state with an imported cursor.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ImportBundleContext {
+    pub(crate) local_household_id: contracts::ExportImportHouseholdId,
+    pub(crate) local_product_version: contracts::ExportImportProductVersion,
+    pub(crate) available_key_refs: Vec<contracts::ExportImportKeyRef>,
+    pub(crate) supported_schema_versions: Vec<String>,
+    pub(crate) blocked_restore_data_classes: Vec<contracts::ExportImportDataClass>,
+    pub(crate) known_device_ids: Vec<contracts::ExportImportDeviceId>,
+    pub(crate) target_device_id: Option<contracts::ExportImportDeviceId>,
+    pub(crate) migration_supported: bool,
+    pub(crate) manifest_integrity_ok: bool,
+    pub(crate) payload_integrity_failures: Vec<contracts::ExportImportDataClass>,
+    pub(crate) current_tombstone_cursor: Option<contracts::ExportImportTombstoneCursor>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct RestoreApplyRequest {
+    pub confirmed: bool,
+}
+
+pub(crate) fn derive_export_bundle(
     request: ExportBundleBuildRequest,
     sections: Vec<ExportPayloadSectionInput>,
     summary: ExportHumanSummaryInput,
@@ -123,65 +112,56 @@ pub fn derive_export_bundle(
     export_import_backup_recovery_build::derive_export_bundle(request, sections, summary)
 }
 
-pub fn run_import_preflight(
+pub(crate) fn run_import_preflight(
     bundle: &contracts::ExportImportRecoveryBundle,
     context: &ImportBundleContext,
 ) -> contracts::ExportImportImportPreflight {
     export_import_backup_recovery_import::run_import_preflight(bundle, context)
 }
 
-pub fn apply_restore(
+pub(crate) fn migration_execution_readiness(
+    bundle: &contracts::ExportImportRecoveryBundle,
     preflight: &contracts::ExportImportImportPreflight,
-    request: &RestoreApplyRequest,
-) -> contracts::ExportImportRestoreApplyResult {
-    export_import_backup_recovery_restore::blocked_restore(preflight, request)
+) -> contracts::ExportImportMigrationExecutionReadiness {
+    export_import_backup_recovery_migration::migration_execution_readiness(bundle, preflight)
 }
 
-pub fn apply_restore_with_parent_authority(
-    preflight: &contracts::ExportImportImportPreflight,
-    context: &ImportBundleContext,
-    request: &RestoreApplyRequest,
-    authority: &VerifiedHouseholdAuthority,
-) -> contracts::ExportImportRestoreApplyResult {
-    let mut executor = UnavailableRestoreExecutor;
-    apply_restore_with_parent_authority_and_executor(
-        preflight,
-        context,
-        request,
-        authority,
-        &mut executor,
-    )
+pub fn authorize_backup_request(
+    input: BackupRequestInput,
+    authority: HouseholdAuthorityRuntimeEffectAuthorization,
+) -> Result<contracts::ExportImportBackupRequestState, BackupRequestError> {
+    authority
+        .consume_for_data_custody(
+            HouseholdAuthorityAction::ExportDeleteData,
+            input.household_id.as_str(),
+            None,
+            None,
+        )
+        .map_err(|_| BackupRequestError::HouseholdMismatch)?;
+
+    let scheduled = input.cadence == contracts::ExportImportBackupCadence::Scheduled;
+    Ok(contracts::ExportImportBackupRequestState {
+        bundle_id: input.bundle_id,
+        cadence: input.cadence,
+        state: if scheduled {
+            contracts::ExportImportBackupState::ManualRequired
+        } else {
+            contracts::ExportImportBackupState::Authorized
+        },
+        explicit_confirmation_required: true,
+        provider_runtime_claimed: false,
+        manual_required_note: scheduled.then(|| BACKUP_SCHEDULED_MANUAL_REQUIRED_NOTE.to_string()),
+    })
 }
 
-pub fn apply_restore_with_parent_authority_and_executor(
-    preflight: &contracts::ExportImportImportPreflight,
-    context: &ImportBundleContext,
-    request: &RestoreApplyRequest,
-    authority: &VerifiedHouseholdAuthority,
-    executor: &mut impl RestoreExecutor,
+/// Restore application is unavailable until a storage owner can bind the
+/// operation to a durable, reread-at-apply tombstone cursor. The serde-shaped
+/// preflight and caller-held [`ImportBundleContext`] are deliberately ignored:
+/// neither is currentness authority, and no restore side effect is permitted
+/// through this dead seam.
+pub(crate) fn apply_restore(
+    _preflight: &contracts::ExportImportImportPreflight,
+    _request: &RestoreApplyRequest,
 ) -> contracts::ExportImportRestoreApplyResult {
-    let Some(identity_binding) = authority.identity_binding() else {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
-    };
-    let Some(target_device_id) = context.target_device_id.as_ref() else {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
-    };
-    if !export_import_backup_recovery_restore::preflight_is_applicable(preflight)
-        || !request.confirmed
-        || authority.input().action != HouseholdAuthorityAction::PairChildDevice
-        || identity_binding.household_id != context.local_household_id.as_str()
-        || identity_binding.target_device_id != target_device_id.as_str()
-    {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
-    }
-
-    let Ok(receipt) = executor.execute_restore(preflight, request) else {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
-    };
-    let Some(result) =
-        export_import_backup_recovery_restore::apply_restore_after_execution(preflight, receipt)
-    else {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
-    };
-    result
+    export_import_backup_recovery_restore::blocked_restore()
 }

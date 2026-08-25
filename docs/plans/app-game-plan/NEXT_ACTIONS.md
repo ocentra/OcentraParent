@@ -30,19 +30,23 @@ This file is the short resume list for the next worker. It is derived from open 
 The 2026-08-15 code audit maps all 220 workpacks and leaves 33 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 
-1. WP62-WP65: preference owners and receipt-backed status. WP59's scheduler
+1. WP10 source is independently accepted. In the later plan-wide expected-test
+   wave, refresh/write its launcher/candidate, generation, targeted-PID,
+   foreground-join, duplicate-session, and no-false-known-game cases before
+   running any of them.
+2. WP62-WP65: preference owners and receipt-backed status. WP59's scheduler
    bridge, WP60's metadata-only audit-history bridge, and WP61's persisted
    provider-preflight bridge are implemented and focused-green at `4cf6a11c9`,
    `bae505ce8`, and `8355613d8`; production
    history persistence, retry/quiet-hours workers, and provider delivery remain
    later runtime boundaries.
-2. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large
+3. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large
    metadata tests.
-3. WP188-WP202, WP204: Android replay/test closure and Linux foreground
+4. WP188-WP202, WP204: Android replay/test closure and Linux foreground
    acquisition.
-4. WP207 and WP211-WP222: Android child-runtime durability, receipt, delivery,
+5. WP207 and WP211-WP222: Android child-runtime durability, receipt, delivery,
    notification, action, and focused test closure.
-5. WP27 load/performance harnesses; WP102 implement-or-retire decision.
+6. WP27 load/performance harnesses; WP102 implement-or-retire decision.
 
 Do not schedule a no-code/proof packet as implementation work, and do not
 recreate the removed legacy TypeScript owners named in old workpacks.

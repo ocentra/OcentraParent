@@ -63,4 +63,25 @@ capability gaps.
   unknown approval, policy/game-budget authoring, live source adapters, platform
   authority proof, and broad blocking remain later work.
 
+## Live Code/Test Re-Audit - 2026-08-24
+
+- The dashboard is current production source, not a removed-package promise.
+  `apps/portal/src/ParentPortalRoute.tsx` mounts the checked-in vendor surface
+  through `apps/portal/src/vendor-parent-portal-surface.js`.
+- `activity-ui-intent.ts` builds the dashboard from the service-backed activity
+  state, and `ParentPortalSvgSurface.tsx` renders service rows, source freshness,
+  capability limitations, evidence, counts, unknown/manual-required states, and
+  the App/Game Sessions route.
+- `apps/portal/tests/e2e/portal-route-scaffold-product-activity.ts` proves only
+  the shallow route headings/count families. The focused intent/state matrix,
+  hostile/long-metadata layout, and clean-console coverage required above are
+  not checked in.
+- The Game budgets tile deliberately reports `policy proof pending` (or no game
+  rows). The Rust evaluator exists, but no service budget read-model row feeds
+  this surface. Do not replace that honest gap with fixture-only or caller-minted
+  data.
+- Therefore the production surface source gap is closed, while expected-test
+  writing, service-backed budget integration, focused execution, proof, and DONE
+  remain open.
+
 Use the standard checklist in [workpacks README](README.md).

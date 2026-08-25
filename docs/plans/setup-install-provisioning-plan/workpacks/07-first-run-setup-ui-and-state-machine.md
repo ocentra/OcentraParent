@@ -196,10 +196,53 @@ If setup UI/e2e paths do not exist yet, write exact blockers and keep rows open.
 
 Production setup readiness remains blocked until account, distribution, child runtime, LAN/device trust, data custody, and policy baseline owner proofs exist.
 
-## Fill before DONE
+## Current production source and expected-test state (2026-08-17)
+
+The accepted Rust path is reachable from the Tauri route loader through
+`parent_ui_bridge` into `setup_first_run.rs` and the portal renderer. It is an
+honest boundary repair, not the state machine described by this workpack. It
+reports evaluator `not-run`, `manual-required`, and `0/15` trusted inputs;
+every authority row is unavailable. LAN state is displayed only as an
+observation, cannot mint ownership/trust/readiness, and its typed failure state
+is preserved. Start actions remain generic/local, while LAN-only discovery is
+rejected.
+
+Integration source `ca230550b` also makes
+`AgentCommandName::is_lan_command` the canonical classifier for all 13 LAN
+commands and rejects every LAN command at the generic non-LAN parent dispatch
+boundary. This closes a route-classification source defect without authorizing
+setup progression.
+
+Production source still required:
+
+- owner-backed typed inputs for account, parent/child packages, child runtime,
+  pairing/device trust, permissions, custody, policy baseline, and recovery;
+- the real transition/action model and readiness-driven completion guard;
+- bounded actions for welcome/sign-in/household/install/profile/pair/recovery
+  without importing sibling authority internals.
+
+Expected-test source still required:
+
+- Start route with LAN available, unavailable, and not requested;
+- all 15 authority rows remain manual-required until bound;
+- selected/paired LAN observations never imply ownership or trust;
+- typed diagnostic presence is retained;
+- Start generic commands never enter LAN dispatch and Start discovery fails;
+- no evaluator, action plan, or setup-complete claim is emitted.
+
+The historical completion block and ignored proof root below describe an older
+panel. They are not current acceptance evidence and must be regenerated only
+after the source and expected-test phases close.
+
+## Historical proof record (not current status)
+
+The following retained block belongs to an earlier portal-projection packet. It
+is preserved for provenance only and is not revalidated, regenerated, or
+promoted by the 2026-08-17 source wave. The current status is source accepted;
+tests, builds, proof, precommit, CI, and PR remain deferred.
 
 ```text
-Workpack id and branch: WP07 First-Run Setup UI And State Machine / codex/tracking-plan-full-continuation-a
+Historical proof packet (not refreshed by this source wave): WP07 First-Run Setup UI And State Machine / codex/tracking-plan-full-continuation-a
 Setup UI/state changes: projected the typed setup-domain first-run state machine into `packages/portal-domain/src/setup-first-run-panel.ts`, rendered it on `PortalRoute.Start` through `apps/portal/src/SetupFirstRunRoutePanel.tsx`, added focused portal-domain, portal render, and portal Playwright proof coverage, and repaired the portal dev-log fallback so the first-run proof harness now completes end to end on this host.
 Touched files: packages/portal-domain/package.json, packages/portal-domain/src/setup-first-run-panel.ts, packages/portal-domain/tests/unit/setup-first-run-panel.test.ts, apps/portal/src/ParentPortalRoute.tsx, apps/portal/src/SetupFirstRunRoutePanel.tsx, apps/portal/src/dev-logger.ts, apps/portal/tests/setup-first-run-route-panel.test.ts, apps/portal/tests/live-activity-network-flow.test.ts, apps/portal/tests/logging/portal-dev-log-route.test.ts, apps/portal/e2e/setup-first-run-ui-proof.spec.ts, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/00-first-run-state-machine-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/01-first-run-ui-screen-map.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/02-empty-error-degraded-ui-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/03-manual-required-visible-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/04-adjacent-handoff-visible-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/05-no-fake-ready-state-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/06-source-custody-label-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/16-validation-commands.log
 Validation commands and results: `npm run build --workspace @ocentra-parent/portal-domain` PASS; `npm run test --workspace @ocentra-parent/portal-domain -- setup-first-run-panel.test.ts` PASS; `npm run lint:architecture -- --files packages/portal-domain/package.json packages/portal-domain/src/setup-first-run-panel.ts packages/portal-domain/tests/unit/setup-first-run-panel.test.ts apps/portal/src/SetupFirstRunRoutePanel.tsx apps/portal/src/ParentPortalRoute.tsx apps/portal/src/dev-logger.ts apps/portal/tests/setup-first-run-route-panel.test.ts apps/portal/tests/live-activity-network-flow.test.ts apps/portal/tests/logging/portal-dev-log-route.test.ts apps/portal/e2e/setup-first-run-ui-proof.spec.ts packages/setup-domain/src/setup-state-machine.ts packages/setup-domain/tests/unit/setup-state-machine.test.ts` PASS; `Push-Location apps/portal; npx vitest run tests/logging/portal-dev-log-route.test.ts tests/setup-first-run-route-panel.test.ts tests/live-activity-network-flow.test.ts; Pop-Location` PASS (3 files, 19 tests); `Push-Location apps/portal; npx tsc -p tsconfig.json --noEmit; Pop-Location` PASS; `Push-Location apps/portal; npx vite build; Pop-Location` PASS; `$env:OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC='setup-first-run-ui-proof.spec.ts'; node scripts/test/portal-playwright-runner.mjs` PASS (1 Playwright spec); `npm run lint:architecture -- --files docs/plans/setup-install-provisioning-plan` PASS.

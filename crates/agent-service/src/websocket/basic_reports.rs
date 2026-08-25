@@ -6,9 +6,10 @@ use std::{
 use ocentra_parent_agent_protocol::{
     constants,
     logging::{LogFieldValue, LogLevel},
-    transport::{AgentCommandEnvelope, AgentEventEnvelope, AgentEventName},
+    transport::{AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, AgentRoute},
 };
 
+use super::health_nonce::health_event_id_suffix;
 use crate::{
     event_builder::build_event, fields::fields_from_pairs, snapshot::build_dev_log_snapshot,
 };
@@ -40,8 +41,9 @@ pub(crate) fn build_dev_echo_report(command: AgentCommandEnvelope) -> AgentEvent
 }
 
 pub(crate) fn build_health_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
+    let request_nonce_digest = super::health_nonce::request_nonce_digest(&command).0;
     build_event(
-        constants::event_id::HEALTH_REPORTED,
+        health_event_id_suffix(&command).0,
         &command.message_id,
         command.source,
         AgentEventName::AgentHealthReported,
@@ -51,6 +53,29 @@ pub(crate) fn build_health_report(command: AgentCommandEnvelope) -> AgentEventEn
             (
                 constants::field::TRANSPORT,
                 LogFieldValue::String(constants::value::TRANSPORT_WEBSOCKET.to_string()),
+            ),
+            (
+                constants::field::COMMAND_TARGET_ROUTE,
+                LogFieldValue::String(
+                    match &command.target.route {
+                        AgentRoute::Localhost => constants::value::DEVICE_RUNTIME_ROUTE_LOCALHOST,
+                        AgentRoute::LocalNetwork => {
+                            constants::value::DEVICE_RUNTIME_ROUTE_LOCAL_NETWORK
+                        }
+                        AgentRoute::CloudRelay => {
+                            constants::value::DEVICE_RUNTIME_ROUTE_CLOUD_RELAY
+                        }
+                    }
+                    .to_string(),
+                ),
+            ),
+            (
+                constants::field::LAN_AUTHENTICATION_STATE,
+                LogFieldValue::String(constants::value::LAN_AUTH_UNAUTHENTICATED.to_string()),
+            ),
+            (
+                constants::field::REQUEST_NONCE_DIGEST,
+                LogFieldValue::String(request_nonce_digest),
             ),
         ]),
         Some(build_dev_log_snapshot()),

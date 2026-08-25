@@ -79,8 +79,7 @@ impl NdjsonEventJournal {
         match append.hash_version {
             JournalHashVersion::V3 => {
                 let acknowledgement = append.with_synchronization_proof()?;
-                self.write_synchronization_completion(&acknowledgement)
-                    .await?;
+                super::synchronization_markers::ensure_verified(self, &acknowledgement).await?;
                 Ok(acknowledgement)
             }
             JournalHashVersion::LegacyV1 | JournalHashVersion::V2 => Ok(append),
@@ -88,7 +87,7 @@ impl NdjsonEventJournal {
     }
 }
 
-async fn read_journal(journal: &NdjsonEventJournal) -> Result<String, EventingError> {
+pub(super) async fn read_journal(journal: &NdjsonEventJournal) -> Result<String, EventingError> {
     match tokio::fs::read_to_string(&journal.path).await {
         Ok(contents) => Ok(contents),
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(String::new()),

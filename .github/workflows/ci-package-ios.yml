@@ -21,7 +21,7 @@ jobs:
         run: bash scripts/release/ios/build-simulator-app.sh
 
       - name: Smoke iOS simulator app install and launch
-        run: bash scripts/smoke/ios-simulator-smoke.sh target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
+        run: bash scripts/smoke/ios-simulator-smoke.sh target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraChildAgent.app
 
       - name: Write tracking iOS simulator proof
         run: npm run test:tracking-plan-ios-simulator-proof
@@ -29,7 +29,7 @@ jobs:
       - name: Upload iOS simulator preview
         uses: actions/upload-artifact@v6
         with:
-          name: ocentra-parent-ios-simulator-preview
+          name: ocentra-child-ios-simulator-preview
           path: |
             target/release-packages/ios/*.zip
             target/release-packages/ios/*.sha256

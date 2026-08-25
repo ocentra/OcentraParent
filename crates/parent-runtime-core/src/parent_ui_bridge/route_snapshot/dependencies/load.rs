@@ -13,16 +13,21 @@ pub(super) fn load_parent_route_snapshot_dependencies_impl(
     route: &ParentRouteId,
     network_flow_snapshot: Option<&NetworkFlowAgentServiceSnapshot>,
 ) -> ParentRouteSnapshotDependencies {
-    let network = network::load(route, network_flow_snapshot);
-    let activity = activity::load(route);
-    let app_use_read_model_snapshot = app_game::load_app_use(route);
-    let browser_activity_read_model_snapshot = browser::load_activity(route);
-    let games_read_model_snapshot = app_game::load_games(route);
-    let browser_inventory_read_model_snapshot = browser::load_inventory(route);
-    let browser_evidence_read_model_snapshot = browser::load_evidence(route);
-    let browser_status = browser::load_status(route);
-    let app_game = app_game::load_remaining(route);
+    let mut dependency_failures = DependencyFailures::default();
+    let network = network::load(route, network_flow_snapshot, &mut dependency_failures);
+    let activity = activity::load(route, &mut dependency_failures);
+    let app_use_read_model_snapshot = app_game::load_app_use(route, &mut dependency_failures);
+    let browser_activity_read_model_snapshot =
+        browser::load_activity(route, &mut dependency_failures);
+    let games_read_model_snapshot = app_game::load_games(route, &mut dependency_failures);
+    let browser_inventory_read_model_snapshot =
+        browser::load_inventory(route, &mut dependency_failures);
+    let browser_evidence_read_model_snapshot =
+        browser::load_evidence(route, &mut dependency_failures);
+    let browser_status = browser::load_status(route, &mut dependency_failures);
+    let app_game = app_game::load_remaining(route, &mut dependency_failures);
     ParentRouteSnapshotDependencies {
+        dependency_failures,
         network_flow_snapshot: network.network_flow_snapshot,
         network_runtime_event_chain_snapshot: network.network_runtime_event_chain_snapshot,
         policy_preview_snapshot: network.policy_preview_snapshot,

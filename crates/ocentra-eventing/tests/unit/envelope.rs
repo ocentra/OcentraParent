@@ -1,5 +1,5 @@
 use ocentra_eventing::envelope::{
-    DomainEvent, EventContract, EventEnvelope, EventMetadata, EventSource,
+    DomainEvent, EventContract, EventEnvelope, EventMetadata, EventSource, StoredEventEnvelope,
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
@@ -131,8 +131,91 @@ fn live_and_stored_envelopes_preserve_contract_and_metadata() {
             .as_str(),
         TEST_TARGET
     );
-    assert_eq!(decoded.payload.label, "typed-boundary");
-    assert_eq!(decoded.contract.schema_version.value(), 1);
+    assert_eq!(decoded.payload().label, "typed-boundary");
+    assert_eq!(decoded.contract().schema_version.value(), 1);
+}
+
+#[test]
+fn live_and_stored_envelopes_reject_malformed_payloads() {
+    let live = EventEnvelope::from_event(
+        EnvelopeBoundaryEvent {
+            label: String::from("typed-boundary"),
+        },
+        metadata(),
+    )
+    .expect_value("live envelope builds");
+
+    let mut live_json = serde_json::to_value(&live).expect_value("live envelope serializes");
+    live_json["payload"] = json!({"unexpected": true});
+    let live_error = serde_json::from_value::<EventEnvelope<EnvelopeBoundaryEvent>>(live_json)
+        .expect_err("malformed live payload must fail closed");
+    assert!(live_error.to_string().contains("missing field `label`"));
+
+    let mut stored_json = serde_json::to_value(live.store().expect_value("stored envelope builds"))
+        .expect_value("stored envelope serializes");
+    stored_json["payload"] = json!({"unexpected": true});
+    let stored: StoredEventEnvelope =
+        serde_json::from_value(stored_json).expect_value("malformed stored envelope parses");
+    let stored_error = stored
+        .decode::<EnvelopeBoundaryEvent>()
+        .expect_err_value("malformed stored payload must fail closed");
+
+    assert!(matches!(
+        stored_error,
+        EventingError::PayloadDecode { event_type, .. } if event_type.as_str() == TEST_EVENT_TYPE
+    ));
+}
+
+#[test]
+fn live_and_stored_envelopes_reject_aggregate_and_idempotency_tampering() {
+    let live = EventEnvelope::from_event(
+        EnvelopeBoundaryEvent {
+            label: String::from("typed-boundary"),
+        },
+        metadata(),
+    )
+    .expect_value("live envelope builds");
+
+    for (field, value, expected_field) in [
+        (
+            "aggregateKey",
+            TEST_AGGREGATE_KEY.replace("envelope", "tampered-aggregate"),
+            "stored_event.aggregate_key",
+        ),
+        (
+            "idempotencyKey",
+            TEST_IDEMPOTENCY_KEY.replace("envelope", "tampered-idempotency"),
+            "stored_event.idempotency_key",
+        ),
+    ] {
+        let mut live_json = serde_json::to_value(&live).expect_value("live envelope serializes");
+        live_json[field] = json!(value);
+        let error = serde_json::from_value::<EventEnvelope<EnvelopeBoundaryEvent>>(live_json)
+            .expect_err("tampered live metadata must fail closed");
+        assert!(error.to_string().contains(expected_field));
+    }
+
+    let mut stored = live.store().expect_value("stored envelope builds");
+    stored.aggregate_key =
+        AggregateKey::parse("tampered-aggregate").expect_value("tampered aggregate key parses");
+    let aggregate_error = stored
+        .decode::<EnvelopeBoundaryEvent>()
+        .expect_err_value("tampered stored aggregate metadata must fail closed");
+    assert!(matches!(
+        aggregate_error,
+        EventingError::InvalidValue { field, .. } if field == "stored_event.aggregate_key"
+    ));
+
+    let mut stored = live.store().expect_value("stored envelope builds");
+    stored.idempotency_key = IdempotencyKey::parse("tampered-idempotency")
+        .expect_value("tampered idempotency key parses");
+    let idempotency_error = stored
+        .decode::<EnvelopeBoundaryEvent>()
+        .expect_err_value("tampered stored idempotency metadata must fail closed");
+    assert!(matches!(
+        idempotency_error,
+        EventingError::InvalidValue { field, .. } if field == "stored_event.idempotency_key"
+    ));
 }
 
 #[test]

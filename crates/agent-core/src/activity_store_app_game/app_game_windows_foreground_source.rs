@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_TITLE_CAPTURE_TITLE_REF, APP_GAME_WINDOW_REF_PREFIX, APP_GAME_WINDOW_TITLE_REF_PREFIX,
 };
 use sha2::{Digest, Sha256};
+use sysinfo::{Pid, System};
 
 use super::{
     app_game_journal_sqlite_ingest::{
@@ -39,8 +40,27 @@ pub struct LiveWindowsForegroundWindowSnapshot {
 pub fn live_windows_foreground_window_record(
     observed_at: &str,
 ) -> Option<WindowsForegroundWindowRecord> {
-    active_window_snapshot()
-        .map(|snapshot| live_windows_foreground_window_record_from_snapshot(observed_at, &snapshot))
+    let snapshot = active_window_snapshot()?;
+    let system = super::app_game_windows_process_source::live_windows_process_snapshot_system();
+    let process_start_time = process_start_time(&system, snapshot.process_id)?;
+    Some(foreground_record_from_snapshot_with_process_generation(
+        observed_at,
+        &snapshot,
+        Some(process_start_time),
+    ))
+}
+
+pub fn live_windows_foreground_window_record_from_system(
+    observed_at: &str,
+    system: &System,
+) -> Option<WindowsForegroundWindowRecord> {
+    let snapshot = active_window_snapshot()?;
+    let process_start_time = process_start_time(system, snapshot.process_id)?;
+    Some(foreground_record_from_snapshot_with_process_generation(
+        observed_at,
+        &snapshot,
+        Some(process_start_time),
+    ))
 }
 
 pub fn live_windows_foreground_window_record_from_snapshot(
@@ -56,6 +76,21 @@ pub fn live_windows_foreground_window_journal_event(
     observed_at: &str,
 ) -> Result<Option<ActivityEvent>, AppGameLiveForegroundWindowError> {
     let Some(record) = live_windows_foreground_window_record(observed_at) else {
+        return Ok(None);
+    };
+    Ok(Some(foreground_journal_event_from_record(
+        device_id, platform, record,
+    )?))
+}
+
+pub fn live_windows_foreground_window_journal_event_from_system(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    system: &System,
+) -> Result<Option<ActivityEvent>, AppGameLiveForegroundWindowError> {
+    let Some(record) = live_windows_foreground_window_record_from_system(observed_at, system)
+    else {
         return Ok(None);
     };
     Ok(Some(foreground_journal_event_from_record(
@@ -91,12 +126,25 @@ fn foreground_record_from_snapshot(
     observed_at: &str,
     snapshot: &LiveWindowsForegroundWindowSnapshot,
 ) -> WindowsForegroundWindowRecord {
+    foreground_record_from_snapshot_with_process_generation(observed_at, snapshot, None)
+}
+
+fn foreground_record_from_snapshot_with_process_generation(
+    observed_at: &str,
+    snapshot: &LiveWindowsForegroundWindowSnapshot,
+    process_start_time: Option<u64>,
+) -> WindowsForegroundWindowRecord {
     let window_title_ref = opaque_ref(APP_GAME_WINDOW_TITLE_REF_PREFIX, &snapshot.window_title);
     let title_capture_state = title_capture_state(window_title_ref.as_ref());
     WindowsForegroundWindowRecord {
-        foreground_evidence_id: foreground_evidence_id(snapshot.process_id, observed_at),
+        foreground_evidence_id: foreground_evidence_id(
+            snapshot.process_id,
+            process_start_time,
+            observed_at,
+        ),
         observed_at: observed_at.to_string(),
-        process_identity: None,
+        process_identity: process_start_time
+            .map(|start_time| process_identity(snapshot.process_id, start_time)),
         process_id: snapshot.process_id,
         process_name: snapshot.process_name.clone(),
         inventory_entry_id: None,
@@ -116,9 +164,33 @@ fn foreground_record_from_snapshot(
     }
 }
 
-fn foreground_evidence_id(process_id: u64, observed_at: &str) -> String {
+fn process_start_time(system: &System, process_id: u64) -> Option<u64> {
+    let process_id = u32::try_from(process_id).ok()?;
+    let start_time = system.process(Pid::from_u32(process_id))?.start_time();
+    (start_time != 0).then_some(start_time)
+}
+
+fn process_identity(process_id: u64, start_time: u64) -> String {
+    let mut identity = String::from(
+        ocentra_parent_agent_protocol::constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX,
+    );
+    identity.push_str(&process_id.to_string());
+    identity.push(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
+    identity.push_str(&start_time.to_string());
+    identity
+}
+
+fn foreground_evidence_id(
+    process_id: u64,
+    process_start_time: Option<u64>,
+    observed_at: &str,
+) -> String {
     let mut evidence_id = String::from(APP_GAME_FOREGROUND_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(&process_id.to_string());
+    if let Some(process_start_time) = process_start_time {
+        evidence_id.push(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
+        evidence_id.push_str(&process_start_time.to_string());
+    }
     evidence_id.push_str(&observed_at_suffix(observed_at));
     evidence_id
 }

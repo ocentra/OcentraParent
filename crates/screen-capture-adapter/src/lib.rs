@@ -2,8 +2,10 @@ use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilitySt
 
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 mod desktop_xcap;
+pub mod linux_foreground_source;
 #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
 mod linux_x11;
+pub mod managed_browser_cdp;
 pub mod trigger_scheduler;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

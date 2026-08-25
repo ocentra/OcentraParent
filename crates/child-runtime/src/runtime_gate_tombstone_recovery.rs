@@ -5,8 +5,9 @@ use ocentra_eventing::{
     ids::CorrelationId,
     journal::{ndjson::NdjsonEventJournal, JournalAppend},
 };
-use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 use ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent;
+
+use crate::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 
 use super::runtime_gate_tombstone_error::is_retryable_journal_error;
 use super::runtime_gate_tombstone_recovery_validation::is_completed_terminal_marker;
@@ -23,7 +24,7 @@ pub struct ChildRuntimeTombstoneRecoveryReport {
 /// Replays every still-pending typed tombstone obligation after runtime
 /// startup. Terminal markers are skipped. A pending legacy row fails closed
 /// because it lacks the typed event needed for a safe reconstruction.
-pub async fn replay_pending_child_runtime_tombstones(
+pub(crate) async fn replay_pending_child_runtime_tombstones(
     journal: &NdjsonEventJournal,
     store: &RetentionDeleteTombstoneStore,
 ) -> std::io::Result<ChildRuntimeTombstoneRecoveryReport> {
@@ -54,9 +55,10 @@ pub async fn replay_pending_child_runtime_tombstones(
             "storage-custody-delete:{}",
             action.source_decision_id.as_str()
         );
-        if decoded.payload != *action
-            || decoded.aggregate_key != action.aggregate_key().map_err(std::io::Error::other)?
-            || decoded.idempotency_key != action.idempotency_key().map_err(std::io::Error::other)?
+        if decoded.payload() != action
+            || decoded.aggregate_key() != &action.aggregate_key().map_err(std::io::Error::other)?
+            || decoded.idempotency_key()
+                != &action.idempotency_key().map_err(std::io::Error::other)?
             || record.deletion_ref != expected_deletion_ref
             || record.proof_ref != action.action_plan_id.as_str()
         {

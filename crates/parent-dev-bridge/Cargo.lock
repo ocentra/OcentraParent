@@ -2550,6 +2550,7 @@ dependencies = [
  "ocentra-storage-custody-core",
  "serde",
  "serde_json",
+ "sha2",
  "tungstenite",
 ]
 

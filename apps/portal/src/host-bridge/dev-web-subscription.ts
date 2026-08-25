@@ -6,6 +6,7 @@ import {
   type ParentRouteSnapshot,
   type ParentSubscriptionEvent,
 } from '../../generated/parent-ui-bridge';
+import { createUnavailableDevWebRouteSnapshot } from './dev-web-unavailable-snapshot';
 
 type LoadRouteSnapshot = (
   parentDevBridgeUrl: ParentDevBridgeUrl,
@@ -22,7 +23,9 @@ export function createDevWebRouteSubscription(
 ): () => void {
   const subscriptionState = {
     active: true,
+    inFlight: false,
     lastSnapshotJson: JSON.stringify(null),
+    lastSnapshot: null as ParentRouteSnapshot | null,
   };
   const emitNextSnapshot = createDevWebEmitNextSnapshot(
     subscriptionState,
@@ -46,7 +49,9 @@ export function createDevWebRouteSubscription(
 function createDevWebEmitNextSnapshot(
   subscriptionState: {
     active: boolean;
+    inFlight: boolean;
     lastSnapshotJson: ReturnType<typeof JSON.stringify>;
+    lastSnapshot: ParentRouteSnapshot | null;
   },
   parentDevBridgeUrl: ParentDevBridgeUrl,
   route: ParentRouteId,
@@ -55,24 +60,39 @@ function createDevWebEmitNextSnapshot(
   loadRouteSnapshot: LoadRouteSnapshot
 ): () => Promise<void> {
   return async function emitNextSnapshot(): Promise<void> {
-    if (!subscriptionState.active) {
+    if (!subscriptionState.active || subscriptionState.inFlight) {
       return;
     }
-    let snapshot: ParentRouteSnapshot;
+    subscriptionState.inFlight = true;
     try {
-      snapshot = await loadRouteSnapshot(parentDevBridgeUrl, route, context);
-    } catch {
-      return;
+      let snapshot: ParentRouteSnapshot;
+      try {
+        snapshot = await loadRouteSnapshot(parentDevBridgeUrl, route, context);
+      } catch {
+        snapshot = createUnavailableDevWebRouteSnapshot(parentDevBridgeUrl, route);
+      }
+      if (!subscriptionState.active) {
+        return;
+      }
+      if (
+        snapshot.serviceHealth?.state === 'unavailable' &&
+        subscriptionState.lastSnapshot?.serviceHealth?.state === 'unavailable'
+      ) {
+        snapshot = subscriptionState.lastSnapshot;
+      }
+      const snapshotJson = JSON.stringify(snapshot);
+      if (snapshotJson === subscriptionState.lastSnapshotJson) {
+        return;
+      }
+      subscriptionState.lastSnapshotJson = snapshotJson;
+      subscriptionState.lastSnapshot = snapshot;
+      onEvent({
+        schemaVersion: ParentHostBridgeRuntime.SchemaVersion,
+        route,
+        snapshot,
+      });
+    } finally {
+      subscriptionState.inFlight = false;
     }
-    const snapshotJson = JSON.stringify(snapshot);
-    if (snapshotJson === subscriptionState.lastSnapshotJson) {
-      return;
-    }
-    subscriptionState.lastSnapshotJson = snapshotJson;
-    onEvent({
-      schemaVersion: ParentHostBridgeRuntime.SchemaVersion,
-      route,
-      snapshot,
-    });
   };
 }

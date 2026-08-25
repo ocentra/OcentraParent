@@ -48,6 +48,19 @@ OcentraParent/packages/logging-domain/src/**
 
 Parent logging-domain has TypeScript parity modules and scripts adapted to parent scopes.
 
+## Accepted source-wave reconciliation (2026-08-17)
+
+The accepted source head `735df89de` establishes the TypeScript edge of the
+redaction contract without closing this workpack. Rust owns the canonical
+18-entry sensitive-key policy in
+`crates/logging-core/src/redaction_policy.rs`; its checked-in generated output
+is `packages/logging-domain/src/generated-log-redaction-policy.ts`, and
+`packages/logging-domain/src/core/log-redaction.ts` consumes that artifact.
+There is no alternate TypeScript-local sensitive-key list or regex policy.
+
+This is source evidence only. The parity test, focused validation, proof-root,
+checklist, and completion rows remain deferred and unchecked.
+
 Required module groups:
 
 ```text
@@ -188,3 +201,14 @@ The appended completion block was still overstated, because the named proof root
 `output/logging-domain-parity-proof/02-typescript-logging-package-parity/` is
 absent in this checkout and the plan checklist remains unchecked. Treat WP02 as
 source-present but not durably proved complete from current workspace evidence.
+
+## Accepted source and expected-test delta (2026-08-17)
+
+The reviewed source at `720609306` adds one canonical structured-redaction
+policy, explicit package exports, JSON-safe markers for unsupported values,
+cycle/reflection failure containment, and native Date/URL/custom-`toJSON`
+handling. No test file changed. Before focused execution, add dedicated
+redaction coverage for nested secrets, arrays, cycles, unsupported primitives
+and objects, throwing getters/proxies/`toJSON`, root/property/index key
+semantics, one-call behavior, and package-export import resolution. This is
+local logging package hardening, not product telemetry readiness.

@@ -1,32 +1,46 @@
-use std::io::{ErrorKind, Read, Write};
-use std::time::Duration;
+use std::io::ErrorKind;
+use std::time::{Duration, Instant};
 
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use tungstenite::{Error as WebSocketError, Message, WebSocket};
 
-pub(super) fn read_agent_event<S: Read + Write>(
-    socket: &mut WebSocket<S>,
+use super::connection::deadline_stream::DeadlineTcpStream;
+
+pub(super) fn read_agent_event(
+    socket: &mut WebSocket<DeadlineTcpStream>,
     phase: &str,
     timeout: Duration,
+    deadline: Instant,
 ) -> Result<AgentEventEnvelope, String> {
     loop {
-        let message = read_websocket_message(socket, phase, timeout)?;
-        if let Some(event) = handle_agent_event_message(socket, message)? {
+        let message = read_websocket_message(socket, phase, timeout, deadline)?;
+        if super::connection::remaining_timeout(deadline).is_err() {
+            return Err(format!(
+                "agent-service WebSocket {phase} timed out after {}ms",
+                timeout.as_millis()
+            ));
+        }
+        let event = handle_agent_event_message(socket, message, phase, timeout, deadline)?;
+        ensure_deadline(deadline, phase, timeout)?;
+        if let Some(event) = event {
             return Ok(event);
         }
     }
 }
 
-fn handle_agent_event_message<S: Read + Write>(
-    socket: &mut WebSocket<S>,
+fn handle_agent_event_message(
+    socket: &mut WebSocket<DeadlineTcpStream>,
     message: Message,
+    phase: &str,
+    timeout: Duration,
+    deadline: Instant,
 ) -> Result<Option<AgentEventEnvelope>, String> {
     match message {
         Message::Text(text) => serde_json::from_str::<AgentEventEnvelope>(&text)
             .map(Some)
             .map_err(|error| format!("agent-service event parse failed: {error}")),
         Message::Ping(bytes) => {
-            send_websocket_pong(socket, bytes)?;
+            send_websocket_pong(socket, bytes, phase, timeout, deadline)?;
             Ok(None)
         }
         Message::Binary(_) | Message::Pong(_) | Message::Frame(_) => Ok(None),
@@ -34,23 +48,62 @@ fn handle_agent_event_message<S: Read + Write>(
     }
 }
 
-fn read_websocket_message<S: Read + Write>(
-    socket: &mut WebSocket<S>,
+fn read_websocket_message(
+    socket: &mut WebSocket<DeadlineTcpStream>,
     phase: &str,
     timeout: Duration,
+    deadline: Instant,
 ) -> Result<Message, String> {
+    let remaining = super::connection::remaining_timeout(deadline).map_err(|_| {
+        format!(
+            "agent-service WebSocket {phase} timed out after {}ms",
+            timeout.as_millis()
+        )
+    })?;
+    socket
+        .get_mut()
+        .set_read_timeout(Some(remaining))
+        .map_err(|error| {
+            format!("agent-service WebSocket {phase} read timeout setup failed: {error}")
+        })?;
     socket
         .read()
         .map_err(|error| map_websocket_error(phase, &error, timeout))
 }
 
-fn send_websocket_pong<S: Read + Write>(
-    socket: &mut WebSocket<S>,
+fn send_websocket_pong(
+    socket: &mut WebSocket<DeadlineTcpStream>,
     bytes: Vec<u8>,
+    phase: &str,
+    timeout: Duration,
+    deadline: Instant,
 ) -> Result<(), String> {
+    let remaining = super::connection::remaining_timeout(deadline).map_err(|_| {
+        format!(
+            "agent-service WebSocket {phase} timed out after {}ms",
+            timeout.as_millis()
+        )
+    })?;
+    socket
+        .get_mut()
+        .set_write_timeout(Some(remaining))
+        .map_err(|error| {
+            format!("agent-service WebSocket {phase} write timeout setup failed: {error}")
+        })?;
     socket
         .send(Message::Pong(bytes))
         .map_err(|error| format!("agent-service WebSocket pong failed: {error}"))
+}
+
+fn ensure_deadline(deadline: Instant, phase: &str, timeout: Duration) -> Result<(), String> {
+    super::connection::remaining_timeout(deadline)
+        .map(|_| ())
+        .map_err(|_| {
+            format!(
+                "agent-service WebSocket {phase} timed out after {}ms",
+                timeout.as_millis()
+            )
+        })
 }
 
 fn websocket_close_message(frame: Option<tungstenite::protocol::CloseFrame<'_>>) -> String {

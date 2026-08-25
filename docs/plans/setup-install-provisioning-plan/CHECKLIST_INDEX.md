@@ -105,6 +105,15 @@
 
 ## WP07 First-Run Setup UI And State Machine
 
+Current production/test overlay (2026-08-17):
+
+- [x] Reachable Rust owner renders a fail-closed 15-row manual-required authority matrix without invoking the evaluator or action planner. Source: `crates/parent-runtime-core/src/setup_first_run.rs`.
+- [x] LAN selected-device, paired, and reachability values remain non-authoritative observations; Start reads are separated from LAN command routing and discovery scans fail closed.
+- [ ] Bind real typed account, package, child-runtime, device-trust/pairing, permission, custody, policy, and recovery owner inputs.
+- [ ] Implement the actual first-run transition/action model and readiness-driven completion guard.
+- [ ] Rewrite `snapshot_and_dispatch_tests.rs`, portal-domain setup panel tests, portal route-panel tests, and setup E2E fixtures for the accepted source shape.
+- [ ] Run focused tests and regenerate current retained proof after source and expected-test writing are complete.
+
 - [x] End-to-end first-run state machine defined. `output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/00-first-run-state-machine-proof.md`
 - [x] Welcome/sign-in/household screens mapped. `output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/01-first-run-ui-screen-map.md`
 - [x] Parent install screen/state mapped. `output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/01-first-run-ui-screen-map.md`

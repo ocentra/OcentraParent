@@ -450,6 +450,7 @@ fn payload() -> NetworkRuntimeEventPayload {
         destination_domain: Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
         process_id: Some(4242),
         process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+        associated_pid_count: 1,
         evidence_scope: NetworkEvidenceScope::MetadataOnly,
         evidence_grade: NetworkRuntimeEvidenceGrade::DomainAndProcessMetadata,
         evidence_grade_contract: ocentra_parent_agent_protocol::NetworkEvidenceGrade::B,

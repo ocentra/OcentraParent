@@ -36,8 +36,21 @@ Purpose: close the child-agent route with proof pointers, CI evidence, and PR-re
 
 ## Execution truth
 
-- WP11 closes as an aggregate proof-gate slice only when the child plan truth matches the current accepted and rejected packets.
-- WP11 does not require the overall child plan to be release-ready; it requires the gate to say when release readiness is blocked and why.
-- WP11 must keep WP06 and WP09 open until their canonical shared contracts move from hand-authored TypeScript in `schema-domain` to Rust-owned shared contract surfaces and that correction is proved.
-- WP11 must keep WP02 and WP04 visibly open-blocked until platform lifecycle execution is proved on the required hosts.
-- WP11 completion does not upgrade blocked or rejected workpacks into done. It proves that aggregate route/index/state/proof truth is aligned and that PR-ready release gating is not falsely claimed.
+- Status is source missing; WP11 is not complete.
+- Documentation and historical aggregate proof can describe blockers, but no executable source gate currently joins canonical package identity, trusted startup, authenticated ingress/health, platform lifecycle, removal callbacks, updater/handoff, signing/store/mobile authority, tests, proof, and CI into one fail-closed result.
+- No release workflow consumes one authoritative WP11 result.
+- WP11 remains last and depends on WP01-WP10 production source. Normal completion still requires every strict test/proof/checklist/review/CI/merge gate.
+
+## Required production source outcome
+
+- one executable aggregate gate consumes the reviewed machine-readable outputs of WP01-WP10;
+- every missing, stale, manual-required, unsupported, failed, or unreviewed input keeps release blocked with an exact owner/workpack reason;
+- the gate distinguishes source completeness, test status, proof, platform/manual evidence, CI, review, and release approval;
+- release workflows consume the result without treating CI success as a substitute for workpack completion.
+
+## Expected test-source gap
+
+- negative fixtures for parent-labelled identities, missing trust, missing authenticated ingress/health, stale lifecycle state, missing removal callbacks, unused handoff/updater integration, unsigned/manual platform rows, missing test/proof inputs, and stale CI/review state;
+- deterministic blocker ordering and exact workpack ownership;
+- a positive fixture only after every required source/test/proof input is present;
+- proof that one green package/platform job cannot close the whole child plan.

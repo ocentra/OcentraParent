@@ -10,11 +10,13 @@ use crate::parent_presence_event_delivery::PendingCustodyDecision;
 use crate::parent_presence_store_file::StoreFileGuard;
 use crate::parent_presence_store_integrity::verified_challenge;
 use crate::parent_presence_store_path::validate_caller_custody_path;
-use crate::parent_presence_store_receipt::{generate_opaque_receipt_ref, verify_consumed_receipt};
+use crate::parent_presence_store_receipt::verify_consumed_receipt;
 use crate::parent_presence_store_schema::open_initialized_store;
 
 #[path = "parent_presence_store_outbox.rs"]
 mod outbox;
+#[path = "parent_presence_store_step_up.rs"]
+mod step_up;
 
 const CHALLENGE_STATE_ISSUED: &str = "issued";
 const CHALLENGE_STATE_CONSUMED: &str = "consumed";
@@ -45,11 +47,6 @@ const MARK_CHALLENGE_CONSUMED: &str = r#"
 UPDATE parent_presence_challenges
 SET lifecycle_state = 'consumed'
 WHERE challenge_ref = ?1 AND lifecycle_state = 'issued'
-"#;
-
-const INSERT_RECEIPT: &str = r#"
-INSERT INTO parent_presence_receipts (challenge_ref, receipt_ref)
-VALUES (?1, ?2)
 "#;
 
 const INSERT_PENDING_DECISION: &str = r#"
@@ -96,6 +93,32 @@ pub(crate) struct StoredChallengeRow {
     pub(crate) lifecycle_state: String,
 }
 
+pub(crate) struct StoredParentStepUpIntent {
+    pub(crate) challenge_ref: String,
+    pub(crate) nonce_ref: String,
+    pub(crate) intent_digest: String,
+    pub(crate) family_id: String,
+    pub(crate) trust_subject: String,
+    pub(crate) parent_account_id: String,
+    pub(crate) parent_device_id: String,
+    pub(crate) child_device_id: String,
+    pub(crate) installation_id: String,
+    pub(crate) pairing_id: String,
+    pub(crate) route_id: String,
+    pub(crate) signer_public_key: Vec<u8>,
+    pub(crate) lifecycle_generation: i64,
+    pub(crate) installation_binding_generation: i64,
+    pub(crate) authority_generation: i64,
+    pub(crate) correlation_id: String,
+    pub(crate) expires_at: String,
+    pub(crate) lifecycle_state: String,
+    pub(crate) registration_state: String,
+    pub(crate) parent_presence_receipt: Option<String>,
+    pub(crate) credential_id: Option<String>,
+    pub(crate) credential_algorithm: Option<i32>,
+    pub(crate) credential_sign_count: Option<i64>,
+}
+
 impl ParentPresenceStore {
     pub(crate) fn open(path: impl Into<PathBuf>) -> Result<Self, ParentPresenceStoreError> {
         let path = path.into();
@@ -107,9 +130,120 @@ impl ParentPresenceStore {
         })
     }
 
+    pub(crate) fn parent_step_up_intent(
+        &self,
+        challenge_ref: &str,
+    ) -> Result<Option<StoredParentStepUpIntent>, ParentPresenceStoreError> {
+        self.connection
+            .query_row(
+                "SELECT challenge_ref, nonce_ref, intent_digest, family_id, trust_subject,
+                        parent_account_id, parent_device_id, child_device_id, installation_id,
+                        pairing_id, route_id, signer_public_key, lifecycle_generation,
+                        installation_binding_generation, authority_generation, correlation_id,
+                        expires_at, lifecycle_state, registration_state,
+                        parent_presence_receipt, credential_id, credential_algorithm,
+                        credential_sign_count
+                 FROM parent_step_up_intents WHERE challenge_ref = ?1",
+                [challenge_ref],
+                |row| {
+                    Ok(StoredParentStepUpIntent {
+                        challenge_ref: row.get(0)?,
+                        nonce_ref: row.get(1)?,
+                        intent_digest: row.get(2)?,
+                        family_id: row.get(3)?,
+                        trust_subject: row.get(4)?,
+                        parent_account_id: row.get(5)?,
+                        parent_device_id: row.get(6)?,
+                        child_device_id: row.get(7)?,
+                        installation_id: row.get(8)?,
+                        pairing_id: row.get(9)?,
+                        route_id: row.get(10)?,
+                        signer_public_key: row.get(11)?,
+                        lifecycle_generation: row.get(12)?,
+                        installation_binding_generation: row.get(13)?,
+                        authority_generation: row.get(14)?,
+                        correlation_id: row.get(15)?,
+                        expires_at: row.get(16)?,
+                        lifecycle_state: row.get(17)?,
+                        registration_state: row.get(18)?,
+                        parent_presence_receipt: row.get(19)?,
+                        credential_id: row.get(20)?,
+                        credential_algorithm: row.get(21)?,
+                        credential_sign_count: row.get(22)?,
+                    })
+                },
+            )
+            .optional()
+            .map_err(|_error| ParentPresenceStoreError::Unavailable)
+    }
+
+    pub(crate) fn parent_step_up_challenge_lifecycle(
+        &self,
+        challenge_ref: &str,
+    ) -> Result<Option<String>, ParentPresenceStoreError> {
+        self.connection
+            .query_row(
+                "SELECT lifecycle_state FROM parent_presence_challenges
+                 WHERE challenge_ref = ?1",
+                [challenge_ref],
+                |row| row.get(0),
+            )
+            .optional()
+            .map_err(|_error| ParentPresenceStoreError::Unavailable)
+    }
+
+    pub(crate) fn complete_parent_step_up_registration(
+        &mut self,
+        challenge_ref: &str,
+    ) -> Result<(), ParentPresenceStoreError> {
+        let changed = self
+            .connection
+            .execute(
+                "UPDATE parent_step_up_intents SET registration_state = 'completed'
+                 WHERE challenge_ref = ?1 AND lifecycle_state = 'consumed'
+                   AND registration_state = 'pending'",
+                [challenge_ref],
+            )
+            .map_err(|_error| ParentPresenceStoreError::Unavailable)?;
+        (changed == 1)
+            .then_some(())
+            .ok_or(ParentPresenceStoreError::IntegrityRejected)
+    }
+
+    pub(crate) fn consumed_receipt_ref(
+        &self,
+        challenge_ref: &str,
+    ) -> Result<Option<ParentPresenceReceiptRef>, ParentPresenceStoreError> {
+        self.connection
+            .query_row(
+                "SELECT receipt_ref FROM parent_presence_receipts WHERE challenge_ref = ?1",
+                [challenge_ref],
+                |row| row.get::<_, String>(0),
+            )
+            .optional()
+            .map(|receipt| receipt.map(ParentPresenceReceiptRef::from_string))
+            .map_err(|_error| ParentPresenceStoreError::Unavailable)
+    }
+
     pub(crate) fn issue_challenge(
         &mut self,
         challenge: ParentPresenceChallenge,
+    ) -> Result<(), ParentPresenceStoreIssueError> {
+        self.issue_challenge_inner(challenge, None)
+    }
+
+    pub(crate) fn issue_challenge_with_parent_step_up_intent(
+        &mut self,
+        challenge: ParentPresenceChallenge,
+        intent: StoredParentStepUpIntent,
+    ) -> Result<(), ParentPresenceStoreIssueError> {
+        self.issue_challenge_inner(challenge, Some(intent))
+    }
+
+    fn issue_challenge_inner(
+        &mut self,
+        challenge: ParentPresenceChallenge,
+        intent: Option<StoredParentStepUpIntent>,
     ) -> Result<(), ParentPresenceStoreIssueError> {
         ParentPresenceObservedAt::from_canonical_utc(&challenge.expires_at)
             .map_err(|_error| ParentPresenceStoreIssueError::TimestampInvalid)?;
@@ -147,26 +281,33 @@ impl ParentPresenceStore {
                 Err(ParentPresenceStoreIssueError::DuplicateNonce)
             };
         }
-        match transaction.execute(
-            INSERT_CHALLENGE,
-            params![
-                challenge_ref,
-                challenge_json,
-                privileged_action_json,
-                expires_at,
-                nonce_ref,
-            ],
-        ) {
-            Ok(_) => transaction.commit().map_err(|_error| {
+        transaction
+            .execute(
+                INSERT_CHALLENGE,
+                params![
+                    challenge_ref,
+                    challenge_json,
+                    privileged_action_json,
+                    expires_at,
+                    nonce_ref,
+                ],
+            )
+            .map_err(|error| {
+                if is_constraint_violation(&error) {
+                    ParentPresenceStoreIssueError::DuplicateNonce
+                } else {
+                    ParentPresenceStoreIssueError::Store(ParentPresenceStoreError::Unavailable)
+                }
+            })?;
+        intent
+            .map(|intent| step_up::insert_intent(&transaction, intent))
+            .transpose()
+            .map_err(|_error| {
                 ParentPresenceStoreIssueError::Store(ParentPresenceStoreError::Unavailable)
-            }),
-            Err(error) if is_constraint_violation(&error) => {
-                Err(ParentPresenceStoreIssueError::DuplicateNonce)
-            }
-            Err(_error) => Err(ParentPresenceStoreIssueError::Store(
-                ParentPresenceStoreError::Unavailable,
-            )),
-        }
+            })?;
+        transaction.commit().map_err(|_error| {
+            ParentPresenceStoreIssueError::Store(ParentPresenceStoreError::Unavailable)
+        })
     }
 
     pub(crate) fn consume_challenge(
@@ -176,6 +317,7 @@ impl ParentPresenceStore {
         validate: impl FnOnce(
             &ParentPresenceChallenge,
         ) -> Option<ParentPresenceVerificationFailureReason>,
+        verified_credential: Option<(&str, i32, u32)>,
     ) -> Result<ConsumeChallengeResult, ParentPresenceStoreError> {
         let transaction = self
             .connection
@@ -216,16 +358,13 @@ impl ParentPresenceStore {
         if changed != 1 {
             return Err(ParentPresenceStoreError::IntegrityRejected);
         }
-        let receipt_ref = generate_opaque_receipt_ref()?;
-        transaction
-            .execute(INSERT_RECEIPT, params![challenge_ref, receipt_ref])
-            .map_err(|error| {
-                if is_constraint_violation(&error) {
-                    ParentPresenceStoreError::IntegrityRejected
-                } else {
-                    ParentPresenceStoreError::Unavailable
-                }
-            })?;
+        let receipt_ref = step_up::insert_receipt_and_mark(
+            &transaction,
+            challenge_ref,
+            &challenge.privileged_action,
+            &challenge.nonce_ref,
+            verified_credential,
+        )?;
         transaction
             .execute(
                 INSERT_PENDING_DECISION,

@@ -162,6 +162,72 @@ npm run test --workspace @ocentra-parent/setup-domain -- family
 
 Actual storage export/delete mechanics stay in `data-custody-storage-plan`. Support/admin UI and operational tooling remain blocked until later support/admin proof exists.
 
+## 2026-08-17 current code/test correction
+
+The Rust invite/recovery evaluators and focused tests are real and are consumed
+by provisioning readiness/pairing projections. They cover the bounded decision
+matrix, but persistence, time, rate-limit, replay, identity proof, and owner
+approval are still supplied as facts by callers. No runtime owns an atomic
+single-use invite or a monotonic recovery transition, and the data-custody
+handoff remains a local enum rather than a delivered typed request.
+
+Production source still required:
+
+- a durable invite/recovery repository with trusted clock and atomic
+  compare-and-swap redemption;
+- opaque identity, owner-approval, and audited support authorizations;
+- monotonic terminal lifecycle, durable rate-limit/replay custody, and typed
+  correlated export/delete handoff;
+- a shipped account runtime caller over WP08 canonical identity.
+
+Expected test source still required:
+
+- concurrent redemption and restart/replay;
+- pre-issuance, expiry, revocation, wrong household/role, and malformed state;
+- rejected recovery decisions cannot advance;
+- enumeration-resistant timing/rate-limit behavior and constrained support
+  recovery with an audit receipt;
+- typed custody delivery/correlation and retry behavior.
+
+### Current reviewed source delta (2026-08-18)
+
+The independently reviewed and rebased WP04 source now adds a strict SQLite
+invite/recovery repository with same-transaction current-authority
+revalidation, persisted monotonic clock and rate/replay custody, opaque entropy,
+canonical schema/object/index/row validation, durable recovery handoff leases,
+and private effect-specific owner receipts. `complete_recovery` deliberately
+stops at `Approved` with a queued handoff; only a downstream owner receipt may
+acknowledge the effect, and no shipped owner adapter exists yet. Revocation
+atomically removes any pending or in-flight custody handoff, and the old
+in-memory direct-to-`Completed` helper has been removed.
+
+The prior `35edb2830` evaluator/record slice remains historical input, not the
+current source boundary. The public repository methods are runtime seams, not
+runtime authority: production identity-proof, membership, support, provider,
+and Data Custody owners still have no shipped composition caller.
+
+Expected test source still missing:
+
+- `crates/family-identity-core/tests/unit/invite_recovery_repository.rs`;
+- `crates/family-identity-core/tests/unit/invite_recovery_repository_schema.rs`;
+- `crates/family-identity-core/tests/unit/invite_recovery_repository_security.rs`;
+- `crates/family-identity-core/tests/unit/recovery_owner_ack_ops.rs`;
+- `crates/family-identity-core/tests/integration/invite_recovery_repository.rs`;
+- `crates/family-identity-core/tests/contract/recovery_data_custody_handoff.rs`.
+
+Those tests must cover concurrent issue/redeem/claim, restart and lease replay,
+clock rollback/forward-skew edges, malformed SQLite state, wrong authority and
+receipt identity, terminal monotonicity, constrained support recovery, and
+typed correlated Data Custody retry. Source review is not WP04 completion.
+The external test targets must exercise real owner-adapter contracts; do not
+widen crate-private repository mutations or add a test-only authority seam just
+to make these paths callable.
+
+The remote packet `ac03afee3a` is rejected/quarantined: it allowed callers to
+supply `Verified`, same-family, abuse, timing, and owner-approval facts; public
+serde records could reset lifecycle/use state; and there was no durable atomic
+owner. It is not WP04 progress.
+
 ## Fill before DONE
 
 - Workpack id and branch: `WP04 Invites Recovery Lifecycle`; `codex/tracking-plan-full-continuation-a`.

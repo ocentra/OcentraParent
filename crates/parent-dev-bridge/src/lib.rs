@@ -13,7 +13,8 @@ use ocentra_parent_logging_core::{
     source::LogSource,
 };
 use ocentra_parent_runtime_core::parent_ui_bridge::{
-    dispatch_parent_ui_action, load_parent_route_snapshot,
+    dispatch_parent_ui_action_with_service_health, load_parent_route_snapshot_with_service_health,
+    parent_agent_service_health_for_address,
 };
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteContext, ParentRouteId, ParentRouteSnapshot, ParentUiAction, ParentUiActionResult,
@@ -55,6 +56,8 @@ struct ParentDevBridgeLoadRouteRequest {
 struct ParentDevBridgeDispatchRequest {
     action: ParentUiAction,
 }
+
+struct ParentDevBridgeAgentAddress(String);
 
 pub fn configured_parent_dev_bridge_address() -> Option<SocketAddr> {
     let port = std::env::var(constants::env_var::PARENT_DEV_BRIDGE_PORT)
@@ -103,20 +106,37 @@ async fn parent_dev_bridge_load_route(
 ) -> Result<Json<ParentRouteSnapshot>, StatusCode> {
     let route = request.route;
     let context = request.context;
-    tokio::task::spawn_blocking(move || load_parent_route_snapshot(route, context.as_ref()))
-        .await
-        .map(Json)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let agent_address = configured_agent_address();
+    tokio::task::spawn_blocking(move || {
+        let service_health = parent_agent_service_health_for_address(&agent_address.0);
+        load_parent_route_snapshot_with_service_health(route, context.as_ref(), &service_health)
+    })
+    .await
+    .map(Json)
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 async fn parent_dev_bridge_dispatch(
     Json(request): Json<ParentDevBridgeDispatchRequest>,
 ) -> Result<Json<ParentUiActionResult>, StatusCode> {
     let action = request.action;
-    tokio::task::spawn_blocking(move || dispatch_parent_ui_action(&action))
-        .await
-        .map(Json)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    let agent_address = configured_agent_address();
+    tokio::task::spawn_blocking(move || {
+        let service_health = parent_agent_service_health_for_address(&agent_address.0);
+        dispatch_parent_ui_action_with_service_health(&action, &service_health)
+    })
+    .await
+    .map(Json)
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+}
+
+fn configured_agent_address() -> ParentDevBridgeAgentAddress {
+    ParentDevBridgeAgentAddress(
+        std::env::var(constants::env_var::AGENT_ADDR)
+            .ok()
+            .filter(|value| !value.is_empty())
+            .unwrap_or_else(|| constants::bind::DEFAULT_AGENT_ADDR.to_string()),
+    )
 }
 
 fn parent_dev_bridge_router() -> Router {

@@ -15,6 +15,7 @@ pub enum NetworkRuntimeRemoteDeliveryReceiptLedgerError {
     Eventing(EventingError),
     EmptyReceiptLedger,
     ReceiptProjectionMismatch,
+    RuntimeOwnerUnavailable,
     UnsupportedClaim,
 }
 

@@ -5,21 +5,23 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
     ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
     ActivityNetworkFlowReadModel, NetworkEvidenceGrade, NetworkFlowObservedEvent,
-    NetworkPolicyDecisionAction, NetworkPolicyDecisionCompletedEvent, NetworkRuntimePhase,
     NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
 };
 use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::{
-    deliver_network_runtime_for_read_model_for_test,
-    network_runtime_event_chain_stream_payload_for_test,
-    stream_network_runtime_event_chain_for_read_model_for_test,
+    deliver_network_runtime_for_read_model_for_test, lock_activity_report_env_for_test,
+    network_runtime_event_chain_stream_payload_for_test, network_runtime_journal_path_for_test,
+    seed_network_runtime_for_test, stream_network_runtime_event_chain_for_read_model_for_test,
 };
 use serde_json::Value;
 
 #[tokio::test]
 async fn service_network_read_model_delivers_local_runtime_chain() -> Result<(), serde_json::Error>
 {
+    let _guard = lock_activity_report_env_for_test().await;
     let model = read_model(vec![full_metadata_row()]);
+    seed_network_runtime_for_test(&model).await;
+    let before_projection = journal_line_count();
     let report = deliver_network_runtime_for_read_model_for_test(&model).await;
     let stream_report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await;
     let entries = stream_entries(&network_runtime_event_chain_stream_payload_for_test(
@@ -32,12 +34,9 @@ async fn service_network_read_model_delivers_local_runtime_chain() -> Result<(),
     assert_eq!(report.dead_letters, 0);
     assert_eq!(report.manual_required_rows, 0);
     assert_eq!(report.enforcement_command_events, 0);
-    assert!(report.publish_reports > 0);
-    assert_eq!(
-        report.publish_reports,
-        NetworkRuntimePhase::ordered_chain().len() - 4
-    );
-    assert_eq!(report.publish_reports, report.stored_events);
+    assert_eq!(report.publish_reports, 0);
+    assert_eq!(report.stored_events, 3);
+    assert_eq!(before_projection, journal_line_count());
     let event_types = event_types(&entries);
     assert_eq!(
         event_types,
@@ -45,28 +44,20 @@ async fn service_network_read_model_delivers_local_runtime_chain() -> Result<(),
             constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
             constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
             constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
-            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
-            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
-            constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
-            constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
         ]
     );
     let flow_event: NetworkFlowObservedEvent =
         serde_json::from_value(entries[0][constants::field::PAYLOAD].clone())?;
     assert_eq!(flow_event.evidence_grade, NetworkEvidenceGrade::B);
-    let policy_event: NetworkPolicyDecisionCompletedEvent =
-        serde_json::from_value(entries[4][constants::field::PAYLOAD].clone())?;
-    assert_eq!(
-        policy_event.decision_action,
-        NetworkPolicyDecisionAction::Observe
-    );
     Ok(())
 }
 
 #[tokio::test]
 async fn service_network_read_model_keeps_partial_metadata_manual_required(
 ) -> Result<(), serde_json::Error> {
+    let _guard = lock_activity_report_env_for_test().await;
     let model = read_model(vec![partial_metadata_row()]);
+    seed_network_runtime_for_test(&model).await;
     let report = deliver_network_runtime_for_read_model_for_test(&model).await;
     let stream_report = stream_network_runtime_event_chain_for_read_model_for_test(&model).await;
     let entries = stream_entries(&network_runtime_event_chain_stream_payload_for_test(
@@ -78,39 +69,25 @@ async fn service_network_read_model_keeps_partial_metadata_manual_required(
     assert_eq!(report.failed_rows, 0);
     assert_eq!(report.manual_required_rows, 1);
     assert_eq!(report.enforcement_command_events, 0);
-    assert_eq!(
-        report.publish_reports,
-        NetworkRuntimePhase::ordered_chain().len() - 2
-    );
+    assert_eq!(report.publish_reports, 0);
+    assert_eq!(report.stored_events, 2);
     let event_types = event_types(&entries);
     assert_eq!(
         event_types,
         vec![
             constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
-            constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
             constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
-            constants::network_flow::EVENT_AI_ANALYSIS_REQUESTED,
-            constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
-            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
-            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
-            constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
-            constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
         ]
     );
     let flow_event: NetworkFlowObservedEvent =
         serde_json::from_value(entries[0][constants::field::PAYLOAD].clone())?;
     assert_eq!(flow_event.evidence_grade, NetworkEvidenceGrade::C);
-    let policy_event: NetworkPolicyDecisionCompletedEvent =
-        serde_json::from_value(entries[6][constants::field::PAYLOAD].clone())?;
-    assert_eq!(
-        policy_event.decision_action,
-        NetworkPolicyDecisionAction::AskParent
-    );
     Ok(())
 }
 
 #[tokio::test]
 async fn empty_service_network_read_model_does_not_invent_runtime_events() {
+    let _guard = lock_activity_report_env_for_test().await;
     let report = deliver_network_runtime_for_read_model_for_test(&read_model(Vec::new())).await;
 
     assert_eq!(report.observed_rows, 0);
@@ -118,6 +95,56 @@ async fn empty_service_network_read_model_does_not_invent_runtime_events() {
     assert_eq!(report.failed_rows, 0);
     assert_eq!(report.publish_reports, 0);
     assert_eq!(report.stored_events, 0);
+}
+
+#[tokio::test]
+async fn invalid_source_event_id_fails_closed_without_projection_events() {
+    let _guard = lock_activity_report_env_for_test().await;
+    let mut invalid = full_metadata_row();
+    invalid.event_id = "invalid event id".to_string();
+    let report = deliver_network_runtime_for_read_model_for_test(&read_model(vec![invalid])).await;
+
+    assert_eq!(report.observed_rows, 1);
+    assert_eq!(report.delivered_rows, 0);
+    assert_eq!(report.failed_rows, 1);
+    assert_eq!(report.stored_events, 0);
+}
+
+#[tokio::test]
+async fn malformed_persisted_network_rows_fail_closed_without_journal_mutation() {
+    let _guard = lock_activity_report_env_for_test().await;
+    let valid_model = read_model(vec![full_metadata_row()]);
+    seed_network_runtime_for_test(&valid_model).await;
+    let before = journal_line_count();
+
+    let mut malformed_rows = Vec::new();
+    let mut unknown_status = full_metadata_row();
+    unknown_status.capability_status = "unknown-capability-status".to_string();
+    malformed_rows.push(unknown_status);
+
+    let mut invalid_protocol = full_metadata_row();
+    invalid_protocol.protocol = Some("unknown-protocol".to_string());
+    malformed_rows.push(invalid_protocol);
+
+    let mut invalid_tcp_state = full_metadata_row();
+    invalid_tcp_state.tcp_state = Some("unknown-tcp-state".to_string());
+    malformed_rows.push(invalid_tcp_state);
+
+    let mut oversized_process_id = full_metadata_row();
+    oversized_process_id.process_id = Some(u64::MAX);
+    malformed_rows.push(oversized_process_id);
+
+    let mut malformed_observed_at = full_metadata_row();
+    malformed_observed_at.observed_at = "not-rfc3339".to_string();
+    malformed_rows.push(malformed_observed_at);
+
+    for malformed in malformed_rows {
+        let report =
+            deliver_network_runtime_for_read_model_for_test(&read_model(vec![malformed])).await;
+        assert_eq!(report.failed_rows, 1);
+        assert_eq!(report.stored_events, 0);
+        assert_eq!(journal_line_count(), before);
+    }
 }
 
 fn read_model(rows: Vec<ActivityNetworkFlowObservation>) -> ActivityNetworkFlowReadModel {
@@ -141,15 +168,17 @@ fn read_model(rows: Vec<ActivityNetworkFlowObservation>) -> ActivityNetworkFlowR
 }
 
 fn full_metadata_row() -> ActivityNetworkFlowObservation {
-    row(
+    row_with_event_id(
+        "network-flow-event-full-1",
         Some(constants::activity_store::TEST_NETWORK_DOMAIN.to_string()),
         Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
         Some(4242),
+        Some(1),
     )
 }
 
 fn partial_metadata_row() -> ActivityNetworkFlowObservation {
-    row(None, None, None)
+    row_with_event_id("network-flow-event-partial-1", None, None, None, Some(0))
 }
 
 fn row(
@@ -157,9 +186,25 @@ fn row(
     process_name: Option<TestString>,
     process_id: Option<u64>,
 ) -> ActivityNetworkFlowObservation {
+    row_with_event_id(
+        constants::activity_store::TEST_NETWORK_EVENT_ID,
+        destination_domain,
+        process_name,
+        process_id,
+        Some(1),
+    )
+}
+
+fn row_with_event_id(
+    event_id: &str,
+    destination_domain: Option<TestString>,
+    process_name: Option<TestString>,
+    process_id: Option<u64>,
+    associated_pid_count: Option<usize>,
+) -> ActivityNetworkFlowObservation {
     ActivityNetworkFlowObservation {
         schema_version: NETWORK_FLOW_SCHEMA_VERSION,
-        event_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
+        event_id: event_id.to_string(),
         observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         observer: constants::activity_observer::WINDOWS_NETWORK.to_string(),
         capability_status: constants::activity_capture::CAPABILITY_STATUS_AVAILABLE.to_string(),
@@ -181,6 +226,7 @@ fn row(
             constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED.to_string(),
         process_id,
         process_name,
+        associated_pid_count,
         counters: ActivityNetworkFlowCounters {
             connection_count: 1,
             bytes_sent: None,
@@ -189,12 +235,18 @@ fn row(
             last_seen_at: Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
         },
         evidence: vec![ActivityEvidenceRef {
-            evidence_id: constants::activity_store::TEST_NETWORK_EVENT_ID.to_string(),
+            evidence_id: event_id.to_string(),
             kind: ActivityEvidenceKind::JournalEntry,
             digest: None,
             uri: None,
         }],
     }
+}
+
+fn journal_line_count() -> usize {
+    std::fs::read_to_string(network_runtime_journal_path_for_test().as_path())
+        .map(|text| text.lines().count())
+        .unwrap_or_default()
 }
 
 fn stream_entries(payload: &ocentra_parent_agent_protocol::logging::LogFields) -> Vec<Value> {

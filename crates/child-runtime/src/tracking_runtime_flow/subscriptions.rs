@@ -2,10 +2,9 @@ use super::check_in_requests::tracking_child_check_in_request_receipt;
 use super::metadata::{tracking_runtime_metadata, TrackingRuntimeHop};
 use super::state::TrackingRuntimeEventState;
 use ocentra_eventing::{
-    bus::publisher::{EventContext, EventPublisher},
+    bus::publisher::{EventContext, EventPublisher, RootEventPublisher},
     bus::subscriber::EventSubscriber,
     bus::subscriber::SubscriptionReport,
-    bus::EventBus,
     envelope::EventMetadata,
     error::EventingError,
     ids::EventType,
@@ -27,7 +26,7 @@ use ocentra_tracking_core::alerting::{
 };
 
 pub(super) async fn subscribe_tracking_location_observed_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: TrackingRuntimeEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingLocationObservedEvent, _, _>(
@@ -192,7 +191,7 @@ async fn publish_tracking_ai_request(
 }
 
 pub(super) async fn subscribe_child_tracking_check_in_request_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: TrackingRuntimeEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingChildCheckInRequestedEvent, _, _>(
@@ -213,14 +212,14 @@ pub(super) async fn subscribe_child_tracking_check_in_request_events(
                 let request = context.payload().clone();
                 let envelope = context.envelope();
                 let metadata = EventMetadata {
-                    event_id: envelope.event_id.clone(),
-                    correlation_id: envelope.correlation_id.clone(),
-                    causation_id: envelope.causation_id.clone(),
-                    source: envelope.source.clone(),
-                    observed_at: envelope.observed_at.clone(),
-                    target_handler: envelope.target_handler.clone(),
-                    priority: envelope.priority,
-                    deadline: envelope.deadline,
+                    event_id: envelope.event_id().clone(),
+                    correlation_id: envelope.correlation_id().clone(),
+                    causation_id: envelope.causation_id().cloned(),
+                    source: envelope.source().clone(),
+                    observed_at: envelope.observed_at().clone(),
+                    target_handler: envelope.target_handler().cloned(),
+                    priority: envelope.priority(),
+                    deadline: envelope.deadline(),
                 };
                 state.record_parent_requested_check_in(request.clone(), metadata.clone());
                 let receipt = tracking_child_check_in_request_receipt(
@@ -241,7 +240,7 @@ pub(super) async fn subscribe_child_tracking_check_in_request_events(
 }
 
 pub(super) async fn subscribe_child_ai_tracking_analysis_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: TrackingRuntimeEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingAiAnalysisRequestedEvent, _, _>(
@@ -283,7 +282,7 @@ pub(super) async fn subscribe_child_ai_tracking_analysis_events(
 }
 
 pub(super) async fn subscribe_child_policy_tracking_analysis_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: TrackingRuntimeEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingNearbyPlaceClassifiedEvent, _, _>(
@@ -338,7 +337,7 @@ pub(super) async fn subscribe_child_policy_tracking_analysis_events(
 }
 
 pub(super) async fn subscribe_child_policy_tracking_expected_place_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: TrackingRuntimeEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingExpectedPlaceStateEvaluatedEvent, _, _>(
@@ -382,7 +381,7 @@ pub(super) async fn subscribe_child_policy_tracking_expected_place_events(
 }
 
 pub(super) async fn subscribe_child_notification_policy_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: TrackingRuntimeEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingPolicyViolationDetectedEvent, _, _>(

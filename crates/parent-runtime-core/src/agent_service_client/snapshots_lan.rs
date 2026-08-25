@@ -1,17 +1,36 @@
 use super::snapshots_lan_replay::lan_runtime_replay_events_from_payload;
-use super::types::LanRuntimeReplaySnapshot;
+use super::types::{
+    LanAgentServiceSnapshot, LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
+    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
+};
 use super::*;
+use super::{
+    payload_fields::{log_field_string, serialized_enum_label},
+    transport::rejection_message,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
+use ocentra_parent_agent_protocol::transport::{AgentEventEnvelope, AgentEventName};
+use ocentra_schema::parent_ui_bridge::ParentRouteEventSnapshot;
 
 pub(super) fn lan_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<LanAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {
+        command,
         events,
         response_event,
         ..
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));
+    }
+    if !command.response_event_is_expected(&response_event.event) {
+        return Err(format!(
+            "agent-service {} returned an unexpected LAN response event {}",
+            serialized_enum_label(&command),
+            serialized_enum_label(&response_event.event)
+        ));
     }
 
     let read_model_json = response_event
@@ -46,9 +65,17 @@ pub(super) fn lan_runtime_replay_events_from_result(
         command,
         command_message_id,
         response_event,
+        ..
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));
+    }
+    if !command.response_event_is_expected(&response_event.event) {
+        return Err(format!(
+            "agent-service {} returned an unexpected LAN response event {}",
+            serialized_enum_label(&command),
+            serialized_enum_label(&response_event.event)
+        ));
     }
     lan_runtime_replay_events_from_payload(&response_event, &command, &command_message_id)
 }

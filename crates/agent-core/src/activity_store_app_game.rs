@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::app_game::{
     AppGameSessionSummary, APP_GAME_CATALOG_NOT_LOADED, APP_GAME_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
+use sysinfo::System;
 
 pub mod app_game_journal_sqlite_ingest;
 pub mod app_game_session_rollups;
@@ -34,11 +35,14 @@ pub mod app_game_windows_foreground;
 pub mod app_game_windows_foreground_source;
 // WP10 stages launcher evidence before live launcher manifest readers call it.
 pub mod app_game_windows_launcher;
+// WP10 live Windows process source feeds launcher evidence into the journal.
+pub mod app_game_windows_launcher_source;
 
 use crate::{activity_store_app_game_rows::app_game_rows, ActivityStoreError};
 
 use app_game_windows_foreground_source::{
     live_windows_foreground_window_journal_event as live_windows_foreground_window_journal_event_impl,
+    live_windows_foreground_window_journal_event_from_system as live_windows_foreground_window_journal_event_from_system_impl,
     AppGameLiveForegroundWindowError as AppGameLiveForegroundWindowErrorImpl,
 };
 use app_game_windows_inventory_source::{
@@ -46,7 +50,10 @@ use app_game_windows_inventory_source::{
     live_windows_inventory_journal_events_with_limit as live_windows_inventory_journal_events_with_limit_impl,
     AppGameLiveInventorySourceError as AppGameLiveInventorySourceErrorImpl,
 };
+use app_game_windows_launcher_source::live_windows_launcher_journal_events_with_limit as live_windows_launcher_journal_events_with_limit_impl;
 use app_game_windows_process_source::{
+    live_windows_process_and_launcher_snapshot_journal_events_from_system as live_windows_process_and_launcher_snapshot_journal_events_from_system_impl,
+    live_windows_process_and_launcher_snapshot_journal_events_with_limit as live_windows_process_and_launcher_snapshot_journal_events_with_limit_impl,
     live_windows_process_snapshot_journal_events_with_limit as live_windows_process_snapshot_journal_events_with_limit_impl,
     AppGameLiveProcessSnapshotError as AppGameLiveProcessSnapshotErrorImpl,
 };
@@ -66,6 +73,8 @@ pub type AppGameLiveInventorySourceError = AppGameLiveInventorySourceErrorImpl;
 pub type AppGameLiveProcessSnapshotError = AppGameLiveProcessSnapshotErrorImpl;
 pub type AppGameLiveRegistryInventorySourceError = AppGameLiveRegistryInventorySourceErrorImpl;
 pub type AppGameLiveStorePackageSourceError = AppGameLiveStorePackageSourceErrorImpl;
+pub type AppGameLiveLauncherSourceError =
+    app_game_windows_launcher_source::AppGameLiveLauncherSourceError;
 
 pub fn live_windows_foreground_window_journal_event(
     device_id: &str,
@@ -73,6 +82,20 @@ pub fn live_windows_foreground_window_journal_event(
     observed_at: &str,
 ) -> Result<Option<ActivityEvent>, AppGameLiveForegroundWindowError> {
     live_windows_foreground_window_journal_event_impl(device_id, platform, observed_at)
+}
+
+pub fn live_windows_foreground_window_journal_event_from_system(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    system: &System,
+) -> Result<Option<ActivityEvent>, AppGameLiveForegroundWindowError> {
+    live_windows_foreground_window_journal_event_from_system_impl(
+        device_id,
+        platform,
+        observed_at,
+        system,
+    )
 }
 
 pub fn live_windows_inventory_journal_events_with_limit(
@@ -112,6 +135,45 @@ pub fn live_windows_process_snapshot_journal_events_with_limit(
         observed_at,
         limit,
     )
+}
+
+pub fn live_windows_process_and_launcher_snapshot_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveProcessSnapshotError> {
+    live_windows_process_and_launcher_snapshot_journal_events_with_limit_impl(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+    )
+}
+
+pub fn live_windows_process_and_launcher_snapshot_journal_events_from_system(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+    system: &System,
+) -> Result<Vec<ActivityEvent>, AppGameLiveProcessSnapshotError> {
+    live_windows_process_and_launcher_snapshot_journal_events_from_system_impl(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+        system,
+    )
+}
+
+pub fn live_windows_launcher_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveLauncherSourceError> {
+    live_windows_launcher_journal_events_with_limit_impl(device_id, platform, observed_at, limit)
 }
 
 pub fn live_windows_registry_inventory_journal_events_with_limit(

@@ -148,6 +148,8 @@ pub(crate) struct AppGameTimerParentSurfaceAgentServiceSnapshot {
 pub(crate) struct AgentServiceCommandResult {
     pub(crate) command: AgentCommandName,
     pub(crate) command_message_id: String,
+    pub(crate) request_nonce: String,
+    pub(crate) request_sent_at: String,
     pub(crate) events: Vec<ParentRouteEventSnapshot>,
     pub(crate) response_event: AgentEventEnvelope,
 }

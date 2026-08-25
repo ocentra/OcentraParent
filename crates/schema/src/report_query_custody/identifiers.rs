@@ -50,6 +50,11 @@ report_query_identifier!(
     REPORT_QUERY_CUSTODY_EXPECT_PARENT_ACTION_ID
 );
 report_query_identifier!(
+    parent_authority_id,
+    ParentAuthorityReferenceId,
+    REPORT_QUERY_CUSTODY_EXPECT_PARENT_AUTHORITY_ID
+);
+report_query_identifier!(
     timestamp,
     ParentTimestamp,
     REPORT_QUERY_CUSTODY_EXPECT_TIMESTAMP

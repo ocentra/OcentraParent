@@ -1,4 +1,5 @@
 use std::{
+    any::TypeId,
     collections::{BTreeMap, VecDeque},
     sync::{Arc, Mutex},
     time::Duration,
@@ -79,10 +80,13 @@ pub(crate) struct RequestRegistry {
 }
 
 impl RequestRegistry {
-    pub(crate) fn register(
+    pub(crate) fn register<E>(
         &self,
         request_id: RequestId,
-    ) -> Result<oneshot::Receiver<RequestPayload>, EventingError> {
+    ) -> Result<oneshot::Receiver<RequestPayload>, EventingError>
+    where
+        E: RequestEvent,
+    {
         let (sender, receiver) = oneshot::channel();
         let mut state = self.state.lock().expect_value("request registry lock");
         if state.entries.contains_key(&request_id) {
@@ -90,19 +94,19 @@ impl RequestRegistry {
         }
         state
             .entries
-            .insert(request_id, RequestEntry::pending(sender));
+            .insert(request_id, RequestEntry::pending::<E>(sender));
         Ok(receiver)
     }
 
-    pub(crate) fn complete<R>(
+    pub(crate) fn complete<E>(
         &self,
         request_id: RequestId,
-        response: R,
+        response: E::Response,
     ) -> Result<RequestCompletionReport, EventingError>
     where
-        R: EventResponseContract,
+        E: RequestEvent,
     {
-        let payload = RequestPayload::from_response(&request_id, response)?;
+        let payload = RequestPayload::from_response::<E>(&request_id, response)?;
         let mut state = self.state.lock().expect_value("request registry lock");
         let Some(entry) = state.entries.get_mut(&request_id) else {
             return Ok(completion_report(
@@ -110,6 +114,9 @@ impl RequestRegistry {
                 RequestCompletionOutcome::Late,
             ));
         };
+        if entry.request_type != TypeId::of::<E>() {
+            return Err(EventingError::RequestTypeMismatch { request_id });
+        }
         match entry.state {
             RequestState::Pending => {
                 request_helpers::complete_pending_request(&mut state, request_id, payload)
@@ -200,13 +207,18 @@ pub(crate) struct RequestRegistryClearReport {
 
 struct RequestEntry {
     state: RequestState,
+    request_type: TypeId,
     sender: Option<oneshot::Sender<RequestPayload>>,
 }
 
 impl RequestEntry {
-    fn pending(sender: oneshot::Sender<RequestPayload>) -> Self {
+    fn pending<E>(sender: oneshot::Sender<RequestPayload>) -> Self
+    where
+        E: RequestEvent,
+    {
         Self {
             state: RequestState::Pending,
+            request_type: TypeId::of::<E>(),
             sender: Some(sender),
         }
     }
@@ -224,9 +236,12 @@ pub(crate) struct RequestPayload {
 }
 
 impl RequestPayload {
-    fn from_response<R>(request_id: &RequestId, response: R) -> Result<Self, EventingError>
+    fn from_response<E>(
+        request_id: &RequestId,
+        response: E::Response,
+    ) -> Result<Self, EventingError>
     where
-        R: EventResponseContract,
+        E: RequestEvent,
     {
         response.validate()?;
         let value = serde_json::to_value(response).map_err(|error| {

@@ -101,7 +101,7 @@ without waiting on network-specific integration.
 Household Mesh consumer proof is the separate consumer-layer bridge check for
 Household AI provider mesh handoff. Its proof harness is
 `scripts/test/eventing-household-mesh-consumer-proof.mjs`, with proof artifacts
-under `output/eventing-plan-proof/12-household-mesh-consumer/` and
+under `output/eventing-plan-proof/10-lan-household-mesh-consumer/` and
 `test-results/eventing-household-mesh-consumer-proof/`. It must stay outside
 `crates/ocentra-eventing`, must reject unselected or mismatched event/message
 refs, and must not claim a shared LAN bus, direct remote publish into another

@@ -55,12 +55,12 @@ Failure conditions:
 
 ## Completion
 
-- Status: complete for WP01 only; no broader plan, provider-runtime, sync-runtime, or PR readiness claim is made.
+- Status: production source complete for the Rust-owned WP01 contract; the complete expected-test family, current focused execution, proof refresh, and broader readiness remain open.
 - Proof root: `output/data-custody-storage-plan-proof/01-custody-source-of-truth/`
 - Canonical owner: `crates/schema` for the shared custody source-of-truth contract, generated TS contract surface, and Rust proof tests.
-- TS/shared edge note: `packages/schema-domain` remains thin/generated validation only through `src/custody-boundary.ts`, `src/data-custody-matrix.ts`, and `src/generated-data-custody-source-of-truth-contracts.ts`.
+- TS/shared edge note: the Rust-first convergence deliberately removed the old handwritten `custody-boundary.ts` and `data-custody-matrix.ts` adapters. The only current TypeScript edge is the generated, package-exported `packages/schema-domain/src/generated-data-custody-source-of-truth-contracts.ts`; do not restore deleted adapters without a real consumer.
 
-## Required states proved
+## Implemented contract states
 
 - All `28` active data classes now have an explicit source-of-truth row, owner, default location, and derived-versus-self truth marker.
 - Ocentra-hosted-by-default metadata is explicit and limited to `8` classes; `13` classes are explicitly marked `mustNeverBeHostedByDefault`.
@@ -69,6 +69,12 @@ Failure conditions:
 - Raw child evidence rows keep notification exposure at `none`, with reports limited to `allowed-references-only` or `none`.
 - Account and provider control-plane separation stays explicit and all WP01 non-claim flags remain false.
 
+These rows describe live production contract source, not complete test proof.
+The current Rust contract test covers serde round-trip and generated-file drift.
+The expected-test wave must still cover the exact 28-row inventory, unique IDs,
+derived-source validity, hosting counts, redaction/notification rules, forbidden
+hosting, and every no-claim flag.
+
 ## Manual-required and no-claim truth
 
 - `supportDecryptByDefaultClaimed` remains false.
@@ -76,7 +82,10 @@ Failure conditions:
 - Mobile restore/key custody, delete ergonomics/tombstone propagation, and transfer runtime remain later-workpack or manual-required surfaces.
 - No default Ocentra child-activity store, no SQLite truth-layer claim, no provider auto-apply claim, no Ocentra-owned parent-rules claim, no raw-child-evidence-in-notifications claim, and no long-lived hosted reports claim are made.
 
-## Proof artifacts
+## Historical proof artifacts
+
+The ignored `output/` root below is not present in a clean checkout and is not
+current acceptance for this source.
 
 - `00-data-classification-matrix-proof.md`
 - `01-source-of-truth-proof.md`
@@ -90,10 +99,11 @@ Failure conditions:
 
 - `cmd /c cargo test -q -p ocentra-schema --test contract data_custody_source_of_truth`
 - `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
-- `cmd /c npm run test --workspace @ocentra-parent/schema-domain -- tests/contract/data-custody-source-of-truth.test.ts`
-- `node scripts/test/data-custody-source-of-truth-proof.mjs`
-- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/custody-boundary.ts packages/schema-domain/src/data-custody-matrix.ts packages/schema-domain/src/generated-data-custody-source-of-truth-contracts.ts packages/schema-domain/tests/contract/data-custody-source-of-truth.test.ts scripts/test/data-custody-source-of-truth-proof.mjs`
-- `cargo lint-architecture crates/schema/src/lib.rs crates/schema/src/data_custody_source_of_truth.rs crates/schema/src/data_custody_source_of_truth_ts.rs crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs crates/schema/tests/contract.rs crates/schema/tests/contract/data_custody_source_of_truth.rs`
+- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/generated-data-custody-source-of-truth-contracts.ts`
+- `cargo lint-architecture crates/schema/src/data_custody_source_of_truth.rs crates/schema/src/data_custody_source_of_truth crates/schema/src/data_custody_source_of_truth_ts.rs crates/schema/tests/contract/data_custody_source_of_truth.rs`
+
+These commands are the later focused-validation route. They were not run in
+the current source/status reconciliation.
 
 ## Adjacent handoffs
 

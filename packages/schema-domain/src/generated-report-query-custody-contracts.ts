@@ -5,6 +5,7 @@ import { brandedNonEmptyStringSchema } from './effect';
 export const ReportQueryCustodyContractRuntime = {
   SchemaVersion: 'report-query-custody-proof',
 } as const;
+export const GeneratedReportQueryCustodyMaxPageSize = 100 as const;
 
 export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentAccountIdSchema = brandedNonEmptyStringSchema('ParentAccountId');
@@ -16,6 +17,7 @@ export const GeneratedParentActorIdSchema = brandedNonEmptyStringSchema('ParentA
 export const GeneratedParentPolicyVersionSchema = brandedNonEmptyStringSchema('ParentPolicyVersion');
 export const GeneratedParentEvidenceReferenceIdSchema = brandedNonEmptyStringSchema('ParentEvidenceReferenceId');
 export const GeneratedParentActionReferenceIdSchema = brandedNonEmptyStringSchema('ParentActionReferenceId');
+export const GeneratedParentAuthorityReferenceIdSchema = brandedNonEmptyStringSchema('ParentAuthorityReferenceId');
 export const GeneratedParentTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
 export const GeneratedReportQueryCustodyRequestIdSchema = brandedNonEmptyStringSchema('ReportQueryCustodyRequestId');
 export const GeneratedReportQueryCustodyQueryCursorSchema = brandedNonEmptyStringSchema(
@@ -40,6 +42,7 @@ export type GeneratedParentActorId = typeof GeneratedParentActorIdSchema.Type;
 export type GeneratedParentPolicyVersion = typeof GeneratedParentPolicyVersionSchema.Type;
 export type GeneratedParentEvidenceReferenceId = typeof GeneratedParentEvidenceReferenceIdSchema.Type;
 export type GeneratedParentActionReferenceId = typeof GeneratedParentActionReferenceIdSchema.Type;
+export type GeneratedParentAuthorityReferenceId = typeof GeneratedParentAuthorityReferenceIdSchema.Type;
 export type GeneratedParentTimestamp = typeof GeneratedParentTimestampSchema.Type;
 export type GeneratedReportQueryCustodyRequestId = typeof GeneratedReportQueryCustodyRequestIdSchema.Type;
 export type GeneratedReportQueryCustodyQueryCursor = typeof GeneratedReportQueryCustodyQueryCursorSchema.Type;
@@ -170,10 +173,23 @@ export interface GeneratedParentDeviceReference {
   readonly platform: GeneratedParentPlatform;
 }
 
+export interface GeneratedReportQueryCustodyParentAuthorityReference {
+  readonly authorityReferenceId: GeneratedParentAuthorityReferenceId;
+  readonly familyId: GeneratedFamilyId;
+  readonly parentAccountId: GeneratedParentAccountId;
+  readonly deviceId: GeneratedParentDeviceId;
+  readonly childProfileId: GeneratedChildProfileId | null;
+  readonly authorityGeneration: number;
+}
+
 export interface GeneratedParentEvidenceReference {
   readonly evidenceReferenceId: GeneratedParentEvidenceReferenceId;
   readonly kind: GeneratedParentEvidenceReferenceKind;
   readonly observedAt: GeneratedParentTimestamp;
+  readonly familyId: GeneratedFamilyId;
+  readonly childProfileId: GeneratedChildProfileId | null;
+  readonly sourceDataClass: GeneratedReportQueryCustodySourceDataClass;
+  readonly sourceReference: GeneratedReportQueryCustodySourceRef;
 }
 
 export interface GeneratedParentActionReference {
@@ -197,8 +213,7 @@ export interface GeneratedReportQueryCustodyRequest {
   readonly sourceCitationRefs: readonly GeneratedParentEvidenceReference[];
   readonly assistantCitationRefs: readonly GeneratedParentEvidenceReference[];
   readonly notificationPayloadBoundary: GeneratedReportQueryCustodyBoundary;
-  readonly parentAuthorized: boolean;
-  readonly parentOwnedSourceRequired: boolean;
+  readonly parentAuthority: GeneratedReportQueryCustodyParentAuthorityReference;
   readonly rawChildEvidenceRequested: boolean;
 }
 
@@ -226,8 +241,7 @@ export interface GeneratedReportQueryCustodyRow {
   readonly conflictRef: GeneratedReportQueryCustodyConflictRef | null;
   readonly cursorExpiredAt: GeneratedParentTimestamp | null;
   readonly rateLimitedUntilAt: GeneratedParentTimestamp | null;
-  readonly parentAuthorized: boolean;
-  readonly parentOwnedSourceRequired: boolean;
+  readonly parentAuthority: GeneratedReportQueryCustodyParentAuthorityReference;
   readonly rawChildEvidenceIncluded: boolean;
   readonly reportCacheMutated: boolean;
   readonly secondTruthStoreClaimed: boolean;
@@ -293,11 +307,19 @@ export const GeneratedReportQueryCustodyContractProof = {
         evidenceReferenceId: 'report-query-custody-evidence-1',
         kind: 'query-store-summary',
         observedAt: '2026-06-28T15:55:00.000Z',
+        familyId: 'family-report-query-custody-proof-1',
+        childProfileId: null,
+        sourceDataClass: 'sqlite-query-row',
+        sourceReference: 'report-query-custody-source-1',
       },
       {
         evidenceReferenceId: 'report-query-custody-evidence-2',
         kind: 'query-store-summary',
         observedAt: '2026-06-28T15:55:00.000Z',
+        familyId: 'family-report-query-custody-proof-1',
+        childProfileId: null,
+        sourceDataClass: 'notification-history',
+        sourceReference: 'report-query-custody-source-2',
       },
     ],
     assistantCitationRefs: [
@@ -305,16 +327,30 @@ export const GeneratedReportQueryCustodyContractProof = {
         evidenceReferenceId: 'report-query-custody-evidence-1',
         kind: 'query-store-summary',
         observedAt: '2026-06-28T15:55:00.000Z',
+        familyId: 'family-report-query-custody-proof-1',
+        childProfileId: null,
+        sourceDataClass: 'sqlite-query-row',
+        sourceReference: 'report-query-custody-source-1',
       },
       {
         evidenceReferenceId: 'report-query-custody-evidence-2',
         kind: 'query-store-summary',
         observedAt: '2026-06-28T15:55:00.000Z',
+        familyId: 'family-report-query-custody-proof-1',
+        childProfileId: null,
+        sourceDataClass: 'notification-history',
+        sourceReference: 'report-query-custody-source-2',
       },
     ],
     notificationPayloadBoundary: 'parent-owned-citations-only',
-    parentAuthorized: true,
-    parentOwnedSourceRequired: true,
+    parentAuthority: {
+      authorityReferenceId: 'parent-authority-report-query-custody-proof-1',
+      familyId: 'family-report-query-custody-proof-1',
+      parentAccountId: 'parent-account-report-query-custody-proof-1',
+      deviceId: 'windows-parent-device-report-query-custody-proof-1',
+      childProfileId: null,
+      authorityGeneration: 1,
+    },
     rawChildEvidenceRequested: false,
   },
   rows: [
@@ -324,12 +360,12 @@ export const GeneratedReportQueryCustodyContractProof = {
       state: 'derivedFresh',
       sourceFreshness: 'fresh',
       sourceDataClass: 'sqlite-query-row',
-      cursorRef: 'report-query-custody-cursor-derivedFresh',
+      cursorRef: 'report-query-custody-cursor-proof-1',
       sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
       nextCursorRef: 'derived-fresh-next-cursor',
       pageIndex: 1,
       pageSize: 25,
-      stableSortKey: 'report-query-custody-stable-sort-key',
+      stableSortKey: 'report-query-custody-stable-sort-key-01',
       requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       sourceCitationRefs: [
@@ -337,11 +373,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       assistantCitationRefs: [
@@ -349,11 +393,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       notificationPayloadBoundary: 'parent-owned-citations-only',
@@ -364,8 +416,14 @@ export const GeneratedReportQueryCustodyContractProof = {
       conflictRef: null,
       cursorExpiredAt: null,
       rateLimitedUntilAt: null,
-      parentAuthorized: true,
-      parentOwnedSourceRequired: true,
+      parentAuthority: {
+        authorityReferenceId: 'parent-authority-report-query-custody-proof-1',
+        familyId: 'family-report-query-custody-proof-1',
+        parentAccountId: 'parent-account-report-query-custody-proof-1',
+        deviceId: 'windows-parent-device-report-query-custody-proof-1',
+        childProfileId: null,
+        authorityGeneration: 1,
+      },
       rawChildEvidenceIncluded: false,
       reportCacheMutated: false,
       secondTruthStoreClaimed: false,
@@ -377,12 +435,12 @@ export const GeneratedReportQueryCustodyContractProof = {
       state: 'derivedStale',
       sourceFreshness: 'stale',
       sourceDataClass: 'generated-summary',
-      cursorRef: 'report-query-custody-cursor-derivedStale',
+      cursorRef: 'derived-fresh-next-cursor',
       sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
       nextCursorRef: 'derived-stale-next-cursor',
       pageIndex: 2,
       pageSize: 25,
-      stableSortKey: 'report-query-custody-stable-sort-key',
+      stableSortKey: 'report-query-custody-stable-sort-key-02',
       requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       sourceCitationRefs: [
@@ -390,11 +448,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       assistantCitationRefs: [
@@ -402,11 +468,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       notificationPayloadBoundary: 'parent-owned-citations-only',
@@ -417,8 +491,14 @@ export const GeneratedReportQueryCustodyContractProof = {
       conflictRef: null,
       cursorExpiredAt: null,
       rateLimitedUntilAt: null,
-      parentAuthorized: true,
-      parentOwnedSourceRequired: true,
+      parentAuthority: {
+        authorityReferenceId: 'parent-authority-report-query-custody-proof-1',
+        familyId: 'family-report-query-custody-proof-1',
+        parentAccountId: 'parent-account-report-query-custody-proof-1',
+        deviceId: 'windows-parent-device-report-query-custody-proof-1',
+        childProfileId: null,
+        authorityGeneration: 1,
+      },
       rawChildEvidenceIncluded: false,
       reportCacheMutated: false,
       secondTruthStoreClaimed: false,
@@ -430,12 +510,12 @@ export const GeneratedReportQueryCustodyContractProof = {
       state: 'partiallyRedacted',
       sourceFreshness: 'stale',
       sourceDataClass: 'notification-history',
-      cursorRef: 'report-query-custody-cursor-partiallyRedacted',
+      cursorRef: 'derived-stale-next-cursor',
       sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
       nextCursorRef: 'partially-redacted-next-cursor',
       pageIndex: 3,
       pageSize: 25,
-      stableSortKey: 'report-query-custody-stable-sort-key',
+      stableSortKey: 'report-query-custody-stable-sort-key-03',
       requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       sourceCitationRefs: [
@@ -443,11 +523,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       assistantCitationRefs: [
@@ -455,11 +543,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       notificationPayloadBoundary: 'parent-owned-citations-only',
@@ -470,8 +566,14 @@ export const GeneratedReportQueryCustodyContractProof = {
       conflictRef: null,
       cursorExpiredAt: null,
       rateLimitedUntilAt: null,
-      parentAuthorized: true,
-      parentOwnedSourceRequired: true,
+      parentAuthority: {
+        authorityReferenceId: 'parent-authority-report-query-custody-proof-1',
+        familyId: 'family-report-query-custody-proof-1',
+        parentAccountId: 'parent-account-report-query-custody-proof-1',
+        deviceId: 'windows-parent-device-report-query-custody-proof-1',
+        childProfileId: null,
+        authorityGeneration: 1,
+      },
       rawChildEvidenceIncluded: false,
       reportCacheMutated: false,
       secondTruthStoreClaimed: false,
@@ -483,12 +585,12 @@ export const GeneratedReportQueryCustodyContractProof = {
       state: 'deletedSource',
       sourceFreshness: 'deleted',
       sourceDataClass: 'audit-event',
-      cursorRef: 'report-query-custody-cursor-deletedSource',
+      cursorRef: 'partially-redacted-next-cursor',
       sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
       nextCursorRef: null,
       pageIndex: 4,
       pageSize: 25,
-      stableSortKey: 'report-query-custody-stable-sort-key',
+      stableSortKey: 'report-query-custody-stable-sort-key-04',
       requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       sourceCitationRefs: [
@@ -496,11 +598,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       assistantCitationRefs: [
@@ -508,11 +618,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       notificationPayloadBoundary: 'parent-owned-citations-only',
@@ -523,8 +641,14 @@ export const GeneratedReportQueryCustodyContractProof = {
       conflictRef: null,
       cursorExpiredAt: null,
       rateLimitedUntilAt: null,
-      parentAuthorized: true,
-      parentOwnedSourceRequired: true,
+      parentAuthority: {
+        authorityReferenceId: 'parent-authority-report-query-custody-proof-1',
+        familyId: 'family-report-query-custody-proof-1',
+        parentAccountId: 'parent-account-report-query-custody-proof-1',
+        deviceId: 'windows-parent-device-report-query-custody-proof-1',
+        childProfileId: null,
+        authorityGeneration: 1,
+      },
       rawChildEvidenceIncluded: false,
       reportCacheMutated: false,
       secondTruthStoreClaimed: false,
@@ -541,7 +665,7 @@ export const GeneratedReportQueryCustodyContractProof = {
       nextCursorRef: 'sync-conflict-next-cursor',
       pageIndex: 5,
       pageSize: 25,
-      stableSortKey: 'report-query-custody-stable-sort-key',
+      stableSortKey: 'report-query-custody-stable-sort-key-05',
       requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       sourceCitationRefs: [
@@ -549,11 +673,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       assistantCitationRefs: [
@@ -561,11 +693,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       notificationPayloadBoundary: 'parent-owned-citations-only',
@@ -576,8 +716,14 @@ export const GeneratedReportQueryCustodyContractProof = {
       conflictRef: 'conflict-ref-1',
       cursorExpiredAt: null,
       rateLimitedUntilAt: null,
-      parentAuthorized: true,
-      parentOwnedSourceRequired: true,
+      parentAuthority: {
+        authorityReferenceId: 'parent-authority-report-query-custody-proof-1',
+        familyId: 'family-report-query-custody-proof-1',
+        parentAccountId: 'parent-account-report-query-custody-proof-1',
+        deviceId: 'windows-parent-device-report-query-custody-proof-1',
+        childProfileId: null,
+        authorityGeneration: 1,
+      },
       rawChildEvidenceIncluded: false,
       reportCacheMutated: false,
       secondTruthStoreClaimed: false,
@@ -589,12 +735,12 @@ export const GeneratedReportQueryCustodyContractProof = {
       state: 'cursorExpired',
       sourceFreshness: 'expired',
       sourceDataClass: 'generated-summary',
-      cursorRef: 'report-query-custody-cursor-cursorExpired',
+      cursorRef: 'sync-conflict-next-cursor',
       sourceCursorRef: 'report-query-custody-source-cursor-proof-1',
       nextCursorRef: null,
       pageIndex: 6,
       pageSize: 25,
-      stableSortKey: 'report-query-custody-stable-sort-key',
+      stableSortKey: 'report-query-custody-stable-sort-key-06',
       requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       sourceCitationRefs: [
@@ -602,11 +748,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       assistantCitationRefs: [
@@ -614,11 +768,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       notificationPayloadBoundary: 'parent-owned-citations-only',
@@ -629,8 +791,14 @@ export const GeneratedReportQueryCustodyContractProof = {
       conflictRef: null,
       cursorExpiredAt: '2026-06-28T15:59:00.000Z',
       rateLimitedUntilAt: null,
-      parentAuthorized: true,
-      parentOwnedSourceRequired: true,
+      parentAuthority: {
+        authorityReferenceId: 'parent-authority-report-query-custody-proof-1',
+        familyId: 'family-report-query-custody-proof-1',
+        parentAccountId: 'parent-account-report-query-custody-proof-1',
+        deviceId: 'windows-parent-device-report-query-custody-proof-1',
+        childProfileId: null,
+        authorityGeneration: 1,
+      },
       rawChildEvidenceIncluded: false,
       reportCacheMutated: false,
       secondTruthStoreClaimed: false,
@@ -647,7 +815,7 @@ export const GeneratedReportQueryCustodyContractProof = {
       nextCursorRef: null,
       pageIndex: 7,
       pageSize: 25,
-      stableSortKey: 'report-query-custody-stable-sort-key',
+      stableSortKey: 'report-query-custody-stable-sort-key-07',
       requestedDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       allowedSourceDataClasses: ['sqlite-query-row', 'notification-history', 'audit-event', 'generated-summary'],
       sourceCitationRefs: [
@@ -655,11 +823,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       assistantCitationRefs: [
@@ -667,11 +843,19 @@ export const GeneratedReportQueryCustodyContractProof = {
           evidenceReferenceId: 'report-query-custody-evidence-1',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'sqlite-query-row',
+          sourceReference: 'report-query-custody-source-1',
         },
         {
           evidenceReferenceId: 'report-query-custody-evidence-2',
           kind: 'query-store-summary',
           observedAt: '2026-06-28T15:55:00.000Z',
+          familyId: 'family-report-query-custody-proof-1',
+          childProfileId: null,
+          sourceDataClass: 'notification-history',
+          sourceReference: 'report-query-custody-source-2',
         },
       ],
       notificationPayloadBoundary: 'parent-owned-citations-only',
@@ -682,8 +866,14 @@ export const GeneratedReportQueryCustodyContractProof = {
       conflictRef: null,
       cursorExpiredAt: null,
       rateLimitedUntilAt: '2026-06-28T16:05:00.000Z',
-      parentAuthorized: true,
-      parentOwnedSourceRequired: true,
+      parentAuthority: {
+        authorityReferenceId: 'parent-authority-report-query-custody-proof-1',
+        familyId: 'family-report-query-custody-proof-1',
+        parentAccountId: 'parent-account-report-query-custody-proof-1',
+        deviceId: 'windows-parent-device-report-query-custody-proof-1',
+        childProfileId: null,
+        authorityGeneration: 1,
+      },
       rawChildEvidenceIncluded: false,
       reportCacheMutated: false,
       secondTruthStoreClaimed: false,

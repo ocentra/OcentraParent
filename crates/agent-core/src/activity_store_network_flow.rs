@@ -32,7 +32,7 @@ pub(crate) fn network_flow_read_model(
         .filter(is_flow_observation)
         .filter(|row| !row_deleted(row, &deleted_evidence_reference_ids))
         .map(observation_from_row)
-        .collect();
+        .collect::<Result<Vec<_>, _>>()?;
     let capability_status = read_model_capability_status(&observations);
 
     Ok(ActivityNetworkFlowReadModel {
@@ -104,9 +104,11 @@ fn split_evidence_reference_ids(value: &str) -> Vec<String> {
         .collect()
 }
 
-fn observation_from_row(row: NetworkFlowStoreRow) -> ActivityNetworkFlowObservation {
+fn observation_from_row(
+    row: NetworkFlowStoreRow,
+) -> Result<ActivityNetworkFlowObservation, ActivityStoreError> {
     let fields = &row.fields;
-    ActivityNetworkFlowObservation {
+    Ok(ActivityNetworkFlowObservation {
         schema_version: NETWORK_FLOW_SCHEMA_VERSION,
         event_id: row.event_id,
         observed_at: row.observed_at.clone(),
@@ -121,11 +123,11 @@ fn observation_from_row(row: NetworkFlowStoreRow) -> ActivityNetworkFlowObservat
         tcp_state: string_field(fields, constants::field::TCP_STATE),
         local_endpoint: ActivityNetworkEndpoint {
             ip: string_field(fields, constants::field::LOCAL_IP),
-            port: port_field(fields, constants::field::LOCAL_PORT),
+            port: port_field(fields, constants::field::LOCAL_PORT)?,
         },
         destination_endpoint: ActivityNetworkEndpoint {
             ip: string_field(fields, constants::field::DESTINATION_IP),
-            port: port_field(fields, constants::field::DESTINATION_PORT),
+            port: port_field(fields, constants::field::DESTINATION_PORT)?,
         },
         destination_domain: string_field(fields, constants::field::DESTINATION_DOMAIN),
         domain_attribution_status: string_field(
@@ -142,8 +144,9 @@ fn observation_from_row(row: NetworkFlowStoreRow) -> ActivityNetworkFlowObservat
         .unwrap_or_else(|| {
             constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_UNKNOWN.to_string()
         }),
-        process_id: number_field(fields, constants::field::PID),
+        process_id: number_field(fields, constants::field::PID)?,
         process_name: string_field(fields, constants::field::PROCESS_NAME),
+        associated_pid_count: usize_field(fields, constants::field::ASSOCIATED_PID_COUNT)?,
         counters: ActivityNetworkFlowCounters {
             connection_count: 1,
             bytes_sent: None,
@@ -152,7 +155,7 @@ fn observation_from_row(row: NetworkFlowStoreRow) -> ActivityNetworkFlowObservat
             last_seen_at: Some(row.observed_at),
         },
         evidence: row.evidence,
-    }
+    })
 }
 
 fn read_model_capability_status(observations: &[ActivityNetworkFlowObservation]) -> String {
@@ -171,15 +174,36 @@ fn string_field(fields: &LogFields, key: &str) -> Option<String> {
     }
 }
 
-fn number_field(fields: &LogFields, key: &str) -> Option<u64> {
-    match fields.get(key) {
-        Some(LogFieldValue::Number(value)) if value.is_finite() && *value >= 0.0 => {
-            Some(*value as u64)
-        }
-        _ => None,
-    }
+fn number_field(fields: &LogFields, key: &'static str) -> Result<Option<u64>, ActivityStoreError> {
+    fields
+        .get(key)
+        .map(|field_value| match field_value {
+            LogFieldValue::Number(value)
+                if value.is_finite()
+                    && *value >= 0.0
+                    && value.fract() == 0.0
+                    && *value < u64::MAX as f64 =>
+            {
+                Ok(*value as u64)
+            }
+            _ => Err(ActivityStoreError::InvalidNetworkField { field: key }),
+        })
+        .transpose()
 }
 
-fn port_field(fields: &LogFields, key: &str) -> Option<u16> {
-    number_field(fields, key).and_then(|value| u16::try_from(value).ok())
+fn port_field(fields: &LogFields, key: &'static str) -> Result<Option<u16>, ActivityStoreError> {
+    number_field(fields, key)?
+        .map(|value| {
+            u16::try_from(value).map_err(|_| ActivityStoreError::InvalidNetworkField { field: key })
+        })
+        .transpose()
+}
+
+fn usize_field(fields: &LogFields, key: &'static str) -> Result<Option<usize>, ActivityStoreError> {
+    number_field(fields, key)?
+        .map(|value| {
+            usize::try_from(value)
+                .map_err(|_| ActivityStoreError::InvalidNetworkField { field: key })
+        })
+        .transpose()
 }

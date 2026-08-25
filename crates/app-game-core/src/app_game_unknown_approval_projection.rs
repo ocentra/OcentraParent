@@ -44,7 +44,9 @@ pub(crate) async fn read_unknown_approval_history(
 fn decode_event(
     envelope: &StoredEventEnvelope,
 ) -> Result<AppGameUnknownApprovalEvent, AppGameUnknownApprovalError> {
-    Ok(envelope.decode::<AppGameUnknownApprovalEvent>()?.payload)
+    Ok(envelope
+        .decode::<AppGameUnknownApprovalEvent>()?
+        .into_payload())
 }
 
 fn project_unknown_approval_events(

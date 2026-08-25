@@ -27,11 +27,14 @@ pub(super) fn run_import_preflight(
         export_import_backup_recovery_import_sections::import_preflight_section_decisions(
             bundle, context,
         );
+    let tombstones_preserved =
+        export_import_backup_recovery_import_rejection::tombstone_cursor_matches(bundle, context);
 
     export_import_backup_recovery_import_response::accepted_preflight(
         state,
         migration_state,
         accepted_sections,
         rejected_sections,
+        tombstones_preserved,
     )
 }

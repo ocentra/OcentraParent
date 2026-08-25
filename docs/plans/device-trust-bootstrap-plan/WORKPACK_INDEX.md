@@ -20,13 +20,13 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| partial / runtime-proof-present | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | parent-presence slice proved; broader lifecycle open | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
-| partial / Windows-only merged custody slice | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | custody and authority-boundary code present; no desktop command-path or end-to-end sealing proof; workpack remains open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
-| blocked | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | five-minute receipt lifetime gate drafted; external ceremony verifier and proof remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
+| blocked / lifecycle source retained; unsafe owner-side fence withdrawn | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | accepted lifecycle/current-binding source remains, but the attempted runtime-fence participant was removed after review found caller-mintable committed rows, no explicit migration for existing databases, and unbounded retention/startup scanning. Protected Device-owned receipts, Account WP05A caller, migration/retention owners, expected tests, proof, and completion are absent | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
+| partial / Windows custody source with desktop mount; downstream of WP01 | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | DPAPI/registry and opaque runtime seams exist, and the parent desktop custody-sealing command is mounted; its success is custody-sealed-only, `require_authenticated_parent_authority()` remains permanently unavailable, no ceremony issuer or custody-to-lifecycle startup composition reaches it, and current tests/end-to-end sealing proof remain open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
+| blocked / bounded custody retained / target authority, runtime, and coordinator participant missing | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Atomic ceremony custody/recovery and linked-challenge lifecycle source are retained, but planned target-authority/runtime owners, private WP05A reservation participant, platform/passkey provider, durable sign counter, expected tests, proof, LAN handoff, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
-| partial | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | device-bound verifier boundary drafted; signature, revocation, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
-| partial | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | confirmation-only restore blocked; verified parent and execution-receipt gates drafted; encryption, revocation, and proof remain open | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
-| partial / code-drafted | [WP07 Child Tamper Uninstall](workpacks/07-child-tamper-uninstall.md) | durable child tamper evidence and parent-authorized revocation boundary drafted; platform removal and validation deferred | `CHILD_TAMPER_UNINSTALL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/07-child-tamper-uninstall/` |
+| partial / independently reviewed source repairs, expected tests open | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | independently reviewed signed envelope/verifier with authority-generation/channel and weak-key binding, typed Grace restriction, and fail-closed read-only signed revocation custody are present; authority verification remains crate-private, no cache mutation writer exists, and the child-runtime entitlement module is not exported. No concrete owner composition, real issuer/key/package/currentness/grace-policy/re-resolution/handle-safe-custody owners, child entitlement action owner/service startup caller, signed delivery caller, expected tests, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
+| partial / independently reviewed source repair integrated, expected-test rewrites open | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | integrated through `f656a80a1`: raw installation-generation re-pair is removed; encrypted bundle construction fails closed without key custody; import preflight requires an exact current tombstone cursor; the dead apply/authority seam is unconditionally blocked until an owner-bound cursor token can be reread at apply. No encrypted custody owner, durable revocation cursor owner, authorized re-pair producer, real executor, shipped caller, current-boundary tests, or proof exists. Data WP05 candidate `e91bb3de1` must rebase and preserve this safety boundary | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
+| partial / source accepted, expected tests open | [WP07 Child Tamper Uninstall](workpacks/07-child-tamper-uninstall.md) | durable removal/tamper custody and trust-bound readiness are integrated; parent transport, platform removal/attestation, expected tests, and proof remain open | `CHILD_TAMPER_UNINSTALL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/07-child-tamper-uninstall/` |
 | docs-only | [WP08 Open Source Dependency Adoption](workpacks/08-open-source-dependency-adoption.md) | audit reset | `DEPENDENCY_RESEARCH_AND_ADOPTION.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/` |
 | partial | [WP09 Cross Plan Route Gate](workpacks/09-cross-plan-route-gate.md) | audit reset | `ROUTE_INDEX.md`, adjacent plan/feature route indexes | `output/device-trust-bootstrap-plan-proof/09-cross-plan-route-gate/` |
 
@@ -39,35 +39,122 @@ WP02, WP03, WP04, WP05, WP06, and WP07 have bounded production contracts or
 fail-closed local state, but none has a complete shipped cryptographic/device
 authority path for the missing behavior. WP08 and WP09 remain research/route
 work only. In particular, `ParentDeviceTrustCommandFacade` and the Windows
-custody implementation have no registered external production caller; the
-entitlement verifier and restore executor are unavailable-by-default ports;
+custody implementation have no registered external production caller, and
+`require_authenticated_parent_authority()` is permanently unavailable before
+custody mutation; the entitlement verifier and restore executor are
+unavailable-by-default ports;
 the QR and step-up paths have no ceremony issuer/nonce consumer; and child
 removal still stops at durable evidence/manual-required platform cleanup.
 
-This audit records source reachability only. It does not treat tests, proof,
-static status, synthetic challenges/receipts, generic JSON, or public DTOs as
-authority and does not change any workpack to complete. No production edit was
-legal without a real owner and caller; the next owner is the platform/passkey
-ceremony composition required before WP02/WP03 can advance. The graph validator
-also reports checked-in graph/source drift, so graph JSON was not regenerated
-in this lane.
+This audit records source reachability only. It does not treat stale lifecycle
+tests, synthetic probes, proof, static status, synthetic challenges/receipts,
+generic JSON, or public DTOs as authority and does not change any workpack to
+complete. No target-authority
+edit is legal without Account WP08's canonical binding and Cloudflare WP06's
+durable repository/caller; the platform/passkey ceremony composition follows
+those owners. The graph validator reported checked-in graph/source drift during
+the prior audit; the 2026-08-17 coordinator updates record bounded reviewed
+implementation and dependency evidence without changing any DONE state.
+
+## Current implementation-phase disposition — 2026-08-24
+
+The accepted Device Trust lifecycle/current-binding continuation remains, but
+the later private runtime-fence packet is rejected and withdrawn. The graph no
+longer records its deleted participant/helper paths as implementation evidence.
+WP01 is blocked on protected Device-owned receipt custody, versioned migration,
+bounded retention/archive policy, and a real Account WP05A caller before the
+participant can be reintroduced. Expected tests, lifecycle-test migration,
+functional validation, proof, repo-wide acceptance, platform custody, and
+broader lifecycle composition remain open.
+
+WP05's signed authority source packet and absent child-runtime entitlement
+consumer are independently reviewed source repairs with expected tests open;
+WP06's fail-closed restore
+boundary and WP07's durable removal/readiness boundary are also source-only,
+not test/proof/completion claims. WP05 still requires external
+issuer/key/package/currentness/trusted-time/grace-policy/revocation and
+handle-safe-custody owners; no entitlement startup route is exported. WP03 remains
+BLOCKED in the default graph on
+WP01, Account WP08, and Cloudflare WP06. The reviewed-implementation edges do
+not authorize the bounded WP03 source packet yet: Cloudflare WP06 still lacks
+its planned authoritative caller/writer source evidence. Account WP02 is the
+only authority-chain workpack currently eligible for implementation-only work;
+the default dependency state does not change, and the route does not provide
+ceremony authority, provider authority, tests, proof, runtime reachability, or
+completion. WP02 is not a default WP26 dependency. If the
+platform sealing/lifecycle-revocation path is selected, the reviewed WP26 ->
+WP02 gate must be added and completed before the LAN/child consumer route is
+assigned; the non-sealing route remains free of that optional dependency.
 
 ## Default execution order
 
 ```text
-WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
+WP01 foundation/source ------------------------------+
+Account WP08 -> Account WP02 target authority --------+
+Cloudflare WP06 authoritative writer/provider caller -+-> WP03 parent ceremony participant
+                                                        +-> Account WP05A multi-owner fence
+                                                        +-> LAN WP26 / child current-binding consumer
+WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
+WP02 parent-runtime/platform sealing + revocation is a conditional gate on the
+LAN/child consumer route only when a private-key/install custody path is selected.
+The default non-sealing route does not force WP02; a selected route carries the
+reviewed WP26 -> WP02 edge and waits for WP02 completion. WP02 cannot create
+ceremony authority.
 ```
+
+### Conditional WP02 graph gate
+
+The graph has one reviewed dependency shape: `depends_on` edges are hard by
+default, and `implementationGate: "reviewed-implementation"` permits only a
+separately reviewed source phase. It has no always-on optional edge toggle, so
+the default graph intentionally keeps WP02 out of WP26's hard dependency list.
+
+When a platform sealing/lifecycle-revocation path is selected, promote the
+following reviewed edge in `docs/engineering-graph/overrides.json`, add WP02 to
+the matching WP26 `hardDependencies`, and regenerate/validate the graph before
+assigning the consumer:
+
+```text
+from = WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff
+to = WP-device-trust-bootstrap-plan-02-local-key-sealing
+kind = depends_on; confidence = reviewed
+implementationGate = reviewed-implementation (source phase only)
+```
+
+That selected route cannot proceed until WP02's sealing, lifecycle-generation,
+and revocation handoff is complete. The edge points downstream from WP26 to
+WP02 and does not point back to WP03, so it cannot create a cycle. If the
+platform path is not selected, the edge remains absent and the Account WP08 ->
+Account WP02 target authority -> Cloudflare WP06 -> WP03 -> LAN/child route
+does not force Device Trust WP02.
 
 ## Dependency rules
 
 ```text
 WP01 establishes trust state/source of truth.
-WP02 depends on WP01 and blocks key/trust persistence claims.
-WP03 depends on WP01/WP02 and blocks high-risk action approval claims.
+WP02 owns only the downstream parent-runtime/platform sealing, lifecycle
+composition, and revocation bridge; it cannot mint or substitute parent
+ceremony authority. Its WP01 foundation edge is a reviewed conditional gate for
+the selected platform-custody route, not a prerequisite for the default Account
+-> Cloudflare -> WP03 -> LAN/child route.
+WP03 depends on WP01, Account Identity WP08, and Cloudflare WP06 and blocks
+high-risk action approval claims. Target-aware Account WP02 is consumed
+transitively through WP06; it is not duplicated as a direct WP03 edge. Device
+Trust WP02 is conditional only for a demonstrated private-key/install custody
+requirement.
 WP04 depends on WP03 and blocks phone/QR approval claims.
-WP05 depends on WP01/WP02 and payment handoff; license never unlocks behavior alone.
+WP05 depends on WP01. WP02 is conditional only when the selected entitlement
+route requires local-key-sealing/lifecycle-revocation custody; payment remains
+a typed handoff with no hard graph edge until its exact producer workpack is
+named. License never unlocks behavior alone.
 WP06 depends on WP02/WP03/WP04 and blocks recovery/reset claims.
 WP07 depends on WP01/WP02/WP06 and blocks child uninstall/tamper claims.
+LAN WP26 and any child current-binding consumer are ordered after WP03's
+one-time `RegisterLanSignerAnchor` ceremony; they consume the current binding
+and revocation state and do not register signer authority locally. If the
+platform sealing/lifecycle-revocation path is selected, the reviewed WP02 gate
+must also be complete before this consumer route proceeds; the default route
+does not force WP02.
 WP08 can run in parallel as research but cannot approve adoption without proof.
 WP09 is last and consumes all previous proof roots.
 ```

@@ -60,6 +60,16 @@ emit small structured fields
 avoid raw dumps in log fields
 ```
 
+## Accepted source-wave reconciliation (2026-08-17)
+
+The accepted source head `735df89de` confirms that `Logger.serializeData`
+sanitizes structured data before JSON serialization, and the portal
+compatibility fallback sanitizes its entry fields before its JSON body is
+serialized. Both paths consume the generated Rust-owned 18-key policy through
+`redactStructuredLogValue`; neither path owns an alternate local regex/policy.
+This does not establish repo-wide instrumentation adoption, test/proof
+closure, or external product/runtime composition.
+
 ## Required proof root
 
 ```text
@@ -221,6 +231,14 @@ The current bounded proof is real:
 - the shared query service and MCP server now have a canonical source/context proof against a temporary local bridge root.
 
 Treat WP08 as honest `partial-proof`, not as full repo instrumentation completion. The proof root narrows the claim to the portal dev logger path, the logging-domain storage/query path, and the agent-service startup/dev-log path.
+
+The accepted `720609306` source delta additionally routes shared logger data
+through the canonical fail-closed sanitizer. Unsupported primitives/objects,
+cycles, throwing accessors/proxies, and failed serializers are converted into
+JSON-safe markers; Date/URL/custom-`toJSON` values retain bounded native
+semantics. No new expected tests were written. The later test wave must prove
+bridge serialization never throws or silently drops these values and that
+custom serializers receive root/property/array keys exactly once.
 
 ## Current completion block
 

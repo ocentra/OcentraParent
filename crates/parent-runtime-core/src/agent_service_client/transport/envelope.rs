@@ -1,5 +1,4 @@
-use std::time::{SystemTime, UNIX_EPOCH};
-
+use chrono::{SecondsFormat, Utc};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::{
@@ -14,14 +13,20 @@ use super::super::payload_fields::serialized_enum_label;
 
 pub(super) fn lan_command_envelope(
     command: AgentCommandName,
-    payload: LogFields,
+    mut payload: LogFields,
     context: Option<&ParentRouteContext>,
     route: AgentRoute,
-) -> AgentCommandEnvelope {
-    AgentCommandEnvelope {
+) -> Result<(AgentCommandEnvelope, String), String> {
+    let request_nonce = request_nonce()?;
+    payload.insert(
+        constants::field::REQUEST_NONCE.to_string(),
+        ocentra_parent_agent_protocol::logging::LogFieldValue::String(request_nonce.clone()),
+    );
+    let sent_at = Utc::now().to_rfc3339_opts(SecondsFormat::Millis, true);
+    let envelope = AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: command_message_id(&command),
-        sent_at: String::new(),
+        message_id: command_message_id(&command, &request_nonce),
+        sent_at,
         source: AgentPeer {
             peer_id: constants::peer::PORTAL_DEV.to_string(),
             role: AgentPeerRole::Portal,
@@ -33,7 +38,8 @@ pub(super) fn lan_command_envelope(
         },
         command,
         payload,
-    }
+    };
+    Ok((envelope, request_nonce))
 }
 
 pub(super) fn header_value(value: &str) -> Result<HeaderValue, String> {
@@ -65,12 +71,17 @@ fn host_platform() -> &'static str {
     }
 }
 
-fn command_message_id(command: &AgentCommandName) -> String {
+fn request_nonce() -> Result<String, String> {
+    let mut bytes = [0_u8; 32];
+    getrandom::fill(&mut bytes)
+        .map_err(|error| format!("parent Rust facade request nonce generation failed: {error}"))?;
+    Ok(bytes.iter().map(|byte| format!("{byte:02x}")).collect())
+}
+
+fn command_message_id(command: &AgentCommandName, request_nonce: &str) -> String {
     let command_name = serialized_enum_label(command);
-    let millis = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .ok()
-        .map(|value| value.as_millis())
-        .unwrap_or_default();
-    format!("parent-ui-bridge-{command_name}-{millis}")
+    format!(
+        "parent-ui-bridge-{command_name}-{}",
+        super::request_nonce_digest(request_nonce)
+    )
 }

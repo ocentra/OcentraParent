@@ -32,9 +32,9 @@ impl HouseholdMeshBridgeReport {
             event
                 .decode::<HouseholdMeshBridgeEventPayload>()
                 .map(|envelope| {
-                    envelope.payload.custody.remote_direct_publish_allowed
-                        || envelope.payload.custody.raw_screenshot_transferred
-                        || envelope.payload.custody.private_local_event_exported
+                    envelope.payload().custody.remote_direct_publish_allowed
+                        || envelope.payload().custody.raw_screenshot_transferred
+                        || envelope.payload().custody.private_local_event_exported
                 })
                 .unwrap_or(true)
         })
@@ -44,7 +44,7 @@ impl HouseholdMeshBridgeReport {
 pub async fn publish_household_mesh_bridge_chain_for_input(
     input: HouseholdMeshBridgeInput,
 ) -> Result<HouseholdMeshBridgeReport, EventingError> {
-    let spine = HouseholdMeshBridgeSpine::with_default_handlers().await?;
+    let spine = HouseholdMeshBridgeSpine::without_owner_handlers();
     spine.publish_input_chain(input).await
 }
 

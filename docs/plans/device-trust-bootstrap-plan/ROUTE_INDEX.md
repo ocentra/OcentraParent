@@ -33,12 +33,26 @@ portal plans own projection/UI only.
 ## Handoffs
 
 - `setup-install-provisioning-plan` hands install and pairing flow into this plan for trust sealing and step-up.
-- `account-identity-family-plan` hands account and household authority into this plan for trusted-device bootstrap.
+- `account-identity-family-plan` hands the WP08 sealed binding plus WP02
+  target-aware actor/action authority to Cloudflare WP06. Cloudflare WP06 then
+  hands live authoritative currentness from its writer/provider caller into
+  Device Trust WP03. WP02 is transitive through WP06; no reverse edge exists.
 - `data-custody-storage-plan` consumes the trust layer for encrypted storage and recovery artifacts.
 - `remote-access-plan` consumes the trust layer for standing live access grants.
 - `payment-subscription-plan` consumes the trust layer for device-bound entitlement unlock, but keeps entitlement policy ownership.
 - `policy-control-plane-plan` consumes the trust layer for policy delivery and high-risk approval gating.
 - `parent-client-runtime-distribution-plan` and `child-agent-runtime-distribution-plan` remain the owners of packaging, signing, and install mechanics.
+
+Current ordered handoff:
+
+```text
+Account WP08 -> Account WP02 -> Cloudflare WP06 -> Device Trust WP03 -> LAN WP26 / child consumers
+```
+
+Device Trust WP03 must resolve the parent-controller actor separately from the
+target child/profile/device for `RegisterLanSignerAnchor` and consume both live
+Account and Device Trust currentness. The missing planned target-authority and
+parent-runtime source roots keep this route blocked.
 
 ## Stop rule
 

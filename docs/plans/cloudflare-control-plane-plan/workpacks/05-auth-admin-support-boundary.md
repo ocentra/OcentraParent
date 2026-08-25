@@ -21,11 +21,36 @@ Define the auth-state model and adapter interface for parent, admin, support, we
 - [AUTH_BOUNDARY_MODEL.md](../AUTH_BOUNDARY_MODEL.md)
 - `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/`
 
+## Implementation-only legal packet (2026-08-17)
+
+Account WP01 selected Firebase Auth as the external identity provider. This
+workpack may implement only the Worker-side provider verification adapter and
+its explicit environment/configuration custody. The legal source boundary is:
+
+- `infra/cloudflare/src/providers/firebase-auth.ts`
+- `infra/cloudflare/src/env.ts`
+- `infra/cloudflare/src/auth/verifier.ts`
+- `infra/cloudflare/src/index.ts`
+- `infra/cloudflare/wrangler.toml`
+- `infra/cloudflare/wrangler.production.toml`
+- `infra/cloudflare/.dev.vars.example`
+
+The adapter must be fail-closed and return only a verified Firebase provider
+subject. It must not accept family/device claims, fixture/header authority,
+fake issuers, or unverified JWTs. This packet authorizes source edits only;
+normal tests, proof, deployment-secret, runtime, PR, and DONE gates remain open.
+Provider-verified parent, trusted-device, admin, and support routes remain
+`503` / `manual-required` after subject verification until WP06 supplies a
+server-derived account/household/device binding context. Caller-supplied
+household, child-profile, or child-device headers are ignored and cannot invoke
+the D1 authority store or establish family/device authority.
+
 ## Acceptance
 
 - Auth states are explicit.
 - Adapter methods are explicit.
-- Unsupported auth-provider assumptions are marked manual-required.
+- Firebase verification assumptions are explicit and missing trust/configuration
+  remains manual-required.
 
 ## Proof IDs
 
@@ -47,7 +72,11 @@ Define the auth-state model and adapter interface for parent, admin, support, we
 
 ## Failure conditions
 
-- Do not hardcode the account provider before the account plan decides it.
+- Do not treat Firebase identity claims as family/device authority.
+- Do not permit local fixture mode or caller headers to satisfy production
+  provider verification.
+- Do not use caller-supplied household, child-profile, or child-device headers
+  as a substitute for the WP06 server-derived binding context.
 
 ## Execution truth
 
@@ -56,6 +85,7 @@ Status: `blocked / proof-present`.
 Implemented packet:
 
 - `infra/cloudflare/src/auth/verifier.ts`
+- `infra/cloudflare/src/auth/provider-webhook.ts`
 - `infra/cloudflare/tests/unit/auth-boundary.test.ts`
 - `infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts`
 
@@ -64,6 +94,17 @@ Focused outcome:
 - Webhook auth now treats unresolved and unknown auth-adapter modes as `manual-required` instead of falling through to provider-signature evaluation.
 - Unit auth coverage now proves the same `manual-required` boundary for provider webhooks.
 - Integration webhook rejection coverage now proves the same `manual-required` boundary at the Worker request surface.
+
+## 2026-08-18 provider-webhook source correction
+
+Provider webhook verification is now a separate source boundary in
+`infra/cloudflare/src/auth/provider-webhook.ts`. Stripe has a real
+timestamped HMAC verification path with explicit secret and tolerance checks;
+Razorpay, PayPal, Apple, and Google return explicit unavailable/manual-required
+blockers. This removes the former fake/non-Stripe verification path without
+creating provider, family, household, admin, support, or device authority.
+Tests, retained proof, deployment secrets, runtime reachability, and DONE
+remain open.
 
 External blocker:
 

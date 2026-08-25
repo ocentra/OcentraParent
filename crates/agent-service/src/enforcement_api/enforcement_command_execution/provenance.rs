@@ -30,6 +30,30 @@ pub(super) fn record_audit_provenance(
         .for_each(|provenance| provenance.record(fields));
 }
 
+pub(super) fn audit_provenance_matches(
+    fields: &LogFields,
+    provenance: Option<EnforcementAuditProvenance>,
+) -> bool {
+    match provenance {
+        Some(EnforcementAuditProvenance::AppGameAdapterDispatch) => {
+            fields.get(constants::field::SOURCE_READ_MODEL_ID)
+                == Some(&LogFieldValue::String(
+                    APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID.to_string(),
+                ))
+                && fields.get(constants::field::EXECUTION_COMMAND_NAME)
+                    == Some(&LogFieldValue::String(
+                        APP_GAME_ADAPTER_DISPATCH_EXECUTE_COMMAND.to_string(),
+                    ))
+        }
+        None => {
+            fields.get(constants::field::SOURCE_READ_MODEL_ID).is_none()
+                && fields
+                    .get(constants::field::EXECUTION_COMMAND_NAME)
+                    .is_none()
+        }
+    }
+}
+
 impl EnforcementAuditProvenance {
     fn record(self, fields: &mut LogFields) {
         let source_read_model_id = match self {

@@ -262,6 +262,16 @@ limit above max is clamped or rejected
 
 This workpack does not implement the raw logging writers or command wrappers. It exposes the query interface over data created by WP02/WP05.
 
+## Accepted source and expected-test delta (2026-08-17)
+
+`scripts/dev/lib/log-query-service.mjs` now resolves canonical real paths,
+rejects symlink/reparse traversal and recursive symlink entries, and emits only
+workspace-relative or redacted local-root identifiers for malformed NDJSON.
+The later expected-test wave must cover lexical-prefix escapes, symlink and
+junction artifacts, recursive escapes, missing paths, bounded valid reads, and
+malformed-line number/path diagnostics. This does not close all MCP tools,
+DuckDB freshness, bounded result behavior, or checklist/proof acceptance.
+
 ## Fill before DONE or PR-ready
 
 ```text

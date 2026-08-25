@@ -1,12 +1,16 @@
 use std::io::Write;
 use std::net::{Ipv4Addr, Shutdown, SocketAddr, TcpStream};
+use std::sync::atomic::AtomicBool;
 use std::time::Duration;
+use std::time::Instant;
 
 use super::http::{first_xml_text_by_local_name, sanitize_probe_text};
-use super::probe::read_probe_response;
+use super::probe::transport::{
+    poll_timeout, read_probe_response_until, write_all_until, SERVICE_IDENTITY_IO_POLL_SLICE,
+};
 use super::{
     LanServiceIdentityProbeObservation, SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS,
-    SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES, SERVICE_IDENTITY_PROBE_READ_TIMEOUT_MS,
+    SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES,
 };
 
 pub fn probe_wsd_identity_query(
@@ -22,17 +26,40 @@ pub fn probe_wsd_identity_query_at_endpoint(
     endpoint: SocketAddr,
     device_id: Option<&str>,
 ) -> Option<LanServiceIdentityProbeObservation> {
+    let deadline =
+        Instant::now() + Duration::from_millis(SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS);
+    probe_wsd_identity_query_at_endpoint_until(endpoint, device_id, deadline, None)
+}
+
+pub(super) fn probe_wsd_identity_query_until(
+    ip_address: &str,
+    device_id: Option<&str>,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<LanServiceIdentityProbeObservation> {
+    let ip_address = ip_address.parse::<Ipv4Addr>().ok()?;
+    let endpoint = SocketAddr::new(ip_address.into(), 5357);
+    probe_wsd_identity_query_at_endpoint_until(endpoint, device_id, deadline, cancellation)
+}
+
+fn probe_wsd_identity_query_at_endpoint_until(
+    endpoint: SocketAddr,
+    device_id: Option<&str>,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<LanServiceIdentityProbeObservation> {
     let device_id = sanitize_wsd_device_id(device_id)?;
-    let timeout = Duration::from_millis(SERVICE_IDENTITY_PROBE_CONNECT_TIMEOUT_MS);
-    let mut stream = TcpStream::connect_timeout(&endpoint, timeout).ok()?;
-    let read_timeout = Some(Duration::from_millis(
-        SERVICE_IDENTITY_PROBE_READ_TIMEOUT_MS,
-    ));
-    let _ = stream.set_read_timeout(read_timeout);
-    let _ = stream.set_write_timeout(read_timeout);
-    write_wsd_metadata_request(&mut stream, &endpoint, &device_id).ok()?;
+    let mut stream = connect_until(endpoint, deadline, cancellation)?;
+    stream
+        .set_read_timeout(Some(SERVICE_IDENTITY_IO_POLL_SLICE))
+        .ok()?;
+    stream
+        .set_write_timeout(Some(SERVICE_IDENTITY_IO_POLL_SLICE))
+        .ok()?;
+    let request = wsd_metadata_request(&endpoint, &device_id);
+    write_all_until(&mut stream, request.as_bytes(), deadline, cancellation)?;
     let _ = stream.shutdown(Shutdown::Write);
-    let response = read_probe_response(&mut stream)?;
+    let response = read_probe_response_until(&mut stream, deadline, cancellation)?;
     parse_wsd_probe_observation(&response)
 }
 
@@ -54,6 +81,10 @@ pub fn write_wsd_metadata_request<W: Write>(
     endpoint: &SocketAddr,
     device_id: &str,
 ) -> std::io::Result<()> {
+    stream.write_all(wsd_metadata_request(endpoint, device_id).as_bytes())
+}
+
+fn wsd_metadata_request(endpoint: &SocketAddr, device_id: &str) -> String {
     let path = format!("/{device_id}");
     let body = format!(
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\
@@ -77,7 +108,25 @@ xmlns:w=\"http://schemas.xmlsoap.org/ws/2004/09/transfer\">\
         body.len(),
         body,
     );
-    stream.write_all(request.as_bytes())
+    request
+}
+
+fn connect_until(
+    endpoint: SocketAddr,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<TcpStream> {
+    loop {
+        match TcpStream::connect_timeout(&endpoint, poll_timeout(deadline, cancellation)?) {
+            Ok(stream) => return Some(stream),
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut
+                ) => {}
+            Err(_) => return None,
+        }
+    }
 }
 
 pub fn parse_wsd_probe_observation(response: &[u8]) -> Option<LanServiceIdentityProbeObservation> {

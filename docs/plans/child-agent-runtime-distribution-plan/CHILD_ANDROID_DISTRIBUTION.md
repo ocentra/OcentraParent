@@ -4,12 +4,13 @@ Purpose: define the child Android package and keep install, runtime, transport, 
 
 ## Production code boundary
 
-The Android package now uses the `ca.ocentra.child.agent` identity and launches
-the child-owned composition foreground service. The service owns an app-private
-composition directory and typed manual-required health state while deliberately
-retaining the existing parent-package Android capability adapters behind the
-child shell. It does not embed the Rust child-runtime crate or provide
-LAN/WebSocket transport because the Android native bridge is not implemented.
+The Android package uses the `ca.ocentra.child.agent` identity, launches the
+child-owned composition foreground service, owns app-private durable custody,
+and embeds a real Rust/JNI bridge to `ocentra-child-runtime`. The bridge starts
+the service without a current Device Trust source, so readiness remains
+fail-closed/manual-required. Binder health is local and transport is explicitly
+`NOT_IMPLEMENTED`; device-owner/managed-profile and removal integration remain
+absent. WP05 follows WP10 reviewed implementation.
 
 ## Validation anchors
 
@@ -22,6 +23,7 @@ LAN/WebSocket transport because the Android native bridge is not implemented.
 - install state is explicit
 - device-owner / managed-profile capability is explicit
 - tamper or uninstall limitations are not hidden
+- missing/stale/revoked trust remains non-ready and authenticated ingress is not inferred from JNI/Binder composition
 
 ## Failure conditions
 

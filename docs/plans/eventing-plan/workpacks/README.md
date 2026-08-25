@@ -29,4 +29,6 @@ Default worker path:
    `DONE` or `PR_READY`.
 
 Household Mesh consumer proof is covered by `scripts/test/eventing-household-mesh-consumer-proof.mjs`
-and the `12-household-mesh-consumer-proof.log` row in the checklist.
+and the `10-household-mesh-consumer-proof.log` row in the checklist. The harness
+and proof remain absent until WP10 closes its LAN WP26 dependency and consumer
+implementation.

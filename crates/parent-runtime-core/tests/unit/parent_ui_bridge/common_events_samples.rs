@@ -343,6 +343,7 @@ pub(crate) fn sample_network_flow_read_model() -> ActivityNetworkFlowReadModel {
             process_attribution_status: "reported".to_string(),
             process_id: Some(4420),
             process_name: Some("notepad.exe".to_string()),
+            associated_pid_count: Some(1),
             counters: ActivityNetworkFlowCounters {
                 connection_count: 1,
                 bytes_sent: Some(2048),

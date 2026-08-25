@@ -1,10 +1,15 @@
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{
+    de::{DeserializeOwned, Deserializer},
+    Deserialize, Serialize,
+};
 
 use crate::{
     AggregateKey, CausationId, CorrelationId, EventClockInstant, EventCustody, EventId, EventType,
     EventingError, IdempotencyKey, RecordedAt, RuntimeInstanceId, RuntimeRole, SchemaVersion,
     SourceComponent, SourceService, TargetHandler,
 };
+
+mod accessors;
 
 pub trait DomainEvent: Clone + Send + Sync + Serialize + DeserializeOwned + 'static {
     fn contract(&self) -> Result<EventContract, EventingError>;
@@ -131,22 +136,75 @@ impl EventMetadata {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct EventEnvelope<E> {
-    pub contract: EventContract,
-    pub event_id: EventId,
-    pub correlation_id: CorrelationId,
-    pub causation_id: Option<CausationId>,
-    pub aggregate_key: AggregateKey,
-    pub idempotency_key: IdempotencyKey,
-    pub source: EventSource,
-    pub observed_at: RecordedAt,
-    pub target_handler: Option<TargetHandler>,
-    pub priority: EventPriority,
+#[derive(Clone, Debug, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", bound(serialize = "E: Serialize"))]
+pub struct EventEnvelope<E: DomainEvent> {
+    contract: EventContract,
+    event_id: EventId,
+    correlation_id: CorrelationId,
+    causation_id: Option<CausationId>,
+    aggregate_key: AggregateKey,
+    idempotency_key: IdempotencyKey,
+    source: EventSource,
+    observed_at: RecordedAt,
+    target_handler: Option<TargetHandler>,
+    priority: EventPriority,
     #[serde(default)]
-    pub deadline: Option<EventClockInstant>,
-    pub payload: E,
+    deadline: Option<EventClockInstant>,
+    payload: E,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", bound(deserialize = "E: Deserialize<'de>"))]
+struct EventEnvelopeWire<E> {
+    contract: EventContract,
+    event_id: EventId,
+    correlation_id: CorrelationId,
+    #[serde(default)]
+    causation_id: Option<CausationId>,
+    aggregate_key: AggregateKey,
+    idempotency_key: IdempotencyKey,
+    source: EventSource,
+    observed_at: RecordedAt,
+    target_handler: Option<TargetHandler>,
+    #[serde(default)]
+    priority: EventPriority,
+    #[serde(default)]
+    deadline: Option<EventClockInstant>,
+    payload: E,
+}
+
+impl<'de, E> Deserialize<'de> for EventEnvelope<E>
+where
+    E: DomainEvent + DeserializeOwned,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = EventEnvelopeWire::<E>::deserialize(deserializer)?;
+        validate_payload_identity(
+            &wire.payload,
+            &wire.contract,
+            &wire.aggregate_key,
+            &wire.idempotency_key,
+        )
+        .map_err(|error| <D::Error as serde::de::Error>::custom(error.to_string()))?;
+        Ok(Self {
+            contract: wire.contract,
+            event_id: wire.event_id,
+            correlation_id: wire.correlation_id,
+            causation_id: wire.causation_id,
+            aggregate_key: wire.aggregate_key,
+            idempotency_key: wire.idempotency_key,
+            source: wire.source,
+            observed_at: wire.observed_at,
+            target_handler: wire.target_handler,
+            priority: wire.priority,
+            deadline: wire.deadline,
+            payload: wire.payload,
+        })
+    }
 }
 
 impl<E> EventEnvelope<E>
@@ -171,6 +229,12 @@ where
     }
 
     pub fn store(&self) -> Result<StoredEventEnvelope, EventingError> {
+        validate_payload_identity(
+            self.payload(),
+            &self.contract,
+            &self.aggregate_key,
+            &self.idempotency_key,
+        )?;
         Ok(StoredEventEnvelope {
             contract: self.contract.clone(),
             event_id: self.event_id.clone(),
@@ -183,7 +247,7 @@ where
             target_handler: self.target_handler.clone(),
             priority: self.priority,
             deadline: self.deadline,
-            payload: StoredEventPayload::from_event(&self.payload)?,
+            payload: StoredEventPayload::from_event(self.payload())?,
         })
     }
 }
@@ -234,22 +298,25 @@ pub struct StoredEventEnvelope {
 }
 
 impl StoredEventEnvelope {
+    /// Decodes the typed payload and revalidates every payload-derived envelope field.
+    ///
+    /// This is a structural/type boundary, not an integrity primitive. Persisted
+    /// envelopes must reach this method through a journal read that has already
+    /// verified its hash chain; decoding raw caller-supplied JSON does not prove
+    /// the remaining transport metadata authentic.
     pub fn decode<E>(&self) -> Result<EventEnvelope<E>, EventingError>
     where
         E: DomainEvent,
     {
-        let payload: E = self.payload.decode().map_err(|error| {
+        let payload: E = self.payload.decode::<E>().map_err(|error| {
             EventingError::payload_decode(self.contract.event_type.clone(), &error)
         })?;
-        let expected = payload.contract()?;
-        if expected != self.contract {
-            return Err(EventingError::ContractMismatch {
-                expected: expected.event_type,
-                received: self.contract.event_type.clone(),
-                expected_schema_version: expected.schema_version,
-                received_schema_version: self.contract.schema_version,
-            });
-        }
+        validate_payload_identity(
+            &payload,
+            &self.contract,
+            &self.aggregate_key,
+            &self.idempotency_key,
+        )?;
         Ok(EventEnvelope {
             contract: self.contract.clone(),
             event_id: self.event_id.clone(),
@@ -269,4 +336,37 @@ impl StoredEventEnvelope {
     pub fn is_deadline_expired(&self, now: EventClockInstant) -> bool {
         self.deadline.is_some_and(|deadline| now >= deadline)
     }
+}
+
+fn validate_payload_identity<E>(
+    payload: &E,
+    contract: &EventContract,
+    aggregate_key: &AggregateKey,
+    idempotency_key: &IdempotencyKey,
+) -> Result<(), EventingError>
+where
+    E: DomainEvent,
+{
+    let expected = payload.contract()?;
+    if expected != *contract {
+        return Err(EventingError::ContractMismatch {
+            expected: expected.event_type,
+            received: contract.event_type.clone(),
+            expected_schema_version: expected.schema_version,
+            received_schema_version: contract.schema_version,
+        });
+    }
+    if payload.aggregate_key()? != *aggregate_key {
+        return Err(EventingError::invalid_value(
+            "stored_event.aggregate_key",
+            "[redacted mismatch]",
+        ));
+    }
+    if payload.idempotency_key()? != *idempotency_key {
+        return Err(EventingError::invalid_value(
+            "stored_event.idempotency_key",
+            "[redacted mismatch]",
+        ));
+    }
+    Ok(())
 }

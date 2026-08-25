@@ -7,9 +7,15 @@ import {
 import { type Infer, Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 import {
   GeneratedLogLevel,
+  GeneratedDevLogEndpoint,
+  GeneratedDevLogEnvironment,
+  GeneratedDevLogFile,
+  GeneratedDevLogField,
+  GeneratedDevLogIdPrefix,
+  GeneratedLogSource,
+  GeneratedDevLogMessage,
   type GeneratedLogLevel as GeneratedLogLevelValue,
   type GeneratedLogMessage,
-  GeneratedLogSource,
   type GeneratedLogSource as GeneratedLogSourceValue,
   type GeneratedStackTrace,
   LoggingContractRuntime,
@@ -27,6 +33,17 @@ import {
   type GeneratedLogSnapshotState,
   type GeneratedLogTimestamp,
 } from './generated-logging-contracts';
+
+export {
+  GeneratedDevLogEndpoint,
+  GeneratedDevLogEnvironment,
+  GeneratedDevLogFile,
+  GeneratedDevLogField,
+  GeneratedDevLogIdPrefix,
+  GeneratedDevLogMessage,
+  GeneratedLogLevel,
+  GeneratedLogSource,
+};
 
 export const AgentDeviceIdSchema = EventAgentDeviceIdSchema;
 export const AgentHostnameSchema = brandedNonEmptyStringSchema('AgentHostname');

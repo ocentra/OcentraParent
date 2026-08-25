@@ -169,7 +169,12 @@ parent-visible receipt claims are considered.
   proof until this contradiction is removed.
 - Approval/audit/read-model visibility gaps remain open in WP10, WP11, WP12,
   WP13, and WP14. WP11's Eventing prerequisite is documented by a durable manifest; WP11
-  remains open until its own durable audit/journal contract and query proof exist.
+  now has a focused-green completed-command retry/recovery seam that returns the
+  exact persisted report without adapter reexecution and fails closed on
+  before-only, missing-store, incomplete, or mismatched custody. WP11 remains
+  open until the remaining approval/denial/expiry/override transition families
+  and its enforcement-specific durable query/proof contract are complete. This
+  slice does not authorize WP04 dispatch or trusted adapter execution.
 - Integrity and anti-claim boundaries remain open in WP15, WP16, and WP17.
 - Playwright/UI and rollout gate closure remain open in WP19 and WP20.
 - Notification delivery, exact-URL control, network blocking, broad app

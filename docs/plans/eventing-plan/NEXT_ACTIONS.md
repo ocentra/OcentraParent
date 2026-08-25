@@ -25,12 +25,23 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
+- [08 Parent Runtime Integration](workpacks/08-parent-runtime-integration.md)
+  now has only the safe service edge: malformed input is rejected and a valid
+  intent marker is manual-required with no journal/publish/transport claim.
+  Do not add a success branch until Account WP03, Tracking WP40, Policy
+  WP03/WP04/WP08, Enforcement WP11, and Child Runtime WP10 provide their
+  reviewed public owners. After those source packets land, implement the one
+  deep parent-runtime ingress composer, then write the two expected test roots.
 - [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
-  is the single legal READY code packet. Implement only the reviewed
-  agent-core/agent-service ingestion-time publish, deterministic identity,
-  durable network-journal, startup-recovery, and read-side-effect removal
-  boundary; tests, proof, CI, review, and
-  merge remain later gates.
+  is the active bounded production packet. The reviewed agent-core/agent-service
+  ingestion-time publish, deterministic identity, durable network journal,
+  startup recovery, fail-closed reconciliation, projection-only reads, and
+  expected focused tests are implemented and locally green. AI and portal
+  direct-enforcement mutation negatives are now real code/tests. Local ignored
+  evidence exists at
+  `output/eventing-plan-proof/09-network-consumer-event-chain/`; normal
+  pre-commit and accepted commits are pushed, while whole-plan integration,
+  CI, review, and merge remain open.
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
   is open because the expected local proof roots remain absent and the
   LAN/remote-access consumer handoff still needs exact verification.
@@ -39,35 +50,43 @@ This file is the short resume list for the next worker. It is derived from open 
   `00-enforcement-wp11-handoff.md`, journal/replay proof, topology/lineage
   proof, and compact validation log are retained. This is a generic Eventing
   prerequisite only; enforcement retains authority/action/rollback proof.
-- WP11 is now locally proved: the scoped proof roots remain present, package-wide
-  `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`
-  passes again, focused `policy-control-audit-redaction.test.ts`,
-  `policy-control-delivery-read-model.test.ts`, and `contracts.test.ts` pass,
-  and the touched-file `lint:architecture` gate is green.
-- WP12 is now locally proved at
-  `output/eventing-plan-proof/rollout-proof/proof-summary.json`,
-  `test-results/eventing-rollout-proof/proof.json`, and
-  `docs/proof/eventing-plan/`.
-- WP13 is now locally proved at
-  `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json`
-  and `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
-- Next slice: verify the owning LAN/remote-access proof handoff for WP10 before
-  changing its local status.
+- WP11 is now in validation: production source is independently accepted and
+  integrated through `fa1230661`, and the routed test-source packet is
+  integrated at canonical `ac5d41322` across the three target harnesses. Their
+  `--no-run` compilation is current. Keep it open for actual test execution,
+  retained proof regeneration, checklist rows 63-68, and completion review; no
+  source/test presence or compile-only result is a DONE claim.
+- WP12 remains blocked because `scripts/test/eventing-rollout-proof.mjs` and
+  `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent, and its
+  WP09/WP10/WP13 prerequisites remain incomplete.
+- WP13 remains in validation for the moved test layout; current validation/proof
+  is open and must include `cargo test -p ocentra-eventing --test contract`.
+- Next slice: route LAN WP26 authority/transport composition for WP10, then
+  regenerate the canonical WP10 proof root before changing its status.
 
 ## WP09 production-route boundary
 
 - Contracts in `agent-protocol` are not production event-chain proof.
-- The current capture path does not publish once at ingestion into a durable
-  network consumer chain; the service read API republishes rows through an
-  in-memory `OnceCell`/`EventBus::new` spine, and phase subscribers are no-op
-  routing surfaces.
-- `TEST_*` phase refs and test-created journal paths do not establish a
-  production network journal or startup recovery before readiness.
-- WP09 is READY for implementation only. Do not mark it done, claim live
-  capture/enforcement, or use its future code slice to unblock Network WP04
-  until tests, retained proof, and the consumer handoff exist. AI, policy,
-  enforcement, audit, and portal remain downstream blocked/fail-closed; nested
-  fixture/prove/`TEST_*` runtime files are not shipped production topology.
+- The current production diff now captures the exact source observation at
+  ingestion, publishes deterministic phase IDs through the network runtime,
+  and persists through a `ProductionFileEventJournal` recovered before the
+  listener. Startup and recurring reconciliation retry retained observations;
+  read and stream APIs consume projection only and do not republish.
+- `TEST_*` phase refs and test-created journal paths remain proof/test material;
+  they do not establish acceptance. The production spine registers no phase
+  subscribers or handlers and emits only `FlowObserved`, `DomainObserved` when
+  present, and `ActivityClassified`. Downstream AI, policy, enforcement, audit,
+  and portal consumers remain blocked/fail-closed; no completion event is
+  synthesized for them.
+- Queue/drain and local request-response helpers have no shipped network
+  consumer caller. Do not wire them solely to satisfy an obsolete proof row.
+- WP09 Phase 1 production code and expected focused tests are written. Focused
+  Eventing, protocol, core, ActivityStore, service, parent-runtime, and portal
+  tests plus changed-file architecture/Enforcer gates pass locally. The local
+  proof manifest is regenerable but ignored. Do not mark the workpack done,
+  claim live capture/enforcement, or use it to unblock Network WP04 until the
+  final integration gates land; nested fixture/prove/`TEST_*` runtime files are
+  not shipped production topology.
 
 ## PR readiness guard
 

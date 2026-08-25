@@ -2,6 +2,9 @@ use ocentra_schema::encryption_key_custody as contracts;
 
 use super::DecryptAttemptInput;
 
+#[path = "encryption_key_custody_scope.rs"]
+mod encryption_key_custody_scope;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct DecryptAttemptOutcome {
     pub state: contracts::DecryptDecisionState,
@@ -16,6 +19,9 @@ pub(super) fn decrypt_attempt_outcome(
     platform_row: &contracts::PlatformKeyCustodyRow,
     input: &DecryptAttemptInput,
 ) -> DecryptAttemptOutcome {
+    if platform_row.surface != input.surface {
+        return encryption_key_custody_scope::surface_mismatch_outcome();
+    }
     if !input.household_match || input.key_state == contracts::KeyCustodyState::WrongHousehold {
         return wrong_household_outcome();
     }
@@ -44,6 +50,12 @@ pub(super) fn decrypt_attempt_outcome(
         || input.recovery_mode == contracts::RecoveryMode::ParentOwnedRecovery
     {
         return recovery_available_manual_required_outcome();
+    }
+    if !encryption_key_custody_scope::scope_is_authorized(
+        platform_row.decrypt_authority,
+        input.requested_scope,
+    ) {
+        return encryption_key_custody_scope::unauthorized_scope_outcome();
     }
 
     allowed_outcome()

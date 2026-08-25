@@ -244,6 +244,7 @@ fn network_observation() -> ActivityNetworkFlowObservation {
         process_attribution_status: "known".to_string(),
         process_id: Some(55),
         process_name: Some("browser.exe".to_string()),
+        associated_pid_count: Some(1),
         counters: network_counters(),
         evidence: vec![evidence_ref("network-evidence-1", Some("network-digest-1"))],
     }

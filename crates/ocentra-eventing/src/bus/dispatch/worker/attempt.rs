@@ -8,6 +8,7 @@ use super::{EventPublisher, SubscriberRecord};
 mod core;
 mod outcome;
 mod reports;
+mod waiting;
 
 pub(super) async fn dispatch_attempt_report(
     stored: StoredEventEnvelope,

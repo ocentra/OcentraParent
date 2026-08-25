@@ -1,11 +1,19 @@
 package ca.ocentra.parent.agent;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.TextView;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public final class MainActivity extends Activity {
     public static final String EXTRA_START_SCREEN_CAPTURE_PROOF =
@@ -18,6 +26,17 @@ public final class MainActivity extends Activity {
         "ca.ocentra.parent.agent.RUN_APP_GAME_LOCAL_NOTIFICATION_PROOF";
     public static final String EXTRA_RUN_APP_GAME_LOCAL_NOTIFICATION_ACTION_PROOF =
         "ca.ocentra.parent.agent.RUN_APP_GAME_LOCAL_NOTIFICATION_ACTION_PROOF";
+
+    private final ExecutorService runtimePreflightWorker = new ThreadPoolExecutor(
+        1,
+        1,
+        0L,
+        TimeUnit.MILLISECONDS,
+        new ArrayBlockingQueue<Runnable>(1),
+        new RuntimePreflightThreadFactory(),
+        new ThreadPoolExecutor.AbortPolicy()
+    );
+    private volatile boolean activityDestroyed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +78,9 @@ public final class MainActivity extends Activity {
         Bundle screenProof = ChildAndroidScreenCaptureProof.createScreenCaptureBundle();
         Bundle appGameUsageEventsProof =
             AppGameAndroidUsageEventsCapabilityProof.createUsageEventsCapabilityBundle();
-        Bundle appGameUsageEventsPreflight =
-            AppGameAndroidUsageEventsRuntimePreflight.createRuntimePreflightBundle(this);
+        final Bundle[] latestAppGameUsageEventsPreflight = {
+            AppGameAndroidUsageEventsRuntimePreflight.createUnavailableRuntimePreflightBundle()
+        };
         Bundle appGameAccessibilityRuntime =
             AppGameAndroidAccessibilityRuntimeService.createAccessibilityRuntimeBundle();
         Bundle appGameChildRuntimeTransportReceipt =
@@ -95,7 +115,7 @@ public final class MainActivity extends Activity {
                 privilegedProof,
                 screenProof,
                 appGameUsageEventsProof,
-                appGameUsageEventsPreflight,
+                latestAppGameUsageEventsPreflight[0],
                 appGameAccessibilityRuntime,
                 appGameChildRuntimeTransportReceipt,
                 appGameChildRuntimeDelivery,
@@ -120,7 +140,7 @@ public final class MainActivity extends Activity {
                         privilegedProof,
                         screenProof,
                         appGameUsageEventsProof,
-                        appGameUsageEventsPreflight,
+                        latestAppGameUsageEventsPreflight[0],
                         appGameAccessibilityRuntime,
                         appGameChildRuntimeTransportReceipt,
                         appGameChildRuntimeDelivery,
@@ -147,7 +167,7 @@ public final class MainActivity extends Activity {
                         privilegedProof,
                         screenProof,
                         appGameUsageEventsProof,
-                        appGameUsageEventsPreflight,
+                        latestAppGameUsageEventsPreflight[0],
                         appGameAccessibilityRuntime,
                         appGameChildRuntimeTransportReceipt,
                         appGameChildRuntimeDelivery,
@@ -167,6 +187,77 @@ public final class MainActivity extends Activity {
         status.setGravity(Gravity.CENTER);
         status.setPadding(32, 32, 32, 32);
         setContentView(status);
+        final Context applicationContext = getApplicationContext();
+        try {
+            runtimePreflightWorker.execute(new Runnable() {
+                @Override
+                public void run() {
+                    Bundle updatedPreflight;
+                    try {
+                        updatedPreflight =
+                            AppGameAndroidUsageEventsRuntimePreflight.createRuntimePreflightBundle(
+                                applicationContext
+                            );
+                    } catch (RuntimeException error) {
+                        updatedPreflight =
+                            AppGameAndroidUsageEventsRuntimePreflight.createUnavailableRuntimePreflightBundle();
+                        updatedPreflight.putString(
+                            "workerFailure",
+                            error.getClass().getSimpleName()
+                        );
+                    }
+                    final Bundle completedPreflight = updatedPreflight;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (activityDestroyed) {
+                                return;
+                            }
+                            latestAppGameUsageEventsPreflight[0] = completedPreflight;
+                            status.setText(
+                                buildStatusText(
+                                    lifecycleProof,
+                                    storageProof,
+                                    serviceProof,
+                                    permissionProof,
+                                    privilegedProof,
+                                    screenProof,
+                                    appGameUsageEventsProof,
+                                    latestAppGameUsageEventsPreflight[0],
+                                    appGameAccessibilityRuntime,
+                                    appGameChildRuntimeTransportReceipt,
+                                    appGameChildRuntimeDelivery,
+                                    appGameChildRuntimeLocalNotificationProof,
+                                    appGameChildRuntimeNotificationRequestQueue,
+                                    latestForegroundLocationProof[0],
+                                    latestFusedForegroundLocationProof[0],
+                                    TrackingAndroidBackgroundLocationProof.createBackgroundLocationBundle(
+                                        MainActivity.this
+                                    ),
+                                    TrackingAndroidBackgroundLocationSampleProof.createBackgroundSampleBundle(
+                                        MainActivity.this
+                                    )
+                                )
+                            );
+                        }
+                    });
+                }
+            });
+        } catch (RejectedExecutionException error) {
+            // The unavailable initial bundle remains authoritative when the bounded worker is full.
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        activityDestroyed = true;
+        runtimePreflightWorker.shutdownNow();
+        try {
+            runtimePreflightWorker.awaitTermination(250L, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+        }
+        super.onDestroy();
     }
 
     private String buildStatusText(
@@ -493,5 +584,12 @@ public final class MainActivity extends Activity {
             ) +
             foregroundLocationMetadata +
             fusedForegroundLocationMetadata;
+    }
+
+    private static final class RuntimePreflightThreadFactory implements ThreadFactory {
+        @Override
+        public Thread newThread(Runnable runnable) {
+            return new Thread(runnable, "ocentra-parent-runtime-preflight");
+        }
     }
 }

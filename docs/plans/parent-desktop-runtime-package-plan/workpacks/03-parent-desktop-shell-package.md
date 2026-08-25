@@ -11,7 +11,9 @@
 
 Purpose: prove the desktop shell/package boundary, including local-service bridge and launch smoke, without claiming product readiness.
 
-Current status: `complete`.
+Current status: `active` — the production transport/health source refresh is
+independently accepted; its expected-test refresh, focused execution, and proof
+revalidation remain open.
 
 Proof root: `output/parent-client-runtime-distribution-plan-proof/03-parent-desktop-shell-package/`
 
@@ -119,4 +121,12 @@ These are proof-routing fields, not implementation code prescriptions.
 
 ## Closure truth
 
-WP03 is closed as a desktop shell/package proof packet. It is not a product-readiness, setup-readiness, child-runtime-authority, signing-release, update, rollback, or mobile-parity claim.
+The historical package artifact proof remains retained. The 2026-08-17 source
+refresh is not closed by that older proof: all command responses now bind
+protocol-owned event kind, event identity, nonce, correlation, peers, digest,
+and freshness; the WebSocket path has one hard monotonic deadline through DNS,
+connect, fragmented reads, parse, and send. The desktop-shell and bridge
+expected tests must be refreshed and run before WP03 returns to validation or
+proof. This is not a product-readiness, setup-readiness,
+child-runtime-authority, signing-release, update, rollback, or mobile-parity
+claim.

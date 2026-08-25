@@ -1,6 +1,6 @@
 use super::{
     ChildAgentRemovalStatus, ChildAgentService, ChildAgentServiceError, ChildAgentTamperSignalKind,
-    ChildAgentTrustState, ChildRuntimeTombstoneEventFlow, VerifiedParentRemovalAuthorization,
+    ChildRuntimeTombstoneEventFlow, VerifiedParentRemovalAuthorization,
 };
 
 impl ChildAgentService {
@@ -10,30 +10,23 @@ impl ChildAgentService {
 
     pub fn revoke_with_parent_authorization(
         &mut self,
-        authorization: &VerifiedParentRemovalAuthorization,
+        authorization: VerifiedParentRemovalAuthorization,
     ) -> Result<ChildAgentRemovalStatus, ChildAgentServiceError> {
         let status = self
             .removal
             .revoke_with_parent_authorization(authorization)
             .map_err(ChildAgentServiceError::Storage)?;
-        self.readiness = super::ChildAgentReadiness::Revoked {
-            audit_ref: status.latest_audit_ref.clone(),
-        };
         Ok(status)
     }
 
     pub fn reauthorize_with_parent_authorization(
         &mut self,
-        authorization: &VerifiedParentRemovalAuthorization,
+        authorization: VerifiedParentRemovalAuthorization,
     ) -> Result<ChildAgentRemovalStatus, ChildAgentServiceError> {
         let status = self
             .removal
             .reauthorize_with_parent_authorization(authorization)
             .map_err(ChildAgentServiceError::Storage)?;
-        self.readiness = super::service_readiness::readiness_from_state(
-            &status,
-            self.recovery_pending.as_deref(),
-        );
         Ok(status)
     }
 
@@ -49,11 +42,6 @@ impl ChildAgentService {
             .removal
             .record_tamper_signal(signal_ref, kind)
             .map_err(ChildAgentServiceError::Storage)?;
-        if status.trust_state != ChildAgentTrustState::Revoked {
-            self.readiness = super::ChildAgentReadiness::TamperManualRequired {
-                signal_ref: status.latest_tamper_signal_ref.clone(),
-            };
-        }
         Ok(status)
     }
 
@@ -61,7 +49,7 @@ impl ChildAgentService {
         super::service_supervision::run_until_shutdown(self).await
     }
 
-    pub fn tombstone_flow(&self) -> &ChildRuntimeTombstoneEventFlow {
+    pub(crate) fn tombstone_flow(&self) -> &ChildRuntimeTombstoneEventFlow {
         &self.tombstone_flow
     }
 }

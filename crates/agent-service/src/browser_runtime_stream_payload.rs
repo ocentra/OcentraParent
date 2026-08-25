@@ -1,6 +1,9 @@
 #[path = "browser_runtime_stream_payload_impl.rs"]
 mod browser_runtime_stream_payload_impl;
+#[path = "browser_runtime_stream_publication.rs"]
+mod browser_runtime_stream_publication;
 
+use ocentra_eventing::bus::reports::handler::EventConsumerOutcome;
 use ocentra_parent_agent_core::browser_event_runtime::{
     BrowserRuntimeActionIntentHandoffResponse, BrowserRuntimeActionIntentStatusResponse,
     BrowserRuntimeReport, BrowserRuntimeSocialProviderReceiptStatusResponse,
@@ -143,7 +146,16 @@ impl From<browser_runtime_stream_payload_impl::BrowserRuntimeServiceStreamReport
 }
 
 impl BrowserRuntimeServiceStreamReport {
-    fn record_success(&mut self, report: &BrowserRuntimeReport) {
+    pub(crate) fn record_publication(&mut self, report: &BrowserRuntimeReport) -> bool {
+        if report.publish_reports.is_empty()
+            || report
+                .publish_reports
+                .iter()
+                .any(|publish| publish.consumer_outcome() != EventConsumerOutcome::Handled)
+        {
+            self.failed_rows += 1;
+            return false;
+        }
         let entries = crate::browser_runtime_stream_events::stream_entries_from_report(report);
         self.streamed_events += entries.len();
         self.intervention_command_events += entries
@@ -160,6 +172,7 @@ impl BrowserRuntimeServiceStreamReport {
             })
             .count();
         self.entries.extend(entries);
+        true
     }
 
     pub(crate) fn record_action_intent_status(

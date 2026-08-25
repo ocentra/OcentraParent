@@ -18,7 +18,7 @@ pub(super) fn build_enforcement_report_payload(
     active_state: Option<&ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState>,
 ) -> Result<LogFields, EnforcementJournalBuildError> {
     let mut payload = enforcement_journal_fields(outcome)?;
-    for pair in status_field_pairs(status) {
+    for pair in status_field_pairs(status, outcome) {
         payload.insert(pair.key.to_string(), pair.value);
     }
     for pair in timer_status_field_pairs(outcome, active_state)? {
@@ -155,7 +155,10 @@ fn timer_enforcement_field_pairs(
     }])
 }
 
-fn status_field_pairs(status: &ActivityIngestStatus) -> Vec<FieldPair> {
+fn status_field_pairs(
+    status: &ActivityIngestStatus,
+    outcome: &ocentra_parent_agent_core::enforcement_boundary::EnforcementBoundaryOutcome,
+) -> Vec<FieldPair> {
     vec![
         FieldPair {
             key: constants::field::DATABASE_READY,
@@ -171,10 +174,7 @@ fn status_field_pairs(status: &ActivityIngestStatus) -> Vec<FieldPair> {
         },
         FieldPair {
             key: constants::field::ENFORCEMENT_JOURNAL_EVENT_ID,
-            value: match status.last_event_id.as_deref() {
-                Some(item) => LogFieldValue::String(item.to_string()),
-                None => LogFieldValue::Null(()),
-            },
+            value: LogFieldValue::String(outcome.audit_event.audit_event_id.clone()),
         },
     ]
 }
