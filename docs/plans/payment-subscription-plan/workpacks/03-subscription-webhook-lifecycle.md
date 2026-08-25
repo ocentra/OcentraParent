@@ -2,10 +2,17 @@
 
 ## Current status
 
-- Verdict: `done`
-- Proof root: `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/`
+- Verdict: `blocked / source reviewed / runtime composition incomplete`
+- Implementation phase: `blocked by WP02`; `graph:next -- --phase implementation` does not authorize WP03.
+- Proof root: `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` (absent in this checkout; no proof claim is made by this packet)
 - Rust owner: `crates/billing-core/src/billing_subscription.rs`
-- No-claim boundary: this packet proves Rust-owned webhook lifecycle truth only; it does not claim Cloudflare shell ownership or entitlement delivery completion.
+- Reachable ingress owner: `infra/cloudflare/src/index.ts` and its Cloudflare route/auth boundary.
+- No-claim boundary: this packet records reviewed source truth only. It does not claim a production Rust caller, provider execution, normalized lifecycle receipt truth, tests, proof, CI, PR, READY, or DONE.
+
+The source review was performed on 2026-08-25 from the Payment WP02-integrated
+base. The Rust lifecycle classifier/projector and the Cloudflare receipt,
+queue, cursor, retry, dead-letter, and outbox primitives are real source, but
+their production composition is incomplete.
 
 ## Goal
 
@@ -17,14 +24,23 @@ Define how provider events become app-owned billing truth, including signature v
 billing-core owns Rust provider lifecycle classification and event/idempotency helper behavior when selected.
 payment-subscription-plan owns webhook-to-app-ledger semantics.
 cloudflare-control-plane-plan owns shared Worker route/auth/runtime shell.
-provider adapters provide verified provider event formats only.
+provider adapters must provide verified provider event formats; only the Stripe raw HMAC path is currently implemented.
 entitlement delivery happens through WP04 and must not be bypassed by provider events.
 ```
 
 ## First-touch surface
 
 - `crates/billing-core/src/billing_subscription.rs`
+- `crates/billing-core/src/billing_subscription_webhook.rs`
+- `crates/billing-core/src/billing_subscription_projection.rs`
+- `crates/billing-core/src/billing_subscription_review.rs`
 - `crates/billing-core/tests/unit/provider_webhook.rs`
+- `crates/billing-core/tests/unit/subscription_lifecycle.rs`
+- `infra/cloudflare/src/auth/provider-webhook.ts`
+- `infra/cloudflare/src/auth/verifier.ts`
+- `infra/cloudflare/src/routes.ts`
+- `infra/cloudflare/src/index.ts`
+- `infra/cloudflare/src/billing-binding-read-model.ts`
 
 ## Read inputs
 
@@ -34,28 +50,34 @@ entitlement delivery happens through WP04 and must not be bypassed by provider e
 - [BILLING_API_BOUNDARY.md](../BILLING_API_BOUNDARY.md)
 - [APP_OWNED_BILLING_LEDGER.md](../APP_OWNED_BILLING_LEDGER.md)
 
-## Output files
+## Packet scope
 
-- [SUBSCRIPTION_WEBHOOK_LIFECYCLE.md](../SUBSCRIPTION_WEBHOOK_LIFECYCLE.md)
-- [APP_OWNED_BILLING_LEDGER.md](../APP_OWNED_BILLING_LEDGER.md)
-- `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/`
+This packet updates only the routed workpack and plan/graph truth. It does not
+edit production source, tests, proof artifacts, CI, or PR state.
 
-## Current execution truth
+## Reviewed source truth
 
 | Field | Current state | Evidence |
 | --- | --- | --- |
-| `provider` | Stripe, Razorpay, PayPal, Apple, and Google are explicit normalized channels in the Rust contract | `crates/billing-core/src/billing_subscription.rs` |
-| `mode` | test/live provider mode is explicit in the Rust contract | `crates/billing-core/src/billing_subscription.rs`; `provider_webhook::mixed_test_live_boundary_is_rejected_before_any_ledger_write` |
-| `signature_state` | verified signatures are required for acceptance; missing or invalid signatures reject before ledger writes | `provider_webhook::accepts_verified_fresh_account_matched_provider_event`; `provider_webhook::rejects_missing_signature_provider_event_without_entitlement_update`; `subscription_lifecycle::invalid_signature_blocks_entitlement_write_and_requires_manual_review` |
-| `payload_parse_state` | malformed payloads reject before any entitlement write | `provider_webhook::malformed_provider_payload_is_dead_lettered_before_any_entitlement_write` |
-| `idempotency_state` | duplicate events reject without new entitlement write | `provider_webhook::rejects_duplicate_provider_event_without_entitlement_update` |
-| `replay_state` | replayed events reuse the same idempotency chain and do not double-grant | `provider_webhook::replayed_provider_event_reuses_idempotency_chain_and_blocks_double_grant` |
-| `out_of_order_state` | out-of-order events queue reconciliation and do not double-grant | `provider_webhook::out_of_order_provider_event_requires_reconciliation_and_blocks_double_grant` |
-| `ledger_write_state` | accepted lifecycle changes project app-owned entitlement writes; rejected states project `no-write` | `provider_webhook::active_subscription_projects_household_entitlement_grant`; `provider_webhook::rejected_provider_event_projects_no_entitlement_write` |
-| `retry_state` | payment failures queue retry follow-up without skipping ledger projection | `provider_webhook::payment_failure_queues_retry_follow_up_without_skipping_projection` |
-| `dead_letter_state` | malformed, unsigned, invalid, mismatched, or mixed-boundary events remain explicit manual-required outcomes | `provider_webhook::malformed_provider_payload_is_dead_lettered_before_any_entitlement_write`; `provider_webhook::mixed_test_live_boundary_is_rejected_before_any_ledger_write` |
-| `reconciliation_state` | refund, dispute, replay-safe repair, and out-of-order states remain explicit follow-up outcomes | `provider_webhook::refund_event_is_safe_but_does_not_auto_update_entitlement`; `provider_webhook::out_of_order_provider_event_requires_reconciliation_and_blocks_double_grant` |
-| `test_live_boundary_state` | mixed test/live traffic is rejected before any ledger write | `provider_webhook::mixed_test_live_boundary_is_rejected_before_any_ledger_write` |
+| `provider` | Rust names Stripe, Razorpay, PayPal, Apple, and Google, and Cloudflare exposes five webhook routes; this is channel shape, not verified provider execution | `crates/billing-core/src/billing_subscription.rs`; `infra/cloudflare/src/routes.ts` |
+| `mode` | Rust carries test/live mode as a caller-supplied enum; the Cloudflare receipt path does not persist or compose provider mode | `crates/billing-core/src/billing_subscription.rs`; `infra/cloudflare/src/billing-binding-read-model.ts` |
+| `signature_state` | Stripe raw HMAC verification exists; Razorpay, PayPal, Apple, and Google fail closed as unavailable/manual-required; neither Cloudflare receipts nor the Rust ingress boundary receives normalized signature state | `infra/cloudflare/src/auth/provider-webhook.ts`; `infra/cloudflare/src/auth/verifier.ts`; `infra/cloudflare/src/index.ts` |
+| `payload_parse_state` | Cloudflare rejects invalid JSON/non-object payloads, but the receipt schema does not persist parse state and no Rust lifecycle caller translates it | `infra/cloudflare/src/index.ts`; `infra/cloudflare/src/billing-binding-read-model.ts` |
+| `idempotency_state` | D1/DO receipts, state-version guards, cursor CAS, queue leases, and outbox custody are real; Rust also classifies fresh/duplicate events, but no production caller composes the two | `infra/cloudflare/src/billing-binding-read-model.ts`; `crates/billing-core/src/billing_subscription.rs` |
+| `replay_state` | Cloudflare rechecks receipt/provider/account references and cursor state; Rust replay semantics remain reachable only through caller-constructed events | `infra/cloudflare/src/index.ts`; `crates/billing-core/src/billing_subscription_webhook.rs` |
+| `out_of_order_state` | Cloudflare has cursor/reconciliation follow-up primitives; there is no verified provider-event-to-Rust lifecycle bridge | `infra/cloudflare/src/index.ts`; `infra/cloudflare/src/billing-binding-read-model.ts`; `crates/billing-core/src/billing_subscription_review/reconciliation.rs` |
+| `ledger_write_state` | The reachable queue path uses Cloudflare TypeScript mutation logic; no non-test caller invokes the Rust projector or establishes the app-owned ledger transition through it | `infra/cloudflare/src/index.ts`; `crates/billing-core/src/billing_subscription_projection.rs` |
+| `retry_state` | Queue retry, lease, retry-exhaustion, and dead-letter paths exist in the Worker source; their provider verification and Rust lifecycle composition remain open | `infra/cloudflare/src/index.ts`; `infra/cloudflare/src/billing-binding-read-model.ts`; `crates/billing-core/src/billing_subscription_review/retry.rs` |
+| `dead_letter_state` | Worker dead-letter/manual-required custody and Rust manual-review/dead-letter classifications exist, but no normalized receipt lifecycle reaches the Rust owner | `infra/cloudflare/src/index.ts`; `crates/billing-core/src/billing_subscription_review/dead_letter.rs` |
+| `reconciliation_state` | Worker outbox/reconciliation custody and Rust reconciliation decisions exist as separate source surfaces; no production caller joins them | `infra/cloudflare/src/billing-binding-read-model.ts`; `crates/billing-core/src/billing_subscription_review/reconciliation.rs` |
+| `test_live_boundary_state` | Rust rejects mixed mode when a caller supplies the enum; the reachable Cloudflare receipt does not carry provider mode, so this is not a production ingress guarantee | `crates/billing-core/src/billing_subscription.rs`; `infra/cloudflare/src/billing-binding-read-model.ts` |
+
+The mapped Rust tests call the public classifier/projector with synthetic
+caller-supplied provider, signature, parse, mode, account, idempotency, replay,
+and ordering states. The mapped Cloudflare integration/fuzz tests use the
+local-safe fixture harness, and some non-Stripe acceptance expectations are
+stale against the current manual-required source. They are not live provider
+proof, and no tests were run in this packet.
 
 ## Acceptance
 
@@ -67,13 +89,16 @@ entitlement delivery happens through WP04 and must not be bypassed by provider e
 
 ## Acceptance status
 
-- [x] Every accepted provider event requires verified signature state, parsed payload state, and isolated test/live mode.
-- [x] Every accepted event projects an app-owned ledger transition through the Rust-owned contract.
-- [x] Stable provider event IDs and explicit idempotency/replay state prevent duplicate or replayed double-grants.
-- [x] Out-of-order events stay explicit and queue reconciliation rather than silently rewriting access.
-- [x] Retry follow-up is explicit for payment failure lifecycles.
-- [x] Dead-letter/manual-required outcomes are explicit for malformed, unsigned, mismatched, or mixed-boundary traffic.
-- [x] WP03 does not claim entitlement delivery completion; it only proves webhook-to-ledger lifecycle truth.
+- [ ] Every production provider event has an owned verified signature boundary before parsing; only Stripe is implemented and other providers are manual-required.
+- [ ] A real provider-event caller translates verified provider truth into the Rust lifecycle owner; no non-test caller exists.
+- [ ] The durable receipt records signature state, payload parse state, provider mode, and the other required lifecycle fields; those fields are currently absent.
+- [ ] The Cloudflare ingress, Account authority, Rust classifier/projector, and app-owned ledger are composed into one production path.
+- [ ] Duplicate, replayed, out-of-order, retry, dead-letter, and reconciliation behavior has focused expected tests against the current source.
+- [ ] The WP03 proof root and validation log exist; they are absent and remain open.
+- [x] Provider events do not claim entitlement delivery completion; WP04 remains the entitlement-delivery owner.
+
+The checked source facts above are bounded implementation evidence only; they
+do not satisfy the unchecked production lifecycle gates.
 
 ## Required proof fields
 
@@ -110,9 +135,10 @@ These are proof-routing fields, not implementation code prescriptions.
 
 ## Validation
 
-- Focused validation: `cargo test -p ocentra-billing-core --test unit`; `cargo lint-architecture crates/billing-core/src/billing_subscription.rs crates/billing-core/tests/unit/provider_webhook.rs crates/billing-core/tests/unit/subscription_lifecycle.rs`; narrow Prettier check on touched WP03 docs/proof files
+- This truth packet did not run tests, proof commands, CI, or production validation.
+- Focused validation remains required after WP02/provider-owner integration: the Rust billing-core unit targets, the mapped Cloudflare webhook tests, architecture/source-shape/no-test-double/validation-bypass gates, and the proof-root validation log.
 - Required proof families: `payment-webhook.stripe-signature-valid`, `payment-webhook.stripe-signature-invalid`, `payment-webhook.razorpay-signature-valid`, `payment-webhook.paypal-webhook-verified`, `payment-webhook.duplicate-event-idempotent`, `payment-webhook.replayed-event-rejected`, `payment-webhook.out-of-order-event-safe`, `payment-webhook.unknown-event-safe`, `payment-webhook.retry-no-double-grant`, `payment-webhook.dead-letter-manual-required`, `payment-webhook.reconciliation-repairs-drift`, `payment-webhook.test-live-separated`
-- Proof bundle: `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-provider-webhook-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-idempotency-replay-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-dead-letter-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-reconciliation-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-test-live-boundary-proof.md`
+- Proof bundle: expected but absent in this checkout: `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-provider-webhook-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-idempotency-replay-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-dead-letter-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-reconciliation-proof.md`, `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/03-test-live-boundary-proof.md`
 
 ## Negative cases
 

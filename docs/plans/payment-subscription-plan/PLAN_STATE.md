@@ -39,6 +39,41 @@ present, while the provider execution owner, Account current-authority/D1
 readiness, schema-domain adapter, focused expected tests, proof, deployment,
 CI, PR, and completion remain open.
 
+## Reviewed WP03 production truth checkpoint - 2026-08-25
+
+This is a source-and-routing truth update from the WP02-integrated canonical
+base `d337a7e5d`. It does not add completion evidence, tests, proof, CI, PR,
+READY, or DONE state.
+
+The Rust lifecycle surface is real: `crates/billing-core` defines provider,
+test/live, signature, payload-parse, idempotency, replay/order, retry,
+dead-letter, reconciliation, and entitlement-transition classifications. Its
+public classifier and projector accept those states from the caller, and no
+non-test caller of that API was found. The mapped Rust unit tests construct
+those trust/state enums directly; they do not establish a production ingress
+or provider owner.
+
+The reachable Cloudflare webhook ingress is also real but incomplete. The
+route manifest exposes Stripe, Razorpay, PayPal, Apple, and Google webhook
+routes, while request/response provider-event contracts remain unbound and
+manual-required. Only Stripe raw HMAC verification is implemented. Razorpay,
+PayPal, Apple, and Google fail closed as unavailable/manual-required before
+lifecycle processing.
+
+Cloudflare has durable D1/Durable Object receipt, cursor, queue, lease,
+dead-letter, reconciliation, and mutation-outbox custody. The receipt schema
+does not persist normalized signature state, payload parse state, or provider
+mode, and the reachable TypeScript queue/mutation path does not invoke the
+Rust billing-core classifier/projector. Account/provider mapping is rechecked
+at the Worker custody seam, but the Account binding remains manual-required.
+
+The mapped Cloudflare integration/fuzz tests use the local-safe fixture
+harness, and some non-Stripe acceptance expectations are stale against the
+current manual-required source. No tests were run in this packet. The WP03
+proof root is absent in this checkout. WP03 therefore remains
+`blocked / source reviewed`: runtime provider composition, normalized receipt
+truth, focused expected tests, proof, CI, PR, and completion remain open.
+
 ## Accepted production-source checkpoint - 2026-08-17
 
 The independently reviewed Payment source wave at `63305016f` is now on the
@@ -88,9 +123,13 @@ boundaries. No payment-owned production slice is authorized from this pass.
   schema-domain adapter, and focused expected tests remain blockers outside a
   legal Payment-only runtime edit.
 - **WP03:** `crates/billing-core` contains the lifecycle classifier and
-  idempotency helpers, but no non-test caller outside the crate was found. The
-  Cloudflare webhook route parses/queues generic payload data and does not
-  invoke the Rust lifecycle owner or write the app ledger.
+  idempotency/projector helpers, but no non-test caller outside the crate was
+  found and its public API accepts caller-supplied trust/state enums. The
+  Cloudflare webhook route is the reachable ingress: only Stripe raw HMAC is
+  implemented, the other providers are unavailable/manual-required, and the
+  route parses/queues generic payload data without invoking the Rust lifecycle
+  owner. Durable receipt custody exists, but normalized signature, parse, and
+  provider-mode fields are absent from the receipt schema.
 - **WP04:** `crates/entitlement-core` owns a fail-closed derivation contract,
   but no non-test downstream consumer was found in the payment/runtime
   surfaces. Device-trust binding remains adjacent-plan owned.
@@ -121,7 +160,7 @@ next legal production owners are Cloudflare for fixture-seed/fallback removal,
 an actual runtime consumer for `billing-core`, and an actual portal consumer
 for WP11. No tests, builds, proof, CI, or graph edits were run.
 
-Status: engineering-grade monetization spec is complete, and the recorded WP00-WP04 bundles preserve their historical narrow proof or blocked-state results. WP01's pricing proof, WP03's Rust webhook-lifecycle proof, and WP04's Rust entitlement-delivery proof do not establish production-code completion: this audit found no production caller for the WP01 model, no non-test consumer of the WP03 lifecycle owner, and no non-test downstream consumer of the WP04 entitlement owner. WP02 remains blocked with route-contract source present but provider execution, Account authority readiness, focused expected tests, and proof open; broader payment runtime execution remains blocked behind the exact upstream Cloudflare and Account dependency set.
+Status: engineering-grade monetization spec is complete, and the recorded WP00-WP04 plan references preserve their historical narrow source or blocked-state results. WP01's pricing reference, WP03's Rust webhook-lifecycle source/tests, and WP04's Rust entitlement-delivery source/tests do not establish production-code or proof completion: this audit found no production caller for the WP01 model, no non-test consumer of the WP03 lifecycle owner, and no non-test downstream consumer of the WP04 entitlement owner. WP02 remains blocked with route-contract source present but provider execution, Account authority readiness, focused expected tests, and proof open; broader payment runtime execution remains blocked behind the exact upstream Cloudflare and Account dependency set.
 
 Research status: aligned against the current Parent codebase, billing-domain and parent-domain surfaces, the reusable games Cloudflare deep dive summarized in `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`, and the new `cloudflare-control-plane-plan` that now owns the shared Worker/module scaffold. This plan remains the single monetization owner; the shared Cloudflare module itself is not owned here.
 
@@ -181,8 +220,7 @@ WP01 now has a real pricing and entitlement proof bundle at `output/payment-subs
 WP02 has no current checked-in checkout or billing portal proof bundle; the
 expected proof root remains open until a real provider caller, focused tests,
 and the required validation evidence exist.
-WP03 now has a real Rust-owned webhook lifecycle proof bundle at `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/`.
-WP04 now has a real Rust-owned entitlement-delivery proof bundle at `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/`.
+WP03 has no checked-in proof bundle at `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` in this checkout. Its mapped Rust and Cloudflare tests are not live-provider proof, and no test or proof command was run in the reviewed source packet. WP04's historical proof reference is not changed by this WP03 packet.
 All runtime payment rows after WP00 remain blocked until selected code, tests, negative cases, rollback/teardown notes, validation logs, and proof bundles exist.
 ```
 
@@ -198,7 +236,7 @@ Current Parent direction:
   caller exists. The schema-domain adapter, Account current-authority
   readiness, focused expected tests, proof, and broader validation remain open;
   no hosted-session or payment-completion claim follows from local fixtures.
-- WP03 retains its historical `done` Rust contract result: `crates/billing-core` carries provider channel, payload-parse, idempotency, replay/order, retry, dead-letter, reconciliation, and test/live boundary truth with real unit coverage under `crates/billing-core/tests/unit/**`. No non-test production consumer was found; TypeScript does not own this webhook lifecycle contract.
+- WP03 current truth is `blocked / source reviewed`, not production-complete. `crates/billing-core` carries provider channel, payload-parse, idempotency, replay/order, retry, dead-letter, reconciliation, and test/live boundary classifications with mapped unit coverage under `crates/billing-core/tests/unit/**`, but its public entry points accept caller-supplied trust/state enums and have no non-test production consumer. Cloudflare owns the reachable ingress and durable receipt/queue custody, yet does not compose normalized signature/parse/mode receipt fields or invoke the Rust lifecycle owner. TypeScript therefore supplies the current runtime mutation path while the Rust contract remains unbound.
 - WP04 retains its historical `done / proof-present` Rust contract result: `crates/entitlement-core` owns signed entitlement snapshot derivation, provider input-only boundary, referral seat recalculation, fixed snapshot-model fields, and the snapshot-to-device gate bridge with real unit coverage under `crates/entitlement-core/tests/unit/**`. No non-test downstream production consumer was found; TypeScript remains proof-consumer only for this slice.
 - This plan owns billing semantics on top of that module: pricing, referral qualification, provider strategy, checkout meaning, webhook-to-ledger meaning, entitlement meaning, dashboard meaning, and support/admin meaning.
 - Stripe Checkout, Billing, Portal, invoices, entitlements, and webhooks remain the default web control-plane path.
@@ -231,4 +269,4 @@ Current Parent direction:
 
 ## Overclaim boundary
 
-This plan is architecture-route ready, not implementation complete. WP00 proves the upstream dependency boundary and exact blocker set only, while WP03 and WP04 now prove their Rust-owned lifecycle and entitlement-delivery boundaries on their own surfaces. Broader runtime correctness remains unproven until the selected workpack's code, tests, negative cases, proof bundle, rollback/teardown notes, and validation log exist under `output/payment-subscription-plan-proof/` and the relevant scoped validation actually passes or is carried as an exact blocker.
+This plan is architecture-route ready, not implementation complete. WP00 proves the upstream dependency boundary and exact blocker set only; WP03 and WP04 have bounded Rust source/test contract surfaces, but neither establishes production runtime completion from those surfaces alone. Broader runtime correctness remains unproven until the selected workpack's code, tests, negative cases, proof bundle, rollback/teardown notes, and validation log exist under `output/payment-subscription-plan-proof/` and the relevant scoped validation actually passes or is carried as an exact blocker.

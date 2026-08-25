@@ -22942,11 +22942,11 @@
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": ["WP-payment-subscription-plan-02-checkout-billing-portal"],
       "state": "blocked",
-      "lifecycleState": "active",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "active / source integrated / expected tests open",
+        "statusText": "blocked / source reviewed / Rust caller, provider execution, normalized receipt fields, expected tests, and proof open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -22958,9 +22958,14 @@
             "docs/plans/payment-subscription-plan/PLAN_STATE.md",
             "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
             "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md",
-            "docs/engineering-graph/code-map.json"
+            "docs/engineering-graph/code-map.json",
+            "infra/cloudflare/src/auth/provider-webhook.ts",
+            "infra/cloudflare/src/auth/verifier.ts",
+            "infra/cloudflare/src/routes.ts",
+            "infra/cloudflare/src/index.ts",
+            "infra/cloudflare/src/billing-binding-read-model.ts"
           ],
-          "reason": "Durable webhook/mutation replay must consume the canonical provider/account binding and Worker authority established by WP02. The accepted source has lease/retry/outbox/CAS mechanics, but provider verification, expected tests, proof, and DONE remain open."
+          "reason": "WP03 remains implementation-blocked by WP02. Reviewed source has a Rust lifecycle classifier/projector with caller-supplied trust/state enums and no non-test caller; Cloudflare is the reachable ingress with only Stripe raw HMAC, manual-required other provider modes, unbound webhook codecs, and durable receipt/queue/outbox/CAS custody that lacks normalized signature, payload-parse, and provider-mode fields. Mapped tests are local/synthetic or stale against the current source, the proof root is absent, and expected tests, proof, CI, PR, READY, and DONE remain open."
         }
       },
       "completion": {

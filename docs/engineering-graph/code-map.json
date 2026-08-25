@@ -2367,12 +2367,18 @@
         "crates/billing-core/src/billing_subscription_review",
         "crates/billing-core/tests/unit/provider_webhook.rs",
         "crates/billing-core/tests/unit/subscription_lifecycle.rs",
+        "infra/cloudflare/src/auth/provider-webhook.ts",
         "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/routes.ts",
         "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/src/generated/billing-contracts.ts",
+        "infra/cloudflare/src/env.ts",
         "infra/cloudflare/tests/integration/provider-webhooks.test.ts",
         "infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts",
         "infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts"
-      ]
+      ],
+      "note": "Reviewed 2026-08-25: Rust billing-core exposes lifecycle classification/projection but accepts caller-supplied trust/state enums and has no non-test production caller. Cloudflare is the reachable webhook ingress; only Stripe raw HMAC is implemented, other provider modes fail closed as manual-required, and route contracts remain unbound. D1/Durable Object receipt, cursor, queue, retry, dead-letter, reconciliation, and outbox custody exist, but receipts lack normalized signature, payload-parse, and provider-mode fields and the Worker does not invoke the Rust lifecycle owner. Mapped Rust and Cloudflare tests are local/synthetic or stale against this source, no tests were run, and the WP03 proof root is absent. No completionEvidence, READY, DONE, proof, CI, or PR claim follows."
     },
     "WP-payment-subscription-plan-04-entitlement-delivery-gates": {
       "planSlug": "payment-subscription-plan",
