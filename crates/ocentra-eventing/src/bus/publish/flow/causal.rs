@@ -30,7 +30,7 @@ where
         });
     }
 
-    let _active_dispatch = bus.active_dispatches.enter();
+    let _active_dispatch = bus.admit_active_dispatch()?;
     let ordered_admission = if dispatch_mode == DispatchMode::OrderedByAggregateKey {
         Some(
             dispatch_chain

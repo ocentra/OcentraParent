@@ -30,7 +30,7 @@ pub mod subscriber;
 
 use subscriber::{insert_subscriber, record_for, remove_subscriber, SubscriberRecord};
 
-use active_dispatch::ActiveDispatchTracker;
+use active_dispatch::{ActiveDispatchGuard, ActiveDispatchTracker};
 
 use publisher::{EventContext, EventPublisher, RootEventPublisher};
 use reports::dead_letter::DeadLetter;
@@ -181,6 +181,7 @@ impl EventBus {
         F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
     {
+        let _active_dispatch = self.admit_active_dispatch()?;
         let report = SubscriptionReport {
             subscriber_id: subscriber.id.clone(),
             event_type: subscriber.event_type.clone(),
@@ -206,6 +207,7 @@ impl EventBus {
         F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
         Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
     {
+        let _active_dispatch = self.admit_active_dispatch()?;
         let report = SubscriptionReport {
             subscriber_id: subscriber.id.clone(),
             event_type: subscriber.event_type.clone(),
@@ -266,6 +268,16 @@ impl EventBus {
             return Err(EventingError::BusShutdown);
         }
         Ok(())
+    }
+
+    fn admit_active_dispatch(&self) -> Result<ActiveDispatchGuard, EventingError> {
+        // Hold lifecycle state while incrementing the tracker so shutdown
+        // cannot observe an idle bus between admission and registration.
+        let shutdown = self.shutdown.lock().expect_value("event bus shutdown lock");
+        if *shutdown != EventBusLifecycleState::Active {
+            return Err(EventingError::BusShutdown);
+        }
+        Ok(self.active_dispatches.enter())
     }
 
     fn begin_shutdown(&self) -> bool {
