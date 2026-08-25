@@ -91,11 +91,11 @@ test paths are mapped in
 
 This table is generated from the validated engineering graph and its reviewed
 code map, not from plan checkboxes. The graph currently contains 712 nodes,
-1,266 edges, 24 plans, and 687 workpacks. It maps 3,474 implementation files
+1,266 edges, 24 plans, and 687 workpacks. It maps 3,627 implementation files
 and 1,153 test files: 566 workpacks have both code and tests, 21 are
 source-only, 8 are tests-only, and 92 currently have no source or test files.
-The current matrix records 59 expectation failures, 31 missing expected
-implementation artifacts, and 97 missing expected test artifacts; 216 rows
+The current matrix records 59 expectation failures, 30 missing expected
+implementation artifacts, and 102 missing expected test artifacts; 217 rows
 have implementation-only source topology without a complete test/completion
 contract. No workpack has unknown ownership. Topology expectations match for
 628/687 workpacks. Derived state is 248 planned, 190 blocked, 4 ready, 4
@@ -127,27 +127,27 @@ touched plans.
 | --- | ---: | ---: | ---: | ---: | --- |
 | Account identity/family | 10 | 7/1/0/2/0 | 207/32 | 0/8/0/0/2/0 | WP09 fail-closed core is reviewed, but three production adapter/runtime roots, seven tests, the Cloudflare issuer consumer/mount, WP05A owner participants/coordinator, proof, and DONE stay open. |
 | AI | 48 | 43/1/0/4/0 | 255/97 | 44/1/0/0/3/0 | WP03 source is integrated but its caller and three expected tests remain open; all workpacks still lack retained/referenced completion proof. |
-| App/game | 220 | 193/7/0/20/0 | 2338/832 | 121/5/1/2/91/0 | WP197 source is integrated, but its six exact expected tests remain absent; the plan remains integration-open. |
+| App/game | 220 | 193/7/0/20/0 | 2338/833 | 121/5/1/2/91/0 | WP197 source is integrated, but its six exact expected tests remain absent; the plan remains integration-open. |
 | Browser | 30 | 21/1/0/8/0 | 152/44 | 9/21/0/0/0/0 | WP06 now has an accepted fail-closed six-file safety boundary, but five protected-owner/platform/caller roots and five expected tests are missing; WP07/WP09 remain blocked on owner-bound launch/target source. |
-| Child-agent runtime distribution | 11 | 10/0/0/1/0 | 79/17 | 8/0/0/0/3/0 | Distribution/runtime proof remains unreferenced across the plan. |
+| Child-agent runtime distribution | 11 | 0/6/0/5/0 | 50/0 | 0/9/2/0/0/0 | Six workpacks are source-only and five have no mapped source or tests; distribution/runtime tests and proof remain open across the plan. |
 | Cloudflare control plane | 13 | 9/0/1/3/0 | 45/72 | 0/11/0/0/2/0 | WP04 route/model source is integrated, but route tests are stale and the module dependency tree is empty; Account/Cloudflare producer-consumer roots, tests, authority, proof, migration, deployment, and DONE remain open. |
-| Data custody/storage | 12 | 8/0/0/4/0 | 233/16 | 1/5/1/0/5/0 | WP05 base backup/import source is present and READY for source-only continuation. WP06's Rust plus generated TypeScript custody edge is source-accepted, but no report/query consumer reaches it and its stale/unwritten expected tests remain open. WP09 owns provider/byte capability, WP10 owns restore/producer orchestration, and new WP11 owns the still-missing runtime composition/custody mount; all three have explicit missing code-and-tests roots. WP07 and WP08 remain blocked on the trusted Account/custody chain. Tests, proof, and DONE remain open. |
+| Data custody/storage | 12 | 8/0/0/4/0 | 236/16 | 0/10/1/0/1/0 | WP05 base backup/import source is present and READY for source-only continuation. WP06's Rust plus generated TypeScript custody edge is source-accepted, but no report/query consumer reaches it and its stale/unwritten expected tests remain open. WP09 owns provider/byte capability, WP10 owns restore/producer orchestration, and new WP11 owns the still-missing runtime composition/custody mount; all three have explicit missing code-and-tests roots. WP07 and WP08 remain blocked on the trusted Account/custody chain. Tests, proof, and DONE remain open. |
 | Device trust bootstrap | 9 | 6/0/3/0/0 | 137/36 | 0/8/0/0/1/0 | WP01 retains accepted lifecycle/current-binding source but the runtime-fence participant is withdrawn; WP03 remains blocked with two missing planned owners. Protected custody, migration/retention owners, production callers, expected tests, proof, and completion remain open. |
-| Protected capability custody | 1 | 0/1/0/0/0 | 59/0 | 0/0/0/0/1/0 | Four-package fail-closed source is integrated, but safe Windows adapters, installer/SCM enrollment, caller, 11 tests, proof, and runtime availability remain open. |
-| LAN | 26 | 22/1/2/1/0 | 305/63 | 0/1/0/0/25/0 | WP26 is source-only with zero mapped tests and is ordered after Device Trust WP03: it consumes WP01 current binding/revocation and cannot register signer authority locally. |
-| Logging domain parity | 10 | 9/0/0/1/0 | 155/59 | 5/0/0/0/5/0 | Accepted source wave establishes Rust-owned exact 18-key redaction policy and generated TS parity; tests, proof, and external composition remain open. |
-| App | 95 | 88/1/0/6/0 | 258/115 | 13/0/0/0/82/0 | One source-only mismatch and remaining compiler/runtime/native gaps. |
-| Network | 8 | 8/0/0/0/0 | 349/88 | 6/1/0/0/1/0 | WP04 remains dependency-blocked despite complete file topology. |
-| Parent desktop/runtime package | 11 | 10/0/0/1/0 | 131/32 | 4/0/0/2/5/0 | Signed package/update/rollback and retained release proof remain open. |
-| Payment/subscription | 13 | 11/0/0/2/0 | 90/53 | 4/5/0/4/0/0 | Accepted source closes caller-minted entitlement, in-memory DO, provider-identity, and pending-recovery defects; Account migration, real issuer/provider authority, and expected tests remain open. |
-| Policy control plane | 8 | 7/0/0/1/0 | 210/46 | 1/4/0/0/3/0 | Four workpacks are blocked on trusted source, Device Trust, and delivery owners. |
-| Portal UX/household surfaces | 20 | 17/0/1/2/0 | 95/67 | 15/0/0/0/5/0 | One tests-only mismatch; upstream live authority remains absent for several surfaces. |
-| Remote access | 6 | 5/0/0/1/0 | 40/22 | 4/0/0/0/2/0 | Authenticated relay/session runtime and proof remain open. |
-| Eventing | 13 | 10/0/1/2/0 | 197/112 | 0/3/1/0/8/1 | WP08 now has a safe fail-closed service ingress but is functionally blocked on eight owner workpacks plus one missing parent-runtime owner and two missing expected tests. WP11 source remains accepted; its replay-test migration and negative/audit families stay in the later test-writing wave. WP10/WP12 remain blocked. |
-| Screen AI pipeline | 10 | 7/0/0/3/0 | 150/43 | 9/1/0/0/0/0 | One blocked workpack and unresolved policy/custody authority chain. |
-| Screen | 43 | 29/3/0/11/0 | 301/80 | 27/1/0/0/15/0 | WP32 is now a third source-only mapping: its fail-closed producer/binding/router prerequisite is real, while browser/CDP dependencies, executable composition, safe disclosure, four missing focused test roots, proof, and CI remain open. Platform/runtime/custody gaps remain across the plan. |
+| Protected capability custody | 1 | 0/1/0/0/0 | 91/0 | 0/0/0/0/1/0 | Four-package fail-closed source is integrated, but safe Windows adapters, installer/SCM enrollment, caller, 11 tests, proof, and runtime availability remain open. |
+| LAN | 26 | 22/1/2/1/0 | 316/63 | 0/1/0/0/25/0 | WP26 is source-only with zero mapped tests and is ordered after Device Trust WP03: it consumes WP01 current binding/revocation and cannot register signer authority locally. |
+| Logging domain parity | 10 | 9/0/0/1/0 | 181/59 | 3/7/0/0/0/0 | Accepted source wave establishes Rust-owned exact 18-key redaction policy and generated TS parity; tests, proof, and external composition remain open. |
+| App | 95 | 87/0/0/8/0 | 246/112 | 0/13/0/0/82/0 | Eight workpacks have no mapped source or tests; remaining compiler/runtime/native gaps stay open. |
+| Network | 8 | 8/0/0/0/0 | 349/88 | 1/6/0/0/1/0 | WP04 remains dependency-blocked despite complete file topology. |
+| Parent desktop/runtime package | 11 | 10/0/0/1/0 | 136/32 | 0/9/0/0/2/0 | Signed package/update/rollback and retained release proof remain open. |
+| Payment/subscription | 13 | 11/0/0/2/0 | 91/53 | 0/11/0/2/0/0 | Accepted source closes caller-minted entitlement, in-memory DO, provider-identity, and pending-recovery defects; Account migration, real issuer/provider authority, and expected tests remain open. |
+| Policy control plane | 8 | 7/0/0/1/0 | 210/46 | 0/6/0/0/2/0 | Six workpacks are blocked on trusted source, Device Trust, delivery owners, or other reviewed dependencies. |
+| Portal UX/household surfaces | 20 | 17/0/1/2/0 | 95/67 | 4/14/0/0/2/0 | One tests-only mismatch; upstream live authority remains absent for several surfaces. |
+| Remote access | 6 | 5/0/0/1/0 | 40/22 | 2/4/0/0/0/0 | Authenticated relay/session runtime and proof remain open. |
+| Eventing | 13 | 10/0/1/2/0 | 195/115 | 0/3/0/0/9/1 | WP08 now has a safe fail-closed service ingress but is functionally blocked on eight owner workpacks plus one missing parent-runtime owner and two missing expected tests. WP11 source remains accepted; its replay-test migration and negative/audit families stay in the later test-writing wave. WP10/WP12 remain blocked. |
+| Screen AI pipeline | 10 | 7/0/0/3/0 | 170/43 | 2/8/0/0/0/0 | Eight workpacks are blocked and the policy/custody authority chain remains unresolved. |
+| Screen | 43 | 29/3/0/11/0 | 299/80 | 10/28/0/0/5/0 | The rejected WP32 Rust producer residual is not mapped. Canonical JavaScript semantics remain, but no trusted replacement caller exists and four expected tests remain absent; platform/runtime/custody gaps remain across the plan. |
 | Setup/install/provisioning | 7 | 2/0/0/5/0 | 29/10 | 0/2/0/0/5/0 | Rollout gate is blocked; trusted readiness aggregation remains incomplete. |
-| Tracking | 43 | 36/0/0/7/0 | 134/82 | 41/2/0/0/0/0 | WP40 is now reviewed as an 18-source/2-test composition owner; the shipped caller that connects child tracking flow to the durable journal/ActivityStore is still absent. |
+| Tracking | 43 | 36/0/0/7/0 | 134/82 | 39/4/0/0/0/0 | WP40 is now reviewed as an 18-source/2-test composition owner; the shipped caller that connects child tracking flow to the durable journal/ActivityStore is still absent. |
 | V0.8 enforcement | 20 | 19/0/0/1/0 | 94/72 | 13/1/0/0/6/0 | WP04 remains blocked on the enforcement audit-journal owner. |
 
 All rows describe the current integration checkout. Git does not encode
