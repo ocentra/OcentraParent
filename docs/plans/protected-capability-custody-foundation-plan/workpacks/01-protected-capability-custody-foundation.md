@@ -21,6 +21,15 @@ core-owned admission facade are now active production source, but the broker is
 deliberately unavailable before state creation because the required protected
 Windows authority adapters and installer-owned enrollment do not yet exist.
 
+The installer-side enrollment boundary is deliberately split. Parent Client
+Runtime Distribution WP12 owns the parent Windows MSI/WiX package, elevated
+custom-action/provisioner invocation, build wiring, and upgrade/rollback/
+uninstall lifecycle. This workpack owns the private core/FFI acceptance of the
+installer-provisioned record and the opaque protected outcome. Neither WP12 nor
+any parent caller may submit a raw `authValue`, TPM index/policy, SID, path,
+generation, lease, capability, or success assertion; the TPM authorization
+secret stays behind the approved non-exportable handle and policy.
+
 ## Existing production source
 
 The reviewed live roots are the core manifest and its source files/directories:

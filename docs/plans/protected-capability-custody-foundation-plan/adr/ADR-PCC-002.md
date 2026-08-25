@@ -87,12 +87,35 @@ elevated owner/MDM/OEM ceremony must establish and pin the broker image and SCM
 identity, the enrolled client SID/image, the protected registry root and exact
 ancestor chain, and the TPM2 NV counter/index. Runtime code may verify those
 records but may not self-enroll, widen them, or treat a user-writable registry
-or disk record as authority.
+or disk record as authority. The parent-side MSI/WiX/custom-action and package
+lifecycle boundary is owned by Parent Client Runtime Distribution WP12
+(`12-protected-broker-provisioner-package`); this ADR owns the core-side
+acceptance and opaque proof boundary, not the installer implementation.
+
+The WP12 package may invoke an elevated, installer-only provisioner, but no
+untrusted MSI property, command-line argument, setup field, or parent caller
+may supply an `authValue`, TPM index, policy, SID, image/path identity,
+generation, lease, capability, or success result. A raw TPM `authValue` is not
+part of any package, registry, log, or caller contract. The provisioner keeps
+the authorization secret behind the TPM-owned non-exportable handle and the
+approved TPM policy; the private core adapter verifies only the resulting
+installer-owned enrollment facts and never accepts the raw secret as input.
+
+WP12 places committed package source under
+`scripts/release/windows/parent-protected-custody/`, its WiX manifest at
+`scripts/release/windows/parent-protected-custody.wxs`, and its build wiring at
+`scripts/release/windows/build-parent-protected-custody-package.ps1`. Generated
+MSI/checksum/signing outputs remain release artifacts under
+`target/release-packages/`, not repository source. Existing child-agent WiX and
+installer files are not this boundary.
 
 The monotonic generation authority is a TPM2 NV counter accessed through TBS.
-TPM reset, missing TPM, missing/deleted NV index, owner mismatch, or an
-unavailable TBS path is fail closed and requires re-pair/enrollment. A disk
-snapshot, SQLite row, JSON record, or rollback journal may never restore or
+The private core/FFI boundary owns the TPM policy, index binding, non-exportable
+handle lifetime, and fail-closed validation; the parent installer only performs
+the approved elevated provisioning ceremony and records no raw secret. TPM
+reset, missing TPM, missing/deleted NV index, owner mismatch, or an unavailable
+TBS path is fail closed and requires re-pair/enrollment. A disk snapshot,
+SQLite row, JSON record, MSI property, or rollback journal may never restore or
 advance that generation.
 
 ## Required admission observations
@@ -165,9 +188,18 @@ manifest, package, public adapter target, or broker protocol is planned.
 
 The implementation order is: raw owned-handle/TBS/TPM wrappers; private core
 Windows enrollment, peer, SCM, and monotonic modules; construction through the
-existing core runtime seams; installer/SCM/MDM/OEM provisioning; then the
-production caller. Existing broker/client stubs remain blocked through every
-intermediate step.
+existing core runtime seams; the Parent Runtime WP12 installer-side MSI/WiX
+provisioner and lifecycle contract; then the first real production caller.
+Existing broker/client stubs remain blocked through every intermediate step.
+
+The installer-side contract is intentionally narrow: WP12 owns package
+identity, elevated custom-action scheduling, artifact/build wiring, upgrade and
+rollback ordering, and uninstall/deprovisioning outcomes. It does not own
+protected authority, parse or transport raw `authValue`, choose a TPM index or
+policy, mint an opaque proof, or let a caller bypass the private core adapter.
+Upgrade and rollback must preserve the TPM generation and fail closed rather
+than restore disk state; uninstall must use an explicit owner-approved
+deprovisioning path and must not silently remove protected enrollment.
 
 ## Tests, proof, and downstream routing
 
@@ -178,6 +210,13 @@ adapter expectations are recorded as absent planned core-private tests only:
 crates/protected-capability-custody-core/src/broker_admission/platform/windows_adapter_test.rs
 crates/protected-capability-custody-core/src/broker_admission/platform/tpm_nv_counter_test.rs
 ```
+
+Parent Runtime WP12 separately owns the future package/lifecycle test roots
+`scripts/release/windows/parent-protected-custody/tests/` and
+`tests/repo-tooling/parent-protected-custody-package.test.mjs`. Those tests
+must verify real MSI/WiX/custom-action and upgrade/rollback/uninstall boundary
+behavior without treating package success as protected authority. They do not
+replace the private core adapter/TPM tests or the later installer/runtime proof.
 
 No test source or proof is created by this ADR packet. The tests must exercise
 the real private core module seams and FFI RAII wrappers, not a disconnected

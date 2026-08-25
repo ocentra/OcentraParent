@@ -230,7 +230,7 @@
       "metadata": {
         "planSlug": "parent-desktop-runtime-package-plan",
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-        "workpackCount": 11,
+        "workpackCount": 12,
         "dependencyConfidence": "unreviewed"
       }
     },
@@ -22569,6 +22569,7 @@
       "path": "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
       "parent": "PLAN-parent-desktop-runtime-package-plan",
       "dependsOn": [
+        "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
         "WP-parent-desktop-runtime-package-plan-02-parent-web-portal-distribution",
         "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
         "WP-parent-desktop-runtime-package-plan-04-parent-android-package",
@@ -22598,7 +22599,8 @@
             "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
             "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback",
             "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
-            "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts"
+            "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
+            "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package"
           ],
           "evidence": [
             "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
@@ -22611,9 +22613,10 @@
             "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md",
             "docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md",
             "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
-            "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
+            "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md",
+            "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md"
           ],
-          "reason": "WP11 is the final proof/CI/release gate over WP02-WP10. Its dependencies are normal completion prerequisites; no implementation review is added and no release, signing, updater, setup, or child-runtime authority is claimed."
+          "reason": "WP11 is the final proof/CI/release gate over WP02-WP10 plus the routed WP12 protected broker/provisioner package. Its dependencies are normal completion prerequisites; no implementation review is added and no release, signing, updater, setup, child-runtime, or protected-authority claim is made."
         }
       },
       "completion": {
@@ -22631,6 +22634,72 @@
             "docs/plans/parent-desktop-runtime-package-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        }
+      }
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "kind": "workpack",
+      "title": "WP12 Protected Broker Provisioner Package",
+      "path": "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+      "parent": "PLAN-parent-desktop-runtime-package-plan",
+      "dependsOn": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package"
+      ],
+      "state": "blocked",
+      "lifecycleState": "blocked",
+      "metadata": {
+        "planSlug": "parent-desktop-runtime-package-plan",
+        "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "statusText": "blocked / routing-only",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "tests/repo-tooling/parent-protected-custody-package.test.mjs"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+            "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+          ],
+          "evidence": [
+            "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+            "docs/plans/parent-desktop-runtime-package-plan/NEXT_ACTIONS.md",
+            "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+            "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+            "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+            "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "WP12 is the parent-side package owner for the protected broker/provisioner MSI/WiX, elevated custom-action/build boundary, and upgrade/rollback/uninstall contract. It consumes the Protected WP01 private core/FFI enrollment boundary and the WP03 parent desktop package surface. It may not accept raw authValue or caller authority, edit the child-agent installer, or claim protected readiness; source, tests, proof, signing, and runtime availability remain open."
+        }
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md"
+          ],
+          "tests": [
+            "docs/plans/parent-desktop-runtime-package-plan/TEST_PROOF_EXPECTATIONS.md"
+          ],
+          "proof": [],
+          "checklist": [
+            "docs/plans/parent-desktop-runtime-package-plan/CHECKLIST_INDEX.md"
+          ],
+          "adr": []
+        },
+        "expected": {
+          "tests": [
+            "tests/repo-tooling/parent-protected-custody-package.test.mjs"
+          ]
         }
       }
     },
@@ -33611,6 +33680,12 @@
       "confidence": "structural"
     },
     {
+      "from": "PLAN-parent-desktop-runtime-package-plan",
+      "to": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
       "from": "PLAN-payment-subscription-plan",
       "to": "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
       "kind": "contains",
@@ -34635,6 +34710,45 @@
       "to": "WP-v0-8-enforcement-control-plan-20-rollout-docs-ci-pr-gate",
       "kind": "contains",
       "confidence": "structural"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md"
+      ],
+      "reason": "The parent package can invoke only the Protected WP01 owner-approved enrollment boundary; it cannot mint authority, transport raw authValue, or substitute MSI success for private core/FFI validation.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "to": "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md"
+      ],
+      "reason": "The parent protected-broker package is a desktop distribution artifact and must consume the bounded WP03 desktop package identity/surface without transferring protected authority or setup ownership.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md"
+      ],
+      "reason": "The final parent-client proof/CI/release gate must include the protected broker/provisioner artifact and its carried package/lifecycle blockers; aggregation does not promote installer or protected authority readiness.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
@@ -41468,7 +41582,7 @@
   ],
   "migration": {
     "importedPlans": 24,
-    "importedWorkpacks": 687,
+    "importedWorkpacks": 688,
     "unindexedWorkpackArtifacts": [
       {
         "planId": "PLAN-account-identity-family-plan",
@@ -41706,7 +41820,7 @@
         "planId": "PLAN-parent-desktop-runtime-package-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-        "workpackCount": 11
+        "workpackCount": 12
       },
       {
         "scope": "PLAN-parent-desktop-runtime-package-plan:unindexed-workpack-files",

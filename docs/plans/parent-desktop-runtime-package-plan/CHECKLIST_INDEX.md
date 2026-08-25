@@ -186,3 +186,18 @@
 - [ ] Child runtime distribution excluded.
 - [ ] Manual-required gaps visible.
 - [ ] Release blockers explicit.
+
+## WP12 Protected Broker Provisioner Package
+
+- [ ] Parent-side MSI/WiX artifact boundary is defined.
+- [ ] Elevated installer-only custom-action/provisioner boundary is defined.
+- [ ] Build/release wiring and generated artifact placement are explicit.
+- [ ] Raw `authValue` and caller-supplied authority inputs are rejected by the contract.
+- [ ] Protected WP01 core/FFI authority ownership and opaque handoff are explicit.
+- [ ] Install/repair/upgrade idempotency is defined.
+- [ ] Upgrade rollback preserves TPM generation and fails closed on contradiction.
+- [ ] Uninstall/deprovisioning does not silently remove protected enrollment.
+- [ ] Expected package/lifecycle tests are present and exercise the real boundary.
+- [ ] Required retained proof artifacts are written under the WP12 proof root.
+- [ ] Child-agent installer and setup-journey ownership remain excluded.
+- [ ] No protected readiness, authority, signing, or release claim is made from package success alone.

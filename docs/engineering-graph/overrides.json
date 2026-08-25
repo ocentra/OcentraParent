@@ -1996,7 +1996,8 @@
         "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix",
         "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback",
         "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix",
-        "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts"
+        "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
+        "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package"
       ],
       "evidence": [
         "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
@@ -2009,9 +2010,27 @@
         "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md",
         "docs/plans/parent-desktop-runtime-package-plan/workpacks/08-parent-client-update-rollback.md",
         "docs/plans/parent-desktop-runtime-package-plan/workpacks/09-parent-client-launch-smoke-matrix.md",
-        "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md"
       ],
-      "reason": "WP11 is the final proof/CI/release gate over WP02-WP10. Its dependencies are normal completion prerequisites; no implementation review is added and no release, signing, updater, setup, or child-runtime authority is claimed."
+      "reason": "WP11 is the final proof/CI/release gate over WP02-WP10 plus the routed WP12 protected broker/provisioner package. Its dependencies are normal completion prerequisites; no implementation review is added and no release, signing, updater, setup, child-runtime, or protected-authority claim is made."
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package"
+      ],
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/NEXT_ACTIONS.md",
+        "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP12 is the parent-side package owner for the protected broker/provisioner MSI/WiX, elevated custom-action/build boundary, and upgrade/rollback/uninstall contract. It consumes the Protected WP01 private core/FFI enrollment boundary and the WP03 parent desktop package surface. It may not accept raw authValue or caller authority, edit the child-agent installer, or claim protected readiness; source, tests, proof, signing, and runtime availability remain open."
     },
     {
       "id": "WP-setup-install-provisioning-plan-06-rollout-proof-and-route-gate",
@@ -2896,6 +2915,45 @@
     }
   ],
   "edges": [
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md"
+      ],
+      "reason": "The parent package can invoke only the Protected WP01 owner-approved enrollment boundary; it cannot mint authority, transport raw authValue, or substitute MSI success for private core/FFI validation.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "to": "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md"
+      ],
+      "reason": "The parent protected-broker package is a desktop distribution artifact and must consume the bounded WP03 desktop package identity/surface without transferring protected authority or setup ownership.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",
+      "to": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md"
+      ],
+      "reason": "The final parent-client proof/CI/release gate must include the protected broker/provisioner artifact and its carried package/lifecycle blockers; aggregation does not promote installer or protected authority readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
     {
       "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
       "to": "WP-ai-plan-07-ai-job-queue-contract",

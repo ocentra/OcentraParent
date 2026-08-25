@@ -32,6 +32,25 @@
 - [ ] Define setup handoff inputs and outputs.
 - [ ] Define the proof matrix and external artifact root.
 
+## WP12 protected broker provisioner route
+
+- [ ] Define the parent-side MSI/WiX artifact, elevated custom-action/provisioner
+  invocation, and build/release wiring under
+  `scripts/release/windows/parent-protected-custody/`, with the manifest at
+  `scripts/release/windows/parent-protected-custody.wxs` and the package build
+  entry at `scripts/release/windows/build-parent-protected-custody-package.ps1`.
+- [ ] Consume Protected WP01's private core/FFI enrollment contract without
+  exposing or accepting raw `authValue`, TPM index/policy, SID, path, image,
+  generation, lease, capability, or caller-supplied success.
+- [ ] Define real install/repair/upgrade/rollback/uninstall and explicit
+  deprovisioning outcomes; preserve TPM generation and fail closed on missing
+  or contradictory enrollment.
+- [ ] Add the package/lifecycle tests and retained proof under the WP12 roots;
+  no package success, signing/checksum, or service registration may claim
+  protected authority or runtime readiness.
+- [ ] Keep WP12 blocked until Protected WP01's owner boundary, the real package
+  implementation, expected tests, focused execution, and proof are accepted.
+
 ## WP01 closeout
 
 - WP01 is complete. The canonical scope, Rust-first route-bridge boundary, setup handoff separation, child-runtime exclusion, portal UX handoff, and compatibility-only historical folder path are now proved under `output/parent-client-runtime-distribution-plan-proof/01-parent-client-scope-and-route-boundary/`.

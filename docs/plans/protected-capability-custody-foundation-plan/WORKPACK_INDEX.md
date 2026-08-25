@@ -13,8 +13,9 @@
 Choose exactly one workpack. The source map and graph-native workspace
 requirements are deliberately
 separate: the core/protocol/broker/client production roots are live topology,
-while the one Windows FFI crate, private core Windows modules, production
-caller, and test roots remain expected and missing.
+while the one Windows FFI crate, private core Windows modules, installer-side
+Parent Runtime WP12 package, production caller, and test roots remain expected
+and missing.
 
 The implementation-only repair route is governed by
 [ADR-PCC-002](adr/ADR-PCC-002.md). It selects one existing Rust Windows
@@ -63,6 +64,12 @@ identity, public proof construction, or fake authority.
   process/session IDs are re-queried immediately before transcript
   authorization. TPM reset, missing/deleted NV index, or enrollment mismatch
   is fail closed and requires re-pair; disk state cannot restore generation.
+- Parent Client Runtime Distribution WP12 owns only the parent-side MSI/WiX
+  package, elevated custom-action/provisioner invocation, build/release wiring,
+  and upgrade/rollback/uninstall lifecycle. It may not expose or accept raw
+  `authValue`, TPM index/policy, SID, path, image identity, generation, lease,
+  capability, or success input. Protected WP01 remains the sole owner of the
+  private core/FFI enrollment and TPM-policy acceptance boundary.
 - Account WP05A is the coordinator consumer. Device Trust WP01 and WP03 are
   owner-participant/ceremony consumers. Their graph edges are implementation
   ordering only; their source, tests, proof, and DONE rows remain open.
