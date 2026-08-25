@@ -113,6 +113,7 @@ pub const SELECT_APP_GAME_JOURNAL_ACTIVITY: &str = "
 SELECT
   fields_json
 FROM activity_events
+WHERE json_type(fields_json, '$.appGameRowKind') = 'text'
 ORDER BY observed_at DESC, event_id DESC
 LIMIT ?1;";
 
