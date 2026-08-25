@@ -2210,11 +2210,20 @@ async function incrementTouchCounter(env: Env, counterKey: string): Promise<void
   await env.BILLING_RATE_LIMIT_KV?.put(fullKey, String(next));
 }
 
+async function hashAnalyticsSubject(subject: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(`ocentra.billing.analytics.subject.v1:${subject}`)
+  );
+  return `sha256:${Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+}
+
 async function recordBindingRead(env: Env, counterKey: string, subject: string | null): Promise<void> {
   await incrementTouchCounter(env, counterKey);
+  const subjectDigest = subject === null ? null : await hashAnalyticsSubject(subject);
   env.ANALYTICS?.writeDataPoint({
     indexes: [counterKey],
-    blobs: subject ? [subject] : [],
+    blobs: subjectDigest ? [subjectDigest] : [],
     doubles: [1],
   });
 }
