@@ -4762,7 +4762,6 @@
         "crates/agent-core/src/browser_bridge_capture/target.rs",
         "crates/agent-core/src/browser_bridge_capture/transport.rs",
         "crates/agent-core/src/browser_bridge_capture/transport/screenshot.rs",
-        "crates/agent-service/src/screen_managed_browser_cdp_runtime.rs",
         "crates/agent-service/src/screen_managed_browser_structured_route_composition.rs",
         "crates/screen-ai-core/src/screen_intelligence_router",
         "crates/screen-ai-core/src/screen_intelligence_router_logic",
@@ -4772,7 +4771,7 @@
       "plannedImplementationRoots": [
         "crates/agent-service/src/screen_managed_browser_structured_route_composition.rs"
       ],
-      "note": "Reviewed fail-closed production source now provides a bounded CDP structural probe, opaque producer binding, redacted/digest-only handoff, frozen-capture safety checks, and neutral screen-router input. No executable service caller composes the browser owner with policy safe-disclosure authority, unknown sensitivity never authorizes capture or NoScreenNeeded, and the planned composition owner plus all focused tests remain absent."
+      "note": "Reviewed fail-closed production source now provides a bounded CDP structural probe, opaque producer binding, redacted/digest-only handoff, frozen-capture safety checks, and neutral screen-router input. Commit 55fc8ba13 deleted and rejected the prior screen_managed_browser_cdp_runtime.rs root, so it is not an accepted implementation target. No executable service caller composes the browser owner with policy safe-disclosure authority, unknown sensitivity never authorizes capture or NoScreenNeeded, and the planned structured-route composition owner plus all focused tests remain absent."
     },
     "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path": {
       "planSlug": "screen-plan",
@@ -4797,10 +4796,9 @@
         "crates/screen-capture-adapter/src/managed_browser_cdp/decoder.rs",
         "crates/screen-capture-adapter/src/managed_browser_cdp/structure.rs",
         "crates/screen-capture-adapter/src/managed_browser_cdp/chunks.rs",
-        "crates/agent-service/src/browser_runtime_status.rs",
-        "crates/agent-service/src/screen_managed_browser_cdp_runtime.rs"
+        "crates/agent-service/src/browser_runtime_status.rs"
       ],
-      "note": "Rust production source is present and mapped; all seven checklist rows, browser-owner trigger wiring, focused tests, live browser proof, deletion proof, and CI remain deferred. No proof/test roots are treated as implementation roots."
+      "note": "The retained browser/capture source is mapped, but commit 55fc8ba13 deleted and rejected screen_managed_browser_cdp_runtime.rs; that root is not an accepted implementation target. All seven checklist rows, a replacement browser-owner trigger/runtime composition, focused tests, live browser proof, deletion proof, and CI remain deferred. No proof/test roots are treated as implementation roots."
     },
     "WP-screen-plan-34-ocr-tesseract-baseline": {
       "planSlug": "screen-plan",
