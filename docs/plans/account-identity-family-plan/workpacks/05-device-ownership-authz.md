@@ -69,6 +69,12 @@ manage billing
 support/admin review
 ```
 
+WP05A's capability/controller-lease reservation scope is deliberately narrow:
+it applies only to `start remote view` and `start remote control` above. Every
+other action row keeps its own owner gate; the presence of a capability or
+lease field in the general matrix does not authorize a broad Account
+reservation.
+
 ## Expected source changes
 
 Likely paths:
@@ -139,9 +145,9 @@ contract/proof slice and remain open:
 - [ ] The Account-owned runtime effect-fencing coordinator is routed through
   `workpacks/05-runtime-effect-fencing-coordinator.md`; it coordinates opaque
   owner reservations and does not copy Device Trust or parent-step-up truth.
-- [ ] Account capability and controller-lease reservation adapters bind one
-  exact action/target/generation/expiry and participate in prepare/commit/abort
-  without caller-minted state.
+- [ ] Account capability and controller-lease reservation adapters for remote
+  view/control bind one exact action/target/generation/expiry and participate
+  in prepare/commit/abort without caller-minted state.
 - [ ] Recovery reopens only an exact idempotent committed outcome after
   crash/restart; replay, target mismatch, stale generation, owner revocation,
   partial commit, and uncertainty fail closed without minting a new receipt.
@@ -234,12 +240,22 @@ blocked, not implementation-complete.
 
 The next legal source packet is the Account WP05A coordinator in
 `workpacks/05-runtime-effect-fencing-coordinator.md`. It owns coordinator
-schema/recovery and Account-side capability/lease reservation adapters while
+schema/recovery and Account-side remote-view/remote-control capability/lease
+reservation adapters while
 Account WP02/WP08, Device Trust WP01, and Device Trust WP03 retain their own
 currentness and receipt truth. The existing runtime composer/ports remain
 integration seams only and must not be listed as completing this owner. Data
 Custody WP08's confirmation staging/consume path depends on the typed opaque
 handoff and cannot bypass this dependency.
+
+The participant consumes the existing WP08-owned transaction-scoped Account
+reservation seam in:
+`crates/family-identity-core/src/account_identity_authority_repository.rs`,
+`crates/family-identity-core/src/account_identity_authority_repository_read.rs`,
+and `crates/family-identity-core/src/account_identity_authority_repository_cas.rs`.
+Protected Custody WP01 is a direct prerequisite for its protected admission
+outcome. The six WP05A fence roots remain absent; this routing note does not
+claim implementation or tests.
 
 ## Fill before DONE
 

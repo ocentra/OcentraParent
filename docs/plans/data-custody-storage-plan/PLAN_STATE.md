@@ -18,7 +18,7 @@
 
 This plan owns data custody guarantees, encrypted storage, evidence retention, export/import/restore, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, report/query custody, and parent storage settings/apply flow.
 
-Route status: execution-grade architecture and an integrated production-source wave now exist. Current source closes the WP02 cross-scope decrypt-authority gap, WP03 manifest-custody gap, WP05's bounded schema/storage/parent-runtime source packet, WP06's Rust request/row/sealed-proof plus generated TypeScript custody boundary, and places the WP04/WP07 durable effect/tombstone lifecycle in its child-runtime owner. WP06 now requires all seven outcome states, returns a private-inner validated proof snapshot, rejects source/proof results above the requested page size, and keeps Rust/generated request, row, citation, authority-generation, and pagination rules aligned. Its Account authority is an issuance-time snapshot only; WP06 does not re-read the durable Account repository or claim race-safe or revocation-linearized currentness. No report/query runtime consumer reaches it. Parent Storage Settings WP08 remains source-incomplete: its confirmation staging/consume path cannot reach `Applied` or `Partial` until Account WP05 supplies the durable opaque-effect CAS/recovery handoff. WP05's external Account/key/provider/producer composition, production caller reachability, expected tests, focused execution, proof, precommit/CI, and PR remain open; unavailable provider-backed paths stay manual-required. This source wave deliberately did not write or run tests, regenerate proof, run precommit/CI, or claim DONE or PR_READY. Older checked rows and ignored `output/` roots remain historical until the later test/proof waves re-accept them from a clean checkout.
+Route status: execution-grade architecture and an integrated production-source wave now exist. Current source closes the WP02 cross-scope decrypt-authority gap, WP03 manifest-custody gap, WP05's bounded schema/storage/parent-runtime source packet, WP06's Rust request/row/sealed-proof plus generated TypeScript custody boundary, and places the WP04/WP07 durable effect/tombstone lifecycle in its child-runtime owner. WP06 now requires all seven outcome states, returns a private-inner validated proof snapshot, rejects source/proof results above the requested page size, and keeps Rust/generated request, row, citation, authority-generation, and pagination rules aligned. Its Account authority is an issuance-time snapshot only; WP06 does not re-read the durable Account repository or claim race-safe or revocation-linearized currentness. No report/query runtime consumer reaches it. Parent Storage Settings WP08 remains source-incomplete: its confirmation staging/consume path cannot reach `Applied` or `Partial` until Account WP05A supplies the durable multi-owner coordinator handoff for ParentOwner/step-up-bound Data actions while consuming WP05's base and WP08's Account seams. WP05's external Account/key/provider/producer composition, production caller reachability, expected tests, focused execution, proof, precommit/CI, and PR remain open; Account WP05A's Data-action coordinator is not implemented; remote-view/remote-control capability and controller-lease reservations remain outside these Data routes; unavailable provider-backed paths stay manual-required. This source wave deliberately did not write or run tests, regenerate proof, run precommit/CI, or claim DONE or PR_READY. Older checked rows and ignored `output/` roots remain historical until the later test/proof waves re-accept them from a clean checkout.
 
 ## 2026-08-18 source-map refresh
 
@@ -157,7 +157,7 @@ tests, focused execution, proof, precommit, CI, and PR are intentionally
 deferred to their later phases.
 
 The 2026-08-18 routing correction regenerates the engineering graph from this
-plan's explicit WP05 base, Account WP05 participant/CAS source prerequisite,
+plan's explicit WP05 base and Account WP05A owner-coordinator prerequisite,
 parallel WP09/WP10 downstream source routes, and dependency-blocked WP11
 composition/mount route. Reviewed-implementation gates preserve the mandated
 source-before-tests order without promoting normal READY, tests, proof, or
@@ -266,11 +266,14 @@ WP11's planned roots are only:
 - `crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs`
 - `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`
 
-WP11 cannot advance until Account WP05 supplies the true authority
-transaction/CAS and recovery owner, key/import custody is owner-resolved,
-producer artifact custody is available, WP09 supplies provider operation
-capability, and WP10 supplies owner-derived outcomes. WP09 and WP10 now depend
-on the WP05 base only and remain independent of WP11, so the route is acyclic.
+WP11 cannot advance until Account WP05 supplies the base authority
+transaction/CAS consumer seam and Account WP05A supplies the durable
+multi-owner effect/CAS coordinator, recovery owner, and typed Data handoff;
+key/import custody is owner-resolved, producer artifact custody is available,
+WP09 supplies provider operation capability, and WP10 supplies owner-derived
+outcomes. WP09 and WP10 retain the direct WP05 base dependency and add the
+direct WP05A coordinator/recovery dependency; they remain independent of WP11,
+so the route is acyclic.
 No private trait is made public, and no runtime completeness, proof, PR
 readiness, or plan completion is claimed.
 
@@ -294,7 +297,9 @@ owner-side adapter/interface decision rather than making the port public or
 inventing authority.
 
 There is no honest WP05-only source patch that closes those gaps. The first
-remaining order is Account WP05 current authority/fencing, then Data WP09 byte
-custody, WP10 producer handoffs, WP11 composition/mount, and finally a real
-runtime caller. Tests are written after those production owners are complete;
-no proof, validation, or completion promotion is implied by this audit.
+remaining order is Account WP05's base authority/CAS consumer seam, Account
+WP05A's durable multi-owner coordinator/recovery typed Data handoff, Data WP09
+byte custody and WP10 producer handoffs, WP11 composition/mount, and finally a
+real runtime caller. Tests are written after those production owners are
+complete; no proof, validation, or completion promotion is implied by this
+audit.

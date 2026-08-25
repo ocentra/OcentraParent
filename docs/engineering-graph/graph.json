@@ -898,7 +898,7 @@
           "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
         },
         "stateOverride": {
-          "reason": "WP05's shipped runtime composer exposes only a fail-closed manual-required CAS fence. The old Account-only CAS route is retired because it cannot atomically own Device Trust or parent-step-up currentness. WP05A now owns coordinator recovery, the private Account participant adapter, and Account capability/lease reservations; owner participants and typed handoff remain missing, so Data Custody confirmation staging/consume and implementation READY are not legal.",
+          "reason": "WP05's shipped runtime composer exposes only a fail-closed manual-required CAS fence. The old Account-only CAS route is retired because it cannot atomically own Device Trust or parent-step-up currentness. WP05A now owns coordinator recovery, the private Account participant adapter, and Account remote-view/remote-control capability/lease reservations; owner participants and typed handoff remain missing, so Data Custody confirmation staging/consume and implementation READY are not legal.",
           "evidence": [
             "docs/plans/account-identity-family-plan/PLAN_STATE.md",
             "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
@@ -979,10 +979,10 @@
             "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "This is a planned coordinator route, not an implementation-ready packet. It owns only opaque operation identity, durable prepare/commit/abort/recover ordering, exact committed replay, a private Account participant adapter, and Account-side capability/controller-lease reservation adapters. Account WP02/WP08 retain Account source truth; Device Trust currentness and parent step-up remain separate owner participants; missing sources/tests/proof and cross-store uncertainty keep this workpack blocked."
+          "reason": "This is a planned coordinator route, not an implementation-ready packet. It owns only opaque operation identity, durable prepare/commit/abort/recover ordering, exact committed replay, a private Account participant adapter, and Account-side capability/controller-lease reservation adapters for start remote view/control only. It consumes the WP08-owned repository/read/CAS seam and Protected Custody WP01 admission outcome; Account WP02/WP08, Device Trust currentness, and parent step-up remain separate owners. Missing sources/tests/proof and cross-store uncertainty keep this workpack blocked."
         },
         "stateOverride": {
-          "reason": "WP05A is a newly routed, blocked coordinator workpack. Its planned coordinator/recovery and Account capability/lease roots, Device Trust participant roots, and expected tests are absent. It must coordinate opaque owner reservations without copying Account authority, Device Trust currentness, parent step-up, capability, or lease truth; no source, tests, proof, runtime reachability, READY, or DONE claim is made.",
+          "reason": "WP05A is a newly routed, blocked coordinator workpack. Its planned coordinator/recovery and Account remote-view/remote-control capability/lease roots, Device Trust participant roots, and expected tests are absent. It must consume the WP08 repository/read/CAS seam and Protected Custody WP01 admission outcome while coordinating opaque owner reservations without copying Account authority, Device Trust currentness, parent step-up, capability, or lease truth; no source, tests, proof, runtime reachability, READY, or DONE claim is made.",
           "evidence": [
             "docs/plans/account-identity-family-plan/MULTI_OWNER_EFFECT_FENCING_DECISION.md",
             "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
@@ -1318,57 +1318,16 @@
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
-            "crates/schema/src/ai_contracts.rs",
-            "crates/schema/src/ai_contracts/context.rs",
-            "crates/schema/src/ai_contracts/context/evidence.rs",
-            "crates/schema/src/ai_contracts/context/provenance.rs",
-            "crates/schema/src/ai_contracts/context/request.rs",
-            "crates/schema/src/ai_contracts/context/result.rs",
-            "crates/schema/src/ai_contracts/context/rule_prompt.rs",
-            "crates/schema/src/ai_contracts/context/runtime.rs",
-            "crates/schema/src/ai_contracts/explanation.rs",
-            "crates/schema/src/ai_contracts/explanation/citation.rs",
-            "crates/schema/src/ai_contracts/explanation/document.rs",
-            "crates/schema/src/ai_contracts/explanation/section.rs",
-            "crates/schema/src/ai_contracts/identity.rs",
-            "crates/schema/src/ai_contracts/identity/actor.rs",
-            "crates/schema/src/ai_contracts/identity/schema.rs",
-            "crates/schema/src/ai_contracts/identity/subject.rs",
-            "crates/schema/src/ai_contracts/identity/timestamp.rs",
-            "crates/schema/src/ai_contracts/identity/timestamp/calendar.rs",
-            "crates/schema/src/ai_contracts/identity/timestamp/format.rs",
-            "crates/schema/src/ai_contracts/journal.rs",
-            "crates/schema/src/ai_contracts/journal/cursor.rs",
-            "crates/schema/src/ai_contracts/journal/entry.rs",
-            "crates/schema/src/ai_contracts/journal/payload.rs",
-            "crates/schema/src/ai_contracts/memory.rs",
-            "crates/schema/src/ai_contracts/memory/graph.rs",
-            "crates/schema/src/ai_contracts/memory/provenance.rs",
-            "crates/schema/src/ai_contracts/memory/reference.rs",
-            "crates/schema/src/ai_contracts/reference_inventory.rs",
-            "crates/schema/src/ai_contracts/remote_assistant.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/authorization.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/request.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/result.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/source.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/wire.rs",
-            "crates/schema/src/ai_contracts/result.rs",
-            "crates/schema/src/ai_contracts/result/claim.rs",
-            "crates/schema/src/ai_contracts/result/document.rs",
-            "crates/schema/src/ai_contracts/result/handoff.rs",
-            "crates/schema/src/ai_contracts/result/payload.rs",
-            "crates/schema/src/ai_contracts/work.rs",
-            "crates/schema/src/ai_contracts/work/item.rs",
-            "crates/schema/src/ai_contracts/work/lifecycle.rs",
-            "crates/schema/src/ai_contracts/work/request.rs",
-            "crates/schema/src/ai_contracts/work/state.rs",
-            "crates/schema/src/ai_contracts_ts.rs",
-            "crates/schema/src/bin/export_ai_contract_types.rs",
-            "crates/schema/src/lib.rs"
+            "crates/ai-contracts/src/lib.rs",
+            "crates/ai-contracts/src/ai_contracts.rs",
+            "crates/ai-contracts/src/ai_contracts/journal/digest.rs",
+            "crates/ai-contracts/src/ai_contracts/result/digest.rs",
+            "crates/ai-contracts/src/ai_contracts_ts.rs",
+            "crates/schema/src/bin/export_ai_contract_types.rs"
           ],
           "testRoots": [
-            "crates/schema/tests/contract/ai_contracts.rs",
-            "crates/schema/tests/contract/ai_contracts_negative.rs",
+            "crates/ai-contracts/tests/contract/ai_contracts.rs",
+            "crates/ai-contracts/tests/contract/ai_contracts_negative.rs",
             "packages/schema-domain/tests/contract/ai-contracts.test.ts"
           ]
         },
@@ -1380,10 +1339,10 @@
             "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "WP03 source is integrated through f9225e24a in crates/schema with generated schema-domain edge source. No general production caller is mapped; three expected contract/negative test roots remain absent. This records source topology only and does not claim tests, proof, runtime/provider readiness, READY, or DONE."
+          "reason": "WP03 source is reviewed at canonical 83382d67b in crates/schema, including the journal/result digest modules and generated schema-domain edge source. This is implementation-only evidence for the source-preserving move to neutral ocentra-ai-contracts; no general production caller is mapped and three expected contract/negative/parity test roots remain absent. Migration, tests, proof, runtime/provider readiness, READY, and DONE are not claimed."
         },
         "stateOverride": {
-          "reason": "Rust-owned WP03 source is integrated through f9225e24a, but no general production caller is mapped and the three expected contract/negative/parity test roots are absent. Keep the workpack in validation routing; source presence does not imply READY, proof, or DONE.",
+          "reason": "Rust-owned WP03 source is reviewed at canonical 83382d67b, including journal/result digest implementation, but the source-preserving neutral-leaf migration, no general production caller, and three expected contract/negative/parity test roots remain open. Keep the workpack in validation routing; implementation-only evidence does not imply READY, proof, or DONE.",
           "evidence": [
             "docs/plans/ai-plan/PLAN_STATE.md",
             "docs/plans/ai-plan/NEXT_ACTIONS.md",
@@ -1404,58 +1363,44 @@
         },
         "expected": {
           "implementation": [
-            "crates/schema/src/ai_contracts.rs",
-            "crates/schema/src/ai_contracts/context.rs",
-            "crates/schema/src/ai_contracts/context/evidence.rs",
-            "crates/schema/src/ai_contracts/context/provenance.rs",
-            "crates/schema/src/ai_contracts/context/request.rs",
-            "crates/schema/src/ai_contracts/context/result.rs",
-            "crates/schema/src/ai_contracts/context/rule_prompt.rs",
-            "crates/schema/src/ai_contracts/context/runtime.rs",
-            "crates/schema/src/ai_contracts/explanation.rs",
-            "crates/schema/src/ai_contracts/explanation/citation.rs",
-            "crates/schema/src/ai_contracts/explanation/document.rs",
-            "crates/schema/src/ai_contracts/explanation/section.rs",
-            "crates/schema/src/ai_contracts/identity.rs",
-            "crates/schema/src/ai_contracts/identity/actor.rs",
-            "crates/schema/src/ai_contracts/identity/schema.rs",
-            "crates/schema/src/ai_contracts/identity/subject.rs",
-            "crates/schema/src/ai_contracts/identity/timestamp.rs",
-            "crates/schema/src/ai_contracts/identity/timestamp/calendar.rs",
-            "crates/schema/src/ai_contracts/identity/timestamp/format.rs",
-            "crates/schema/src/ai_contracts/journal.rs",
-            "crates/schema/src/ai_contracts/journal/cursor.rs",
-            "crates/schema/src/ai_contracts/journal/entry.rs",
-            "crates/schema/src/ai_contracts/journal/payload.rs",
-            "crates/schema/src/ai_contracts/memory.rs",
-            "crates/schema/src/ai_contracts/memory/graph.rs",
-            "crates/schema/src/ai_contracts/memory/provenance.rs",
-            "crates/schema/src/ai_contracts/memory/reference.rs",
-            "crates/schema/src/ai_contracts/reference_inventory.rs",
-            "crates/schema/src/ai_contracts/remote_assistant.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/authorization.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/request.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/result.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/source.rs",
-            "crates/schema/src/ai_contracts/remote_assistant/wire.rs",
-            "crates/schema/src/ai_contracts/result.rs",
-            "crates/schema/src/ai_contracts/result/claim.rs",
-            "crates/schema/src/ai_contracts/result/document.rs",
-            "crates/schema/src/ai_contracts/result/handoff.rs",
-            "crates/schema/src/ai_contracts/result/payload.rs",
-            "crates/schema/src/ai_contracts/work.rs",
-            "crates/schema/src/ai_contracts/work/item.rs",
-            "crates/schema/src/ai_contracts/work/lifecycle.rs",
-            "crates/schema/src/ai_contracts/work/request.rs",
-            "crates/schema/src/ai_contracts/work/state.rs",
-            "crates/schema/src/ai_contracts_ts.rs",
-            "crates/schema/src/bin/export_ai_contract_types.rs",
-            "crates/schema/src/lib.rs"
+            "crates/ai-contracts/src/lib.rs",
+            "crates/ai-contracts/src/ai_contracts.rs",
+            "crates/ai-contracts/src/ai_contracts/journal/digest.rs",
+            "crates/ai-contracts/src/ai_contracts/result/digest.rs",
+            "crates/ai-contracts/src/ai_contracts_ts.rs",
+            "crates/schema/src/bin/export_ai_contract_types.rs"
           ],
           "tests": [
-            "crates/schema/tests/contract/ai_contracts.rs",
-            "crates/schema/tests/contract/ai_contracts_negative.rs",
+            "crates/ai-contracts/tests/contract/ai_contracts.rs",
+            "crates/ai-contracts/tests/contract/ai_contracts_negative.rs",
             "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+          ]
+        },
+        "workspaceRequirements": {
+          "rootManifest": "Cargo.toml",
+          "packages": [
+            {
+              "manifest": "crates/ai-contracts/Cargo.toml",
+              "package": "ocentra-ai-contracts",
+              "activeMember": true,
+              "requiredTargets": [
+                {
+                  "kind": "lib",
+                  "path": "crates/ai-contracts/src/lib.rs"
+                }
+              ]
+            },
+            {
+              "manifest": "crates/schema/Cargo.toml",
+              "package": "ocentra-schema",
+              "activeMember": true,
+              "requiredTargets": [
+                {
+                  "kind": "bin",
+                  "path": "crates/schema/src/bin/export_ai_contract_types.rs"
+                }
+              ]
+            }
           ]
         }
       }
@@ -1496,7 +1441,7 @@
             "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "WP04 has partial local-AI/assistant Rust shapes, but complete protocol and generated edge parity cannot be accepted before WP03 owns the canonical general AI family. WP04 owns only its Rust protocol contract test and consumes WP03's shared TypeScript parity test; it must not duplicate schema ownership, claim packages/schema-domain/tests/contract/ai-contracts.test.ts, or create public re-export shims."
+          "reason": "WP04 has partial local-AI/assistant Rust shapes, but complete protocol parity cannot be accepted before WP03's source-preserving neutral ocentra-ai-contracts move. WP04 owns only its explicit adapter and Rust protocol contract test; it consumes WP03's shared TypeScript parity test and must not duplicate schema ownership, create public re-export shims, or add authority constructors."
         }
       },
       "completion": {
@@ -18539,7 +18484,7 @@
             "docs/PLAN_CODE_STATUS_MATRIX.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Independent source review accepted the bounded fail-closed Data WP05 source route, including the parent-runtime rollback dispatch authority binding. Live caller/test audit finds no production implementation of the Account/provider/key/producer ports, all five expected runtime test roots are absent, blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort requires an owner-side adapter before cross-crate mounting. The remaining source order is Account WP05, Data WP09, WP10, WP11 composition, then a real caller; focused execution, proof, checklist acceptance, PR readiness, and DONE remain open."
+          "reason": "Independent source review accepted the bounded fail-closed Data WP05 source route, including the parent-runtime rollback dispatch authority binding. Live caller/test audit finds no production implementation of the Account/provider/key/producer ports, all five expected runtime test roots are absent, blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort requires an owner-side adapter before cross-crate mounting. The remaining source order is Account WP05 base authority/CAS consumer seam -> Account WP05A durable multi-owner coordinator/recovery typed Data handoff -> Data WP09/WP10 -> WP11 composition -> real caller; focused execution, proof, checklist acceptance, PR readiness, and DONE remain open."
         },
         "completionEvidenceOverride": {
           "reason": "Independent source review accepted bounded fail-closed Data WP05 production source: versioned bundle/import decisions, sealed preflight custody, durable backup and restore/migration ledgers, restart reconciliation, rollback/executor seams, and file-backed Eventing. No production caller implements the Account/provider/key/producer ports; all five expected tests are absent, the blocked-restore test is stale against source, and the sealed import port needs an owner adapter. Focused validation, proof, checklist acceptance, PR readiness, and DONE remain open.",
@@ -18785,14 +18730,15 @@
         "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
         "WP-data-custody-storage-plan-04-retention-delete-tombstone",
         "WP-data-custody-storage-plan-05-export-import-backup-recovery",
-        "WP-account-identity-family-plan-05-device-ownership-authz"
+        "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator"
       ],
       "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "planned / source route / waiting on Account WP05 source",
+        "statusText": "planned / source route / waiting on Account WP05 + WP05A",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -18808,6 +18754,7 @@
         "dependencyReview": {
           "hardDependencies": [
             "WP-account-identity-family-plan-05-device-ownership-authz",
+            "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
             "WP-data-custody-storage-plan-02-encryption-key-custody",
             "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
             "WP-data-custody-storage-plan-04-retention-delete-tombstone",
@@ -18820,7 +18767,7 @@
             "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md"
           ],
-          "reason": "WP05 live-code audit found no parent-local/provider writer or retriever, scheduler, cryptographic byte verifier, or job custody runtime. WP09 is a new source-and-test owner with reviewed planned Rust roots that are currently missing; it owns encrypted bytes, atomic persistence/retrieval, retry/restart custody, and a provider-neutral adapter and must not fake a cloud provider or claim tests/proof/DONE."
+          "reason": "WP05 live-code audit found no parent-local/provider writer or retriever, scheduler, cryptographic byte verifier, or job custody runtime. WP09 is a new source-and-test owner with reviewed planned Rust roots that are currently missing. The direct source order is WP05 base authority consumer -> Account WP05A multi-owner coordinator/recovery typed Data handoff -> WP09 provider runtime, jointly resolved across Account, Device Trust, Parent Step-Up, and Protected Custody for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. WP09 owns encrypted bytes, atomic persistence/retrieval, retry/restart custody, and a provider-neutral adapter, and must not fake a cloud provider or claim tests/proof/DONE."
         }
       },
       "completion": {
@@ -18859,6 +18806,7 @@
         "WP-data-custody-storage-plan-04-retention-delete-tombstone",
         "WP-data-custody-storage-plan-05-export-import-backup-recovery",
         "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
       ],
       "state": "blocked",
@@ -18866,7 +18814,7 @@
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "planned / source route / waiting on Account WP05 source",
+        "statusText": "planned / source route / waiting on Account WP05 + WP05A",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -18882,6 +18830,7 @@
         "dependencyReview": {
           "hardDependencies": [
             "WP-account-identity-family-plan-05-device-ownership-authz",
+            "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
             "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
             "WP-data-custody-storage-plan-02-encryption-key-custody",
             "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
@@ -18895,7 +18844,7 @@
             "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md"
           ],
-          "reason": "WP05 base owns the durable restore/migration ledger and restart seam. WP10 is the independent downstream source-and-test orchestration owner with reviewed planned Rust roots that are currently missing; it owns pure producer handoffs, trusted confirmation/authority inputs, producer outcomes, tombstone/no-resurrection, and crash/restart decisions and cannot mint receipts, mutate data classes, or depend on WP09/WP11 composition."
+          "reason": "WP05 base owns the durable restore/migration ledger and restart seam. WP10 is the independent downstream source-and-test orchestration owner with reviewed planned Rust roots that are currently missing. The direct source order is WP05 base authority consumer -> Account WP05A multi-owner coordinator/recovery typed Data handoff -> WP10 producer orchestration, jointly resolved across Account, Device Trust, Parent Step-Up, and Protected Custody for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. WP10 owns pure producer handoffs, trusted confirmation/authority inputs, producer outcomes, tombstone/no-resurrection, and crash/restart decisions and cannot mint receipts, mutate data classes, or depend on WP09/WP11 composition."
         }
       },
       "completion": {
@@ -18933,7 +18882,8 @@
         "WP-data-custody-storage-plan-02-encryption-key-custody",
         "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
         "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
-        "WP-account-identity-family-plan-05-device-ownership-authz"
+        "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator"
       ],
       "state": "blocked",
       "lifecycleState": "planned",
@@ -18957,6 +18907,7 @@
         "dependencyReview": {
           "hardDependencies": [
             "WP-account-identity-family-plan-05-device-ownership-authz",
+            "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
             "WP-data-custody-storage-plan-02-encryption-key-custody",
             "WP-data-custody-storage-plan-05-export-import-backup-recovery",
             "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
@@ -18972,7 +18923,7 @@
             "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "New blocked parent-runtime composition/mount route. WP05 supplies the base ledgers, reconciliation, Eventing/outbox, and manual-required gates; Account WP05A must supply the multi-owner coordinator/recovery route and typed opaque owner handoff without claiming cross-store atomicity; Data WP02 must supply key/import custody; producer owners must supply sealed artifact custody; WP09 must supply provider operation capability; and WP10 must supply owner-derived outcomes. The composition roots are absent, private mount traits stay private, and no runtime completeness or fake success is permitted."
+          "reason": "New blocked parent-runtime composition/mount route. The direct source order is WP05 base authority consumer/ledgers -> Account WP05A multi-owner coordinator/recovery typed Data handoff -> WP09 and WP10 -> WP11 composition. WP05 supplies the base ledgers, reconciliation, Eventing/outbox, and manual-required gates; Account WP05A must supply the multi-owner coordinator/recovery route and typed opaque owner handoff for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions, jointly resolved with Account, Device Trust, Parent Step-Up, and Protected Custody, without claiming cross-store atomicity. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. Data WP02 must supply key/import custody; producer owners must supply sealed artifact custody; WP09 must supply provider operation capability; and WP10 must supply owner-derived outcomes. The composition roots are absent, private mount traits stay private, and no runtime completeness or fake success is permitted."
         }
       },
       "completion": {
@@ -35121,7 +35072,20 @@
         "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
       ],
-      "reason": "Manual or scheduled custody jobs require the Account-owned current authority, capability, and lease source composition. The reviewed-implementation gate remains blocked until Account WP05 records its missing durable participant/CAS source; it never borrows runtime authority or claims tests, proof, or DONE.",
+      "reason": "Manual or scheduled Data actions require the Account WP05 base authority/CAS handoff plus the Account WP05A multi-owner coordinator outcome for the ParentOwner-bound ExportDeleteData/ImportRestoreData handoff. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. The reviewed-implementation gate remains blocked until those WP05 base and WP05A owner sources exist; it never borrows runtime authority or claims tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+      "to": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP09 requires the direct reviewed Account WP05A multi-owner outcome for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions and typed Data handoff, jointly resolved across Account, Device Trust, Parent Step-Up, and Protected Custody, while retaining the separate WP05 base ledger edge. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. Missing WP05A source keeps this gate blocked; no authority, tests, proof, or DONE is inferred.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -35181,7 +35145,20 @@
         "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
       ],
-      "reason": "Apply, migration, and rollback require the Account-owned current capability, lease, and session source authority. The reviewed-implementation gate remains blocked until Account WP05 records its missing durable participant/CAS source; it never borrows runtime authority or claims tests, proof, or DONE.",
+      "reason": "Apply, migration, and rollback require the Account WP05 base authority/CAS handoff plus the Account WP05A multi-owner coordinator outcome for the ParentOwner-bound ExportDeleteData/ImportRestoreData handoff. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. The reviewed-implementation gate remains blocked until those WP05 base and WP05A owner sources exist; it never borrows runtime authority or claims tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "to": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP10 requires the direct reviewed Account WP05A multi-owner outcome for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions and typed Data handoff, jointly resolved across Account, Device Trust, Parent Step-Up, and Protected Custody, while retaining the separate WP05 base ledger edge. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. Missing WP05A source keeps this gate blocked; no authority, tests, proof, or DONE is inferred.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -36557,6 +36534,19 @@
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
       ],
       "reason": "WP11 is blocked until Account WP05A supplies the typed opaque multi-owner coordinator handoff and owner-specific recovery; caller-selected authority and claimed cross-store atomicity are not accepted. The reviewed-implementation gate never borrows runtime authority or claims tests, proof, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+      "to": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP11 requires the direct reviewed Account WP05A multi-owner outcome for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions and typed Data handoff, jointly resolved across Account, Device Trust, Parent Step-Up, and Protected Custody, while retaining the separate WP05 base ledger edge. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. Missing WP05A source keeps this gate blocked; no authority, tests, proof, or DONE is inferred.",
       "implementationGate": "reviewed-implementation"
     },
     {

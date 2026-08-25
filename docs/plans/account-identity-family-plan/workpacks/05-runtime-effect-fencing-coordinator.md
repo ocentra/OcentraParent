@@ -17,9 +17,11 @@
 
 ## Intent
 
-Provide the smallest honest coordinator for high-risk runtime effects that
-require Account authority, Device Trust currentness, parent step-up, a scoped
-capability, and a controller lease at the same time.
+Provide the smallest honest coordinator for the runtime effects currently
+represented by `start remote view` and `start remote control`, which require
+Account authority, Device Trust currentness, parent step-up, the matching
+scoped capability, and a controller lease at the same time. Other action-matrix
+rows retain their own owner gates and are outside this reservation packet.
 
 ## Ownership
 
@@ -31,7 +33,7 @@ This workpack owns only:
 - crash/restart recovery and exact committed-outcome replay;
 - A private Account participant adapter that consumes sealed WP02/WP08
   authority, plus Account-side capability and controller-lease reservation
-  adapters.
+  adapters limited to remote view/control.
 
 It does not own or copy:
 
@@ -55,6 +57,17 @@ smallest planned owner modules are:
 - `crates/family-identity-core/src/household_authority_runtime_fence_account.rs`
 - `crates/family-identity-core/src/household_authority_runtime_fence_capability.rs`
 - `crates/family-identity-core/src/household_authority_runtime_fence_lease.rs`
+
+The participant must consume, rather than duplicate, the existing
+transaction-scoped Account reservation seam owned by WP08:
+
+- `crates/family-identity-core/src/account_identity_authority_repository.rs`
+- `crates/family-identity-core/src/account_identity_authority_repository_read.rs`
+- `crates/family-identity-core/src/account_identity_authority_repository_cas.rs`
+
+These existing paths are integration inputs, not evidence that WP05A is
+implemented. The six `household_authority_runtime_fence_*` roots above remain
+planned and absent.
 
 The expected focused test root is:
 
@@ -88,10 +101,14 @@ owner commit behind an Account-local CAS row.
 - Device Trust WP01: trusted-device current binding participant.
 - Device Trust WP03: parent-step-up reservation participant; it remains the
   ceremony owner and must not be moved into Account.
+- Protected Custody WP01: protected admission/capability prerequisite; WP05A
+  consumes its opaque fail-closed outcome and does not reimplement custody.
 
 ## Downstream consumers and handoffs
 
-- Account WP05: capability/lease consumer and downstream authorization owner.
+- Account WP05: authorization consumer for the remote-view/remote-control
+  capability and lease outcomes; it remains the downstream authorization
+  owner.
 - Policy WP01: typed consumer only; no policy storage or authority duplication.
 - Data WP08/WP09/WP10/WP11 remain blocked until this coordinator and all
   required owner participants have reviewed source. They may consume only an

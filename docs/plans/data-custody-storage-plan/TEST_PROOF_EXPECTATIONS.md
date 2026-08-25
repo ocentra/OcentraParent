@@ -342,7 +342,8 @@ of this base test family; it has its own WP11 integration obligation.
 Expected coverage:
 
 ```text
-Account WP05 true authority transaction/CAS and recovery currentness
+Account WP05 base authority transaction/CAS consumer seam
+Account WP05A durable multi-owner coordinator/recovery typed Data handoff
 key/import custody ownership and integrity binding
 producer-owned sealed artifact custody bound to the WP05 operation
 WP09 provider operation capability and opaque outcome
