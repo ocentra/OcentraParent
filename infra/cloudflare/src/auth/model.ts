@@ -1,3 +1,5 @@
+import type { RouteBoundary, RouteGroup } from '../routes.js';
+
 export type AuthState =
   | 'public'
   | 'browser-session-required'
@@ -104,6 +106,8 @@ export interface AuthBoundaryRouteLike {
   authState: AuthState;
   auditEvent: string;
   auditRule: RouteAuditRule;
+  routeGroup: RouteGroup;
+  routeBoundary: RouteBoundary;
 }
 
 export type AuthBoundaryViolationReason =
@@ -125,19 +129,19 @@ export function getAuthStateModel(authState: AuthState): AuthStateModel {
 }
 
 export function validateAuthBoundaryRoute(route: AuthBoundaryRouteLike): AuthBoundaryViolationReason | null {
-  const isPrivateRoute =
-    route.path.startsWith('/auth/') || route.path.startsWith('/admin/') || route.path.startsWith('/webhooks/');
-  const publicSessionLogin = route.path === '/auth/session/login' && route.method === 'POST';
-  if (isPrivateRoute && !publicSessionLogin && !getAuthStateModel(route.authState).privateRoute) {
-    return 'naked-private-route';
+  if (route.routeBoundary === 'session-login' || route.routeBoundary === 'public') {
+    return null;
   }
 
-  const isAdminSupportSurface = route.path.startsWith('/admin/') || route.path === '/auth/billing/manual-invoice';
-  if (isAdminSupportSurface) {
-    if (route.path === '/admin/billing/reconciliation') {
-      return route.authState === 'internal-queue-only' ? null : 'internal-queue-route-auth-state-mismatch';
-    }
+  if (route.routeBoundary === 'internal-queue') {
+    return route.authState === 'internal-queue-only' ? null : 'internal-queue-route-auth-state-mismatch';
+  }
 
+  if (route.routeBoundary === 'webhook') {
+    return route.authState === 'provider-webhook-signature-required' ? null : 'webhook-route-auth-state-mismatch';
+  }
+
+  if (route.routeBoundary === 'support-exception' || route.routeGroup === 'admin') {
     if (route.authState !== 'admin-required' && route.authState !== 'support-required') {
       return 'admin-support-route-without-elevated-state';
     }
@@ -157,8 +161,8 @@ export function validateAuthBoundaryRoute(route: AuthBoundaryRouteLike): AuthBou
     return null;
   }
 
-  if (route.path.startsWith('/webhooks/')) {
-    return route.authState === 'provider-webhook-signature-required' ? null : 'webhook-route-auth-state-mismatch';
+  if (!getAuthStateModel(route.authState).privateRoute) {
+    return 'naked-private-route';
   }
 
   return null;
