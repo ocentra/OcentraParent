@@ -5,7 +5,7 @@
 use crate::{Error, Result, MAX_BUFFER_BYTES};
 use windows_sys::Win32::Security::Cryptography::{
     NCryptSignHash, BCRYPT_PSS_PADDING_INFO, NCRYPT_KEY_HANDLE, NCRYPT_PAD_PSS_FLAG,
-    NCRYPT_SHA256_ALGORITHM,
+    NCRYPT_SHA256_ALGORITHM, NCRYPT_SILENT_FLAG,
 };
 
 pub(super) fn sign_digest(key: NCRYPT_KEY_HANDLE, digest: &[u8; 32]) -> Result<Vec<u8>> {
@@ -24,7 +24,7 @@ pub(super) fn sign_digest(key: NCRYPT_KEY_HANDLE, digest: &[u8; 32]) -> Result<V
             signature.as_mut_ptr(),
             u32::try_from(signature.len())?,
             &mut written,
-            NCRYPT_PAD_PSS_FLAG,
+            NCRYPT_PAD_PSS_FLAG | NCRYPT_SILENT_FLAG,
         )
     };
     if status != 0 {

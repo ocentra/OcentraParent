@@ -5,21 +5,18 @@
 
 #![cfg(windows)]
 
-use super::cng::FIXED_KEY_NAME;
+use super::cng::{rsa_3072_modulus, set_fixed_key_security, FIXED_KEY_NAME, REQUIRED_RSA_BITS};
 use super::cng_handles::{PcpProviderInner, PcpSigningKeyInner};
-use super::cng_observation::{observe_key, set_u32_property};
+use super::cng_observation::{ensure_security_descriptor_support, observe_key, set_u32_property};
 use super::cng_sign::sign_digest;
 use crate::{Error, OwnedPcpProvider, OwnedPcpSigningKey, Result};
 use windows_sys::Win32::Security::Cryptography::{
     NCryptCreatePersistedKey, NCryptDeleteKey, NCryptFinalizeKey, NCryptFreeObject, NCryptOpenKey,
-    NCryptOpenStorageProvider, CERT_NCRYPT_KEY_SPEC, MS_PLATFORM_CRYPTO_PROVIDER,
-    NCRYPT_ALLOW_SIGNING_FLAG, NCRYPT_EXPORT_POLICY_PROPERTY, NCRYPT_KEY_HANDLE,
-    NCRYPT_KEY_USAGE_PROPERTY, NCRYPT_LENGTH_PROPERTY, NCRYPT_MACHINE_KEY_FLAG,
-    NCRYPT_PCP_KEY_USAGE_POLICY_PROPERTY, NCRYPT_PCP_SIGNATURE_KEY, NCRYPT_PERSIST_FLAG,
-    NCRYPT_PROV_HANDLE, NCRYPT_RSA_ALGORITHM,
+    NCryptOpenStorageProvider, MS_PLATFORM_CRYPTO_PROVIDER, NCRYPT_ALLOW_SIGNING_FLAG,
+    NCRYPT_EXPORT_POLICY_PROPERTY, NCRYPT_KEY_HANDLE, NCRYPT_KEY_USAGE_PROPERTY,
+    NCRYPT_LENGTH_PROPERTY, NCRYPT_MACHINE_KEY_FLAG, NCRYPT_PCP_KEY_USAGE_POLICY_PROPERTY,
+    NCRYPT_PCP_SIGNATURE_KEY, NCRYPT_PROV_HANDLE, NCRYPT_RSA_ALGORITHM, NCRYPT_SILENT_FLAG,
 };
-
-const REQUIRED_RSA_BITS: u32 = 3072;
 
 impl OwnedPcpProvider {
     /// Open exactly the machine-scoped Microsoft Platform Crypto Provider.
@@ -45,8 +42,8 @@ impl OwnedPcpProvider {
                 provider.handle,
                 &mut key,
                 FIXED_KEY_NAME,
-                CERT_NCRYPT_KEY_SPEC,
-                NCRYPT_MACHINE_KEY_FLAG,
+                0,
+                NCRYPT_MACHINE_KEY_FLAG | NCRYPT_SILENT_FLAG,
             )
         };
         if status != 0 || key == 0 {
@@ -66,6 +63,7 @@ impl OwnedPcpProvider {
     /// Create, configure, finalize, and validate the compiled machine key.
     pub fn create_fixed_signing_key(self) -> Result<OwnedPcpSigningKey> {
         let provider = self.inner;
+        ensure_security_descriptor_support(provider.handle)?;
         let mut key: NCRYPT_KEY_HANDLE = 0;
         let status = unsafe {
             NCryptCreatePersistedKey(
@@ -73,8 +71,8 @@ impl OwnedPcpProvider {
                 &mut key,
                 NCRYPT_RSA_ALGORITHM,
                 FIXED_KEY_NAME,
-                CERT_NCRYPT_KEY_SPEC,
-                NCRYPT_MACHINE_KEY_FLAG | NCRYPT_PERSIST_FLAG,
+                0,
+                NCRYPT_MACHINE_KEY_FLAG,
             )
         };
         if status != 0 || key == 0 {
@@ -97,7 +95,7 @@ fn release_object(handle: usize) {
 }
 
 fn cleanup_created_key(key: NCRYPT_KEY_HANDLE) {
-    let delete_status = unsafe { NCryptDeleteKey(key, 0) };
+    let delete_status = unsafe { NCryptDeleteKey(key, NCRYPT_SILENT_FLAG) };
     if delete_status != 0 {
         unsafe { NCryptFreeObject(key) };
     }
@@ -115,7 +113,8 @@ fn finalize_created_key(
         NCRYPT_PCP_KEY_USAGE_POLICY_PROPERTY,
         NCRYPT_PCP_SIGNATURE_KEY,
     )?;
-    let status = unsafe { NCryptFinalizeKey(key, 0) };
+    set_fixed_key_security(key)?;
+    let status = unsafe { NCryptFinalizeKey(key, NCRYPT_SILENT_FLAG) };
     if status != 0 {
         return Err(Error::Crypto(status as u32));
     }
@@ -132,6 +131,13 @@ impl OwnedPcpSigningKey {
     /// Return strict mechanical observations from the retained PCP key.
     pub fn observation(&self) -> Result<crate::PcpKeyObservation> {
         observe_key(self.inner._provider.handle, self.inner.handle)
+    }
+
+    /// Return the retained signing key's validated RSA-3072/65537 modulus.
+    /// This is distinct from the PCP provider endorsement-key observation.
+    pub fn signing_public_modulus(&self) -> Result<[u8; 384]> {
+        let blob = super::cng::export_public_key(self.inner.handle)?;
+        rsa_3072_modulus(&blob)
     }
 
     /// Sign one SHA-256 digest using PCP-backed PSS; no private key bytes cross
