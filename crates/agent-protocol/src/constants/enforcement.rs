@@ -196,7 +196,7 @@ pub const RUNTIME_OWNER_MANUAL_PROOF: &str = "manual-proof";
 pub const RUNTIME_OWNER_NOT_IMPLEMENTED: &str = "not-implemented";
 
 pub const CLAIM_BOUNDARY_OWNED_PROCESS_TERMINATE: &str = "Only owned-process pid plus expected-process-name termination is proved; this is not global app blocking.";
-pub const CLAIM_BOUNDARY_APP_TIME_LIMIT: &str = "App time-limit proof is tied to owned-process expiration, restart recovery, cancel, expiry, audit, and storage.";
+pub const CLAIM_BOUNDARY_APP_TIME_LIMIT: &str = "App time-limit support is bounded to timer scheduling, restart recovery, cancel, expiry, audit, and storage; owned-process expiry remains manual-required until an authenticated grant and managed-process binding executor exists.";
 pub const CLAIM_BOUNDARY_BROAD_APP_BLOCKING: &str = "Broad installed-app blocking is not proved by owned-process termination or app time-limit behavior.";
 pub const CLAIM_BOUNDARY_NETWORK_DOMAIN_BLOCKING: &str = "Network flow metadata is not decrypted content and does not prove domain blocking enforcement.";
 pub const CLAIM_BOUNDARY_MANAGED_BROWSER_SERVICE_COMMAND: &str =
@@ -209,7 +209,7 @@ pub const CLAIM_BOUNDARY_ADMIN_ANTI_TAMPER_ROLLBACK: &str = "Admin hardening, an
 
 pub const FALLBACK_OWNED_PROCESS_TERMINATE: &str =
     "Reject missing pid/name mismatch and return unavailable on unsupported hosts.";
-pub const FALLBACK_APP_TIME_LIMIT: &str = "Return unavailable when the active timer state or platform adapter cannot support the request.";
+pub const FALLBACK_APP_TIME_LIMIT: &str = "Persist and recover valid timers; return manual-required at expiry until an authenticated grant and managed-process binding executor exists.";
 pub const FALLBACK_BROAD_APP_BLOCKING: &str = "Return manual-required or unavailable and avoid an adapter request until OS-approved proof exists.";
 pub const FALLBACK_NETWORK_DOMAIN_BLOCKING: &str =
     "Return manual-required or unavailable until a host network control adapter has proof.";
@@ -224,6 +224,8 @@ pub const FALLBACK_ADMIN_ANTI_TAMPER_ROLLBACK: &str =
 
 pub const ARTIFACT_OS_APP_IDENTITY: &str = "OS-approved app/package identity proof";
 pub const ARTIFACT_APP_BLOCK_ROLLBACK: &str = "installed-app block and rollback proof";
+pub const ARTIFACT_APP_TIME_LIMIT_EXECUTOR: &str =
+    "authenticated grant and managed-process binding expiry executor proof";
 pub const ARTIFACT_NETWORK_FILTER: &str = "OS network filter adapter proof";
 pub const ARTIFACT_DOMAIN_BLOCK_ROLLBACK: &str = "domain block apply and rollback proof";
 pub const ARTIFACT_MANAGED_BROWSER_COMMAND: &str = "managed-browser command enforcement proof";

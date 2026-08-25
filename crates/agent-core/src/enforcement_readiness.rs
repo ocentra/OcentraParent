@@ -61,7 +61,7 @@ fn owned_process_terminate_readiness(checked_at: &str) -> EnforcementBroadAdapte
         readiness_state: implemented_or_unavailable(capability.capability_state),
         proof_level: proof_for_supported_capability(capability.capability_state),
         runtime_owner: EnforcementReadinessRuntimeOwner::OsAdapter,
-        supported_modes: capability.supported_actions,
+        supported_modes: vec![EnforcementMode::TerminateProcess],
         claim_boundary: enforcement_constants::CLAIM_BOUNDARY_OWNED_PROCESS_TERMINATE,
         fallback_behavior: enforcement_constants::FALLBACK_OWNED_PROCESS_TERMINATE,
         required_artifacts: artifacts_for_supported_capability(capability.capability_state),
@@ -77,13 +77,15 @@ fn app_time_limit_readiness(checked_at: &str) -> EnforcementBroadAdapterReadines
         platform: capability.platform,
         adapter_kind: EnforcementAdapterKind::ProcessControl,
         capability_state: capability.capability_state,
-        readiness_state: implemented_or_unavailable(capability.capability_state),
-        proof_level: proof_for_supported_capability(capability.capability_state),
-        runtime_owner: EnforcementReadinessRuntimeOwner::RustService,
+        readiness_state: manual_or_unavailable(capability.capability_state),
+        proof_level: proof_for_manual_capability(capability.capability_state),
+        runtime_owner: EnforcementReadinessRuntimeOwner::ManualProof,
         supported_modes: capability.supported_actions,
         claim_boundary: enforcement_constants::CLAIM_BOUNDARY_APP_TIME_LIMIT,
         fallback_behavior: enforcement_constants::FALLBACK_APP_TIME_LIMIT,
-        required_artifacts: artifacts_for_supported_capability(capability.capability_state),
+        required_artifacts: vec![
+            enforcement_constants::ARTIFACT_APP_TIME_LIMIT_EXECUTOR.to_string()
+        ],
         checked_at,
     })
 }

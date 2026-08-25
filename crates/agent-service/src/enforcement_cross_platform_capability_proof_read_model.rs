@@ -1,3 +1,4 @@
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
 use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as browser_proof;
 use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
@@ -85,21 +86,21 @@ fn implemented_boundary_specs() -> Vec<EntrySpec> {
             claim_boundary: proof::CLAIM_WINDOWS_OWNED_PROCESS,
             fallback_behavior: proof::FALLBACK_WINDOWS_OWNED_PROCESS,
         },
-        EntrySpec {
-            proof_entry_id: proof::ENTRY_ID_WINDOWS_APP_TIME_LIMIT,
-            surface: V08CrossPlatformEnforcementCapabilitySurface::WindowsAppTimeLimitLifecycle,
-            platform: ParentPlatform::Windows,
-            capability: V08CrossPlatformEnforcementCapabilityName::AppTimeLimit,
-            capability_status: V08CrossPlatformCapabilityStatus::Implemented,
-            product_claim_state:
-                V08CrossPlatformEnforcementCapabilityClaimState::ImplementedBoundary,
-            adapter_execution_state: V08CrossPlatformAdapterExecutionState::ExecutesRealService,
-            linked_proof_commands: &[proof::COMMAND_WINDOWS_TIMER_PROOF],
-            linked_proof_artifacts: &[proof::ARTIFACT_WINDOWS_TIMER_PROOF],
-            manual_proof_requirements: &[],
-            claim_boundary: proof::CLAIM_WINDOWS_APP_TIME_LIMIT,
-            fallback_behavior: proof::FALLBACK_WINDOWS_APP_TIME_LIMIT,
-        },
+        manual_spec(
+            ProofEntryId(proof::ENTRY_ID_WINDOWS_APP_TIME_LIMIT),
+            V08CrossPlatformEnforcementCapabilitySurface::WindowsAppTimeLimitLifecycle,
+            ParentPlatform::Windows,
+            V08CrossPlatformEnforcementCapabilityName::AppTimeLimit,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    enforcement_constants::ARTIFACT_APP_TIME_LIMIT_EXECUTOR,
+                    proof::REQUIREMENT_ROLLBACK,
+                    proof::REQUIREMENT_AUDIT_CUSTODY,
+                ],
+                claim_boundary: proof::CLAIM_WINDOWS_APP_TIME_LIMIT,
+                fallback_behavior: proof::FALLBACK_WINDOWS_APP_TIME_LIMIT,
+            },
+        ),
         manual_spec(
             ProofEntryId(proof::ENTRY_ID_WINDOWS_MANAGED_BROWSER),
             V08CrossPlatformEnforcementCapabilitySurface::WindowsManagedBrowserBoundary,
