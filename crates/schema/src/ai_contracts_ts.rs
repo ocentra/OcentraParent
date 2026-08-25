@@ -493,13 +493,7 @@ export interface AiRemoteAssistantWireRequest {
   schemaVersion: AiSchemaVersion;
   requestId: AiRemoteAssistantRequestId;
   familyId: AiFamilyId;
-  evidenceReferenceIds: AiEvidenceReferenceId[];
   authorizationReferenceId: AiAuthorizationReferenceId;
-  custody: AiCustodyState;
-  retention: AiRetentionState;
-  redaction: AiRedactionState;
-  redactionPolicy: AiRemoteAssistantRedactionPolicy;
-  safetyBoundary: AiRemoteAssistantSafetyBoundary;
   prompt: AiRemoteAssistantWirePrompt;
   runtime: AiRuntimeReference | null;
   requestedAt: AiTimestamp;
