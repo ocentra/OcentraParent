@@ -240,6 +240,31 @@ function hasWildcardOrigin(origin: unknown): boolean {
   return typeof origin === 'string' && origin.trim().includes('*');
 }
 
+function isValidHttpOrigin(origin: unknown): origin is string {
+  if (typeof origin !== 'string' || origin.length === 0 || origin !== origin.trim()) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(origin);
+    return (
+      (parsed.protocol === 'http:' || parsed.protocol === 'https:') &&
+      parsed.origin === origin &&
+      parsed.username === '' &&
+      parsed.password === '' &&
+      parsed.pathname === '/' &&
+      parsed.search === '' &&
+      parsed.hash === ''
+    );
+  } catch (_error) {
+    return false;
+  }
+}
+
+function isValidConfiguredOrigin(origin: unknown): boolean {
+  return hasWildcardOrigin(origin) || isValidHttpOrigin(origin);
+}
+
 export function getMissingBindings(env: Env): ReadonlyArray<RequiredBindingKey> {
   return REQUIRED_BINDING_KEYS.filter((key) => !env[key]);
 }
@@ -274,6 +299,18 @@ export function validateEnv(env: Env): string[] {
   const allowedOrigins = parseAllowedOrigins(env);
   if (allowedOrigins.length === 0) {
     errors.push('CORS_ALLOWED_ORIGINS must include at least one origin');
+  }
+
+  if (
+    typeof env.APP_ORIGIN === 'string' &&
+    env.APP_ORIGIN.trim() !== '' &&
+    !isValidConfiguredOrigin(env.APP_ORIGIN)
+  ) {
+    errors.push('APP_ORIGIN must be a valid http(s) origin');
+  }
+
+  if (allowedOrigins.some((origin) => !isValidConfiguredOrigin(origin))) {
+    errors.push('CORS_ALLOWED_ORIGINS must contain only valid http(s) origins');
   }
 
   if (isProductionEnvironment(env)) {
