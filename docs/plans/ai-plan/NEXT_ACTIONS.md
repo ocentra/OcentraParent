@@ -41,12 +41,16 @@ source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
    `packages/schema-domain/tests/contract/ai-contracts.test.ts`. Establish and
    review a real production caller before focused execution. These tests remain
    WP03-owned; they do not close the WP04 adapter route.
-3. Implement the WP04 explicit agent-protocol adapter over the leaf crate and
-   write its separately owned contract test:
-   `crates/agent-protocol/tests/contract/ai_contracts.rs`. WP04 must consume
-   the leaf through an explicit wire adapter and must not duplicate WP03's
-   leaf/TypeScript tests or schema ownership. Leaf integration, tests, and
-   adapter authorization do not imply READY, proof, or DONE.
+3. WP04's explicit agent-protocol adapter is source-integrated and reviewed at
+   canonical source commit `d72e1617d`: it consumes the neutral leaf through
+   public constructors, rejects prompt/runtime attachments without owner
+   capability, and preserves the EvidenceOnly/Durable and digest semantics.
+   The separately owned contract test
+   `crates/agent-protocol/tests/contract/ai_contracts.rs` is absent and
+   unregistered, and no general production caller/provider-owner composition
+   exists. Add and review those missing boundaries before focused execution;
+   keep tests, proof, CI, PR, READY, and DONE open. WP04 must not duplicate
+   WP03's leaf/TypeScript tests or schema ownership.
 4. WP07 general durable AI work lifecycle.
 5. WP09 context builder and WP12 prompt registry.
 6. WP14-WP17 local text execution, parser, and degraded boundary.

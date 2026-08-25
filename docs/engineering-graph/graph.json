@@ -1432,11 +1432,11 @@
       "parent": "PLAN-ai-plan",
       "dependsOn": ["WP-ai-plan-03-contract-boundary-and-effect-schemas"],
       "state": "blocked",
-      "lifecycleState": "planned",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "Validation — source adapter reviewed; required contract test, caller/provider-owner composition, proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -1460,7 +1460,16 @@
             "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "WP04 has partial local-AI/assistant Rust shapes, but complete protocol parity cannot be accepted before WP03's source-preserving neutral ocentra-ai-contracts move. WP04 owns only its explicit adapter and Rust protocol contract test; it consumes WP03's shared TypeScript parity test and must not duplicate schema ownership, create public re-export shims, or add authority constructors."
+          "reason": "Independent review accepted the bounded WP04 source adapter at canonical source commit d72e1617d. crates/agent-protocol/src/ai_contracts.rs consumes the neutral ocentra-ai-contracts leaf through public constructors and current-schema validation, rejects prompt/runtime attachments without owner capability, and preserves EvidenceOnly authority, Durable journal state, and exact result/journal digests. The required Rust contract test is absent and unregistered, and no general production caller/provider-owner runtime composition is present; tests, proof, CI, PR, READY, and DONE remain open. WP04 does not duplicate WP03's shared TypeScript parity test or schema ownership, create public re-export shims, or add authority constructors."
+        },
+        "stateOverride": {
+          "reason": "Independent review accepted the bounded WP04 source adapter at canonical source commit d72e1617d. It consumes the neutral ocentra-ai-contracts leaf through public constructors and current-schema validation, rejects prompt/runtime attachments without owner capability, and preserves EvidenceOnly authority, Durable journal state, and exact result/journal digests. The required Rust contract test is absent and unregistered, and no general production caller/provider-owner runtime composition exists. This is source-only routing truth; tests, proof, CI, PR, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/ai-plan/PLAN_STATE.md",
+            "docs/plans/ai-plan/NEXT_ACTIONS.md",
+            "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
+            "docs/engineering-graph/code-map.json"
+          ]
         }
       },
       "completion": {

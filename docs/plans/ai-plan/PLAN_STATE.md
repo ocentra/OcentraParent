@@ -40,9 +40,27 @@ three expected tests remain open:
 ADR-AI-001 in [DECISIONS.md](DECISIONS.md) selects the neutral leaf crate
 `ocentra-ai-contracts` at `crates/ai-contracts`; that move and the direct
 schema dependency are now present without a public re-export. Agent protocol
-does not yet consume the leaf: the separately owned WP04 adapter and its real
-caller remain implementation work. Tests, proof, CI, and DONE/READY state were
-not changed by this source checkpoint.
+now consumes the leaf through the separately owned WP04 adapter, but its real
+caller remains absent. Tests, proof, CI, and DONE/READY state were not changed
+by this source checkpoint.
+
+## WP04 reviewed source integration checkpoint — 2026-08-25
+
+Canonical source commit `d72e1617d` is independently accepted for the bounded
+WP04 source packet. `crates/agent-protocol/src/ai_contracts.rs` consumes the
+neutral `ocentra-ai-contracts` leaf through an explicit wire adapter. Work
+requests use the leaf's public constructors and current-schema validation and
+reject caller-supplied prompt/runtime attachments without owner capability;
+evidence context is restricted to `EvidenceOnly`, journal entries to `Durable`,
+and result/journal digests are preserved exactly. The adapter does not mint
+authority or provider/runtime state.
+
+The required `crates/agent-protocol/tests/contract/ai_contracts.rs` file is
+absent and unregistered from the contract test target. No general production
+caller/provider-owner runtime composition consumes the adapter; existing
+legacy local-AI/assistant shapes were not migrated. WP03's three expected
+contract/negative/parity tests remain open. This is reviewed source-only truth:
+tests, proof, CI, PR, READY, and DONE remain open.
 
 ## Code-first Phase 1 audit (2026-08-15)
 
@@ -68,7 +86,7 @@ not establish that reachability or the completion contract for any workpack.
 | 01 | No AI runtime entrypoint; plan/specification only. | No shipped local-first AI boundary to audit. |
 | 02 | No AI runtime entrypoint; snapshot/specification only. | No shipped custody/runtime source. |
 | 03 | `schema_domain_ai_wire` is self/test-referenced; no general AI caller. | One canonical cross-boundary contract family is missing for work items, results, journal, explanation, prompt, and remote state. |
-| 04 | `agent-protocol` runtime/status and assistant shapes feed typed service/websocket reports. | Generated TS parity and complete negative decoder family are missing; source presence is not parity proof. |
+| 04 | The explicit `agent-protocol` AI adapter consumes the neutral leaf and preserves its bounded validation/effect semantics. | The required Rust contract test is absent and unregistered; no general production caller/provider-owner composition exists; WP03 parity/negative tests, proof, and runtime completion remain open. |
 | 05 | Local runtime status flows through the AI websocket command and portal status card. | No verified artifact/model readiness and execution authority beyond typed status. |
 | 06 | Provider route metadata is selected by LAN AI routing; service exposes a typed provider-status read model. | No physical or multi-service provider authority is present. |
 | 07 | Scheduler/queue is called by local chat, parent assistant, and screen analysis. | No neutral durable `AiWorkItem` lifecycle, replay, or dead-letter journal. |
