@@ -74,6 +74,31 @@ proof root is absent in this checkout. WP03 therefore remains
 `blocked / source reviewed`: runtime provider composition, normalized receipt
 truth, focused expected tests, proof, CI, PR, and completion remain open.
 
+## Reviewed WP04 production truth checkpoint - 2026-08-25
+
+This is a source-and-routing truth update from canonical `643c137dc`. It does
+not add completion evidence, tests, proof, CI, PR, READY, or DONE state.
+
+`crates/entitlement-core/src/entitlement_snapshot_derivation.rs` derives an
+explicitly unsigned projection from billing, referral, entitlement, and
+provider-input state. The provider boundary remains input-only. The issuer
+module is crate-private, its trusted issuance projection has no public
+constructor, and its manual-required signer returns `SigningUnavailable`.
+The snapshot authority's `open` and
+`verify_current_account_and_device` entry points are crate-private; its key,
+installed-package, and currentness ports remain manual-required/fail-closed,
+so no public owner-composed unlock path exists.
+
+`crates/child-runtime/src/runtime_gate.rs` is a non-test consumer of the
+entitlement decision function, but no non-test caller of
+`evaluate_child_runtime_preflight` or its decision recorder was found. The
+generic input does not compose the missing issuer/verifier/currentness and
+Account/Device Trust owners, and deserialization forces unavailable snapshot
+context. The mapped entitlement contract imports removed signed-derivation and
+context APIs; schema/TypeScript roots remain proof-consumer topology. The WP04
+expected assertion matrix, focused tests, proof root, and validation evidence
+are open, so WP04 remains `blocked / source reviewed`.
+
 ## Accepted production-source checkpoint - 2026-08-17
 
 The independently reviewed Payment source wave at `63305016f` is now on the
@@ -220,7 +245,8 @@ WP01 now has a real pricing and entitlement proof bundle at `output/payment-subs
 WP02 has no current checked-in checkout or billing portal proof bundle; the
 expected proof root remains open until a real provider caller, focused tests,
 and the required validation evidence exist.
-WP03 has no checked-in proof bundle at `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` in this checkout. Its mapped Rust and Cloudflare tests are not live-provider proof, and no test or proof command was run in the reviewed source packet. WP04's historical proof reference is not changed by this WP03 packet.
+WP03 has no checked-in proof bundle at `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` in this checkout. Its mapped Rust and Cloudflare tests are not live-provider proof, and no test or proof command was run in the reviewed source packet. WP04's historical proof reference is superseded by the reviewed WP04 source truth checkpoint above.
+WP04 has no checked-in proof bundle at `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/` in this checkout. Its mapped signed-snapshot contract imports removed APIs, and its schema/TypeScript surfaces are proof-consumer topology rather than a production entitlement caller. No test or proof command was run in the reviewed WP04 source packet.
 All runtime payment rows after WP00 remain blocked until selected code, tests, negative cases, rollback/teardown notes, validation logs, and proof bundles exist.
 ```
 
@@ -237,7 +263,7 @@ Current Parent direction:
   readiness, focused expected tests, proof, and broader validation remain open;
   no hosted-session or payment-completion claim follows from local fixtures.
 - WP03 current truth is `blocked / source reviewed`, not production-complete. `crates/billing-core` carries provider channel, payload-parse, idempotency, replay/order, retry, dead-letter, reconciliation, and test/live boundary classifications with mapped unit coverage under `crates/billing-core/tests/unit/**`, but its public entry points accept caller-supplied trust/state enums and have no non-test production consumer. Cloudflare owns the reachable ingress and durable receipt/queue custody, yet does not compose normalized signature/parse/mode receipt fields or invoke the Rust lifecycle owner. TypeScript therefore supplies the current runtime mutation path while the Rust contract remains unbound.
-- WP04 retains its historical `done / proof-present` Rust contract result: `crates/entitlement-core` owns signed entitlement snapshot derivation, provider input-only boundary, referral seat recalculation, fixed snapshot-model fields, and the snapshot-to-device gate bridge with real unit coverage under `crates/entitlement-core/tests/unit/**`. No non-test downstream production consumer was found; TypeScript remains proof-consumer only for this slice.
+- WP04 current truth is `blocked / source reviewed`: `crates/entitlement-core/src/entitlement_snapshot_derivation.rs` owns an unsigned projection from billing/referral/entitlement/provider inputs, while the crate-private issuer and verifier/currentness ports remain manual-required and no public owner-composed unlock path exists. `crates/child-runtime/src/runtime_gate.rs` consumes the generic entitlement decision function, but no non-test caller of its preflight/decision path was found. The mapped signed-snapshot contract imports removed APIs, generated schema/TypeScript remains proof-consumer topology, and the focused expected tests and proof root remain open.
 - This plan owns billing semantics on top of that module: pricing, referral qualification, provider strategy, checkout meaning, webhook-to-ledger meaning, entitlement meaning, dashboard meaning, and support/admin meaning.
 - Stripe Checkout, Billing, Portal, invoices, entitlements, and webhooks remain the default web control-plane path.
 - Razorpay remains the India-native adapter; PayPal remains the secondary wallet/subscription adapter; Apple and Google remain channel adapters, not the root billing authority.

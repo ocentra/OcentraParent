@@ -23003,7 +23003,7 @@
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked / source integrated / issuer absent / expected tests open",
+        "statusText": "blocked / source reviewed / unsigned projection only; issuer, verifier/currentness composition, non-test consumer, expected tests, and proof open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -23018,9 +23018,16 @@
             "docs/plans/payment-subscription-plan/PLAN_STATE.md",
             "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md",
             "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md",
-            "docs/engineering-graph/code-map.json"
+            "docs/engineering-graph/code-map.json",
+            "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
+            "crates/entitlement-core/src/entitlement_snapshot_issuer.rs",
+            "crates/entitlement-core/src/entitlement_snapshot_authority.rs",
+            "crates/entitlement-core/src/entitlement_snapshot_authority_ports.rs",
+            "crates/entitlement-core/src/entitlement_snapshot_authority_verifier.rs",
+            "crates/child-runtime/src/runtime_gate.rs",
+            "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs"
           ],
-          "reason": "Caller-minted signed entitlement authority was removed. A real entitlement delivery gate now requires pricing authority, a durable accepted billing lifecycle, and the Device Trust WP05 issuer/verifier/device-license owner. Until those owners compose, output remains unsigned/manual-required and expected tests, proof, and DONE stay open."
+          "reason": "Reviewed source shows an unsigned entitlement projection with provider input-only semantics. The issuer, verifier, installed-package, and currentness boundaries remain crate-private/manual-required; child-runtime has only a generic entitlement decision consumer and no non-test preflight caller. The mapped signed-snapshot contract targets removed APIs, the proof root is absent, and expected tests, proof, CI, PR, READY, and DONE remain open until pricing, billing lifecycle, Account, and Device Trust owners compose a real path."
         }
       },
       "completion": {
