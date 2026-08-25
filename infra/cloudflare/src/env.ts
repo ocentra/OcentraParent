@@ -226,6 +226,16 @@ export function isLocalFixtureEnvironment(env: Pick<Env, 'ENVIRONMENT'>): boolea
   return environment === 'local' || environment === 'test' || environment === 'development';
 }
 
+function isProductionEnvironment(env: Pick<Env, 'ENVIRONMENT'>): boolean {
+  return String(env.ENVIRONMENT ?? '')
+    .trim()
+    .toLowerCase() === 'production';
+}
+
+function hasWildcardOrigin(origin: string): boolean {
+  return origin.includes('*');
+}
+
 export function getMissingBindings(env: Env): ReadonlyArray<RequiredBindingKey> {
   return REQUIRED_BINDING_KEYS.filter((key) => !env[key]);
 }
@@ -256,8 +266,18 @@ export function validateEnv(env: Env): string[] {
     }
   }
 
-  if (parseAllowedOrigins(env).length === 0) {
+  const allowedOrigins = parseAllowedOrigins(env);
+  if (allowedOrigins.length === 0) {
     errors.push('CORS_ALLOWED_ORIGINS must include at least one origin');
+  }
+
+  if (isProductionEnvironment(env)) {
+    if (hasWildcardOrigin(env.APP_ORIGIN)) {
+      errors.push('APP_ORIGIN must not contain a wildcard in production');
+    }
+    if (allowedOrigins.some(hasWildcardOrigin)) {
+      errors.push('CORS_ALLOWED_ORIGINS must not contain a wildcard in production');
+    }
   }
 
   if (env.REQUEST_MAX_BYTES && (!/^\d+$/.test(env.REQUEST_MAX_BYTES) || Number(env.REQUEST_MAX_BYTES) <= 0)) {
