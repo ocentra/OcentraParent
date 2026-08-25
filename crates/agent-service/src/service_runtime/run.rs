@@ -1,6 +1,7 @@
 use super::{NetworkRuntimeStartupError, StartupErrorReason};
 use crate::{network::NetworkPolicy, service_runtime::initialize_network_runtime};
 use ocentra_parent_agent_protocol::constants;
+use std::net::SocketAddr;
 
 pub async fn run_agent_service() {
     let network = NetworkPolicy::from_environment();
@@ -59,7 +60,12 @@ pub async fn run_agent_service() {
             }
         };
 
-    if let Err(error) = axum::serve(listener, crate::app::router(network.clone())).await {
+    if let Err(error) = axum::serve(
+        listener,
+        crate::app::router(network.clone()).into_make_service_with_connect_info::<SocketAddr>(),
+    )
+    .await
+    {
         let _ = crate::dev_log::write_agent_error(
             constants::error::AGENT_SERVICE_RUNS,
             super::startup_error_log_fields(&network, StartupErrorReason(error.to_string())),
