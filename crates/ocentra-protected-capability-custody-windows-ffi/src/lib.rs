@@ -47,8 +47,10 @@ pub enum Error {
     UnsupportedPlatform,
     /// A Windows API returned this error code.
     Win32(u32),
-    /// A TPM/TBS API returned this status code.
+    /// A strict TPM response frame returned this TPM response code.
     Tpm(u32),
+    /// A Windows TPM Base Services transport call returned this status code.
+    Tbs(u32),
     /// An input exceeded a bounded ABI buffer.
     BufferTooLarge,
     /// An input or operating-system response was malformed.

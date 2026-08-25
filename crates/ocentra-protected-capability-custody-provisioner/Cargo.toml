@@ -1,0 +1,20 @@
+[package]
+name = "ocentra-protected-capability-custody-provisioner"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "ocentra-protected-capability-custody-provisioner"
+path = "src/main.rs"
+
+[dependencies]
+ocentra-protected-capability-custody-protocol = { path = "../protected-capability-custody-protocol" }
+sha2 = "0.10.9"
+
+[target.'cfg(windows)'.dependencies]
+ocentra-protected-capability-custody-windows-ffi = { path = "../ocentra-protected-capability-custody-windows-ffi" }

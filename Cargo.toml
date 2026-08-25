@@ -31,6 +31,7 @@ members = [
   "crates/protected-capability-custody-broker",
   "crates/protected-capability-custody-client",
   "crates/protected-capability-custody-protocol",
+  "crates/ocentra-protected-capability-custody-provisioner",
   "crates/ocentra-protected-capability-custody-windows-ffi",
   "crates/remote-access-core",
   "crates/screen-capture-adapter",

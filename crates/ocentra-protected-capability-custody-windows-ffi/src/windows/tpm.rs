@@ -32,7 +32,7 @@ impl OwnedTbsContext {
             )
         };
         if status != TBS_SUCCESS || context.is_null() {
-            return Err(Error::Tpm(status));
+            return Err(Error::Tbs(status));
         }
         Ok(Self {
             inner: TbsContextInner { context },
@@ -62,7 +62,7 @@ impl OwnedTbsContext {
             )
         };
         if status != TBS_SUCCESS {
-            return Err(Error::Tpm(status));
+            return Err(Error::Tbs(status));
         }
         let output_length = usize::try_from(output_length)?;
         if output_length < 10 || output_length > output.len() {

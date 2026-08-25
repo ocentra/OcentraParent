@@ -24,6 +24,8 @@ const testOnlyCrates = new Set(['criterion', 'mockall', 'pretty_assertions', 'pr
 const allowedGitDependencies = new Set();
 const protectedWindowsFfiPackage = 'ocentra-protected-capability-custody-windows-ffi';
 const protectedWindowsFfiConsumer = 'ocentra-protected-capability-custody-core';
+const protectedWindowsFfiProvisioner = 'ocentra-protected-capability-custody-provisioner';
+const protectedWindowsFfiConsumers = new Set([protectedWindowsFfiConsumer, protectedWindowsFfiProvisioner]);
 const protectedWindowsFfiTarget = 'cfg(windows)';
 const protectedWindowsFfiRustName = 'ocentra_protected_capability_custody_windows_ffi';
 
@@ -111,7 +113,7 @@ function collectProtectedWindowsFfiFindings(metadata) {
       }
       const dependencyPath = dependency.path == null ? null : path.resolve(dependency.path);
       const isExactAllowedEdge =
-        packageInfo.name === protectedWindowsFfiConsumer &&
+        protectedWindowsFfiConsumers.has(packageInfo.name) &&
         dependency.kind === null &&
         dependency.rename === null &&
         dependency.optional === false &&
@@ -130,7 +132,7 @@ function collectProtectedWindowsFfiFindings(metadata) {
         findings.push(
           `${packageInfo.manifest_path}: ${alias} resolves to restricted ${dependency.name}; only the ` +
             `non-optional, unrenamed, normal ${protectedWindowsFfiTarget} path dependency from ` +
-            `${protectedWindowsFfiConsumer} is permitted (found ${kind} for ${target}).`
+            `${[...protectedWindowsFfiConsumers].join(' or ')} is permitted (found ${kind} for ${target}).`
         );
       }
     }

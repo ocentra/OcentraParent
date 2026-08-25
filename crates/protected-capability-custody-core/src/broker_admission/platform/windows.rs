@@ -140,6 +140,8 @@ pub(super) fn map_ffi_error(
         | Error::MalformedTpm
         | Error::BufferTooLarge
         | Error::CryptoPropertyViolation => PlatformError::Tampered,
-        Error::Win32(_) | Error::Tpm(_) | Error::Crypto(_) => PlatformError::Unavailable,
+        Error::Win32(_) | Error::Tpm(_) | Error::Tbs(_) | Error::Crypto(_) => {
+            PlatformError::Unavailable
+        }
     }
 }
