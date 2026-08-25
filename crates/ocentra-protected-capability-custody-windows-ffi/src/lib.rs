@@ -19,7 +19,6 @@ mod owned_types;
 mod security;
 #[cfg(windows)]
 mod tpm;
-mod tpm_enrollment;
 #[cfg(not(windows))]
 mod unsupported;
 #[cfg(windows)]
@@ -41,7 +40,7 @@ pub const MAX_WIDE_CHARS: usize = 32 * 1024;
 pub const MAX_ACES: usize = 4096;
 
 /// Errors returned by the ABI/mechanics layer.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Error {
     /// The current target has no Windows implementation.
     UnsupportedPlatform,
@@ -147,26 +146,46 @@ pub struct RegistryValueObservation {
     value: RegistryValue,
 }
 
-/// An opaque, canonical installer enrollment record for one TPM2 NV area.
+/// A copied, non-authoritative TPM2 `NV_ReadPublic` observation.
 ///
-/// The record is expected data, not authority. The raw index and public area
-/// are deliberately not exposed; a live exact match is required before a
-/// capability can be created or used.
-pub struct TpmNvEnrollment {
-    pub(crate) nv_index: u32,
-    pub(crate) name_algorithm: u16,
-    pub(crate) attributes: u32,
-    pub(crate) auth_policy: Vec<u8>,
-    pub(crate) data_size: u16,
+/// This is raw platform evidence only. It does not represent installer
+/// enrollment, select an authorized index, or permit a read/increment. The
+/// sole core consumer must compare every field and the TPM Name against its
+/// own protected enrollment before constructing private authority.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TpmNvPublicObservation {
+    nv_index: u32,
+    name_algorithm: u16,
+    attributes: u32,
+    auth_policy: Vec<u8>,
+    data_size: u16,
+    name: Vec<u8>,
 }
 
-#[derive(Debug, Eq, PartialEq)]
-pub(crate) struct TpmNvPublic {
-    pub(crate) nv_index: u32,
-    pub(crate) name_algorithm: u16,
-    pub(crate) attributes: u32,
-    pub(crate) auth_policy: Vec<u8>,
-    pub(crate) data_size: u16,
+impl TpmNvPublicObservation {
+    pub fn nv_index(&self) -> u32 {
+        self.nv_index
+    }
+
+    pub fn name_algorithm(&self) -> u16 {
+        self.name_algorithm
+    }
+
+    pub fn attributes(&self) -> u32 {
+        self.attributes
+    }
+
+    pub fn auth_policy(&self) -> &[u8] {
+        &self.auth_policy
+    }
+
+    pub fn data_size(&self) -> u16 {
+        self.data_size
+    }
+
+    pub fn name(&self) -> &[u8] {
+        &self.name
+    }
 }
 
 /// The service configuration and protected security snapshot observed from
@@ -226,7 +245,3 @@ pub type OwnedService = owned_types::OwnedService;
 
 /// A TBS context retained for bounded TPM2 NV mechanics.
 pub type OwnedTbsContext = owned_types::OwnedTbsContext;
-
-/// A non-cloneable TPM2 NV capability whose live public area matched one
-/// canonical enrollment record.
-pub type OwnedTpmNvCapability = owned_types::OwnedTpmNvCapability;

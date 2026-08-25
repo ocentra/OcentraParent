@@ -14,14 +14,6 @@ pub(super) fn read(registry_id: &str, name: &str) -> Result<Option<Vec<u8>>, Pla
 }
 
 #[cfg(windows)]
-pub(super) fn read_enrollment(
-    registry_id: &str,
-    name: &str,
-) -> Result<Option<Vec<u8>>, PlatformError> {
-    registry_read::enrollment(registry_id, name)
-}
-
-#[cfg(windows)]
 pub(super) fn write(registry_id: &str, name: &str, value: &[u8]) -> Result<(), PlatformError> {
     registry_write::one(registry_id, name, value)
 }

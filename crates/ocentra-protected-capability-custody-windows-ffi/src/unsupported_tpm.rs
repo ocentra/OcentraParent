@@ -2,7 +2,7 @@
 
 #![cfg(not(windows))]
 
-use crate::{Error, OwnedTbsContext, OwnedTpmNvCapability, Result, TpmNvEnrollment};
+use crate::{Error, OwnedTbsContext, Result, TpmNvPublicObservation};
 
 impl OwnedTbsContext {
     pub fn open() -> Result<OwnedTbsContext> {
@@ -17,17 +17,7 @@ impl OwnedTbsContext {
         Err(Error::UnsupportedPlatform)
     }
 
-    pub fn bind_enrolled_nv(self, _enrollment: TpmNvEnrollment) -> Result<OwnedTpmNvCapability> {
-        Err(Error::UnsupportedPlatform)
-    }
-}
-
-impl OwnedTpmNvCapability {
-    pub fn read(&self, _authorization: &[u8], _size: u16, _offset: u16) -> Result<Vec<u8>> {
-        Err(Error::UnsupportedPlatform)
-    }
-
-    pub fn increment(&self, _authorization: &[u8]) -> Result<()> {
+    pub fn observe_nv_public(&self, _index: u32) -> Result<TpmNvPublicObservation> {
         Err(Error::UnsupportedPlatform)
     }
 }

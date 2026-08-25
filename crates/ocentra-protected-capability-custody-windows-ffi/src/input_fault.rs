@@ -61,13 +61,8 @@ pub enum InputFault {
     TokenSidOutsideResponse,
     TokenSidResponseTooLarge,
     TokenUserResponseTooSmall,
-    TpmAuthorizationShapeInvalid,
     TpmCommandShapeInvalid,
-    TpmEnrollmentPublicMismatch,
-    TpmEnrollmentRecordInvalid,
     TpmNvIndexInvalid,
-    TpmNvReadRangeInvalid,
-    TpmNvTypeInvalid,
     UnknownAceType,
     WindowsTextInvalid,
 }

@@ -35,14 +35,6 @@ const TRUSTED_INSTALLER_SID: &str = concat!(
 const INHERIT_ONLY_ACE: u8 = 0x08;
 
 #[cfg(windows)]
-pub(super) fn registry_custody_adapter_available() -> Result<(), PlatformError> {
-    // The current dependency set cannot prove registry owner, protected-DACL,
-    // deny ordering, and pinned parent-chain custody. This is a static
-    // capability check: it deliberately does not open a key or create state.
-    Err(PlatformError::DeploymentRequired)
-}
-
-#[cfg(windows)]
 pub(super) fn validate_path(path: &Path) -> Result<(), PlatformError> {
     let text = path.to_str().ok_or(PlatformError::InvalidAttestation)?;
     let acl = ACL::from_file_path(text, false).map_err(map_acl_error)?;
@@ -58,11 +50,6 @@ pub(super) fn validate_file(file: &File) -> Result<(), PlatformError> {
 #[cfg(windows)]
 pub(super) fn validate_secret_store(key: &winreg::RegKey) -> Result<(), PlatformError> {
     validate_registry_custody(key, runtime_registry_requirements())
-}
-
-#[cfg(windows)]
-pub(super) fn validate_enrollment_store(key: &winreg::RegKey) -> Result<(), PlatformError> {
-    validate_registry_custody(key, enrollment_registry_requirements())
 }
 
 #[cfg(windows)]
@@ -82,18 +69,6 @@ fn runtime_registry_requirements() -> RegistryAclRequirements {
         owner_sid: SYSTEM_SID,
         system_mask: KEY_READ | KEY_WRITE,
         trusted_installer_mask: None,
-        dacl_protected: true,
-        reject_inherited_aces: true,
-        validate_parent_chain: true,
-    }
-}
-
-#[cfg(windows)]
-fn enrollment_registry_requirements() -> RegistryAclRequirements {
-    RegistryAclRequirements {
-        owner_sid: TRUSTED_INSTALLER_SID,
-        system_mask: KEY_READ,
-        trusted_installer_mask: Some(KEY_READ | KEY_WRITE),
         dacl_protected: true,
         reject_inherited_aces: true,
         validate_parent_chain: true,

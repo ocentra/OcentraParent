@@ -12,14 +12,29 @@ use windows_sys::Win32::Storage::FileSystem::{
 use super::{error_status, platform, BrokerExecutableGuard, BrokerRuntimeError};
 
 impl BrokerExecutableGuard {
-    pub(super) fn open_current_broker() -> Result<Self, BrokerRuntimeError> {
+    #[cfg(windows)]
+    pub(super) fn open_current_broker(
+        windows: &platform::BrokerWindowsRuntime,
+    ) -> Result<Self, BrokerRuntimeError> {
+        windows
+            .revalidate_broker()
+            .map_err(|error| error_status::broker_platform_admission(&error))?;
         let current = std::env::current_exe().map_err(error_status::broker_executable)?;
         let expected_root = fixed_install_root()
             .join(ocentra_protected_capability_custody_protocol::constants::BROKER_EXECUTABLE_NAME);
         if current != expected_root {
             return Err(BrokerRuntimeError::InvalidBrokerProcess);
         }
-        open_exact(current)
+        let guard = open_exact(current)?;
+        windows
+            .revalidate_broker()
+            .map_err(|error| error_status::broker_platform_admission(&error))?;
+        Ok(guard)
+    }
+
+    #[cfg(not(windows))]
+    pub(super) fn open_current_broker() -> Result<Self, BrokerRuntimeError> {
+        Err(BrokerRuntimeError::Unavailable)
     }
 }
 
@@ -57,8 +72,6 @@ fn open_exact(candidate: PathBuf) -> Result<BrokerExecutableGuard, BrokerRuntime
     if lexical != canonical_handle {
         return Err(BrokerRuntimeError::InvalidBrokerProcess);
     }
-    platform::validate_broker_executable(&executable_handle, &canonical)
-        .map_err(|error| error_status::broker_platform_admission(&error))?;
     Ok(BrokerExecutableGuard {
         _executable_handle: executable_handle,
     })

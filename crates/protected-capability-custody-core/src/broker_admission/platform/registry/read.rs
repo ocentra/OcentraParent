@@ -15,12 +15,6 @@ pub(super) fn runtime(registry_id: &str, name: &str) -> Result<Option<Vec<u8>>, 
 }
 
 #[cfg(windows)]
-pub(super) fn enrollment(registry_id: &str, name: &str) -> Result<Option<Vec<u8>>, PlatformError> {
-    let key = super::super::open_enrollment_key(registry_id)?;
-    from_key(&key, name)
-}
-
-#[cfg(windows)]
 fn from_key(key: &winreg::RegKey, name: &str) -> Result<Option<Vec<u8>>, PlatformError> {
     match key.get_raw_value(name) {
         Ok(value) if value.vtype == REG_BINARY => {

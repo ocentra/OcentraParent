@@ -2,10 +2,7 @@
 
 use super::handles::TbsContextInner;
 use crate::tpm;
-use crate::{
-    Error, InputFault, OwnedTbsContext, OwnedTpmNvCapability, Result, TpmNvEnrollment, TpmNvPublic,
-    MAX_BUFFER_BYTES,
-};
+use crate::{Error, InputFault, OwnedTbsContext, Result, TpmNvPublicObservation, MAX_BUFFER_BYTES};
 use std::ptr;
 use windows_sys::Win32::System::TpmBaseServices::{
     Tbsi_Context_Create, Tbsi_Is_Tpm_Present, Tbsip_Submit_Command, TBS_COMMAND_LOCALITY_ZERO,
@@ -72,50 +69,13 @@ impl OwnedTbsContext {
         Ok(output)
     }
 
-    pub fn bind_enrolled_nv(self, enrollment: TpmNvEnrollment) -> Result<OwnedTpmNvCapability> {
-        let public = observe_nv_public(&self, enrollment.nv_index)?;
-        enrollment.verify_public(&public)?;
-        Ok(OwnedTpmNvCapability {
-            context: self,
-            enrollment,
-        })
+    pub fn observe_nv_public(&self, index: u32) -> Result<TpmNvPublicObservation> {
+        if index == 0 {
+            return Err(Error::InvalidInput(InputFault::TpmNvIndexInvalid));
+        }
+        let response = self.submit(&tpm::command::encode_nv_read_public(index)?)?;
+        tpm::response::decode_nv_read_public(&response, index)
     }
-}
-
-impl OwnedTpmNvCapability {
-    pub fn read(&self, authorization: &[u8], size: u16, offset: u16) -> Result<Vec<u8>> {
-        self.enrollment.validate_read_range(size, offset)?;
-        self.verify_live_public()?;
-        let index = self.enrollment.nv_index;
-        let command = tpm::command::encode_nv_read(index, index, authorization, size, offset)?;
-        let response = self.context.submit(&command)?;
-        let data = tpm::response::decode_nv_read(&response)?;
-        self.verify_live_public()?;
-        Ok(data)
-    }
-
-    pub fn increment(&self, authorization: &[u8]) -> Result<()> {
-        self.enrollment.validate_increment_shape()?;
-        self.verify_live_public()?;
-        let index = self.enrollment.nv_index;
-        let command = tpm::command::encode_nv_increment(index, index, authorization)?;
-        let response = self.context.submit(&command)?;
-        tpm::response::decode_nv_increment(&response)?;
-        // A failure here is fail-closed evidence of post-command drift. The
-        // TPM may already have applied the increment; this layer never claims
-        // rollback of an issued hardware mutation.
-        self.verify_live_public()
-    }
-
-    fn verify_live_public(&self) -> Result<()> {
-        let public = observe_nv_public(&self.context, self.enrollment.nv_index)?;
-        self.enrollment.verify_public(&public)
-    }
-}
-
-fn observe_nv_public(context: &OwnedTbsContext, index: u32) -> Result<TpmNvPublic> {
-    let response = context.submit(&tpm::command::encode_nv_read_public(index)?)?;
-    tpm::response::decode_nv_read_public(&response, index)
 }
 
 fn validate_tpm_command(command: &[u8]) -> Result<()> {

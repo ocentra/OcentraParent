@@ -58,18 +58,9 @@ impl<'a> ResponseCursor<'a> {
         self.take(length)
     }
 
-    pub(super) fn take_u32(&mut self) -> Result<u32> {
-        let bytes = self.take(4)?;
-        Ok(u32::from_be_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]))
-    }
-
     pub(super) fn take_u16(&mut self) -> Result<u16> {
         let bytes = self.take(2)?;
         Ok(u16::from_be_bytes([bytes[0], bytes[1]]))
-    }
-
-    pub(super) fn remaining(&self) -> usize {
-        self.bytes.len().saturating_sub(self.position)
     }
 
     pub(super) fn is_empty(&self) -> bool {

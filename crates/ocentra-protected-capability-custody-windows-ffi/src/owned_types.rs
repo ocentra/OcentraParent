@@ -68,11 +68,3 @@ pub struct OwnedTbsContext {
 pub struct OwnedTbsContext {
     pub(crate) _marker: PhantomData<*mut ()>,
 }
-
-pub struct OwnedTpmNvCapability {
-    #[cfg(windows)]
-    pub(crate) context: OwnedTbsContext,
-    pub(crate) enrollment: crate::TpmNvEnrollment,
-    #[cfg(not(windows))]
-    pub(crate) _marker: PhantomData<*mut ()>,
-}

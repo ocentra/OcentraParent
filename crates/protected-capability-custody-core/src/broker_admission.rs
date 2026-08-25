@@ -27,6 +27,8 @@ pub struct BrokerCustodyRuntime {
     store: CustodyStore,
     authority: Arc<authority::BrokerCurrentBindingAuthority>,
     registry_id: String,
+    #[cfg(windows)]
+    windows: platform::BrokerWindowsRuntime,
     _executable: BrokerExecutableGuard,
 }
 
@@ -43,18 +45,18 @@ struct BrokerExecutableGuard {
 struct BrokerProcessAdmission {
     _executable: BrokerExecutableGuard,
     database: crate::path_security::PendingSecuredPath,
+    registry_id: String,
+    #[cfg(windows)]
+    windows: platform::BrokerWindowsRuntime,
 }
 
-/// Opaque admission for one exact named-pipe peer. A future Windows adapter
-/// must retain one `OpenProcess` handle while deriving PID, creation epoch,
-/// canonical image, image digest, and liveness; observe SID, integrity, and
-/// token session from the impersonated pipe token; match both PID and session
-/// to the pipe; and keep the process handle alive through authorization.
-///
-/// The current safe dependency set cannot construct this type. Keeping its
-/// only field private prevents callers from substituting PID/path snapshots or
-/// self-asserted token values.
+/// Opaque admission for one exact named-pipe peer. The private Windows adapter
+/// retains the process, image, primary-token, and impersonated-token handles
+/// through authorization. Keeping every field private prevents callers from
+/// substituting PID/path snapshots or self-asserted token values.
 pub struct BrokerPeerAdmissionObservation {
+    #[cfg(windows)]
+    platform: platform::BrokerPeerObservation,
     _private: PeerAdmissionPrivate,
 }
 
@@ -62,9 +64,11 @@ struct PeerAdmissionPrivate;
 
 /// Opaque proof that the retained OS peer observation was revalidated and
 /// bound to the exact bootstrap/client-hello transcript immediately before
-/// broker session key release. The missing platform adapter is the sole
-/// intended constructor.
+/// broker session key release. The private platform adapter is the sole
+/// constructor.
 pub struct BrokerAuthorizedClientTranscript {
+    #[cfg(windows)]
+    _platform: platform::BrokerAuthorizedPeer,
     _private: AuthorizedTranscriptPrivate,
 }
 

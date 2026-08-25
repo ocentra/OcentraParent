@@ -38,6 +38,16 @@ impl BrokerCustodyService {
     }
 
     #[cfg(windows)]
+    pub(crate) fn observe_impersonated_named_pipe_client(
+        &self,
+        pipe_process_id: u32,
+        pipe_session_id: u32,
+    ) -> Result<BrokerPeerAdmissionObservation, BrokerError> {
+        self.state
+            .observe_impersonated_named_pipe_client(pipe_process_id, pipe_session_id)
+    }
+
+    #[cfg(windows)]
     pub(crate) fn authorize_client_peer(
         &self,
         observation: &BrokerPeerAdmissionObservation,
@@ -48,12 +58,19 @@ impl BrokerCustodyService {
     #[cfg(windows)]
     pub(crate) fn authorize_client_transcript(
         &self,
-        observation: &BrokerPeerAdmissionObservation,
+        observation: BrokerPeerAdmissionObservation,
         bootstrap: &BootstrapPacket,
         hello: &UntrustedClientHello,
+        pipe_process_id: u32,
+        pipe_session_id: u32,
     ) -> Result<BrokerAuthorizedClientTranscript, BrokerError> {
-        self.state
-            .authorize_client_transcript(observation, bootstrap, hello)
+        self.state.authorize_client_transcript(
+            observation,
+            bootstrap,
+            hello,
+            pipe_process_id,
+            pipe_session_id,
+        )
     }
 
     #[cfg(windows)]

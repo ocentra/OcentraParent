@@ -15,6 +15,16 @@ pub(crate) fn preflight_service_start() -> Result<(), crate::BrokerError> {
 }
 
 impl RuntimeState {
+    pub(crate) fn observe_impersonated_named_pipe_client(
+        &self,
+        pipe_process_id: u32,
+        pipe_session_id: u32,
+    ) -> Result<BrokerPeerAdmissionObservation, crate::BrokerError> {
+        self.ready_runtime()?
+            .observe_impersonated_named_pipe_client(pipe_process_id, pipe_session_id)
+            .map_err(map_peer_error)
+    }
+
     pub(crate) fn authorize_client_peer(
         &self,
         observation: &BrokerPeerAdmissionObservation,
@@ -26,12 +36,20 @@ impl RuntimeState {
 
     pub(crate) fn authorize_client_transcript(
         &self,
-        observation: &BrokerPeerAdmissionObservation,
+        observation: BrokerPeerAdmissionObservation,
         bootstrap: &BootstrapPacket,
         hello: &UntrustedClientHello,
+        pipe_process_id: u32,
+        pipe_session_id: u32,
     ) -> Result<BrokerAuthorizedClientTranscript, crate::BrokerError> {
         self.ready_runtime()?
-            .authorize_client_transcript(observation, bootstrap, hello)
+            .authorize_client_transcript(
+                observation,
+                bootstrap,
+                hello,
+                pipe_process_id,
+                pipe_session_id,
+            )
             .map_err(map_peer_error)
     }
 
@@ -48,8 +66,9 @@ impl RuntimeState {
     }
 
     pub(crate) fn peer_admission_available(&self) -> Result<(), crate::BrokerError> {
-        let _runtime = self.ready_runtime()?;
-        BrokerCustodyRuntime::peer_admission_available().map_err(map_peer_error)
+        self.ready_runtime()?
+            .peer_admission_available()
+            .map_err(map_peer_error)
     }
 
     fn ready_runtime(&self) -> Result<&BrokerCustodyRuntime, crate::BrokerError> {
