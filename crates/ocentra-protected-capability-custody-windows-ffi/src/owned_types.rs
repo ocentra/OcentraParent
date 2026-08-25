@@ -5,6 +5,7 @@ use core::marker::PhantomData;
 
 #[cfg(windows)]
 use crate::windows::cng_handles::{PcpProviderInner, PcpSigningKeyInner};
+#[cfg(windows)]
 use crate::windows::handles::{
     ProcessInner, RegistryChainInner, ScManagerInner, ServiceInner, TbsContextInner, TokenInner,
 };

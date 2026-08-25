@@ -1,7 +1,11 @@
 //! Owned TPM policy-session and fixed prepared-operation modules.
 
+#[path = "tpm_session_close.rs"]
+mod close;
 #[path = "tpm_session_facade.rs"]
 pub(crate) mod facade;
+#[path = "tpm_session_flush.rs"]
+mod flush;
 #[path = "tpm_session_lifetimes.rs"]
 mod lifetimes;
 #[path = "tpm_session_nv.rs"]

@@ -3,29 +3,24 @@
 use super::super::codec_types::auth::{
     clear_bytes, constant_time_eq, SecretNonce, SecretSessionKey,
 };
-use super::super::codec_types::handles::{SessionHandle, TransientHandle};
+use super::super::codec_types::handles::SessionHandle;
 use super::super::codec_types::signer::TpmPolicySignerPublic;
 use super::super::{command, response};
+use super::close::{SessionHandleState, TransientHandleState};
 use crate::{Error, OwnedTbsContext, Result};
 
 pub(super) struct OwnedTpmSession<'a> {
     pub(super) context: &'a OwnedTbsContext,
-    handle: SessionHandleState,
+    pub(super) handle: SessionHandleState,
     pub(super) nonce_tpm: SecretNonce,
     pub(super) nonce_caller: SecretNonce,
     pub(super) session_key: SecretSessionKey,
     pub(super) command_sequence: u64,
 }
 
-enum SessionHandleState {
-    Active(SessionHandle),
-    Terminated,
-    Abandoned,
-}
-
 pub(super) struct OwnedTransientObject<'a> {
-    context: &'a OwnedTbsContext,
-    handle: Option<TransientHandle>,
+    pub(super) context: &'a OwnedTbsContext,
+    pub(super) handle: TransientHandleState,
     name: Vec<u8>,
 }
 
@@ -58,29 +53,12 @@ impl<'a> OwnedTpmSession<'a> {
         }
     }
 
-    pub(super) fn close_in_place(&mut self) -> Result<()> {
-        let SessionHandleState::Active(handle) = &self.handle else {
-            return Ok(());
-        };
-        let command = command::policy::encode_flush_context(handle.raw())?;
-        let response = self.context.submit(&command)?;
-        response::sessions::decode_success_no_parameters(&response)?;
-        self.handle = SessionHandleState::Terminated;
-        Ok(())
-    }
-
     pub(super) fn mark_terminated(&mut self) {
         self.handle = SessionHandleState::Terminated;
     }
 
     pub(super) fn abandon_after_unverifiable_response(&mut self) {
         self.handle = SessionHandleState::Abandoned;
-    }
-}
-
-impl Drop for OwnedTpmSession<'_> {
-    fn drop(&mut self) {
-        let _ = self.close_in_place();
     }
 }
 
@@ -94,7 +72,7 @@ impl<'a> OwnedTransientObject<'a> {
         let (handle, name) = response::sessions::decode_load_external(&response)?;
         let mut owned = Self {
             context,
-            handle: Some(handle),
+            handle: TransientHandleState::Active(handle),
             name,
         };
         if !constant_time_eq(&owned.name, signer.name()) {
@@ -105,26 +83,11 @@ impl<'a> OwnedTransientObject<'a> {
     }
 
     pub(super) fn handle(&self) -> Result<u32> {
-        self.handle
-            .as_ref()
-            .map(TransientHandle::raw)
-            .ok_or(Error::MalformedTpm)
-    }
-
-    pub(super) fn close_in_place(&mut self) -> Result<()> {
-        let Some(handle) = self.handle.as_ref() else {
-            return Ok(());
-        };
-        let command = command::policy::encode_flush_context(handle.raw())?;
-        let response = self.context.submit(&command)?;
-        response::sessions::decode_success_no_parameters(&response)?;
-        self.handle = None;
-        Ok(())
-    }
-}
-
-impl Drop for OwnedTransientObject<'_> {
-    fn drop(&mut self) {
-        let _ = self.close_in_place();
+        match &self.handle {
+            TransientHandleState::Active(handle) => Ok(handle.raw()),
+            TransientHandleState::Terminated | TransientHandleState::Abandoned => {
+                Err(Error::MalformedTpm)
+            }
+        }
     }
 }
