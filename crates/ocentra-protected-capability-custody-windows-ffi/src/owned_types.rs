@@ -69,37 +69,10 @@ pub struct OwnedTbsContext {
     pub(crate) _marker: PhantomData<*mut ()>,
 }
 
-pub struct OwnedTpmNvIndex {
+pub struct OwnedTpmNvCapability {
     #[cfg(windows)]
     pub(crate) context: OwnedTbsContext,
-    pub(crate) index: crate::TpmNvIndex,
+    pub(crate) enrollment: crate::TpmNvEnrollment,
     #[cfg(not(windows))]
     pub(crate) _marker: PhantomData<*mut ()>,
-}
-
-impl OwnedTpmNvIndex {
-    pub fn index(&self) -> crate::TpmNvIndex {
-        self.index
-    }
-}
-
-impl crate::TpmNvIndex {
-    pub fn try_from_raw(value: u32) -> crate::Result<Self> {
-        const NV_HANDLE_PREFIX: u32 = 0x0100_0000;
-        const HANDLE_TYPE_MASK: u32 = 0xff00_0000;
-        if value & HANDLE_TYPE_MASK != NV_HANDLE_PREFIX {
-            return Err(crate::Error::InvalidInput(
-                crate::InputFault::TpmNvIndexInvalid,
-            ));
-        }
-        Ok(Self(value))
-    }
-
-    pub fn value(&self) -> u32 {
-        self.0
-    }
-
-    pub(crate) fn raw(self) -> u32 {
-        self.0
-    }
 }

@@ -63,7 +63,11 @@ pub enum InputFault {
     TokenUserResponseTooSmall,
     TpmAuthorizationShapeInvalid,
     TpmCommandShapeInvalid,
+    TpmEnrollmentPublicMismatch,
+    TpmEnrollmentRecordInvalid,
     TpmNvIndexInvalid,
+    TpmNvReadRangeInvalid,
+    TpmNvTypeInvalid,
     UnknownAceType,
     WindowsTextInvalid,
 }

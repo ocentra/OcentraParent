@@ -17,8 +17,9 @@ mod observations;
 mod owned_types;
 #[cfg(windows)]
 mod security;
+#[cfg(windows)]
 mod tpm;
-mod tpm_observation;
+mod tpm_enrollment;
 #[cfg(not(windows))]
 mod unsupported;
 #[cfg(windows)]
@@ -146,13 +147,21 @@ pub struct RegistryValueObservation {
     value: RegistryValue,
 }
 
-/// An opaque mechanically validated TPM2 NV index handle.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct TpmNvIndex(u32);
+/// An opaque, canonical installer enrollment record for one TPM2 NV area.
+///
+/// The record is expected data, not authority. The raw index and public area
+/// are deliberately not exposed; a live exact match is required before a
+/// capability can be created or used.
+pub struct TpmNvEnrollment {
+    pub(crate) nv_index: u32,
+    pub(crate) name_algorithm: u16,
+    pub(crate) attributes: u32,
+    pub(crate) auth_policy: Vec<u8>,
+    pub(crate) data_size: u16,
+}
 
-/// The bounded public metadata returned by TPM2 `NV_ReadPublic`.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct NvPublic {
+#[derive(Debug, Eq, PartialEq)]
+pub(crate) struct TpmNvPublic {
     pub(crate) nv_index: u32,
     pub(crate) name_algorithm: u16,
     pub(crate) attributes: u32,
@@ -215,8 +224,9 @@ pub type OwnedScManager = owned_types::OwnedScManager;
 /// A service handle retained for configuration and security observation.
 pub type OwnedService = owned_types::OwnedService;
 
-/// A TBS context retained for TPM command submission.
+/// A TBS context retained for bounded TPM2 NV mechanics.
 pub type OwnedTbsContext = owned_types::OwnedTbsContext;
 
-/// A TPM NV index coupled to its retained TBS context.
-pub type OwnedTpmNvIndex = owned_types::OwnedTpmNvIndex;
+/// A non-cloneable TPM2 NV capability whose live public area matched one
+/// canonical enrollment record.
+pub type OwnedTpmNvCapability = owned_types::OwnedTpmNvCapability;
