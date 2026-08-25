@@ -13,7 +13,7 @@ use self::evidence::{
     targeted_arp_refresh_targets_with_evidence_until,
 };
 use self::observations::current_active_refresh_ipv4_observations_by_ip_until;
-use self::target_builders::targeted_arp_refresh_targets;
+use self::target_builders::{bounded_active_ipv4_refresh_targets, targeted_arp_refresh_targets};
 use self::targets::{refresh_metrics, saturating_u32};
 use super::service_identity::runtime_service_identity_probe_settings;
 use super::{
@@ -97,9 +97,10 @@ pub fn stimulate_bounded_ipv4_neighbors(
     if is_cancelled(cancellation) {
         return;
     }
-    let targets = targeted_arp_refresh_targets(
+    let targets = bounded_active_ipv4_refresh_targets(
         identity.ip_address.as_deref(),
         identity.ipv4_cidr.as_deref(),
+        identity.default_gateway.as_deref(),
         identity.network_interface.as_deref(),
         active_refresh_suppression_devices,
         previous_devices,
@@ -215,9 +216,10 @@ pub fn targeted_arp_refresh_evidence_for_scan_plan_until(
         return Vec::new();
     }
 
-    let targets = targeted_arp_refresh_targets(
+    let targets = bounded_active_ipv4_refresh_targets(
         scan_plan.local_ip_address.as_deref(),
         scan_plan.ipv4_cidr.as_deref(),
+        scan_plan.default_gateway.as_deref(),
         scan_plan.selected_interface.as_deref(),
         active_refresh_suppression_devices,
         previous_devices,
