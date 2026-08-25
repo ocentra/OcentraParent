@@ -3701,7 +3701,12 @@
     },
     "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge": {
       "planSlug": "device-trust-bootstrap-plan",
-      "roots": ["tests/device-trust-bootstrap-plan/contract/phone-qr-approval-bridge.test.mjs"]
+      "roots": [
+        "crates/schema/src/phone_qr_approval.rs",
+        "crates/family-identity-core/src/phone_qr_approval_authority.rs",
+        "tests/device-trust-bootstrap-plan/contract/phone-qr-approval-bridge.test.mjs"
+      ],
+      "note": "Typed QR challenge/response contracts and pre-verifier binding/time/replay-shape validation are present, but no production QR issuer, phone ceremony, signature verifier, nonce/challenge consumer, desktop/phone transport, or currentness/action consumer is composed. The mapped plan-local test is document-only and the proof root is absent; this mapping does not claim runtime approval."
     },
     "WP-device-trust-bootstrap-plan-05-entitlement-device-license": {
       "planSlug": "device-trust-bootstrap-plan",
