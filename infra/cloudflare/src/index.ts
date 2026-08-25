@@ -62,7 +62,7 @@ import {
   type RouteHandlerMap,
   type RouteManifestEntry,
 } from './routes.js';
-import { redactHeaders } from './security/redaction.js';
+import { redactHeaders, redactPayload, redactStringValue } from './security/redaction.js';
 import {
   loginBrowserSession,
   logoutBrowserSession,
@@ -480,7 +480,7 @@ function queueFailureMessage(error: unknown): string | null {
     return null;
   }
 
-  return error.message.replace(/\s+/gu, ' ').trim().slice(0, 160) || null;
+  return redactStringValue(error.message.replace(/\s+/gu, ' ').trim().slice(0, 160)) || null;
 }
 
 function deadLetterPayload(
@@ -492,7 +492,7 @@ function deadLetterPayload(
     disposition: 'dead-letter',
     sourceQueue: 'BILLING_RECONCILIATION_QUEUE',
     reason,
-    payload: cloneJsonValue(payload),
+    payload: redactPayload(cloneJsonValue(payload)),
     failedAt: new Date().toISOString(),
     errorMessage: queueFailureMessage(error),
   };
@@ -746,20 +746,26 @@ function canonicalRequestFingerprint(
   return JSON.stringify({ ...details, action, subject, requestId });
 }
 
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 function webhookIdempotencyKey(provider: string, eventId: string, billingSubject: string | null): string {
   return durableWriteKey('provider-webhook', billingSubject ?? 'unresolved', `${provider}:${eventId}`);
 }
 
-function webhookRequestFingerprint(
+async function webhookRequestFingerprint(
   provider: string,
   body: string,
   event: { eventId: string; eventType: string },
   authority: ProviderBillingAuthority | null
-): string {
+): Promise<string> {
+  const bodyDigest = await sha256Hex(body);
   return canonicalRequestFingerprint('provider-webhook', authority?.billingSubject ?? null, event.eventId, {
     provider,
     eventType: event.eventType,
-    body,
+    bodyDigest,
     accountId: authority?.accountId ?? null,
     providerCustomerId: authority?.providerCustomerId ?? null,
     providerSubscriptionId: authority?.providerSubscriptionId ?? null,
@@ -944,9 +950,7 @@ function providerEventDetails(
 }
 
 async function providerWebhookBodyId(provider: string, body: string): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body));
-  const hex = Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, '0')).join('');
-  return `${provider}_evt_body_${hex}`;
+  return `${provider}_evt_body_${await sha256Hex(body)}`;
 }
 
 function providerWebhookReferences(payload: unknown, eventType: string): ProviderBillingReferenceHints {
@@ -1101,7 +1105,7 @@ async function acceptProviderWebhook(
   const subject = trustedAuthority?.billingSubject ?? null;
   const invoiceId = trustedAuthority?.billingInvoiceId ?? null;
   const disputeId = providerWebhookDisputeId(payload, event.eventType, `dispute-${provider}-${event.eventId}`);
-  const requestFingerprint = webhookRequestFingerprint(provider, body, event, trustedAuthority);
+  const requestFingerprint = await webhookRequestFingerprint(provider, body, event, trustedAuthority);
   const processingState =
     trustedAuthority !== null && occurrence.valid && (occurrence.occurredAt !== null || occurrence.sequence !== null)
       ? isIgnoredProviderWebhookEvent(event.eventType)
@@ -1191,7 +1195,7 @@ async function acceptProviderWebhook(
           current.processingState === 'ignored' || current.processingState === 'applied'
             ? current.processingState
             : 'manual-required',
-          error.message,
+          queueFailureMessage(error) ?? 'billing-control-do-unavailable',
           current
         );
       }
@@ -1922,7 +1926,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       return json(500, {
         error: 'worker-unhandled-error',
         handlerKey: route.handlerKey,
-        message: error instanceof Error ? error.message : 'unknown-error',
+        message: redactStringValue(error instanceof Error ? error.message : 'unknown-error'),
         requestHeaders: redactHeaders(request.headers),
       });
     }
@@ -1964,7 +1968,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     return json(500, {
       error: 'worker-unhandled-error',
       handlerKey: route.handlerKey,
-      message: error instanceof Error ? error.message : 'unknown-error',
+      message: redactStringValue(error instanceof Error ? error.message : 'unknown-error'),
       requestHeaders: redactHeaders(request.headers),
     });
   }
