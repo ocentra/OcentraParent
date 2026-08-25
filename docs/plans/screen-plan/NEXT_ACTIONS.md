@@ -26,6 +26,8 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by unchecked boxes
 
+- [37 Household Mesh Screen Analysis Queue](workpacks/37-family-ai-hub-screen-analysis-queue.md): **blocked/source-incomplete** after the 2026-08-24 production-code audit. Do not use public arbitrary-string inputs, `proof_fixture()`, `without_owner_handlers()` in-memory state, synthesized claim/lease IDs, heartbeat/environment availability, or LAN evidence as authority. Await AI WP07/WP08/WP32 contracts/boundaries, LAN WP26 authenticated durable route/custody, Eventing WP10 local consumer, and a real service-owned startup/result composition; no complete indexed owner currently supplies the last composition.
+
 - [32 Browser Structured Extraction Before Screenshot](workpacks/32-browser-structured-extraction-before-screenshot.md): reviewed fail-closed source implements 3/6 rows. Next production source is the executable browser/policy owner composition; title/meta/accessibility/visible-text disclosure and `no_screen_needed` must remain unavailable until that authority exists. Write the five mapped focused test files only in the later test-source phase.
 
 - [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md): 6 open of 6 boxes; reopen after independent review found unsafe retention, non-atomic queue mutation, and fabricated proof boundaries.

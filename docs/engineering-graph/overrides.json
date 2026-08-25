@@ -38,9 +38,7 @@
     },
     {
       "id": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
-      "hardDependencies": [
-        "WP-ai-plan-03-contract-boundary-and-effect-schemas"
-      ],
+      "hardDependencies": ["WP-ai-plan-03-contract-boundary-and-effect-schemas"],
       "reason": "WP04 has partial local-AI/assistant Rust shapes, but complete protocol and generated edge parity cannot be accepted before WP03 owns the canonical general AI family. Source work may prepare an explicit consumer adapter; it must not duplicate schema ownership or create public re-export shims.",
       "evidence": [
         "docs/plans/ai-plan/PLAN_STATE.md",
@@ -2284,6 +2282,34 @@
       "reason": "Small-VLM guided classifier evaluation is a validation gate over the Screen intelligence router; it does not establish a real OCR/VLM/provider runtime."
     },
     {
+      "id": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "hardDependencies": [
+        "WP-ai-plan-07-ai-job-queue-contract",
+        "WP-ai-plan-08-ai-provider-routing-contract",
+        "WP-ai-plan-32-family-ai-hub-and-remote-assistant-boundary",
+        "WP-eventing-plan-10-lan-household-mesh-consumer",
+        "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/PLAN_STATE.md",
+        "docs/plans/screen-plan/NEXT_ACTIONS.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md",
+        "docs/plans/ai-plan/workpacks/08-ai-provider-routing-contract.md",
+        "docs/plans/ai-plan/workpacks/32-family-ai-hub-and-remote-assistant-boundary.md",
+        "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md",
+        "crates/agent-service/src/service_runtime/run.rs",
+        "crates/agent-service/src/screen_ai_service_event_subscription.rs",
+        "crates/agent-core/src/screen_household_mesh_runtime.rs",
+        "crates/agent-service/src/lan_pairing_runtime_state/job_leases.rs",
+        "crates/agent-service/src/lan_pairing/lan_ai_route_metadata.rs"
+      ],
+      "reason": "Fresh production-code audit keeps WP37 blocked/source-incomplete. AI WP07 owns the canonical claim/lease/result contract, AI WP08 the provider-route contract, and AI WP32 the household/remote boundary; Eventing WP10 owns only local mesh import/republish and is blocked on LAN WP26, which owns authenticated household ingress, selected-route authority, and durable ingress idempotency custody. The current screen input is public arbitrary-string/proof-fixture data, its publisher uses an in-memory without_owner_handlers bus, service row-ready returns RuntimeOwnerUnavailable, claim/lease IDs are synthesized in process-local state, and provider heartbeat/read-model/environment availability is not authority. No indexed owner currently supplies the complete screen-specific provider transfer/result receipt plus agent-service startup composition; record that as a missing-owner blocker rather than inventing a dependency. No READY, DONE, test, or proof claim is made."
+    },
+    {
       "id": "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path",
       "hardDependencies": [
         "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
@@ -2707,6 +2733,66 @@
     }
   ],
   "edges": [
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-ai-plan-07-ai-job-queue-contract",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md"
+      ],
+      "reason": "WP37 must consume the canonical AI claim, lease, result, dead-letter, and replay contract; its public proof-shaped input and process-local lease state cannot provide that authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-ai-plan-08-ai-provider-routing-contract",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/ai-plan/workpacks/08-ai-provider-routing-contract.md"
+      ],
+      "reason": "WP37 must consume the deterministic provider-route contract and reject stale, offline, revoked, or custody-incompatible providers; heartbeat/read-model/environment availability is not provider authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-ai-plan-32-family-ai-hub-and-remote-assistant-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/ai-plan/workpacks/32-family-ai-hub-and-remote-assistant-boundary.md"
+      ],
+      "reason": "WP37 must preserve the household-provider versus remote-assistant boundary and child-owned result/policy authority; the existing local proof path does not prove provider discovery, claim/lease, result validation, or LAN execution.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-eventing-plan-10-lan-household-mesh-consumer",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md"
+      ],
+      "reason": "WP37 may use Eventing only for validated local mesh import/republish; Eventing WP10 is itself blocked until LAN authority/transport composition exists and cannot be replaced by an in-memory owner-less bus.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md"
+      ],
+      "reason": "LAN WP26 is the indexed runtime owner for authenticated household ingress, selected-route authority, durable ingress/idempotency custody, and the private Eventing handoff; its blocked source/caller/proof state prevents WP37 from claiming provider readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
     {
       "from": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
       "to": "WP-ai-plan-03-contract-boundary-and-effect-schemas",
