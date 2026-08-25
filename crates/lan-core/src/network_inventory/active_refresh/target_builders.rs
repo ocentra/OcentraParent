@@ -3,6 +3,8 @@ use std::net::Ipv4Addr;
 
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
+use crate::mac_identity::normalize_scan_mac_address;
+
 use super::super::LanNetworkInventoryDevice;
 use super::targets::{normalized_household_ipv4_ip, parse_ipv4_cidr, same_ipv4_subnet};
 use super::TargetedArpRefreshTarget;
@@ -72,21 +74,22 @@ pub fn bounded_active_ipv4_refresh_targets(
 
     let mut targets = Vec::new();
     let mut seen_targets = HashSet::new();
+    let local_ip_address_text = local_ip_address.to_string();
     for ip_address in super::targets::bounded_active_ipv4_target_ips(
-        Some(&local_ip_address.to_string()),
-        Some(ipv4_cidr.unwrap_or_default()),
+        Some(local_ip_address_text.as_str()),
+        ipv4_cidr,
         default_gateway,
         active_refresh_suppression_devices,
         previous_devices,
     ) {
-        let expected_mac_address = previous_devices.iter().find_map(|previous_device| {
-            (normalized_household_ipv4_ip(Some(previous_device.ip_address.as_str()))
-                == Some(ip_address))
-            .then_some(previous_device.mac_address.as_str())
-        });
+        let expected_mac_address = expected_mac_address_for_ip(
+            ip_address,
+            active_refresh_suppression_devices,
+            previous_devices,
+        );
         let target = target_from_ip_and_interface(
             ip_address,
-            expected_mac_address,
+            expected_mac_address.as_deref(),
             None,
             local_ip_address,
             prefix_length,
@@ -95,17 +98,33 @@ pub fn bounded_active_ipv4_refresh_targets(
         push_targeted_arp_target(&mut targets, &mut seen_targets, target);
     }
 
-    for target in targeted_arp_refresh_targets(
-        Some(&local_ip_address.to_string()),
-        ipv4_cidr,
-        Some(selected_interface),
-        active_refresh_suppression_devices,
-        previous_devices,
-    ) {
-        push_targeted_arp_target(&mut targets, &mut seen_targets, Some(target));
-    }
-
     targets
+}
+
+fn expected_mac_address_for_ip(
+    ip_address: Ipv4Addr,
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+) -> Option<String> {
+    active_refresh_suppression_devices
+        .iter()
+        .find_map(|device| {
+            (normalized_household_ipv4_ip(device.ip_address.as_deref()) == Some(ip_address))
+                .then(|| {
+                    device
+                        .mac_address
+                        .as_deref()
+                        .and_then(normalize_scan_mac_address)
+                })
+                .flatten()
+        })
+        .or_else(|| {
+            previous_devices.iter().find_map(|device| {
+                (normalized_household_ipv4_ip(Some(device.ip_address.as_str())) == Some(ip_address))
+                    .then(|| normalize_scan_mac_address(&device.mac_address))
+                    .flatten()
+            })
+        })
 }
 
 pub fn target_from_trusted_device(
