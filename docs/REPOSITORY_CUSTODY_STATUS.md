@@ -1,15 +1,47 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-24 after the independently reviewed LAN WP07 deadline repair,
-based on canonical parent
-`ffaade68acec17325ac7b159bbd266b95a94561a`. This supersedes the retained
-2026-08-23, 2026-08-19, and 2026-08-18 snapshots below. Exact branch counts and
-worktree counts later in this document remain labelled historical until the
-post-source-wave cleanup audit refreshes them.
+Snapshot: 2026-08-25 during the source-consolidation wave, based on canonical
+parent `2e46e1f2e42d35fe0b22d81bc486db8122ad5ad0`. This supersedes the
+retained 2026-08-24, 2026-08-23, 2026-08-19, and 2026-08-18 snapshots below.
+Exact older branch and worktree inventories remain labelled historical.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
 claim. Refresh Git ancestry and patch identity before deleting any ref.
+
+## Live consolidation inventory — 2026-08-25
+
+The following facts were refreshed after `git fetch origin --prune` from the
+canonical E-drive integration worktree:
+
+- canonical is clean, pushed, and equal to
+  `origin/codex/eventing-wp09-production` at `2e46e1f2e42d35fe0b22d81bc486db8122ad5ad0`;
+- canonical is `0` behind / `575` ahead of `origin/main` and `0` behind / `572`
+  ahead of `origin/develop` by commit reachability;
+- GitHub reports zero open pull requests;
+- `152` `origin/codex/*` refs exist: `109` have zero patch-unique commits against
+  canonical and `43` have one or more, including the two retained archive refs;
+- the non-archive patch-unique set contains `95` distinct commit objects across
+  active, rejected, superseded, and semantically integrated packets; patch
+  uniqueness alone is not integration authority;
+- `177` registered worktrees exist, `175` clean and `2` dirty. The dirty states
+  are the root checkout's untracked `.codex/config.toml` and the independent AI
+  WP03 review overlay, whose 49 staged files are recoverable from pushed repair
+  refs;
+- `182` local branches exist. None of the branches with an upstream is ahead of
+  that upstream. All `26` branches without an upstream have heads reachable
+  from at least one remote ref, so no committed change is known to exist only
+  locally;
+- one stash remains: `stash@{0}` / `9d50f11211fd5755d0707e231b0c514f3c2472b0`,
+  an AppGame WP197 repair checkpoint touching eight production/Cargo paths plus
+  stale workpack/graph files. It remains preserved pending exact semantic
+  comparison with the independently reviewed round-4 packet.
+
+No ref, stash, branch, or worktree in this inventory is authorized for deletion.
+First finish semantic disposition and canonical integration, promote the
+plan-sized result through `develop` to `main`, create a fresh archive that
+contains every then-current exact tip, and repeat the PR/dirty/claim/patch
+checks.
 
 ## Protected branch and integration truth
 
@@ -17,7 +49,7 @@ claim. Refresh Git ancestry and patch identity before deleting any ref.
 | --- | --- | --- |
 | `origin/main` | `eb4e66a791` | Historical release baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim main parity. |
 | `origin/develop` | `4ece515282` | Historical promotion baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim develop parity. |
-| `origin/codex/eventing-wp09-production` | LAN WP07 source-consolidation head `ffaade68acec17325ac7b159bbd266b95a94561a` | Canonical source-consolidation line. LAN WP07's absolute recurring-cycle deadline and panic-safe timeout restoration are integrated; their expected timing/lifecycle tests and physical proof remain open. Protected Custody remains fail-closed with its OS/installer adapters, real caller, and tests open. |
+| `origin/codex/eventing-wp09-production` | Source-consolidation head `2e46e1f2e42d35fe0b22d81bc486db8122ad5ad0` | Canonical source-consolidation line. Browser WP06 fail-closed custody, LAN WP07 deadline source, Cloudflare WP02 origin validation, and their current truth updates are integrated. Their expected tests and later acceptance gates remain open. Protected Custody remains fail-closed with its OS/installer adapters, real caller, and tests open. |
 | `origin/production` | `683a07cf31` | Historical production ref; not the current integration line. |
 | archive refs | `ac9f65bb4a`, `405e7fc77e` | Coverage for historical local/remote tips. Retain through source/test consolidation and promotion. |
 
