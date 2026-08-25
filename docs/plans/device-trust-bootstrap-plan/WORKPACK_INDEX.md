@@ -38,10 +38,13 @@ The current source map was checked against the dependency order above. WP01,
 WP02, WP03, WP04, WP05, WP06, and WP07 have bounded production contracts or
 fail-closed local state, but none has a complete shipped cryptographic/device
 authority path for the missing behavior. WP08 and WP09 remain research/route
-work only. In particular, `ParentDeviceTrustCommandFacade` and the Windows
-custody implementation have no registered external production caller, and
-`require_authenticated_parent_authority()` is permanently unavailable before
-custody mutation; the entitlement verifier and restore executor are
+work only. In particular, the parent desktop has a registered Tauri command
+caller for `ParentDeviceTrustCommandFacade::seal_staged_parent_device_trust`,
+but no non-test caller reaches
+`stage_authorized_parent_device_trust_ceremony`; the Windows custody
+implementation is reachable only through that fail-closed runtime/facade
+path. `require_authenticated_parent_authority()` is permanently unavailable
+before custody mutation; the entitlement verifier and restore executor are
 unavailable-by-default ports;
 the QR and step-up paths have no ceremony issuer/nonce consumer; and child
 removal still stops at durable evidence/manual-required platform cleanup.
