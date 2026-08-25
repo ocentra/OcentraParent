@@ -25,6 +25,37 @@
     "crates/**/src/**/transport/**",
     "crates/child-runtime-android-bridge/src/ffi/**"
   ],
+  "rawStringOwnerGlobs": [
+    "crates/agent-protocol/src/**",
+    "crates/ocentra-eventing/src/**",
+    "crates/ocentra-evidence/src/**",
+    "crates/ocentra-network-evidence/src/**",
+    "crates/agent-updater/src/**",
+    "crates/logging-core/src/**",
+    "crates/schema/src/**",
+    "crates/ai-contracts/src/**",
+    "crates/*-core/src/**",
+    "crates/*-adapter/src/**",
+    "crates/*-runtime/src/**"
+  ],
+  "domainPrimitiveOwnerGlobs": [
+    "crates/agent-protocol/src/**",
+    "crates/ocentra-eventing/src/**",
+    "crates/ocentra-evidence/src/**",
+    "crates/ocentra-network-evidence/src/**",
+    "crates/agent-updater/src/**",
+    "crates/logging-core/src/**",
+    "crates/ai-contracts/src/**"
+  ],
+  "serializedDomainOwnerGlobs": [
+    "crates/agent-protocol/src/**",
+    "crates/ocentra-eventing/src/**",
+    "crates/ocentra-evidence/src/**",
+    "crates/ocentra-network-evidence/src/**",
+    "crates/agent-updater/src/**",
+    "crates/logging-core/src/**",
+    "crates/ai-contracts/src/**"
+  ],
   "runtimeStringOwnerGlobs": [
     "crates/agent-protocol/src/**",
     "crates/ocentra-eventing/src/**",
@@ -33,6 +64,7 @@
     "crates/agent-updater/src/**",
     "crates/logging-core/src/**",
     "crates/schema/src/**",
+    "crates/ai-contracts/src/**",
     "crates/*-core/src/**",
     "crates/*-adapter/src/**",
     "crates/*-runtime/src/**",
@@ -154,6 +186,7 @@
     {
       "globs": [
         "crates/schema/src/*_ts.rs",
+        "crates/ai-contracts/src/ai_contracts_ts.rs",
         "crates/schema/src/parent_ui_bridge.rs",
         "crates/tracking-core/src/generated_bridge.rs"
       ],

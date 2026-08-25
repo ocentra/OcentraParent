@@ -1,9 +1,9 @@
-use super::ai_contracts::AI_CONTRACT_SCHEMA_VERSION;
+use crate::ai_contracts::AI_CONTRACT_SCHEMA_VERSION;
 
 const AI_CONTRACT_SCHEMA_VERSION_PLACEHOLDER: &str = "__AI_CONTRACT_SCHEMA_VERSION__";
 
 const AI_CONTRACTS_TYPESCRIPT: &str = r#"/**
- * Generated from crates/schema/src/ai_contracts/*.rs.
+ * Generated from crates/ai-contracts/src/ai_contracts/*.rs.
  * Rust constructors and deserializers are authoritative; these declarations
  * describe the serialized edge shape only.
  */

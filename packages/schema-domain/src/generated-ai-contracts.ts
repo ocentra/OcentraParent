@@ -1,177 +1,122 @@
 // Rust schema version: ai-contracts-v1
 /**
- * Generated from crates/schema/src/ai_contracts/*.rs.
+ * Generated from crates/ai-contracts/src/ai_contracts/*.rs.
  * Rust constructors and deserializers are authoritative; these declarations
  * describe the serialized edge shape only.
  */
-export const AiContractSchemaVersion = "ai-contracts-v1" as const;
+export const AiContractSchemaVersion = 'ai-contracts-v1' as const;
 export type AiContractSchemaVersion = typeof AiContractSchemaVersion;
 
 type AiIdentifier<Name extends string> = string & { readonly __aiIdentifier: Name };
 
-export type AiSchemaVersion = AiIdentifier<"AiSchemaVersion">;
-export type AiFamilyId = AiIdentifier<"AiFamilyId">;
-export type AiChildProfileId = AiIdentifier<"AiChildProfileId">;
-export type AiDeviceId = AiIdentifier<"AiDeviceId">;
-export type AiActorId = AiIdentifier<"AiActorId">;
-export type AiSourceId = AiIdentifier<"AiSourceId">;
-export type AiAdapterId = AiIdentifier<"AiAdapterId">;
-export type AiRequestId = AiIdentifier<"AiRequestId">;
-export type AiWorkItemId = AiIdentifier<"AiWorkItemId">;
-export type AiResultId = AiIdentifier<"AiResultId">;
-export type AiEvidenceReferenceId = AiIdentifier<"AiEvidenceReferenceId">;
-export type AiPolicyReferenceId = AiIdentifier<"AiPolicyReferenceId">;
-export type AiRuleId = AiIdentifier<"AiRuleId">;
-export type AiMemoryReferenceId = AiIdentifier<"AiMemoryReferenceId">;
-export type AiGraphReferenceId = AiIdentifier<"AiGraphReferenceId">;
-export type AiGraphNodeId = AiIdentifier<"AiGraphNodeId">;
-export type AiJournalEntryId = AiIdentifier<"AiJournalEntryId">;
-export type AiJournalStreamId = AiIdentifier<"AiJournalStreamId">;
-export type AiExplanationId = AiIdentifier<"AiExplanationId">;
-export type AiPromptTemplateId = AiIdentifier<"AiPromptTemplateId">;
-export type AiPromptVersion = AiIdentifier<"AiPromptVersion">;
-export type AiRuntimeReferenceId = AiIdentifier<"AiRuntimeReferenceId">;
-export type AiProviderId = AiIdentifier<"AiProviderId">;
-export type AiModelId = AiIdentifier<"AiModelId">;
-export type AiCapabilityId = AiIdentifier<"AiCapabilityId">;
-export type AiAuthorizationReferenceId = AiIdentifier<"AiAuthorizationReferenceId">;
-export type AiRemoteAssistantRequestId = AiIdentifier<"AiRemoteAssistantRequestId">;
-export type AiRemoteAssistantResultId = AiIdentifier<"AiRemoteAssistantResultId">;
-export type AiTimestamp = AiIdentifier<"AiTimestamp">;
-export type AiDigest = AiIdentifier<"AiDigest">;
+export type AiSchemaVersion = AiIdentifier<'AiSchemaVersion'>;
+export type AiFamilyId = AiIdentifier<'AiFamilyId'>;
+export type AiChildProfileId = AiIdentifier<'AiChildProfileId'>;
+export type AiDeviceId = AiIdentifier<'AiDeviceId'>;
+export type AiActorId = AiIdentifier<'AiActorId'>;
+export type AiSourceId = AiIdentifier<'AiSourceId'>;
+export type AiAdapterId = AiIdentifier<'AiAdapterId'>;
+export type AiRequestId = AiIdentifier<'AiRequestId'>;
+export type AiWorkItemId = AiIdentifier<'AiWorkItemId'>;
+export type AiResultId = AiIdentifier<'AiResultId'>;
+export type AiEvidenceReferenceId = AiIdentifier<'AiEvidenceReferenceId'>;
+export type AiPolicyReferenceId = AiIdentifier<'AiPolicyReferenceId'>;
+export type AiRuleId = AiIdentifier<'AiRuleId'>;
+export type AiMemoryReferenceId = AiIdentifier<'AiMemoryReferenceId'>;
+export type AiGraphReferenceId = AiIdentifier<'AiGraphReferenceId'>;
+export type AiGraphNodeId = AiIdentifier<'AiGraphNodeId'>;
+export type AiJournalEntryId = AiIdentifier<'AiJournalEntryId'>;
+export type AiJournalStreamId = AiIdentifier<'AiJournalStreamId'>;
+export type AiExplanationId = AiIdentifier<'AiExplanationId'>;
+export type AiPromptTemplateId = AiIdentifier<'AiPromptTemplateId'>;
+export type AiPromptVersion = AiIdentifier<'AiPromptVersion'>;
+export type AiRuntimeReferenceId = AiIdentifier<'AiRuntimeReferenceId'>;
+export type AiProviderId = AiIdentifier<'AiProviderId'>;
+export type AiModelId = AiIdentifier<'AiModelId'>;
+export type AiCapabilityId = AiIdentifier<'AiCapabilityId'>;
+export type AiAuthorizationReferenceId = AiIdentifier<'AiAuthorizationReferenceId'>;
+export type AiRemoteAssistantRequestId = AiIdentifier<'AiRemoteAssistantRequestId'>;
+export type AiRemoteAssistantResultId = AiIdentifier<'AiRemoteAssistantResultId'>;
+export type AiTimestamp = AiIdentifier<'AiTimestamp'>;
+export type AiDigest = AiIdentifier<'AiDigest'>;
 
-export type AiAuthorityBoundary =
-  | "evidence-only"
-  | "deterministic-policy-required"
-  | "manual-review-required";
+export type AiAuthorityBoundary = 'evidence-only' | 'deterministic-policy-required' | 'manual-review-required';
 export type AiCustodyState =
-  | "child-local-encrypted"
-  | "parent-local-encrypted"
-  | "parent-authorized-redacted"
-  | "ephemeral-local"
-  | "deleted"
-  | "unavailable";
-export type AiRetentionState = "active" | "expired" | "tombstoned" | "deleted" | "manual-required";
-export type AiRedactionState =
-  | "not-applicable"
-  | "redacted"
-  | "fully-redacted"
-  | "rejected-private-payload";
+  | 'child-local-encrypted'
+  | 'parent-local-encrypted'
+  | 'parent-authorized-redacted'
+  | 'ephemeral-local'
+  | 'deleted'
+  | 'unavailable';
+export type AiRetentionState = 'active' | 'expired' | 'tombstoned' | 'deleted' | 'manual-required';
+export type AiRedactionState = 'not-applicable' | 'redacted' | 'fully-redacted' | 'rejected-private-payload';
 export type AiDegradedState =
-  | "none"
-  | "missing-evidence"
-  | "invalid-output"
-  | "timeout"
-  | "model-unavailable"
-  | "provider-unavailable"
-  | "custody-unavailable"
-  | "manual-required";
-export type AiDurabilityState =
-  | "durable"
-  | "append-pending"
-  | "replay-only"
-  | "not-durable"
-  | "manual-required";
-export type AiValidationState = "accepted" | "rejected" | "manual-required";
+  | 'none'
+  | 'missing-evidence'
+  | 'invalid-output'
+  | 'timeout'
+  | 'model-unavailable'
+  | 'provider-unavailable'
+  | 'custody-unavailable'
+  | 'manual-required';
+export type AiDurabilityState = 'durable' | 'append-pending' | 'replay-only' | 'not-durable' | 'manual-required';
+export type AiValidationState = 'accepted' | 'rejected' | 'manual-required';
 
 export type AiEvidenceKind =
-  | "browser"
-  | "app"
-  | "game"
-  | "network"
-  | "screen-summary"
-  | "activity"
-  | "parent-rule"
-  | "audit";
+  'browser' | 'app' | 'game' | 'network' | 'screen-summary' | 'activity' | 'parent-rule' | 'audit';
 export type AiProvenanceKind =
-  | "direct-observation"
-  | "derived-from-evidence"
-  | "derived-from-result"
-  | "parent-authored-rule";
-export type AiContextBuildState = "ready" | "partial" | "rejected" | "manual-required";
-export type AiReferenceValidationState =
-  | "validated"
-  | "missing-source"
-  | "custody-blocked"
-  | "stale"
-  | "rejected";
+  'direct-observation' | 'derived-from-evidence' | 'derived-from-result' | 'parent-authored-rule';
+export type AiContextBuildState = 'ready' | 'partial' | 'rejected' | 'manual-required';
+export type AiReferenceValidationState = 'validated' | 'missing-source' | 'custody-blocked' | 'stale' | 'rejected';
 
-export type AiMemoryReferenceKind =
-  | "recent-activity"
-  | "evidence-memory"
-  | "semantic-memory"
-  | "policy-memory";
-export type AiGraphNodeKind = "evidence" | "activity" | "result" | "memory" | "policy-rule";
-export type AiGraphEdgeKind = "supports" | "derived-from" | "related-to" | "governed-by";
+export type AiMemoryReferenceKind = 'recent-activity' | 'evidence-memory' | 'semantic-memory' | 'policy-memory';
+export type AiGraphNodeKind = 'evidence' | 'activity' | 'result' | 'memory' | 'policy-rule';
+export type AiGraphEdgeKind = 'supports' | 'derived-from' | 'related-to' | 'governed-by';
 
 export type AiJournalEntryKind =
-  | "work-lifecycle"
-  | "context-built"
-  | "result-validated"
-  | "explanation-published"
-  | "remote-assistant";
-export type AiJournalPayloadKind =
-  | "work-item"
-  | "evidence-context"
-  | "result"
-  | "explanation"
-  | "remote-assistant";
+  'work-lifecycle' | 'context-built' | 'result-validated' | 'explanation-published' | 'remote-assistant';
+export type AiJournalPayloadKind = 'work-item' | 'evidence-context' | 'result' | 'explanation' | 'remote-assistant';
 
-export type AiResultKind = "observation" | "classification" | "summary" | "explanation" | "no-claim";
+export type AiResultKind = 'observation' | 'classification' | 'summary' | 'explanation' | 'no-claim';
 export type AiOutputValidationState =
-  | "schema-valid"
-  | "schema-invalid"
-  | "evidence-missing"
-  | "confidence-invalid"
-  | "policy-handoff-required"
-  | "manual-required";
-export type AiExplanationSurface = "parent-read-model" | "child-safety-internal" | "audit-record";
-export type AiExplanationState = "ready" | "degraded" | "unavailable" | "manual-required";
+  | 'schema-valid'
+  | 'schema-invalid'
+  | 'evidence-missing'
+  | 'confidence-invalid'
+  | 'policy-handoff-required'
+  | 'manual-required';
+export type AiExplanationSurface = 'parent-read-model' | 'child-safety-internal' | 'audit-record';
+export type AiExplanationState = 'ready' | 'degraded' | 'unavailable' | 'manual-required';
 
 export type AiActorRole =
-  | "parent"
-  | "child-agent"
-  | "local-runtime"
-  | "parent-assistant"
-  | "remote-assistant"
-  | "system";
+  'parent' | 'child-agent' | 'local-runtime' | 'parent-assistant' | 'remote-assistant' | 'system';
 export type AiWorkKind =
-  | "context-build"
-  | "classification"
-  | "explanation"
-  | "memory-derivation"
-  | "graph-derivation"
-  | "parent-assistant"
-  | "remote-assistant";
+  | 'context-build'
+  | 'classification'
+  | 'explanation'
+  | 'memory-derivation'
+  | 'graph-derivation'
+  | 'parent-assistant'
+  | 'remote-assistant';
 export type AiWorkState =
-  | "queued"
-  | "claimed"
-  | "running"
-  | "succeeded"
-  | "failed"
-  | "cancelled"
-  | "timed-out"
-  | "manual-required";
+  'queued' | 'claimed' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'timed-out' | 'manual-required';
 
 export type AiRemoteAssistantState =
-  | "disabled"
-  | "awaiting-parent-authorization"
-  | "authorized"
-  | "submitted"
-  | "succeeded"
-  | "degraded"
-  | "manual-required";
-export type AiRemoteAssistantSafetyBoundary = "parent-report-only" | "outside-child-safety-blocking-path";
-export type AiRemoteAssistantRedactionPolicy =
-  | "references-only"
-  | "redacted-summaries"
-  | "no-child-payload";
+  | 'disabled'
+  | 'awaiting-parent-authorization'
+  | 'authorized'
+  | 'submitted'
+  | 'succeeded'
+  | 'degraded'
+  | 'manual-required';
+export type AiRemoteAssistantSafetyBoundary = 'parent-report-only' | 'outside-child-safety-blocking-path';
+export type AiRemoteAssistantRedactionPolicy = 'references-only' | 'redacted-summaries' | 'no-child-payload';
 
-export type AiText = string & { readonly __aiRawText: "local-only" };
-export type AiUntrustedText = string & { readonly __aiUntrustedText: "wire-only" };
+export type AiText = string & { readonly __aiRawText: 'local-only' };
+export type AiUntrustedText = string & { readonly __aiUntrustedText: 'wire-only' };
 export interface AiSafeText {
   text: AiText;
-  redaction: Extract<AiRedactionState, "redacted" | "fully-redacted">;
+  redaction: Extract<AiRedactionState, 'redacted' | 'fully-redacted'>;
 }
 
 export interface AiSubjectIdentity {

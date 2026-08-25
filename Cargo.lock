@@ -2509,6 +2509,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-ai-contracts"
+version = "0.1.1"
+dependencies = [
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "ocentra-app-core"
 version = "0.1.1"
 dependencies = [
@@ -2969,6 +2978,7 @@ dependencies = [
 name = "ocentra-schema"
 version = "0.1.1"
 dependencies = [
+ "ocentra-ai-contracts",
  "ocentra-parent-agent-protocol",
  "serde",
  "serde_json",

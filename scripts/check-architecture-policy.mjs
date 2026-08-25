@@ -205,6 +205,7 @@ function isGeneratedProducer(file) {
   const normalized = file.replace(/\\/gu, '/').toLowerCase();
   return (
     /^crates\/schema\/src\/[^/]+_ts\.rs$/u.test(normalized) ||
+    normalized === 'crates/ai-contracts/src/ai_contracts_ts.rs' ||
     /^crates\/schema\/src\/bin\/export_[^/]+\.rs$/u.test(normalized) ||
     normalized === 'crates/tracking-core/src/generated_bridge.rs'
   );
