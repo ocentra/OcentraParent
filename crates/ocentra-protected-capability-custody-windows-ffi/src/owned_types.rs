@@ -4,6 +4,7 @@
 use core::marker::PhantomData;
 
 #[cfg(windows)]
+use crate::windows::cng_handles::{PcpProviderInner, PcpSigningKeyInner};
 use crate::windows::handles::{
     ProcessInner, RegistryChainInner, ScManagerInner, ServiceInner, TbsContextInner, TokenInner,
 };
@@ -62,6 +63,26 @@ pub struct OwnedService {
 #[cfg(windows)]
 pub struct OwnedTbsContext {
     pub(crate) inner: TbsContextInner,
+}
+
+#[cfg(windows)]
+pub struct OwnedPcpProvider {
+    pub(crate) inner: PcpProviderInner,
+}
+
+#[cfg(not(windows))]
+pub struct OwnedPcpProvider {
+    pub(crate) _marker: PhantomData<*mut ()>,
+}
+
+#[cfg(windows)]
+pub struct OwnedPcpSigningKey {
+    pub(crate) inner: PcpSigningKeyInner,
+}
+
+#[cfg(not(windows))]
+pub struct OwnedPcpSigningKey {
+    pub(crate) _marker: PhantomData<*mut ()>,
 }
 
 #[cfg(not(windows))]
