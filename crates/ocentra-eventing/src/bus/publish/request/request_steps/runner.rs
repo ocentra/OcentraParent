@@ -94,7 +94,8 @@ impl RequestCancellation {
 
 impl Drop for RequestCancellation {
     fn drop(&mut self) {
-        self.requests.cancel_pending(&self.request_id);
-        self.publish_abort.abort();
+        if self.requests.cancel_pending(&self.request_id) {
+            self.publish_abort.abort();
+        }
     }
 }
