@@ -17,15 +17,16 @@ pub(super) struct CleanupWorkerRegistry {
 
 struct CleanupWorkerRegistryInner {
     workers: Mutex<Vec<thread::JoinHandle<()>>>,
-    degraded: AtomicBool,
+    degraded: Arc<AtomicBool>,
 }
 
 impl CleanupWorkerRegistry {
     pub(super) fn new() -> Self {
+        let degraded = Arc::new(AtomicBool::new(false));
         Self {
             inner: Arc::new(CleanupWorkerRegistryInner {
                 workers: Mutex::new(Vec::new()),
-                degraded: AtomicBool::new(false),
+                degraded,
             }),
         }
     }
@@ -56,6 +57,10 @@ impl CleanupWorkerRegistry {
 
     pub(super) fn mark_degraded(&self) {
         self.inner.degraded.store(true, Ordering::Release);
+    }
+
+    fn degraded_flag(&self) -> Arc<AtomicBool> {
+        Arc::clone(&self.inner.degraded)
     }
 
     pub(super) fn is_degraded(&self) -> bool {
@@ -98,10 +103,10 @@ impl ReservedCleanupOwner {
             Condvar::new(),
         ));
         let worker_mailbox = Arc::clone(&mailbox);
-        let worker_registry = registry.clone();
+        let worker_degraded = registry.degraded_flag();
         let worker = thread::Builder::new()
             .name(CLEANUP_THREAD_NAME.to_string())
-            .spawn(move || cleanup_worker(worker_mailbox, worker_registry))
+            .spawn(move || cleanup_worker(worker_mailbox, worker_degraded))
             .ok()?;
         Some(Self {
             mailbox,
