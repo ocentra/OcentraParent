@@ -12,6 +12,17 @@
 
 ## Current status
 
+## Source-consolidation checkpoint — 2026-08-25
+
+The fail-closed four-package source packet is integrated through
+`1b46b5935` (source branch `origin/codex/protected-capability-custody-repair-round3-aug24`
+at `3d8231e796`). Core, protocol, broker, and client source are present, but
+safe pinned Windows process/token observation, protected registry owner/DACL
+verification, installer/SCM enrollment, and a real production caller remain
+missing. All 11 expected core/protocol/broker/client test roots are absent.
+The broker therefore remains unavailable before custody state creation. No
+tests, proof, CI, PR, READY, or DONE claim changes here.
+
 The plan is an active neutral foundation route with one workpack in
 validation. Independently reviewed production source now includes the core,
 neutral protocol, isolated broker process, client, and narrow broker-admission

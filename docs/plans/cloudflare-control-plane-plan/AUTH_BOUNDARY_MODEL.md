@@ -6,7 +6,7 @@ Purpose: define the Cloudflare-side trust states without hardcoding the final ac
 
 | State | Meaning | Examples |
 | --- | --- | --- |
-| `public` | No caller identity required. | `/health`, `/public/pricing` |
+| `public` | No caller identity required. | `/health`, `/public/pricing`, `/auth/session/login` |
 | `parent-session-required` | Parent auth session required. | `/auth/billing/status`, `/auth/billing/invoices` |
 | `trusted-parent-device-required` | Parent session plus trusted-device proof required. | `/auth/billing/entitlement-snapshot`, `/auth/billing/license-check` |
 | `admin-required` | Elevated admin role required. | `/admin/billing/refunds`, `/admin/billing/reconciliation` |
@@ -17,6 +17,11 @@ Purpose: define the Cloudflare-side trust states without hardcoding the final ac
 ## Required route rules
 
 - `/public/pricing` may be public.
+- `/auth/session/login` accepts the public login request and must establish the
+  provider-owned session boundary; it is not proof of device trust.
+- `/auth/session/refresh`, `/auth/session/logout`, and `/auth/session/revoke`
+  require the browser/session boundary. A refresh token or browser session is
+  the authority input; callers cannot promote a DTO or caller-supplied user id.
 - All `/auth/billing/*` routes require `parent-session-required` unless the route is one of the explicit stronger exceptions below.
 - `/auth/billing/entitlement-snapshot` and `/auth/billing/license-check` additionally require `trusted-parent-device-required` or an explicit manual-required blocker.
 - `/auth/billing/manual-invoice` is the only support-owned exception inside the `/auth/billing/*` family and must remain `support-required` plus `support-write`.

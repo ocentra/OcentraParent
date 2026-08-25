@@ -1321,12 +1321,12 @@
       "path": "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "Validation — source integrated; caller, expected tests, proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -1334,16 +1334,52 @@
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
             "crates/schema/src/ai_contracts.rs",
-            "crates/schema/src/ai_contracts/identity.rs",
-            "crates/schema/src/ai_contracts/work.rs",
             "crates/schema/src/ai_contracts/context.rs",
-            "crates/schema/src/ai_contracts/result.rs",
-            "crates/schema/src/ai_contracts/memory.rs",
-            "crates/schema/src/ai_contracts/journal.rs",
+            "crates/schema/src/ai_contracts/context/evidence.rs",
+            "crates/schema/src/ai_contracts/context/provenance.rs",
+            "crates/schema/src/ai_contracts/context/request.rs",
+            "crates/schema/src/ai_contracts/context/result.rs",
+            "crates/schema/src/ai_contracts/context/rule_prompt.rs",
+            "crates/schema/src/ai_contracts/context/runtime.rs",
             "crates/schema/src/ai_contracts/explanation.rs",
+            "crates/schema/src/ai_contracts/explanation/citation.rs",
+            "crates/schema/src/ai_contracts/explanation/document.rs",
+            "crates/schema/src/ai_contracts/explanation/section.rs",
+            "crates/schema/src/ai_contracts/identity.rs",
+            "crates/schema/src/ai_contracts/identity/actor.rs",
+            "crates/schema/src/ai_contracts/identity/schema.rs",
+            "crates/schema/src/ai_contracts/identity/subject.rs",
+            "crates/schema/src/ai_contracts/identity/timestamp.rs",
+            "crates/schema/src/ai_contracts/identity/timestamp/calendar.rs",
+            "crates/schema/src/ai_contracts/identity/timestamp/format.rs",
+            "crates/schema/src/ai_contracts/journal.rs",
+            "crates/schema/src/ai_contracts/journal/cursor.rs",
+            "crates/schema/src/ai_contracts/journal/entry.rs",
+            "crates/schema/src/ai_contracts/journal/payload.rs",
+            "crates/schema/src/ai_contracts/memory.rs",
+            "crates/schema/src/ai_contracts/memory/graph.rs",
+            "crates/schema/src/ai_contracts/memory/provenance.rs",
+            "crates/schema/src/ai_contracts/memory/reference.rs",
+            "crates/schema/src/ai_contracts/reference_inventory.rs",
             "crates/schema/src/ai_contracts/remote_assistant.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/authorization.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/request.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/result.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/source.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/wire.rs",
+            "crates/schema/src/ai_contracts/result.rs",
+            "crates/schema/src/ai_contracts/result/claim.rs",
+            "crates/schema/src/ai_contracts/result/document.rs",
+            "crates/schema/src/ai_contracts/result/handoff.rs",
+            "crates/schema/src/ai_contracts/result/payload.rs",
+            "crates/schema/src/ai_contracts/work.rs",
+            "crates/schema/src/ai_contracts/work/item.rs",
+            "crates/schema/src/ai_contracts/work/lifecycle.rs",
+            "crates/schema/src/ai_contracts/work/request.rs",
+            "crates/schema/src/ai_contracts/work/state.rs",
             "crates/schema/src/ai_contracts_ts.rs",
-            "crates/schema/src/bin/export_ai_contract_types.rs"
+            "crates/schema/src/bin/export_ai_contract_types.rs",
+            "crates/schema/src/lib.rs"
           ],
           "testRoots": [
             "crates/schema/tests/contract/ai_contracts.rs",
@@ -1359,7 +1395,16 @@
             "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Live source review confirms the old schema_domain_ai_wire roots are self/test-referenced agent-protocol compatibility shapes, not WP03's missing Rust-owned canonical cross-boundary AI contract family. A bounded source packet may add the crates/schema owner and real reachable consumer, while tests, proof, runtime/provider readiness, policy authority, and DONE remain open."
+          "reason": "WP03 source is integrated through f9225e24a in crates/schema with generated schema-domain edge source. No general production caller is mapped; three expected contract/negative test roots remain absent. This records source topology only and does not claim tests, proof, runtime/provider readiness, READY, or DONE."
+        },
+        "stateOverride": {
+          "reason": "Rust-owned WP03 source is integrated through f9225e24a, but no general production caller is mapped and the three expected contract/negative/parity test roots are absent. Keep the workpack in validation routing; source presence does not imply READY, proof, or DONE.",
+          "evidence": [
+            "docs/plans/ai-plan/PLAN_STATE.md",
+            "docs/plans/ai-plan/NEXT_ACTIONS.md",
+            "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+            "docs/engineering-graph/code-map.json"
+          ]
         }
       },
       "completion": {
@@ -1375,16 +1420,52 @@
         "expected": {
           "implementation": [
             "crates/schema/src/ai_contracts.rs",
-            "crates/schema/src/ai_contracts/identity.rs",
-            "crates/schema/src/ai_contracts/work.rs",
             "crates/schema/src/ai_contracts/context.rs",
-            "crates/schema/src/ai_contracts/result.rs",
-            "crates/schema/src/ai_contracts/memory.rs",
-            "crates/schema/src/ai_contracts/journal.rs",
+            "crates/schema/src/ai_contracts/context/evidence.rs",
+            "crates/schema/src/ai_contracts/context/provenance.rs",
+            "crates/schema/src/ai_contracts/context/request.rs",
+            "crates/schema/src/ai_contracts/context/result.rs",
+            "crates/schema/src/ai_contracts/context/rule_prompt.rs",
+            "crates/schema/src/ai_contracts/context/runtime.rs",
             "crates/schema/src/ai_contracts/explanation.rs",
+            "crates/schema/src/ai_contracts/explanation/citation.rs",
+            "crates/schema/src/ai_contracts/explanation/document.rs",
+            "crates/schema/src/ai_contracts/explanation/section.rs",
+            "crates/schema/src/ai_contracts/identity.rs",
+            "crates/schema/src/ai_contracts/identity/actor.rs",
+            "crates/schema/src/ai_contracts/identity/schema.rs",
+            "crates/schema/src/ai_contracts/identity/subject.rs",
+            "crates/schema/src/ai_contracts/identity/timestamp.rs",
+            "crates/schema/src/ai_contracts/identity/timestamp/calendar.rs",
+            "crates/schema/src/ai_contracts/identity/timestamp/format.rs",
+            "crates/schema/src/ai_contracts/journal.rs",
+            "crates/schema/src/ai_contracts/journal/cursor.rs",
+            "crates/schema/src/ai_contracts/journal/entry.rs",
+            "crates/schema/src/ai_contracts/journal/payload.rs",
+            "crates/schema/src/ai_contracts/memory.rs",
+            "crates/schema/src/ai_contracts/memory/graph.rs",
+            "crates/schema/src/ai_contracts/memory/provenance.rs",
+            "crates/schema/src/ai_contracts/memory/reference.rs",
+            "crates/schema/src/ai_contracts/reference_inventory.rs",
             "crates/schema/src/ai_contracts/remote_assistant.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/authorization.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/request.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/result.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/source.rs",
+            "crates/schema/src/ai_contracts/remote_assistant/wire.rs",
+            "crates/schema/src/ai_contracts/result.rs",
+            "crates/schema/src/ai_contracts/result/claim.rs",
+            "crates/schema/src/ai_contracts/result/document.rs",
+            "crates/schema/src/ai_contracts/result/handoff.rs",
+            "crates/schema/src/ai_contracts/result/payload.rs",
+            "crates/schema/src/ai_contracts/work.rs",
+            "crates/schema/src/ai_contracts/work/item.rs",
+            "crates/schema/src/ai_contracts/work/lifecycle.rs",
+            "crates/schema/src/ai_contracts/work/request.rs",
+            "crates/schema/src/ai_contracts/work/state.rs",
             "crates/schema/src/ai_contracts_ts.rs",
-            "crates/schema/src/bin/export_ai_contract_types.rs"
+            "crates/schema/src/bin/export_ai_contract_types.rs",
+            "crates/schema/src/lib.rs"
           ],
           "tests": [
             "crates/schema/tests/contract/ai_contracts.rs",
@@ -5634,30 +5715,72 @@
       "path": "docs/plans/app-game-plan/workpacks/197-app-game-linux-docker-host-preflight.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "source-integrated / expected-test-source-incomplete",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "possibly done"
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-protocol/src/app_game_platform_proof_status.rs",
+            "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup_owner.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup_process.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup_worker.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_group.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_output.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_path_security.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_paths.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_process.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_state.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_supervisor.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_wait.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_probe_cache.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+            "crates/agent-service/src/app.rs",
+            "crates/agent-service/src/service_runtime/run.rs",
+            "crates/agent-service/src/websocket.rs",
+            "crates/agent-service/src/websocket/activity_app_game_command_reports.rs",
+            "crates/agent-service/src/websocket/activity_app_game_read_model_reports.rs",
+            "crates/agent-service/src/websocket/activity_command_reports.rs",
+            "crates/agent-service/src/websocket/command_dispatch.rs",
+            "crates/agent-service/src/websocket/command_entry.rs",
+            "crates/agent-service/src/websocket/socket_session.rs",
+            "crates/agent-service/src/websocket/transport_admission.rs"
+          ],
+          "testRoots": [
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight.rs",
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_parser_tests.rs",
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_path_security_tests.rs",
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_cleanup_tests.rs",
+            "crates/agent-service/tests/unit/app_game_platform_probe_cache_tests.rs",
+            "crates/agent-service/tests/unit/app_game_platform_proof_status_route_rejection_tests.rs"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/app-game-plan/PLAN_STATE.md",
+            "docs/plans/app-game-plan/NEXT_ACTIONS.md",
+            "docs/plans/app-game-plan/workpacks/197-app-game-linux-docker-host-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "WP197 Rust source is integrated through 5bfb2f6f3 from source packet 23c08da016. Six expected agent-service focused test roots are absent; the old packages/parent-domain mapping is stale. No test execution, proof, runtime readiness, READY, or DONE is claimed."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/app-game-plan/workpacks/197-app-game-linux-docker-host-preflight.md"
-          ],
+          "implementation": [],
           "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
@@ -5666,6 +5789,44 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/197-app-game-linux-docker-host-preflight"
+          ],
+          "implementation": [
+            "crates/agent-protocol/src/app_game_platform_proof_status.rs",
+            "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup_owner.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup_process.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup_worker.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_group.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_output.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_path_security.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_paths.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_process.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_state.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_supervisor.rs",
+            "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_wait.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_probe_cache.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+            "crates/agent-service/src/app.rs",
+            "crates/agent-service/src/service_runtime/run.rs",
+            "crates/agent-service/src/websocket.rs",
+            "crates/agent-service/src/websocket/activity_app_game_command_reports.rs",
+            "crates/agent-service/src/websocket/activity_app_game_read_model_reports.rs",
+            "crates/agent-service/src/websocket/activity_command_reports.rs",
+            "crates/agent-service/src/websocket/command_dispatch.rs",
+            "crates/agent-service/src/websocket/command_entry.rs",
+            "crates/agent-service/src/websocket/socket_session.rs",
+            "crates/agent-service/src/websocket/transport_admission.rs"
+          ],
+          "tests": [
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight.rs",
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_parser_tests.rs",
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_path_security_tests.rs",
+            "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_cleanup_tests.rs",
+            "crates/agent-service/tests/unit/app_game_platform_probe_cache_tests.rs",
+            "crates/agent-service/tests/unit/app_game_platform_proof_status_route_rejection_tests.rs"
           ]
         }
       }
@@ -17636,14 +17797,28 @@
         "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
       ],
       "state": "blocked",
-      "lifecycleState": "planned",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "source-present / retained-proof-absent",
+        "statusText": "source-integrated / stale-tests / dependency-blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "infra/cloudflare/src/routes.ts",
+            "infra/cloudflare/src/auth/model.ts",
+            "infra/cloudflare/src/auth/verifier.ts",
+            "infra/cloudflare/src/index.ts"
+          ],
+          "testRoots": [
+            "infra/cloudflare/tests/unit/route-manifest.test.ts",
+            "infra/cloudflare/tests/property/route-auth-state.property.test.ts",
+            "infra/cloudflare/tests/contract/billing-api-contract.test.ts"
+          ]
+        },
         "dependencyReview": {
           "hardDependencies": [
             "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
@@ -17655,16 +17830,14 @@
             "docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "WP04 has real route-manifest, caller, contract, and test topology against the reviewed scaffold, but those surfaces do not prove provider, auth, Worker, payment, or runtime readiness."
+          "reason": "WP04 route/model source is integrated in the canonical tree through 1abe4dfc9, including verifier and Worker entrypoint wiring. Existing route tests are stale against the current tuple model and the Cloudflare dependency tree is empty; no proof, runtime dispatch, READY, or DONE is claimed."
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md"
-          ],
+          "implementation": [],
           "tests": [
             "docs/plans/cloudflare-control-plane-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
@@ -17673,6 +17846,19 @@
             "docs/plans/cloudflare-control-plane-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "infra/cloudflare/src/routes.ts",
+            "infra/cloudflare/src/auth/model.ts",
+            "infra/cloudflare/src/auth/verifier.ts",
+            "infra/cloudflare/src/index.ts"
+          ],
+          "tests": [
+            "infra/cloudflare/tests/unit/route-manifest.test.ts",
+            "infra/cloudflare/tests/property/route-auth-state.property.test.ts",
+            "infra/cloudflare/tests/contract/billing-api-contract.test.ts"
+          ]
         }
       }
     },
@@ -18971,15 +19157,6 @@
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
-        "plannedSourceExpectation": {
-          "source": "docs/engineering-graph/code-map.json",
-          "roots": [
-            "crates/family-identity-core/src/device_trust_runtime_fence_participant.rs"
-          ],
-          "testRoots": [
-            "crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs"
-          ]
-        },
         "dependencyReview": {
           "hardDependencies": [
             "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
@@ -18989,7 +19166,7 @@
             "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Reviewed as the family-owned foundation/source route for durable trusted-device/signer-key lifecycle state. The attempted private runtime-fence participant was rejected and withdrawn because same-user-writable SQLite rows plus an unkeyed digest allowed fabricated committed outcomes, existing databases had no explicit migration, and retention/startup scanning was unbounded. Protected Device-owned receipt/key custody, migration and retention owners, the Account WP05A caller, expected tests, functional validation, proof, platform ceremony, and completion remain open. Account WP08 -> Cloudflare WP06 current-authority resolution must precede WP03's one-time RegisterLanSignerAnchor ceremony; WP02 is conditional for parent-runtime/platform sealing and revocation; LAN WP26 and child consumers follow WP03 and cannot mint signer authority."
+          "reason": "Accepted Device Trust lifecycle/current-binding source remains. Runtime-fence participant residual origin/codex/device-wp01-fence-participant-aug23 at 5f0280f711 is rejected/quarantined after canonical withdrawal 41a08b51f; no replacement participant or test root is accepted."
         },
         "completionEvidenceOverride": {
           "reason": "Independent review retains the earlier Device Trust authority/current-binding continuation only. Public household signer/verifier mint paths remain removed and current authority is owner-resolved. The later runtime-fence packet was rejected and withdrawn because its persisted committed rows were caller-mintable, existing databases had no explicit migration, and retention/startup scanning was unbounded. Protected Device-owned receipt custody, replacement participant source, expected tests, lifecycle-test migration, the production Account WP05A caller, migration/retention owners, functional validation, proof, real platform/passkey callers, repo-wide Enforcer, and DONE remain open.",
@@ -19034,12 +19211,6 @@
         "expected": {
           "proof": [
             "output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth"
-          ],
-          "implementation": [
-            "crates/family-identity-core/src/device_trust_runtime_fence_participant.rs"
-          ],
-          "tests": [
-            "crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs"
           ]
         }
       }
@@ -24822,7 +24993,7 @@
             "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Independently reviewed fail-closed source now includes the core, neutral protocol, separate broker/client packages, active workspace targets, and narrow sealed admission facade. Protected Windows process/token/registry/monotonic adapters, installer/SCM enrollment, a real caller, expected tests, proof, and runtime availability remain absent. This review records source integration only; it does not claim normal READY, PR readiness, or DONE."
+          "reason": "Fail-closed protected-custody source is integrated through 1b46b5935 from source packet 3d8231e796. Safe Windows process/token/registry/monotonic adapters, installer/SCM enrollment, real caller, 11 expected tests, proof, and runtime availability remain absent; source integration does not imply READY or DONE."
         },
         "stateOverride": {
           "reason": "The graph schema permits only the validation routing override here. Independently reviewed production source now satisfies the required root manifest, neutral protocol package, isolated broker/client manifests and targets, active workspace membership, and narrow sealed core broker-admission facade. The safety block remains because safe pinned Windows process/token observation, exact protected registry owner/DACL/parent-chain verification, non-restorable monotonic authority, installer/SCM enrollment, a real production caller, expected tests, proof, and runtime availability are absent. Source integration does not imply READY, PR, merge, or DONE.",
@@ -24878,6 +25049,17 @@
         "workspaceRequirements": {
           "rootManifest": "Cargo.toml",
           "packages": [
+            {
+              "manifest": "crates/protected-capability-custody-core/Cargo.toml",
+              "package": "ocentra-protected-capability-custody-core",
+              "activeMember": true,
+              "requiredTargets": [
+                {
+                  "kind": "lib",
+                  "path": "crates/protected-capability-custody-core/src/lib.rs"
+                }
+              ]
+            },
             {
               "manifest": "crates/protected-capability-custody-protocol/Cargo.toml",
               "package": "ocentra-protected-capability-custody-protocol",

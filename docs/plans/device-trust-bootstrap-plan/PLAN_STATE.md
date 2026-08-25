@@ -259,6 +259,12 @@ retention/archive semantics, and a production Account WP05A caller. The future
 expected unit test, lifecycle test migration, functional execution, proof,
 precommit, CI, PR, and DONE all remain open.
 
+The quarantined remote residual is
+`origin/codex/device-wp01-fence-participant-aug23` at `5f0280f711`. Its packet
+is patch-equivalent to canonical history but its tip reintroduces the withdrawn
+participant files, so it is rejected/superseded evidence and must not be mapped
+as accepted implementation or test source. No replacement participant exists.
+
 ## Conditional WP02 sealing gate — 2026-08-17
 
 The graph's reviewed dependency model is completion-gated by default, with

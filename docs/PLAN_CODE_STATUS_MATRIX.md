@@ -4,14 +4,11 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 `PLAN_INDEX.md`; it does not replace plan-local workpacks, proof roots, or
 checklists.
 
-Last broad source inventory: 2026-08-15, integrated to `main` at
-`eb4e66a79` and back-synced to `develop` at `4ece51528` with tree-equal
-contents. This Account/Cloudflare/Device routing refresh is based on accepted
-Device routing head `9728bc6029809b9f3a8d987c6fa423f1ec91aa9b` in the
-E:-only branch `codex/account-cloudflare-authority-routing`. That routing base
-is not thereby fully validated, PR-ready, or merged to `develop`/`main`.
-Current branch, worktree, archive, and promotion custody is recorded in
-`docs/REPOSITORY_CUSTODY_STATUS.md`.
+Current source-consolidation inventory: 2026-08-25, canonical
+`origin/codex/eventing-wp09-production` is `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f`.
+It is not yet promoted to `develop` or `main`, and it has no PR, CI, proof, or
+pre-commit completion claim. The exact branch/worktree/archive custody and
+promotion state is recorded in `docs/REPOSITORY_CUSTODY_STATUS.md`.
 
 ## Completion operating contract - 2026-08-17
 
@@ -44,22 +41,36 @@ except for the four large plans whose complete rows live in
 `docs/plans/tracking-plan/CODE_AUDIT.md`. The 687-row `graph:matrix` remains the
 topology/dependency join; it must not overwrite the code-reachability finding.
 
-### Protected capability custody foundation route - 2026-08-24
+### Source-consolidation truth refresh — 2026-08-25
 
-The neutral 24th plan now records the existing
-`crates/protected-capability-custody-core` as substantive but inert,
-fail-closed source. Its admission/platform authority is crate-private and its
-SQLite state is only a checked replica. No isolated Windows broker process,
-authenticated OS IPC, broker-owned ACL/path/key/watermark/write-lease
-authority, opaque external factory, production caller, expected test roots, or
-retained proof exists. The graph maps WP01 as `validation` with implementation-only
-authorization. Graph-native workspace requirements record the root Cargo
-manifest, each protocol/broker/client manifest, required targets, and active
-membership; `cargo metadata --no-deps` is authoritative while real
-manifests/targets and the narrow core facade remain implementation obligations.
-This does not create normal READY, runtime,
-proof, PR, merge, or DONE state. Account WP05A and Device Trust WP01/WP03 are
-explicit downstream source-order consumers only.
+The accepted source packets are now in canonical source custody, but none is a
+workpack completion claim:
+
+- AI WP03 source is integrated at `f9225e24a`. The Rust-owned shared AI contract
+  family and generated edge source exist, but there is no general production
+  caller and all three expected contract/negative/parity test roots are absent.
+- AppGame WP197 source is integrated at `5bfb2f6f3`. The Rust service now has
+  bounded Linux Docker host preflight, process/path identity, output parsing,
+  cleanup, transport admission, and status composition. Six new focused test
+  roots remain absent; existing App/Game refresh roots remain separate and do
+  not close this packet.
+- Cloudflare WP04 route source is integrated at `1abe4dfc9`. The exact
+  handler-keyed route/auth/audit/provider tuple and generated codec identity
+  checks are source-present. The route-manifest tests are stale against the
+  new model fields, the module dependency tree remains empty, and package
+  tests, migration/deployment, proof, and runtime readiness remain open.
+- Protected Custody WP01 source is integrated at `1b46b5935` across four active
+  packages (core, protocol, broker, client). Startup fails closed before state
+  or listener readiness. Safe Windows process/token/registry/monotonic adapters,
+  installer/SCM enrollment, a real caller, and all eleven expected tests remain
+  absent.
+- Device Trust WP01's runtime-fence participant is withdrawn. The rejected
+  `5f0280f711a6d66c96338e45382d17594aca39aa` tip is quarantined; no accepted
+  replacement source or participant test root exists.
+
+The graph maps these facts as source/test topology only. Focused tests,
+Enforcer completion, retained proof, pre-commit, CI, PR, promotion, and DONE
+remain separate gates.
 
 ### WP06 report/query custody routing refresh - 2026-08-17
 
@@ -76,17 +87,19 @@ production/generated files, retained WP06 ownership roots, and four deferred
 test paths are mapped in
 `docs/engineering-graph/code-map.json` and the WP06 workpack.
 
-## Live executable topology matrix - 2026-08-24
+## Live executable topology matrix - 2026-08-25
 
 This table is generated from the validated engineering graph and its reviewed
 code map, not from plan checkboxes. The graph currently contains 712 nodes,
-1,261 edges, 24 plans, and 687 workpacks. It maps 3,410 implementation files and
-1,153 test files: 566 workpacks have both code and tests, 20 are source-only, 8
-are tests-only, and 93 currently have no source or test files. Of those 93, 75
-are expected no-code coordination/reference packets, 9 expect tests only, and
-9 require missing code-and-tests roots. No workpack has unknown ownership.
-Topology expectations match for 629/687 workpacks. Derived state is 248
-planned, 189 blocked, 4 ready, 4 active, 241 in validation, and 1 done.
+1,266 edges, 24 plans, and 687 workpacks. It maps 3,474 implementation files
+and 1,153 test files: 566 workpacks have both code and tests, 21 are
+source-only, 8 are tests-only, and 92 currently have no source or test files.
+The current matrix records 59 expectation failures, 31 missing expected
+implementation artifacts, and 97 missing expected test artifacts; 216 rows
+have implementation-only source topology without a complete test/completion
+contract. No workpack has unknown ownership. Topology expectations match for
+628/687 workpacks. Derived state is 248 planned, 190 blocked, 4 ready, 4
+active, 240 in validation, and 1 done.
 
 These counts prove file ownership and expected topology only. They do not prove
 that the mapped code is production-reachable, that the tests cover the workpack,
@@ -113,13 +126,14 @@ touched plans.
 | Plan | WPs | C+T/S/T/N/U | Impl/Test files | Planned / Blocked / Ready / Active / Validation / Done | Highest-impact current gap |
 | --- | ---: | ---: | ---: | ---: | --- |
 | Account identity/family | 10 | 7/1/0/2/0 | 207/32 | 0/8/0/0/2/0 | WP09 fail-closed core is reviewed, but three production adapter/runtime roots, seven tests, the Cloudflare issuer consumer/mount, WP05A owner participants/coordinator, proof, and DONE stay open. |
-| AI | 48 | 44/0/0/4/0 | 195/98 | 46/0/0/0/2/0 | All 48 lack retained/referenced completion proof; mapped code is not whole-chain acceptance. |
-| App/game | 220 | 201/0/0/19/0 | 2369/867 | 126/2/0/2/90/0 | Two workpacks are dependency-blocked and the plan remains integration-open. |
+| AI | 48 | 43/1/0/4/0 | 255/97 | 44/1/0/0/3/0 | WP03 source is integrated but its caller and three expected tests remain open; all workpacks still lack retained/referenced completion proof. |
+| App/game | 220 | 193/7/0/20/0 | 2338/832 | 121/5/1/2/91/0 | WP197 source is integrated, but its six exact expected tests remain absent; the plan remains integration-open. |
 | Browser | 30 | 21/1/0/8/0 | 152/44 | 9/21/0/0/0/0 | WP06 now has an accepted fail-closed six-file safety boundary, but five protected-owner/platform/caller roots and five expected tests are missing; WP07/WP09 remain blocked on owner-bound launch/target source. |
 | Child-agent runtime distribution | 11 | 10/0/0/1/0 | 79/17 | 8/0/0/0/3/0 | Distribution/runtime proof remains unreferenced across the plan. |
-| Cloudflare control plane | 13 | 9/0/1/3/0 | 43/72 | 0/11/0/0/2/0 | D1 writer/read/currentness, provider caller, decoder, and private WP08 verifier are retained. Three Account and three Cloudflare producer/consumer runtime roots, nine tests, higher authority, proof, migration execution, deployment, and DONE remain open. |
+| Cloudflare control plane | 13 | 9/0/1/3/0 | 45/72 | 0/11/0/0/2/0 | WP04 route/model source is integrated, but route tests are stale and the module dependency tree is empty; Account/Cloudflare producer-consumer roots, tests, authority, proof, migration, deployment, and DONE remain open. |
 | Data custody/storage | 12 | 8/0/0/4/0 | 233/16 | 1/5/1/0/5/0 | WP05 base backup/import source is present and READY for source-only continuation. WP06's Rust plus generated TypeScript custody edge is source-accepted, but no report/query consumer reaches it and its stale/unwritten expected tests remain open. WP09 owns provider/byte capability, WP10 owns restore/producer orchestration, and new WP11 owns the still-missing runtime composition/custody mount; all three have explicit missing code-and-tests roots. WP07 and WP08 remain blocked on the trusted Account/custody chain. Tests, proof, and DONE remain open. |
-| Device trust bootstrap | 9 | 6/0/3/0/0 | 110/36 | 0/3/0/0/6/0 | WP03 is blocked with two missing planned owners. The route is Account WP08 -> target-aware Account WP02 -> Cloudflare WP06 -> WP03, alongside WP01 foundation. WP02 now has a mounted parent-desktop opaque-handle custody-sealing command whose success is explicitly custody-sealed-only; no record-backed issuer reaches custody, Windows custody-open platform failures are unavailable, and unsupported non-Windows startup is manual-required. Expected tests, platform callers, proof, lifecycle activation, and completion remain open. |
+| Device trust bootstrap | 9 | 6/0/3/0/0 | 137/36 | 0/8/0/0/1/0 | WP01 retains accepted lifecycle/current-binding source but the runtime-fence participant is withdrawn; WP03 remains blocked with two missing planned owners. Protected custody, migration/retention owners, production callers, expected tests, proof, and completion remain open. |
+| Protected capability custody | 1 | 0/1/0/0/0 | 59/0 | 0/0/0/0/1/0 | Four-package fail-closed source is integrated, but safe Windows adapters, installer/SCM enrollment, caller, 11 tests, proof, and runtime availability remain open. |
 | LAN | 26 | 22/1/2/1/0 | 305/63 | 0/1/0/0/25/0 | WP26 is source-only with zero mapped tests and is ordered after Device Trust WP03: it consumes WP01 current binding/revocation and cannot register signer authority locally. |
 | Logging domain parity | 10 | 9/0/0/1/0 | 155/59 | 5/0/0/0/5/0 | Accepted source wave establishes Rust-owned exact 18-key redaction policy and generated TS parity; tests, proof, and external composition remain open. |
 | App | 95 | 88/1/0/6/0 | 258/115 | 13/0/0/0/82/0 | One source-only mismatch and remaining compiler/runtime/native gaps. |
@@ -139,7 +153,7 @@ touched plans.
 All rows describe the current integration checkout. Git does not encode
 per-plan branch custody; the safe pushed checkpoint and any active local source
 batch are recorded separately in the repository custody status. Use
-`npm run graph:matrix -- --json` for all 684 workpack rows.
+`npm run graph:matrix -- --json` for all 687 workpack rows.
 
 ## Authoritative production reachability dashboard - 2026-08-16
 
@@ -255,7 +269,7 @@ strong enough for workpack-level decisions.
 | Tracking | 43 | 41/2/0/0/0/0 | 94 / 65 | 43 / 43 | WP40 now has reviewed child-runtime/journal ownership but is correctly blocked on WP32/WP34/WP36; it unlocks WP37 only after those real owners are complete. Twenty-four bounded packets have code/expected tests and 19 retain production-code or expected-test gaps. |
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 942 / 496 | 20 / 20 | Fully code-mapped; 7 workpacks have no Phase 1 writing gap in their bounded scope, while 13 retain concrete runtime, surface, lifecycle-test, or executable-harness gaps. |
 
-The repository-wide reviewed ownership map now covers all 684 workpacks,
+The repository-wide reviewed ownership map now covers all 687 workpacks,
 including WP40's explicitly blocked child-runtime/journal owner set. Work
 proceeds from the code-first gap matrices: write missing real
 production code across the authorized dependency frontier first; only after

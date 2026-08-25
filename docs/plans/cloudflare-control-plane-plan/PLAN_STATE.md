@@ -1,5 +1,20 @@
 # Cloudflare Control Plane Plan State
 
+## WP04 source integration checkpoint — 2026-08-25
+
+The route-manifest source is integrated in the canonical consolidation through
+`1abe4dfc9`. The accepted source surface includes the frozen route model and
+the auth verifier/Worker entrypoint path: `infra/cloudflare/src/routes.ts`,
+`src/auth/model.ts`, `src/auth/verifier.ts`, and `src/index.ts`, alongside the
+generated billing contract source. The model now owns one exact handler-keyed
+tuple and rejects duplicate route/provider keys before readiness.
+
+The existing route tests are stale against the current model (`requestModel`
+and `responseModel` no longer exist), the Cloudflare dependency tree is empty,
+and no current retained proof or runtime dispatch claim exists. Repair the
+tests and dependency environment together before focused execution; source
+integration does not promote WP04 to READY or DONE.
+
 ## Production billing read-model boundary - 2026-08-16
 
 - `infra/cloudflare/src/billing-binding-read-model.ts` now permits fixture

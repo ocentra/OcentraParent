@@ -26,6 +26,19 @@ live mainly in `crates/agent-protocol`; Rust service execution lives mainly in
 `crates/agent-service`; `child-ai-core` contains only the child-domain completion
 handoff and tracking boundary, not a general evaluator/runtime.
 
+## Current WP03 source checkpoint — 2026-08-25
+
+WP03's Rust-owned source is now present in the canonical tree through
+`f9225e24a`, including the schema contract modules, exporter, and generated
+TypeScript edge surface. The packet changed source/metadata only; it did not
+add a general production caller. The expected test source is still missing at
+`crates/schema/tests/contract/ai_contracts.rs`,
+`crates/schema/tests/contract/ai_contracts_negative.rs`, and
+`packages/schema-domain/tests/contract/ai-contracts.test.ts`. Therefore this
+audit moves WP03 from “missing canonical source” to “source integrated; caller
+and expected tests open”; it does not promote Phase 1 closure, proof, READY, or
+DONE.
+
 ## Summary
 
 | Phase 1 state | Workpacks | Count |
@@ -41,7 +54,7 @@ No row below is a Phase 2 or Phase 3 claim.
 | ---: | --- | --- | --- |
 | 01 | Complete | Current repository and external TabAgent reference roots were reconciled during this audit. | Keep the source index synchronized when owners move. |
 | 02 | Complete | This audit and the refreshed current snapshot now separate implemented, partial, missing, and proof-only state. | Refresh after each merged AI slice. |
-| 03 | Incomplete | Rust AI wire/context/runtime/reference shapes exist in `agent-protocol`. | No complete canonical shared AI contract family covers general work items, result journal, explanation, prompt registry, and remote boundary; the old `schema-domain` owner described by the workpack is absent for most shapes. |
+| 03 | Incomplete | Rust-owned AI contract family is integrated in `crates/schema` through `f9225e24a`; generated `packages/schema-domain` edge source is present. | No general production caller; the three WP03 contract/negative test roots remain absent, so canonical source is not test-complete or Phase 1 closed. |
 | 04 | Incomplete | Rust structs/constants and serialization tests exist for runtime status, context wire, parent assistant, and memory graph. | No complete generated TypeScript parity fixture/negative decoder set for the whole AI contract family. |
 | 05 | Complete | Typed runtime/load/degraded/unavailable states, service payload/readiness logic, portal runtime card, and focused source tests exist. | Execute focused tests in Phase 2. |
 | 06 | Complete | Typed task capabilities, resource classes, local-only boundary, scheduler state, household fallback ordering, and rejection tests exist. | Execute focused protocol/service/route tests in Phase 2. |

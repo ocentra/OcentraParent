@@ -7,6 +7,10 @@ Purpose: define the shared Cloudflare route groups that consumer plans may rely 
 ```text
 /health
 /public/pricing
+/auth/session/login
+/auth/session/refresh
+/auth/session/logout
+/auth/session/revoke
 /auth/billing/status
 /auth/billing/checkout
 /auth/billing/portal

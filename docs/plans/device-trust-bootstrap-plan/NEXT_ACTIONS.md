@@ -17,6 +17,12 @@ bounded retention/archive semantics. Only then may the private participant be
 implemented again, independently reviewed, and followed by its expected tests.
 Proof, precommit, PR, and CI remain later phases.
 
+The exact quarantined residual is
+`origin/codex/device-wp01-fence-participant-aug23` at `5f0280f711`; canonical
+withdrawal is `41a08b51f`. Retain the branch only as disposition evidence until
+the custody ledger/archive records the rejection. Do not restore its source or
+tests, and do not count it toward WP01 implementation.
+
 ## Ordered runtime-owner routing (audit truth, not completion)
 
 1. Account Identity WP08: keep the Rust-owned canonical household/child/device/

@@ -29,7 +29,9 @@ This file is the short resume list for the next worker. It is derived from open 
 Checkbox count is no longer used to choose the next code slice. The retained
 source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
 
-1. WP03/WP04 contract ownership and parity.
+1. WP03/WP04 contract ownership and parity. WP03 source is integrated through
+   `f9225e24a`; write the three expected contract/negative test roots together,
+   then establish and review a real production caller before focused execution.
 2. WP07 general durable AI work lifecycle.
 3. WP09 context builder and WP12 prompt registry.
 4. WP14-WP17 local text execution, parser, and degraded boundary.

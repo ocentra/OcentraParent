@@ -1,5 +1,13 @@
 # Next Actions
 
+## WP04 source integration checkpoint — 2026-08-25
+
+WP04 route/model source is integrated through the current canonical tree. The
+next bounded action is to repair the stale route-manifest tests against the
+current model, restore the missing Cloudflare dependency tree, and then run the
+complete unit/property/contract/integration set together. No proof, deployment,
+runtime-dispatch, READY, or DONE claim is permitted from the source packet.
+
 ## Current slice
 
 - Current slice: `Complete Account WP09 producer adapters, then Cloudflare WP06 issuer consumer/runtime`. Independent review accepts the Firebase verifier, D1 read/current-authority path, authoritative Account writer, bounded provider caller, duplicate-key-rejecting wire decoder, and private one-shot WP08 inner-wire verifier. Account WP09's durable issuer/key-registry/outbox core is integrated at `4f6245e51`, but live caller tracing found no protected signer, binding authenticator, delivery owner, production caller, or authenticated current-key handoff. Cloudflare has no issuer transport, current-key registry consumer, or runtime mount. No create/CAS/revoke method accepts caller-supplied authority values. Finish those six production roots before writing the complete nine-test migration/currentness/restart/replay packet. Migration execution, test runs, proof, deployment, and runtime-ready claims remain deferred. Normal WP06 remains blocked and is not `DONE`. #604 stays closed without merge.

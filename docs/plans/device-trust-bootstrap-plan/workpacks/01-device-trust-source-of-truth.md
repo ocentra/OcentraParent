@@ -125,6 +125,11 @@ Device receipt provider), versioned migration, bounded retention/archive
 semantics, the Account WP05A caller, expected participant and migrated lifecycle
 tests, functional execution, proof, precommit, CI, and PR remain open.
 
+The quarantined remote residual `origin/codex/device-wp01-fence-participant-aug23`
+at `5f0280f711` is rejected/superseded evidence: its tip reintroduces the
+withdrawn participant even though its commits are patch-equivalent to canonical
+history. It is not an accepted implementation or test root.
+
 ## Negative cases
 
 - Copied binaries do not create trust.

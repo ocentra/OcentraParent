@@ -20,6 +20,21 @@ All AI input, output, runtime, queue, route, memory, graph, explanation, and rem
 
 ## Where We Are
 
+### Current source checkpoint — 2026-08-25
+
+The Rust-owned contract source is integrated through `f9225e24a`, with the
+generated `packages/schema-domain` edge surface retained. This does not close
+the workpack: no general production caller is mapped and the expected test
+source is absent at:
+
+- `crates/schema/tests/contract/ai_contracts.rs`
+- `crates/schema/tests/contract/ai_contracts_negative.rs`
+- `packages/schema-domain/tests/contract/ai-contracts.test.ts`
+
+Write those tests as a complete boundary family, then validate the real caller
+and negative cases. No proof, CI, READY, or DONE claim follows from source
+presence alone.
+
 Historical notes referenced `packages/parent-domain` as the AI contract home. That is stale for current central-schema direction. Current routing is:
 
 ```text

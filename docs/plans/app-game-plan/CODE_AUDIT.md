@@ -16,6 +16,16 @@ that deliberately narrow workpack are written. It does not mean those tests were
 rerun, Enforcer accepted the slice, proof was regenerated, or the whole product flow
 is release-ready. Those are Phase 2 and Phase 3.
 
+## Current WP197 source checkpoint — 2026-08-25
+
+The Linux Docker host preflight source is integrated through `5bfb2f6f3` from
+`origin/codex/app-game-wp197-repair-round4-aug24` at `23c08da016`. The live
+owner is Rust in `crates/agent-protocol` and `crates/agent-service`, not the
+historical `packages/parent-domain` paths. Six expected focused test roots are
+still absent, covering preflight, path security, process identity, output,
+cleanup, and transport admission. This checkpoint updates source topology only;
+it does not claim test execution, proof, runtime readiness, or closure.
+
 ## Result
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
@@ -229,7 +239,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP194 App/Game Android Accessibility Overlay Preflight | Rust platform status/host probes plus Android Java runtime sources | **Incomplete** | Android Accessibility service code exists, but the removed typed overlay preflight and focused enabled/disabled/redaction tests have no current replacement. |
 | WP195 App/game platform proof status preflight detail refs | Rust platform status/host probes plus Android Java runtime sources | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP196 App/game Apple CI platform proof preflight | Rust platform status/host probes plus Android Java runtime sources | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
-| WP197 App/game Linux Docker host preflight | Rust platform status/host probes plus Android Java runtime sources | **Incomplete** | Current code detects only the Docker executable; daemon/context/image/container-count preflight and redaction tests are absent. |
+| WP197 App/game Linux Docker host preflight | Rust `agent-protocol`/`agent-service` preflight, process/cleanup/path/output, websocket report, and admission sources | **Incomplete** | Source is integrated, but six focused test roots for preflight/path/process/output/cleanup/transport admission are absent; execution and proof remain open. |
 | WP198 App/game Android UsageEvents capability proof | Rust platform status/host probes plus Android Java runtime sources | **Incomplete** | Android UsageEvents capability helper exists, but no tracked focused Java/unit tests validate permission/capability states. |
 | WP199 App/game Android UsageEvents runtime preflight | Rust platform status/host probes plus Android Java runtime sources | **Incomplete** | Android runtime preflight helper exists, but no tracked focused tests validate permission, unavailable, and redaction paths. |
 | WP200 App/game Android UsageEvents count sample | Rust platform status/host probes plus Android Java runtime sources | **Incomplete** | Count-sample source exists, but no tracked focused test or durable sample/replay boundary validates it. |

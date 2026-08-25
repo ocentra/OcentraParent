@@ -20,6 +20,24 @@ Generated from the existing `ai-plan` docs. This is the default resume/status fi
 
 This folder is the single working plan location for local AI safety contracts, local model runtime, evidence context building, provider routing, AI job queues, memory and knowledge graph, TabAgent reuse, screen OCR/VLM routing, policy handoff, parent explanations, and later parent-approved remote assistant boundaries.
 
+## WP03 source integration checkpoint — 2026-08-25
+
+The Rust-owned WP03 source packet is integrated in the canonical consolidation
+through `f9225e24a` (source packet branch
+`origin/codex/ai-wp03-contract-repair5-aug25` at `9bc7574a`). The packet covers
+the `crates/schema` AI contract family, its exporter, and the generated
+`packages/schema-domain` edge surface. This is source evidence only: no general
+production caller was found, and the three expected contract test roots remain
+absent:
+
+- `crates/schema/tests/contract/ai_contracts.rs`
+- `crates/schema/tests/contract/ai_contracts_negative.rs`
+- `packages/schema-domain/tests/contract/ai-contracts.test.ts`
+
+Focused source review, tests, proof, CI, and DONE/READY state were not changed
+by this checkpoint. Write the complete test family and establish a real caller
+before treating WP03 as a closed implementation slice.
+
 ## Code-first Phase 1 audit (2026-08-15)
 
 - Authoritative audit: [CODE_AUDIT.md](CODE_AUDIT.md).
