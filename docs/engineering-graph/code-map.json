@@ -2409,6 +2409,8 @@
       "roots": [
         "infra/cloudflare/src/storage/account-identity-billing-store.ts",
         "infra/cloudflare/migrations/account-identity/0004_provider_billing_mappings_canonical_identity.sql",
+        "infra/cloudflare/src/routes.ts",
+        "infra/cloudflare/src/testing.ts",
         "crates/schema/src/billing_invoice_tax_refund_dispute_ts.rs",
         "crates/schema/src/billing_invoice_tax_refund_dispute_values_ts.rs",
         "crates/schema/tests/contract/billing_invoice_tax_refund_dispute.rs",
@@ -2416,15 +2418,28 @@
         "packages/schema-domain/src/billing-invoice-tax-refund-dispute-values.ts",
         "packages/schema-domain/src/generated-billing-invoice-tax-refund-dispute.ts",
         "packages/schema-domain/src/generated-billing-invoice-tax-refund-dispute-values.ts",
+        "crates/billing-core/src/billing_subscription.rs",
         "crates/billing-core/src/billing_subscription_projection.rs",
+        "crates/billing-core/src/billing_subscription_webhook.rs",
         "crates/billing-core/tests/unit/subscription_lifecycle.rs",
         "infra/cloudflare/src/fixtures.ts",
         "infra/cloudflare/src/index.ts",
         "infra/cloudflare/src/billing-binding-read-model.ts",
         "infra/cloudflare/tests/contract/billing-api-contract.test.ts",
         "infra/cloudflare/tests/integration/payment-routes-real.test.ts",
+        "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts",
+        "packages/billing-domain/src/billing-invoice-tax-refund-dispute.ts",
+        "packages/billing-domain/tests/unit/billing-invoice-tax-refund-dispute.test.ts"
+      ],
+      "plannedImplementationRoots": ["packages/billing-domain/src/billing-invoice-tax-refund-dispute.ts"],
+      "expectedTestRoots": [
+        "packages/billing-domain/tests/unit/billing-invoice-tax-refund-dispute.test.ts",
+        "crates/billing-core/tests/unit/subscription_lifecycle.rs",
+        "infra/cloudflare/tests/contract/billing-api-contract.test.ts",
+        "infra/cloudflare/tests/integration/payment-routes-real.test.ts",
         "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts"
-      ]
+      ],
+      "note": "Reviewed 2026-08-25 against canonical 7ff5d6e4f: Cloudflare owns durable invoice, admin-invoice, dispute, refund-ledger, mutation, and outbox state, with non-test invoice and admin invoice/dispute read callers. The admin refund, parent cancel, and manual-invoice handlers remain manual-required; provider API/owner execution, normalized WP03 lifecycle composition, and a non-test billing-core caller are absent. Schema/generated TypeScript and mapped tests are contract or local-safe-fixture surfaces, not live provider proof. The planned billing-domain source and unit test are absent, the 16-row WP05 assertion matrix and proof root remain open, and no completionEvidence, READY, DONE, proof, CI, or PR claim follows."
     },
     "WP-payment-subscription-plan-06-security-privacy-observability": {
       "planSlug": "payment-subscription-plan",

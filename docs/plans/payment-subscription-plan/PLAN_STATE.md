@@ -99,6 +99,53 @@ context APIs; schema/TypeScript roots remain proof-consumer topology. The WP04
 expected assertion matrix, focused tests, proof root, and validation evidence
 are open, so WP04 remains `blocked / source reviewed`.
 
+## Reviewed WP05 production truth checkpoint - 2026-08-25
+
+This is a source-and-routing truth update from canonical `7ff5d6e4f`. It does
+not add completion evidence, tests, proof, CI, PR, READY, or DONE state.
+
+The actual production boundary is Cloudflare-owned.
+`infra/cloudflare/src/billing-binding-read-model.ts` contains durable
+D1/Durable Object state, mutation idempotency, mutation outbox delivery,
+invoice/admin-invoice rows, admin-dispute rows, and a refund ledger.
+`applyBillingStateMutation` validates invoice identity, currency, cumulative
+refund amount, refund state, and replay/terminal guards before committing the
+app-owned state transition. Its manual-invoice, admin-refund, cancellation,
+and provider-webhook branches remain explicit app-state projections; they do
+not call a provider API or establish a provider-owned execution owner.
+
+The reachable Worker callers in `infra/cloudflare/src/index.ts` are narrower:
+parent invoices and support/admin invoice and dispute reads call the durable
+read model; the admin refund handler returns `manual-required`, and the parent
+cancel and manual-invoice handlers are also manual-required. The route manifest
+keeps the invoice request/response and mutation request codecs unbound where
+the generated boundary is missing, with blockers including
+`billing-refund-owner-adapter-missing`,
+`payment-provider-execution-owner-missing`, and
+`manual-invoice-owner-adapter-missing`. The provider-webhook queue consumer can
+apply a verified, authority-matched receipt to the Cloudflare mutation path,
+but WP03's missing normalized provider receipt/lifecycle owner composition
+still prevents treating that path as a complete invoice, tax, refund, or
+dispute lifecycle.
+
+`crates/billing-core/src/billing_subscription.rs` exposes lifecycle helpers
+through a public module, but its projection module is private to the crate and
+no non-test production caller of the lifecycle API was found. The Rust schema
+and generated schema-domain files are export/contract surfaces; their contract
+tests compare generated files and do not prove provider execution or a live
+ledger caller. The mapped Cloudflare tests use `createTestHarness` with
+`ENVIRONMENT: 'test'` and `AUTH_ADAPTER_MODE: 'local-safe-fixture'`; they cover
+local accepted/rejected route contracts and durable-state shapes, not live
+provider execution or completion of the full lifecycle matrix.
+
+The required assertion matrix remains open for all 16 rows, and
+`output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/` is
+absent. The planned `packages/billing-domain` source and unit-test paths are
+also absent. WP05 therefore remains `blocked / source reviewed`: the real
+Cloudflare state boundary is recorded, while provider execution/owner
+composition, normalized lifecycle authority, focused expected tests, and proof
+remain open.
+
 ## Accepted production-source checkpoint - 2026-08-17
 
 The independently reviewed Payment source wave at `63305016f` is now on the
@@ -158,9 +205,13 @@ boundaries. No payment-owned production slice is authorized from this pass.
 - **WP04:** `crates/entitlement-core` owns a fail-closed derivation contract,
   but no non-test downstream consumer was found in the payment/runtime
   surfaces. Device-trust binding remains adjacent-plan owned.
-- **WP05:** invoice/tax/refund/dispute semantics exist as contract/model code,
-  but the reachable Cloudflare mutation path still uses fixture builders and
-  lacks provider-owned ledger authority. No production slice is legal here.
+- **WP05:** Cloudflare owns a durable invoice/admin-invoice, dispute, refund
+  ledger, mutation, and outbox boundary, with non-test invoice and admin read
+  callers plus a provider-webhook queue projection. The admin refund, parent
+  cancel, and manual-invoice handlers remain manual-required; no provider API
+  owner, normalized lifecycle authority, or non-test Rust billing-core caller
+  was found. The planned billing-domain source/test paths and WP05 proof root
+  are absent, so no runtime completion claim is legal here.
 - **WP06:** billing security/privacy contracts exist; shared Worker auth,
   binding, redaction, and observability remain Cloudflare-owned. No payment
   runtime caller or provider-secret authority was found.
@@ -247,6 +298,7 @@ expected proof root remains open until a real provider caller, focused tests,
 and the required validation evidence exist.
 WP03 has no checked-in proof bundle at `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` in this checkout. Its mapped Rust and Cloudflare tests are not live-provider proof, and no test or proof command was run in the reviewed source packet. WP04's historical proof reference is superseded by the reviewed WP04 source truth checkpoint above.
 WP04 has no checked-in proof bundle at `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/` in this checkout. Its mapped signed-snapshot contract imports removed APIs, and its schema/TypeScript surfaces are proof-consumer topology rather than a production entitlement caller. No test or proof command was run in the reviewed WP04 source packet.
+WP05 has no checked-in proof bundle at `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/` in this checkout. Its mapped schema tests compare generated files and its mapped Cloudflare tests use the local-safe fixture harness; they are not live-provider proof or completion of the 16-row lifecycle matrix. No test or proof command was run in the reviewed WP05 source packet.
 All runtime payment rows after WP00 remain blocked until selected code, tests, negative cases, rollback/teardown notes, validation logs, and proof bundles exist.
 ```
 
@@ -264,6 +316,7 @@ Current Parent direction:
   no hosted-session or payment-completion claim follows from local fixtures.
 - WP03 current truth is `blocked / source reviewed`, not production-complete. `crates/billing-core` carries provider channel, payload-parse, idempotency, replay/order, retry, dead-letter, reconciliation, and test/live boundary classifications with mapped unit coverage under `crates/billing-core/tests/unit/**`, but its public entry points accept caller-supplied trust/state enums and have no non-test production consumer. Cloudflare owns the reachable ingress and durable receipt/queue custody, yet does not compose normalized signature/parse/mode receipt fields or invoke the Rust lifecycle owner. TypeScript therefore supplies the current runtime mutation path while the Rust contract remains unbound.
 - WP04 current truth is `blocked / source reviewed`: `crates/entitlement-core/src/entitlement_snapshot_derivation.rs` owns an unsigned projection from billing/referral/entitlement/provider inputs, while the crate-private issuer and verifier/currentness ports remain manual-required and no public owner-composed unlock path exists. `crates/child-runtime/src/runtime_gate.rs` consumes the generic entitlement decision function, but no non-test caller of its preflight/decision path was found. The mapped signed-snapshot contract imports removed APIs, generated schema/TypeScript remains proof-consumer topology, and the focused expected tests and proof root remain open.
+- WP05 current truth is `blocked / source reviewed`: Cloudflare's `billing-binding-read-model.ts` owns durable invoice, admin-invoice, dispute, refund-ledger, mutation, and outbox projections, while Worker refund/cancel/manual-invoice execution remains manual-required and no provider owner or non-test Rust billing-core caller exists. The local-safe fixture tests and schema parity tests do not close the 16 expected lifecycle assertions, and the planned billing-domain paths plus proof root remain absent. No completionEvidence, READY, DONE, proof, CI, or PR claim follows.
 - This plan owns billing semantics on top of that module: pricing, referral qualification, provider strategy, checkout meaning, webhook-to-ledger meaning, entitlement meaning, dashboard meaning, and support/admin meaning.
 - Stripe Checkout, Billing, Portal, invoices, entitlements, and webhooks remain the default web control-plane path.
 - Razorpay remains the India-native adapter; PayPal remains the secondary wallet/subscription adapter; Apple and Google remain channel adapters, not the root billing authority.

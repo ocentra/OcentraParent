@@ -23060,14 +23060,27 @@
         "WP-payment-subscription-plan-09-regional-payment-rollout"
       ],
       "state": "blocked",
-      "lifecycleState": "active",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "active / source integrated / expected tests open",
+        "statusText": "blocked / source reviewed / Cloudflare ledger projections present; provider owner, normalized lifecycle authority, expected tests, and proof open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "packages/billing-domain/src/billing-invoice-tax-refund-dispute.ts"
+          ],
+          "testRoots": [
+            "packages/billing-domain/tests/unit/billing-invoice-tax-refund-dispute.test.ts",
+            "crates/billing-core/tests/unit/subscription_lifecycle.rs",
+            "infra/cloudflare/tests/contract/billing-api-contract.test.ts",
+            "infra/cloudflare/tests/integration/payment-routes-real.test.ts",
+            "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts"
+          ]
+        },
         "dependencyReview": {
           "hardDependencies": [
             "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
@@ -23076,18 +23089,29 @@
           ],
           "evidence": [
             "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-            "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md"
+            "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md",
+            "docs/plans/payment-subscription-plan/PLAN_STATE.md",
+            "docs/plans/payment-subscription-plan/NEXT_ACTIONS.md",
+            "docs/engineering-graph/code-map.json",
+            "infra/cloudflare/src/billing-binding-read-model.ts",
+            "infra/cloudflare/src/index.ts",
+            "infra/cloudflare/src/routes.ts",
+            "infra/cloudflare/src/testing.ts",
+            "crates/billing-core/src/billing_subscription.rs",
+            "crates/billing-core/src/billing_subscription_projection.rs",
+            "crates/schema/src/billing_invoice_tax_refund_dispute_ts.rs",
+            "crates/schema/tests/contract/billing_invoice_tax_refund_dispute.rs",
+            "infra/cloudflare/tests/contract/billing-api-contract.test.ts",
+            "infra/cloudflare/tests/integration/payment-routes-real.test.ts"
           ],
-          "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+          "reason": "Reviewed 2026-08-25: Cloudflare durable invoice, dispute, refund-ledger, mutation, and outbox projections plus non-test read callers are present, but provider owner execution, normalized lifecycle authority, a non-test billing-core caller, the planned billing-domain source/test paths, the 16 expected assertions, and proof are open. This records source-derived routing only; it does not promote implementation, tests, proof, READY, or DONE."
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
-          "implementation": [
-            "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md"
-          ],
+          "implementation": [],
           "tests": [
             "docs/plans/payment-subscription-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
@@ -23096,6 +23120,18 @@
             "docs/plans/payment-subscription-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "packages/billing-domain/src/billing-invoice-tax-refund-dispute.ts"
+          ],
+          "tests": [
+            "packages/billing-domain/tests/unit/billing-invoice-tax-refund-dispute.test.ts",
+            "crates/billing-core/tests/unit/subscription_lifecycle.rs",
+            "infra/cloudflare/tests/contract/billing-api-contract.test.ts",
+            "infra/cloudflare/tests/integration/payment-routes-real.test.ts",
+            "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts"
+          ]
         }
       }
     },
