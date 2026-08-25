@@ -17,8 +17,9 @@ use crate::network_inventory_command::{
 };
 
 use super::neighbor_support::{
-    interface_matches_selected_scope, is_household_unicast, is_supported_neighbor_ip,
-    likely_router_address_text, normalize_neighbor_hostname, normalized_optional_interface_name,
+    filter_neighbor_observations_for_selected_interface, interface_matches_selected_scope,
+    is_household_unicast, is_supported_neighbor_ip, likely_router_address_text,
+    normalize_neighbor_hostname, normalized_optional_interface_name,
 };
 use super::service_identity::{
     enrich_service_identity_probes_with_cancellation, AllowedSnmpResponseObserver,
@@ -82,19 +83,25 @@ pub fn windows_lan_neighbors_with_cancellation(
         ),
         None => command_json_records(constants::lan_pairing::POWERSHELL_EXE, &command_args),
     };
-    let mut devices = records
+    let observations = records
         .into_iter()
         .filter_map(|record| {
-            network_device_from_windows_neighbor_with_observed_at(
-                &record,
-                &netbios_names,
-                &identity_hint_inventory,
-                &previous_inventory,
-                selected_interface,
-                &observed_at,
-            )
+            windows_neighbor_observation_from_record_with_observed_at(&record, &observed_at)
         })
         .collect::<Vec<_>>();
+    let mut devices = merge_neighbor_observations_by_mac(
+        filter_neighbor_observations_for_selected_interface(observations, selected_interface),
+    )
+    .into_iter()
+    .filter_map(|observation| {
+        network_device_from_windows_observation(
+            observation,
+            &netbios_names,
+            &identity_hint_inventory,
+            &previous_inventory,
+        )
+    })
+    .collect::<Vec<_>>();
     enrich_service_identity_probes_with_cancellation(
         &mut devices,
         probe_suppression_devices,
@@ -212,30 +219,44 @@ pub fn network_device_from_windows_neighbor_with_observed_at(
     selected_interface: Option<&str>,
     observed_at: &str,
 ) -> Option<LanNetworkInventoryDevice> {
-    let ip_address = record_text(record, constants::lan_pairing::JSON_KEY_IP_ADDRESS)?;
-    if !is_supported_neighbor_ip(&ip_address) {
+    let observation =
+        windows_neighbor_observation_from_record_with_observed_at(record, observed_at)?;
+    if !interface_matches_selected_scope(
+        observation.network_interface.as_deref(),
+        selected_interface,
+    ) {
         return None;
     }
-    let mac_address = normalize_mac_address(&record_text(
-        record,
-        constants::lan_pairing::JSON_KEY_LINK_LAYER_ADDRESS,
-    )?)?;
+    network_device_from_windows_observation(
+        observation,
+        netbios_names,
+        identity_hint_inventory,
+        previous_inventory,
+    )
+}
+
+fn network_device_from_windows_observation(
+    observation: LanNeighborObservation,
+    netbios_names: &HashMap<String, String>,
+    identity_hint_inventory: &LanIdentityHintInventory,
+    previous_inventory: &LanPreviousNetworkInventory,
+) -> Option<LanNetworkInventoryDevice> {
+    let LanNeighborObservation {
+        ip_address,
+        mac_address,
+        network_interface,
+        hostname,
+        observed_at,
+        reachability,
+        mut scan_sources,
+    } = observation;
     let supports_netbios = netbios::windows_neighbor_supports_netbios(&ip_address);
-    let network_interface = normalized_optional_interface_name(record_text(
-        record,
-        constants::lan_pairing::JSON_KEY_INTERFACE_ALIAS,
-    ));
-    if !interface_matches_selected_scope(network_interface.as_deref(), selected_interface) {
-        return None;
-    }
     let platform = if likely_router_address_text(&ip_address) {
         constants::lan_pairing::PLATFORM_ROUTER
     } else {
         constants::lan_pairing::PLATFORM_UNKNOWN
     }
     .to_string();
-    let reachability =
-        reachability_from_windows_state(record.get(constants::lan_pairing::JSON_KEY_STATE));
     let trusted_device = identity_hint_inventory.find(&mac_address, &ip_address);
     let previous_device = previous_inventory.find(&mac_address, &ip_address);
     let resolved_identity =
@@ -245,8 +266,7 @@ pub fn network_device_from_windows_neighbor_with_observed_at(
             platform,
             supports_netbios,
             reachability: &reachability,
-            dns_hostname: record_text(record, constants::lan_pairing::JSON_KEY_HOSTNAME)
-                .and_then(|value| normalize_neighbor_hostname(&value)),
+            dns_hostname: hostname,
             netbios_cache_hostname: netbios_names.get(&ip_address).cloned(),
             trusted_device,
             previous_device,
@@ -258,8 +278,6 @@ pub fn network_device_from_windows_neighbor_with_observed_at(
             .filter(|character| *character != '-')
             .collect::<String>(),
     );
-    let mut scan_sources =
-        vec![constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()];
     for source in &resolved_identity.name_scan_sources {
         identity::push_unique_scan_source(&mut scan_sources, source);
     }
@@ -272,7 +290,7 @@ pub fn network_device_from_windows_neighbor_with_observed_at(
         mac_address,
         hostname: resolved_identity.hostname,
         network_interface,
-        observed_at: observed_at.to_string(),
+        observed_at,
         reachability,
         agent_status: None,
         scan_sources,
