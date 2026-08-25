@@ -74,6 +74,28 @@ only when those roots contain tests and no implementation files. The report
 always includes both the expected and observed topology so a mismatch remains
 visible.
 
+A reviewed runtime workpack whose source does not exist yet must use
+`code-and-tests` with the exact missing production and test paths in `roots`.
+It may also declare `plannedImplementationRoots` as a non-empty, production-only
+subset of those roots and `expectedTestRoots` as a non-empty, test-classified
+subset. These reviewed paths must be normalized repository-relative code-file
+paths with supported language extensions. Documentation, proof/output,
+generated, vendor, fixture/example/support-only, ignored, directory, symlink,
+and outside-repository paths are rejected. A present path must be a regular file
+of the declared production/test class. Bootstrap then replaces the default
+workpack-Markdown implementation reference with missing expected production
+paths and records the expected tests. This records ownership without creating
+placeholder code and prevents planning documents or path-shaped directories
+from satisfying executable completion.
+
+The later test-source wave must add focused graph-tool regressions proving
+that planned implementation roots reject unnormalized, unknown, duplicate,
+non-code, directory, symlink, outside-root, documentation, proof/output,
+generated, vendor, test, fixture, example, and ignored paths; that expected
+test roots reject non-test-classified or non-regular paths; and that a
+directory, symlink, or non-production file at an expected implementation path
+cannot clear the completion gap.
+
 `graph:report` is the canonical “where are we?” query. It joins every selected
 plan's derived workpack states/counts and completion-contract path gaps with its
 live reviewed-root implementation/test topology. The JSON form is intended for
@@ -211,7 +233,11 @@ queries; unsupported or missing values fail instead of being ignored.
    `code-map.json.workpacks` entry with the workpack ID, `codeExpectation`, and
    reviewed file/directory roots. Use `no-code-required` with empty roots only
    after the workpack contract is reviewed. Leave it unmapped when ownership or
-   expected topology is uncertain.
+   expected topology is uncertain. For reviewed runtime source that is planned
+   but absent, use `code-and-tests`, include the exact missing production and
+   test roots, declare the production-only subset in
+   `plannedImplementationRoots`, and declare the test-classified subset in
+   `expectedTestRoots`.
 6. Run `npm run graph:bootstrap -- --write` and `npm run graph:validate`.
 7. Query `graph:inspect <workpack-id>` before assigning the workpack.
 8. For a code-first pass, query `graph:next -- --phase implementation`; do not

@@ -26,6 +26,11 @@ pub(super) fn derive_parent_storage_apply_decision(
         preview.manual_required_note.as_deref(),
         input.manual_required_note.as_deref(),
     );
+    if !input.manual_review_required.is_empty()
+        && manual_required_note_is_empty(manual_required_note.as_deref())
+    {
+        return Err(ParentStorageSettingsApplyFlowError::ManualRequiredMustStayVisible);
+    }
     let ready_for_confirmation = matches!(
         preview.preview_state,
         contracts::ParentStoragePreviewState::ImportPreviewPassed

@@ -1,5 +1,12 @@
+use super::types::{
+    BrowserActivityReadModelAgentServiceSnapshot, BrowserEvidenceReadModelAgentServiceSnapshot,
+    BrowserInterventionReadModelAgentServiceSnapshot,
+    BrowserInventoryReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
+};
 use super::*;
 use ocentra_parent_agent_protocol::activity_surface::ActivityBrowserReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::transport::{AgentEventEnvelope, AgentEventName};
 
 use super::payload_fields::serialized_enum_label;
 use super::snapshots_network::response_json_payload_field;

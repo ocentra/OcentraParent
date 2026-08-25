@@ -18,9 +18,10 @@ pub(super) fn map_device_scope(role: AccountIdentityRole) -> DeviceOwnershipScop
         AccountIdentityRole::ChildProfile | AccountIdentityRole::ChildDeviceAgent => {
             DeviceOwnershipScope::ChildProfileDevice
         }
-        AccountIdentityRole::ParentOwner
-        | AccountIdentityRole::CoParentGuardian
-        | AccountIdentityRole::Observer => DeviceOwnershipScope::ParentControllerDevice,
+        AccountIdentityRole::ParentOwner | AccountIdentityRole::CoParentGuardian => {
+            DeviceOwnershipScope::ParentControllerDevice
+        }
+        AccountIdentityRole::Observer => DeviceOwnershipScope::ParentObserverDevice,
         AccountIdentityRole::SupportAdmin => DeviceOwnershipScope::OtherDevice,
     }
 }

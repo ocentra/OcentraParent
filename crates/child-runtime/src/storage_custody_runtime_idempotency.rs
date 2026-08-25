@@ -1,4 +1,4 @@
-use ocentra_eventing::envelope::EventMetadata;
+use ocentra_eventing::envelope::{EventMetadata, StoredEventEnvelope};
 use ocentra_storage_custody_core::storage_custody::{
     StorageCustodyActionPlannedEvent, StorageCustodyEffect, StorageCustodyEffectKind,
 };
@@ -38,7 +38,7 @@ pub(crate) fn prepare_record(
     effect: &StorageCustodyEffect,
     input: ocentra_storage_custody_core::storage_custody::StorageCustodyInput,
     action: StorageCustodyActionPlannedEvent,
-    envelope: ocentra_eventing::StoredEventEnvelope,
+    envelope: StoredEventEnvelope,
 ) -> StorageCustodyEffectRecord {
     let relative_path = match effect {
         StorageCustodyEffect::DeleteLocal { relative_path } => {

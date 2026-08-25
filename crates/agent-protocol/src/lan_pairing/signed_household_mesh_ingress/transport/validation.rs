@@ -72,7 +72,7 @@ pub(super) fn validate_transport_message_type(
     Ok(value)
 }
 
-fn invalid_transport_value(field: &'static str) -> EventingError {
+pub(super) fn invalid_transport_value(field: &'static str) -> EventingError {
     // ALLOC-JUSTIFICATION: EventingError owns its safely redacted display value.
     EventingError::InvalidValue {
         field,

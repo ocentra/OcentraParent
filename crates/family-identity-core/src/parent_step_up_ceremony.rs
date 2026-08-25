@@ -13,8 +13,8 @@ use crate::{
     parent_presence::{
         ParentPresenceChallenge, ParentPresenceStorageFailureReason,
         ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
+        ParentPresenceVerificationPort,
     },
-    parent_presence_port::ParentPresenceVerificationPort,
     parent_presence_store::StoredParentStepUpIntent,
     parent_step_up_challenge_codec::encode_base64url,
     parent_step_up_platform::{

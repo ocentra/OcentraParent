@@ -1,7 +1,3 @@
-use crate::household_authority::{
-    authorize_household_action, HouseholdAuthorityAction, HouseholdAuthorityDecision,
-    HouseholdAuthorityInput, ParentControllerLeaseState,
-};
 use ocentra_schema::account_identity_authority::{
     AccountIdentityCurrentMemberDeviceAuthority,
     AccountIdentityCurrentMemberDeviceAuthorityHandoff, AccountIdentityHouseholdChildDeviceBinding,
@@ -11,10 +7,12 @@ use ocentra_schema::account_identity_authority::{
 
 #[path = "account_identity_authority_capability.rs"]
 mod account_identity_authority_capability;
+#[path = "account_identity_authority_query_custody.rs"]
+mod account_identity_authority_query_custody;
 #[path = "account_identity_authority_validation.rs"]
 mod account_identity_authority_validation;
 #[path = "account_identity_authority_value_mapping.rs"]
-mod account_identity_authority_value_mapping;
+pub(crate) mod account_identity_authority_value_mapping;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum AccountIdentityCurrentBindingReadError<E> {
@@ -50,50 +48,32 @@ pub(crate) trait AccountIdentityAuthorityRepository {
     >;
 }
 
-/// Opaque authority minted only by the family-owned producer after the
-/// durable repository has established currentness. It intentionally does not
-/// implement serde: a JSON/TS handoff is evidence, never authority.
+/// Opaque authority snapshot minted only by the family-owned producer after a
+/// durable repository read established currentness at issuance. It does not
+/// claim race-safe currentness after that read; a runtime that requires
+/// revocation-linearized authority must re-read in its owning transaction. It
+/// intentionally does not implement serde: a JSON/TS handoff is evidence,
+/// never authority.
 pub struct VerifiedAccountIdentityAuthority {
     handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff,
     provenance: account_identity_authority_capability::AccountIdentityAuthorityProvenance,
 }
 
-/// Downstream family-policy adapter. All household/member/device state is
-/// derived from the opaque capability; the caller supplies only the action's
-/// separate capability grant and optional controller lease.
-pub fn authorize_household_action_from_verified_authority(
-    authority: &VerifiedAccountIdentityAuthority,
-    action: HouseholdAuthorityAction,
-    capability_granted: bool,
-    controller_lease_state: Option<ParentControllerLeaseState>,
-) -> HouseholdAuthorityDecision {
-    let member = &authority.handoff.member;
-    let binding = &authority.handoff.binding;
-    authorize_household_action(HouseholdAuthorityInput {
-        actor_role: account_identity_authority_value_mapping::map_role(member.role),
-        same_family: true,
-        actor_account_state: account_identity_authority_value_mapping::map_account_state(
-            member.account_state,
-        ),
-        membership_state: account_identity_authority_value_mapping::map_membership_state(
-            member.membership_state,
-        ),
-        child_profile_binding_state: account_identity_authority_value_mapping::map_binding_state(
-            binding,
-        ),
-        device_ownership_scope: account_identity_authority_value_mapping::map_device_scope(
-            member.role,
-        ),
-        device_trust_state: account_identity_authority_value_mapping::map_device_trust(
-            member.device_trust_state,
-        ),
-        session_freshness_state: account_identity_authority_value_mapping::map_session_freshness(
-            member.session_freshness_state,
-        ),
-        capability_granted,
-        controller_lease_state,
-        action,
-    })
+impl VerifiedAccountIdentityAuthority {
+    pub(crate) fn handoff(&self) -> &AccountIdentityCurrentMemberDeviceAuthorityHandoff {
+        &self.handoff
+    }
+
+    pub(crate) fn current_binding(&self) -> &AccountIdentityHouseholdChildDeviceBinding {
+        &self.handoff.binding
+    }
+
+    pub(crate) fn support_receipt(
+        &self,
+    ) -> Option<&ocentra_schema::account_identity_authority::AccountIdentitySupportAuthorityReceipt>
+    {
+        self.handoff.member.support_receipt.as_ref()
+    }
 }
 
 pub(crate) struct AccountIdentityCurrentMemberAuthorityProducer<'a, R> {

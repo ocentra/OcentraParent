@@ -1,5 +1,9 @@
+import type { RouteBoundary, RouteGroup } from '../routes.js';
+
 export type AuthState =
   | 'public'
+  | 'browser-session-required'
+  | 'browser-refresh-required'
   | 'parent-session-required'
   | 'trusted-parent-device-required'
   | 'admin-required'
@@ -9,6 +13,8 @@ export type AuthState =
 
 export type AuthAdapterMethod =
   | 'verifyPublic'
+  | 'verifyBrowserSession'
+  | 'verifyBrowserRefresh'
   | 'verifyParentSession'
   | 'verifyTrustedParentDevice'
   | 'verifyAdmin'
@@ -46,6 +52,18 @@ export const AUTH_STATE_MODELS: Record<AuthState, AuthStateModel> = {
     adapterMethod: 'verifyPublic',
     privateRoute: false,
     manualRequiredOwner: 'not-applicable',
+  },
+  'browser-session-required': {
+    state: 'browser-session-required',
+    adapterMethod: 'verifyBrowserSession',
+    privateRoute: true,
+    manualRequiredOwner: 'account-identity-family-plan',
+  },
+  'browser-refresh-required': {
+    state: 'browser-refresh-required',
+    adapterMethod: 'verifyBrowserRefresh',
+    privateRoute: true,
+    manualRequiredOwner: 'account-identity-family-plan',
   },
   'parent-session-required': {
     state: 'parent-session-required',
@@ -91,6 +109,8 @@ export interface AuthBoundaryRouteLike {
   authState: AuthState;
   auditEvent: string;
   auditRule: RouteAuditRule;
+  routeGroup: RouteGroup;
+  routeBoundary: RouteBoundary;
 }
 
 export type AuthBoundaryViolationReason =
@@ -112,18 +132,19 @@ export function getAuthStateModel(authState: AuthState): AuthStateModel {
 }
 
 export function validateAuthBoundaryRoute(route: AuthBoundaryRouteLike): AuthBoundaryViolationReason | null {
-  const isPrivateRoute =
-    route.path.startsWith('/auth/') || route.path.startsWith('/admin/') || route.path.startsWith('/webhooks/');
-  if (isPrivateRoute && !getAuthStateModel(route.authState).privateRoute) {
-    return 'naked-private-route';
+  if (route.routeBoundary === 'session-login' || route.routeBoundary === 'public') {
+    return null;
   }
 
-  const isAdminSupportSurface = route.path.startsWith('/admin/') || route.path === '/auth/billing/manual-invoice';
-  if (isAdminSupportSurface) {
-    if (route.path === '/admin/billing/reconciliation') {
-      return route.authState === 'internal-queue-only' ? null : 'internal-queue-route-auth-state-mismatch';
-    }
+  if (route.routeBoundary === 'internal-queue') {
+    return route.authState === 'internal-queue-only' ? null : 'internal-queue-route-auth-state-mismatch';
+  }
 
+  if (route.routeBoundary === 'webhook') {
+    return route.authState === 'provider-webhook-signature-required' ? null : 'webhook-route-auth-state-mismatch';
+  }
+
+  if (route.routeBoundary === 'support-exception' || route.routeGroup === 'admin') {
     if (route.authState !== 'admin-required' && route.authState !== 'support-required') {
       return 'admin-support-route-without-elevated-state';
     }
@@ -143,8 +164,8 @@ export function validateAuthBoundaryRoute(route: AuthBoundaryRouteLike): AuthBou
     return null;
   }
 
-  if (route.path.startsWith('/webhooks/')) {
-    return route.authState === 'provider-webhook-signature-required' ? null : 'webhook-route-auth-state-mismatch';
+  if (!getAuthStateModel(route.authState).privateRoute) {
+    return 'naked-private-route';
   }
 
   return null;

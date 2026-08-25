@@ -3,13 +3,20 @@
 #[macro_use]
 mod family_identity_text_ids;
 pub mod account_identity_authority;
+pub mod account_identity_authority_issuer;
+pub mod account_identity_authority_producer;
+pub mod account_identity_authority_producer_error;
 pub mod account_identity_authority_repository;
+pub mod account_identity_mutation_authority;
+pub mod account_identity_mutation_authority_error;
+pub mod account_identity_target_authority;
 pub mod device_trust_current_binding;
 pub mod device_trust_lifecycle;
 mod device_trust_lifecycle_activation;
 mod device_trust_lifecycle_authority;
 mod device_trust_lifecycle_authority_fence;
 mod device_trust_lifecycle_authority_intent;
+mod device_trust_lifecycle_authority_lock;
 mod device_trust_lifecycle_authority_reconciliation;
 mod device_trust_lifecycle_authority_store;
 mod device_trust_lifecycle_current_authority;
@@ -30,6 +37,7 @@ mod family_identity_profiles_validation;
 mod family_identity_setup_records;
 pub mod household_authority;
 pub mod household_authority_proof;
+pub mod household_authority_runtime_composer;
 mod household_authority_validation;
 pub mod parent_presence;
 mod parent_presence_event_delivery;

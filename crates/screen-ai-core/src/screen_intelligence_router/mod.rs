@@ -1,5 +1,4 @@
 pub(crate) const SCREEN_INTELLIGENCE_ROUTER_SCHEMA_VERSION: u16 = 1;
-pub(crate) const SCREEN_MANAGED_BROWSER_STRUCTURED_TEXT_LIMIT: usize = 480;
 
 pub(crate) const MANUAL_REQUIRED_PARENT_DISABLED: &str =
     "parent setting requires manual review before screen capture";
@@ -9,9 +8,11 @@ pub(crate) const UNAVAILABLE_PROTECTED_SURFACE: &str =
     "protected surface is not eligible for screen capture or model analysis";
 pub(crate) const UNAVAILABLE_CREDENTIAL_PROMPT: &str =
     "credential prompt risk is not eligible for screen capture or model analysis";
+pub(crate) const UNAVAILABLE_MANAGED_BROWSER_STRUCTURED_EXTRACTION: &str =
+    "managed-browser structured extraction producer authority is unavailable";
 
 mod capture;
-mod extraction;
+pub mod extraction;
 mod policy;
 mod route;
 
@@ -20,9 +21,8 @@ pub type ScreenEvidenceCustodyState = capture::ScreenEvidenceCustodyState;
 pub type ActivityEvidenceRef = extraction::ActivityEvidenceRef;
 pub type ScreenManagedBrowserStructuredExtraction =
     extraction::ScreenManagedBrowserStructuredExtraction;
-pub type ScreenStructuredExtractionRedactionState =
-    extraction::ScreenStructuredExtractionRedactionState;
-pub type ScreenStructuredExtractionState = extraction::ScreenStructuredExtractionState;
+pub type ScreenStructuredExtractionFallbackState =
+    extraction::ScreenStructuredExtractionFallbackState;
 pub type ScreenIntelligencePolicySensitivity = policy::ScreenIntelligencePolicySensitivity;
 pub type ScreenIntelligenceRouteKind = policy::ScreenIntelligenceRouteKind;
 pub type ScreenIntelligenceSourceKind = policy::ScreenIntelligenceSourceKind;

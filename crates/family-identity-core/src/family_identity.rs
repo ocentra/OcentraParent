@@ -73,6 +73,8 @@ pub enum DeviceOwnershipScope {
     ChildProfileDevice,
     #[serde(rename = "parent-controller-device")]
     ParentControllerDevice,
+    #[serde(rename = "parent-observer-device")]
+    ParentObserverDevice,
     #[serde(rename = "other-device")]
     OtherDevice,
 }

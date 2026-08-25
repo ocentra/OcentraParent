@@ -19,29 +19,19 @@ pub(super) fn derive_parent_storage_restore_preview(
         return Err(ParentStorageSettingsApplyFlowError::RestorePreviewMustRequireConfirmation);
     }
 
-    if input.preview_state == contracts::ParentStoragePreviewState::PartialRestore
-        && input.rejected_sections.is_empty()
-    {
-        return Err(ParentStorageSettingsApplyFlowError::PartialRestoreMustNameRejectedSections);
-    }
+    validate_restore_preview_state(&input)?;
     if input.preview_state == contracts::ParentStoragePreviewState::WrongHousehold
         && input.household_match
     {
         return Err(ParentStorageSettingsApplyFlowError::WrongHouseholdPreviewMustNotMatch);
-    }
-    if input.preview_state == contracts::ParentStoragePreviewState::WrongKey && input.device_match {
-        // wrong key can still be device-matched; don't reject
     }
     if input.preview_state == contracts::ParentStoragePreviewState::ManualRequired
-        && input.manual_required_note.is_none()
+        && input
+            .manual_required_note
+            .as_deref()
+            .is_none_or(|note| note.trim().is_empty())
     {
         return Err(ParentStorageSettingsApplyFlowError::ManualRequiredMustStayVisible);
-    }
-    if input.preview_state == contracts::ParentStoragePreviewState::WrongHousehold
-        && input.device_match
-        && input.household_match
-    {
-        return Err(ParentStorageSettingsApplyFlowError::WrongHouseholdPreviewMustNotMatch);
     }
     if input.preview_state == contracts::ParentStoragePreviewState::TombstoneConflict
         && input.rejected_sections.is_empty()
@@ -67,4 +57,23 @@ pub(super) fn derive_parent_storage_restore_preview(
         tombstones_preserved: true,
         manual_required_note: input.manual_required_note,
     })
+}
+
+fn validate_restore_preview_state(
+    input: &ParentStorageRestorePreviewInput,
+) -> Result<(), ParentStorageSettingsApplyFlowError> {
+    let is_partial_restore =
+        input.preview_state == contracts::ParentStoragePreviewState::PartialRestore;
+    if is_partial_restore != input.partial_restore {
+        return Err(ParentStorageSettingsApplyFlowError::PartialRestoreStateMustMatchFlag);
+    }
+    if is_partial_restore && input.rejected_sections.is_empty() {
+        return Err(ParentStorageSettingsApplyFlowError::PartialRestoreMustNameRejectedSections);
+    }
+    if input.preview_state == contracts::ParentStoragePreviewState::ImportPreviewPassed
+        && !input.rejected_sections.is_empty()
+    {
+        return Err(ParentStorageSettingsApplyFlowError::ImportPreviewPassedMustBeComplete);
+    }
+    Ok(())
 }

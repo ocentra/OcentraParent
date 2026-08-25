@@ -1,6 +1,9 @@
 mod consistency;
 mod decision_build;
+mod extraction_consistency;
+mod fallback;
 mod route_kind;
+mod route_projection;
 
 use crate::screen_intelligence_router::{
     ScreenIntelligenceRouteDecision, ScreenIntelligenceRouteRequest,

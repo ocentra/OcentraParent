@@ -2,27 +2,30 @@
 
 //! Durable-adapter-neutral recovery lifecycle state.
 
-use serde::{Deserialize, Serialize};
-
+use crate::family_identity::RecoveryId;
 use crate::family_identity_contract_text::required_contract_text;
 use crate::setup_lifecycle::{
-    evaluate_recovery_operation, RecoveryDecision, RecoveryIdentityProofState, RecoveryOperation,
-    RecoveryState,
+    evaluate_recovery_operation, RecoveryDecision, RecoveryIdentityProofState, RecoveryKind,
+    RecoveryOperation, RecoveryState,
 };
 use ocentra_eventing::error::EventingError;
+use ocentra_schema::account_identity_authority::{
+    AccountIdentityDeviceId, AccountIdentityMemberId,
+};
+use ocentra_schema::report_query_custody::{FamilyId, ParentAccountId};
 
 /// Recovery state held by the account adapter while an operation is proved
 /// and approved. Completion never grants account or device authority; it only
 /// makes the downstream custody/setup handoff explicit.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RecoveryLifecycleRecord {
-    pub operation: RecoveryOperation,
-    pub created_at: String,
-    pub last_transition_at: String,
+    pub(crate) operation: RecoveryOperation,
+    pub(crate) created_at: String,
+    pub(crate) last_transition_at: String,
 }
 
 impl RecoveryLifecycleRecord {
-    pub fn new(
+    pub(crate) fn new(
         operation: RecoveryOperation,
         created_at: impl Into<String>,
     ) -> Result<Self, EventingError> {
@@ -34,11 +37,11 @@ impl RecoveryLifecycleRecord {
         })
     }
 
-    pub fn authorize(&self) -> RecoveryDecision {
+    pub(crate) fn authorize(&self) -> RecoveryDecision {
         evaluate_recovery_operation(self.operation)
     }
 
-    pub fn record_identity_proof(
+    pub(crate) fn record_identity_proof(
         &mut self,
         proof_state: RecoveryIdentityProofState,
         transitioned_at: impl Into<String>,
@@ -52,7 +55,7 @@ impl RecoveryLifecycleRecord {
         Ok(())
     }
 
-    pub fn approve_owner(
+    pub(crate) fn approve_owner(
         &mut self,
         transitioned_at: impl Into<String>,
     ) -> Result<(), EventingError> {
@@ -70,20 +73,36 @@ impl RecoveryLifecycleRecord {
         Ok(())
     }
 
-    pub fn complete(&mut self, transitioned_at: impl Into<String>) -> Result<(), EventingError> {
-        if self.operation.state != RecoveryState::Approved {
-            return Err(invalid_state("approval-required"));
+    pub(crate) fn revoke(
+        &mut self,
+        transitioned_at: impl Into<String>,
+    ) -> Result<(), EventingError> {
+        if matches!(
+            self.operation.state,
+            RecoveryState::Completed | RecoveryState::Revoked
+        ) {
+            return Err(invalid_state("terminal-state-transition-not-available"));
         }
-        self.last_transition_at = transition_time(transitioned_at)?;
-        self.operation.state = RecoveryState::Completed;
-        Ok(())
-    }
-
-    pub fn revoke(&mut self, transitioned_at: impl Into<String>) -> Result<(), EventingError> {
         self.last_transition_at = transition_time(transitioned_at)?;
         self.operation.state = RecoveryState::Revoked;
         Ok(())
     }
+}
+
+/// Opaque, account-owned handoff queued only after recovery approval commits.
+/// It is a custody request reference, not evidence of custody execution or a
+/// replacement for the current authority check.
+#[derive(Debug, PartialEq, Eq)]
+pub struct RecoveryCustodyHandoff {
+    handoff_id: String,
+    correlation_id: String,
+    recovery_id: RecoveryId,
+    household_id: FamilyId,
+    account_id: ParentAccountId,
+    member_id: AccountIdentityMemberId,
+    device_id: AccountIdentityDeviceId,
+    kind: RecoveryKind,
+    requested_at: String,
 }
 
 fn next_state_after_identity_proof(
@@ -113,3 +132,6 @@ fn invalid_state(value: &'static str) -> EventingError {
 fn transition_time(value: impl Into<String>) -> Result<String, EventingError> {
     required_contract_text("family_identity.recovery.last_transition_at", value)
 }
+
+#[path = "recovery_lifecycle_handoff.rs"]
+mod handoff;

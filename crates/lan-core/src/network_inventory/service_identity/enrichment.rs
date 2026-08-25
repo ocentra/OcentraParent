@@ -1,9 +1,11 @@
-use std::thread;
 use std::time::{Duration, Instant};
+use std::{
+    sync::atomic::{AtomicBool, Ordering},
+    thread,
+};
 
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
-use super::probe::probe_service_identity;
 use super::targets::service_identity_probe_targets;
 use super::{
     apply_service_identity_probe, runtime_service_identity_probe_settings,
@@ -23,11 +25,21 @@ struct ProbeResult {
     probe_match: Option<LanServiceIdentityProbeObservation>,
 }
 
+#[derive(Clone, Copy)]
+struct ProbeRuntime<'a> {
+    settings: ServiceIdentityProbeSettings,
+    deadline: Instant,
+    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'a>,
+    cancellation: Option<&'a AtomicBool>,
+}
+
 pub(super) fn enrich_service_identity_probes(
     devices: &mut [LanNetworkInventoryDevice],
     probe_suppression_devices: &[LanPairingDeviceRef],
     selected_interface: Option<&str>,
     allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    cancellation: Option<&AtomicBool>,
+    outer_deadline: Option<Instant>,
 ) {
     let Some(selected_interface) = selected_interface.filter(|value| !value.trim().is_empty())
     else {
@@ -37,11 +49,15 @@ pub(super) fn enrich_service_identity_probes(
     if targets.is_empty() {
         return;
     }
-    let deadline = Instant::now() + Duration::from_millis(SERVICE_IDENTITY_PROBE_SCAN_BUDGET_MS);
+    let local_deadline =
+        Instant::now() + Duration::from_millis(SERVICE_IDENTITY_PROBE_SCAN_BUDGET_MS);
+    let deadline = outer_deadline.map_or(local_deadline, |outer| outer.min(local_deadline));
     let candidates = probe_candidates(devices, probe_suppression_devices, selected_interface);
     let settings = runtime_service_identity_probe_settings();
     for batch in candidates.chunks(SERVICE_IDENTITY_PROBE_MAX_CONCURRENCY) {
-        if Instant::now() >= deadline {
+        if Instant::now() >= deadline
+            || cancellation.is_some_and(|value| value.load(Ordering::Acquire))
+        {
             break;
         }
         apply_probe_results(
@@ -49,11 +65,17 @@ pub(super) fn enrich_service_identity_probes(
             probe_batch(
                 batch,
                 &targets,
-                settings,
-                deadline,
-                allowed_snmp_response_observer,
+                ProbeRuntime {
+                    settings,
+                    deadline,
+                    allowed_snmp_response_observer,
+                    cancellation,
+                },
             ),
         );
+        if cancellation.is_some_and(|value| value.load(Ordering::Acquire)) {
+            break;
+        }
     }
 }
 
@@ -79,19 +101,10 @@ fn probe_candidates(
 fn probe_batch(
     batch: &[ProbeCandidate],
     targets: &[ProbeTarget],
-    settings: ServiceIdentityProbeSettings,
-    deadline: Instant,
-    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    runtime: ProbeRuntime<'_>,
 ) -> Vec<ProbeResult> {
     thread::scope(|scope| {
-        let handles = spawn_probe_handles(
-            scope,
-            batch,
-            targets,
-            settings,
-            deadline,
-            allowed_snmp_response_observer,
-        );
+        let handles = spawn_probe_handles(scope, batch, targets, runtime);
         handles
             .into_iter()
             .filter_map(|handle| handle.join().ok())
@@ -103,22 +116,21 @@ fn spawn_probe_handles<'scope, 'env>(
     scope: &'scope thread::Scope<'scope, 'env>,
     batch: &'scope [ProbeCandidate],
     targets: &'scope [ProbeTarget],
-    settings: ServiceIdentityProbeSettings,
-    deadline: Instant,
-    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'env>,
+    runtime: ProbeRuntime<'env>,
 ) -> Vec<thread::ScopedJoinHandle<'scope, ProbeResult>> {
     batch
         .iter()
         .map(|candidate| {
             scope.spawn(move || ProbeResult {
                 index: candidate.index,
-                probe_match: probe_service_identity(
+                probe_match: super::probe::probe_service_identity_with_cancellation(
                     &candidate.ip_address,
                     Some(candidate.device_id.as_str()),
                     targets,
-                    settings,
-                    deadline,
-                    allowed_snmp_response_observer,
+                    runtime.settings,
+                    runtime.deadline,
+                    runtime.allowed_snmp_response_observer,
+                    runtime.cancellation,
                 ),
             })
         })

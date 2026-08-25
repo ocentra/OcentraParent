@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "authority": "Reviewed plan-to-runtime ownership map; file counts are live topology, not acceptance.",
+  "schemaVersion": 2,
+  "authority": "Reviewed plan-to-runtime ownership map; file counts are live topology, not acceptance. Schema 2 adds graph-native Cargo workspace/package requirements.",
   "plans": {
     "account-identity-family-plan": [
       "crates/family-identity-core",
@@ -219,9 +219,10 @@
       "crates/schema/src/setup_device_trust_handoff.rs",
       "crates/schema/src/setup_device_trust_handoff",
       "crates/child-enforcement-core/src/tamper_uninstall_artifact_status.rs",
+      "crates/agent-updater",
       "platforms/android/agent",
-      "platforms/ios/OcentraParentAgent.xcodeproj",
-      "platforms/ios/OcentraParentAgent",
+      "platforms/ios/OcentraChildAgent.xcodeproj",
+      "platforms/ios/OcentraChildAgent",
       "scripts/release/windows",
       "scripts/release/macos",
       "scripts/release/linux",
@@ -626,6 +627,7 @@
     "WP-account-identity-family-plan-02-identity-household-role-model": {
       "planSlug": "account-identity-family-plan",
       "roots": [
+        "crates/family-identity-core/src/account_identity_target_authority.rs",
         "crates/family-identity-core/src/family_identity.rs",
         "crates/family-identity-core/src/family_identity",
         "crates/family-identity-core/src/family_identity_text_ids.rs",
@@ -653,7 +655,8 @@
         "crates/family-identity-core/tests/unit/household_authority.rs",
         "crates/provisioning-core/src/provisioning_install/family_context.rs",
         "crates/provisioning-core/tests/unit/readiness_flow.rs"
-      ]
+      ],
+      "note": "The reviewed target-aware Account identity owner is present and consumes opaque current Account authority while keeping the parent actor separate from the target child/profile/device. Actions requiring capability, controller-lease, or step-up authority reject because those owned sources are unavailable. Expected tests and the Cloudflare provider composition remain open."
     },
     "WP-account-identity-family-plan-03-session-token-lifecycle": {
       "planSlug": "account-identity-family-plan",
@@ -665,17 +668,105 @@
         "crates/family-identity-core/tests/unit/session_lifecycle.rs",
         "crates/provisioning-core/src/provisioning_install.rs",
         "crates/provisioning-core/src/provisioning_install/family_context.rs",
-        "crates/provisioning-core/tests/unit/readiness_flow.rs"
-      ]
+        "crates/provisioning-core/tests/unit/readiness_flow.rs",
+        "infra/cloudflare/migrations/account-identity/0005_account_browser_session_custody.sql",
+        "infra/cloudflare/migrations/account-identity/0006_account_browser_session_refresh_custody.sql",
+        "infra/cloudflare/migrations/account-identity/0007_account_browser_session_custody_hardening.sql",
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-browser-session-codec.ts",
+        "infra/cloudflare/src/storage/account-browser-session-store.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+        "infra/cloudflare/src/auth/browser-session-routes.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/providers/firebase-auth.ts",
+        "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
+        "infra/cloudflare/src/routes.ts"
+      ],
+      "plannedImplementationRoots": [
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-browser-session-codec.ts",
+        "infra/cloudflare/src/storage/account-browser-session-store.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+        "infra/cloudflare/src/auth/browser-session-routes.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/providers/firebase-auth.ts",
+        "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
+        "infra/cloudflare/src/routes.ts"
+      ],
+      "expectedTestRoots": [
+        "infra/cloudflare/tests/unit/account-browser-session-store.test.ts",
+        "infra/cloudflare/tests/unit/account-browser-session-routes.test.ts",
+        "infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts",
+        "infra/cloudflare/tests/integration/account-browser-session-real.test.ts"
+      ],
+      "note": "Candidate production source maps browser login, refresh, refresh-bound logout/global revoke, durable session/refresh custody, exact request safety, current-authority revalidation, strict schema/row fail-closed decoding, and redacted audit outcomes. Independent review remains open; expected route/store/security/integration tests, migration execution, live D1/Worker validation, proof, deployment, and DONE remain open."
     },
     "WP-account-identity-family-plan-04-invites-recovery-lifecycle": {
       "planSlug": "account-identity-family-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/family-identity-core/tests/unit/invite_recovery_repository.rs",
+        "crates/family-identity-core/tests/unit/invite_recovery_repository_schema.rs",
+        "crates/family-identity-core/tests/unit/invite_recovery_repository_security.rs",
+        "crates/family-identity-core/tests/unit/recovery_owner_ack_ops.rs",
+        "crates/family-identity-core/tests/integration/invite_recovery_repository.rs",
+        "crates/family-identity-core/tests/contract/recovery_data_custody_handoff.rs"
+      ],
       "roots": [
         "crates/family-identity-core/src/family_identity.rs",
         "crates/family-identity-core/src/family_identity_setup_records.rs",
         "crates/family-identity-core/src/setup_lifecycle.rs",
         "crates/family-identity-core/src/setup_invite_lifecycle.rs",
         "crates/family-identity-core/src/recovery_lifecycle.rs",
+        "crates/family-identity-core/src/account_identity_authority_repository.rs",
+        "crates/family-identity-core/src/account_identity_authority_repository_read.rs",
+        "crates/family-identity-core/src/account_identity_authority_repository_schema.rs",
+        "crates/family-identity-core/src/account_identity_authority_repository_schema_rows.rs",
+        "crates/family-identity-core/src/invite_recovery_repository.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_authority.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_invite_ops.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_membership_ops.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_membership_types.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_owner_receipt_types.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_recovery_begin_ops.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_recovery_completion_ops.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_recovery_handoff_ops.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_recovery_ops.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_columns.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_handoff_rows.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_indexes.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_invite_rows.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_membership_rows.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_objects.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_rate_rows.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_recovery_rows.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_recovery_state.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_recovery_support.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_security_effect_codes.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_security_effects.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_security_entropy.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_security_rate_invite.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_security_rate_recovery.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_invite_identity.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_invite_policy.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_invite_purpose.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_invite_target_role.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_recovery_channel.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_recovery_handoff.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_recovery_kind_from_label.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_recovery_kind_label.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_recovery_labels.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_recovery_policy.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_recovery_scope.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_recovery_scope_from_label.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_support_recovery_scope_label.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_types.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_types_identity.rs",
+        "crates/family-identity-core/src/recovery_lifecycle_handoff.rs",
+        "crates/family-identity-core/src/recovery_owner_ack_ops.rs",
         "crates/family-identity-core/src/setup_lifecycle_validation.rs",
         "crates/family-identity-core/src/session_lifecycle.rs",
         "crates/family-identity-core/tests/contract/family_identity_contracts.rs",
@@ -687,7 +778,8 @@
         "crates/provisioning-core/src/provisioning_install/family_pairing.rs",
         "crates/provisioning-core/src/provisioning_install/family_recovery.rs",
         "crates/provisioning-core/tests/unit/readiness_flow.rs"
-      ]
+      ],
+      "note": "WP04 durable invite/recovery custody source is independently reviewed and rebased onto the consolidation line. Atomic current-authority validation, monotonic clock/rate/replay custody, strict SQLite schema validation, private owner receipts, and typed recovery handoff are present. Shipped runtime/provider/membership/support/Data adapters, all six expected repository and handoff test roots, focused execution, proof, precommit, CI, and DONE remain open."
     },
     "WP-account-identity-family-plan-05-device-ownership-authz": {
       "planSlug": "account-identity-family-plan",
@@ -701,6 +793,21 @@
         "crates/family-identity-core/src/account_identity_authority_repository.rs",
         "crates/family-identity-core/src/account_identity_authority_repository_read.rs",
         "crates/family-identity-core/src/family_identity_account.rs",
+        "crates/family-identity-core/src/household_authority_runtime_composer.rs",
+        "crates/family-identity-core/src/household_authority_runtime_consume.rs",
+        "crates/family-identity-core/src/household_authority_runtime_revalidation.rs",
+        "crates/family-identity-core/src/household_authority_runtime_account.rs",
+        "crates/family-identity-core/src/household_authority_runtime_authorization.rs",
+        "crates/family-identity-core/src/household_authority_runtime_binding.rs",
+        "crates/family-identity-core/src/household_authority_runtime_capability.rs",
+        "crates/family-identity-core/src/household_authority_runtime_device_source.rs",
+        "crates/family-identity-core/src/household_authority_runtime_device_validation.rs",
+        "crates/family-identity-core/src/household_authority_runtime_lease.rs",
+        "crates/family-identity-core/src/household_authority_runtime_ports.rs",
+        "crates/family-identity-core/src/household_authority_runtime_requirements.rs",
+        "crates/family-identity-core/src/household_authority_runtime_resolution.rs",
+        "crates/family-identity-core/src/household_authority_runtime_step_up.rs",
+        "crates/family-identity-core/src/lib.rs",
         "crates/family-identity-core/tests/contract/household_authority_handoff.rs",
         "crates/family-identity-core/tests/unit/household_authority.rs",
         "crates/policy-control-core/src/authenticated_delivery_grant.rs",
@@ -712,7 +819,31 @@
         "crates/provisioning-core/src/provisioning_install.rs",
         "crates/provisioning-core/src/provisioning_install/family_context.rs",
         "crates/provisioning-core/tests/unit/readiness_flow.rs"
-      ]
+      ],
+      "note": "WP05's reviewed runtime composer/revalidation source is a fail-closed boundary only: it re-resolves Account currentness and produces an opaque target-bound receipt shape, but ManualRequiredHouseholdAuthorityRuntimeCasFence is the only shipped fence. Existing Account-authority CAS and mutation-effect repositories do not own the opaque runtime effect handoff. WP05A now owns coordinator/recovery, the private Account participant adapter, and Account-side capability/lease reservations; Account WP02/WP08 retain the underlying source of truth, while Device Trust WP01 and WP03 retain their owner participants. Data Custody WP08/WP09/WP10/WP11 depend on the typed opaque handoff. Tests, proof, focused execution, downstream callers, and DONE remain deferred."
+    },
+    "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator": {
+      "planSlug": "account-identity-family-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/family-identity-core/src/household_authority_runtime_fence_coordinator.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_schema.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_recovery.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_account.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_capability.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_lease.rs",
+        "crates/family-identity-core/tests/unit/household_authority_runtime_fence.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/family-identity-core/src/household_authority_runtime_fence_coordinator.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_schema.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_recovery.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_account.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_capability.rs",
+        "crates/family-identity-core/src/household_authority_runtime_fence_lease.rs"
+      ],
+      "expectedTestRoots": ["crates/family-identity-core/tests/unit/household_authority_runtime_fence.rs"],
+      "note": "New planned owner route. The coordinator owns only opaque operation identity, prepare/commit/abort/recover ordering, exact committed-outcome replay, a private Account participant adapter, and Account-side capability/lease reservation adapters. Account WP02/WP08 retain Account source truth; Device Trust WP01 and WP03 retain separate source-of-truth participants. No source or tests exist yet; uncertainty and cross-store non-atomicity must fail closed."
     },
     "WP-account-identity-family-plan-06-security-proof-and-route-gate": {
       "planSlug": "account-identity-family-plan",
@@ -742,6 +873,7 @@
       "planSlug": "account-identity-family-plan",
       "roots": [
         "crates/schema/src/account_identity_authority.rs",
+        "crates/schema/src/account_identity_authority_producer.rs",
         "crates/schema/src/account_identity_authority_validation.rs",
         "crates/schema/src/account_identity_authority_validation_binding.rs",
         "crates/schema/src/account_identity_authority_validation_identity.rs",
@@ -766,6 +898,10 @@
         "crates/family-identity-core/src/family_identity_profiles_validation.rs",
         "crates/family-identity-core/src/family_identity_setup_records.rs",
         "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_envelope.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_error.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_parse.rs",
         "crates/family-identity-core/src/account_identity_authority_capability.rs",
         "crates/family-identity-core/src/account_identity_authority_device_mapping.rs",
         "crates/family-identity-core/src/account_identity_authority_repository.rs",
@@ -792,7 +928,85 @@
         "packages/schema-domain/src/generated-account-identity-authority.ts",
         "packages/schema-domain/src/account-identity-authority.ts",
         "packages/schema-domain/package.json"
-      ]
+      ],
+      "codeExpectation": "code-and-tests",
+      "plannedImplementationRoots": [
+        "crates/schema/src/account_identity_authority_producer.rs",
+        "crates/schema/src/lib.rs",
+        "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_envelope.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_error.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_parse.rs",
+        "crates/family-identity-core/src/account_identity_authority_repository.rs",
+        "crates/family-identity-core/src/lib.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/family-identity-core/tests/contract/account_identity_authority_producer.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_producer.rs"
+      ],
+      "note": "Account WP08 owns the integrated Rust-only producer transport at canonical source c5ed3ce5c: crate-private issuance from VerifiedAccountIdentityAuthority, bounded canonical envelope/parser, domain-separated signature verification, exact UTC-millisecond time checks, and typed signer-custody unavailability. The nine mapped producer source files are source-only/static-validated; no authenticated producer adapter, durable signer/key registry, Cloudflare consumer/mount, tests, proof, or DONE claim exists. All authority-bearing signed fields derive from the sealed Account capability; envelope metadata is issuer/custody-owned."
+    },
+    "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff": {
+      "planSlug": "account-identity-family-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/family-identity-core/src/lib.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_currentness.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_delivery.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_custody.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry_lineage.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry_receipts.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry_rows.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry_schema.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry_schema_definitions.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry_schema_integrity.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry_schema_objects.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry_schema_outbox.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_outbox.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_outbox_claim.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_outbox_reconcile.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_outbox_validation.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_protected_signer.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_service_binding.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_startup.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_store.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_cloudflare_delivery.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_runtime.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_transport.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_transport_codec.rs",
+        "crates/family-identity-core/src/account_identity_authority_repository.rs",
+        "crates/family-identity-core/src/invite_recovery_repository_schema_objects.rs",
+        "crates/family-identity-core/tests/contract/account_identity_authority_issuer.rs",
+        "crates/family-identity-core/tests/contract/account_identity_authority_issuer_cloudflare_delivery.rs",
+        "crates/family-identity-core/tests/integration/account_identity_authority_issuer_runtime.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_custody.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_registry.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_protected_signer.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_startup.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/family-identity-core/src/account_identity_authority_issuer.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_custody.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_key_registry.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_protected_signer.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_service_binding.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_startup.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_cloudflare_delivery.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_runtime.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/family-identity-core/tests/contract/account_identity_authority_issuer.rs",
+        "crates/family-identity-core/tests/contract/account_identity_authority_issuer_cloudflare_delivery.rs",
+        "crates/family-identity-core/tests/integration/account_identity_authority_issuer_runtime.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_custody.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_registry.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_protected_signer.rs",
+        "crates/family-identity-core/tests/unit/account_identity_authority_issuer_startup.rs"
+      ],
+      "note": "Independent P0/P1 review accepted the Account WP09 fail-closed core integrated through canonical 4f6245e51: SQLite-owned issuer/key lineage, strict startup validation/recovery, private binding and delivery traits, durable receipt/wire outbox, exact current-authority binding, and household-scoped reconciliation over WP08's sealed wire contract. A live caller trace found no protected signer, binding authenticator, delivery owner, production caller, or authenticated current-key handoff to Cloudflare. The existing family-identity-core lib.rs remains a shared integration root, not a planned WP09 implementation root. Three planned production roots and all seven expected test roots are absent; no complete producer adapter, runtime readiness, test, proof, checklist acceptance, READY, or DONE claim exists."
     },
     "WP-ai-plan-01-source-index-and-repo-reconciliation": {
       "planSlug": "ai-plan",
@@ -806,23 +1020,69 @@
     },
     "WP-ai-plan-03-contract-boundary-and-effect-schemas": {
       "planSlug": "ai-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
-        "crates/agent-protocol/src/schema_domain_ai_wire.rs",
-        "crates/agent-protocol/src/schema_domain_mirrors.rs",
-        "crates/agent-protocol/tests/contract/schema_domain_ai_wire.rs"
-      ]
+        "crates/schema/src/ai_contracts.rs",
+        "crates/schema/src/ai_contracts/identity.rs",
+        "crates/schema/src/ai_contracts/work.rs",
+        "crates/schema/src/ai_contracts/context.rs",
+        "crates/schema/src/ai_contracts/result.rs",
+        "crates/schema/src/ai_contracts/memory.rs",
+        "crates/schema/src/ai_contracts/journal.rs",
+        "crates/schema/src/ai_contracts/explanation.rs",
+        "crates/schema/src/ai_contracts/remote_assistant.rs",
+        "crates/schema/src/ai_contracts_ts.rs",
+        "crates/schema/src/bin/export_ai_contract_types.rs",
+        "crates/schema/tests/contract/ai_contracts.rs",
+        "crates/schema/tests/contract/ai_contracts_negative.rs",
+        "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+      ],
+      "plannedImplementationRoots": [
+        "crates/schema/src/ai_contracts.rs",
+        "crates/schema/src/ai_contracts/identity.rs",
+        "crates/schema/src/ai_contracts/work.rs",
+        "crates/schema/src/ai_contracts/context.rs",
+        "crates/schema/src/ai_contracts/result.rs",
+        "crates/schema/src/ai_contracts/memory.rs",
+        "crates/schema/src/ai_contracts/journal.rs",
+        "crates/schema/src/ai_contracts/explanation.rs",
+        "crates/schema/src/ai_contracts/remote_assistant.rs",
+        "crates/schema/src/ai_contracts_ts.rs",
+        "crates/schema/src/bin/export_ai_contract_types.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/schema/tests/contract/ai_contracts.rs",
+        "crates/schema/tests/contract/ai_contracts_negative.rs",
+        "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+      ],
+      "note": "The prior schema_domain_ai_wire mapping is self/test-referenced agent-protocol compatibility source, not the Rust-owned canonical cross-boundary AI family required by WP03. The missing owner must cover typed identity, work lifecycle, evidence context, result, memory/graph provenance, journal, explanation, prompt/runtime references, and remote-assistant separation in crates/schema with generated edge parity. No production source, caller, expected tests, proof, READY, or DONE is claimed by the generic mirror."
     },
     "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts": {
       "planSlug": "ai-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "crates/agent-protocol/src/local_ai.rs",
         "crates/agent-protocol/src/local_ai_runtime.rs",
         "crates/agent-protocol/src/local_ai_runtime",
         "crates/agent-protocol/src/parent_assistant.rs",
         "crates/agent-protocol/src/parent_assistant",
+        "crates/agent-protocol/src/ai_contracts.rs",
         "crates/agent-protocol/tests/unit/local_ai_runtime_tests.rs",
-        "crates/agent-protocol/tests/unit/parent_assistant_tests.rs"
-      ]
+        "crates/agent-protocol/tests/unit/parent_assistant_tests.rs",
+        "crates/agent-protocol/tests/contract/ai_contracts.rs",
+        "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+      ],
+      "plannedImplementationRoots": [
+        "crates/agent-protocol/src/local_ai.rs",
+        "crates/agent-protocol/src/local_ai_runtime.rs",
+        "crates/agent-protocol/src/parent_assistant.rs",
+        "crates/agent-protocol/src/ai_contracts.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/agent-protocol/tests/contract/ai_contracts.rs",
+        "packages/schema-domain/tests/contract/ai-contracts.test.ts"
+      ],
+      "note": "Existing local-AI runtime and parent-assistant shapes are partial reachable consumers, not complete parity for WP03's canonical general AI family. WP04 must consume the Rust-owned schema contract through explicit wire adapters without duplicating ownership, stringly route/event truth, or public re-export shims. The canonical owner, generated TypeScript parity, negative decoder family, and complete cross-boundary tests remain missing."
     },
     "WP-ai-plan-05-local-model-runtime-status-hardening": {
       "planSlug": "ai-plan",
@@ -1329,27 +1589,75 @@
     },
     "WP-browser-plan-06-managed-profile-store": {
       "planSlug": "browser-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
+        "crates/agent-protocol/src/browser_managed.rs",
         "crates/agent-core/src/browser_managed_session.rs",
-        "crates/agent-core/src/browser_managed_session/store",
-        "crates/agent-core/tests/unit/browser_managed_session_tests.rs"
-      ]
+        "crates/agent-core/src/browser_managed_session/store.rs",
+        "crates/agent-protocol/src/constants/browser.rs",
+        "crates/agent-service/src/browser_runtime_paths.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-core/src/browser_managed_session/store/authority.rs",
+        "crates/agent-core/src/browser_managed_session/store/custody.rs",
+        "crates/agent-core/src/browser_managed_session/store/platform.rs",
+        "crates/agent-core/src/browser_managed_session/store/recovery.rs",
+        "crates/agent-service/src/browser_managed_profile_runtime.rs",
+        "crates/agent-protocol/tests/contract/browser_managed_profile_store.rs",
+        "crates/agent-core/tests/unit/browser_managed_profile_store_authority.rs",
+        "crates/agent-core/tests/unit/browser_managed_profile_store_path_custody.rs",
+        "crates/agent-core/tests/unit/browser_managed_profile_store_recovery.rs",
+        "crates/agent-service/tests/integration/browser_managed_profile_store_runtime.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/agent-protocol/src/browser_managed.rs",
+        "crates/agent-core/src/browser_managed_session.rs",
+        "crates/agent-core/src/browser_managed_session/store.rs",
+        "crates/agent-protocol/src/constants/browser.rs",
+        "crates/agent-service/src/browser_runtime_paths.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-core/src/browser_managed_session/store/authority.rs",
+        "crates/agent-core/src/browser_managed_session/store/custody.rs",
+        "crates/agent-core/src/browser_managed_session/store/platform.rs",
+        "crates/agent-core/src/browser_managed_session/store/recovery.rs",
+        "crates/agent-service/src/browser_managed_profile_runtime.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/agent-protocol/tests/contract/browser_managed_profile_store.rs",
+        "crates/agent-core/tests/unit/browser_managed_profile_store_authority.rs",
+        "crates/agent-core/tests/unit/browser_managed_profile_store_path_custody.rs",
+        "crates/agent-core/tests/unit/browser_managed_profile_store_recovery.rs",
+        "crates/agent-service/tests/integration/browser_managed_profile_store_runtime.rs"
+      ],
+      "note": "Independent review accepted 93f875134 only as a fail-closed safety correction. Canonical now removes caller-mintable JSON/path authority, public store config/record, env/temp-dir mutation, and rejected path-only helpers. The remaining private store always returns ProtectedCustodyAdapterUnavailable and cannot produce Ready or Deleted. Missing planned owners are the protected receipt/key adapter, retained handle-bound custody, safe platform mutation/recovery, and real service caller; all five expected tests, proof, READY, and DONE remain absent. WP07 must consume the future owner-issued binding rather than mint authority from a managed-looking path."
     },
     "WP-browser-plan-07-managed-chromium-launcher": {
       "planSlug": "browser-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "crates/agent-core/src/browser_managed_session/launch.rs",
         "crates/agent-core/tests/unit/browser_managed_session_tests.rs",
+        "crates/agent-service/src/app.rs",
         "crates/agent-service/src/browser_runtime.rs",
-        "crates/agent-service/src/browser_runtime_impl/launch.rs",
-        "crates/agent-service/tests/unit/browser_runtime_tests.rs"
-      ]
+        "crates/agent-service/src/browser_runtime_impl.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-service/src/websocket.rs",
+        "crates/agent-service/tests/unit/browser_runtime_tests.rs",
+        "crates/agent-service/src/browser_runtime_impl/managed_runtime.rs",
+        "crates/agent-service/tests/integration/browser_managed_runtime.rs"
+      ],
+      "plannedImplementationRoots": ["crates/agent-service/src/browser_runtime_impl/managed_runtime.rs"],
+      "expectedTestRoots": ["crates/agent-service/tests/integration/browser_managed_runtime.rs"],
+      "note": "Canonical f80b47c6a removes the dead/unreachable service launch state, environment/dev profile authority, placeholder bridge poll, and Browser-to-Screen surface. Production status is explicitly manual-required. A future private owner-issued retained runtime remains a missing planned implementation root; the existing Browser tests are stale against private launch/status APIs and the expected integration root is absent. No runtime, validation, proof, PR readiness, or DONE claim is made."
     },
     "WP-browser-plan-08-bridge-custody-and-security": {
       "planSlug": "browser-plan",
       "roots": [
         "crates/agent-core/src/browser_bridge_http.rs",
         "crates/agent-core/src/browser_bridge_poll.rs",
+        "crates/agent-core/src/browser_bridge_capture.rs",
+        "crates/agent-core/src/browser_bridge_capture/authority.rs",
+        "crates/agent-core/src/browser_bridge_capture/process.rs",
+        "crates/agent-core/src/browser_managed_session.rs",
         "crates/agent-core/src/browser_bridge_poll",
         "crates/agent-core/tests/unit/browser_bridge_poll_security_tests.rs",
         "crates/agent-core/tests/unit/browser_bridge_poll_tests.rs"
@@ -1357,12 +1665,18 @@
     },
     "WP-browser-plan-09-cdp-version-and-target-adapter": {
       "planSlug": "browser-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "crates/agent-core/src/browser_bridge_http.rs",
         "crates/agent-core/src/browser_bridge_poll.rs",
         "crates/agent-core/tests/unit/browser_bridge_cdp_adapter_tests.rs",
-        "crates/agent-core/tests/unit/browser_bridge_poll_tests.rs"
-      ]
+        "crates/agent-core/tests/unit/browser_bridge_poll_tests.rs",
+        "crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs",
+        "crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"
+      ],
+      "plannedImplementationRoots": ["crates/agent-core/src/browser_bridge_capture/managed_launch_target_binding.rs"],
+      "expectedTestRoots": ["crates/agent-core/tests/integration/browser_bridge_managed_launch.rs"],
+      "note": "Core CDP parsing/capture authority remains private and tab-list-only with active state Unknown. Canonical f80b47c6a removes the dead service Browser-to-Screen surface. WP09 is blocked on a real WP07 owner-issued retained launch; the same-launch binding and integration test roots remain absent, and existing tests need private-boundary migration. Tests, focused validation, proof, PR readiness, and DONE remain open."
     },
     "WP-browser-plan-10-tab-evidence-mapper": {
       "planSlug": "browser-plan",
@@ -1589,156 +1903,111 @@
     },
     "WP-child-agent-runtime-distribution-plan-02-child-windows-service-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/windows_service_distribution.rs"],
       "roots": [
-        "scripts/release/windows",
-        "scripts/smoke/windows-msi-smoke.ps1",
-        "tests/repo-tooling/release-windows-assets.test.mjs",
-        ".github/workflows/ci-package-windows.yml",
-        ".github/workflows/package-preview.yml",
-        ".github/workflows/release.yml"
-      ]
+        "scripts/release/windows/OcentraParentAgent.wxs",
+        "scripts/release/windows/OcentraParentAgentService.xml",
+        "scripts/release/windows/build-agent-package.ps1",
+        "scripts/release/windows/install-latest-windows.ps1"
+      ],
+      "note": "Source partial: canonical child package identity, trusted startup, authenticated ingress, external health, and lifecycle/removal callers remain missing; expected child-labelled elevated lifecycle tests are not written."
     },
     "WP-child-agent-runtime-distribution-plan-03-child-macos-service-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "roots": [
-        "scripts/release/macos",
-        "scripts/smoke/macos-pkg-smoke.sh",
-        "packages/schema-domain/src/child-macos-service-package-proof.ts",
-        "packages/schema-domain/tests/proof/child-macos-service-package-proof.test.ts",
-        ".github/workflows/ci-package-macos.yml",
-        ".github/workflows/package-preview.yml"
-      ]
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/macos_service_distribution.rs"],
+      "roots": ["scripts/release/macos/build-agent-package.sh", "scripts/release/macos/ca.ocentra.parent.agent.plist"],
+      "note": "Source partial: canonical child plist identity, trusted startup, external health, signing/notarization ownership, and lifecycle callbacks remain missing; real-host tests are not written."
     },
     "WP-child-agent-runtime-distribution-plan-04-child-linux-service-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "roots": [
-        "scripts/release/linux",
-        "scripts/smoke/linux-deb-smoke.sh",
-        "tests/release/linux/linux-package-baseline.test.mjs",
-        "packages/schema-domain/src/child-linux-service-package-proof.ts",
-        "packages/schema-domain/tests/proof/child-linux-service-package-proof.test.ts",
-        ".github/workflows/ci-package-linux.yml",
-        ".github/workflows/package-preview.yml"
-      ]
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/linux_service_distribution.rs"],
+      "roots": ["scripts/release/linux/build-agent-package.sh", "scripts/release/linux/ocentra-parent-agent.service"],
+      "note": "Source partial: canonical child package/unit identity, trusted startup, external health, fail-closed lifecycle, signing/feed, and cleanup ownership remain missing; host/distro tests are not written."
     },
     "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
+      "expectedTestRoots": ["crates/child-runtime-android-bridge/tests/integration/trust_bound_lifecycle.rs"],
       "roots": [
-        "platforms/android/agent",
-        "scripts/release/android/build-agent-package.mjs",
-        "scripts/smoke/android-apk-smoke.sh",
-        "packages/schema-domain/src/child-android-lifecycle-proof.ts",
-        "packages/schema-domain/src/child-android-device-proof-artifact-gate.ts",
-        "packages/schema-domain/tests/proof/child-android-lifecycle-proof.test.ts",
-        "packages/schema-domain/tests/proof/child-android-device-proof-artifact-gate.test.ts",
-        ".github/workflows/ci-child-android.yml",
-        ".github/workflows/ci-package-android.yml",
-        ".github/workflows/package-preview.yml"
-      ]
+        "crates/child-runtime-android-bridge/src/ffi/runtime.rs",
+        "crates/child-runtime-android-bridge/src/ffi/bridge_lifecycle.rs",
+        "crates/child-runtime-android-bridge/src/ffi/bridge_health.rs",
+        "crates/child-runtime-android-bridge/src/ffi/jni_exports.rs",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml",
+        "platforms/android/agent/app/build.gradle",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentComposition.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java"
+      ],
+      "note": "Source partial: JNI startup has no Device Trust binding, authenticated ingress, usable external health, or removal/device-owner composition; expected trust/lifecycle/ABI/device tests remain unwritten."
     },
     "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package": {
       "planSlug": "child-agent-runtime-distribution-plan",
+      "expectedTestRoots": ["platforms/ios/tests/child_capability_identity.test.mjs"],
       "roots": [
         "crates/schema/src/child_ios_entitlement_capability_proof.rs",
         "crates/schema/src/child_ios_entitlement_capability_proof",
         "crates/schema/src/child_ios_entitlement_capability_proof_ts.rs",
         "crates/schema/src/bin/export_child_ios_entitlement_capability_proof_contract_types.rs",
-        "crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs",
-        "packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts",
-        "scripts/test/child-ios-entitlement-capability-proof.mjs",
-        "platforms/ios/OcentraParentAgent.xcodeproj",
-        "platforms/ios/OcentraParentAgent",
-        "scripts/release/ios/build-simulator-app.sh",
-        "scripts/smoke/ios-simulator-smoke.sh",
-        ".github/workflows/ci-child-ios.yml",
-        ".github/workflows/ci-package-ios.yml",
-        ".github/workflows/package-preview.yml"
-      ]
+        "platforms/ios/OcentraChildAgent.xcodeproj",
+        "platforms/ios/OcentraChildAgent"
+      ],
+      "note": "Independent first source packet reviewed at c71becbcfd4f07eb98a118f10dbf261320f6b54e corrects the iOS project/product/bundle/release identity to the child package. Child identity/capability tests, workflows, signing, device, and store proof remain missing."
     },
     "WP-child-agent-runtime-distribution-plan-07-child-managed-service-respawn": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "roots": [
-        "scripts/release/windows/OcentraParentAgent.wxs",
-        "scripts/release/windows/OcentraParentAgentService.xml",
-        "scripts/release/windows/package-lifecycle-host.mjs",
-        "scripts/release/macos/build-agent-package.sh",
-        "scripts/release/macos/ca.ocentra.parent.agent.plist",
-        "scripts/release/linux/build-agent-package.sh",
-        "scripts/release/linux/ocentra-parent-agent.service",
-        "platforms/android/agent/app/src/main/AndroidManifest.xml",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/OcentraParentAgentService.java",
-        "packages/schema-domain/src/child-android-lifecycle-proof.ts",
-        "packages/schema-domain/tests/proof/child-android-lifecycle-proof.test.ts",
-        "platforms/ios/OcentraParentAgent/AgentStatusViewController.swift",
-        "crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs"
-      ]
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/service_supervision.rs"],
+      "roots": ["crates/child-runtime/src/service_supervision.rs"],
+      "note": "Source incomplete: manager declarations are static; no executable health-aware lifecycle/supervision owner, platform callback, backoff, or teardown source exists. Lifecycle tests are missing."
     },
     "WP-child-agent-runtime-distribution-plan-08-child-parent-authorized-uninstall": {
       "planSlug": "child-agent-runtime-distribution-plan",
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/parent_authorized_removal.rs"],
       "roots": [
-        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status.rs",
-        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status.ts.txt",
-        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status_support.ts.txt",
-        "crates/child-enforcement-core/tests/contract/tamper_uninstall_artifact_status.rs",
-        "scripts/release/windows/package-lifecycle-host.mjs",
-        "scripts/smoke/windows-msi-smoke.ps1",
-        "scripts/smoke/linux-deb-smoke.sh",
-        "scripts/smoke/android-apk-smoke.sh",
-        "scripts/smoke/ios-simulator-smoke.sh"
-      ]
+        "crates/child-runtime/src/removal/removal_boundary.rs",
+        "crates/child-runtime/src/removal/removal_record.rs",
+        "crates/child-runtime/src/removal/removal_storage.rs",
+        "crates/child-runtime/src/removal/removal_transitions.rs",
+        "crates/child-runtime/src/service_lifecycle.rs"
+      ],
+      "note": "Source partial: durable removal state exists, but no Account-authority production caller, platform cleanup callback, or durable cleanup receipt path exists. Authority/replay/platform cleanup tests are missing."
     },
     "WP-child-agent-runtime-distribution-plan-09-child-signing-store-device-owner-matrix": {
       "planSlug": "child-agent-runtime-distribution-plan",
+      "expectedTestRoots": ["crates/agent-updater/tests/integration/handoff_update_runtime.rs"],
       "roots": [
         "crates/schema/src/child_signing_store_device_owner_matrix.rs",
         "crates/schema/src/child_signing_store_device_owner_matrix",
         "crates/schema/src/child_signing_store_device_owner_matrix_ts.rs",
         "crates/schema/src/bin/export_child_signing_store_device_owner_matrix_contract_types.rs",
-        "crates/schema/tests/contract/child_signing_store_device_owner_matrix.rs",
-        "packages/schema-domain/src/generated-child-signing-store-device-owner-matrix-contracts.ts",
-        "scripts/release/windows/build-agent-package.ps1",
-        "scripts/release/macos/build-agent-package.sh",
-        "scripts/release/linux/build-agent-package.sh",
-        "scripts/release/android/build-agent-package.mjs",
-        "scripts/release/ios/build-simulator-app.sh"
-      ]
+        "crates/agent-updater/src/handoff.rs",
+        "crates/agent-updater/src/update.rs",
+        "crates/agent-updater/src/installer.rs",
+        "crates/agent-updater/src/cli.rs",
+        "crates/agent-updater/src/bin/updater.rs"
+      ],
+      "note": "Source partial: Windows updater enforcement and the platform matrix exist, but updater source does not consume the WP10 handoff and non-Windows signing/store/update owners remain missing or manual-required. Handoff/replay/platform tests are missing."
     },
     "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff": {
       "planSlug": "child-agent-runtime-distribution-plan",
+      "expectedTestRoots": ["crates/child-runtime/tests/integration/device_trust_handoff.rs"],
       "roots": [
         "crates/schema/src/setup_device_trust_handoff.rs",
         "crates/schema/src/setup_device_trust_handoff",
-        "crates/schema/tests/contract/setup_device_trust_handoff.rs"
-      ]
+        "crates/child-runtime/src/trust_binding.rs",
+        "crates/child-runtime/src/service_paths.rs",
+        "crates/child-runtime/src/service_recovery.rs",
+        "crates/child-runtime/src/service_readiness.rs",
+        "crates/child-runtime/src/service_ingress.rs",
+        "crates/child-runtime/src/bin/ocentra-child-agent-service.rs"
+      ],
+      "note": "First runtime source packet after reviewed Device Trust WP01 implementation. Typed schema/projection exists, but no production caller, trusted desktop/Android startup binding, authenticated external ingress, external health, durable delivery/replay owner, or updater consumer exists."
     },
     "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate": {
       "planSlug": "child-agent-runtime-distribution-plan",
-      "roots": [
-        ".github/workflows/ci.yml",
-        ".github/workflows/ci-child-android.yml",
-        ".github/workflows/ci-child-ios.yml",
-        ".github/workflows/ci-package-windows.yml",
-        ".github/workflows/ci-package-linux.yml",
-        ".github/workflows/ci-package-macos.yml",
-        ".github/workflows/ci-package-android.yml",
-        ".github/workflows/ci-package-ios.yml",
-        ".github/workflows/package-preview.yml",
-        ".github/workflows/release.yml",
-        "scripts/release/windows",
-        "scripts/release/macos",
-        "scripts/release/linux",
-        "scripts/release/android",
-        "scripts/release/ios",
-        "scripts/smoke/windows-msi-smoke.ps1",
-        "scripts/smoke/linux-deb-smoke.sh",
-        "scripts/smoke/macos-pkg-smoke.sh",
-        "scripts/smoke/android-apk-smoke.sh",
-        "scripts/smoke/ios-simulator-smoke.sh",
-        "tests/repo-tooling/platform-packaging.test.mjs",
-        "tests/repo-tooling/release-version-policy.test.mjs",
-        "tests/repo-tooling/release-windows-assets.test.mjs",
-        "tests/release/linux/linux-package-baseline.test.mjs"
-      ]
+      "expectedTestRoots": ["scripts/test/child-runtime-release-gate.mjs"],
+      "roots": ["scripts/test/child-runtime-release-gate.mjs"],
+      "note": "Source missing: documentation and workflow aggregation exist, but no executable aggregate gate owns canonical identity, trust, lifecycle, removal, updater/handoff, platform, proof, and release blocker composition. Aggregate tests are missing.",
+      "codeExpectation": "tests-only"
     },
     "WP-cloudflare-control-plane-plan-00-games-infra-parity-extraction": {
       "planSlug": "cloudflare-control-plane-plan",
@@ -1802,6 +2071,7 @@
       "roots": [
         "infra/cloudflare/src/auth/model.ts",
         "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/auth/provider-webhook.ts",
         "infra/cloudflare/src/providers/firebase-auth-contract.ts",
         "infra/cloudflare/src/providers/firebase-auth-jwt.ts",
         "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
@@ -1822,8 +2092,16 @@
         "infra/cloudflare/src/index.ts",
         "infra/cloudflare/src/billing-binding-read-model.ts",
         "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-issuer-transport.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-issuer-key-registry.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-issuer-runtime.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
         "infra/cloudflare/src/storage/account-identity-store.ts",
         "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-writer.ts",
         "infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql",
         "infra/cloudflare/migrations/account-identity/0002_account_identity_current_authority.sql",
         "infra/cloudflare/migrations/account-identity/0003_provider_billing_mappings.sql",
@@ -1833,8 +2111,40 @@
         "infra/cloudflare/tests/unit/account-identity-store.test.ts",
         "infra/cloudflare/tests/unit/billing-binding-read-model.test.ts",
         "infra/cloudflare/tests/property/billing-idempotency.property.test.ts",
-        "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts"
-      ]
+        "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-producer-transport.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-issuer-transport.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-issuer-key-registry.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-issuer-runtime.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts"
+      ],
+      "plannedImplementationRoots": [
+        "infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-issuer-transport.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-issuer-key-registry.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-issuer-runtime.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
+      ],
+      "expectedTestRoots": [
+        "infra/cloudflare/tests/unit/account-identity-authority-producer-transport.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-issuer-transport.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-issuer-key-registry.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-issuer-runtime.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts",
+        "infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts"
+      ],
+      "note": "Canonical da84e6ee3 includes the reviewed bounded JSON decoder and private one-shot WP08 inner-wire verifier. Account WP09 now supplies a durable fail-closed issuer core, but no production Account signer/binding/delivery caller exports an authenticated outer wire plus current public-key record. Cloudflare therefore still lacks its private issuer transport, current-key registry consumer, and runtime mount; the existing verified-provider read/manual boundary must remain fail closed. The writer's atomic currentness/revocation/CAS recheck may run only after that real Account handoff is verified. Three planned Cloudflare production roots and all nine expected test roots, migration execution, proof, deployment, runtime readiness, and DONE remain open. No public route, Firebase authority, caller-supplied scalar, validation, READY, or completion claim is made."
     },
     "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures": {
       "planSlug": "cloudflare-control-plane-plan",
@@ -1903,8 +2213,10 @@
     },
     "WP-payment-subscription-plan-01-product-pricing-entitlement": {
       "planSlug": "payment-subscription-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
         "crates/schema/src/billing_entitlement.snapshot-and-device-limit.template.txt",
         "crates/schema/src/billing_entitlement_values.template.txt",
         "crates/schema/src/billing_entitlement_proof.rs",
@@ -1915,8 +2227,21 @@
         "packages/schema-domain/src/billing-entitlement-values.ts",
         "packages/schema-domain/src/generated-billing-entitlement.ts",
         "packages/schema-domain/src/generated-billing-entitlement-values.ts",
-        "packages/schema-domain/src/generated-billing-entitlement-proof.ts"
-      ]
+        "packages/schema-domain/src/generated-billing-entitlement-proof.ts",
+        "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
+        "crates/schema/src/billing_entitlement_proof.rs",
+        "crates/schema/src/billing_entitlement_values_ts.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs",
+        "crates/schema/tests/contract/billing_entitlement_proof.rs",
+        "crates/schema/tests/contract/billing_entitlement_values.rs"
+      ],
+      "note": "Live Rust source owns checked base/referral/paid-seat derivation and an unsigned-only projection. No production caller, durable provider billing/referral ledger, Account/Device-Trust authority composition, or issuer bridge reaches it. The focused entitlement-core derivation test root is absent; generated TypeScript is edge parity only. No test, proof, READY, or DONE claim follows."
     },
     "WP-payment-subscription-plan-02-checkout-billing-portal": {
       "planSlug": "payment-subscription-plan",
@@ -2385,17 +2710,18 @@
     "WP-app-plan-16-new-app-and-unknown-app-approval-flow": {
       "planSlug": "app-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_authority_classifier.rs",
-        "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
-        "crates/agent-service/tests/unit/app_game_boundary_evidence_tests.rs"
+        "crates/app-game-core/src/app_game_unknown_approval.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_types.rs",
+        "crates/app-game-core/tests/contract/app_game_unknown_approval.rs"
       ]
     },
     "WP-app-plan-17-risk-app-detection": {
       "planSlug": "app-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_authority_classifier.rs",
-        "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs"
+        "crates/app-game-core/src/app_game_risk_candidate_detection.rs",
+        "crates/app-game-core/src/app_game_category_risk_policy_routing.rs",
+        "crates/agent-protocol/src/app_game.rs",
+        "crates/app-game-core/tests/contract/app_game_category_risk_policy_routing.rs"
       ]
     },
     "WP-app-plan-18-policy-target-compiler-for-app-rules": {
@@ -2404,25 +2730,31 @@
         "packages/schema-domain/src/app-game-policy-target-compiler.ts",
         "packages/schema-domain/src/generated-app-game-policy-target-compiler.ts",
         "crates/app-game-core/src/app_game_policy_target_compiler.rs",
-        "crates/app-game-core/tests/contract/app_game_policy_target_compiler.rs"
+        "crates/app-game-core/tests/contract/app_game_policy_target_compiler.rs",
+        "crates/app-game-core/src/app_game_policy_target_compiler_helpers.rs",
+        "crates/app-game-core/src/app_game_category_risk_policy_routing.rs",
+        "crates/app-game-core/src/app_game_category_risk_policy_routing_types.rs"
       ]
     },
     "WP-app-plan-19-time-budget-schedule-bonus-time-integration": {
       "planSlug": "app-plan",
       "roots": [
-        "crates/policy-control-core/src/policy_contract_helpers/schedule",
-        "crates/policy-control-core/tests/unit/policy_contract_helpers.rs",
-        "crates/agent-core/src/enforcement_app_time_limit.rs",
-        "crates/agent-service/tests/unit/enforcement_timer_tests.rs"
+        "crates/app-game-core/src/app_game_time_budget.rs",
+        "crates/app-game-core/src/app_game_time_budget_types.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime.rs",
+        "crates/app-game-core/src/app_game_category_risk_policy_routing.rs",
+        "crates/app-game-core/tests/contract/app_game_time_budget.rs",
+        "crates/app-game-core/tests/contract/app_game_policy_evaluator_runtime.rs"
       ]
     },
     "WP-app-plan-20-child-facing-app-warning-block-request-ux": {
       "planSlug": "app-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs",
-        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs",
-        "apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-timer-parent-surface-panel.test.ts"
+        "crates/app-game-core/src/app_game_child_ux.rs",
+        "crates/app-game-core/src/app_game_child_ux_types.rs",
+        "crates/app-game-core/src/app_game_time_budget.rs",
+        "crates/app-game-core/tests/contract/app_game_child_ux.rs",
+        "crates/app-game-core/tests/contract/app_game_time_budget.rs"
       ]
     },
     "WP-app-plan-21-windows-owned-process-terminate-time-limit-proof": {
@@ -2464,12 +2796,9 @@
     },
     "WP-app-plan-26-performance-and-service-health": {
       "planSlug": "app-plan",
-      "roots": [
-        "crates/agent-service/src/activity_capture.rs",
-        "crates/agent-service/src/activity_capture/capture_events.rs",
-        "crates/agent-service/tests/unit/activity_capture_freshness_tests.rs",
-        "crates/agent-service/tests/unit/activity_capture_tests.rs"
-      ]
+      "codeExpectation": "tests-only",
+      "roots": ["scripts/test/app-game-performance-health-proof.mjs"],
+      "expectedTestRoots": ["scripts/test/app-game-performance-health-proof.mjs"]
     },
     "WP-app-plan-27-e2e-and-manual-proof-artifacts": {
       "planSlug": "app-plan",
@@ -2631,7 +2960,6 @@
     "WP-app-plan-48-portal-source-freshness-surface": {
       "planSlug": "app-plan",
       "roots": [
-        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
         "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
         "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
         "apps/portal/generated/parent-ui-bridge.ts",
@@ -2649,7 +2977,8 @@
         "crates/agent-protocol/src/app_game_policy_readiness.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_readiness_labels.rs"
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_readiness_labels.rs",
+        "crates/app-game-core/tests/contract/app_game_category_risk_policy_routing.rs"
       ]
     },
     "WP-app-plan-53-notification-intent-contract": {
@@ -3002,10 +3331,8 @@
     },
     "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff": {
       "planSlug": "app-plan",
-      "roots": [
-        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/tail.rs",
-        "crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"
-      ]
+      "codeExpectation": "no-code-required",
+      "roots": []
     },
     "WP-app-plan-103-timer-service-read-model-handoff": {
       "planSlug": "app-plan",
@@ -3128,7 +3455,12 @@
       "roots": [
         "crates/family-identity-core/src/device_trust_current_binding.rs",
         "crates/family-identity-core/src/device_trust_lifecycle.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_revocation.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_authority.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority_fence.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority_lock.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority_reconciliation.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority_store.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_current_authority.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_signer_authority.rs",
         "crates/family-identity-core/src/device_trust_signer_registration.rs",
@@ -3163,6 +3495,7 @@
         "crates/family-identity-core/src/trust_bootstrap_time.rs",
         "crates/family-identity-core/src/trust_bootstrap_validation.rs",
         "crates/family-identity-core/src/trust_bootstrap_validation_map.rs",
+        "crates/family-identity-core/src/lib.rs",
         "crates/family-identity-core/tests/contract/device_trust_lifecycle.rs",
         "crates/family-identity-core/tests/unit/trust_bootstrap.rs",
         "crates/family-identity-core/tests/unit/trust_bootstrap_cross_process.rs",
@@ -3174,8 +3507,12 @@
         "crates/family-identity-core/tests/unit/trust_bootstrap_store_integrity.rs",
         "crates/family-identity-core/tests/unit/trust_bootstrap_store_metadata.rs",
         "crates/family-identity-core/tests/unit/trust_bootstrap_store_schema.rs",
-        "crates/family-identity-core/tests/unit/trust_bootstrap_store_security.rs"
-      ]
+        "crates/family-identity-core/tests/unit/trust_bootstrap_store_security.rs",
+        "crates/family-identity-core/src/device_trust_runtime_fence_participant.rs",
+        "crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs"
+      ],
+      "plannedImplementationRoots": ["crates/family-identity-core/src/device_trust_runtime_fence_participant.rs"],
+      "expectedTestRoots": ["crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs"]
     },
     "WP-device-trust-bootstrap-plan-02-local-key-sealing": {
       "planSlug": "device-trust-bootstrap-plan",
@@ -3193,18 +3530,18 @@
         "crates/storage-custody-core/src/windows_device_trust_custody_snapshot.rs",
         "crates/storage-custody-core/src/windows_device_trust_custody_transaction.rs",
         "crates/storage-custody-core/src/windows_dpapi_key_sealing.rs",
-        "crates/storage-custody-core/tests/windows_device_trust_custody.rs",
-        "crates/storage-custody-core/tests/windows_device_trust_custody_generation.rs",
-        "crates/storage-custody-core/tests/windows_device_trust_custody_unsupported.rs",
+        "crates/family-identity-core/src/trust_bootstrap/current_authority.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_activation.rs",
         "crates/parent-runtime-core/src/device_trust_bootstrap_runtime.rs",
-        "crates/parent-runtime-core/tests/integration/device_trust_bootstrap_runtime.rs",
-        "crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs",
+        "crates/parent-runtime-core/src/device_trust_bootstrap_runtime_status.rs",
+        "apps/parent-desktop/src-tauri/src/lib.rs",
         "tests/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs"
       ]
     },
     "WP-device-trust-bootstrap-plan-03-parent-step-up-auth": {
       "planSlug": "device-trust-bootstrap-plan",
       "roots": [
+        "crates/family-identity-core/src/parent_step_up_target_authority.rs",
         "crates/family-identity-core/src/parent_presence_port_step_up.rs",
         "crates/family-identity-core/src/parent_presence_store_schema_step_up.rs",
         "crates/family-identity-core/src/parent_presence_store_schema_step_up_lifecycle.rs",
@@ -3220,8 +3557,20 @@
         "crates/family-identity-core/tests/unit/parent_step_up_proof.rs",
         "crates/schema/src/parent_step_up_receipt.rs",
         "crates/schema/tests/contract/parent_step_up_receipt.rs",
-        "tests/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs"
-      ]
+        "tests/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs",
+        "crates/parent-runtime-core/src/parent_step_up_runtime.rs",
+        "crates/family-identity-core/src/parent_step_up_runtime_fence_participant.rs",
+        "crates/parent-runtime-core/src/parent_step_up_runtime_fence_participant.rs",
+        "crates/family-identity-core/tests/unit/parent_step_up_runtime_fence_participant.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/family-identity-core/src/parent_step_up_target_authority.rs",
+        "crates/parent-runtime-core/src/parent_step_up_runtime.rs",
+        "crates/family-identity-core/src/parent_step_up_runtime_fence_participant.rs",
+        "crates/parent-runtime-core/src/parent_step_up_runtime_fence_participant.rs"
+      ],
+      "expectedTestRoots": ["crates/family-identity-core/tests/unit/parent_step_up_runtime_fence_participant.rs"],
+      "note": "The prior bounded ceremony custody source remains real, but the reviewed RegisterLanSignerAnchor actor/target authority owner, parent-runtime composition, and private runtime-fence participant are absent. The future path must consume live Account current authority plus Device Trust current binding without treating request identifiers or the actor parent-controller device as the target child device."
     },
     "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge": {
       "planSlug": "device-trust-bootstrap-plan",
@@ -3234,8 +3583,27 @@
         "crates/entitlement-core/src/entitlement_access_reasons.rs",
         "crates/entitlement-core/src/entitlement_access_reasons_policy.rs",
         "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_currentness.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_currentness_ports.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_ports.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_revocation.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier_binding.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier_currentness.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier_request.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_authority_verifier_signature.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_cache.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_cache_path.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_cache_revocation.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_capability_wire_names.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_issuer.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_shape.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_signing.rs",
         "crates/entitlement-core/src/entitlement_snapshot_text_id.rs",
         "crates/entitlement-core/src/entitlement_snapshot_values.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_wire_names.rs",
         "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs",
         "crates/entitlement-core/tests/unit/capability_access.rs",
         "crates/entitlement-core/tests/unit/capability_gate.rs",
@@ -3244,13 +3612,23 @@
         "crates/schema/tests/contract/billing_entitlement_proof.rs",
         "crates/schema/tests/contract/billing_entitlement_runtime_proof.rs",
         "tests/device-trust-bootstrap-plan/contract/entitlement-device-license.test.mjs"
-      ]
+      ],
+      "note": "Independently reviewed source now owns signed snapshot shape/signing, pinned-key verification, account/device/package binding, owner-controlled currentness, signed revocation reads, opaque verified authority, and Tracking-only offline grace. No positive runtime consumer or local signed-state writer is exposed. Existing contract and child-runtime tests predate this authority boundary and remain explicit test-wave debt; this mapping does not claim WP05 completion."
     },
     "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair": {
       "planSlug": "device-trust-bootstrap-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/family-identity-core/tests/contract/device_trust_lifecycle.rs",
+        "crates/schema/tests/contract/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs",
+        "tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs",
+        "tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs"
+      ],
       "roots": [
         "crates/family-identity-core/src/device_trust_lifecycle.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_authority.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_revocation.rs",
         "crates/family-identity-core/tests/contract/device_trust_lifecycle.rs",
         "crates/schema/src/export_import_backup_recovery.rs",
         "crates/schema/src/export_import_backup_recovery",
@@ -3266,7 +3644,8 @@
         "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs",
         "tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs",
         "tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs"
-      ]
+      ],
+      "note": "Independently reviewed fail-closed source repair is integrated: raw generation-only re-pair and caller executor/receipt authority are removed, bundle creation is unavailable without real encryption custody, cursor checks are diagnostic preflight only, and restore apply is unconditionally blocked. Encryption/key custody, durable tombstone authority, authorized producer, executor, shipped caller, current-boundary test rewrites, proof, and DONE remain open."
     },
     "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall": {
       "planSlug": "device-trust-bootstrap-plan",
@@ -3275,13 +3654,13 @@
         "crates/child-runtime-android-bridge/src/ffi/mod.rs",
         "crates/child-runtime-android-bridge/src/lib.rs",
         "crates/child-runtime/src/removal.rs",
-        "crates/child-runtime/src/removal_authority.rs",
-        "crates/child-runtime/src/removal_boundary.rs",
-        "crates/child-runtime/src/removal_record.rs",
-        "crates/child-runtime/src/removal_storage.rs",
-        "crates/child-runtime/src/removal_storage_read.rs",
-        "crates/child-runtime/src/removal_transitions.rs",
-        "crates/child-runtime/src/removal_validation.rs",
+        "crates/child-runtime/src/removal/removal_authority.rs",
+        "crates/child-runtime/src/removal/removal_boundary.rs",
+        "crates/child-runtime/src/removal/removal_record.rs",
+        "crates/child-runtime/src/removal/removal_storage.rs",
+        "crates/child-runtime/src/removal/removal_storage_read.rs",
+        "crates/child-runtime/src/removal/removal_transitions.rs",
+        "crates/child-runtime/src/removal/removal_validation.rs",
         "crates/child-runtime/src/service.rs",
         "crates/child-runtime/src/service_dispatch.rs",
         "crates/child-runtime/src/service_error_display.rs",
@@ -3491,6 +3870,11 @@
     },
     "WP-network-plan-04-cross-slice-cascade-and-parent-surface": {
       "planSlug": "network-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/agent-service/tests/unit/network_product_path_bridge_tests.rs",
+        "crates/agent-service/tests/unit/network_product_path_integration_tests.rs"
+      ],
       "roots": [
         "crates/ocentra-network-evidence/src/cascade.rs",
         "crates/ocentra-network-evidence/src/cascade",
@@ -3512,8 +3896,6 @@
         "crates/agent-service/src/activity_network_flow_payload.rs",
         "crates/agent-service/src/activity_surface_read_models/network.rs",
         "crates/agent-service/tests/unit/network_flow_payload_tests.rs",
-        "crates/agent-service/tests/unit/network_product_path_bridge_tests.rs",
-        "crates/agent-service/tests/unit/network_product_path_integration_tests.rs",
         "packages/portal-domain/src/network-evidence-drawer.ts",
         "packages/portal-domain/src/network-evidence-drawer.generated.ts",
         "packages/portal-domain/tests/unit/live-activity-network-flow.test.ts",
@@ -3522,7 +3904,8 @@
         "apps/portal/tests/network/network-evidence-drawer-route-panel.test.ts",
         "apps/portal/tests/live-activity/live-activity-network-flow.test.ts",
         "apps/portal/tests/e2e/network-evidence-drawer-proof.spec.ts"
-      ]
+      ],
+      "note": "The two expected agent-service product-path tests are absent. Existing network tests do not substitute for those expected roots; this topology is unsatisfied and does not promote WP04 beyond its blocked graph state."
     },
     "WP-network-plan-05-intervention-adapter-proof-gates": {
       "planSlug": "network-plan",
@@ -3965,7 +4348,9 @@
     },
     "WP-screen-plan-13-ios-replaykit-adapter-plan-proof": {
       "planSlug": "screen-plan",
-      "roots": ["platforms/ios/OcentraParentAgent", "platforms/ios/OcentraParentAgentTests"]
+      "codeExpectation": "no-code-required",
+      "roots": [],
+      "note": "Capability/proof boundary only: no ReplayKit or broadcast-extension production source/test target is mapped. The Child iOS capability shell belongs to Child Runtime WP06 and is not Screen WP13 evidence."
     },
     "WP-screen-plan-14-protected-surface-detector": {
       "planSlug": "screen-plan",
@@ -4131,8 +4516,14 @@
     "WP-screen-plan-26-child-disclosure-ux": {
       "planSlug": "screen-plan",
       "roots": [
-        "apps/portal/src/ScreenChildDisclosureRoutePanel.tsx",
-        "apps/portal/tests/screen/screen-child-disclosure.test.ts"
+        "crates/agent-protocol/src/screen_child_disclosure.rs",
+        "crates/agent-protocol/src/screen_child_disclosure_copy.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/screen_summary.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/agent-protocol/src/screen_child_disclosure.rs",
+        "crates/agent-protocol/src/screen_child_disclosure_copy.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/screen_summary.rs"
       ]
     },
     "WP-screen-plan-27-screenshot-retention-optional-mode": {
@@ -4183,18 +4574,71 @@
     },
     "WP-screen-plan-32-browser-structured-extraction-before-screenshot": {
       "planSlug": "screen-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/schema/tests/contract/managed_browser_cdp_capture.rs",
+        "crates/agent-core/tests/unit/browser_bridge_structured_extraction_tests.rs",
+        "crates/agent-service/tests/unit/screen_managed_browser_cdp_runtime_tests.rs",
+        "crates/screen-ai-core/tests/unit/pipeline_decision.rs",
+        "crates/screen-capture-adapter/tests/unit/managed_browser_cdp.rs"
+      ],
       "roots": [
+        "crates/schema/src/managed_browser_cdp_capture.rs",
+        "crates/agent-core/src/browser_bridge_capture.rs",
+        "crates/agent-core/src/browser_bridge_capture/authority.rs",
+        "crates/agent-core/src/browser_bridge_capture/binding.rs",
+        "crates/agent-core/src/browser_bridge_capture/capture.rs",
+        "crates/agent-core/src/browser_bridge_capture/capture/frozen.rs",
+        "crates/agent-core/src/browser_bridge_capture/capture/frozen/checks.rs",
+        "crates/agent-core/src/browser_bridge_capture/capture/frozen/context.rs",
+        "crates/agent-core/src/browser_bridge_capture/process.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/accessors.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/binding.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/identity_accessors.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/parser.rs",
+        "crates/agent-core/src/browser_bridge_capture/structured/structured_extraction.js",
+        "crates/agent-core/src/browser_bridge_capture/structured/transport.rs",
+        "crates/agent-core/src/browser_bridge_capture/target.rs",
+        "crates/agent-core/src/browser_bridge_capture/transport.rs",
+        "crates/agent-core/src/browser_bridge_capture/transport/screenshot.rs",
+        "crates/agent-service/src/screen_managed_browser_cdp_runtime.rs",
+        "crates/agent-service/src/screen_managed_browser_structured_route_composition.rs",
         "crates/screen-ai-core/src/screen_intelligence_router",
         "crates/screen-ai-core/src/screen_intelligence_router_logic",
+        "crates/screen-capture-adapter/src/managed_browser_cdp.rs",
         "crates/screen-ai-core/tests/unit/pipeline_decision.rs"
-      ]
+      ],
+      "plannedImplementationRoots": ["crates/agent-service/src/screen_managed_browser_structured_route_composition.rs"],
+      "note": "Reviewed fail-closed production source now provides a bounded CDP structural probe, opaque producer binding, redacted/digest-only handoff, frozen-capture safety checks, and neutral screen-router input. No executable service caller composes the browser owner with policy safe-disclosure authority, unknown sensitivity never authorizes capture or NoScreenNeeded, and the planned composition owner plus all focused tests remain absent."
     },
     "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path": {
       "planSlug": "screen-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
-        "scripts/test/screen-managed-browser-cdp-capture-proof.mjs",
-        "packages/activity-domain/tests/screen-managed-browser-cdp-capture.test.ts"
-      ]
+        "crates/schema/src/managed_browser_cdp_capture.rs",
+        "crates/schema/src/managed_browser_cdp_capture/validation.rs",
+        "crates/agent-core/src/browser_managed_session.rs",
+        "crates/agent-core/src/browser_managed_session/accessors.rs",
+        "crates/agent-core/src/browser_managed_session/launch.rs",
+        "crates/agent-core/src/browser_managed_session/capability.rs",
+        "crates/agent-core/src/browser_bridge_capture.rs",
+        "crates/agent-core/src/browser_bridge_capture/authority.rs",
+        "crates/agent-core/src/browser_bridge_capture/binding.rs",
+        "crates/agent-core/src/browser_bridge_capture/identity.rs",
+        "crates/agent-core/src/browser_bridge_capture/identity_match.rs",
+        "crates/agent-core/src/browser_bridge_capture/port_owner.rs",
+        "crates/agent-core/src/browser_bridge_capture/process.rs",
+        "crates/agent-core/src/browser_bridge_capture/target.rs",
+        "crates/agent-core/src/browser_bridge_capture/transport.rs",
+        "crates/screen-capture-adapter/src/managed_browser_cdp.rs",
+        "crates/screen-capture-adapter/src/managed_browser_cdp/decoder.rs",
+        "crates/screen-capture-adapter/src/managed_browser_cdp/structure.rs",
+        "crates/screen-capture-adapter/src/managed_browser_cdp/chunks.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-service/src/screen_managed_browser_cdp_runtime.rs"
+      ],
+      "note": "Rust production source is present and mapped; all seven checklist rows, browser-owner trigger wiring, focused tests, live browser proof, deletion proof, and CI remain deferred. No proof/test roots are treated as implementation roots."
     },
     "WP-screen-plan-34-ocr-tesseract-baseline": {
       "planSlug": "screen-plan",
@@ -4208,6 +4652,8 @@
     },
     "WP-screen-plan-36-small-vlm-guided-classifier-evaluation": {
       "planSlug": "screen-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": ["scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"],
       "roots": [
         "crates/screen-ai-core/src/screen_ai_pipeline",
         "crates/screen-ai-core/src/screen_ai_pipeline_logic.rs",
@@ -4216,9 +4662,9 @@
         "crates/agent-protocol/src/local_ai_runtime",
         "crates/agent-service/src/screen_ai_analysis_runtime.rs",
         "crates/agent-service/src/screen_ai_analysis_runtime",
-        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs",
-        "scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"
-      ]
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs"
+      ],
+      "note": "The expected guided-classifier readiness proof script and its expected proof artifact are absent. Retained VLM artifacts do not substitute for this expected root; this topology is unsatisfied and does not mark WP36 DONE."
     },
     "WP-screen-plan-37-family-ai-hub-screen-analysis-queue": {
       "planSlug": "screen-plan",
@@ -5133,6 +5579,14 @@
     },
     "WP-data-custody-storage-plan-05-export-import-backup-recovery": {
       "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/schema/tests/contract/export_import_backup_recovery_runtime.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery_runtime.rs",
+        "crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs",
+        "crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs",
+        "crates/parent-runtime-core/tests/integration/data_custody_runtime.rs"
+      ],
       "roots": [
         "crates/schema/src/export_import_backup_recovery.rs",
         "crates/schema/src/export_import_backup_recovery",
@@ -5146,14 +5600,81 @@
         "crates/storage-custody-core/src/export_import_backup_recovery_import_response.rs",
         "crates/storage-custody-core/src/export_import_backup_recovery_import_sections.rs",
         "crates/storage-custody-core/src/export_import_backup_recovery_restore.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_backup_job_state.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_backup_schedule.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_custody_port.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_execution.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_execution_metadata.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding_execution_metadata_identity.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_compensation.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_migration.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_migration_execution.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan_validation.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger_apply.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger_event_apply.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_lifecycle.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_persistence.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_ports.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_reconciliation.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_schedule.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_artifact.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_authority.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_finish.rs",
+        "crates/parent-runtime-core/src/data_custody_backup_runtime_schedule_execute_helpers.rs",
+        "crates/parent-runtime-core/src/data_custody_parent_runtime_clock.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_binding.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_dispatch.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_dispatch_apply.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_dispatch_preflight.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_executor.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_executor_receipts.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_ledger.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_ledger_event_apply.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_ledger_event_stage.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_ledger_validation.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_receipts.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation_section_partition.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation_sections.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation_validation.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_recovery.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch_validation.rs",
+        "crates/parent-runtime-core/src/data_custody_restore_runtime_stage.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing_identity.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing_identity_backup.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing_identity_kind.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing_validation.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing_validation_payload.rs",
+        "crates/parent-runtime-core/src/lib.rs",
+        "crates/schema/tests/contract/export_import_backup_recovery_runtime.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery_runtime.rs",
+        "crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs",
+        "crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs",
+        "crates/parent-runtime-core/tests/integration/data_custody_runtime.rs",
         "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs"
-      ]
+      ],
+      "note": "WP05 production source is reviewed, fail-closed, and rebased onto the current consolidation head, including the durable parent-runtime seams. Live caller tracing finds no production implementation of the Account/provider/key/producer ports; all five expected runtime test roots are absent, the blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort needs an owner-side adapter before cross-crate mounting. The remaining order is Account WP05, Data WP09, WP10, WP11 composition, then a real caller. Proof, precommit, CI, and DONE remain open; this mapping does not imply completion."
     },
     "WP-data-custody-storage-plan-06-report-query-custody": {
       "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": ["packages/schema-domain/tests/contract/report-query-custody.test.ts"],
       "roots": [
+        "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/account_identity_authority_capability.rs",
+        "crates/family-identity-core/src/account_identity_authority_query_custody.rs",
         "crates/schema/src/report_query_custody.rs",
         "crates/schema/src/report_query_custody",
+        "crates/schema/src/report_query_custody/sample_rows.rs",
         "crates/schema/src/report_query_custody_ts.rs",
         "crates/schema/src/report_query_custody_contracts.template.txt",
         "crates/schema/src/report_query_custody_contract_rules.request.template.txt",
@@ -5163,7 +5684,9 @@
         "crates/schema/tests/contract/report_query_custody.rs",
         "crates/schema/tests/contract/report_query_custody_generated.rs",
         "crates/storage-custody-core/src/report_query_custody.rs",
+        "crates/storage-custody-core/src/report_query_custody_page_size_validate.rs",
         "crates/storage-custody-core/src/report_query_custody_proof.rs",
+        "crates/storage-custody-core/src/report_query_custody_proof_validate.rs",
         "crates/storage-custody-core/src/report_query_custody_request_validate.rs",
         "crates/storage-custody-core/src/report_query_custody_row.rs",
         "crates/storage-custody-core/src/report_query_custody_row_state.rs",
@@ -5171,10 +5694,14 @@
         "crates/storage-custody-core/src/report_query_custody_row_state_shared.rs",
         "crates/storage-custody-core/src/report_query_custody_row_state_terminal.rs",
         "crates/storage-custody-core/src/report_query_custody_row_validate.rs",
+        "crates/storage-custody-core/src/report_query_custody_source.rs",
+        "crates/storage-custody-core/src/report_query_custody_state_projection.rs",
+        "crates/storage-custody-core/src/report_query_custody_verified_proof.rs",
         "crates/storage-custody-core/tests/unit/report_query_custody.rs",
-        "packages/schema-domain/src/generated-report-query-custody-contracts.ts",
-        "packages/schema-domain/src/generated-report-query-custody-contract-rules.ts"
-      ]
+        "packages/schema-domain/src/generated-report-query-custody-contract-rules.ts",
+        "packages/schema-domain/src/generated-report-query-custody-contracts.ts"
+      ],
+      "note": "Canonical commits 9462ce44e and d3c4b64ca add the all-seven-state proof gate, private-inner serialize-only validated proof snapshot, source/proof page bound, and Rust-owned generated request/row/proof parity. Account authority remains an issuance-time snapshot and does not claim race-safe repository currentness. The three checked-in Rust harnesses still need sealed-wrapper and boundary/page-size migration, the TypeScript contract-test root is expected but absent, and no production report/query consumer or owner adapter is mapped or claimed. Tests, proof, checklist acceptance, PR readiness, and DONE remain open."
     },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",
@@ -5613,7 +6140,11 @@
         "crates/agent-protocol/tests/contract/child_domain_runtime_events.rs",
         "crates/agent-protocol/tests/contract/network_flow_tests.rs",
         "crates/agent-protocol/tests/contract/network_eventing_contract.rs",
-        "crates/agent-protocol/tests/contract/enforcement_audit_boundary_tests.rs"
+        "crates/agent-protocol/tests/contract/enforcement_audit_boundary_tests.rs",
+        "crates/agent-protocol/src/constants/child_agent.rs",
+        "crates/agent-protocol/src/constants/parent_controller.rs",
+        "crates/agent-protocol/tests/contract/child_agent_event_fixtures.rs",
+        "crates/agent-protocol/tests/contract/parent_controller_event_fixtures.rs"
       ]
     },
     "WP-eventing-plan-08-parent-runtime-integration": {
@@ -5622,16 +6153,29 @@
         "crates/parent-runtime-core/src/tracking_child_check_in_request_flow.rs",
         "crates/parent-runtime-core/src/tracking_config_update_flow.rs",
         "crates/parent-runtime-core/src/policy_control_update_flow.rs",
+        "crates/agent-protocol/src/constants/parent_controller.rs",
+        "crates/agent-protocol/src/transport.rs",
+        "crates/agent-service/src/websocket/parent_runtime_intent.rs",
+        "crates/agent-service/src/websocket/parent_runtime_intent/result.rs",
+        "crates/parent-runtime-core/src/parent_runtime_intent_ingress.rs",
         "crates/parent-runtime-core/tests/unit/tracking_child_check_in_request_flow.rs",
         "crates/parent-runtime-core/tests/unit/policy_control_update_flow.rs",
+        "crates/parent-runtime-core/tests/integration/parent_runtime_intent_ingress.rs",
         "crates/child-runtime/src/child_domain_runtime_flow.rs",
         "crates/child-runtime/src/tracking_config_update_flow.rs",
         "crates/child-runtime/src/tracking_runtime_flow.rs",
         "crates/child-runtime/tests/integration/child_domain_runtime_flow_intent.rs",
         "crates/child-runtime/tests/integration/tracking_runtime_flow_intent.rs",
         "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs",
-        "crates/agent-service/tests/enforcement_eventing_journal.rs"
-      ]
+        "crates/agent-service/tests/enforcement_eventing_journal.rs",
+        "crates/agent-service/tests/parent_runtime_intent_ingress.rs"
+      ],
+      "plannedImplementationRoots": ["crates/parent-runtime-core/src/parent_runtime_intent_ingress.rs"],
+      "expectedTestRoots": [
+        "crates/agent-service/tests/parent_runtime_intent_ingress.rs",
+        "crates/parent-runtime-core/tests/integration/parent_runtime_intent_ingress.rs"
+      ],
+      "note": "The service edge is deliberately fail-closed: typed markers yield rejected/manual-required results and cannot mint policy, tracking, journal, publication, event-id, or child-transport authority. Functional WP08 remains blocked until the deep parent-runtime owner consumes opaque Account session authority plus dependency-owned Tracking, Policy, Enforcement, and Child Runtime seams. Existing helper tests do not satisfy the two missing expected roots."
     },
     "WP-eventing-plan-09-network-consumer-event-chain": {
       "planSlug": "eventing-plan",
@@ -5667,8 +6211,6 @@
         "crates/agent-core/src/network_event_runtime/identity.rs",
         "crates/agent-core/src/network_event_runtime/identity_payload.rs",
         "crates/agent-core/src/network_event_runtime/metadata.rs",
-        "crates/agent-core/src/network_event_runtime/broker_delivery.rs",
-        "crates/agent-core/src/network_event_runtime/queue.rs",
         "crates/agent-core/src/network_event_runtime/refs.rs",
         "crates/agent-core/src/network_event_runtime_state.rs",
         "crates/agent-core/tests/unit/network_capture_tests.rs",
@@ -5772,8 +6314,6 @@
         "crates/agent-core/src/browser_event_runtime/action_handoff_child_status.rs",
         "crates/agent-core/src/household_mesh_bridge_runtime.rs",
         "crates/agent-core/src/network_event_runtime.rs",
-        "crates/agent-core/src/network_event_runtime/broker_delivery.rs",
-        "crates/agent-core/src/network_event_runtime/remote_delivery_event_chain_store.rs",
         "crates/agent-core/src/screen_event_runtime.rs",
         "crates/agent-core/src/screen_household_mesh_runtime.rs",
         "crates/agent-service/src/browser_runtime_stream_events.rs",
@@ -6454,7 +6994,18 @@
         "crates/agent-core/src/activity_store_app_game",
         "crates/agent-core/tests/unit/activity_store_app_game",
         "crates/agent-service/src/activity_capture/app_game.rs",
-        "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
+        "crates/agent-service/tests/unit/app_game_activity_read_models.rs",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/tests/e2e/portal-route-scaffold-product-activity.ts"
+      ],
+      "expectedTestRoots": [
+        "apps/portal/tests/unit/app-game-dashboard-intent.test.ts",
+        "apps/portal/tests/e2e/app-game-dashboard-state-matrix.spec.ts"
       ]
     },
     "WP-app-game-plan-17-unknown-app-game-approval-flow": {
@@ -6739,8 +7290,16 @@
       "roots": [
         "apps/portal/generated/parent-ui-bridge.ts",
         "apps/portal/src/live-activity-state.ts",
-        "apps/portal/tests/live-activity/live-activity-state.test.ts"
-      ]
+        "apps/portal/tests/live-activity/live-activity-state.test.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/tests/e2e/portal-route-scaffold-product-activity.ts"
+      ],
+      "expectedTestRoots": ["apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"]
     },
     "WP-app-game-plan-49-category-risk-policy-routing": {
       "planSlug": "app-game-plan",
@@ -6888,8 +7447,15 @@
       "planSlug": "app-game-plan",
       "roots": [
         "apps/portal/generated/parent-ui-bridge.ts",
-        "apps/portal/tests/live-activity/live-activity-state.test.ts"
-      ]
+        "apps/portal/tests/live-activity/live-activity-state.test.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/tests/e2e/portal-route-scaffold-product-activity.ts"
+      ],
+      "expectedTestRoots": ["apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"]
     },
     "WP-app-game-plan-64-notification-provider-status-handoff": {
       "planSlug": "app-game-plan",
@@ -7148,16 +7714,16 @@
     "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model": {
       "planSlug": "app-game-plan",
       "roots": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs",
         "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/tail.rs",
         "crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"
       ]
     },
     "WP-app-game-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff": {
       "planSlug": "app-game-plan",
-      "roots": [
-        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/tail.rs",
-        "crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"
-      ]
+      "codeExpectation": "no-code-required",
+      "roots": [],
+      "note": "Reviewed no-code supersession: the proposed retired parent-domain intermediate has no production caller and would duplicate WP103's real Rust protocol and agent-service parent-surface read-model boundary. WP103 focused execution/proof and the live product-runtime linkage remain open."
     },
     "WP-app-game-plan-103-timer-service-read-model-handoff": {
       "planSlug": "app-game-plan",
@@ -8599,136 +9165,116 @@
     "WP-app-game-plan-188-app-game-android-usage-events-replay": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml",
         "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java"
       ]
     },
     "WP-app-game-plan-189-app-game-linux-foreground-capture-readiness": {
       "planSlug": "app-game-plan",
-      "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+      "plannedImplementationRoots": [
+        "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+        "crates/agent-service/src/activity_api.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+        "crates/screen-capture-adapter/src/lib.rs",
+        "crates/screen-capture-adapter/src/linux_display.rs",
+        "crates/screen-capture-adapter/src/linux_display_paths.rs",
+        "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+        "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+        "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+        "crates/screen-capture-adapter/src/linux_x11.rs",
+        "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+      ],
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/screen-capture-adapter/tests/unit/linux_x11_capture.rs",
+        "crates/screen-capture-adapter/tests/security/linux_capture_custody.rs",
+        "crates/agent-service/tests/unit/app_game_linux_capture_readiness.rs"
+      ],
+      "roots": [
+        "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+        "crates/agent-service/src/activity_api.rs",
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+        "crates/screen-capture-adapter/src/lib.rs",
+        "crates/screen-capture-adapter/src/linux_display.rs",
+        "crates/screen-capture-adapter/src/linux_display_paths.rs",
+        "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+        "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+        "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+        "crates/screen-capture-adapter/src/linux_x11.rs",
+        "crates/screen-capture-adapter/src/linux_x11_capture.rs"
       ]
     },
     "WP-app-game-plan-190-app-game-android-usage-events-child-runtime-replay": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsChildRuntimeReplay.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml",
         "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java"
       ]
     },
     "WP-app-game-plan-191-app-game-linux-foreground-source-preflight": {
       "planSlug": "app-game-plan",
-      "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+      "plannedImplementationRoots": [
+        "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+        "crates/agent-service/src/activity_api.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+        "crates/screen-capture-adapter/src/lib.rs",
+        "crates/screen-capture-adapter/src/linux_display.rs",
+        "crates/screen-capture-adapter/src/linux_display_paths.rs",
+        "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+        "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+        "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+        "crates/screen-capture-adapter/src/linux_x11.rs",
+        "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+      ],
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/screen-capture-adapter/tests/unit/linux_foreground_source_preflight.rs",
+        "crates/agent-service/tests/unit/app_game_linux_source_preflight.rs",
+        "crates/agent-protocol/tests/contract/app_game_linux_source_preflight.rs"
+      ],
+      "roots": [
+        "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+        "crates/agent-service/src/activity_api.rs",
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+        "crates/screen-capture-adapter/src/lib.rs",
+        "crates/screen-capture-adapter/src/linux_display.rs",
+        "crates/screen-capture-adapter/src/linux_display_paths.rs",
+        "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+        "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+        "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+        "crates/screen-capture-adapter/src/linux_x11.rs",
+        "crates/screen-capture-adapter/src/linux_x11_capture.rs"
       ]
     },
     "WP-app-game-plan-192-app-game-android-authority-preflight": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAuthorityPreflight.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml"
       ]
     },
     "WP-app-game-plan-193-app-game-windows-broad-blocking-authority-preflight": {
@@ -8761,28 +9307,11 @@
     "WP-app-game-plan-194-app-game-android-accessibility-overlay-preflight": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
+        "platforms/android/agent/app/src/main/AndroidManifest.xml",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
         "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "platforms/android/agent/app/src/main/res/xml/app_game_accessibility_service.xml"
       ]
     },
     "WP-app-game-plan-195-app-game-platform-proof-status-preflight-detail-refs": {
@@ -9030,29 +9559,45 @@
     },
     "WP-app-game-plan-204-app-game-linux-active-window-tool-proof": {
       "planSlug": "app-game-plan",
-      "roots": [
-        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
-        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+      "plannedImplementationRoots": [
+        "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+        "crates/agent-service/src/activity_api.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
-        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
-        "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeDeliveryReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationActionReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeNotificationRequestQueueProof.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java",
-        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java"
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+        "crates/screen-capture-adapter/src/lib.rs",
+        "crates/screen-capture-adapter/src/linux_display.rs",
+        "crates/screen-capture-adapter/src/linux_display_paths.rs",
+        "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+        "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+        "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+        "crates/screen-capture-adapter/src/linux_x11.rs",
+        "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+      ],
+      "codeExpectation": "code-and-tests",
+      "expectedTestRoots": [
+        "crates/screen-capture-adapter/tests/unit/linux_active_window_tools.rs",
+        "crates/agent-service/tests/unit/app_game_linux_active_window_tool_proof.rs",
+        "crates/agent-protocol/tests/contract/app_game_linux_active_window_tool_proof.rs"
+      ],
+      "roots": [
+        "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+        "crates/agent-service/src/activity_api.rs",
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+        "crates/screen-capture-adapter/src/lib.rs",
+        "crates/screen-capture-adapter/src/linux_display.rs",
+        "crates/screen-capture-adapter/src/linux_display_paths.rs",
+        "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+        "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+        "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+        "crates/screen-capture-adapter/src/linux_x11.rs",
+        "crates/screen-capture-adapter/src/linux_x11_capture.rs"
       ]
     },
     "WP-app-game-plan-205-app-game-platform-proof-status-runtime-detail-refs": {
@@ -9479,17 +10024,153 @@
     },
     "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime": {
       "planSlug": "data-custody-storage-plan",
-      "codeExpectation": "no-code-required",
-      "roots": [],
-      "expectedTestRoots": [],
-      "note": "New routed owner from the 2026-08-17 live-code audit. Parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, job retry/restart custody, and provider-neutral adapter are not implemented yet."
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs",
+        "crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"
+      ],
+      "plannedImplementationRoots": ["crates/storage-custody-core/src/parent_local_bundle_provider_runtime.rs"],
+      "expectedTestRoots": ["crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"],
+      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, job retry/restart custody, and provider-neutral adapter are not implemented yet."
     },
     "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs": {
       "planSlug": "data-custody-storage-plan",
-      "codeExpectation": "no-code-required",
-      "roots": [],
-      "expectedTestRoots": [],
-      "note": "New routed owner from the 2026-08-17 live-code audit. Durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes."
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs",
+        "crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"
+      ],
+      "plannedImplementationRoots": ["crates/storage-custody-core/src/restore_orchestration_and_producer_handoffs.rs"],
+      "expectedTestRoots": ["crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"],
+      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes."
+    },
+    "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount": {
+      "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/parent-runtime-core/src/data_custody_runtime_composition.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs",
+        "crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/parent-runtime-core/src/data_custody_runtime_composition.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs"
+      ],
+      "expectedTestRoots": ["crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs"],
+      "note": "New blocked composition/custody-mount owner. The planned parent-runtime roots are absent and remain gated on Account WP05 true authority transaction/CAS, key/import custody, producer artifact custody, WP09 provider operation capability, and WP10 owner-derived outcomes; no private traits become public and no runtime completeness is implied."
+    },
+    "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation": {
+      "planSlug": "protected-capability-custody-foundation-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "Cargo.toml",
+        "crates/protected-capability-custody-core/Cargo.toml",
+        "crates/protected-capability-custody-core/src/lib.rs",
+        "crates/protected-capability-custody-core/src/broker_admission.rs",
+        "crates/protected-capability-custody-core/src/authority.rs",
+        "crates/protected-capability-custody-core/src/binding.rs",
+        "crates/protected-capability-custody-core/src/binding",
+        "crates/protected-capability-custody-core/src/custody.rs",
+        "crates/protected-capability-custody-core/src/custody",
+        "crates/protected-capability-custody-core/src/path_security.rs",
+        "crates/protected-capability-custody-core/src/path_security",
+        "crates/protected-capability-custody-core/src/platform.rs",
+        "crates/protected-capability-custody-core/src/platform",
+        "crates/protected-capability-custody-core/src/storage.rs",
+        "crates/protected-capability-custody-core/src/storage",
+        "crates/protected-capability-custody-protocol/Cargo.toml",
+        "crates/protected-capability-custody-protocol/src/lib.rs",
+        "crates/protected-capability-custody-broker/Cargo.toml",
+        "crates/protected-capability-custody-broker/src/lib.rs",
+        "crates/protected-capability-custody-broker/src/main.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+        "crates/protected-capability-custody-broker/src/authority.rs",
+        "crates/protected-capability-custody-broker/src/custody.rs",
+        "crates/protected-capability-custody-client/Cargo.toml",
+        "crates/protected-capability-custody-client/src/lib.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc.rs",
+        "crates/protected-capability-custody-client/src/admission.rs",
+        "crates/protected-capability-custody-core/src/binding_test.rs",
+        "crates/protected-capability-custody-core/src/storage_schema_test.rs",
+        "crates/protected-capability-custody-core/src/custody_transition_test.rs",
+        "crates/protected-capability-custody-core/src/path_security_test.rs",
+        "crates/protected-capability-custody-core/src/custody_reconciliation_test.rs",
+        "crates/protected-capability-custody-protocol/tests/wire_contract.rs",
+        "crates/protected-capability-custody-broker/tests/authority.rs",
+        "crates/protected-capability-custody-broker/tests/reservation_races.rs",
+        "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
+        "crates/protected-capability-custody-client/tests/admission.rs",
+        "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/protected-capability-custody-core/src/lib.rs",
+        "crates/protected-capability-custody-core/src/broker_admission.rs",
+        "crates/protected-capability-custody-protocol/src/lib.rs",
+        "crates/protected-capability-custody-broker/src/lib.rs",
+        "crates/protected-capability-custody-broker/src/main.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+        "crates/protected-capability-custody-broker/src/authority.rs",
+        "crates/protected-capability-custody-broker/src/custody.rs",
+        "crates/protected-capability-custody-client/src/lib.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc.rs",
+        "crates/protected-capability-custody-client/src/admission.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/protected-capability-custody-core/src/binding_test.rs",
+        "crates/protected-capability-custody-core/src/storage_schema_test.rs",
+        "crates/protected-capability-custody-core/src/custody_transition_test.rs",
+        "crates/protected-capability-custody-core/src/path_security_test.rs",
+        "crates/protected-capability-custody-core/src/custody_reconciliation_test.rs",
+        "crates/protected-capability-custody-protocol/tests/wire_contract.rs",
+        "crates/protected-capability-custody-broker/tests/authority.rs",
+        "crates/protected-capability-custody-broker/tests/reservation_races.rs",
+        "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
+        "crates/protected-capability-custody-client/tests/admission.rs",
+        "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
+      ],
+      "workspaceRequirements": {
+        "rootManifest": "Cargo.toml",
+        "packages": [
+          {
+            "manifest": "crates/protected-capability-custody-protocol/Cargo.toml",
+            "package": "ocentra-protected-capability-custody-protocol",
+            "activeMember": true,
+            "requiredTargets": [
+              {
+                "kind": "lib",
+                "path": "crates/protected-capability-custody-protocol/src/lib.rs"
+              }
+            ]
+          },
+          {
+            "manifest": "crates/protected-capability-custody-broker/Cargo.toml",
+            "package": "ocentra-protected-capability-custody-broker",
+            "activeMember": true,
+            "requiredTargets": [
+              {
+                "kind": "lib",
+                "path": "crates/protected-capability-custody-broker/src/lib.rs"
+              },
+              {
+                "kind": "bin",
+                "path": "crates/protected-capability-custody-broker/src/main.rs"
+              }
+            ]
+          },
+          {
+            "manifest": "crates/protected-capability-custody-client/Cargo.toml",
+            "package": "ocentra-protected-capability-custody-client",
+            "activeMember": true,
+            "requiredTargets": [
+              {
+                "kind": "lib",
+                "path": "crates/protected-capability-custody-client/src/lib.rs"
+              }
+            ]
+          }
+        ]
+      },
+      "note": "Independently reviewed production source now includes the fail-closed core, neutral protocol, separate broker process, client, narrow broker_admission.rs facade, explicit manifests/targets, and active Cargo workspace membership; cargo metadata remains authoritative. The source prevents storage, registry, journal, listener, bootstrap, or service-ready mutation when protected peer admission is unavailable, retains sealed owner traits, and exposes only typed opaque outcomes. It is deliberately unavailable because safe pinned Windows process/token observation, exact protected registry owner/DACL/parent-chain verification, a non-restorable monotonic provider, immutable broker/SCM enrollment, and a real production caller are absent. Core private behavior still requires core-owned unit modules; protocol, broker process/race/Windows, and client admission/IPC tests remain expected in their owning packages. In-process broker, same-process DPAPI, mutex/file-lock custody, caller attestation, fake/no-op adapters, proof, READY, and DONE are not claimed."
     }
   }
 }

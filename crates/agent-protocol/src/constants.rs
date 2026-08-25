@@ -153,6 +153,8 @@ pub mod event_id {
         "browser-social-source-custody-mutation-applied";
     pub const ACTIVITY_NETWORK_READ_MODEL_REPORTED: &str = "activity-network-read-model-reported";
     pub const ACTIVITY_TRACKING_READ_MODEL_REPORTED: &str = "activity-tracking-read-model-reported";
+    pub const PARENT_RUNTIME_INTENT_INGRESS_REPORTED: &str =
+        "parent-runtime-intent-ingress-reported";
     pub const BROWSER_INVENTORY_READ_MODEL_REPORTED: &str = "browser-inventory-read-model-reported";
     pub const BROWSER_EVIDENCE_RECENT_REPORTED: &str = "browser-evidence-recent-reported";
     pub const BROWSER_MANAGED_STATUS_REPORTED: &str = "browser-managed-status-reported";

@@ -1,12 +1,12 @@
-use std::{
-    process::{Command, Output, Stdio},
-    thread::sleep,
-    time::{Duration, Instant},
-};
+use std::{sync::atomic::AtomicBool, time::Duration};
 
 use ocentra_parent_agent_protocol::constants;
 
-use super::values::clean_string;
+use super::ProtectedCommandAdapterState;
+
+pub(super) const fn protected_adapter_state() -> ProtectedCommandAdapterState {
+    ProtectedCommandAdapterState::Unavailable
+}
 
 pub(super) fn command_stdout(program: &str, args: &[&str]) -> Option<String> {
     let timeout =
@@ -15,50 +15,29 @@ pub(super) fn command_stdout(program: &str, args: &[&str]) -> Option<String> {
 }
 
 pub(super) fn command_stdout_with_timeout(
-    program: &str,
-    args: &[&str],
-    timeout: Duration,
+    _program: &str,
+    _args: &[&str],
+    _timeout: Duration,
 ) -> Option<String> {
-    let output = command_output_with_timeout(program, args, timeout)?;
-    output
-        .status
-        .success()
-        .then(|| String::from_utf8_lossy(&output.stdout).to_string())
-        .and_then(|value| clean_string(&value))
+    // External inventory commands remain unavailable until a protected
+    // platform adapter can prove executable identity and owned process-tree
+    // cleanup. Never resolve through ambient PATH or approximate custody.
+    None
 }
 
 pub(super) fn command_succeeded_with_timeout(
-    program: &str,
-    args: &[&str],
-    timeout: Duration,
+    _program: &str,
+    _args: &[&str],
+    _timeout: Duration,
 ) -> bool {
-    command_output_with_timeout(program, args, timeout)
-        .is_some_and(|output| output.status.success())
+    false
 }
 
-fn command_output_with_timeout(program: &str, args: &[&str], timeout: Duration) -> Option<Output> {
-    if timeout.is_zero() {
-        return None;
-    }
-    let mut child = Command::new(program)
-        .args(args)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .ok()?;
-    let started_at = Instant::now();
-
-    loop {
-        if child.try_wait().ok().flatten().is_some() {
-            return child.wait_with_output().ok();
-        }
-        let elapsed = started_at.elapsed();
-        if elapsed >= timeout {
-            let _ = child.kill();
-            let _ = child.wait();
-            return None;
-        }
-        let remaining = timeout.saturating_sub(elapsed);
-        sleep(remaining.min(Duration::from_millis(25)));
-    }
+pub(super) fn command_stdout_with_timeout_and_cancellation(
+    _program: &str,
+    _args: &[&str],
+    _timeout: Duration,
+    _cancellation: &AtomicBool,
+) -> Option<String> {
+    None
 }

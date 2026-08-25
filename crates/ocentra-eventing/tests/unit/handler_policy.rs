@@ -141,6 +141,6 @@ async fn event_recorder_uses_real_subscription_and_can_unsubscribe() {
 
     assert_eq!(first_report.handled_count, 1);
     assert_eq!(recorded.len(), 1);
-    assert_eq!(recorded[0].payload.label, TEST_LABEL);
+    assert_eq!(recorded[0].payload().label, TEST_LABEL);
     assert_eq!(second_report.subscriber_count, 0);
 }

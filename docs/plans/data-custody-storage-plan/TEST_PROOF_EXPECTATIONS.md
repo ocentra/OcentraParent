@@ -28,6 +28,7 @@ Use the subset relevant to the selected workpack:
 cargo test -p ocentra-storage-custody-core
 cargo test -p ocentra-evidence
 cargo test -p ocentra-eventing
+cargo test -p ocentra-parent-runtime-core
 
 # Shared custody/export/sync/restore/report/query schema scope
 npm run build --workspace @ocentra-parent/schema-domain
@@ -45,7 +46,7 @@ npm run test --workspace @ocentra-parent/portal -- storage
 node scripts/test/parent-owned-sync-export-manifest-proof.mjs
 
 # Architecture scope: start with touched files; expand only when the workpack requires it
-npm run lint:architecture -- --files crates/storage-custody-core crates/ocentra-evidence crates/ocentra-eventing packages/schema-domain packages/production-domain apps/portal scripts/test docs/plans/data-custody-storage-plan
+npm run lint:architecture -- --files crates/schema crates/storage-custody-core crates/parent-runtime-core crates/ocentra-evidence crates/ocentra-eventing packages/schema-domain packages/production-domain apps/portal scripts/test docs/plans/data-custody-storage-plan
 ```
 
 Run through `npm run agent:run --` when collecting proof if available.
@@ -53,7 +54,8 @@ Run through `npm run agent:run --` when collecting proof if available.
 ## Command ownership notes
 
 - `packages/schema-domain` owns canonical shared custody/export/sync/restore/report/query/assistant-citation/provider/retention/tombstone/parent-storage-setting shapes when contracts cross package/crate/app/plan boundaries.
-- `crates/storage-custody-core` proves generic Rust custody/delete/export decisions and custody action-plan events only.
+- `crates/storage-custody-core` proves generic Rust custody/delete/export decisions and custody action-plan events only; WP05's backup/restore/migration modules remain pure decisions/orchestration and never persist a second job or receipt ledger.
+- `crates/parent-runtime-core` owns the durable WP05 scheduler/job and restore/migration ledgers, restart reconciliation, executor/rollback mounting, and real Eventing journal/outbox composition. It consumes only opaque Account/family authority, key/decrypt capability, provider-neutral adapter, and producer ports; it must not mint or implement those external owners.
 - `crates/ocentra-evidence` proves evidence refs and evidence identity only.
 - `crates/ocentra-eventing` proves event/journal/idempotency primitives only; this plan must not re-own the event bus.
 - `packages/production-domain` is legacy package identity unless a selected public export is named. Current parent-owned sync/export contract proof routes through schema-domain.
@@ -155,7 +157,7 @@ expiry boundary
 restore cannot revive deleted state
 ```
 
-## WP05 Export Import Backup Recovery
+## WP05 Export Import Backup Recovery (base source and custody decisions)
 
 Expected coverage:
 
@@ -168,7 +170,53 @@ retention/tombstone preserved
 restore/apply idempotent
 partial restore state
 support recovery limits
+schema-owned backup cadence/schedule/job lifecycle and operation refs
+migration apply/rollback/reconciliation receipts bound to bundle/plan identity
+storage-custody-core pure backup/restore/migration/preflight decisions
+parent-runtime durable scheduler/job and restore/migration ledgers
+restart reconciliation, executor/rollback mount, and Eventing/outbox seam
+no caller-supplied authority, key, integrity, or provider identity
 ```
+
+Expected source/test ownership roots (source roots are present in the bounded
+packet; expected tests and proof remain deferred until external composition
+and focused validation are complete):
+
+```text
+schema: crates/schema/src/export_import_backup_recovery.rs,
+       crates/schema/src/export_import_backup_recovery/,
+       crates/schema/tests/contract/export_import_backup_recovery_runtime.rs
+storage decisions: crates/storage-custody-core/src/export_import_backup_recovery_backup_schedule.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_backup_job_state.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_restore_execution_plan.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_migration_execution.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_bundle_preflight_binding.rs,
+                   crates/storage-custody-core/src/export_import_backup_recovery_compensation.rs,
+                   crates/storage-custody-core/tests/unit/export_import_backup_recovery_runtime.rs
+parent runtime: crates/parent-runtime-core/src/data_custody_backup_runtime.rs,
+                crates/parent-runtime-core/src/data_custody_backup_runtime_schedule.rs,
+                crates/parent-runtime-core/src/data_custody_backup_runtime_job_ledger.rs,
+                crates/parent-runtime-core/src/data_custody_backup_runtime_reconciliation.rs,
+                crates/parent-runtime-core/src/data_custody_runtime_eventing.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime_ledger.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime_reconciliation.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime_executor.rs,
+                crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs,
+                crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs,
+                crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs,
+                 crates/parent-runtime-core/tests/integration/data_custody_runtime.rs
+```
+
+Live 2026-08-19 audit: all five test roots named above are absent. The source
+packet is fail-closed but has no production caller or implementation of its
+Account/provider/key/producer ports. The existing blocked-restore test is also
+stale: source reports `local_truth_authoritative=false` and
+`tombstones_preserved=false`, while that test expects both true. The test wave
+must resolve the intended contract from the owning custody semantics, then
+write the complete five-root family; it must not change source merely to make a
+stale assertion pass. The sealed `ImportCustodyCapabilityPort` requires an
+owner-side production adapter and may not be made public for test convenience.
 
 ## WP06 Report Query Custody
 
@@ -184,6 +232,26 @@ portal cache custody
 assistant citations restricted to allowed refs
 stale/conflict state
 ```
+
+Current expected test ownership and open migration:
+
+```text
+Rust schema contracts: crates/schema/tests/contract/report_query_custody.rs,
+                       crates/schema/tests/contract/report_query_custody_generated.rs
+Rust custody boundary: crates/storage-custody-core/tests/unit/report_query_custody.rs
+TypeScript contract: packages/schema-domain/tests/contract/report-query-custody.test.ts (absent)
+```
+
+The Rust harnesses must migrate to
+`ValidatedReportQueryCustodyProofSnapshot` and add fail-closed coverage for an
+untrusted raw proof DTO, missing required states, source and proof results above
+the request page size, snapshot expiry/identity/generation mismatch, and exact
+request/row scope plus citation binding. The TypeScript contract test must cover
+requested-scope subset, row source class in requested and allowed scopes, exact
+row/request scope and citation arrays, authority-generation equality, and
+`rows.length <= request.pageSize`. Snapshot validation must not be described as
+a race-safe durable Account repository-currentness check. None of these tests
+has been migrated, added, or run by the source-mapping wave.
 
 ## WP08 Parent Storage Settings Apply Flow
 
@@ -244,6 +312,11 @@ provider-neutral opaque status and unsupported-provider/manual-required state
 payload/key/provider/path redaction and no-fallback-store negative
 ```
 
+WP09 expected tests cover only the downstream pure byte-custody/provider-port
+boundary. Durable scheduler/job persistence and restart reconciliation are
+tested through the WP05 parent-runtime roots above, not by a second WP09
+ledger.
+
 ## WP10 Restore Orchestration And Producer Handoffs
 
 Expected coverage:
@@ -256,4 +329,38 @@ missing/failed/partial data-class producer handoffs and manual-required outcomes
 tombstone/no-resurrection and migration rollback boundaries
 receipt provenance, owner result requirement, redaction, and no-fake-success
 ```
+
+WP10 expected tests cover only downstream pure producer-handoff orchestration.
+Durable restore/migration ledgers, restart reconciliation, executor/rollback
+mounting, and Eventing/outbox composition are tested through the WP05
+parent-runtime roots above. Runtime composition/custody mounting is not part
+of this base test family; it has its own WP11 integration obligation.
 ```
+
+## WP11 Runtime Composition And Custody Mount
+
+Expected coverage:
+
+```text
+Account WP05 true authority transaction/CAS and recovery currentness
+key/import custody ownership and integrity binding
+producer-owned sealed artifact custody bound to the WP05 operation
+WP09 provider operation capability and opaque outcome
+WP10 owner-derived producer outcomes, partial, and manual-required states
+restart/reconciliation binding without a second ledger
+missing, stale, revoked, ambiguous, no-fake-success, and no-resurrection negatives
+private mount traits remain private and request/JSON selectors are rejected
+```
+
+Expected source/test ownership roots (routing obligations only; absent until
+the composition source wave):
+
+```text
+composition: crates/parent-runtime-core/src/data_custody_runtime_composition.rs,
+             crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs
+integration: crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs
+```
+
+WP11 is blocked on the Account, key/import, producer-artifact, WP09 provider,
+and WP10 outcome handoffs above. No source, focused test, proof, runtime
+composition, or completion claim is implied by these expected roots.

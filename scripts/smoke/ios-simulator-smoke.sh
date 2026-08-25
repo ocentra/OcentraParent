@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-app_path="${1:?Usage: ios-simulator-smoke.sh <OcentraParentAgent.app>}"
-bundle_id="${2:-ca.ocentra.parent.agent}"
+app_path="${1:?Usage: ios-simulator-smoke.sh <OcentraChildAgent.app>}"
+bundle_id="${2:-ca.ocentra.child.agent}"
 device_udid="$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ { print $2; exit }')"
 
 if [[ -z "$device_udid" ]]; then

@@ -86,6 +86,19 @@ function printNode(node, states) {
     console.log('Completion gaps:');
     for (const gap of node.metadata.completionGaps) console.log(`  - ${gap}`);
   }
+  const workspaceRequirements = node.completion?.workspaceRequirements ?? node.metadata?.workspaceRequirements;
+  if (workspaceRequirements) {
+    console.log('Workspace requirements:');
+    console.log(`  root manifest: ${workspaceRequirements.rootManifest}`);
+    for (const packageRequirement of workspaceRequirements.packages ?? []) {
+      const targets = (packageRequirement.requiredTargets ?? [])
+        .map((target) => `${target.kind}:${target.path}`)
+        .join(', ');
+      console.log(
+        `  ${packageRequirement.package}: ${packageRequirement.manifest} activeMember=${packageRequirement.activeMember} targets=${targets}`
+      );
+    }
+  }
 }
 
 function printList(nodes, states, { limit = Number.POSITIVE_INFINITY } = {}) {
@@ -113,7 +126,8 @@ function printImplementationRows(rows, { limit = Number.POSITIVE_INFINITY } = {}
     return;
   }
   for (const row of rows.slice(0, limit)) {
-    console.log(`${row.node.id} [IMPLEMENTATION-ONLY] ${row.node.title}`);
+    const gaps = row.authorization?.gaps?.length ? ` gaps=${row.authorization.gaps.join('; ')}` : '';
+    console.log(`${row.node.id} [IMPLEMENTATION-ONLY] ${row.node.title}${gaps}`);
   }
   if (rows.length > limit) console.log(`... ${rows.length - limit} more; scope or use a focused command.`);
 }
@@ -226,10 +240,16 @@ async function run(command, args) {
     console.log('\nReviewed workpack code/test expectations:');
     for (const workpack of inventory.workpacks) {
       const missing = workpack.missingRoots.length ? ` missing=${workpack.missingRoots.join(',')}` : '';
+      const missingExpectedTests = workpack.missingExpectedTestRoots.length
+        ? ` missingExpectedTestRoots=${workpack.missingExpectedTestRoots.join(',')}`
+        : '';
+      const workspaceGaps = workpack.workspaceRequirementGaps.length
+        ? ` workspaceGaps=${workpack.workspaceRequirementGaps.join(';')}`
+        : '';
       console.log(
         `${workpack.workpackId} [${workpack.state}] expectation=${workpack.codeExpectation} ` +
           `satisfied=${workpack.codeExpectationSatisfied} implementation=${workpack.implementationFiles} ` +
-          `tests=${workpack.testFiles} roots=${workpack.roots.length}${missing}`
+          `tests=${workpack.testFiles} roots=${workpack.roots.length}${missing}${missingExpectedTests}${workspaceGaps}`
       );
     }
     console.log('\nCounts are live file topology only; they do not claim acceptance, proof, CI, or merge.');
@@ -275,7 +295,8 @@ async function run(command, args) {
             ? workpack.codeTestTopology
             : `${workpack.codeTestTopology.state} ${workpack.codeTestTopology.implementationFiles}/${workpack.codeTestTopology.testFiles} ` +
               `expected=${workpack.codeTestTopology.codeExpectation} ` +
-              `satisfied=${workpack.codeTestTopology.codeExpectationSatisfied}`;
+              `satisfied=${workpack.codeTestTopology.codeExpectationSatisfied} ` +
+              `workspaceGaps=${workpack.codeTestTopology.workspaceRequirementGaps?.length ?? 0}`;
         console.log(
           `  - ${workpack.id} [${workpack.state}] code=${topology} ` +
             `implementation=${workpack.implementationAuthorization.status}${gaps}`
@@ -421,6 +442,13 @@ async function run(command, args) {
           console.log(`  Test files: ${topology.testFiles}`);
           console.log(`  Roots: ${topology.roots.join(', ')}`);
           if (topology.missingRoots.length > 0) console.log(`  Missing roots: ${topology.missingRoots.join(', ')}`);
+          if (topology.missingExpectedTestRoots.length > 0) {
+            console.log(`  missingExpectedTestRoots: ${topology.missingExpectedTestRoots.join(', ')}`);
+          }
+          if (topology.workspaceRequirements) {
+            console.log(`  Workspace root manifest: ${topology.workspaceRequirements.rootManifest}`);
+            console.log(`  Workspace requirement gaps: ${topology.workspaceRequirementGaps.join('; ') || 'none'}`);
+          }
         } else {
           console.log('Code/test topology: unknown-workpack-ownership');
           console.log('  Plan-root counts are available from graph:report; no reviewed workpack map exists yet.');
@@ -434,7 +462,7 @@ async function run(command, args) {
           const refs = node.completion.references?.[requirement] ?? [];
           const expected = node.completion.expected?.[requirement] ?? [];
           console.log(`  ${requirement}: ${refs.join(', ') || 'missing'}`);
-          if (refs.length === 0 && expected.length > 0) {
+          if (expected.length > 0) {
             console.log(`    expected: ${expected.join(', ')}`);
           }
         }
@@ -454,6 +482,7 @@ async function run(command, args) {
           console.log(
             '- IMPLEMENTATION-ONLY source edits are authorized; normal READY and completion remain unchanged.'
           );
+          for (const gap of explanation.gaps ?? []) console.log(`- implementation gap: ${gap}`);
         } else if (explanation.blockers.length === 0) {
           console.log('- No implementation work remains for this workpack.');
         } else {

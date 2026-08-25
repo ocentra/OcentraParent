@@ -1,4 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, Shutdown, SocketAddr, TcpStream};
+use std::sync::atomic::AtomicBool;
+use std::time::Instant;
 
 use rustls::pki_types::ServerName;
 use rustls::{ClientConnection, StreamOwned};
@@ -8,6 +10,9 @@ use super::super::http::{
     parse_http_response, sanitize_probe_reference, sanitize_probe_text,
 };
 use super::super::{LanServiceIdentityProbeObservation, SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES};
+use super::transport::{
+    read_probe_response_until, write_probe_request_until, SERVICE_IDENTITY_IO_POLL_SLICE,
+};
 use super::{read_probe_response, tls_client_config, write_probe_request};
 
 pub(super) fn probe_service_identity_over_http(
@@ -39,6 +44,52 @@ pub(super) fn probe_service_identity_over_https(
         .and_then(|certificates| certificates.first())
         .and_then(parse_certificate_subject);
     parse_probe_observation(&response, certificate_subject)
+}
+
+pub(super) fn probe_service_identity_over_http_until(
+    mut stream: TcpStream,
+    endpoint: &SocketAddr,
+    path: &str,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<LanServiceIdentityProbeObservation> {
+    configure_polling(&stream)?;
+    write_probe_request_until(&mut stream, endpoint, path, deadline, cancellation)?;
+    let _ = stream.shutdown(Shutdown::Write);
+    let response = read_probe_response_until(&mut stream, deadline, cancellation)?;
+    parse_probe_observation(&response, None)
+}
+
+pub(super) fn probe_service_identity_over_https_until(
+    stream: TcpStream,
+    endpoint: &SocketAddr,
+    ip_address: Ipv4Addr,
+    path: &str,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<LanServiceIdentityProbeObservation> {
+    configure_polling(&stream)?;
+    let config = tls_client_config()?;
+    let server_name = ServerName::IpAddress(IpAddr::V4(ip_address).into());
+    let connection = ClientConnection::new(config, server_name.to_owned()).ok()?;
+    let mut stream = StreamOwned::new(connection, stream);
+    write_probe_request_until(&mut stream, endpoint, path, deadline, cancellation)?;
+    let response = read_probe_response_until(&mut stream, deadline, cancellation)?;
+    let certificate_subject = stream
+        .conn
+        .peer_certificates()
+        .and_then(|certificates| certificates.first())
+        .and_then(parse_certificate_subject);
+    parse_probe_observation(&response, certificate_subject)
+}
+
+fn configure_polling(stream: &TcpStream) -> Option<()> {
+    stream
+        .set_read_timeout(Some(SERVICE_IDENTITY_IO_POLL_SLICE))
+        .ok()?;
+    stream
+        .set_write_timeout(Some(SERVICE_IDENTITY_IO_POLL_SLICE))
+        .ok()
 }
 
 pub(super) fn parse_probe_observation(

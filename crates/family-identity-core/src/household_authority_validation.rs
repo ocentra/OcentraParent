@@ -5,9 +5,9 @@ use crate::family_identity::{
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
 };
 use crate::household_authority::{
-    AuditRequirementState, ElevatedConfirmationState, HouseholdAuthorityAction,
-    HouseholdAuthorityInput, HouseholdAuthorizationFailureReason, ParentControllerLeaseState,
-    ParentStepUpAssertionSnapshot, ParentStepUpValidationFailureReason,
+    AuditRequirementState, ElevatedConfirmationState, HouseholdActorTargetAuthorityInput,
+    HouseholdAuthorityAction, HouseholdAuthorityInput, HouseholdAuthorizationFailureReason,
+    ParentControllerLeaseState, ParentStepUpAssertionSnapshot, ParentStepUpValidationFailureReason,
     ParentStepUpValidationInput,
 };
 
@@ -66,6 +66,93 @@ pub(crate) fn household_authority_failure_reason(
     .into_iter()
     .find_map(|(failed, reason)| failed.then_some(reason))
     .or_else(|| controller_lease_failure_reason(input.action, input.controller_lease_state))
+}
+
+pub(crate) fn household_actor_target_authority_failure_reason(
+    input: &HouseholdActorTargetAuthorityInput,
+) -> Option<HouseholdAuthorizationFailureReason> {
+    [
+        (
+            !input.same_family,
+            HouseholdAuthorizationFailureReason::ExternalHousehold,
+        ),
+        (
+            input.membership_state != HouseholdMembershipState::Active,
+            HouseholdAuthorizationFailureReason::MembershipNotActive,
+        ),
+        (
+            input.actor_account_state != ActorAccountState::Active,
+            HouseholdAuthorizationFailureReason::AccountNotActive,
+        ),
+        (
+            (input.action == HouseholdAuthorityAction::SealParentDeviceTrust
+                && !matches!(
+                    (input.device_trust_state, input.child_profile_binding_state),
+                    (
+                        DeviceTrustState::Pending | DeviceTrustState::ResetRequired,
+                        _
+                    ) | (DeviceTrustState::Trusted, ChildProfileBindingState::Missing)
+                ))
+                || (input.action != HouseholdAuthorityAction::SealParentDeviceTrust
+                    && input.device_trust_state != DeviceTrustState::Trusted),
+            HouseholdAuthorizationFailureReason::DeviceNotTrusted,
+        ),
+        (
+            requires_fresh_session(input.action)
+                && input.session_freshness_state != SessionFreshnessState::Fresh,
+            HouseholdAuthorizationFailureReason::SessionNotFresh,
+        ),
+        (
+            requires_bound_child_scope(input.action)
+                && input.child_profile_binding_state != ChildProfileBindingState::Bound,
+            HouseholdAuthorizationFailureReason::ChildProfileNotBound,
+        ),
+        (
+            target_actor_device_scope_is_invalid(input),
+            HouseholdAuthorizationFailureReason::WrongDeviceScope,
+        ),
+        (
+            requires_target_child_scope(input.action)
+                && input.target_device_ownership_scope
+                    != Some(DeviceOwnershipScope::ChildProfileDevice),
+            HouseholdAuthorizationFailureReason::WrongDeviceScope,
+        ),
+        (
+            requires_capability_grant(input.action),
+            HouseholdAuthorizationFailureReason::MissingCapabilityGrant,
+        ),
+        (
+            requires_controller_lease(input.action),
+            HouseholdAuthorizationFailureReason::ControllerLeaseRequired,
+        ),
+        (
+            !role_can_authorize(input.actor_role, input.action),
+            HouseholdAuthorizationFailureReason::RoleNotAuthorized,
+        ),
+        (
+            crate::household_authority::requires_parent_step_up(input.action),
+            HouseholdAuthorizationFailureReason::MissingParentStepUp,
+        ),
+    ]
+    .into_iter()
+    .find_map(|(failed, reason)| failed.then_some(reason))
+}
+
+fn target_actor_device_scope_is_invalid(input: &HouseholdActorTargetAuthorityInput) -> bool {
+    input.actor_device_ownership_scope != DeviceOwnershipScope::ParentControllerDevice
+        && !matches!(
+            (
+                input.actor_device_ownership_scope,
+                input.actor_role,
+                input.action
+            ),
+            (
+                DeviceOwnershipScope::ParentObserverDevice,
+                HouseholdRole::Observer,
+                HouseholdAuthorityAction::ViewChildStatus
+                    | HouseholdAuthorityAction::StartRemoteView
+            )
+        )
 }
 
 pub(crate) fn parent_step_up_validation_failure_reason(
@@ -143,6 +230,7 @@ pub(crate) fn elevated_confirmation_state(
             | HouseholdAuthorityAction::RegisterLanSignerAnchor
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::ManageBilling
     ) {
         ElevatedConfirmationState::Required
@@ -171,7 +259,9 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
             HouseholdAuthorityAction::StartRemoteControl
         ) | (
             HouseholdRole::ParentOwner,
-            HouseholdAuthorityAction::ExportDeleteData | HouseholdAuthorityAction::ManageBilling
+            HouseholdAuthorityAction::ExportDeleteData
+                | HouseholdAuthorityAction::ImportRestoreData
+                | HouseholdAuthorityAction::ManageBilling
         )
     )
 }
@@ -212,6 +302,7 @@ fn requires_fresh_session(action: HouseholdAuthorityAction) -> bool {
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::ManageBilling
     )
 }
@@ -224,6 +315,7 @@ fn requires_bound_child_scope(action: HouseholdAuthorityAction) -> bool {
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ViewChildStatus
             | HouseholdAuthorityAction::ChangePolicy
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
     )
@@ -237,6 +329,7 @@ fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ViewChildStatus
             | HouseholdAuthorityAction::ChangePolicy
+            | HouseholdAuthorityAction::ImportRestoreData
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
     )
@@ -244,6 +337,20 @@ fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool
 
 fn requires_parent_controller_device_scope(action: HouseholdAuthorityAction) -> bool {
     matches!(action, HouseholdAuthorityAction::SealParentDeviceTrust)
+}
+
+fn requires_target_child_scope(action: HouseholdAuthorityAction) -> bool {
+    matches!(
+        action,
+        HouseholdAuthorityAction::PairChildDevice
+            | HouseholdAuthorityAction::RegisterLanSignerAnchor
+            | HouseholdAuthorityAction::RevokeChildDevice
+            | HouseholdAuthorityAction::ViewChildStatus
+            | HouseholdAuthorityAction::ChangePolicy
+            | HouseholdAuthorityAction::ImportRestoreData
+            | HouseholdAuthorityAction::StartRemoteView
+            | HouseholdAuthorityAction::StartRemoteControl
+    )
 }
 
 fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {

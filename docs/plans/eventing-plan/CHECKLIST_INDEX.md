@@ -2,7 +2,8 @@
 
 > **Live-code audit (2026-07-17):** [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) records current implementation, blockers, dependencies, and next unblocker. Rows remain proof-gated; this audit does not check unsupported work.
 
-Status: WP06 durable manifest complete; WP09 integration/CI/review/merge open;
+Status: WP06 durable manifest complete; WP08 fail-closed ingress source
+integrated but functional composition blocked; WP09 integration/CI/review/merge open;
 WP10 blocked on LAN WP26; WP11 production-source integrated but test/proof open; WP12 harness/root
 missing; WP13 code-complete but current validation/proof open.
 
@@ -26,6 +27,17 @@ local proof closures and the remaining open workpacks.
       under `docs/proof/eventing-plan/` as the WP06 durable manifest.
 - [x] Retain `00-enforcement-wp11-handoff.md` with the typed generic-mechanics
       handoff consumed by enforcement WP11; crate tests alone do not unblock it.
+
+## WP08 Parent Runtime Integration
+
+- [x] Remove caller-fabricated policy/tracking authority, false Published
+      state, and replay redispatch from the service ingress; retain only typed
+      reject/manual-required results with every downstream claim unclaimed.
+- [ ] Implement the dependency-backed parent-runtime intent owner after Account
+      WP03, Tracking WP40, Policy WP03/WP04/WP08, Enforcement WP11, and Child
+      Runtime WP10 expose reviewed public boundaries.
+- [ ] Write the expected service security and parent-runtime integration test
+      roots, then run focused validation and retain WP08 proof.
 
 ## Route-proof reconciliation
 

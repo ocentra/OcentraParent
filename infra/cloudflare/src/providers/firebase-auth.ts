@@ -1,5 +1,5 @@
 import { FIREBASE_PROJECT_ID_PATTERN, resolveAuthAdapterMode, type Env } from '../env.js';
-import type { ProviderVerificationPort, VerifiedProviderIdentity } from '../auth/verifier.js';
+import type { ProviderVerificationPort, ProviderVerificationResult } from '../auth/verifier.js';
 import { parseFirebaseToken, validFirebaseClaims, verifyFirebaseSignature } from './firebase-auth-jwt.js';
 import { fetchFirebaseJwkSet, shouldRefreshFirebaseJwkSet } from './firebase-auth-jwks.js';
 import type { FirebaseConfig } from './firebase-auth-contract.js';
@@ -55,24 +55,34 @@ export function createFirebaseProviderVerificationPort(env: Env): ProviderVerifi
     return undefined;
   }
   return {
-    async verify(request: Request): Promise<VerifiedProviderIdentity | null> {
+    async verify(request: Request): Promise<ProviderVerificationResult> {
       const config = resolveFirebaseConfig(env);
+      if (config === null) return { status: 'unavailable', reason: 'configuration-unavailable' };
+      const authorization = request.headers.get('authorization');
+      if (authorization === null) return { status: 'rejected', reason: 'missing-credential' };
       const token = bearerToken(request);
-      if (config === null || token === null) return null;
+      if (token === null) return { status: 'rejected', reason: 'malformed-credential' };
       const parsed = parseFirebaseToken(token);
-      if (parsed === null) return null;
+      if (parsed === null) return { status: 'rejected', reason: 'malformed-credential' };
 
       let keys = await fetchFirebaseJwkSet(config);
-      if (keys === null) return null;
+      if (keys === null) return { status: 'unavailable', reason: 'jwks-unavailable' };
       let valid = await verifyFirebaseSignature(parsed, keys);
       if (!valid && !keys.some((key) => key.kid === parsed.header.kid)) {
         if (shouldRefreshFirebaseJwkSet(config.jwksUrl)) {
-          keys = await fetchFirebaseJwkSet(config, true);
-          valid = keys !== null && (await verifyFirebaseSignature(parsed, keys));
+          const refreshedKeys = await fetchFirebaseJwkSet(config, true);
+          if (refreshedKeys === null) return { status: 'unavailable', reason: 'jwks-unavailable' };
+          keys = refreshedKeys;
+          valid = await verifyFirebaseSignature(parsed, keys);
         }
       }
-      if (!valid || !validFirebaseClaims(parsed.payload, config)) return null;
-      return { provider: 'firebase', providerSubject: parsed.payload.sub as string };
+      if (!valid || !validFirebaseClaims(parsed.payload, config)) {
+        return { status: 'rejected', reason: 'invalid-credential' };
+      }
+      return {
+        status: 'verified',
+        identity: { provider: 'firebase', providerSubject: parsed.payload.sub as string },
+      };
     },
   };
 }

@@ -1,3 +1,4 @@
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentRoute};
 
 use crate::lan_pairing_payload::parse_intent;
@@ -44,8 +45,24 @@ async fn route_lan_command_inner(
         };
     }
 
-    if let Some(decision) = direct_pairing_response(&runtime, Some(&origin), &command) {
-        return decision;
+    let direct_response = tokio::task::spawn_blocking({
+        let runtime = runtime.clone();
+        let origin = origin.clone();
+        let command = command.clone();
+        move || direct_pairing_response(&runtime, Some(&origin), &command)
+    })
+    .await;
+    match direct_response {
+        Ok(Some(decision)) => return decision,
+        Ok(None) => {}
+        Err(_) => {
+            return LanCommandDecision::Respond(rejection_event(
+                command,
+                &LanPairingRejectionReason::Malformed,
+                None,
+                &origin.0,
+            ));
+        }
     }
 
     if let Some(decision) =

@@ -88,6 +88,15 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 
 - `crates/ocentra-eventing` and its external `unit`, `contract`, `journal_replay`, `integration`, and `version_skew` harnesses are present. This audit does not treat their historical pass wording as current retained proof.
 - `packages/event-domain` and downstream mirror commands remain expected validation, not current closure evidence.
+- 2026-08-18 WP08 hardening checkpoint: `agent-service` has a narrow typed
+  parent-intent marker route. Missing/malformed requests are rejected; valid
+  markers are manual-required because no authenticated session producer is
+  mounted. The result explicitly leaves journal, Eventing publication, event
+  id, and child transport unclaimed. This removes the prior caller-fabricated
+  policy/tracking state, zero-consumer publish, and replay-redispatch path, but
+  it is not functional parent-runtime integration. The planned
+  `parent_runtime_intent_ingress.rs` owner and expected service/runtime tests
+  remain absent.
 - 2026-08-16 production-code pass: WP10 now has a code-drafted, unvalidated
   structural household-mesh validator and fail-closed runtime authorization
   boundary in `crates/agent-protocol/src/household_mesh.rs`,
@@ -111,22 +120,28 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   open.
 - WP13 test-folder layout code is present, but current validation and proof are
   open; its proof root is absent and the `contract` harness must be included.
-- WP12 is open: `scripts/test/eventing-rollout-proof.mjs` and its canonical
-  route-proof root are absent.
+- WP12 remains blocked: `scripts/test/eventing-rollout-proof.mjs` and its
+  canonical route-proof root are absent, and WP09 integration acceptance, WP10
+  authority/consumer handoff, and WP13 validation/proof remain incomplete.
 - WP11 production source is independently accepted and integrated through
   `fa1230661`: live `EventEnvelope<E>` fields remain private; live decode,
   `store()`, and stored `decode()` revalidate contract, aggregate, and
   idempotency identity; pending requests bind their associated response type;
   journal event-id/phase idempotency fails closed when unsupported; and only a
   journal-created, non-cloneable, consuming `ReplayActionReport` can authorize
-  action replay. Existing journal-replay tests still call the retired
-  records/mode API, and the required malformed/tamper/type-mismatch/replay
-  negative families remain for the later test-writing phase. No build, test,
-  proof, precommit, CI, or completion claim is attached to this source
-  checkpoint.
+  action replay. The routed test-source packet is integrated at canonical
+  `ac5d41322` across the three target harnesses, whose `--no-run` compilation is
+  current. Actual test execution, retained proof, checklist rows 63-68, and
+  completion review remain open; this is a validation transition only, with no
+  DONE claim.
 
 ## Open gaps / missing product runtime
 
+- WP08 cannot publish a parent intent until Account WP03 supplies opaque live
+  session authority, Tracking WP40 and Policy WP03/WP04/WP08 supply canonical
+  producers/consumers, Enforcement WP11 supplies durable result history, and
+  Child Runtime WP10 supplies authenticated ingress/local republish. Existing
+  caller-parameterized parent-runtime helpers are not production authority.
 - Parent protocol event payloads and service read-model bridges still need their own feature proofs before they can claim full parent/controller or child-agent product eventing completion.
 - Cross-process parent-to-child, external transport/relay, LAN/relay, and service transport delivery are not implemented by the reusable crate. They must publish into a local bus on each side after typed transport/API boundaries.
 - Household AI Provider Mesh is consumer-layer work. The reusable eventing crate supplies local bus semantics, typed envelopes, idempotency, TTL, retry, dead-letter, aggregate ordering, request/response, journal/replay, and topology proof. It does not provide cross-device transport, peer discovery, provider trust, job authority, payload custody, policy behavior, or enforcement behavior.
@@ -145,7 +160,7 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 - Checklist index: [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md).
 - Historical checklist rows remain marked complete in `implementation-checklist.md`, but those checkmarks are not current proof truth for this checkout.
 - `CHECKLIST_INDEX.md` is the current tracker for WP06 closure and the open
-  WP09-WP13 validation/proof work.
+  WP09-WP13 validation/proof work; WP11 checklist rows 63-68 remain open.
 
 ## Workpack summary
 
@@ -173,20 +188,29 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   commits through `4b7bf6e3f` are pushed. Rows 57-62 remain unchecked until
   whole-plan integration, CI, review, and merge are complete; ignored evidence
   is not retained acceptance by itself.
-- Workpacks closed in the current selectable slice: WP06 only. WP09 remains
+- Workpacks closed in the current selectable slice: WP06 only. WP08 is now
+  explicitly blocked after its safe fail-closed source hardening. WP09 remains
   open on integration/CI/review/merge; WP10 is blocked on LAN WP26 and its
-  authority composition; WP11 is implementation-ready but lacks the required
-  negative coverage for the envelope/aggregate/idempotency helper and its
-  proof; WP12 lacks its route
-  harness/root; WP13 is code-complete but lacks current validation/proof.
+  authority composition; WP11 is in validation after production and routed
+  test-source integration, with `--no-run` compilation current but execution,
+  retained proof, checklist rows 63-68, and completion review open; WP12 is
+  blocked on its route harness/root and WP09/WP10/WP13 prerequisites; WP13 is
+  in validation with current validation/proof still open.
 
 ### Active/open workpacks
 
+- [08 Parent Runtime Integration](workpacks/08-parent-runtime-integration.md)
+  (safe reject/manual-required ingress integrated; functional runtime owner,
+  dependency composition, expected tests, and proof remain open)
 - [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
   (Phase 1 and expected tests written; focused/local proof and normal pre-commit
   green; accepted commits pushed; whole-plan integration, CI, review, and merge
   open)
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
+- [11 Type Safety And Ownership Hardening](workpacks/11-type-safety-and-ownership-hardening.md)
+  (production and routed test source integrated; three target `--no-run`
+  compiles are current; execution, retained proof, checklist rows 63-68, and
+  completion review remain open)
 
 ## Validation reality
 
@@ -199,11 +223,12 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent.
 - Shared TypeScript contract mirror validation passes in this checkout: `npm run test --workspace @ocentra-parent/event-domain` and `npm run type-check --workspace @ocentra-parent/event-domain`.
 - Focused downstream mirror validation also passes: `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts` and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
-- WP11 expected-test migration/writing and proof regeneration are required for
-  the reusable Eventing envelope/request/journal/replay authority
-  surface; the cited `63-type-safety-source-gate`, `66-76-source-safety`,
-  `67-lock-await`, and `68-fixture-parity` roots are not retained here. The
-  policy-control TypeScript checks are not Eventing WP11 closure evidence.
+- WP11 routed test-source migration is integrated at `ac5d41322`, and the three
+  target harnesses compile with `--no-run`. Actual test execution, retained
+  proof regeneration, checklist rows 63-68, and completion review remain open;
+  the cited `63-type-safety-source-gate`, `66-76-source-safety`, `67-lock-await`,
+  and `68-fixture-parity` roots are not retained here. The policy-control
+  TypeScript checks are not Eventing WP11 closure evidence.
 - WP06 focused proof now passes: journal/replay (22), topology manifest (4),
   lineage compatibility (3), runtime shutdown (5), and the scoped
   architecture gate are recorded in the durable manifest under

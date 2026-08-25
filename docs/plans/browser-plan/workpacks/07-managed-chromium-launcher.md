@@ -29,6 +29,25 @@ The child service can launch Edge/Chrome/Chrome for Testing through managed
 profiles with tracked session/process/bridge state and no default-profile
 attachment.
 
+### Reviewed production-readiness boundary (2026-08-19)
+
+Canonical `f80b47c6a` removes the unreachable service launch state,
+environment/dev profile authority, and placeholder bridge poll. The websocket
+status path now reports explicit manual-required/unavailable state and cannot
+claim a retained launch or connected bridge. Core launch authority remains
+private, but no service owner mounts it. The next packet must use a private
+owner-issued start/stop boundary, retain launch/process/profile/bridge custody,
+revalidate it around I/O, and confirm teardown. WP07 remains blocked/open and
+is not PR-ready.
+
+Required tests remain open: retained launch lifecycle and restart/expiry,
+process exit and bridge disconnect, owner/custody mismatch, and no default or
+unowned profile attachment through the real service route. The existing
+launcher planning and failed-spawn tests do not cover this integration seam.
+The current unit tests also use old status-helper arities and private launch
+fields; repair them only in the later test-source wave, without adding a public
+constructor or fixture authority.
+
 ## Scope
 
 - Edge/Chrome executable identity.

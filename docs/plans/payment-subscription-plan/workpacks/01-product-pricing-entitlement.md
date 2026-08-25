@@ -6,10 +6,12 @@ Define the starter bundle, child-device seat math, referral credit application, 
 
 ## First-touch surface
 
-- `packages/schema-domain/src/billing-entitlement.ts`
-- `packages/schema-domain/src/billing-pricing-matrix-proof.ts`
-- `packages/schema-domain/src/billing-entitlement-proof-read-model.ts`
-- `packages/billing-domain/tests/unit/billing-pricing-matrix.test.ts`
+- `crates/entitlement-core/src/entitlement_snapshot.rs`
+- `crates/entitlement-core/src/entitlement_snapshot_derivation.rs`
+- `crates/schema/src/billing_entitlement_proof.rs`
+- `packages/schema-domain/src/generated-billing-entitlement-proof.ts`
+- expected test root (absent):
+  `crates/entitlement-core/tests/unit/entitlement_snapshot_derivation.rs`
 
 ## Read inputs
 
@@ -67,30 +69,34 @@ Define the starter bundle, child-device seat math, referral credit application, 
 
 ## Execution truth
 
-- Status: `done / proof-present`
-- Rust-first override: canonical cross-boundary ownership stays with `crates/schema`; the `@ocentra-parent/schema-domain` edits in this packet are transitional thin edge validation and proof data only, not restored TS business ownership.
-- Actual implementation surface stays in `@ocentra-parent/schema-domain` proof and edge-decoder files plus the focused `@ocentra-parent/billing-domain` unit test; `packages/billing-domain/src/billing-pricing-matrix.ts` is not present in this worktree and was not revived as a TS business owner.
-- Proven families:
-  - `payment-pricing.free-starter-bundle`
-  - `payment-pricing.base-one-parent-one-child`
-  - `payment-pricing.paid-extra-child-device`
-  - `payment-pricing.extra-parent-slot`
-  - `payment-pricing.effective-child-device-limit`
-  - `payment-pricing.over-limit-grace`
-  - `payment-pricing.safety-critical-grace`
-  - `payment-pricing.rejected-game-economy-model`
-- Proof root: `output/payment-subscription-plan-proof/01-product-pricing-entitlement/`
+- Status: `source present / production caller and expected tests open / proof deferred`
+- The Rust owner implements checked
+  `base_child_device_limit + active_referral_credits + paid_extra_child_device_seats`
+  derivation, rejects a zero base and arithmetic overflow, and produces only an
+  unsigned projection. Provider values remain input-only; the projection has
+  no signature, key identity, or capability authority.
+- No non-test production caller consumes this derivation. No durable
+  provider-owned billing/referral ledger, Account-authority composition,
+  Device-Trust binding, or real issuer/signer bridge reaches it. Paid access
+  therefore remains manual-required.
+- `packages/billing-domain` is absent and must not be recreated as a parallel
+  TypeScript business owner. Generated `schema-domain` files remain edge
+  contracts only.
+- The named pricing-matrix/read-model TypeScript files, focused Rust derivation
+  test, and current proof root are absent. Historical `done / proof-present`
+  wording is withdrawn; proof is regenerated only after source ownership,
+  expected tests, and focused validation close.
 
-## Validation run
+## Source-pass validation (2026-08-24)
 
-- `cmd /c npm run test --workspace @ocentra-parent/billing-domain -- tests/unit/billing-pricing-matrix.test.ts`
-- `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
-- `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/billing-entitlement-values.ts packages/schema-domain/src/billing-entitlement.ts packages/schema-domain/src/billing-pricing-matrix-proof.ts packages/schema-domain/src/billing-entitlement-proof-read-model.ts packages/billing-domain/tests/unit/billing-pricing-matrix.test.ts`
-- `cmd /c npx prettier --check packages/schema-domain/src/billing-entitlement-values.ts packages/schema-domain/src/billing-entitlement.ts packages/schema-domain/src/billing-pricing-matrix-proof.ts packages/schema-domain/src/billing-entitlement-proof-read-model.ts packages/billing-domain/tests/unit/billing-pricing-matrix.test.ts docs/plans/payment-subscription-plan/PRODUCT_PRICING_ENTITLEMENT_MODEL.md`
-- `cmd /c npm run lint:schema-boundaries`
-  - broad gate, failed on existing out-of-scope weak assertions under `crates/agent-protocol/tests/contract/*` and `crates/agent-service/tests/unit/lan_pairing.rs`; not a WP01 file blocker
+- Focused Rust library checks for `entitlement-core` and `schema` passed.
+- Focused architecture, re-export, source-shape, no-test-doubles,
+  validation-bypass, Enforcer lane/hub guards, and `git diff --check` passed.
+- No tests, proof, precommit, CI, PR, or merge were run in this source audit.
 
 ## No-claim boundary
 
 - This packet does not prove hosted checkout, billing portal, webhook lifecycle, Cloudflare payment runtime readiness, entitlement delivery, device-trust binding, parent dashboard readiness, or support/admin authority.
-- The carried WP00 Cloudflare blocker still prevents broader payment runtime readiness claims even though WP01 pricing and entitlement model proof is complete.
+- The carried WP00 Cloudflare blocker and the missing provider/Account/Device
+  Trust/issuer composition prevent runtime entitlement claims. The arithmetic
+  source alone does not prove pricing authority or paid access.

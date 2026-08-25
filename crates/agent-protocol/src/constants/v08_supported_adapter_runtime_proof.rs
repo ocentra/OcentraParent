@@ -132,16 +132,78 @@ pub const REF_LINUX_WSL_PATH_PROBE: &str = "linux-wsl-path-probe-ref";
 pub const REF_LINUX_WSLG_DISPLAY: &str = "linux-wslg-display-ref";
 pub const REF_LINUX_WSLG_X11_SOCKET: &str = "linux-wslg-x11-socket-ref";
 pub const REF_LINUX_WSLG_WAYLAND_SOCKET: &str = "linux-wslg-wayland-socket-ref";
+pub const REF_LINUX_NATIVE_DISPLAY: &str = "linux-native-display-ref";
+pub const REF_LINUX_NATIVE_X11_SOCKET: &str = "linux-native-x11-socket-ref";
+pub const REF_LINUX_NATIVE_WAYLAND_SOCKET: &str = "linux-native-wayland-socket-ref";
+pub const REF_LINUX_FOREGROUND_SOURCE_PREFLIGHT: &str = "linux-foreground-source-preflight-ref";
+pub const REF_LINUX_XPROP_PROBE: &str = "linux-xprop-probe-ref";
+pub const REF_LINUX_XDOTOOL_PROBE: &str = "linux-xdotool-probe-ref";
+pub const REF_LINUX_ACTIVE_WINDOW_OBSERVED: &str = "linux-active-window-observed-ref";
 pub const REF_LINUX_DOCKER_HOST_TOOLCHAIN: &str = "linux-docker-host-toolchain-ref";
 pub const REF_LINUX_DOCKER_PATH_PROBE: &str = "linux-docker-path-probe-ref";
 pub const REF_WINDOWS_HOST_LOCAL_PROBE: &str = "windows-host-local-probe-ref";
 pub const ENV_PATH: &str = "PATH";
 pub const ENV_PATHEXT: &str = "PATHEXT";
+pub const ENV_DOCKER_HOST: &str = "DOCKER_HOST";
+pub const ENV_DOCKER_CONTEXT: &str = "DOCKER_CONTEXT";
+pub const ENV_DOCKER_CONFIG: &str = "DOCKER_CONFIG";
+pub const ENV_DOCKER_TLS_VERIFY: &str = "DOCKER_TLS_VERIFY";
+pub const ENV_DOCKER_CERT_PATH: &str = "DOCKER_CERT_PATH";
+pub const ENV_HOME: &str = "HOME";
+pub const ENV_USERPROFILE: &str = "USERPROFILE";
 pub const ENV_ANDROID_HOME: &str = "ANDROID_HOME";
 pub const ENV_ANDROID_SDK_ROOT: &str = "ANDROID_SDK_ROOT";
 pub const EXE_ADB: &str = "adb";
 pub const EXE_WSL: &str = "wsl";
 pub const EXE_DOCKER: &str = "docker";
+#[cfg(unix)]
+pub const LINUX_DOCKER_TRUSTED_ROOTS: [&str; 3] = ["/usr/bin", "/bin", "/usr/local/bin"];
+#[cfg(windows)]
+pub const WINDOWS_DOCKER_TRUSTED_ROOTS: [&str; 1] =
+    [r"C:\Program Files\Docker\Docker\resources\bin"];
+#[cfg(windows)]
+pub const WINDOWS_DOCKER_EXECUTABLE: &str = "docker.exe";
+#[cfg(windows)]
+pub const WINDOWS_DOCKER_PROTECTED_ANCESTOR: &str = r"C:\Program Files";
+#[cfg(unix)]
+pub const DOCKER_SERVICE_ENDPOINT: &str = "unix:///var/run/docker.sock";
+#[cfg(windows)]
+pub const DOCKER_SERVICE_ENDPOINT: &str = "npipe:////./pipe/docker_engine";
+pub const DOCKER_SERVICE_CONTEXT: &str = "default";
+#[cfg(unix)]
+pub const DOCKER_SERVICE_CONFIG_DIRECTORY: &str = "/var/lib/ocentra-parent/docker-config";
+#[cfg(windows)]
+pub const DOCKER_SERVICE_CONFIG_DIRECTORY: &str = r"C:\ProgramData\Ocentra\Parent\docker-config";
+pub const DOCKER_SERVICE_TLS_VERIFY: &str = "0";
+pub const DOCKER_READY_MARKER: &str = "ocentra-docker-ready-v1";
+pub const DOCKER_CONTEXT_COUNT_MARKER: &str = "ocentra-docker-context-v1";
+pub const DOCKER_PROBE_LEADER_EXIT_OBSERVATION_UNAVAILABLE: &str =
+    "docker probe leader exit observation unavailable";
+pub const PLATFORM_PROBE_THREAD_NAME: &str = "app-game-platform-probe";
+pub const DOCKER_DESCRIPTOR_PATH_FORMAT: &str = "/proc/self/fd/{}";
+pub const DOCKER_VERSION_FORMAT: &str = "{{if .Server.Version}}ocentra-docker-ready-v1{{end}}";
+pub const DOCKER_VERSION_ARGUMENTS: [&str; 5] = [
+    "--host",
+    DOCKER_SERVICE_ENDPOINT,
+    "version",
+    "--format",
+    DOCKER_VERSION_FORMAT,
+];
+pub const DOCKER_CONTEXT_ARGUMENTS: [&str; 6] = [
+    "--host",
+    DOCKER_SERVICE_ENDPOINT,
+    "context",
+    "ls",
+    "--format",
+    DOCKER_CONTEXT_COUNT_MARKER,
+];
+pub const DOCKER_INVENTORY_ARGUMENTS: [&str; 5] = [
+    "--host",
+    DOCKER_SERVICE_ENDPOINT,
+    "info",
+    "--format",
+    "{{.Images}} {{.Containers}}",
+];
 pub const WINDOWS_EXE_EXTENSION: &str = ".exe";
 pub const ANDROID_PLATFORM_TOOLS_DIR: &str = "platform-tools";
 pub const REF_WINDOWS_ADAPTER_ARTIFACT_GATE: &str = "windows-adapter-artifact-gate-ref";

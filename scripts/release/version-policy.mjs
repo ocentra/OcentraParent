@@ -87,7 +87,7 @@ export function collectPlatformVersions(repoRoot) {
     }
   }
 
-  const iosProjectPath = join(repoRoot, 'platforms', 'ios', 'OcentraParentAgent.xcodeproj', 'project.pbxproj');
+  const iosProjectPath = join(repoRoot, 'platforms', 'ios', 'OcentraChildAgent.xcodeproj', 'project.pbxproj');
   if (existsSync(iosProjectPath)) {
     const source = readFileSync(iosProjectPath, 'utf8');
     const matches = [...source.matchAll(/MARKETING_VERSION\s*=\s*([^;]+);/gu)].map((match) => match[1].trim());

@@ -34,14 +34,28 @@ This file records documentation health and consistency checks for the plan. It i
 - WP11 production source is independently accepted through `fa1230661`:
   envelopes revalidate identity at live/stored boundaries, request completion
   is response-type bound, journal idempotency fails closed, and action replay
-  requires a non-cloneable journal-minted authority. Existing replay tests need
-  migration and the expected negative/audit families, focused execution, and
-  retained proof remain open.
-- WP12 lacks its declared harness and canonical root. WP13's moved test layout
-  is code-complete, but current validation/proof remains open and must include
-  the `contract` harness.
+  requires a non-cloneable journal-minted authority. The routed three-file
+  test-source packet is integrated at canonical `ac5d41322`, and the three
+  target harnesses compile with `--no-run`. The expected negative/audit
+  families, actual test execution, retained proof, checklist rows 63-68, and
+  completion review remain open; this is validation only and does not satisfy
+  completion.
+- WP12 remains blocked on its missing harness and canonical root plus WP09
+  integration acceptance, WP10 authority/consumer handoff, and WP13
+  validation/proof. WP13's moved test layout is code-complete and remains in
+  validation; current validation/proof is open and must include the `contract`
+  harness.
 - Do not treat focused tests or stale checked rows as plan closure; WP06 is the
-  only closed selectable workpack, while WP09-WP13 remain open.
+  only closed selectable workpack. WP08 is fail-closed/source-hardened but
+  functionally blocked; WP09 remains integration-open, WP10 is blocked, WP11
+  is validation with execution/proof/checklist/review open, WP12 is blocked,
+  and WP13 is validation.
+- Historical WP08 topology previously looked validation-ready because selected
+  tracking, policy, child, and enforcement helpers/tests exist. Live caller
+  review found no authenticated parent-intent producer or functional consumer
+  composition. The new service route deliberately returns manual-required;
+  graph completion must require the missing parent-runtime owner and expected
+  service/runtime tests rather than counting latent helpers as delivery.
 - The route/proof split must stay explicit: `output/eventing-plan-proof/<workpack>/` for raw/generated implementation output; `docs/proof/eventing-plan/` for the hand-authored WP06 durable manifest. WP12's generated route bundle is absent.
 
 ## Required hygiene before PR_READY
@@ -62,10 +76,13 @@ This file records documentation health and consistency checks for the plan. It i
 
 ## Current rollout note
 
-- WP11 source-boundary, request, journal, and replay-authority implementation is
-  present, but expected test migration/writing and proof are open. WP12 route
-  reconciliation is blocked by its missing harness/root, and WP13 requires
-  current revalidation/proof.
+- WP11 production source is integrated through `fa1230661` and the routed
+  three-file test-source packet is integrated at canonical `ac5d41322`; the
+  three target harnesses compile with `--no-run`. Actual test execution,
+  retained proof, checklist rows 63-68, and completion review remain open.
+  WP12 route reconciliation remains blocked by its missing harness/root and
+  WP09/WP10/WP13 prerequisites; WP13 remains in validation with current
+  validation/proof open.
 - WP06 retains a hand-authored durable manifest for generic journal/topology/
   replay mechanics and the typed enforcement WP11 handoff under
   `docs/proof/eventing-plan/`; raw/generated output remains ignored. WP10
@@ -89,9 +106,13 @@ This file records documentation health and consistency checks for the plan. It i
 ### State
 
 - Current state: route and schema hygiene are improved, WP06 locally evidences
-  its generic handoff, WP09 remains integration-open, WP10 is blocked on LAN
-  WP26, WP11 is source-integrated/test-open, and WP12/WP13 require validation and
-  retained proof.
+  its generic handoff, WP08 is safe-fail-closed and dependency-blocked, WP09
+  remains integration-open, WP10 is blocked on LAN
+  WP26, WP11 is validation after routed test-source integration (three target
+  `--no-run` compiles current; execution/proof/checklist rows 63-68/review
+  open), WP12 is blocked on its missing harness/root and WP09/WP10/WP13
+  prerequisites, and WP13 is validation. No DONE or proof claim is made from
+  this transition.
 - Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned while WP10 is handled; do not promote the local Eventing handoff into enforcement action proof.
 
 ### Decision routes and failure controls

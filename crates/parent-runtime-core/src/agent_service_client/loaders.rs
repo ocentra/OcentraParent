@@ -1,3 +1,6 @@
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
+
 use super::snapshots_app_game::{
     app_game_adapter_dispatch_preflight_snapshot_from_result,
     app_game_adapter_dispatch_result_snapshot_from_result,

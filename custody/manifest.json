@@ -1,0 +1,708 @@
+{
+  "schema": "ocentra-parent-public-custody/v1",
+  "snapshotId": "2026-08-25-030153Z-custody",
+  "capturedAtUtc": "2026-08-25T03:03:04.9152905Z",
+  "origin": "https://github.com/ocentra/OcentraParent.git",
+  "archiveRef": "refs/heads/codex/archive/ocentra-parent-custody",
+  "canonical": {
+    "ref": "refs/heads/codex/eventing-wp09-production",
+    "sha": "1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f",
+    "tree": "7cf3d5308d284d60a10c399b67f9323d07a2c9a3",
+    "worktree": "E:/OcentraWorktrees/lanes/eventing-wp09-production",
+    "clean": true
+  },
+  "remoteRefMap": {
+    "file": "custody/remote-refs.tsv",
+    "sha256": "8bbdff759c5060fcd6d316d10acef6ba639f4d5f5a1bbaf37da360e4996e5574",
+    "count": 1828,
+    "counts": {
+      "heads": 156,
+      "tags": 964,
+      "pull": 708
+    }
+  },
+  "publicBuilder": {
+    "source": "fresh GitHub-only bare mirror",
+    "availableRefCount": 1120,
+    "availableRefClasses": [
+      "refs/heads/*",
+      "refs/tags/*"
+    ],
+    "pullRefsFetched": false
+  },
+  "anchorPolicy": {
+    "parentAnchorClasses": [
+      "refs/heads/*"
+    ],
+    "tagsRecordedOnly": true,
+    "pullRefsRecordedOnly": true,
+    "batchParentLimit": 20,
+    "firstAncestryAnchor": {
+      "ref": "refs/heads/codex/archive/all-local-remote-tips-20260816",
+      "sha": "ac9f65bb4a7f84abc52ff4034940a6140e2744bb"
+    }
+  },
+  "publicAnchorCount": 156,
+  "publicAnchors": [
+    {
+      "ref": "refs/heads/archive/local-data-custody-wp05-source-20260818",
+      "sha": "bfb85f51ba2ae19f3ba8357c0c2f3eb7b8fec175"
+    },
+    {
+      "ref": "refs/heads/codex/account-authority-producer-map",
+      "sha": "6ca0da201c43e2cc2f5d6262c006c92b5b921d2d"
+    },
+    {
+      "ref": "refs/heads/codex/account-authority-producer-transport",
+      "sha": "89eb2d34fd19445d2afc34106278ba1628268826"
+    },
+    {
+      "ref": "refs/heads/codex/account-cloudflare-authority-routing",
+      "sha": "a60d4f593a182e48fc6bc897c0d1417be54d3b05"
+    },
+    {
+      "ref": "refs/heads/codex/account-data-runtime-routing",
+      "sha": "f7129f82e14fa53a7a7798cd255dcc35712e9f2b"
+    },
+    {
+      "ref": "refs/heads/codex/account-multi-owner-fence-route",
+      "sha": "c77622cae19ac34496766809c8ef9f0553a46645"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp02-authority-transport",
+      "sha": "fe545a678f040d171ae579da1021b9da5a7cf96c"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp02-source-wave",
+      "sha": "35edb2830c9896ddd2d737a65ada720454b78514"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp02-target-authority",
+      "sha": "f6ac50434d46a8164d2a306bec92334b55437e10"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp02-wp05-source-wave",
+      "sha": "ac03afee3a5bef61d273e37e935f34678890eefa"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp03-runtime-source",
+      "sha": "59eefd0d236577405a15d257fa88763b587ab9ed"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp03-source-wave",
+      "sha": "53b5d195d3e66605c59f430f04406c4e000a9e2a"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp04-compile-repair",
+      "sha": "cba9f870715a98c5e61d633de64eb39414dd9afa"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp04-source-wave",
+      "sha": "1101f37f817f4696a8cf77250c8521f5f4f4971b"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp05-cas-routing",
+      "sha": "79b2c3bd7809582471a41d1f1ca48210935ac5f7"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp05-cas-source",
+      "sha": "9e83c4d86eb44204fc7cacfeea5630f5c0342c66"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp05-composer-compile-repair",
+      "sha": "be156be01299f69f80b3e5a3c47bfd60f80fc47c"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp05-routing",
+      "sha": "d78758b213eeb50962634c7852ab938f75e38f3a"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp05-source",
+      "sha": "937009bc1377c2681c6ef95fc03137ac590cb35c"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp07-source",
+      "sha": "2f3d3051aa4d3a5d5d523fd65102bd198ea50f9b"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp08-wp03-compile-repair",
+      "sha": "7092b1c94381303b8440cd9233fc46346a977f46"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp09-issuer-routing-aug24",
+      "sha": "7e75b93378705a474dacb06d79dd07c119deffaa"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp09-issuer-source-aug24",
+      "sha": "088b28641653a9b52c1c7bc84c9a98627d8e2cdb"
+    },
+    {
+      "ref": "refs/heads/codex/account-wp09-runtime-aug24",
+      "sha": "d496f08a7f5feca35d5d1479e983566924e3801c"
+    },
+    {
+      "ref": "refs/heads/codex/agent-core-compile-repair-aug23",
+      "sha": "e4a086b18939d1d1abc649bd26d59bb9b69b3f2e"
+    },
+    {
+      "ref": "refs/heads/codex/agent-service-known-device-module-repair",
+      "sha": "370fd0383effd5889298f1298044e83fd7fcefb8"
+    },
+    {
+      "ref": "refs/heads/codex/agent-service-lan-revoke-compile-aug23",
+      "sha": "dbde2dae6ea2800fcdda91db17cb268c5ea8cc55"
+    },
+    {
+      "ref": "refs/heads/codex/agent-service-nonce-compile-aug23",
+      "sha": "d9360f7eb19705a6fd7d7966ad93c41cfce0968c"
+    },
+    {
+      "ref": "refs/heads/codex/ai-wp03-contract-repair-aug24",
+      "sha": "3ac7fc087d7a7de5e9dfa0c40d43a043cfa7775e"
+    },
+    {
+      "ref": "refs/heads/codex/ai-wp03-contract-repair2-aug24",
+      "sha": "664eb2665099c408d57dbc7c7ec67cd245ba2c18"
+    },
+    {
+      "ref": "refs/heads/codex/ai-wp03-contract-repair3-aug24",
+      "sha": "a979ffe9539ca1e18fa2c05424908f9b4a250af8"
+    },
+    {
+      "ref": "refs/heads/codex/ai-wp03-contract-repair4-aug24",
+      "sha": "bde6ec22db60c8bbdf88dd878c368770bfdad26a"
+    },
+    {
+      "ref": "refs/heads/codex/ai-wp03-contract-repair5-aug25",
+      "sha": "9bc7574a6554f0ca808e7766e45bc268c5a9cb84"
+    },
+    {
+      "ref": "refs/heads/codex/ai-wp03-contract-source-aug24",
+      "sha": "196e3ad99c440093dcd778fd2b11a8e0f5ba89ab"
+    },
+    {
+      "ref": "refs/heads/codex/app-game-android-source-aug24",
+      "sha": "9de513a5091eb647dbe835504d546b5cd311b117"
+    },
+    {
+      "ref": "refs/heads/codex/app-game-linux-source-aug24",
+      "sha": "0266458347fce787624ea35e788b7718c1deca2d"
+    },
+    {
+      "ref": "refs/heads/codex/app-game-wp197-repair-round3-aug24",
+      "sha": "2dacdbe15d7998cdb1f8958b19c24b496fe7ec2a"
+    },
+    {
+      "ref": "refs/heads/codex/app-game-wp197-repair-round4-aug24",
+      "sha": "23c08da0169bb8221e8382e07e96dbecaf0b2e89"
+    },
+    {
+      "ref": "refs/heads/codex/app-game-wp197-source-aug24",
+      "sha": "2d57c9ae14f18383c32544875413fba2e3e4156c"
+    },
+    {
+      "ref": "refs/heads/codex/archive/all-local-remote-tips-20260816",
+      "sha": "ac9f65bb4a7f84abc52ff4034940a6140e2744bb"
+    },
+    {
+      "ref": "refs/heads/codex/archive/all-remote-tips-20260815",
+      "sha": "405e7fc77e1cb0a08d60ba6d87c245990cf4e194"
+    },
+    {
+      "ref": "refs/heads/codex/browser-runtime-source-aug19",
+      "sha": "e43c50ae790d2b11456d837d2509947b4a2af92b"
+    },
+    {
+      "ref": "refs/heads/codex/browser-wp06-custody-repair-aug24",
+      "sha": "9a312e5268bcd20790e285e3bf62a7d206c74ef3"
+    },
+    {
+      "ref": "refs/heads/codex/browser-wp06-repair-round2",
+      "sha": "3b69d787efb328a55d8b1d633242b933c04ded9b"
+    },
+    {
+      "ref": "refs/heads/codex/browser-wp06-repair-round3-aug24",
+      "sha": "93f875134d19133123b5c2da8000841d728f54de"
+    },
+    {
+      "ref": "refs/heads/codex/browser-wp06-source-repair-aug24",
+      "sha": "b9a831cb51d57d715391dca3733287e65a67b4e1"
+    },
+    {
+      "ref": "refs/heads/codex/browser-wp07-wp09-map",
+      "sha": "9bb53224c5130ca52b9b2c698312d882b7959d42"
+    },
+    {
+      "ref": "refs/heads/codex/browser-wp07-wp09-route",
+      "sha": "d5f380dc35dc7d8a1cb9ce3cd15f017ed4082be3"
+    },
+    {
+      "ref": "refs/heads/codex/canonical-truth-refresh",
+      "sha": "d77dc9f24df774b1779fc660ae1db321f02fa232"
+    },
+    {
+      "ref": "refs/heads/codex/child-runtime-removal-compile-aug23",
+      "sha": "0faa526ff378f03a42fb73b2f0eaf33507057923"
+    },
+    {
+      "ref": "refs/heads/codex/child-runtime-routing-refresh",
+      "sha": "1b6b5a28f6ee06af7dcf33667671f53df7c54a67"
+    },
+    {
+      "ref": "refs/heads/codex/child-runtime-source-routing",
+      "sha": "c71becbcfd4f07eb98a118f10dbf261320f6b54e"
+    },
+    {
+      "ref": "refs/heads/codex/child-runtime-storage-custody-compile-aug23",
+      "sha": "c5f5c0c931188c913e1bbe89dccd2d806198aabf"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp02-source-aug24",
+      "sha": "29172d2e5b19ec6b7beaa72cd8b2c416896cb026"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp02-source-aug24-r2",
+      "sha": "1354d6bb84fb8dfdf9c5a60f945e864b212ec365"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp02-source-repair-aug24",
+      "sha": "7eabc9ff510fad890d88abb73cd7e3b4e413ed22"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp04-source-aug25",
+      "sha": "19deeeaab3f93433d66ad4d896f9ad6d46551bb1"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp05-source-completion",
+      "sha": "6da39d4d6dfc5e4853e966f21dac32ecd11d2b56"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp06-authority-source",
+      "sha": "2e5f5e0e3fd87ad07d191b9553e16a9a39b9a169"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp06-runtime-map",
+      "sha": "4ecee64c98b797104177a3de550655aa2c0f78c8"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp06-runtime-route",
+      "sha": "3488c99cd2acab5a06d7dbfd274e4f0036286715"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp06-runtime-source",
+      "sha": "8f507942970ec2d07b117bd0ceeebf4a3ef506ad"
+    },
+    {
+      "ref": "refs/heads/codex/cloudflare-wp06-runtime-source-aug19",
+      "sha": "abcdb4f1a562cd18694720f088ca87c71f13008a"
+    },
+    {
+      "ref": "refs/heads/codex/data-custody-plan-code-wave",
+      "sha": "ec129d6681fde91fce3fea835c79a211b7633e1c"
+    },
+    {
+      "ref": "refs/heads/codex/data-custody-source-consolidation",
+      "sha": "8da579cc70245a3c822045f8a8a74d929fb311a9"
+    },
+    {
+      "ref": "refs/heads/codex/data-custody-source-wave",
+      "sha": "78f01911f186f6d7ddc7a82fdf5b13051ebe336f"
+    },
+    {
+      "ref": "refs/heads/codex/data-custody-wp05-source",
+      "sha": "8a92cce1fba16bee41ad351db2a9e5dbe3f4e140"
+    },
+    {
+      "ref": "refs/heads/codex/data-custody-wp05-source-repaired",
+      "sha": "f8d0a888a11e4007adc9d9fdfbdf05aaaf8760f1"
+    },
+    {
+      "ref": "refs/heads/codex/data-custody-wp06-source",
+      "sha": "f5b839efbc059e8b65370496144691890eb492fc"
+    },
+    {
+      "ref": "refs/heads/codex/data-custody-wp08-source",
+      "sha": "1d63e190c52c7d6a01544d303a2513a0a54fb749"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp05-authority-handoff",
+      "sha": "b3c47fd3dfba78273a5afd83ff12e891dc43dc7e"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp05-mount-contract-source",
+      "sha": "e9d729d5ab9b5c0e9b567f68b9be957e49f75615"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp05-runtime-composition-routing",
+      "sha": "4140a7a9a6fd7eb76055a853edfb350ada58c7a2"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp05-source-completion",
+      "sha": "c19c762dff8292b1f6f6c49746551b2fbc8ee4f9"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp06-map-aug18",
+      "sha": "9b68e3669e4deaa4a019eb4285ee99a6b4093e04"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp06-query-source-wave",
+      "sha": "60acdfde645a56ef05738ef3f1796c33bf9546bc"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp06-routing-refresh",
+      "sha": "49b03136b02fd1eb63e279df4b5b836630cb2185"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp06-source-completion",
+      "sha": "594134fbf83deaff81fdecc79fa135345625f098"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp08-p1-source-repair",
+      "sha": "d77f8f649b00b4a1259a51d18b989b2a545eb27b"
+    },
+    {
+      "ref": "refs/heads/codex/data-wp08-runtime-source",
+      "sha": "7c232efbfb1c4c4c5f227332e3a66734432276fe"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-correction-policy-payment-aug23",
+      "sha": "0f7dce7de79f7da77258abf1ccdc398ba15e54fd"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-account-data-topology-aug23",
+      "sha": "83a0bb86f9c868aa0ba808dbb66aff88c7532bb7"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-account-device-aug23",
+      "sha": "3c95980f994727243583ef475ca3f66e25455084"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-app-topology-aug23",
+      "sha": "c6a9bc3da4795241fa4bbea2e92cd87da98a81b3"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-browser-aug23",
+      "sha": "93f1a9d0fa8d211fc7071c4c55941d954d90b966"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-child-topology-aug23",
+      "sha": "9a4fbbd31af04d4b3a5867d678d78bf244061461"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-cloudflare-aug23",
+      "sha": "459cfe0483d68ccb4b3909382be1aa3cc5a11ddd"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-cloudflare-policy-payment-aug23",
+      "sha": "273e055df177c23ccafe6d70ebb42057c01618dd"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-cloudflare-topology-aug23",
+      "sha": "68adec7fe10286668adaea22096730b28467fdbf"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-custody-delivery-aug23",
+      "sha": "6cc83ccb3c39809310927e599aa83a1ef34f8841"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-data-child-aug23",
+      "sha": "fdac77b0d49e8bd0a2c2e81043b9c426d1fb49c7"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-eventing-topology-aug23",
+      "sha": "f974c18c9439c751592831c6f2a38bc0731ecf59"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-logging-aug23",
+      "sha": "dfef1376cc107d05e140ae94720555d39e252bbc"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-network-aug23",
+      "sha": "ce647b49969a951f308117613956634446a8ce99"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-parent-desktop-runtime-aug23",
+      "sha": "9d97e3c7feeb3dfd6839ffa92f24e4bae8657fb5"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-payment-aug23",
+      "sha": "00d4c1b8be6c48fe7cf5ec976ec4efd4a6d1734b"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-policy-aug23",
+      "sha": "8530969b906c14cf44ab4489dc016f9428182366"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-policy-topology-aug24",
+      "sha": "931c051cf77958378bbb0f3c1794daf14a938691"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-portal-aug23",
+      "sha": "2a900628c352f40fc4f0f5cfef11d5c9e5620c49"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-remote-aug23",
+      "sha": "937e0a56430345eeed5b89d92a3f14abaf444db8"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-screen-ai-aug23",
+      "sha": "9964b6ff6bcfa535889a61a34aea1eafadd3bc64"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-screen-plan-aug23",
+      "sha": "d8f111bfdd5e2e0efdd26ec99f7e73c1a5e28e84"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-setup-install-aug23",
+      "sha": "44f66b2123654733c35d4665006c5747a40e9666"
+    },
+    {
+      "ref": "refs/heads/codex/dependency-review-tracking-aug23",
+      "sha": "4191ddfc5538a32af5e5493b20bfd146abbe2105"
+    },
+    {
+      "ref": "refs/heads/codex/device-custody-foundation-source-aug23",
+      "sha": "0b7cf5afd71d11d17f809d259cf424f019075f4a"
+    },
+    {
+      "ref": "refs/heads/codex/device-trust-graph-repair",
+      "sha": "4d605dc5938856ffdee6dcb183b8fd2d95bd0c5b"
+    },
+    {
+      "ref": "refs/heads/codex/device-trust-runtime-routing",
+      "sha": "9728bc6029809b9f3a8d987c6fa423f1ec91aa9b"
+    },
+    {
+      "ref": "refs/heads/codex/device-trust-wp01-source-wave",
+      "sha": "914d06b6aa8fbc337fb12b410a89916c65f659ab"
+    },
+    {
+      "ref": "refs/heads/codex/device-trust-wp02-source-wave",
+      "sha": "97c6464e7054e7d5eed22402e5eae594cf9c6c40"
+    },
+    {
+      "ref": "refs/heads/codex/device-trust-wp05-source-wave",
+      "sha": "b2a6ea58acf487bbbdb4a6cff911e4a8fc3d5719"
+    },
+    {
+      "ref": "refs/heads/codex/device-trust-wp06-source-wave",
+      "sha": "1b3593319424673f0eea4673d6160b1ebcc5b94f"
+    },
+    {
+      "ref": "refs/heads/codex/device-wp01-compile-repair-aug23",
+      "sha": "acdce647c04e5e42b18c3afe9dbf69358994f571"
+    },
+    {
+      "ref": "refs/heads/codex/device-wp01-fence-integrate-aug24",
+      "sha": "f5974c79515f5cf69f3ae59101f425fd5125d228"
+    },
+    {
+      "ref": "refs/heads/codex/device-wp01-fence-participant-aug23",
+      "sha": "5f0280f711a6d66c96338e45382d17594aca39aa"
+    },
+    {
+      "ref": "refs/heads/codex/entitlement-compile-repair-aug23",
+      "sha": "e3032292a8ec364fc188bd62b60941a5a5c89f35"
+    },
+    {
+      "ref": "refs/heads/codex/eventing-consumer-truth-aug18",
+      "sha": "bcec6d156d62571a886660ecbdc7cc13360c479a"
+    },
+    {
+      "ref": "refs/heads/codex/eventing-core-p1-aug19",
+      "sha": "103761757e750ae0fbff5b7ded104de591e20282"
+    },
+    {
+      "ref": "refs/heads/codex/eventing-wp08-parent-intent-ingress",
+      "sha": "ba0854f0a957df7f5d801059182ba85ac8148ab2"
+    },
+    {
+      "ref": "refs/heads/codex/eventing-wp08-wp11-source-aug23",
+      "sha": "558387c266b0e477bb5661f386879fc1ed640fa0"
+    },
+    {
+      "ref": "refs/heads/codex/eventing-wp09-production",
+      "sha": "1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f"
+    },
+    {
+      "ref": "refs/heads/codex/eventing-wp11-graph-transition-aug23",
+      "sha": "02b23372127705fbfdff6fcd4450b4997be1cd47"
+    },
+    {
+      "ref": "refs/heads/codex/eventing-wp11-typed-delivery",
+      "sha": "8fb261274c966134a27dd65937749f7b626a4dcf"
+    },
+    {
+      "ref": "refs/heads/codex/false-topology-correction-aug24",
+      "sha": "9fd99a566e8ed38247735b83e40841e7d788994e"
+    },
+    {
+      "ref": "refs/heads/codex/graph-truth-corrections-aug23",
+      "sha": "19d069bf0666db740c3a828b548fffe16fcbd674"
+    },
+    {
+      "ref": "refs/heads/codex/lan-plan-code-wave-aug24",
+      "sha": "bf48d99100b8e96f0dc6763952b9e9ee5f003e55"
+    },
+    {
+      "ref": "refs/heads/codex/lan-wp01-05-source-aug24",
+      "sha": "69ded8127c71fec1de44ad169c4dfa5d34ca0523"
+    },
+    {
+      "ref": "refs/heads/codex/lan-wp07-passive-runtime-aug24",
+      "sha": "048c95dcd504ad7dfc4bb2223dcad27558881d7a"
+    },
+    {
+      "ref": "refs/heads/codex/lan-wp07-repair-round2-aug24",
+      "sha": "8a3db28d47082abcd9ff16755e8568b1d04ab6c8"
+    },
+    {
+      "ref": "refs/heads/codex/lan-wp07-repair-round3-current-aug24",
+      "sha": "5d49e5da1000666e4b3de872cf0fac75db5f6366"
+    },
+    {
+      "ref": "refs/heads/codex/logging-source-wave-repair",
+      "sha": "e0c2d158ab7e192642e38c3023e791efc085728d"
+    },
+    {
+      "ref": "refs/heads/codex/logging-wp09-source-aug23",
+      "sha": "b3d79bb8a292061f50a9197aa66d4a77a50a7c90"
+    },
+    {
+      "ref": "refs/heads/codex/parent-runtime-common-loader-compile-aug23",
+      "sha": "0ad1aa1613425d9e17281443904b58504c431165"
+    },
+    {
+      "ref": "refs/heads/codex/parent-runtime-data-restore-compile-aug23",
+      "sha": "6eed1573ced7a6d988fc03c073967a165db0dab2"
+    },
+    {
+      "ref": "refs/heads/codex/parent-runtime-singletons-compile-aug23",
+      "sha": "f543087cff3a9b995c6bf488384f317492421472"
+    },
+    {
+      "ref": "refs/heads/codex/parent-runtime-snapshots-network-policy-compile-aug23",
+      "sha": "49e128c16305388edc48d457a310cb5f1b78e704"
+    },
+    {
+      "ref": "refs/heads/codex/parent-runtime-snapshots-product-compile-aug23",
+      "sha": "673d4aca1cff25ac6be7529738156ce821dce4f3"
+    },
+    {
+      "ref": "refs/heads/codex/payment-source-wave",
+      "sha": "63305016fccaee55a77acf2f7f87f346ff2417df"
+    },
+    {
+      "ref": "refs/heads/codex/payment-wp06-failclosed-containment-aug24",
+      "sha": "8ab4d527a39b2c45fbad24d0945f9180d4b51f84"
+    },
+    {
+      "ref": "refs/heads/codex/protected-custody-foundation-route-aug24",
+      "sha": "628c2e623868f69a7f119189241bd46559371e33"
+    },
+    {
+      "ref": "refs/heads/codex/protected-custody-repair-aug24",
+      "sha": "bbe5472c1467ba457f78da8ee611e4abc378cea9"
+    },
+    {
+      "ref": "refs/heads/codex/protected-custody-repair-round3-aug24",
+      "sha": "3d8231e796c1a5e303ef8f2084f9980277c69b86"
+    },
+    {
+      "ref": "refs/heads/codex/protected-custody-source-aug24",
+      "sha": "625530447e9627039940b08bc7271fa760c1ae3d"
+    },
+    {
+      "ref": "refs/heads/codex/release-governance-fix",
+      "sha": "e589cf27879c123fb321c3e87f91c16f2b915519"
+    },
+    {
+      "ref": "refs/heads/codex/residual-disposition-ledger-aug23",
+      "sha": "7d670dfd853979366273044890c16f300c6b0134"
+    },
+    {
+      "ref": "refs/heads/codex/screen-capture-adapter-compile-aug23",
+      "sha": "fff30cd4b3700f904d77490a8cb579611db073d8"
+    },
+    {
+      "ref": "refs/heads/codex/screen-wp26-source",
+      "sha": "43649e7b25124ec039f406730c3d59685db31c82"
+    },
+    {
+      "ref": "refs/heads/codex/screen-wp32-producer-source",
+      "sha": "c02334244e7032a67bdc034e4a428bac8613f296"
+    },
+    {
+      "ref": "refs/heads/codex/screen-wp32-source",
+      "sha": "b4c3a921b193c58fb3c3f5ec2707415e3063de03"
+    },
+    {
+      "ref": "refs/heads/codex/screen-wp33-source",
+      "sha": "0ec240f08937c16d3359e5bfe0e5b9a9b6aa6c00"
+    },
+    {
+      "ref": "refs/heads/codex/screen-wp37-truth-aug24",
+      "sha": "ec1ab3d2c44f5d697b4d2ecd73b377725e8967c3"
+    },
+    {
+      "ref": "refs/heads/codex/setup-wp07-source-wave",
+      "sha": "09f7c7c960bfdc010564d4fc504e70a1b7b88d41"
+    },
+    {
+      "ref": "refs/heads/codex/source-map-refresh-aug18",
+      "sha": "81dba2aacc4a4cec9bc956c049fa3455bfb65de5"
+    },
+    {
+      "ref": "refs/heads/codex/storage-custody-compile-repair-aug23",
+      "sha": "789526edfb16c20d44f20b76339e4aaa566d173e"
+    },
+    {
+      "ref": "refs/heads/develop",
+      "sha": "4ece515282822de5bf64f58e5a21b3ea2549134b"
+    },
+    {
+      "ref": "refs/heads/main",
+      "sha": "eb4e66a791d79644c316fcb3de00a413f99d128b"
+    },
+    {
+      "ref": "refs/heads/production",
+      "sha": "683a07cf31680e1a29938651411a948d4a4b1583"
+    }
+  ],
+  "privateCustody": {
+    "manifestPath": "../private/manifest.json",
+    "manifestSha256": "4a7e383a393193802a56f3f82b8f80dfc7b36b136ff162319ee33c52d63b4da0",
+    "localRefCount": 1586,
+    "detachedWorktreeHeadCount": 12,
+    "privateCustodyRefCount": 1598
+  },
+  "exclusions": [
+    {
+      "class": "refs/pull/*",
+      "count": 708,
+      "reason": "GitHub ephemeral pull refs are recorded in the full remote map but are not fetched by a GitHub bare mirror and are not public parent anchors"
+    },
+    {
+      "class": "refs/tags/*",
+      "count": 964,
+      "reason": "tags are retained in the GitHub mirror and full map but policy anchors remote heads only"
+    },
+    {
+      "class": "local-only/stash/dirty/worktree objects",
+      "reason": "never published; retained only in the private mirror"
+    },
+    {
+      "path": "E:/OcentraParent/.codex/config.toml",
+      "reason": "sensitive untracked local state; not copied"
+    },
+    {
+      "path": "E:/OcentraWorktrees/lanes/device-wp01-packet-review2-aug25/.target-review",
+      "reason": "generated target output; not copied"
+    },
+    {
+      "path": "E:/OcentraWorktrees/lanes/ai-wp03-review5-aug25",
+      "reason": "49 staged blobs exactly match pushed origin/codex/ai-wp03-contract-repair5-aug25; recoverable duplicate, no patch published"
+    }
+  ],
+  "noProductRepositoryMutation": true
+}

@@ -5,6 +5,7 @@ import {{ brandedNonEmptyStringSchema }} from './effect';
 export const ReportQueryCustodyContractRuntime = {{
   SchemaVersion: '__REPORT_QUERY_CUSTODY_SCHEMA_VERSION__',
 }} as const;
+export const GeneratedReportQueryCustodyMaxPageSize = __REPORT_QUERY_CUSTODY_MAX_PAGE_SIZE__ as const;
 
 export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentAccountIdSchema = brandedNonEmptyStringSchema('ParentAccountId');

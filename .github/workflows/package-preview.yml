@@ -217,7 +217,7 @@ jobs:
 
       - name: Smoke iOS simulator app install and launch
         if: ${{ !inputs.docs_hub_only }}
-        run: bash scripts/smoke/ios-simulator-smoke.sh target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
+        run: bash scripts/smoke/ios-simulator-smoke.sh target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraChildAgent.app
 
       - name: Write tracking iOS simulator proof
         if: ${{ !inputs.docs_hub_only }}
@@ -227,7 +227,7 @@ jobs:
         if: ${{ !inputs.docs_hub_only }}
         uses: actions/upload-artifact@v6
         with:
-          name: ocentra-parent-ios-simulator-preview
+          name: ocentra-child-ios-simulator-preview
           path: |
             target/release-packages/ios/*.zip
             target/release-packages/ios/*.sha256

@@ -25,6 +25,13 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
+- [08 Parent Runtime Integration](workpacks/08-parent-runtime-integration.md)
+  now has only the safe service edge: malformed input is rejected and a valid
+  intent marker is manual-required with no journal/publish/transport claim.
+  Do not add a success branch until Account WP03, Tracking WP40, Policy
+  WP03/WP04/WP08, Enforcement WP11, and Child Runtime WP10 provide their
+  reviewed public owners. After those source packets land, implement the one
+  deep parent-runtime ingress composer, then write the two expected test roots.
 - [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
   is the active bounded production packet. The reviewed agent-core/agent-service
   ingestion-time publish, deterministic identity, durable network journal,
@@ -43,18 +50,16 @@ This file is the short resume list for the next worker. It is derived from open 
   `00-enforcement-wp11-handoff.md`, journal/replay proof, topology/lineage
   proof, and compact validation log are retained. This is a generic Eventing
   prerequisite only; enforcement retains authority/action/rollback proof.
-- WP11 production source is independently accepted and integrated through
-  `fa1230661`: envelope identity is revalidated at every live/stored decode
-  boundary, request completions are associated-response typed, unsupported
-  journal idempotency fails closed, and action replay consumes a journal-minted
-  non-cloneable authority. Keep it open: after the production-source wave,
-  migrate `tests/journal_replay/replay.rs` from the retired records/mode API and
-  write the malformed envelope, aggregate/idempotency tamper, response-type
-  mismatch, unsupported-journal, and replay single-use negatives before focused
-  execution and proof regeneration.
-- WP12 is open because `scripts/test/eventing-rollout-proof.mjs` and
-  `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent.
-- WP13 is code-complete for the moved test layout, but current validation/proof
+- WP11 is now in validation: production source is independently accepted and
+  integrated through `fa1230661`, and the routed test-source packet is
+  integrated at canonical `ac5d41322` across the three target harnesses. Their
+  `--no-run` compilation is current. Keep it open for actual test execution,
+  retained proof regeneration, checklist rows 63-68, and completion review; no
+  source/test presence or compile-only result is a DONE claim.
+- WP12 remains blocked because `scripts/test/eventing-rollout-proof.mjs` and
+  `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent, and its
+  WP09/WP10/WP13 prerequisites remain incomplete.
+- WP13 remains in validation for the moved test layout; current validation/proof
   is open and must include `cargo test -p ocentra-eventing --test contract`.
 - Next slice: route LAN WP26 authority/transport composition for WP10, then
   regenerate the canonical WP10 proof root before changing its status.

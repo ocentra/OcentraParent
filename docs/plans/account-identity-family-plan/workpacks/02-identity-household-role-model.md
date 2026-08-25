@@ -169,39 +169,60 @@ consumer, child-device scope consumer, and focused unit/contract tests are real.
 They prove a bounded decision model, not a durable account authority runtime.
 The live production consumers still pass caller-assembled family, membership,
 device-trust, session, capability, and lease facts into the evaluator. The
-sealed WP08 current-binding read port has no production repository adapter or
-caller, and the TypeScript owner paths named by this historical workpack no
-longer exist.
+sealed WP08 current-binding port and local SQLite repository/CAS exist, and
+Cloudflare has a read adapter. Reviewed source at `86caae334` and `7934fb41b`
+adds the Account-owned target-aware action owner and migrates the real storage-
+custody consumer, but no authoritative Cloudflare writer/currentness or
+shipped provider caller exists. The TypeScript owner paths named by this
+historical workpack no longer exist.
 
-Production source still required:
+Reviewed production source now present:
 
-- an Account-owned sealed cross-runtime binding over WP08 canonical IDs that
-  includes server-derived current household, membership, role, child, and
-  device context without exposing public authority construction;
-- a Cloudflare WP06 durable repository/runtime producer and consumer of that
-  contract;
+- an Account-owned target-aware resolver over the sealed WP08 binding that
+  keeps the actor parent-controller device separate from the target
+  child/profile/device for Pair, Register, Revoke, View, ChangePolicy, and
+  Remote actions;
+- server-derived current account, household, member, device, role, and same-
+  family identity; capability, controller-lease, and step-up actions reject
+  because those authority sources are not present and cannot be accepted from
+  the request/caller;
+- correct `ViewChildStatus` composition for ParentOwner, CoParent, and Observer
+  actors while independently resolving the child/profile/device target.
+
+Production source still required outside the bounded resolver:
+- owned capability, controller-lease, and step-up authority composition for
+  actions that currently reject as unavailable;
+- a Cloudflare WP06 authoritative D1 writer/update/revocation/CAS owner and
+  shipped Firebase/provider-to-sealed-authority caller;
 - a minimized, receipt-bound, audited support authority rather than a public
   support actor or caller boolean;
 - monotonic membership/role transitions and a typed audit sink.
 
 Expected test source still required:
 
+- actor-device/target-device mismatch, cross-child target, and cross-household
+  target tests for every affected action;
+- tests proving caller-supplied `same_family`, capability, controller lease,
+  and step-up state cannot authorize an action;
+- positive parent-owner/co-parent/observer `ViewChildStatus` cases with an
+  independently resolved target;
 - repository reload and concurrent transition tests;
 - pending, invited, revoked, and disabled membership matrix negatives;
 - minimized support/admin scope and audit-reference tests;
 - a real production-caller test proving sealed current binding is consumed and
   caller-supplied authority cannot bypass it.
 
-### Accepted replacement source delta
+### Accepted replacement source delta and reopened review
 
 The independently accepted `35edb2830` packet, integrated through
-`e69acf279`, closes the internal WP02 source seam above: current account,
-household, member, role, device, session, target, support receipt, and authority
-generation are resolved through a sealed capability plus durable repository,
-compare-and-swap, invariant, read, and mapping modules. Request/provider
-subjects and public serde values cannot construct that capability, and support
-authority requires a complete receipt. The shipped provider-to-authority
-producer, account routes, expected tests, validation, and proof remain open.
+`e69acf279`, remains valid for its sealed capability and local SQLite
+repository/CAS/invariant boundary. Live review reopened action composition and
+the bounded correction is now implemented at `86caae334` and `7934fb41b`:
+the target-aware owner consumes opaque current Account authority, keeps actor
+and target identities separate, and does not accept same-family/capability/
+lease/step-up authority from the request. Cloudflare WP06 separately owns the
+authoritative D1 writer and provider caller. Expected tests, validation, proof,
+routes, and DONE remain open.
 
 The remote packet `ac03afee3a` is rejected/quarantined: its public
 deserializable account/membership/support records had no caller or persistence
@@ -266,15 +287,17 @@ and would have introduced parallel mintable authority. It is not WP02 progress.
 
 ## 2026-08-17 live-code review correction
 
-The accepted Rust source remains a bounded authority model, not a complete
-target-aware runtime. The parent-controller device is currently conflated with
-the target child/device for Pair, Register, Revoke, View, ChangePolicy, and
-Remote actions. A target-aware resolver, capability/lease/step-up binding, and
-a production provider-to-authority caller are still absent; the raw evaluator
+The accepted Rust source is now a bounded target-aware identity model, not a
+complete provider runtime. The parent-controller actor and target child/profile/
+device are separated for Pair, Register, Revoke, View, ChangePolicy, and Remote
+actions. Current account, household, member, device, role, and same-family
+identity come from opaque Account authority. Capability, lease, and step-up
+actions reject because their owned authority sources are not present. A
+production provider-to-authority caller is still absent, and the raw evaluator
 remains diagnostic/legacy risk when fed caller-assembled facts.
 
-This reopens the implementation review and routes a bounded source correction:
-preserve the sealed WP08 boundary, derive target identity from owned current
-state, bind capability/lease/step-up requirements to the target action, and
-keep the normal expected-test, focused-validation, proof, PR, and DONE gates.
-No source or test completion is claimed by this routing note.
+The bounded source correction preserves the sealed WP08 boundary, derives
+target identity from owned current state, and fails closed when a target action
+requires capability/lease/step-up authority that is unavailable. Normal
+expected-test, focused-validation, proof, PR, and DONE gates remain open; no
+test or workpack completion is claimed.

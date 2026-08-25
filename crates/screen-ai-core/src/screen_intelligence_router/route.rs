@@ -1,12 +1,13 @@
 use super::capture::{ScreenCaptureScope, ScreenEvidenceCustodyState};
-use super::extraction::{ActivityEvidenceRef, ScreenManagedBrowserStructuredExtraction};
+use super::extraction::{
+    ActivityEvidenceRef, ScreenManagedBrowserStructuredExtraction,
+    ScreenStructuredExtractionFallbackState,
+};
 use super::policy::{
     ScreenIntelligencePolicySensitivity, ScreenIntelligenceRouteKind, ScreenIntelligenceSourceKind,
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct ScreenIntelligenceRouteRequest {
     pub schema_version: u16,
     pub request_id: String,
@@ -39,6 +40,7 @@ pub struct ScreenIntelligenceRouteDecision {
     pub screenshot_skipped: bool,
     pub checked_existing_evidence_first: bool,
     pub managed_browser_structured_extraction_first: bool,
+    pub structured_extraction_fallback_state: ScreenStructuredExtractionFallbackState,
     pub policy_question: String,
     pub policy_sensitivity: ScreenIntelligencePolicySensitivity,
     pub evidence_refs: Vec<ActivityEvidenceRef>,

@@ -1,4 +1,3 @@
-use ocentra_schema::parent_owned_sync_export as sync_contracts;
 use ocentra_schema::parent_storage_settings_apply_flow as contracts;
 
 use super::{
@@ -9,6 +8,10 @@ use super::{
 pub(super) fn derive_parent_storage_delete_action_row(
     input: ParentStorageDeleteActionInput,
 ) -> Result<contracts::ParentStorageDeleteActionRow, ParentStorageSettingsApplyFlowError> {
+    if input.notes.trim().is_empty() {
+        return Err(ParentStorageSettingsApplyFlowError::DeleteActionNotesMustStayVisible);
+    }
+
     Ok(contracts::ParentStorageDeleteActionRow {
         action_id: input.action_id,
         action_kind: input.action_kind,
@@ -22,10 +25,8 @@ pub(super) fn derive_parent_storage_delete_action_row(
 pub(super) fn derive_parent_storage_disconnect_row(
     input: ParentStorageDisconnectInput,
 ) -> Result<contracts::ParentStorageDisconnectRow, ParentStorageSettingsApplyFlowError> {
-    if input.state == sync_contracts::ParentOwnedSyncDisconnectVisibilityState::ManualRequired
-        && input.notes.trim().is_empty()
-    {
-        return Err(ParentStorageSettingsApplyFlowError::ManualRequiredMustStayVisible);
+    if input.notes.trim().is_empty() {
+        return Err(ParentStorageSettingsApplyFlowError::DisconnectNotesMustStayVisible);
     }
 
     Ok(contracts::ParentStorageDisconnectRow {

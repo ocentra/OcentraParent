@@ -1,4 +1,5 @@
-import { existsSync, lstatSync, realpathSync } from 'node:fs';
+import { lstatSync, realpathSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -8,6 +9,10 @@ export const GRAPH_PATH = 'docs/engineering-graph/graph.json';
 export const OVERRIDES_PATH = 'docs/engineering-graph/overrides.json';
 export const CODE_MAP_PATH = 'docs/engineering-graph/code-map.json';
 const WORKPACK_CODE_EXPECTATIONS = new Set(['code-and-tests', 'tests-only', 'no-code-required']);
+const CODE_MAP_SCHEMA_VERSIONS = new Set([1, 2]);
+const PLANNED_IMPLEMENTATION_EXPECTATIONS = new Set(['code-and-tests']);
+const PLANNED_TEST_EXPECTATIONS = new Set(['code-and-tests', 'tests-only']);
+const WORKSPACE_TARGET_KINDS = new Set(['lib', 'bin']);
 const IMPLEMENTATION_GATE = 'reviewed-implementation';
 const IMPLEMENTATION_GATE_VALUES = new Set([IMPLEMENTATION_GATE]);
 const COMPLETION_EVIDENCE_FIELDS = new Set(['id', 'reason', 'evidence']);
@@ -23,7 +28,7 @@ const OVERRIDE_TOP_LEVEL_FIELDS = new Set([
 const OVERRIDE_FIELDS = Object.freeze({
   workpackReviews: new Set(['id', 'hardDependencies', 'evidence', 'reason']),
   edges: new Set(['from', 'to', 'kind', 'confidence', 'evidence', 'reason', 'implementationGate']),
-  stateOverrides: new Set(['id', 'state', 'reason', 'statusText', 'evidence']),
+  stateOverrides: new Set(['id', 'state', 'reason', 'statusText', 'needsReview', 'evidence']),
   proofOverrides: new Set(['id', 'proof', 'reason', 'evidence', 'satisfiesExpected']),
   completionEvidenceOverrides: new Set([
     'id',
@@ -66,6 +71,55 @@ const IGNORED_CODE_DIRECTORIES = new Set([
   'target',
   'test-results',
 ]);
+const NON_EXECUTABLE_CODE_DIRECTORIES = new Set([
+  ...IGNORED_CODE_DIRECTORIES,
+  '.agents',
+  '.codebase-memory',
+  '.codeql-local',
+  '.codex',
+  '.codex-artifacts',
+  '.codex-logs',
+  '.codex-tmp',
+  '.enforce',
+  '.generated',
+  '.github',
+  '.hub',
+  '.idea',
+  '.ledger',
+  '.logs',
+  '.tmp',
+  '.turbo',
+  '.vscode',
+  'docs',
+  'generated',
+  'ocentra-ledger',
+  'output',
+  'outputs',
+  'proof',
+  'proofs',
+  'tmp',
+  'vendor',
+]);
+const SUPPORT_ONLY_CODE_DIRECTORIES = new Set([
+  'benchmark',
+  'benchmarks',
+  'benches',
+  'demo',
+  'demos',
+  'example',
+  'examples',
+  'fixture',
+  'fixtures',
+  'mock',
+  'mocks',
+  'sample',
+  'samples',
+  'stub',
+  'stubs',
+  'test-data',
+  'testdata',
+]);
+const workspaceMetadataCache = new Map();
 
 const NODE_KINDS = new Set(['goal', 'plan', 'workpack']);
 const STATES = new Set(['planned', 'blocked', 'ready', 'active', 'validation', 'done', 'failed', 'paused']);
@@ -73,14 +127,14 @@ const EDGE_KINDS = new Set(['contains', 'depends_on']);
 const GRAPH_EDGE_FIELDS = new Set(['from', 'to', 'kind', 'confidence', 'evidence', 'reason', 'implementationGate']);
 
 export function normalizeRepoPath(value) {
-  return value.split(path.sep).join('/');
+  return value.replace(/\\/gu, '/');
 }
 
 function isRepoRelativePath(value) {
   if (typeof value !== 'string' || value.trim().length === 0) return false;
   const normalized = normalizeRepoPath(value.trim());
   if (normalized === '.' || normalized.startsWith('/') || path.posix.isAbsolute(normalized)) return false;
-  if (/^[A-Za-z]:\//u.test(normalized)) return false;
+  if (/^[A-Za-z]:/u.test(normalized)) return false;
   return !normalized.split('/').some((part) => part === '..' || part.length === 0);
 }
 
@@ -108,12 +162,40 @@ function repoPathStatus(root, relativePath) {
   if (!isPathInside(rootPath, candidate)) {
     return { exists: false, regularFile: false, reason: 'path resolves outside the repository' };
   }
-  if (!existsSync(candidate)) return { exists: false, regularFile: false, reason: `missing path ${relativePath}` };
+  let current = rootPath;
+  const parts = normalized.split('/');
+  for (const [index, part] of parts.entries()) {
+    current = path.join(current, part);
+    let entryStat;
+    try {
+      entryStat = lstatSync(current);
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        return { exists: false, regularFile: false, reason: `missing path ${relativePath}` };
+      }
+      return { exists: false, regularFile: false, reason: `path cannot be inspected ${relativePath}` };
+    }
+    if (entryStat.isSymbolicLink()) {
+      return { exists: false, regularFile: false, reason: `symbolic-link path is not accepted ${relativePath}` };
+    }
+    let resolvedEntry;
+    try {
+      resolvedEntry = realpathSync(current);
+    } catch {
+      return { exists: false, regularFile: false, reason: `path cannot be inspected ${relativePath}` };
+    }
+    if (!isPathInside(rootPath, resolvedEntry)) {
+      return { exists: false, regularFile: false, reason: 'path resolves outside the repository' };
+    }
+    if (index < parts.length - 1 && !entryStat.isDirectory()) {
+      return { exists: false, regularFile: false, reason: `path parent is not a directory ${relativePath}` };
+    }
+  }
   let resolved;
   let stat;
   try {
     resolved = realpathSync(candidate);
-    stat = lstatSync(resolved);
+    stat = lstatSync(candidate);
   } catch {
     return { exists: false, regularFile: false, reason: `path cannot be inspected ${relativePath}` };
   }
@@ -127,19 +209,289 @@ function repoPathStatus(root, relativePath) {
   };
 }
 
-function executableEvidenceProblem(root, node, requirement, reference) {
+function executablePathProblem(
+  reference,
+  requirement,
+  { requireNormalized = false, requireProductionPath = false } = {}
+) {
   if (!['implementation', 'tests'].includes(requirement)) return null;
-  const status = repoPathStatus(root, reference);
-  if (!status.exists) return status.reason;
-  if (!status.regularFile) return status.reason;
-  const normalized = normalizeRepoPath(reference);
-  if (normalized.toLowerCase().startsWith('docs/')) return `documentation is not executable evidence ${reference}`;
+  if (!isRepoRelativePath(reference)) {
+    return `path must be repository-relative and cannot traverse outside the repository: ${reference}`;
+  }
+  const trimmed = reference.trim();
+  const normalized = normalizeRepoPath(trimmed);
+  if (
+    requireNormalized &&
+    (reference !== trimmed || normalized !== trimmed || path.posix.normalize(normalized) !== normalized)
+  ) {
+    return `path must use normalized repository-relative form: ${reference}`;
+  }
   const extension = path.extname(normalized).toLowerCase();
   if (!CODE_EXTENSIONS.has(extension)) return `unsupported executable evidence path ${reference}`;
+  const lower = normalized.toLowerCase();
+  const segments = lower.split('/');
+  if (requireProductionPath && segments.some((segment) => NON_EXECUTABLE_CODE_DIRECTORIES.has(segment))) {
+    return `non-executable or generated path is not accepted ${reference}`;
+  }
+  const basename = path.posix.basename(lower);
+  if (
+    requireProductionPath &&
+    (segments.some((segment) => SUPPORT_ONLY_CODE_DIRECTORIES.has(segment)) ||
+      /(?:^|[._-])(?:example|fixture|mock|sample|stub)s?(?:[._-]|$)/u.test(basename) ||
+      /(?:^|[._-])generated(?:[._-]|$)/u.test(basename))
+  ) {
+    return `support-only or generated path is not accepted ${reference}`;
+  }
   if (requirement === 'implementation' && isTestPath(normalized)) {
     return `test path is not production implementation ${reference}`;
   }
+  if (requirement === 'tests' && !isTestPath(normalized)) {
+    return `planned test path is not test-classified ${reference}`;
+  }
   return null;
+}
+
+function plannedExecutablePathProblem(root, reference, requirement) {
+  const pathProblem = executablePathProblem(reference, requirement, {
+    requireNormalized: true,
+    requireProductionPath: true,
+  });
+  if (pathProblem) return pathProblem;
+  const status = repoPathStatus(root, reference);
+  if (!status.exists) return status.reason.startsWith('missing path ') ? null : status.reason;
+  if (!status.regularFile) return status.reason;
+  return null;
+}
+
+function executableEvidenceProblem(root, _node, requirement, reference) {
+  const pathProblem = executablePathProblem(reference, requirement);
+  if (pathProblem) return pathProblem;
+  const status = repoPathStatus(root, reference);
+  if (!status.exists) return status.reason;
+  if (!status.regularFile) return status.reason;
+  return null;
+}
+
+function assertPlannedExecutableRoots(
+  root,
+  codeMapPath,
+  workpackId,
+  entry,
+  { field, requirement, allowedExpectations }
+) {
+  const values = entry[field];
+  if (values === undefined) return;
+  const codeExpectation = entry.codeExpectation ?? 'code-and-tests';
+  if (!allowedExpectations.has(codeExpectation)) {
+    throw new Error(
+      `${codeMapPath} workpack ${workpackId} ${field} is not allowed with codeExpectation ${codeExpectation}`
+    );
+  }
+  if (!Array.isArray(values) || values.length === 0) {
+    throw new Error(`${codeMapPath} workpack ${workpackId} ${field} must be a non-empty array when present`);
+  }
+  for (const reference of values) {
+    const problem = plannedExecutablePathProblem(root, reference, requirement);
+    if (problem) throw new Error(`${codeMapPath} workpack ${workpackId} ${field}: ${problem}`);
+  }
+  const normalizedValues = values.map(normalizeRepoPath);
+  if (new Set(normalizedValues).size !== normalizedValues.length) {
+    throw new Error(`${codeMapPath} workpack ${workpackId} ${field} must not contain duplicates`);
+  }
+  const normalizedRoots = new Set(entry.roots.map(normalizeRepoPath));
+  if (field !== 'expectedTestRoots' && normalizedValues.some((reference) => !normalizedRoots.has(reference))) {
+    throw new Error(`${codeMapPath} workpack ${workpackId} ${field} must be a subset of roots`);
+  }
+}
+
+function workspaceRequirementSchemaErrors(requirements, { owner = 'workspaceRequirements', roots = [] } = {}) {
+  const errors = [];
+  if (!requirements || typeof requirements !== 'object' || Array.isArray(requirements)) {
+    return [`${owner} must be an object`];
+  }
+  if (!isRepoRelativePath(requirements.rootManifest)) {
+    errors.push(`${owner}.rootManifest must be repository-relative`);
+  }
+  const normalizedRoots = new Set(roots.map(normalizeRepoPath));
+  if (normalizedRoots.size > 0 && !normalizedRoots.has(normalizeRepoPath(requirements.rootManifest ?? ''))) {
+    errors.push(`${owner}.rootManifest must be included in roots`);
+  }
+  if (!Array.isArray(requirements.packages) || requirements.packages.length === 0) {
+    errors.push(`${owner}.packages must be a non-empty array`);
+    return errors;
+  }
+  const manifests = new Set();
+  const packageNames = new Set();
+  for (const [index, packageRequirement] of requirements.packages.entries()) {
+    const label = `${owner}.packages[${index}]`;
+    if (!packageRequirement || typeof packageRequirement !== 'object' || Array.isArray(packageRequirement)) {
+      errors.push(`${label} must be an object`);
+      continue;
+    }
+    if (!isRepoRelativePath(packageRequirement.manifest)) {
+      errors.push(`${label}.manifest must be repository-relative`);
+    } else {
+      const manifest = normalizeRepoPath(packageRequirement.manifest);
+      if (manifests.has(manifest)) errors.push(`${owner}.packages must not duplicate manifest ${manifest}`);
+      manifests.add(manifest);
+      if (normalizedRoots.size > 0 && !normalizedRoots.has(manifest)) {
+        errors.push(`${label}.manifest must be included in roots`);
+      }
+    }
+    if (typeof packageRequirement.package !== 'string' || packageRequirement.package.trim().length === 0) {
+      errors.push(`${label}.package must be a non-empty package name`);
+    } else if (packageNames.has(packageRequirement.package)) {
+      errors.push(`${owner}.packages must not duplicate package ${packageRequirement.package}`);
+    } else {
+      packageNames.add(packageRequirement.package);
+    }
+    if (packageRequirement.activeMember !== true) {
+      errors.push(`${label}.activeMember must be true when active workspace membership is required`);
+    }
+    if (!Array.isArray(packageRequirement.requiredTargets) || packageRequirement.requiredTargets.length === 0) {
+      errors.push(`${label}.requiredTargets must be a non-empty array`);
+      continue;
+    }
+    const targets = new Set();
+    for (const [targetIndex, target] of packageRequirement.requiredTargets.entries()) {
+      const targetLabel = `${label}.requiredTargets[${targetIndex}]`;
+      if (!target || typeof target !== 'object' || Array.isArray(target)) {
+        errors.push(`${targetLabel} must be an object`);
+        continue;
+      }
+      if (!WORKSPACE_TARGET_KINDS.has(target.kind)) {
+        errors.push(`${targetLabel}.kind must be lib or bin`);
+      }
+      if (!isRepoRelativePath(target.path)) {
+        errors.push(`${targetLabel}.path must be repository-relative`);
+      } else {
+        const targetPath = normalizeRepoPath(target.path);
+        const targetKey = `${target.kind}:${targetPath}`;
+        if (targets.has(targetKey)) errors.push(`${label}.requiredTargets must not contain duplicate ${targetKey}`);
+        targets.add(targetKey);
+        if (normalizedRoots.size > 0 && !normalizedRoots.has(targetPath)) {
+          errors.push(`${targetLabel}.path must be included in roots`);
+        }
+      }
+    }
+  }
+  return errors;
+}
+
+function comparableAbsolutePath(value) {
+  return normalizeRepoPath(path.resolve(value)).toLowerCase();
+}
+
+function cargoMetadataForWorkspace(root, requirements) {
+  const manifest = normalizeRepoPath(requirements.rootManifest);
+  const cacheKey = `${comparableAbsolutePath(root)}::${manifest}`;
+  if (workspaceMetadataCache.has(cacheKey)) return workspaceMetadataCache.get(cacheKey);
+  const rootStatus = repoPathStatus(root, manifest);
+  if (!rootStatus.exists || !rootStatus.regularFile) {
+    const result = { error: `root manifest is unavailable ${manifest}` };
+    workspaceMetadataCache.set(cacheKey, result);
+    return result;
+  }
+  try {
+    const output = execFileSync(
+      'cargo',
+      ['metadata', '--no-deps', '--format-version', '1', '--manifest-path', path.resolve(root, manifest)],
+      {
+        cwd: root,
+        encoding: 'utf8',
+        maxBuffer: 16 * 1024 * 1024,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }
+    );
+    const metadata = JSON.parse(output);
+    const result = {
+      packages: Array.isArray(metadata.packages) ? metadata.packages : [],
+      workspaceMembers: new Set(Array.isArray(metadata.workspace_members) ? metadata.workspace_members : []),
+    };
+    workspaceMetadataCache.set(cacheKey, result);
+    return result;
+  } catch (error) {
+    const detail = String(error?.stderr ?? error?.message ?? error)
+      .replace(/\s+/gu, ' ')
+      .trim()
+      .slice(0, 240);
+    const result = { error: `cargo metadata --no-deps failed for ${manifest}: ${detail}` };
+    workspaceMetadataCache.set(cacheKey, result);
+    return result;
+  }
+}
+
+function workspaceRequirementGaps(root, source) {
+  const requirements =
+    source?.completion?.workspaceRequirements ??
+    source?.metadata?.workspaceRequirements ??
+    (source?.rootManifest !== undefined && source?.packages !== undefined ? source : null);
+  if (!requirements) return [];
+  const gaps = [];
+  const rootManifest = normalizeRepoPath(requirements.rootManifest ?? '');
+  const rootStatus = repoPathStatus(root, rootManifest);
+  if (!rootStatus.exists || !rootStatus.regularFile) {
+    gaps.push(`workspace: missing root manifest ${rootManifest}`);
+    return gaps;
+  }
+  const metadata = cargoMetadataForWorkspace(root, requirements);
+  if (metadata.error) {
+    gaps.push(`workspace: ${metadata.error}`);
+    return gaps;
+  }
+  for (const packageRequirement of requirements.packages ?? []) {
+    const manifest = normalizeRepoPath(packageRequirement.manifest);
+    const packageStatus = repoPathStatus(root, manifest);
+    if (!packageStatus.exists || !packageStatus.regularFile) {
+      gaps.push(`workspace: missing package manifest ${manifest}`);
+    }
+    const packageMetadata = metadata.packages.find(
+      (candidate) =>
+        comparableAbsolutePath(candidate.manifest_path) === comparableAbsolutePath(path.join(root, manifest))
+    );
+    if (!packageMetadata) {
+      gaps.push(`workspace: package ${packageRequirement.package} is not registered by cargo metadata (${manifest})`);
+      for (const target of packageRequirement.requiredTargets ?? []) {
+        gaps.push(
+          `workspace: required ${target.kind} target ${target.path} cannot be confirmed because package ${packageRequirement.package} is absent`
+        );
+      }
+      continue;
+    }
+    if (packageMetadata.name !== packageRequirement.package) {
+      gaps.push(
+        `workspace: manifest ${manifest} declares package ${packageMetadata.name}, expected ${packageRequirement.package}`
+      );
+      for (const target of packageRequirement.requiredTargets ?? []) {
+        gaps.push(
+          `workspace: required ${target.kind} target ${target.path} cannot be confirmed because package name is mismatched`
+        );
+      }
+      continue;
+    }
+    if (packageRequirement.activeMember === true && !metadata.workspaceMembers.has(packageMetadata.id)) {
+      gaps.push(`workspace: package ${packageRequirement.package} is not an active workspace member (${manifest})`);
+    }
+    for (const target of packageRequirement.requiredTargets ?? []) {
+      const targetStatus = repoPathStatus(root, target.path);
+      if (!targetStatus.exists || !targetStatus.regularFile) {
+        gaps.push(`workspace: missing ${target.kind} target path ${target.path}`);
+        continue;
+      }
+      const targetMetadata = (packageMetadata.targets ?? []).some(
+        (candidate) =>
+          Array.isArray(candidate.kind) &&
+          candidate.kind.includes(target.kind) &&
+          comparableAbsolutePath(candidate.src_path) === comparableAbsolutePath(path.join(root, target.path))
+      );
+      if (!targetMetadata) {
+        gaps.push(
+          `workspace: package ${packageRequirement.package} lacks required ${target.kind} target ${target.path}`
+        );
+      }
+    }
+  }
+  return gaps;
 }
 
 export function stableId(prefix, value) {
@@ -179,8 +531,8 @@ export async function loadCodeMap(root, codeMapPath = CODE_MAP_PATH) {
   const text = await readText(root, codeMapPath);
   if (!text) throw new Error(`Code map is missing: ${codeMapPath}`);
   const map = JSON.parse(text);
-  if (map?.schemaVersion !== 1 || !map?.plans || typeof map.plans !== 'object') {
-    throw new Error(`${codeMapPath} must declare schemaVersion 1 and a plans object`);
+  if (!CODE_MAP_SCHEMA_VERSIONS.has(map?.schemaVersion) || !map?.plans || typeof map.plans !== 'object') {
+    throw new Error(`${codeMapPath} must declare schemaVersion 1 or 2 and a plans object`);
   }
   if (
     map.workpacks !== undefined &&
@@ -220,6 +572,23 @@ export async function loadCodeMap(root, codeMapPath = CODE_MAP_PATH) {
     if (new Set(entry.roots.map(normalizeRepoPath)).size !== entry.roots.length) {
       throw new Error(`${codeMapPath} workpack ${workpackId} must not contain duplicate roots`);
     }
+    assertPlannedExecutableRoots(root, codeMapPath, workpackId, entry, {
+      field: 'plannedImplementationRoots',
+      requirement: 'implementation',
+      allowedExpectations: PLANNED_IMPLEMENTATION_EXPECTATIONS,
+    });
+    assertPlannedExecutableRoots(root, codeMapPath, workpackId, entry, {
+      field: 'expectedTestRoots',
+      requirement: 'tests',
+      allowedExpectations: PLANNED_TEST_EXPECTATIONS,
+    });
+    if (entry.workspaceRequirements !== undefined) {
+      const errors = workspaceRequirementSchemaErrors(entry.workspaceRequirements, {
+        owner: `${codeMapPath} workpack ${workpackId}.workspaceRequirements`,
+        roots: entry.roots,
+      });
+      if (errors.length > 0) throw new Error(errors.join('; '));
+    }
   }
   return map;
 }
@@ -234,7 +603,14 @@ function isTestPath(relativePath) {
   );
 }
 
-function workpackCodeExpectationSatisfied(codeExpectation, implementationFiles, testFiles) {
+function workpackCodeExpectationSatisfied(
+  codeExpectation,
+  implementationFiles,
+  testFiles,
+  missingExpectedTestRoots = [],
+  workspaceGaps = []
+) {
+  if (missingExpectedTestRoots.length > 0 || workspaceGaps.length > 0) return false;
   if (codeExpectation === 'no-code-required') {
     return implementationFiles.length === 0 && testFiles.length === 0;
   }
@@ -325,10 +701,21 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
     const codeExpectation = entry.codeExpectation ?? 'code-and-tests';
     if (!rootScope && planSlug && planId(planSlug) !== scope && planSlug !== scope) continue;
     if (!rootScope && !planSlug && !workpackId.startsWith(`WP-${String(scope).replace(/^PLAN-/u, '')}-`)) continue;
+    const expectedTestRoots = [...new Set((entry.expectedTestRoots ?? []).map(normalizeRepoPath))];
+    const missingExpectedTestRoots = expectedTestRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
+    const workspaceRequirements = entry.workspaceRequirements ?? null;
+    const workspaceGaps = workspaceRequirements ? workspaceRequirementGaps(root, workspaceRequirements) : [];
     const uniqueRoots = [...new Set(entry.roots.map(normalizeRepoPath))];
     const missingRoots = uniqueRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
+    // Deferred tooling-test cases: missing expected roots remain visible and unsatisfied;
+    // existing expected roots inside declared roots scan once; existing expected roots
+    // outside declared roots are scanned and counted as test evidence.
+    const existingExpectedTestRoots = expectedTestRoots.filter(
+      (relativePath) => !missingExpectedTestRoots.includes(relativePath)
+    );
+    const scanRoots = [...new Set([...uniqueRoots, ...existingExpectedTestRoots])];
     const files = [];
-    for (const relativePath of uniqueRoots.filter((candidate) => !missingRoots.includes(candidate))) {
+    for (const relativePath of scanRoots.filter((candidate) => !missingRoots.includes(candidate))) {
       files.push(...(await walkCodeFiles(root, relativePath)));
     }
     const uniqueFiles = [...new Set(files)].sort();
@@ -338,9 +725,19 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
       workpackId,
       planSlug,
       codeExpectation,
-      codeExpectationSatisfied: workpackCodeExpectationSatisfied(codeExpectation, implementationFiles, testFiles),
+      codeExpectationSatisfied: workpackCodeExpectationSatisfied(
+        codeExpectation,
+        implementationFiles,
+        testFiles,
+        missingExpectedTestRoots,
+        workspaceGaps
+      ),
       roots: uniqueRoots,
       missingRoots,
+      expectedTestRoots,
+      missingExpectedTestRoots,
+      workspaceRequirements,
+      workspaceRequirementGaps: workspaceGaps,
       state: codeTopologyState(implementationFiles, testFiles),
       codeFiles: uniqueFiles.length,
       implementationFiles: implementationFiles.length,
@@ -435,6 +832,8 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
                 codeExpectationSatisfied: workpackInventory.codeExpectationSatisfied,
                 roots: workpackInventory.roots,
                 missingRoots: workpackInventory.missingRoots,
+                workspaceRequirements: workpackInventory.workspaceRequirements,
+                workspaceRequirementGaps: workpackInventory.workspaceRequirementGaps,
                 implementationFiles: workpackInventory.implementationFiles,
                 testFiles: workpackInventory.testFiles,
                 implementationPaths: workpackInventory.implementationPaths,
@@ -523,6 +922,7 @@ export function flattenProgressReport(report) {
         codeExpectationSatisfied: typeof topology === 'string' ? null : topology.codeExpectationSatisfied,
         implementationFiles: typeof topology === 'string' ? null : topology.implementationFiles,
         testFiles: typeof topology === 'string' ? null : topology.testFiles,
+        workspaceRequirementGaps: typeof topology === 'string' ? [] : (topology.workspaceRequirementGaps ?? []),
         dependsOn: workpack.dependsOn,
         blockers: workpack.blockers,
         unlocks: workpack.unlocks,
@@ -1061,6 +1461,9 @@ function overrideSemanticErrors(overrides, nodeById, repoRoot) {
     if (override.state !== 'validation') errors.push(`${label}.state must be validation`);
     errors.push(...requiredString(override.reason, `${label}.reason`));
     if (override.statusText !== undefined) errors.push(...requiredString(override.statusText, `${label}.statusText`));
+    if (override.needsReview !== undefined && typeof override.needsReview !== 'boolean') {
+      errors.push(`${label}.needsReview must be boolean`);
+    }
     errors.push(...requiredStringArray(override.evidence, `${label}.evidence`, { existing: true, root: repoRoot }));
   });
 
@@ -1135,6 +1538,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   }
 
   const overrides = await readOverrides(repoRoot, overridesPath);
+  const codeMap = (await readText(repoRoot, CODE_MAP_PATH)) ? await loadCodeMap(repoRoot) : { workpacks: {} };
   const nodes = [
     {
       id: 'GOAL-ocentra-parent',
@@ -1157,6 +1561,44 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     edges.push({ from: workpack.parent, to: workpack.id, kind: 'contains', confidence: 'structural' });
   }
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  for (const [workpackId, mapping] of Object.entries(codeMap.workpacks ?? {})) {
+    if (
+      !Array.isArray(mapping.plannedImplementationRoots) &&
+      !Array.isArray(mapping.expectedTestRoots) &&
+      mapping.workspaceRequirements === undefined
+    )
+      continue;
+    const node = nodeById.get(workpackId);
+    if (!node || node.kind !== 'workpack') {
+      throw new Error(`${CODE_MAP_PATH} planned executable owner is not an imported workpack: ${workpackId}`);
+    }
+    const plannedImplementationRoots = (mapping.plannedImplementationRoots ?? []).map(normalizeRepoPath);
+    const expectedTestRoots = (mapping.expectedTestRoots ?? []).map(normalizeRepoPath);
+    const references = { ...node.completion.references };
+    if (plannedImplementationRoots.length > 0) references.implementation = [];
+    const expected = { ...(node.completion.expected ?? {}) };
+    if (plannedImplementationRoots.length > 0) expected.implementation = plannedImplementationRoots;
+    if (expectedTestRoots.length > 0) expected.tests = expectedTestRoots;
+    node.completion = {
+      ...node.completion,
+      references,
+      expected,
+    };
+    node.metadata = {
+      ...node.metadata,
+      plannedSourceExpectation: {
+        source: CODE_MAP_PATH,
+        roots: plannedImplementationRoots,
+        testRoots: expectedTestRoots,
+      },
+    };
+    if (mapping.workspaceRequirements !== undefined) {
+      node.completion = {
+        ...node.completion,
+        workspaceRequirements: mapping.workspaceRequirements,
+      };
+    }
+  }
   const overrideErrors = overrideSemanticErrors(overrides, nodeById, repoRoot);
   if (overrideErrors.length > 0) {
     throw new Error(`${overridesPath} is invalid: ${overrideErrors.join('; ')}`);
@@ -1195,7 +1637,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     node.metadata = {
       ...node.metadata,
       ...(override.statusText ? { statusText: override.statusText } : {}),
-      needsReview: node.metadata?.dependencyReviewRejected ? true : false,
+      needsReview: override.needsReview === true || node.metadata?.dependencyReviewRejected ? true : false,
     };
   }
   for (const override of overrides.proofOverrides) {
@@ -1341,24 +1783,33 @@ function completionRequirementGaps(
   }
   if (includeExpectedArtifacts) {
     for (const reference of expected) {
-      if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement)) {
-        gaps.push(`${requirement}: missing expected artifact ${reference}`);
-      }
+      if (durableProofSatisfiesExpected(root, node, requirement)) continue;
+      if (['implementation', 'tests'].includes(requirement)) {
+        const problem = executableEvidenceProblem(root, node, requirement, reference);
+        if (problem?.startsWith('missing path ')) gaps.push(`${requirement}: missing expected artifact ${reference}`);
+        else if (problem) gaps.push(`${requirement}: invalid expected artifact ${reference}: ${problem}`);
+      } else if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing expected artifact ${reference}`);
     }
   }
   return gaps;
 }
 
 export function completionGaps(root, node, { includeExpectedArtifacts = true } = {}) {
-  if (!node.completion) return [];
-  const requirements = new Set([
-    ...(node.completion.required ?? []),
-    ...Object.keys(node.completion.references ?? {}),
-    ...Object.keys(node.completion.expected ?? {}),
-  ]);
-  return [...requirements].flatMap((requirement) =>
-    completionRequirementGaps(root, node, requirement, { includeExpectedArtifacts })
-  );
+  const gaps = [];
+  if (node.completion) {
+    const requirements = new Set([
+      ...(node.completion.required ?? []),
+      ...Object.keys(node.completion.references ?? {}),
+      ...Object.keys(node.completion.expected ?? {}),
+    ]);
+    gaps.push(
+      ...[...requirements].flatMap((requirement) =>
+        completionRequirementGaps(root, node, requirement, { includeExpectedArtifacts })
+      )
+    );
+  }
+  gaps.push(...workspaceRequirementGaps(root, node));
+  return gaps;
 }
 
 function durableProofSatisfiesExpected(root, node, requirement) {
@@ -1422,6 +1873,7 @@ function implementationDependencyBlocker(graph, edge, states, root) {
   }
   if (edge.implementationGate === IMPLEMENTATION_GATE) {
     const gaps = completionRequirementGaps(root, dependency, 'implementation', { requireDeclared: true });
+    gaps.push(...workspaceRequirementGaps(root, dependency));
     if (
       gaps.length === 0 &&
       !dependency.metadata?.completionEvidenceOverride?.requirements?.includes('implementation')
@@ -1471,7 +1923,8 @@ function deriveImplementationAuthorization(
     return { phase: 'implementation', status: 'complete', authorized: false, blockers: [] };
   }
   const implementationGaps = completionRequirementGaps(root, node, 'implementation', { requireDeclared: true });
-  if (implementationGaps.length === 0) {
+  const workspaceGaps = workspaceRequirementGaps(root, node);
+  if (implementationGaps.length === 0 && workspaceGaps.length === 0) {
     return { phase: 'implementation', status: 'complete', authorized: false, blockers: [] };
   }
 
@@ -1492,6 +1945,7 @@ function deriveImplementationAuthorization(
     status: blockers.length === 0 ? 'authorized' : 'blocked',
     authorized: blockers.length === 0,
     blockers,
+    gaps: [...implementationGaps, ...workspaceGaps],
   };
 }
 
@@ -1655,6 +2109,13 @@ export function validateGraph(graph, { root = process.cwd(), allowStoredStateDri
     }
     if (node.kind === 'workpack' && node.parent && map.get(node.parent)?.kind !== 'plan') {
       errors.push(`${node.id} workpack parent must be a plan`);
+    }
+    const workspaceRequirements = node.completion?.workspaceRequirements ?? node.metadata?.workspaceRequirements;
+    if (workspaceRequirements !== undefined) {
+      const workspaceErrors = workspaceRequirementSchemaErrors(workspaceRequirements, {
+        owner: `${node.id} completion.workspaceRequirements`,
+      });
+      errors.push(...workspaceErrors);
     }
     if (node.dependsOn !== undefined && !Array.isArray(node.dependsOn)) {
       errors.push(`${node.id} dependsOn must be an array`);

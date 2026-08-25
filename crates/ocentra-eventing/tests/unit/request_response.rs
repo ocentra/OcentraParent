@@ -7,11 +7,11 @@ use super::{
     fixtures::{metadata, metadata_with_event_id, subscriber_for_event, TestText, TEST_TARGET},
     request_response_support::{
         test_request, test_request_with_id, test_result_event, InvalidContractRequestEvent,
-        TestRequestEvent, TestResponse, TestText as RequestText, REQUEST_EVENT_TYPE, REQUEST_ID,
-        RESULT_EVENT_TYPE,
+        TestRequestEvent, TestResponse, TestResultEvent, TestText as RequestText,
+        REQUEST_EVENT_TYPE, REQUEST_ID, RESULT_EVENT_TYPE,
     },
 };
-use crate::{EventPublisher, EventingError, RequestCompletionOutcome, RequestId, RequestOptions};
+use crate::{EventRecorder, EventingError, RequestCompletionOutcome, RequestId, RequestOptions};
 
 const REQUEST_TERMINAL_RETENTION_PROBE_COUNT: usize = 4097;
 
@@ -50,21 +50,15 @@ async fn publish_request_resolves_associated_response_type() {
 #[tokio::test]
 async fn request_terminal_retention_uses_completion_order_not_request_id_sort_order() {
     let bus = crate::EventBus::new();
-    let captured_publisher = Arc::new(Mutex::new(None::<EventPublisher>));
-    let captured_publisher_clone = Arc::clone(&captured_publisher);
     bus.subscribe::<TestRequestEvent, _, _>(
         subscriber_for_event(
             TestText("request-retention-subscriber".to_owned()),
             TestText(TEST_TARGET.to_owned()),
             TestText(REQUEST_EVENT_TYPE.to_owned()),
         ),
-        move |context| {
-            let captured_publisher = Arc::clone(&captured_publisher_clone);
-            async move {
-                *captured_publisher.lock().await = Some(context.publisher().clone());
-                context.complete_request(TestResponse::approved()).await?;
-                Ok(())
-            }
+        |context| async move {
+            context.complete_request(TestResponse::approved()).await?;
+            Ok(())
         },
     )
     .await
@@ -92,27 +86,41 @@ async fn request_terminal_retention_uses_completion_order_not_request_id_sort_or
         .await;
     }
 
-    let publisher = captured_publisher
-        .lock()
+    let retained = bus
+        .publish_request(
+            test_request_with_id(
+                RequestText("retained-first-new".to_owned()),
+                RequestText(first_new.as_str().to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("request-retention-event-retained-probe".to_owned()),
+            ),
+            RequestOptions::with_timeout(Duration::from_millis(50))
+                .expect_value("request options valid"),
+        )
+        .await;
+    assert!(matches!(
+        retained,
+        Err(EventingError::DuplicateRequest { request_id }) if request_id == first_new
+    ));
+
+    let recycled_oldest = bus
+        .publish_request(
+            test_request_with_id(
+                RequestText("recycled-oldest".to_owned()),
+                RequestText(oldest.as_str().to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("request-retention-event-recycled-oldest".to_owned()),
+            ),
+            RequestOptions::with_timeout(Duration::from_millis(50))
+                .expect_value("request options valid"),
+        )
         .await
-        .clone()
-        .expect_value("request publisher captured");
-    assert_eq!(
-        publisher
-            .complete_request::<TestRequestEvent>(oldest, TestResponse::approved())
-            .await
-            .expect_value("evicted oldest reports late")
-            .outcome,
-        RequestCompletionOutcome::Late
-    );
-    assert_eq!(
-        publisher
-            .complete_request::<TestRequestEvent>(first_new, TestResponse::approved())
-            .await
-            .expect_value("newer low-sorted request remains retained")
-            .outcome,
-        RequestCompletionOutcome::Duplicate
-    );
+        .expect_value("completion-order-evicted request id can register again");
+    assert_eq!(recycled_oldest.response.decision, "approved");
     assert_eq!(
         bus.metrics_snapshot()
             .await
@@ -123,7 +131,7 @@ async fn request_terminal_retention_uses_completion_order_not_request_id_sort_or
 }
 
 async fn publish_retention_probe_request(
-    bus: &crate::EventBus,
+    bus: &crate::bus::publisher::RootEventPublisher,
     label: TestText,
     request_id: TestText,
     event_id: TestText,
@@ -188,8 +196,8 @@ async fn invalid_response_validation_does_not_settle_request() {
 #[tokio::test]
 async fn request_timeout_reports_late_response_without_mutating_result() {
     let bus = crate::EventBus::new();
-    let outcomes = Arc::new(Mutex::new(Vec::new()));
-    let outcomes_clone = Arc::clone(&outcomes);
+    let attempts = Arc::new(Mutex::new(Vec::new()));
+    let attempts_clone = Arc::clone(&attempts);
     bus.subscribe::<TestRequestEvent, _, _>(
         subscriber_for_event(
             TestText("request-subscriber".to_owned()),
@@ -197,15 +205,15 @@ async fn request_timeout_reports_late_response_without_mutating_result() {
             TestText(REQUEST_EVENT_TYPE.to_owned()),
         ),
         move |context| {
-            let outcomes = Arc::clone(&outcomes_clone);
+            let attempts = Arc::clone(&attempts_clone);
             async move {
                 tokio::spawn(async move {
                     tokio::time::sleep(Duration::from_millis(20)).await;
-                    let report = context
+                    let completion = context
                         .complete_request(TestResponse::approved())
                         .await
-                        .expect_value("late completion reports");
-                    outcomes.lock().await.push(report.outcome);
+                        .map(|report| report.outcome);
+                    attempts.lock().await.push(completion);
                 });
                 Ok(())
             }
@@ -226,9 +234,14 @@ async fn request_timeout_reports_late_response_without_mutating_result() {
 
     assert!(matches!(result, Err(EventingError::RequestTimedOut { .. })));
     assert_eq!(
-        outcomes.lock().await.as_slice(),
-        &[RequestCompletionOutcome::Late]
+        attempts.lock().await.as_slice(),
+        &[Err(EventingError::CausalPublicationOutsideHandlerTask)]
     );
+    let metrics = bus.metrics_snapshot().await;
+    assert_eq!(metrics.requests.completed_request_count, 0);
+    assert_eq!(metrics.requests.timed_out_request_count, 1);
+    assert_eq!(metrics.queue.queued_event_count, 0);
+    assert_eq!(metrics.queue.in_flight_event_id_count, 0);
 }
 
 #[tokio::test]
@@ -393,8 +406,18 @@ async fn double_completion_is_ignored_and_reported() {
 }
 
 #[tokio::test]
-async fn durable_result_event_pattern_remains_separate_from_local_completion() {
+async fn in_memory_result_event_pattern_remains_separate_from_local_completion() {
     let bus = crate::EventBus::new();
+    let result_owner = EventRecorder::<TestResultEvent>::attach(
+        &bus,
+        subscriber_for_event(
+            TestText("request-result-owner".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(RESULT_EVENT_TYPE.to_owned()),
+        ),
+    )
+    .await
+    .expect_value("result owner subscribes through the real bus");
     bus.subscribe::<TestRequestEvent, _, _>(
         subscriber_for_event(
             TestText("request-subscriber".to_owned()),
@@ -429,8 +452,14 @@ async fn durable_result_event_pattern_remains_separate_from_local_completion() {
         .await
         .expect_value("request resolves");
     let journal = bus.journal().await;
+    let owned_results = result_owner.recorded().await;
 
     assert_eq!(report.response.decision, "approved");
+    assert_eq!(owned_results.len(), 1);
+    assert_eq!(
+        owned_results[0].contract().event_type.as_str(),
+        RESULT_EVENT_TYPE
+    );
     assert_eq!(journal.len(), 2);
     assert_eq!(journal[0].contract.event_type.as_str(), REQUEST_EVENT_TYPE);
     assert_eq!(journal[1].contract.event_type.as_str(), RESULT_EVENT_TYPE);

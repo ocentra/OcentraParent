@@ -5,7 +5,10 @@ use super::{
 };
 
 impl StorageCustodyEffectStore {
-    pub(super) fn prepare(&self, record: StorageCustodyEffectRecord) -> io::Result<()> {
+    pub(in crate::service::storage_custody_runtime) fn prepare(
+        &self,
+        record: StorageCustodyEffectRecord,
+    ) -> io::Result<()> {
         validate_record_for_prepare(&record)?;
         let lock = self.lock()?;
         fs2::FileExt::lock_exclusive(&lock)?;

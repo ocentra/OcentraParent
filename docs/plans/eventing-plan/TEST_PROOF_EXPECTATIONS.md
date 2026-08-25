@@ -152,6 +152,23 @@ queue/request-response caller, does not synthesize an AI-policy-enforcement
 chain, and does not claim downstream consumer execution, broker/relay delivery,
 CI, review, merge, or Network WP04 readiness.
 
+## WP08 parent runtime expected test source
+
+The current service ingress is source-hardened only. It must remain
+manual-required until the dependency-owned authority, producer, and consumer
+seams exist. During the later test-writing wave add:
+
+```text
+crates/agent-service/tests/parent_runtime_intent_ingress.rs
+crates/parent-runtime-core/tests/integration/parent_runtime_intent_ingress.rs
+```
+
+The service test owns malformed, extra-field, source-spoof, unauthenticated,
+and no-false-success cases. The parent-runtime integration test owns opaque
+session authority, canonical Tracking/Policy producer calls, durable
+journal/replay, consumer ownership, and child-local-republish. Existing helper
+tests do not substitute for either missing root.
+
 ## Required states
 
 ```text

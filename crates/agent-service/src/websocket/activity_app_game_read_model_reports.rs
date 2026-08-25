@@ -7,16 +7,21 @@ use crate::activity_api::{
     app_game_adapter_dispatch_result_payload::build_activity_app_game_adapter_dispatch_result_report,
     app_game_adapter_execution_readiness_payload::build_activity_app_game_adapter_execution_readiness_report,
     app_game_child_runtime_transport_receipt_payload::build_activity_app_game_child_runtime_transport_receipt_report,
-    app_game_platform_proof_status_payload::build_activity_app_game_platform_proof_status_report,
     build_activity_app_game_boundary_read_model_report,
     build_activity_app_game_notification_readiness_report,
     build_activity_app_game_policy_readiness_report,
 };
 
-use super::basic_reports::build_log_snapshot_report;
+use super::{
+    basic_reports::build_log_snapshot_report, WebsocketPeerProvenance,
+    WebsocketPlatformProbeDispatcher,
+};
+use std::sync::Arc;
 
 pub(super) async fn build_activity_app_game_read_model_report(
     command: AgentCommandEnvelope,
+    probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
+    provenance: WebsocketPeerProvenance,
 ) -> AgentEventEnvelope {
     match command.command.clone() {
         AgentCommandName::AgentActivityAppGameBoundaryReadModelGet => {
@@ -32,7 +37,7 @@ pub(super) async fn build_activity_app_game_read_model_report(
             build_activity_app_game_adapter_execution_readiness_report(command).await
         }
         AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet => {
-            build_activity_app_game_platform_proof_status_report(command).await
+            probe_dispatcher(command, provenance).await
         }
         AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet => {
             build_activity_app_game_child_runtime_transport_receipt_report(command).await
