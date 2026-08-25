@@ -2,6 +2,8 @@
 
 #![cfg(not(windows))]
 
+#[path = "unsupported_cng.rs"]
+mod cng;
 #[path = "unsupported_process.rs"]
 mod process;
 #[path = "unsupported_registry.rs"]

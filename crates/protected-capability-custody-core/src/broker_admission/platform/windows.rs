@@ -136,9 +136,10 @@ pub(super) fn map_ffi_error(
 
     match error {
         Error::UnsupportedPlatform | Error::Win32(2 | 3) => PlatformError::DeploymentRequired,
-        Error::InvalidInput(_) | Error::MalformedTpm | Error::BufferTooLarge => {
-            PlatformError::Tampered
-        }
-        Error::Win32(_) | Error::Tpm(_) => PlatformError::Unavailable,
+        Error::InvalidInput(_)
+        | Error::MalformedTpm
+        | Error::BufferTooLarge
+        | Error::CryptoPropertyViolation => PlatformError::Tampered,
+        Error::Win32(_) | Error::Tpm(_) | Error::Crypto(_) => PlatformError::Unavailable,
     }
 }

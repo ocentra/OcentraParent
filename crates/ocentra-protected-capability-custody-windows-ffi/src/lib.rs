@@ -55,6 +55,11 @@ pub enum Error {
     InvalidInput(InputFault),
     /// A response did not satisfy the strict TPM wire shape.
     MalformedTpm,
+    /// A Microsoft CNG/PCP API returned an error status.
+    Crypto(u32),
+    /// A CNG/PCP key response did not satisfy the required hardware,
+    /// non-exportable, sign-only, or TPM material invariants.
+    CryptoPropertyViolation,
 }
 
 /// Result type used by the FFI boundary.
@@ -283,4 +288,68 @@ pub enum TpmCounterIncrementUncertainty {
     Transport,
     /// A response arrived but its success framing or authorization was invalid.
     MalformedResponse,
+}
+
+/// A machine-scoped handle to the fixed Microsoft Platform Crypto Provider.
+///
+/// The provider identity is compiled into the implementation; callers cannot
+/// select a provider or pass an MSI-controlled name through this boundary.
+pub type OwnedPcpProvider = owned_types::OwnedPcpProvider;
+
+/// A retained non-exportable PCP signing key and its provider handle.
+///
+/// This type exposes only signing and mechanical observations. It does not
+/// mint enrollment, custody, or caller authority.
+pub type OwnedPcpSigningKey = owned_types::OwnedPcpSigningKey;
+
+/// Mechanical properties observed from the fixed PCP signing key.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PcpKeyObservation {
+    key_name: WindowsText,
+    implementation_type: u32,
+    export_policy: u32,
+    key_usage: u32,
+    pcp_key_usage_policy: u32,
+    platform_type: WindowsText,
+    security_descriptor: Vec<u8>,
+    ek_public: Vec<u8>,
+    tpm2b_name: Vec<u8>,
+}
+
+impl PcpKeyObservation {
+    pub fn key_name(&self) -> &WindowsText {
+        &self.key_name
+    }
+
+    pub fn implementation_type(&self) -> u32 {
+        self.implementation_type
+    }
+
+    pub fn export_policy(&self) -> u32 {
+        self.export_policy
+    }
+
+    pub fn key_usage(&self) -> u32 {
+        self.key_usage
+    }
+
+    pub fn pcp_key_usage_policy(&self) -> u32 {
+        self.pcp_key_usage_policy
+    }
+
+    pub fn platform_type(&self) -> &WindowsText {
+        &self.platform_type
+    }
+
+    pub fn security_descriptor(&self) -> &[u8] {
+        &self.security_descriptor
+    }
+
+    pub fn ek_public(&self) -> &[u8] {
+        &self.ek_public
+    }
+
+    pub fn tpm2b_name(&self) -> &[u8] {
+        &self.tpm2b_name
+    }
 }

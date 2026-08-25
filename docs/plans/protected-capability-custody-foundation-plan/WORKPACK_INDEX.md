@@ -11,11 +11,11 @@
 <!-- /agent-capsule -->
 
 Choose exactly one workpack. The source map and graph-native workspace
-requirements are deliberately
-separate: the core/protocol/broker/client production roots are live topology,
-while the one Windows FFI crate, private core Windows modules, installer-side
-Parent Runtime WP12 package, production caller, and test roots remain expected
-and missing.
+requirements are deliberately separate: the core/protocol/broker/client/FFI
+and private core Windows production roots are now live, reviewed topology at
+canonical `9375b0e10`, while the WP01-owned installer-side BIN-only provisioner,
+the Parent Runtime WP12 package/lifecycle invocation, production caller, and
+13 test roots remain expected and missing.
 
 The implementation-only repair route is governed by
 [ADR-PCC-002](adr/ADR-PCC-002.md). It selects one existing Rust Windows
@@ -25,7 +25,7 @@ identity, public proof construction, or fake authority.
 
 | Status | Workpack | Source boundary | Required proof tier | Open condition |
 | --- | --- | --- | --- | --- |
-| validation / implementation-only repair authorized by graph; normal state remains validation | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Active fail-closed core, neutral protocol, isolated Windows broker, client, narrow core facade, one planned Windows FFI manifest/lib, and private core Windows module targets | P0 security/persistence/platform | Safe pinned process/token and registry ACL owners, non-restorable monotonic authority, installer/SCM enrollment, a real caller, expected tests, proof, and runtime availability remain absent. |
+| validation / source accepted; runtime and test closure open | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Active fail-closed core, neutral protocol, isolated Windows broker, client, private FFI mechanics, and private core Windows adapter at reviewed canonical `9375b0e10` (99 implementation files / 0 tests) | P0 security/persistence/platform | TPM policy/non-exportable handle authority, installer/provisioner enrollment, a real caller, 13 expected tests, proof, and runtime availability remain absent. |
 
 ## Ownership and dependency rules
 
@@ -44,19 +44,22 @@ identity, public proof construction, or fake authority.
   It does not make `CustodyAdmission`, platform guards, or authority
   implementations public.
 - The broker source is a separate process boundary and its client consumes only
-  typed opaque results. Successful protected admission remains disabled until
-  the missing OS/installer authority adapters exist.
-- ADR-PCC-002 adds one planned, absent workspace member:
-  `ocentra-protected-capability-custody-windows-ffi`, with only a manifest and
-  `lib` target. It is the only package allowed to contain raw unsafe Win32/TBS/
-  TPM wrappers; its manifest must use package-local lint tables, not
-  `[lints] workspace = true`, set `unsafe_code = "allow"` and
-  `unsafe_op_in_unsafe_fn = "deny"`, and manually mirror every workspace
-  Rust/Clippy deny except `unsafe_code`. The safe adapter is private
-  `cfg(windows)` core modules, and core plus broker continue inheriting
-  `[lints] workspace = true`. Core depends on the FFI package; the broker
-  continues depending on core and protocol. All planned roots are routing, not
-  source presence.
+  typed opaque results. The FFI mechanics and private core adapter are now
+  present, but successful protected admission remains disabled until the TPM
+  policy/non-exportable handle and installer authority are available.
+- ADR-PCC-002 records the integrated `ocentra-protected-capability-custody-
+  windows-ffi` member as the only package allowed to contain raw unsafe
+  Win32/TBS/TPM wrappers. Its manifest uses package-local lint tables, not
+  `[lints] workspace = true`, and the safe adapter remains private
+  `cfg(windows)` core modules. Core is the sole current FFI consumer; the
+  WP01-owned BIN-only provisioner is the only other permitted consumer. The
+  broker and client continue depending on core/protocol only.
+- WP01 owns the separate expected BIN-only provisioner package at its Cargo
+  manifest, `src/main.rs`, and private `src/provisioning/` directory. It has no
+  library or public API, performs only the fixed installer-owned operation, and
+  may not accept caller/MSI-provided path, index, policy, auth, identity, or
+  success values. WP12 only invokes/packages this binary and owns its MSI/WiX,
+  build, and lifecycle roots; the package source remains absent.
 - The future core adapter must verify retained pipe/process/token handles, SID,
   integrity, session, image/SCM identity, exact registry owner/protected
   DACL/ACE/ancestor chain, nonce/expiry/replay, and TPM2 NV/TBS monotonic
@@ -66,7 +69,8 @@ identity, public proof construction, or fake authority.
   is fail closed and requires re-pair; disk state cannot restore generation.
 - Parent Client Runtime Distribution WP12 owns only the parent-side MSI/WiX
   package, elevated custom-action/provisioner invocation, build/release wiring,
-  and upgrade/rollback/uninstall lifecycle. It may not expose or accept raw
+  and upgrade/rollback/uninstall lifecycle. It invokes/packages the WP01-owned
+  binary but does not own its Cargo source. It may not expose or accept raw
   `authValue`, TPM index/policy, SID, path, image identity, generation, lease,
   capability, or success input. Protected WP01 remains the sole owner of the
   private core/FFI enrollment and TPM-policy acceptance boundary.
