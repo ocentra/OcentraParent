@@ -9,6 +9,35 @@ Define the normalized adapter contract across Stripe, Razorpay, PayPal, store bi
 - `packages/billing-domain/src/billing-account-runtime-boundary.ts`
 - `packages/billing-domain/src/billing-checkout-portal-boundary.ts`
 
+## Reviewed production truth - 2026-08-25
+
+This workpack is `blocked / source reviewed`; this checkpoint records source
+and caller truth only. It adds no completion evidence, tests, proof, CI, PR,
+READY, or DONE state.
+
+- The two planned `packages/billing-domain` source paths are absent. The
+  `infra/cloudflare/src/providers/` directory contains Firebase authentication
+  providers only; its README is a future payment-adapter placeholder.
+- `infra/cloudflare/src/auth/provider-webhook.ts` verifies Stripe timestamped
+  HMAC only. The Worker handlers for Razorpay, PayPal, Apple, and Google return
+  `manual-required`, and the webhook route contracts remain unbound. Checkout
+  and portal executions are also manual-required because their provider owner
+  is missing.
+- `crates/billing-core` has provider channel/mode/event and lifecycle
+  classification types, but no non-test production caller and no credential or
+  provider API owner. The public lifecycle helpers accept caller-supplied trust
+  and state classifications.
+- Cloudflare owns durable provider receipt, cursor, queue, retry,
+  dead-letter, and mutation-outbox custody and rechecks Account-composite
+  provider mapping. Receipt rows do not carry normalized signature state,
+  payload-parse state, or provider mode, so this is not yet a normalized
+  cross-provider adapter boundary.
+- The mapped Cloudflare tests use local-safe fixtures, and some non-Stripe
+  acceptance expectations are stale against the current fail-closed handlers.
+  The WP08 unit-test roots from the proof inventory and the WP08 proof root are
+  absent. Adapter-interface, provider-contract, normalized-event,
+  provider-lock, and no-direct-provider-read assertions remain open.
+
 ## Read inputs
 
 - [PLAN_STATE.md](../PLAN_STATE.md)

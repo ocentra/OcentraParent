@@ -890,9 +890,13 @@
       ],
       "evidence": [
         "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md"
+        "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md",
+        "infra/cloudflare/src/auth/provider-webhook.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "crates/billing-core/src/billing_subscription.rs"
       ],
-      "reason": "Provider portability requires the Cloudflare handoff, app-owned product/pricing/entitlement, real checkout/portal boundary, and canonical webhook lifecycle; no synthetic URLs or provider events."
+      "reason": "Reviewed source truth keeps WP08 blocked: only Stripe raw HMAC is implemented, other provider webhook paths fail closed, no payment adapters or non-test Rust lifecycle caller exist, and durable receipts lack normalized signature/parse/mode fields. Planned billing-domain source/tests and proof are absent; this records routing only and does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "id": "WP-payment-subscription-plan-09-regional-payment-rollout",
@@ -904,9 +908,13 @@
       ],
       "evidence": [
         "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md"
+        "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md",
+        "docs/plans/payment-subscription-plan/REGIONAL_PAYMENT_MARKET_MATRIX.md",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/src/routes.ts"
       ],
-      "reason": "Regional rollout requires the server runtime/storage handoff, app-owned currency/product policy, real checkout boundary, and normalized provider availability; WP09 cannot precede WP08."
+      "reason": "Reviewed source truth keeps WP09 blocked: the regional matrix is strategy-only, with no non-test region/provider selector, currency/tax launch gate, verified currentness binding, or live fallback caller. Manual-invoice accepts a region string and status exposes stripe-hosted/manual-invoice modes; planned source/tests and proof are absent. This records routing only and does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "id": "WP-payment-subscription-plan-10-referral-growth-entitlement",
