@@ -16,37 +16,38 @@
 
 ## Target State
 
-All AI input, output, runtime, queue, route, memory, graph, explanation, and remote assistant shapes that cross package, crate, app, or plan boundaries are Rust-owned in `crates/schema` or another explicitly neutral Rust boundary. TypeScript may keep generated validation or temporary edge decoders only where migration is still incomplete.
+All AI input, output, runtime, queue, route, memory, graph, explanation, and remote assistant shapes that cross package, crate, app, or plan boundaries are Rust-owned in the neutral `crates/ai-contracts` leaf or another explicitly selected Rust boundary. TypeScript may keep generated validation or temporary edge decoders only where migration is still incomplete.
 
 ## Where We Are
 
 ### Current source checkpoint — 2026-08-25
 
-The Rust-owned contract source is integrated at canonical `83382d67b`. The
-packet includes the journal and result digest bindings in
-`crates/schema/src/ai_contracts/journal/digest.rs` and
-`crates/schema/src/ai_contracts/result/digest.rs`, the exporter, and the
-generated `packages/schema-domain` edge surface. Independent source review is
-implementation-only: no general production caller is mapped and the expected
-test source is absent at:
+The Rust-owned contract source is integrated at source commit `6318d5e3d` in
+the canonical consolidation. Independent review accepted the byte-preserving
+move of the complete contract family, including journal and result digest
+bindings, into `crates/ai-contracts`. The `crates/schema` exporter consumes the
+leaf directly and continues to produce the generated `packages/schema-domain`
+edge surface. This remains implementation-only: no general production caller
+is mapped and the expected test source is absent at:
 
 - `crates/ai-contracts/tests/contract/ai_contracts.rs`
 - `crates/ai-contracts/tests/contract/ai_contracts_negative.rs`
 - `packages/schema-domain/tests/contract/ai-contracts.test.ts`
 
 ADR-AI-001 (`docs/plans/ai-plan/DECISIONS.md`) selects the source-preserving
-neutral leaf crate `crates/ai-contracts` / `ocentra-ai-contracts`. The move,
-schema/protocol dependency update, explicit WP04 adapter, tests, caller,
-focused validation, proof, CI, READY, and DONE remain open. Do not treat the
-current schema source or the review at `83382d67b` as completion.
+neutral leaf crate `crates/ai-contracts` / `ocentra-ai-contracts`. The move and
+direct schema dependency are now present without a public re-export. The
+agent-protocol dependency belongs to the still-missing explicit WP04 adapter;
+tests, caller, focused execution, proof, CI, READY, and DONE remain open. Do
+not treat accepted source integration as workpack completion.
 
 Historical notes referenced `packages/parent-domain` as the AI contract home. That is stale for current central-schema direction. Current routing is:
 
 ```text
-crates/ai-contracts (`ocentra-ai-contracts`), after the source-preserving move:
+crates/ai-contracts (`ocentra-ai-contracts`):
   canonical shared AI shapes and parsers in a neutral leaf crate.
 crates/schema:
-  current reviewed source during migration, then a direct consumer only.
+  direct exporter/generated-edge consumer only.
 packages/schema-domain:
   temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 packages/ai-domain:
@@ -55,13 +56,14 @@ crates/child-ai-core / crates/screen-ai-core / crates/agent-protocol:
   Rust runtime/parity/wire consumers only when selected.
 ```
 
-Do not add new cross-plan canonical AI contracts to `parent-domain`, `browser-domain`, `app-game-domain`, `screen-domain`, or portal packages. If those owners need the same shape, promote it to `crates/schema` or consume it from the relevant Rust owner. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete.
+Do not add new cross-plan canonical AI contracts to `parent-domain`, `browser-domain`, `app-game-domain`, `screen-domain`, or portal packages. If those owners need the same shape, add it to the selected neutral Rust owner or consume it from that owner. Use `schema-domain` only as a generated-validation or edge-decoder surface.
 
 ## Owner Path
 
 ```text
-Primary owner: crates/ai-contracts (`ocentra-ai-contracts`) after migration
-Allowed consumers: crates/schema and crates/agent-protocol as direct consumers,
+Primary owner: crates/ai-contracts (`ocentra-ai-contracts`)
+Allowed consumers: crates/schema directly; crates/agent-protocol only through
+  the separately owned WP04 adapter,
   schema-domain as generated parity/edge validation, ai-domain, child-ai-core,
   screen-ai-core, agent-service, portal-domain/apps/portal when selected
 Forbidden owner drift: browser/screen/tracking/network/app-game/policy/enforcement/portal runtime packages defining their own AI contract copies

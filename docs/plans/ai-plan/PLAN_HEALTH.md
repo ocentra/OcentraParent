@@ -28,7 +28,7 @@ This file records documentation health and consistency checks for the plan. It i
 
 - Possible status mismatch: implementation checklist is 168/169 checked, but 47/48 workpacks still contain open boxes. Do not claim the plan complete until the assigned workpack/checklist source is reconciled.
 - Current execution source is the assigned workpack plus proof root. Historical checked rows do not override open workpack boxes.
-- Central AI contracts belong in `schema-domain` when the shape crosses package, crate, app, or plan boundaries. Do not repair stale AI work by recreating canonical contracts in `ai-domain`.
+- Central AI contracts belong in the neutral Rust `crates/ai-contracts` leaf when the shape crosses package, crate, app, or plan boundaries. `schema-domain` owns only its generated TypeScript edge; do not recreate canonical contracts in `ai-domain`.
 - Direct runtime coupling from AI to browser, screen, tracking, network, app/game, policy, enforcement, LAN, or remote owners is unhealthy unless the selected workpack records a temporary compatibility reason and a handoff replacement route.
 
 ## Required hygiene before PR_READY

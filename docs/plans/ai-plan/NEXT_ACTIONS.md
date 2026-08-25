@@ -29,12 +29,11 @@ This file is the short resume list for the next worker. It is derived from open 
 Checkbox count is no longer used to choose the next code slice. The retained
 source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
 
-1. Complete the WP03 source-preserving migration from the reviewed
-   `crates/schema` packet at `83382d67b` into the neutral leaf crate
-   `crates/ai-contracts` (`ocentra-ai-contracts`). Keep schema and
-   agent-protocol as direct consumers, preserve the generated TypeScript owner,
-   and add no public re-export or authority constructor.
-2. Write WP03's owned contract/parity tests together after the move:
+1. Keep the independently accepted WP03 neutral leaf at source commit
+   `6318d5e3d` stable: `crates/ai-contracts` (`ocentra-ai-contracts`) owns the
+   Rust contract family and `crates/schema` consumes it directly for generated
+   TypeScript. Do not add a public re-export or authority constructor.
+2. Write WP03's owned contract/parity tests together:
    `crates/ai-contracts/tests/contract/ai_contracts.rs`,
    `crates/ai-contracts/tests/contract/ai_contracts_negative.rs`, and
    `packages/schema-domain/tests/contract/ai-contracts.test.ts`. Establish and
@@ -44,7 +43,7 @@ source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
    write its separately owned contract test:
    `crates/agent-protocol/tests/contract/ai_contracts.rs`. WP04 must consume
    the leaf through an explicit wire adapter and must not duplicate WP03's
-   leaf/TypeScript tests or schema ownership. Source migration, tests, and
+   leaf/TypeScript tests or schema ownership. Leaf integration, tests, and
    adapter authorization do not imply READY, proof, or DONE.
 4. WP07 general durable AI work lifecycle.
 5. WP09 context builder and WP12 prompt registry.

@@ -23,21 +23,24 @@ This folder is the single working plan location for local AI safety contracts, l
 ## WP03 source integration checkpoint — 2026-08-25
 
 The Rust-owned WP03 source packet is integrated in the canonical consolidation
-at `83382d67b`. The accepted source includes the `crates/schema` AI contract
-family, the new `journal/digest.rs` and `result/digest.rs` bindings, its
-exporter, and the generated `packages/schema-domain` edge surface. This is
-implementation-only reviewed evidence: no general production caller was found
-and the three expected tests remain open at the migration-owned locations:
+at source commit `6318d5e3d`. Independent review accepted the source-preserving
+move of the complete AI contract family into the neutral
+`crates/ai-contracts` / `ocentra-ai-contracts` leaf. The existing
+`crates/schema` exporter now consumes that leaf directly and continues to own
+the generated `packages/schema-domain` edge surface. This is
+implementation-only evidence: no general production caller was found and the
+three expected tests remain open:
 
 - `crates/ai-contracts/tests/contract/ai_contracts.rs`
 - `crates/ai-contracts/tests/contract/ai_contracts_negative.rs`
 - `packages/schema-domain/tests/contract/ai-contracts.test.ts`
 
 ADR-AI-001 in [DECISIONS.md](DECISIONS.md) selects the neutral leaf crate
-`ocentra-ai-contracts` at `crates/ai-contracts`. The source-preserving move,
-direct schema/protocol dependencies, no-reexport boundary, WP04 adapter, and a
-real caller are still implementation work. Focused source review, tests, proof,
-CI, and DONE/READY state were not changed by this checkpoint.
+`ocentra-ai-contracts` at `crates/ai-contracts`; that move and the direct
+schema dependency are now present without a public re-export. Agent protocol
+does not yet consume the leaf: the separately owned WP04 adapter and its real
+caller remain implementation work. Tests, proof, CI, and DONE/READY state were
+not changed by this source checkpoint.
 
 ## Code-first Phase 1 audit (2026-08-15)
 
