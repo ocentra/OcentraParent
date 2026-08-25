@@ -1,6 +1,6 @@
 //! Windows security-descriptor copying and normalization.
 
-use crate::{Error, Result, SecurityDescriptorObservation, MAX_BUFFER_BYTES};
+use crate::{Error, InputFault, Result, SecurityDescriptorObservation, MAX_BUFFER_BYTES};
 use windows_sys::core::BOOL;
 use windows_sys::Win32::Security::{
     GetSecurityDescriptorControl, GetSecurityDescriptorDacl, GetSecurityDescriptorLength,
@@ -19,26 +19,18 @@ mod sid;
 
 pub(crate) fn copy_descriptor(descriptor: Vec<u8>) -> Result<SecurityDescriptorObservation> {
     if descriptor.is_empty() || descriptor.len() > MAX_BUFFER_BYTES {
-        return Err(Error::InvalidInput(
-            "security descriptor is empty or too large",
-        ));
+        return Err(Error::InvalidInput(InputFault::DescriptorBufferInvalid));
     }
     if descriptor.len() < 20 {
-        return Err(Error::InvalidInput(
-            "security descriptor is shorter than its fixed header",
-        ));
+        return Err(Error::InvalidInput(InputFault::DescriptorHeaderMissing));
     }
     let descriptor_ptr = descriptor.as_ptr() as PSECURITY_DESCRIPTOR;
     if unsafe { IsValidSecurityDescriptor(descriptor_ptr) } == 0 {
-        return Err(Error::InvalidInput(
-            "Windows returned an invalid security descriptor",
-        ));
+        return Err(Error::InvalidInput(InputFault::DescriptorInvalid));
     }
     let descriptor_length = unsafe { GetSecurityDescriptorLength(descriptor_ptr) } as usize;
-    if descriptor_length == 0 || descriptor_length > descriptor.len() {
-        return Err(Error::InvalidInput(
-            "security descriptor length exceeds its returned buffer",
-        ));
+    if descriptor_length == 0 || descriptor_length != descriptor.len() {
+        return Err(Error::InvalidInput(InputFault::DescriptorLengthInvalid));
     }
     let mut owner: PSID = core::ptr::null_mut();
     let mut owner_defaulted: BOOL = 0;
@@ -65,9 +57,7 @@ pub(crate) fn copy_descriptor(descriptor: Vec<u8>) -> Result<SecurityDescriptorO
     }
     let dacl = if dacl_present != 0 {
         if dacl.is_null() {
-            return Err(Error::InvalidInput(
-                "security descriptor has a null present DACL",
-            ));
+            return Err(Error::InvalidInput(InputFault::DaclMissing));
         }
         acl::copy_aces(dacl, descriptor.as_ptr(), descriptor_length)?
     } else {

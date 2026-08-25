@@ -1,6 +1,6 @@
 //! ACE type and SID offset validation.
 
-use crate::{Error, Result};
+use crate::{Error, InputFault, Result};
 
 pub(super) fn sid_offset_for_ace(ace_type: u8, ace_bytes: &[u8]) -> Result<usize> {
     match ace_type {
@@ -11,23 +11,19 @@ pub(super) fn sid_offset_for_ace(ace_type: u8, ace_bytes: &[u8]) -> Result<usize
         // OBJECT and CALLBACK_OBJECT ACEs carry object flags and optional
         // GUIDs before the SID.
         0x05..=0x08 | 0x0b..=0x0c | 0x0f..=0x10 => object_sid_offset(ace_bytes),
-        4 => Err(Error::InvalidInput(
-            "compound ACE is not representable as one SID observation",
-        )),
-        _ => Err(Error::InvalidInput("unknown ACE type")),
+        4 => Err(Error::InvalidInput(InputFault::CompoundAceUnsupported)),
+        _ => Err(Error::InvalidInput(InputFault::UnknownAceType)),
     }
 }
 
 fn object_sid_offset(ace_bytes: &[u8]) -> Result<usize> {
     if ace_bytes.len() < 12 {
-        return Err(Error::InvalidInput(
-            "object ACE is shorter than its object flags",
-        ));
+        return Err(Error::InvalidInput(InputFault::ObjectAceTooSmall));
     }
     let object_flags =
         u32::from_ne_bytes([ace_bytes[8], ace_bytes[9], ace_bytes[10], ace_bytes[11]]);
     if object_flags & !0x3 != 0 {
-        return Err(Error::InvalidInput("object ACE has unknown object flags"));
+        return Err(Error::InvalidInput(InputFault::ObjectAceFlagsInvalid));
     }
     let object_guid_bytes = if object_flags & 0x1 != 0 { 16 } else { 0 };
     let inherited_guid_bytes = if object_flags & 0x2 != 0 { 16 } else { 0 };

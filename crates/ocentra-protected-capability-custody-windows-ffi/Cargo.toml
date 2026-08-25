@@ -3,6 +3,7 @@ name = "ocentra-protected-capability-custody-windows-ffi"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+publish = false
 
 # This package is the deliberately tiny unsafe boundary. It must not inherit
 # the workspace `unsafe_code = forbid` lint; every other deny is copied here so

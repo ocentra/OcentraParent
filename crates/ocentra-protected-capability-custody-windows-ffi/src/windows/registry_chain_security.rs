@@ -1,6 +1,6 @@
 //! Registry security descriptor retrieval from retained HKEYs.
 
-use crate::{Error, Result, MAX_BUFFER_BYTES};
+use crate::{Error, InputFault, Result, MAX_BUFFER_BYTES};
 use std::ptr;
 use windows_sys::Win32::System::Registry::{RegGetKeySecurity, HKEY};
 
@@ -20,12 +20,12 @@ pub(super) fn query_registry_security(key: HKEY) -> Result<Vec<u8>> {
     if first != ERROR_INSUFFICIENT_BUFFER {
         return Err(Error::Win32(first));
     }
-    let length = usize::try_from(length).map_err(|_| Error::BufferTooLarge)?;
+    let length = usize::try_from(length)?;
     if length == 0 || length > MAX_BUFFER_BYTES {
         return Err(Error::BufferTooLarge);
     }
     let mut descriptor = vec![0u8; length];
-    let mut returned_length = u32::try_from(descriptor.len()).map_err(|_| Error::BufferTooLarge)?;
+    let mut returned_length = u32::try_from(descriptor.len())?;
     let status = unsafe {
         RegGetKeySecurity(
             key,
@@ -37,11 +37,9 @@ pub(super) fn query_registry_security(key: HKEY) -> Result<Vec<u8>> {
     if status != 0 {
         return Err(Error::Win32(status));
     }
-    let returned_length = usize::try_from(returned_length).map_err(|_| Error::BufferTooLarge)?;
+    let returned_length = usize::try_from(returned_length)?;
     if returned_length == 0 || returned_length > descriptor.len() {
-        return Err(Error::InvalidInput(
-            "registry security response exceeds its buffer",
-        ));
+        return Err(Error::InvalidInput(InputFault::DescriptorLengthInvalid));
     }
     descriptor.truncate(returned_length);
     Ok(descriptor)

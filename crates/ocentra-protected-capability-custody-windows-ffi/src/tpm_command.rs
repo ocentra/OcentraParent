@@ -5,12 +5,12 @@ use super::{
     MAX_AUTH_SESSIONS, TPM_CC_NV_INCREMENT, TPM_CC_NV_READ, TPM_CC_NV_READ_PUBLIC,
     TPM_HEADER_BYTES, TPM_ST_NO_SESSIONS, TPM_ST_SESSIONS,
 };
-use crate::{Error, Result, MAX_BUFFER_BYTES};
+use crate::{Error, InputFault, Result, MAX_BUFFER_BYTES};
 
 /// Encode a no-session TPM2 `NV_ReadPublic` command.
 pub(crate) fn encode_nv_read_public(index: u32) -> Result<Vec<u8>> {
     if index == 0 {
-        return Err(Error::InvalidInput("TPM NV index must be non-zero"));
+        return Err(Error::InvalidInput(InputFault::TpmNvIndexInvalid));
     }
     let mut command = header(TPM_ST_NO_SESSIONS, TPM_CC_NV_READ_PUBLIC, 4)?;
     push_u32(&mut command, index);
@@ -34,10 +34,7 @@ pub(crate) fn encode_nv_read(
     let mut command = header_with_tag(TPM_ST_SESSIONS, TPM_CC_NV_READ, parameter_bytes)?;
     push_u32(&mut command, auth_handle);
     push_u32(&mut command, index);
-    push_u32(
-        &mut command,
-        u32::try_from(authorization_area.len()).map_err(|_| Error::BufferTooLarge)?,
-    );
+    push_u32(&mut command, u32::try_from(authorization_area.len())?);
     command.extend_from_slice(authorization_area);
     push_u16(&mut command, size);
     push_u16(&mut command, offset);
@@ -58,17 +55,14 @@ pub(crate) fn encode_nv_increment(
     let mut command = header_with_tag(TPM_ST_SESSIONS, TPM_CC_NV_INCREMENT, parameter_bytes)?;
     push_u32(&mut command, auth_handle);
     push_u32(&mut command, index);
-    push_u32(
-        &mut command,
-        u32::try_from(authorization_area.len()).map_err(|_| Error::BufferTooLarge)?,
-    );
+    push_u32(&mut command, u32::try_from(authorization_area.len())?);
     command.extend_from_slice(authorization_area);
     Ok(command)
 }
 
 fn validate_handles(auth_handle: u32, index: u32) -> Result<()> {
     if auth_handle == 0 || index == 0 {
-        return Err(Error::InvalidInput("TPM NV handles must be non-zero"));
+        return Err(Error::InvalidInput(InputFault::TpmNvIndexInvalid));
     }
     Ok(())
 }
@@ -76,7 +70,7 @@ fn validate_handles(auth_handle: u32, index: u32) -> Result<()> {
 fn validate_auth_area(authorization_area: &[u8]) -> Result<()> {
     if authorization_area.is_empty() || authorization_area.len() > MAX_BUFFER_BYTES {
         return Err(Error::InvalidInput(
-            "TPM command authorization area is empty or too large",
+            InputFault::TpmAuthorizationShapeInvalid,
         ));
     }
     let mut cursor = SliceCursor::new(authorization_area);
@@ -102,7 +96,7 @@ fn header_with_tag(tag: u16, command_code: u32, body_bytes: usize) -> Result<Vec
     let size = TPM_HEADER_BYTES
         .checked_add(body_bytes)
         .ok_or(Error::BufferTooLarge)?;
-    let size = u32::try_from(size).map_err(|_| Error::BufferTooLarge)?;
+    let size = u32::try_from(size)?;
     let mut command = Vec::with_capacity(size as usize);
     push_u16(&mut command, tag);
     push_u32(&mut command, size);

@@ -4,7 +4,7 @@
 pub(crate) mod strings;
 
 use super::super::super::handles::last_error;
-use crate::{Error, Result, MAX_BUFFER_BYTES};
+use crate::{Error, InputFault, Result, WindowsText, MAX_BUFFER_BYTES};
 use std::ptr;
 use windows_sys::Win32::System::Services::{
     QueryServiceConfig2W, QueryServiceConfigW, QUERY_SERVICE_CONFIGW, SC_HANDLE,
@@ -19,12 +19,12 @@ pub(super) struct ServiceConfigSnapshot {
     pub(super) service_type: u32,
     pub(super) start_type: u32,
     pub(super) error_control: u32,
-    pub(super) binary_path: Option<String>,
-    pub(super) load_order_group: Option<String>,
+    pub(super) binary_path: Option<WindowsText>,
+    pub(super) load_order_group: Option<WindowsText>,
     pub(super) tag_id: u32,
-    pub(super) dependencies: Vec<String>,
-    pub(super) start_name: Option<String>,
-    pub(super) display_name: Option<String>,
+    pub(super) dependencies: Vec<WindowsText>,
+    pub(super) start_name: Option<WindowsText>,
+    pub(super) display_name: Option<WindowsText>,
 }
 
 pub(super) fn query_service_config(handle: SC_HANDLE) -> Result<ServiceConfigSnapshot> {
@@ -32,7 +32,7 @@ pub(super) fn query_service_config(handle: SC_HANDLE) -> Result<ServiceConfigSna
     let returned_length = buffer.len();
     if returned_length < core::mem::size_of::<QUERY_SERVICE_CONFIGW>() {
         return Err(Error::InvalidInput(
-            "service configuration response has an invalid size",
+            InputFault::ServiceConfigurationSizeInvalid,
         ));
     }
     let config = unsafe { ptr::read_unaligned(buffer.as_ptr() as *const QUERY_SERVICE_CONFIGW) };
@@ -55,29 +55,27 @@ pub(super) fn query_service_config2(handle: SC_HANDLE, level: u32) -> Result<Vec
     if first != 0 || last_error() != ERROR_INSUFFICIENT_BUFFER {
         return Err(Error::Win32(last_error()));
     }
-    let length = usize::try_from(length).map_err(|_| Error::BufferTooLarge)?;
+    let length = usize::try_from(length)?;
     if length == 0 || length > MAX_BUFFER_BYTES {
         return Err(Error::BufferTooLarge);
     }
     let mut buffer = vec![0u8; length];
-    let mut returned_length = u32::try_from(buffer.len()).map_err(|_| Error::BufferTooLarge)?;
+    let mut returned_length = u32::try_from(buffer.len())?;
     if unsafe {
         QueryServiceConfig2W(
             handle,
             level,
             buffer.as_mut_ptr(),
-            u32::try_from(buffer.len()).map_err(|_| Error::BufferTooLarge)?,
+            u32::try_from(buffer.len())?,
             &mut returned_length,
         )
     } == 0
     {
         return Err(Error::Win32(last_error()));
     }
-    let returned_length = usize::try_from(returned_length).map_err(|_| Error::BufferTooLarge)?;
+    let returned_length = usize::try_from(returned_length)?;
     if returned_length == 0 || returned_length > buffer.len() {
-        return Err(Error::InvalidInput(
-            "service extended response has an invalid size",
-        ));
+        return Err(Error::InvalidInput(InputFault::ServiceExtendedSizeInvalid));
     }
     buffer.truncate(returned_length);
     Ok(buffer)
@@ -86,19 +84,15 @@ pub(super) fn query_service_config2(handle: SC_HANDLE, level: u32) -> Result<Vec
 pub(super) fn query_service_sid_type(handle: SC_HANDLE) -> Result<u32> {
     let buffer = query_service_config2(handle, SERVICE_CONFIG_SERVICE_SID_INFO)?;
     if buffer.len() != core::mem::size_of::<SERVICE_SID_INFO>() {
-        return Err(Error::InvalidInput(
-            "service SID response has an invalid size",
-        ));
+        return Err(Error::InvalidInput(InputFault::ServiceSidSizeInvalid));
     }
     Ok(unsafe { ptr::read_unaligned(buffer.as_ptr() as *const SERVICE_SID_INFO) }.dwServiceSidType)
 }
 
-pub(super) fn query_required_privileges(handle: SC_HANDLE) -> Result<Vec<String>> {
+pub(super) fn query_required_privileges(handle: SC_HANDLE) -> Result<Vec<WindowsText>> {
     let buffer = query_service_config2(handle, SERVICE_CONFIG_REQUIRED_PRIVILEGES_INFO)?;
     if buffer.len() < core::mem::size_of::<SERVICE_REQUIRED_PRIVILEGES_INFOW>() {
-        return Err(Error::InvalidInput(
-            "service privilege response is too small",
-        ));
+        return Err(Error::InvalidInput(InputFault::ServicePrivilegeSizeInvalid));
     }
     let value =
         unsafe { ptr::read_unaligned(buffer.as_ptr() as *const SERVICE_REQUIRED_PRIVILEGES_INFOW) };
@@ -109,7 +103,7 @@ pub(super) fn query_delayed_auto_start(handle: SC_HANDLE) -> Result<bool> {
     let buffer = query_service_config2(handle, SERVICE_CONFIG_DELAYED_AUTO_START_INFO)?;
     if buffer.len() != core::mem::size_of::<SERVICE_DELAYED_AUTO_START_INFO>() {
         return Err(Error::InvalidInput(
-            "service delayed-start response has an invalid size",
+            InputFault::ServiceDelayedStartSizeInvalid,
         ));
     }
     Ok(
@@ -125,29 +119,29 @@ fn query_config_buffer(handle: SC_HANDLE) -> Result<Vec<u8>> {
     if first != 0 || last_error() != ERROR_INSUFFICIENT_BUFFER {
         return Err(Error::Win32(last_error()));
     }
-    let length = usize::try_from(length).map_err(|_| Error::BufferTooLarge)?;
+    let length = usize::try_from(length)?;
     if length == 0 || length > MAX_BUFFER_BYTES {
         return Err(Error::BufferTooLarge);
     }
     let mut buffer = vec![0u8; length];
-    let mut returned_length = u32::try_from(buffer.len()).map_err(|_| Error::BufferTooLarge)?;
+    let mut returned_length = u32::try_from(buffer.len())?;
     if unsafe {
         QueryServiceConfigW(
             handle,
             buffer.as_mut_ptr() as *mut QUERY_SERVICE_CONFIGW,
-            u32::try_from(buffer.len()).map_err(|_| Error::BufferTooLarge)?,
+            u32::try_from(buffer.len())?,
             &mut returned_length,
         )
     } == 0
     {
         return Err(Error::Win32(last_error()));
     }
-    let returned_length = usize::try_from(returned_length).map_err(|_| Error::BufferTooLarge)?;
+    let returned_length = usize::try_from(returned_length)?;
     if returned_length < core::mem::size_of::<QUERY_SERVICE_CONFIGW>()
         || returned_length > buffer.len()
     {
         return Err(Error::InvalidInput(
-            "service configuration response has an invalid size",
+            InputFault::ServiceConfigurationSizeInvalid,
         ));
     }
     buffer.truncate(returned_length);

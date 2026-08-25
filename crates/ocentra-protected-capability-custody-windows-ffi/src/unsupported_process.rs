@@ -2,7 +2,9 @@
 
 #![cfg(not(windows))]
 
-use crate::{Error, OwnedProcess, OwnedToken, ProcessObservation, Result, TokenObservation};
+use crate::{
+    Error, ImageObservation, OwnedProcess, OwnedToken, ProcessObservation, Result, TokenObservation,
+};
 
 impl OwnedProcess {
     pub fn open_for_peer_observation(_process_id: u32) -> Result<OwnedProcess> {
@@ -10,6 +12,10 @@ impl OwnedProcess {
     }
 
     pub fn observation(&self) -> Result<ProcessObservation> {
+        Err(Error::UnsupportedPlatform)
+    }
+
+    pub fn reobserve_image(&self) -> Result<ImageObservation> {
         Err(Error::UnsupportedPlatform)
     }
 

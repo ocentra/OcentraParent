@@ -1,7 +1,7 @@
 //! Bounded SCM failure-action observations.
 
 use super::config;
-use crate::{Error, Result, ServiceFailureAction, MAX_BUFFER_BYTES};
+use crate::{Error, InputFault, Result, ServiceFailureAction, WindowsText, MAX_BUFFER_BYTES};
 use std::ptr;
 use windows_sys::Win32::System::Services::{
     SC_ACTION, SC_ACTION_NONE, SC_ACTION_REBOOT, SC_ACTION_RESTART, SC_ACTION_RUN_COMMAND,
@@ -13,8 +13,8 @@ const MAX_FAILURE_ACTIONS: usize = 64;
 
 pub(super) struct FailureActionsSnapshot {
     pub(super) reset_period: u32,
-    pub(super) reboot_message: Option<String>,
-    pub(super) command: Option<String>,
+    pub(super) reboot_message: Option<WindowsText>,
+    pub(super) command: Option<WindowsText>,
     pub(super) actions: Vec<ServiceFailureAction>,
     pub(super) on_non_crash_failures: bool,
 }
@@ -23,11 +23,11 @@ pub(super) fn query_failure_actions(handle: SC_HANDLE) -> Result<FailureActionsS
     let buffer = config::query_service_config2(handle, SERVICE_CONFIG_FAILURE_ACTIONS)?;
     if buffer.len() < core::mem::size_of::<SERVICE_FAILURE_ACTIONSW>() {
         return Err(Error::InvalidInput(
-            "service failure-actions response is too small",
+            InputFault::ServiceFailureActionsSizeInvalid,
         ));
     }
     let value = unsafe { ptr::read_unaligned(buffer.as_ptr() as *const SERVICE_FAILURE_ACTIONSW) };
-    let count = usize::try_from(value.cActions).map_err(|_| Error::BufferTooLarge)?;
+    let count = usize::try_from(value.cActions)?;
     if count > MAX_FAILURE_ACTIONS {
         return Err(Error::BufferTooLarge);
     }
@@ -46,7 +46,7 @@ fn query_failure_actions_flag(handle: SC_HANDLE) -> Result<bool> {
     let buffer = config::query_service_config2(handle, SERVICE_CONFIG_FAILURE_ACTIONS_FLAG)?;
     if buffer.len() != core::mem::size_of::<SERVICE_FAILURE_ACTIONS_FLAG>() {
         return Err(Error::InvalidInput(
-            "service failure-actions flag response has an invalid size",
+            InputFault::ServiceFailureActionsFlagSizeInvalid,
         ));
     }
     Ok(
@@ -65,9 +65,7 @@ fn copy_actions(
         return Ok(Vec::new());
     }
     if pointer.is_null() {
-        return Err(Error::InvalidInput(
-            "service failure-actions array is missing",
-        ));
+        return Err(Error::InvalidInput(InputFault::ServiceFailureActionMissing));
     }
     let base = buffer.as_ptr() as usize;
     let end = base
@@ -80,11 +78,11 @@ fn copy_actions(
     let actions_end = start.checked_add(bytes).ok_or(Error::BufferTooLarge)?;
     if start < base
         || actions_end > end
-        || start % core::mem::align_of::<SC_ACTION>() != 0
+        || !start.is_multiple_of(core::mem::align_of::<SC_ACTION>())
         || bytes > MAX_BUFFER_BYTES
     {
         return Err(Error::InvalidInput(
-            "service failure-actions array points outside the response",
+            InputFault::ServiceFailureActionOutsideBuffer,
         ));
     }
     let raw = unsafe { core::slice::from_raw_parts(pointer, count) };
@@ -95,7 +93,7 @@ fn copy_actions(
             SC_ACTION_NONE | SC_ACTION_RESTART | SC_ACTION_REBOOT | SC_ACTION_RUN_COMMAND
         ) {
             return Err(Error::InvalidInput(
-                "service failure-actions array contains an unknown action",
+                InputFault::ServiceFailureActionTypeUnknown,
             ));
         }
         normalized.push(ServiceFailureAction {

@@ -6,7 +6,7 @@ mod image;
 mod token;
 
 use super::handles::{last_error, HandleInner, ProcessInner, TokenInner};
-use crate::{Error, OwnedProcess, OwnedToken, ProcessObservation, Result};
+use crate::{Error, InputFault, OwnedProcess, OwnedToken, ProcessObservation, Result};
 use std::ptr;
 use windows_sys::Win32::Foundation::{FILETIME, HANDLE, WAIT_FAILED, WAIT_OBJECT_0, WAIT_TIMEOUT};
 use windows_sys::Win32::Security::TOKEN_QUERY;
@@ -18,7 +18,7 @@ use windows_sys::Win32::System::Threading::{
 impl OwnedProcess {
     pub fn open_for_peer_observation(process_id: u32) -> Result<Self> {
         if process_id == 0 {
-            return Err(Error::InvalidInput("process ID must be non-zero"));
+            return Err(Error::InvalidInput(InputFault::ProcessIdZero));
         }
         // All observations and OpenProcessToken require only limited query
         // access. SYNCHRONIZE is the least-privilege right needed for an
@@ -43,18 +43,19 @@ impl OwnedProcess {
             WAIT_TIMEOUT => true,
             WAIT_OBJECT_0 => false,
             WAIT_FAILED => return Err(Error::Win32(last_error())),
-            _ => {
-                return Err(Error::InvalidInput(
-                    "Windows returned an invalid process wait result",
-                ))
-            }
+            _ => return Err(Error::InvalidInput(InputFault::ProcessWaitResultInvalid)),
         };
         Ok(ProcessObservation {
             process_id: self.inner.process_id,
             creation_time_100ns: self.inner.creation_time_100ns,
-            image: self.inner.image.observation.clone(),
+            image: image::reobserve_image(&self.inner.image)?,
             alive,
         })
+    }
+
+    /// Re-observe the executable and every retained ancestor handle.
+    pub fn reobserve_image(&self) -> Result<crate::ImageObservation> {
+        image::reobserve_image(&self.inner.image)
     }
 
     pub fn open_token(&self) -> Result<OwnedToken> {
@@ -80,9 +81,7 @@ fn process_creation_time(handle: HANDLE) -> Result<u64> {
     }
     let value = (u64::from(creation.dwHighDateTime) << 32) | u64::from(creation.dwLowDateTime);
     if value == 0 {
-        return Err(Error::InvalidInput(
-            "Windows returned an empty process epoch",
-        ));
+        return Err(Error::InvalidInput(InputFault::ProcessEpochMissing));
     }
     Ok(value)
 }
