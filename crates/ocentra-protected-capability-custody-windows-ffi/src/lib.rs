@@ -273,6 +273,7 @@ pub type PreparedTpmCounterIncrement<'a> = tpm::session::facade::PreparedTpmCoun
 /// `Uncertain` is not a retry signal. The caller must start a fresh signed
 /// fixed-counter read and reconcile it against its previously observed value;
 /// blindly repeating the increment could advance the counter twice.
+#[cfg(windows)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TpmCounterIncrementOutcome {
     /// A strict success response proved that the TPM accepted the increment.
@@ -282,6 +283,7 @@ pub enum TpmCounterIncrementOutcome {
 }
 
 /// Why an increment result needs reconciliation through a new signed read.
+#[cfg(windows)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TpmCounterIncrementUncertainty {
     /// The TBS submission boundary did not return a TPM response.
