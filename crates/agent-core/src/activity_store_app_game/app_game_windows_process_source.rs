@@ -4,9 +4,10 @@ use base64::prelude::{Engine as _, BASE64_URL_SAFE_NO_PAD};
 use chrono::{DateTime, Utc};
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::app_game::{
-    APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
-    APP_GAME_CONFIDENCE_UNKNOWN, APP_GAME_EXECUTABLE_PATH_REF_PREFIX,
-    APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT, APP_GAME_RUNTIME_EVIDENCE_ID_PREFIX,
+    APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED,
+    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_CONFIDENCE_UNKNOWN,
+    APP_GAME_EXECUTABLE_PATH_REF_PREFIX, APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
+    APP_GAME_RUNTIME_EVIDENCE_ID_PREFIX,
 };
 use sha2::{Digest, Sha256};
 use sysinfo::{Pid, Process, System};
@@ -162,6 +163,12 @@ fn record_from_process(
     if start_time == 0 {
         return None;
     }
+    let executable_path = process.exe();
+    let capability_status = if executable_path.is_some() {
+        APP_GAME_CAPABILITY_STATUS_AVAILABLE
+    } else {
+        APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED
+    };
     Some(WindowsProcessRuntimeRecord {
         runtime_evidence_id: runtime_evidence_id(process_id, start_time, observed_at),
         observed_at: observed_at.to_string(),
@@ -169,7 +176,7 @@ fn record_from_process(
         process_id,
         parent_process_id: process.parent().map(|pid| u64::from(pid.as_u32())),
         process_name: process.name().to_string_lossy().into_owned(),
-        executable_path_ref: executable_path_ref(process.exe()),
+        executable_path_ref: executable_path_ref(executable_path),
         publisher_signature_ref: None,
         file_hash_ref: None,
         inventory_entry_id: None,
@@ -180,7 +187,7 @@ fn record_from_process(
         running_duration_ms: process.run_time().saturating_mul(1000),
         observation_mode: APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT.to_string(),
         classification_state: APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS.to_string(),
-        capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
+        capability_status: capability_status.to_string(),
         confidence: APP_GAME_CONFIDENCE_UNKNOWN,
         evidence: Vec::new(),
     })
