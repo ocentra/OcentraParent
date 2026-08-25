@@ -9813,6 +9813,19 @@
         "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
         "docs/engineering-graph/code-map.json"
       ]
+    },
+    {
+      "id": "WP-parent-desktop-runtime-package-plan-02-parent-web-portal-distribution",
+      "state": "validation",
+      "reason": "Independent production-source truth review records REPAIR/BLOCKED: the current portal/query generated-policy resolver is presentation-only. A Rust hosted distribution owner/source, immutable asset/version/digest manifest custody, publisher/hosted-artifact owner, production deployment binding, desktop/service/runtime caller, install/upgrade/rollback lifecycle, and fail-closed missing-package API are absent. No absent Rust path is invented because the WP02 plan does not name one as an expected artifact. Tests, retained proof, CI, packaging, deployment, release, PR, READY, and DONE remain open; no completion evidence is asserted.",
+      "statusText": "Validation blocked — presentation-only portal resolver; hosted distribution owner, immutable artifact custody, production binding, runtime caller, package lifecycle, missing-package API, tests, proof, and completion remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/02-parent-web-portal-distribution.md",
+        "docs/plans/parent-desktop-runtime-package-plan/CHECKLIST_INDEX.md",
+        "docs/engineering-graph/code-map.json"
+      ]
     }
   ],
   "proofOverrides": [

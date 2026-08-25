@@ -39,18 +39,18 @@
 
 ## WP02 Parent Web Portal Distribution
 
-- [x] Parent web build path defined. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/16-validation-commands.log`.
-- [x] Route ownership documented. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`.
-- [x] Auth/cache/env separation documented. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/01-negative-case-proof.md`.
-- [x] Hosted route does not claim child-agent execution. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`.
-- [x] Build/test proof exists or blocker recorded. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/16-validation-commands.log`.
-- [x] Deployment/preview blocker recorded if missing. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`.
-- [x] Required proof artifacts written. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/16-validation-commands.log`.
-- [x] Workpack completion section filled. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`.
-- [x] No production web-ready overclaim made. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/01-negative-case-proof.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`.
-- [x] Setup handoff remains separate. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/02-manual-required-gap-register.md`.
-- [x] Parent data/source labels preserved. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`.
-- [x] Route sync updated if state changed. Proof: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/00-scope-summary.md`, `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/16-validation-commands.log`.
+- [ ] A real Rust-owned hosted distribution source and parent web build handoff exist; the current route/query resolver is presentation-only.
+- [ ] Immutable asset, version, and digest custody is owned by an executable artifact/manifest boundary.
+- [ ] Publisher/hosted-artifact ownership and the production deployment binding are defined and reachable.
+- [ ] A real desktop/service/runtime caller consumes the hosted distribution boundary.
+- [ ] Install, upgrade, rollback, and missing-package fail-closed behavior are implemented by the owning lifecycle boundary.
+- [ ] Route/auth/cache/environment separation is backed by real distribution state rather than query-generated labels.
+- [ ] Focused tests, retained proof, CI, PR readiness, READY, and DONE remain open; this source-only packet runs none of them.
+- [ ] Setup handoff, child runtime authority, desktop/mobile package readiness, and production publishing remain explicit no-claims.
+
+Current truth: `REPAIR/BLOCKED` for the production-source phase. No absent Rust
+owner/source path is invented in this checklist; the existing presentation
+roots remain mapped only as source inventory.
 
 ## WP03 Parent Desktop Shell Package
 

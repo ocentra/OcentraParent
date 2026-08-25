@@ -22115,18 +22115,19 @@
       "metadata": {
         "planSlug": "parent-desktop-runtime-package-plan",
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: no reference or expected artifact is declared; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation blocked — presentation-only portal resolver; hosted distribution owner, immutable artifact custody, production binding, runtime caller, package lifecycle, missing-package API, tests, proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: no reference or expected artifact is declared",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "stateOverride": {
+          "reason": "Independent production-source truth review records REPAIR/BLOCKED: the current portal/query generated-policy resolver is presentation-only. A Rust hosted distribution owner/source, immutable asset/version/digest manifest custody, publisher/hosted-artifact owner, production deployment binding, desktop/service/runtime caller, install/upgrade/rollback lifecycle, and fail-closed missing-package API are absent. No absent Rust path is invented because the WP02 plan does not name one as an expected artifact. Tests, retained proof, CI, packaging, deployment, release, PR, READY, and DONE remain open; no completion evidence is asserted.",
+          "evidence": [
+            "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+            "docs/plans/parent-desktop-runtime-package-plan/workpacks/02-parent-web-portal-distribution.md",
+            "docs/plans/parent-desktop-runtime-package-plan/CHECKLIST_INDEX.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

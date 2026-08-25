@@ -11,6 +11,23 @@
 
 Purpose: prove the hosted parent portal as a distribution target with its own build, route, auth, cache, and environment separation.
 
+## Current source truth (2026-08-25)
+
+Status: `REPAIR/BLOCKED` for the production-source phase.
+
+The reachable `apps/portal` and `portal-domain` implementation is a
+presentation-only route/query resolver. It does not provide the Rust hosted
+distribution owner/source, an immutable asset/version/digest manifest, a
+publisher or hosted-artifact owner, a production deployment binding, a real
+desktop/service/runtime caller, install/upgrade/rollback lifecycle, or a
+fail-closed missing-package API. No source path is invented for those missing
+owners here; the current code-map roots remain the existing presentation and
+test files only.
+
+This truth packet does not claim implementation completion, test execution,
+retained proof, CI, PR readiness, READY, or DONE. Tests, proof, CI, packaging,
+deployment, and release remain open and outside this production-source packet.
+
 ## Must prove
 
 - parent portal build succeeds from the real workspace
@@ -27,6 +44,6 @@ Purpose: prove the hosted parent portal as a distribution target with its own bu
 ## Completion
 
 - Proof root: `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/`
-- Status: complete. Real build, hosted route/auth/cache/env proof, checklist rows, and plan/index state are aligned.
-- Focused validation: portal build passed, portal vitest passed, and the focused hosted Playwright spec passed after rerouting off a foreign process on default port `4490`.
-- No-claim boundary: this workpack does not claim production publishing, setup readiness, desktop/mobile package readiness, or child runtime authority.
+- Status: validation / repair-blocked. The current resolver is presentation-only; the real hosted distribution owner, immutable artifact custody, production binding, runtime caller, package lifecycle, and missing-package failure boundary are absent.
+- Focused validation: no tests, proof, CI, packaging, deployment, or release commands are run or changed by this production-source packet.
+- No-claim boundary: this workpack does not claim production publishing, immutable package/version/digest custody, setup readiness, desktop/mobile package readiness, desktop/service reachability, install/upgrade/rollback, child runtime authority, READY, or DONE.
