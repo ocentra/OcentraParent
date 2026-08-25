@@ -1,7 +1,5 @@
 #[path = "runtime_commands/proof_submit.rs"]
 mod proof_submit;
-#[path = "runtime_commands/proof_submit_persistence.rs"]
-mod proof_submit_persistence;
 #[path = "runtime_commands/route_revoke.rs"]
 mod route_revoke;
 #[path = "runtime_commands/route_select.rs"]

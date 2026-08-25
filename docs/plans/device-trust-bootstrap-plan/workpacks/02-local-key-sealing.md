@@ -78,19 +78,32 @@ output/device-trust-bootstrap-plan-proof/02-local-key-sealing/17-blockers.md
 
 ## Current audit state
 
-The current integration checkout contains Windows custody source, but not a
-reachable Windows custody capability. `crates/storage-custody-core/src/
-windows_device_trust_custody_platform.rs` defines
-`require_authenticated_parent_authority()` as a permanently unavailable
+The current integration checkout contains Windows custody source and a mounted
+parent-desktop Tauri command. The command accepts only an opaque staged-ceremony
+reference and generates trust material inside the native facade; it does not
+accept caller-supplied authority, receipt, attestation, or key material. The
+runtime still has no record-backed ceremony issuer, and
+`crates/storage-custody-core/src/windows_device_trust_custody_platform.rs`
+defines `require_authenticated_parent_authority()` as a permanently unavailable
 boundary (`Error::Platform`). `WindowsDeviceTrustCustody::seal_persist_activate`,
-`unseal_current`, and `revoke_or_reset` all fail at that boundary before they
-create or mutate a sealed record, registry epoch, or binding lock. The DPAPI
-and current-user registry code is therefore source topology only; it is not a
-live sealing, unsealing, activation, or revocation path.
+`unseal_current`, and `revoke_or_reset` therefore fail at that boundary before
+they create or mutate a sealed record, registry epoch, or binding lock. The
+DPAPI and current-user registry code remains a real platform custody boundary,
+but no live seal, unseal, activation, or revocation execution is claimed.
+
+Unsupported non-Windows startup is represented as typed manual-required state
+by the desktop command state. Windows `Error::Platform` and other custody-open
+failures are represented as a separate typed unavailable state and never accept
+traffic. The command returns only redacted state booleans and an opaque
+reference; no raw custody diagnostic or protected material is exposed. Its
+`custodySealed` success field means only that the platform custody operation
+completed; it does not claim family lifecycle activation. No plaintext or
+in-memory production key fallback is provided.
 
 `windows_dpapi_key_sealing.rs` and the opaque
 `ParentDeviceTrustCommandFacade` remain bounded source seams. No ceremony
-issuer reaches them, no desktop/native command is mounted for the facade, and
+issuer reaches them; the desktop/native command is mounted but remains
+fail-closed without an issuer, and
 no parent-runtime startup composition connects custody to lifecycle activation
 or current-binding/revocation state. `device_trust_lifecycle_activation.rs`
 defines an opaque authorization consumer, but no production custody caller

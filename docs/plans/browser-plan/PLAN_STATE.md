@@ -108,6 +108,37 @@ references to `packages/activity-domain/src/browser*.ts` remain stale; the
 active TypeScript edge ownership is `packages/browser-domain` and the active
 runtime ownership is the Rust paths in `source-index.md`.
 
+Reviewed source result (2026-08-19, WP07/WP09): canonical `f80b47c6a` removes
+the unreachable service launch state, environment/dev profile authority,
+placeholder bridge polling, and dead Browser-to-Screen handoff. The production
+websocket path now returns explicit managed-browser manual-required/unavailable
+status; it cannot claim a retained launch, connected bridge, trusted target, or
+Screen delivery. Core launch/capture authority remains private and bounded,
+but no service owner mounts it. This is honest source consolidation, not
+delivered WP07/WP09 behavior, validation, or PR readiness.
+
+The next coherent production packet remains owner-gated:
+
+1. Introduce a private owner-issued start/stop boundary that retains
+   `BrowserManagedLaunch` in service state without env/dev/caller authority.
+2. Revalidate PID, executable, exact profile argument, and bridge ownership
+   before and after `/json/version` and `/json/list` I/O; teardown must wait for
+   and confirm process exit rather than reporting stopped optimistically.
+3. Keep target-list activity `Unknown`; mint same-launch target authority only
+   from the retained owner state.
+4. Add a typed Screen-owned handoff only after Screen accepts that boundary.
+   Browser must not import or simulate Screen runtime authority.
+
+The later test-source wave must first repair the now-stale Browser tests:
+`browser_runtime_status.rs` and `browser_runtime_tests.rs` use old status-helper
+arities, while `browser_inventory_read_model_tests.rs` and
+`browser_runtime_tests.rs` construct private `BrowserManagedLaunch` fields.
+Then write the missing retained-launch integration test root and the missing
+same-launch CDP integration root, including owner mismatch, process
+replacement, teardown, restart/expiry, malformed/oversized/timeout, target
+disappearance/navigation, no-active-tab-claim, and unavailable Screen handoff.
+WP07/WP09 remain open and blocked; no proof or completion is inferred.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.
@@ -195,7 +226,15 @@ Current implementation is concentrated in `crates/schema`,
 ## Open gaps / missing product runtime
 
 - Browser inventory is not a complete product read model across installed, running, supported, unsupported, managed, unmanaged, packaged, and portable browsers.
-- Managed profile store repair, custody, redaction, and restart semantics need explicit workpack proof.
+- Browser WP06 superseding head `93f875134` is independently accepted as a
+  fail-closed source correction and integrated into the consolidation line. It
+  removes caller-mintable JSON/path authority and env/temp-dir mutation; all
+  store operations return `ProtectedCustodyAdapterUnavailable`, and no
+  `Ready`/`Deleted` record can be constructed. Completion still requires the
+  protected owner adapter, retained root/profile identity, real platform
+  mutation/recovery, a production caller, then the five expected test roots;
+  proof stays
+  last.
 - Active tab proof is still separate from target-list proof. `/json/list` target rows should remain `unknown` active state until focus/activation proof exists.
 - Managed browser intervention proof exists as a harness, but product-level warning/blocking still needs typed policy decision refs, journaled action refs, audit refs, child-facing delivery state, and portal proof.
 - Unmanaged browser URL evidence remains not claimed. Unmanaged process terminate/warn states exist only as scoped proof paths, not broad OS blocking.

@@ -20,11 +20,27 @@ Child-visible/local disclosure, parent-enabled status, calm wording, and no hidd
 
 ## Current State
 
-Disclosure requirement exists in expectations. `screen-child-disclosure-proof`
-now defines the child-visible status/copy contract, renders a child-visible
-disclosure page for desktop/mobile screenshot inspection, and proves no hidden
-capture or raw screenshot display can be represented. Child-agent runtime
-deployment/delivery remains open and unclaimed.
+Rust production source owns the disclosure projection in
+`crates/agent-protocol/src/screen_child_disclosure.rs` and its calm copy table
+in `screen_child_disclosure_copy.rs`. A private, owner-only mapping accepts the
+typed `ScreenAnalysisParentSetting` and `ActivityCaptureCapabilityStatus`
+authority: `available` maps to enabled, a disabled parent setting maps to
+disabled, and all other typed capability outcomes fail closed to unavailable.
+No opaque owner-issued current authority exists yet, so that mapping is not
+cross-crate reachable and no owner snapshot is invented. The public projection
+exposes only `unavailable` and `manual_required` fail-closed diagnostic
+factories. It does not derive current disclosure from historical
+`ScreenAnalysisResult` rows or image deletion states. Paused, capture-active,
+protected-surface, and summary-ready remain unreachable until an authoritative
+current owner supplies those lifecycle states; manual-required is diagnostic
+copy, not current-owner authority.
+
+The parent runtime uses an unavailable projection only for a diagnostic,
+proposed, not-delivered status label; it does not consume the historical row
+as current disclosure authority. No shipped child surface renders or delivers
+this projection. Hidden capture, raw screenshot display, remote viewer, policy
+authority, and child-agent delivery remain explicitly unclaimed. Tests, proof
+artifacts, screenshots, child delivery, and checklist rows remain open.
 
 ## Checklist
 
@@ -37,8 +53,8 @@ deployment/delivery remains open and unclaimed.
 
 ## Proof
 
-- `output/screen-plan-proof/screen-child-disclosure/proof-summary.json`.
-- `output/screen-plan-proof/screen-child-disclosure/screenshots/screen-child-disclosure-desktop.png`.
-- `output/screen-plan-proof/screen-child-disclosure/screenshots/screen-child-disclosure-mobile.png`.
+- Expected proof root: `output/screen-plan-proof/26-child-disclosure-ux/`.
+- Expected artifacts remain deferred: `proof-summary.json`, desktop screenshot,
+  mobile screenshot, and validation command log.
 - Child-agent runtime deployment/delivery remains open.
-- Product text reviewed.
+- Product text is source-authored; review and runtime proof remain open.

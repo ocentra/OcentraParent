@@ -44,7 +44,7 @@ impl HouseholdMeshBridgeReport {
 pub async fn publish_household_mesh_bridge_chain_for_input(
     input: HouseholdMeshBridgeInput,
 ) -> Result<HouseholdMeshBridgeReport, EventingError> {
-    let spine = HouseholdMeshBridgeSpine::with_default_handlers().await?;
+    let spine = HouseholdMeshBridgeSpine::without_owner_handlers();
     spine.publish_input_chain(input).await
 }
 

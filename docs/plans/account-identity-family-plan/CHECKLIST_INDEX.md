@@ -167,9 +167,19 @@ contract/proof evidence and do not satisfy these rows):
   membership, device trust, session freshness, capability scope, controller
   lease, and step-up state from owned repositories/opaque receipts instead of a
   caller-provided flag bundle.
+- [ ] A durable Account-owned CAS repository/fence owns the opaque,
+  target-bound effect handoff and atomically compares current generations,
+  revocation, lease, capability, and one-time step-up state before consumption;
+  the existing manual-required runtime fence and current-authority CAS do not
+  satisfy this row.
+- [ ] Exact-idempotent replay/recovery is durable across crash/restart and
+  partial commit: an already committed outcome may be returned only for the
+  exact target/generation/nonce, while mismatch, stale, replay, and recovery
+  ambiguity fail closed.
 - [ ] Expected tests cover view-versus-control grant separation, lease identity
   and expiry, revoke/rebind races, required step-up consumption, audit emission,
-  and typed remote/export/delete/billing consumers.
+  typed remote/export/delete/billing consumers, and the durable CAS/recovery
+  packet's exact-idempotent replay and crash/restart cases.
 
 - [x] Actor/household/role/device/session/capability matrix defined. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
 - [x] Parent controller authority proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.

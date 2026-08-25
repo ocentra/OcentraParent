@@ -43,6 +43,37 @@ Current device-trust coverage starts in:
 
 These plan-local tests currently prove document and route alignment only. They do not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle execution, or child uninstall execution by themselves.
 
+WP01's future replacement runtime-fence participant requires this absent expected root:
+
+```text
+crates/family-identity-core/tests/unit/device_trust_runtime_fence_participant.rs
+```
+
+After protected Device-owned receipt custody, explicit migration/retention
+ownership, and the real Account WP05A caller are stable, the test must prove
+exact action/target/signer/generation binding,
+prepare/commit/abort one-time semantics, concurrent reservation exclusion,
+current-state re-resolution, stale/revoked target rejection, corrupt schema and
+row rejection without repair, restart recovery, committed digest validation,
+and prepared/commit/persistence ambiguity as fail-closed uncertainty. It must
+exercise the production private participant seam without exporting raw handles,
+owner currentness, or a fake Account/Device authority. The existing lifecycle
+contract test also requires later API migration. Source presence and a library
+check do not satisfy this expected test or prove runtime composition.
+
+WP03's future owner-fence participant must add and focus:
+
+```text
+crates/family-identity-core/tests/unit/parent_step_up_runtime_fence_participant.rs
+```
+
+That test must prove action/target-bound prepare, one-time commit or abort,
+sign-count and expiry enforcement, replay/restart recovery, and fail-closed
+uncertainty through a private participant seam. It must not export raw receipt
+or nonce state to Account WP05A, and its presence does not authorize source,
+proof, platform ceremony, runtime reachability, or DONE before the real
+passkey/OS authority and WP01 currentness owner exist.
+
 `crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs` is a
 synthetic parent-presence/authority-boundary probe. It is not a Windows DPAPI
 proof and must not be cited for same-device unseal, registry-epoch persistence,
@@ -86,10 +117,14 @@ Trust sealing must remain manual-required until the authority contract exposes a
 
 Windows DPAPI adapter validation:
 
-**No current DPAPI proof command is authorized.** The Windows source is
-present, but the authenticated-parent requirement is permanently unavailable
-before custody mutation and no ceremony issuer, desktop/native mount, or
-custody-to-lifecycle startup caller exists. A future selected platform route
+**No current DPAPI proof command is authorized.** The Windows source and native
+desktop command mount are present, but the authenticated-parent requirement is
+permanently unavailable before custody mutation and no record-backed ceremony
+issuer or custody-to-lifecycle startup caller exists. The command accepts only
+an opaque staged handle and reports custody-sealed-only success or a typed
+rejection; it does not claim family lifecycle activation or prove a live seal in
+this issuer-less lane. Windows custody-open platform failures are unavailable,
+while unsupported non-Windows startup is manual-required. A future selected platform route
 must add a real Windows caller and retain proof for the exact authority,
 current binding, registry epoch, ciphertext, activation, unseal, revocation,
 wrong-user, wrong-device, and restart states. On non-Windows hosts, record
@@ -238,6 +273,69 @@ child-device removal/tamper state
 dependency adoption review
 route gate
 ```
+
+## WP05 expected test and proof debt (source review complete; tests open)
+
+The WP05 source wave has independent source review and the Grace/revocation
+repairs in this packet; its expected test roots and retained proof remain
+missing/open. The later test wave must exercise the
+trusted issuer/provider boundary without caller-built projections, weak-key
+and key-id rejection, signed authority-generation and release-channel
+binding, typed Grace rejection for every non-Tracking capability and inactive
+offline-grace state, absent/manual-required snapshot and revocation
+replacement, the restart-safe owner generation fence, ancestor symlink and
+storage-error fail-closed behavior, explicit signed Grace restrictions,
+release-channel mismatch, semantic effective-seat-limit equality, and the
+owner-controlled account/session and Device Trust re-resolution contract for
+any future grant/consume operation. It must also prove that no public
+capability selector or forgeable final-consumption API is reachable without a
+concrete child-runtime action owner.
+The trusted-time/currentness owner must prove restart-safe time rollback
+fencing and an owner-configured maximum grace interval; no caller clock or
+crate-wide magic grace limit is acceptable. Because no real snapshot ingestion
+owner exists in this packet, the expected source/test debt must keep snapshot
+cache mutation absent rather than treating a receipt as an ingestion path.
+Any future mutation proof must show that unverified wire data cannot advance
+durable state and that platform custody handles reparse/TOCTOU safely, or
+remain manual-required. A future production startup or integration proof must
+also show real issuer/platform key custody, installed-package identity,
+billing and currentness owners, signed revocation delivery, a concrete
+child-runtime action owner, and its service startup caller; the current source
+has no child-runtime entitlement consumer. Expected test debt remains in
+`crates/entitlement-core/tests/unit/capability_gate.rs`,
+`crates/entitlement-core/tests/unit/capability_access.rs`,
+`crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs`, and
+`crates/child-runtime/tests/unit/runtime_gate.rs`; these files are not edited
+in the source wave.
+
+## WP06 expected test and proof debt (source repair integrated; tests open)
+
+The WP06 source candidate is static-reviewed only. Its expected test roots and
+retained proof remain missing/open and must be updated in the later test wave:
+
+- `crates/family-identity-core/tests/contract/device_trust_lifecycle.rs` still
+  calls the removed raw `repair_with_new_installation` API and expects a
+  generation-only repair outcome; it must instead cover the missing authorized
+  parent re-pair owner once that owner exists.
+- `crates/schema/tests/contract/export_import_backup_recovery.rs` remains the
+  recovery contract root and must retain wrong-household, wrong-key, corrupted,
+  tombstoned, and redacted-shape negatives.
+- `crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs`
+  still expects caller-built encrypted bundles and context literals without a
+  current tombstone cursor; it must cover `EncryptionCustodyUnavailable`,
+  missing/mismatched cursor rejection, and the unconditionally blocked apply
+  seam. A future owner-bound cursor token must be tested for reread/consume
+  semantics before any positive apply test is legal.
+- `tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs`
+  and `tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
+  must remain open until a real encrypted key-custody owner, parent
+  authorization, durable revocation owner, restore executor, startup caller,
+  and an owner-bound apply-time cursor token are mounted.
+
+No WP06 tests, build/check, proof, precommit, CI, or runtime execution were run
+in this source wave. The proof root remains
+`output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` and is
+absent.
 
 ## Required negative states
 

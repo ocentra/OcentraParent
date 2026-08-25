@@ -6,10 +6,11 @@ use ocentra_parent_agent_protocol::{
         command_response_event_id_prefix, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
     },
 };
-use std::{future::Future, pin::Pin};
+use std::{future::Future, pin::Pin, sync::Arc};
 
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime,
+    browser_runtime::BrowserManagedRuntime,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     lan_pairing::{
@@ -19,14 +20,21 @@ use crate::{
     screen_settings_runtime::ScreenSettingsRuntime,
 };
 
-use super::{command_dispatch::build_command_event, WebsocketCommandOrigin, WebsocketCommandText};
+use super::transport_admission::transport_route_rejection;
+use super::{
+    command_dispatch::build_command_event, WebsocketCommandOrigin, WebsocketCommandText,
+    WebsocketPeerProvenance, WebsocketPlatformProbeDispatcher,
+};
 
 pub(super) fn handle_command_text(
     text: WebsocketCommandText,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
+    probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
+    provenance: WebsocketPeerProvenance,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
         if text.0.len() > constants::lan_pairing::LAN_WEBSOCKET_COMMAND_MAX_BYTES {
@@ -39,8 +47,11 @@ pub(super) fn handle_command_text(
                     command,
                     lan_pairing,
                     browser_policy,
+                    browser_runtime,
                     screen_settings,
                     origin,
+                    probe_dispatcher,
+                    provenance,
                 )
                 .await
             }
@@ -64,12 +75,19 @@ fn handle_command(
     command: AgentCommandEnvelope,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
+    probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
+    provenance: WebsocketPeerProvenance,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
-        let request_nonce_digest = super::health_nonce::request_nonce_digest(&command).0;
+        let request_nonce_digest = super::health_nonce::request_nonce_digest(&command);
         let command_identity = command.clone();
+        if let Some(mut event) = transport_route_rejection(&command, provenance) {
+            bind_response_to_request(&mut event, &command_identity, &request_nonce_digest);
+            return event;
+        }
         let (command, audit_fields) = match route_lan_command(
             lan_pairing.clone(),
             crate::lan_pairing::command_routing::LanCommandOrigin(LanPairingOptionalText(origin.0)),
@@ -87,8 +105,16 @@ fn handle_command(
             }
         };
 
-        let mut event =
-            build_command_event(command, lan_pairing, browser_policy, screen_settings).await;
+        let mut event = build_command_event(
+            command,
+            lan_pairing,
+            browser_policy,
+            browser_runtime,
+            screen_settings,
+            probe_dispatcher,
+            provenance,
+        )
+        .await;
         if let Some(audit_fields) = audit_fields {
             extend_log_fields(&mut event.payload, audit_fields);
         }

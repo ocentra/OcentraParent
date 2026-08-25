@@ -6,7 +6,8 @@ use crate::{
 };
 
 use super::{
-    reports::dead_letter::DeadLetter, DispatchMode, EventBus, PublishReport, SubscriberRecord,
+    dispatch_chain::DispatchChain, publisher::RootEventPublisher, reports::dead_letter::DeadLetter,
+    DispatchMode, EventBus, PublishReport, SubscriberRecord,
 };
 
 mod flow;
@@ -31,7 +32,9 @@ impl From<EventingError> for DispatchStoredError {
     }
 }
 
-impl EventBus {
+impl RootEventPublisher {
+    /// Publishes independent root work with no handler-owned causal chain.
+    /// Event handlers receive only [`super::publisher::EventPublisher`].
     pub async fn publish<E>(
         &self,
         event: E,
@@ -40,7 +43,7 @@ impl EventBus {
     where
         E: DomainEvent,
     {
-        flow::publish_with_mode(self, event, metadata, DispatchMode::Sequential).await
+        flow::publish_with_mode(&self.bus, event, metadata, DispatchMode::Sequential).await
     }
 
     pub async fn publish_and_wait<E>(
@@ -54,6 +57,10 @@ impl EventBus {
         self.publish(event, metadata).await
     }
 
+    /// Spawns an independent root publication.
+    ///
+    /// Handler-owned spawned work must instead clone the publisher from its
+    /// event context so ordered causality survives the spawn boundary.
     pub fn publish_detached<E>(
         &self,
         event: E,
@@ -63,7 +70,7 @@ impl EventBus {
     where
         E: DomainEvent,
     {
-        let bus = self.clone();
+        let bus = self.bus.clone();
         tokio::spawn(
             async move { flow::publish_with_mode(&bus, event, metadata, dispatch_mode).await },
         )
@@ -78,9 +85,12 @@ impl EventBus {
     where
         E: RequestEvent,
     {
-        request::publish_request(self, event, metadata, options).await
+        request::publish_request(&self.bus, event, metadata, options).await
     }
 
+    /// Publishes a root event with an explicit dispatch mode.
+    ///
+    /// Handler code must use its context publisher for causal nested work.
     pub async fn publish_with_mode<E>(
         &self,
         event: E,
@@ -90,7 +100,7 @@ impl EventBus {
     where
         E: DomainEvent,
     {
-        flow::publish_with_mode(self, event, metadata, dispatch_mode).await
+        flow::publish_with_mode(&self.bus, event, metadata, dispatch_mode).await
     }
 
     /// Publishes only after the selected before-dispatch journal append passes
@@ -107,11 +117,44 @@ impl EventBus {
         E: DomainEvent,
     {
         flow::publish_with_mode_and_before_dispatch_receipt_validator(
-            self,
+            &self.bus,
             event,
             metadata,
             dispatch_mode,
             validator,
+        )
+        .await
+    }
+}
+
+impl EventBus {
+    pub(super) async fn publish_root<E>(
+        &self,
+        event: E,
+        metadata: EventMetadata,
+    ) -> Result<PublishReport, EventingError>
+    where
+        E: DomainEvent,
+    {
+        flow::publish_with_mode(self, event, metadata, DispatchMode::Sequential).await
+    }
+
+    pub(super) async fn publish_causal_in_chain<E>(
+        &self,
+        event: E,
+        metadata: EventMetadata,
+        dispatch_mode: DispatchMode,
+        dispatch_chain: DispatchChain,
+    ) -> Result<PublishReport, EventingError>
+    where
+        E: DomainEvent,
+    {
+        flow::publish_causal_with_mode_in_chain(
+            self,
+            event,
+            metadata,
+            dispatch_mode,
+            dispatch_chain,
         )
         .await
     }
@@ -124,7 +167,7 @@ impl EventBus {
         self.dead_letters.read().await.clone()
     }
 
-    pub(super) async fn complete_request<E>(
+    pub(super) fn complete_request<E>(
         &self,
         request_id: RequestId,
         response: E::Response,

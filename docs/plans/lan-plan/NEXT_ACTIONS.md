@@ -104,12 +104,15 @@ only on a demonstrated private-key/install custody requirement.
   row instead of emitting a duplicate suppression candidate for the same
   device. `02` is now locally closed for its owned Rust scope after the
   focused `agent-core`, `agent-service`, and scoped architecture reruns.
-- `07 Passive Discovery Listeners` now has focused Rust proof for passive ARP
-  weak hints, DHCP, mDNS, SSDP, WS-Discovery, LLMNR, NetBIOS, Ocentra beacon
-  observations through the signed-child hello or heartbeat path, and allowed
-  SNMP response history bridging. The local code path is now fully rerun green;
-  the exact remaining gap is real long-running DHCP listener proof plus
-  broader packet/platform/manual artifacts.
+- `07 Passive Discovery Listeners` has accepted canonical source at
+  `ffaade68a`: the recurring service path shares one absolute collection-cycle
+  deadline across all six UDP listeners, recomputes remaining time for every
+  receive, handles Windows sub-millisecond remainder, and restores prior socket
+  timeout on all exits. This was a source-only integration with focused compile
+  and source guards; it did not run or create tests. Write the slow-trickle,
+  zero-deadline, success/error/unwind restoration, six-listener rotation, and
+  cancellation test delta before focused execution. Packet/platform/manual
+  proof remains later.
 - `08 mDNS And DNS-SD Discovery` now has focused Rust proof for selected
   service enumeration/types, PTR/SRV/TXT/A/AAAA parsing, hostile-name
   sanitization, and hint-only agent handling. Remaining work is broader

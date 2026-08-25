@@ -138,7 +138,7 @@ pub(super) fn request_nonce_digest(request_nonce: &str) -> String {
 }
 
 fn ensure_phase_deadline(deadline: Instant, timeout: Duration, phase: &str) -> Result<(), String> {
-    remaining_timeout(deadline).map_err(|_| {
+    remaining_timeout(deadline).map(|_| ()).map_err(|_| {
         format!(
             "agent-service WebSocket {phase} timed out after {}ms",
             timeout.as_millis()

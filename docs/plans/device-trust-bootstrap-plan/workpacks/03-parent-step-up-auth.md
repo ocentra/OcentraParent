@@ -24,6 +24,7 @@ Purpose: define parent step-up auth with passkeys, biometrics, and OS-native app
 - `tests/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs`
 - `tests/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs`
 - `tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
+- `crates/family-identity-core/tests/unit/parent_step_up_runtime_fence_participant.rs`
 
 ## Current audit state
 
@@ -73,6 +74,24 @@ WP03 is the ceremony owner after the WP01 foundation and Account/Cloudflare
 current-authority bridge. WP01 must not become a ceremony issuer, and WP03 must
 not depend on LAN WP26 or a child consumer; those consumers are ordered after
 the one-time registration authorization and current-binding/revocation handoff.
+
+## Multi-owner effect-fence handoff
+
+WP03 is also the owner of the private parent-step-up reservation participant
+consumed by Account WP05A's runtime effect-fencing coordinator. The participant
+must reserve and consume the action-bound challenge/receipt, sign-count, expiry,
+and target binding in the Device Trust owner; it must not export raw receipt
+state or move nonce/replay truth into Account. Account WP05A coordinates this
+participant with Account authority, capability, and controller-lease owners
+but does not replace it.
+
+The planned `parent_step_up_target_authority.rs`, `parent_step_up_runtime.rs`,
+and private participant seams
+(`parent_step_up_runtime_fence_participant.rs` in family-identity-core and
+parent-runtime-core) remain absent. This handoff adds no source, test, proof,
+platform ceremony, or runtime-readiness claim and does not unblock WP03 until
+Account WP08/WP02, Cloudflare WP06, Device Trust WP01, and a real passkey/OS
+authority are available.
 
 ## Implementation-phase routing disposition — 2026-08-17
 

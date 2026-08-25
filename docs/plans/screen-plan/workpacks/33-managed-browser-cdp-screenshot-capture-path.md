@@ -32,19 +32,49 @@ This is capture MVP for browser pages, browser games, video, social web, and web
 - [ ] Record URL/title/target evidence refs.
 - [ ] Exclude live screencast from MVP default.
 
-## Proof
+## Source packet status
 
-- `scripts/test/screen-managed-browser-cdp-capture-proof.mjs` opens a real
-  public managed-browser page in Chromium, uses Chrome DevTools Protocol
-  `Page.captureScreenshot` for bounded page, viewport, and crop modes, validates
-  the `@ocentra-parent/activity-domain` request/artifact contracts, encrypts the
-  temporary screenshot bytes through the screen queue handoff, deletes raw and
-  encrypted temp material, and writes redacted proof artifacts to
-  `output/screen-plan-proof/33-managed-browser-cdp-screenshot-capture-path/`.
-- `packages/activity-domain/tests/screen-managed-browser-cdp-capture.test.ts`
-  proves the browser screenshot path rejects desktop capture, full-screen
-  display capture, live screencast, raw screenshot retention, remote upload,
-  unbounded crop requests, and non-deleted/non-temp-queue artifacts.
+The source-first packet now owns the Rust contract, private managed-launch
+capability, browser-authority target binding, bounded CDP transport, separate
+screen adapter, and encrypted queue handoff at:
+
+- `crates/schema/src/managed_browser_cdp_capture.rs`
+- `crates/schema/src/managed_browser_cdp_capture/validation.rs`
+- `crates/agent-core/src/browser_managed_session.rs`
+- `crates/agent-core/src/browser_managed_session/accessors.rs`
+- `crates/agent-core/src/browser_managed_session/launch.rs`
+- `crates/agent-core/src/browser_managed_session/capability.rs`
+- `crates/agent-core/src/browser_bridge_capture.rs`
+- `crates/agent-core/src/browser_bridge_capture/authority.rs`
+- `crates/agent-core/src/browser_bridge_capture/binding.rs`
+- `crates/agent-core/src/browser_bridge_capture/identity.rs`
+- `crates/agent-core/src/browser_bridge_capture/identity_match.rs`
+- `crates/agent-core/src/browser_bridge_capture/port_owner.rs`
+- `crates/agent-core/src/browser_bridge_capture/process.rs`
+- `crates/agent-core/src/browser_bridge_capture/target.rs`
+- `crates/agent-core/src/browser_bridge_capture/transport.rs`
+- `crates/screen-capture-adapter/src/managed_browser_cdp.rs`
+- `crates/screen-capture-adapter/src/managed_browser_cdp/decoder.rs`
+- `crates/screen-capture-adapter/src/managed_browser_cdp/structure.rs`
+- `crates/screen-capture-adapter/src/managed_browser_cdp/chunks.rs`
+- `crates/agent-service/src/browser_runtime_status.rs`
+- `crates/agent-service/src/screen_managed_browser_cdp_runtime.rs`
+
+The seven checklist rows remain unchecked. Tests and proof remain deferred. The
+browser plan still owns the URL/target trigger producer; this packet accepts
+only a browser-owned managed launch record, verifies the loopback endpoint's
+OS-reported process owner and executable before launch authority/capture, and
+fails closed with manual-required when the platform cannot prove that binding.
+Queue timestamps are service-generated from trusted current time and bounded
+by the queue TTL; caller-supplied timestamps are not accepted. No live browser trigger/runtime,
+AI/OCR/VLM, retention, remote, policy, enforcement, or product completion
+claim is made by this source packet.
+
+## Deferred validation
+
+The real-browser proof and focused contract/security/runtime tests are a later
+validation wave. Their expected proof/script and test roots are not production
+source and are intentionally not created or mapped by this source-only packet.
 
 ## Non-Claims
 

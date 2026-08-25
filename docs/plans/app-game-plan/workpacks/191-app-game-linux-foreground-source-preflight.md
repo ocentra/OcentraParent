@@ -17,48 +17,60 @@
 
 ## Scope
 
-Turn Linux WSLg display and socket readiness from WP189 into a foreground source
-preflight row.
+Turn Linux display/socket readiness from WP189 into a typed foreground source
+preflight while keeping foreground-tool execution unavailable until a real
+process-custody primitive exists.
 
-This proves the display/source preflight shape only. On this Windows/WSL host,
-the active-window tool is still missing, so active foreground capture remains
-open.
+This source phase proves only the preflight shape. It does not assert a current
+Windows/WSL host state, compose App/Game ownership, or authorize capture.
 
 ## Implementation
 
-- Added `packages/parent-domain/src/app-game-linux-foreground-source-preflight.ts`.
-- Added focused tests for the current WSLg display-ready/tool-missing host,
-  hypothetical tool-available preflight readiness, and rejection of raw window
-  title, foreground-capture, and enforcement overclaims.
-- Added the combined platform runtime proof harness in
-  `scripts/test/app-game-platform-runtime-readiness-batch.mjs`.
+- Rust source exposes a typed Linux foreground-source preflight from
+  `crates/screen-capture-adapter/src/linux_foreground_source.rs` with truthful
+  WSLg/native display and trusted X11/Wayland socket states. WSLg requires a
+  WSL signal plus a complete trusted `/mnt/wslg/runtime-dir` ancestor/socket
+  chain; WSL/Docker presence alone is unavailable. Remote/invalid `DISPLAY`
+  and pure Wayland cannot make the foreground source ready.
+- The asynchronous platform proof handler does not spawn a per-request live
+  probe. It returns the typed unavailable state until an owned single-flight
+  worker with a real OS process-custody primitive is available; the explicit
+  read-model seam remains non-authoritative input for later validation.
+- xprop/xdotool subprocess probing is removed fail-closed. The source never
+  exposes an active-window result or ref from display/socket readiness alone.
+- The preflight is source capability only: it does not compose App/Game
+  ownership, enforcement authority, or raw window identity.
+- Linux xwd/convert capture stays fail-closed because a safe FD-backed
+  producer-owned handoff is not yet established. Selected-window/title capture
+  is unavailable because raw-title search is outside the metadata boundary.
+- No workpack tests, proof artifacts, or deployment validation were added in
+  this source-only phase.
 
 ## Validation
 
-Focused validation for this workpack:
-
-```powershell
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-usage-events-child-runtime-replay app-game-linux-foreground-source-preflight
-cmd /c node scripts/test/app-game-platform-runtime-readiness-batch.mjs
-```
+Source-only validation is limited to focused Cargo checks, formatting, source
+shape/architecture, Enforcer coordination, graph validation, and diff guards.
+The adapter Linux library check passed under WSL; no tests or proof commands
+were run.
 
 ## Proof
 
-- `test-results/app-game-platform-runtime-readiness-batch/proof.json`
-- `output/app-game-plan-proof/190-191-platform-runtime-readiness-batch/proof.json`
+No proof artifact exists. The expected Linux preflight test roots are absent and
+this workpack is not DONE or proof-complete.
 
-## Boundaries
+## Boundaries (validation-open; not completion)
 
-Proved:
+Source-only boundary:
 
-- WSLg display and X11/Wayland socket readiness can feed a foreground source
-  preflight boundary.
-- The current host is blocked on active-window tool availability before
-  foreground capture can be claimed.
+- Production source retains a typed, bounded display/socket preflight with
+  fail-closed foreground-source and tool outcomes for later tests; this
+  source-only edit does not prove the behavior.
 
 Not proved:
 
-- Active foreground capture.
+- Active foreground capture or App/Game ownership.
+- Live xprop/xdotool probing; safe process custody across escaped descendants is
+  not established.
 - Raw active-window title custody.
 - AppArmor, SELinux, package manager, Flatpak, Snap, rollback, audit, launch
   blocking, adapter dispatch, platform enforcement, provider delivery, or

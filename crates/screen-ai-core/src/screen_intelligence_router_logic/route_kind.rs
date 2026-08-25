@@ -1,25 +1,42 @@
+use super::route_projection::preferred_capture_scope;
 use crate::screen_intelligence_router::{
-    ScreenCaptureScope, ScreenIntelligencePolicySensitivity, ScreenIntelligenceRouteKind,
-    ScreenIntelligenceRouteRequest, ScreenIntelligenceSourceKind,
+    ScreenCaptureScope, ScreenIntelligenceRouteKind, ScreenIntelligenceRouteRequest,
+    ScreenIntelligenceSourceKind,
 };
+use crate::screen_intelligence_router_logic::consistency;
 
 pub(super) fn route_kind_for(
     request: &ScreenIntelligenceRouteRequest,
 ) -> ScreenIntelligenceRouteKind {
-    if screen_capture_is_unsafe(request) {
+    if consistency::screen_capture_is_unsafe(request) {
         return ScreenIntelligenceRouteKind::Unavailable;
     }
     if request
         .structured_extraction
         .as_ref()
-        .is_some_and(|value| value.no_screen_needed)
+        .is_some_and(|value| value.protected_content_skipped())
     {
-        return ScreenIntelligenceRouteKind::NoScreenNeeded;
+        return ScreenIntelligenceRouteKind::Unavailable;
     }
     if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
         && request.parent_allows_managed_browser_structured_extraction
     {
-        return ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction;
+        // NoScreenNeeded remains unavailable until a policy owner issues an
+        // affirmative safe-disclosure classification; ReviewRequired evidence
+        // must not be promoted by this router.
+        if request.structured_extraction.as_ref().is_some_and(|value| {
+            consistency::screen_managed_browser_structured_extraction_is_ready_for_route(value)
+        }) {
+            return ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction;
+        }
+        // No service-owned handoff means the browser producer boundary is
+        // unavailable; never advertise a structured route without evidence.
+        return ScreenIntelligenceRouteKind::Unavailable;
+    }
+    if request.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser {
+        // Do not fall through to desktop capture when the service cannot
+        // compose the managed-browser owner handoff.
+        return ScreenIntelligenceRouteKind::Unavailable;
     }
     if !request.parent_allows_screen_capture {
         return ScreenIntelligenceRouteKind::ManualRequired;
@@ -33,48 +50,4 @@ pub(super) fn route_kind_for(
         }
         _ => ScreenIntelligenceRouteKind::ManualRequired,
     }
-}
-
-pub(super) fn capture_scope_for_route(
-    request: &ScreenIntelligenceRouteRequest,
-    route_kind: &ScreenIntelligenceRouteKind,
-) -> Option<ScreenCaptureScope> {
-    match route_kind {
-        ScreenIntelligenceRouteKind::ScreenCaptureActiveWindow
-        | ScreenIntelligenceRouteKind::ScreenCaptureSelectedWindow => {
-            preferred_capture_scope(&request.allowed_capture_scopes).cloned()
-        }
-        _ => None,
-    }
-}
-
-pub(super) fn structured_extraction_for_route(
-    request: &ScreenIntelligenceRouteRequest,
-) -> Option<String> {
-    request
-        .structured_extraction
-        .as_ref()
-        .map(|value| value.extraction_id.clone())
-}
-
-fn screen_capture_is_unsafe(request: &ScreenIntelligenceRouteRequest) -> bool {
-    [
-        request.protected_surface_suspected,
-        request.credential_prompt_suspected,
-        request.policy_sensitivity == ScreenIntelligencePolicySensitivity::ProtectedSurface,
-        request.policy_sensitivity == ScreenIntelligencePolicySensitivity::CredentialRisk,
-    ]
-    .into_iter()
-    .all(|value| value)
-}
-
-fn preferred_capture_scope(scopes: &[ScreenCaptureScope]) -> Option<&ScreenCaptureScope> {
-    scopes
-        .iter()
-        .find(|scope| **scope == ScreenCaptureScope::ActiveWindow)
-        .or_else(|| {
-            scopes
-                .iter()
-                .find(|scope| **scope == ScreenCaptureScope::SelectedWindow)
-        })
 }

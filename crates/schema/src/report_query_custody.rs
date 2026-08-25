@@ -95,6 +95,21 @@ pub type ReportQueryCustodySourceDataClass = enum_custody::ReportQueryCustodySou
 pub type ReportQueryCustodyNonClaim = enum_custody::ReportQueryCustodyNonClaim;
 pub type ReportQueryCustodyTombstoneState = enum_custody::ReportQueryCustodyTombstoneState;
 
+/// Every custody proof must account for each explicit query/report outcome.
+/// Keep this list in the Rust contract owner so runtime proof builders cannot
+/// silently drift from the generated edge contract's required state set.
+pub fn required_report_query_custody_states() -> [ReportQueryCustodyState; 7] {
+    [
+        ReportQueryCustodyState::DerivedFresh,
+        ReportQueryCustodyState::DerivedStale,
+        ReportQueryCustodyState::PartiallyRedacted,
+        ReportQueryCustodyState::DeletedSource,
+        ReportQueryCustodyState::SyncConflict,
+        ReportQueryCustodyState::CursorExpired,
+        ReportQueryCustodyState::RateLimited,
+    ]
+}
+
 pub type ParentContractSchemaVersion = text_types_core::ParentContractSchemaVersion;
 pub type ParentAccountId = text_types_core::ParentAccountId;
 pub type FamilyId = text_types_core::FamilyId;
@@ -143,13 +158,14 @@ pub struct ParentDeviceReference {
     pub platform: ParentPlatform,
 }
 
-/// A Rust-owned authority reference is the narrow handoff from the current
-/// account/household authority resolver into report/query custody. The
+/// A Rust-owned authority reference is the narrow handoff from an
+/// account/household authority snapshot into report/query custody. The
 /// encoded reference is not itself proof of currentness; the storage owner
-/// must obtain it from a verified capability and re-check currentness before
-/// deriving a row. It deliberately carries the identity tuple so an
-/// authority for another household, account, device, or child cannot be
-/// reused by shape alone.
+/// must bind it to the verified capability snapshot and validate its identity,
+/// generation, and expiry before deriving a row. That validation does not
+/// claim repository currentness after the snapshot was issued. The reference
+/// deliberately carries the identity tuple so an authority for another
+/// household, account, device, or child cannot be reused by shape alone.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReportQueryCustodyParentAuthorityReference {
@@ -235,6 +251,11 @@ pub struct ReportQueryCustodyRow {
     pub claim_safe: bool,
 }
 
+/// Untrusted cross-boundary proof payload.
+///
+/// Deserialization proves only wire shape. Rust runtime callers must obtain a
+/// sealed `ValidatedReportQueryCustodyProofSnapshot` from
+/// `ocentra-storage-custody-core`; this DTO is never authority by itself.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReportQueryCustodyContractProof {

@@ -32,11 +32,14 @@ merged Windows-only source contains DPAPI-protected record/registry-epoch
 custody code in `storage-custody-core`, the current-authority seam in
 `family-identity-core`, and an opaque parent-runtime staged-handle facade.
 `require_authenticated_parent_authority()` is permanently unavailable, so the
-custody operations fail closed before record/epoch mutation. No ceremony issuer,
-registered desktop/native command, or custody-to-lifecycle startup composition
-reaches that source; no end-to-end Windows seal, activation, unseal, or
-revocation execution is claimed. Existing lifecycle/custody tests are stale
-against this boundary and are not current DPAPI proof.
+custody operations fail closed before record/epoch mutation. The parent desktop
+now registers a native command that accepts only an opaque staged-ceremony
+reference and generates trust material inside the facade. Its result is
+custody-sealed-only and does not claim family lifecycle activation, but no
+ceremony issuer or custody-to-lifecycle startup composition reaches that source;
+no end-to-end Windows seal, activation, unseal, or revocation execution is
+claimed. Existing lifecycle/custody tests are stale against this boundary and
+are not current DPAPI proof.
 
 PR [#627](https://github.com/ocentra/OcentraParent/pull/627) also merged as
 `1ce56056c8c233addafe89feec7008c2bdda7059`, adding the fail-closed
@@ -66,20 +69,20 @@ Current direction from research and the pasted plan set:
 
 ## Production-code reachability audit (2026-08-16)
 
-This source audit was refreshed on the source-integration branch through
-`68717b5b7`. It does not promote tests, proof artifacts, graph topology, or
-typed DTOs into runtime authority. WP01's bounded repository hardening is
-accepted source; no shipped caller yet owns the missing cryptographic/device
-authority.
+This source audit was refreshed after withdrawing the rejected runtime-fence
+packet. It does not promote tests, proof artifacts, graph topology, or typed
+DTOs into runtime authority. WP01's earlier bounded lifecycle/current-binding
+hardening remains accepted source; no shipped caller owns the missing
+cryptographic/device authority or protected participant custody.
 
 | Workpack | Reachable production code | Missing production authority / caller |
 | --- | --- | --- |
-| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar/transition journal, current device/signer binding, durable local event journal, and the integrated trusted-device/signer-key registration packet. Public household signer/verifier mint paths are removed; current authority is re-resolved from owner state. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped platform/passkey ceremony issuer or complete trust-state composition owner. Independent source review accepted the bounded packet as implementation evidence only. Expected-test migration, functional validation, proof, production caller integration, and completion remain open. |
-| WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch source, `crates/family-identity-core` has current-authority and lifecycle-activation seams, and `crates/parent-runtime-core` has an opaque staged-handle facade. | `require_authenticated_parent_authority()` is permanently unavailable before custody mutation; no ceremony issuer, desktop/native command mount, or custody-to-lifecycle startup composition reaches the source. Non-Windows custody and end-to-end sealing remain unavailable/manual-required; stale lifecycle/custody tests are not proof. |
+| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar/transition journal, current device/signer binding, durable local event journal, and trusted-device/signer-key registration. Public household signer/verifier mint paths remain absent. The attempted runtime-fence participant was removed after review proved its same-user-writable SQLite rows and unkeyed digest could mint committed outcomes. | No protected Device-owned receipt/key provider, explicit existing-database migration, bounded retention/archive owner, production Account WP05A caller, shipped platform/passkey ceremony issuer, or complete trust-state composition owner exists. The future participant and expected test root are absent; functional validation, proof, production composition, and completion remain open. |
+| WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch source, `crates/family-identity-core` has current-authority and lifecycle-activation seams, and `crates/parent-runtime-core` plus the parent desktop have an opaque staged-handle facade and mounted custody-sealing command. | `require_authenticated_parent_authority()` is permanently unavailable before custody mutation; no ceremony issuer or custody-to-lifecycle startup composition reaches the source. Windows custody-open platform failures are typed unavailable; unsupported non-Windows startup is typed manual-required; the later authenticated-parent gate remains manual-required. The command does not perform lifecycle activation. Non-Windows custody and end-to-end sealing remain unavailable/manual-required; stale lifecycle/custody tests are not proof. |
 | WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries, a five-minute lifetime gate, and bounded atomic challenge/intent plus receipt/credential custody. | The graph is blocked on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Planned `parent_step_up_target_authority.rs` and `parent_step_up_runtime.rs` do not exist. Actor parent-controller and target child/profile/device are not authoritatively separated for `RegisterLanSignerAnchor`; the authoritative Account writer/provider caller, passkey/OS-native signature provider, durable sign counter, shipped parent runtime, expected tests, proof, LAN handoff, and DONE remain open. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
-| WP05 | `crates/entitlement-core` preserves an unsigned entitlement projection and a crate-owned fail-closed context; caller/wire data cannot manufacture trusted snapshot state. | No real entitlement issuer/signature/revocation provider or device-trust-bound capability unlock caller. |
-| WP06 | `crates/storage-custody-core` provides restore preflight and a verified-parent gate plus an unavailable executor port; caller-minted restore authority was removed. | No encrypted bundle/key-custody runtime, revocation-preserving executor, or shipped restore caller. |
+| WP05 | The independently reviewed source-repair wave on `codex/device-trust-wp05-source-wave` adds `crates/entitlement-core` signed transport, bound authority generation/channel, strict weak-key-rejecting verifier, typed Grace rejection, and fail-closed read-only signed revocation custody. Authority verification is crate-private and the child-runtime entitlement module is not exported; there is no public capability selector, unlock, or final-consumption route. Active-window/session decisions remain behind a crate-private owner-controlled trusted-time/currentness boundary, and no snapshot or revocation mutation writer is present without a verified owner transition. | No concrete owner repository composition is present: real issuer/HSM or platform key provider, installed-package authority, billing/currentness owner, trusted-time/configured-grace policy, live Account/Device Trust re-resolution caller, handle-safe cache custody, signed revocation delivery caller, child entitlement action owner/startup mount, expected tests, runtime execution, proof, CI, and completion remain open; raw authority/issuer DI stays crate-private and no activation is claimed. |
+| WP06 | `crates/storage-custody-core` provides restore preflight; the public raw installation-generation repair stub is removed, bundle construction is fail-closed without encryption custody, preflight requires an exact owner-supplied tombstone cursor, and the dead apply/authority seam is unconditionally blocked until an owner-bound cursor token exists. | No encrypted bundle/key-custody runtime, durable current tombstone owner, authorized re-pair producer, real executor, or shipped restore caller. The storage source overlaps the Data WP05 candidate and requires post-acceptance rebase/reconciliation. |
 | WP07 | `crates/child-runtime` durably records tamper/removal evidence, binds readiness to current trust, and keeps ingress blocked across restart while unresolved; the Android bridge carries the fail-closed health state. | Package/device-owner removal, attestation, parent transport, and a real platform removal caller are absent; state remains manual-required. |
 | WP08 | Research/dependency review only. | No runtime dependency adoption owner or trust-root caller. |
 | WP09 | Route aggregation/documentation only. | No runtime trust behavior; completion remains downstream of WP01-WP08 evidence and authority. |
@@ -126,9 +129,69 @@ The current WP01 owner paths include:
 
 Independent source review found no remaining internal P0/P1 in the accepted
 continuation. Focused source formatting, architecture, Enforcer, and diff gates
-passed after reconciliation. WP05 remains an unsigned projection without a real
-issuer/revocation provider; WP06 has no real restore executor/custody owner; and
-WP07 has no platform removal or parent-transport caller.
+passed after reconciliation. The WP05 source wave on the separate
+`codex/device-trust-wp05-source-wave` branch adds the authority packet described
+below; it is not part of the historical `68717b5b7` consolidation. WP06 has no
+real restore executor/custody owner; and WP07 has no platform removal or
+parent-transport caller.
+
+## WP05 source-wave reachability — 2026-08-18 (independently reviewed source repairs; tests open)
+
+The independently reviewed source-repair packet is present on
+`codex/device-trust-wp05-source-wave`; expected tests, runtime execution,
+proof, and completion remain open:
+
+- `crates/entitlement-core/src/entitlement_snapshot_issuer.rs`: opaque owner
+  issuance boundary and manual-required signing custody; the module and its
+  raw owner-composition path remain crate-private until a concrete owner
+  repository is mounted.
+- `crates/entitlement-core/src/entitlement_snapshot.rs` plus
+  `entitlement_snapshot_shape.rs`, `entitlement_snapshot_signing.rs`,
+  `entitlement_snapshot_derivation.rs`,
+  `entitlement_snapshot_wire_names.rs`, and
+  `entitlement_snapshot_capability_wire_names.rs`: bounded signed envelope,
+  authority-generation/channel binding, and owner-side projection derivation.
+- `crates/entitlement-core/src/entitlement_snapshot_authority.rs` plus
+  `entitlement_snapshot_authority_ports.rs`,
+  `entitlement_snapshot_authority_currentness_ports.rs`,
+  `entitlement_snapshot_authority_verifier.rs`,
+  `entitlement_snapshot_authority_verifier_request.rs`,
+  `entitlement_snapshot_authority_verifier_binding.rs`,
+  `entitlement_snapshot_authority_verifier_signature.rs`,
+  `entitlement_snapshot_authority_verifier_currentness.rs`,
+  `entitlement_snapshot_authority_currentness.rs`, and
+  `entitlement_snapshot_authority_revocation.rs`: Ed25519 verification,
+  weak-key rejection, pinned key-id and authority-generation binding,
+  installed-package/currentness seams, live Account/Device Trust re-resolution,
+  current account/device binding, and a crate-private verifier result.
+  Active-window and session expiry decisions belong to the crate-private
+  owner-controlled trusted-time/currentness port; no caller-injected clock is
+  exposed. The typed ports and raw dependency-injection constructor are
+  crate-private. No concrete owner currently reaches the verifier, so no
+  capability selector or positive unlock/consume operation is production
+  reachable.
+- `crates/entitlement-core/src/entitlement_snapshot_cache.rs` plus
+  `entitlement_snapshot_cache_path.rs`,
+  `entitlement_snapshot_cache_revocation.rs`: read-only signed revocation state
+  custody with secure path checks. No snapshot or revocation mutation writer
+  exists in this packet: the removed receipt and raw signed-update paths had
+  no real owner transition caller. The current path-based implementation is
+  not a platform handle-safe reparse defense and remains manual-required until
+  a platform custody owner mounts that adapter.
+- `crates/child-runtime/src/service.rs` and `service_recovery.rs`: the shipped
+  child service owner does not construct an entitlement authority or own the
+  Account/Billing/package/currentness composition. The prior
+  `runtime_entitlement_license.rs` wrapper and its public authorize/consume
+  APIs were removed, so no child entitlement action owner or startup caller
+  reaches this source wave.
+
+This does not promote the independently reviewed source repair to DONE or
+runtime-accepted behavior.
+External key custody/signing,
+installed-package identity, billing/currentness/revocation owners and their
+startup composition are not present in this branch. Expected WP05 tests and
+proof roots remain missing/open, and no activation or broad capability
+completion claim follows from the source reachability.
 
 The full expected-test wave, functional validation, proof, production caller
 integration, repo-wide Enforcer/architecture acceptance, platform custody,
@@ -146,6 +209,55 @@ ordered after WP03 for current-binding/revocation consumption. The default graph
 does not force WP02 into that route; when a platform sealing/lifecycle-revocation
 path is selected, its reviewed conditional `WP26 -> WP02` gate must be promoted
 before the consumer route can proceed.
+
+## WP06 source-wave reachability — 2026-08-18 (source integrated; tests open)
+
+The independently reviewed WP06 source packet is integrated on
+`codex/eventing-wp09-production` through `f656a80a1` from final candidate
+`1b3593319`. This is a source-only fail-closed repair; expected-test rewrites,
+runtime execution, proof, and workpack acceptance remain open:
+
+- `crates/family-identity-core/src/device_trust_lifecycle_revocation.rs` no
+  longer exports `repair_with_new_installation`, which accepted raw identity
+  strings and an installation generation. Durable revoke/reset remains inside
+  the lifecycle owner; no authorized re-pair ceremony or producer exists.
+- `crates/storage-custody-core/src/export_import_backup_recovery_build.rs`
+  refuses to construct the encrypted wire bundle with
+  `EncryptionCustodyUnavailable`. The prior caller-supplied encryption and
+  support-decrypt flags cannot create metadata that claims ciphertext.
+- The import preflight requires the bundle tombstone cursor to exactly equal
+  the owner-supplied current cursor. Missing or mismatched currentness returns
+  a `TombstoneConflict` with `tombstones_preserved: false`; apply is now
+  unconditionally blocked because the caller-held context is not a durable
+  currentness authority. The removed parent-authority/custom-executor path
+  cannot invoke side effects until an owner-bound cursor token is reread and
+  consumed at apply time.
+
+No production caller constructs `ImportBundleContext` or
+`CurrentVerifiedHouseholdAuthority`; no encrypted key-custody owner, durable
+revocation/tombstone owner, authorized parent re-pair producer, real restore
+executor, or parent/child startup route reaches this source. The five expected
+WP06 test roots and the proof root remain missing/open. These storage files
+overlap Data WP05 candidate `e91bb3de1`; that candidate must be rebased and
+semantically reconciled on top of this integrated fail-closed boundary before
+its own integration claim.
+
+## WP01 runtime-fence source withdrawal — 2026-08-24
+
+The 18-path runtime-fence packet integrated through `f5974c795` failed a later
+independent review and has been withdrawn. Its caller-path SQLite ledger stored
+committed outcomes authenticated only by a recomputable unkeyed SHA-256 digest;
+a same-user writer could therefore fabricate a committed outcome. The packet
+also made pre-existing valid Device Trust databases fail because it validated a
+new table without an explicit migration, and it retained an unbounded ledger
+that was fully scanned at startup.
+
+No positive participant source remains in canonical. Reintroduction requires a
+real protected Device-owned receipt/key provider that excludes same-user
+writers, an owner-approved versioned and interruption-safe migration, bounded
+retention/archive semantics, and a production Account WP05A caller. The future
+expected unit test, lifecycle test migration, functional execution, proof,
+precommit, CI, PR, and DONE all remain open.
 
 ## Conditional WP02 sealing gate — 2026-08-17
 
@@ -244,9 +356,13 @@ remote-access-plan and policy-control-plane-plan:
 - `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
 - Current plan-local tests prove document and route shape only, not runtime trust.
 - Login/session proof, LAN pairing proof, package install proof, and license proof are all insufficient for device trust.
-- The Windows-only WP02 source has an opaque parent-runtime facade, but no
-  parent-desktop command mount or startup caller. Android, Linux, iOS, and
-  macOS custody implementations and their proof remain absent.
+- The Windows-only WP02 source has an opaque parent-runtime facade and a
+  parent-desktop Tauri command mount. The startup state is typed manual-required
+  only for unsupported non-Windows startup and typed unavailable for Windows
+  platform errors, corruption, or other custody-open failures; neither state
+  accepts sealing traffic without an available facade. The command reports
+  custody sealing only and does not activate the family lifecycle. Android, Linux,
+  iOS, and macOS custody implementations and their proof remain absent.
 - `require_authenticated_parent_authority()` is permanently unavailable, so
   Windows custody seal/unseal/revoke/reset fails closed before record or epoch
   mutation. No platform ceremony issuer exists in this lane, so local
@@ -265,17 +381,17 @@ remote-access-plan and policy-control-plane-plan:
 - WP04 binds the response to a trusted expected approving-device identity and
   requires response timestamps to remain inside the issued challenge interval;
   a response `Fresh` field remains an untrusted claim until nonce consumption.
-- WP05 now validates entitlement account, household, trusted-device, package,
-  timestamp, and grace-shape bindings before any authority result is consumed.
-  Signature verification and revocation authority remain unavailable and
-  manual-required, so this path cannot unlock capabilities by itself.
-- WP06 now blocks confirmation-only restore and requires a verified parent
-  `PairChildDevice` authority bound to the local household and target device
-  before applying a recovery preview. An unavailable-by-default restore
-  executor receipt must prove execution identity, section outcomes,
-  idempotence, tombstone preservation, and no duplicates before applied/
-  partial state can be projected; encryption/key custody, revocation
-  preservation, and runtime proof remain manual-required.
+- WP05 now contains crate-private entitlement account, household,
+  trusted-device, package, signature, generation, and grace-shape verifier
+  boundaries. The real key/revocation/currentness owners and child-runtime
+  action consumer are absent, so no positive entitlement path is exported or
+  reachable and no capability unlock is claimed.
+- WP06 now blocks confirmation-only restore and the dead apply/authority seam
+  unconditionally. A caller-held preflight/context cannot provide durable
+  currentness or project applied/partial state; a future owner-bound cursor
+  token must be reread and consumed at apply time. Encryption/key custody,
+  revocation preservation, authorized re-pair, a real executor, and runtime
+  proof remain manual-required.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall now has a code-drafted child-runtime boundary: durable
   tamper evidence forces a separate manual-required readiness state, while durable revocation
@@ -316,12 +432,16 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
   pending/reset state, rejects child-scoped and low-risk ceremonies, and does
   not make login or ordinary parent authority a sealing capability.
 - Windows custody source includes DPAPI/registry-epoch persistence and a
-  current-authority seam, but the authenticated-parent gate is permanently
-  unavailable and no parent-runtime/desktop bridge is mounted. It is source
-  topology only, not a complete trust lifecycle, activation, recovery, or
-  cross-platform custody implementation.
+  current-authority seam. The authenticated-parent gate is permanently
+  unavailable, while the parent-desktop command mount is now reachable and
+  reports custody-sealed-only success or rejected/manual-required state without
+  an issuer. It does not perform family lifecycle activation and is not a
+  complete trust lifecycle, activation, recovery, or cross-platform custody
+  implementation.
 - Parent-presence decisions are correlated and redacted, inserted transactionally into the canonical parent-presence SQLite outbox, and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Pending rows drain on restart, and stable event identities make recovery idempotent. This is durable local journal evidence only; it does not claim subscriber delivery, a broader event-bus runtime, or complete device-trust lifecycle integration.
-- No complete device-trust state machine exists yet beyond that narrow parent-presence bootstrap boundary.
+- The attempted private runtime-fence participant was withdrawn as unsafe; no
+  complete shipped device-trust state machine, protected owner participant, or
+  coordinator composition exists.
 - No merged cross-platform local key sealing implementation exists; the merged
   DPAPI/registry-epoch vertical slice is Windows-only.
 - A fail-closed record-backed parent-step-up authority and receipt contract are
@@ -341,6 +461,16 @@ guard passed. The tracked manifest is
 This is a validation slice only. It does not claim runtime dependency adoption,
 platform ceremony, key sealing, recovery execution, device-trust closure, CI,
 review, or main merge.
+
+## 2026-08-24 multi-owner fencing handoff
+
+WP01 still owns the future Device reservation participant required by Account
+WP05A, but no accepted participant source currently exists. Account may
+eventually coordinate only an opaque owner-authenticated result; it may not copy
+Device Trust currentness, signer authority, generation, digest, or replay state.
+WP03 separately retains parent-step-up ceremony and nonce/sign-count custody and
+remains blocked on its Account/Cloudflare/WP01 authority chain plus a real
+passkey/OS authority. No runtime reachability, test, proof, or DONE claim exists.
 
 ## Execution Gate
 

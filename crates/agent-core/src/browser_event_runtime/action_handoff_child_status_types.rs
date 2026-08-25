@@ -13,6 +13,7 @@ pub type BrowserRuntimeActionIntentChildStatusReport =
 pub enum BrowserRuntimeActionIntentChildStatusError {
     Handoff(BrowserRuntimeActionIntentDurableHandoffError),
     ParentChildRuntime(EventingError),
+    ConsumerUnavailable,
     PayloadDecode(EventingError),
     MissingPayload,
     HandoffMismatch,

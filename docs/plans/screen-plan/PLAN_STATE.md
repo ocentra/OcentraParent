@@ -140,24 +140,48 @@ screen-AI service runtime and several platform owners are absent.
 | 23 Policy Compiler For Screen Derived Evidence | AI policy refs and policy-control handoff | Policy handoff shape only; policy authority is another plan and no screen capture effect is established. |
 | 24 Enforcement Handoff Guard | Screen action/read-model guard | Guard/readiness only; no enforcement adapter execution owned by screen plan. |
 | 25 Parent Portal Summary UI | Portal renders Rust screen read model | Presentation/read-model effect only; no capture source or retention authority. |
-| 26 Child Disclosure UX | No mapped implementation roots | UX/status work only; no shipped child disclosure runtime caller. |
+| 26 Child Disclosure UX | Rust fail-closed child disclosure projection and parent diagnostic consumer | Source reviewed; serialize-only public output exposes unavailable/manual diagnostics, while the private typed current-authority seam awaits an opaque owner and child surface/lifecycle/delivery/tests/proof/checklist remain open. |
 | 27 Screenshot Retention Optional Mode | Settings/preflight schemas and writable settings UI | Default remains disabled; no production opt-in custody/export/delete implementation. |
 | 28 Live View Optional Mode | Rust worker/readiness gate and local proof paths | Worker/transport remains blocked; no live frame provider, session, relay, or product effect. |
 | 29 Proof Tiers And Proof Packs | Proof routing only | Validation/proof work; no runtime implementation. |
 | 30 Test Suite Playwright Rollout PR Gate | Tests/scripts only | Validation-only; deferred from code pass. |
 | 31 Screen Intelligence Router | `screen-ai-core` routing modules | AI routing only; no non-AI capture/provider caller. |
-| 32 Browser Structured Extraction Before Screenshot | AI router with browser source handoff | Browser/AI source handoff only; browser owner and non-AI capture path remain separate. |
-| 33 Managed Browser CDP Screenshot Capture Path | No mapped production implementation | Proof/test roots are absent; no shipped CDP capture caller. |
+| 32 Browser Structured Extraction Before Screenshot | Reviewed fail-closed source across schema, browser CDP structural probing, opaque producer binding, frozen-capture guards, service handoff, and the screen router | Source-first/test-deferred: 3/6 checklist rows are implemented. The probe emits only bounded/redacted identities and digests; title/meta/accessibility/visible text, a browser+policy safe-disclosure owner, executable service composition, `no_screen_needed`, focused tests, proof, and CI remain open. |
+| 33 Managed Browser CDP Screenshot Capture Path | Rust source packet present across the managed launch capability, schema, browser authority/transport, screen adapter, and encrypted queue handoff | Source-first/test-deferred: 0/7 checklist rows are checked; browser-owner trigger wiring, focused contract/security/runtime tests, live browser proof, deletion proof, and CI remain open; no product completion claim. |
 | 34 OCR Tesseract Baseline | Tests/proof only | Validation-only; no runtime implementation. |
 | 35 OCR PaddleOCR PP-OCR Evaluation | Tests/proof only | Validation-only; no runtime implementation. |
 | 36 Small VLM Guided Classifier Evaluation | AI analysis/runtime modules | AI evaluation/runtime only; outside this non-AI pass. |
-| 37 Household Mesh Screen Analysis Queue | Child mesh + screen-AI routing | AI/mesh handoff only; no independent capture or retention effect. |
+| 37 Household Mesh Screen Analysis Queue | Child mesh + screen-AI routing | Contract/proof-shaped redacted-summary path only; public arbitrary-string input, an in-memory owner-less bus, and synthetic claim/lease state are not authority. No authenticated durable provider selection, provider result receipt, restart/replay custody, or `agent-service` startup composition is connected. |
 | 38 Local AI Resource Scheduler Priority Queue | Local AI provider scheduler | AI resource scheduling only; outside capture/provider ownership. |
 | 39 Redacted Summary Only Remote Boundary | Protocol/live-view/mesh boundary types | Boundary contract only; remote transport/custody owners remain external and raw upload stays disabled. |
 | 40 Detector Prompt Packs And Schema Tests | Tests/proof only | Validation-only; no runtime implementation. |
 | Screen Control Settings Inventory | Generated documentation | Inventory only; no runtime entrypoint or product effect. |
 | Screen Evidence Analysis Capability Guide | Capability documentation | Guidance only; no runtime entrypoint or product effect. |
 | Screen Evidence Analysis Schema Proposal | Proposal documentation | Proposal only; not source/runtime authority. |
+
+### WP37 source truth reconciliation (2026-08-24)
+
+The screen household-mesh path is not production-complete. Its public
+`ScreenHouseholdMeshInput`, `proof_fixture()`, and
+`ScreenHouseholdMeshSpine::without_owner_handlers()` path use caller-supplied
+strings and in-memory state; they cannot mint authenticated provider, claim,
+lease, result, custody, or policy authority. The service row-ready subscriber
+returns `RuntimeOwnerUnavailable`, and service startup does not wire a
+household-mesh producer/consumer. Current lease identifiers are synthesized
+from job IDs in process-local state, while heartbeat/read-model/environment
+availability remains non-authoritative.
+
+The indexed owner route is explicit: AI WP07 owns the queue claim/lease/result
+contract, AI WP08 the provider-route contract, AI WP32 the household/remote
+boundary, LAN WP26 the authenticated household ingress/selected-route and
+durable ingress custody, and Eventing WP10 the local mesh import/republish
+boundary. AI WP19 is the result journal/read-model sink; Eventing WP08 is the
+generic parent-runtime integration boundary. Those owners are incomplete or
+contract-only for this path. No indexed owner currently supplies the complete
+screen-specific provider transfer/result receipt plus `agent-service` startup
+composition; that missing owner is an explicit blocker, not an invented graph
+edge. WP37 remains blocked/source-incomplete with all six workpack checklist
+rows open; no test, proof, READY, or DONE claim is made.
 
 The one production correction in this pass is in
 `crates/agent-core/src/screen_event_runtime.rs`: degraded service rows no
@@ -190,8 +214,8 @@ remain open. No tests, builds, proof, or CI were run in this code phase.
 ## Workpack summary
 
 - Workpacks indexed: 40.
-- Workpacks with open checkboxes: 22.
-- Workpacks with all detected boxes checked: 18.
+- Workpacks with open checkboxes: 23.
+- Workpacks with all detected boxes checked: 17.
 - Workpacks with no checkbox status: 0.
 
 ### Active/open workpacks
@@ -212,6 +236,7 @@ remain open. No tests, builds, proof, or CI were run in this code phase.
 - [21 Journal And SQLite Ingest](workpacks/21-journal-and-sqlite-ingest.md) - 0/6 checked, 6 open.
 - [22 Deletion And Retention Proof](workpacks/22-deletion-and-retention-proof.md) - 0/6 checked, 6 open (independent production-path review rejected prior proof).
 - [23 Policy Compiler For Screen Derived Evidence](workpacks/23-policy-compiler-for-screen-derived-evidence.md) - 0/6 checked, 6 open.
+- [33 Managed Browser CDP Screenshot Capture Path](workpacks/33-managed-browser-cdp-screenshot-capture-path.md) - 0/7 checked, 7 open (source present; tests/proof/trigger deferred).
 - [29 Proof Tiers And Proof Packs](workpacks/29-proof-tiers-and-proof-packs.md) - 0/6 checked, 6 open.
 - [12 Android MediaProjection Adapter Plan Proof](workpacks/12-android-mediaprojection-adapter-plan-proof.md) - 7/9 checked, 2 open.
 - [13 iOS ReplayKit Adapter Plan Proof](workpacks/13-ios-replaykit-adapter-plan-proof.md) - 5/7 checked, 2 open.

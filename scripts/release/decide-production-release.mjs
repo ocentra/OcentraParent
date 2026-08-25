@@ -4,6 +4,7 @@ import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { evaluateReleaseVersionPolicy } from './version-policy.mjs';
 
 const zeroBefore = '0000000000000000000000000000000000000000';
+const productionRef = 'refs/heads/production';
 const decision = decideRelease();
 
 writeOutput('release_required', decision.releaseRequired ? 'true' : 'false');
@@ -24,6 +25,15 @@ function decideRelease() {
   const version = versionResult.version;
   const tag = `v${version}`;
   const event = readGithubEvent();
+
+  if (process.env.GITHUB_REF !== productionRef) {
+    return {
+      releaseRequired: false,
+      reason: 'non-production-ref',
+      tag,
+      version,
+    };
+  }
 
   if (event?.before === zeroBefore) {
     return {

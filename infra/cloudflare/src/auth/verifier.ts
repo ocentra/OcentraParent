@@ -1,11 +1,21 @@
 import { isLocalFixtureEnvironment, resolveAuthAdapterMode, type Env } from '../env.js';
 import type { AccountIdentityProvider } from '@ocentra-parent/schema-domain/account-identity-authority';
 import {
+  createAccountIdentityAuthorityStore,
   isVerifiedAccountIdentityAuthorityCapability,
   type VerifiedAccountIdentityAuthorityCapability,
 } from '../storage/account-identity-authority-store.js';
-import { createAccountIdentityAuthorityRuntime } from './account-identity-authority-runtime.js';
+import { createAccountIdentityAuthorityCaller } from './account-identity-authority-caller.js';
+import { createBrowserSessionStore } from '../storage/account-browser-session-store.js';
+import { browserSessionCookieNames, browserSessionRole, readCookie } from '../storage/account-browser-session-codec.js';
 import { getAuthStateModel, type AuthState } from './model.js';
+import { webhookProviderForPath } from '../routes.js';
+import {
+  PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS,
+  resolveProviderWebhookName,
+  verifyProviderWebhook,
+  type ProviderWebhookName,
+} from './provider-webhook.js';
 
 export interface VerifiedIdentity {
   subject: string;
@@ -23,17 +33,30 @@ export interface VerifiedProviderIdentity {
   providerSubject: string;
 }
 
+export type ProviderVerificationResult =
+  | { status: 'verified'; identity: VerifiedProviderIdentity }
+  | {
+      status: 'rejected';
+      reason: 'missing-credential' | 'malformed-credential' | 'invalid-credential';
+    }
+  | {
+      status: 'unavailable';
+      reason: 'configuration-unavailable' | 'jwks-unavailable' | 'provider-unavailable';
+    };
+
 export interface ProviderVerificationPort {
-  verify(request: Request): Promise<VerifiedProviderIdentity | null>;
+  verify(request: Request): Promise<ProviderVerificationResult>;
 }
 
 export interface AuthVerifier {
   verifyPublic(): AuthResult;
+  verifyBrowserSession(request: Request): Promise<AuthResult>;
+  verifyBrowserRefresh(request: Request): Promise<AuthResult>;
   verifyParentSession(request: Request): Promise<AuthResult>;
   verifyTrustedParentDevice(request: Request): Promise<AuthResult>;
   verifyAdmin(request: Request): Promise<AuthResult>;
   verifySupport(request: Request): Promise<AuthResult>;
-  verifyProviderWebhook(provider: string, request: Request): Promise<AuthResult>;
+  verifyProviderWebhook(provider: ProviderWebhookName, request: Request): Promise<AuthResult>;
   verifyInternalQueue(request: Request): Promise<AuthResult>;
 }
 
@@ -108,6 +131,17 @@ function authStateIdentity(
   };
 }
 
+async function readBrowserCurrentAuthority(env: Env, provider: AccountIdentityProvider, providerSubject: string) {
+  try {
+    return await createAccountIdentityAuthorityStore(env.ACCOUNT_IDENTITY_D1).readCurrentAuthority(
+      provider,
+      providerSubject
+    );
+  } catch {
+    return { status: 'manual-required' as const, reason: 'account-identity-d1-unavailable' as const };
+  }
+}
+
 function requireParentRoleCapability(result: AuthResult, authState: AuthState): AuthResult {
   if (!result.ok) {
     return result;
@@ -121,50 +155,6 @@ function requireParentRoleCapability(result: AuthResult, authState: AuthState): 
     return forbidden('parent-role-capability-required', authState);
   }
   return result;
-}
-
-function parseStripeSignatureHeader(signatureHeader: string): {
-  timestamp: string;
-  signatures: ReadonlyArray<string>;
-} | null {
-  const parts = signatureHeader.split(',').map((entry) => entry.trim());
-  const timestamp = parts.find((entry) => entry.startsWith('t='))?.slice(2);
-  const signatures = parts
-    .filter((entry) => entry.startsWith('v1='))
-    .map((entry) => entry.slice(3))
-    .filter((entry) => /^[a-f0-9]{64}$/i.test(entry));
-
-  if (!timestamp || !/^\d+$/.test(timestamp) || signatures.length === 0) {
-    return null;
-  }
-
-  return {
-    timestamp,
-    signatures,
-  };
-}
-
-function safeEqualHex(left: string, right: string): boolean {
-  if (left.length !== right.length) {
-    return false;
-  }
-  let diff = 0;
-  for (let index = 0; index < left.length; index += 1) {
-    diff |= left.charCodeAt(index) ^ right.charCodeAt(index);
-  }
-  return diff === 0;
-}
-
-function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
-}
-
-function providerFromPathname(pathname: string): string | null {
-  if (!pathname.startsWith('/webhooks/')) {
-    return null;
-  }
-  const provider = pathname.slice('/webhooks/'.length).trim();
-  return provider.length > 0 ? provider : null;
 }
 
 function providerWebhookHeaderName(provider: string): string | null {
@@ -208,18 +198,13 @@ async function verifyProviderBoundRequest(
   authState: AuthState,
   providerVerifier: ProviderVerificationPort
 ): Promise<AuthResult> {
-  const authorityResult = await createAccountIdentityAuthorityRuntime(env).resolveVerifiedProviderAuthority(
+  const authorityResult = await createAccountIdentityAuthorityCaller(env).resolveVerifiedProviderAuthority(
     request,
     providerVerifier
   );
   if (authorityResult.status === 'trusted') {
-    const role =
-      authorityResult.capability.role === 'support-admin'
-        ? 'support'
-        : authorityResult.capability.role === 'child-profile' ||
-            authorityResult.capability.role === 'child-device-agent'
-          ? 'public'
-          : 'parent';
+    const role = browserSessionRole(authorityResult.capability.role);
+    if (role === null) return forbidden('browser-session-role-ineligible', authState);
     return authStateIdentity(
       authorityResult.capability.providerSubject,
       authState,
@@ -246,6 +231,10 @@ async function verifyParentSessionRequest(
   authState: AuthState,
   providerVerifier: ProviderVerificationPort | undefined
 ): Promise<AuthResult> {
+  const cookieNames = browserSessionCookieNames(!isLocalFixtureEnvironment(env));
+  if (readCookie(request, cookieNames.session) !== null) {
+    return requireParentRoleCapability(await verifyBrowserSessionRequest(request, env, authState), authState);
+  }
   const blocker = authAdapterBlocker(env, providerVerifier);
   if (blocker) {
     return manualRequired(authState, blocker);
@@ -258,6 +247,89 @@ async function verifyParentSessionRequest(
     );
   }
   return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
+}
+
+async function verifyBrowserSessionRequest(request: Request, env: Env, authState: AuthState): Promise<AuthResult> {
+  const cookieNames = browserSessionCookieNames(!isLocalFixtureEnvironment(env));
+  const sessionToken = readCookie(request, cookieNames.session);
+  const session = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).read(sessionToken);
+  if (session.status === 'missing') return missingHeader(cookieNames.session, authState);
+  if (session.status === 'manual-required') return manualRequired(authState, `account-session-${session.reason}`);
+  if (session.status === 'rejected') return forbidden(`account-session-${session.reason}`, authState);
+
+  const authorityResult = await readBrowserCurrentAuthority(
+    env,
+    session.identity.provider,
+    session.identity.providerSubject
+  );
+  if (authorityResult.status !== 'trusted') {
+    if (authorityResult.status === 'rejected') {
+      return forbidden(`account-identity-authority-${authorityResult.reason}`, authState);
+    }
+    return manualRequired(authState, 'account-identity-binding-context-manual-required');
+  }
+  const authority = authorityResult.capability;
+  const role = browserSessionRole(authority.role);
+  if (role === null) return forbidden('browser-session-role-ineligible', authState);
+  if (
+    authority.provider !== session.identity.provider ||
+    authority.providerSubject !== session.identity.providerSubject ||
+    authority.accountId !== session.identity.accountId ||
+    authority.sessionId !== session.identity.authoritySessionId ||
+    authority.sessionGeneration !== session.identity.authoritySessionGeneration ||
+    authority.authorityGeneration !== session.identity.authorityGeneration
+  ) {
+    return forbidden('account-session-authority-stale', authState);
+  }
+  return authStateIdentity(authority.providerSubject, authState, role, true, authority);
+}
+
+async function verifyBrowserRefreshRequest(request: Request, env: Env, authState: AuthState): Promise<AuthResult> {
+  const cookieNames = browserSessionCookieNames(!isLocalFixtureEnvironment(env));
+  const refreshToken = readCookie(request, cookieNames.refresh);
+  const store = createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1);
+  const refresh = await store.readRefresh(refreshToken);
+  if (refresh.status === 'missing') return missingHeader(cookieNames.refresh, authState);
+  if (refresh.status === 'manual-required') return manualRequired(authState, `account-session-${refresh.reason}`);
+  if (refresh.status === 'rejected') return forbidden(`account-session-${refresh.reason}`, authState);
+  if (!(await store.verifyRefreshCsrf(refreshToken, request.headers.get('x-ocentra-csrf')))) {
+    return forbidden('csrf-validation-failed', authState);
+  }
+
+  const accessToken = readCookie(request, cookieNames.session);
+  if (accessToken !== null) {
+    const access = await store.readBinding(accessToken);
+    if (access.status === 'manual-required') return manualRequired(authState, `account-session-${access.reason}`);
+    if (access.status !== 'active' || access.identity.sessionId !== refresh.identity.sessionId) {
+      return forbidden('account-refresh-access-session-mismatch', authState);
+    }
+  }
+
+  const authorityResult = await readBrowserCurrentAuthority(
+    env,
+    refresh.identity.provider,
+    refresh.identity.providerSubject
+  );
+  if (authorityResult.status !== 'trusted') {
+    if (authorityResult.status === 'rejected') {
+      return forbidden(`account-identity-authority-${authorityResult.reason}`, authState);
+    }
+    return manualRequired(authState, 'account-identity-binding-context-manual-required');
+  }
+  const authority = authorityResult.capability;
+  const role = browserSessionRole(authority.role);
+  if (role === null) return forbidden('browser-session-role-ineligible', authState);
+  if (
+    authority.provider !== refresh.identity.provider ||
+    authority.providerSubject !== refresh.identity.providerSubject ||
+    authority.accountId !== refresh.identity.accountId ||
+    authority.sessionId !== refresh.identity.authoritySessionId ||
+    authority.sessionGeneration !== refresh.identity.authoritySessionGeneration ||
+    authority.authorityGeneration !== refresh.identity.authorityGeneration
+  ) {
+    return forbidden('account-session-authority-stale', authState);
+  }
+  return authStateIdentity(authority.providerSubject, authState, role, true, authority);
 }
 
 async function verifyTrustedParentDeviceRequest(
@@ -319,23 +391,32 @@ async function verifySupportRequest(
   return authStateIdentity(authority.providerSubject, authState, 'support', true, authority);
 }
 
-function verifyProviderWebhookRequest(provider: string, request: Request, env: Env, authState: AuthState): AuthResult {
-  const blocker = authAdapterBlocker(env, undefined);
-  if (blocker) {
-    return manualRequired(authState, blocker);
+async function verifyProviderWebhookRequest(
+  provider: ProviderWebhookName,
+  request: Request,
+  env: Env,
+  authState: AuthState
+): Promise<AuthResult> {
+  let result: Awaited<ReturnType<typeof verifyProviderWebhook>>;
+  try {
+    result = await verifyProviderWebhook(provider, request.clone(), env);
+  } catch {
+    return manualRequired(authState, PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.unavailable);
   }
-
-  const headerName = providerWebhookHeaderName(provider);
-  if (!headerName) {
-    return manualRequired(authState, 'unsupported-provider-webhook');
+  if (result.status === 'unavailable') {
+    return manualRequired(authState, result.blocker);
   }
-
-  const headerValue = request.headers.get(headerName);
-  if (!headerValue) {
-    return missingHeader(headerName, authState);
+  if (result.status === 'missing-credential') {
+    return missingHeader(result.headerName, authState);
   }
-  if (!hasWebhookSignatureSyntax(new URL(request.url).pathname, headerValue)) {
-    return forbidden('invalid-provider-webhook-signature-header', authState);
+  if (result.status === 'rejected') {
+    return {
+      ok: false,
+      response: json(400, {
+        error: result.reason,
+        authState,
+      }),
+    };
   }
 
   return authStateIdentity('provider-webhook', authState, 'provider-webhook', false);
@@ -360,6 +441,14 @@ export function createAuthVerifier(env: Env, providerVerifier?: ProviderVerifica
       return authStateIdentity('public', 'public', 'public', false);
     },
 
+    async verifyBrowserSession(request: Request): Promise<AuthResult> {
+      return verifyBrowserSessionRequest(request, env, 'browser-session-required');
+    },
+
+    async verifyBrowserRefresh(request: Request): Promise<AuthResult> {
+      return verifyBrowserRefreshRequest(request, env, 'browser-refresh-required');
+    },
+
     async verifyParentSession(request: Request): Promise<AuthResult> {
       return verifyParentSessionRequest(request, env, 'parent-session-required', providerVerifier);
     },
@@ -376,7 +465,7 @@ export function createAuthVerifier(env: Env, providerVerifier?: ProviderVerifica
       return verifySupportRequest(request, env, 'support-required', providerVerifier);
     },
 
-    async verifyProviderWebhook(provider: string, request: Request): Promise<AuthResult> {
+    async verifyProviderWebhook(provider: ProviderWebhookName, request: Request): Promise<AuthResult> {
       return verifyProviderWebhookRequest(provider, request, env, 'provider-webhook-signature-required');
     },
 
@@ -387,63 +476,11 @@ export function createAuthVerifier(env: Env, providerVerifier?: ProviderVerifica
 }
 
 export function signatureHeaderName(pathname: string): string {
-  const provider = providerFromPathname(pathname);
+  const provider = webhookProviderForPath(pathname);
   if (!provider) {
     return 'x-goog-signature';
   }
   return providerWebhookHeaderName(provider) ?? 'x-goog-signature';
-}
-
-function hasWebhookSignatureSyntax(pathname: string, signatureValue: string | null): boolean {
-  if (!signatureValue || signatureValue.trim().length === 0) {
-    return false;
-  }
-  if (pathname.endsWith('/stripe')) {
-    return parseStripeSignatureHeader(signatureValue) !== null;
-  }
-  return true;
-}
-
-export async function verifyStripeWebhookSignature(
-  payload: string,
-  signatureHeader: string,
-  secret: string,
-  timestampToleranceSeconds: string | undefined
-): Promise<boolean> {
-  const parsed = parseStripeSignatureHeader(signatureHeader);
-  if (!parsed) {
-    return false;
-  }
-  if (
-    timestampToleranceSeconds === undefined ||
-    !/^\d+$/.test(timestampToleranceSeconds) ||
-    Number(timestampToleranceSeconds) <= 0 ||
-    Number(timestampToleranceSeconds) > 86_400
-  ) {
-    return false;
-  }
-  const timestampSeconds = Number(parsed.timestamp);
-  const nowSeconds = Math.floor(Date.now() / 1000);
-  if (
-    !Number.isSafeInteger(timestampSeconds) ||
-    Math.abs(nowSeconds - timestampSeconds) > Number(timestampToleranceSeconds)
-  ) {
-    return false;
-  }
-
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(secret),
-    {
-      name: 'HMAC',
-      hash: 'SHA-256',
-    },
-    false,
-    ['sign']
-  );
-  const signed = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${parsed.timestamp}.${payload}`));
-  const actualSignature = bytesToHex(new Uint8Array(signed));
-  return parsed.signatures.some((expected) => safeEqualHex(expected, actualSignature));
 }
 
 export async function verifyAuthState(
@@ -458,6 +495,10 @@ export async function verifyAuthState(
   switch (authModel.adapterMethod) {
     case 'verifyPublic':
       return verifier.verifyPublic();
+    case 'verifyBrowserSession':
+      return verifier.verifyBrowserSession(request);
+    case 'verifyBrowserRefresh':
+      return verifier.verifyBrowserRefresh(request);
     case 'verifyParentSession':
       return verifier.verifyParentSession(request);
     case 'verifyTrustedParentDevice':
@@ -467,8 +508,11 @@ export async function verifyAuthState(
     case 'verifySupport':
       return verifier.verifySupport(request);
     case 'verifyProviderWebhook': {
-      const provider = providerFromPathname(new URL(request.url).pathname);
-      return verifier.verifyProviderWebhook(provider ?? 'unsupported', request);
+      const provider = resolveProviderWebhookName(webhookProviderForPath(new URL(request.url).pathname) ?? '');
+      if (!provider) {
+        return manualRequired('provider-webhook-signature-required', PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.unsupported);
+      }
+      return verifier.verifyProviderWebhook(provider, request);
     }
     case 'verifyInternalQueue':
       return verifier.verifyInternalQueue(request);

@@ -54,6 +54,7 @@ pub enum BrowserBridgePollError {
     UntrustedProcess,
     UntrustedProfile,
     UntrustedSession,
+    ManualRequired,
     Io,
     InvalidHttpResponse,
     InvalidJson,
@@ -69,6 +70,13 @@ impl BrowserBridgePollError {
     pub fn capability_status(&self) -> BrowserCapabilityStatus {
         error::browser_bridge_poll_error_capability_status(self)
     }
+}
+
+pub(crate) fn validate_bridge_custody(
+    config: &BrowserBridgePollConfig,
+    observed_at: &str,
+) -> Result<(), BrowserBridgePollError> {
+    custody::validate_bridge_custody(config, observed_at)
 }
 
 pub fn poll_chromium_bridge(

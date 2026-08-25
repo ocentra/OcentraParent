@@ -13,6 +13,7 @@ pub(super) struct RejectedPreflightInput {
     pub key_available: bool,
     pub integrity_ok: bool,
     pub duplicate_device_detected: bool,
+    pub tombstones_preserved: bool,
     pub rejected_sections: Vec<contracts::ExportImportSectionDecision>,
 }
 
@@ -24,8 +25,22 @@ pub(super) fn import_preflight_rejection(
         .or_else(|| reject_wrong_household(bundle, context))
         .or_else(|| reject_wrong_key(bundle, context))
         .or_else(|| reject_corrupt_bundle(bundle, context))
+        .or_else(|| reject_tombstone_cursor(bundle, context))
         .or_else(|| reject_migration_unsupported(bundle, context))
         .or_else(|| reject_duplicate_device(bundle, context))
+}
+
+pub(super) fn tombstone_cursor_matches(
+    bundle: &contracts::ExportImportRecoveryBundle,
+    context: &ImportBundleContext,
+) -> bool {
+    match (
+        bundle.manifest.tombstone_cursor.as_ref(),
+        context.current_tombstone_cursor.as_ref(),
+    ) {
+        (Some(bundle_cursor), Some(current_cursor)) => bundle_cursor == current_cursor,
+        _ => false,
+    }
 }
 
 fn reject_schema_version(
@@ -47,6 +62,7 @@ fn reject_schema_version(
         key_available: true,
         integrity_ok: true,
         duplicate_device_detected: false,
+        tombstones_preserved: false,
         rejected_sections: Vec::new(),
     })
 }
@@ -66,6 +82,7 @@ fn reject_wrong_household(
         key_available: true,
         integrity_ok: true,
         duplicate_device_detected: false,
+        tombstones_preserved: false,
         rejected_sections: Vec::new(),
     })
 }
@@ -89,6 +106,7 @@ fn reject_wrong_key(
         key_available,
         integrity_ok: true,
         duplicate_device_detected: false,
+        tombstones_preserved: false,
         rejected_sections: Vec::new(),
     })
 }
@@ -112,7 +130,38 @@ fn reject_corrupt_bundle(
         key_available: true,
         integrity_ok: false,
         duplicate_device_detected: false,
+        tombstones_preserved: false,
         rejected_sections: Vec::new(),
+    })
+}
+
+fn reject_tombstone_cursor(
+    bundle: &contracts::ExportImportRecoveryBundle,
+    context: &ImportBundleContext,
+) -> Option<RejectedPreflightInput> {
+    if tombstone_cursor_matches(bundle, context) {
+        return None;
+    }
+    Some(RejectedPreflightInput {
+        state: contracts::ExportImportPreflightState::TombstoneConflict,
+        migration_state: contracts::ExportImportMigrationState::NotRequired,
+        schema_version_supported: true,
+        household_binding_match: true,
+        key_available: true,
+        integrity_ok: true,
+        duplicate_device_detected: false,
+        tombstones_preserved: false,
+        rejected_sections: bundle
+            .sections
+            .iter()
+            .map(|section| contracts::ExportImportSectionDecision {
+                data_class: section.data_class,
+                state: contracts::ExportImportSectionDecisionState::TombstonePreserved,
+                reason:
+                    "Current durable tombstone cursor is unavailable or differs from the bundle."
+                        .to_string(),
+            })
+            .collect(),
     })
 }
 
@@ -132,6 +181,7 @@ fn reject_migration_unsupported(
         key_available: true,
         integrity_ok: true,
         duplicate_device_detected: false,
+        tombstones_preserved: false,
         rejected_sections: Vec::new(),
     })
 }
@@ -152,6 +202,7 @@ fn reject_duplicate_device(
         key_available: true,
         integrity_ok: true,
         duplicate_device_detected: true,
+        tombstones_preserved: false,
         rejected_sections: vec![contracts::ExportImportSectionDecision {
             data_class: contracts::ExportImportDataClass::DeviceRegistry,
             state: contracts::ExportImportSectionDecisionState::DuplicateDevice,

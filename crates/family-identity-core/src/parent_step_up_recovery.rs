@@ -2,8 +2,9 @@ use crate::device_trust_lifecycle::{DeviceTrustLifecycleError, DeviceTrustLifecy
 use crate::device_trust_signer_registration::{
     CurrentSignerAuthority, SignerRegistrationAuthorization,
 };
-use crate::parent_presence::ParentPresenceVerificationFailureReason;
-use crate::parent_presence_port::ParentPresenceVerificationPort;
+use crate::parent_presence::{
+    ParentPresenceVerificationFailureReason, ParentPresenceVerificationPort,
+};
 use crate::parent_presence_store::StoredParentStepUpIntent;
 
 use super::{ParentStepUpCeremonyError, RegisterLanSignerAnchorIntent};

@@ -1,4 +1,4 @@
-use ocentra_eventing::bus::{DispatchMode, EventBus};
+use ocentra_eventing::bus::{publisher::RootEventPublisher, DispatchMode};
 use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{
@@ -88,12 +88,12 @@ impl DomainEvent for AuthenticatedDeliveryGrantIssuanceMilestone {
 
 #[derive(Clone)]
 pub struct EventBusAuthenticatedDeliveryGrantIssuancePublisher {
-    event_bus: EventBus,
+    event_bus: RootEventPublisher,
     source: EventSource,
 }
 
 impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
-    pub fn new(event_bus: EventBus) -> Result<Self, EventingError> {
+    pub fn new(event_bus: RootEventPublisher) -> Result<Self, EventingError> {
         if event_bus.journal_mode() != JournalMode::BeforeDispatch {
             return Err(EventingError::InvalidHandlerPolicy {
                 reason: "authenticated delivery grant issuance requires a before-dispatch-only journal policy so an accepted milestone cannot survive a failed after-dispatch phase"
@@ -177,7 +177,7 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
 }
 
 fn publish_on_current_thread_runtime(
-    event_bus: EventBus,
+    event_bus: RootEventPublisher,
     milestone: AuthenticatedDeliveryGrantIssuanceMilestone,
     metadata: EventMetadata,
 ) -> Result<(), EventingError> {

@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
+    bus::publisher::RootEventPublisher,
     bus::reports::handler::{PublishReport, QueueDrainReport},
     bus::subscriber::EventSubscriber,
     bus::EventBus,
@@ -186,7 +187,7 @@ pub async fn queue_network_runtime_flow_rejects_duplicate_idempotency(
 }
 
 async fn publish_flow_observation(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     observation: &NetworkObservation,
     observed_at: &str,
     event_id: Option<EventId>,
@@ -207,7 +208,9 @@ async fn publish_flow_observation(
     bus.publish(payload, metadata).await
 }
 
-async fn subscribe_flow_observer(bus: &EventBus) -> Result<QueueDrainReport, EventingError> {
+async fn subscribe_flow_observer(
+    bus: &RootEventPublisher,
+) -> Result<QueueDrainReport, EventingError> {
     let phase = NetworkRuntimePhase::FlowObserved;
     bus.subscribe::<NetworkRuntimeEventPayload, _, _>(
         EventSubscriber::new(

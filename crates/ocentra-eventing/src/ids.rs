@@ -1,5 +1,3 @@
-use std::sync::atomic::{AtomicU64, Ordering};
-
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
@@ -7,7 +5,8 @@ use crate::EventingError;
 
 mod validation;
 
-static EVENT_ID_SEQUENCE: AtomicU64 = AtomicU64::new(1);
+use std::sync::atomic::{AtomicU64, Ordering};
+
 static REQUEST_ID_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 
 const EVENT_ID_PREFIX: &str = "event-";
@@ -82,15 +81,27 @@ text_identifier!(RuntimeInstanceId, RUNTIME_INSTANCE_ID_LABEL);
 text_identifier!(RecordedAt, RECORDED_AT_LABEL);
 
 impl EventId {
+    /// Generates a collision-resistant event identity from the operating
+    /// system CSPRNG.
+    ///
+    /// This API remains infallible for compatibility with existing event
+    /// construction. If secure entropy is unavailable, the process aborts
+    /// rather than minting an identity from a timestamp, process-local counter,
+    /// or another collision-prone fallback.
     pub fn generated() -> Self {
-        let mut value = String::from(EVENT_ID_PREFIX);
-        value.push_str(&Utc::now().timestamp_micros().to_string());
-        value.push_str(EVENT_ID_SEPARATOR);
-        value.push_str(
-            &EVENT_ID_SEQUENCE
-                .fetch_add(1, Ordering::Relaxed)
-                .to_string(),
-        );
+        let mut entropy = [0_u8; 16];
+        if getrandom::fill(&mut entropy).is_err() {
+            // Event ids are an identity boundary. Continuing with a timestamp,
+            // process id, or local counter would reintroduce cross-process and
+            // restart collisions, so generation fails closed when the OS CSPRNG
+            // is unavailable.
+            std::process::abort();
+        }
+        let mut value = String::with_capacity(EVENT_ID_PREFIX.len() + entropy.len() * 2);
+        value.push_str(EVENT_ID_PREFIX);
+        for byte in entropy {
+            value.push_str(&format!("{byte:02x}"));
+        }
         Self(value)
     }
 }

@@ -35,6 +35,13 @@ Add a parent-domain-only handoff that consumes WP98 response-consumer parent-sur
 
 ## Evidence
 
+## Current reviewed topology
+
+The bounded Rust source of truth is
+`crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs`
+with its existing contract test. No parent-domain package source, generated
+DTO, or parent-domain test root is present or claimed by WP99.
+
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.ts`
 - `packages/parent-domain/src/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff-rules.ts`
 - `packages/parent-domain/tests/app-game-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.test.ts`
