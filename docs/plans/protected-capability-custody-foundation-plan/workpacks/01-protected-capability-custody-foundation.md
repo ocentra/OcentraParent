@@ -64,12 +64,14 @@ merely because it is durable.
 The source topology now contains a separate Windows broker binary, a client
 boundary, and the neutral `protected-capability-custody-protocol` wire owner as
 active Cargo workspace members. This is source presence, not operating custody.
-The remaining production boundary must provide a safe pinned Windows
-`OpenProcess` observation, impersonated token SID/integrity/session observation,
-exact registry owner/DACL/parent-chain verification, a non-restorable monotonic
-provider, immutable broker/SCM identity, installer/SCM provisioning, and a real
-enrolled caller. Until those owners exist, startup must remain unavailable and
-must not create or mutate custody state.
+The remaining production boundary is one FFI package owned by core plus
+private `cfg(windows)` modules under `broker_admission/platform/windows*`. It
+must provide a safe pinned Windows `OpenProcess` observation, impersonated
+token SID/integrity/session observation, exact registry owner/DACL/parent-chain
+verification, a non-restorable monotonic provider, immutable broker/SCM
+identity, installer/SCM provisioning, and a real enrolled caller. Until those
+owners exist, startup must remain unavailable and must not create or mutate
+custody state.
 
 The core now exposes only the narrow, explicitly reviewed
 `src/broker_admission.rs` facade seam. That facade accepts broker-owned inputs
@@ -87,9 +89,10 @@ action, generation, and broker state.
 ## ADR-PCC-002 implementation-only repair route
 
 The missing source repair is one Windows front-door process: the existing
-`ocentra-protected-capability-custody-broker` links the existing custody core
-and one safe Windows adapter in-process. It does not add a helper process or a
-second protocol. The external seam remains one broker dispatch/open-session
+`ocentra-protected-capability-custody-broker` continues depending on core and
+protocol, while core depends on one tiny FFI package and owns the safe adapter
+privately. It does not add a helper process, a second protocol, or a public
+adapter crate. The external seam remains one broker dispatch/open-session
 path; the broker derives identity from authenticated Windows peer observation,
 not from caller fields.
 
@@ -98,46 +101,62 @@ The graph records these absent planned production roots:
 ```text
 crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml
 crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs
-crates/ocentra-protected-capability-custody-windows/Cargo.toml
-crates/ocentra-protected-capability-custody-windows/src/lib.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs
 ```
 
-The FFI module is limited to raw Win32/TBS/TPM calls and owned-handle wrappers.
-Its manifest must use package-local lint tables, not `[lints] workspace = true`,
-set `unsafe_code = "allow"` and `unsafe_op_in_unsafe_fn = "deny"`, and manually
-mirror every workspace Rust/Clippy deny except `unsafe_code`. The safe Windows
-adapter and broker continue inheriting `[lints] workspace = true`; the safe
-adapter consumes only those wrappers and exposes a small opaque interface for
-the broker's existing admission seam. No raw handle, identity constructor,
-attestation, key selector, or capability minting crosses to a caller.
+The FFI package is limited to raw Win32/TBS/TPM calls and safe owned-handle RAII
+wrappers. Its manifest must use package-local lint tables, not
+`[lints] workspace = true`, set `unsafe_code = "allow"` and
+`unsafe_op_in_unsafe_fn = "deny"`, and manually mirror every workspace
+Rust/Clippy deny except `unsafe_code`. The safe adapter is private core code;
+core and broker continue inheriting `[lints] workspace = true`. The private
+modules preserve construction of `BrokerPeerAdmissionObservation` and
+`BrokerAuthorizedClientTranscript`, the `pub(crate)` sealed platform
+traits/guards, `BrokerPlatformOwner`, and the existing broker-facing runtime
+methods. No raw handle, identity constructor, attestation, key selector, or
+capability minting crosses to a caller.
 
 Installer-only immutable enrollment must pre-provision the broker image/SCM
 identity, enrolled client SID/image, protected registry owner and DACL/ACE
 ancestor chain, and TPM2 NV counter/index through an elevated owner/MDM/OEM
-ceremony. The adapter must retain and revalidate pipe/process/token handles,
-SID/integrity/session, image+SCM identity, exact registry custody,
-nonce/expiry/replay, and TPM2 NV/TBS monotonic generation before session or
-custody state is emitted. TPM reset, missing/deleted NV index, TBS failure, or
-enrollment mismatch fails closed and requires re-pair; disk, JSON, SQLite, and
-rollback state cannot restore the generation.
+ceremony. The broker retains the pipe stream/handle for the request lifetime;
+core retains process/token/image observations and their handles. Pipe
+process/session IDs are re-queried immediately before transcript authorization.
+The private adapter must retain and revalidate SID/integrity/session, image+SCM
+identity, exact registry custody, nonce/expiry/replay, and TPM2 NV/TBS
+monotonic generation before session or custody state is emitted. TPM reset,
+missing/deleted NV index, TBS failure, or enrollment mismatch fails closed and
+requires re-pair; disk, JSON, SQLite, and rollback state cannot restore the
+generation.
 
-Implementation order is raw owned-handle/TBS/TPM wrappers, safe observation and
-enrollment adapter, in-process broker link at the single seam, installer/SCM
-provisioning, and then a real production caller. The current broker/client
-stubs remain blocked until the replacement exists. This route is implementation
-phase authorization only; normal validation state, tests, proof, PR, merge,
-READY, and DONE remain open.
+Implementation order is raw owned-handle/TBS/TPM wrappers, private core
+enrollment/peer/SCM/monotonic modules, construction through the existing core
+runtime methods, installer/SCM provisioning, and then a real production caller.
+The current broker/client stubs remain blocked until the replacement exists.
+This route is implementation phase authorization only; normal validation state,
+tests, proof, PR, merge, READY, and DONE remain open.
 
 ## Expected test source
 
 The complete test wave is intentionally deferred until the source packet is
 stable. Internal core behavior must use core-owned unit-test modules under
 `src/` so private storage/path/authority state is tested without making those
-constructors public. Public protocol tests belong to the protocol package;
-broker process/race/Windows custody tests belong to the broker package; and
-client admission/IPC-authentication tests belong to the client package. No
-test may import private source with path tricks, use a mock/in-process broker,
-or create a dependency cycle merely to reach private state.
+constructors public. The two planned Windows tests are:
+
+```text
+crates/protected-capability-custody-core/src/broker_admission/platform/windows_adapter_test.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/tpm_nv_counter_test.rs
+```
+
+Public protocol tests belong to the protocol package; broker process/race/
+Windows custody tests belong to the broker package; and client admission/
+IPC-authentication tests belong to the client package. No test may import
+private source with path tricks, use a mock/in-process broker, or create a
+dependency cycle merely to reach private state.
 
 ## Consumers and unlocks
 
@@ -154,9 +173,10 @@ Cloudflare, platform, caller, test, or proof blockers.
 
 ## Acceptance gates
 
-Keep WP01 open until the protected Windows adapters, installer/SCM enrollment,
-and real production caller exist; the complete core, protocol, broker, and
-client expected test roots are written and run; the Windows process/IPC and
-owner-bound custody negative cases are retained; Enforcer/architecture checks
-pass; and proof/checklist state is current. Independently reviewed source
-consolidation does not change normal READY, PR_READY, CI, merge, or DONE state.
+Keep WP01 open until the FFI crate, private core Windows adapter modules,
+installer/SCM enrollment, and real production caller exist; the complete core,
+protocol, broker, and client expected test roots are written and run; the
+Windows process/IPC and owner-bound custody negative cases are retained;
+Enforcer/architecture checks pass; and proof/checklist state is current.
+Independently reviewed source consolidation does not change normal READY,
+PR_READY, CI, merge, or DONE state.
