@@ -261,7 +261,19 @@ remain open.
 
 ## Overclaim boundary
 
-This plan is implementation-present but not completion-ready. Cloudflare correctness remains incomplete until scoped validation stays green, proof bundles live under `output/cloudflare-control-plane-plan-proof/`, and the WP12 handoff bundle no longer carries open external billing-boundary blockers, WP02 lint debt, manual-required authority and deployment states, or downstream payment-plan consumption gaps.
+This plan is implementation-present but not completion-ready. Cloudflare correctness remains incomplete until expected test source is complete, scoped validation stays green, proof bundles live under `output/cloudflare-control-plane-plan-proof/`, and the WP12 handoff bundle no longer carries open external billing-boundary blockers, WP02 runtime-validation test/proof debt, manual-required authority and deployment states, or downstream payment-plan consumption gaps.
+
+## 2026-08-25 WP02 source integration truth
+
+- Canonical consolidation now includes the independently accepted WP02 source
+  packet at `7eabc9ff510fad890d88abb73cd7e3b4e413ed22`.
+- `validateEnv` and `parseAllowedOrigins` fail closed without throwing for
+  missing or non-string app/CORS origin values. Production rejects wildcard
+  origins after trimming; local/test/development behavior is unchanged.
+- This closes the bounded production-source defect only. The complete WP02
+  malformed-origin and environment-behavior test source, focused test run,
+  retained proof, real binding provisioning, deployment, rollback, and
+  `EntitlementSnapshotDO` composition remain open.
 
 ## 2026-08-18 source-map refresh
 

@@ -17540,7 +17540,7 @@
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "source-present / retained-proof-absent",
+        "statusText": "source-integrated / expected-test-source-incomplete / retained-proof-absent",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
