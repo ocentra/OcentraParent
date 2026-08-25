@@ -297,7 +297,9 @@ owner-side adapter/interface decision rather than making the port public or
 inventing authority.
 
 There is no honest WP05-only source patch that closes those gaps. The first
-remaining order is Account WP05 current authority/fencing, then Data WP09 byte
-custody, WP10 producer handoffs, WP11 composition/mount, and finally a real
-runtime caller. Tests are written after those production owners are complete;
-no proof, validation, or completion promotion is implied by this audit.
+remaining order is Account WP05's base authority/CAS consumer seam, Account
+WP05A's durable multi-owner coordinator/recovery typed Data handoff, Data WP09
+byte custody and WP10 producer handoffs, WP11 composition/mount, and finally a
+real runtime caller. Tests are written after those production owners are
+complete; no proof, validation, or completion promotion is implied by this
+audit.

@@ -167,7 +167,8 @@ close WP05 runtime reachability or plan completion.
 ## WP11 Runtime Composition And Custody Mount
 
 - [ ] WP05 base ledgers, reconciliation, Eventing/outbox, and manual-required gates are mounted without a second ledger.
-- [ ] Account WP05 true authority transaction/CAS and recovery handoff is owner-resolved.
+- [ ] Account WP05 base authority transaction/CAS consumer seam is mounted without assigning it coordinator ownership.
+- [ ] Account WP05A durable multi-owner coordinator/recovery typed Data handoff is owner-resolved.
 - [ ] Key/import custody and integrity binding are owner-resolved.
 - [ ] Producer-owned sealed artifact custody is bound to the WP05 operation.
 - [ ] WP09 provider operation capability and opaque outcome are mounted.

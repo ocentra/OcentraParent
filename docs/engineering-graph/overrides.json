@@ -121,7 +121,7 @@
         "WP-data-custody-storage-plan-02-encryption-key-custody",
         "WP-data-custody-storage-plan-04-retention-delete-tombstone"
       ],
-      "reason": "Independent source review accepted the bounded fail-closed Data WP05 source route, including the parent-runtime rollback dispatch authority binding. Live caller/test audit finds no production implementation of the Account/provider/key/producer ports, all five expected runtime test roots are absent, blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort requires an owner-side adapter before cross-crate mounting. The remaining source order is Account WP05, Data WP09, WP10, WP11 composition, then a real caller; focused execution, proof, checklist acceptance, PR readiness, and DONE remain open.",
+      "reason": "Independent source review accepted the bounded fail-closed Data WP05 source route, including the parent-runtime rollback dispatch authority binding. Live caller/test audit finds no production implementation of the Account/provider/key/producer ports, all five expected runtime test roots are absent, blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort requires an owner-side adapter before cross-crate mounting. The remaining source order is Account WP05 base authority/CAS consumer seam -> Account WP05A durable multi-owner coordinator/recovery typed Data handoff -> Data WP09/WP10 -> WP11 composition -> real caller; focused execution, proof, checklist acceptance, PR readiness, and DONE remain open.",
       "evidence": [
         "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
         "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
