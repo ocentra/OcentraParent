@@ -71,7 +71,9 @@ impl EventQueue {
         }
     }
 
-    pub(crate) fn clear_for_test(&self) -> EventQueueClearReport {
+    pub(crate) fn finalize_shutdown(&self) -> EventQueueClearReport {
+        // Terminal cleanup retains the existing queue and idempotency reset;
+        // its name distinguishes production shutdown from test-only clearing.
         let mut state = self.state.lock().expect_value("event queue lock");
         let report = EventQueueClearReport {
             queued_event_count: state.queued.len(),

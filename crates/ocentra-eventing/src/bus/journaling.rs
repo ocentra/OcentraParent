@@ -100,6 +100,7 @@ impl EventBus {
         report: ReplayActionReport,
         dispatch_mode: DispatchMode,
     ) -> Result<Vec<PublishReport>, EventingError> {
+        let _active_dispatch = self.admit_active_dispatch()?;
         let mut reports = Vec::new();
         for record in report.records() {
             let envelope = record.envelope.clone();

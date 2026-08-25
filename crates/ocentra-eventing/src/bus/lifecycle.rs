@@ -24,6 +24,11 @@ impl EventBus {
             return Ok(empty_shutdown_report(mode, true));
         }
 
+        let in_flight_dispatch_count = self.active_dispatches.active_count();
+        self.active_dispatches.wait_for_idle().await;
+        // Admitted work may enqueue or complete state while shutdown begins;
+        // drain only after it releases its guard so terminal cleanup cannot
+        // silently discard a late queue entry.
         let mut report = match self.shutdown_queue(mode).await {
             Ok(report) => report,
             Err(error) => {
@@ -31,12 +36,11 @@ impl EventBus {
                 return Err(error);
             }
         };
-        report.in_flight_dispatch_count = self.active_dispatches.active_count();
-        self.active_dispatches.wait_for_idle().await;
+        report.in_flight_dispatch_count = in_flight_dispatch_count;
         report.subscription_count = self.clear_subscriptions_for_shutdown();
         report.aggregate_gate_count = self.clear_aggregate_gates_for_shutdown();
         let request_report = self.requests.cancel_for_shutdown();
-        self.queue.clear_for_test();
+        self.queue.finalize_shutdown();
         self.mark_shutdown();
 
         report.pending_request_count = request_report.pending_request_count;
@@ -134,7 +138,7 @@ impl EventBus {
             aggregate_gates.clear();
             aggregate_gate_count
         };
-        let queue_report = self.queue.clear_for_test();
+        let queue_report = self.queue.finalize_shutdown();
         let request_report = self.requests.clear_for_test();
         EventBusClearReport {
             subscription_count,

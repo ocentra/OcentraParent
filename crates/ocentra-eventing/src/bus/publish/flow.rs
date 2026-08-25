@@ -27,7 +27,7 @@ pub(super) async fn publish_with_mode<E>(
 where
     E: DomainEvent,
 {
-    bus.ensure_active()?;
+    let _active_dispatch = bus.admit_active_dispatch()?;
     let stored = EventEnvelope::from_event(event, metadata)?.store()?;
     if stored.is_deadline_expired(bus.clock.now()) {
         return dispatching::dead_letter_expired_deadline(bus, stored, dispatch_mode).await;
@@ -70,7 +70,7 @@ pub(super) async fn publish_with_mode_and_before_dispatch_receipt_validator<E>(
 where
     E: DomainEvent,
 {
-    bus.ensure_active()?;
+    let _active_dispatch = bus.admit_active_dispatch()?;
     let stored = EventEnvelope::from_event(event, metadata)?.store()?;
     if stored.is_deadline_expired(bus.clock.now()) {
         return dispatching::dead_letter_expired_deadline(bus, stored, dispatch_mode).await;
@@ -190,7 +190,6 @@ impl EventBus {
         validator: Option<BeforeDispatchReceiptValidator>,
         dispatch_chain: DispatchChain,
     ) -> Result<PublishReport, DispatchStoredError> {
-        let _active_dispatch = self.active_dispatches.enter();
         let ordered_admission =
             preparation::prepare_ordered(self, &stored, dispatch_mode, &dispatch_chain).await?;
         let reservation = self.queue.reserve_dispatch(&stored)?;

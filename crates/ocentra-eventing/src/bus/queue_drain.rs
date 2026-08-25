@@ -11,7 +11,7 @@ impl RootEventPublisher {
         &self,
         dispatch_mode: DispatchMode,
     ) -> Result<QueueDrainReport, EventingError> {
-        self.bus.ensure_active()?;
+        let _active_dispatch = self.bus.admit_active_dispatch()?;
         runner::drain_queued_matching_unchecked(&self.bus, dispatch_mode, None).await
     }
 }
@@ -21,6 +21,7 @@ impl EventBus {
         &self,
         dispatch_mode: DispatchMode,
     ) -> Result<QueueDrainReport, EventingError> {
+        let _active_dispatch = self.active_dispatches.enter();
         runner::drain_queued_matching_unchecked(self, dispatch_mode, None).await
     }
 
