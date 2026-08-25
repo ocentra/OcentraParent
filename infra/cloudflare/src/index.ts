@@ -55,6 +55,8 @@ import {
 import {
   findRoute,
   routeContractReadiness,
+  routeRequestModel,
+  routeResponseModel,
   ROUTE_HANDLER_KEYS,
   ROUTE_MANIFEST,
   type RouteHandlerMap,
@@ -329,8 +331,8 @@ function manualRequiredResponse(
     status: 'manual-required',
     handlerKey: route.handlerKey,
     authState: route.authState,
-    requestModel: route.requestModel,
-    responseModel: route.responseModel,
+    requestModel: routeRequestModel(route),
+    responseModel: routeResponseModel(route),
     contractState: contractReadiness.ready ? 'ready' : 'manual-required',
     contractSide: contractReadiness.ready ? null : contractReadiness.side,
     contractBlocker: contractReadiness.ready ? 'handler-unavailable' : contractReadiness.blocker,
@@ -350,7 +352,7 @@ function parseManifestResponse(route: RouteManifestEntry, value: unknown): unkno
     return json(500, {
       error: 'route-response-contract-rejected',
       handlerKey: route.handlerKey,
-      responseModel: route.responseModel,
+      responseModel: routeResponseModel(route),
     });
   }
 }
@@ -363,7 +365,7 @@ async function validateManifestRequest(route: RouteManifestEntry, request: Reque
       return json(400, {
         error: 'route-request-contract-rejected',
         handlerKey: route.handlerKey,
-        requestModel: route.requestModel,
+        requestModel: routeRequestModel(route),
         reason: 'request-input-not-allowed',
       });
     }
@@ -378,7 +380,7 @@ async function validateManifestRequest(route: RouteManifestEntry, request: Reque
     return json(400, {
       error: 'route-request-contract-rejected',
       handlerKey: route.handlerKey,
-      requestModel: route.requestModel,
+      requestModel: routeRequestModel(route),
       reason: 'request-codec-rejected',
     });
   }
@@ -397,7 +399,7 @@ async function validateManifestResponse(route: RouteManifestEntry, response: Res
     return json(500, {
       error: 'route-response-contract-rejected',
       handlerKey: route.handlerKey,
-      responseModel: route.responseModel,
+      responseModel: routeResponseModel(route),
     });
   }
 }

@@ -43,10 +43,44 @@ export type RouteContractCodec = {
   readonly safeParse: (value: unknown) => { readonly success: boolean; readonly data?: unknown };
 };
 
-export type RouteContractCodecDescriptor<Model extends string = string> = {
-  readonly model: Model;
-  readonly codec: RouteContractCodec;
+const GENERATED_ROUTE_CODECS = Object.freeze({
+  BillingCheckoutSessionRequest: BillingCheckoutSessionRequestSchema,
+  BillingCheckoutSessionResponse: BillingCheckoutSessionResponseSchema,
+  BillingPortalSessionRequest: BillingPortalSessionRequestSchema,
+  BillingPortalSessionResponse: BillingPortalSessionResponseSchema,
+  BillingReferralInviteResult: BillingReferralInviteResultSchema,
+  BillingSupportAdminAccountsResponse: BillingSupportAdminAccountsResponseSchema,
+  BillingSupportAdminInvoicesResponse: BillingSupportAdminInvoicesResponseSchema,
+  BillingSupportAdminRefundResult: BillingSupportAdminRefundResultSchema,
+  BillingSupportAdminDisputesResponse: BillingSupportAdminDisputesResponseSchema,
+  BillingSupportAdminReferralsResponse: BillingSupportAdminReferralsResponseSchema,
+  BillingSupportAdminReconciliationSummary: BillingSupportAdminReconciliationSummarySchema,
+  BillingSupportAdminAuditEventsResponse: BillingSupportAdminAuditEventsResponseSchema,
+} as const satisfies Record<string, RouteContractCodec>);
+
+type GeneratedRouteCodecRegistry = typeof GENERATED_ROUTE_CODECS;
+type GeneratedRouteModel = keyof GeneratedRouteCodecRegistry;
+
+export type RouteContractCodecDescriptor<Model extends GeneratedRouteModel = GeneratedRouteModel> =
+  Model extends GeneratedRouteModel
+    ? {
+        readonly model: Model;
+        readonly codec: GeneratedRouteCodecRegistry[Model];
+      }
+    : never;
+
+type RouteContractCodecDescriptorRegistry = {
+  readonly [Model in GeneratedRouteModel]: RouteContractCodecDescriptor<Model>;
 };
+
+function bindGeneratedCodecModels(): RouteContractCodecDescriptorRegistry {
+  const descriptors = Object.fromEntries(
+    Object.entries(GENERATED_ROUTE_CODECS).map(([model, codec]) => [model, Object.freeze({ model, codec })])
+  );
+  return Object.freeze(descriptors) as RouteContractCodecDescriptorRegistry;
+}
+
+const GENERATED_ROUTE_CODEC_DESCRIPTORS = bindGeneratedCodecModels();
 
 export type RouteRequestContract =
   | {
@@ -96,330 +130,291 @@ export type RouteContractReadiness =
       readonly blocker: string;
     };
 
-type RouteManifestSeed = {
+type RouteIdentityTuple = {
   readonly path: string;
   readonly method: RouteMethod;
   readonly authState: AuthState;
-  readonly handlerKey: string;
   readonly routeClass: RouteClass;
   readonly webhookProvider?: RouteWebhookProvider;
   readonly auditRule: RouteAuditRule;
   readonly auditEvent: string;
   readonly proofIdFamily: string;
 };
-
-const ROUTE_MANIFEST_SOURCE = [
-  {
+const ROUTE_BINDINGS_BY_HANDLER = Object.freeze({
+  health: Object.freeze({
     path: '/health',
     method: 'GET',
     authState: 'public',
-    handlerKey: 'health',
     routeClass: 'health',
     auditRule: 'public-observability',
     auditEvent: 'cloudflare.health.read',
     proofIdFamily: 'cloudflare-control.worker-entrypoint',
-  },
-  {
+  }),
+  'account-session-login': Object.freeze({
     path: '/auth/session/login',
     method: 'POST',
     authState: 'public',
-    handlerKey: 'account-session-login',
     routeClass: 'session-login',
     auditRule: 'public-observability',
     auditEvent: 'account.session.login',
     proofIdFamily: 'account-identity-family-plan.wp03-session-runtime',
-  },
-  {
+  }),
+  'account-session-refresh': Object.freeze({
     path: '/auth/session/refresh',
     method: 'POST',
     authState: 'browser-refresh-required',
-    handlerKey: 'account-session-refresh',
     routeClass: 'session-refresh',
     auditRule: 'parent-session-write',
     auditEvent: 'account.session.refresh',
     proofIdFamily: 'account-identity-family-plan.wp03-session-runtime',
-  },
-  {
+  }),
+  'account-session-logout': Object.freeze({
     path: '/auth/session/logout',
     method: 'POST',
     authState: 'browser-refresh-required',
-    handlerKey: 'account-session-logout',
     routeClass: 'session-logout',
     auditRule: 'parent-session-write',
     auditEvent: 'account.session.logout',
     proofIdFamily: 'account-identity-family-plan.wp03-session-runtime',
-  },
-  {
+  }),
+  'account-session-revoke': Object.freeze({
     path: '/auth/session/revoke',
     method: 'POST',
     authState: 'browser-refresh-required',
-    handlerKey: 'account-session-revoke',
     routeClass: 'session-revoke',
     auditRule: 'parent-session-write',
     auditEvent: 'account.session.global-revoke',
     proofIdFamily: 'account-identity-family-plan.wp03-session-runtime',
-  },
-  {
+  }),
+  'pricing-public': Object.freeze({
     path: '/public/pricing',
     method: 'GET',
     authState: 'public',
-    handlerKey: 'pricing-public',
     routeClass: 'public-pricing',
     auditRule: 'public-observability',
     auditEvent: 'billing.pricing.read',
     proofIdFamily: 'payment-route.cloudflare-prerequisite',
-  },
-  {
+  }),
+  'billing-status': Object.freeze({
     path: '/auth/billing/status',
     method: 'GET',
     authState: 'parent-session-required',
-    handlerKey: 'billing-status',
     routeClass: 'billing-parent-read',
     auditRule: 'parent-session-read',
     auditEvent: 'billing.status.read',
     proofIdFamily: 'cloudflare-control.portal-to-worker-smoke',
-  },
-  {
+  }),
+  'billing-checkout': Object.freeze({
     path: '/auth/billing/checkout',
     method: 'POST',
     authState: 'parent-session-required',
-    handlerKey: 'billing-checkout',
     routeClass: 'billing-parent-write',
     auditRule: 'parent-session-write',
     auditEvent: 'billing.checkout.create',
     proofIdFamily: 'payment-route.checkout',
-  },
-  {
+  }),
+  'billing-portal': Object.freeze({
     path: '/auth/billing/portal',
     method: 'POST',
     authState: 'parent-session-required',
-    handlerKey: 'billing-portal',
     routeClass: 'billing-parent-write',
     auditRule: 'parent-session-write',
     auditEvent: 'billing.portal.open',
     proofIdFamily: 'payment-route.portal',
-  },
-  {
+  }),
+  'billing-invoices': Object.freeze({
     path: '/auth/billing/invoices',
     method: 'GET',
     authState: 'parent-session-required',
-    handlerKey: 'billing-invoices',
     routeClass: 'billing-parent-read',
     auditRule: 'parent-session-read',
     auditEvent: 'billing.invoices.read',
     proofIdFamily: 'payment-route.invoices',
-  },
-  {
+  }),
+  'billing-change-plan': Object.freeze({
     path: '/auth/billing/change-plan',
     method: 'POST',
     authState: 'parent-session-required',
-    handlerKey: 'billing-change-plan',
     routeClass: 'billing-parent-write',
     auditRule: 'parent-session-write',
     auditEvent: 'billing.plan.change',
     proofIdFamily: 'payment-route.plan-change',
-  },
-  {
+  }),
+  'billing-cancel': Object.freeze({
     path: '/auth/billing/cancel',
     method: 'POST',
     authState: 'parent-session-required',
-    handlerKey: 'billing-cancel',
     routeClass: 'billing-parent-write',
     auditRule: 'parent-session-write',
     auditEvent: 'billing.subscription.cancel',
     proofIdFamily: 'payment-route.cancellation',
-  },
-  {
+  }),
+  'billing-referrals': Object.freeze({
     path: '/auth/billing/referrals',
     method: 'GET',
     authState: 'parent-session-required',
-    handlerKey: 'billing-referrals',
     routeClass: 'billing-parent-read',
     auditRule: 'parent-session-read',
     auditEvent: 'billing.referrals.read',
     proofIdFamily: 'payment-route.referrals',
-  },
-  {
+  }),
+  'billing-referral-invite': Object.freeze({
     path: '/auth/billing/referral-invite',
     method: 'POST',
     authState: 'parent-session-required',
-    handlerKey: 'billing-referral-invite',
     routeClass: 'billing-parent-write',
     auditRule: 'parent-session-write',
     auditEvent: 'billing.referrals.invite',
     proofIdFamily: 'payment-route.referrals',
-  },
-  {
+  }),
+  'billing-entitlement-snapshot': Object.freeze({
     path: '/auth/billing/entitlement-snapshot',
     method: 'GET',
     authState: 'trusted-parent-device-required',
-    handlerKey: 'billing-entitlement-snapshot',
     routeClass: 'billing-trusted-read',
     auditRule: 'trusted-parent-device-read',
     auditEvent: 'billing.entitlement.snapshot',
     proofIdFamily: 'payment-route.entitlement-snapshot',
-  },
-  {
+  }),
+  'billing-license-check': Object.freeze({
     path: '/auth/billing/license-check',
     method: 'POST',
     authState: 'trusted-parent-device-required',
-    handlerKey: 'billing-license-check',
     routeClass: 'billing-trusted-write',
     auditRule: 'trusted-parent-device-write',
     auditEvent: 'billing.license.check',
     proofIdFamily: 'payment-route.license-check',
-  },
-  {
+  }),
+  'billing-manual-invoice': Object.freeze({
     path: '/auth/billing/manual-invoice',
     method: 'POST',
     authState: 'support-required',
-    handlerKey: 'billing-manual-invoice',
     routeClass: 'billing-support-write',
     auditRule: 'support-write',
     auditEvent: 'billing.manual-invoice.create',
     proofIdFamily: 'payment-route.support-admin',
-  },
-  {
+  }),
+  'stripe-webhook': Object.freeze({
     path: '/webhooks/stripe',
     method: 'POST',
     authState: 'provider-webhook-signature-required',
-    handlerKey: 'stripe-webhook',
     routeClass: 'provider-webhook',
     webhookProvider: 'stripe',
     auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.stripe',
     proofIdFamily: 'payment-route.webhook-stripe',
-  },
-  {
+  }),
+  'razorpay-webhook': Object.freeze({
     path: '/webhooks/razorpay',
     method: 'POST',
     authState: 'provider-webhook-signature-required',
-    handlerKey: 'razorpay-webhook',
     routeClass: 'provider-webhook',
     webhookProvider: 'razorpay',
     auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.razorpay',
     proofIdFamily: 'payment-route.webhook-razorpay',
-  },
-  {
+  }),
+  'paypal-webhook': Object.freeze({
     path: '/webhooks/paypal',
     method: 'POST',
     authState: 'provider-webhook-signature-required',
-    handlerKey: 'paypal-webhook',
     routeClass: 'provider-webhook',
     webhookProvider: 'paypal',
     auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.paypal',
     proofIdFamily: 'payment-route.webhook-paypal',
-  },
-  {
+  }),
+  'apple-webhook': Object.freeze({
     path: '/webhooks/apple',
     method: 'POST',
     authState: 'provider-webhook-signature-required',
-    handlerKey: 'apple-webhook',
     routeClass: 'provider-webhook',
     webhookProvider: 'apple',
     auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.apple',
     proofIdFamily: 'payment-route.webhook-apple',
-  },
-  {
+  }),
+  'google-webhook': Object.freeze({
     path: '/webhooks/google',
     method: 'POST',
     authState: 'provider-webhook-signature-required',
-    handlerKey: 'google-webhook',
     routeClass: 'provider-webhook',
     webhookProvider: 'google',
     auditRule: 'provider-webhook',
     auditEvent: 'billing.webhook.google',
     proofIdFamily: 'payment-route.webhook-google',
-  },
-  {
+  }),
+  'admin-billing-accounts': Object.freeze({
     path: '/admin/billing/accounts',
     method: 'GET',
     authState: 'support-required',
-    handlerKey: 'admin-billing-accounts',
     routeClass: 'admin-support-read',
     auditRule: 'support-read',
     auditEvent: 'billing.admin.accounts.read',
     proofIdFamily: 'payment-route.support-admin',
-  },
-  {
+  }),
+  'admin-billing-invoices': Object.freeze({
     path: '/admin/billing/invoices',
     method: 'GET',
     authState: 'support-required',
-    handlerKey: 'admin-billing-invoices',
     routeClass: 'admin-support-read',
     auditRule: 'support-read',
     auditEvent: 'billing.admin.invoices.read',
     proofIdFamily: 'payment-route.support-admin',
-  },
-  {
+  }),
+  'admin-billing-refunds': Object.freeze({
     path: '/admin/billing/refunds',
     method: 'POST',
     authState: 'admin-required',
-    handlerKey: 'admin-billing-refunds',
     routeClass: 'admin-write',
     auditRule: 'admin-write',
     auditEvent: 'billing.admin.refund.create',
     proofIdFamily: 'payment-route.refunds',
-  },
-  {
+  }),
+  'admin-billing-disputes': Object.freeze({
     path: '/admin/billing/disputes',
     method: 'GET',
     authState: 'admin-required',
-    handlerKey: 'admin-billing-disputes',
     routeClass: 'admin-read',
     auditRule: 'admin-read',
     auditEvent: 'billing.admin.disputes.read',
     proofIdFamily: 'payment-route.disputes',
-  },
-  {
+  }),
+  'admin-billing-referrals': Object.freeze({
     path: '/admin/billing/referrals',
     method: 'GET',
     authState: 'admin-required',
-    handlerKey: 'admin-billing-referrals',
     routeClass: 'admin-read',
     auditRule: 'admin-read',
     auditEvent: 'billing.admin.referrals.read',
     proofIdFamily: 'payment-route.referrals',
-  },
-  {
+  }),
+  'admin-billing-reconciliation': Object.freeze({
     path: '/admin/billing/reconciliation',
     method: 'POST',
     authState: 'internal-queue-only',
-    handlerKey: 'admin-billing-reconciliation',
     routeClass: 'internal-queue',
     auditRule: 'internal-queue',
     auditEvent: 'billing.admin.reconciliation.run',
     proofIdFamily: 'payment-route.reconciliation',
-  },
-  {
+  }),
+  'admin-billing-audit': Object.freeze({
     path: '/admin/billing/audit',
     method: 'GET',
     authState: 'admin-required',
-    handlerKey: 'admin-billing-audit',
     routeClass: 'admin-read',
     auditRule: 'admin-read',
     auditEvent: 'billing.admin.audit.read',
     proofIdFamily: 'payment-route.audit',
-  },
-] as const satisfies readonly RouteManifestSeed[];
+  }),
+} as const satisfies Record<string, RouteIdentityTuple>);
 
-type RouteManifestSourceEntry = (typeof ROUTE_MANIFEST_SOURCE)[number];
+export type RouteHandlerKey = keyof typeof ROUTE_BINDINGS_BY_HANDLER;
+type RouteIdentityBinding = (typeof ROUTE_BINDINGS_BY_HANDLER)[RouteHandlerKey];
 
-/** Every handler key is derived from the single manifest source. */
-export type RouteHandlerKey = RouteManifestSourceEntry['handlerKey'];
-
+/** Every executable handler is bound to one immutable manifest tuple. */
 function noRequest(): Extract<RouteRequestContract, { readonly state: 'none' }> {
   return { state: 'none', model: 'none', transport: 'none', codec: null };
-}
-
-function codecDescriptor<const Model extends string>(
-  model: Model,
-  codec: RouteContractCodec
-): RouteContractCodecDescriptor<Model> {
-  return Object.freeze({ model, codec });
 }
 
 function boundRequest<const Descriptor extends RouteContractCodecDescriptor>(
@@ -460,39 +455,6 @@ function manualExecution(
 ): Extract<RouteContractBinding['execution'], { readonly state: 'manual-required' }> {
   return { state: 'manual-required', blocker };
 }
-
-const GENERATED_ROUTE_CODEC_DESCRIPTORS = {
-  billingCheckoutRequest: codecDescriptor('BillingCheckoutSessionRequest', BillingCheckoutSessionRequestSchema),
-  billingCheckoutResponse: codecDescriptor('BillingCheckoutSessionResponse', BillingCheckoutSessionResponseSchema),
-  billingPortalRequest: codecDescriptor('BillingPortalSessionRequest', BillingPortalSessionRequestSchema),
-  billingPortalResponse: codecDescriptor('BillingPortalSessionResponse', BillingPortalSessionResponseSchema),
-  billingReferralInviteResult: codecDescriptor('BillingReferralInviteResult', BillingReferralInviteResultSchema),
-  adminAccountsResponse: codecDescriptor(
-    'BillingSupportAdminAccountsResponse',
-    BillingSupportAdminAccountsResponseSchema
-  ),
-  adminInvoicesResponse: codecDescriptor(
-    'BillingSupportAdminInvoicesResponse',
-    BillingSupportAdminInvoicesResponseSchema
-  ),
-  adminRefundResult: codecDescriptor('BillingSupportAdminRefundResult', BillingSupportAdminRefundResultSchema),
-  adminDisputesResponse: codecDescriptor(
-    'BillingSupportAdminDisputesResponse',
-    BillingSupportAdminDisputesResponseSchema
-  ),
-  adminReferralsResponse: codecDescriptor(
-    'BillingSupportAdminReferralsResponse',
-    BillingSupportAdminReferralsResponseSchema
-  ),
-  adminReconciliationSummary: codecDescriptor(
-    'BillingSupportAdminReconciliationSummary',
-    BillingSupportAdminReconciliationSummarySchema
-  ),
-  adminAuditEventsResponse: codecDescriptor(
-    'BillingSupportAdminAuditEventsResponse',
-    BillingSupportAdminAuditEventsResponseSchema
-  ),
-} as const;
 
 const ROUTE_CONTRACT_BINDINGS = {
   health: {
@@ -553,13 +515,13 @@ const ROUTE_CONTRACT_BINDINGS = {
     execution: EXECUTION_READY,
   },
   'billing-checkout': {
-    request: boundRequest(GENERATED_ROUTE_CODEC_DESCRIPTORS.billingCheckoutRequest),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.billingCheckoutResponse),
+    request: boundRequest(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingCheckoutSessionRequest),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingCheckoutSessionResponse),
     execution: manualExecution('payment-provider-execution-owner-missing'),
   },
   'billing-portal': {
-    request: boundRequest(GENERATED_ROUTE_CODEC_DESCRIPTORS.billingPortalRequest),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.billingPortalResponse),
+    request: boundRequest(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingPortalSessionRequest),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingPortalSessionResponse),
     execution: manualExecution('payment-provider-execution-owner-missing'),
   },
   'billing-invoices': {
@@ -588,7 +550,7 @@ const ROUTE_CONTRACT_BINDINGS = {
       'json-body',
       'billing-referral-invite-request-contract-not-generated'
     ),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.billingReferralInviteResult),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingReferralInviteResult),
     execution: EXECUTION_READY,
   },
   'billing-entitlement-snapshot': {
@@ -647,27 +609,27 @@ const ROUTE_CONTRACT_BINDINGS = {
   },
   'admin-billing-accounts': {
     request: unboundRequest('AdminBillingAccountsRequest', 'query', 'admin-accounts-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.adminAccountsResponse),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminAccountsResponse),
     execution: EXECUTION_READY,
   },
   'admin-billing-invoices': {
     request: unboundRequest('AdminBillingInvoicesRequest', 'query', 'admin-invoices-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.adminInvoicesResponse),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminInvoicesResponse),
     execution: EXECUTION_READY,
   },
   'admin-billing-refunds': {
     request: unboundRequest('AdminBillingRefundRequest', 'json-body', 'admin-refund-request-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.adminRefundResult),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminRefundResult),
     execution: manualExecution('billing-refund-owner-adapter-missing'),
   },
   'admin-billing-disputes': {
     request: unboundRequest('AdminBillingDisputesRequest', 'query', 'admin-disputes-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.adminDisputesResponse),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminDisputesResponse),
     execution: EXECUTION_READY,
   },
   'admin-billing-referrals': {
     request: unboundRequest('AdminBillingReferralsRequest', 'query', 'admin-referrals-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.adminReferralsResponse),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminReferralsResponse),
     execution: EXECUTION_READY,
   },
   'admin-billing-reconciliation': {
@@ -676,12 +638,12 @@ const ROUTE_CONTRACT_BINDINGS = {
       'json-body',
       'reconciliation-request-contract-not-generated'
     ),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.adminReconciliationSummary),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminReconciliationSummary),
     execution: EXECUTION_READY,
   },
   'admin-billing-audit': {
     request: unboundRequest('AdminBillingAuditRequest', 'query', 'admin-audit-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.adminAuditEventsResponse),
+    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminAuditEventsResponse),
     execution: EXECUTION_READY,
   },
 } satisfies { [K in RouteHandlerKey]: RouteContractBinding };
@@ -694,9 +656,6 @@ type ContractModel<Contract> = Contract extends {
     ? Model
     : never;
 
-export type RouteRequestModel = ContractModel<(typeof ROUTE_CONTRACT_BINDINGS)[RouteHandlerKey]['request']>;
-export type RouteResponseModel = ContractModel<(typeof ROUTE_CONTRACT_BINDINGS)[RouteHandlerKey]['response']>;
-
 function contractModel<const Contract extends RouteRequestContract | RouteResponseContract>(
   contract: Contract
 ): ContractModel<Contract> {
@@ -704,14 +663,12 @@ function contractModel<const Contract extends RouteRequestContract | RouteRespon
 }
 
 export type RouteManifestEntry = {
-  readonly path: RouteManifestSourceEntry['path'];
+  readonly path: RouteIdentityBinding['path'];
   readonly method: RouteMethod;
   readonly authState: AuthState;
   readonly handlerKey: RouteHandlerKey;
   readonly routeClass: RouteClass;
   readonly webhookProvider: RouteWebhookProvider | null;
-  readonly requestModel: RouteRequestModel;
-  readonly responseModel: RouteResponseModel;
   readonly auditRule: RouteAuditRule;
   readonly auditEvent: string;
   readonly proofIdFamily: string;
@@ -720,223 +677,30 @@ export type RouteManifestEntry = {
   readonly contract: RouteContractBinding;
 };
 
-const WEBHOOK_ROUTE_IDENTITIES = {
-  stripe: { path: '/webhooks/stripe', handlerKey: 'stripe-webhook' },
-  razorpay: { path: '/webhooks/razorpay', handlerKey: 'razorpay-webhook' },
-  paypal: { path: '/webhooks/paypal', handlerKey: 'paypal-webhook' },
-  apple: { path: '/webhooks/apple', handlerKey: 'apple-webhook' },
-  google: { path: '/webhooks/google', handlerKey: 'google-webhook' },
-} as const satisfies Record<
-  RouteWebhookProvider,
-  { readonly path: RouteManifestSourceEntry['path']; readonly handlerKey: RouteHandlerKey }
->;
+const ROUTE_CLASS_METADATA = Object.freeze({
+  health: Object.freeze({ routeGroup: 'health', routeBoundary: 'public' }),
+  'public-pricing': Object.freeze({ routeGroup: 'public', routeBoundary: 'public' }),
+  'session-login': Object.freeze({ routeGroup: 'session', routeBoundary: 'session-login' }),
+  'session-refresh': Object.freeze({ routeGroup: 'session', routeBoundary: 'private' }),
+  'session-logout': Object.freeze({ routeGroup: 'session', routeBoundary: 'private' }),
+  'session-revoke': Object.freeze({ routeGroup: 'session', routeBoundary: 'private' }),
+  'billing-parent-read': Object.freeze({ routeGroup: 'billing', routeBoundary: 'private' }),
+  'billing-parent-write': Object.freeze({ routeGroup: 'billing', routeBoundary: 'private' }),
+  'billing-trusted-read': Object.freeze({ routeGroup: 'billing', routeBoundary: 'private' }),
+  'billing-trusted-write': Object.freeze({ routeGroup: 'billing', routeBoundary: 'private' }),
+  'billing-support-write': Object.freeze({ routeGroup: 'billing', routeBoundary: 'support-exception' }),
+  'provider-webhook': Object.freeze({ routeGroup: 'webhook', routeBoundary: 'webhook' }),
+  'admin-support-read': Object.freeze({ routeGroup: 'admin', routeBoundary: 'private' }),
+  'admin-read': Object.freeze({ routeGroup: 'admin', routeBoundary: 'private' }),
+  'admin-write': Object.freeze({ routeGroup: 'admin', routeBoundary: 'private' }),
+  'internal-queue': Object.freeze({ routeGroup: 'admin', routeBoundary: 'internal-queue' }),
+} as const satisfies Record<RouteClass, { readonly routeGroup: RouteGroup; readonly routeBoundary: RouteBoundary }>);
 
-function expectedPathForHandler(handlerKey: RouteHandlerKey): string {
-  if (handlerKey === 'health') return '/health';
-  if (handlerKey === 'pricing-public') return '/public/pricing';
-  if (handlerKey.startsWith('account-session-')) {
-    return `/auth/session/${handlerKey.slice('account-session-'.length)}`;
-  }
-  if (handlerKey.endsWith('-webhook')) {
-    return `/webhooks/${handlerKey.slice(0, -'-webhook'.length)}`;
-  }
-  if (handlerKey.startsWith('admin-billing-')) {
-    return `/admin/billing/${handlerKey.slice('admin-billing-'.length)}`;
-  }
-  if (handlerKey.startsWith('billing-')) {
-    return `/auth/billing/${handlerKey.slice('billing-'.length)}`;
-  }
-  throw new Error(`No canonical path derivation for Cloudflare handler: ${handlerKey}`);
-}
-
-function routeMetadata(entry: RouteManifestSourceEntry): {
+function routeMetadata(entry: RouteIdentityBinding): {
   readonly routeGroup: RouteGroup;
   readonly routeBoundary: RouteBoundary;
 } {
-  const { path, method, authState, auditRule, handlerKey, routeClass } = entry;
-  const fail = (reason: string): never => {
-    throw new Error(`Invalid Cloudflare route manifest entry ${method} ${path}: ${reason}`);
-  };
-  const requireCondition = (condition: boolean, reason: string): void => {
-    if (!condition) {
-      fail(reason);
-    }
-  };
-
-  requireCondition(entry.auditEvent.trim().length > 0, 'audit event is required');
-  requireCondition(entry.proofIdFamily.trim().length > 0, 'proof ID family is required');
-  requireCondition(path === expectedPathForHandler(handlerKey), 'handler/path identity mismatch');
-  if (routeClass !== 'provider-webhook') {
-    requireCondition(!('webhookProvider' in entry), 'non-webhook route cannot declare a provider identity');
-  }
-
-  switch (routeClass) {
-    case 'health':
-      requireCondition(
-        path === '/health' &&
-          method === 'GET' &&
-          authState === 'public' &&
-          auditRule === 'public-observability' &&
-          handlerKey === 'health',
-        'health tuple mismatch'
-      );
-      return { routeGroup: 'health', routeBoundary: 'public' };
-    case 'public-pricing':
-      requireCondition(
-        path === '/public/pricing' &&
-          method === 'GET' &&
-          authState === 'public' &&
-          auditRule === 'public-observability' &&
-          handlerKey === 'pricing-public',
-        'public pricing tuple mismatch'
-      );
-      return { routeGroup: 'public', routeBoundary: 'public' };
-    case 'session-login':
-      requireCondition(
-        path === '/auth/session/login' &&
-          method === 'POST' &&
-          authState === 'public' &&
-          auditRule === 'public-observability' &&
-          handlerKey === 'account-session-login',
-        'session login tuple mismatch'
-      );
-      return { routeGroup: 'session', routeBoundary: 'session-login' };
-    case 'session-refresh':
-      requireCondition(
-        path === '/auth/session/refresh' &&
-          method === 'POST' &&
-          authState === 'browser-refresh-required' &&
-          auditRule === 'parent-session-write' &&
-          handlerKey === 'account-session-refresh',
-        'session refresh tuple mismatch'
-      );
-      return { routeGroup: 'session', routeBoundary: 'private' };
-    case 'session-logout':
-      requireCondition(
-        path === '/auth/session/logout' &&
-          method === 'POST' &&
-          authState === 'browser-refresh-required' &&
-          auditRule === 'parent-session-write' &&
-          handlerKey === 'account-session-logout',
-        'session logout tuple mismatch'
-      );
-      return { routeGroup: 'session', routeBoundary: 'private' };
-    case 'session-revoke':
-      requireCondition(
-        path === '/auth/session/revoke' &&
-          method === 'POST' &&
-          authState === 'browser-refresh-required' &&
-          auditRule === 'parent-session-write' &&
-          handlerKey === 'account-session-revoke',
-        'session revoke tuple mismatch'
-      );
-      return { routeGroup: 'session', routeBoundary: 'private' };
-    case 'billing-parent-read':
-      requireCondition(
-        path.startsWith('/auth/billing/') &&
-          method === 'GET' &&
-          authState === 'parent-session-required' &&
-          auditRule === 'parent-session-read' &&
-          handlerKey.startsWith('billing-'),
-        'parent billing read tuple mismatch'
-      );
-      return { routeGroup: 'billing', routeBoundary: 'private' };
-    case 'billing-parent-write':
-      requireCondition(
-        path.startsWith('/auth/billing/') &&
-          method === 'POST' &&
-          authState === 'parent-session-required' &&
-          auditRule === 'parent-session-write' &&
-          handlerKey.startsWith('billing-'),
-        'parent billing write tuple mismatch'
-      );
-      return { routeGroup: 'billing', routeBoundary: 'private' };
-    case 'billing-trusted-read':
-      requireCondition(
-        path.startsWith('/auth/billing/') &&
-          method === 'GET' &&
-          authState === 'trusted-parent-device-required' &&
-          auditRule === 'trusted-parent-device-read' &&
-          handlerKey.startsWith('billing-'),
-        'trusted-device billing read tuple mismatch'
-      );
-      return { routeGroup: 'billing', routeBoundary: 'private' };
-    case 'billing-trusted-write':
-      requireCondition(
-        path.startsWith('/auth/billing/') &&
-          method === 'POST' &&
-          authState === 'trusted-parent-device-required' &&
-          auditRule === 'trusted-parent-device-write' &&
-          handlerKey.startsWith('billing-'),
-        'trusted-device billing write tuple mismatch'
-      );
-      return { routeGroup: 'billing', routeBoundary: 'private' };
-    case 'billing-support-write':
-      requireCondition(
-        path === '/auth/billing/manual-invoice' &&
-          method === 'POST' &&
-          authState === 'support-required' &&
-          auditRule === 'support-write' &&
-          handlerKey === 'billing-manual-invoice',
-        'support billing write tuple mismatch'
-      );
-      return { routeGroup: 'billing', routeBoundary: 'support-exception' };
-    case 'provider-webhook': {
-      const provider = 'webhookProvider' in entry ? entry.webhookProvider : undefined;
-      requireCondition(provider !== undefined, 'webhook provider is required');
-      const identity = provider === undefined ? undefined : WEBHOOK_ROUTE_IDENTITIES[provider];
-      requireCondition(
-        identity !== undefined &&
-          path === identity.path &&
-          handlerKey === identity.handlerKey &&
-          method === 'POST' &&
-          authState === 'provider-webhook-signature-required' &&
-          auditRule === 'provider-webhook',
-        'provider webhook identity tuple mismatch'
-      );
-      return { routeGroup: 'webhook', routeBoundary: 'webhook' };
-    }
-    case 'admin-support-read':
-      requireCondition(
-        path.startsWith('/admin/billing/') &&
-          method === 'GET' &&
-          authState === 'support-required' &&
-          auditRule === 'support-read' &&
-          handlerKey.startsWith('admin-billing-'),
-        'support admin read tuple mismatch'
-      );
-      return { routeGroup: 'admin', routeBoundary: 'private' };
-    case 'admin-read':
-      requireCondition(
-        path.startsWith('/admin/billing/') &&
-          method === 'GET' &&
-          authState === 'admin-required' &&
-          auditRule === 'admin-read' &&
-          handlerKey.startsWith('admin-billing-'),
-        'admin read tuple mismatch'
-      );
-      return { routeGroup: 'admin', routeBoundary: 'private' };
-    case 'admin-write':
-      requireCondition(
-        path.startsWith('/admin/billing/') &&
-          method === 'POST' &&
-          authState === 'admin-required' &&
-          auditRule === 'admin-write' &&
-          handlerKey.startsWith('admin-billing-'),
-        'admin write tuple mismatch'
-      );
-      return { routeGroup: 'admin', routeBoundary: 'private' };
-    case 'internal-queue':
-      requireCondition(
-        path === '/admin/billing/reconciliation' &&
-          method === 'POST' &&
-          authState === 'internal-queue-only' &&
-          auditRule === 'internal-queue' &&
-          handlerKey === 'admin-billing-reconciliation',
-        'internal queue tuple mismatch'
-      );
-      return { routeGroup: 'admin', routeBoundary: 'internal-queue' };
-  }
+  return ROUTE_CLASS_METADATA[entry.routeClass];
 }
 
 function buildRouteManifest(): readonly RouteManifestEntry[] {
@@ -947,47 +711,54 @@ function buildRouteManifest(): readonly RouteManifestEntry[] {
   const webhookHandlers = new Set<RouteHandlerKey>();
   const entries: RouteManifestEntry[] = [];
 
-  for (const source of ROUTE_MANIFEST_SOURCE) {
+  const manifestHandlerKeys = Object.keys(ROUTE_BINDINGS_BY_HANDLER) as RouteHandlerKey[];
+  for (const handlerKey of manifestHandlerKeys) {
+    const source = ROUTE_BINDINGS_BY_HANDLER[handlerKey];
+    if (source.proofIdFamily.trim().length === 0) {
+      throw new Error(`Cloudflare route proof family is empty: ${handlerKey}`);
+    }
     const key = `${source.method} ${source.path}`;
     if (routeKeys.has(key)) {
       throw new Error(`Duplicate Cloudflare route identity: ${key}`);
     }
-    if (handlerKeys.has(source.handlerKey)) {
-      throw new Error(`Duplicate Cloudflare handler identity: ${source.handlerKey}`);
+    if (handlerKeys.has(handlerKey)) {
+      throw new Error(`Duplicate Cloudflare handler identity: ${handlerKey}`);
     }
     routeKeys.add(key);
-    handlerKeys.add(source.handlerKey);
+    handlerKeys.add(handlerKey);
 
     const webhookProvider = 'webhookProvider' in source ? source.webhookProvider : null;
     if (webhookProvider !== null) {
-      if (
-        webhookProviders.has(webhookProvider) ||
-        webhookPaths.has(source.path) ||
-        webhookHandlers.has(source.handlerKey)
-      ) {
-        throw new Error(`Duplicate provider webhook identity: ${webhookProvider}/${source.path}/${source.handlerKey}`);
+      if (webhookProviders.has(webhookProvider) || webhookPaths.has(source.path) || webhookHandlers.has(handlerKey)) {
+        throw new Error(`Duplicate provider webhook identity: ${webhookProvider}/${source.path}/${handlerKey}`);
       }
       webhookProviders.add(webhookProvider);
       webhookPaths.add(source.path);
-      webhookHandlers.add(source.handlerKey);
+      webhookHandlers.add(handlerKey);
     }
 
-    const contract = ROUTE_CONTRACT_BINDINGS[source.handlerKey];
-    entries.push({
-      path: source.path,
-      method: source.method,
-      authState: source.authState,
-      handlerKey: source.handlerKey,
-      routeClass: source.routeClass,
-      webhookProvider,
-      requestModel: contractModel(contract.request),
-      responseModel: contractModel(contract.response),
-      auditRule: source.auditRule,
-      auditEvent: source.auditEvent,
-      proofIdFamily: source.proofIdFamily,
-      ...routeMetadata(source),
-      contract,
-    });
+    const contract = ROUTE_CONTRACT_BINDINGS[handlerKey];
+    entries.push(
+      Object.freeze({
+        path: source.path,
+        method: source.method,
+        authState: source.authState,
+        handlerKey,
+        routeClass: source.routeClass,
+        webhookProvider,
+        auditRule: source.auditRule,
+        auditEvent: source.auditEvent,
+        proofIdFamily: source.proofIdFamily,
+        ...routeMetadata(source),
+        contract,
+      })
+    );
+  }
+
+  const contractHandlerKeys = Object.keys(ROUTE_CONTRACT_BINDINGS) as RouteHandlerKey[];
+  const missingHandler = contractHandlerKeys.find((handlerKey) => !handlerKeys.has(handlerKey));
+  if (missingHandler !== undefined || handlerKeys.size !== contractHandlerKeys.length) {
+    throw new Error(`Cloudflare route manifest is not exhaustive: ${missingHandler ?? 'unexpected-handler-count'}`);
   }
 
   return Object.freeze(entries);
@@ -1022,6 +793,14 @@ export function routeContractReadiness(route: RouteManifestEntry): RouteContract
     return { ready: false, side: 'execution', blocker: route.contract.execution.blocker };
   }
   return { ready: true };
+}
+
+export function routeRequestModel(route: RouteManifestEntry): string {
+  return contractModel(route.contract.request);
+}
+
+export function routeResponseModel(route: RouteManifestEntry): string {
+  return contractModel(route.contract.response);
 }
 
 export function routeKey(route: Pick<RouteManifestEntry, 'path' | 'method'>): string {
