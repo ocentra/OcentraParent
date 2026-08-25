@@ -1,4 +1,7 @@
-use std::{env, net::{IpAddr, Ipv4Addr, SocketAddr}};
+use std::{
+    env,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+};
 
 use axum::{
     extract::Json,
