@@ -34,6 +34,12 @@ Protocol, broker, and client package tests:
 - `crates/protected-capability-custody-client/tests/admission.rs`
 - `crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs`
 
+ADR-PCC-002 adds these planned core-private adapter tests. They are absent at
+the current baseline and must not be created by the graph/routing packet:
+
+- `crates/protected-capability-custody-core/src/broker_admission/platform/windows_adapter_test.rs`
+- `crates/protected-capability-custody-core/src/broker_admission/platform/tpm_nv_counter_test.rs`
+
 ## Required coverage
 
 Tests must exercise real public boundaries and real failure states: malformed or
@@ -41,7 +47,12 @@ cross-household bindings, schema/object/index drift, path traversal and replica
 tampering, generation/revocation/replay, restart reconciliation, uncertain
 prepared state, concurrent reservation races, broker authentication and client
 identity mismatch, ACL/path/key ownership, watermark/lease monotonicity, and
-Windows process restart. A fixture, mock broker, same-process DPAPI helper,
+Windows process restart. The core-private adapter tests must additionally cover
+retained pipe/process/token handles, SID/integrity/session, image+SCM identity,
+exact registry owner/protected DACL/ACE/ancestor chain, installer-only
+enrollment, nonce/expiry/replay, TBS-backed TPM2 NV generation, TPM reset,
+missing/deleted NV index, immediate pipe-ID re-query, and required re-pair
+outcomes. A fixture, mock broker, same-process DPAPI helper,
 mutex/file-lock substitute, private-source path import, or caller-provided
 attestation is not product proof.
 
@@ -59,11 +70,12 @@ cargo check -p ocentra-protected-capability-custody-core
 cargo check -p ocentra-protected-capability-custody-protocol
 cargo check -p ocentra-protected-capability-custody-broker
 cargo check -p ocentra-protected-capability-custody-client
+cargo check -p ocentra-protected-capability-custody-windows-ffi
 cargo test -p ocentra-protected-capability-custody-core --lib
 cargo test -p ocentra-protected-capability-custody-protocol --tests
 cargo test -p ocentra-protected-capability-custody-broker --tests
 cargo test -p ocentra-protected-capability-custody-client --tests
-npm run lint:architecture -- --files crates/protected-capability-custody-core crates/protected-capability-custody-protocol crates/protected-capability-custody-broker crates/protected-capability-custody-client
+npm run lint:architecture -- --files crates/protected-capability-custody-core crates/protected-capability-custody-protocol crates/protected-capability-custody-broker crates/protected-capability-custody-client crates/ocentra-protected-capability-custody-windows-ffi
 npm run hub:guard -- --paths <exact-touched-paths> --operation commit
 ```
 

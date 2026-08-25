@@ -1,0 +1,195 @@
+# ADR-PCC-002: One Windows Front-Door Custody Module
+
+## Status
+
+Accepted for implementation-only routing on 2026-08-25. This ADR records an
+implementation shape; it does not claim that the FFI crate, private Windows
+modules, enrollment, tests, proof, runtime availability, READY, or DONE exist.
+
+## Context
+
+The canonical baseline is `20da6048f24fa7cc61aa1309780dc7d672ce6ee4`. The
+existing protected-custody core, neutral wire package, broker process, and
+client are real Rust source. The broker still fails closed before custody state
+creation because safe pinned Windows identity observation, protected registry
+custody, immutable enrollment, and a non-restorable monotonic authority are
+absent. The current broker/client platform paths are stubs by design; they must
+remain unavailable until a real replacement is linked.
+
+The actual core API already owns the protected construction boundary. Its
+`BrokerPeerAdmissionObservation` and `BrokerAuthorizedClientTranscript` have
+private fields and private construction; `platform::sealed` exposes only
+`pub(crate)` traits and guards; and `BrokerPlatformOwner` is implemented beside
+those guards. The repair must preserve those facts and the existing
+`BrokerCustodyRuntime` broker-facing methods. A separate safe adapter crate
+would need a public authority-construction seam and would risk either a core /
+broker cycle or public authority minting.
+
+## Decision
+
+Keep one Rust Windows front-door process: the existing
+`ocentra-protected-capability-custody-broker`, with the existing custody core
+and protocol dependency shape. Add exactly one tiny package-local-unsafe crate,
+`ocentra-protected-capability-custody-windows-ffi`, as a dependency of core.
+It contains only raw Win32/TBS/TPM calls and safe RAII wrappers for owned pipe,
+process, token, TBS-context, and TPM-NV handles. It contains no custody
+decisions, enrollment policy, persistence authority, transcript construction,
+or caller interface. Its `src/lib.rs` may organize those wrappers into private
+raw-wrapper modules, but every exported value remains a safe owned RAII value.
+
+The safe adapter is not another crate. It is a private `cfg(windows)` module
+tree inside the existing core platform boundary:
+
+```text
+crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs
+```
+
+Those private modules consume only the FFI RAII wrappers, construct the private
+`BrokerPeerAdmissionObservation` and
+`BrokerAuthorizedClientTranscript`, implement the `pub(crate)` sealed platform
+traits/guards beside `BrokerPlatformOwner`, and retain the existing
+`BrokerCustodyRuntime` methods. No public constructor, raw handle, identity
+assertion, or authority minting crosses the broker boundary.
+
+The FFI manifest must define package-local Rust and Clippy lint tables; it must
+not inherit `[lints] workspace = true`. It sets `unsafe_code = "allow"` and
+`unsafe_op_in_unsafe_fn = "deny"`, then manually mirrors every workspace
+Rust/Clippy deny except `unsafe_code`. The core and broker continue inheriting
+`[lints] workspace = true`; the safe Windows modules therefore receive the
+workspace deny policy through core.
+
+The external seam remains one dispatch/open-session path. The broker retains
+the named-pipe stream/handle for the whole request lifetime. Core's private
+Windows peer module retains the process/token/image observations and their
+owned handles. Pipe process/session IDs are re-queried immediately before
+transcript authorization and must still match the retained observations; no
+caller-supplied identity or attestation is accepted.
+
+## Module depth and seam
+
+The FFI crate is intentionally shallow: it hides unsafe ABI calls and handle
+lifetime mechanics behind owned RAII values. The private core Windows module
+tree is the deep module: its small internal seams concentrate observation,
+enrollment, SCM identity, registry custody, TPM checks, monotonic validation,
+and error mapping where the core can construct its private proofs. The broker
+retains the request transport and calls the existing runtime methods; it does
+not become a second authority. This preserves verification locality and
+avoids both a dependency cycle and a public authority-construction seam.
+
+## Enrollment and authority
+
+Enrollment is installer-only and immutable at runtime. A pre-provisioned,
+elevated owner/MDM/OEM ceremony must establish and pin the broker image and SCM
+identity, the enrolled client SID/image, the protected registry root and exact
+ancestor chain, and the TPM2 NV counter/index. Runtime code may verify those
+records but may not self-enroll, widen them, or treat a user-writable registry
+or disk record as authority.
+
+The monotonic generation authority is a TPM2 NV counter accessed through TBS.
+TPM reset, missing TPM, missing/deleted NV index, owner mismatch, or an
+unavailable TBS path is fail closed and requires re-pair/enrollment. A disk
+snapshot, SQLite row, JSON record, or rollback journal may never restore or
+advance that generation.
+
+## Required admission observations
+
+The one open-session/dispatch path must retain and revalidate:
+
+- the broker's named-pipe stream/handle until the request completes;
+- process and impersonated-token handles, plus process creation/image
+  observations, for their required lifetimes in the private core adapter;
+- peer SID, integrity level, and session identity;
+- broker/client image identity and SCM configuration identity;
+- exact registry owner, protected DACL, ACE set, and every pinned ancestor;
+- nonce binding, expiry, and replay state;
+- the TPM-backed monotonic generation and all broker/core generation slots.
+
+Immediately before transcript authorization, the broker re-queries pipe process
+and session IDs and the private core module compares them to the retained
+process/token observations. A PID, path, SID, registry value, or caller
+assertion without the retained handle and exact owner chain is not an
+observation that satisfies this ADR.
+
+## Failure and compatibility rules
+
+The current fail-closed stubs remain in place until the replacement FFI crate,
+private core adapter modules, enrollment ceremony, and broker link are present.
+Missing or contradictory observations return typed
+unavailable/deployment-required/re-pair outcomes before opening storage,
+registry state, journal, listener, bootstrap, or service-ready state.
+Unsupported platforms remain typed unavailable/manual-required. No fake success,
+no-op adapter, same-process DPAPI authority, mutex/file-lock authority, split
+snapshot, or caller-selected key/capability is permitted.
+
+## Rejected alternatives
+
+- A second helper process or helper protocol: duplicates the front-door seam and
+  creates another identity and replay surface.
+- A second safe adapter crate: requires a public proof-construction seam or a
+  forbidden dependency cycle; private core modules preserve the sealed API.
+- An in-process DPAPI, file lock, JSON, or SQLite authority: same-user writers
+  can replace or roll back the claimed authority.
+- `sysinfo`/path-only identity or flattened ACL observations: they do not retain
+  the process/token/registry handles or prove the exact image, owner, DACL, and
+  ancestor chain.
+- Caller-provided attestation or enrollment: it lets an untrusted caller mint
+  protected authority.
+- TPM-like disk counters: they can be restored after reset and do not provide
+  monotonic owner authority.
+
+## Planned production roots and workspace obligations
+
+These roots are planned and absent at the canonical baseline; listing them in
+the graph is ownership routing, not source presence:
+
+```text
+crates/ocentra-protected-capability-custody-windows-ffi/Cargo.toml
+crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs
+```
+
+The FFI manifest must be an active workspace member with a real `lib` target,
+the package-local lint policy above, and only raw safe RAII wrappers. Core gains
+the target-specific dependency on the FFI package and owns the private safe
+adapter module tree. The broker continues depending on core and protocol only;
+the caller never depends directly on the FFI package. No second Windows
+manifest, package, public adapter target, or broker protocol is planned.
+
+The implementation order is: raw owned-handle/TBS/TPM wrappers; private core
+Windows enrollment, peer, SCM, and monotonic modules; construction through the
+existing core runtime seams; installer/SCM/MDM/OEM provisioning; then the
+production caller. Existing broker/client stubs remain blocked through every
+intermediate step.
+
+## Tests, proof, and downstream routing
+
+The existing 11 WP01 test roots remain required and absent. Two additional
+adapter expectations are recorded as absent planned core-private tests only:
+
+```text
+crates/protected-capability-custody-core/src/broker_admission/platform/windows_adapter_test.rs
+crates/protected-capability-custody-core/src/broker_admission/platform/tpm_nv_counter_test.rs
+```
+
+No test source or proof is created by this ADR packet. The tests must exercise
+the real private core module seams and FFI RAII wrappers, not a disconnected
+helper, fake authority, or caller assertion.
+
+Account WP05A, Device Trust WP01, Device Trust WP03, and Browser WP06 remain
+blocked downstream consumers. They may consume only the future opaque broker
+outcomes after this owner supplies the real FFI crate, private core adapter,
+enrollment, tests, proof, and runtime evidence; none may mint or replace
+protected authority.
+
+The graph may authorize only the implementation phase for the missing FFI and
+private core production roots. Normal WP01 state remains validation, and READY,
+PR_READY, tests, proof, merge, and DONE remain unchanged until their own
+evidence exists.
