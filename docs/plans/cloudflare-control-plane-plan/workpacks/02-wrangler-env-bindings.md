@@ -1,6 +1,12 @@
 # Workpack 02: Wrangler Env Bindings
 
-> **2026-07-28 correction:** The later missing-private-billing-import blocker text is historical. `infra/cloudflare` now imports module-local generated billing contracts. This workpack remains open because it has no tracked proof bundle; rerun after installing dependencies and record the actual result.
+## Status
+
+`source-integrated / expected-test-source-incomplete / retained-proof-absent`
+
+The accepted source packet is integrated on the canonical consolidation branch
+at `7eabc9ff510fad890d88abb73cd7e3b4e413ed22`. This is implementation-phase
+evidence only; it does not close the workpack.
 
 ## Goal
 
@@ -30,6 +36,20 @@ Define development and production Wrangler config, binding names, and secret cus
 - Secret names appear only as placeholders.
 - No wildcard production origin claim exists.
 
+## Current source truth
+
+- Development and production Wrangler files declare explicit origins and
+  binding names; checked-in identifiers and secrets remain placeholders.
+- `infra/cloudflare/src/env.ts` now treats `APP_ORIGIN` and
+  `CORS_ALLOWED_ORIGINS` as untrusted runtime values. Missing, non-string, and
+  malformed values return controlled validation errors instead of throwing.
+- Production rejects wildcard app and CORS origins after comma-list trimming.
+  Local, test, and development environments retain their local behavior.
+- Worker request handling validates the environment before parsing or using an
+  origin. `EntitlementSnapshotDO` remains explicitly `not-wired`.
+- Independent source review accepted this bounded behavior. No formal WP02 test
+  run, retained proof, deployment, or runtime-readiness claim followed.
+
 ## Proof IDs
 
 - `cloudflare-control.wrangler-dev-config`
@@ -53,25 +73,39 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Completion
 
-- Status: blocked / proof-present for WP02 only; no deploy-ready, runtime-ready, or payment-ready claim is made.
-- Proof root: `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/`
-- Owned config surface: `infra/cloudflare/wrangler.toml`, `infra/cloudflare/wrangler.production.toml`, `infra/cloudflare/.dev.vars.example`
-- Owned test surface: `infra/cloudflare/tests/unit/env-bindings.test.ts`
+- Status: open after accepted source integration; expected test-source and
+  retained-proof phases remain.
+- Expected proof root:
+  `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/` (not
+  tracked at the current canonical head).
+- Owned config/source surface: `infra/cloudflare/wrangler.toml`,
+  `infra/cloudflare/wrangler.production.toml`,
+  `infra/cloudflare/.dev.vars.example`, `infra/cloudflare/src/env.ts`.
+- Owned expected-test surface:
+  `infra/cloudflare/tests/unit/env-bindings.test.ts`.
 
-## What is actually proved
+## What source and review establish
 
 - Development and production Wrangler configs both declare the expected D1, KV, queue, optional R2, analytics, and Durable Object binding names explicitly.
 - Production origin and CORS origin remain explicit as `https://parent.ocentra.com`; no wildcard production origin claim exists.
 - Checked-in secret-bearing values in `.dev.vars.example` remain placeholders only; no real secret values are kept in repo.
 - Auth and entitlement refs in checked-in Wrangler config remain explicit `manual-required` placeholders rather than accidental readiness claims.
 
-## Blocked truth
+## Open test and delivery truth
 
-- Module test and lint reruns wait on WP01: `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty dependency tree.
-- `infra/cloudflare/src/index.ts` uses the module-local generated billing-contract route; after WP01 restores dependencies, record any then-current module lint or fixture error without reviving private billing-domain imports.
-- Those failures are outside the owned WP02 wrangler/dev-vars surface, so they are carried as blockers rather than fixed here.
+- The existing unit file checks the checked-in production Wrangler values, but
+  it does not yet contain the complete runtime-validation matrix for
+  undefined/non-string origins, comma-list wildcard variants, and preserved
+  development behavior. Write those cases together in the test-source wave.
+- Run the focused WP02 unit/lint commands only after that expected test source
+  is written; do not use source-only inline assertions as workpack test proof.
+- Real binding provisioning, deployment credentials, deployment/rollback
+  validation, and the `EntitlementSnapshotDO` runtime remain outside this
+  accepted packet and are still open.
+- The historical private `packages/billing-domain/src/*` import blocker is
+  resolved and must not be revived.
 
-## Proof artifacts
+## Expected proof artifacts (not retained)
 
 - `00-scope-summary.md`
 - `01-negative-case-proof.md`
@@ -80,10 +114,16 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Focused validations
 
-- `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`
-- `npm --prefix infra/cloudflare run test:unit` blocked before worker boot
-- `npm --prefix infra/cloudflare run lint` blocked in broader Cloudflare sources outside WP02
-- `npm run lint:architecture -- --files infra/cloudflare`
+- Source packet: focused runtime assertions, Prettier, Enforcer source-shape,
+  no-test-doubles, validation-bypass, re-export, diff, commit, lane, and hub
+  guards passed before integration.
+- Deferred test phase:
+  `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`.
+- Deferred broader module phase: `npm --prefix infra/cloudflare run test:unit`
+  and `npm --prefix infra/cloudflare run lint`.
+- Architecture remains subject to the separately recorded Protected Custody
+  missing-test-scaffold baseline; it is not evidence against the accepted
+  one-file WP02 source behavior.
 
 ## No-claim boundary
 

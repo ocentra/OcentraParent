@@ -16,7 +16,7 @@ pub(super) fn checked_effective_child_device_limit(
         .get();
     base_child_device_limit
         .checked_add(active_referral_credits)
-        .and_then(|subtotal| subtotal.checked_add(paid_extra_child_seats))
+        .and_then(|subtotal| subtotal.checked_add(paid_extra_child_device_seats))
         .ok_or(EntitlementSnapshotDerivationError::SeatLimitOverflow)
 }
 

@@ -76,7 +76,7 @@ impl ParentRestoreRuntime {
             observation.applied_sections().to_vec(),
             observation.rejected_sections().to_vec(),
             observation.compensation(),
-            observation.provider_operation_ref().as_ref(),
+            observation.provider_operation_ref(),
             None,
             self.next_recorded_at()?,
             note,

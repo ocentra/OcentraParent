@@ -19,7 +19,7 @@ pub mod request;
 pub mod testkit;
 pub mod topology;
 
-use bus::publisher::{EventContext, EventPublisher};
+use bus::publisher::{EventContext, EventPublisher, RootEventPublisher};
 use bus::reports::dead_letter::{dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent};
 use bus::reports::handler::{
     EventMetricsSnapshot, EventTraceFields, HandlerOutcome, HandlerReport, PublishReport,
@@ -85,6 +85,7 @@ const _: () = {
     let _ = core::mem::size_of::<EventBusShutdownReport>();
     let _ = core::mem::size_of::<ShutdownMode>();
     let _ = core::mem::size_of::<EventPublisher>();
+    let _ = core::mem::size_of::<RootEventPublisher>();
     let _ = core::mem::size_of::<DeadLetter>();
     let _ = core::mem::size_of::<DeadLetterEvent>();
     let _ = core::mem::size_of::<EventMetricsSnapshot>();

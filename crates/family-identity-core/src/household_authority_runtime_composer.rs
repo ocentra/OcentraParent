@@ -21,18 +21,31 @@ use crate::device_trust_current_binding::CurrentChildDeviceTrustBinding;
 use crate::device_trust_lifecycle::DeviceTrustLifecycleState;
 use crate::household_authority::HouseholdAuthorityAction;
 
+#[path = "household_authority_runtime_account.rs"]
 mod household_authority_runtime_account;
+#[path = "household_authority_runtime_authorization.rs"]
 mod household_authority_runtime_authorization;
+#[path = "household_authority_runtime_binding.rs"]
 mod household_authority_runtime_binding;
+#[path = "household_authority_runtime_capability.rs"]
 mod household_authority_runtime_capability;
+#[path = "household_authority_runtime_consume.rs"]
 mod household_authority_runtime_consume;
+#[path = "household_authority_runtime_device_source.rs"]
 mod household_authority_runtime_device_source;
+#[path = "household_authority_runtime_device_validation.rs"]
 mod household_authority_runtime_device_validation;
+#[path = "household_authority_runtime_lease.rs"]
 mod household_authority_runtime_lease;
+#[path = "household_authority_runtime_ports.rs"]
 mod household_authority_runtime_ports;
+#[path = "household_authority_runtime_requirements.rs"]
 mod household_authority_runtime_requirements;
+#[path = "household_authority_runtime_resolution.rs"]
 mod household_authority_runtime_resolution;
+#[path = "household_authority_runtime_revalidation.rs"]
 mod household_authority_runtime_revalidation;
+#[path = "household_authority_runtime_step_up.rs"]
 mod household_authority_runtime_step_up;
 
 /// Failure from an owner boundary or from the cross-owner binding checks.

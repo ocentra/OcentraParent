@@ -339,6 +339,7 @@ fn insert_registration(
                 to_sql_generation(authority_generation)?,
             ],
         )
+        .map(|_| ())
         .map_err(|_error| DeviceTrustLifecycleError::SignerRegistrationConflict)
 }
 

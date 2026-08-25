@@ -1,0 +1,27 @@
+[package]
+name = "ocentra-protected-capability-custody-broker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "ocentra-protected-capability-custody-broker"
+path = "src/main.rs"
+
+[dependencies]
+getrandom = "0.3.4"
+ocentra-protected-capability-custody-core = { path = "../protected-capability-custody-core" }
+ocentra-protected-capability-custody-protocol = { path = "../protected-capability-custody-protocol" }
+sysinfo = "0.37.2"
+zeroize = "1.8.2"
+
+[target.'cfg(windows)'.dependencies]
+interprocess = "2.4.3"
+windows-service = "0.8.1"
+widestring = "1.2.1"

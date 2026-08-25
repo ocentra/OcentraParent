@@ -1,8 +1,8 @@
-use super::data_custody_restore_runtime::RestoreRuntimeError;
-use super::data_custody_restore_runtime_executor::{
+use super::super::data_custody_restore_runtime::RestoreRuntimeError;
+use super::super::data_custody_restore_runtime_executor::{
     receipts::RestoreRollbackBinding, RestoreExecutorError,
 };
-use super::data_custody_restore_runtime_ledger::RestoreLedgerError;
+use super::super::data_custody_restore_runtime_ledger::RestoreLedgerError;
 use ocentra_schema::export_import_backup_recovery as contracts;
 use ocentra_storage_custody_core::export_import_backup_recovery::
     export_import_backup_recovery_restore_execution_plan::RestoreExecutionPlan;
@@ -11,7 +11,7 @@ pub(super) fn validate_rollback_authority<'a>(
     plan: &'a RestoreExecutionPlan,
     existing_restore: &contracts::ExportImportRestoreReceipt,
     observed_rollback_binding: Option<&RestoreRollbackBinding<'a>>,
-) -> Result<contracts::ExportImportProviderOperationRef, RestoreRuntimeError> {
+) -> Result<Option<contracts::ExportImportProviderOperationRef>, RestoreRuntimeError> {
     if !existing_restore.compensation_applied
         && existing_restore.rollback_provider_operation_ref.is_some()
     {
@@ -51,5 +51,6 @@ pub(super) fn validate_rollback_authority<'a>(
     }
     observed_provider_operation_ref
         .or_else(|| existing_restore.provider_operation_ref.clone())
+        .map(Some)
         .ok_or(RestoreRuntimeError::Executor(RestoreExecutorError::Failed))
 }

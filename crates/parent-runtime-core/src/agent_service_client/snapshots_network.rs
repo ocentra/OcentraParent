@@ -2,15 +2,23 @@ mod read_model;
 
 use self::read_model::network_flow_read_model_from_payload_impl;
 use super::*;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::network_flow::{
     ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowDigest,
-    ActivityNetworkFlowObservation, NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
+    ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel,
+    NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
     NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_EVENT_ID,
     NETWORK_FLOW_READ_MODEL_FIELD_LATEST_TOMBSTONE_OBSERVED_AT,
     NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::ACTIVITY_QUERY_SCHEMA_VERSION;
-use ocentra_schema::parent_ui_bridge::{ParentContractReferenceId, ParentRuntimeEventType};
+use ocentra_schema::parent_ui_bridge::{
+    ParentContractReferenceId, ParentNetworkRuntimeEventChainStreamSnapshot,
+    ParentNetworkRuntimeEventResultSnapshot, ParentNetworkRuntimeEventValueSnapshot,
+    ParentRuntimeEventType,
+};
 
 pub(super) fn app_game_read_model_from_response<T>(
     response_event: &AgentEventEnvelope,

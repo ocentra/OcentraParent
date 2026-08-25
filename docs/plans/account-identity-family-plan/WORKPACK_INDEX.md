@@ -27,12 +27,17 @@ Use this index to select exactly one workpack.
 | blocked / planned source route / owner-specific fencing and recovery absent | [WP05A Runtime Effect Fencing Coordinator](workpacks/05-runtime-effect-fencing-coordinator.md) | New routing workpack; coordinator/recovery plus private Account participant and capability/lease reservation adapters are absent and must not duplicate Account, Device Trust, or step-up truth | `MULTI_OWNER_EFFECT_FENCING_DECISION.md`, `PLAN_STATE.md` | `output/account-identity-family-plan-proof/05-runtime-effect-fencing-coordinator/` |
 | complete | [WP07 Parent Account Family Setup UI](workpacks/07-parent-account-family-setup-ui.md) | 13/13 | `docs/expectations/portal.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/` |
 | open | [WP06 Security Proof And Route Gate](workpacks/06-security-proof-and-route-gate.md) | 14/18 | all prior workpack proof roots, including WP08 | `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/` |
+| blocked on Protected Custody WP01 / partial source reviewed / adapters, caller, tests, and Cloudflare consumer open | [WP09 Account Issuer Key Custody And Cloudflare Handoff](workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md) | Canonical `4f6245e51` integrates durable issuer/key lineage, startup validation, and receipt/wire outbox core; no protected signer, binding authenticator, delivery owner, production caller, Cloudflare outer-wire/key-registry consumer, or seven expected test roots exist | `PLAN_STATE.md`, WP08 sealed transport contract, Protected Custody WP01, `docs/engineering-graph/code-map.json` | `docs/proof/account-identity-family-plan/09-account-issuer-key-custody-and-cloudflare-handoff/` |
 
 ## Default execution order
 
 ```text
-WP01 -> Account WP08 -> Account WP02 target authority -> Cloudflare WP06 writer/caller -> Device Trust WP03 ceremony -> Account WP05A multi-owner fence -> Cloudflare WP08 -> WP03 -> WP04 -> WP05 -> WP07 -> Account WP06
+WP01 -> Account WP08 -> (Protected Custody WP01 -> Account WP09 issuer/key custody || Account WP02 target authority) -> Cloudflare WP06 writer/caller -> Device Trust WP03 ceremony -> Account WP05A multi-owner fence -> Cloudflare WP08 -> WP03 -> WP04 -> WP05 -> WP07 -> Account WP06
 ```
+
+## WP09 route state
+
+WP09's Account-owned durable issuer core is independently reviewed and integrated through canonical `4f6245e51`. It owns monotonic public-key registry/revocation, strict startup validation/recovery, household-scoped receipt/wire outbox custody, and the typed handoff over WP08's existing sealed contract. Its direct prerequisites are Account WP08 and Protected Custody WP01: the latter must supply the neutral isolated broker/client and opaque protected signing admission before Account implements its signer adapter. The crate-private signer/binding/delivery seams have no implementation or production caller, seven expected test roots are absent, and Cloudflare has no outer-wire/key-registry consumer. This route does not claim a complete producer adapter, Cloudflare runtime readiness, Device Trust, Account WP02, Account WP05A, tests, proof, READY, or DONE.
 
 ## WP08 verification state
 

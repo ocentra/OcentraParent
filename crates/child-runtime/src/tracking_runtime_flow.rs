@@ -1,8 +1,8 @@
 use metadata::{tracking_runtime_metadata, TrackingRuntimeHop};
 use ocentra_eventing::bus::reports::handler::EventMetricsSnapshot;
 use ocentra_eventing::{
-    bus::subscriber::SubscriptionReport, bus::EventBus, envelope::EventMetadata,
-    error::EventingError, request::RequestCompletionReport,
+    bus::publisher::RootEventPublisher, bus::subscriber::SubscriptionReport, bus::EventBus,
+    envelope::EventMetadata, error::EventingError, request::RequestCompletionReport,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::runtime_event::{
@@ -57,7 +57,7 @@ pub struct TrackingRuntimeEventFlowReport {
 }
 
 pub struct TrackingRuntimeEventFlow {
-    bus: EventBus,
+    bus: RootEventPublisher,
     state: TrackingRuntimeEventState,
     tracking_subscription_report: SubscriptionReport,
     child_check_in_request_subscription_report: SubscriptionReport,
@@ -72,7 +72,7 @@ impl TrackingRuntimeEventFlow {
         Self::with_bus(EventBus::new()).await
     }
 
-    pub async fn with_bus(bus: EventBus) -> Result<Self, EventingError> {
+    pub async fn with_bus(bus: RootEventPublisher) -> Result<Self, EventingError> {
         let state = TrackingRuntimeEventState::default();
         let tracking_subscription_report =
             subscribe_tracking_location_observed_events(&bus, state.clone()).await?;

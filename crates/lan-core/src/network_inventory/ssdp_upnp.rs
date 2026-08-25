@@ -16,7 +16,7 @@ use super::LanNetworkInventoryDevice;
 
 mod description;
 mod discovery;
-mod inventory;
+pub(crate) mod inventory;
 mod merge;
 mod receive;
 
@@ -26,6 +26,8 @@ pub const SSDP_MAX_DESCRIPTION_TEXT_BYTES: usize = 1_024;
 pub const SSDP_MAX_ATTEMPTS: usize = 3;
 pub const SSDP_MAX_MX_SECONDS: u8 = 5;
 pub const SSDP_DISCOVERY_TIMEOUT_MS: u64 = 350;
+pub const SSDP_MAX_RECORDS: usize = 128;
+pub const SSDP_MAX_RESPONSES_PER_ATTEMPT: usize = 64;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SsdpDiscoveryResponse {

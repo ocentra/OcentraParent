@@ -1,4 +1,5 @@
 import { lstatSync, realpathSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -8,8 +9,10 @@ export const GRAPH_PATH = 'docs/engineering-graph/graph.json';
 export const OVERRIDES_PATH = 'docs/engineering-graph/overrides.json';
 export const CODE_MAP_PATH = 'docs/engineering-graph/code-map.json';
 const WORKPACK_CODE_EXPECTATIONS = new Set(['code-and-tests', 'tests-only', 'no-code-required']);
+const CODE_MAP_SCHEMA_VERSIONS = new Set([1, 2]);
 const PLANNED_IMPLEMENTATION_EXPECTATIONS = new Set(['code-and-tests']);
 const PLANNED_TEST_EXPECTATIONS = new Set(['code-and-tests', 'tests-only']);
+const WORKSPACE_TARGET_KINDS = new Set(['lib', 'bin']);
 const IMPLEMENTATION_GATE = 'reviewed-implementation';
 const IMPLEMENTATION_GATE_VALUES = new Set([IMPLEMENTATION_GATE]);
 const COMPLETION_EVIDENCE_FIELDS = new Set(['id', 'reason', 'evidence']);
@@ -116,6 +119,7 @@ const SUPPORT_ONLY_CODE_DIRECTORIES = new Set([
   'test-data',
   'testdata',
 ]);
+const workspaceMetadataCache = new Map();
 
 const NODE_KINDS = new Set(['goal', 'plan', 'workpack']);
 const STATES = new Set(['planned', 'blocked', 'ready', 'active', 'validation', 'done', 'failed', 'paused']);
@@ -300,6 +304,196 @@ function assertPlannedExecutableRoots(
   }
 }
 
+function workspaceRequirementSchemaErrors(requirements, { owner = 'workspaceRequirements', roots = [] } = {}) {
+  const errors = [];
+  if (!requirements || typeof requirements !== 'object' || Array.isArray(requirements)) {
+    return [`${owner} must be an object`];
+  }
+  if (!isRepoRelativePath(requirements.rootManifest)) {
+    errors.push(`${owner}.rootManifest must be repository-relative`);
+  }
+  const normalizedRoots = new Set(roots.map(normalizeRepoPath));
+  if (normalizedRoots.size > 0 && !normalizedRoots.has(normalizeRepoPath(requirements.rootManifest ?? ''))) {
+    errors.push(`${owner}.rootManifest must be included in roots`);
+  }
+  if (!Array.isArray(requirements.packages) || requirements.packages.length === 0) {
+    errors.push(`${owner}.packages must be a non-empty array`);
+    return errors;
+  }
+  const manifests = new Set();
+  const packageNames = new Set();
+  for (const [index, packageRequirement] of requirements.packages.entries()) {
+    const label = `${owner}.packages[${index}]`;
+    if (!packageRequirement || typeof packageRequirement !== 'object' || Array.isArray(packageRequirement)) {
+      errors.push(`${label} must be an object`);
+      continue;
+    }
+    if (!isRepoRelativePath(packageRequirement.manifest)) {
+      errors.push(`${label}.manifest must be repository-relative`);
+    } else {
+      const manifest = normalizeRepoPath(packageRequirement.manifest);
+      if (manifests.has(manifest)) errors.push(`${owner}.packages must not duplicate manifest ${manifest}`);
+      manifests.add(manifest);
+      if (normalizedRoots.size > 0 && !normalizedRoots.has(manifest)) {
+        errors.push(`${label}.manifest must be included in roots`);
+      }
+    }
+    if (typeof packageRequirement.package !== 'string' || packageRequirement.package.trim().length === 0) {
+      errors.push(`${label}.package must be a non-empty package name`);
+    } else if (packageNames.has(packageRequirement.package)) {
+      errors.push(`${owner}.packages must not duplicate package ${packageRequirement.package}`);
+    } else {
+      packageNames.add(packageRequirement.package);
+    }
+    if (packageRequirement.activeMember !== true) {
+      errors.push(`${label}.activeMember must be true when active workspace membership is required`);
+    }
+    if (!Array.isArray(packageRequirement.requiredTargets) || packageRequirement.requiredTargets.length === 0) {
+      errors.push(`${label}.requiredTargets must be a non-empty array`);
+      continue;
+    }
+    const targets = new Set();
+    for (const [targetIndex, target] of packageRequirement.requiredTargets.entries()) {
+      const targetLabel = `${label}.requiredTargets[${targetIndex}]`;
+      if (!target || typeof target !== 'object' || Array.isArray(target)) {
+        errors.push(`${targetLabel} must be an object`);
+        continue;
+      }
+      if (!WORKSPACE_TARGET_KINDS.has(target.kind)) {
+        errors.push(`${targetLabel}.kind must be lib or bin`);
+      }
+      if (!isRepoRelativePath(target.path)) {
+        errors.push(`${targetLabel}.path must be repository-relative`);
+      } else {
+        const targetPath = normalizeRepoPath(target.path);
+        const targetKey = `${target.kind}:${targetPath}`;
+        if (targets.has(targetKey)) errors.push(`${label}.requiredTargets must not contain duplicate ${targetKey}`);
+        targets.add(targetKey);
+        if (normalizedRoots.size > 0 && !normalizedRoots.has(targetPath)) {
+          errors.push(`${targetLabel}.path must be included in roots`);
+        }
+      }
+    }
+  }
+  return errors;
+}
+
+function comparableAbsolutePath(value) {
+  return normalizeRepoPath(path.resolve(value)).toLowerCase();
+}
+
+function cargoMetadataForWorkspace(root, requirements) {
+  const manifest = normalizeRepoPath(requirements.rootManifest);
+  const cacheKey = `${comparableAbsolutePath(root)}::${manifest}`;
+  if (workspaceMetadataCache.has(cacheKey)) return workspaceMetadataCache.get(cacheKey);
+  const rootStatus = repoPathStatus(root, manifest);
+  if (!rootStatus.exists || !rootStatus.regularFile) {
+    const result = { error: `root manifest is unavailable ${manifest}` };
+    workspaceMetadataCache.set(cacheKey, result);
+    return result;
+  }
+  try {
+    const output = execFileSync(
+      'cargo',
+      ['metadata', '--no-deps', '--format-version', '1', '--manifest-path', path.resolve(root, manifest)],
+      {
+        cwd: root,
+        encoding: 'utf8',
+        maxBuffer: 16 * 1024 * 1024,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }
+    );
+    const metadata = JSON.parse(output);
+    const result = {
+      packages: Array.isArray(metadata.packages) ? metadata.packages : [],
+      workspaceMembers: new Set(Array.isArray(metadata.workspace_members) ? metadata.workspace_members : []),
+    };
+    workspaceMetadataCache.set(cacheKey, result);
+    return result;
+  } catch (error) {
+    const detail = String(error?.stderr ?? error?.message ?? error)
+      .replace(/\s+/gu, ' ')
+      .trim()
+      .slice(0, 240);
+    const result = { error: `cargo metadata --no-deps failed for ${manifest}: ${detail}` };
+    workspaceMetadataCache.set(cacheKey, result);
+    return result;
+  }
+}
+
+function workspaceRequirementGaps(root, source) {
+  const requirements =
+    source?.completion?.workspaceRequirements ??
+    source?.metadata?.workspaceRequirements ??
+    (source?.rootManifest !== undefined && source?.packages !== undefined ? source : null);
+  if (!requirements) return [];
+  const gaps = [];
+  const rootManifest = normalizeRepoPath(requirements.rootManifest ?? '');
+  const rootStatus = repoPathStatus(root, rootManifest);
+  if (!rootStatus.exists || !rootStatus.regularFile) {
+    gaps.push(`workspace: missing root manifest ${rootManifest}`);
+    return gaps;
+  }
+  const metadata = cargoMetadataForWorkspace(root, requirements);
+  if (metadata.error) {
+    gaps.push(`workspace: ${metadata.error}`);
+    return gaps;
+  }
+  for (const packageRequirement of requirements.packages ?? []) {
+    const manifest = normalizeRepoPath(packageRequirement.manifest);
+    const packageStatus = repoPathStatus(root, manifest);
+    if (!packageStatus.exists || !packageStatus.regularFile) {
+      gaps.push(`workspace: missing package manifest ${manifest}`);
+    }
+    const packageMetadata = metadata.packages.find(
+      (candidate) =>
+        comparableAbsolutePath(candidate.manifest_path) === comparableAbsolutePath(path.join(root, manifest))
+    );
+    if (!packageMetadata) {
+      gaps.push(`workspace: package ${packageRequirement.package} is not registered by cargo metadata (${manifest})`);
+      for (const target of packageRequirement.requiredTargets ?? []) {
+        gaps.push(
+          `workspace: required ${target.kind} target ${target.path} cannot be confirmed because package ${packageRequirement.package} is absent`
+        );
+      }
+      continue;
+    }
+    if (packageMetadata.name !== packageRequirement.package) {
+      gaps.push(
+        `workspace: manifest ${manifest} declares package ${packageMetadata.name}, expected ${packageRequirement.package}`
+      );
+      for (const target of packageRequirement.requiredTargets ?? []) {
+        gaps.push(
+          `workspace: required ${target.kind} target ${target.path} cannot be confirmed because package name is mismatched`
+        );
+      }
+      continue;
+    }
+    if (packageRequirement.activeMember === true && !metadata.workspaceMembers.has(packageMetadata.id)) {
+      gaps.push(`workspace: package ${packageRequirement.package} is not an active workspace member (${manifest})`);
+    }
+    for (const target of packageRequirement.requiredTargets ?? []) {
+      const targetStatus = repoPathStatus(root, target.path);
+      if (!targetStatus.exists || !targetStatus.regularFile) {
+        gaps.push(`workspace: missing ${target.kind} target path ${target.path}`);
+        continue;
+      }
+      const targetMetadata = (packageMetadata.targets ?? []).some(
+        (candidate) =>
+          Array.isArray(candidate.kind) &&
+          candidate.kind.includes(target.kind) &&
+          comparableAbsolutePath(candidate.src_path) === comparableAbsolutePath(path.join(root, target.path))
+      );
+      if (!targetMetadata) {
+        gaps.push(
+          `workspace: package ${packageRequirement.package} lacks required ${target.kind} target ${target.path}`
+        );
+      }
+    }
+  }
+  return gaps;
+}
+
 export function stableId(prefix, value) {
   const slug = value
     .replace(/\.md$/i, '')
@@ -337,8 +531,8 @@ export async function loadCodeMap(root, codeMapPath = CODE_MAP_PATH) {
   const text = await readText(root, codeMapPath);
   if (!text) throw new Error(`Code map is missing: ${codeMapPath}`);
   const map = JSON.parse(text);
-  if (map?.schemaVersion !== 1 || !map?.plans || typeof map.plans !== 'object') {
-    throw new Error(`${codeMapPath} must declare schemaVersion 1 and a plans object`);
+  if (!CODE_MAP_SCHEMA_VERSIONS.has(map?.schemaVersion) || !map?.plans || typeof map.plans !== 'object') {
+    throw new Error(`${codeMapPath} must declare schemaVersion 1 or 2 and a plans object`);
   }
   if (
     map.workpacks !== undefined &&
@@ -388,6 +582,13 @@ export async function loadCodeMap(root, codeMapPath = CODE_MAP_PATH) {
       requirement: 'tests',
       allowedExpectations: PLANNED_TEST_EXPECTATIONS,
     });
+    if (entry.workspaceRequirements !== undefined) {
+      const errors = workspaceRequirementSchemaErrors(entry.workspaceRequirements, {
+        owner: `${codeMapPath} workpack ${workpackId}.workspaceRequirements`,
+        roots: entry.roots,
+      });
+      if (errors.length > 0) throw new Error(errors.join('; '));
+    }
   }
   return map;
 }
@@ -406,9 +607,10 @@ function workpackCodeExpectationSatisfied(
   codeExpectation,
   implementationFiles,
   testFiles,
-  missingExpectedTestRoots = []
+  missingExpectedTestRoots = [],
+  workspaceGaps = []
 ) {
-  if (missingExpectedTestRoots.length > 0) return false;
+  if (missingExpectedTestRoots.length > 0 || workspaceGaps.length > 0) return false;
   if (codeExpectation === 'no-code-required') {
     return implementationFiles.length === 0 && testFiles.length === 0;
   }
@@ -501,6 +703,8 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
     if (!rootScope && !planSlug && !workpackId.startsWith(`WP-${String(scope).replace(/^PLAN-/u, '')}-`)) continue;
     const expectedTestRoots = [...new Set((entry.expectedTestRoots ?? []).map(normalizeRepoPath))];
     const missingExpectedTestRoots = expectedTestRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
+    const workspaceRequirements = entry.workspaceRequirements ?? null;
+    const workspaceGaps = workspaceRequirements ? workspaceRequirementGaps(root, workspaceRequirements) : [];
     const uniqueRoots = [...new Set(entry.roots.map(normalizeRepoPath))];
     const missingRoots = uniqueRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
     // Deferred tooling-test cases: missing expected roots remain visible and unsatisfied;
@@ -525,12 +729,15 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
         codeExpectation,
         implementationFiles,
         testFiles,
-        missingExpectedTestRoots
+        missingExpectedTestRoots,
+        workspaceGaps
       ),
       roots: uniqueRoots,
       missingRoots,
       expectedTestRoots,
       missingExpectedTestRoots,
+      workspaceRequirements,
+      workspaceRequirementGaps: workspaceGaps,
       state: codeTopologyState(implementationFiles, testFiles),
       codeFiles: uniqueFiles.length,
       implementationFiles: implementationFiles.length,
@@ -625,6 +832,8 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
                 codeExpectationSatisfied: workpackInventory.codeExpectationSatisfied,
                 roots: workpackInventory.roots,
                 missingRoots: workpackInventory.missingRoots,
+                workspaceRequirements: workpackInventory.workspaceRequirements,
+                workspaceRequirementGaps: workpackInventory.workspaceRequirementGaps,
                 implementationFiles: workpackInventory.implementationFiles,
                 testFiles: workpackInventory.testFiles,
                 implementationPaths: workpackInventory.implementationPaths,
@@ -713,6 +922,7 @@ export function flattenProgressReport(report) {
         codeExpectationSatisfied: typeof topology === 'string' ? null : topology.codeExpectationSatisfied,
         implementationFiles: typeof topology === 'string' ? null : topology.implementationFiles,
         testFiles: typeof topology === 'string' ? null : topology.testFiles,
+        workspaceRequirementGaps: typeof topology === 'string' ? [] : (topology.workspaceRequirementGaps ?? []),
         dependsOn: workpack.dependsOn,
         blockers: workpack.blockers,
         unlocks: workpack.unlocks,
@@ -1352,7 +1562,12 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   }
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   for (const [workpackId, mapping] of Object.entries(codeMap.workpacks ?? {})) {
-    if (!Array.isArray(mapping.plannedImplementationRoots) && !Array.isArray(mapping.expectedTestRoots)) continue;
+    if (
+      !Array.isArray(mapping.plannedImplementationRoots) &&
+      !Array.isArray(mapping.expectedTestRoots) &&
+      mapping.workspaceRequirements === undefined
+    )
+      continue;
     const node = nodeById.get(workpackId);
     if (!node || node.kind !== 'workpack') {
       throw new Error(`${CODE_MAP_PATH} planned executable owner is not an imported workpack: ${workpackId}`);
@@ -1377,6 +1592,12 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
         testRoots: expectedTestRoots,
       },
     };
+    if (mapping.workspaceRequirements !== undefined) {
+      node.completion = {
+        ...node.completion,
+        workspaceRequirements: mapping.workspaceRequirements,
+      };
+    }
   }
   const overrideErrors = overrideSemanticErrors(overrides, nodeById, repoRoot);
   if (overrideErrors.length > 0) {
@@ -1574,15 +1795,21 @@ function completionRequirementGaps(
 }
 
 export function completionGaps(root, node, { includeExpectedArtifacts = true } = {}) {
-  if (!node.completion) return [];
-  const requirements = new Set([
-    ...(node.completion.required ?? []),
-    ...Object.keys(node.completion.references ?? {}),
-    ...Object.keys(node.completion.expected ?? {}),
-  ]);
-  return [...requirements].flatMap((requirement) =>
-    completionRequirementGaps(root, node, requirement, { includeExpectedArtifacts })
-  );
+  const gaps = [];
+  if (node.completion) {
+    const requirements = new Set([
+      ...(node.completion.required ?? []),
+      ...Object.keys(node.completion.references ?? {}),
+      ...Object.keys(node.completion.expected ?? {}),
+    ]);
+    gaps.push(
+      ...[...requirements].flatMap((requirement) =>
+        completionRequirementGaps(root, node, requirement, { includeExpectedArtifacts })
+      )
+    );
+  }
+  gaps.push(...workspaceRequirementGaps(root, node));
+  return gaps;
 }
 
 function durableProofSatisfiesExpected(root, node, requirement) {
@@ -1646,6 +1873,7 @@ function implementationDependencyBlocker(graph, edge, states, root) {
   }
   if (edge.implementationGate === IMPLEMENTATION_GATE) {
     const gaps = completionRequirementGaps(root, dependency, 'implementation', { requireDeclared: true });
+    gaps.push(...workspaceRequirementGaps(root, dependency));
     if (
       gaps.length === 0 &&
       !dependency.metadata?.completionEvidenceOverride?.requirements?.includes('implementation')
@@ -1695,7 +1923,8 @@ function deriveImplementationAuthorization(
     return { phase: 'implementation', status: 'complete', authorized: false, blockers: [] };
   }
   const implementationGaps = completionRequirementGaps(root, node, 'implementation', { requireDeclared: true });
-  if (implementationGaps.length === 0) {
+  const workspaceGaps = workspaceRequirementGaps(root, node);
+  if (implementationGaps.length === 0 && workspaceGaps.length === 0) {
     return { phase: 'implementation', status: 'complete', authorized: false, blockers: [] };
   }
 
@@ -1716,6 +1945,7 @@ function deriveImplementationAuthorization(
     status: blockers.length === 0 ? 'authorized' : 'blocked',
     authorized: blockers.length === 0,
     blockers,
+    gaps: [...implementationGaps, ...workspaceGaps],
   };
 }
 
@@ -1879,6 +2109,13 @@ export function validateGraph(graph, { root = process.cwd(), allowStoredStateDri
     }
     if (node.kind === 'workpack' && node.parent && map.get(node.parent)?.kind !== 'plan') {
       errors.push(`${node.id} workpack parent must be a plan`);
+    }
+    const workspaceRequirements = node.completion?.workspaceRequirements ?? node.metadata?.workspaceRequirements;
+    if (workspaceRequirements !== undefined) {
+      const workspaceErrors = workspaceRequirementSchemaErrors(workspaceRequirements, {
+        owner: `${node.id} completion.workspaceRequirements`,
+      });
+      errors.push(...workspaceErrors);
     }
     if (node.dependsOn !== undefined && !Array.isArray(node.dependsOn)) {
       errors.push(`${node.id} dependsOn must be an array`);

@@ -1,12 +1,22 @@
 use crate::{DispatchMode, EventingError, ExpectValue};
 
 use super::{
+    publisher::RootEventPublisher,
     reports::dead_letter::{DeadLetter, DeadLetterReason},
     EventBus, EventBusClearReport, EventBusShutdownReport, ShutdownMode,
 };
 
-impl EventBus {
+impl RootEventPublisher {
     pub async fn shutdown(
+        &self,
+        mode: ShutdownMode,
+    ) -> Result<EventBusShutdownReport, EventingError> {
+        self.bus.shutdown_internal(mode).await
+    }
+}
+
+impl EventBus {
+    async fn shutdown_internal(
         &self,
         mode: ShutdownMode,
     ) -> Result<EventBusShutdownReport, EventingError> {

@@ -12,7 +12,7 @@ pub mod service_identity;
 pub mod ssdp_upnp;
 pub mod windows_neighbors;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::atomic::AtomicBool, time::Instant};
 
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingDeviceRef,
@@ -265,6 +265,30 @@ pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_s
     )
 }
 
+pub fn discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer_with_cancellation(
+    identity_hint_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+    refresh_mode: LanDiscoveryRefreshMode,
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+    probe_suppression_devices: &[LanPairingDeviceRef],
+    selected_interface_scope: Option<&str>,
+    allowed_snmp_response_observer: AllowedSnmpResponseObserver<'_>,
+    cancellation: Option<&AtomicBool>,
+    deadline: Option<Instant>,
+) -> Vec<LanNetworkInventoryDevice> {
+    api::cancellation::discover_lan_network_devices_with_cancellation(
+        identity_hint_devices,
+        previous_devices,
+        refresh_mode,
+        active_refresh_suppression_devices,
+        probe_suppression_devices,
+        selected_interface_scope,
+        allowed_snmp_response_observer,
+        cancellation,
+        deadline,
+    )
+}
+
 pub fn plan_lan_discovery_scan_with_active_refresh_suppression(
     identity_hint_devices: &[LanPairingDeviceRef],
     previous_devices: &[LanNetworkInventoryDevice],
@@ -276,6 +300,24 @@ pub fn plan_lan_discovery_scan_with_active_refresh_suppression(
         previous_devices,
         refresh_mode,
         active_refresh_suppression_devices,
+    )
+}
+
+pub fn plan_lan_discovery_scan_until(
+    identity_hint_devices: &[LanPairingDeviceRef],
+    previous_devices: &[LanNetworkInventoryDevice],
+    refresh_mode: LanDiscoveryRefreshMode,
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+    deadline: Instant,
+    cancellation: &AtomicBool,
+) -> LanDiscoveryScanPlan {
+    api::cancellation::plan_lan_discovery_scan_until(
+        identity_hint_devices,
+        previous_devices,
+        refresh_mode,
+        active_refresh_suppression_devices,
+        deadline,
+        cancellation,
     )
 }
 

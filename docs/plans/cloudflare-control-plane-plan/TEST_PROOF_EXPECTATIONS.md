@@ -119,14 +119,19 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 
 ## Account authority storage handoff
 
-The Account WP08 producer transport is mapped at canonical source `c5ed3ce5c`.
-Cloudflare's bounded duplicate-key-rejecting decoder and private one-shot
-verifier are accepted at `da84e6ee3`, but no Account signer/public-key registry
-or authenticated producer service binding is available. Expected Cloudflare
-WP06 test roots remain unwritten:
+The Account WP08 producer transport is mapped at canonical source `c5ed3ce5c`,
+and Account WP09's durable issuer/key-registry/outbox core is integrated at
+`4f6245e51`. Cloudflare's bounded duplicate-key-rejecting decoder and private
+one-shot WP08 inner-wire verifier are accepted at `da84e6ee3`. Live caller
+tracing nevertheless finds no Account protected signer, binding/delivery
+adapter, production caller, authenticated current-key handoff, or Cloudflare
+issuer consumer/runtime. Expected Cloudflare WP06 test roots remain unwritten:
 
 ```text
 infra/cloudflare/tests/unit/account-identity-authority-producer-transport.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-issuer-transport.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-issuer-key-registry.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-issuer-runtime.test.ts
 infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts
 infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts
 infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts
@@ -135,8 +140,8 @@ infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts
 ```
 
 The private transport verifier and JSON decoder are production-source roots,
-not test substitutes. The six expected test roots must cover the Account
-service-binding adapter, durable public-key registry,
+not test substitutes. The nine expected test roots must cover the Account
+service-binding/delivery adapter, durable public-key registry,
 key-id hash checking and rotation/revocation, bounded canonical wire parsing,
 signature and timestamp checks, verified-provider subject binding without
 Firebase authority substitution, D1 currentness/revocation/CAS and

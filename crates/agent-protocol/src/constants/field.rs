@@ -289,6 +289,7 @@ pub const LAN_AI_JOB_STATUS: &str = "lanAiJobStatus";
 pub const LAN_AI_JOB_STATE: &str = "lanAiJobState";
 pub const LAN_DISCOVERY_STATE: &str = "discoveryState";
 pub const LAN_DISCOVERY_STATUS: &str = "discoveryStatus";
+pub const LAN_PASSIVE_DISCOVERY_RUNTIME_CAPABILITY: &str = "lanPassiveDiscoveryRuntimeCapability";
 pub const LAN_ADD_DEVICE_READ_MODEL: &str = "addDeviceReadModel";
 pub const LAN_ADD_DEVICE_STATE: &str = "addDeviceState";
 pub const LAN_RUNTIME_EVENT_CHAIN_STREAM: &str = "lanRuntimeEventChainStream";

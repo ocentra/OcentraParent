@@ -17,7 +17,7 @@ use crate::{
 #[path = "scan_history/write_lock.rs"]
 pub(crate) mod write_lock;
 
-use write_lock::scan_history_write_lock;
+use write_lock::{scan_history_write_lock, ScanHistoryLockKind};
 
 pub(crate) const LAN_SCAN_HISTORY_SCHEMA_VERSION: u16 = 2;
 const LAN_SCAN_HISTORY_FILE_SUFFIX: &str = "-lan-scan-history.json";
@@ -34,26 +34,11 @@ impl From<&Path> for LanScanHistoryRegistryPath {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct LanScanHistoryDir(PathBuf);
-
-impl AsRef<Path> for LanScanHistoryDir {
-    fn as_ref(&self) -> &Path {
-        self.0.as_path()
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct LanScanHistoryPath(PathBuf);
 
 impl AsRef<Path> for LanScanHistoryPath {
     fn as_ref(&self) -> &Path {
         self.0.as_path()
-    }
-}
-
-impl LanScanHistoryPath {
-    fn parent_dir(&self) -> Option<LanScanHistoryDir> {
-        self.0.parent().map(PathBuf::from).map(LanScanHistoryDir)
     }
 }
 
@@ -115,6 +100,16 @@ pub(crate) fn load_scan_history_snapshot(
     scan_history_path(runtime).and_then(|path| read_scan_history(&path))
 }
 
+pub(crate) fn scan_history_execution_lock(
+    runtime: &LanPairingRuntime,
+) -> Option<write_lock::CrossProcessPathLock> {
+    let path = scan_history_path(runtime)?;
+    if let Some(parent) = path.as_ref().parent() {
+        fs::create_dir_all(parent).ok()?;
+    }
+    write_lock::cross_process_path_lock(&path, ScanHistoryLockKind::Execution)
+}
+
 pub(crate) fn save_scan_history(
     runtime: &LanPairingRuntime,
     devices: &[LanNetworkInventoryDevice],
@@ -123,7 +118,7 @@ pub(crate) fn save_scan_history(
     let Some(path) = scan_history_path(runtime) else {
         return false;
     };
-    if let Some(parent) = path.parent_dir() {
+    if let Some(parent) = path.as_ref().parent() {
         let _ = fs::create_dir_all(parent);
     }
     let Some(_lock) = scan_history_write_lock(&path) else {

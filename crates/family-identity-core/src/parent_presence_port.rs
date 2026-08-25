@@ -1,14 +1,17 @@
 use std::path::PathBuf;
 
 use crate::parent_presence::{
-    ParentPresenceChallengeIssuanceFailureReason, ParentPresenceCustodyDecisionArtifact,
-    ParentPresenceObservedAt, ParentPresenceStorageFailureReason,
-    ParentPresenceVerificationAccepted, ParentPresenceVerificationFailureReason,
-    ParentPresenceVerificationInput, ParentPresenceVerificationPort,
+    ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
+    ParentPresenceCustodyDecisionArtifact, ParentPresenceObservedAt,
+    ParentPresenceStorageFailureReason, ParentPresenceVerificationAccepted,
+    ParentPresenceVerificationFailureReason, ParentPresenceVerificationInput,
+    ParentPresenceVerificationPort,
 };
 use crate::parent_presence_event_delivery::ParentPresenceDecisionDelivery;
 use crate::parent_presence_port_decision::finish_parent_presence_verification;
-use crate::parent_presence_store::{ConsumeChallengeResult, ParentPresenceStore};
+use crate::parent_presence_store::{
+    ConsumeChallengeResult, ParentPresenceStore, ParentPresenceStoreIssueError,
+};
 use crate::trust_bootstrap_validation::parent_presence_verification_failure_reason;
 
 #[path = "parent_presence_port_step_up.rs"]

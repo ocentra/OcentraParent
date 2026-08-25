@@ -11,7 +11,7 @@ use ocentra_storage_custody_core::storage_custody::{
     StorageCustodyEffectKind, StorageCustodyInput,
 };
 
-use super::child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow;
+use crate::child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow;
 
 #[path = "storage_custody_effect_store.rs"]
 mod storage_custody_effect_store;

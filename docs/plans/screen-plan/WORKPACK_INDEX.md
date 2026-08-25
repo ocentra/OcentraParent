@@ -35,7 +35,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | checked | [34 OCR Tesseract Baseline](workpacks/34-ocr-tesseract-baseline.md)                                                   | 2,639 | 6/6 checked; 0 open   |
 | checked | [35 OCR PaddleOCR PP-OCR Evaluation](workpacks/35-ocr-paddleocr-ppocr-evaluation.md)                                  | 4,622 | 6/6 checked; 0 open   |
 | checked | [36 Small VLM Guided Classifier Evaluation](workpacks/36-small-vlm-guided-classifier-evaluation.md)                   | 4,011 | 7/7 checked; 0 open   |
-| checked | [37 Household Mesh Screen Analysis Queue](workpacks/37-family-ai-hub-screen-analysis-queue.md)                        | 1,216 | 6/6 checked; 0 open   |
+| blocked/source-incomplete | [37 Household Mesh Screen Analysis Queue](workpacks/37-family-ai-hub-screen-analysis-queue.md) | 1,216 | 0/6 checked; 6 open; authenticated provider, durable custody/result ownership, and service composition remain unavailable |
 | checked | [38 Local AI Resource Scheduler Priority Queue](workpacks/38-local-ai-resource-scheduler-priority-queue.md)           | 1,702 | 6/6 checked; 0 open   |
 | checked | [40 Detector Prompt Packs And Schema Tests](workpacks/40-detector-prompt-packs-and-schema-tests.md)                   | 1,039 | 6/6 checked; 0 open   |
 | open    | [01 Source Index And Doc Reconciliation](workpacks/01-source-index-and-doc-reconciliation.md)                         |   945 | 0/6 checked; 6 open   |

@@ -34,6 +34,13 @@ pub(super) fn migration_execution_readiness(
             None,
             None,
         ),
+        contracts::ExportImportMigrationState::RequiredUnsupported => (
+            contracts::ExportImportMigrationExecutionState::ManualRequired,
+            Some(
+                contracts::ExportImportMigrationExecutionDependency::SupportedMigrationPath,
+            ),
+            Some(MIGRATION_PATH_REQUIRED_NOTE.to_string()),
+        ),
         _ if migration_ref.is_none() => (
             contracts::ExportImportMigrationExecutionState::ManualRequired,
             Some(

@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use ocentra_eventing::bus::{publisher::EventPublisher, EventBus};
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore,
     screen_event_runtime::{
@@ -35,6 +36,7 @@ struct ScreenAiDeletionState(String);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) enum ScreenAiServiceEventBridgeError {
+    RuntimeOwnerUnavailable,
     RawImageRetained,
     MissingPolicyDecision,
     MissingPolicyAction,
@@ -45,12 +47,14 @@ pub(crate) enum ScreenAiServiceEventBridgeError {
 }
 
 pub(crate) async fn publish_screen_service_row_event_chain(
+    publisher: &EventPublisher,
+    target_bus: &EventBus,
     row: ActivityScreenReadModelRow,
     observed_at: ObservedAtText,
     refs: ScreenAiServiceEventBridgeRefs,
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
     let input = screen_runtime_input_from_service_row(row, refs)?;
-    publish_screen_runtime_chain_for_input(input, observed_at.0.as_str())
+    publish_screen_runtime_chain_for_input(publisher, target_bus, input, observed_at.0.as_str())
         .await
         .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
@@ -66,13 +70,20 @@ pub(crate) async fn publish_screen_capture_queue_event_chain(
 }
 
 pub(crate) async fn publish_screen_degraded_event_chain(
+    publisher: &EventPublisher,
+    target_bus: &EventBus,
     row: ActivityScreenReadModelRow,
     observed_at: ObservedAtText,
 ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
     let input = screen_runtime_degraded_input_from_service_row(row)?;
-    publish_screen_degraded_event_chain_for_input(input, observed_at.0.as_str())
-        .await
-        .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
+    publish_screen_degraded_event_chain_for_input(
+        publisher,
+        target_bus,
+        input,
+        observed_at.0.as_str(),
+    )
+    .await
+    .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
 }
 
 pub(crate) async fn publish_screen_capture_queue_events_for_queue_job(

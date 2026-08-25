@@ -9,6 +9,7 @@ import { createAccountIdentityAuthorityCaller } from './account-identity-authori
 import { createBrowserSessionStore } from '../storage/account-browser-session-store.js';
 import { browserSessionCookieNames, browserSessionRole, readCookie } from '../storage/account-browser-session-codec.js';
 import { getAuthStateModel, type AuthState } from './model.js';
+import { webhookProviderForPath } from '../routes.js';
 import {
   PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS,
   resolveProviderWebhookName,
@@ -154,14 +155,6 @@ function requireParentRoleCapability(result: AuthResult, authState: AuthState): 
     return forbidden('parent-role-capability-required', authState);
   }
   return result;
-}
-
-function providerFromPathname(pathname: string): string | null {
-  if (!pathname.startsWith('/webhooks/')) {
-    return null;
-  }
-  const provider = pathname.slice('/webhooks/'.length).trim();
-  return provider.length > 0 ? provider : null;
 }
 
 function providerWebhookHeaderName(provider: string): string | null {
@@ -483,7 +476,7 @@ export function createAuthVerifier(env: Env, providerVerifier?: ProviderVerifica
 }
 
 export function signatureHeaderName(pathname: string): string {
-  const provider = providerFromPathname(pathname);
+  const provider = webhookProviderForPath(pathname);
   if (!provider) {
     return 'x-goog-signature';
   }
@@ -515,7 +508,7 @@ export async function verifyAuthState(
     case 'verifySupport':
       return verifier.verifySupport(request);
     case 'verifyProviderWebhook': {
-      const provider = resolveProviderWebhookName(providerFromPathname(new URL(request.url).pathname) ?? '');
+      const provider = resolveProviderWebhookName(webhookProviderForPath(new URL(request.url).pathname) ?? '');
       if (!provider) {
         return manualRequired('provider-webhook-signature-required', PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.unsupported);
       }

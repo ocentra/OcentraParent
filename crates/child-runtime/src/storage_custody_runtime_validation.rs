@@ -63,17 +63,17 @@ pub(crate) fn validate_effect_record_shape(
         .map_err(|error| {
             invalid_custody(&format!("durable custody envelope decode failed: {error}"))
         })?;
+    let expected_aggregate_key = record
+        .action
+        .aggregate_key()
+        .map_err(ChildAgentServiceError::Runtime)?;
+    let expected_idempotency_key = record
+        .action
+        .idempotency_key()
+        .map_err(ChildAgentServiceError::Runtime)?;
     if decoded.payload() != &record.action
-        || &record.envelope.aggregate_key
-            != &record
-                .action
-                .aggregate_key()
-                .map_err(ChildAgentServiceError::Runtime)?
-        || &record.envelope.idempotency_key
-            != &record
-                .action
-                .idempotency_key()
-                .map_err(ChildAgentServiceError::Runtime)?
+        || decoded.aggregate_key() != &expected_aggregate_key
+        || decoded.idempotency_key() != &expected_idempotency_key
     {
         return Err(invalid_custody(
             "durable custody effect envelope identity is invalid",

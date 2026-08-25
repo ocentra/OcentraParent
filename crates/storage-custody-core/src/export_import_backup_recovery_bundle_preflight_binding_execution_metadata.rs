@@ -72,11 +72,11 @@ impl RestoreExecutionBinding {
         self.migration_state
     }
 
-    pub fn reserve_dispatch(
-        &self,
-        execution_ref: &contracts::ExportImportExecutionRef,
+    pub fn reserve_dispatch<'a>(
+        &'a self,
+        execution_ref: &'a contracts::ExportImportExecutionRef,
         stage: RestoreExecutionStage,
-    ) -> Result<RestoreDispatchReservation<'_>, super::DispatchReservationError> {
+    ) -> Result<RestoreDispatchReservation<'a>, super::DispatchReservationError> {
         let key = format!("{}:{}", execution_ref.as_str(), stage.as_str());
         let mut reservations = self
             .dispatch_reservations

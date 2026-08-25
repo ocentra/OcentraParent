@@ -10,7 +10,9 @@ use super::security_effect_codes::owner_effect_from_code;
 use super::security_entropy::opaque_id;
 use super::support_recovery_kind_from_label::recovery_kind_from_label;
 use super::support_recovery_kind_label::recovery_kind_label;
-use super::{InviteRecoveryRepositoryError, RecoveryCompletion, RecoveryState};
+use crate::setup_lifecycle::{RecoveryKind, RecoveryState};
+
+use super::{InviteRecoveryRepositoryError, RecoveryCompletion};
 
 impl SqliteAccountIdentityAuthorityRepository {
     pub fn complete_recovery(
@@ -115,7 +117,7 @@ fn enqueue_handoff(
     recovery_id: &RecoveryId,
     authority: &VerifiedAccountIdentityAuthority,
     row: &ApprovedRecoveryRow,
-    kind: crate::recovery_lifecycle::RecoveryKind,
+    kind: RecoveryKind,
     transition_at: i64,
 ) -> Result<(), InviteRecoveryRepositoryError> {
     let handoff_id = opaque_id("handoff-")?;
@@ -140,5 +142,6 @@ fn enqueue_handoff(
                 transition_at,
             ],
         )
+        .map(|_| ())
         .map_err(|_| InviteRecoveryRepositoryError::Unavailable)
 }
