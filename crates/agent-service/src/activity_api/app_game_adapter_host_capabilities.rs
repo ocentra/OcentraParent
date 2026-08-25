@@ -17,6 +17,7 @@ pub(super) struct EvidenceRefs(pub(super) Vec<String>);
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct ProbeRefs(pub(super) Vec<String>);
 
+#[derive(Clone, Debug)]
 pub(super) struct HostCapabilitySignals {
     pub(super) android_adb: bool,
     pub(super) android_adb_path: bool,
@@ -36,6 +37,14 @@ impl HostCapabilitySignals {
                 .any(|available| available),
             android_adb_path,
             android_adb_sdk,
+        }
+    }
+
+    pub(super) fn unavailable() -> Self {
+        Self {
+            android_adb: false,
+            android_adb_path: false,
+            android_adb_sdk: false,
         }
     }
 

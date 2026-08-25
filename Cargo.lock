@@ -2794,6 +2794,8 @@ dependencies = [
  "base64",
  "chrono",
  "ed25519-dalek",
+ "file-id",
+ "nix",
  "ocentra-app-game-core",
  "ocentra-child-runtime",
  "ocentra-eventing",
@@ -2808,11 +2810,13 @@ dependencies = [
  "ocentra-schema",
  "ocentra-screen-ai-core",
  "ocentra-screen-live-view-core",
+ "rustix 1.1.4",
  "serde",
  "serde_json",
  "sha2",
  "tokio",
  "tower-http",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
