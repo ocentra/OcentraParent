@@ -51,27 +51,32 @@ WP04 uses WP01 event and retention classes.
 WP05 uses WP02/WP04 bundle, key, and retention rules.
 WP06 uses WP01/WP04 derived data and deletion behavior.
 WP08 uses WP03/WP05/WP06 states for parent-visible settings and depends on
-Account WP05's durable opaque-effect CAS/recovery handoff before confirmation
-staging/consume can reach `Applied` or `Partial`.
+Account WP05A's durable multi-owner opaque-effect CAS/recovery handoff before
+confirmation staging/consume can reach `Applied` or `Partial`; WP05 remains
+the Data base authority consumer only.
 WP05 owns the remaining source packet in three legal layers: schema durable
 backup/schedule/job/migration/rollback contracts; pure
 storage-custody-core decisions/orchestration; and parent-runtime-core durable
 scheduler/job and restore/migration ledgers, restart reconciliation,
 executor/rollback mount, and Eventing/outbox composition. It consumes only
 opaque Account/family authority, key/decrypt capability, provider-neutral
-adapter, and producer ports.
-WP09 consumes the WP05 base plus WP02/WP03/WP04, Account WP05, and exact
+adapter, and producer ports. WP05 does not own Account's multi-owner effect/CAS
+recovery coordinator or its typed Data handoff.
+WP09 consumes the WP05 base plus WP02/WP03/WP04, Account WP05's base authority
+consumer seam, Account WP05A's multi-owner coordinator/recovery handoff, and exact
 Device Trust/Eventing handoffs; it remains a downstream pure byte-custody/
 provider-port route and does not own a second scheduler/job ledger or depend on
 WP11.
-WP10 consumes the WP05 base plus WP02/WP03/WP04, Account WP05/WP08, and exact
+WP10 consumes the WP05 base plus WP02/WP03/WP04, Account WP05's base authority
+consumer seam, Account WP05A's multi-owner coordinator/recovery handoff, and exact
 Device Trust/Eventing/data-class producer handoffs; it remains a downstream
 pure producer-handoff route and does not own a second restore/migration ledger,
 fabricate receipts, or depend on WP09/WP11.
 WP11 consumes WP05 base, WP09 provider operation capability, WP10 outcomes,
-Account WP05 true authority transaction/CAS, key/import custody, and the
-producer-owned artifact-custody handoff. It is blocked until those owners are
-available and never becomes a prerequisite of WP09 or WP10.
+the Account WP05 base authority transaction/CAS consumer seam, the Account
+WP05A multi-owner coordinator/recovery typed Data handoff, key/import custody,
+and the producer-owned artifact-custody handoff. It is blocked until those
+owners are available and never becomes a prerequisite of WP09 or WP10.
 WP07 is last and consumes all previous proof roots.
 ```
 

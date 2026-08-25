@@ -10229,7 +10229,7 @@
       "expectedTestRoots": [
         "crates/storage-custody-core/tests/unit/parent_local_bundle_provider_runtime.rs"
       ],
-      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, job retry/restart custody, and provider-neutral adapter are not implemented yet."
+      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, job retry/restart custody, and provider-neutral adapter are not implemented yet. Direct dependencies retain the WP05 base authority-consumer seam and add Account WP05A's multi-owner coordinator/recovery typed Data handoff for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions; WP05A is the owner-coordinator route, not WP05. Remote-view/remote-control capability and controller-lease reservations are outside this Data route."
     },
     "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs": {
       "planSlug": "data-custody-storage-plan",
@@ -10244,7 +10244,7 @@
       "expectedTestRoots": [
         "crates/storage-custody-core/tests/unit/restore_orchestration_and_producer_handoffs.rs"
       ],
-      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes."
+      "note": "New routed source-and-test owner from the 2026-08-17 live-code audit. Both reviewed planned roots are absent: durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes. Direct dependencies retain the WP05 base authority-consumer seam and add Account WP05A's multi-owner coordinator/recovery typed Data handoff for ExportDeleteData/ImportRestoreData-style ParentOwner plus step-up actions; WP05A is the owner-coordinator route, not WP05. Remote-view/remote-control capability and controller-lease reservations are outside this Data route."
     },
     "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount": {
       "planSlug": "data-custody-storage-plan",

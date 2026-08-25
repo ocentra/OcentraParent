@@ -54,7 +54,7 @@ source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
 9. WP40-WP42 artifact/runtime governance.
 10. WP30/WP31/WP38 screen OCR/VLM execution.
 11. WP33-WP36 feature bridges, then WP43-WP47 product/security/performance.
-11. WP48 rollout only after all Phase 1 gaps are closed.
+12. WP48 rollout only after all Phase 1 gaps are closed.
 
 ## PR readiness guard
 

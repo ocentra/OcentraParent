@@ -266,11 +266,14 @@ WP11's planned roots are only:
 - `crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs`
 - `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`
 
-WP11 cannot advance until Account WP05 supplies the true authority
-transaction/CAS and recovery owner, key/import custody is owner-resolved,
-producer artifact custody is available, WP09 supplies provider operation
-capability, and WP10 supplies owner-derived outcomes. WP09 and WP10 now depend
-on the WP05 base only and remain independent of WP11, so the route is acyclic.
+WP11 cannot advance until Account WP05 supplies the base authority
+transaction/CAS consumer seam and Account WP05A supplies the durable
+multi-owner effect/CAS coordinator, recovery owner, and typed Data handoff;
+key/import custody is owner-resolved, producer artifact custody is available,
+WP09 supplies provider operation capability, and WP10 supplies owner-derived
+outcomes. WP09 and WP10 retain the direct WP05 base dependency and add the
+direct WP05A coordinator/recovery dependency; they remain independent of WP11,
+so the route is acyclic.
 No private trait is made public, and no runtime completeness, proof, PR
 readiness, or plan completion is claimed.
 

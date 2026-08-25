@@ -240,9 +240,11 @@ test expects true/true. That discrepancy is carried into the later test-source
 wave and must be resolved from the custody contract before any test execution.
 
 No honest WP05-only production edit closes the remaining route. The next code
-order is Account WP05 current authority/fencing, Data WP09 byte custody, WP10
-producer handoffs, WP11 composition/mount, and then a real runtime caller. This
-audit makes no test, proof, validation, runtime-ready, or `DONE` claim.
+order is Account WP05 base authority/fencing, Account WP05A's durable
+multi-owner effect/CAS coordinator and recovery typed handoff, Data WP09 byte
+custody, WP10 producer handoffs, WP11 composition/mount, and then a real runtime
+caller. This audit makes no test, proof, validation, runtime-ready, or `DONE`
+claim.
 
 ## Candidate source acceptance (tests and proof unresolved)
 
@@ -274,12 +276,14 @@ parent-runtime roots:
 - `crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs`
 - `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`
 
-WP09 and WP10 consume this WP05 base layer independently. They must not depend
-on or implement WP11 composition, duplicate the WP05 ledgers, publicize private
-mount traits, or treat source presence as runtime completion. Account WP05's
-true authority transaction/CAS, key/import custody, producer artifact custody,
-WP09 provider operation capability, and WP10 owner outcomes remain external
-composition gates for WP11.
+WP09 and WP10 consume this WP05 base layer independently and retain a direct
+dependency on Account WP05A's multi-owner coordinator/recovery typed Data
+handoff. They must not depend on or implement WP11 composition, duplicate the
+WP05 ledgers, publicize private mount traits, or treat source presence as runtime
+completion. Account WP05 supplies the base authority transaction/CAS consumer
+seam; Account WP05A supplies the durable effect/recovery coordinator; key/import
+custody, producer artifact custody, WP09 provider operation capability, and
+WP10 owner outcomes remain external composition gates for WP11.
 
 ## Proof artifacts
 
