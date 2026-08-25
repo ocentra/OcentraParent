@@ -1,22 +1,55 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-23 after canonical graph dependency reviews at
-`1595bb38b9e77c19d8000ce5c5b344de91ff7b35` (parent
-`007654fb69f188c75ff1de6470e89bfd28903a52`) and this residual-source
-disposition review. This supersedes the retained 2026-08-19 and
-2026-08-18 snapshots below.
+Snapshot: 2026-08-25 during the source-consolidation wave, based on canonical
+parent `2e46e1f2e42d35fe0b22d81bc486db8122ad5ad0`. This supersedes the
+retained 2026-08-24, 2026-08-23, 2026-08-19, and 2026-08-18 snapshots below.
+Exact older branch and worktree inventories remain labelled historical.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
 claim. Refresh Git ancestry and patch identity before deleting any ref.
 
+## Live consolidation inventory — 2026-08-25
+
+The following facts were refreshed after `git fetch origin --prune` from the
+canonical E-drive integration worktree:
+
+- canonical is clean, pushed, and equal to
+  `origin/codex/eventing-wp09-production` at `2e46e1f2e42d35fe0b22d81bc486db8122ad5ad0`;
+- canonical is `0` behind / `575` ahead of `origin/main` and `0` behind / `572`
+  ahead of `origin/develop` by commit reachability;
+- GitHub reports zero open pull requests;
+- `152` `origin/codex/*` refs exist: `109` have zero patch-unique commits against
+  canonical and `43` have one or more, including the two retained archive refs;
+- the non-archive patch-unique set contains `95` distinct commit objects across
+  active, rejected, superseded, and semantically integrated packets; patch
+  uniqueness alone is not integration authority;
+- `177` registered worktrees exist, `175` clean and `2` dirty. The dirty states
+  are the root checkout's untracked `.codex/config.toml` and the independent AI
+  WP03 review overlay, whose 49 staged files are recoverable from pushed repair
+  refs;
+- `182` local branches exist. None of the branches with an upstream is ahead of
+  that upstream. All `26` branches without an upstream have heads reachable
+  from at least one remote ref, so no committed change is known to exist only
+  locally;
+- one stash remains: `stash@{0}` / `9d50f11211fd5755d0707e231b0c514f3c2472b0`,
+  an AppGame WP197 repair checkpoint touching eight production/Cargo paths plus
+  stale workpack/graph files. It remains preserved pending exact semantic
+  comparison with the independently reviewed round-4 packet.
+
+No ref, stash, branch, or worktree in this inventory is authorized for deletion.
+First finish semantic disposition and canonical integration, promote the
+plan-sized result through `develop` to `main`, create a fresh archive that
+contains every then-current exact tip, and repeat the PR/dirty/claim/patch
+checks.
+
 ## Protected branch and integration truth
 
 | Ref | Head | Custody state |
 | --- | --- | --- |
-| `origin/main` | `eb4e66a791` | Release baseline. It has no commit missing from consolidation and is 462 commits behind this snapshot. |
-| `origin/develop` | `4ece515282` | Promotion baseline. It has no commit missing from consolidation and is 459 commits behind this snapshot. |
-| `origin/codex/eventing-wp09-production` | `1595bb38b9e77c19d8000ce5c5b344de91ff7b35`; parent `007654fb69f188c75ff1de6470e89bfd28903a52` | Canonical source-consolidation line after the Account/Device and Cloudflare/Policy/Payment graph reviews. Expected tests remain deliberately deferred until the source wave is complete. |
+| `origin/main` | `eb4e66a791` | Historical release baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim main parity. |
+| `origin/develop` | `4ece515282` | Historical promotion baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim develop parity. |
+| `origin/codex/eventing-wp09-production` | Source-consolidation head `2e46e1f2e42d35fe0b22d81bc486db8122ad5ad0` | Canonical source-consolidation line. Browser WP06 fail-closed custody, LAN WP07 deadline source, Cloudflare WP02 origin validation, and their current truth updates are integrated. Their expected tests and later acceptance gates remain open. Protected Custody remains fail-closed with its OS/installer adapters, real caller, and tests open. |
 | `origin/production` | `683a07cf31` | Historical production ref; not the current integration line. |
 | archive refs | `ac9f65bb4a`, `405e7fc77e` | Coverage for historical local/remote tips. Retain through source/test consolidation and promotion. |
 
@@ -24,7 +57,7 @@ Open pull requests at this snapshot: **0**. No source packet is allowed to skip
 independent review, the later expected-test wave, focused validation,
 precommit, or CI merely because it is pushed.
 
-## Current residual source disposition — 2026-08-23
+## Current residual source disposition — 2026-08-24
 
 This is the current commit-level disposition for the reviewed residual packets.
 It records custody and integration decisions only; it does not promote a
@@ -37,19 +70,26 @@ cherry-pick any stale branch tip wholesale.
 | Device Trust wave: `59153e9479979f026c0a5ad1473de39381c587a6`, `2c68aa47e` | Already present/hardened in canonical source. Reject any public caller-key authority; no stale-wave cherry-pick. |
 | Cloudflare runtime wave: `44812e88effa2890c82f9d9251561917f238aeb8`, `1dc274687309a739dd0788430b4b129098d9557b`, `abcdb4f1a562cd18694720f088ca87c71f13008a` | `44812e88e` rejected; `1dc274687` source is present but unmounted; `abcdb4f1` is a duplicate decoder. No branch-tip replay. |
 | Account WP05A/CAS: `9e83c4d86eb44204fc7cacfeea5630f5c0342c66` | Only three dormant CAS repository/schema/recovery files are conditionally salvageable. They are not an authorization fence and do not justify runtime readiness. |
+| Account WP09 runtime: `d496f08a7f5feca35d5d1479e983566924e3801c` | Rejected as production runtime. The protected-signer wrapper accepts a caller-supplied trait object instead of consuming Protected Custody, the sealed Cloudflare port has no real implementor or response-construction path, and no production caller reaches the runtime. Its current-key-record binding may be reconsidered only as part of a real owner-adapter packet; do not integrate this branch. |
 | Data custody wave: `704878792baa1e7d53c08c5a6e07e1d4e637b800`, `f5cd2d680`, `78f01911f186f6d7ddc7a82fdf5b13051ebe336f` | `704878792` contains an unsafe race/drop path; `f5cd2d680` and the `78f01911` wave duplicate/supersede that source. No direct merge. |
 | Data WP05 variants: `f04f254cf`, `490cd6622`, `bfb85f51` | Duplicate/superseded custody variants; retain for audit until canonical/main disposition is recorded. |
 | Data WP05 follow-on: `444d74699` | Base source is mostly present, but its caller seam is unsafe. Do not promote or use it as a trusted composition. |
 | Data docs/authority variants: `8a92cce1f`, `ec129d668`, `8da579cc70245a3c822045f8a8a74d929fb311a9`, `e9d729d5` | `8a92cce1` is docs-only; `ec129d668` is caller-selected authority/drop and rejected; `8da579cc7` effect-ledger alternate and `e9d729d5` mount contract are dropped. No direct integration. |
-| Data WP08 ordered source: `2d826b6c2bc1de807fea6c6d1f406a6310df1122` → `60973ed54118a76aaa2f5708b78f7fa5b88dfa63` → `19c0b492` → `7c232efbfb1c4c4c5f227332e3a66734432276fe` | Genuinely missing production source, but blocked behind Account WP05. Any future packet must repair atomic effect-consume/staging semantics before tests or readiness. |
+| Data WP08 ordered source: `2d826b6c2bc1de807fea6c6d1f406a6310df1122` → `60973ed54118a76aaa2f5708b78f7fa5b88dfa63` → `19c0b492` → `7c232efbfb1c4c4c5f227332e3a66734432276fe` | Held and rejected for current integration. The only CAS fence is the explicit unavailable adapter, no production caller exists, Account effect consumption and confirmation staging are separate, and confirmation is terminally consumed before the Data executor receives the handoff. Preserve for narrow redesign only after Account WP05 provides a durable owner/coordinator with recoverable staging and completion semantics. |
 | Screen producer residual: `c02334244e7032a67bdc034e4a428bac8613f296` | Do not cherry-pick wholesale. Later salvage is limited to `crates/agent-service/src/screen_managed_browser_cdp_runtime.rs`; composition/caller source is still missing. Skip `structured_extraction.js` (format/comment-only equivalent). |
+| Protected Custody WP01: `3d8231e796c1a5e303ef8f2084f9980277c69b86` | Independently approved and source-integrated in this snapshot. The service is deliberately unavailable before state creation; safe pinned process/token observation, exact protected registry custody, non-restorable monotonic authority, installer/SCM enrollment, a real caller, tests, and proof remain open. |
+| Device Trust WP01 participant: `5f0280f711a6d66c96338e45382d17594aca39aa` | Rejected and quarantined. Its runtime-fence files are byte-identical to withdrawn `f5974c795`; same-user SQLite mutation plus an unkeyed digest can fabricate completion, and migration/retention are absent. Do not integrate. |
+| Cloudflare WP02: `29172d2e5b19ec6b7beaa72cd8b2c416896cb026` | Tree-identical to canonical after exact transplant. Preserve until final cleanup checks, but no integration is required and it carries no unique source. |
+| AppGame WP197: `75dbad64ca5354205659171df948cf097b016289` | Independently rejected and under source repair for environment poisoning, executable identity/TOCTOU, Unix cancellation cleanup, unauthenticated LAN triggering, and permissive daemon-output parsing. Do not integrate this head. |
+| Browser WP06: rejected `5671c06a2de873b15f71aa9fe961b8fc441a7961`; accepted safety correction `93f875134d19133123b5c2da8000841d728f54de` | The superseding source packet is independently accepted and narrowly integrated: caller-mintable JSON/path authority, public store config/record, env/temp-dir mutation, and rejected path-only helpers are removed. Store operations fail closed with no successful custody state. Protected owner/platform adapters, production caller, stale tests, proof, and WP07 owner-bound launch composition remain open. Do not merge either stale branch tip wholesale. |
+| LAN WP07: repaired packet `bf48d99100b8e96f0dc6763952b9e9ee5f003e55`; canonical integration `ffaade68acec17325ac7b159bbd266b95a94561a` | Independently reviewed source accepted and integrated narrowly. The stale branch tip must not be merged again. Slow-trickle/zero-deadline timing, socket-timeout restoration on success/error/unwind, six-listener rotation/cancellation tests, physical packet proof, and final validation remain open. |
 
 Archives and all residual/local branches remain preserved. No remote or local
 branch/worktree deletion is authorized by this review; cleanup waits for
 canonical promotion through `develop` to `main`, then fresh PR/local-dirty,
 ancestry/patch-identity, and Enforcer-claim checks.
 
-## Current remote branch disposition
+## 2026-08-23 remote branch disposition snapshot
 
 There are 64 non-archive `origin/codex/*` refs including canonical, plus two
 archive coverage refs:
@@ -158,7 +198,7 @@ patch custody:
 - `codex/eventing-wp11-typed-delivery`
 - `codex/payment-source-wave`
 
-## Current registered E-drive worktrees
+## 2026-08-23 registered E-drive worktree snapshot
 
 There are 55 registered Ocentra Parent worktrees. At the pre-commit audit:
 

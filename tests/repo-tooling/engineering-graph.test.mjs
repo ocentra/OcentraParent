@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { chmod, copyFile, mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
@@ -387,10 +387,10 @@ test('implementation evidence rejects directories and traversal paths', async ()
     ],
   };
   for (const [reference, expected] of [
-    ['src', /implementation: path is not a regular file src/u],
+    ['src', /implementation: unsupported executable evidence path src/u],
     ['../outside.rs', /implementation: path must be repository-relative/u],
     ['src/runtime.test.mjs', /implementation: test path is not production implementation/u],
-    ['docs/evidence.md', /implementation: documentation is not executable evidence/u],
+    ['docs/evidence.md', /implementation: unsupported executable evidence path docs\/evidence\.md/u],
     ['src/runtime.txt', /implementation: unsupported executable evidence path/u],
   ]) {
     await writeFile(
@@ -584,7 +584,13 @@ test('reviewed implementation gates authorize source edits without changing norm
       states,
       workpackMapping: { codeExpectation: 'code-and-tests', roots: ['scripts'] },
     }),
-    { phase: 'implementation', status: 'authorized', authorized: true, blockers: [] }
+    {
+      phase: 'implementation',
+      status: 'authorized',
+      authorized: true,
+      blockers: [],
+      gaps: ['implementation: completion requirement is not declared'],
+    }
   );
 });
 
@@ -864,6 +870,7 @@ test('flattened matrix preserves plan, topology, dependency, and completion gaps
       codeExpectationSatisfied: true,
       implementationFiles: 2,
       testFiles: 1,
+      workspaceRequirementGaps: [],
       dependsOn: ['WP-example-00'],
       blockers: [{ id: 'WP-example-00', state: 'validation' }],
       unlocks: ['WP-example-02'],
@@ -1224,12 +1231,157 @@ test('code inventory rejects unknown expectations and empty required roots', asy
   await assert.rejects(() => buildCodeInventory({ root }), /must declare non-empty roots/);
 });
 
+test('workspace requirements fail closed for missing manifests, package identity, and targets', async () => {
+  const workpackId = 'WP-example-plan-01-workspace-requirements';
+  const packageManifest = 'crates/example/Cargo.toml';
+  const targetPath = 'crates/example/src/lib.rs';
+
+  async function makeWorkspaceFixture({
+    includeRootManifest = true,
+    includePackageManifest = true,
+    workspaceMembers = true,
+    declaredPackage = 'actual-package',
+    expectedPackage = declaredPackage,
+    requiredTarget = targetPath,
+    requiredTargetKind = 'lib',
+  } = {}) {
+    const root = await mkdtemp(path.join(os.tmpdir(), 'ocentra-engineering-graph-workspace-'));
+    await mkdir(path.join(root, 'docs', 'engineering-graph'), { recursive: true });
+    await mkdir(path.join(root, 'crates', 'example', 'src'), { recursive: true });
+    await mkdir(path.join(root, 'crates', 'example', 'tests'), { recursive: true });
+    if (includeRootManifest) {
+      await writeFile(
+        path.join(root, 'Cargo.toml'),
+        `[workspace]\nmembers = [${workspaceMembers ? '"crates/example"' : ''}]\nresolver = "2"\n`
+      );
+    }
+    if (includePackageManifest) {
+      await writeFile(
+        path.join(root, packageManifest),
+        `[package]\nname = "${declaredPackage}"\nversion = "0.1.0"\nedition = "2021"\n\n[lib]\npath = "src/lib.rs"\n`
+      );
+    }
+    await writeFile(path.join(root, targetPath), 'pub fn value() {}\n');
+    await writeFile(path.join(root, 'crates', 'example', 'tests', 'unit.rs'), '#[test]\nfn value() {}\n');
+    await writeFile(
+      path.join(root, 'docs', 'engineering-graph', 'code-map.json'),
+      JSON.stringify({
+        schemaVersion: 2,
+        authority: 'workspace requirements test map',
+        plans: { 'example-plan': ['crates/example'] },
+        workpacks: {
+          [workpackId]: {
+            planSlug: 'example-plan',
+            codeExpectation: 'code-and-tests',
+            roots: ['Cargo.toml', packageManifest, 'crates/example/src', 'crates/example/tests', requiredTarget],
+            workspaceRequirements: {
+              rootManifest: 'Cargo.toml',
+              packages: [
+                {
+                  manifest: packageManifest,
+                  package: expectedPackage,
+                  activeMember: true,
+                  requiredTargets: [{ kind: requiredTargetKind, path: requiredTarget }],
+                },
+              ],
+            },
+          },
+        },
+      })
+    );
+    return root;
+  }
+
+  const wrongPackageInventory = await buildCodeInventory({
+    root: await makeWorkspaceFixture({ expectedPackage: 'expected-package' }),
+  });
+  const wrongPackage = wrongPackageInventory.workpacks.find((workpack) => workpack.workpackId === workpackId);
+  assert.equal(wrongPackage.codeExpectationSatisfied, false);
+  assert.deepEqual(wrongPackage.workspaceRequirementGaps, [
+    `workspace: manifest ${packageManifest} declares package actual-package, expected expected-package`,
+    `workspace: required lib target ${targetPath} cannot be confirmed because package name is mismatched`,
+  ]);
+
+  const missingTargetInventory = await buildCodeInventory({
+    root: await makeWorkspaceFixture({ requiredTarget: 'crates/example/src/not-a-target.rs' }),
+  });
+  const missingTarget = missingTargetInventory.workpacks.find((workpack) => workpack.workpackId === workpackId);
+  assert.equal(missingTarget.codeExpectationSatisfied, false);
+  assert.deepEqual(missingTarget.workspaceRequirementGaps, [
+    'workspace: missing lib target path crates/example/src/not-a-target.rs',
+  ]);
+
+  const missingPackageInventory = await buildCodeInventory({
+    root: await makeWorkspaceFixture({ includePackageManifest: false, workspaceMembers: false }),
+  });
+  const missingPackage = missingPackageInventory.workpacks.find((workpack) => workpack.workpackId === workpackId);
+  assert.equal(missingPackage.codeExpectationSatisfied, false);
+  assert.deepEqual(missingPackage.workspaceRequirementGaps, [
+    `workspace: missing package manifest ${packageManifest}`,
+    `workspace: package actual-package is not registered by cargo metadata (${packageManifest})`,
+    `workspace: required lib target ${targetPath} cannot be confirmed because package actual-package is absent`,
+  ]);
+
+  const missingRootInventory = await buildCodeInventory({
+    root: await makeWorkspaceFixture({ includeRootManifest: false }),
+  });
+  const missingRoot = missingRootInventory.workpacks.find((workpack) => workpack.workpackId === workpackId);
+  assert.equal(missingRoot.codeExpectationSatisfied, false);
+  assert.deepEqual(missingRoot.workspaceRequirementGaps, ['workspace: missing root manifest Cargo.toml']);
+
+  const inactiveMemberRoot = await makeWorkspaceFixture({ requiredTargetKind: 'bin' });
+  const metadataFixtureDirectory = await mkdtemp(
+    path.join(os.tmpdir(), 'ocentra-engineering-graph-cargo-metadata-fixture-')
+  );
+  const metadataCommandPath = path.join(metadataFixtureDirectory, process.platform === 'win32' ? 'cargo.exe' : 'cargo');
+  const metadata = {
+    packages: [
+      {
+        name: 'actual-package',
+        manifest_path: path.join(inactiveMemberRoot, packageManifest),
+        id: 'fixture:actual-package',
+        targets: [
+          {
+            kind: ['lib'],
+            src_path: path.join(inactiveMemberRoot, targetPath),
+          },
+        ],
+      },
+    ],
+    workspace_members: [],
+  };
+  await writeFile(
+    path.join(inactiveMemberRoot, 'metadata'),
+    'process.stdout.write(process.env.CARGO_METADATA_FIXTURE);\n'
+  );
+  await copyFile(process.execPath, metadataCommandPath);
+  await chmod(metadataCommandPath, 0o755);
+  const previousPath = process.env.PATH;
+  const previousMetadata = process.env.CARGO_METADATA_FIXTURE;
+  process.env.PATH = `${metadataFixtureDirectory}${path.delimiter}${previousPath ?? ''}`;
+  process.env.CARGO_METADATA_FIXTURE = JSON.stringify(metadata);
+  try {
+    const inactiveMemberInventory = await buildCodeInventory({ root: inactiveMemberRoot });
+    const inactiveMember = inactiveMemberInventory.workpacks.find((workpack) => workpack.workpackId === workpackId);
+    assert.equal(inactiveMember.codeExpectationSatisfied, false);
+    assert.deepEqual(inactiveMember.workspaceRequirementGaps, [
+      `workspace: package actual-package is not an active workspace member (${packageManifest})`,
+      `workspace: package actual-package lacks required bin target ${targetPath}`,
+    ]);
+  } finally {
+    if (previousPath === undefined) delete process.env.PATH;
+    else process.env.PATH = previousPath;
+    if (previousMetadata === undefined) delete process.env.CARGO_METADATA_FIXTURE;
+    else process.env.CARGO_METADATA_FIXTURE = previousMetadata;
+  }
+});
+
 test('repository bootstrap is queryable and keeps plan scope isolated', async () => {
   const value = await loadGraph(repoRoot);
   const report = validateGraph(value, { root: repoRoot });
   assert.equal(report.ok, true, report.errors.join('; '));
 
-  assert.equal(value.nodes.filter((node) => node.kind === 'plan').length, 23);
+  assert.equal(value.nodes.filter((node) => node.kind === 'plan').length, 24);
   assert.ok(value.nodes.filter((node) => node.kind === 'workpack').length >= 500);
 
   const appContract = value.nodes.find((node) => node.id === 'WP-app-plan-01-contract-boundary-and-effect-schemas');
@@ -1301,7 +1453,7 @@ test('progress report joins derived workpack state with reviewed plan topology',
   const report = await buildProgressReport({ root: repoRoot });
   assert.equal(report.schemaVersion, 2);
   assert.equal(report.scope, 'GOAL-ocentra-parent');
-  assert.equal(report.totals.plans, 23);
+  assert.equal(report.totals.plans, 24);
   assert.ok(report.totals.workpacks >= 500);
   assert.equal(report.validation.ok, true);
   assert.ok(report.totals.implementationFiles > 0);

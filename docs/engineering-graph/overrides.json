@@ -2,6 +2,52 @@
   "schemaVersion": 2,
   "workpackReviews": [
     {
+      "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "hardDependencies": [],
+      "reason": "Independently reviewed fail-closed source now includes the core, neutral protocol, separate broker/client packages, active workspace targets, and narrow sealed admission facade. Protected Windows process/token/registry/monotonic adapters, installer/SCM enrollment, a real caller, expected tests, proof, and runtime availability remain absent. This review records source integration only; it does not claim normal READY, PR readiness, or DONE.",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-browser-plan-06-managed-profile-store",
+      "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+      ],
+      "reason": "Independent review rejected source-only head 5671c06a2: persisted JSON/path state is not authenticated owner authority, path custody is not retained, no-follow/TOCTOU coverage is incomplete, lifecycle mutation/recovery is inert, and no production caller exists. WP06 must remain blocked on the neutral protected-custody owner plus a repaired Browser adapter and five exact expected test roots; no integration, READY, proof, or DONE is claimed.",
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/NEXT_ACTIONS.md",
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-ai-plan-03-contract-boundary-and-effect-schemas",
+      "hardDependencies": [],
+      "reason": "Live source review confirms the old schema_domain_ai_wire roots are self/test-referenced agent-protocol compatibility shapes, not WP03's missing Rust-owned canonical cross-boundary AI contract family. A bounded source packet may add the crates/schema owner and real reachable consumer, while tests, proof, runtime/provider readiness, policy authority, and DONE remain open.",
+      "evidence": [
+        "docs/plans/ai-plan/PLAN_STATE.md",
+        "docs/plans/ai-plan/NEXT_ACTIONS.md",
+        "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
+      "hardDependencies": ["WP-ai-plan-03-contract-boundary-and-effect-schemas"],
+      "reason": "WP04 has partial local-AI/assistant Rust shapes, but complete protocol and generated edge parity cannot be accepted before WP03 owns the canonical general AI family. Source work may prepare an explicit consumer adapter; it must not duplicate schema ownership or create public re-export shims.",
+      "evidence": [
+        "docs/plans/ai-plan/PLAN_STATE.md",
+        "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+        "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-browser-plan-07-managed-chromium-launcher",
       "hardDependencies": ["WP-browser-plan-06-managed-profile-store"],
       "reason": "Canonical f80b47c6a is an accepted fail-closed source baseline: it removes unreachable service launch state, env/dev authority, placeholder polling, and Browser-to-Screen composition, leaving production status manual-required. The owner-issued retained runtime and integration test roots remain absent; existing tests are stale. This does not authorize runtime, normal READY, proof, PR readiness, or DONE.",
@@ -29,6 +75,7 @@
     {
       "id": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
       "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
         "WP-account-identity-family-plan-02-identity-household-role-model",
         "WP-account-identity-family-plan-03-session-token-lifecycle",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
@@ -114,20 +161,23 @@
     },
     {
       "id": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
-      "hardDependencies": [],
+      "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+      ],
       "evidence": [
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Reviewed as the family-owned foundation/source route for durable trusted-device/signer-key lifecycle state. WP01 is not a shipped authority issuer or production-caller route: tests, validation, proof, platform ceremony, and completion remain open. Account WP08 -> Cloudflare WP06 current-authority resolution must precede WP03's one-time RegisterLanSignerAnchor ceremony; WP02 is conditional for parent-runtime/platform sealing and revocation; LAN WP26 and child consumers follow WP03 and cannot mint signer authority."
+      "reason": "Reviewed as the family-owned foundation/source route for durable trusted-device/signer-key lifecycle state. The attempted private runtime-fence participant was rejected and withdrawn because same-user-writable SQLite rows plus an unkeyed digest allowed fabricated committed outcomes, existing databases had no explicit migration, and retention/startup scanning was unbounded. Protected Device-owned receipt/key custody, migration and retention owners, the Account WP05A caller, expected tests, functional validation, proof, platform ceremony, and completion remain open. Account WP08 -> Cloudflare WP06 current-authority resolution must precede WP03's one-time RegisterLanSignerAnchor ceremony; WP02 is conditional for parent-runtime/platform sealing and revocation; LAN WP26 and child consumers follow WP03 and cannot mint signer authority."
     },
     {
       "id": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
       "hardDependencies": [
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-account-identity-family-plan-02-identity-household-role-model",
-        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff"
       ],
       "evidence": [
         "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
@@ -135,9 +185,10 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Independent source review accepted Cloudflare WP06's D1 authority packet plus canonical da84e6ee3's bounded duplicate-key-rejecting decoder and private one-shot Account producer verifier. The runtime remains a safe verified-provider read/manual boundary because Account provides no durable signer/public-key registry or authenticated Cloudflare service binding; parameterless mutation readiness stays manual-required and no caller-scalar mutation API exists. Runtime mutation composition, higher authority, all six expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open."
+      "reason": "Independent source review accepted Cloudflare WP06's D1 authority packet plus canonical da84e6ee3's bounded duplicate-key-rejecting decoder and private one-shot WP08 inner-wire verifier. Account WP09 now supplies a durable fail-closed issuer core, but a live caller trace found no Account protected signer, binding/delivery adapter, production caller, or authenticated current-key handoff. Cloudflare also lacks its private issuer transport, current-key registry consumer, and runtime mount; parameterless mutation readiness stays manual-required and no caller-scalar mutation API exists. Three Cloudflare production roots, all nine expected tests, migration execution, proof, deployment, runtime readiness, and DONE remain open. WP09 remains a reviewed-implementation prerequisite; this does not claim Cloudflare runtime readiness or transfer Account ownership."
     },
     {
       "id": "WP-account-identity-family-plan-03-session-token-lifecycle",
@@ -157,15 +208,21 @@
     },
     {
       "id": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
-      "hardDependencies": ["WP-account-identity-family-plan-01-auth-provider-decision"],
+      "hardDependencies": [
+        "WP-account-identity-family-plan-01-auth-provider-decision",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth"
+      ],
       "evidence": [
         "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",
         "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
         "docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md",
-        "docs/engineering-graph/code-map.json"
+        "docs/engineering-graph/code-map.json",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
       ],
-      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open."
+      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities."
     },
     {
       "id": "WP-payment-subscription-plan-02-checkout-billing-portal",
@@ -267,16 +324,6 @@
       "reason": "Removing fabricated AI policy authority has no separate code-writing prerequisite, but the product handoff explicitly delegates policy authority to the Policy compiler contract; keep that exact owner dependency visible."
     },
     {
-      "id": "WP-eventing-plan-09-network-consumer-event-chain",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/eventing-plan/PLAN_STATE.md",
-        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
-        "docs/engineering-graph/code-map.json"
-      ],
-      "reason": "WP09 is the bounded production foundation for the network consumer chain. Current source implements exact-source ingestion publish, deterministic phase identity/idempotency and refs, recovered ProductionFile journaling before listener readiness, startup/recurring reconciliation, projection-only reads, and real parent-assistant/portal direct-enforcement mutation negatives. Reviewed roots cover capture ingestion, ActivityStore/runtime, agent-core runtime, agent-service delivery/read-model ownership, and the shared Tauri/dev-web portal command boundary; fixture/prove/TEST network_event_runtime files are not shipped production topology. Queue/request-response helpers have no shipped network-consumer caller and are not fake-wired. Focused tests and local ignored proof are green, while the final combined pre-commit, accepted commit, CI, review, and merge remain open. This status does not mark WP09 done or unblock Network WP04."
-    },
-    {
       "id": "WP-eventing-plan-08-parent-runtime-integration",
       "hardDependencies": [
         "WP-account-identity-family-plan-03-session-token-lifecycle",
@@ -307,17 +354,6 @@
       "reason": "WP10 has typed structural validation and a private authorization token, but its production resolver always returns unavailable, no shipped peer transport reaches it, and no durable cross-device message custody exists. LAN WP26 owns the authenticated ingress, selected non-revoked route composition, durable duplicate/idempotency custody, and private authority handoff required before WP10 can republish imported events."
     },
     {
-      "id": "WP-eventing-plan-11-type-safety-and-ownership-hardening",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/eventing-plan/workpacks/11-type-safety-and-ownership-hardening.md",
-        "crates/ocentra-eventing/src/envelope.rs",
-        "crates/ocentra-eventing/tests/unit/envelope.rs",
-        "docs/engineering-graph/code-map.json"
-      ],
-      "reason": "The accepted envelope helper in crates/ocentra-eventing/src/envelope.rs binds EventEnvelope<E> to DomainEvent at the struct boundary and validates contract, aggregate, and idempotency identity on both store and stored decode. Focused negative/audit test families and retained generated proof remain open; this is a bounded dependency-free Eventing production hardening packet and unrelated TypeScript checks do not close it."
-    },
-    {
       "id": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
       "hardDependencies": [
         "WP-eventing-plan-09-network-consumer-event-chain",
@@ -335,6 +371,7 @@
     {
       "id": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
       "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
         "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
@@ -690,7 +727,9 @@
         "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
         "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
         "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
-        "WP-data-custody-storage-plan-01-custody-source-of-truth"
+        "WP-data-custody-storage-plan-01-custody-source-of-truth",
+        "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+        "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow"
       ],
       "evidence": [
         "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
@@ -702,27 +741,50 @@
         "crates/family-identity-core/src/device_trust_current_binding.rs",
         "crates/family-identity-core/src/parent_step_up_authority.rs",
         "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
-        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md"
       ],
-      "reason": "Actual code audit found pure preview/source contracts but no production caller, trusted session/device/step-up authority, durable source writer/query/versioning, or custody mount; ActivityStore is evidence only."
+      "reason": "Actual code audit found pure preview/source contracts but no production caller, trusted session/device/step-up authority, durable source writer/query/versioning, or custody mount. Portal WP05 authoring control and Portal WP11 assistant-action preview are reviewed-implementation source-order consumers; they remain projections and do not provide policy authority. Existing Policy, Account, Device, and Data prerequisites remain explicit; no completion, proof, or runtime claim is promoted."
     },
     {
       "id": "WP-policy-control-plane-plan-04-delivery-ack-audit",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md"
+      "hardDependencies": [
+        "WP-v0-8-enforcement-control-plan-03-adapter-capability-matrix",
+        "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/03-adapter-capability-matrix.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md",
+        "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md"
+      ],
+      "reason": "Policy delivery and receipt contracts remain caller-constructible evidence until trusted enforcement authority and execution trace exist. The v0.8 adapter capability matrix and owned-process enforcement boundary are exact authority prerequisites. Eventing WP08 is intentionally not added as a reverse dependency because the live graph already routes Eventing WP08 -> Policy WP04; preserving that owner direction avoids a cycle and keeps eventing runtime ownership outside Policy."
     },
     {
       "id": "WP-policy-control-plane-plan-05-ask-parent-overrides",
-      "hardDependencies": ["WP-policy-control-plane-plan-04-delivery-ack-audit"],
+      "hardDependencies": [
+        "WP-policy-control-plane-plan-04-delivery-ack-audit",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+        "WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals",
+        "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow"
+      ],
       "evidence": [
         "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md"
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/07-parent-requests-and-approvals.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+      "reason": "Ask-parent approval and override contracts remain caller-shaped/in-memory and the notification handoff is explicitly unclaimed. Account WP02/WP03 provide actor/session authority, Device WP01/WP03 provide trusted-device and parent step-up authority, Data WP11 provides the required durability/custody composition, and Portal WP07/WP11 provide the bounded request/preview surfaces. No notification provider, approval authority, runtime delivery, or completion is claimed."
     },
     {
       "id": "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate",
@@ -742,38 +804,11 @@
       "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
-      "id": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md"
-      ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-    },
-    {
-      "id": "WP-policy-control-plane-plan-08-policy-event-model",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
-      ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-    },
-    {
       "id": "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff",
       "hardDependencies": ["WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate"],
       "evidence": [
         "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "docs/plans/payment-subscription-plan/workpacks/00-cloudflare-control-plane-handoff.md"
-      ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-    },
-    {
-      "id": "WP-payment-subscription-plan-01-product-pricing-entitlement",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md"
       ],
       "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
@@ -787,15 +822,6 @@
       "evidence": [
         "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md"
-      ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
-    },
-    {
-      "id": "WP-payment-subscription-plan-06-security-privacy-observability",
-      "hardDependencies": [],
-      "evidence": [
-        "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "docs/plans/payment-subscription-plan/workpacks/06-security-privacy-observability.md"
       ],
       "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
@@ -2256,6 +2282,34 @@
       "reason": "Small-VLM guided classifier evaluation is a validation gate over the Screen intelligence router; it does not establish a real OCR/VLM/provider runtime."
     },
     {
+      "id": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "hardDependencies": [
+        "WP-ai-plan-07-ai-job-queue-contract",
+        "WP-ai-plan-08-ai-provider-routing-contract",
+        "WP-ai-plan-32-family-ai-hub-and-remote-assistant-boundary",
+        "WP-eventing-plan-10-lan-household-mesh-consumer",
+        "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff"
+      ],
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/screen-plan/WORKPACK_INDEX.md",
+        "docs/plans/screen-plan/PLAN_STATE.md",
+        "docs/plans/screen-plan/NEXT_ACTIONS.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md",
+        "docs/plans/ai-plan/workpacks/08-ai-provider-routing-contract.md",
+        "docs/plans/ai-plan/workpacks/32-family-ai-hub-and-remote-assistant-boundary.md",
+        "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md",
+        "crates/agent-service/src/service_runtime/run.rs",
+        "crates/agent-service/src/screen_ai_service_event_subscription.rs",
+        "crates/agent-core/src/screen_household_mesh_runtime.rs",
+        "crates/agent-service/src/lan_pairing_runtime_state/job_leases.rs",
+        "crates/agent-service/src/lan_pairing/lan_ai_route_metadata.rs"
+      ],
+      "reason": "Fresh production-code audit keeps WP37 blocked/source-incomplete. AI WP07 owns the canonical claim/lease/result contract, AI WP08 the provider-route contract, and AI WP32 the household/remote boundary; Eventing WP10 owns only local mesh import/republish and is blocked on LAN WP26, which owns authenticated household ingress, selected-route authority, and durable ingress idempotency custody. The current screen input is public arbitrary-string/proof-fixture data, its publisher uses an in-memory without_owner_handlers bus, service row-ready returns RuntimeOwnerUnavailable, claim/lease IDs are synthesized in process-local state, and provider heartbeat/read-model/environment availability is not authority. No indexed owner currently supplies the complete screen-specific provider transfer/result receipt plus agent-service startup composition; record that as a missing-owner blocker rather than inventing a dependency. No READY, DONE, test, or proof claim is made."
+    },
+    {
       "id": "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path",
       "hardDependencies": [
         "WP-screen-plan-32-browser-structured-extraction-before-screenshot",
@@ -2327,9 +2381,560 @@
         "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
       ],
       "reason": "The redacted-summary-only boundary requires Remote capability fabric and the Data custody source; Remote owns relay/session authority and Data owns export/retention/delete/privacy."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
+      ],
+      "reason": "WP03 owns the shared Worker entrypoint and runtime guard chain, so its source-order boundary consumes the Cloudflare module scaffold and Wrangler environment/binding configuration before dispatch claims."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+        "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP08 is tests-only: its module runner and test pyramid consume the WP01 dependency environment and WP06 storage handoff, without redefining Account authority or claiming runtime readiness."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+        "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+        "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+        "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP10 is validation-only and consumes the guarded runtime, auth/admin/support boundary, and storage/queue owners for security, property, fuzz, and redacted observability coverage."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+        "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+        "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+        "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/DEPLOYMENT_MODEL.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "id": "WP-app-plan-18-policy-target-compiler-for-app-rules",
+      "hardDependencies": [
+        "WP-app-game-plan-19-policy-target-compiler-for-app-game-rules",
+        "WP-policy-control-plane-plan-03-domain-policy-compilers"
+      ],
+      "reason": "App-only dry-run compiler consumes shared compiler and policy semantics; stale/wrong-device/manual-required states remain fail-closed.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-49-category-risk-policy-routing",
+      "hardDependencies": [
+        "WP-app-game-plan-49-category-risk-policy-routing",
+        "WP-policy-control-plane-plan-03-domain-policy-compilers"
+      ],
+      "reason": "Advisory category/risk candidates route only with evidence and freshness; no classifier/provider or adapter execution is claimed.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-16-new-app-and-unknown-app-approval-flow",
+      "hardDependencies": ["WP-app-game-plan-05-inventory-evidence-model"],
+      "reason": "Current source derives inventory-backed candidates; durable approval authority, expiry/replay owner, callers, and lifecycle tests remain open and fail closed.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/16-new-app-and-unknown-app-approval-flow.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-17-risk-app-detection",
+      "hardDependencies": [
+        "WP-app-game-plan-05-inventory-evidence-model",
+        "WP-app-game-plan-12-app-game-category-and-risk-taxonomy"
+      ],
+      "reason": "Advisory risk candidates consume explicit upstream evidence; enrichment, detector matrix, AI quality, and enforcement remain absent.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/17-risk-app-detection.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "hardDependencies": [
+        "WP-app-game-plan-13-sessionization-and-duration-engine",
+        "WP-app-game-plan-19-policy-target-compiler-for-app-game-rules",
+        "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model"
+      ],
+      "reason": "Drafted dry-run budget evaluation consumes authoritative sessions, schedule, and compiler refs; restart, scheduler, and adapter execution remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-20-child-facing-app-warning-block-request-ux",
+      "hardDependencies": [
+        "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+        "WP-app-game-plan-117-timer-parent-surface-child-ux-handoff-readiness"
+      ],
+      "reason": "Rust bridge consumes time-budget decisions; live child delivery, rendering, persistence, and notification remain unclaimed.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/20-child-facing-app-warning-block-request-ux.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-26-performance-and-service-health",
+      "hardDependencies": ["WP-app-game-plan-27-performance-and-service-health"],
+      "reason": "This is a tests-only performance acceptance row over the existing Rust/service/portal topology. The retired packages/parent-domain source roots were stale migration paths; the executable performance harness remains absent.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/26-performance-and-service-health.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces",
+      "hardDependencies": ["WP-app-game-plan-15-read-models-and-service-events"],
+      "reason": "Real portal consumer roots exist; shared read models feed the projection, while dedicated inventory/running/risk/evidence UI tests remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/15-parent-portal-app-inventory-running-session-surfaces.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-48-portal-source-freshness-surface",
+      "hardDependencies": [
+        "WP-app-plan-47-backend-source-freshness-read-model",
+        "WP-app-game-plan-48-portal-source-freshness-surface"
+      ],
+      "reason": "Portal projection consumes sourceStatusRows; no source authority, policy runtime, or dedicated freshness UI test claim.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-63-source-freshness-source-panel-polish",
+      "hardDependencies": [
+        "WP-app-plan-48-portal-source-freshness-surface",
+        "WP-app-game-plan-63-source-freshness-source-panel-polish"
+      ],
+      "reason": "Real portal intent roots exist; this remains shared source-panel presentation, not rendered UI or runtime readiness.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-64-notification-provider-status-handoff",
+      "hardDependencies": [
+        "WP-app-plan-61-notification-provider-preflight",
+        "WP-app-game-plan-64-notification-provider-status-handoff"
+      ],
+      "reason": "Existing boundary/preflight roots are consumer evidence; provider producers, receipts, credentials, delivery, and dedicated producer tests remain absent.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-65-notification-preference-status-handoff",
+      "hardDependencies": [
+        "WP-app-plan-62-notification-preference-preflight",
+        "WP-app-game-plan-65-notification-preference-status-handoff"
+      ],
+      "reason": "Existing preference boundary/preflight roots are consumer evidence; durable settings/outcome producers and dedicated tests remain absent.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "hardDependencies": [
+        "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model"
+      ],
+      "reason": "No App-local production source is required. The retired packages/parent-domain handoff would duplicate the live Rust WP103 service route; this row is a route-only cross-record blocked on shared App Game WP101 validation.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md",
+        "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "docs/plans/app-plan/CODE_AUDIT.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-00-games-infra-parity-extraction",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/AGENTS.md",
+        "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/00-games-infra-parity-extraction.md",
+        "docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md",
+        "docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Reviewed no-dependency result: this no-code-required parity extraction owns documented keep/adapt/strip decisions only; it has no production or test roots, runtime caller, authority, or custody boundary. This explicit reviewed empty dependency set does not promote runtime, implementation, or completion state."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "hardDependencies": ["WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/STORAGE_BINDING_MODEL.md",
+        "docs/plans/cloudflare-control-plane-plan/DEPLOYMENT_MODEL.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP02 configuration and binding source can be authored against the reviewed Cloudflare module scaffold, while placeholder/manual-required fixtures prove no deployment or environment readiness."
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+      "hardDependencies": ["WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/ROUTE_MANIFEST_MODEL.md",
+        "docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP04 has real route-manifest, caller, contract, and test topology against the reviewed scaffold, but those surfaces do not prove provider, auth, Worker, payment, or runtime readiness."
+    },
+    {
+      "id": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/AGENTS.md",
+        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md",
+        "docs/plans/policy-control-plane-plan/TEST_PROOF_EXPECTATIONS.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real schedule/DST/budget/conflict contract owner and mapped tests exist, but no production caller, trusted clock, timer journal, or offline recovery runtime exists; no hard predecessor is justified and no implementation/runtime authorization is claimed."
+    },
+    {
+      "id": "WP-policy-control-plane-plan-08-policy-event-model",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/AGENTS.md",
+        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md",
+        "docs/plans/policy-control-plane-plan/TEST_PROOF_EXPECTATIONS.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real event/replay/dead-letter/redaction contract owner and mapped tests exist, but no production journal, dispatcher, or publisher exists; downstream Eventing/Network consumers must not be reversed into prerequisites and no implementation/runtime authorization is claimed."
+    },
+    {
+      "id": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+      ],
+      "evidence": [
+        "docs/plans/account-identity-family-plan/AGENTS.md",
+        "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP09's Account-owned durable issuer/key lineage, private service-binding and delivery traits, startup reconciliation, and household-scoped receipt/wire outbox are independently reviewed and integrated through canonical 4f6245e51. A live caller trace found no protected signer, binding authenticator, delivery owner, production caller, or authenticated current-key handoff. WP08 supplies the sealed Account contract; Protected Custody WP01 must supply the isolated broker/client and opaque protected signing admission. Both are direct source-order and normal completion prerequisites. Three production roots and seven expected test roots remain absent. No Account WP02, WP05A, Device Trust, Cloudflare runtime, test, proof, READY, or DONE claim is made."
     }
   ],
   "edges": [
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-ai-plan-07-ai-job-queue-contract",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md"
+      ],
+      "reason": "WP37 must consume the canonical AI claim, lease, result, dead-letter, and replay contract; its public proof-shaped input and process-local lease state cannot provide that authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-ai-plan-08-ai-provider-routing-contract",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/ai-plan/workpacks/08-ai-provider-routing-contract.md"
+      ],
+      "reason": "WP37 must consume the deterministic provider-route contract and reject stale, offline, revoked, or custody-incompatible providers; heartbeat/read-model/environment availability is not provider authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-ai-plan-32-family-ai-hub-and-remote-assistant-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/ai-plan/workpacks/32-family-ai-hub-and-remote-assistant-boundary.md"
+      ],
+      "reason": "WP37 must preserve the household-provider versus remote-assistant boundary and child-owned result/policy authority; the existing local proof path does not prove provider discovery, claim/lease, result validation, or LAN execution.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-eventing-plan-10-lan-household-mesh-consumer",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md"
+      ],
+      "reason": "WP37 may use Eventing only for validated local mesh import/republish; Eventing WP10 is itself blocked until LAN authority/transport composition exists and cannot be replaced by an in-memory owner-less bus.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-screen-plan-37-family-ai-hub-screen-analysis-queue",
+      "to": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md"
+      ],
+      "reason": "LAN WP26 is the indexed runtime owner for authenticated household ingress, selected-route authority, durable ingress/idempotency custody, and the private Eventing handoff; its blocked source/caller/proof state prevents WP37 from claiming provider readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
+      "to": "WP-ai-plan-03-contract-boundary-and-effect-schemas",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/ai-plan/PLAN_STATE.md",
+        "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
+        "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Protocol parity must consume the Rust-owned canonical general AI family; current local runtime/assistant shapes do not satisfy that owner boundary.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
+      "to": "WP-app-game-plan-99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.md",
+        "docs/plans/app-game-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md"
+      ],
+      "reason": "WP100 may follow only WP99's bounded reviewed implementation. The existing Rust-owned shapes, builder, and contract test satisfy bounded Phase 1 source/test writing; the retired parent-domain package is not an owner. Focused execution, proof, runtime reachability, parent rendering, READY, and DONE remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
+      "to": "WP-app-game-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md",
+        "docs/plans/app-game-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md"
+      ],
+      "reason": "WP101 may follow only WP100's bounded reviewed implementation. The existing Rust-owned contract shapes, builder, and contract test satisfy bounded Phase 1 source/test writing; the retired parent-domain package is not an owner. Focused execution, proof, runtime reachability, parent rendering, READY, and DONE remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "to": "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md",
+        "docs/plans/app-game-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md"
+      ],
+      "reason": "WP102 is a reviewed no-code supersession decision: it may be evaluated only after WP101's bounded contract, but no retired parent-domain implementation or test is required. WP103 owns the real Rust service boundary. This edge does not promote focused execution, proof, runtime reachability, READY, or DONE.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "to": "WP-app-game-plan-103-timer-service-read-model-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md",
+        "docs/plans/app-game-plan/workpacks/103-timer-service-read-model-handoff.md",
+        "crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs"
+      ],
+      "reason": "WP102 carries no product source because WP103 is the reviewed Rust protocol and agent-service implementation that supersedes the proposed intermediate. WP103 validation is required before the retirement decision can close; no focused execution, proof, READY, or DONE is inferred.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Account WP05A is a downstream coordinator consumer of neutral protected capability reservations. The protected owner remains separate; WP05A may consume only authenticated opaque outcomes and may not mint authority, choose keys, or replace the broker with in-process custody.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Device Trust WP01 is a downstream owner-participant consumer of the neutral protected custody boundary. Device identity, signer authority, currentness, and lifecycle remain Device-owned; this edge is source ordering only and does not authorize platform ceremony or runtime completion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Device Trust WP03 is a downstream ceremony/participant consumer of neutral protected custody. Parent/device authority and ceremony semantics stay Device-owned; the edge does not create a caller, bypass currentness, or make the parent step-up path ready.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Account WP09 consumes WP08's canonical sealed Account authority and typed wire contract as its Account-contract source-order prerequisite. Protected Custody WP01 separately owns protected signing admission and secret-material custody. WP09 must not duplicate the schema or mint caller-selected authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Account WP09 consumes only the neutral isolated broker/client and opaque protected signing admission from Protected Custody WP01. Account retains issuer/currentness/delivery semantics and may not recreate key custody or caller-mint protected authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "to": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Cloudflare WP06 consumes the Account-owned authenticated producer binding and durable issuer/key custody from WP09 while retaining its direct WP08 contract dependency. This is implementation ordering only and does not transfer Account ownership or claim Cloudflare runtime readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
     {
       "from": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
       "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
@@ -2483,8 +3088,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
       ],
-      "reason": "The aggregate source gate follows the runtime handoff and must report its missing caller/ingress/health truth.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "The aggregate source gate follows the runtime handoff and must report its missing caller/ingress/health truth."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -2495,8 +3099,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md"
       ],
-      "reason": "The release gate cannot aggregate a release decision while authority-bound removal and platform cleanup source is missing.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "The release gate cannot aggregate a release decision while authority-bound removal and platform cleanup source is missing."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -2507,8 +3110,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md"
       ],
-      "reason": "The release gate must aggregate updater/handoff and platform signing/store/manual-required state.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "The release gate must aggregate updater/handoff and platform signing/store/manual-required state."
     },
     {
       "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
@@ -4892,8 +5494,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/01-child-agent-scope-and-route-boundary.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -4904,8 +5505,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -4916,8 +5516,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -4928,8 +5527,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -4940,8 +5538,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -4952,8 +5549,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-child-agent-runtime-distribution-plan-11-proof-ci-release-gate",
@@ -4964,8 +5560,7 @@
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/11-proof-ci-release-gate.md",
         "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md"
       ],
-      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE.",
-      "implementationGate": "reviewed-implementation"
+      "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
     },
     {
       "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
@@ -5791,6 +6386,20 @@
         "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md"
       ],
       "reason": "Actual source audit routes Browser WP05 cross-platform inventory through the Windows inventory adapter boundary in WP04; this reviewed-implementation gate records source order only.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-browser-plan-06-managed-profile-store",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP06 requires the neutral protected-custody owner for authenticated receipt/key and retained path identity. The current Protected Custody source is deliberately unavailable until its OS/installer adapters exist, so Browser may repair only its fail-closed source boundary and cannot claim runtime authority.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -8180,9 +8789,724 @@
         "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
       ],
       "reason": "The redacted-summary-only boundary requires Remote capability fabric and the Data custody source; Remote owns relay/session authority and Data owns export/retention/delete/privacy."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "WP03 owns the shared Worker entrypoint and runtime guard chain, so its source-order boundary consumes the Cloudflare module scaffold and Wrangler environment/binding configuration before dispatch claims.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "to": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
+      ],
+      "reason": "WP03 owns the shared Worker entrypoint and runtime guard chain, so its source-order boundary consumes the Cloudflare module scaffold and Wrangler environment/binding configuration before dispatch claims.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "to": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "to": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/07-local-dev-seeding-and-fixtures.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP07 local inspection and seeding consumes the module scaffold, bindings, guarded runtime, and storage owners; local fixtures remain explicit test/dev inputs and never become production authority."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "to": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "to": "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "to": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP09 is validation-only and exercises the guarded Worker runtime, route manifest, auth boundary, and storage handoff; portal smoke is not evidence of payment or deployment readiness."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "to": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+      ],
+      "reason": "WP10 is validation-only and consumes the guarded runtime, auth/admin/support boundary, and storage/queue owners for security, property, fuzz, and redacted observability coverage."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "to": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md"
+      ],
+      "reason": "WP10 is validation-only and consumes the guarded runtime, auth/admin/support boundary, and storage/queue owners for security, property, fuzz, and redacted observability coverage."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP10 is validation-only and consumes the guarded runtime, auth/admin/support boundary, and storage/queue owners for security, property, fuzz, and redacted observability coverage."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/09-portal-to-worker-e2e-smoke.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion",
+      "to": "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/11-deployment-and-environment-promotion.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/10-security-fuzz-property-observability.md"
+      ],
+      "reason": "WP11 is a normal deployment promotion gate over the module resolver/scaffold, bindings, guarded runtime, storage, test runner, portal E2E smoke, and security/observability gates. DEPLOYMENT_MODEL.md explicitly carries WP01's resolver prerequisite; no unsupported WP04/WP05/WP07 owner is inferred."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 now keeps provider-webhook verification separate from Firebase account authentication: Stripe has a real timestamped HMAC verification path, while Razorpay, PayPal, Apple, and Google remain explicit manual-required/unavailable. Admin/support and family/device authority remain unavailable; tests, proof, deployment secrets, runtime reachability, and DONE remain open. Broader trusted-device/admin/support routing additionally depends on Account WP02 and Device Trust WP03; the current provider-only verification slice remains bounded and does not claim those authorities.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md"
+      ],
+      "reason": "Policy WP02 consumes the Portal WP05 authoring projection as a source-order surface; Portal remains UI/projection ownership and cannot replace policy authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-policy-control-plane-plan-02-parent-authoring-preview",
+      "to": "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md"
+      ],
+      "reason": "Policy WP02 consumes the Portal WP11 assistant-action preview boundary as a source-order surface; assistant drafts remain preview-only and cannot confirm or apply policy.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-policy-control-plane-plan-04-delivery-ack-audit",
+      "to": "WP-v0-8-enforcement-control-plan-03-adapter-capability-matrix",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/03-adapter-capability-matrix.md"
+      ],
+      "reason": "Policy delivery cannot claim execution authority from contracts; v0.8 WP03 owns the adapter capability boundary required for a trusted handoff."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-04-delivery-ack-audit",
+      "to": "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/04-delivery-ack-audit.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md"
+      ],
+      "reason": "Policy delivery cannot advance receipt-required state without the v0.8 owned-process enforcement boundary and inspectable execution authority."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Parent/observer/revoked actor authority is Account-owned; caller-shaped policy approval is not authority."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "Session lifecycle and trusted actor context are Account-owned prerequisites for ask-parent approval."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "Trusted-device source context is Device Trust-owned and cannot be replaced by caller-supplied device identifiers."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "High-risk parent step-up is Device Trust-owned and required before policy override approval can be trusted."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/data-custody-storage-plan/workpacks/11-runtime-composition-and-custody-mount.md"
+      ],
+      "reason": "Ask-parent approval and audit state require the Data Custody runtime composition/custody mount; in-memory state is insufficient."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/07-parent-requests-and-approvals.md"
+      ],
+      "reason": "Portal WP07 owns the bounded parent-request/approval surface consumed by ask-parent policy semantics."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md"
+      ],
+      "reason": "Portal WP11 owns the assistant-action preview surface; preview remains non-authoritative until parent confirmation and trusted handoff."
+    },
+    {
+      "from": "WP-app-plan-18-policy-target-compiler-for-app-rules",
+      "to": "WP-app-game-plan-19-policy-target-compiler-for-app-game-rules",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md",
+        "docs/plans/app-game-plan/workpacks/19-policy-target-compiler-for-app-game-rules.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "App-only dry-run compiler consumes shared compiler and policy semantics; stale/wrong-device/manual-required states remain fail-closed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-18-policy-target-compiler-for-app-rules",
+      "to": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "App-only dry-run compiler consumes shared compiler and policy semantics; stale/wrong-device/manual-required states remain fail-closed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-49-category-risk-policy-routing",
+      "to": "WP-app-game-plan-49-category-risk-policy-routing",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
+        "docs/plans/app-game-plan/workpacks/49-category-risk-policy-routing.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Advisory category/risk candidates route only with evidence and freshness; no classifier/provider or adapter execution is claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-49-category-risk-policy-routing",
+      "to": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Advisory category/risk candidates route only with evidence and freshness; no classifier/provider or adapter execution is claimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-16-new-app-and-unknown-app-approval-flow",
+      "to": "WP-app-game-plan-05-inventory-evidence-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/16-new-app-and-unknown-app-approval-flow.md",
+        "docs/plans/app-game-plan/workpacks/05-inventory-evidence-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Current source derives inventory-backed candidates; durable approval authority, expiry/replay owner, callers, and lifecycle tests remain open and fail closed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-17-risk-app-detection",
+      "to": "WP-app-game-plan-05-inventory-evidence-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/17-risk-app-detection.md",
+        "docs/plans/app-game-plan/workpacks/05-inventory-evidence-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Advisory risk candidates consume explicit upstream evidence; enrichment, detector matrix, AI quality, and enforcement remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-17-risk-app-detection",
+      "to": "WP-app-game-plan-12-app-game-category-and-risk-taxonomy",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/17-risk-app-detection.md",
+        "docs/plans/app-game-plan/workpacks/12-app-game-category-and-risk-taxonomy.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Advisory risk candidates consume explicit upstream evidence; enrichment, detector matrix, AI quality, and enforcement remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "to": "WP-app-game-plan-13-sessionization-and-duration-engine",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/plans/app-game-plan/workpacks/13-sessionization-and-duration-engine.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Drafted dry-run budget evaluation consumes authoritative sessions, schedule, and compiler refs; restart, scheduler, and adapter execution remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "to": "WP-app-game-plan-19-policy-target-compiler-for-app-game-rules",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/plans/app-game-plan/workpacks/19-policy-target-compiler-for-app-game-rules.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Drafted dry-run budget evaluation consumes authoritative sessions, schedule, and compiler refs; restart, scheduler, and adapter execution remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "to": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Drafted dry-run budget evaluation consumes authoritative sessions, schedule, and compiler refs; restart, scheduler, and adapter execution remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-20-child-facing-app-warning-block-request-ux",
+      "to": "WP-app-plan-19-time-budget-schedule-bonus-time-integration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/20-child-facing-app-warning-block-request-ux.md",
+        "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Rust bridge consumes time-budget decisions; live child delivery, rendering, persistence, and notification remain unclaimed."
+    },
+    {
+      "from": "WP-app-plan-20-child-facing-app-warning-block-request-ux",
+      "to": "WP-app-game-plan-117-timer-parent-surface-child-ux-handoff-readiness",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/20-child-facing-app-warning-block-request-ux.md",
+        "docs/plans/app-game-plan/workpacks/117-timer-parent-surface-child-ux-handoff-readiness.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Rust bridge consumes time-budget decisions; live child delivery, rendering, persistence, and notification remain unclaimed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-26-performance-and-service-health",
+      "to": "WP-app-game-plan-27-performance-and-service-health",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/26-performance-and-service-health.md",
+        "docs/plans/app-game-plan/workpacks/27-performance-and-service-health.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "This is a tests-only performance acceptance row over the existing Rust/service/portal topology. The retired packages/parent-domain source roots were stale migration paths; the executable performance harness remains absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces",
+      "to": "WP-app-game-plan-15-read-models-and-service-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/15-parent-portal-app-inventory-running-session-surfaces.md",
+        "docs/plans/app-game-plan/workpacks/15-read-models-and-service-events.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real portal consumer roots exist; shared read models feed the projection, while dedicated inventory/running/risk/evidence UI tests remain open.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-48-portal-source-freshness-surface",
+      "to": "WP-app-plan-47-backend-source-freshness-read-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/plans/app-plan/workpacks/47-backend-source-freshness-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Portal projection consumes sourceStatusRows; no source authority, policy runtime, or dedicated freshness UI test claim."
+    },
+    {
+      "from": "WP-app-plan-48-portal-source-freshness-surface",
+      "to": "WP-app-game-plan-48-portal-source-freshness-surface",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/plans/app-game-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Portal projection consumes sourceStatusRows; no source authority, policy runtime, or dedicated freshness UI test claim.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-63-source-freshness-source-panel-polish",
+      "to": "WP-app-plan-48-portal-source-freshness-surface",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real portal intent roots exist; this remains shared source-panel presentation, not rendered UI or runtime readiness."
+    },
+    {
+      "from": "WP-app-plan-63-source-freshness-source-panel-polish",
+      "to": "WP-app-game-plan-63-source-freshness-source-panel-polish",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/plans/app-game-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Real portal intent roots exist; this remains shared source-panel presentation, not rendered UI or runtime readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-64-notification-provider-status-handoff",
+      "to": "WP-app-plan-61-notification-provider-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-plan/workpacks/61-notification-provider-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Existing boundary/preflight roots are consumer evidence; provider producers, receipts, credentials, delivery, and dedicated producer tests remain absent."
+    },
+    {
+      "from": "WP-app-plan-64-notification-provider-status-handoff",
+      "to": "WP-app-game-plan-64-notification-provider-status-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Existing boundary/preflight roots are consumer evidence; provider producers, receipts, credentials, delivery, and dedicated producer tests remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-65-notification-preference-status-handoff",
+      "to": "WP-app-plan-62-notification-preference-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Existing preference boundary/preflight roots are consumer evidence; durable settings/outcome producers and dedicated tests remain absent."
+    },
+    {
+      "from": "WP-app-plan-65-notification-preference-status-handoff",
+      "to": "WP-app-game-plan-65-notification-preference-status-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Existing preference boundary/preflight roots are consumer evidence; durable settings/outcome producers and dedicated tests remain absent.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "to": "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md",
+        "docs/plans/app-game-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "No App-local production source is required. The retired packages/parent-domain handoff would duplicate the live Rust WP103 service route; this row is a route-only cross-record blocked on shared App Game WP101 validation.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP02 configuration and binding source can be authored against the reviewed Cloudflare module scaffold, while placeholder/manual-required fixtures prove no deployment or environment readiness.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/04-route-manifest-and-domain-contracts.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP04 has real route-manifest, caller, contract, and test topology against the reviewed scaffold, but those surfaces do not prove provider, auth, Worker, payment, or runtime readiness.",
+      "implementationGate": "reviewed-implementation"
     }
   ],
   "stateOverrides": [
+    {
+      "id": "WP-browser-plan-06-managed-profile-store",
+      "state": "validation",
+      "reason": "Independent review accepted 93f875134 only as a fail-closed source correction: caller-mintable JSON/path authority, public store config/record, env/temp-dir mutation, and rejected path-only helpers are removed. The private store cannot produce Ready or Deleted and returns ProtectedCustodyAdapterUnavailable for every operation. A dependency-owned protected owner, retained identity, safe platform mutation/recovery, a real caller, all five expected tests, proof, and completion remain absent; WP07 cannot consume caller-supplied managed-looking paths as authority.",
+      "statusText": "Validation blocked — fail-closed WP06 safety source accepted; protected owner, retained custody, platform mutation/recovery, caller, tests, and proof remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/browser-plan/PLAN_STATE.md",
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "state": "validation",
+      "reason": "The graph schema permits only the validation routing override here. Independently reviewed production source now satisfies the required root manifest, neutral protocol package, isolated broker/client manifests and targets, active workspace membership, and narrow sealed core broker-admission facade. The safety block remains because safe pinned Windows process/token observation, exact protected registry owner/DACL/parent-chain verification, non-restorable monotonic authority, installer/SCM enrollment, a real production caller, expected tests, proof, and runtime availability are absent. Source integration does not imply READY, PR, merge, or DONE.",
+      "statusText": "Validation blocked — reviewed fail-closed source integrated; protected Windows adapters, installer/caller, tests, proof, and completion remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
       "state": "validation",
@@ -8291,6 +9615,39 @@
       "reason": "Reference-routing contract and exact-source boundary test are current; no network runtime implementation claim, CI, review, or main merge.",
       "statusText": "Validation — catalog routing and no-default-read boundary are current; runtime work remains separate.",
       "evidence": ["docs/proof/network-plan/slice-08-control-catalog-routing.md"]
+    },
+    {
+      "id": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+      "state": "validation",
+      "needsReview": false,
+      "reason": "Real schedule/DST/budget/conflict contract owner and mapped tests exist, but no production caller, trusted clock, timer journal, or offline recovery runtime exists; no hard predecessor is justified and no implementation/runtime authorization is claimed.",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md"
+      ]
+    },
+    {
+      "id": "WP-policy-control-plane-plan-08-policy-event-model",
+      "state": "validation",
+      "needsReview": false,
+      "reason": "Real event/replay/dead-letter/redaction contract owner and mapped tests exist, but no production journal, dispatcher, or publisher exists; downstream Eventing/Network consumers must not be reversed into prerequisites and no implementation/runtime authorization is claimed.",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
+        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
+      ]
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-00-games-infra-parity-extraction",
+      "state": "validation",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/00-games-infra-parity-extraction.md",
+        "docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md",
+        "docs/plans/cloudflare-control-plane-plan/SOURCE_SURFACE_STATUS_MATRIX.md",
+        "docs/plans/cloudflare-control-plane-plan/TEST_PROOF_EXPECTATIONS.md"
+      ],
+      "reason": "Parity documentation and its proof root are present, but repo-wide docs formatting validation remains red outside this packet; no runtime, payment, or deployment readiness is claimed.",
+      "statusText": "Validation - parity docs/proof present; repo-wide docs formatting validation remains red outside this packet; no runtime, payment, or deployment readiness claim."
     }
   ],
   "proofOverrides": [
@@ -8308,6 +9665,83 @@
     }
   ],
   "completionEvidenceOverrides": [
+    {
+      "id": "WP-app-game-plan-48-portal-source-freshness-surface",
+      "implementation": [
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx"
+      ],
+      "reason": "A live production trace confirms service-backed sourceStatusRows flow into the dashboard intent and render as source counts, freshness, capability, timestamp, and evidence state. The named focused intent test is absent, and the existing route scaffold asserts only headings/count labels. No validation, proof, policy, adapter, READY, or DONE claim is made.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-63-source-freshness-source-panel-polish",
+      "implementation": [
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx"
+      ],
+      "reason": "A live production trace confirms the split source-panel intent groups app-use/game rows and the mounted SVG surface renders its metrics. The named focused intent test is absent, and the shallow route scaffold does not cover fresh/manual/degraded grouping or hostile metadata. No validation, proof, runtime authority, READY, or DONE claim is made.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-16-parent-portal-app-game-dashboard-surfaces",
+      "implementation": [
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
+        "apps/portal/src/ParentPortalRoute.tsx"
+      ],
+      "reason": "A live import/render trace confirms the tracked vendor intent and SVG renderer are mounted by the production portal route. The existing route scaffold checks only a shallow dashboard presence contract; focused intent/state-matrix and hostile-metadata tests are still absent, and Game budgets remains an honest policy-proof-pending placeholder without a service read-model row. No validation, proof, READY, or DONE claim is made.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/16-parent-portal-app-game-dashboard-surfaces.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs",
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/tail.rs"
+      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Rust-first audit confirms the existing app-game-core contract shapes and parent-safe read-model builder plus the checked-in Rust contract test own WP101's bounded Phase 1 scope. Retired parent-domain paths are not business owners. Focused execution, proof, product runtime, parent rendering, READY, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs",
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/tail.rs"
+      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Rust-first audit confirms the existing app-game-core shapes and builder plus the checked-in Rust contract test own WP100's bounded Phase 1 handoff. Retired parent-domain paths are not business owners. Focused execution, proof, product runtime, parent rendering, READY, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-data-custody-storage-plan-02-encryption-key-custody",
       "implementation": [
@@ -8434,11 +9868,16 @@
         "crates/family-identity-core/src/device_trust_signer_registration_current_authority.rs",
         "crates/family-identity-core/src/device_trust_signer_registration_schema.rs",
         "crates/family-identity-core/src/device_trust_lifecycle.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority_fence.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority_lock.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority_reconciliation.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority_store.rs",
         "crates/family-identity-core/src/device_trust_lifecycle_revocation.rs",
         "crates/family-identity-core/src/household_authority_proof.rs",
         "crates/family-identity-core/src/lib.rs"
       ],
-      "reason": "Independent source review accepted the Device Trust continuation at 914d06b6a and root integrated its reconciled WP01 authority/current-binding source through 68717b5b7. Public household signer/verifier mint paths are removed and current authority is owner-resolved. The overlapping entitlement boundary retains Payment's unsigned projection and omits incompatible public signed modules. Focused source-format, architecture, Enforcer, and diff gates passed. Expected-test migration, functional validation, proof, real platform/passkey callers, repo-wide Enforcer, and DONE remain open.",
+      "reason": "Independent review retains the earlier Device Trust authority/current-binding continuation only. Public household signer/verifier mint paths remain removed and current authority is owner-resolved. The later runtime-fence packet was rejected and withdrawn because its persisted committed rows were caller-mintable, existing databases had no explicit migration, and retention/startup scanning was unbounded. Protected Device-owned receipt custody, replacement participant source, expected tests, lifecycle-test migration, the production Account WP05A caller, migration/retention owners, functional validation, proof, real platform/passkey callers, repo-wide Enforcer, and DONE remain open.",
       "evidence": [
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
         "docs/PLAN_CODE_STATUS_MATRIX.md",
@@ -8580,24 +10019,6 @@
         "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md",
         "docs/PLAN_CODE_STATUS_MATRIX.md",
         "docs/engineering-graph/code-map.json"
-      ]
-    },
-    {
-      "id": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
-      "implementation": [
-        "infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts",
-        "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
-        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
-        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
-        "infra/cloudflare/src/auth/verifier.ts",
-        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
-        "infra/cloudflare/src/storage/account-identity-authority-writer.ts"
-      ],
-      "reason": "Canonical da84e6ee3 includes the reviewed bounded JSON decoder and private one-shot Account producer verifier. WP06 remains a verified-provider read/manual boundary because Account durable signer/public-key custody and authenticated service-binding/registry distribution are missing. Runtime mutation readiness is parameterless and manual-required; the existing writer remains producer-gated and requires a real verified handoff plus D1 atomic currentness/revocation/CAS recheck. Six expected WP06 test roots are missing. No public route, Firebase authority, env/fixture/request key, caller-supplied scalar, validation, proof, deployment, READY, or DONE claim is permitted.",
-      "evidence": [
-        "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
-        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
-        "docs/PLAN_CODE_STATUS_MATRIX.md"
       ]
     },
     {

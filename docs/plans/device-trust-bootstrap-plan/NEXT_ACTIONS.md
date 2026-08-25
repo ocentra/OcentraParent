@@ -1,5 +1,22 @@
 # Next Actions
 
+## WP01 runtime-fence rejection checkpoint — 2026-08-24
+
+The previously integrated Device-owned runtime-fence packet was independently
+re-reviewed and rejected. Its committed rows lived in caller-path,
+same-user-writable SQLite and used a recomputable unkeyed digest, so a local
+writer could fabricate a committed outcome. It also broke existing databases
+by validating a new table without an explicit migration and had unbounded
+retention plus a full-ledger startup scan. The unsafe positive participant has
+therefore been withdrawn from the canonical source tree.
+
+Do not write tests or compose Account WP05A against the withdrawn seam. First
+ship a real protected Device-owned receipt/key provider that excludes same-user
+writers, an owner-approved versioned migration with interruption recovery, and
+bounded retention/archive semantics. Only then may the private participant be
+implemented again, independently reviewed, and followed by its expected tests.
+Proof, precommit, PR, and CI remain later phases.
+
 ## Ordered runtime-owner routing (audit truth, not completion)
 
 1. Account Identity WP08: keep the Rust-owned canonical household/child/device/
@@ -40,7 +57,7 @@ to WP03.
 5. Re-open WP05 and WP07 around real trust binding and parent-controlled uninstall/tamper execution instead of contract-only frontage. WP07 has a code-drafted local evidence/manual-required boundary; platform removal, attestation, transport, tests, and proof remain open.
 6. After source is complete, write the full expected-test delta for WP01/WP05/WP06/WP07, then run focused crate/domain validation and Enforcer. Proof remains a later phase under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`.
 
-## Accepted source checkpoint (2026-08-17)
+## Accepted source checkpoint (2026-08-17; superseded for WP01 by `f5974c795`)
 
 The independently accepted Device Trust branch `914d06b6a` is integrated
 through `68717b5b7`. WP01 now preserves owner-resolved current device/signer

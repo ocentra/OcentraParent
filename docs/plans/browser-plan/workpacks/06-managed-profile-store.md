@@ -16,9 +16,16 @@
 
 ## Where We Are
 
-`crates/agent-core/src/browser_managed_session.rs` rejects default/unowned paths
-in launch planning, but the complete profile store lifecycle is not yet a
-product-ready subsystem.
+Canonical source now includes the independently accepted safety correction from
+`codex/browser-wp06-repair-round3-aug24` at `93f875134`. It removes the
+same-user-forgeable JSON/path authority, public caller-built store
+configuration/record, env/temp-directory mutation caller, and the rejected
+path-only mutation/recovery helpers. The remaining store boundary is private
+and every load/create/repair/delete attempt returns
+`ProtectedCustodyAdapterUnavailable`; no `Ready`, `Deleted`, or custody
+record can be produced. WP06 still has no authenticated protected-custody
+owner, retained handle-bound root/profile identity, safe platform mutation and
+recovery adapter, production caller, expected tests, or proof.
 
 ## Where We Want To Be
 
@@ -38,16 +45,27 @@ repairable, redacted in UI, and rejected when unsafe.
 ## Touched Paths
 
 - `crates/agent-core/src/browser_managed_session.rs`
-- `crates/agent-service/src/browser_runtime_paths.rs`
-- `packages/activity-domain/src/browser*.ts`
+- `crates/agent-core/src/browser_managed_session/store.rs`
+- `crates/agent-core/src/browser_managed_session/store/`
 - `crates/agent-protocol/src/browser_managed.rs`
+- `crates/agent-protocol/src/constants/browser.rs`
+- `crates/agent-service/src/browser_runtime_paths.rs`
+- `crates/agent-service/src/browser_runtime_status.rs`
 
 ## Tests And Proof
 
-- Temp-directory integration tests.
-- Default profile rejection tests.
-- Restart/reload metadata tests.
-- Portal DTO redaction tests.
+- `crates/agent-protocol/tests/contract/browser_managed_profile_store.rs`:
+  strict wire/schema and non-authority contract cases.
+- `crates/agent-core/tests/unit/browser_managed_profile_store_authority.rs`:
+  forged/copy/replay/mismatched owner receipt and identity substitution.
+- `crates/agent-core/tests/unit/browser_managed_profile_store_path_custody.rs`:
+  link/reparse escape, handle identity, and replacement/TOCTOU negatives.
+- `crates/agent-core/tests/unit/browser_managed_profile_store_recovery.rs`:
+  concurrent mutation, interrupted replacement, restart, deletion, and
+  corruption recovery.
+- `crates/agent-service/tests/integration/browser_managed_profile_store_runtime.rs`:
+  real protected-owner adapter/caller composition and fail-closed unavailable
+  state.
 
 ## AI Worker Checklist
 
@@ -70,42 +88,43 @@ Fill this before reporting `DONE` or PR-ready:
 - [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
 - [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
-## Implementation Note
+## Independent Source Decisions (2026-08-24)
 
-WP06 is complete on `codex/browser-plan-implementation` with proof under
-`output/browser-plan-proof/06-managed-profile-store/`.
+The first bounded repair at `5671c06a2` was rejected:
 
-Implemented:
+- `BrowserManagedProfileStoreEntry` is unauthenticated JSON. A same-user writer
+  can preserve attacker-readable constants, replace a profile directory, and
+  fabricate a `Ready` or `Deleted` record.
+- `BrowserManagedProfileStoreRecord` returns `PathBuf` values after dropping its
+  directory guard, so identity/custody is not retained through use.
+- no-follow handling does not cover Windows, every supported Unix target, and
+  unsupported platforms with a handle-bound open; inspection and open remain
+  replaceable.
+- metadata replacement, directory creation, staging, rename, and deletion
+  return `UnsafePath`, so the claimed atomic/restart-recoverable lifecycle is
+  not implemented.
+- no production caller constructs the private configuration or consumes the
+  repaired store.
 
-- `@ocentra-parent/activity-domain` managed profile store contracts in
-  `browser-managed-profile-store.ts`, plus a package export for direct imports.
-- Redacted profile summary fields on `BrowserManagedSessionStatusSchema`:
-  profile root ref, profile scope id, profile lifecycle state, and policy
-  revision.
-- Rust protocol parity for `BrowserManagedProfileStoreEntry` and
-  `BrowserManagedProfileLifecycleState`.
-- Core filesystem lifecycle helpers for create, load, repair, delete, missing
-  state, default-profile rejection, and unowned-profile rejection.
-- Service runtime path resolution through the profile store before managed
-  launch planning; service payloads expose only redacted refs and lifecycle
-  labels.
+The superseding `93f875134` packet is accepted only as a fail-closed source
+correction. It deletes those unsafe helpers, makes the status entry
+serialize-only with private fields and no public constructor, removes the
+production env/temp-directory store caller, and exposes no successful mutation
+or custody result. The five expected test roots are intentionally deferred to
+the consolidated test-source wave.
 
-Validation:
-
-- `cmd /c npm run type-check --workspace @ocentra-parent/activity-domain`
-- `cmd /c npm run test --workspace @ocentra-parent/activity-domain -- browser.test.ts browser-managed-profile-store.test.ts browser-platform-inventory-matrix.test.ts browser-inventory.test.ts`
-- `cargo fmt --package ocentra-parent-agent-core --package ocentra-parent-agent-service --package ocentra-parent-agent-protocol`
-- `cargo test -p ocentra-parent-agent-protocol browser_managed`
-- `cargo test -p ocentra-parent-agent-core managed_browser`
-- `cargo test -p ocentra-parent-agent-service browser_runtime`
-- `cmd /c npm run lint:schema-boundaries`
-
-No product capability checklist update was needed: this proves owned profile
-store lifecycle and redacted service DTOs, but does not upgrade real browser
-launch, bridge connectivity, exact URL evidence, or a user-visible product
-capability row.
+The next source packet must supply a dependency-owned protected-custody owner
+with an authenticated opaque receipt/key, retained root/profile identity,
+platform-safe open/mutation/recovery, and a real service caller. Unsupported
+platforms must reject rather than fall back to path-only checks. The separate
+WP07 launch path still accepts a caller-supplied managed-looking profile path;
+it has no production caller today and must remain blocked until it consumes an
+owner-issued WP06 binding. No test, proof, runtime readiness, PR_READY, or
+`DONE` claim follows from this safety packet.
 
 ## Manual-Required Gaps
 
-Profile existence does not prove browser launch, bridge connectivity, or exact
-URL evidence.
+Profile existence does not prove owner custody, browser launch, bridge
+connectivity, exact URL evidence, parent policy authority, or product runtime
+composition. WP07 remains blocked until WP06 has an actual protected owner
+binding, not merely this accepted fail-closed boundary.

@@ -4,8 +4,45 @@ import path from 'node:path';
 
 import type { RunType, TestLogScope, TestSuiteType } from './test-log/types';
 
-function generatedIsAsciiAlphaNumeric(character: string): boolean {
-  return /^[0-9A-Za-z]$/.test(character);
+const MaximumGeneratedPathSegmentBytes = 256;
+const GeneratedPathSegmentPattern = /^[0-9A-Za-z._-]+$/u;
+const WindowsReservedSegmentPattern = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/iu;
+
+function assertGeneratedPathSegment(value: string, label: string): string {
+  const tooLong = value.length > MaximumGeneratedPathSegmentBytes;
+  const bytes = tooLong ? MaximumGeneratedPathSegmentBytes + 1 : new TextEncoder().encode(value).byteLength;
+  if (
+    value.length === 0 ||
+    value.trim() !== value ||
+    bytes > MaximumGeneratedPathSegmentBytes ||
+    !GeneratedPathSegmentPattern.test(value) ||
+    value === '.' ||
+    value === '..' ||
+    value.endsWith('.') ||
+    WindowsReservedSegmentPattern.test(value)
+  ) {
+    throw new Error(`${label} must be a bounded literal path segment`);
+  }
+  return value;
+}
+
+function assertGeneratedTestName(value: string): string {
+  if (
+    value.length === 0 ||
+    value.length > 4_096 ||
+    value.trim() !== value ||
+    /[\\/]/u.test(value) ||
+    hasControlCharacter(value) ||
+    path.isAbsolute(value) ||
+    /^[A-Za-z]:/u.test(value)
+  ) {
+    throw new Error('test name must not contain path syntax');
+  }
+  return value;
+}
+
+function hasControlCharacter(value: string): boolean {
+  return [...value].some((character) => character.charCodeAt(0) <= 0x1f);
 }
 
 function generatedIsAsciiLowercaseAlphaNumeric(character: string): boolean {
@@ -40,24 +77,19 @@ function generatedSanitizeWithCollapsedDashes(value: string, isAllowed: (charact
 }
 
 function generatedSuiteSegment(value: TestSuiteType | string | null | undefined): string {
-  return value ?? 'unspecified';
+  return assertGeneratedPathSegment(value ?? 'unspecified', 'suite type');
 }
 
 export function sanitizeGeneratedPathSegment(value: string): string {
-  const sanitized = generatedSanitizeWithCollapsedDashes(
-    value,
-    (character) =>
-      generatedIsAsciiAlphaNumeric(character) || character === '.' || character === '_' || character === '-'
-  );
-  return sanitized.length > 0 ? sanitized : 'default';
+  return assertGeneratedPathSegment(value, 'generated path value');
 }
 
 export function sanitizeGeneratedTestNameForNdjson(testName: string): string {
   const sanitized = generatedSanitizeWithCollapsedDashes(
-    testName.toLowerCase(),
+    assertGeneratedTestName(testName).toLowerCase(),
     generatedIsAsciiLowercaseAlphaNumeric
   ).slice(0, 100);
-  return sanitized || 'unnamed-test';
+  return assertGeneratedPathSegment(sanitized, 'generated test name');
 }
 
 export function resolveGeneratedLocalLogRoot(fromEnv: string | null | undefined, workspaceRoot: string): string {
@@ -68,7 +100,7 @@ export function resolveGeneratedLocalLogRoot(fromEnv: string | null | undefined,
 }
 
 export function getGeneratedTestLogScopeDir(scope: TestLogScope, rootDir: string): string {
-  return path.join(rootDir, 'test-logs', scope);
+  return path.join(rootDir, 'test-logs', assertGeneratedPathSegment(scope, 'test log scope'));
 }
 
 export function getGeneratedRunNdjsonFilePath(
@@ -80,14 +112,14 @@ export function getGeneratedRunNdjsonFilePath(
 ): string {
   return path.join(
     getGeneratedTestLogScopeDir(scope, rootDir),
-    runType,
+    assertGeneratedPathSegment(runType, 'run type'),
     generatedSuiteSegment(suiteType),
     `${sanitizeGeneratedPathSegment(runId)}.ndjson`
   );
 }
 
 export function getGeneratedAppLogScopeDir(scope: TestLogScope, rootDir: string): string {
-  return path.join(rootDir, 'app-logs', scope);
+  return path.join(rootDir, 'app-logs', assertGeneratedPathSegment(scope, 'app log scope'));
 }
 
 export function getGeneratedAppSessionFilePath(scope: TestLogScope, sessionId: string, rootDir: string): string {
@@ -103,7 +135,10 @@ export function getGeneratedManifestDir(rootDir: string): string {
 }
 
 export function getGeneratedManifestPath(scope: TestLogScope, rootDir: string): string {
-  return path.join(getGeneratedManifestDir(rootDir), `${scope}-ingest-manifest.json`);
+  return path.join(
+    getGeneratedManifestDir(rootDir),
+    `${assertGeneratedPathSegment(scope, 'manifest scope')}-ingest-manifest.json`
+  );
 }
 
 export function buildGeneratedLogsTreeKey(
@@ -112,7 +147,12 @@ export function buildGeneratedLogsTreeKey(
   suiteType: string | null | undefined,
   fileKey: string
 ): string {
-  return [scope, runType, generatedSuiteSegment(suiteType), fileKey].join('\0');
+  return [
+    assertGeneratedPathSegment(scope, 'logs tree scope'),
+    assertGeneratedPathSegment(runType, 'logs tree run type'),
+    generatedSuiteSegment(suiteType),
+    assertGeneratedPathSegment(fileKey, 'logs tree file key'),
+  ].join('\0');
 }
 
 export function getGeneratedRunDirPath(

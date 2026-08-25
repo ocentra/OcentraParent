@@ -1,12 +1,12 @@
 use std::{collections::BTreeMap, path::Path};
 
-use fs2::FileExt;
 use rusqlite::{Connection, OptionalExtension};
 
 use crate::{
     device_trust_lifecycle::DeviceTrustLifecycleError,
     device_trust_lifecycle_authority::authority_key,
     device_trust_lifecycle_authority_intent::{self, AuthorityIntent},
+    device_trust_lifecycle_authority_lock::lock_exclusive_bounded,
     device_trust_lifecycle_authority_store::{load_values, open_lock},
 };
 
@@ -17,11 +17,10 @@ pub(crate) fn reconcile(
     lock_path: &Path,
 ) -> Result<BTreeMap<String, u64>, DeviceTrustLifecycleError> {
     let lock = open_lock(lock_path)?;
-    lock.lock_exclusive()
-        .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+    lock_exclusive_bounded(&lock)?;
     let result = reconcile_locked(connection, values_path, intent_path);
     let unlock_result =
-        FileExt::unlock(&lock).map_err(|_error| DeviceTrustLifecycleError::Unavailable);
+        fs2::FileExt::unlock(&lock).map_err(|_error| DeviceTrustLifecycleError::Unavailable);
     result.and_then(|values| unlock_result.map(|()| values))
 }
 

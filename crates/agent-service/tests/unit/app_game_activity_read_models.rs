@@ -112,6 +112,8 @@ mod app_game_adapter_dispatch_result_payload;
 mod app_game_adapter_execution_readiness_payload;
 #[path = "../../src/activity_api/app_game_adapter_host_capabilities.rs"]
 mod app_game_adapter_host_capabilities;
+#[path = "../../src/activity_api/app_game_adapter_host_capabilities_linux.rs"]
+mod app_game_adapter_host_capabilities_linux;
 #[path = "../../src/activity_api/app_game_adapter_host_capabilities_paths.rs"]
 mod app_game_adapter_host_capabilities_paths;
 #[path = "../../src/activity_api/app_game_boundary_read_model_payload.rs"]
@@ -147,6 +149,8 @@ mod app_game_adapter_dispatch_result_service_tests;
 mod app_game_adapter_execution_readiness_payload_tests;
 #[path = "app_game_adapter_execution_readiness_service_tests.rs"]
 mod app_game_adapter_execution_readiness_service_tests;
+#[path = "app_game_adapter_host_capabilities.rs"]
+mod app_game_adapter_host_capabilities_tests;
 #[path = "app_game_boundary_read_model_payload_tests.rs"]
 mod app_game_boundary_read_model_payload_tests;
 #[path = "app_game_boundary_read_model_service_tests.rs"]
