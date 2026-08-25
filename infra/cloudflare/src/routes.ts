@@ -696,11 +696,212 @@ const ROUTE_CLASS_METADATA = Object.freeze({
   'internal-queue': Object.freeze({ routeGroup: 'admin', routeBoundary: 'internal-queue' }),
 } as const satisfies Record<RouteClass, { readonly routeGroup: RouteGroup; readonly routeBoundary: RouteBoundary }>);
 
-function routeMetadata(entry: RouteIdentityBinding): {
+function expectedPathForHandler(handlerKey: RouteHandlerKey): string {
+  if (handlerKey === 'health') return '/health';
+  if (handlerKey === 'pricing-public') return '/public/pricing';
+  if (handlerKey.startsWith('account-session-')) {
+    return `/auth/session/${handlerKey.slice('account-session-'.length)}`;
+  }
+  if (handlerKey.endsWith('-webhook')) {
+    return `/webhooks/${handlerKey.slice(0, -'-webhook'.length)}`;
+  }
+  if (handlerKey.startsWith('admin-billing-')) {
+    return `/admin/billing/${handlerKey.slice('admin-billing-'.length)}`;
+  }
+  if (handlerKey.startsWith('billing-')) {
+    return `/auth/billing/${handlerKey.slice('billing-'.length)}`;
+  }
+  throw new Error(`No canonical path derivation for Cloudflare handler: ${handlerKey}`);
+}
+
+function routeMetadata(entry: RouteIdentityBinding, handlerKey: RouteHandlerKey): {
   readonly routeGroup: RouteGroup;
   readonly routeBoundary: RouteBoundary;
 } {
-  return ROUTE_CLASS_METADATA[entry.routeClass];
+  const { path, method, authState, auditRule, routeClass } = entry;
+  const fail = (reason: string): never => {
+    throw new Error(`Invalid Cloudflare route manifest entry ${method} ${path}: ${reason}`);
+  };
+  const requireCondition = (condition: boolean, reason: string): void => {
+    if (!condition) {
+      fail(reason);
+    }
+  };
+
+  requireCondition(entry.auditEvent.trim().length > 0, 'audit event is required');
+  requireCondition(entry.proofIdFamily.trim().length > 0, 'proof ID family is required');
+  requireCondition(path === expectedPathForHandler(handlerKey), 'handler/path identity mismatch');
+  if (routeClass !== 'provider-webhook') {
+    requireCondition(!('webhookProvider' in entry), 'non-webhook route cannot declare a provider identity');
+  }
+
+  switch (routeClass) {
+    case 'health':
+      requireCondition(
+        path === '/health' &&
+          method === 'GET' &&
+          authState === 'public' &&
+          auditRule === 'public-observability' &&
+          handlerKey === 'health',
+        'health tuple mismatch'
+      );
+      break;
+    case 'public-pricing':
+      requireCondition(
+        path === '/public/pricing' &&
+          method === 'GET' &&
+          authState === 'public' &&
+          auditRule === 'public-observability' &&
+          handlerKey === 'pricing-public',
+        'public pricing tuple mismatch'
+      );
+      break;
+    case 'session-login':
+      requireCondition(
+        path === '/auth/session/login' &&
+          method === 'POST' &&
+          authState === 'public' &&
+          auditRule === 'public-observability' &&
+          handlerKey === 'account-session-login',
+        'session login tuple mismatch'
+      );
+      break;
+    case 'session-refresh':
+      requireCondition(
+        path === '/auth/session/refresh' &&
+          method === 'POST' &&
+          authState === 'browser-refresh-required' &&
+          auditRule === 'parent-session-write' &&
+          handlerKey === 'account-session-refresh',
+        'session refresh tuple mismatch'
+      );
+      break;
+    case 'session-logout':
+      requireCondition(
+        path === '/auth/session/logout' &&
+          method === 'POST' &&
+          authState === 'browser-refresh-required' &&
+          auditRule === 'parent-session-write' &&
+          handlerKey === 'account-session-logout',
+        'session logout tuple mismatch'
+      );
+      break;
+    case 'session-revoke':
+      requireCondition(
+        path === '/auth/session/revoke' &&
+          method === 'POST' &&
+          authState === 'browser-refresh-required' &&
+          auditRule === 'parent-session-write' &&
+          handlerKey === 'account-session-revoke',
+        'session revoke tuple mismatch'
+      );
+      break;
+    case 'billing-parent-read':
+      requireCondition(
+        path.startsWith('/auth/billing/') &&
+          method === 'GET' &&
+          authState === 'parent-session-required' &&
+          auditRule === 'parent-session-read' &&
+          handlerKey.startsWith('billing-'),
+        'parent billing read tuple mismatch'
+      );
+      break;
+    case 'billing-parent-write':
+      requireCondition(
+        path.startsWith('/auth/billing/') &&
+          method === 'POST' &&
+          authState === 'parent-session-required' &&
+          auditRule === 'parent-session-write' &&
+          handlerKey.startsWith('billing-'),
+        'parent billing write tuple mismatch'
+      );
+      break;
+    case 'billing-trusted-read':
+      requireCondition(
+        path.startsWith('/auth/billing/') &&
+          method === 'GET' &&
+          authState === 'trusted-parent-device-required' &&
+          auditRule === 'trusted-parent-device-read' &&
+          handlerKey.startsWith('billing-'),
+        'trusted-device billing read tuple mismatch'
+      );
+      break;
+    case 'billing-trusted-write':
+      requireCondition(
+        path.startsWith('/auth/billing/') &&
+          method === 'POST' &&
+          authState === 'trusted-parent-device-required' &&
+          auditRule === 'trusted-parent-device-write' &&
+          handlerKey.startsWith('billing-'),
+        'trusted-device billing write tuple mismatch'
+      );
+      break;
+    case 'billing-support-write':
+      requireCondition(
+        path === '/auth/billing/manual-invoice' &&
+          method === 'POST' &&
+          authState === 'support-required' &&
+          auditRule === 'support-write' &&
+          handlerKey === 'billing-manual-invoice',
+        'support billing write tuple mismatch'
+      );
+      break;
+    case 'provider-webhook': {
+      const provider = 'webhookProvider' in entry ? entry.webhookProvider : undefined;
+      requireCondition(provider !== undefined, 'webhook provider is required');
+      requireCondition(
+        provider === handlerKey.slice(0, -'-webhook'.length) &&
+          method === 'POST' &&
+          authState === 'provider-webhook-signature-required' &&
+          auditRule === 'provider-webhook' &&
+          handlerKey.endsWith('-webhook'),
+        'provider webhook identity tuple mismatch'
+      );
+      break;
+    }
+    case 'admin-support-read':
+      requireCondition(
+        path.startsWith('/admin/billing/') &&
+          method === 'GET' &&
+          authState === 'support-required' &&
+          auditRule === 'support-read' &&
+          handlerKey.startsWith('admin-billing-'),
+        'support admin read tuple mismatch'
+      );
+      break;
+    case 'admin-read':
+      requireCondition(
+        path.startsWith('/admin/billing/') &&
+          method === 'GET' &&
+          authState === 'admin-required' &&
+          auditRule === 'admin-read' &&
+          handlerKey.startsWith('admin-billing-'),
+        'admin read tuple mismatch'
+      );
+      break;
+    case 'admin-write':
+      requireCondition(
+        path.startsWith('/admin/billing/') &&
+          method === 'POST' &&
+          authState === 'admin-required' &&
+          auditRule === 'admin-write' &&
+          handlerKey.startsWith('admin-billing-'),
+        'admin write tuple mismatch'
+      );
+      break;
+    case 'internal-queue':
+      requireCondition(
+        path === '/admin/billing/reconciliation' &&
+          method === 'POST' &&
+          authState === 'internal-queue-only' &&
+          auditRule === 'internal-queue' &&
+          handlerKey === 'admin-billing-reconciliation',
+        'internal queue tuple mismatch'
+      );
+      break;
+  }
+
+  return ROUTE_CLASS_METADATA[routeClass];
 }
 
 function buildRouteManifest(): readonly RouteManifestEntry[] {
@@ -749,7 +950,7 @@ function buildRouteManifest(): readonly RouteManifestEntry[] {
         auditRule: source.auditRule,
         auditEvent: source.auditEvent,
         proofIdFamily: source.proofIdFamily,
-        ...routeMetadata(source),
+        ...routeMetadata(source, handlerKey),
         contract,
       })
     );
