@@ -3332,7 +3332,7 @@
         "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
       ],
-      "reason": "Manual or scheduled Data actions require Account-owned current authority and session/step-up inputs for the ParentOwner-bound ExportDeleteData/ImportRestoreData handoff. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. The reviewed-implementation gate remains blocked until Account WP05 records its missing durable participant/CAS source; it never borrows runtime authority or claims tests, proof, or DONE.",
+      "reason": "Manual or scheduled Data actions require the Account WP05 base authority/CAS handoff plus the Account WP05A multi-owner coordinator outcome for the ParentOwner-bound ExportDeleteData/ImportRestoreData handoff. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. The reviewed-implementation gate remains blocked until those WP05 base and WP05A owner sources exist; it never borrows runtime authority or claims tests, proof, or DONE.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -3405,7 +3405,7 @@
         "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
         "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
       ],
-      "reason": "Apply, migration, and rollback require Account-owned current authority and session/step-up inputs for the ParentOwner-bound ExportDeleteData/ImportRestoreData handoff. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. The reviewed-implementation gate remains blocked until Account WP05 records its missing durable participant/CAS source; it never borrows runtime authority or claims tests, proof, or DONE.",
+      "reason": "Apply, migration, and rollback require the Account WP05 base authority/CAS handoff plus the Account WP05A multi-owner coordinator outcome for the ParentOwner-bound ExportDeleteData/ImportRestoreData handoff. Remote-view/remote-control capability and controller-lease reservations are outside this Data route. The reviewed-implementation gate remains blocked until those WP05 base and WP05A owner sources exist; it never borrows runtime authority or claims tests, proof, or DONE.",
       "implementationGate": "reviewed-implementation"
     },
     {

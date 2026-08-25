@@ -1138,8 +1138,6 @@
         "crates/ai-contracts/src/ai_contracts_ts.rs",
         "crates/ai-contracts/tests/contract/ai_contracts.rs",
         "crates/ai-contracts/tests/contract/ai_contracts_negative.rs",
-        "crates/schema/tests/contract/ai_contracts.rs",
-        "crates/schema/tests/contract/ai_contracts_negative.rs",
         "packages/schema-domain/tests/contract/ai-contracts.test.ts"
       ],
       "plannedImplementationRoots": [
@@ -5868,7 +5866,7 @@
         "crates/parent-runtime-core/tests/integration/data_custody_runtime.rs",
         "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs"
       ],
-      "note": "WP05 production source is reviewed, fail-closed, and rebased onto the current consolidation head, including the durable parent-runtime seams. Live caller tracing finds no production implementation of the Account/provider/key/producer ports; all five expected runtime test roots are absent, the blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort needs an owner-side adapter before cross-crate mounting. The remaining order is Account WP05, Data WP09, WP10, WP11 composition, then a real caller. Proof, precommit, CI, and DONE remain open; this mapping does not imply completion."
+      "note": "WP05 base production source is reviewed, fail-closed, and rebased onto the current consolidation head, including the durable parent-runtime seams. It owns the schema/decision contracts, base scheduler/job and restore/migration ledgers, restart reconciliation, rollback, and Eventing/outbox composition; it does not own the missing durable multi-owner effect CAS/recovery coordinator. Live caller tracing finds no production implementation of the Account/provider/key/producer ports; all five expected runtime test roots are absent, the blocked-restore source/test flags disagree, and the sealed ImportCustodyCapabilityPort needs an owner-side adapter before cross-crate mounting. The remaining order is Account WP05 base -> Account WP05A coordinator/recovery -> Data WP09/WP10 -> WP11 composition -> real caller. Proof, precommit, CI, and DONE remain open; this mapping does not imply completion."
     },
     "WP-data-custody-storage-plan-06-report-query-custody": {
       "planSlug": "data-custody-storage-plan",

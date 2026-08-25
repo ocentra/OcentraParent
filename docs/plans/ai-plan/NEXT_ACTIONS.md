@@ -34,21 +34,26 @@ source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
    `crates/ai-contracts` (`ocentra-ai-contracts`). Keep schema and
    agent-protocol as direct consumers, preserve the generated TypeScript owner,
    and add no public re-export or authority constructor.
-2. Implement the WP04 explicit agent-protocol adapter over the leaf crate, then
-   write the three owned contract/parity tests together:
+2. Write WP03's owned contract/parity tests together after the move:
    `crates/ai-contracts/tests/contract/ai_contracts.rs`,
    `crates/ai-contracts/tests/contract/ai_contracts_negative.rs`, and
    `packages/schema-domain/tests/contract/ai-contracts.test.ts`. Establish and
-   review a real production caller before focused execution. Source migration
-   and adapter authorization do not imply READY, proof, or DONE.
-3. WP07 general durable AI work lifecycle.
-4. WP09 context builder and WP12 prompt registry.
-5. WP14-WP17 local text execution, parser, and degraded boundary.
-6. WP19 AI result journal/SQLite ingest, then WP18/WP20 integration.
-7. WP21-WP23/WP25 memory and graph closure.
-8. WP40-WP42 artifact/runtime governance.
-9. WP30/WP31/WP38 screen OCR/VLM execution.
-10. WP33-WP36 feature bridges, then WP43-WP47 product/security/performance.
+   review a real production caller before focused execution. These tests remain
+   WP03-owned; they do not close the WP04 adapter route.
+3. Implement the WP04 explicit agent-protocol adapter over the leaf crate and
+   write its separately owned contract test:
+   `crates/agent-protocol/tests/contract/ai_contracts.rs`. WP04 must consume
+   the leaf through an explicit wire adapter and must not duplicate WP03's
+   leaf/TypeScript tests or schema ownership. Source migration, tests, and
+   adapter authorization do not imply READY, proof, or DONE.
+4. WP07 general durable AI work lifecycle.
+5. WP09 context builder and WP12 prompt registry.
+6. WP14-WP17 local text execution, parser, and degraded boundary.
+7. WP19 AI result journal/SQLite ingest, then WP18/WP20 integration.
+8. WP21-WP23/WP25 memory and graph closure.
+9. WP40-WP42 artifact/runtime governance.
+10. WP30/WP31/WP38 screen OCR/VLM execution.
+11. WP33-WP36 feature bridges, then WP43-WP47 product/security/performance.
 11. WP48 rollout only after all Phase 1 gaps are closed.
 
 ## PR readiness guard
