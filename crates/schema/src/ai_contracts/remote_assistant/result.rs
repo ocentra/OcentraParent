@@ -10,6 +10,66 @@ use crate::ai_contracts::{
     AiSafeText, AiValidationState,
 };
 
+fn is_valid_remote_result(
+    request: &AiRemoteAssistantRequest,
+    state: AiRemoteAssistantState,
+    validation: AiValidationState,
+    degraded_state: AiDegradedState,
+    answer: Option<&AiSafeText>,
+    cited_evidence_reference_ids: &[AiEvidenceReferenceId],
+    safety_boundary: AiRemoteAssistantSafetyBoundary,
+    redaction: AiRedactionState,
+    retention: AiRetentionState,
+    returned_at: &AiTimestamp,
+) -> bool {
+    let authorization = request.source_bundle().authorization();
+    let within_authorization_window = returned_at.is_at_or_after(authorization.authorized_at())
+        && returned_at.is_before(authorization.expires_at());
+    let authorized_evidence = request.source_bundle().evidence_reference_ids();
+    let cited_set: HashSet<&AiEvidenceReferenceId> = cited_evidence_reference_ids.iter().collect();
+    let citations_bound = cited_set.len() == cited_evidence_reference_ids.len()
+        && cited_evidence_reference_ids
+            .iter()
+            .all(|reference| authorized_evidence.contains(reference));
+    let valid_state = matches!(
+        (state, validation),
+        (
+            AiRemoteAssistantState::Succeeded,
+            AiValidationState::Accepted
+        ) | (
+            AiRemoteAssistantState::Degraded,
+            AiValidationState::ManualRequired,
+        ) | (
+            AiRemoteAssistantState::ManualRequired,
+            AiValidationState::ManualRequired,
+        )
+    );
+    let valid_degraded_state = match state {
+        AiRemoteAssistantState::Succeeded => matches!(degraded_state, AiDegradedState::None),
+        AiRemoteAssistantState::Degraded | AiRemoteAssistantState::ManualRequired => {
+            !matches!(degraded_state, AiDegradedState::None)
+        }
+        _ => false,
+    };
+    valid_state
+        && valid_degraded_state
+        && (!matches!(state, AiRemoteAssistantState::Succeeded) || answer.is_some())
+        && (answer.is_none() || !cited_evidence_reference_ids.is_empty())
+        && citations_bound
+        && matches!(
+            safety_boundary,
+            AiRemoteAssistantSafetyBoundary::OutsideChildSafetyBlockingPath
+        )
+        && redaction.is_safe()
+        && !matches!(
+            retention,
+            AiRetentionState::Deleted | AiRetentionState::Tombstoned
+        )
+        && returned_at.is_well_formed()
+        && returned_at.is_at_or_after(request.requested_at())
+        && within_authorization_window
+}
+
 impl AiRemoteAssistantResult {
     pub(crate) fn from_authorized_request(
         schema_version: AiSchemaVersion,
@@ -26,54 +86,22 @@ impl AiRemoteAssistantResult {
         returned_at: AiTimestamp,
     ) -> Result<Self, &'static str> {
         validate_contract_schema_version(&schema_version)?;
-        let request_id = request.request_id().clone();
-        let family_id = request.source_bundle().family_id().clone();
-        let authorized_evidence = request.source_bundle().evidence_reference_ids();
-        let cited_set: HashSet<&AiEvidenceReferenceId> =
-            cited_evidence_reference_ids.iter().collect();
-        let citations_bound = cited_set.len() == cited_evidence_reference_ids.len()
-            && cited_evidence_reference_ids
-                .iter()
-                .all(|reference| authorized_evidence.contains(reference));
-        let valid_state = matches!(
-            (state, validation),
-            (
-                AiRemoteAssistantState::Succeeded,
-                AiValidationState::Accepted
-            ) | (
-                AiRemoteAssistantState::Degraded,
-                AiValidationState::ManualRequired
-            ) | (
-                AiRemoteAssistantState::ManualRequired,
-                AiValidationState::ManualRequired
-            )
-        );
-        let valid_degraded_state = match state {
-            AiRemoteAssistantState::Succeeded => matches!(degraded_state, AiDegradedState::None),
-            AiRemoteAssistantState::Degraded | AiRemoteAssistantState::ManualRequired => {
-                !matches!(degraded_state, AiDegradedState::None)
-            }
-            _ => false,
-        };
-        if !valid_state
-            || !valid_degraded_state
-            || (matches!(state, AiRemoteAssistantState::Succeeded) && answer.is_none())
-            || (answer.is_some() && cited_evidence_reference_ids.is_empty())
-            || !citations_bound
-            || !matches!(
-                safety_boundary,
-                AiRemoteAssistantSafetyBoundary::OutsideChildSafetyBlockingPath
-            )
-            || !redaction.is_safe()
-            || matches!(
-                retention,
-                AiRetentionState::Deleted | AiRetentionState::Tombstoned
-            )
-            || !returned_at.is_well_formed()
-            || !returned_at.is_at_or_after(request.requested_at())
-        {
+        if !is_valid_remote_result(
+            request,
+            state,
+            validation,
+            degraded_state,
+            answer.as_ref(),
+            &cited_evidence_reference_ids,
+            safety_boundary,
+            redaction,
+            retention,
+            &returned_at,
+        ) {
             return Err("AI remote result is not a safe, validated, request-bound result");
         }
+        let request_id = request.request_id().clone();
+        let family_id = request.source_bundle().family_id().clone();
         Ok(Self {
             schema_version,
             result_id,

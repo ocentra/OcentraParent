@@ -22,6 +22,7 @@ impl AiWorkItem {
 
     pub(crate) fn transition(
         &self,
+        authority: super::AiWorkTransitionAuthority,
         next_state: AiWorkState,
         sequence: u64,
         occurred_at: super::AiTimestamp,
@@ -30,11 +31,25 @@ impl AiWorkItem {
         degraded_state: AiDegradedState,
         terminal_reason: Option<AiSafeText>,
     ) -> Result<Self, &'static str> {
-        if !next_state.can_transition_from(Some(self.state))
-            || self
-                .last_transition_sequence
+        let expected_sequence = self.last_transition_sequence.checked_add(1);
+        let consumes_attempt = matches!(next_state, AiWorkState::Claimed);
+        let next_attempt = if consumes_attempt {
+            self.attempt
                 .checked_add(1)
-                .is_none_or(|expected| sequence != expected)
+                .ok_or("AI work item attempt counter overflowed")?
+        } else {
+            self.attempt
+        };
+        if !next_state.can_transition_from(Some(self.state))
+            || expected_sequence != Some(sequence)
+            || !authority.permits(
+                self.request.work_item_id(),
+                self.request.request_id(),
+                sequence,
+                next_state,
+                self.request.retry_policy.max_attempts(),
+            )
+            || next_attempt > self.request.retry_policy.max_attempts()
             || !matches!(durability, AiDurabilityState::Durable)
             || !occurred_at.is_well_formed()
             || !self.last_transition_at.precedes(&occurred_at)
@@ -46,10 +61,7 @@ impl AiWorkItem {
         Ok(Self {
             request: self.request.clone(),
             state: next_state,
-            attempt: self.attempt.saturating_add(u16::from(matches!(
-                next_state,
-                AiWorkState::Claimed | AiWorkState::Running
-            ))),
+            attempt: next_attempt,
             durability,
             validation,
             degraded_state,

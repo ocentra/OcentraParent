@@ -2,7 +2,9 @@ use std::collections::HashSet;
 use std::hash::Hash;
 
 use super::context::{AiEvidenceReference, AiRuleReference};
-use super::identity::{AiEvidenceReferenceId, AiGraphReferenceId, AiMemoryReferenceId, AiRuleId};
+use super::identity::{
+    AiDigest, AiEvidenceReferenceId, AiGraphReferenceId, AiMemoryReferenceId, AiResultId, AiRuleId,
+};
 use super::memory::{AiGraphReference, AiMemoryReference};
 
 pub(super) struct AiReferenceInventory<'a> {
@@ -27,6 +29,10 @@ fn known_unique_evidence(
     !ids.is_empty()
         && unique_set(ids.iter(), ids.len()).is_some()
         && ids.iter().all(|id| inventory.contains(id))
+}
+
+fn valid_result_binding(result_id: Option<&AiResultId>, digest: Option<&AiDigest>) -> bool {
+    result_id.is_some() == digest.is_some() && digest.is_none_or(AiDigest::is_canonical)
 }
 
 impl<'a> AiReferenceInventory<'a> {
@@ -68,6 +74,10 @@ impl<'a> AiReferenceInventory<'a> {
                         item.provenance().source_evidence_reference_ids(),
                         &evidence_ids,
                     )
+                    || !valid_result_binding(
+                        item.provenance().source_result_id(),
+                        item.provenance().source_digest(),
+                    )
             })
             || graph.iter().any(|item| {
                 !item.is_grounding_safe()
@@ -75,6 +85,7 @@ impl<'a> AiReferenceInventory<'a> {
                     || item
                         .source_memory_reference_id()
                         .is_some_and(|id| !memory_ids.contains(id))
+                    || !valid_result_binding(item.source_result_id(), item.source_result_digest())
             })
             || rules
                 .iter()
