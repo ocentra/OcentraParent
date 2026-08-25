@@ -57,6 +57,7 @@ fn empty_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot {
         activity_app_use_read_model: None,
         activity_browser_read_model: None,
         activity_games_read_model: None,
+        activity_app_game_platform_extension_read_model: None,
         screen_summary_panel: None,
         browser_inventory_event: None,
         browser_inventory_read_model: None,
@@ -88,6 +89,30 @@ fn empty_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot {
         activity_tracking_panel: None,
         activity_tracking_retention_settings_write_result: None,
     }
+}
+
+fn activity_surface_adapter_value<T>(read_model: &T) -> Option<serde_json::Value>
+where
+    T: serde::Serialize,
+{
+    let value = serde_json::to_value(read_model).ok()?;
+    let state = value.get("state")?.clone();
+    Some(serde_json::json!({
+        "ok": true,
+        "state": state,
+        "value": value,
+    }))
+}
+
+fn app_game_platform_extension_adapter_value<T>(read_model: &T) -> Option<serde_json::Value>
+where
+    T: serde::Serialize,
+{
+    let value = serde_json::to_value(read_model).ok()?;
+    Some(serde_json::json!({
+        "ok": true,
+        "value": value,
+    }))
 }
 
 fn activity_tracking_panel_snapshot(

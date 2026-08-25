@@ -36,6 +36,9 @@ pub(super) fn apply_app_game_live_activity_impl(
                     .map(|snapshot| &snapshot.read_model),
             ));
     }
+    snapshot.activity_app_game_platform_extension_read_model = input
+        .app_game_platform_proof_status_snapshot
+        .and_then(|snapshot| app_game_platform_extension_adapter_value(&snapshot.read_model));
     if input
         .app_game_child_runtime_transport_receipt_snapshot
         .is_some()

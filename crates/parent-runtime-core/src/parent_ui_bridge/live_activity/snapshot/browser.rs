@@ -36,16 +36,3 @@ pub(super) fn apply_browser_live_activity_impl(
             serde_json::to_value(&intervention.read_model).ok();
     }
 }
-
-fn activity_surface_adapter_value<T>(read_model: &T) -> Option<Value>
-where
-    T: serde::Serialize,
-{
-    let value = serde_json::to_value(read_model).ok()?;
-    let state = value.get("state")?.clone();
-    Some(serde_json::json!({
-        "ok": true,
-        "state": state,
-        "value": value,
-    }))
-}

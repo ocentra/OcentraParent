@@ -250,6 +250,7 @@ type ParentPortalActivityState = {
   activityReportHistory?: unknown;
   activityScreenReadModel?: unknown;
   activityAppUseReadModel?: unknown;
+  activityAppGamePlatformExtensionReadModel?: unknown;
   activityBrowserReadModel?: unknown;
   activityGamesReadModel?: unknown;
   activityNetworkReadModel?: unknown;
