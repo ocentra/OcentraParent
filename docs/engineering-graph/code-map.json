@@ -3736,6 +3736,7 @@
         "crates/entitlement-core/src/entitlement_snapshot_text_id.rs",
         "crates/entitlement-core/src/entitlement_snapshot_values.rs",
         "crates/entitlement-core/src/entitlement_snapshot_wire_names.rs",
+        "crates/child-runtime/src/runtime_gate.rs",
         "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs",
         "crates/entitlement-core/tests/unit/capability_access.rs",
         "crates/entitlement-core/tests/unit/capability_gate.rs",
@@ -3743,9 +3744,10 @@
         "crates/schema/src/billing_entitlement_runtime_proof.rs",
         "crates/schema/tests/contract/billing_entitlement_proof.rs",
         "crates/schema/tests/contract/billing_entitlement_runtime_proof.rs",
-        "tests/device-trust-bootstrap-plan/contract/entitlement-device-license.test.mjs"
+        "tests/device-trust-bootstrap-plan/contract/entitlement-device-license.test.mjs",
+        "crates/child-runtime/tests/unit/runtime_gate.rs"
       ],
-      "note": "Independently reviewed source now owns signed snapshot shape/signing, pinned-key verification, account/device/package binding, owner-controlled currentness, signed revocation reads, opaque verified authority, and Tracking-only offline grace. No positive runtime consumer or local signed-state writer is exposed. Existing contract and child-runtime tests predate this authority boundary and remain explicit test-wave debt; this mapping does not claim WP05 completion."
+      "note": "Independently reviewed source now owns the signed snapshot transport/issuer boundary, pinned-key verification, account/device/package binding, owner-controlled currentness, signed revocation reads, opaque verified authority, and Tracking-only offline grace. crates/child-runtime/src/runtime_gate.rs is a non-test projection consumer of the entitlement decision boundary, but wire deserialization resets verifier-owned context to unavailable and no non-test caller reaches its preflight. Billing/schema roots are projection/proof shape only, not Device Trust authority. No positive runtime consumer or local signed-state writer is exposed; signing, key, package, currentness, revocation, and action owners remain absent. Mapped contract, child-runtime, schema, and plan tests remain stale or document-only test-wave debt; this mapping does not claim WP05 completion."
     },
     "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair": {
       "planSlug": "device-trust-bootstrap-plan",
