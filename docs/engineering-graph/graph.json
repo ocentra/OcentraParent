@@ -24951,13 +24951,58 @@
             "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md",
             "docs/engineering-graph/code-map.json"
           ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed implementation evidence only for the CNG/TPM mechanics, private core Windows adapter, and WP01-owned read-only provisioner integrated at canonical a6d7d9adf. The provisioner revalidates enrolled state and always returns ExternalProvisioningRequired; it cannot create or publish enrollment. This records exact source evidence for implementation-phase routing only: WP01 remains validation with 0 tests and no READY or DONE claim. External OEM/firmware/MDM TPM_RH_PLATFORM authority and NV define/undefine lifecycle, authenticated owner handoff, protected registry/SCM mutation, independent broker/client/token observations, enrolled counter generation, core monotonic provider, real transport callers, 13 expected tests, proof, pre-commit, CI, PR, and merge remain open.",
+          "evidence": [
+            "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+            "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
+            "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist", "adr"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
-          "implementation": [],
+          "implementation": [
+            "crates/protected-capability-custody-core/src/lib.rs",
+            "crates/protected-capability-custody-core/src/broker_admission.rs",
+            "crates/protected-capability-custody-protocol/src/lib.rs",
+            "crates/protected-capability-custody-broker/src/lib.rs",
+            "crates/protected-capability-custody-broker/src/main.rs",
+            "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+            "crates/protected-capability-custody-broker/src/authority.rs",
+            "crates/protected-capability-custody-broker/src/custody.rs",
+            "crates/protected-capability-custody-client/src/lib.rs",
+            "crates/protected-capability-custody-client/src/windows_ipc.rs",
+            "crates/protected-capability-custody-client/src/admission.rs",
+            "crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs",
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs",
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs",
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/peer.rs",
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/ceremony.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/cng.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/constants.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/enrollment.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/error.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/mod.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_digest.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/registry_security.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/scm_error.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/state.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm.rs",
+            "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/tpm_error.rs"
+          ],
           "tests": [
             "docs/plans/protected-capability-custody-foundation-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
