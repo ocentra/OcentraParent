@@ -2706,6 +2706,21 @@
         "tests/repo-tooling/platform-packaging.test.mjs"
       ]
     },
+    "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "scripts/release/windows/parent-protected-custody",
+        "scripts/release/windows/parent-protected-custody.wxs",
+        "scripts/release/windows/build-parent-protected-custody-package.ps1",
+        "scripts/release/windows/parent-protected-custody/tests",
+        "tests/repo-tooling/parent-protected-custody-package.test.mjs"
+      ],
+      "expectedTestRoots": [
+        "tests/repo-tooling/parent-protected-custody-package.test.mjs"
+      ],
+      "note": "Routing-only parent-side MSI/WiX/custom-action/build and upgrade/rollback/uninstall boundary. Protected WP01 owns private core/FFI enrollment acceptance, TPM policy, non-exportable handle, exact registry/SCM/peer authority, and opaque proofs. No raw authValue or caller-supplied authority is allowed; existing child-agent WiX is out of scope. Source, tests, proof, signing, and runtime readiness remain absent."
+    },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
       "roots": [

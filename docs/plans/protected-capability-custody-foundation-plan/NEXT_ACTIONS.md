@@ -26,12 +26,15 @@
    TPM2 NV/TBS monotonic generation while constructing only the core's private
    opaque proofs. Do not widen visibility of the sealed core authority.
 3. Wire those private modules through the existing core runtime methods at one
-   dispatch/open-session seam, then add installer/SCM-owned immutable
-   pre-provisioning and the first real enrolled production caller. The broker
-   retains the pipe stream/handle for the request; pipe IDs are re-queried
-   immediately before transcript authorization. No second helper
-   process/protocol, caller-supplied identity/attestation, or disk generation
-   restore is allowed.
+   dispatch/open-session seam. Parent Client Runtime Distribution WP12 owns the
+   parent-side MSI/WiX/custom-action provisioner, build wiring, and
+   upgrade/rollback/uninstall contract; Protected WP01 owns acceptance of the
+   installer-provisioned record and the opaque proof. The broker retains the
+   pipe stream/handle for the request; pipe IDs are re-queried immediately
+   before transcript authorization. No second helper process/protocol,
+   caller-supplied identity/attestation, raw `authValue`, or disk generation
+   restore is allowed. The first real enrolled production caller is a later
+   distinct source handoff after both owner boundaries exist.
 4. Preserve fail-closed behavior before any storage, registry, journal,
    listener, bootstrap, or service-ready mutation for missing identity, wrong
    owner, revoked or stale generation, path escape, replay, restart ambiguity,

@@ -31,11 +31,12 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | complete | [WP09 Parent Client Launch Smoke Matrix](workpacks/09-parent-client-launch-smoke-matrix.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/` |
 | open | [WP10 Setup Handoff Contracts](workpacks/10-setup-handoff-contracts.md) | 0/10 | `output/parent-client-runtime-distribution-plan-proof/10-setup-handoff-contracts/` |
 | open | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | 0/14 | `output/parent-client-runtime-distribution-plan-proof/11-proof-ci-release-gate/` |
+| blocked / routing-only | [WP12 Protected Broker Provisioner Package](workpacks/12-protected-broker-provisioner-package.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/12-protected-broker-provisioner-package/` |
 
 ## Default execution order
 
 ```text
-WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09 -> WP10 -> WP11
+WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP12 -> WP07 -> WP08 -> WP09 -> WP10 -> WP11
 ```
 
 ## Dependency rules
@@ -50,7 +51,10 @@ WP07 handles signing/store/notarization matrix before release claims.
 WP08 handles update/rollback/checksum/SBOM.
 WP09 handles launch smoke by artifact/platform.
 WP10 handles setup handoff contract only.
-WP11 is last and consumes all previous proof roots.
+WP12 handles the parent-side protected broker/provisioner MSI/WiX and lifecycle
+contract; it consumes Protected WP01's accepted owner boundary and the WP03
+desktop package surface, without owning protected authority.
+WP11 is last and consumes all previous proof roots, including WP12.
 ```
 
 ## Status rules
@@ -58,6 +62,8 @@ WP11 is last and consumes all previous proof roots.
 - If a workpack text says proof is recorded but this index says open, keep the row open until the proof root, checklist row, and PLAN_STATE are aligned.
 - Do not raise status from scaffold, source script presence, launch smoke, CI success, preview build, or package metadata alone.
 - Do not use one platform artifact to imply another platform artifact.
+- Keep WP12 blocked if the package accepts raw authority input, reuses the
+  child-agent installer, or reports protected readiness from MSI success.
 
 ## Do not select
 

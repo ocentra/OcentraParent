@@ -48,6 +48,29 @@ requirements now observe the root manifest, each package manifest, required
 not derive ordinary READY or DONE while the protected adapters, tests, caller,
 proof, and release gates remain open.
 
+## Installer-side ownership checkpoint — 2026-08-25
+
+Parent Client Runtime Distribution WP12
+(`12-protected-broker-provisioner-package`) is now the routed owner for the
+parent-side Windows MSI/WiX package, elevated custom-action/provisioner
+invocation, build/release wiring, and upgrade/rollback/uninstall contract. Its
+expected package roots are `scripts/release/windows/parent-protected-custody/`,
+`scripts/release/windows/parent-protected-custody.wxs`, and
+`scripts/release/windows/build-parent-protected-custody-package.ps1`; generated
+MSI/checksum/signing outputs belong under `target/release-packages/` and are not
+source truth.
+
+Protected WP01 remains the sole owner of the private core/FFI Windows adapter,
+enrollment provenance, registry/SCM/peer authority, TPM policy and
+non-exportable-handle validation, and opaque admission/transcript proofs. The
+parent package may invoke an approved elevated provisioner but may not expose
+or accept a raw TPM `authValue`, TPM index/policy, SID, path, image identity,
+generation, lease, capability, or success flag from MSI properties, command
+line, setup, or a production caller. This is routing only: the package roots,
+installer ceremony, real caller, expected tests, proof, CI, PR, READY, and DONE
+remain absent/open, and the 24-plan program count is unchanged while this plan
+gains one additional workpack.
+
 ## ADR-PCC-002 routing checkpoint — 2026-08-25
 
 ADR-PCC-002 selects one Rust Windows front-door process: the existing protected
