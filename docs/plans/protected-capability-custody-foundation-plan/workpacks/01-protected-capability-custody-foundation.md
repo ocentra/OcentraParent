@@ -17,9 +17,11 @@ can consume without obtaining or manufacturing protected authority. The
 fail-closed core, neutral protocol, broker, client, Windows FFI mechanics, and
 private core Windows adapter are reviewed and integrated at canonical
 `9375b0e10` from source branch `8df832f2d`. The graph records 99 implementation
-files, 0 tests, and no Cargo workspace requirement gaps. The broker remains
-deliberately unavailable before state creation because installer-owned TPM
-policy/non-exportable handle authority is still unavailable.
+files, 0 tests, and no Cargo workspace requirement gaps for the accepted
+core/FFI packages; the planned provisioner manifest, workspace member, and BIN
+target remain missing. The broker remains deliberately unavailable before state
+creation because installer-owned TPM policy/non-exportable handle authority is
+still unavailable.
 
 The installer-side enrollment boundary is deliberately split. Parent Client
 Runtime Distribution WP12 owns the parent Windows MSI/WiX package, the
@@ -70,8 +72,10 @@ crates/protected-capability-custody-core/src/broker_admission/platform/windows/
 
 The 2026-08-25 source packet was independently reviewed on branch
 `8df832f2d` and integrated at canonical `9375b0e10`; the graph maps 99
-implementation files and 0 tests with no workspace requirement gaps. It
-adds the isolated-process/package boundary, one shared bounded wire protocol,
+implementation files and 0 tests with no workspace requirement gaps for the
+accepted core/FFI packages. The planned provisioner manifest, workspace member,
+and BIN target remain missing. The packet adds the isolated-process/package
+boundary, one shared bounded wire protocol,
 opaque request/result types, startup preflight, dynamic enrolled-client pipe
 ACL construction, split immutable-enrollment/runtime registry custody, and a
 narrow core-owned broker entry plus the raw Windows FFI and private core adapter
@@ -127,7 +131,9 @@ adapter crate. The external seam remains one broker dispatch/open-session
 path; the broker derives identity from authenticated Windows peer observation,
 not from caller fields. This source route was reviewed on `8df832f2d` and
 integrated at canonical `9375b0e10`; the graph records 99 implementation files,
-0 tests, and no workspace requirement gaps.
+0 tests, and no workspace requirement gaps for the accepted core/FFI packages.
+The planned provisioner manifest, workspace member, and BIN target remain
+missing.
 
 The integrated FFI package is limited to raw Win32/TBS/TPM calls and safe
 owned-handle RAII wrappers. Its manifest uses package-local lint tables, not

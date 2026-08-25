@@ -18,8 +18,10 @@ The independently reviewed Protected WP01 source packet is integrated. The
 reviewed source branch was `8df832f2d`; canonical merge commit
 `9375b0e10` records the integrated FFI/private-core packet. The current graph
 topology records 99 implementation files and 0 tests, with no Cargo workspace
-requirement gaps (`cargo metadata --no-deps` remains authoritative). Focused
-host and Windows checks, architecture/source-shape and Enforcer guards, and
+requirement gaps for the accepted core/FFI packages. The planned provisioner
+manifest, workspace member, and BIN target remain missing (`cargo metadata
+--no-deps` remains authoritative). Focused host and Windows checks,
+architecture/source-shape and Enforcer guards, and
 the lane/hub guards passed for this source packet. This is source acceptance
 evidence only: no tests, proof, pre-commit, CI, PR, READY, or DONE claim is
 made here.

@@ -13,8 +13,9 @@
    and integrated at canonical `9375b0e10` from reviewed branch `8df832f2d`.
    Preserve the package-local unsafe boundary, private enrollment/peer/SCM/
    monotonic policy, and sealed core constructors. The graph records 99
-   implementation files, 0 tests, and no workspace requirement gaps; this is
-   not READY or DONE evidence.
+   implementation files, 0 tests, and no workspace requirement gaps for the
+   accepted core/FFI packages; the planned provisioner manifest, workspace
+   member, and BIN target remain missing. This is not READY or DONE evidence.
 2. Complete the protected runtime authority that remains unavailable:
    installer-owned TPM policy and non-exportable handle enrollment, with
    fail-closed `DeploymentRequired` before DB/state/listener mutation when the

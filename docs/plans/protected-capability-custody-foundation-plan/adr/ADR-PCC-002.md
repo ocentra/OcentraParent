@@ -14,8 +14,10 @@ core, neutral wire package, broker process, client, Windows FFI mechanics, and
 private core Windows adapter are real Rust source. The broker still fails closed
 before custody state creation because installer-owned TPM policy and the
 non-exportable handle authority are not available. The graph records 99
-implementation files, 0 tests, and no workspace requirement gaps; focused host
-and Windows checks plus architecture/Enforcer/guard checks passed.
+implementation files, 0 tests, and no workspace requirement gaps for the
+accepted core/FFI packages; the planned provisioner manifest, workspace member,
+and BIN target remain missing. Focused host and Windows checks plus
+architecture/Enforcer/guard checks passed.
 
 The actual core API already owns the protected construction boundary. Its
 `BrokerPeerAdmissionObservation` and `BrokerAuthorizedClientTranscript` have
