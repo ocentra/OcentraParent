@@ -216,6 +216,14 @@ fn browser_intervention_row_from_fields(
     fields: &LogFields,
     derived: &BrowserInterventionDerivedFields,
 ) -> Option<BrowserInterventionRow> {
+    let exact_url_visible = matches!(
+        derived.browser_boundary_state,
+        BrowserBoundaryState::ManagedSession
+    ) && derived.managed_browser_session_id.is_some()
+        && matches!(
+            derived.exact_url_claim_state,
+            BrowserExactUrlClaimState::ExactUrlProven
+        );
     Some(BrowserInterventionRow {
         schema_version: BROWSER_INTERVENTION_SCHEMA_VERSION,
         browser_intervention_id: string_field(fields, constants::field::BROWSER_INTERVENTION_ID)?,
@@ -244,8 +252,12 @@ fn browser_intervention_row_from_fields(
             fields,
             constants::field::INTERVENTION_TARGET_VALUE,
         )?,
-        requested_url: derived.requested_url.clone(),
-        observed_url: derived.observed_url.clone(),
+        requested_url: exact_url_visible
+            .then(|| derived.requested_url.clone())
+            .flatten(),
+        observed_url: exact_url_visible
+            .then(|| derived.observed_url.clone())
+            .flatten(),
         intervention_mechanism: intervention_mechanism_field(fields)?,
         intervention_outcome: intervention_outcome_field(fields)?,
         browser_boundary_state: derived.browser_boundary_state,
