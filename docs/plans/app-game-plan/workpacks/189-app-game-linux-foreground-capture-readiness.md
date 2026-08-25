@@ -81,3 +81,14 @@ Not proved:
 - AppArmor, SELinux, package manager, Flatpak, Snap, rollback, audit, launch
   blocking, adapter dispatch, platform enforcement, provider delivery, or
   child-device delivery.
+
+## Graph ownership correction — 2026-08-25
+
+WP189 is the production owner for the foundational Linux capture/readiness
+roots: `crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs`,
+`crates/screen-capture-adapter/src/lib.rs`, the three `linux_display*` files,
+the three `linux_socket*` files, and `linux_x11.rs` plus
+`linux_x11_capture.rs`. The agent-service activity API roots and
+`linux_foreground_source.rs` belong to WP191; WP204 owns no production source.
+WP191 therefore depends on WP189. Missing expected tests and proof keep this
+workpack validation-open; this is not a completion claim.

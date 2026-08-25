@@ -75,3 +75,14 @@ because the dedicated source panel is not yet a rendered parent-visible surface.
   manual-required semantics, or hostile/long metadata.
 - Production source is present; expected-test writing, focused execution,
   proof, checklist acceptance, READY, and DONE remain open.
+
+## Graph ownership correction — 2026-08-25
+
+WP63 owns only
+`vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts`.
+It consumes WP48's dashboard source-row seam and the single-owner focused test
+through the reviewed `WP63 -> WP48` dependency. WP63 does not claim
+`apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`, the
+dashboard intent, bridge, live-activity state, SVG surface, portal surface,
+route, or route-scaffold roots. This metadata correction does not add source,
+tests, proof, READY, or DONE.

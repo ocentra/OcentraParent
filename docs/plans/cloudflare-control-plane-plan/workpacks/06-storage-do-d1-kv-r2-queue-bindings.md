@@ -383,3 +383,14 @@ test WP06 packet.
 - No claim is made that queue retries, dead-letter replay, D1 writes, KV writes, or R2 writes executed live.
 - No claim is made that Account WP08 or this packet alone completes account authority; Cloudflare WP08 runner proof and Account WP06 aggregation remain separate required handoffs.
 - The account-identity focused integration test, migration command, and proof remain deferred. Account WP02 target resolution and the D1 writer/provider caller are reviewed source, but create/CAS/revoke are not runtime-reachable until an owning route composes the mutation producer; production configuration and full runtime authority remain manual-required.
+
+## Graph ownership correction — 2026-08-25
+
+Cloudflare WP06 is the sole owner of the account-identity authority decoder,
+producer/issuer transport and registry/runtime roots, caller/runtime, durable
+authority store, and writer roots listed in `code-map.json`. It does not claim
+`infra/cloudflare/src/auth/verifier.ts` or `infra/cloudflare/src/routes.ts`;
+those belong to Cloudflare WP04. Account WP03 consumes the WP06 authority
+boundary through its retained one-way dependency and does not own the store,
+caller, or runtime files. The missing authenticated handoff, tests, migration,
+proof, runtime readiness, and DONE blockers remain unchanged.

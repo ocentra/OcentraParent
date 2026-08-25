@@ -37,3 +37,12 @@ be explicit before runtime consumers grow.
 
 - `cargo test -p ocentra-parent-agent-protocol`
 - focused service/core tests for touched Rust AI shapes.
+
+## Graph ownership correction — 2026-08-25
+
+WP04 owns the Rust protocol parity source and
+`crates/agent-protocol/tests/contract/ai_contracts.rs`. The shared
+`packages/schema-domain/tests/contract/ai-contracts.test.ts` parity test is
+owned by AI WP03; WP04 consumes it through the reviewed `WP04 -> WP03`
+dependency and does not claim a second copy. No source, test, proof, READY, or
+DONE claim is made by this routing correction.

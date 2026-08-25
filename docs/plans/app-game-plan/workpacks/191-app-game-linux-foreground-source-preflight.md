@@ -75,3 +75,15 @@ Not proved:
 - AppArmor, SELinux, package manager, Flatpak, Snap, rollback, audit, launch
   blocking, adapter dispatch, platform enforcement, provider delivery, or
   child-device delivery.
+
+## Graph ownership correction — 2026-08-25
+
+WP191 is the production owner for the Linux foreground-source/preflight
+integration roots: `crates/agent-service/src/activity_api.rs`,
+`app_game_adapter_host_capabilities.rs`,
+`app_game_adapter_host_capabilities_linux.rs`,
+`app_game_platform_proof_status_payload.rs`, and
+`crates/screen-capture-adapter/src/linux_foreground_source.rs`. It consumes
+WP189's display/socket/X11 capture-readiness foundation through the reviewed
+`WP191 -> WP189` dependency. WP204 is test/contract-only and owns no
+production root. Expected tests, proof, and runtime validation remain open.

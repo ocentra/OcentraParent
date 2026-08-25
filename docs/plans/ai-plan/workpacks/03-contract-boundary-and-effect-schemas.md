@@ -102,3 +102,13 @@ If Rust/wire consumers are touched, add the focused Rust/protocol commands from 
 ## No-Claim Boundary
 
 This workpack can prove contract/schema readiness for the selected shape family only. It does not prove runtime model execution, provider mesh, local model packaging, evidence capture, policy execution, portal UX, remote assistant readiness, or PR_READY.
+
+## Graph ownership correction — 2026-08-25
+
+WP03 is the sole owner of the shared TypeScript parity test
+`packages/schema-domain/tests/contract/ai-contracts.test.ts`, alongside the
+canonical Rust AI contract source and generated schema-domain edge source
+listed in `code-map.json`. AI WP04 owns its Rust protocol contract test and is
+an explicit consumer of this parity packet (`WP04 -> WP03`); it must not claim
+the shared TypeScript test or duplicate WP03 schema ownership. This is a
+metadata-only routing correction and does not add tests, proof, or completion.

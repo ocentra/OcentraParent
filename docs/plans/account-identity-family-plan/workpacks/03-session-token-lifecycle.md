@@ -290,3 +290,18 @@ caller-side authority is fabricated.
   - `output/account-identity-family-plan-proof/03-session-token-lifecycle/16-validation-commands.log`
 - Known gaps/manual-required states: `05-csrf-origin-proof.md` is an explicit blocker note, not proof of real CSRF/origin/fetch-metadata enforcement; a real browser request surface remains outside this slice and must be closed later in the owning runtime surfaces. Provider implementation remains tied to WP01, device trust/step-up proof remains external, and WP07/WP06 still need their own proof roots.
 - No-claim boundaries: do not claim real browser request safety, provider/runtime completion, invite/recovery completion, UI readiness, or route-gate completion from this WP03 closure.
+
+## Graph ownership correction — 2026-08-25
+
+Account WP03 owns the browser-session codec/store/routes and Firebase provider
+inputs listed in the graph, plus its existing Account session/migration roots.
+Cloudflare WP06 is the sole owner of
+`infra/cloudflare/src/storage/account-identity-authority-store.ts`,
+`infra/cloudflare/src/auth/account-identity-authority-caller.ts`, and
+`infra/cloudflare/src/auth/account-identity-authority-runtime.ts`; Cloudflare
+WP04 is the sole route/auth owner of
+`infra/cloudflare/src/auth/verifier.ts` and
+`infra/cloudflare/src/routes.ts`. WP03 consumes WP06 through the retained
+one-way `WP03 -> WP06` dependency and does not re-claim those authority roots.
+This docs/graph correction does not imply tests, migration execution, live
+Worker/D1 validation, proof, READY, or DONE.

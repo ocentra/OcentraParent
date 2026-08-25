@@ -75,3 +75,14 @@ Not proved:
 - Raw active-window title custody.
 - Linux policy enforcement, rollback, audit, adapter dispatch, provider
   delivery, or child-device delivery.
+
+## Graph ownership correction — 2026-08-25
+
+WP204 is a test/contract-only packet. It owns no production root; its exact
+test ownership is limited to
+`crates/screen-capture-adapter/tests/unit/linux_active_window_tools.rs`,
+`crates/agent-service/tests/unit/app_game_linux_active_window_tool_proof.rs`,
+and `crates/agent-protocol/tests/contract/app_game_linux_active_window_tool_proof.rs`.
+Those tests consume WP191's typed foreground-source/preflight boundary through
+the reviewed `WP204 -> WP191` dependency. The tests are absent and no proof,
+runtime, READY, or DONE claim is made.

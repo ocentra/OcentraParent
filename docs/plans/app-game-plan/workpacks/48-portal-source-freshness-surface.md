@@ -87,3 +87,16 @@ remain open.
   headings/count labels, not empty/stale/degraded behavior.
 - Production source is present; expected-test writing, focused execution,
   proof, checklist acceptance, READY, and DONE remain open.
+
+## Graph ownership correction — 2026-08-25
+
+WP48 owns the dashboard source-row seam in
+`vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts`
+and the shared focused test packet
+`apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`. WP63 is a
+consumer of that seam (`WP63 -> WP48`) and owns only the source-panel intent.
+The bridge, live-activity state, activity intent, SVG surface, portal surface,
+route, and route-scaffold roots are not WP48/WP63 implementation claims; the
+broader mounted surface remains with the existing App/Game dashboard owner.
+This is graph/docs routing only; the focused test and completion gates remain
+open.

@@ -99,3 +99,13 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 ## Failure conditions
 
 - Do not imply request/response schema readiness from path lists alone.
+
+## Graph ownership correction — 2026-08-25
+
+Within the Account/Cloudflare overlap packet, WP04 is the sole route/auth owner
+of `infra/cloudflare/src/routes.ts` and
+`infra/cloudflare/src/auth/verifier.ts`. Account WP03 consumes this boundary;
+Cloudflare WP06 owns the separate account-identity authority store/caller/
+runtime roots and must not re-claim the route/auth files. Existing route and
+runtime blockers remain unchanged; this metadata correction makes no proof,
+READY, or DONE claim.
