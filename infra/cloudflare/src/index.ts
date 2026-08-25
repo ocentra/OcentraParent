@@ -62,7 +62,6 @@ import {
   type RouteHandlerMap,
   type RouteManifestEntry,
 } from './routes.js';
-import { redactHeaders, redactPayload, redactStringValue } from './security/redaction.js';
 import {
   loginBrowserSession,
   logoutBrowserSession,
@@ -75,19 +74,14 @@ import { createBrowserSessionStore } from './storage/account-browser-session-sto
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const INTERACTIVE_CSRF_HEADER = 'x-ocentra-csrf';
 
-function billingReadModelUnavailableResponse(
-  route: RouteManifestEntry,
-  error: BillingReadModelUnavailableError,
-  identity?: VerifiedIdentity
-): Response {
+function billingReadModelUnavailableResponse(route: RouteManifestEntry, identity?: VerifiedIdentity): Response {
   return json(503, {
     status: 'manual-required',
     handlerKey: route.handlerKey,
     authState: route.authState,
     proofIdFamily: route.proofIdFamily,
     actorRole: identity?.role ?? null,
-    blocker: error.code,
-    scope: error.scope,
+    blocker: 'billing-read-model-unavailable',
     message: 'Durable billing read-model data is unavailable; fixture fallback is disabled outside local-safe mode.',
   });
 }
@@ -159,6 +153,13 @@ type QueueFailureReason =
   | 'reconciliation-queue-send-failed'
   | 'queue-consumer-invalid-message'
   | 'queue-consumer-manual-required';
+type QueueFailureCode = 'billing-queue-operation-failed' | 'billing-read-model-unavailable';
+type DeadLetterPayloadKind =
+  | 'manual-invoice'
+  | 'provider-webhook'
+  | 'reconciliation'
+  | 'referral-invite'
+  | 'unclassified';
 
 const IDEMPOTENCY_LEASE_MS = 60_000;
 const IDEMPOTENCY_RETRY_BASE_MS = 1_000;
@@ -475,26 +476,44 @@ function withQueuedFlag(responseBody: unknown, queued: boolean): unknown {
   };
 }
 
-function queueFailureMessage(error: unknown): string | null {
-  if (!(error instanceof Error)) {
+function queueFailureCode(error: unknown): QueueFailureCode | null {
+  if (error === null || error === undefined) {
     return null;
   }
-
-  return redactStringValue(error.message.replace(/\s+/gu, ' ').trim().slice(0, 160)) || null;
+  return error instanceof BillingReadModelUnavailableError
+    ? 'billing-read-model-unavailable'
+    : 'billing-queue-operation-failed';
 }
 
-function deadLetterPayload(
+function deadLetterPayloadKind(payload: Readonly<Record<string, unknown>>): DeadLetterPayloadKind {
+  switch (payload.action) {
+    case 'manual-invoice':
+    case 'provider-webhook':
+    case 'reconciliation':
+    case 'referral-invite':
+      return payload.action;
+    default:
+      return 'unclassified';
+  }
+}
+
+async function deadLetterPayload(
   payload: Record<string, unknown>,
   reason: QueueFailureReason,
   error: unknown
-): Record<string, unknown> {
+): Promise<Record<string, unknown>> {
+  const serializedPayload = JSON.stringify(payload);
+  if (serializedPayload === undefined) {
+    throw new BillingReadModelUnavailableError('billing-dead-letter-payload-unserializable');
+  }
   return {
     disposition: 'dead-letter',
     sourceQueue: 'BILLING_RECONCILIATION_QUEUE',
     reason,
-    payload: redactPayload(cloneJsonValue(payload)),
+    payloadKind: deadLetterPayloadKind(payload),
+    payloadDigest: await domainSeparatedSha256('ocentra.billing.dead-letter.payload.v1', serializedPayload),
     failedAt: new Date().toISOString(),
-    errorMessage: queueFailureMessage(error),
+    errorCode: queueFailureCode(error),
   };
 }
 
@@ -737,18 +756,32 @@ function durableWriteKey(action: string, subject: string, requestId: string): st
   return `${action}:${subject}:${requestId}`;
 }
 
-function canonicalRequestFingerprint(
+type BillingDigestDomain =
+  | 'ocentra.billing.dead-letter.payload.v1'
+  | 'ocentra.billing.idempotency.request-fingerprint.v1'
+  | 'ocentra.billing.provider-webhook.body-id.v1'
+  | 'ocentra.billing.provider-webhook.body.v1';
+type Sha256Digest = `sha256:${string}`;
+
+async function opaqueRequestFingerprint(
   action: string,
   subject: string | null,
   requestId: string,
   details: Readonly<Record<string, unknown>> = {}
-): string {
-  return JSON.stringify({ ...details, action, subject, requestId });
+): Promise<Sha256Digest> {
+  return domainSeparatedSha256(
+    'ocentra.billing.idempotency.request-fingerprint.v1',
+    JSON.stringify({ ...details, action, subject, requestId })
+  );
 }
 
 async function sha256Hex(value: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function domainSeparatedSha256(domain: BillingDigestDomain, value: string): Promise<Sha256Digest> {
+  return `sha256:${await sha256Hex(`${domain}\0${value}`)}`;
 }
 
 function webhookIdempotencyKey(provider: string, eventId: string, billingSubject: string | null): string {
@@ -761,8 +794,8 @@ async function webhookRequestFingerprint(
   event: { eventId: string; eventType: string },
   authority: ProviderBillingAuthority | null
 ): Promise<string> {
-  const bodyDigest = await sha256Hex(body);
-  return canonicalRequestFingerprint('provider-webhook', authority?.billingSubject ?? null, event.eventId, {
+  const bodyDigest = await domainSeparatedSha256('ocentra.billing.provider-webhook.body.v1', body);
+  return opaqueRequestFingerprint('provider-webhook', authority?.billingSubject ?? null, event.eventId, {
     provider,
     eventType: event.eventType,
     bodyDigest,
@@ -950,7 +983,8 @@ function providerEventDetails(
 }
 
 async function providerWebhookBodyId(provider: string, body: string): Promise<string> {
-  return `${provider}_evt_body_${await sha256Hex(body)}`;
+  const digest = await domainSeparatedSha256('ocentra.billing.provider-webhook.body-id.v1', `${provider}\0${body}`);
+  return `${provider}_evt_body_${digest.slice('sha256:'.length)}`;
 }
 
 function providerWebhookReferences(payload: unknown, eventType: string): ProviderBillingReferenceHints {
@@ -1195,7 +1229,7 @@ async function acceptProviderWebhook(
           current.processingState === 'ignored' || current.processingState === 'applied'
             ? current.processingState
             : 'manual-required',
-          queueFailureMessage(error) ?? 'billing-control-do-unavailable',
+          queueFailureCode(error) ?? 'billing-queue-operation-failed',
           current
         );
       }
@@ -1291,7 +1325,7 @@ async function markProviderWebhookDelivered(
 async function queueReconciliationEvent(env: Env, payload: Record<string, unknown>): Promise<boolean> {
   if (!env.BILLING_RECONCILIATION_QUEUE) {
     try {
-      await env.BILLING_DEAD_LETTER_QUEUE?.send(deadLetterPayload(payload, 'reconciliation-queue-missing', null));
+      await env.BILLING_DEAD_LETTER_QUEUE?.send(await deadLetterPayload(payload, 'reconciliation-queue-missing', null));
     } catch {
       return false;
     }
@@ -1303,7 +1337,9 @@ async function queueReconciliationEvent(env: Env, payload: Record<string, unknow
     return true;
   } catch (error) {
     try {
-      await env.BILLING_DEAD_LETTER_QUEUE?.send(deadLetterPayload(payload, 'reconciliation-queue-send-failed', error));
+      await env.BILLING_DEAD_LETTER_QUEUE?.send(
+        await deadLetterPayload(payload, 'reconciliation-queue-send-failed', error)
+      );
     } catch {
       return false;
     }
@@ -1322,7 +1358,7 @@ async function sendBillingDeadLetter(
     return false;
   }
   try {
-    await env.BILLING_DEAD_LETTER_QUEUE.send(deadLetterPayload(payload, reason, error));
+    await env.BILLING_DEAD_LETTER_QUEUE.send(await deadLetterPayload(payload, reason, error));
     return true;
   } catch {
     return false;
@@ -1494,7 +1530,7 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
           `billing-control:${subject}`,
           {
             requestKey: durableWriteKey('referral-invite', subject, requestId),
-            requestFingerprint: canonicalRequestFingerprint('referral-invite', subject, requestId, {
+            requestFingerprint: await opaqueRequestFingerprint('referral-invite', subject, requestId, {
               invitedIdentifier,
               referralCode: result.referralCode,
             }),
@@ -1605,7 +1641,7 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
         `billing-control:${subject}`,
         {
           requestKey: durableWriteKey('manual-invoice', subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('manual-invoice', subject, requestId, {
+          requestFingerprint: await opaqueRequestFingerprint('manual-invoice', subject, requestId, {
             region: result.region,
           }),
           responseStatus: 202,
@@ -1797,7 +1833,7 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
         `billing-control:${identity?.subject ?? 'internal'}`,
         {
           requestKey: durableWriteKey('reconciliation', identity?.subject ?? 'internal', requestId),
-          requestFingerprint: canonicalRequestFingerprint(
+          requestFingerprint: await opaqueRequestFingerprint(
             'reconciliation',
             identity?.subject ?? 'internal',
             requestId,
@@ -1921,13 +1957,11 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       );
     } catch (error) {
       if (error instanceof BillingReadModelUnavailableError) {
-        return billingReadModelUnavailableResponse(route, error);
+        return billingReadModelUnavailableResponse(route);
       }
       return json(500, {
         error: 'worker-unhandled-error',
         handlerKey: route.handlerKey,
-        message: redactStringValue(error instanceof Error ? error.message : 'unknown-error'),
-        requestHeaders: redactHeaders(request.headers),
       });
     }
   }
@@ -1963,13 +1997,11 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     );
   } catch (error) {
     if (error instanceof BillingReadModelUnavailableError) {
-      return billingReadModelUnavailableResponse(route, error, authResult.identity);
+      return billingReadModelUnavailableResponse(route, authResult.identity);
     }
     return json(500, {
       error: 'worker-unhandled-error',
       handlerKey: route.handlerKey,
-      message: redactStringValue(error instanceof Error ? error.message : 'unknown-error'),
-      requestHeaders: redactHeaders(request.headers),
     });
   }
 }
@@ -2258,7 +2290,7 @@ class IdempotentWriteDO extends BasePlaceholderDO {
           leaseToken: null,
           leaseExpiresAt: null,
           retryAt,
-          lastError: queueFailureMessage(error) ?? 'billing-control-do-mutation-unavailable',
+          lastError: queueFailureCode(error) ?? 'billing-queue-operation-failed',
         } satisfies DurableIdempotencyRecord;
         await this.state.storage.put(storageKey, failed);
         return idempotencyRetryResponse(
@@ -2469,7 +2501,7 @@ async function consumeBillingQueue(batch: MessageBatch<unknown>, env: Env): Prom
               eventId,
               'dead-letter',
               terminalProcessingState,
-              queueFailureMessage(error) ?? 'queue-consumer-manual-required',
+              queueFailureCode(error) ?? 'billing-queue-operation-failed',
               receipt
             );
           }

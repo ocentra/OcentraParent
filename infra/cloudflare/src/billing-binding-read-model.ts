@@ -225,8 +225,15 @@ const INSERT_MUTATION_OUTBOX_SQL = normalizeSql(
 const MARK_MUTATION_OUTBOX_ATTEMPT_SQL = normalizeSql(
   "UPDATE billing_mutation_outbox SET attempt_count = attempt_count + 1, last_attempt_at = ?2, last_error = NULL, lease_token = ?3, lease_expires_at = ?4, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending' AND attempt_count < ?5 AND (lease_expires_at IS NULL OR lease_expires_at <= ?2)"
 );
+const BILLING_MUTATION_OUTBOX_FAILURE_CODES = [
+  'billing-audit-event-invalid',
+  'billing-audit-owner-unavailable',
+  'billing-mutation-outbox-delivery-failed',
+  'billing-read-model-unavailable',
+] as const;
+type BillingMutationOutboxFailureCode = (typeof BILLING_MUTATION_OUTBOX_FAILURE_CODES)[number];
 const MARK_MUTATION_OUTBOX_FAILURE_SQL = normalizeSql(
-  "UPDATE billing_mutation_outbox SET last_error = ?2, lease_token = NULL, lease_expires_at = NULL, updated_at = ?3 WHERE request_key = ?1 AND audit_state = 'pending' AND lease_token = ?4"
+  "UPDATE billing_mutation_outbox SET last_error = ?2, lease_token = NULL, lease_expires_at = NULL, updated_at = ?3 WHERE request_key = ?1 AND audit_state = 'pending' AND lease_token = ?4 AND ?2 IN ('billing-audit-event-invalid', 'billing-audit-owner-unavailable', 'billing-mutation-outbox-delivery-failed', 'billing-read-model-unavailable')"
 );
 const MARK_MUTATION_AUDIT_DELIVERED_SQL = normalizeSql(
   "UPDATE billing_mutation_outbox SET audit_state = 'delivered', last_error = NULL, lease_token = NULL, lease_expires_at = NULL, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending' AND lease_token = ?3"
@@ -410,7 +417,7 @@ export class BillingReadModelUnavailableError extends Error {
   readonly code = 'billing-read-model-manual-required';
 
   constructor(readonly scope: string) {
-    super(`${this.code}:${scope}`);
+    super('billing-read-model-manual-required');
     this.name = 'BillingReadModelUnavailableError';
   }
 }
@@ -1954,7 +1961,11 @@ class LocalD1Statement implements D1PreparedStatement {
       }
       case MARK_MUTATION_OUTBOX_FAILURE_SQL: {
         const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
-        const lastError = decodeNonEmptyString(this.values[1], 'billing-mutation-outbox-last-error');
+        const lastError = decodeLiteral(
+          this.values[1],
+          BILLING_MUTATION_OUTBOX_FAILURE_CODES,
+          'billing-mutation-outbox-last-error'
+        );
         const updatedAt = decodeTimestamp(this.values[2], 'billing-mutation-outbox-updated-at');
         const leaseToken = decodeNonEmptyString(this.values[3], 'billing-mutation-outbox-lease-token');
         const current = this.state.mutationOutbox.get(requestKey);
@@ -2210,20 +2221,38 @@ async function incrementTouchCounter(env: Env, counterKey: string): Promise<void
   await env.BILLING_RATE_LIMIT_KV?.put(fullKey, String(next));
 }
 
-async function hashAnalyticsSubject(subject: string): Promise<string> {
-  const digest = await crypto.subtle.digest(
-    'SHA-256',
-    new TextEncoder().encode(`ocentra.billing.analytics.subject.v1:${subject}`)
-  );
-  return `sha256:${Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+type BillingAnalyticsReference =
+  | Readonly<{ kind: 'billing-subject'; value: string }>
+  | Readonly<{ kind: 'invoice-reference'; value: string }>;
+
+function billingSubjectAnalyticsReference(value: string): BillingAnalyticsReference {
+  return { kind: 'billing-subject', value };
 }
 
-async function recordBindingRead(env: Env, counterKey: string, subject: string | null): Promise<void> {
+function invoiceAnalyticsReference(value: string): BillingAnalyticsReference {
+  return { kind: 'invoice-reference', value };
+}
+
+async function hashAnalyticsReference(reference: BillingAnalyticsReference): Promise<string> {
+  const domain =
+    reference.kind === 'billing-subject'
+      ? 'ocentra.billing.analytics.subject.v1'
+      : 'ocentra.billing.analytics.invoice-reference.v1';
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${domain}\0${reference.value}`));
+  const hex = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return `${reference.kind}:sha256:${hex}`;
+}
+
+async function recordBindingRead(
+  env: Env,
+  counterKey: string,
+  reference: BillingAnalyticsReference | null
+): Promise<void> {
   await incrementTouchCounter(env, counterKey);
-  const subjectDigest = subject === null ? null : await hashAnalyticsSubject(subject);
+  const referenceDigest = reference === null ? null : await hashAnalyticsReference(reference);
   env.ANALYTICS?.writeDataPoint({
     indexes: [counterKey],
-    blobs: subjectDigest ? [subjectDigest] : [],
+    blobs: referenceDigest ? [referenceDigest] : [],
     doubles: [1],
   });
 }
@@ -3259,9 +3288,17 @@ async function completeBillingMutation(env: Env, mutation: BillingStateMutation)
   await deliverBillingMutationOutbox(env, outbox);
 }
 
-function billingOutboxErrorMessage(error: unknown): string {
-  const message = error instanceof Error ? error.message : String(error);
-  return message.replace(/\s+/gu, ' ').trim().slice(0, 240) || 'billing-audit-delivery-failed';
+function billingMutationOutboxFailureCode(error: unknown): BillingMutationOutboxFailureCode {
+  if (!(error instanceof BillingReadModelUnavailableError)) {
+    return 'billing-mutation-outbox-delivery-failed';
+  }
+  if (error.scope.includes('audit-event')) {
+    return 'billing-audit-event-invalid';
+  }
+  if (error.scope.startsWith('billing-audit-owner-') || error.scope === 'billing-audit-r2-binding-missing') {
+    return 'billing-audit-owner-unavailable';
+  }
+  return 'billing-read-model-unavailable';
 }
 
 async function deliverBillingMutationOutbox(env: Env, outbox: MutationOutboxRow): Promise<boolean> {
@@ -3300,10 +3337,13 @@ async function deliverBillingMutationOutbox(env: Env, outbox: MutationOutboxRow)
     return (delivered.meta?.changes ?? 0) === 1;
   } catch (error) {
     const failedAt = new Date().toISOString();
-    await database
+    const failed = await database
       .prepare(MARK_MUTATION_OUTBOX_FAILURE_SQL)
-      .bind(outbox.request_key, billingOutboxErrorMessage(error), failedAt, leaseToken)
+      .bind(outbox.request_key, billingMutationOutboxFailureCode(error), failedAt, leaseToken)
       .run();
+    if ((failed.meta?.changes ?? 0) !== 1) {
+      throw new BillingReadModelUnavailableError('billing-mutation-outbox-failure-state-cas-failed');
+    }
     throw error;
   }
 }
@@ -3466,6 +3506,8 @@ function hasManualReviewAuthority(status: BillingStatusSummary, snapshot: Billin
   );
 }
 
+type BillingTerminalStateBlocker = 'billing-manual-review-authority' | 'billing-refund-settled-manual-review';
+
 async function billingTerminalStateBlocker(
   env: Env,
   status: BillingStatusSummary,
@@ -3473,7 +3515,7 @@ async function billingTerminalStateBlocker(
   invoices: ReadonlyArray<BillingInvoiceSummary>,
   adminInvoices: ReadonlyArray<AdminBillingInvoiceSummary>,
   authoritativeInvoiceId: string | null = null
-): Promise<string | null> {
+): Promise<BillingTerminalStateBlocker | null> {
   const scopedAdminInvoices = adminInvoices.filter(
     (invoice) => invoice.parentAccountRef === status.parentAccountRef && invoice.familyRef === status.familyRef
   );
@@ -3769,7 +3811,7 @@ export async function loadBillingStatusSummary(env: Env, subject: string): Promi
     await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject),
     `billing-status:${subject}`
   );
-  await recordBindingRead(env, 'billing-status', subject);
+  await recordBindingRead(env, 'billing-status', billingSubjectAnalyticsReference(subject));
   const stored =
     storedPayload === null ? null : decodeBillingStatusSummary(storedPayload, `billing-status:${subject}`, subject);
   const required = requireProductionRecord(env, stored, `billing-status-row-missing:${subject}`);
@@ -3789,7 +3831,7 @@ export async function loadBillingInvoices(env: Env, subject: string): Promise<Re
         `billing-invoice:${subject}-${index}`
       )
   );
-  await recordBindingRead(env, 'billing-invoices', subject);
+  await recordBindingRead(env, 'billing-invoices', billingSubjectAnalyticsReference(subject));
   return stored.length > 0 || !isLocalFixtureEnvironment(env)
     ? stored
     : buildBillingInvoices(subject).map((invoice, index) =>
@@ -3804,7 +3846,7 @@ export async function loadBillingInvoiceById(env: Env, invoiceId: string): Promi
     await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_INVOICE_BY_ID_SQL, invoiceId),
     `billing-invoice:${invoiceId}`
   );
-  await recordBindingRead(env, 'billing-invoice', invoiceId);
+  await recordBindingRead(env, 'billing-invoice', invoiceAnalyticsReference(invoiceId));
   if (stored !== null) {
     return decodeBillingInvoiceSummary(stored, `billing-invoice:${invoiceId}`);
   }
@@ -3844,7 +3886,7 @@ export async function loadBillingReferralSummary(env: Env, subject: string): Pro
     await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_REFERRAL_BY_SUBJECT_SQL, subject),
     `billing-referral:${subject}`
   );
-  await recordBindingRead(env, 'billing-referrals', subject);
+  await recordBindingRead(env, 'billing-referrals', billingSubjectAnalyticsReference(subject));
   const stored =
     storedPayload === null ? null : decodeBillingReferralSummary(storedPayload, `billing-referral:${subject}`);
   const required = requireProductionRecord(env, stored, `billing-referral-row-missing:${subject}`);
@@ -3957,7 +3999,7 @@ export async function loadBillingEntitlementSnapshot(
     await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_SNAPSHOT_BY_SUBJECT_SQL, subject),
     `billing-entitlement-snapshot:${subject}`
   );
-  await recordBindingRead(env, 'billing-entitlement-snapshot', subject);
+  await recordBindingRead(env, 'billing-entitlement-snapshot', billingSubjectAnalyticsReference(subject));
   const stored =
     storedPayload === null
       ? null
