@@ -849,9 +849,11 @@ function upsertLanDeviceSlot(
     hasCanonicalLanPhysicalSlotValue(existing.value) &&
     !incomingHasAgentFacet &&
     input.preferState !== true;
+  const preserveExistingRevokedState =
+    !!existing && existing.value === slotValue && stringValue(existing.badge) === 'revoked';
   const state =
-    input.state === 'revoked'
-      ? input.state
+    input.state === 'revoked' || preserveExistingRevokedState
+      ? 'revoked'
       : preserveCanonicalState
         ? stringValue(existing.badge) || input.state
         : input.preferState ||
