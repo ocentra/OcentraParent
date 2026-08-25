@@ -1,5 +1,6 @@
 //! Rust-owned canonical contracts for the AI family.
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 pub const AI_CONTRACT_SCHEMA_VERSION: &str = "ai-contracts-v1";
 pub const AI_INITIAL_LIFECYCLE_SEQUENCE: u64 = 0;
@@ -161,12 +162,6 @@ impl AiText {
 #[derive(Clone, Eq, PartialEq)]
 pub struct AiUntrustedText(String);
 
-impl AiUntrustedText {
-    fn into_owner_text(self) -> String {
-        self.0
-    }
-}
-
 impl<'de> Deserialize<'de> for AiUntrustedText {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -183,18 +178,83 @@ impl<'de> Deserialize<'de> for AiUntrustedText {
     }
 }
 
-/// A redaction receipt is intentionally crate-private. The parent/redaction
-/// owner is the only code allowed to issue one; callers cannot relabel raw
-/// text by choosing a public redaction constructor.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+/// A redaction receipt is intentionally crate-private, non-cloneable, and
+/// consumed on use. Its digest binds the exact untrusted source text to the
+/// exact owner-produced safe output, so neither side can be substituted.
 pub(crate) struct AiRedactionReceipt {
+    binding_digest: [u8; 32],
+    safe_output: AiText,
     redaction: AiRedactionState,
 }
 
 impl AiRedactionReceipt {
-    pub(crate) fn issue(redaction: AiRedactionState) -> Option<Self> {
-        redaction.is_safe().then_some(Self { redaction })
+    pub(crate) fn issue(
+        binding_domain: &[u8],
+        binding_fields: &[&[u8]],
+        source: &AiUntrustedText,
+        safe_output: impl Into<String>,
+        redaction: AiRedactionState,
+    ) -> Option<Self> {
+        if !redaction.is_safe() {
+            return None;
+        }
+        let safe_output = AiText::parse(safe_output)?;
+        Some(Self {
+            binding_digest: ai_redaction_binding_digest(
+                binding_domain,
+                binding_fields,
+                &source.0,
+                safe_output.as_str(),
+                redaction,
+            ),
+            safe_output,
+            redaction,
+        })
     }
+
+    fn into_safe_text_for(
+        self,
+        binding_domain: &[u8],
+        binding_fields: &[&[u8]],
+        source: &AiUntrustedText,
+    ) -> Option<AiSafeText> {
+        let expected = ai_redaction_binding_digest(
+            binding_domain,
+            binding_fields,
+            &source.0,
+            self.safe_output.as_str(),
+            self.redaction,
+        );
+        (expected == self.binding_digest).then_some(AiSafeText {
+            text: self.safe_output,
+            redaction: self.redaction,
+        })
+    }
+}
+
+fn ai_redaction_binding_digest(
+    binding_domain: &[u8],
+    binding_fields: &[&[u8]],
+    source: &str,
+    safe_output: &str,
+    redaction: AiRedactionState,
+) -> [u8; 32] {
+    let redaction = match redaction {
+        AiRedactionState::Redacted => b"redacted".as_slice(),
+        AiRedactionState::FullyRedacted => b"fully-redacted".as_slice(),
+        AiRedactionState::NotApplicable => b"not-applicable".as_slice(),
+        AiRedactionState::RejectedPrivatePayload => b"rejected-private-payload".as_slice(),
+    };
+    let mut digest = Sha256::new();
+    let terminal_fields = [source.as_bytes(), safe_output.as_bytes(), redaction];
+    for value in std::iter::once(binding_domain)
+        .chain(binding_fields.iter().copied())
+        .chain(terminal_fields)
+    {
+        digest.update((value.len() as u64).to_be_bytes());
+        digest.update(value);
+    }
+    digest.finalize().into()
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
@@ -205,11 +265,13 @@ pub struct AiSafeText {
 }
 
 impl AiSafeText {
-    pub(crate) fn from_redaction_receipt(
-        value: impl Into<String>,
+    pub(crate) fn from_owner_redaction(
+        binding_domain: &[u8],
+        binding_fields: &[&[u8]],
+        source: &AiUntrustedText,
         receipt: AiRedactionReceipt,
     ) -> Option<Self> {
-        Self::from_parts(value.into(), receipt.redaction).ok()
+        receipt.into_safe_text_for(binding_domain, binding_fields, source)
     }
 
     pub fn as_str(&self) -> &str {
@@ -218,15 +280,5 @@ impl AiSafeText {
 
     pub fn redaction(&self) -> AiRedactionState {
         self.redaction
-    }
-
-    fn from_parts(value: String, redaction: AiRedactionState) -> Result<Self, &'static str> {
-        if !redaction.is_safe() {
-            return Err("safe AI text requires redacted or fully-redacted state");
-        }
-        Ok(Self {
-            text: AiText::parse(value).ok_or("safe AI text is empty, oversized, or invalid")?,
-            redaction,
-        })
     }
 }

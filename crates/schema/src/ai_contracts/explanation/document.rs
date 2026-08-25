@@ -1,6 +1,6 @@
 use super::{AiExplanation, AiExplanationState};
 use crate::ai_contracts::context::{
-    AiEvidenceReference, AiPromptReference, AiRuleReference, AiRuntimeReference,
+    AiEvidenceReference, AiOwnerResolvedRuntime, AiPromptReference, AiRuleReference,
 };
 use crate::ai_contracts::identity::{
     AiExplanationId, AiFamilyId, AiRequestId, AiResultId, AiSchemaVersion, AiTimestamp,
@@ -81,7 +81,7 @@ impl AiExplanation {
         graph: Vec<AiGraphReference>,
         rules: Vec<AiRuleReference>,
         prompt: AiPromptReference,
-        runtime: Option<AiRuntimeReference>,
+        runtime: AiOwnerResolvedRuntime,
         redaction: AiRedactionState,
         retention: AiRetentionState,
         generated_at: AiTimestamp,
@@ -116,7 +116,7 @@ impl AiExplanation {
             graph,
             rules,
             prompt,
-            runtime,
+            runtime: runtime.into_runtime(),
             authority_boundary: AiAuthorityBoundary::EvidenceOnly,
             redaction,
             retention,

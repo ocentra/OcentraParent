@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use super::AiResultPayload;
 use crate::ai_contracts::context::{
-    AiEvidenceReference, AiPromptReference, AiRuleReference, AiRuntimeReference,
+    AiEvidenceReference, AiOwnerResolvedRuntime, AiPromptReference, AiRuleReference,
 };
 use crate::ai_contracts::identity::AiFamilyId;
 use crate::ai_contracts::memory::{AiGraphReference, AiMemoryReference};
@@ -19,7 +19,7 @@ impl AiResultPayload {
         graph: Vec<AiGraphReference>,
         rules: Vec<AiRuleReference>,
         prompt: AiPromptReference,
-        runtime: Option<AiRuntimeReference>,
+        runtime: AiOwnerResolvedRuntime,
     ) -> Result<Self, &'static str> {
         let inventory = AiReferenceInventory::new(&evidence, &memory, &graph, &rules)?;
         let claim_ids = claims
@@ -66,7 +66,7 @@ impl AiResultPayload {
             graph,
             rules,
             prompt,
-            runtime,
+            runtime: runtime.into_runtime(),
         })
     }
 

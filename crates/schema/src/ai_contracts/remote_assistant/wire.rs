@@ -1,18 +1,20 @@
 use serde::Deserialize;
 
 use super::{
-    AiParentAuthorization, AiRemoteAssistantOwnerResolvedRuntime,
-    AiRemoteAssistantOwnerResolvedSource, AiRemoteAssistantRequest, AiRemoteAssistantWirePrompt,
-    AiRemoteAssistantWireRequest,
+    AiParentAuthorization, AiRemoteAssistantOwnerResolvedSource, AiRemoteAssistantRequest,
+    AiRemoteAssistantWirePrompt, AiRemoteAssistantWireRequest,
 };
-use crate::ai_contracts::context::AiPromptReference;
+use crate::ai_contracts::context::{AiOwnerResolvedRuntime, AiPromptReference};
 use crate::ai_contracts::identity::{
     AiAuthorizationReferenceId, AiFamilyId, AiPromptTemplateId, AiPromptVersion,
     AiRemoteAssistantRequestId, AiSchemaVersion, AiTimestamp,
 };
 use crate::ai_contracts::{
-    validate_contract_schema_version, AiRedactionReceipt, AiSafeText, AiUntrustedText,
+    validate_contract_schema_version, AiRedactionReceipt, AiRedactionState, AiSafeText,
+    AiUntrustedText,
 };
+
+const REMOTE_PROMPT_REDACTION_DOMAIN: &[u8] = b"ocentra.ai.remote-assistant.prompt-redaction.v1";
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -44,18 +46,45 @@ impl AiRemoteAssistantWirePrompt {
     pub fn version(&self) -> &AiPromptVersion {
         &self.version
     }
-
-    fn into_owner_prompt(
-        self,
-        receipt: AiRedactionReceipt,
-    ) -> Result<AiPromptReference, &'static str> {
-        let task = AiSafeText::from_redaction_receipt(self.task.into_owner_text(), receipt)
-            .ok_or("AI remote wire task was not owner-redacted")?;
-        AiPromptReference::new(self.template_id, self.version, task)
-    }
 }
 
 impl AiRemoteAssistantWireRequest {
+    fn prompt_redaction_binding_fields(&self) -> [&[u8]; 16] {
+        [
+            b"schema-version",
+            self.schema_version.as_str().as_bytes(),
+            b"request-id",
+            self.request_id.as_str().as_bytes(),
+            b"family-id",
+            self.family_id.as_str().as_bytes(),
+            b"authorization-reference-id",
+            self.authorization_reference_id.as_str().as_bytes(),
+            b"prompt-template-id",
+            self.prompt.template_id.as_str().as_bytes(),
+            b"prompt-version",
+            self.prompt.version.as_str().as_bytes(),
+            b"requested-at",
+            self.requested_at.as_str().as_bytes(),
+            b"state",
+            self.state.binding_label(),
+        ]
+    }
+
+    pub(crate) fn issue_owner_redaction(
+        &self,
+        safe_output: impl Into<String>,
+        redaction: AiRedactionState,
+    ) -> Option<AiRedactionReceipt> {
+        let binding_fields = self.prompt_redaction_binding_fields();
+        AiRedactionReceipt::issue(
+            REMOTE_PROMPT_REDACTION_DOMAIN,
+            &binding_fields,
+            &self.prompt.task,
+            safe_output,
+            redaction,
+        )
+    }
+
     fn from_parts(
         schema_version: AiSchemaVersion,
         request_id: AiRemoteAssistantRequestId,
@@ -102,7 +131,7 @@ impl AiRemoteAssistantWireRequest {
         self,
         authorization: AiParentAuthorization,
         source: AiRemoteAssistantOwnerResolvedSource,
-        runtime: AiRemoteAssistantOwnerResolvedRuntime,
+        runtime: AiOwnerResolvedRuntime,
         prompt_redaction: AiRedactionReceipt,
         trusted_now: AiTimestamp,
     ) -> Result<AiRemoteAssistantRequest, &'static str> {
@@ -114,7 +143,15 @@ impl AiRemoteAssistantWireRequest {
         {
             return Err("AI remote wire authorization reference is not bound to the request");
         }
-        let prompt = self.prompt.into_owner_prompt(prompt_redaction)?;
+        let binding_fields = self.prompt_redaction_binding_fields();
+        let task = AiSafeText::from_owner_redaction(
+            REMOTE_PROMPT_REDACTION_DOMAIN,
+            &binding_fields,
+            &self.prompt.task,
+            prompt_redaction,
+        )
+        .ok_or("AI remote wire task was not owner-redacted for this exact request")?;
+        let prompt = AiPromptReference::new(self.prompt.template_id, self.prompt.version, task)?;
         let source_bundle =
             super::AiRemoteAssistantSourceBundle::from_owner_resolved(source, authorization)?;
         AiRemoteAssistantRequest::submit(

@@ -13,7 +13,6 @@ use super::{
 mod authorization;
 mod request;
 mod result;
-mod runtime;
 mod source;
 mod wire;
 
@@ -27,6 +26,20 @@ pub enum AiRemoteAssistantState {
     Succeeded,
     Degraded,
     ManualRequired,
+}
+
+impl AiRemoteAssistantState {
+    pub(super) fn binding_label(self) -> &'static [u8] {
+        match self {
+            Self::Disabled => b"disabled",
+            Self::AwaitingParentAuthorization => b"awaiting-parent-authorization",
+            Self::Authorized => b"authorized",
+            Self::Submitted => b"submitted",
+            Self::Succeeded => b"succeeded",
+            Self::Degraded => b"degraded",
+            Self::ManualRequired => b"manual-required",
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -78,13 +91,6 @@ pub struct AiRemoteAssistantRequest {
     runtime: Option<AiRuntimeReference>,
     requested_at: AiTimestamp,
     state: AiRemoteAssistantState,
-}
-
-/// Owner-resolved runtime metadata. It cannot cross the wire boundary or be
-/// deserialized; only a trusted in-process owner can introduce this marker.
-#[derive(Clone, Debug, PartialEq)]
-pub(crate) struct AiRemoteAssistantOwnerResolvedRuntime {
-    runtime: Option<AiRuntimeReference>,
 }
 
 /// An untrusted wire prompt. Authorization consumes this exact task through an

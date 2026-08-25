@@ -1,12 +1,10 @@
-use serde::Deserialize;
-
-use super::AiRuntimeReference;
+use super::{AiOwnerResolvedRuntime, AiRuntimeReference};
 use crate::ai_contracts::identity::{
     AiCapabilityId, AiModelId, AiProviderId, AiRuntimeReferenceId, AiTimestamp,
 };
 
 impl AiRuntimeReference {
-    pub fn new(
+    fn issue(
         runtime_reference_id: AiRuntimeReferenceId,
         provider_id: AiProviderId,
         model_id: AiModelId,
@@ -25,50 +23,51 @@ impl AiRuntimeReference {
         })
     }
 
-    pub fn runtime_reference_id(&self) -> &AiRuntimeReferenceId {
+    pub(crate) fn runtime_reference_id(&self) -> &AiRuntimeReferenceId {
         &self.runtime_reference_id
     }
 
-    pub fn provider_id(&self) -> &AiProviderId {
+    pub(crate) fn provider_id(&self) -> &AiProviderId {
         &self.provider_id
     }
 
-    pub fn model_id(&self) -> &AiModelId {
+    pub(crate) fn model_id(&self) -> &AiModelId {
         &self.model_id
     }
 
-    pub fn capability_ids(&self) -> &[AiCapabilityId] {
+    pub(crate) fn capability_ids(&self) -> &[AiCapabilityId] {
         &self.capability_ids
     }
 
-    pub fn observed_at(&self) -> &AiTimestamp {
+    pub(crate) fn observed_at(&self) -> &AiTimestamp {
         &self.observed_at
     }
 }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct AiRuntimeReferenceFields {
-    runtime_reference_id: AiRuntimeReferenceId,
-    provider_id: AiProviderId,
-    model_id: AiModelId,
-    capability_ids: Vec<AiCapabilityId>,
-    observed_at: AiTimestamp,
-}
+impl AiOwnerResolvedRuntime {
+    pub(crate) fn absent() -> Self {
+        Self { runtime: None }
+    }
 
-impl<'de> Deserialize<'de> for AiRuntimeReference {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let fields = AiRuntimeReferenceFields::deserialize(deserializer)?;
-        Self::new(
-            fields.runtime_reference_id,
-            fields.provider_id,
-            fields.model_id,
-            fields.capability_ids,
-            fields.observed_at,
-        )
-        .map_err(serde::de::Error::custom)
+    pub(crate) fn issue(
+        runtime_reference_id: AiRuntimeReferenceId,
+        provider_id: AiProviderId,
+        model_id: AiModelId,
+        capability_ids: Vec<AiCapabilityId>,
+        observed_at: AiTimestamp,
+    ) -> Result<Self, &'static str> {
+        Ok(Self {
+            runtime: Some(AiRuntimeReference::issue(
+                runtime_reference_id,
+                provider_id,
+                model_id,
+                capability_ids,
+                observed_at,
+            )?),
+        })
+    }
+
+    pub(crate) fn into_runtime(self) -> Option<AiRuntimeReference> {
+        self.runtime
     }
 }

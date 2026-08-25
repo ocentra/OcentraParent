@@ -109,12 +109,20 @@ pub struct AiPromptReference {
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AiRuntimeReference {
+pub(crate) struct AiRuntimeReference {
     runtime_reference_id: AiRuntimeReferenceId,
     provider_id: AiProviderId,
     model_id: AiModelId,
     capability_ids: Vec<AiCapabilityId>,
     observed_at: AiTimestamp,
+}
+
+/// Opaque in-process runtime attachment. Only the runtime owner may resolve
+/// provider, model, and capability metadata; untrusted callers cannot build or
+/// deserialize this token.
+#[derive(Debug, PartialEq)]
+pub(crate) struct AiOwnerResolvedRuntime {
+    runtime: Option<AiRuntimeReference>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]

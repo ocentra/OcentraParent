@@ -11,7 +11,7 @@ impl AiEvidenceContextRequest {
         allowed_custody: Vec<AiCustodyState>,
         parent_rules: Vec<super::AiRuleReference>,
         prompt: super::AiPromptReference,
-        runtime: Option<super::AiRuntimeReference>,
+        runtime: super::AiOwnerResolvedRuntime,
     ) -> Result<Self, &'static str> {
         if required_evidence.is_empty()
             || allowed_custody.is_empty()
@@ -32,7 +32,7 @@ impl AiEvidenceContextRequest {
             allowed_custody,
             parent_rules,
             prompt,
-            runtime,
+            runtime: runtime.into_runtime(),
         })
     }
 
@@ -64,7 +64,7 @@ impl AiEvidenceContextRequest {
         &self.prompt
     }
 
-    pub fn runtime(&self) -> Option<&super::AiRuntimeReference> {
+    pub(crate) fn runtime(&self) -> Option<&super::AiRuntimeReference> {
         self.runtime.as_ref()
     }
 }
