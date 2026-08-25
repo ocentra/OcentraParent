@@ -195,6 +195,45 @@ pub fn targeted_arp_refresh_evidence_for_identity(
     targeted_arp_refresh_targets_with_evidence(&targets)
 }
 
+pub fn targeted_arp_refresh_evidence_for_scan_plan_until(
+    scan_plan: &LanDiscoveryScanPlan,
+    previous_devices: &[LanNetworkInventoryDevice],
+    active_refresh_suppression_devices: &[LanPairingDeviceRef],
+    cancellation: Option<&AtomicBool>,
+    outer_deadline: Option<Instant>,
+) -> Vec<LanTargetedArpRefreshEvidence> {
+    if scan_plan.refresh_mode != LanDiscoveryRefreshMode::ActiveSubnetRefresh
+        || is_cancelled(cancellation)
+    {
+        return Vec::new();
+    }
+
+    let local_deadline =
+        Instant::now() + Duration::from_millis(TARGETED_ARP_REFRESH_SCAN_BUDGET_MS);
+    let deadline = outer_deadline.map_or(local_deadline, |outer| outer.min(local_deadline));
+    if remaining_budget_until(deadline).is_none() {
+        return Vec::new();
+    }
+
+    let targets = targeted_arp_refresh_targets(
+        scan_plan.local_ip_address.as_deref(),
+        scan_plan.ipv4_cidr.as_deref(),
+        scan_plan.selected_interface.as_deref(),
+        active_refresh_suppression_devices,
+        previous_devices,
+    );
+    if targets.is_empty() || is_cancelled(cancellation) {
+        return Vec::new();
+    }
+
+    let evidence = targeted_arp_refresh_targets_with_evidence_until(&targets, deadline);
+    if is_cancelled(cancellation) {
+        Vec::new()
+    } else {
+        evidence
+    }
+}
+
 pub fn remaining_budget_until(deadline: Instant) -> Option<Duration> {
     let now = Instant::now();
     if now >= deadline {

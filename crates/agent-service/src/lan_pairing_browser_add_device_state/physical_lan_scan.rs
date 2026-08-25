@@ -7,7 +7,8 @@ use std::time::Instant;
 use chrono::{DateTime, Utc};
 use ocentra_lan_core::network_inventory::{
     discover_lan_network_devices_with_hints_refresh_mode_and_scan_and_probe_suppression_and_allowed_snmp_observer_with_cancellation,
-    targeted_arp_refresh_evidence_for_scan, LanDiscoveryRefreshMode, LanNetworkInventoryDevice,
+    targeted_arp_refresh_evidence_for_scan_plan_until, LanDiscoveryRefreshMode,
+    LanNetworkInventoryDevice,
 };
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 use ocentra_parent_agent_protocol::transport::{
@@ -142,11 +143,14 @@ fn execute_physical_lan_scan_locked(
     ) else {
         return failed_scan_result(previous_scan_snapshot);
     };
-    scan_plan.targeted_arp_refresh_evidence = targeted_arp_refresh_evidence_for_scan(
+    let targeted_arp_refresh_evidence = targeted_arp_refresh_evidence_for_scan_plan_until(
+        &scan_plan,
         previous_devices,
-        refresh_mode,
         &scan_truth.scan_suppression_devices,
+        cancellation,
+        deadline,
     );
+    scan_plan.targeted_arp_refresh_evidence = targeted_arp_refresh_evidence;
     let inventory_refresh_mode = inventory_refresh_mode_after_targeted_refresh(refresh_mode);
     let selected_interface_scope = scan_plan.selected_interface.as_deref();
     let allowed_snmp_response_observer = |payload: &[u8]| {
