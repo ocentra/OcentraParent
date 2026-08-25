@@ -1,3 +1,4 @@
+use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as browser_proof;
 use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformAdapterExecutionState;
@@ -99,21 +100,22 @@ fn implemented_boundary_specs() -> Vec<EntrySpec> {
             claim_boundary: proof::CLAIM_WINDOWS_APP_TIME_LIMIT,
             fallback_behavior: proof::FALLBACK_WINDOWS_APP_TIME_LIMIT,
         },
-        EntrySpec {
-            proof_entry_id: proof::ENTRY_ID_WINDOWS_MANAGED_BROWSER,
-            surface: V08CrossPlatformEnforcementCapabilitySurface::WindowsManagedBrowserBoundary,
-            platform: ParentPlatform::Windows,
-            capability: V08CrossPlatformEnforcementCapabilityName::ManagedBrowserControl,
-            capability_status: V08CrossPlatformCapabilityStatus::Implemented,
-            product_claim_state:
-                V08CrossPlatformEnforcementCapabilityClaimState::ImplementedBoundary,
-            adapter_execution_state: V08CrossPlatformAdapterExecutionState::ExecutesRealService,
-            linked_proof_commands: &[proof::COMMAND_MANAGED_BROWSER_PROOF],
-            linked_proof_artifacts: &[proof::ARTIFACT_MANAGED_BROWSER_PROOF],
-            manual_proof_requirements: &[],
-            claim_boundary: proof::CLAIM_WINDOWS_MANAGED_BROWSER,
-            fallback_behavior: proof::FALLBACK_WINDOWS_MANAGED_BROWSER,
-        },
+        manual_spec(
+            ProofEntryId(proof::ENTRY_ID_WINDOWS_MANAGED_BROWSER),
+            V08CrossPlatformEnforcementCapabilitySurface::WindowsManagedBrowserBoundary,
+            ParentPlatform::Windows,
+            V08CrossPlatformEnforcementCapabilityName::ManagedBrowserControl,
+            EntryProofText {
+                manual_proof_requirements: &[
+                    browser_proof::REQUIREMENT_MANAGED_PROFILE,
+                    browser_proof::REQUIREMENT_ACTIVE_TAB,
+                    browser_proof::REQUIREMENT_ROLLBACK,
+                    browser_proof::REQUIREMENT_AUDIT_CUSTODY,
+                ],
+                claim_boundary: proof::CLAIM_WINDOWS_MANAGED_BROWSER,
+                fallback_behavior: proof::FALLBACK_WINDOWS_MANAGED_BROWSER,
+            },
+        ),
         EntrySpec {
             proof_entry_id: proof::ENTRY_ID_WINDOWS_UNMANAGED_BROWSER,
             surface:
