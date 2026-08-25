@@ -14,6 +14,8 @@ use windows_sys::Win32::Storage::FileSystem::{
     DELETE, FILE_APPEND_DATA, FILE_DELETE_CHILD, FILE_WRITE_ATTRIBUTES, FILE_WRITE_DATA,
     FILE_WRITE_EA, WRITE_DAC, WRITE_OWNER,
 };
+#[cfg(windows)]
+use winreg::enums::{KEY_READ, KEY_WRITE};
 
 #[cfg(windows)]
 use crate::platform::PlatformError;
@@ -33,6 +35,14 @@ const TRUSTED_INSTALLER_SID: &str = concat!(
 const INHERIT_ONLY_ACE: u8 = 0x08;
 
 #[cfg(windows)]
+pub(super) fn registry_custody_adapter_available() -> Result<(), PlatformError> {
+    // The current dependency set cannot prove registry owner, protected-DACL,
+    // deny ordering, and pinned parent-chain custody. This is a static
+    // capability check: it deliberately does not open a key or create state.
+    Err(PlatformError::DeploymentRequired)
+}
+
+#[cfg(windows)]
 pub(super) fn validate_path(path: &Path) -> Result<(), PlatformError> {
     let text = path.to_str().ok_or(PlatformError::InvalidAttestation)?;
     let acl = ACL::from_file_path(text, false).map_err(map_acl_error)?;
@@ -46,10 +56,75 @@ pub(super) fn validate_file(file: &File) -> Result<(), PlatformError> {
 }
 
 #[cfg(windows)]
-pub(super) fn validate_registry(key: &winreg::RegKey) -> Result<(), PlatformError> {
-    let acl =
-        ACL::from_registry_handle(key.raw_handle().cast(), false, false).map_err(map_acl_error)?;
-    validate_entries(acl.all().map_err(map_acl_error)?)
+pub(super) fn validate_secret_store(key: &winreg::RegKey) -> Result<(), PlatformError> {
+    validate_registry_custody(key, runtime_registry_requirements())
+}
+
+#[cfg(windows)]
+pub(super) fn validate_enrollment_store(key: &winreg::RegKey) -> Result<(), PlatformError> {
+    validate_registry_custody(key, enrollment_registry_requirements())
+}
+
+#[cfg(windows)]
+#[derive(Clone, Copy)]
+struct RegistryAclRequirements {
+    owner_sid: &'static str,
+    system_mask: u32,
+    trusted_installer_mask: Option<u32>,
+    dacl_protected: bool,
+    reject_inherited_aces: bool,
+    validate_parent_chain: bool,
+}
+
+#[cfg(windows)]
+fn runtime_registry_requirements() -> RegistryAclRequirements {
+    RegistryAclRequirements {
+        owner_sid: SYSTEM_SID,
+        system_mask: KEY_READ | KEY_WRITE,
+        trusted_installer_mask: None,
+        dacl_protected: true,
+        reject_inherited_aces: true,
+        validate_parent_chain: true,
+    }
+}
+
+#[cfg(windows)]
+fn enrollment_registry_requirements() -> RegistryAclRequirements {
+    RegistryAclRequirements {
+        owner_sid: TRUSTED_INSTALLER_SID,
+        system_mask: KEY_READ,
+        trusted_installer_mask: Some(KEY_READ | KEY_WRITE),
+        dacl_protected: true,
+        reject_inherited_aces: true,
+        validate_parent_chain: true,
+    }
+}
+
+#[cfg(windows)]
+fn validate_registry_custody(
+    key: &winreg::RegKey,
+    requirements: RegistryAclRequirements,
+) -> Result<(), PlatformError> {
+    // `windows-acl` exposes flattened ACEs but not a safe, pinned registry
+    // security-descriptor observation that proves owner, SE_DACL_PROTECTED,
+    // canonical deny/allow ordering, or the custody of every parent key. Those
+    // properties are required together; accepting a partial ACE list would
+    // turn inheritance or an attacker-owned parent into registry authority.
+    //
+    // A future adapter must validate the exact registry KEY_* masks above,
+    // reject inherited/unknown/extra allows and ambiguous denies, prove the
+    // owner and protected DACL, and retain pinned handles for HKLM, the Ocentra
+    // root, registry-id parent, and selected Runtime/Enrollment child.
+    let _ = (
+        key.raw_handle(),
+        requirements.owner_sid,
+        requirements.system_mask,
+        requirements.trusted_installer_mask,
+        requirements.dacl_protected,
+        requirements.reject_inherited_aces,
+        requirements.validate_parent_chain,
+    );
+    Err(PlatformError::DeploymentRequired)
 }
 
 #[cfg(windows)]

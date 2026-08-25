@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope,
 };
-use std::{future::Future, pin::Pin};
+use std::{future::Future, pin::Pin, sync::Arc};
 
 use crate::{
     browser_policy_api::build_browser_policy_event, browser_policy_runtime::BrowserPolicyRuntime,
@@ -19,6 +19,7 @@ use super::{
     command_classifiers::{is_activity_command, is_browser_policy_command, is_lan_runtime_command},
     enforcement_command_reports::build_enforcement_command_report,
     lan_command_reports::build_lan_command_report,
+    WebsocketPeerProvenance, WebsocketPlatformProbeDispatcher,
 };
 
 pub(super) fn build_command_event(
@@ -27,18 +28,19 @@ pub(super) fn build_command_event(
     browser_policy: BrowserPolicyRuntime,
     browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
+    probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
+    provenance: WebsocketPeerProvenance,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
         if let Some(event) = maybe_basic_report(command.clone()) {
             return event;
         }
-
         match command.command.clone() {
             AgentCommandName::AgentBrowserSocialSourceCustodyMutationApply => {
                 crate::activity_api::social_source_custody_mutation_payload::build_browser_social_source_custody_mutation_report(command).await
             }
             command_name if is_activity_command(&command_name) => {
-                build_activity_command_report(command).await
+                build_activity_command_report(command, probe_dispatcher, provenance).await
             }
             AgentCommandName::AgentBrowserInventoryReadModelGet
             | AgentCommandName::AgentBrowserEvidenceRecentGet
@@ -66,9 +68,7 @@ pub(super) fn build_command_event(
             | AgentCommandName::AgentPolicyRequestParentResolutionResolve => {
                 build_ai_command_report(command).await
             }
-            command_name if is_browser_policy_command(&command_name) => {
-                build_browser_policy_event(browser_policy, command).await
-            }
+            command_name if is_browser_policy_command(&command_name) => build_browser_policy_event(browser_policy, command).await,
             AgentCommandName::AgentScreenSettingsGet
             | AgentCommandName::AgentScreenSettingsReplace => {
                 build_screen_settings_event(screen_settings, command).await

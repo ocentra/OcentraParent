@@ -197,7 +197,6 @@ impl UntrustedRequest {
         if values.session.client_process_id == 0
             || values.session.client_session_id == 0
             || values.session.broker_process_id == 0
-            || values.session.broker_session_id == 0
         {
             return Err(ProtocolError::InvalidProcessId);
         }

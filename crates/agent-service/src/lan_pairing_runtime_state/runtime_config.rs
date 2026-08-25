@@ -34,7 +34,6 @@ impl LanPairingRuntime {
         Self {
             registry: Arc::new(Mutex::new(TrustedDeviceRegistry::empty())),
             challenges: Arc::new(Mutex::new(Vec::new())),
-            controller_lease: Arc::new(Mutex::new(None)),
             signed_child_agent_replay_guard: Arc::new(Mutex::new(
                 LanSignedChildAgentReplayGuard::new(),
             )),
@@ -43,6 +42,7 @@ impl LanPairingRuntime {
             )),
             lan_ai_provider_heartbeat: Arc::new(Mutex::new(None)),
             lan_ai_job_leases: Arc::new(Mutex::new(Vec::new())),
+            browser_discovery_scan_worker: Arc::new(Mutex::new(None)),
             persistence: LanPairingRegistryPersistence::InMemory,
             local_child_device_id: None,
             signed_child_agent_parent_device_id: None,
@@ -73,30 +73,18 @@ impl LanPairingRuntime {
                     .into()
             }),
         };
-        let registry_path =
-            lan_pairing_registry_path_from_env(runtime_context.local_child_device_id.clone());
-        Self::persistent_json_with_context(&registry_path, runtime_context)
+        let registry_path = lan_pairing_registry_path_from_env();
+        Self::persistent_json_with_context(registry_path.as_ref(), runtime_context)
     }
 
     fn persistent_json_with_context(
-        path: &LanPairingRegistryPath,
+        path: Option<&LanPairingRegistryPath>,
         runtime_context: LanPairingRuntimeContext,
     ) -> Self {
-        let (registry, persistence) =
-            match TrustedDeviceRegistry::load_json_strict(path.0.as_path()) {
-                Ok(registry) => (
-                    registry,
-                    LanPairingRegistryPersistence::LocalJsonRegistry(path.0.clone()),
-                ),
-                Err(_error) => (
-                    TrustedDeviceRegistry::empty(),
-                    LanPairingRegistryPersistence::UnavailableLocalJsonRegistry,
-                ),
-            };
+        let (registry, persistence) = load_registry_with_owner_path(path);
         Self {
             registry: Arc::new(Mutex::new(registry)),
             challenges: Arc::new(Mutex::new(Vec::new())),
-            controller_lease: Arc::new(Mutex::new(None)),
             signed_child_agent_replay_guard: Arc::new(Mutex::new(
                 LanSignedChildAgentReplayGuard::new(),
             )),
@@ -105,6 +93,7 @@ impl LanPairingRuntime {
             )),
             lan_ai_provider_heartbeat: Arc::new(Mutex::new(None)),
             lan_ai_job_leases: Arc::new(Mutex::new(Vec::new())),
+            browser_discovery_scan_worker: Arc::new(Mutex::new(None)),
             persistence,
             local_child_device_id: runtime_context.local_child_device_id.map(|value| value.0),
             signed_child_agent_parent_device_id: runtime_context
@@ -123,58 +112,31 @@ impl LanPairingRuntime {
     }
 }
 
-fn lan_pairing_registry_path_from_env(
-    local_child_device_id: Option<LanPairingText>,
-) -> LanPairingRegistryPath {
+fn load_registry_with_owner_path(
+    path: Option<&LanPairingRegistryPath>,
+) -> (TrustedDeviceRegistry, LanPairingRegistryPersistence) {
+    let Some(path) = path else {
+        return (
+            TrustedDeviceRegistry::empty(),
+            LanPairingRegistryPersistence::UnavailableLocalJsonRegistry,
+        );
+    };
+    match TrustedDeviceRegistry::load_or_initialize_json_strict(path.0.as_path()) {
+        Ok(registry) => (
+            registry,
+            LanPairingRegistryPersistence::LocalJsonRegistry(path.0.clone()),
+        ),
+        Err(_error) => (
+            TrustedDeviceRegistry::empty(),
+            LanPairingRegistryPersistence::UnavailableLocalJsonRegistry,
+        ),
+    }
+}
+
+fn lan_pairing_registry_path_from_env() -> Option<LanPairingRegistryPath> {
     std::env::var(constants::env_var::AGENT_LAN_PAIRING_REGISTRY_PATH)
         .ok()
         .filter(|path| !path.trim().is_empty())
         .map(PathBuf::from)
         .map(LanPairingRegistryPath)
-        .unwrap_or_else(|| default_lan_pairing_registry_path(local_child_device_id))
-}
-
-fn default_lan_pairing_registry_path(
-    local_child_device_id: Option<LanPairingText>,
-) -> LanPairingRegistryPath {
-    let mut path = std::env::temp_dir();
-    path.push(default_lan_pairing_registry_file_name(local_child_device_id).0);
-    path.set_extension(constants::lan_pairing::REGISTRY_FILE_EXTENSION);
-    LanPairingRegistryPath(path)
-}
-
-fn default_lan_pairing_registry_file_name(
-    local_child_device_id: Option<LanPairingText>,
-) -> LanPairingText {
-    let mut name = String::from(constants::lan_pairing::REGISTRY_FILE_PREFIX);
-    match sanitize_registry_file_segment(&local_child_device_id.unwrap_or_else(|| {
-        constants::lan_pairing::REGISTRY_FILE_DEFAULT_SEGMENT
-            .to_string()
-            .into()
-    })) {
-        Some(segment) => name.push_str(segment.0.as_str()),
-        None => name.push_str(constants::lan_pairing::REGISTRY_FILE_DEFAULT_SEGMENT),
-    }
-    LanPairingText(name)
-}
-
-fn sanitize_registry_file_segment(value: &LanPairingText) -> Option<LanPairingText> {
-    let sanitized = value
-        .0
-        .trim()
-        .chars()
-        .map(|character| match character {
-            'a'..='z' | '0'..='9' => character,
-            'A'..='Z' => character.to_ascii_lowercase(),
-            '-' | '_' => character,
-            _ => '-',
-        })
-        .collect::<String>()
-        .trim_matches('-')
-        .to_string();
-    if sanitized.is_empty() {
-        None
-    } else {
-        Some(LanPairingText(sanitized))
-    }
 }

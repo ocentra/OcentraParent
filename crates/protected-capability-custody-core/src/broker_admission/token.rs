@@ -43,6 +43,7 @@ pub(super) fn issue(
         }
         let plaintext = Zeroizing::new(encode_entry(raw_token.as_ref(), &parts));
         let sealed = platform::encrypt_dpapi(
+            registry_id,
             plaintext.as_ref(),
             &token_entropy(registry_id, &parts.lookup_digest),
         )?;
@@ -115,6 +116,7 @@ fn read_active(
         return Ok(None);
     };
     let plaintext = Zeroizing::new(platform::decrypt_dpapi(
+        registry_id,
         &sealed,
         &token_entropy(registry_id, lookup_digest),
     )?);

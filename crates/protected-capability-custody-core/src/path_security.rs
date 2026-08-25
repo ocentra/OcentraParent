@@ -6,7 +6,9 @@ use thiserror::Error;
 
 use crate::platform::identity::{DatabaseIdentity, PhysicalDatabaseIdentity};
 
+pub(crate) mod identity;
 mod journal;
+pub(crate) mod journal_identity;
 mod platform;
 mod validation;
 
@@ -35,6 +37,14 @@ impl PendingSecuredPath {
         }
         reject_unsafe_shape(path)?;
         validation::components(path)?;
+        // Open the caller-supplied lexical path before canonicalization.  The
+        // canonical path is only accepted when it names the same no-follow
+        // file and parent handles.  This closes the validation/canonicalize
+        // window instead of binding the broker to whichever object a later
+        // path lookup happens to resolve.
+        let lexical_parent = path.parent().ok_or(PathSecurityError::UnsafePath)?;
+        let (lexical_file_handle, lexical_file_digest) = platform::open_guarded(path, false)?;
+        let (lexical_parent_handle, _) = platform::open_guarded(lexical_parent, true)?;
         let canonical = dunce::canonicalize(path).map_err(|_| PathSecurityError::Unavailable)?;
         if !canonical.is_absolute() {
             return Err(PathSecurityError::UnsafePath);
@@ -44,6 +54,12 @@ impl PendingSecuredPath {
         let parent = canonical.parent().ok_or(PathSecurityError::UnsafePath)?;
         let (file_handle, physical_file_digest) = platform::open_guarded(&canonical, false)?;
         let (parent_handle, _) = platform::open_guarded(parent, true)?;
+        if lexical_file_handle != file_handle
+            || lexical_parent_handle != parent_handle
+            || lexical_file_digest != physical_file_digest
+        {
+            return Err(PathSecurityError::Replaced);
+        }
         let value = Self {
             canonical_path_digest: digest_path(&canonical)?,
             canonical,

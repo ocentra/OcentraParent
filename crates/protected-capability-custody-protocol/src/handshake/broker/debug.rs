@@ -51,6 +51,7 @@ impl fmt::Debug for UntrustedBrokerHello {
                 constants::DEBUG_FIELD_ATTESTATION_DIGEST,
                 &self.attestation_digest,
             )
+            .field(constants::DEBUG_FIELD_AUTHENTICATOR, &self.authenticator)
             .field(
                 constants::DEBUG_FIELD_EXPIRES_AT_UNIX_MILLIS,
                 &self.session_expires_at_unix_millis,

@@ -33,6 +33,18 @@ impl PhysicalDatabaseIdentity {
         &self.canonical
     }
 
+    pub(crate) fn canonical_path_digest(&self) -> &[u8] {
+        &self.canonical[..32]
+    }
+
+    pub(crate) fn physical_file_digest(&self) -> &[u8] {
+        &self.canonical[32..64]
+    }
+
+    pub(crate) fn rollback_journal_digest(&self) -> &[u8] {
+        &self.canonical[64..]
+    }
+
     pub(crate) fn from_bytes(value: &[u8]) -> Result<Self, PlatformError> {
         let canonical: [u8; PHYSICAL_DATABASE_IDENTITY_BYTES] =
             value.try_into().map_err(map_identity_length)?;

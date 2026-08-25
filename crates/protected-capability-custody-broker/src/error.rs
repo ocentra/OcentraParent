@@ -12,6 +12,7 @@ impl fmt::Display for BrokerError {
             Self::PeerAuthentication => constants::ERROR_BROKER_PEER_AUTHENTICATION,
             Self::Protocol(_) => constants::ERROR_BROKER_PROTOCOL,
             Self::Request => constants::ERROR_BROKER_REQUEST,
+            Self::DeploymentRequired => constants::ERROR_BROKER_UNSUPPORTED,
             Self::UnsupportedPlatform => constants::ERROR_BROKER_UNSUPPORTED,
         })
     }

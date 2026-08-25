@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{sync::atomic::AtomicBool, time::Duration};
 
 use super::process;
 
@@ -14,6 +14,17 @@ pub(super) fn command_json_records_with_timeout(
     timeout: Duration,
 ) -> Vec<serde_json::Value> {
     process::command_stdout_with_timeout(program, args, timeout)
+        .and_then(json_records_from_stdout)
+        .unwrap_or_default()
+}
+
+pub(super) fn command_json_records_with_timeout_and_cancellation(
+    program: &str,
+    args: &[&str],
+    timeout: Duration,
+    cancellation: &AtomicBool,
+) -> Vec<serde_json::Value> {
+    process::command_stdout_with_timeout_and_cancellation(program, args, timeout, cancellation)
         .and_then(json_records_from_stdout)
         .unwrap_or_default()
 }

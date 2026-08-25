@@ -7,16 +7,16 @@ mod error;
 #[cfg(windows)]
 mod windows_ipc;
 
-use ocentra_protected_capability_custody_protocol::transport::pipe::BrokerPipeName;
+pub const BROKER_SERVICE_NAME: &str =
+    ocentra_protected_capability_custody_protocol::constants::BROKER_SERVICE_NAME;
 
-pub fn run_from_inherited_bootstrap(pipe_name: &BrokerPipeName) -> Result<(), BrokerError> {
+pub fn run_service() -> Result<(), BrokerError> {
     #[cfg(windows)]
     {
-        windows_ipc::run(pipe_name)
+        windows_ipc::run_service()
     }
     #[cfg(not(windows))]
     {
-        let _pipe_name = pipe_name;
         Err(BrokerError::UnsupportedPlatform)
     }
 }
@@ -28,6 +28,7 @@ pub enum BrokerError {
     PeerAuthentication,
     Protocol(ocentra_protected_capability_custody_protocol::types::ProtocolError),
     Request,
+    DeploymentRequired,
     UnsupportedPlatform,
 }
 
@@ -44,8 +45,4 @@ impl From<ocentra_protected_capability_custody_protocol::types::ProtocolError> f
     fn from(error: ocentra_protected_capability_custody_protocol::types::ProtocolError) -> Self {
         Self::Protocol(error)
     }
-}
-
-pub(crate) fn map_transport_error(_error: std::io::Error) -> BrokerError {
-    BrokerError::Transport
 }

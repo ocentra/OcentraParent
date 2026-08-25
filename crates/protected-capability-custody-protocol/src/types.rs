@@ -36,6 +36,7 @@ pub struct SessionTranscriptDigest(pub(crate) [u8; TRANSCRIPT_DIGEST_BYTES]);
 #[derive(Clone, Copy, Eq, PartialEq)]
 pub struct AuthenticationTag(pub(crate) [u8; AUTHENTICATION_TAG_BYTES]);
 
+#[derive(Clone, Eq, PartialEq)]
 pub struct BootstrapAuthenticator(Zeroizing<[u8; BOOTSTRAP_AUTHENTICATOR_BYTES]>);
 
 #[derive(Clone, Copy)]

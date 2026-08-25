@@ -28,18 +28,10 @@ impl BrokerSessionAuthority {
         let expires_at = now_unix_millis
             .checked_add(SESSION_TTL_MILLIS)
             .ok_or(BrokerError::PeerAuthentication)?;
-        let (broker_key_epoch, writer_lease_epoch, watermark) = match platform {
-            Some(state) => (
-                state.key_epoch(),
-                state.writer_lease_epoch(),
-                state.watermark(),
-            ),
-            None => (
-                random_nonzero_u64()?,
-                random_nonzero_u64()?,
-                random_nonzero_u64()?,
-            ),
-        };
+        let state = platform.ok_or(BrokerError::DeploymentRequired)?;
+        let broker_key_epoch = state.key_epoch();
+        let writer_lease_epoch = state.writer_lease_epoch();
+        let watermark = state.watermark();
         Ok(Self {
             values: BrokerSessionWireValues {
                 broker_nonce: Nonce::generate()?,
@@ -65,7 +57,7 @@ pub(crate) fn current_process_identity() -> Result<ProcessIdentity, BrokerError>
     process_identity(process_id)
 }
 
-pub(crate) fn process_identity(process_id: u32) -> Result<ProcessIdentity, BrokerError> {
+fn process_identity(process_id: u32) -> Result<ProcessIdentity, BrokerError> {
     if process_id == 0 {
         return Err(BrokerError::PeerAuthentication);
     }
@@ -78,7 +70,7 @@ pub(crate) fn process_identity(process_id: u32) -> Result<ProcessIdentity, Broke
         .session_id()
         .map(Pid::as_u32)
         .ok_or(BrokerError::PeerAuthentication)?;
-    if process_epoch == 0 || session_id == 0 {
+    if process_epoch == 0 {
         return Err(BrokerError::PeerAuthentication);
     }
     Ok(ProcessIdentity {
@@ -95,24 +87,10 @@ pub(crate) fn unix_now_millis() -> Result<u64, BrokerError> {
     u64::try_from(duration.as_millis()).map_err(map_clock_overflow)
 }
 
-fn random_nonzero_u64() -> Result<u64, BrokerError> {
-    let mut bytes = [0_u8; 8];
-    getrandom::fill(&mut bytes).map_err(map_random_error)?;
-    let value = u64::from_be_bytes(bytes);
-    if value == 0 {
-        return Err(BrokerError::PeerAuthentication);
-    }
-    Ok(value)
-}
-
 fn map_clock_error(_error: std::time::SystemTimeError) -> BrokerError {
     BrokerError::PeerAuthentication
 }
 
 fn map_clock_overflow(_error: std::num::TryFromIntError) -> BrokerError {
-    BrokerError::PeerAuthentication
-}
-
-fn map_random_error(_error: getrandom::Error) -> BrokerError {
     BrokerError::PeerAuthentication
 }

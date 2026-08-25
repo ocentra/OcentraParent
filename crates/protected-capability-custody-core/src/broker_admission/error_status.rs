@@ -8,18 +8,32 @@ pub(super) fn storage_io(_error: std::io::Error) -> BrokerRuntimeError {
     BrokerRuntimeError::Unavailable
 }
 
+pub(super) fn path_security(_error: crate::path_security::PathSecurityError) -> BrokerRuntimeError {
+    BrokerRuntimeError::Unavailable
+}
+
 pub(super) fn broker_platform_admission(
-    _error: &crate::platform::PlatformError,
+    error: &crate::platform::PlatformError,
 ) -> BrokerRuntimeError {
-    BrokerRuntimeError::InvalidBrokerProcess
+    match error {
+        crate::platform::PlatformError::DeploymentRequired => {
+            BrokerRuntimeError::DeploymentRequired
+        }
+        _ => BrokerRuntimeError::InvalidBrokerProcess,
+    }
 }
 
 pub(super) fn authority(_error: crate::authority::AuthorityError) -> BrokerRuntimeError {
     BrokerRuntimeError::InvalidRequest
 }
 
-pub(super) fn platform(_error: crate::platform::PlatformError) -> BrokerRuntimeError {
-    BrokerRuntimeError::Unavailable
+pub(super) fn platform(error: crate::platform::PlatformError) -> BrokerRuntimeError {
+    match error {
+        crate::platform::PlatformError::DeploymentRequired => {
+            BrokerRuntimeError::DeploymentRequired
+        }
+        _ => BrokerRuntimeError::Unavailable,
+    }
 }
 
 pub(super) fn token_platform(error: &crate::platform::PlatformError) -> BrokerRuntimeError {
@@ -27,6 +41,9 @@ pub(super) fn token_platform(error: &crate::platform::PlatformError) -> BrokerRu
         crate::platform::PlatformError::WrongBinding
         | crate::platform::PlatformError::Rejected
         | crate::platform::PlatformError::Conflict => BrokerRuntimeError::InvalidRequest,
+        crate::platform::PlatformError::DeploymentRequired => {
+            BrokerRuntimeError::DeploymentRequired
+        }
         _ => BrokerRuntimeError::Unavailable,
     }
 }

@@ -72,9 +72,12 @@ pub(crate) fn read_frame(reader: &mut impl Read) -> Result<Vec<u8>, ProtocolErro
     if declared == 0 || declared > MAX_FRAME_BYTES.saturating_sub(FRAME_PREFIX_BYTES) {
         return Err(ProtocolError::InvalidFrameLength);
     }
-    let mut frame = Vec::with_capacity(FRAME_PREFIX_BYTES + declared);
+    let frame_length = FRAME_PREFIX_BYTES
+        .checked_add(declared)
+        .ok_or(ProtocolError::FrameTooLarge)?;
+    let mut frame = Vec::with_capacity(frame_length);
     frame.extend_from_slice(&prefix);
-    frame.resize(FRAME_PREFIX_BYTES + declared, 0);
+    frame.resize(frame_length, 0);
     reader
         .read_exact(&mut frame[FRAME_PREFIX_BYTES..])
         .map_err(map_transport_error)?;

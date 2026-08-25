@@ -2,43 +2,43 @@
 
 use std::process::ExitCode;
 
-use ocentra_protected_capability_custody_broker::{run_from_inherited_bootstrap, BrokerError};
-use ocentra_protected_capability_custody_protocol::constants::BROKER_PIPE_ARGUMENT;
-use ocentra_protected_capability_custody_protocol::transport::pipe::BrokerPipeName;
+#[cfg(windows)]
+use std::ffi::OsString;
+#[cfg(windows)]
+use std::sync::atomic::{AtomicBool, Ordering};
 
+#[cfg(windows)]
+use windows_service::service_dispatcher;
+
+#[cfg(windows)]
+use ocentra_protected_capability_custody_broker::{run_service, BROKER_SERVICE_NAME};
+
+#[cfg(windows)]
+windows_service::define_windows_service!(ffi_service_main, service_main);
+
+#[cfg(windows)]
+static SERVICE_FAILED: AtomicBool = AtomicBool::new(false);
+
+#[cfg(windows)]
+fn service_main(_arguments: Vec<OsString>) {
+    // `run_service` publishes a terminal non-zero SCM status only after its
+    // preflight permits status registration. Retain an independent process-exit
+    // signal for preflight failures and for rejected final status updates.
+    if run_service().is_err() {
+        SERVICE_FAILED.store(true, Ordering::Release);
+    }
+}
+
+#[cfg(windows)]
 fn main() -> ExitCode {
-    match exact_pipe_argument() {
-        Ok(pipe_name) if run_from_inherited_bootstrap(&pipe_name).is_ok() => ExitCode::SUCCESS,
-        _ => ExitCode::FAILURE,
+    match service_dispatcher::start(BROKER_SERVICE_NAME, ffi_service_main) {
+        Ok(()) if !SERVICE_FAILED.load(Ordering::Acquire) => ExitCode::SUCCESS,
+        Ok(()) => ExitCode::FAILURE,
+        Err(_) => ExitCode::FAILURE,
     }
 }
 
-fn exact_pipe_argument() -> Result<BrokerPipeName, BrokerError> {
-    let mut arguments = std::env::args_os();
-    arguments.next().ok_or(BrokerError::InvalidLaunch)?;
-    let argument = arguments.next().ok_or(BrokerError::InvalidLaunch)?;
-    if argument.to_str().ok_or(BrokerError::InvalidLaunch)? != BROKER_PIPE_ARGUMENT {
-        return Err(BrokerError::InvalidLaunch);
-    }
-    let pipe_name = match arguments
-        .next()
-        .ok_or(BrokerError::InvalidLaunch)?
-        .into_string()
-    {
-        Ok(value) => value,
-        Err(error) => {
-            drop(error);
-            return Err(BrokerError::InvalidLaunch);
-        }
-    };
-    if pipe_name.is_empty() || arguments.next().is_some() {
-        return Err(BrokerError::InvalidLaunch);
-    }
-    BrokerPipeName::try_from_untrusted(pipe_name).map_err(map_pipe_error)
-}
-
-fn map_pipe_error(
-    error: ocentra_protected_capability_custody_protocol::types::ProtocolError,
-) -> BrokerError {
-    BrokerError::Protocol(error)
+#[cfg(not(windows))]
+fn main() -> ExitCode {
+    ExitCode::FAILURE
 }

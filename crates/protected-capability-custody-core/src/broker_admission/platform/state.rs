@@ -15,7 +15,7 @@ const STATE_VERSION: u16 = 1;
 #[cfg(windows)]
 const STATE_BYTES: usize = 126;
 #[cfg(windows)]
-const STATE_VALUE_NAME: &str = "state";
+pub(super) const STATE_VALUE_NAME: &str = "state";
 
 #[cfg(windows)]
 #[derive(Clone, Copy)]
@@ -51,6 +51,12 @@ pub(super) fn load_or_create(
 
 #[cfg(windows)]
 pub(super) fn write(registry_id: &str, state: LedgerState) -> Result<(), PlatformError> {
+    let sealed = seal(registry_id, state)?;
+    registry::write(registry_id, STATE_VALUE_NAME, &sealed)
+}
+
+#[cfg(windows)]
+pub(super) fn seal(registry_id: &str, state: LedgerState) -> Result<Vec<u8>, PlatformError> {
     let mut plaintext = Zeroizing::new(Vec::with_capacity(STATE_BYTES));
     plaintext.extend_from_slice(&STATE_MAGIC);
     plaintext.extend_from_slice(&STATE_VERSION.to_be_bytes());
@@ -58,8 +64,7 @@ pub(super) fn write(registry_id: &str, state: LedgerState) -> Result<(), Platfor
     plaintext.extend_from_slice(&state.key_epoch.to_be_bytes());
     plaintext.extend_from_slice(&state.writer_epoch.to_be_bytes());
     plaintext.extend_from_slice(&state.watermark.to_be_bytes());
-    let sealed = crypto::encrypt_state(registry_id, plaintext.as_ref())?;
-    registry::write(registry_id, STATE_VALUE_NAME, &sealed)
+    crypto::encrypt_state(registry_id, plaintext.as_ref())
 }
 
 #[cfg(windows)]

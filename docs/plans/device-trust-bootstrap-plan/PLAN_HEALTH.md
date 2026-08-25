@@ -9,6 +9,11 @@ Status: blocked / not complete.
 - No proof artifacts currently exist on disk under `output/device-trust-bootstrap-plan-proof/`.
 - WP04 through WP07 had stale legacy `docs/proof/...` pointers before this sync.
 - The plan is not complete at the implementation, proof, or validation level.
+- WP01's attempted runtime-fence participant was rejected and withdrawn after
+  review found caller-mintable committed rows, no existing-database migration,
+  and unbounded retention/startup scanning. No production Account WP05A caller,
+  protected Device-owned receipt provider, migration owner, expected test, or
+  proof exists. WP01 remains blocked; no positive participant source is claimed.
 
 ## Required hygiene before PR_READY
 
@@ -51,7 +56,7 @@ Do not collapse those boundaries.
 ## Known incomplete areas
 
 ```text
-WP01 trust source-of-truth proof
+WP01 runtime-fence caller, migration, expected tests, and trust source-of-truth proof
 WP02 platform-backed local key sealing proof
 WP03 parent step-up runtime proof
 WP04 phone QR approval bridge runtime proof

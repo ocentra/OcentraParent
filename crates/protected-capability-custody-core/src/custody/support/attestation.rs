@@ -12,7 +12,7 @@ pub(super) fn attest_path(
     let attestation = platform
         .attest_database(path.canonical(), path.identity())
         .map_err(super::map_platform_error)?;
-    if attestation.security_level() != SecurityLevel::SameUserIsolated
+    if attestation.security_level() != SecurityLevel::DedicatedServiceIsolated
         || attestation.database_path_security()
             != DatabasePathSecurity::BrokerExclusiveWriterNoFollowRollbackJournal
         || attestation.key_epoch == 0

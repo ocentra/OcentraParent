@@ -152,7 +152,7 @@
   WP02/WP08 dependencies, migration execution, expected tests, proof,
   deployment, and normal WP06 `DONE` semantics remain open.
 
-Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 now has reviewed D1 read/current-authority, authoritative writer, verified-provider caller, bounded signed-wire decoder, and private one-shot verifier source. The private verifier is not a runtime mount: Account still supplies no durable signer/public-key registry or authenticated Cloudflare service binding, so mutation composition remains unavailable/manual-required. Caller-supplied authority headers still cannot authorize production, and capability, controller-lease, and step-up authority remain unavailable. Migration application, all six expected tests, focused validation, retained proof, deployment, and full runtime reachability remain open, so normal WP06 remains blocked and is not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
+Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold has focused local validation and a retained receipt only for its narrow scaffold acceptance. WP06 has reviewed D1 read/current-authority, authoritative writer, verified-provider caller, bounded signed-wire decoder, and private one-shot WP08 inner-wire verifier source. Account WP09's durable issuer/key-registry/outbox core is integrated at `4f6245e51`, but live caller tracing finds no protected signer, binding/delivery adapter, production caller, or authenticated current-key handoff. Cloudflare lacks its issuer transport, current-key registry consumer, and runtime mount, so mutation composition remains unavailable/manual-required. Caller-supplied authority headers cannot authorize production, and capability, controller-lease, and step-up authority remain unavailable. Three Account production roots, three Cloudflare production roots, all nine WP06 expected tests, migration application, focused validation, retained proof, deployment, and full runtime reachability remain open; normal WP06 is blocked and is not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge and remains superseded. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 
@@ -261,7 +261,19 @@ remain open.
 
 ## Overclaim boundary
 
-This plan is implementation-present but not completion-ready. Cloudflare correctness remains incomplete until scoped validation stays green, proof bundles live under `output/cloudflare-control-plane-plan-proof/`, and the WP12 handoff bundle no longer carries open external billing-boundary blockers, WP02 lint debt, manual-required authority and deployment states, or downstream payment-plan consumption gaps.
+This plan is implementation-present but not completion-ready. Cloudflare correctness remains incomplete until expected test source is complete, scoped validation stays green, proof bundles live under `output/cloudflare-control-plane-plan-proof/`, and the WP12 handoff bundle no longer carries open external billing-boundary blockers, WP02 runtime-validation test/proof debt, manual-required authority and deployment states, or downstream payment-plan consumption gaps.
+
+## 2026-08-25 WP02 source integration truth
+
+- Canonical consolidation now includes the independently accepted WP02 source
+  packet at `7eabc9ff510fad890d88abb73cd7e3b4e413ed22`.
+- `validateEnv` and `parseAllowedOrigins` fail closed without throwing for
+  missing or non-string app/CORS origin values. Production rejects wildcard
+  origins after trimming; local/test/development behavior is unchanged.
+- This closes the bounded production-source defect only. The complete WP02
+  malformed-origin and environment-behavior test source, focused test run,
+  retained proof, real binding provisioning, deployment, rollback, and
+  `EntitlementSnapshotDO` composition remain open.
 
 ## 2026-08-18 source-map refresh
 
@@ -332,3 +344,21 @@ not yet provide durable signer/public-key registry custody or an authenticated
 Cloudflare service binding, so the verifier cannot be mounted to production
 mutation composition. The six expected tests, migration execution, focused
 validation, retained proof, deployment, and normal `DONE` remain open.
+
+## 2026-08-24 Account WP09 live-caller correction
+
+The preceding 2026-08-19 dependency statement is superseded. Account WP09 now
+has a durable SQLite issuer/key-registry/outbox core integrated at canonical
+`4f6245e51`, but a live source and caller trace found no implementation of its
+protected signer, service-binding authenticator, or delivery owner and no
+production call to `deliver_next_pending`. The delivery attempt also does not
+carry an authenticated current public-key registry record to Cloudflare.
+
+Cloudflare WP06 therefore remains implementation-blocked on Account WP09 and
+still lacks three production roots of its own: the private issuer outer-wire
+transport, current-key registry consumer, and runtime mount into the existing
+caller/writer boundary. The graph maps those roots and nine expected tests as
+missing and removes the earlier implementation-complete overrides for both
+workpacks. The existing inner-wire verifier, D1 writer, and manual-required
+runtime remain fail closed. No migration, test, proof, deployment, runtime
+readiness, READY, or DONE claim follows from the durable core.

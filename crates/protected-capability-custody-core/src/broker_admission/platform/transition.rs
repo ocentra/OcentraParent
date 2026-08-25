@@ -10,7 +10,7 @@ use zeroize::Zeroizing;
 #[cfg(windows)]
 use super::guard::{map_poison, BrokerPlatformGuard};
 #[cfg(windows)]
-use super::{crypto, record, state};
+use super::{crypto, record, registry, state};
 #[cfg(windows)]
 use crate::broker_admission::record_codec;
 
@@ -19,6 +19,9 @@ pub(super) fn reserve(
     guard: &BrokerPlatformGuard,
     next: TransitionRequest<'_>,
 ) -> Result<BrokerRecord, TransitionFailure> {
+    guard
+        .revalidate_live()
+        .map_err(TransitionFailure::DefinitelyNotApplied)?;
     validate_request(guard, next).map_err(TransitionFailure::DefinitelyNotApplied)?;
     if record::read_ciphertext(&guard.registry_id, next.lookup_digest)
         .map_err(TransitionFailure::DefinitelyNotApplied)?
@@ -37,6 +40,9 @@ pub(super) fn advance(
     prior: &BrokerRecord,
     next: TransitionRequest<'_>,
 ) -> Result<BrokerRecord, TransitionFailure> {
+    guard
+        .revalidate_live()
+        .map_err(TransitionFailure::DefinitelyNotApplied)?;
     validate_request(guard, next).map_err(TransitionFailure::DefinitelyNotApplied)?;
     let current = guard
         .current(BrokerLookup {
@@ -107,19 +113,46 @@ fn persist(
         record_codec::encode_transition(request, watermark)
             .map_err(TransitionFailure::DefinitelyNotApplied)?,
     );
-    let sealed = crypto::protect_record(
+    let sealed_record = crypto::protect_record(
         &guard.registry_id,
         request.lookup_digest,
         request.database_identity,
         plaintext.as_ref(),
     )
     .map_err(TransitionFailure::DefinitelyNotApplied)?;
-    record::write_ciphertext(&guard.registry_id, request.lookup_digest, &sealed)
+    record::validate_ciphertext(&sealed_record).map_err(TransitionFailure::DefinitelyNotApplied)?;
+    let next_ledger = state::LedgerState {
+        watermark,
+        ..*ledger
+    };
+    let sealed_state = state::seal(&guard.registry_id, next_ledger)
         .map_err(TransitionFailure::DefinitelyNotApplied)?;
-    ledger.watermark = watermark;
-    if state::write(&guard.registry_id, *ledger).is_err() {
-        return Err(TransitionFailure::OutcomeUnknown);
-    }
-    record_codec::decode_record(plaintext.as_ref(), sealed)
+    let record_name = record::record_name(request.lookup_digest);
+    registry::write_batch(
+        &guard.registry_id,
+        &[
+            registry::RuntimeMutation {
+                name: &record_name,
+                value: Some(&sealed_record),
+            },
+            registry::RuntimeMutation {
+                name: state::STATE_VALUE_NAME,
+                value: Some(&sealed_state),
+            },
+        ],
+    )
+    .map_err(map_batch_failure)?;
+    *ledger = next_ledger;
+    record_codec::decode_record(plaintext.as_ref(), sealed_record)
         .map_err(TransitionFailure::DefinitelyNotApplied)
+}
+
+#[cfg(windows)]
+fn map_batch_failure(error: registry::RuntimeBatchFailure) -> TransitionFailure {
+    match error {
+        registry::RuntimeBatchFailure::DefinitelyNotApplied(error) => {
+            TransitionFailure::DefinitelyNotApplied(error)
+        }
+        registry::RuntimeBatchFailure::OutcomeUnknown => TransitionFailure::OutcomeUnknown,
+    }
 }

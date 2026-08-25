@@ -1,12 +1,16 @@
 use std::net::Ipv4Addr;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
 
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
-use crate::network_inventory_hardware::{local_network_identity, LocalNetworkIdentity};
+use crate::network_inventory_hardware::{
+    local_network_identity_with_timeout, LocalNetworkIdentity,
+};
 
 use self::evidence::{
     probe_targeted_arp_refresh_target_until, targeted_arp_refresh_targets_with_evidence,
+    targeted_arp_refresh_targets_with_evidence_until,
 };
 use self::observations::current_active_refresh_ipv4_observations_by_ip_until;
 use self::target_builders::targeted_arp_refresh_targets;
@@ -75,15 +79,39 @@ impl TargetedArpRefreshPacketIo for CommandTargetedArpRefreshPacketIo {
 pub fn stimulate_bounded_ipv4_neighbors(
     active_refresh_suppression_devices: &[LanPairingDeviceRef],
     previous_devices: &[LanNetworkInventoryDevice],
+    cancellation: Option<&AtomicBool>,
+    outer_deadline: Option<Instant>,
 ) {
-    let Some(identity) = local_network_identity() else {
+    let local_deadline =
+        Instant::now() + Duration::from_millis(TARGETED_ARP_REFRESH_SCAN_BUDGET_MS);
+    let deadline = outer_deadline.map_or(local_deadline, |outer| outer.min(local_deadline));
+    if is_cancelled(cancellation) {
+        return;
+    }
+    let Some(identity_budget) = remaining_budget_until(deadline) else {
         return;
     };
-    let _refresh_evidence = targeted_arp_refresh_evidence_for_identity(
-        Some(&identity),
+    let Some(identity) = local_network_identity_with_timeout(identity_budget) else {
+        return;
+    };
+    if is_cancelled(cancellation) {
+        return;
+    }
+    let targets = targeted_arp_refresh_targets(
+        identity.ip_address.as_deref(),
+        identity.ipv4_cidr.as_deref(),
+        identity.network_interface.as_deref(),
         active_refresh_suppression_devices,
         previous_devices,
     );
+    if targets.is_empty() || is_cancelled(cancellation) {
+        return;
+    }
+    let _refresh_evidence = targeted_arp_refresh_targets_with_evidence_until(&targets, deadline);
+}
+
+fn is_cancelled(cancellation: Option<&AtomicBool>) -> bool {
+    cancellation.is_some_and(|value| value.load(Ordering::Acquire))
 }
 
 pub fn scan_plan_for_identity(

@@ -27,24 +27,48 @@ pub struct BrokerCustodyRuntime {
     store: CustodyStore,
     authority: Arc<authority::BrokerCurrentBindingAuthority>,
     registry_id: String,
-    _process_admission: BrokerProcessAdmission,
+    _executable: BrokerExecutableGuard,
 }
 
-/// A validated, non-cloneable handle to the fixed sibling broker executable.
-/// It denies write/delete sharing while the client session is alive, so the
-/// authenticated child cannot be replaced after preflight.
-pub struct BrokerExecutableGuard {
-    canonical_path: std::path::PathBuf,
+/// A validated, non-cloneable handle to the running fixed-install broker
+/// executable. The pinned file handle denies replacement while the service
+/// runtime is alive.
+struct BrokerExecutableGuard {
     _executable_handle: std::fs::File,
 }
 
 /// Opaque admission proving that the current OS process is the dedicated
 /// protected-custody broker executable. Its fields are private and it is not
 /// cloneable, so ordinary in-process callers cannot mint broker admission.
-pub struct BrokerProcessAdmission {
+struct BrokerProcessAdmission {
     _executable: BrokerExecutableGuard,
-    database_path: std::path::PathBuf,
+    database: crate::path_security::PendingSecuredPath,
 }
+
+/// Opaque admission for one exact named-pipe peer. A future Windows adapter
+/// must retain one `OpenProcess` handle while deriving PID, creation epoch,
+/// canonical image, image digest, and liveness; observe SID, integrity, and
+/// token session from the impersonated pipe token; match both PID and session
+/// to the pipe; and keep the process handle alive through authorization.
+///
+/// The current safe dependency set cannot construct this type. Keeping its
+/// only field private prevents callers from substituting PID/path snapshots or
+/// self-asserted token values.
+pub struct BrokerPeerAdmissionObservation {
+    _private: PeerAdmissionPrivate,
+}
+
+struct PeerAdmissionPrivate;
+
+/// Opaque proof that the retained OS peer observation was revalidated and
+/// bound to the exact bootstrap/client-hello transcript immediately before
+/// broker session key release. The missing platform adapter is the sole
+/// intended constructor.
+pub struct BrokerAuthorizedClientTranscript {
+    _private: AuthorizedTranscriptPrivate,
+}
+
+struct AuthorizedTranscriptPrivate;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct BrokerPlatformSessionState {
@@ -91,6 +115,8 @@ impl BrokerCustodyOutcome {
 pub enum BrokerRuntimeError {
     #[error("current process is not the protected custody broker")]
     InvalidBrokerProcess,
+    #[error("protected custody deployment is not provisioned")]
+    DeploymentRequired,
     #[error("broker request is invalid")]
     InvalidRequest,
     #[error("broker custody runtime is unavailable")]

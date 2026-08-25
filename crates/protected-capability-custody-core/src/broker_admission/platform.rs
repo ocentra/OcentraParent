@@ -15,12 +15,15 @@ use crate::platform::identity::DatabaseIdentity;
 use crate::platform::record::BrokerRecord;
 #[cfg(windows)]
 use crate::platform::request::{BrokerLookup, TransitionRequest};
-
 mod acl;
+pub(super) mod admission;
+mod anti_rollback;
 mod crypto;
+mod digest;
 mod guard;
 mod record;
 mod registry;
+mod secret;
 mod state;
 mod transition;
 mod writer;
@@ -30,6 +33,20 @@ pub(super) struct BrokerPlatformOwner;
 impl BrokerPlatformOwner {
     pub(super) fn new() -> Self {
         Self
+    }
+}
+
+pub(super) fn preflight_service_start() -> Result<(), PlatformError> {
+    #[cfg(windows)]
+    {
+        // These checks are capability-only. They must not open registry keys,
+        // create files, acquire writer custody, or advance durable state.
+        acl::registry_custody_adapter_available()?;
+        anti_rollback::provider_available()
+    }
+    #[cfg(not(windows))]
+    {
+        Err(PlatformError::Unavailable)
     }
 }
 
@@ -60,13 +77,15 @@ impl PlatformCustodyOwner for BrokerPlatformOwner {
                 .checked_add(1)
                 .ok_or(PlatformError::Unavailable)?;
             state::write(&registry_id, ledger)?;
-            Ok(Box::new(guard::BrokerPlatformGuard::new(
+            let guard = guard::BrokerPlatformGuard::new(
                 canonical_path,
                 registry_id,
                 physical_identity,
                 ledger,
                 writer_lock,
-            )))
+            );
+            guard.revalidate_live()?;
+            Ok(Box::new(guard))
         }
         #[cfg(not(windows))]
         {
@@ -148,13 +167,21 @@ pub(super) fn delete_registry_value(registry_id: &str, name: &str) -> Result<(),
 }
 
 #[cfg(windows)]
-pub(super) fn encrypt_dpapi(plaintext: &[u8], entropy: &[u8]) -> Result<Vec<u8>, PlatformError> {
-    crypto::encrypt(plaintext, entropy)
+pub(super) fn encrypt_dpapi(
+    registry_id: &str,
+    plaintext: &[u8],
+    context: &[u8],
+) -> Result<Vec<u8>, PlatformError> {
+    crypto::encrypt_registry_value(registry_id, context, plaintext)
 }
 
 #[cfg(windows)]
-pub(super) fn decrypt_dpapi(sealed: &[u8], entropy: &[u8]) -> Result<Vec<u8>, PlatformError> {
-    crypto::decrypt(sealed, entropy)
+pub(super) fn decrypt_dpapi(
+    registry_id: &str,
+    sealed: &[u8],
+    context: &[u8],
+) -> Result<Vec<u8>, PlatformError> {
+    crypto::decrypt_registry_value(registry_id, context, sealed)
 }
 
 #[cfg(windows)]
@@ -168,7 +195,8 @@ pub(super) fn validate_broker_executable(
     path: &Path,
 ) -> Result<(), PlatformError> {
     acl::validate_file(executable)?;
-    acl::validate_path(path.parent().ok_or(PlatformError::InvalidAttestation)?)
+    acl::validate_path(path.parent().ok_or(PlatformError::InvalidAttestation)?)?;
+    digest::validate(executable, path)
 }
 
 #[cfg(not(windows))]

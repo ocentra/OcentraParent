@@ -1,7 +1,14 @@
 use std::io::{Read, Write};
-use std::net::SocketAddr;
+use std::net::{SocketAddr, TcpStream};
+use std::sync::atomic::AtomicBool;
+use std::time::{Duration, Instant};
 
 use super::super::SERVICE_IDENTITY_PROBE_MAX_RESPONSE_BYTES;
+
+mod bounded_read;
+mod bounded_write;
+mod connect;
+mod deadline;
 
 pub(super) fn write_probe_request<W: Write>(
     stream: &mut W,
@@ -29,6 +36,51 @@ pub(super) fn read_probe_response<R: Read>(stream: &mut R) -> Option<Vec<u8>> {
         response.extend_from_slice(&chunk[..read]);
     }
     (!response.is_empty()).then_some(response)
+}
+
+pub(in crate::network_inventory::service_identity) fn write_probe_request_until<W: Write>(
+    stream: &mut W,
+    endpoint: &SocketAddr,
+    path: &str,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<()> {
+    bounded_write::write_probe_request_until(stream, endpoint, path, deadline, cancellation)
+}
+
+pub(in crate::network_inventory::service_identity) fn write_all_until<W: Write>(
+    stream: &mut W,
+    bytes: &[u8],
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<()> {
+    bounded_write::write_all_until(stream, bytes, deadline, cancellation)
+}
+
+pub(in crate::network_inventory::service_identity) fn read_probe_response_until<R: Read>(
+    stream: &mut R,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<Vec<u8>> {
+    bounded_read::read_probe_response_until(stream, deadline, cancellation)
+}
+
+pub(in crate::network_inventory::service_identity) const SERVICE_IDENTITY_IO_POLL_SLICE: Duration =
+    deadline::IO_POLL_SLICE;
+
+pub(in crate::network_inventory::service_identity) fn poll_timeout(
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<Duration> {
+    deadline::poll_timeout(deadline, cancellation)
+}
+
+pub(in crate::network_inventory::service_identity) fn connect_until(
+    endpoint: SocketAddr,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Option<TcpStream> {
+    connect::connect_until(endpoint, deadline, cancellation)
 }
 
 fn read_probe_chunk<R: Read>(stream: &mut R, chunk: &mut [u8]) -> Option<usize> {

@@ -23,4 +23,5 @@ zeroize = "1.8.2"
 
 [target.'cfg(windows)'.dependencies]
 interprocess = "2.4.3"
+windows-service = "0.8.1"
 widestring = "1.2.1"

@@ -1,12 +1,14 @@
 use std::collections::{HashMap, HashSet};
 use std::net::Ipv4Addr;
-use std::process::{Command, Stdio};
-use std::sync::{Mutex, OnceLock};
+use std::sync::{atomic::AtomicBool, Mutex, OnceLock};
+use std::time::Duration;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceReachability;
 
-use crate::network_inventory_command::command_stdout;
+use crate::network_inventory_command::{
+    command_stdout, command_stdout_with_timeout_and_cancellation, command_succeeded_with_timeout,
+};
 
 use super::super::name_evidence::normalize_name_evidence_value;
 use super::super::neighbor_support::is_household_unicast;
@@ -58,17 +60,30 @@ pub fn netbios_adapter_status_name(line: &str) -> Option<String> {
 }
 
 pub fn windows_netbios_cache_names() -> HashMap<String, String> {
-    command_stdout(
-        constants::lan_pairing::NBTSTAT_EXE,
-        &[constants::lan_pairing::NBTSTAT_CACHE_ARG],
-    )
-    .map(|output| {
-        output
-            .lines()
-            .filter_map(netbios_cache_entry)
-            .collect::<HashMap<_, _>>()
-    })
-    .unwrap_or_default()
+    windows_netbios_cache_names_with_cancellation(None)
+}
+
+pub fn windows_netbios_cache_names_with_cancellation(
+    cancellation: Option<&AtomicBool>,
+) -> HashMap<String, String> {
+    let args = &[constants::lan_pairing::NBTSTAT_CACHE_ARG];
+    let output = match cancellation {
+        Some(cancellation) => command_stdout_with_timeout_and_cancellation(
+            constants::lan_pairing::NBTSTAT_EXE,
+            args,
+            Duration::from_millis(constants::lan_pairing::LAN_NETWORK_INVENTORY_COMMAND_TIMEOUT_MS),
+            cancellation,
+        ),
+        None => command_stdout(constants::lan_pairing::NBTSTAT_EXE, args),
+    };
+    output
+        .map(|output| {
+            output
+                .lines()
+                .filter_map(netbios_cache_entry)
+                .collect::<HashMap<_, _>>()
+        })
+        .unwrap_or_default()
 }
 
 pub fn netbios_cache_entry(line: &str) -> Option<(String, String)> {
@@ -101,10 +116,14 @@ pub fn warm_netbios_cache(
     {
         return;
     }
-    let _ = Command::new(constants::lan_pairing::NBTSTAT_EXE)
-        .arg(constants::lan_pairing::NBTSTAT_ADAPTER_STATUS_ARG)
-        .arg(ip_address)
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .spawn();
+    let timeout =
+        Duration::from_millis(constants::lan_pairing::LAN_NETWORK_INVENTORY_COMMAND_TIMEOUT_MS);
+    let _ = command_succeeded_with_timeout(
+        constants::lan_pairing::NBTSTAT_EXE,
+        &[
+            constants::lan_pairing::NBTSTAT_ADAPTER_STATUS_ARG,
+            ip_address,
+        ],
+        timeout,
+    );
 }

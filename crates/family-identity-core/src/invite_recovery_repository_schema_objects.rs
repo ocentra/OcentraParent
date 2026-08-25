@@ -36,7 +36,7 @@ pub(super) fn validate_objects(connection: &Connection) -> Result<(), ()> {
             return Err(());
         }
     }
-    Ok(())
+    crate::account_identity_authority_issuer::validate_optional_repository_schema(connection)
 }
 
 fn table_is_allowed(name: &str) -> bool {
@@ -69,12 +69,16 @@ fn is_owned_trigger_or_view(object_type: &str, name: &str, sql: Option<&str>) ->
         .any(|table| object_text.contains(table))
 }
 
-const OWNER_TABLES: [&str; 5] = [
+const OWNER_TABLES: [&str; 9] = [
     "account_identity_current_authority",
     "account_identity_session",
     "account_identity_session_revoke_epoch",
     "account_identity_session_refresh_replay",
     "account_identity_session_audit_outbox",
+    "account_identity_issuer_key_registry",
+    "account_identity_issuer_transport_receipt",
+    "account_identity_issuer_clock",
+    "account_identity_issuer_transport_outbox",
 ];
 
 fn canonical_definition_matches(object_type: &str, name: &str, actual: &str) -> bool {
@@ -124,5 +128,11 @@ fn expected_index(name: &str) -> bool {
 }
 
 fn owner_index(name: &str) -> bool {
-    name == "account_identity_session_account"
+    matches!(
+        name,
+        "account_identity_session_account"
+            | "account_identity_issuer_key_registry_current"
+            | "account_identity_issuer_transport_receipt_lookup"
+            | "account_identity_issuer_transport_outbox_delivery"
+    )
 }

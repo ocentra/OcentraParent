@@ -6,7 +6,6 @@ mod scope;
 mod support;
 
 use std::fmt;
-use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 use rusqlite::Connection;
@@ -16,25 +15,6 @@ use crate::authority::CurrentBindingPort;
 use crate::binding::BindingLocator;
 use crate::path_security::{PendingSecuredPath, SecuredPath};
 use crate::platform::{PlatformCustodyOwner, PlatformDatabaseGuard};
-
-/// Opaque admission assembled only by a trusted in-crate platform owner.
-/// There is intentionally no public constructor until that owner exists.
-pub(crate) struct CustodyAdmission {
-    platform_owner: Arc<dyn PlatformCustodyOwner>,
-    authority: Arc<dyn CurrentBindingPort>,
-}
-
-impl CustodyAdmission {
-    pub(crate) fn new(
-        platform_owner: Arc<dyn PlatformCustodyOwner>,
-        authority: Arc<dyn CurrentBindingPort>,
-    ) -> Self {
-        Self {
-            platform_owner,
-            authority,
-        }
-    }
-}
 
 pub struct CustodyStore {
     // Field order is security-relevant: SQLite must close before the broker's
@@ -189,12 +169,11 @@ pub enum CustodyError {
 }
 
 impl CustodyStore {
-    pub(crate) fn open(path: &Path, admission: CustodyAdmission) -> Result<Self, CustodyError> {
-        let CustodyAdmission {
-            platform_owner,
-            authority,
-        } = admission;
-        let mut pending_path = PendingSecuredPath::open(path).map_err(support::map_path_error)?;
+    pub(crate) fn open_pending(
+        mut pending_path: PendingSecuredPath,
+        platform_owner: Arc<dyn PlatformCustodyOwner>,
+        authority: Arc<dyn CurrentBindingPort>,
+    ) -> Result<Self, CustodyError> {
         pending_path
             .secure_rollback_journal()
             .map_err(support::map_path_error)?;

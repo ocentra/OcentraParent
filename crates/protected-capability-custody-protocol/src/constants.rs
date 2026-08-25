@@ -20,13 +20,36 @@ pub const REQUEST_DIGEST_BYTES: usize = 32;
 pub const RESPONSE_DIGEST_BYTES: usize = 32;
 pub const MAX_FRAME_BYTES: usize = 64 * 1024;
 pub const MAX_FIELD_BYTES: usize = 1024;
+pub const MAX_REGISTRY_VALUE_BYTES: usize = 64 * 1024;
+pub const MAX_CUSTODY_RECORDS: i64 = 4_096;
+pub const MAX_ACTIVE_AUTHORITY_BINDINGS: usize = 4_096;
+pub const MAX_DATABASE_PAGES: i64 = 16_384;
+pub const BROKER_ACCEPT_DEADLINE_MILLIS: u64 = 5_000;
+pub const BROKER_RESTART_ATTEMPTS: u8 = 3;
+pub const BROKER_INSTALL_ROOT_UTF16: &[u16] = &[
+    67, 58, 92, 80, 114, 111, 103, 114, 97, 109, 32, 70, 105, 108, 101, 115, 92, 79, 99, 101, 110,
+    116, 114, 97, 92, 79, 99, 101, 110, 116, 114, 97, 80, 97, 114, 101, 110, 116,
+];
+pub const BROKER_DATA_ROOT_UTF16: &[u16] = &[
+    67, 58, 92, 80, 114, 111, 103, 114, 97, 109, 68, 97, 116, 97, 92, 79, 99, 101, 110, 116, 114,
+    97, 92, 79, 99, 101, 110, 116, 114, 97, 80, 97, 114, 101, 110, 116,
+];
 pub const SESSION_TTL_MILLIS: u64 = 5 * 60 * 1000;
 pub const MAX_REQUEST_TTL_MILLIS: u64 = 30 * 1000;
 pub const INITIAL_SESSION_SEQUENCE: u64 = 1;
+pub const BROKER_PIPE_NAME: &str = "\\\\.\\pipe\\ocentra-protected-capability-custody-v2";
 pub const BROKER_PIPE_NAME_PREFIX: &str = "\\\\.\\pipe\\ocentra-protected-capability-custody-v2-";
 pub const BROKER_EXECUTABLE_NAME: &str = "ocentra-protected-capability-custody-broker.exe";
-pub const BROKER_PIPE_ARGUMENT: &str = "--pipe";
-pub const BROKER_PIPE_SDDL: &str = "D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;OW)";
+pub const BROKER_SERVICE_NAME: &str = "OcentraProtectedCapabilityCustodyBroker";
+// Provisioned by the signed installer in the SYSTEM-only registry key derived
+// from the fixed broker executable path. The runtime never creates or reads a
+// mutable sibling manifest.
+pub const BROKER_DIGEST_VALUE_NAME: &str = "broker-image-sha256";
+pub const CLIENT_TOKEN_SID_VALUE_NAME: &str = "client-token-sid";
+pub const CLIENT_TOKEN_INTEGRITY_VALUE_NAME: &str = "client-token-integrity";
+pub const CLIENT_TOKEN_SESSION_VALUE_NAME: &str = "client-token-session";
+pub const CLIENT_IMAGE_PATH_VALUE_NAME: &str = "client-image-path";
+pub const CLIENT_IMAGE_DIGEST_VALUE_NAME: &str = "client-image-sha256";
 pub const BROKER_PROJECT_QUALIFIER: &str = "com";
 pub const BROKER_PROJECT_ORGANIZATION: &str = "Ocentra";
 pub const BROKER_PROJECT_APPLICATION: &str = "OcentraParent";

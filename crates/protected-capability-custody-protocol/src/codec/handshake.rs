@@ -8,7 +8,8 @@ use crate::constants::{
 };
 use crate::handshake::{BrokerSessionWireValues, UntrustedBrokerHello, UntrustedClientHello};
 use crate::types::{
-    AttestationDigest, CorrelationId, Nonce, ProtocolError, ProtocolGeneration, SessionHandle,
+    AttestationDigest, BootstrapAuthenticator, CorrelationId, Nonce, ProtocolError,
+    ProtocolGeneration, SessionHandle,
 };
 
 pub(super) fn encode_client(hello: &UntrustedClientHello) -> Result<Vec<u8>, ProtocolError> {
@@ -66,6 +67,7 @@ pub(super) fn encode_broker(hello: &UntrustedBrokerHello) -> Result<Vec<u8>, Pro
     append_u64(&mut payload, hello.watermark());
     payload.extend_from_slice(hello.session_handle().as_bytes());
     payload.extend_from_slice(hello.attestation_digest().as_bytes());
+    payload.extend_from_slice(hello.authenticator().bootstrap_bytes());
     append_u64(&mut payload, hello.session_expires_at_unix_millis());
     encode_frame(&payload)
 }
@@ -91,6 +93,9 @@ pub(super) fn decode_broker(frame: &[u8]) -> Result<UntrustedBrokerHello, Protoc
         SessionHandle::try_from_untrusted_bytes(cursor.take_exact(SESSION_HANDLE_BYTES)?)?;
     let attestation_digest =
         AttestationDigest::try_from_untrusted_bytes(cursor.take_exact(ATTESTATION_DIGEST_BYTES)?)?;
+    let authenticator = BootstrapAuthenticator::try_from_bootstrap_bytes(
+        cursor.take_exact(crate::constants::BOOTSTRAP_AUTHENTICATOR_BYTES)?,
+    )?;
     let session_expires_at_unix_millis = cursor.take_u64()?;
     cursor.finish()?;
     let client = UntrustedClientHello::try_new(
@@ -114,6 +119,7 @@ pub(super) fn decode_broker(frame: &[u8]) -> Result<UntrustedBrokerHello, Protoc
             session_expires_at_unix_millis,
         },
         attestation_digest,
+        authenticator,
         unix_now_millis()?,
     )
     .map(|mut hello| {

@@ -87,14 +87,19 @@ explicit handoff to Cloudflare WP06 then WP08; no worker-runtime claim
 
 ### 0b. WP09 Account Issuer Key Custody And Cloudflare Handoff
 
-Expected result: create the durable Account issuer and signing-key custody
-boundary, monotonic versioned public-key registry/revocation, authenticated
-Account producer service-binding adapter, startup reload/recovery, and typed
-handoff over WP08's existing sealed contract. Add the four expected
-custody/registry/startup/producer tests and retained proof before normal
-completion. Route WP09 after WP08 with a reviewed-implementation dependency;
-normal completion remains blocked. Do not add Account WP02, Account WP05A,
-Device Trust, or Cloudflare source ownership, duplicate the WP08 schema/wire
+Reviewed core result: canonical `4f6245e51` contains durable issuer/key lineage,
+strict startup recovery, and a household-scoped receipt/wire outbox over the
+typed WP08 handoff. First accept Protected Custody WP01's isolated broker/client
+and opaque protected admission; Account must consume that boundary and must not
+recreate in-process key custody. Live caller tracing found no protected signer,
+binding authenticator, delivery-owner implementation, or production lifecycle
+caller. Then write the coherent Account-owned adapter/runtime packet; it must
+deliver the outer wire plus an authenticated current public-key record and
+accept only an exactly bound Cloudflare acknowledgement. Cloudflare WP06 then
+owns its private consumer/mount. The later test wave must write all seven
+expected custody/registry/adapter/runtime roots before focused execution. Retained proof
+comes only after code and tests converge. Do not add Account WP02, Account WP05A,
+Device Trust, or Cloudflare source ownership here, duplicate the WP08 schema/wire
 contract, permit caller-selected keys, or use mock/no-op/in-memory custody.
 
 ### 1. WP01 Auth Provider Decision

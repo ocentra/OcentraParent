@@ -17,9 +17,9 @@ impl UntrustedBrokerHello {
         client: &UntrustedClientHello,
         session: BrokerSessionWireValues,
         now_unix_millis: u64,
-        authenticator: &BootstrapAuthenticator,
     ) -> Result<Self, ProtocolError> {
         let session = session.try_new(now_unix_millis)?;
+        let authenticator = BootstrapAuthenticator::generate()?;
         let mut canonical = Vec::with_capacity(224);
         session.append_attestation_message(client, &mut canonical);
         let tag =
@@ -28,6 +28,7 @@ impl UntrustedBrokerHello {
             client,
             session,
             AttestationDigest::from_authentication_tag(tag),
+            authenticator,
         ))
     }
 
@@ -35,12 +36,14 @@ impl UntrustedBrokerHello {
         client: &UntrustedClientHello,
         session: BrokerSessionWireValues,
         attestation_digest: AttestationDigest,
+        authenticator: BootstrapAuthenticator,
         now_unix_millis: u64,
     ) -> Result<Self, ProtocolError> {
         Ok(Self::from_parts(
             client,
             session.try_new(now_unix_millis)?,
             attestation_digest,
+            authenticator,
         ))
     }
 
@@ -48,6 +51,7 @@ impl UntrustedBrokerHello {
         client: &UntrustedClientHello,
         session: BrokerSessionWireValues,
         attestation_digest: AttestationDigest,
+        authenticator: BootstrapAuthenticator,
     ) -> Self {
         Self {
             version: client.version(),
@@ -66,6 +70,7 @@ impl UntrustedBrokerHello {
             watermark: session.watermark,
             session_handle: session.session_handle,
             attestation_digest,
+            authenticator,
             session_expires_at_unix_millis: session.session_expires_at_unix_millis,
         }
     }
@@ -74,7 +79,6 @@ impl UntrustedBrokerHello {
         &self,
         client: &UntrustedClientHello,
         now_unix_millis: u64,
-        authenticator: &BootstrapAuthenticator,
     ) -> Result<SessionTranscriptDigest, ProtocolError> {
         if !self.matches_client(client) || !self.is_live_at(now_unix_millis) {
             return Err(ProtocolError::AuthenticationFailed);
@@ -82,12 +86,23 @@ impl UntrustedBrokerHello {
         let session = self.session_wire_values();
         let mut canonical = Vec::with_capacity(224);
         session.append_attestation_message(client, &mut canonical);
-        authenticator.verify(
+        self.authenticator.verify(
             AuthenticationDomain::BrokerAttestation,
             &canonical,
             AuthenticationTag::from_attestation_digest(self.attestation_digest),
         )?;
         Ok(self.transcript_digest())
+    }
+
+    /// Clones only the broker-generated session key used to authenticate the
+    /// one authenticated pipe session. The bootstrap packet never carries or
+    /// chooses this secret.
+    pub fn clone_authenticator(&self) -> BootstrapAuthenticator {
+        self.authenticator.clone()
+    }
+
+    pub fn authenticator(&self) -> &BootstrapAuthenticator {
+        &self.authenticator
     }
 
     pub fn transcript_digest(&self) -> SessionTranscriptDigest {

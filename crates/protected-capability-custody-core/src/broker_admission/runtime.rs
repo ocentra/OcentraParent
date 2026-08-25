@@ -1,47 +1,137 @@
 use std::sync::Arc;
 
-use crate::custody::CustodyAdmission;
 use ocentra_protected_capability_custody_protocol::request::{
     authenticated::AuthenticatedRequest, RequestKind,
 };
+use ocentra_protected_capability_custody_protocol::{
+    bootstrap::BootstrapPacket, handshake::UntrustedClientHello,
+};
 
 use super::{
-    authority, error_status, finalize, platform, prepare, recover, wire, BrokerCustodyOutcome,
-    BrokerCustodyRuntime, BrokerPlatformSessionState, BrokerProcessAdmission, BrokerRuntimeError,
+    authority, error_status, finalize, platform, prepare, recover, wire,
+    BrokerAuthorizedClientTranscript, BrokerCustodyOutcome, BrokerCustodyRuntime,
+    BrokerPeerAdmissionObservation, BrokerPlatformSessionState, BrokerProcessAdmission,
+    BrokerRuntimeError,
 };
 
 impl BrokerProcessAdmission {
-    pub fn for_current_process() -> Result<Self, BrokerRuntimeError> {
+    fn for_current_process() -> Result<Self, BrokerRuntimeError> {
         let executable = super::BrokerExecutableGuard::open_current_broker()?;
-        let database_path = super::storage_path::open_fixed_database()?;
+        let database = super::storage_path::open_fixed_database()?;
         Ok(Self {
             _executable: executable,
-            database_path,
+            database,
         })
     }
 }
 
 impl BrokerCustodyRuntime {
+    /// Proves that every sealed Windows adapter required for service startup
+    /// is linked before broker admission can select or create any storage.
+    /// This preflight is capability-only and performs no filesystem, registry,
+    /// listener, or durable-state operation.
+    pub fn preflight_service_start() -> Result<(), BrokerRuntimeError> {
+        Self::peer_admission_available()?;
+        platform::preflight_service_start().map_err(error_status::platform)
+    }
+
+    /// Starts custody through the one cross-crate broker-owner seam. The
+    /// capability-only preflight is deliberately the first operation, before
+    /// executable admission can select or create the fixed storage path.
+    pub fn start_broker_owned() -> Result<Self, BrokerRuntimeError> {
+        Self::preflight_service_start()?;
+        let admission = BrokerProcessAdmission::for_current_process()?;
+        Self::open_broker_owned(admission)
+    }
+
     /// Opens the neutral custody runtime for the fixed database selected by
     /// the isolated broker process. This is not caller-selected authority.
-    pub fn open_broker_owned(
-        admission: BrokerProcessAdmission,
-    ) -> Result<Self, BrokerRuntimeError> {
-        let database_path = admission.database_path.as_path();
-        let registry_id = platform::registry_id(database_path).map_err(error_status::platform)?;
+    fn open_broker_owned(admission: BrokerProcessAdmission) -> Result<Self, BrokerRuntimeError> {
+        let BrokerProcessAdmission {
+            _executable,
+            database,
+        } = admission;
+        let registry_id =
+            platform::registry_id(database.canonical()).map_err(error_status::platform)?;
         let authority = Arc::new(authority::BrokerCurrentBindingAuthority::new(
             registry_id.clone(),
         ));
         let platform_owner = Arc::new(platform::BrokerPlatformOwner::new());
-        let admission_authority = Arc::clone(&authority);
-        let custody_admission = CustodyAdmission::new(platform_owner, admission_authority);
-        let store = crate::custody::CustodyStore::open(database_path, custody_admission)?;
+        let store = crate::custody::CustodyStore::open_pending(
+            database,
+            platform_owner,
+            authority.clone(),
+        )?;
         Ok(Self {
             store,
             authority,
             registry_id,
-            _process_admission: admission,
+            _executable,
         })
+    }
+
+    /// Observes one exact named-pipe peer while the caller holds the pipe's
+    /// RAII impersonation guard. The future adapter must open and retain one
+    /// Windows process handle, derive PID/creation epoch/image/digest from that
+    /// handle, revalidate liveness, read SID/integrity/session from the
+    /// impersonated token, and bind both PID and session to the pipe values.
+    /// No sysinfo, path-only, same-user, or split-snapshot substitute is valid.
+    pub fn observe_impersonated_named_pipe_client(
+        pipe_process_id: u32,
+        pipe_session_id: u32,
+    ) -> Result<BrokerPeerAdmissionObservation, BrokerRuntimeError> {
+        if pipe_process_id == 0 || pipe_session_id == 0 {
+            return Err(BrokerRuntimeError::InvalidRequest);
+        }
+        Err(BrokerRuntimeError::DeploymentRequired)
+    }
+
+    /// The broker must not advertise a running listener until the exact
+    /// Windows process/token adapter is linked. This remains an explicit
+    /// deployment boundary rather than silently accepting a weaker identity.
+    pub fn peer_admission_available() -> Result<(), BrokerRuntimeError> {
+        Err(BrokerRuntimeError::DeploymentRequired)
+    }
+
+    /// Authorizes the one pinned observation returned by the missing platform
+    /// adapter. This remains unavailable until the adapter can keep its process
+    /// handle live through enrollment comparison and immediately revalidate it
+    /// before the broker emits `BrokerHello`.
+    pub fn authorize_client_peer(
+        &self,
+        observation: &BrokerPeerAdmissionObservation,
+    ) -> Result<(), BrokerRuntimeError> {
+        let _ = (self, observation);
+        Err(BrokerRuntimeError::DeploymentRequired)
+    }
+
+    /// Revalidates the retained process handle and binds its PID, creation
+    /// epoch, token SID/integrity/session, and pipe PID/session to this exact
+    /// bootstrap/client-hello nonce and transcript immediately before the
+    /// broker releases session key material. This separate sealed result keeps
+    /// a future adapter from authenticating once, dropping its handle, and
+    /// then trusting a reusable PID or caller-asserted epoch.
+    pub fn authorize_client_transcript(
+        &self,
+        observation: &BrokerPeerAdmissionObservation,
+        bootstrap: &BootstrapPacket,
+        hello: &UntrustedClientHello,
+    ) -> Result<BrokerAuthorizedClientTranscript, BrokerRuntimeError> {
+        let _ = (self, observation, bootstrap, hello);
+        Err(BrokerRuntimeError::DeploymentRequired)
+    }
+
+    /// Builds the listener ACL from the installer-owned enrollment record.
+    /// Missing or malformed enrollment keeps the broker unavailable; the
+    /// service must never fall back to a broad/default same-user ACL.
+    #[cfg(windows)]
+    pub fn broker_pipe_sddl(&self) -> Result<String, BrokerRuntimeError> {
+        platform::admission::broker_pipe_sddl(&self.registry_id).map_err(error_status::platform)
+    }
+
+    #[cfg(not(windows))]
+    pub fn broker_pipe_sddl(&self) -> Result<String, BrokerRuntimeError> {
+        Err(BrokerRuntimeError::Unavailable)
     }
 
     /// Executes a request only after the broker validates kernel peer

@@ -59,15 +59,26 @@ impl fmt::Debug for ClientRequest {
 }
 
 pub struct AuthenticatedBrokerSession {
-    #[cfg(windows)]
-    pub(crate) inner: crate::windows_ipc::WindowsBrokerSession,
+    _private: SessionPrivate,
 }
+
+struct SessionPrivate;
 
 impl AuthenticatedBrokerSession {
     pub fn execute(self, request: ClientRequest) -> Result<AuthenticatedResponse, ClientError> {
         #[cfg(windows)]
         {
-            self.inner.execute(request)
+            // No safe client-verifiable immutable broker image/SCM anchor is
+            // linked into this build. `connect` cannot construct this sealed
+            // session, and execution remains unavailable until that adapter
+            // authenticates the exact pipe server before any bootstrap bytes
+            // are sent.
+            let _ = (
+                self,
+                request.expected_generations,
+                request.opaque_token.as_ref(),
+            );
+            Err(ClientError::DeploymentRequired)
         }
         #[cfg(not(windows))]
         {
@@ -91,10 +102,6 @@ pub struct AuthenticatedResponse {
 }
 
 impl AuthenticatedResponse {
-    pub(crate) fn from_verified(response: UntrustedResponse) -> Self {
-        Self { response }
-    }
-
     pub fn status(&self) -> ResponseStatus {
         self.response.status()
     }
