@@ -23,6 +23,10 @@ impl OwnedPcpSigningKey {
         Err(Error::UnsupportedPlatform)
     }
 
+    pub fn signing_public_modulus(&self) -> Result<[u8; 384]> {
+        Err(Error::UnsupportedPlatform)
+    }
+
     pub fn sign_sha256_digest(&self, _digest: &[u8; 32]) -> Result<Vec<u8>> {
         Err(Error::UnsupportedPlatform)
     }

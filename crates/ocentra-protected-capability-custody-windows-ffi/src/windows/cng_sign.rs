@@ -8,6 +8,8 @@ use windows_sys::Win32::Security::Cryptography::{
     NCRYPT_SHA256_ALGORITHM, NCRYPT_SILENT_FLAG,
 };
 
+const RSA_3072_SIGNATURE_BYTES: usize = 384;
+
 pub(super) fn sign_digest(key: NCRYPT_KEY_HANDLE, digest: &[u8; 32]) -> Result<Vec<u8>> {
     let padding = BCRYPT_PSS_PADDING_INFO {
         pszAlgId: NCRYPT_SHA256_ALGORITHM,
@@ -31,7 +33,7 @@ pub(super) fn sign_digest(key: NCRYPT_KEY_HANDLE, digest: &[u8; 32]) -> Result<V
         return Err(Error::Crypto(status as u32));
     }
     let written = usize::try_from(written)?;
-    if written == 0 || written > signature.len() {
+    if written != RSA_3072_SIGNATURE_BYTES {
         return Err(Error::CryptoPropertyViolation);
     }
     signature.truncate(written);
