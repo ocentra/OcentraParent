@@ -161,71 +161,8 @@ export async function loginBrowserSession(
     );
     return withCorrelation(authorityFailure(authorityResult), correlation);
   }
-  const authority = authorityResult.capability;
-  const role = browserSessionRole(authority.role);
-  if (role === null) {
-    milestone('login', 'rejected', correlation, 'role-ineligible');
-    return withCorrelation(json(403, { error: 'browser-session-role-ineligible' }), correlation);
-  }
-  const nowMs = Date.now();
-  const created = await createBrowserSessionStore(env.ACCOUNT_IDENTITY_D1).create(authority, correlation);
-  if (created.status !== 'accepted') {
-    milestone(
-      'login',
-      created.status === 'manual-required' ? 'manual-required' : 'rejected',
-      correlation,
-      created.reason
-    );
-    return withCorrelation(
-      json(created.status === 'manual-required' ? 503 : 409, {
-        error: created.status,
-        reason: created.reason,
-      }),
-      correlation
-    );
-  }
-  if (created.identity === null) {
-    milestone('login', 'manual-required', correlation, 'session-custody-conflict');
-    return withCorrelation(json(503, { error: 'session-custody-conflict' }), correlation);
-  }
-  const names = cookieNames(env);
-  const headers = new Headers({ 'cache-control': 'no-store' });
-  headers.append(
-    'set-cookie',
-    cookie(
-      names.session,
-      created.secrets.sessionToken,
-      cookieMaxAge(created.identity.accessExpiresAt, nowMs),
-      true,
-      env
-    )
-  );
-  headers.append(
-    'set-cookie',
-    cookie(
-      names.refresh,
-      created.secrets.refreshToken,
-      cookieMaxAge(created.identity.refreshExpiresAt, nowMs),
-      true,
-      env
-    )
-  );
-  headers.append(
-    'set-cookie',
-    cookie(names.csrf, created.secrets.csrfToken, cookieMaxAge(created.identity.refreshExpiresAt, nowMs), false, env)
-  );
-  const identity: VerifiedIdentity = {
-    subject: authority.providerSubject,
-    state: 'browser-session-required',
-    role,
-    trustedDevice: true,
-    authority,
-  };
-  const response = sessionResponse(identity, created.identity.accessExpiresAt, created.secrets.csrfToken);
-  for (const [key, value] of response.headers) if (key !== 'cache-control') headers.set(key, value);
-  milestone('login', 'accepted', correlation);
-  headers.set(REQUEST_CORRELATION_HEADER, correlation);
-  return new Response(response.body, { status: response.status, headers });
+  milestone('login', 'manual-required', correlation, 'request-bound-device-credential-required');
+  return withCorrelation(capabilityMissing(), correlation);
 }
 
 export async function refreshBrowserSession(request: Request, env: Env, identity: VerifiedIdentity): Promise<Response> {
