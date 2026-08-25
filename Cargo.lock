@@ -2930,6 +2930,7 @@ dependencies = [
  "fs2",
  "getrandom 0.3.4",
  "ocentra-protected-capability-custody-protocol",
+ "ocentra-protected-capability-custody-windows-ffi",
  "rusqlite",
  "rustix 1.1.4",
  "same-file",
@@ -2950,6 +2951,14 @@ dependencies = [
  "ring",
  "sha2",
  "zeroize",
+]
+
+[[package]]
+name = "ocentra-protected-capability-custody-windows-ffi"
+version = "0.1.1"
+dependencies = [
+ "sha2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { repoRoot, resolveScopedFiles, toPosix } from './check-architecture-scope.mjs';
 
@@ -21,6 +22,10 @@ const runtimeCrates = new Set([
 ]);
 const testOnlyCrates = new Set(['criterion', 'mockall', 'pretty_assertions', 'proptest', 'rstest', 'wiremock']);
 const allowedGitDependencies = new Set();
+const protectedWindowsFfiPackage = 'ocentra-protected-capability-custody-windows-ffi';
+const protectedWindowsFfiConsumer = 'ocentra-protected-capability-custody-core';
+const protectedWindowsFfiTarget = 'cfg(windows)';
+const protectedWindowsFfiRustName = 'ocentra_protected_capability_custody_windows_ffi';
 
 function isCargoPolicyPath(filePath) {
   return filePath === 'Cargo.toml' || filePath === 'Cargo.lock' || filePath.endsWith('/Cargo.toml');
@@ -94,6 +99,95 @@ function collectFindingsForPackage(packageInfo, metadata, scopedPackages) {
   return findings;
 }
 
+function collectProtectedWindowsFfiFindings(metadata) {
+  const findings = [];
+  const ffiPackage = (metadata.packages ?? []).find((packageInfo) => packageInfo.name === protectedWindowsFfiPackage);
+  const expectedPath = ffiPackage === undefined ? null : path.resolve(path.dirname(ffiPackage.manifest_path));
+
+  for (const packageInfo of metadata.packages ?? []) {
+    for (const dependency of packageInfo.dependencies ?? []) {
+      if (dependency.name !== protectedWindowsFfiPackage) {
+        continue;
+      }
+      const dependencyPath = dependency.path == null ? null : path.resolve(dependency.path);
+      const isExactAllowedEdge =
+        packageInfo.name === protectedWindowsFfiConsumer &&
+        dependency.kind === null &&
+        dependency.rename === null &&
+        dependency.optional === false &&
+        dependency.target === protectedWindowsFfiTarget &&
+        dependency.source === null &&
+        dependency.registry === null &&
+        dependency.uses_default_features === true &&
+        (dependency.features ?? []).length === 0 &&
+        dependencyPath !== null &&
+        expectedPath !== null &&
+        pathsAreEqual(dependencyPath, expectedPath);
+      if (!isExactAllowedEdge) {
+        const alias = dependency.rename ?? dependency.name;
+        const kind = dependency.kind ?? 'normal';
+        const target = dependency.target ?? 'all-targets';
+        findings.push(
+          `${packageInfo.manifest_path}: ${alias} resolves to restricted ${dependency.name}; only the ` +
+            `non-optional, unrenamed, normal ${protectedWindowsFfiTarget} path dependency from ` +
+            `${protectedWindowsFfiConsumer} is permitted (found ${kind} for ${target}).`
+        );
+      }
+    }
+  }
+  return findings;
+}
+
+function pathsAreEqual(left, right) {
+  return path.relative(left, right) === '' && path.relative(right, left) === '';
+}
+
+function collectProtectedWindowsFfiSurfaceFindings(metadata) {
+  const corePackage = (metadata.packages ?? []).find((packageInfo) => packageInfo.name === protectedWindowsFfiConsumer);
+  if (corePackage === undefined) {
+    return [];
+  }
+  const sourceRoot = path.join(path.dirname(corePackage.manifest_path), 'src');
+  const findings = [];
+  for (const filePath of collectRustFiles(sourceRoot)) {
+    const text = readFileSync(filePath, 'utf8');
+    if (!text.includes(protectedWindowsFfiRustName)) {
+      continue;
+    }
+    const lines = text.split(/\r?\n/u);
+    for (let index = 0; index < lines.length; index += 1) {
+      if (/^\s*pub\s+(?!\()/u.test(lines[index])) {
+        findings.push(
+          `${filePath}:${index + 1}: files that name ${protectedWindowsFfiPackage} must expose ` +
+            'crate-private items only; translate to core-owned types before any public API.'
+        );
+      }
+    }
+  }
+  return findings;
+}
+
+function collectRustFiles(directory) {
+  const files = [];
+  const pending = [directory];
+  while (pending.length > 0) {
+    const current = pending.pop();
+    if (current === undefined) {
+      continue;
+    }
+    for (const entry of readdirSync(current)) {
+      const entryPath = path.join(current, entry);
+      const stats = statSync(entryPath);
+      if (stats.isDirectory()) {
+        pending.push(entryPath);
+      } else if (stats.isFile() && entry.endsWith('.rs')) {
+        files.push(entryPath);
+      }
+    }
+  }
+  return files;
+}
+
 export function main(rawArgs = process.argv.slice(2)) {
   const scope = resolveScopedFiles(rawArgs, {
     scriptName,
@@ -126,6 +220,8 @@ export function main(rawArgs = process.argv.slice(2)) {
   const findings = scopedPackages.flatMap((packageInfo) =>
     collectFindingsForPackage(packageInfo, metadata, scopedPackages)
   );
+  findings.push(...collectProtectedWindowsFfiFindings(metadata));
+  findings.push(...collectProtectedWindowsFfiSurfaceFindings(metadata));
   const registryReqsByName = new Map();
   for (const packageInfo of scopedPackages) {
     for (const dependency of packageInfo.dependencies ?? []) {

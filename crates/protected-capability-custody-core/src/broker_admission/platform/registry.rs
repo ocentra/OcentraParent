@@ -23,8 +23,6 @@ mod registry_io;
 #[cfg(windows)]
 const REGISTRY_ROOT: &str = "Software\\Ocentra\\ProtectedCapabilityCustody";
 #[cfg(windows)]
-const ENROLLMENT_SUBKEY: &str = "Enrollment";
-#[cfg(windows)]
 const RUNTIME_SUBKEY: &str = "Runtime";
 #[cfg(windows)]
 const REGISTRY_PATH_DOMAIN: &[u8] = b"ocentra.pcc.registry-path.v1";
@@ -48,14 +46,6 @@ pub(super) fn registry_id(path: &Path) -> Result<String, PlatformError> {
 #[cfg(windows)]
 pub(super) fn read(registry_id: &str, name: &str) -> Result<Option<Vec<u8>>, PlatformError> {
     registry_io::read(registry_id, name)
-}
-
-#[cfg(windows)]
-pub(super) fn read_enrollment(
-    registry_id: &str,
-    name: &str,
-) -> Result<Option<Vec<u8>>, PlatformError> {
-    registry_io::read_enrollment(registry_id, name)
 }
 
 #[cfg(windows)]
@@ -129,19 +119,6 @@ fn open_runtime_key(registry_id: &str, access: u32) -> Result<RegKey, PlatformEr
         .open_subkey_with_flags(path, access)
         .map_err(map_io_error)?;
     acl::validate_secret_store(&key)?;
-    Ok(key)
-}
-
-#[cfg(windows)]
-pub(super) fn open_enrollment_key(registry_id: &str) -> Result<RegKey, PlatformError> {
-    // Installer/SCM provisioning owns this key. The broker may read it, but
-    // runtime state code has no write handle to the enrollment child.
-    let root = RegKey::predef(HKEY_LOCAL_MACHINE);
-    let path = format!("{REGISTRY_ROOT}\\{registry_id}\\{ENROLLMENT_SUBKEY}");
-    let key = root
-        .open_subkey_with_flags(path, KEY_READ)
-        .map_err(map_io_error)?;
-    acl::validate_enrollment_store(&key)?;
     Ok(key)
 }
 

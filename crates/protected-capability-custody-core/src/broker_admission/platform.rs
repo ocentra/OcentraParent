@@ -1,8 +1,5 @@
 use std::path::Path;
 
-#[cfg(windows)]
-use std::fs::File;
-
 use crate::platform::identity::PhysicalDatabaseIdentity;
 use crate::platform::sealed::{TrustedDatabaseGuard, TrustedPlatformOwner};
 use crate::platform::{
@@ -16,17 +13,26 @@ use crate::platform::record::BrokerRecord;
 #[cfg(windows)]
 use crate::platform::request::{BrokerLookup, TransitionRequest};
 mod acl;
-pub(super) mod admission;
 mod anti_rollback;
 mod crypto;
-mod digest;
 mod guard;
 mod record;
 mod registry;
 mod secret;
 mod state;
 mod transition;
+#[cfg(windows)]
+mod windows;
 mod writer;
+
+#[cfg(windows)]
+pub(super) type BrokerWindowsRuntime = windows::WindowsCustodyRuntime;
+
+#[cfg(windows)]
+pub(super) type BrokerPeerObservation = windows::RetainedPeer;
+
+#[cfg(windows)]
+pub(super) type BrokerAuthorizedPeer = windows::AuthorizedPeer;
 
 pub(super) struct BrokerPlatformOwner;
 
@@ -36,16 +42,17 @@ impl BrokerPlatformOwner {
     }
 }
 
-pub(super) fn preflight_service_start() -> Result<(), PlatformError> {
+pub(super) fn preflight_service_start(registry_id: &str) -> Result<(), PlatformError> {
     #[cfg(windows)]
     {
-        // These checks are capability-only. They must not open registry keys,
-        // create files, acquire writer custody, or advance durable state.
-        acl::registry_custody_adapter_available()?;
+        // Enrollment, SCM, process, and TPM observations happen before any
+        // database, runtime-registry, journal, listener, or readiness state.
+        windows::preflight(registry_id)?;
         anti_rollback::provider_available()
     }
     #[cfg(not(windows))]
     {
+        let _registry_id = registry_id;
         Err(PlatformError::Unavailable)
     }
 }
@@ -187,22 +194,4 @@ pub(super) fn decrypt_dpapi(
 #[cfg(windows)]
 pub(super) fn hex(bytes: &[u8]) -> String {
     registry::hex(bytes)
-}
-
-#[cfg(windows)]
-pub(super) fn validate_broker_executable(
-    executable: &File,
-    path: &Path,
-) -> Result<(), PlatformError> {
-    acl::validate_file(executable)?;
-    acl::validate_path(path.parent().ok_or(PlatformError::InvalidAttestation)?)?;
-    digest::validate(executable, path)
-}
-
-#[cfg(not(windows))]
-pub(super) fn validate_broker_executable(
-    _executable: &std::fs::File,
-    _path: &Path,
-) -> Result<(), PlatformError> {
-    Err(PlatformError::Unavailable)
 }

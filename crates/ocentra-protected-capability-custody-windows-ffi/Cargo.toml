@@ -1,0 +1,52 @@
+[package]
+name = "ocentra-protected-capability-custody-windows-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+# This package is the deliberately tiny unsafe boundary. It must not inherit
+# the workspace `unsafe_code = forbid` lint; every other deny is copied here so
+# the raw ABI layer remains as strict as the safe crates around it.
+[lints.rust]
+unsafe_code = "allow"
+unsafe_op_in_unsafe_fn = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+print_stdout = "deny"
+print_stderr = "deny"
+await_holding_lock = "deny"
+await_holding_refcell_ref = "deny"
+future_not_send = "deny"
+large_futures = "deny"
+arc_with_non_send_sync = "deny"
+clone_on_ref_ptr = "deny"
+redundant_clone = "deny"
+needless_pass_by_value = "deny"
+needless_pass_by_ref_mut = "deny"
+map_err_ignore = "deny"
+large_enum_variant = "deny"
+large_stack_arrays = "deny"
+large_stack_frames = "deny"
+
+[lib]
+path = "src/lib.rs"
+
+[target.'cfg(windows)'.dependencies]
+sha2 = "0.10.9"
+windows-sys = { version = "0.61.2", features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_Storage_FileSystem",
+  "Win32_System_IO",
+  "Win32_System_Registry",
+  "Win32_System_Services",
+  "Win32_System_Threading",
+  "Win32_System_TpmBaseServices",
+] }

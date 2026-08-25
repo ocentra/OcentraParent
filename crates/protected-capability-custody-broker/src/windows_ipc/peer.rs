@@ -2,9 +2,6 @@ use std::io;
 use std::time::Instant;
 
 use interprocess::os::windows::named_pipe::{pipe_mode, DuplexPipeStream};
-use ocentra_protected_capability_custody_core::broker_admission::{
-    BrokerCustodyRuntime, BrokerRuntimeError,
-};
 use ocentra_protected_capability_custody_protocol::bootstrap::BootstrapPacket;
 use ocentra_protected_capability_custody_protocol::constants::INITIAL_SESSION_SEQUENCE;
 use ocentra_protected_capability_custody_protocol::handshake::{
@@ -24,20 +21,14 @@ pub(super) fn serve(
     custody: &BrokerCustodyService,
 ) -> Result<(), BrokerError> {
     // Admit the OS peer before reading any caller-controlled bootstrap or
-    // generating a broker session key. The current build fails closed here:
-    // the required pinned process/token adapter is not available under the
-    // safe dependency boundary. Once supplied, it must keep the process
-    // handle alive through digest/admission and capture the token under this
-    // RAII impersonation scope before protected registry custody is opened.
+    // generating a broker session key. The observation retains the process,
+    // image, primary-token, and impersonated-token handles through transcript
+    // authorization; this RAII scope supplies the actual pipe-client token.
     let peer_process_id = stream.client_process_id().map_err(map_transport_error)?;
     let peer_session_id = stream.client_session_id().map_err(map_transport_error)?;
     let observation = {
         let _impersonation = stream.impersonate_client().map_err(map_transport_error)?;
-        BrokerCustodyRuntime::observe_impersonated_named_pipe_client(
-            peer_process_id,
-            peer_session_id,
-        )
-        .map_err(map_runtime_error)?
+        custody.observe_impersonated_named_pipe_client(peer_process_id, peer_session_id)?
     };
     custody.authorize_client_peer(&observation)?;
 
@@ -54,8 +45,15 @@ pub(super) fn serve(
     // The observation owns the future pinned process handle. Revalidate it at
     // the last possible point before the broker creates and emits session key
     // material, closing the PID-reuse window between admission and hello.
-    let _authorized_transcript =
-        custody.authorize_client_transcript(&observation, &bootstrap, &client_hello)?;
+    let fresh_process_id = stream.client_process_id().map_err(map_transport_error)?;
+    let fresh_session_id = stream.client_session_id().map_err(map_transport_error)?;
+    let _authorized_transcript = custody.authorize_client_transcript(
+        observation,
+        &bootstrap,
+        &client_hello,
+        fresh_process_id,
+        fresh_session_id,
+    )?;
 
     let broker_identity = current_process_identity()?;
     let session = BrokerSessionAuthority::generate(
@@ -123,11 +121,4 @@ fn authenticate_client_hello(
 
 fn map_transport_error(_error: io::Error) -> BrokerError {
     BrokerError::Transport
-}
-
-fn map_runtime_error(error: BrokerRuntimeError) -> BrokerError {
-    match error {
-        BrokerRuntimeError::DeploymentRequired => BrokerError::DeploymentRequired,
-        _ => BrokerError::PeerAuthentication,
-    }
 }
