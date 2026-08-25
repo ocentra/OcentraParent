@@ -238,9 +238,13 @@
         "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
         "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
-        "docs/engineering-graph/code-map.json"
+        "docs/engineering-graph/code-map.json",
+        "infra/cloudflare/src/routes.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/storage/account-identity-billing-store.ts"
       ],
-      "reason": "The accepted Payment source wave adds Account-composite provider mapping, durable Worker/DO mutation ownership, and a fail-closed forward migration. Payment migration 0003 explicitly requires the Account WP02 current-authority schema and the Cloudflare WP06 durable binding/runtime owner; pricing semantics still come from Payment WP01. Expected tests, provider execution, proof, deployment, and DONE remain open."
+      "reason": "Reviewed 2026-08-25 against the actual Cloudflare route, auth, Account mapping, codec, caller, and test surfaces. Checkout and portal request/response codecs are bound in the Worker route manifest, but both execution bindings and handlers remain manual-required with payment-provider-execution-owner-missing; no provider API/session caller exists. Account current-authority/provider mapping is real for status and webhook seams, while ACCOUNT_IDENTITY_D1 and the Account migration dependency remain manual-required. Rust/schema generated contract sources are present, but the planned schema-domain adapter, billing-domain expected tests, provider execution, proof, deployment, CI, PR, and DONE remain open. This review preserves blocked state and adds no completionEvidence."
     },
     {
       "id": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
