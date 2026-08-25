@@ -76,7 +76,7 @@ cargo test -p ocentra-protected-capability-custody-protocol --tests
 cargo test -p ocentra-protected-capability-custody-broker --tests
 cargo test -p ocentra-protected-capability-custody-client --tests
 cargo test -p ocentra-protected-capability-custody-windows --tests
-npm run lint:architecture -- --files crates/protected-capability-custody-core crates/protected-capability-custody-protocol crates/protected-capability-custody-broker crates/protected-capability-custody-client
+npm run lint:architecture -- --files crates/protected-capability-custody-core crates/protected-capability-custody-protocol crates/protected-capability-custody-broker crates/protected-capability-custody-client crates/ocentra-protected-capability-custody-windows-ffi crates/ocentra-protected-capability-custody-windows
 npm run hub:guard -- --paths <exact-touched-paths> --operation commit
 ```
 

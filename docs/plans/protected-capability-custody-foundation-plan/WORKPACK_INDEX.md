@@ -47,9 +47,13 @@ authority.
   `ocentra-protected-capability-custody-windows-ffi` raw-wrapper module and the
   safe `ocentra-protected-capability-custody-windows` adapter module. The FFI
   package is the only package allowed to contain its scoped unsafe Win32/TBS/TPM
-  wrappers; the safe adapter is the only in-process Windows seam used by the
-  broker. Their manifests and `lib` targets are graph obligations, not source
-  presence.
+  wrappers; its manifest must use package-local lint tables, not
+  `[lints] workspace = true`, set `unsafe_code = "allow"` and
+  `unsafe_op_in_unsafe_fn = "deny"`, and manually mirror every workspace
+  Rust/Clippy deny except `unsafe_code`. The safe adapter and broker continue
+  inheriting `[lints] workspace = true`; the safe adapter is the only
+  in-process Windows seam used by the broker. Their manifests and `lib` targets
+  are graph obligations, not source presence.
 - The future adapter must verify retained pipe/process/token handles, SID,
   integrity, session, image/SCM identity, exact registry owner/protected
   DACL/ACE/ancestor chain, nonce/expiry/replay, and TPM2 NV/TBS monotonic

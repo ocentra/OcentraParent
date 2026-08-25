@@ -10,10 +10,13 @@
 <!-- /agent-capsule -->
 
 1. Add the planned `ocentra-protected-capability-custody-windows-ffi` package
-   as the only package-scoped unsafe module. It may contain only raw Win32,
-   TBS, TPM2, and owned-handle wrappers, with `unsafe_op_in_unsafe_fn` denied
-   and all other lint denies retained. It must not own custody decisions,
-   enrollment, persistence, or a caller interface.
+   as the only package-scoped unsafe module. Its manifest must use package-local
+   lint tables, not `[lints] workspace = true`, set `unsafe_code = "allow"` and
+   `unsafe_op_in_unsafe_fn = "deny"`, and manually mirror every workspace
+   Rust/Clippy deny except `unsafe_code`. The safe Windows adapter and broker
+   continue inheriting `[lints] workspace = true`. The FFI package may contain
+   only raw Win32, TBS, TPM2, and owned-handle wrappers; it must not own custody
+   decisions, enrollment, persistence, or a caller interface.
 2. Add the planned safe
    `ocentra-protected-capability-custody-windows` package with a small opaque
    adapter interface. It must retain/revalidate pipe/process/token handles,

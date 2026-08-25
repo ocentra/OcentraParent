@@ -32,9 +32,11 @@ The adapter is split into two crates with one ownership seam:
 
 1. `ocentra-protected-capability-custody-windows-ffi` is a tiny raw-wrapper
    module. It contains only Win32/TBS/TPM calls and owned-handle wrappers. Its
-   package-scoped `unsafe_code` allowance is isolated to this crate;
-   `unsafe_op_in_unsafe_fn` is denied and all other workspace lint denies remain
-   enabled. It contains
+   package-local lint tables, not `[lints] workspace = true`. It sets
+   `unsafe_code = "allow"` and `unsafe_op_in_unsafe_fn = "deny"`, then manually
+   mirrors every workspace Rust/Clippy deny except `unsafe_code`. The safe
+   `ocentra-protected-capability-custody-windows` adapter and the broker
+   continue inheriting `[lints] workspace = true`. It contains
    no custody decisions, enrollment policy, persistence authority, or caller
    interface.
 2. `ocentra-protected-capability-custody-windows` is the safe adapter module.
@@ -129,10 +131,11 @@ crates/ocentra-protected-capability-custody-windows/src/lib.rs
 ```
 
 Both manifests must become active workspace members with real `lib` targets.
-The FFI package must carry the package-scoped unsafe/lint policy described
-above. The safe package may depend on the FFI package and the existing neutral
-protocol/core contracts; the broker may depend on the safe package. No caller
-may depend directly on the FFI package.
+The FFI package must carry the package-local lint policy described above and
+must not inherit the workspace lint table. The safe package and broker continue
+inheriting `[lints] workspace = true`; the safe package may depend on the FFI
+package and the existing neutral protocol/core contracts, and the broker may
+depend on the safe package. No caller may depend directly on the FFI package.
 
 The implementation order is: raw owned-handle/TBS/TPM wrappers; safe adapter
 observation and enrollment verification; broker in-process link at the single

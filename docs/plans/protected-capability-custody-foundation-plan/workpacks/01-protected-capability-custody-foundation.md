@@ -103,9 +103,11 @@ crates/ocentra-protected-capability-custody-windows/src/lib.rs
 ```
 
 The FFI module is limited to raw Win32/TBS/TPM calls and owned-handle wrappers.
-Its manifest carries the package-scoped unsafe allowance, denies
-`unsafe_op_in_unsafe_fn`, and retains all other lint denies. The safe adapter
-module consumes only those wrappers and exposes a small opaque interface for
+Its manifest must use package-local lint tables, not `[lints] workspace = true`,
+set `unsafe_code = "allow"` and `unsafe_op_in_unsafe_fn = "deny"`, and manually
+mirror every workspace Rust/Clippy deny except `unsafe_code`. The safe Windows
+adapter and broker continue inheriting `[lints] workspace = true`; the safe
+adapter consumes only those wrappers and exposes a small opaque interface for
 the broker's existing admission seam. No raw handle, identity constructor,
 attestation, key selector, or capability minting crosses to a caller.
 

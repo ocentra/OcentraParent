@@ -62,10 +62,13 @@ crates/ocentra-protected-capability-custody-windows/Cargo.toml
 crates/ocentra-protected-capability-custody-windows/src/lib.rs
 ```
 
-The FFI package is limited to raw Win32/TBS/TPM/owned-handle wrappers with a
-package-scoped unsafe allowance, `unsafe_op_in_unsafe_fn` denied, and all other
-lint denies retained. The safe package exposes a small opaque adapter interface
-only to the broker's existing dispatch/open-session seam. Installer-only
+The FFI package is limited to raw Win32/TBS/TPM/owned-handle wrappers. Its
+manifest must use package-local lint tables, not `[lints] workspace = true`, set
+`unsafe_code = "allow"` and `unsafe_op_in_unsafe_fn = "deny"`, and manually
+mirror every workspace Rust/Clippy deny except `unsafe_code`. The safe Windows
+adapter and broker continue inheriting `[lints] workspace = true`; the safe
+package exposes a small opaque adapter interface only to the broker's existing
+dispatch/open-session seam. Installer-only
 immutable enrollment must pin broker/client image+SCM identity, exact protected
 registry owner/DACL/ACE/ancestor chain, and a TPM2 NV counter/index reached via
 TBS. The adapter must retain/revalidate pipe/process/token handles, SID,
