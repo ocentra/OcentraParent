@@ -27,7 +27,7 @@ scope and 37 retain concrete code or expected-test gaps.
 | ------- | ---------------------------------------------------------------------------------------------------------------------------- | ----: | --------------------- |
 | checked | [01 - Source Index And Repo Reconciliation](workpacks/01-source-index-and-repo-reconciliation.md)                            | 2,049 | 5/5 checked; 0 open   |
 | checked | [02 - Current AI Snapshot And Gap Map](workpacks/02-current-ai-snapshot-and-gap-map.md)                                      |   818 | 5/5 checked; 0 open   |
-| source integrated / tests open | [03 - Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md) | 928 | neutral leaf accepted at `6318d5e3d`; 3 expected tests, WP04 adapter, caller, proof, and completion open |
+| source integrated / tests open | [03 - Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md) | 928 | neutral leaf accepted at `6318d5e3d`; schema export is the only consumer; no agent-protocol/service provider-owner composition; 3 expected tests, WP04 adapter, caller, proof, and completion open |
 | open    | [04 - Rust Protocol Parity For AI Contracts](workpacks/04-rust-protocol-parity-for-ai-contracts.md)                          |   821 | 0/5 checked; 5 open   |
 | open    | [05 - LocalModelRuntimeStatus Hardening](workpacks/05-local-model-runtime-status-hardening.md)                               |   822 | 0/5 checked; 5 open   |
 | open    | [06 - LocalProviderCapability Hardening](workpacks/06-local-provider-capability-hardening.md)                                | 1,259 | 0/5 checked; 5 open   |

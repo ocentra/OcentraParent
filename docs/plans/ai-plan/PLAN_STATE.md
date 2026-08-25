@@ -26,8 +26,10 @@ The Rust-owned WP03 source packet is integrated in the canonical consolidation
 at source commit `6318d5e3d`. Independent review accepted the source-preserving
 move of the complete AI contract family into the neutral
 `crates/ai-contracts` / `ocentra-ai-contracts` leaf. The existing
-`crates/schema` exporter now consumes that leaf directly and continues to own
-the generated `packages/schema-domain` edge surface. This is
+`crates/schema` exporter now consumes that leaf directly for schema export and
+is the only current consumer; it continues to own the generated
+`packages/schema-domain` edge surface. No general `agent-protocol` or
+`agent-service` consumer/provider-owner composition is present. This is
 implementation-only evidence: no general production caller was found and the
 three expected tests remain open:
 

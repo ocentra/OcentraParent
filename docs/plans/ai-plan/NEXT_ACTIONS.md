@@ -31,8 +31,10 @@ source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
 
 1. Keep the independently accepted WP03 neutral leaf at source commit
    `6318d5e3d` stable: `crates/ai-contracts` (`ocentra-ai-contracts`) owns the
-   Rust contract family and `crates/schema` consumes it directly for generated
-   TypeScript. Do not add a public re-export or authority constructor.
+   Rust contract family and `crates/schema` is its only current consumer,
+   consuming it directly for schema export and generated TypeScript. No general
+   `agent-protocol` or `agent-service` consumer/provider-owner composition is
+   present. Do not add a public re-export or authority constructor.
 2. Write WP03's owned contract/parity tests together:
    `crates/ai-contracts/tests/contract/ai_contracts.rs`,
    `crates/ai-contracts/tests/contract/ai_contracts_negative.rs`, and

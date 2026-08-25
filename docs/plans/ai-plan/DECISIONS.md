@@ -18,11 +18,13 @@ this documentation packet.
 ### Context
 
 AI WP03's source packet is real and integrated in the canonical consolidation at
-`83382d67b`. It currently lives under `crates/schema`, including the journal and
-result digest modules, the exporter, and the generated
-`packages/schema-domain/src/generated-ai-contracts.ts` edge. That source is
-implementation-only reviewed evidence: the three expected contract/parity test
-roots, a general production caller, focused validation, proof, and completion
+`6318d5e3d`. The complete contract family now lives in the neutral
+`crates/ai-contracts` / `ocentra-ai-contracts` leaf, including the journal and
+result digest modules. The existing `crates/schema` exporter is the only current
+consumer, producing the generated `packages/schema-domain` edge. This is
+implementation-only reviewed evidence: no general `agent-protocol` or
+`agent-service` consumer/provider-owner composition is present, and the three
+expected contract/parity test roots, focused validation, proof, and completion
 remain open.
 
 Keeping the whole AI family inside the general schema crate would make the
@@ -51,9 +53,11 @@ adapter exists.
 
 ### No-claim boundary and migration gate
 
-This ADR does not create the crate, move source, change Cargo manifests, or add
-tests. The graph therefore keeps WP03 in validation and exposes only the
-source-migration roots plus the WP04 adapter as implementation work. No graph
-state may mark WP03 or WP04 READY/DONE from this decision, source presence, or
-the `83382d67b` review alone. The test roots, caller, focused gates, proof,
-checklist, PR, CI, and promotion remain later gates.
+This ADR records ownership and routing; the source-preserving move is separately
+reviewed at `6318d5e3d`, and no tests are added by this decision. The graph keeps
+WP03's normal lifecycle in validation while recording its bounded
+implementation-phase evidence and exposes WP04 only through the reviewed
+implementation gate. No graph state may mark WP03 or WP04 READY/DONE from this
+decision or source evidence alone. The three test roots, general caller and
+provider-owner composition, focused gates, proof, checklist, PR, CI, and
+promotion remain later gates.

@@ -25,10 +25,12 @@ All AI input, output, runtime, queue, route, memory, graph, explanation, and rem
 The Rust-owned contract source is integrated at source commit `6318d5e3d` in
 the canonical consolidation. Independent review accepted the byte-preserving
 move of the complete contract family, including journal and result digest
-bindings, into `crates/ai-contracts`. The `crates/schema` exporter consumes the
-leaf directly and continues to produce the generated `packages/schema-domain`
-edge surface. This remains implementation-only: no general production caller
-is mapped and the expected test source is absent at:
+bindings, into `crates/ai-contracts`. The `crates/schema` exporter is the only
+current consumer: it consumes the leaf directly for schema export and continues
+to produce the generated `packages/schema-domain` edge surface. No general
+`agent-protocol` or `agent-service` consumer/provider-owner composition is
+present. This remains implementation-only: no general production caller is
+mapped and the expected test source is absent at:
 
 - `crates/ai-contracts/tests/contract/ai_contracts.rs`
 - `crates/ai-contracts/tests/contract/ai_contracts_negative.rs`
