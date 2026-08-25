@@ -849,13 +849,16 @@ function upsertLanDeviceSlot(
     hasCanonicalLanPhysicalSlotValue(existing.value) &&
     !incomingHasAgentFacet &&
     input.preferState !== true;
-  const state = preserveCanonicalState
-    ? stringValue(existing.badge) || input.state
-    : input.preferState ||
-        !existing ||
-        activityDeviceStateRank(input.state) >= activityDeviceStateRank(stringValue(existing.badge))
+  const state =
+    input.state === 'revoked'
       ? input.state
-      : stringValue(existing.badge);
+      : preserveCanonicalState
+        ? stringValue(existing.badge) || input.state
+        : input.preferState ||
+            !existing ||
+            activityDeviceStateRank(input.state) >= activityDeviceStateRank(stringValue(existing.badge))
+          ? input.state
+          : stringValue(existing.badge);
   const status = activityDeviceChoiceStatus(state);
   const inferredDeviceType = inferLanDeviceKind(input);
   const parentDeviceKind = input.parentDeviceKind ?? existing?.device?.parentDeviceKind;
