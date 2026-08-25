@@ -192,25 +192,6 @@ pub enum LanCanonicalHouseholdDeviceRole {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum LanCanonicalHouseholdDeviceClassification {
-    ChildAgent,
-    Phone,
-    Tablet,
-    Laptop,
-    Desktop,
-    Printer,
-    Television,
-    GameConsole,
-    Camera,
-    NetworkAttachedStorage,
-    InternetOfThings,
-    NetworkInfrastructure,
-    UnsupportedLanDevice,
-    UnknownLanDevice,
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
 pub enum LanCanonicalHouseholdDeviceSource {
     LocalService,
     NetworkNeighbor,

@@ -1,6 +1,6 @@
 use serde::{
     de::{self, Deserializer},
-    Deserialize,
+    Deserialize, Serialize,
 };
 
 use crate::{
@@ -12,6 +12,25 @@ use crate::{
 pub mod production_household_proof;
 pub mod signed_discovery_relay_spine;
 pub mod source_matrix;
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LanCanonicalHouseholdDeviceClassification {
+    ChildAgent,
+    Phone,
+    Tablet,
+    Laptop,
+    Desktop,
+    Printer,
+    Television,
+    GameConsole,
+    Camera,
+    NetworkAttachedStorage,
+    InternetOfThings,
+    NetworkInfrastructure,
+    UnsupportedLanDevice,
+    UnknownLanDevice,
+}
 
 #[path = "lan_pairing_browser_add_device_state/discovery_contracts.rs"]
 mod discovery_contracts;
@@ -31,8 +50,6 @@ pub type LanDiscoveryEventKind = discovery_contracts::LanDiscoveryEventKind;
 pub type LanDiscoveryEventRow = discovery_contracts::LanDiscoveryEventRow;
 pub type LanDiscoveryEventHistory = discovery_contracts::LanDiscoveryEventHistory;
 pub type LanCanonicalHouseholdDeviceRole = discovery_contracts::LanCanonicalHouseholdDeviceRole;
-pub type LanCanonicalHouseholdDeviceClassification =
-    discovery_contracts::LanCanonicalHouseholdDeviceClassification;
 pub type LanCanonicalHouseholdDeviceSource = discovery_contracts::LanCanonicalHouseholdDeviceSource;
 pub type LanCanonicalHouseholdDeviceConfidence =
     discovery_contracts::LanCanonicalHouseholdDeviceConfidence;
