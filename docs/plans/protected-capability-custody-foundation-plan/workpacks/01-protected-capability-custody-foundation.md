@@ -90,11 +90,11 @@ READY, and DONE remain open.
 
 ## Required source boundary
 
-The source topology now contains a separate Windows broker binary, a client
-boundary, the neutral `protected-capability-custody-protocol` wire owner, one
-Windows FFI package, and private `cfg(windows)` core modules as active Cargo
-workspace members. This is source presence, not operating custody. The
-remaining production boundary is the installer-owned TPM policy and
+The source topology now contains the separate Windows broker, client, neutral
+`protected-capability-custody-protocol`, and Windows FFI packages as active
+Cargo workspace members, with private `cfg(windows)` adapter modules inside the
+core package. This is source presence, not operating custody. The remaining
+production boundary is the installer-owned TPM policy and
 non-exportable handle, the WP01-owned BIN-only provisioner source and WP12
 package invocation/lifecycle, and a real enrolled caller. The expected
 provisioner source roots are:
