@@ -1,4 +1,4 @@
-use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
+use ocentra_family_identity_core::household_authority_runtime_composer::HouseholdAuthorityRuntimeEffectAuthorization;
 use ocentra_schema::export_import_backup_recovery as contracts;
 
 use super::data_custody_backup_runtime::BackupDispatchReservation;
@@ -7,7 +7,7 @@ pub(crate) trait AccountCustodyAuthorityPort: Send + Sync {
     fn current_household_authority(
         &self,
         household_id: &contracts::ExportImportHouseholdId,
-    ) -> Result<CurrentVerifiedHouseholdAuthority, AuthorityUnavailable>;
+    ) -> Result<HouseholdAuthorityRuntimeEffectAuthorization, AuthorityUnavailable>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

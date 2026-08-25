@@ -2,7 +2,7 @@
 
 > Plan: `data-custody-storage-plan`
 > Workpack: `WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs`
-> Status: routed source work only; implementation, tests, proof, and PR readiness are open.
+> Status: planned source work; Account WP05 participant/CAS source, implementation, tests, proof, and PR readiness are open.
 
 # WP10 Restore Orchestration And Producer Handoffs
 
@@ -53,27 +53,28 @@ mounting are owned by the WP05 `crates/parent-runtime-core` route listed in
 ## Required handoffs and dependencies
 
 - Data WP02/WP03/WP04/WP05 provide key, provider, retention/tombstone, and bundle
-  contracts and states.
+  contracts and states. WP05 is the base layer; its later composition mount is
+  not a WP10 dependency.
 - Account WP05 provides current authority/capability/session/lease composition;
   Account WP08 provides the trusted authority/confirmation contract where
   required.
 - Conditional handoffs only: if the selected implementation requires shared
   durable ordering/replay primitives, route them to the exact Eventing owner;
   if an action requires independent trusted-device readiness, route that input
-  to the exact Device Trust owner. No exact owner workpack is selected by the
-  current live-code audit, so neither plan is a current hard dependency and no
-  graph edge is asserted here.
+  to the exact Device Trust owner. WP10 returns owner-derived outcomes to the
+  WP05 base and later WP11 composition; it does not depend on WP11 or WP09.
 - Data-class owners must expose typed producer/consumer handoffs and return
   owner-derived outcomes; WP10 records/coordinates them but does not fabricate
   them.
 
 ## Ownership correction (2026-08-18)
 
-WP10 is a downstream pure storage-custody orchestration route. The WP05
-`parent-runtime-core` owner persists the operation ledger, composes the real
-Eventing journal/outbox seam, and mounts only opaque executor, Account/key,
-provider, and producer ports. No caller-supplied authority/integrity boolean,
-provider SDK, filesystem adapter, or fake producer result is permitted here.
+WP10 is a downstream pure storage-custody orchestration route from the WP05
+base layer. The WP05 `parent-runtime-core` owner persists the operation ledger
+and composes the real Eventing journal/outbox seam; the later WP11 route mounts
+the opaque executor, Account/key, provider, and producer ports. No
+caller-supplied authority/integrity boolean, provider SDK, filesystem adapter,
+or fake producer result is permitted here.
 
 ## Acceptance criteria
 

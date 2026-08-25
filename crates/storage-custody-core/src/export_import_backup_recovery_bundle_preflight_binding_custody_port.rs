@@ -1,4 +1,4 @@
-use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
+use ocentra_family_identity_core::household_authority_runtime_composer::HouseholdAuthorityRuntimeEffectAuthorization;
 use ocentra_schema::export_import_backup_recovery as contracts;
 
 use super::execution_binding::RestoreExecutionCapability;
@@ -19,13 +19,14 @@ pub trait ImportCustodyCapabilityPort: sealed::Port + Send + Sync {
     fn verify_import_bundle(
         &self,
         bundle: &contracts::ExportImportRecoveryBundle,
-        authority: &CurrentVerifiedHouseholdAuthority,
+        authority: &HouseholdAuthorityRuntimeEffectAuthorization,
     ) -> Result<VerifiedImportCustody, ImportBindingError>;
 }
 
 /// Non-serde result issued only by the atomic account/key custody port. It
-/// retains the complete owner decision and exact authority proof binding until
-/// the parent runtime creates its non-serializable execution binding.
+/// retains the complete owner decision and the authority generation expected by
+/// the Account-owned opaque handoff until the parent runtime creates its
+/// non-serializable execution binding.
 pub struct VerifiedImportCustody {
     bundle_id: contracts::ExportImportBundleId,
     key_ref: contracts::ExportImportKeyRef,
@@ -37,7 +38,6 @@ pub struct VerifiedImportCustody {
     household_id: contracts::ExportImportHouseholdId,
     target_device_id: Option<contracts::ExportImportDeviceId>,
     authority_generation: u64,
-    authority_proof_nonce: String,
     migration_ref: Option<contracts::ExportImportMigrationRef>,
     preflight: contracts::ExportImportImportPreflight,
     capability: Box<dyn RestoreExecutionCapability>,
@@ -53,7 +53,6 @@ impl std::fmt::Debug for VerifiedImportCustody {
             .field("payload_integrity_refs", &self.payload_integrity_refs)
             .field("household_id", &self.household_id)
             .field("target_device_id", &self.target_device_id)
-            .field("authority_generation", &self.authority_generation)
             .field("migration_ref", &self.migration_ref)
             .field("preflight", &self.preflight)
             .finish_non_exhaustive()
@@ -64,26 +63,25 @@ impl VerifiedImportCustody {
     pub(crate) fn validate_for_binding(
         &self,
         bundle: &contracts::ExportImportRecoveryBundle,
-        authority: &CurrentVerifiedHouseholdAuthority,
+        authority: HouseholdAuthorityRuntimeEffectAuthorization,
     ) -> Result<(), ImportBindingError> {
         if self.bundle_id != bundle.manifest.bundle_id
-            || self.household_id.as_str() != authority.identity_binding().household_id()
             || self.household_id != bundle.manifest.source_household_id
         {
             return Err(ImportBindingError::HouseholdMismatch);
         }
-        if self.target_device_id.as_ref().map(|value| value.as_str())
-            != Some(authority.identity_binding().target_device_id())
-        {
-            return Err(ImportBindingError::HouseholdMismatch);
-        }
-        if self.authority_generation == 0
-            || self.authority_generation != authority.family_revocation_epoch()
-            || self.authority_proof_nonce.trim().is_empty()
-            || self.authority_proof_nonce != authority.proof_nonce()
-        {
-            return Err(ImportBindingError::AuthorityProofMismatch);
-        }
+        let target_device_id = self
+            .target_device_id
+            .as_ref()
+            .ok_or(ImportBindingError::MissingLocalContext)?;
+        authority
+            .consume_for_data_custody(
+                ocentra_family_identity_core::household_authority::HouseholdAuthorityAction::ImportRestoreData,
+                self.household_id.as_str(),
+                Some(target_device_id.as_str()),
+                Some(self.authority_generation),
+            )
+            .map_err(|_| ImportBindingError::AuthorityProofMismatch)?;
         if self.key_ref != bundle.manifest.key_ref
             || self.manifest_integrity_ref != bundle.manifest.manifest_integrity_ref
         {
@@ -124,7 +122,6 @@ impl VerifiedImportCustody {
         household_id: contracts::ExportImportHouseholdId,
         target_device_id: Option<contracts::ExportImportDeviceId>,
         authority_generation: u64,
-        authority_proof_nonce: String,
         migration_ref: Option<contracts::ExportImportMigrationRef>,
         preflight: contracts::ExportImportImportPreflight,
         capability: Box<dyn RestoreExecutionCapability>,
@@ -137,7 +134,6 @@ impl VerifiedImportCustody {
             household_id,
             target_device_id,
             authority_generation,
-            authority_proof_nonce,
             migration_ref,
             preflight,
             capability,
@@ -156,8 +152,6 @@ impl VerifiedImportCustody {
         )>,
         contracts::ExportImportHouseholdId,
         Option<contracts::ExportImportDeviceId>,
-        u64,
-        String,
         Option<contracts::ExportImportMigrationRef>,
         contracts::ExportImportImportPreflight,
         Box<dyn RestoreExecutionCapability>,
@@ -169,8 +163,6 @@ impl VerifiedImportCustody {
             self.payload_integrity_refs,
             self.household_id,
             self.target_device_id,
-            self.authority_generation,
-            self.authority_proof_nonce,
             self.migration_ref,
             self.preflight,
             self.capability,

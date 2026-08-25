@@ -62,15 +62,15 @@ Failure conditions:
 
 ## Completion
 
-- Status: production source packet strengthened but incomplete; expected tests, focused execution, proof refresh, external owner mounting, and runtime composition remain open. Scheduled backup and unavailable-provider paths remain manual-required.
+- Status: bounded fail-closed base source accepted but unmounted; all five expected runtime test roots, focused execution, proof refresh, dependency-owned adapters/caller, and WP11 runtime composition remain open. Scheduled backup and unavailable-provider paths remain manual-required.
 - Proof root: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/`
 - Canonical owners: `crates/schema` for the shared export/import/restore contract and durable backup/schedule/job/migration/rollback shapes; `crates/storage-custody-core` for pure bundle derivation, import preflight, restore/migration orchestration, fail-closed compensation, and provider-neutral ports; `crates/parent-runtime-core` for durable scheduler/job persistence, restore/migration ledgers, restart reconciliation, executor/rollback mounting, and real Eventing journal/outbox composition.
 - TS/shared edge note: no new `packages/schema-domain` surface was needed for WP05. TS ownership was not widened.
 
 ## Reviewed source ownership route (2026-08-18)
 
-WP05 is the READY source slice for the remaining production packet. The route
-is deliberately split by authority and durability; no crate may mint a
+WP05's bounded source packet is present in the reviewed ownership route. The
+route is deliberately split by authority and durability; no crate may mint a
 caller-selected Account/family authority, key/decrypt capability, integrity
 decision, or provider identity.
 
@@ -159,9 +159,11 @@ job/receipt storage, filesystem/provider SDKs, or producer mutation.
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_receipts.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs`
 - `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch.rs`
+- `crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch_validation.rs`
 
-This is the missing legal parent-runtime owner. It persists scheduler/job and
-restore/migration state, reconciles interrupted work on restart, mounts only
+This is the legal parent-runtime owner for the bounded source packet. It
+persists scheduler/job and restore/migration state, reconciles interrupted work
+on restart, and mounts only
 opaque provider/key/Account ports, and composes the real Eventing journal and
 outbox seam. It must fail closed when an external authority, key/decrypt
 capability, provider-neutral adapter, or producer handoff is unavailable; no
@@ -207,6 +209,41 @@ composition to `crates/parent-runtime-core`; `storage-custody-core` remains a
 pure decision/orchestration owner. This changes routing only and does not mark
 any source, test, proof, or runtime composition complete.
 
+## 2026-08-18 rollback authority source review
+
+The independently reviewed rollback validation source is now mapped at
+`crates/parent-runtime-core/src/data_custody_restore_runtime_rollback_dispatch_validation.rs`.
+It binds rollback dispatch to the observed sealed provider-operation reference
+and execution binding, rejects missing or mismatched identity, and refuses to
+treat a persisted reference as restartable provider authority by itself. This
+is a real source-level authority boundary, not provider execution or runtime
+reachability. The provider-neutral restore port, Account/family authority,
+key/import custody, producer composition, five expected runtime tests, focused
+validation, proof, precommit, CI, and DONE remain open; unavailable provider
+paths stay manual-required.
+
+## 2026-08-19 live caller and test-gap audit
+
+The bounded schema, storage-decision, parent-ledger, restart, rollback, and
+Eventing/outbox source is real and fail-closed. It is not reachable product
+behavior: repository-wide caller tracing found no production caller or
+implementation for the Account authority, provider operation, key/import
+custody, or producer-result ports, and the mount methods remain crate-private.
+`ImportCustodyCapabilityPort` is sealed inside `storage-custody-core`; a legal
+cross-crate mount needs an owner-side adapter/interface decision, not a public
+escape hatch.
+
+All five expected runtime test roots are absent. One existing blocked-restore
+test is stale against source: the source returns
+`local_truth_authoritative=false` and `tombstones_preserved=false`, while the
+test expects true/true. That discrepancy is carried into the later test-source
+wave and must be resolved from the custody contract before any test execution.
+
+No honest WP05-only production edit closes the remaining route. The next code
+order is Account WP05 current authority/fencing, Data WP09 byte custody, WP10
+producer handoffs, WP11 composition/mount, and then a real runtime caller. This
+audit makes no test, proof, validation, runtime-ready, or `DONE` claim.
+
 ## Candidate source acceptance (tests and proof unresolved)
 
 The following are candidate source outcomes for the current implementation wave;
@@ -220,6 +257,29 @@ runtime composition, and retained proof artifacts are completed and reviewed:
 - Partial restore is explicit with accepted and rejected section lists.
 - Wrong-household, wrong-key, corrupt-bundle, expired-retention, duplicate-device, and unsupported migration cases fail closed in the shared Rust preflight state machine.
 - Default support recovery of child evidence decryption remains blocked.
+
+## 2026-08-18 base/composition routing correction
+
+WP05 is the base owner only. Its legal scope is the schema contract, pure
+`storage-custody-core` decisions, durable parent-runtime scheduler/job and
+restore/migration ledgers, restart reconciliation, Eventing/outbox seam, and
+manual-required gates. It does not claim that those seams are mounted to live
+Account, key/import, provider, or producer owners.
+
+The separate runtime composition and custody-mount route is
+[WP11](11-runtime-composition-and-custody-mount.md), with only these planned
+parent-runtime roots:
+
+- `crates/parent-runtime-core/src/data_custody_runtime_composition.rs`
+- `crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs`
+- `crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs`
+
+WP09 and WP10 consume this WP05 base layer independently. They must not depend
+on or implement WP11 composition, duplicate the WP05 ledgers, publicize private
+mount traits, or treat source presence as runtime completion. Account WP05's
+true authority transaction/CAS, key/import custody, producer artifact custody,
+WP09 provider operation capability, and WP10 owner outcomes remain external
+composition gates for WP11.
 
 ## Proof artifacts
 

@@ -119,6 +119,16 @@ pub(crate) fn sync_parent_directory(path: &Path) -> Result<(), DeviceTrustLifecy
 }
 
 #[cfg(windows)]
-pub(crate) fn sync_parent_directory(_path: &Path) -> Result<(), DeviceTrustLifecycleError> {
-    Ok(())
+pub(crate) fn sync_parent_directory(path: &Path) -> Result<(), DeviceTrustLifecycleError> {
+    use std::{fs::OpenOptions, os::windows::fs::OpenOptionsExt};
+
+    const FILE_FLAG_BACKUP_SEMANTICS: u32 = 0x0200_0000;
+    const FILE_FLAG_WRITE_THROUGH: u32 = 0x8000_0000;
+    OpenOptions::new()
+        .read(true)
+        .write(true)
+        .custom_flags(FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_WRITE_THROUGH)
+        .open(path.parent().unwrap_or_else(|| Path::new(".")))
+        .and_then(|directory| directory.sync_all())
+        .map_err(|_error| DeviceTrustLifecycleError::Unavailable)
 }

@@ -27,15 +27,15 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | checked | [19 Sensitive Text And Redaction Model](workpacks/19-sensitive-text-and-redaction-model.md)                           | 3,047 | 10/10 checked; 0 open |
 | checked | [24 Enforcement Handoff Guard](workpacks/24-enforcement-handoff-guard.md)                                             | 1,510 | 6/6 checked; 0 open   |
 | checked | [25 Parent Portal Summary UI](workpacks/25-parent-portal-summary-ui.md)                                               | 1,840 | 8/8 checked; 0 open   |
-| checked | [26 Child Disclosure UX](workpacks/26-child-disclosure-ux.md)                                                         | 1,132 | 6/6 checked; 0 open   |
+| source-reviewed | [26 Child Disclosure UX](workpacks/26-child-disclosure-ux.md)                                                  | 2,681 | 0/6 checked; 6 open   |
 | checked | [27 Screenshot Retention Optional Mode](workpacks/27-screenshot-retention-optional-mode.md)                           | 1,789 | 7/7 checked; 0 open   |
 | checked | [31 Screen Intelligence Router](workpacks/31-screen-intelligence-router.md)                                           | 1,222 | 7/7 checked; 0 open   |
-| checked | [32 Browser Structured Extraction Before Screenshot](workpacks/32-browser-structured-extraction-before-screenshot.md) | 1,108 | 6/6 checked; 0 open   |
-| checked | [33 Managed Browser CDP Screenshot Capture Path](workpacks/33-managed-browser-cdp-screenshot-capture-path.md)         | 1,871 | 7/7 checked; 0 open   |
+| source-reviewed | [32 Browser Structured Extraction Before Screenshot](workpacks/32-browser-structured-extraction-before-screenshot.md) | 1,108 | 3/6 checked; 3 open; tests/proof deferred |
+| open    | [33 Managed Browser CDP Screenshot Capture Path](workpacks/33-managed-browser-cdp-screenshot-capture-path.md)         | 1,871 | 0/7 checked; 7 open   |
 | checked | [34 OCR Tesseract Baseline](workpacks/34-ocr-tesseract-baseline.md)                                                   | 2,639 | 6/6 checked; 0 open   |
 | checked | [35 OCR PaddleOCR PP-OCR Evaluation](workpacks/35-ocr-paddleocr-ppocr-evaluation.md)                                  | 4,622 | 6/6 checked; 0 open   |
 | checked | [36 Small VLM Guided Classifier Evaluation](workpacks/36-small-vlm-guided-classifier-evaluation.md)                   | 4,011 | 7/7 checked; 0 open   |
-| checked | [37 Household Mesh Screen Analysis Queue](workpacks/37-family-ai-hub-screen-analysis-queue.md)                        | 1,216 | 6/6 checked; 0 open   |
+| blocked/source-incomplete | [37 Household Mesh Screen Analysis Queue](workpacks/37-family-ai-hub-screen-analysis-queue.md) | 1,216 | 0/6 checked; 6 open; authenticated provider, durable custody/result ownership, and service composition remain unavailable |
 | checked | [38 Local AI Resource Scheduler Priority Queue](workpacks/38-local-ai-resource-scheduler-priority-queue.md)           | 1,702 | 6/6 checked; 0 open   |
 | checked | [40 Detector Prompt Packs And Schema Tests](workpacks/40-detector-prompt-packs-and-schema-tests.md)                   | 1,039 | 6/6 checked; 0 open   |
 | open    | [01 Source Index And Doc Reconciliation](workpacks/01-source-index-and-doc-reconciliation.md)                         |   945 | 0/6 checked; 6 open   |

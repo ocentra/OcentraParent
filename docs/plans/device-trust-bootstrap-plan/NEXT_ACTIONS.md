@@ -1,5 +1,22 @@
 # Next Actions
 
+## WP01 runtime-fence rejection checkpoint — 2026-08-24
+
+The previously integrated Device-owned runtime-fence packet was independently
+re-reviewed and rejected. Its committed rows lived in caller-path,
+same-user-writable SQLite and used a recomputable unkeyed digest, so a local
+writer could fabricate a committed outcome. It also broke existing databases
+by validating a new table without an explicit migration and had unbounded
+retention plus a full-ledger startup scan. The unsafe positive participant has
+therefore been withdrawn from the canonical source tree.
+
+Do not write tests or compose Account WP05A against the withdrawn seam. First
+ship a real protected Device-owned receipt/key provider that excludes same-user
+writers, an owner-approved versioned migration with interruption recovery, and
+bounded retention/archive semantics. Only then may the private participant be
+implemented again, independently reviewed, and followed by its expected tests.
+Proof, precommit, PR, and CI remain later phases.
+
 ## Ordered runtime-owner routing (audit truth, not completion)
 
 1. Account Identity WP08: keep the Rust-owned canonical household/child/device/
@@ -40,7 +57,7 @@ to WP03.
 5. Re-open WP05 and WP07 around real trust binding and parent-controlled uninstall/tamper execution instead of contract-only frontage. WP07 has a code-drafted local evidence/manual-required boundary; platform removal, attestation, transport, tests, and proof remain open.
 6. After source is complete, write the full expected-test delta for WP01/WP05/WP06/WP07, then run focused crate/domain validation and Enforcer. Proof remains a later phase under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`.
 
-## Accepted source checkpoint (2026-08-17)
+## Accepted source checkpoint (2026-08-17; superseded for WP01 by `f5974c795`)
 
 The independently accepted Device Trust branch `914d06b6a` is integrated
 through `68717b5b7`. WP01 now preserves owner-resolved current device/signer
@@ -93,15 +110,24 @@ WP04 now has a typed challenge/response boundary and fail-closed verifier port,
 but remains blocked on the external issuer/signature authority, phone
 ceremony, one-time nonce consumer, transport, and retained runtime proof.
 
-WP05 now has a device-bound entitlement verifier boundary, but remains blocked
-on the real signature/revocation provider and retained runtime proof; the
-unavailable default keeps capability unlock manual-required.
+WP05 now has a crate-private device-bound entitlement verifier boundary, but
+remains blocked on the real signature/revocation provider, child-runtime action
+owner/startup mount, and retained runtime proof; no entitlement startup or
+capability unlock route is exported in the reviewed source-repair wave.
 
-WP06 now blocks the untrusted confirmation-only restore path and exposes a
-verified-parent re-pair gate plus an unavailable-by-default restore executor;
-only a coherent execution receipt can project applied/partial state.
-Encrypted bundle/key custody, revocation preservation, and runtime proof
-remain open.
+WP06 now blocks the untrusted confirmation-only restore path. The independently
+reviewed source repair integrated through `f656a80a1` removes the raw
+installation-generation repair stub, refuses to
+construct encrypted bundle metadata without a real key-custody owner, and
+requires an exact current tombstone cursor for preflight. Because the current
+context is only a caller-held snapshot, the apply seam is now unconditionally
+blocked and cannot dispatch an executor; a future owner must provide an
+opaque cursor token that is reread and consumed at apply time. Encrypted
+bundle/key custody, durable revocation currentness, authorized re-pair, a real
+executor, production callers, expected tests, and runtime proof remain open.
+Its storage boundary overlaps accepted Data WP05 source candidate `e91bb3de1`;
+that candidate must rebase on the integrated WP06 safety boundary and preserve
+the blocked restore contract before Data integration.
 
 ## Production-code audit boundary (2026-08-16)
 
@@ -154,8 +180,15 @@ The consolidated source audit found no legal production-code slice to add:
 
 The next dependency chain is Account WP08 canonical binding -> Account WP02
 target-aware action authority -> Cloudflare WP06 authoritative writer/provider
-caller -> WP03 trusted target resolution and platform/passkey ceremony,
-alongside completion of the WP01 trust lifecycle source. Until those
-owners are dependency-legal and reachable from shipped entrypoints, preserve
-the manual-required outcomes and do not claim trust bootstrap, device sealing,
-recovery, entitlement unlock, or child uninstall.
+caller -> WP03 trusted target resolution and platform/passkey ceremony ->
+Account WP05A multi-owner effect-fence participant, alongside completion of
+the WP01 trust lifecycle source. Until those owners are dependency-legal and
+reachable from shipped entrypoints, preserve the manual-required outcomes and
+do not claim trust bootstrap, device sealing, recovery, entitlement unlock, or
+child uninstall.
+
+WP03 remains the sole owner of parent-step-up nonce/sign-count and platform
+verification truth. It supplies a private reservation participant to Account
+WP05A; Account WP05A coordinates but does not copy or re-authorize Device Trust
+state. This is routing only: no source, tests, proof, platform ceremony, or
+DONE claim is authorized.

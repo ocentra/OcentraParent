@@ -1,7 +1,9 @@
-import { BridgeEntryArraySchema, type BridgeEntry } from './bridgeLogPayload';
+import type { BridgeEntry } from './bridgeLogPayload';
 import { RunType } from '../test-log/types';
 import { createParentLogConfig } from '../core/logConfig';
-import { buildGeneratedRunStartedPayload, normalizeGeneratedBridgeEndpoint } from '../parent-log-runtime';
+import { buildGeneratedRunStartedPayload } from '../parent-log-runtime';
+import { sanitizeBridgeBatchForCustody } from '../core/logCustody';
+import { bridgeEndpoint, requestBridgeObject } from './bridgeTransportHttp';
 
 export interface BridgeRunInfo {
   readonly runId: string;
@@ -22,6 +24,8 @@ export interface BridgeRunStartedPayload {
 
 export interface BridgeSendOptions {
   readonly skipHealthCheck?: boolean;
+  readonly timeoutMs?: number;
+  readonly onDeliveryAttempt?: () => void;
 }
 
 export async function sendToBridge(
@@ -29,50 +33,60 @@ export async function sendToBridge(
   endpoint: string,
   options: BridgeSendOptions = {}
 ): Promise<void> {
-  if (entries.length === 0) {
+  const sanitizedEntries = sanitizeBridgeBatchForCustody(entries);
+  if (sanitizedEntries.length === 0) {
     return;
   }
 
-  BridgeEntryArraySchema.parse(entries);
-
-  const normalized = normalizeGeneratedBridgeEndpoint(endpoint);
+  const normalized = bridgeEndpoint(endpoint);
   if (options.skipHealthCheck !== true) {
-    const healthResponse = await fetch(`${normalized}/__health__`, { method: 'GET' });
+    const healthResponse = await requestBridgeObject(`${normalized}/__health__`, { method: 'GET' }, options.timeoutMs);
     if (!healthResponse.ok) {
       throw new Error(`Log bridge health check failed: ${healthResponse.status}`);
     }
+    if (healthResponse.body?.['ok'] !== true) {
+      throw new Error('Log bridge health check returned an invalid response');
+    }
   }
 
-  const response = await fetch(`${normalized}/__logs__`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  options.onDeliveryAttempt?.();
+  const response = await requestBridgeObject(
+    `${normalized}/__logs__`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(sanitizedEntries),
     },
-    body: JSON.stringify(entries),
-  });
+    options.timeoutMs
+  );
 
   if (!response.ok) {
     throw new Error(`Log bridge POST failed: ${response.status}`);
   }
+  if (response.body?.['ok'] !== true || response.body['stored'] !== sanitizedEntries.length) {
+    throw new Error('Log bridge did not confirm the complete batch');
+  }
 }
 
 export async function fetchRunInfoFromBridge(endpoint: string): Promise<BridgeRunInfo | null> {
-  const normalized = normalizeGeneratedBridgeEndpoint(endpoint);
-  const response = await fetch(`${normalized}/__run_info__`, { method: 'GET' });
+  const normalized = bridgeEndpoint(endpoint);
+  const response = await requestBridgeObject(`${normalized}/__run_info__`, { method: 'GET' });
   if (!response.ok) {
     return null;
   }
 
-  const body = (await response.json()) as {
+  const body = response.body as {
     ok?: boolean;
     runId?: string;
     runType?: string;
     suiteType?: string | null;
     scope?: string | null;
     startedAt?: number | null;
-  };
+  } | null;
 
-  if (body.ok !== true || typeof body.runId !== 'string' || typeof body.runType !== 'string') {
+  if (body?.ok !== true || typeof body.runId !== 'string' || typeof body.runType !== 'string') {
     return null;
   }
 
@@ -86,8 +100,8 @@ export async function fetchRunInfoFromBridge(endpoint: string): Promise<BridgeRu
 }
 
 export async function notifyBridgeRunStarted(endpoint: string, payload: BridgeRunStartedPayload): Promise<boolean> {
-  const normalized = normalizeGeneratedBridgeEndpoint(endpoint);
-  const response = await fetch(`${normalized}/__run_started__`, {
+  const normalized = bridgeEndpoint(endpoint);
+  const response = await requestBridgeObject(`${normalized}/__run_started__`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -95,12 +109,13 @@ export async function notifyBridgeRunStarted(endpoint: string, payload: BridgeRu
     body: JSON.stringify(buildGeneratedRunStartedPayload({ ...payload, runType: payload.runType ?? RunType.Single })),
   });
 
-  return response.ok;
+  const body = response.ok ? response.body : null;
+  return body?.['ok'] === true;
 }
 
 export async function flushBridgeRun(endpoint: string, runId: string): Promise<boolean> {
-  const normalized = normalizeGeneratedBridgeEndpoint(endpoint);
-  const response = await fetch(`${normalized}/__flush__`, {
+  const normalized = bridgeEndpoint(endpoint);
+  const response = await requestBridgeObject(`${normalized}/__flush__`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -108,7 +123,15 @@ export async function flushBridgeRun(endpoint: string, runId: string): Promise<b
     body: JSON.stringify({ runId }),
   });
 
-  return response.ok;
+  const body = response.ok ? response.body : null;
+  return (
+    body?.['ok'] === true &&
+    body['runId'] === runId &&
+    Number.isSafeInteger(body['flushed']) &&
+    (body['flushed'] as number) >= 0 &&
+    Number.isSafeInteger(body['stored']) &&
+    (body['stored'] as number) >= (body['flushed'] as number)
+  );
 }
 
 export function resolveBridgeEndpoint(env?: NodeJS.ProcessEnv | Record<string, string | undefined>): string | null {
@@ -126,10 +149,14 @@ export class BridgeTransport {
   }
 
   async emit(entries: readonly BridgeEntry[], endpoint?: string): Promise<void> {
-    const target = endpoint ?? this.defaultEndpoint;
-    if (target == null || target.trim().length === 0) {
+    const sanitizedEntries = sanitizeBridgeBatchForCustody(entries);
+    if (sanitizedEntries.length === 0) {
       return;
     }
-    await sendToBridge(entries, target, { skipHealthCheck: this.skipHealthCheck });
+    const target = endpoint ?? this.defaultEndpoint;
+    if (target == null || target.trim().length === 0) {
+      throw new Error('log bridge endpoint is required');
+    }
+    await sendToBridge(sanitizedEntries, target, { skipHealthCheck: this.skipHealthCheck });
   }
 }

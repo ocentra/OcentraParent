@@ -7,6 +7,7 @@ pub(super) fn accepted_preflight(
     migration_state: contracts::ExportImportMigrationState,
     accepted_sections: Vec<contracts::ExportImportSectionDecision>,
     rejected_sections: Vec<contracts::ExportImportSectionDecision>,
+    tombstones_preserved: bool,
 ) -> contracts::ExportImportImportPreflight {
     contracts::ExportImportImportPreflight {
         state,
@@ -16,7 +17,7 @@ pub(super) fn accepted_preflight(
         manifest_integrity_verified: true,
         payload_integrity_verified: true,
         local_truth_mutated: false,
-        tombstones_preserved: true,
+        tombstones_preserved,
         duplicate_device_detected: false,
         migration_state,
         accepted_sections,
@@ -36,7 +37,7 @@ pub(super) fn rejected_preflight(
         manifest_integrity_verified: input.integrity_ok,
         payload_integrity_verified: input.integrity_ok,
         local_truth_mutated: false,
-        tombstones_preserved: true,
+        tombstones_preserved: input.tombstones_preserved,
         duplicate_device_detected: input.duplicate_device_detected,
         migration_state: input.migration_state,
         accepted_sections: Vec::new(),

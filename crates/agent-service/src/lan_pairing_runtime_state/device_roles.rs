@@ -23,8 +23,8 @@ impl LanPairingRuntime {
             read_model.route_state =
                 ocentra_parent_agent_protocol::lan_pairing::DeviceRuntimeRouteState::LocalNetwork;
         }
-        if let Ok(active_lease) = self.controller_lease.lock() {
-            if let Some(lease) = active_lease.as_ref() {
+        if let Ok(registry) = self.registry.lock() {
+            if let Some(lease) = registry.active_controller_lease() {
                 read_model.controller_lease_id = Some(lease.controller_lease_id.clone());
                 read_model.parent_authority = Some(
                     ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority::ActiveController,

@@ -2,8 +2,8 @@ use super::data_custody_restore_runtime::{
     ParentRestoreRuntime, RestoreRuntimeError, RestoreRuntimeReceipts,
 };
 use super::data_custody_restore_runtime_executor::{
-    ProviderNeutralRestorePort, RestoreExecutorError, RestoreExecutorMount,
-    RestoreExecutorOperationError,
+    receipts::RestoreRollbackBinding, ProviderNeutralRestorePort, RestoreExecutorError,
+    RestoreExecutorMount, RestoreExecutorOperationError,
 };
 use ocentra_storage_custody_core::export_import_backup_recovery::
     export_import_backup_recovery_bundle_preflight_binding::execution_binding::
@@ -94,13 +94,14 @@ pub(crate) fn record_rollback_migration(
 }
 
 impl ParentRestoreRuntime {
-    pub(crate) async fn rollback(
+    pub(crate) async fn rollback<'a>(
         &mut self,
-        plan: &RestoreExecutionPlan,
+        plan: &'a RestoreExecutionPlan,
         mount: &RestoreExecutorMount<'_>,
         provider: &dyn ProviderNeutralRestorePort,
         applied_sections: Vec<contracts::ExportImportSectionDecision>,
         rejected_sections: Vec<contracts::ExportImportSectionDecision>,
+        rollback_binding: RestoreRollbackBinding<'a>,
         _note: Option<String>,
     ) -> Result<RestoreRuntimeReceipts, RestoreRuntimeError> {
         self.rollback_after_observation(
@@ -109,7 +110,7 @@ impl ParentRestoreRuntime {
             provider,
             applied_sections,
             rejected_sections,
-            None,
+            Some(rollback_binding),
         )
         .await
     }

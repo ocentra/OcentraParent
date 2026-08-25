@@ -175,7 +175,7 @@ fn process_identity(process_id: u64, start_time: u64) -> String {
         ocentra_parent_agent_protocol::constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX,
     );
     identity.push_str(&process_id.to_string());
-    identity.push_str(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
+    identity.push(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
     identity.push_str(&start_time.to_string());
     identity
 }
@@ -188,7 +188,7 @@ fn foreground_evidence_id(
     let mut evidence_id = String::from(APP_GAME_FOREGROUND_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(&process_id.to_string());
     if let Some(process_start_time) = process_start_time {
-        evidence_id.push_str(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
+        evidence_id.push(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
         evidence_id.push_str(&process_start_time.to_string());
     }
     evidence_id.push_str(&observed_at_suffix(observed_at));

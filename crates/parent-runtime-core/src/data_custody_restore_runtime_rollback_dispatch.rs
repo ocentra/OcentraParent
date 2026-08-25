@@ -2,8 +2,8 @@ use super::data_custody_restore_runtime::{
     ParentRestoreRuntime, RestoreRuntimeError, RestoreRuntimeReceipts,
 };
 use super::data_custody_restore_runtime_executor::{
-    receipts::RestoreProviderOperationReceipt, ProviderNeutralRestorePort, RestoreExecutorError,
-    RestoreExecutorMount,
+    receipts::{RestoreProviderOperationReceipt, RestoreRollbackBinding},
+    ProviderNeutralRestorePort, RestoreExecutorError, RestoreExecutorMount,
 };
 use super::data_custody_restore_runtime_receipts::restore_receipt_from_dispatch;
 use super::data_custody_restore_runtime_reconciliation_validation::restore_receipt_matches_plan;
@@ -19,15 +19,18 @@ use ocentra_storage_custody_core::export_import_backup_recovery::{
     },
 };
 
+#[path = "data_custody_restore_runtime_rollback_dispatch_validation.rs"]
+mod rollback_dispatch_validation;
+
 impl ParentRestoreRuntime {
-    pub(crate) async fn rollback_after_observation(
+    pub(crate) async fn rollback_after_observation<'a>(
         &mut self,
-        plan: &RestoreExecutionPlan,
+        plan: &'a RestoreExecutionPlan,
         mount: &RestoreExecutorMount<'_>,
         provider: &dyn ProviderNeutralRestorePort,
         applied_sections: Vec<contracts::ExportImportSectionDecision>,
         rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-        observed_provider_operation_ref: Option<contracts::ExportImportProviderOperationRef>,
+        observed_rollback_binding: Option<RestoreRollbackBinding<'a>>,
     ) -> Result<RestoreRuntimeReceipts, RestoreRuntimeError> {
         if !self.recovered {
             return Err(RestoreRuntimeError::RuntimeNotRecovered);
@@ -54,9 +57,6 @@ impl ParentRestoreRuntime {
         )
         .map_err(RestoreRuntimeError::Plan)?;
         self.revalidate_authority(plan, mount)?;
-        if existing_restore.provider_operation_ref.is_none() {
-            return Err(RestoreRuntimeError::Executor(RestoreExecutorError::Failed));
-        }
         if existing_restore.compensation_applied
             && existing_restore.rollback_provider_operation_ref.is_some()
         {
@@ -65,6 +65,14 @@ impl ParentRestoreRuntime {
                 migration: self.ledger.migration_receipt(plan.operation_ref()).cloned(),
             });
         }
+        let observed_provider_operation_ref =
+            rollback_dispatch_validation::validate_rollback_authority(
+                plan,
+                &existing_restore,
+                observed_rollback_binding.as_ref(),
+            )?;
+        let rollback_binding = observed_rollback_binding
+            .ok_or(RestoreRuntimeError::Executor(RestoreExecutorError::Failed))?;
         let rollback_intent = rollback_intent(
             existing_restore,
             observed_provider_operation_ref,
@@ -72,12 +80,13 @@ impl ParentRestoreRuntime {
             &rejected_sections,
         );
         persist_rollback_intents(self, plan, &rollback_intent).await?;
+        self.revalidate_authority(plan, mount)?;
         // Keep the in-memory intent fenced after the durable before-dispatch
         // records exist. Any provider error or terminal-journal failure leaves
         // this marker set so a same-process retry requires reconciliation.
         self.dispatch_started_rollback
             .insert(plan.operation_ref().as_str().to_owned());
-        let provider_receipt = dispatch_rollback(plan, provider)?;
+        let provider_receipt = dispatch_rollback(plan, provider, rollback_binding)?;
         let (restore, migration) = persist_rollback_results(
             self,
             plan,
@@ -164,15 +173,16 @@ async fn persist_rollback_intents(
     Ok(())
 }
 
-fn dispatch_rollback(
-    plan: &RestoreExecutionPlan,
+fn dispatch_rollback<'a>(
+    plan: &'a RestoreExecutionPlan,
     provider: &dyn ProviderNeutralRestorePort,
+    rollback_binding: RestoreRollbackBinding<'a>,
 ) -> Result<RestoreProviderOperationReceipt, RestoreRuntimeError> {
     let reservation = plan
         .execution_binding()
         .reserve_dispatch(plan.execution_ref(), RestoreExecutionStage::Rollback)
         .map_err(|_| RestoreRuntimeError::Executor(RestoreExecutorError::Failed))?;
-    let provider_receipt = provider.rollback_restore(plan, reservation)?;
+    let provider_receipt = provider.rollback_restore(plan, reservation, rollback_binding)?;
     if provider_receipt.execution_ref() != plan.execution_ref() {
         return Err(RestoreRuntimeError::Executor(RestoreExecutorError::Failed));
     }

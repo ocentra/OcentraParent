@@ -9,15 +9,16 @@ use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     APP_GAME_PARENT_PLATFORM_ANDROID, APP_GAME_PARENT_PLATFORM_LINUX,
     APP_GAME_PARENT_PLATFORM_WINDOWS,
 };
+use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGameLinuxDockerHostPreflight;
 use ocentra_parent_agent_protocol::app_game_platform_proof_status::{
-    APP_GAME_PLATFORM_AUTHORITY_NOT_LOCALLY_PROVABLE,
+    APP_GAME_LINUX_DOCKER_PREFLIGHT_READY, APP_GAME_PLATFORM_AUTHORITY_NOT_LOCALLY_PROVABLE,
     APP_GAME_PLATFORM_AUTHORITY_SCOPED_EXECUTION_ONLY, APP_GAME_PLATFORM_AUTHORITY_VISIBILITY_ONLY,
     APP_GAME_PLATFORM_GAP_ANDROID_DEVICE_OWNER, APP_GAME_PLATFORM_GAP_ANDROID_DURABLE_USAGE_REPLAY,
     APP_GAME_PLATFORM_GAP_BROAD_BLOCKING, APP_GAME_PLATFORM_GAP_CHILD_DELIVERY,
-    APP_GAME_PLATFORM_GAP_IOS_ARTIFACTS, APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE,
-    APP_GAME_PLATFORM_GAP_LINUX_NATIVE_SERVICE, APP_GAME_PLATFORM_GAP_LINUX_ROLLBACK,
-    APP_GAME_PLATFORM_GAP_MACOS_ARTIFACTS, APP_GAME_PLATFORM_GAP_PLATFORM_ENFORCEMENT,
-    APP_GAME_PLATFORM_PROOF_ANDROID_HOST_NOT_DETECTED,
+    APP_GAME_PLATFORM_GAP_IOS_ARTIFACTS, APP_GAME_PLATFORM_GAP_LINUX_DOCKER_PREFLIGHT,
+    APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE, APP_GAME_PLATFORM_GAP_LINUX_NATIVE_SERVICE,
+    APP_GAME_PLATFORM_GAP_LINUX_ROLLBACK, APP_GAME_PLATFORM_GAP_MACOS_ARTIFACTS,
+    APP_GAME_PLATFORM_GAP_PLATFORM_ENFORCEMENT, APP_GAME_PLATFORM_PROOF_ANDROID_HOST_NOT_DETECTED,
     APP_GAME_PLATFORM_PROOF_ANDROID_HOST_VISIBLE, APP_GAME_PLATFORM_PROOF_LINUX_HOST_NOT_DETECTED,
     APP_GAME_PLATFORM_PROOF_LINUX_HOST_VISIBLE,
     APP_GAME_PLATFORM_PROOF_LOCAL_RUNTIME_NOT_APPLICABLE,
@@ -35,9 +36,12 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use ocentra_parent_agent_protocol::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::AppGamePlatformProofStatusRow;
+use ocentra_parent_screen_capture_adapter::linux_foreground_source::LinuxForegroundSourcePreflight;
 
 use super::app_game_adapter_execution_readiness_payload::GeneratedAtText;
 use super::app_game_adapter_host_capabilities::HostCapabilitySignals;
+use super::app_game_linux_docker_host_preflight::unavailable_linux_docker_host_preflight;
+use super::app_game_platform_probe_cache::PlatformProbeCache;
 use crate::{event_builder::build_event, fields::fields_from_pairs, time::timestamp_now};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -49,11 +53,43 @@ pub(super) struct TextList(pub(super) Vec<String>);
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct SerializedReadModelText(pub(super) String);
 
+pub(crate) fn platform_probe_dispatcher(
+    cache: PlatformProbeCache,
+) -> std::sync::Arc<crate::websocket::WebsocketPlatformProbeDispatcher> {
+    std::sync::Arc::new(move |command, provenance| {
+        let cache = cache.clone();
+        Box::pin(async move {
+            build_activity_app_game_platform_proof_status_report(command, cache, provenance).await
+        })
+    })
+}
+
 pub async fn build_activity_app_game_platform_proof_status_report(
     command: AgentCommandEnvelope,
+    probe_cache: PlatformProbeCache,
+    provenance: crate::websocket::WebsocketPeerProvenance,
 ) -> AgentEventEnvelope {
     let generated_at = GeneratedAtText(timestamp_now());
-    let read_model = app_game_platform_proof_status_read_model(generated_at);
+    let _ = provenance;
+    // ADB is a direct, request-time host capability signal. Only the Docker
+    // preflight is server-owned and cached; keeping these lifetimes separate
+    // prevents a five-minute cache from turning device presence into stale
+    // authority or visibility.
+    let host_capabilities = HostCapabilitySignals::detect();
+    let linux_docker_host_preflight = probe_cache.snapshot();
+    // The live Linux foreground tool path is intentionally not spawned from a
+    // request. No retained subprocess owner can guarantee custody across
+    // setsid/pid-namespace escapes, so this production handler stays
+    // unavailable until an owned single-flight worker with a real OS custody
+    // primitive exists. Docker host visibility is an independent bounded
+    // preflight and does not mint foreground-source authority.
+    let linux_preflight = LinuxForegroundSourcePreflight::unavailable();
+    let read_model = app_game_platform_proof_status_read_model_from_preflights(
+        generated_at,
+        &host_capabilities,
+        &linux_preflight,
+        &linux_docker_host_preflight,
+    );
     build_event(
         constants::event_id::ACTIVITY_APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_REPORTED,
         &command.message_id,
@@ -68,8 +104,44 @@ pub async fn build_activity_app_game_platform_proof_status_report(
 pub fn app_game_platform_proof_status_read_model(
     generated_at: GeneratedAtText,
 ) -> AppGamePlatformProofStatusReadModel {
+    // Synchronous read-model callers do not own transport provenance or the
+    // server cache. Keep the explicit seam probe-free and fail closed.
     let host_capabilities = HostCapabilitySignals::detect();
-    let rows = platform_status_rows(&generated_at, &host_capabilities);
+    let linux_docker_host_preflight = unavailable_linux_docker_host_preflight();
+    let linux_preflight = LinuxForegroundSourcePreflight::unavailable();
+    app_game_platform_proof_status_read_model_from_preflights(
+        generated_at,
+        &host_capabilities,
+        &linux_preflight,
+        &linux_docker_host_preflight,
+    )
+}
+
+pub fn app_game_platform_proof_status_read_model_with_linux_preflight(
+    generated_at: GeneratedAtText,
+    linux_preflight: LinuxForegroundSourcePreflight,
+) -> AppGamePlatformProofStatusReadModel {
+    let host_capabilities = HostCapabilitySignals::detect();
+    app_game_platform_proof_status_read_model_from_preflights(
+        generated_at,
+        &host_capabilities,
+        &linux_preflight,
+        &unavailable_linux_docker_host_preflight(),
+    )
+}
+
+fn app_game_platform_proof_status_read_model_from_preflights(
+    generated_at: GeneratedAtText,
+    host_capabilities: &HostCapabilitySignals,
+    linux_preflight: &LinuxForegroundSourcePreflight,
+    linux_docker_host_preflight: &AppGameLinuxDockerHostPreflight,
+) -> AppGamePlatformProofStatusReadModel {
+    let rows = platform_status_rows(
+        &generated_at,
+        host_capabilities,
+        linux_preflight,
+        linux_docker_host_preflight,
+    );
     let enforcement_ready_count = rows
         .iter()
         .filter(|row| {
@@ -140,11 +212,18 @@ pub fn app_game_platform_proof_status_payload(
 fn platform_status_rows(
     generated_at: &GeneratedAtText,
     host_capabilities: &HostCapabilitySignals,
+    linux_preflight: &LinuxForegroundSourcePreflight,
+    linux_docker_host_preflight: &AppGameLinuxDockerHostPreflight,
 ) -> Vec<AppGamePlatformProofStatusRow> {
     vec![
         windows_status_row(generated_at),
         android_status_row(generated_at, host_capabilities),
-        linux_status_row(generated_at, host_capabilities),
+        linux_status_row(
+            generated_at,
+            host_capabilities,
+            linux_preflight,
+            linux_docker_host_preflight,
+        ),
         platform_not_applicable_status_row(
             generated_at,
             TextValue(APP_GAME_PARENT_PLATFORM_MACOS),
@@ -169,6 +248,7 @@ fn windows_status_row(generated_at: &GeneratedAtText) -> AppGamePlatformProofSta
             proof::REF_ADAPTER_CAPABILITY_STATE.to_string()
         ]),
         host_capability_probe_refs: TextList(vec![proof::REF_WINDOWS_HOST_LOCAL_PROBE.to_string()]),
+        linux_docker_host_preflight: None,
         proof_refs: TextList(vec![
             proof::REF_APP_SESSION_EVIDENCE.to_string(),
             proof::REF_TIMER_STATE.to_string(),
@@ -198,6 +278,7 @@ fn android_status_row(
         host_capability_state: TextValue(host_state),
         host_capability_evidence_refs: TextList(host_capabilities.android_evidence_refs().0),
         host_capability_probe_refs: TextList(host_capabilities.android_probe_refs().0),
+        linux_docker_host_preflight: None,
         proof_refs: TextList(vec![
             proof::REF_ANDROID_ADB_HOST_TOOLCHAIN.to_string(),
             proof::REF_ANDROID_PHYSICAL_DEVICE_PROOF.to_string(),
@@ -215,8 +296,28 @@ fn android_status_row(
 fn linux_status_row(
     generated_at: &GeneratedAtText,
     host_capabilities: &HostCapabilitySignals,
+    linux_preflight: &LinuxForegroundSourcePreflight,
+    linux_docker_host_preflight: &AppGameLinuxDockerHostPreflight,
 ) -> AppGamePlatformProofStatusRow {
-    let host_state = host_capabilities.linux_state().0;
+    let host_state = host_capabilities.linux_state_for(linux_preflight).0;
+    let mut proof_refs = vec![
+        proof::REF_LINUX_WSL_HOST_TOOLCHAIN.to_string(),
+        proof::REF_LINUX_WSLG_DISPLAY.to_string(),
+        proof::REF_LINUX_WSLG_X11_SOCKET.to_string(),
+        proof::REF_LINUX_WSLG_WAYLAND_SOCKET.to_string(),
+    ];
+    proof_refs.extend(host_capabilities.linux_proof_refs_for(linux_preflight).0);
+    proof_refs.extend(linux_docker_host_preflight.proof_refs.clone());
+    let mut open_gaps = vec![
+        APP_GAME_PLATFORM_GAP_LINUX_NATIVE_SERVICE.to_string(),
+        APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE.to_string(),
+        APP_GAME_PLATFORM_GAP_LINUX_ROLLBACK.to_string(),
+        APP_GAME_PLATFORM_GAP_PLATFORM_ENFORCEMENT.to_string(),
+        APP_GAME_PLATFORM_GAP_CHILD_DELIVERY.to_string(),
+    ];
+    if linux_docker_host_preflight.state != APP_GAME_LINUX_DOCKER_PREFLIGHT_READY {
+        open_gaps.push(APP_GAME_PLATFORM_GAP_LINUX_DOCKER_PREFLIGHT.to_string());
+    }
     platform_status_row(&PlatformStatusSpec {
         generated_at,
         platform: TextValue(APP_GAME_PARENT_PLATFORM_LINUX),
@@ -227,21 +328,15 @@ fn linux_status_row(
         },
         authority_state: TextValue(APP_GAME_PLATFORM_AUTHORITY_VISIBILITY_ONLY),
         host_capability_state: TextValue(host_state),
-        host_capability_evidence_refs: TextList(host_capabilities.linux_evidence_refs().0),
-        host_capability_probe_refs: TextList(host_capabilities.linux_probe_refs().0),
-        proof_refs: TextList(vec![
-            proof::REF_LINUX_WSL_HOST_TOOLCHAIN.to_string(),
-            proof::REF_LINUX_WSLG_DISPLAY.to_string(),
-            proof::REF_LINUX_WSLG_X11_SOCKET.to_string(),
-            proof::REF_LINUX_WSLG_WAYLAND_SOCKET.to_string(),
-        ]),
-        open_gaps: TextList(vec![
-            APP_GAME_PLATFORM_GAP_LINUX_NATIVE_SERVICE.to_string(),
-            APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE.to_string(),
-            APP_GAME_PLATFORM_GAP_LINUX_ROLLBACK.to_string(),
-            APP_GAME_PLATFORM_GAP_PLATFORM_ENFORCEMENT.to_string(),
-            APP_GAME_PLATFORM_GAP_CHILD_DELIVERY.to_string(),
-        ]),
+        host_capability_evidence_refs: TextList(
+            host_capabilities.linux_evidence_refs_for(linux_preflight).0,
+        ),
+        host_capability_probe_refs: TextList(
+            host_capabilities.linux_probe_refs_for(linux_preflight).0,
+        ),
+        linux_docker_host_preflight: Some(linux_docker_host_preflight.clone()),
+        proof_refs: TextList(proof_refs),
+        open_gaps: TextList(open_gaps),
     })
 }
 
@@ -258,6 +353,7 @@ fn platform_not_applicable_status_row(
         host_capability_state: TextValue(APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE),
         host_capability_evidence_refs: TextList(Vec::new()),
         host_capability_probe_refs: TextList(Vec::new()),
+        linux_docker_host_preflight: None,
         proof_refs: TextList(vec![platform_gap.0.to_string()]),
         open_gaps: TextList(vec![
             platform_gap.0.to_string(),
@@ -275,6 +371,7 @@ struct PlatformStatusSpec<'a> {
     host_capability_state: TextValue,
     host_capability_evidence_refs: TextList,
     host_capability_probe_refs: TextList,
+    linux_docker_host_preflight: Option<AppGameLinuxDockerHostPreflight>,
     proof_refs: TextList,
     open_gaps: TextList,
 }
@@ -292,6 +389,7 @@ fn platform_status_row(spec: &PlatformStatusSpec<'_>) -> AppGamePlatformProofSta
         host_capability_state: spec.host_capability_state.0.to_string(),
         host_capability_evidence_refs: spec.host_capability_evidence_refs.0.clone(),
         host_capability_probe_refs: spec.host_capability_probe_refs.0.clone(),
+        linux_docker_host_preflight: spec.linux_docker_host_preflight.clone(),
         product_meanings: vec![
             APP_GAME_ADAPTER_PRODUCT_NATIVE_APP.to_string(),
             APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME.to_string(),

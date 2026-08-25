@@ -4,10 +4,11 @@ use ocentra_parent_agent_protocol::{
     logging::{LogFieldValue, LogLevel},
     transport::{AgentEventEnvelope, AgentEventName},
 };
-use std::{future::Future, pin::Pin};
+use std::{future::Future, pin::Pin, sync::Arc};
 
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime,
+    browser_runtime::BrowserManagedRuntime,
     event_builder::{build_event, portal_peer},
     fields::fields_from_pairs,
     lan_pairing::LanPairingRuntime,
@@ -15,7 +16,10 @@ use crate::{
     snapshot::build_dev_log_snapshot,
 };
 
-use super::{command_entry::handle_command_text, WebsocketCommandOrigin, WebsocketCommandText};
+use super::{
+    command_entry::handle_command_text, WebsocketCommandOrigin, WebsocketCommandText,
+    WebsocketPeerProvenance, WebsocketPlatformProbeDispatcher,
+};
 
 enum SocketLoopControl {
     Continue,
@@ -26,8 +30,11 @@ pub(super) fn handle_socket(
     mut socket: WebSocket,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
+    browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
+    probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
+    provenance: WebsocketPeerProvenance,
 ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
     Box::pin(async move {
         if send_event(&mut socket, ready_event()).await.is_err() {
@@ -45,8 +52,11 @@ pub(super) fn handle_socket(
                     message,
                     &lan_pairing,
                     &browser_policy,
+                    &browser_runtime,
                     &screen_settings,
                     &origin,
+                    &probe_dispatcher,
+                    provenance,
                 )
                 .await,
                 SocketLoopControl::Break
@@ -69,8 +79,11 @@ fn handle_socket_message<'a>(
     message: Message,
     lan_pairing: &'a LanPairingRuntime,
     browser_policy: &'a BrowserPolicyRuntime,
+    browser_runtime: &'a BrowserManagedRuntime,
     screen_settings: &'a ScreenSettingsRuntime,
     origin: &'a WebsocketCommandOrigin,
+    probe_dispatcher: &'a Arc<WebsocketPlatformProbeDispatcher>,
+    provenance: WebsocketPeerProvenance,
 ) -> Pin<Box<dyn Future<Output = SocketLoopControl> + Send + 'a>> {
     Box::pin(async move {
         match message {
@@ -79,8 +92,11 @@ fn handle_socket_message<'a>(
                     WebsocketCommandText(text.to_string()),
                     lan_pairing.clone(),
                     browser_policy.clone(),
+                    browser_runtime.clone(),
                     screen_settings.clone(),
                     origin.clone(),
+                    probe_dispatcher.clone(),
+                    provenance,
                 )
                 .await;
                 send_event(socket, event)

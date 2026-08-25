@@ -1,6 +1,8 @@
 use super::super::signer_authority_types::LanSignedChildAuthorityBindingRef;
 
-pub(super) fn binding_is_well_formed(binding: &LanSignedChildAuthorityBindingRef<'_>) -> bool {
+pub(in crate::trusted_device_registry) fn binding_is_well_formed(
+    binding: &LanSignedChildAuthorityBindingRef<'_>,
+) -> bool {
     binding.authority_generation != 0
         && [
             binding.pairing_id,

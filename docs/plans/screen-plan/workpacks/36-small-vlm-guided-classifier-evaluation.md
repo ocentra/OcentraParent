@@ -39,24 +39,24 @@ This is AI-pass work. Capture MVP should define the route/result contracts and d
 - Model capability proof.
 - Resource proof.
 
-Current readiness proof:
+Expected readiness proof (missing in this checkout):
 
 ```powershell
 node scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs
 ```
 
-Artifact:
+Expected artifact (not present):
 
 ```text
 output/screen-plan-proof/36-small-vlm-guided-classifier-evaluation/proof-summary.json
 ```
 
-This proof reuses the existing local VLM execution-readiness contract proof to
-show the guided worker template/version, local-only custody, bounded image-pixel
-budget, deleted query-store requirement before completed status, and
-manual-required behavior when the runtime is unavailable. The focused worker
-contract now rejects open-ended prompts such as `Describe the screen in detail.`
-before local worker handoff.
+The expected readiness proof script is absent, so this workpack currently has
+no retained readiness-proof execution or expected proof artifact. The retained
+local VLM execution-readiness contract proof does not substitute for the missing
+script; it cannot establish the guided worker template/version, local-only
+custody, bounded image-pixel budget, deleted query-store requirement before
+completed status, or manual-required behavior for this expected root.
 
 The retained Windows-lane local VLM matrix and live crop quality proofs now go
 beyond readiness:
@@ -91,13 +91,12 @@ per-sample wall time, CPU time, peak working set, model/mmproj paths, bounded
 crop dimensions, and no-raw-retention custody. These are local Windows proof
 artifacts, not broad production rollout claims.
 
-This closes WP36 as an evaluation workpack for the current Windows proof route:
-the selected local llama.cpp/Qwen2-VL path has capability, bounded input,
-detector JSON prompt, public-live crop quality, resource measurement, model
-selection, and fallback proof. It does not close product-quality rollout across
-additional hardware profiles, authenticated-account social/feed quality,
-cross-platform model/runtime parity, portal runtime rendering, enforcement, or
-the full screen-AI pipeline.
+These retained artifacts do not close WP36's expected proof contract because the
+readiness proof script and expected proof artifact are absent. The selected
+local llama.cpp/Qwen2-VL path remains a documented candidate boundary only; it
+does not close product-quality rollout across additional hardware profiles,
+authenticated-account social/feed quality, cross-platform model/runtime parity,
+portal runtime rendering, enforcement, or the full screen-AI pipeline.
 
 ## Current Decision
 

@@ -1,25 +1,20 @@
 import type { DurableObjectState, MessageBatch } from '@cloudflare/workers-types';
 import { NonNegativeBillingCountSchema } from '@ocentra-parent/schema-domain/billing-entitlement-values';
-import { buildBillingCancellationSummaryFromStatus, buildBillingPlanChangeSummaryFromStatus } from './fixtures.js';
 import {
   appendBillingAuditEventAtOwner,
   applyBillingStateMutation,
   BILLING_AUDIT_APPEND_PATH,
-  buildBillingRefundResult,
   BillingReadModelUnavailableError,
   buildBillingReferralInviteResultFromD1,
   buildManualInvoiceResultFromD1,
   buildReconciliationSummaryFromD1,
   drainPendingBillingMutationOutbox,
-  findBillingInvoiceSubject,
   loadAdminBillingAccounts,
   loadAdminBillingDisputes,
   loadAdminBillingInvoices,
   loadAdminBillingReferrals,
   loadBillingAuditEvents,
   loadBillingEntitlementSnapshot,
-  loadAppliedRefundAmount,
-  loadBillingInvoiceById,
   loadBillingInvoices,
   loadBillingLicenseDecision,
   loadBillingProviderEventReceipt,
@@ -39,24 +34,8 @@ import {
   type ProviderBillingReferenceHints,
   type ProviderBillingAuthority,
 } from './storage/account-identity-billing-store.js';
-import {
-  BillingHostedReturnRoute,
-  BillingCheckoutSessionRequestSchema,
-  BillingCheckoutSessionResponseSchema,
-  BillingPortalSessionRequestSchema,
-  BillingPortalSessionResponseSchema,
-  BillingSupportAdminAccountsResponseSchema,
-  BillingSupportAdminAuditEventsResponseSchema,
-  BillingSupportAdminDisputesResponseSchema,
-  BillingSupportAdminInvoicesResponseSchema,
-  BillingSupportAdminReferralsResponseSchema,
-} from './generated/billing-contracts.js';
-import {
-  signatureHeaderName,
-  verifyAuthState,
-  verifyStripeWebhookSignature,
-  type VerifiedIdentity,
-} from './auth/verifier.js';
+import { signatureHeaderName, verifyAuthState, type VerifiedIdentity } from './auth/verifier.js';
+import { PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS, verifyStripeWebhookSignature } from './auth/provider-webhook.js';
 import { createFirebaseProviderVerificationPort } from './providers/firebase-auth.js';
 import { validateAuthBoundaryRoute } from './auth/model.js';
 import {
@@ -73,7 +52,16 @@ import {
   validateEnv,
   type Env,
 } from './env.js';
-import { findRoute, ROUTE_MANIFEST, type RouteManifestEntry } from './routes.js';
+import {
+  findRoute,
+  routeContractReadiness,
+  routeRequestModel,
+  routeResponseModel,
+  ROUTE_HANDLER_KEYS,
+  ROUTE_MANIFEST,
+  type RouteHandlerMap,
+  type RouteManifestEntry,
+} from './routes.js';
 import { redactHeaders } from './security/redaction.js';
 import {
   loginBrowserSession,
@@ -112,37 +100,8 @@ function interactiveCsrfToken(env: Env): string | null {
   return env.ENVIRONMENT === 'test' ? ['interactive', 'parent', 'session'].join('-') : null;
 }
 
-export const IMPLEMENTED_HANDLER_KEYS = [
-  'health',
-  'account-session-login',
-  'account-session-refresh',
-  'account-session-logout',
-  'account-session-revoke',
-  'pricing-public',
-  'billing-status',
-  'billing-checkout',
-  'billing-portal',
-  'billing-invoices',
-  'billing-change-plan',
-  'billing-cancel',
-  'billing-referrals',
-  'billing-referral-invite',
-  'billing-entitlement-snapshot',
-  'billing-license-check',
-  'billing-manual-invoice',
-  'stripe-webhook',
-  'razorpay-webhook',
-  'paypal-webhook',
-  'apple-webhook',
-  'google-webhook',
-  'admin-billing-accounts',
-  'admin-billing-invoices',
-  'admin-billing-refunds',
-  'admin-billing-disputes',
-  'admin-billing-referrals',
-  'admin-billing-reconciliation',
-  'admin-billing-audit',
-] as const;
+/** Kept as a compatibility export; its contents are derived from the manifest. */
+export const IMPLEMENTED_HANDLER_KEYS = ROUTE_HANDLER_KEYS;
 
 type HandlerContext = {
   request: Request;
@@ -152,41 +111,9 @@ type HandlerContext = {
 };
 
 type RouteHandler = (context: HandlerContext) => Promise<Response>;
-type HostedSessionKind = 'checkout-session-create' | 'billing-portal-session-create';
-type HostedSessionRejectionReason =
-  | 'auth-required'
-  | 'unauthorized-role'
-  | 'invalid-plan'
-  | 'redirect-not-allowlisted'
-  | 'abuse-gate-required'
-  | 'provider-unavailable';
-type CheckoutRequestBody = {
-  requestId?: unknown;
-  planId?: unknown;
-  successPath?: unknown;
-  cancelPath?: unknown;
-  abuseGateState?: unknown;
-  providerPreference?: unknown;
-  referralCode?: unknown;
-};
-type PortalRequestBody = {
-  requestId?: unknown;
-  returnPath?: unknown;
-  abuseGateState?: unknown;
-};
-type ChangePlanRequestBody = {
-  requestId?: unknown;
-  planId?: unknown;
-  abuseGateState?: unknown;
-};
-type CancelRequestBody = {
-  requestId?: unknown;
-  abuseGateState?: unknown;
-};
 type ReferralInviteRequestBody = {
   requestId?: unknown;
   invitee?: unknown;
-  abuseGateState?: unknown;
 };
 type LicenseCheckRequestBody = {
   requestId?: unknown;
@@ -195,11 +122,6 @@ type LicenseCheckRequestBody = {
 type ManualInvoiceRequestBody = {
   requestId?: unknown;
   region?: unknown;
-};
-type AdminRefundRequestBody = {
-  requestId?: unknown;
-  invoiceId?: unknown;
-  amountCents?: unknown;
 };
 type ReconciliationRequestBody = {
   requestId?: unknown;
@@ -238,15 +160,6 @@ type QueueFailureReason =
   | 'queue-consumer-invalid-message'
   | 'queue-consumer-manual-required';
 
-const CHECKOUT_SUCCESS_PATH = BillingHostedReturnRoute.CheckoutSuccess.relativePath;
-const CHECKOUT_CANCEL_PATH = BillingHostedReturnRoute.CheckoutCancel.relativePath;
-const PORTAL_RETURN_PATH = BillingHostedReturnRoute.PortalReturn.relativePath;
-const ALLOWLISTED_RETURN_PATHS: ReadonlySet<string> = new Set([
-  CHECKOUT_SUCCESS_PATH,
-  CHECKOUT_CANCEL_PATH,
-  PORTAL_RETURN_PATH,
-]);
-const ACCEPTED_ABUSE_GATE_STATES = new Set(['passed-turnstile', 'trusted-authenticated-session']);
 const IDEMPOTENCY_LEASE_MS = 60_000;
 const IDEMPOTENCY_RETRY_BASE_MS = 1_000;
 const IDEMPOTENCY_RETRY_MAX_MS = 60_000;
@@ -409,17 +322,86 @@ function parseContentLengthHeader(request: Request): { ok: true; value: number }
   };
 }
 
-function manualRequiredResponse(route: RouteManifestEntry, identity?: VerifiedIdentity): Response {
+function manualRequiredResponse(
+  route: RouteManifestEntry,
+  identity?: VerifiedIdentity,
+  contractReadiness = routeContractReadiness(route)
+): Response {
   return json(501, {
     status: 'manual-required',
     handlerKey: route.handlerKey,
     authState: route.authState,
+    requestModel: routeRequestModel(route),
+    responseModel: routeResponseModel(route),
+    contractState: contractReadiness.ready ? 'ready' : 'manual-required',
+    contractSide: contractReadiness.ready ? null : contractReadiness.side,
+    contractBlocker: contractReadiness.ready ? 'handler-unavailable' : contractReadiness.blocker,
     proofIdFamily: route.proofIdFamily,
     actorRole: identity?.role ?? null,
-    message:
-      'This route is contract-shaped, but provider-backed behavior is still owned by the active payment workpacks.',
-    nextStep: `Implement ${route.handlerKey} behind the shared billing contract before calling this route production-ready.`,
+    message: 'Route dispatch is disabled until its request, response, and owner execution contracts are bound.',
   });
+}
+
+function parseManifestResponse(route: RouteManifestEntry, value: unknown): unknown | Response {
+  const responseContract = route.contract.response;
+  if (responseContract.state !== 'bound') return manualRequiredResponse(route);
+
+  try {
+    return responseContract.descriptor.codec.parse(value);
+  } catch {
+    return json(500, {
+      error: 'route-response-contract-rejected',
+      handlerKey: route.handlerKey,
+      responseModel: routeResponseModel(route),
+    });
+  }
+}
+
+async function validateManifestRequest(route: RouteManifestEntry, request: Request): Promise<Response | null> {
+  const requestContract = route.contract.request;
+  if (requestContract.state === 'unbound') return manualRequiredResponse(route);
+  if (requestContract.state === 'none') {
+    if (request.body !== null || new URL(request.url).search.length > 0) {
+      return json(400, {
+        error: 'route-request-contract-rejected',
+        handlerKey: route.handlerKey,
+        requestModel: routeRequestModel(route),
+        reason: 'request-input-not-allowed',
+      });
+    }
+    return null;
+  }
+
+  let payload: unknown;
+  try {
+    payload = await request.clone().json();
+    requestContract.descriptor.codec.parse(payload);
+  } catch {
+    return json(400, {
+      error: 'route-request-contract-rejected',
+      handlerKey: route.handlerKey,
+      requestModel: routeRequestModel(route),
+      reason: 'request-codec-rejected',
+    });
+  }
+  return null;
+}
+
+async function validateManifestResponse(route: RouteManifestEntry, response: Response): Promise<Response> {
+  if (response.status < 200 || response.status >= 300) return response;
+  const responseContract = route.contract.response;
+  if (responseContract.state !== 'bound') return manualRequiredResponse(route);
+
+  try {
+    responseContract.descriptor.codec.parse(await response.clone().json());
+    return response;
+  } catch {
+    return json(500, {
+      error: 'route-response-contract-rejected',
+      handlerKey: route.handlerKey,
+      responseModel: routeResponseModel(route),
+    });
+  }
 }
 
 function sanitizeIdFragment(value: string): string {
@@ -431,102 +413,6 @@ function requestIdFor(kind: string, subject: string, providedRequestId: unknown)
     return sanitizeIdFragment(providedRequestId.trim());
   }
   return `${sanitizeIdFragment(kind)}-${sanitizeIdFragment(subject)}`;
-}
-
-function rejectionResponse(
-  kind: HostedSessionKind,
-  requestId: string,
-  rejectionReason: HostedSessionRejectionReason
-): Response {
-  const pendingEntitlementConfirmation = kind === 'checkout-session-create';
-  if (kind === 'checkout-session-create') {
-    return json(
-      200,
-      BillingCheckoutSessionResponseSchema.parse({
-        schemaVersion: 'billing-checkout-portal-boundary',
-        requestId,
-        kind,
-        status: 'rejected',
-        hostedSessionId: null,
-        hostedUrl: null,
-        expiresAt: null,
-        rejectionReason,
-        provider: 'stripe',
-        ownerSubject: 'unknown',
-        pendingEntitlementConfirmation,
-      })
-    );
-  }
-
-  return json(
-    200,
-    BillingPortalSessionResponseSchema.parse({
-      schemaVersion: 'billing-checkout-portal-boundary',
-      requestId,
-      kind,
-      status: 'rejected',
-      hostedSessionId: null,
-      hostedUrl: null,
-      expiresAt: null,
-      rejectionReason,
-      provider: 'stripe',
-      ownerSubject: 'unknown',
-      pendingEntitlementConfirmation,
-    })
-  );
-}
-
-function hostedSessionPrefix(kind: HostedSessionKind): 'checkout-session' | 'portal-session' {
-  return kind === 'checkout-session-create' ? 'checkout-session' : 'portal-session';
-}
-
-function hostedSessionIdFor(kind: HostedSessionKind, requestId: string): string {
-  return `${hostedSessionPrefix(kind)}-${sanitizeIdFragment(requestId)}`;
-}
-
-function hostedSessionUrlFor(kind: HostedSessionKind, requestId: string): string {
-  return kind === 'checkout-session-create'
-    ? `https://checkout.stripe.com/c/pay/${sanitizeIdFragment(requestId)}`
-    : `https://billing.stripe.com/p/session/${sanitizeIdFragment(requestId)}`;
-}
-
-function hostedSessionAuditReference(kind: HostedSessionKind, subject: string, requestId: string): string {
-  return `audit:${hostedSessionPrefix(kind)}:${sanitizeIdFragment(subject)}:${sanitizeIdFragment(requestId)}`;
-}
-
-function acceptedResponseBody(kind: HostedSessionKind, requestId: string, subject: string): Record<string, unknown> {
-  const hostedUrl = hostedSessionUrlFor(kind, requestId);
-  const pendingEntitlementConfirmation = kind === 'checkout-session-create';
-  const contractResponse =
-    kind === 'checkout-session-create'
-      ? BillingCheckoutSessionResponseSchema.parse({
-          schemaVersion: 'billing-checkout-portal-boundary',
-          requestId,
-          kind,
-          status: 'accepted',
-          hostedSessionId: hostedSessionIdFor(kind, requestId),
-          hostedUrl,
-          expiresAt: '2026-06-14T01:00:00.000Z',
-          rejectionReason: null,
-          provider: 'stripe',
-          ownerSubject: subject,
-          pendingEntitlementConfirmation,
-        })
-      : BillingPortalSessionResponseSchema.parse({
-          schemaVersion: 'billing-checkout-portal-boundary',
-          requestId,
-          kind,
-          status: 'accepted',
-          hostedSessionId: hostedSessionIdFor(kind, requestId),
-          hostedUrl,
-          expiresAt: '2026-06-14T01:00:00.000Z',
-          rejectionReason: null,
-          provider: 'stripe',
-          ownerSubject: subject,
-          pendingEntitlementConfirmation,
-        });
-
-  return contractResponse;
 }
 
 async function readJsonObject<T extends Record<string, unknown>>(request: Request): Promise<T | null> {
@@ -572,10 +458,6 @@ function parseRefundAmount(value: unknown): { valid: true; value: number | null 
 
 function booleanFromUnknown(value: unknown): boolean {
   return value === true;
-}
-
-function extractAbuseGateState(value: unknown): string {
-  return typeof value === 'string' ? value : 'trusted-authenticated-session';
 }
 
 function cloneJsonValue<T>(value: T): T {
@@ -864,22 +746,6 @@ function canonicalRequestFingerprint(
   return JSON.stringify({ ...details, action, subject, requestId });
 }
 
-function adminRefundRequestFingerprint(
-  actorSubject: string,
-  invoiceId: string,
-  subject: string,
-  requestId: string,
-  amountCents: number,
-  currency: string
-): string {
-  return canonicalRequestFingerprint('admin-refund', subject, requestId, {
-    actorSubject,
-    invoiceId,
-    amountCents,
-    currency,
-  });
-}
-
 function webhookIdempotencyKey(provider: string, eventId: string, billingSubject: string | null): string {
   return durableWriteKey('provider-webhook', billingSubject ?? 'unresolved', `${provider}:${eventId}`);
 }
@@ -994,43 +860,6 @@ function billingActorRoleForAuthority(authority: VerifiedAuthority): 'parent' | 
   return authority.role === 'parent-owner' ? 'parent' : 'guardian';
 }
 
-async function billingHostedRouteContext(authority: VerifiedAuthority): Promise<{
-  actor: {
-    actorId: string;
-    role: 'parent' | 'guardian';
-  };
-  parentAccount: {
-    parentAccountId: string;
-  };
-  family: {
-    familyId: string;
-  };
-}> {
-  const actorRole = billingActorRoleForAuthority(authority);
-  return {
-    actor: {
-      actorId: `actor-${sanitizeIdFragment(authority.memberId)}`,
-      role: actorRole,
-    },
-    parentAccount: {
-      parentAccountId: authority.accountId,
-    },
-    family: {
-      familyId: authority.householdId,
-    },
-  };
-}
-
-function checkoutHostedRouteForPath(path: string) {
-  if (path === CHECKOUT_SUCCESS_PATH) {
-    return BillingHostedReturnRoute.CheckoutSuccess;
-  }
-  if (path === CHECKOUT_CANCEL_PATH) {
-    return BillingHostedReturnRoute.CheckoutCancel;
-  }
-  return null;
-}
-
 async function requireInteractiveRequestBoundary(
   request: Request,
   env: Env,
@@ -1075,35 +904,23 @@ async function requireInteractiveRequestBoundary(
   return null;
 }
 
-async function computeHexHmac(payload: string, secret: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(secret),
-    {
-      name: 'HMAC',
-      hash: 'SHA-256',
-    },
-    false,
-    ['sign']
-  );
-  const signed = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
-  return Array.from(new Uint8Array(signed), (value) => value.toString(16).padStart(2, '0')).join('');
-}
-
-function safeEqual(left: string, right: string): boolean {
-  if (left.length !== right.length) {
-    return false;
+function requireServerVerifiedAbuseGate(
+  request: Request,
+  env: Env,
+  identity: VerifiedIdentity,
+  route: RouteManifestEntry
+): Response | null {
+  const cookieNames = browserSessionCookieNames(!isLocalFixtureEnvironment(env));
+  const sessionToken = readCookie(request, cookieNames.session);
+  if (
+    identity.state !== 'parent-session-required' ||
+    sessionToken === null ||
+    !isVerifiedAccountIdentityAuthorityCapability(identity.authority)
+  ) {
+    return manualRequiredResponse(route, identity);
   }
-  let diff = 0;
-  for (let index = 0; index < left.length; index += 1) {
-    diff |= left.charCodeAt(index) ^ right.charCodeAt(index);
-  }
-  return diff === 0;
-}
 
-async function verifyHexHmac(payload: string, signature: string, secret: string): Promise<boolean> {
-  const expected = await computeHexHmac(payload, secret);
-  return safeEqual(signature.toLowerCase(), expected.toLowerCase());
+  return null;
 }
 
 function providerEventDetails(
@@ -1508,7 +1325,7 @@ async function sendBillingDeadLetter(
   }
 }
 
-async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
+async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
   return {
     async health({ env }): Promise<Response> {
       const missingBindings = getMissingBindings(env);
@@ -1568,164 +1385,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       return json(200, await loadBillingStatusSummary(env, subject));
     },
 
-    async 'billing-checkout'({ request, env, identity }): Promise<Response> {
-      if (!identity) {
-        return json(500, {
-          error: 'identity-missing',
-        });
-      }
-
-      const authority = requireVerifiedParentAuthority(identity);
-      if (authority instanceof Response) {
-        return authority;
-      }
-      const subject = authority.providerSubject;
-
-      const body = await readJsonObject<CheckoutRequestBody>(request);
-      if (!body) {
-        return json(400, {
-          error: 'invalid-json',
-        });
-      }
-
-      const requestId = requestIdFor('checkout', subject, body.requestId);
-      const boundaryFailure = await requireInteractiveRequestBoundary(request, env, identity, requestId);
-      if (boundaryFailure) {
-        return boundaryFailure;
-      }
-
-      const planId = stringOrNull(body.planId);
-      const pricingPlans = await loadPricingPlans(env);
-      if (
-        !planId ||
-        !pricingPlans.some((plan) => plan.planId === planId && plan.activeState === 'active' && plan.priceCents > 0)
-      ) {
-        return rejectionResponse('checkout-session-create', requestId, 'invalid-plan');
-      }
-
-      const successPath = stringOrNull(body.successPath) ?? CHECKOUT_SUCCESS_PATH;
-      const cancelPath = stringOrNull(body.cancelPath) ?? CHECKOUT_CANCEL_PATH;
-      if (successPath !== CHECKOUT_SUCCESS_PATH || cancelPath !== CHECKOUT_CANCEL_PATH) {
-        return rejectionResponse('checkout-session-create', requestId, 'redirect-not-allowlisted');
-      }
-
-      const abuseGateState = extractAbuseGateState(body.abuseGateState);
-      if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
-        return rejectionResponse('checkout-session-create', requestId, 'abuse-gate-required');
-      }
-
-      BillingCheckoutSessionRequestSchema.parse({
-        schemaVersion: 'billing-checkout-portal-boundary',
-        requestId,
-        kind: 'checkout-session-create',
-        ...(await billingHostedRouteContext(authority)),
-        planId,
-        successRoute: checkoutHostedRouteForPath(successPath),
-        cancelRoute: checkoutHostedRouteForPath(cancelPath),
-        abuseGateState,
-      });
-
-      const actorRole = billingActorRoleForAuthority(authority);
-      return executeIdempotentWrite(
-        env.BILLING_DO,
-        `billing-control:${subject}`,
-        {
-          requestKey: durableWriteKey('checkout-session-create', subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('hosted-session', subject, requestId, {
-            sessionKind: 'checkout-session-create',
-            planId,
-            successPath,
-            cancelPath,
-          }),
-          responseStatus: 200,
-          responseBody: acceptedResponseBody('checkout-session-create', requestId, subject),
-          queueMessage: null,
-          stateMutation: actorRole
-            ? {
-                kind: 'hosted-session',
-                subject,
-                requestId,
-                sessionKind: 'checkout-session-create',
-                auditReference: hostedSessionAuditReference('checkout-session-create', subject, requestId),
-                actorRole,
-              }
-            : null,
-        },
-        env
-      );
+    async 'billing-checkout'({ route, identity }): Promise<Response> {
+      return manualRequiredResponse(route, identity);
     },
 
-    async 'billing-portal'({ request, env, identity }): Promise<Response> {
-      if (!identity) {
-        return json(500, {
-          error: 'identity-missing',
-        });
-      }
-
-      const authority = requireVerifiedParentAuthority(identity);
-      if (authority instanceof Response) {
-        return authority;
-      }
-      const subject = authority.providerSubject;
-
-      const body = await readJsonObject<PortalRequestBody>(request);
-      if (!body) {
-        return json(400, {
-          error: 'invalid-json',
-        });
-      }
-
-      const requestId = requestIdFor('portal', subject, body.requestId);
-      const boundaryFailure = await requireInteractiveRequestBoundary(request, env, identity, requestId);
-      if (boundaryFailure) {
-        return boundaryFailure;
-      }
-
-      const returnPath = stringOrNull(body.returnPath) ?? PORTAL_RETURN_PATH;
-      if (!ALLOWLISTED_RETURN_PATHS.has(returnPath) || returnPath !== PORTAL_RETURN_PATH) {
-        return rejectionResponse('billing-portal-session-create', requestId, 'redirect-not-allowlisted');
-      }
-
-      const abuseGateState = extractAbuseGateState(body.abuseGateState);
-      if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
-        return rejectionResponse('billing-portal-session-create', requestId, 'abuse-gate-required');
-      }
-
-      BillingPortalSessionRequestSchema.parse({
-        schemaVersion: 'billing-checkout-portal-boundary',
-        requestId,
-        kind: 'billing-portal-session-create',
-        ...(await billingHostedRouteContext(authority)),
-        returnRoute: BillingHostedReturnRoute.PortalReturn,
-        abuseGateState,
-      });
-
-      const actorRole = billingActorRoleForAuthority(authority);
-      return executeIdempotentWrite(
-        env.BILLING_DO,
-        `billing-control:${subject}`,
-        {
-          requestKey: durableWriteKey('billing-portal-session-create', subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('hosted-session', subject, requestId, {
-            sessionKind: 'billing-portal-session-create',
-            returnPath,
-          }),
-          responseStatus: 200,
-          responseBody: acceptedResponseBody('billing-portal-session-create', requestId, subject),
-          queueMessage: null,
-          stateMutation: actorRole
-            ? {
-                kind: 'hosted-session',
-                subject,
-                requestId,
-                sessionKind: 'billing-portal-session-create',
-                auditReference: hostedSessionAuditReference('billing-portal-session-create', subject, requestId),
-                actorRole,
-              }
-            : null,
-        },
-        env
-      );
+    async 'billing-portal'({ route, identity }): Promise<Response> {
+      return manualRequiredResponse(route, identity);
     },
 
     async 'billing-invoices'({ env, identity }): Promise<Response> {
@@ -1750,143 +1415,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       });
     },
 
-    async 'billing-change-plan'({ request, env, identity }): Promise<Response> {
-      if (!identity) {
-        return json(500, {
-          error: 'identity-missing',
-        });
-      }
-
-      const authority = requireVerifiedParentAuthority(identity);
-      if (authority instanceof Response) {
-        return authority;
-      }
-      const subject = authority.providerSubject;
-
-      const body = await readJsonObject<ChangePlanRequestBody>(request);
-      if (!body) {
-        return json(400, {
-          error: 'invalid-json',
-        });
-      }
-
-      const requestId = requestIdFor('change-plan', subject, body.requestId);
-      const boundaryFailure = await requireInteractiveRequestBoundary(request, env, identity, requestId);
-      if (boundaryFailure) {
-        return boundaryFailure;
-      }
-
-      const abuseGateState = extractAbuseGateState(body.abuseGateState);
-      if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
-        return json(403, {
-          error: 'abuse-gate-required',
-        });
-      }
-
-      const summary = buildBillingPlanChangeSummaryFromStatus(
-        await loadBillingStatusSummary(env, subject),
-        requestId,
-        stringOrNull(body.planId),
-        (await loadPricingPlans(env)).filter((plan) => plan.activeState === 'active')
-      );
-      const targetPlanId = summary.targetPlanId;
-      return executeIdempotentWrite(
-        env.BILLING_DO,
-        `billing-control:${subject}`,
-        {
-          requestKey: durableWriteKey('change-plan', subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('change-plan', subject, requestId, {
-            targetPlanId,
-          }),
-          responseStatus: 200,
-          responseBody: summary,
-          queueMessage:
-            summary.status === 'accepted'
-              ? {
-                  action: 'change-plan',
-                  requestId,
-                  subject,
-                  targetPlanId,
-                }
-              : null,
-          stateMutation:
-            summary.status === 'accepted' && targetPlanId !== null
-              ? {
-                  kind: 'change-plan',
-                  subject,
-                  requestId,
-                  targetPlanId,
-                  auditReference: summary.auditReference,
-                }
-              : null,
-        },
-        env
-      );
+    async 'billing-change-plan'({ route, identity }): Promise<Response> {
+      return manualRequiredResponse(route, identity);
     },
 
-    async 'billing-cancel'({ request, env, identity }): Promise<Response> {
-      if (!identity) {
-        return json(500, {
-          error: 'identity-missing',
-        });
-      }
-
-      const authority = requireVerifiedParentAuthority(identity);
-      if (authority instanceof Response) {
-        return authority;
-      }
-      const subject = authority.providerSubject;
-
-      const body = await readJsonObject<CancelRequestBody>(request);
-      if (!body) {
-        return json(400, {
-          error: 'invalid-json',
-        });
-      }
-
-      const requestId = requestIdFor('cancel', subject, body.requestId);
-      const boundaryFailure = await requireInteractiveRequestBoundary(request, env, identity, requestId);
-      if (boundaryFailure) {
-        return boundaryFailure;
-      }
-
-      const abuseGateState = extractAbuseGateState(body.abuseGateState);
-      if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
-        return json(403, {
-          error: 'abuse-gate-required',
-        });
-      }
-
-      const summary = buildBillingCancellationSummaryFromStatus(
-        await loadBillingStatusSummary(env, subject),
-        requestId
-      );
-      return executeIdempotentWrite(
-        env.BILLING_DO,
-        `billing-control:${subject}`,
-        {
-          requestKey: durableWriteKey('cancel', subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('cancel', subject, requestId, {
-            cancellationState: summary.cancellationState,
-          }),
-          responseStatus: 200,
-          responseBody: summary,
-          queueMessage: {
-            action: 'cancel',
-            requestId,
-            subject,
-            cancellationState: summary.cancellationState,
-          },
-          stateMutation: {
-            kind: 'cancel',
-            subject,
-            requestId,
-            cancellationState: summary.cancellationState,
-            auditReference: summary.auditReference,
-          },
-        },
-        env
-      );
+    async 'billing-cancel'({ route, identity }): Promise<Response> {
+      return manualRequiredResponse(route, identity);
     },
 
     async 'billing-referrals'({ env, identity }): Promise<Response> {
@@ -1908,7 +1442,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       });
     },
 
-    async 'billing-referral-invite'({ request, env, identity }): Promise<Response> {
+    async 'billing-referral-invite'({ request, env, route, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
           error: 'identity-missing',
@@ -1934,11 +1468,9 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         return boundaryFailure;
       }
 
-      const abuseGateState = extractAbuseGateState(body.abuseGateState);
-      if (!ACCEPTED_ABUSE_GATE_STATES.has(abuseGateState)) {
-        return json(403, {
-          error: 'abuse-gate-required',
-        });
+      const abuseGateFailure = requireServerVerifiedAbuseGate(request, env, identity, route);
+      if (abuseGateFailure) {
+        return abuseGateFailure;
       }
 
       const invitee = stringOrNull(body.invitee)?.trim();
@@ -1948,6 +1480,8 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
       const result = await buildBillingReferralInviteResultFromD1(env, subject, requestId, invitee);
+      const contractResult = parseManifestResponse(route, result);
+      if (contractResult instanceof Response) return contractResult;
       if (result.status === 'accepted') {
         const invitedIdentifier = stringOrNull(body.invitee)?.trim().toLowerCase();
         const actorRole = billingActorRoleForAuthority(authority);
@@ -1961,7 +1495,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
               referralCode: result.referralCode,
             }),
             responseStatus: 200,
-            responseBody: result,
+            responseBody: contractResult,
             queueMessage: {
               action: 'referral-invite',
               requestId,
@@ -1984,7 +1518,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
           env
         );
       }
-      return json(200, result);
+      return json(200, contractResult);
     },
 
     async 'billing-entitlement-snapshot'({ env, identity }): Promise<Response> {
@@ -2006,7 +1540,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       });
     },
 
-    async 'billing-license-check'({ request, env, identity }): Promise<Response> {
+    async 'billing-license-check'({ request, env, route, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
           error: 'identity-missing',
@@ -2034,7 +1568,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       );
     },
 
-    async 'billing-manual-invoice'({ request, env, identity }): Promise<Response> {
+    async 'billing-manual-invoice'({ request, env, route, identity }): Promise<Response> {
       if (!identity) {
         return json(500, {
           error: 'identity-missing',
@@ -2131,115 +1665,50 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
     },
 
     async 'razorpay-webhook'({ request, env, route }): Promise<Response> {
-      if (!env.RAZORPAY_KEY_SECRET) {
-        return json(503, {
-          error: 'manual-required',
-          authState: route.authState,
-          blocker: 'razorpay-webhook-secret-missing',
-        });
-      }
-
-      const signature = request.headers.get('x-razorpay-signature');
-      if (!signature) {
-        return json(401, {
-          error: 'authentication-required',
-          authState: route.authState,
-          missingHeader: 'x-razorpay-signature',
-        });
-      }
-
-      const body = await request.text();
-      if (!(await verifyHexHmac(body, signature, env.RAZORPAY_KEY_SECRET))) {
-        return json(400, {
-          error: 'invalid-razorpay-signature',
-        });
-      }
-
-      return acceptProviderWebhook('razorpay', body, route.proofIdFamily, env);
+      void request;
+      void env;
+      return json(503, {
+        error: 'manual-required',
+        authState: route.authState,
+        blocker: PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.razorpayVerifierUnavailable,
+      });
     },
 
     async 'paypal-webhook'({ request, env, route }): Promise<Response> {
-      if (!env.PAYPAL_CLIENT_SECRET) {
-        return json(503, {
-          error: 'manual-required',
-          authState: route.authState,
-          blocker: 'paypal-webhook-secret-missing',
-        });
-      }
-
-      const transmissionId = request.headers.get('paypal-transmission-id');
-      const transmissionSig = request.headers.get('paypal-transmission-sig');
-      if (!transmissionId || !transmissionSig) {
-        return json(401, {
-          error: 'authentication-required',
-          authState: route.authState,
-          missingHeader: !transmissionId ? 'paypal-transmission-id' : 'paypal-transmission-sig',
-        });
-      }
-
-      const body = await request.text();
-      if (!(await verifyHexHmac(`${transmissionId}.${body}`, transmissionSig, env.PAYPAL_CLIENT_SECRET))) {
-        return json(400, {
-          error: 'invalid-paypal-signature',
-        });
-      }
-
-      return acceptProviderWebhook('paypal', body, route.proofIdFamily, env);
+      void request;
+      void env;
+      return json(503, {
+        error: 'manual-required',
+        authState: route.authState,
+        blocker: PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.paypalVerifierUnavailable,
+      });
     },
 
     async 'apple-webhook'({ request, env, route }): Promise<Response> {
-      if (!env.APPLE_STORE_KEY_REF) {
-        return json(503, {
-          error: 'manual-required',
-          authState: route.authState,
-          blocker: 'apple-store-key-ref-missing',
-        });
-      }
-
-      const authorization = request.headers.get('authorization');
-      if (authorization !== `Bearer ${env.APPLE_STORE_KEY_REF}`) {
-        return json(400, {
-          error: 'invalid-apple-authorization',
-        });
-      }
-
-      const body = (await request.text()) || '';
-      return acceptProviderWebhook('apple', body, route.proofIdFamily, env);
+      void request;
+      void env;
+      return json(503, {
+        error: 'manual-required',
+        authState: route.authState,
+        blocker: PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.appleVerifierUnavailable,
+      });
     },
 
     async 'google-webhook'({ request, env, route }): Promise<Response> {
-      if (!env.GOOGLE_PLAY_SERVICE_ACCOUNT_REF) {
-        return json(503, {
-          error: 'manual-required',
-          authState: route.authState,
-          blocker: 'google-play-service-account-ref-missing',
-        });
-      }
-
-      const signature = request.headers.get('x-goog-signature');
-      if (!signature) {
-        return json(401, {
-          error: 'authentication-required',
-          authState: route.authState,
-          missingHeader: 'x-goog-signature',
-        });
-      }
-
-      const body = await request.text();
-      if (!(await verifyHexHmac(body, signature, env.GOOGLE_PLAY_SERVICE_ACCOUNT_REF))) {
-        return json(400, {
-          error: 'invalid-google-signature',
-        });
-      }
-
-      return acceptProviderWebhook('google', body, route.proofIdFamily, env);
+      void request;
+      void env;
+      return json(503, {
+        error: 'manual-required',
+        authState: route.authState,
+        blocker: PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS.googleVerifierUnavailable,
+      });
     },
 
-    async 'admin-billing-accounts'({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-accounts'({ request, env, route, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
       const query = new URL(request.url).searchParams.get('q');
       const results = await loadAdminBillingAccounts(env, query);
-      const response = BillingSupportAdminAccountsResponseSchema.parse({
+      const response = parseManifestResponse(route, {
         status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
@@ -2252,133 +1721,61 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         ],
         results,
       });
+      if (response instanceof Response) return response;
 
       return json(200, response);
     },
 
-    async 'admin-billing-invoices'({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-invoices'({ request, env, route, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
       const query = new URL(request.url).searchParams.get('q');
       const results = await loadAdminBillingInvoices(env, query);
-      const response = BillingSupportAdminInvoicesResponseSchema.parse({
+      const response = parseManifestResponse(route, {
         status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
         results,
       });
+      if (response instanceof Response) return response;
 
       return json(200, response);
     },
 
-    async 'admin-billing-refunds'({ request, env, identity }): Promise<Response> {
-      const verifiedIdentity = requireSupportAdminReadIdentity(identity);
-      const actorSubject = verifiedIdentity.subject;
-      const body = await readJsonObject<AdminRefundRequestBody>(request);
-      if (!body) {
-        return json(400, {
-          error: 'invalid-json',
-        });
-      }
-
-      const requestId = requestIdFor('admin-refund', verifiedIdentity.subject, body.requestId);
-      const parsedAmount = parseRefundAmount(body.amountCents);
-      if (!parsedAmount.valid) {
-        return json(400, {
-          error: 'invalid-refund-amount',
-        });
-      }
-      const invoiceId = stringOrNull(body.invoiceId);
-      const invoice = invoiceId ? await loadBillingInvoiceById(env, invoiceId) : null;
-      const appliedAmountCents = invoice ? await loadAppliedRefundAmount(env, invoice.invoiceId) : 0;
-      const result = buildBillingRefundResult(requestId, invoice, parsedAmount.value, appliedAmountCents);
-      if (result.status === 'accepted') {
-        const refundInvoiceId = result.invoiceId;
-        const refundSubject = refundInvoiceId ? await findBillingInvoiceSubject(env, refundInvoiceId) : null;
-        if (!invoice || !refundInvoiceId || !refundSubject) {
-          return json(503, {
-            error: 'manual-required',
-            blocker: 'billing-invoice-subject-missing',
-          });
-        }
-        return executeIdempotentWrite(
-          env.BILLING_DO,
-          `billing-control:${refundSubject}`,
-          {
-            requestKey: durableWriteKey('admin-refund', actorSubject, requestId),
-            requestFingerprint: adminRefundRequestFingerprint(
-              actorSubject,
-              refundInvoiceId,
-              refundSubject,
-              requestId,
-              result.amountCents ?? 0,
-              invoice.currency
-            ),
-            responseStatus: 200,
-            responseBody: result,
-            queueMessage: {
-              action: 'admin-refund',
-              requestId,
-              invoiceId: refundInvoiceId,
-              amountCents: result.amountCents,
-              currency: invoice.currency,
-              subject: refundSubject,
-              actorSubject,
-              actorRole: verifiedIdentity.role,
-            },
-            stateMutation:
-              refundSubject &&
-              refundInvoiceId &&
-              result.refundState !== 'manual-review-required' &&
-              result.amountCents !== null
-                ? {
-                    kind: 'admin-refund',
-                    subject: refundSubject,
-                    actorSubject,
-                    requestId,
-                    invoiceId: refundInvoiceId,
-                    currency: invoice.currency,
-                    refundState: result.refundState,
-                    amountCents: result.amountCents,
-                    auditReference: result.auditReference,
-                    actorRole: verifiedIdentity.role === 'support' ? 'support' : 'admin',
-                  }
-                : null,
-          },
-          env
-        );
-      }
-      return json(200, result);
+    async 'admin-billing-refunds'({ route, identity }): Promise<Response> {
+      return manualRequiredResponse(route, identity);
     },
 
-    async 'admin-billing-disputes'({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-disputes'({ request, env, route, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
       const query = new URL(request.url).searchParams.get('q');
       const results = await loadAdminBillingDisputes(env, query);
-      const response = BillingSupportAdminDisputesResponseSchema.parse({
+      const response = parseManifestResponse(route, {
         status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
         results,
       });
+      if (response instanceof Response) return response;
 
       return json(200, response);
     },
 
-    async 'admin-billing-referrals'({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-referrals'({ request, env, route, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
       const query = new URL(request.url).searchParams.get('q');
       const results = await loadAdminBillingReferrals(env, query);
-      const response = BillingSupportAdminReferralsResponseSchema.parse({
+      const response = parseManifestResponse(route, {
         status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
         results,
       });
+      if (response instanceof Response) return response;
 
       return json(200, response);
     },
 
-    async 'admin-billing-reconciliation'({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-reconciliation'({ request, env, route, identity }): Promise<Response> {
       const body = await readJsonObject<ReconciliationRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -2388,6 +1785,8 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
 
       const requestId = requestIdFor('reconciliation', identity?.subject ?? 'internal', body.requestId);
       const summary = await buildReconciliationSummaryFromD1(env, requestId);
+      const contractSummary = parseManifestResponse(route, summary);
+      if (contractSummary instanceof Response) return contractSummary;
       const actorRole = identity?.role === 'support' ? 'support' : identity?.role === 'admin' ? 'admin' : 'system';
       return executeIdempotentWrite(
         env.BILLING_DO,
@@ -2401,7 +1800,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
             { actorRole }
           ),
           responseStatus: 202,
-          responseBody: summary,
+          responseBody: contractSummary,
           queueMessage: {
             action: 'reconciliation',
             requestId,
@@ -2419,16 +1818,17 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       );
     },
 
-    async 'admin-billing-audit'({ request, env, identity }): Promise<Response> {
+    async 'admin-billing-audit'({ request, env, route, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
       const query = new URL(request.url).searchParams.get('q');
       const results = await loadBillingAuditEvents(env, query);
-      const response = BillingSupportAdminAuditEventsResponseSchema.parse({
+      const response = parseManifestResponse(route, {
         status: 'ok',
         actorRole: verifiedIdentity.role,
         resultCount: results.length,
         results,
       });
+      if (response instanceof Response) return response;
 
       return json(200, response);
     },
@@ -2468,21 +1868,17 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     });
   }
 
-  if (
-    isRouteKillSwitchEnabled(env) &&
-    STATE_CHANGING_METHODS.has(request.method) &&
-    !new URL(request.url).pathname.startsWith('/auth/session/')
-  ) {
-    return json(503, {
-      error: 'billing-route-kill-switch-enabled',
-      status: 'manual-required',
-    });
-  }
-
   const route = findRoute(new URL(request.url).pathname, request.method);
   if (!route) {
     return json(404, {
       error: 'route-not-found',
+    });
+  }
+
+  if (isRouteKillSwitchEnabled(env) && STATE_CHANGING_METHODS.has(request.method) && route.routeGroup !== 'session') {
+    return json(503, {
+      error: 'billing-route-kill-switch-enabled',
+      status: 'manual-required',
     });
   }
 
@@ -2497,19 +1893,28 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     });
   }
 
-  const handlers = await routeHandlerMap();
-  const handler = handlers[route.handlerKey];
-
   if (route.authState === 'public') {
+    const contractReadiness = routeContractReadiness(route);
+    if (!contractReadiness.ready) {
+      return manualRequiredResponse(route, undefined, contractReadiness);
+    }
+    const requestContractFailure = await validateManifestRequest(route, request);
+    if (requestContractFailure) return requestContractFailure;
+
+    const handlers = await routeHandlerMap();
+    const handler = handlers[route.handlerKey];
     if (!handler) {
-      return manualRequiredResponse(route);
+      return manualRequiredResponse(route, undefined, contractReadiness);
     }
     try {
-      return await handler({
-        request,
-        env,
+      return validateManifestResponse(
         route,
-      });
+        await handler({
+          request,
+          env,
+          route,
+        })
+      );
     } catch (error) {
       if (error instanceof BillingReadModelUnavailableError) {
         return billingReadModelUnavailableResponse(route, error);
@@ -2529,17 +1934,29 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     return authResult.response;
   }
 
+  const contractReadiness = routeContractReadiness(route);
+  if (!contractReadiness.ready) {
+    return manualRequiredResponse(route, authResult.identity, contractReadiness);
+  }
+  const requestContractFailure = await validateManifestRequest(route, request);
+  if (requestContractFailure) return requestContractFailure;
+
+  const handlers = await routeHandlerMap();
+  const handler = handlers[route.handlerKey];
   if (!handler) {
-    return manualRequiredResponse(route, authResult.identity);
+    return manualRequiredResponse(route, authResult.identity, contractReadiness);
   }
 
   try {
-    return await handler({
-      request,
-      env,
+    return validateManifestResponse(
       route,
-      identity: authResult.identity,
-    });
+      await handler({
+        request,
+        env,
+        route,
+        identity: authResult.identity,
+      })
+    );
   } catch (error) {
     if (error instanceof BillingReadModelUnavailableError) {
       return billingReadModelUnavailableResponse(route, error, authResult.identity);

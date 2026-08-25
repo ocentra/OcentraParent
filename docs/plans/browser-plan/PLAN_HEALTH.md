@@ -16,6 +16,12 @@
 
 This file records documentation health and consistency checks for the plan. It is generated from the existing docs and should be updated manually when the plan state is cleaned further.
 
+Current WP06 source health: `93f875134` is accepted only as a fail-closed
+safety correction. The caller-mintable JSON/path store and env/temp-dir
+mutation route are gone; protected ownership, handle-bound identity, platform
+mutation/recovery, a real caller, all five expected tests, proof, and completion
+remain open. WP07 remains blocked on the future owner-issued binding.
+
 ## Status sources
 
 - Short README: `README.md`

@@ -1,4 +1,4 @@
-use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
+use ocentra_family_identity_core::household_authority_runtime_composer::HouseholdAuthorityRuntimeEffectAuthorization;
 use ocentra_schema::export_import_backup_recovery as contracts;
 
 use super::export_import_backup_recovery_bundle_preflight_binding::execution_binding::RestoreExecutionBinding;
@@ -138,15 +138,18 @@ impl RestoreExecutionPlan {
         &self.execution_binding
     }
 
-    pub fn matches_current_authority(&self, authority: &CurrentVerifiedHouseholdAuthority) -> bool {
-        authority.input().action
-            == ocentra_family_identity_core::household_authority::HouseholdAuthorityAction::ImportRestoreData
-            && authority.identity_binding().household_id() == self.household_id.as_str()
-            && authority.identity_binding().target_device_id()
-                == self.execution_binding.target_device_id().as_str()
-            && authority.family_revocation_epoch()
-                == self.execution_binding.authority_generation()
-            && authority.proof_nonce() == self.execution_binding.authority_proof_nonce()
+    pub fn matches_current_runtime_authority(
+        &self,
+        authority: HouseholdAuthorityRuntimeEffectAuthorization,
+    ) -> bool {
+        authority
+            .consume_for_data_custody(
+                ocentra_family_identity_core::household_authority::HouseholdAuthorityAction::ImportRestoreData,
+                self.household_id.as_str(),
+                Some(self.execution_binding.target_device_id().as_str()),
+                None,
+            )
+            .is_ok()
     }
 }
 

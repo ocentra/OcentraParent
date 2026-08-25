@@ -117,6 +117,8 @@ pub enum EntitlementCapabilityRejectionReason {
     ParentPortalOnlyScope,
     #[serde(rename = "inactive-subscription")]
     InactiveSubscription,
+    #[serde(rename = "grace-restricted")]
+    GraceRestricted,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]

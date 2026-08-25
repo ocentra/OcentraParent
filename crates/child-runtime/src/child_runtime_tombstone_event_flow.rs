@@ -5,7 +5,7 @@
 //! by the service layer.
 
 use ocentra_eventing::{
-    envelope::{EventEnvelope, EventMetadata},
+    envelope::{EventEnvelope, EventMetadata, StoredEventEnvelope},
     journal::ndjson::NdjsonEventJournal,
 };
 use ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent;
@@ -119,7 +119,7 @@ impl ChildRuntimeTombstoneEventFlow {
     /// caller-minted metadata value.
     pub(crate) async fn publish_stored_action(
         &self,
-        envelope: &ocentra_eventing::StoredEventEnvelope,
+        envelope: &StoredEventEnvelope,
         action: &StorageCustodyActionPlannedEvent,
     ) -> std::io::Result<ChildRuntimeTombstonePublicationOutcome> {
         persist_child_runtime_tombstone_action_with_milestones(
@@ -134,7 +134,7 @@ impl ChildRuntimeTombstoneEventFlow {
 
     pub(crate) async fn publish_stored_action_to_journal(
         &self,
-        envelope: &ocentra_eventing::StoredEventEnvelope,
+        envelope: &StoredEventEnvelope,
     ) -> std::io::Result<ocentra_eventing::journal::JournalAppend> {
         self.journal
             .append_idempotent(envelope)

@@ -58,8 +58,6 @@ pub struct RestoreExecutionBinding {
     no_resurrection: bool,
     migration_ref: Option<contracts::ExportImportMigrationRef>,
     migration_state: contracts::ExportImportMigrationState,
-    authority_generation: u64,
-    authority_proof_nonce: String,
     capability: Box<dyn RestoreExecutionCapability>,
     dispatch_reservations: Mutex<BTreeSet<String>>,
 }
@@ -79,7 +77,6 @@ impl Debug for RestoreExecutionBinding {
             .field("no_resurrection", &self.no_resurrection)
             .field("migration_ref", &self.migration_ref)
             .field("migration_state", &self.migration_state)
-            .field("authority_generation", &self.authority_generation)
             .finish_non_exhaustive()
     }
 }
@@ -97,8 +94,6 @@ impl PartialEq for RestoreExecutionBinding {
             && self.no_resurrection == other.no_resurrection
             && self.migration_ref == other.migration_ref
             && self.migration_state == other.migration_state
-            && self.authority_generation == other.authority_generation
-            && self.authority_proof_nonce == other.authority_proof_nonce
     }
 }
 
@@ -120,8 +115,6 @@ impl RestoreExecutionBinding {
         no_resurrection: bool,
         migration_ref: Option<contracts::ExportImportMigrationRef>,
         migration_state: contracts::ExportImportMigrationState,
-        authority_generation: u64,
-        authority_proof_nonce: String,
         capability: Box<dyn RestoreExecutionCapability>,
     ) -> Self {
         Self {
@@ -136,8 +129,6 @@ impl RestoreExecutionBinding {
             no_resurrection,
             migration_ref,
             migration_state,
-            authority_generation,
-            authority_proof_nonce,
             capability,
             dispatch_reservations: Mutex::new(BTreeSet::new()),
         }

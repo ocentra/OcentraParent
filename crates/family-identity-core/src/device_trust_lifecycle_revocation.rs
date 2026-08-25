@@ -48,35 +48,6 @@ impl DeviceTrustLifecycleRepository {
         let database_result = persist_revocation(self, &context, &authority_transition);
         self.finish_authority_transition(authority_transition, database_result)
     }
-
-    /// Numeric generation alone can never restore a revoked/reset device.
-    /// WP03 must replace this fail-closed boundary with a consumed opaque
-    /// parent reauthorization before any repair transition is enabled.
-    pub fn repair_with_new_installation(
-        &mut self,
-        family_id: &str,
-        trust_subject: &str,
-        device_ref: &str,
-        installation_binding_generation: u64,
-        correlation_id: &str,
-    ) -> Result<(), DeviceTrustLifecycleError> {
-        self.validate_identifiers(family_id, trust_subject, device_ref, correlation_id)?;
-        self.require_generation(installation_binding_generation)?;
-        let transaction = self.transaction()?;
-        let Some((state, _generation, _installation_id, prior_installation, _authority_generation)) =
-            Self::row(&transaction, family_id, trust_subject, device_ref)?
-        else {
-            return Err(DeviceTrustLifecycleError::RegistrationMissing);
-        };
-        if installation_binding_generation <= prior_installation {
-            return Err(DeviceTrustLifecycleError::InvalidGeneration);
-        }
-        if state == REVOKED || state == RESET_REQUIRED {
-            Err(DeviceTrustLifecycleError::ParentReauthorizationRequired)
-        } else {
-            Err(DeviceTrustLifecycleError::InvalidState)
-        }
-    }
 }
 
 struct RevocationContext<'a> {

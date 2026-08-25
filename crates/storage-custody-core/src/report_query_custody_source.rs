@@ -88,7 +88,7 @@ impl ReportQueryCustodyAuthorityBinding {
         }
     }
 
-    fn is_current_at(&self, now: DateTime<Utc>) -> bool {
+    fn is_unexpired_at(&self, now: DateTime<Utc>) -> bool {
         DateTime::parse_from_rfc3339(&self.session_expires_at)
             .map(|expires_at| expires_at.with_timezone(&Utc) > now)
             .unwrap_or(false)
@@ -97,18 +97,19 @@ impl ReportQueryCustodyAuthorityBinding {
 
 /// Opaque owner evidence for a producer-owned query store.
 ///
-/// A producer obtains this only from the verified family capability supplied
-/// by its current authority path. It carries the complete account, household,
+/// A producer obtains this only from the verified family capability snapshot
+/// supplied by its authority path. It carries the complete account, household,
 /// member, device, child, session, expiry, generation, provider, and support
 /// provenance tuple. It is not serde data and cannot be replaced by a request
-/// DTO or an availability boolean.
+/// DTO or an availability boolean. The token binds one validated snapshot; it
+/// does not claim a race-safe repository re-read after issuance.
 #[derive(Debug, Eq, PartialEq)]
 pub struct ReportQueryCustodySourceOwnerEvidence {
     authority: ReportQueryCustodyAuthorityBinding,
 }
 
 impl ReportQueryCustodySourceOwnerEvidence {
-    pub fn from_verified_current_authority(authority: &VerifiedAccountIdentityAuthority) -> Self {
+    pub fn from_verified_authority_snapshot(authority: &VerifiedAccountIdentityAuthority) -> Self {
         Self {
             authority: ReportQueryCustodyAuthorityBinding::from_verified_authority(authority),
         }
@@ -146,7 +147,7 @@ pub enum ReportQueryCustodySourceStateEvidence {
     },
 }
 
-/// Opaque tombstone evidence issued by the current query-source owner.
+/// Opaque tombstone evidence bound to the query-source owner snapshot.
 #[derive(Debug, Eq, PartialEq)]
 pub struct ReportQueryCustodyTombstoneEvidence {
     authority: ReportQueryCustodyAuthorityBinding,
@@ -155,7 +156,7 @@ pub struct ReportQueryCustodyTombstoneEvidence {
 }
 
 impl ReportQueryCustodyTombstoneEvidence {
-    pub fn from_current_owner(
+    pub fn from_owner_snapshot(
         owner: &ReportQueryCustodySourceOwnerEvidence,
         deleted_source_ref: contracts::ReportQueryCustodyDeletedSourceRef,
         deleted_source_at: contracts::ParentTimestamp,
@@ -176,7 +177,7 @@ pub struct ReportQueryCustodySourceOwnerRow {
 }
 
 impl ReportQueryCustodySourceOwnerRow {
-    pub fn from_current_owner(
+    pub fn from_owner_snapshot(
         owner: &ReportQueryCustodySourceOwnerEvidence,
         row_id: contracts::ReportQueryCustodySourceRef,
         source_data_class: contracts::ReportQueryCustodySourceDataClass,
@@ -204,8 +205,8 @@ impl ReportQueryCustodySourceOwnerRow {
 /// A source result that has crossed the custody boundary.
 ///
 /// The fields deliberately remain private. The request/query transport can
-/// describe a source, but only a producer row tied to opaque current-owner
-/// evidence can mint this result.
+/// describe a source, but only a producer row tied to opaque authority-snapshot
+/// owner evidence can mint this result.
 #[derive(Debug, Eq, PartialEq)]
 pub struct ReportQueryCustodySourceResolution {
     input: ReportQueryCustodyDerivationInput,
@@ -229,12 +230,12 @@ impl ReportQueryCustodySourceResolution {
         authority: &VerifiedAccountIdentityAuthority,
         resolved_at: DateTime<Utc>,
     ) -> Result<Self, ReportQueryCustodyDerivationError> {
-        let current_authority =
+        let authority_snapshot =
             ReportQueryCustodyAuthorityBinding::from_verified_authority(authority);
-        if !current_authority.is_current_at(resolved_at) {
+        if !authority_snapshot.is_unexpired_at(resolved_at) {
             return Err(ReportQueryCustodyDerivationError::ParentAuthorityExpired);
         }
-        if owner.authority != current_authority || source.authority != owner.authority {
+        if owner.authority != authority_snapshot || source.authority != owner.authority {
             return Err(ReportQueryCustodyDerivationError::TrustedSourceResolutionUnavailable);
         }
         report_query_custody_request_validate::validate_report_query_custody_request_at(
@@ -250,7 +251,7 @@ impl ReportQueryCustodySourceResolution {
         )?;
         Ok(Self {
             input: source.input,
-            authority: current_authority,
+            authority: authority_snapshot,
         })
     }
 
@@ -264,7 +265,7 @@ impl ReportQueryCustodySourceResolution {
         resolved_at: DateTime<Utc>,
     ) -> bool {
         self.authority == ReportQueryCustodyAuthorityBinding::from_verified_authority(authority)
-            && self.authority.is_current_at(resolved_at)
+            && self.authority.is_unexpired_at(resolved_at)
     }
 }
 
@@ -279,7 +280,7 @@ pub enum ReportQueryCustodySourceAdapterError<E> {
 /// An implementation must read its own governed source (for example the
 /// agent-service ActivityStore) and return typed rows bound to the supplied
 /// opaque owner evidence. It cannot return request DTO authority, raw child
-/// evidence, or an availability boolean. The verified authority capability
+/// evidence, or an availability boolean. The verified authority snapshot
 /// does not cross this producer port; only the opaque owner token does. The
 /// storage boundary remains the owner of resolution and derivation semantics.
 pub trait ReportQueryCustodySourcePort {
@@ -307,10 +308,13 @@ where
         resolved_at,
     )
     .map_err(ReportQueryCustodySourceAdapterError::Custody)?;
-    let owner = ReportQueryCustodySourceOwnerEvidence::from_verified_current_authority(authority);
-    producer
+    let owner = ReportQueryCustodySourceOwnerEvidence::from_verified_authority_snapshot(authority);
+    let sources = producer
         .resolve(request, &owner)
-        .map_err(ReportQueryCustodySourceAdapterError::Producer)?
+        .map_err(ReportQueryCustodySourceAdapterError::Producer)?;
+    super::report_query_custody_proof_validate::validate_page_result_limit(request, sources.len())
+        .map_err(ReportQueryCustodySourceAdapterError::Custody)?;
+    sources
         .into_iter()
         .map(|source| {
             ReportQueryCustodySourceResolution::from_owned_source_at(

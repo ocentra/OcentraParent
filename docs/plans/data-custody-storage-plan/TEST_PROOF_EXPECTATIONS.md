@@ -157,7 +157,7 @@ expiry boundary
 restore cannot revive deleted state
 ```
 
-## WP05 Export Import Backup Recovery
+## WP05 Export Import Backup Recovery (base source and custody decisions)
 
 Expected coverage:
 
@@ -178,8 +178,9 @@ restart reconciliation, executor/rollback mount, and Eventing/outbox seam
 no caller-supplied authority, key, integrity, or provider identity
 ```
 
-Expected source/test ownership roots (all deferred until the source packet is
-complete):
+Expected source/test ownership roots (source roots are present in the bounded
+packet; expected tests and proof remain deferred until external composition
+and focused validation are complete):
 
 ```text
 schema: crates/schema/src/export_import_backup_recovery.rs,
@@ -204,8 +205,18 @@ parent runtime: crates/parent-runtime-core/src/data_custody_backup_runtime.rs,
                 crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs,
                 crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs,
                 crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs,
-                crates/parent-runtime-core/tests/integration/data_custody_runtime.rs
+                 crates/parent-runtime-core/tests/integration/data_custody_runtime.rs
 ```
+
+Live 2026-08-19 audit: all five test roots named above are absent. The source
+packet is fail-closed but has no production caller or implementation of its
+Account/provider/key/producer ports. The existing blocked-restore test is also
+stale: source reports `local_truth_authoritative=false` and
+`tombstones_preserved=false`, while that test expects both true. The test wave
+must resolve the intended contract from the owning custody semantics, then
+write the complete five-root family; it must not change source merely to make a
+stale assertion pass. The sealed `ImportCustodyCapabilityPort` requires an
+owner-side production adapter and may not be made public for test convenience.
 
 ## WP06 Report Query Custody
 
@@ -221,6 +232,26 @@ portal cache custody
 assistant citations restricted to allowed refs
 stale/conflict state
 ```
+
+Current expected test ownership and open migration:
+
+```text
+Rust schema contracts: crates/schema/tests/contract/report_query_custody.rs,
+                       crates/schema/tests/contract/report_query_custody_generated.rs
+Rust custody boundary: crates/storage-custody-core/tests/unit/report_query_custody.rs
+TypeScript contract: packages/schema-domain/tests/contract/report-query-custody.test.ts (absent)
+```
+
+The Rust harnesses must migrate to
+`ValidatedReportQueryCustodyProofSnapshot` and add fail-closed coverage for an
+untrusted raw proof DTO, missing required states, source and proof results above
+the request page size, snapshot expiry/identity/generation mismatch, and exact
+request/row scope plus citation binding. The TypeScript contract test must cover
+requested-scope subset, row source class in requested and allowed scopes, exact
+row/request scope and citation arrays, authority-generation equality, and
+`rows.length <= request.pageSize`. Snapshot validation must not be described as
+a race-safe durable Account repository-currentness check. None of these tests
+has been migrated, added, or run by the source-mapping wave.
 
 ## WP08 Parent Storage Settings Apply Flow
 
@@ -302,5 +333,34 @@ receipt provenance, owner result requirement, redaction, and no-fake-success
 WP10 expected tests cover only downstream pure producer-handoff orchestration.
 Durable restore/migration ledgers, restart reconciliation, executor/rollback
 mounting, and Eventing/outbox composition are tested through the WP05
-parent-runtime roots above.
+parent-runtime roots above. Runtime composition/custody mounting is not part
+of this base test family; it has its own WP11 integration obligation.
 ```
+
+## WP11 Runtime Composition And Custody Mount
+
+Expected coverage:
+
+```text
+Account WP05 true authority transaction/CAS and recovery currentness
+key/import custody ownership and integrity binding
+producer-owned sealed artifact custody bound to the WP05 operation
+WP09 provider operation capability and opaque outcome
+WP10 owner-derived producer outcomes, partial, and manual-required states
+restart/reconciliation binding without a second ledger
+missing, stale, revoked, ambiguous, no-fake-success, and no-resurrection negatives
+private mount traits remain private and request/JSON selectors are rejected
+```
+
+Expected source/test ownership roots (routing obligations only; absent until
+the composition source wave):
+
+```text
+composition: crates/parent-runtime-core/src/data_custody_runtime_composition.rs,
+             crates/parent-runtime-core/src/data_custody_runtime_composition_mount.rs
+integration: crates/parent-runtime-core/tests/integration/data_custody_runtime_composition.rs
+```
+
+WP11 is blocked on the Account, key/import, producer-artifact, WP09 provider,
+and WP10 outcome handoffs above. No source, focused test, proof, runtime
+composition, or completion claim is implied by these expected roots.

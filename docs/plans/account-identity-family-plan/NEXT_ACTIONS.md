@@ -29,7 +29,7 @@
 
 Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk. WP06 is reopened for a final aggregation rerun after Account WP08 plus Cloudflare WP06/WP08; PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
 
-Current routing note: independent source review accepts the replacement Account packet at `35edb2830`, integrated through `e69acf279`. WP08 schema validation, sealed current authority, and local SQLite CAS repository are present. Reviewed source at `86caae334` and `7934fb41b` adds the target-aware WP02 action resolver, preserves parent actor versus child/profile/device target identity, derives current account/household/member/device/role identity from the opaque Account binding, rejects caller-supplied authority, and migrates the real storage-custody consumer. Capability, controller-lease, and step-up actions remain fail-closed because those authority sources are not present. The source wave deliberately did not run tests or claim proof. The next coherent source chain is Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS plus its shipped provider caller, then Device Trust WP03 live ceremony composition; WP02 expected tests follow in the later complete test-source wave.
+Current routing note: independent source review accepts the replacement Account packet at `35edb2830`, integrated through `e69acf279`. WP08 schema validation, sealed current authority, and local SQLite CAS repository are present. Reviewed source at `86caae334` and `7934fb41b` adds the target-aware WP02 action resolver, preserves parent actor versus child/profile/device target identity, derives current account/household/member/device/role identity from the opaque Account binding, rejects caller-supplied authority, and migrates the real storage-custody consumer. WP05's runtime composer/revalidation path remains fail-closed because the durable Account-owned effect CAS repository/fence and exact-idempotent replay/recovery owner are not present; the existing current-authority CAS and mutation-effect rows are not that owner. Data Custody WP08 confirmation staging/consume depends on this typed Account handoff. The source wave deliberately did not run tests or claim proof. The next coherent source chain is the WP05 durable CAS/recovery packet, then the already ordered Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS plus its shipped provider caller, then Device Trust WP03 live ceremony composition; WP02/WP05 expected tests follow only after their source owners exist.
 
 Do not revive the rejected `ac03afee3a` WP02-WP05 record packet. Its public
 serde records were disconnected from production and accepted caller-mintable
@@ -38,14 +38,27 @@ authority/lifecycle facts. The dependency-first production sequence is:
 ```text
 accepted WP08 schema + sealed authority + local repository/CAS
   -> WP02 target-aware actor/target resolver with unavailable capability/lease/step-up actions fail-closed
+  -> Account WP05 durable opaque-effect CAS repository/fence/schema/recovery owner
+  -> Data Custody WP08 confirmation staging/consume may consume the typed Account handoff
   -> Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider-to-Account caller
   -> Device Trust WP03 RegisterLanSignerAnchor actor/target composition
-  -> complete WP04 atomic invite/recovery orchestration and typed custody handoff
+  -> mount reviewed WP04 repository behind real identity/membership/support/Data owners and write its six expected test roots
   -> complete WP05 Device Trust/remote/export/delete step-up consumers
   -> write the full WP02-WP05/WP08 expected-test wave
   -> run focused tests and focused Enforcer only after test source is complete
   -> Cloudflare WP08 runner proof and Account WP06 aggregation
 ```
+
+### 0a. WP08 Account producer transport handoff
+
+The Rust-only producer transport is source-present at `c5ed3ce5c` and mapped
+to WP08. It is not a public authority factory: issuance is crate-private,
+authority-bearing fields come from `VerifiedAccountIdentityAuthority`, and
+missing signer/key custody returns typed unavailable. The next source owner is
+an authenticated Account producer adapter and durable signer/key registry;
+Cloudflare must not consume D1 rows, Firebase claims, request headers, or a
+serialized handoff as authority. Expected parser/canonical/signature/time
+tests remain unwritten and no proof or completion claim is made.
 
 Source packets must be reachable from a shipped caller, derive trust from owned
 state, keep terminal transitions monotonic, and fail closed. A new DTO, enum, or
@@ -53,8 +66,10 @@ test-only constructor with no production caller is not progress.
 
 PR #607 is closed without merge. Do not rebase its TypeScript Cloudflare
 adapter/D1-test-double slice into this plan. Start with Rust-owned account
-schema authority. Then hand the contract to Cloudflare WP06 for D1/DO/KV
-persistence/migration and Cloudflare WP08 for runner/integration proof.
+schema authority. Then route the contract through Account WP09 issuer/key
+custody and authenticated producer binding, then hand the contract to
+Cloudflare WP06 for D1/DO/KV persistence/migration and Cloudflare WP08 for
+runner/integration proof.
 
 ### 0. WP08 Rust Schema And Account Authority
 
@@ -69,6 +84,23 @@ cross-household, stale/revoked, malformed, duplicate, and schema-incompatible ne
 redacted correlated authority proof and retained focused Rust command log
 explicit handoff to Cloudflare WP06 then WP08; no worker-runtime claim
 ```
+
+### 0b. WP09 Account Issuer Key Custody And Cloudflare Handoff
+
+Reviewed core result: canonical `4f6245e51` contains durable issuer/key lineage,
+strict startup recovery, and a household-scoped receipt/wire outbox over the
+typed WP08 handoff. First accept Protected Custody WP01's isolated broker/client
+and opaque protected admission; Account must consume that boundary and must not
+recreate in-process key custody. Live caller tracing found no protected signer,
+binding authenticator, delivery-owner implementation, or production lifecycle
+caller. Then write the coherent Account-owned adapter/runtime packet; it must
+deliver the outer wire plus an authenticated current public-key record and
+accept only an exactly bound Cloudflare acknowledgement. Cloudflare WP06 then
+owns its private consumer/mount. The later test wave must write all seven
+expected custody/registry/adapter/runtime roots before focused execution. Retained proof
+comes only after code and tests converge. Do not add Account WP02, Account WP05A,
+Device Trust, or Cloudflare source ownership here, duplicate the WP08 schema/wire
+contract, permit caller-selected keys, or use mock/no-op/in-memory custody.
 
 ### 1. WP01 Auth Provider Decision
 
@@ -149,7 +181,29 @@ actor/household/role/device/session/capability authZ matrix
 wrong-household and stale/revoked device denial proof
 remote view/control capability separation
 export/delete and billing owner gates
+durable Account-owned opaque-effect CAS/recovery owner with exact-idempotent replay and crash/restart recovery
+typed handoff required before Data Custody WP08 confirmation staging/consume can advance
 ```
+
+### 5A. WP05A Runtime Effect Fencing Coordinator
+
+Before source implementation, route and review the owner-specific protocol:
+
+```text
+Account WP02/WP08 -> sealed Account authority source; WP05A private Account participant adapter
+Account WP03 -> session freshness/revocation participant
+Device Trust WP01 -> trusted-device currentness participant
+Device Trust WP03 -> parent-step-up reservation participant
+WP05A -> coordinator/recovery plus private Account participant, capability, and controller-lease reservations
+WP05 -> Account authorization consumer and typed downstream handoffs
+```
+
+The coordinator must use private prepare/commit/abort/recover handles, exact
+target/generation binding, durable idempotency, and fail-closed restart
+uncertainty. Do not implement an Account-local snapshot CAS or move Device
+Trust/step-up truth into this plan. Data Custody WP08/WP09/WP10/WP11 remain
+blocked until the owner participants and coordinator recovery source are
+reviewed.
 
 ### 6. WP07 Parent Account Family Setup UI
 

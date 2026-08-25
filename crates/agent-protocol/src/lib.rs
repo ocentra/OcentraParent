@@ -76,6 +76,7 @@ pub mod parent_controller_events;
 pub mod policy_constants;
 pub mod schema_domain_ai_wire;
 pub mod schema_domain_mirrors;
+pub mod screen_child_disclosure;
 pub mod screen_evidence;
 pub mod screen_settings;
 pub mod social_alert_report_parent_surface_read_model;

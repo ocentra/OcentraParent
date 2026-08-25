@@ -7,9 +7,20 @@ use ocentra_parent_agent_protocol::{
 
 use crate::lan_pairing::{LanPairingRegistryPersistence, LanPairingRuntime};
 
+#[path = "registry_persistence/challenge_request.rs"]
+mod challenge_request;
+
+#[path = "registry_persistence/known_device_merge.rs"]
 mod known_device_merge;
 
 impl LanPairingRuntime {
+    pub(crate) fn durable_pairing_registry_available(&self) -> bool {
+        matches!(
+            self.persistence,
+            LanPairingRegistryPersistence::LocalJsonRegistry(_)
+        )
+    }
+
     pub(crate) fn persistence_mode(&self) -> LanPairingText {
         match &self.persistence {
             LanPairingRegistryPersistence::InMemory
@@ -42,17 +53,28 @@ impl LanPairingRuntime {
     pub(crate) fn apply_household_device_decision(
         &self,
         registry: &mut TrustedDeviceRegistry,
+        intent: &ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope,
+        origin: &ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText,
+        observed_at: &LanPairingText,
         decision: LanHouseholdDeviceDecision,
     ) -> Result<(), LanPairingRejectionReason> {
         match &self.persistence {
-            LanPairingRegistryPersistence::InMemory => {
-                let _ = registry.apply_household_device_decision(decision);
-                Ok(())
-            }
+            LanPairingRegistryPersistence::InMemory => registry
+                .apply_household_device_decision_for_intent(
+                    intent,
+                    origin.0.as_deref(),
+                    observed_at.0.as_str(),
+                    decision,
+                ),
             LanPairingRegistryPersistence::LocalJsonRegistry(path) => registry
-                .apply_household_device_decision_persisted(path.as_path(), decision)
-                .map(|_changed| ())
-                .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable),
+                .apply_household_device_decision_for_intent_persisted(
+                    path.as_path(),
+                    intent,
+                    origin.0.as_deref(),
+                    observed_at.0.as_str(),
+                    decision,
+                )
+                .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?,
             LanPairingRegistryPersistence::UnavailableLocalJsonRegistry => {
                 Err(LanPairingRejectionReason::SignedChildAgentContextUnavailable)
             }

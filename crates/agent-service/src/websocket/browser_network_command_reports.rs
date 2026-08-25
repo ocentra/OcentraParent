@@ -3,6 +3,8 @@ use ocentra_parent_agent_protocol::transport::{
 };
 use std::{future::Future, pin::Pin};
 
+use crate::browser_runtime::BrowserManagedRuntime;
+
 use super::{
     basic_reports::build_log_snapshot_report,
     browser_command_reports::build_browser_command_report,
@@ -11,6 +13,7 @@ use super::{
 
 pub(super) fn build_browser_network_command_report(
     command: AgentCommandEnvelope,
+    browser_runtime: BrowserManagedRuntime,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
         match command.command.clone() {
@@ -19,7 +22,7 @@ pub(super) fn build_browser_network_command_report(
             | AgentCommandName::AgentBrowserManagedBridgePoll
             | AgentCommandName::AgentBrowserInterventionReadModelGet
             | AgentCommandName::AgentBrowserRuntimeEventChainStreamGet => {
-                build_browser_command_report(command).await
+                build_browser_command_report(browser_runtime, command).await
             }
             AgentCommandName::AgentNetworkFlowReadModelGet
             | AgentCommandName::AgentNetworkRuntimeEventChainStreamGet

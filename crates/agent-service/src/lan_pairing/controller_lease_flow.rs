@@ -1,7 +1,9 @@
+use ocentra_parent_agent_core::trusted_device_registry::controller_lease::LanControllerLeaseMutation;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingAuditEventType;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
@@ -9,7 +11,7 @@ use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::event_builder::build_event;
-use crate::lan_pairing::authority::{validate_registry_selection_intent, validate_write_authority};
+use crate::lan_pairing::authority::validate_write_authority;
 use crate::lan_pairing::{
     extend_log_fields, runtime_rejection::rejection_event,
     runtime_validation::validate_command_target, LanPairingRuntime,
@@ -24,20 +26,16 @@ pub(crate) fn controller_lease_lifecycle_command(
     origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
     audit_event_type: LanPairingAuditEventType,
-    apply: fn(
-        &LanPairingRuntime,
-        &LanParentIntentEnvelope,
-        ocentra_parent_agent_protocol::lan_pairing::LanPairingText,
-    ) -> Result<(), LanPairingRejectionReason>,
+    mutation: LanControllerLeaseMutation,
 ) -> AgentEventEnvelope {
     let origin = LanPairingOptionalText(origin.0);
-    let origin_text = origin.0.as_deref();
+    let observed_at = LanPairingText(timestamp_now());
     let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_write_authority(&intent))
-            .and_then(|()| validate_registry_selection_intent(&runtime, origin_text, &intent))
-            .and_then(|()| apply(&runtime, &intent, timestamp_now::<String>().into()))
-        {
+            .and_then(|()| {
+                runtime.apply_controller_lease_intent(&origin, &intent, &observed_at, mutation)
+            }) {
             Ok(()) => controller_lease_success_event(
                 &runtime,
                 command,
@@ -53,35 +51,23 @@ pub(crate) fn controller_lease_lifecycle_command(
     event
 }
 
-pub(crate) fn controller_lease_renew(
-    runtime: &LanPairingRuntime,
-    intent: &LanParentIntentEnvelope,
-    observed_at: ocentra_parent_agent_protocol::lan_pairing::LanPairingText,
-) -> Result<(), LanPairingRejectionReason> {
-    runtime.renew_controller_lease(intent, observed_at)
-}
-
-pub(crate) fn controller_lease_release(
-    runtime: &LanPairingRuntime,
-    intent: &LanParentIntentEnvelope,
-    observed_at: ocentra_parent_agent_protocol::lan_pairing::LanPairingText,
-) -> Result<(), LanPairingRejectionReason> {
-    runtime.release_controller_lease(intent, observed_at)
-}
-
 pub(crate) fn controller_lease_takeover(
     runtime: LanPairingRuntime,
     origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
     let origin = LanPairingOptionalText(origin.0);
-    let origin_text = origin.0.as_deref();
+    let observed_at = LanPairingText(timestamp_now());
     let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)
             .and_then(|()| validate_write_authority(&intent))
-            .and_then(|()| validate_registry_selection_intent(&runtime, origin_text, &intent))
             .and_then(|()| {
-                runtime.takeover_controller_lease(&intent, timestamp_now::<String>().as_str())
+                runtime.apply_controller_lease_intent(
+                    &origin,
+                    &intent,
+                    &observed_at,
+                    LanControllerLeaseMutation::Takeover,
+                )
             }) {
             Ok(()) => controller_lease_success_event(
                 &runtime,

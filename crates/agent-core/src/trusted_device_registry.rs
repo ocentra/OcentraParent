@@ -1,20 +1,24 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, VecDeque};
 
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason,
+    LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingRejectionReason,
     LanPairingTrustState, LanParentIntentEnvelope, LanTrustedDeviceRegistryEntry,
 };
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
 };
+pub mod controller_lease;
 mod current_authority_validation;
 mod helpers;
 mod json_persistence;
 mod known_household_devices;
 mod persistence;
+mod replay;
 mod signer_authority;
 pub mod signer_authority_types;
 mod validation;
+use self::controller_lease::LanTrustedControllerLease;
 use self::helpers::{
     household_scan_truth_device, merge_known_household_device_by_canonical_id,
     push_unique_scan_truth_device,
@@ -22,14 +26,16 @@ use self::helpers::{
 use self::known_household_devices::restore_known_household_device;
 use self::signer_authority_types::LanTrustedDeviceSignerAnchor;
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default)]
 pub struct TrustedDeviceRegistry {
     pub(crate) entries: Vec<LanTrustedDeviceRegistryEntry>,
     pub(crate) household_device_decisions: Vec<LanHouseholdDeviceDecision>,
     pub(crate) known_household_devices: Vec<LanCanonicalHouseholdDevice>,
-    accepted_intent_ids: BTreeSet<String>,
+    accepted_intent_ids: VecDeque<String>,
+    accepted_challenge_ids: VecDeque<String>,
     signer_anchors: BTreeMap<String, LanTrustedDeviceSignerAnchor>,
     signer_anchor_generations: BTreeMap<String, u64>,
+    pub(crate) controller_lease: Option<LanTrustedControllerLease>,
     pub(crate) selected_pairing_id: Option<String>,
     pub(crate) selected_route_stale_at: Option<String>,
     pub(crate) selected_route_offline_at: Option<String>,
@@ -40,14 +46,16 @@ impl TrustedDeviceRegistry {
         Self::default()
     }
 
-    pub fn from_entries(entries: Vec<LanTrustedDeviceRegistryEntry>) -> Self {
+    fn from_entries(entries: Vec<LanTrustedDeviceRegistryEntry>) -> Self {
         Self {
             entries,
             household_device_decisions: Vec::new(),
             known_household_devices: Vec::new(),
-            accepted_intent_ids: BTreeSet::new(),
+            accepted_intent_ids: VecDeque::new(),
+            accepted_challenge_ids: VecDeque::new(),
             signer_anchors: BTreeMap::new(),
             signer_anchor_generations: BTreeMap::new(),
+            controller_lease: None,
             selected_pairing_id: None,
             selected_route_stale_at: None,
             selected_route_offline_at: None,
@@ -62,8 +70,32 @@ impl TrustedDeviceRegistry {
         &self.household_device_decisions
     }
 
+    pub fn has_household_device_decision(&self, action_id: &str) -> bool {
+        !action_id.is_empty()
+            && self
+                .household_device_decisions
+                .iter()
+                .any(|decision| decision.action_id == action_id)
+    }
+
     pub fn known_household_devices(&self) -> &[LanCanonicalHouseholdDevice] {
         &self.known_household_devices
+    }
+
+    pub fn record_challenge_request(&mut self, challenge_id: &str) -> bool {
+        if challenge_id.trim().is_empty()
+            || self
+                .accepted_challenge_ids
+                .iter()
+                .any(|candidate| candidate == challenge_id)
+        {
+            return false;
+        }
+        replay::remember_bounded_replay_id(
+            &mut self.accepted_challenge_ids,
+            challenge_id.to_string(),
+        );
+        true
     }
 
     pub fn scan_truth_devices(&self) -> Vec<LanPairingDeviceRef> {
@@ -91,6 +123,14 @@ impl TrustedDeviceRegistry {
     ) -> bool {
         self.household_device_decisions
             .retain(|candidate| candidate.action_id != decision.action_id);
+        if self.household_device_decisions.len()
+            >= constants::lan_pairing::LAN_PAIRING_MAX_HOUSEHOLD_DECISION_HISTORY
+        {
+            let remove_count = self.household_device_decisions.len()
+                - constants::lan_pairing::LAN_PAIRING_MAX_HOUSEHOLD_DECISION_HISTORY
+                + 1;
+            self.household_device_decisions.drain(..remove_count);
+        }
         self.household_device_decisions.push(decision);
         true
     }
@@ -132,33 +172,6 @@ impl TrustedDeviceRegistry {
             let _ = merge_known_household_device_by_canonical_id(&mut merged, device.clone());
         }
         merged
-    }
-
-    pub fn accept_pairing_proof(
-        &mut self,
-        proof: &LanPairingProof,
-        child_device: LanPairingDeviceRef,
-        parent_device: LanPairingDeviceRef,
-        trusted_at: &str,
-    ) -> LanTrustedDeviceRegistryEntry {
-        self.signer_anchors.remove(&proof.pairing_id);
-        let entry = LanTrustedDeviceRegistryEntry {
-            schema_version: proof.schema_version,
-            pairing_id: proof.pairing_id.clone(),
-            child_device,
-            parent_device,
-            route_id: proof.route_id.clone(),
-            origin: proof.origin.clone(),
-            proof_digest: proof.proof_digest.clone(),
-            trust_state: LanPairingTrustState::Paired,
-            trusted_at: trusted_at.to_string(),
-            expires_at: proof.expires_at.clone(),
-            revoked_at: None,
-        };
-        self.entries
-            .retain(|candidate| candidate.pairing_id != entry.pairing_id);
-        self.entries.push(entry.clone());
-        entry
     }
 
     pub fn revoke_pairing(&mut self, pairing_id: &str, revoked_at: &str) -> bool {

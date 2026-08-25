@@ -16,7 +16,7 @@
 
 ## Current status
 
-`validation / bounded source accepted / tests and runtime adapter deferred`
+`validation / bounded producer source accepted / tests and runtime adapter deferred`
 
 ## Goal
 
@@ -217,6 +217,19 @@ authoritative writer/update/revocation/CAS path, provider composition,
 migration execution, expected tests, retained proof, and deployment remain
 downstream/open. WP02's target-aware action resolver is also reopened. This is
 reviewed implementation evidence, not a new DONE claim.
+
+## 2026-08-19 producer transport mapping
+
+The integrated source packet at `c5ed3ce5c` adds nine Account-owned Rust
+producer files to this workpack's reviewed implementation surface. Issuance is
+crate-private and can consume only `VerifiedAccountIdentityAuthority`; all
+authority-bearing signed fields come from that capability, while protocol and
+envelope metadata remain Account issuer/custody data. No authenticated producer
+adapter or durable signer/key registry is present, so transport issuance is
+typed unavailable. Cloudflare WP06 still lacks its private verifier/service-
+binding consumer and D1 currentness recheck. Expected tests for wire parsing,
+canonical bytes, signature/domain separation, timestamp bounds, and subject /
+currentness negatives are mapped but not written or run.
 
 ## Prior narrow completion record
 

@@ -1,5 +1,7 @@
 # Workpack 06: Storage DO D1 KV R2 Queue Bindings
 
+> **2026-08-24 live code correction:** Account WP09's durable issuer/key-registry/outbox core is integrated at canonical `4f6245e51`, but a caller trace found no protected signer, binding authenticator, delivery owner, production caller, or authenticated current-key handoff. Cloudflare consequently has no private outer-wire transport, current-key registry consumer, or runtime mount. These three production roots and all nine expected tests are mapped as missing below. WP06 remains implementation-blocked on Account WP09 and cannot mutate D1 from the inner-wire verifier alone.
+
 > **2026-07-28 correction:** `infra/cloudflare` imports module-local generated billing contracts. This workpack remains open because it has no tracked account-storage proof bundle; restore the module dependency environment, then record the actual result.
 
 ## Production billing read-model boundary - 2026-08-16
@@ -127,6 +129,9 @@ after this bridge is real. This route has no reverse dependency on WP03.
 - `infra/cloudflare/src/storage/account-identity-authority-writer.ts` for authoritative create/update/revoke/currentness/CAS ownership; source exists, mutation runtime composition does not
 - `infra/cloudflare/src/auth/account-identity-authority-caller.ts` for verified Firebase/provider-to-sealed-authority composition; current-authority resolution is reachable through the verifier
 - `infra/cloudflare/src/auth/account-identity-authority-runtime.ts` for the safe verified-provider read/manual boundary; no mutation scalar API is exposed before the trusted producer route exists
+- `infra/cloudflare/src/auth/account-identity-authority-issuer-transport.ts` for the missing private Account WP09 outer-wire handoff
+- `infra/cloudflare/src/auth/account-identity-authority-issuer-key-registry.ts` for the missing authenticated current-key registry consumer
+- `infra/cloudflare/src/auth/account-identity-authority-issuer-runtime.ts` for the missing production mount into the existing caller/writer boundary
 - `infra/cloudflare/src/auth/verifier.ts` for the provider-gated Worker-owned caller and fail-closed manual-required path
 - `infra/cloudflare/package.json` for schema-domain contract build ordering before Cloudflare consumers
 - `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql` for the isolated account-identity D1 schema/migration
@@ -148,6 +153,9 @@ after this bridge is real. This route has no reverse dependency on WP03.
 - `infra/cloudflare/src/storage/account-identity-authority-writer.ts`
 - `infra/cloudflare/src/auth/account-identity-authority-caller.ts`
 - `infra/cloudflare/src/auth/account-identity-authority-runtime.ts`
+- `infra/cloudflare/src/auth/account-identity-authority-issuer-transport.ts` (planned; absent)
+- `infra/cloudflare/src/auth/account-identity-authority-issuer-key-registry.ts` (planned; absent)
+- `infra/cloudflare/src/auth/account-identity-authority-issuer-runtime.ts` (planned; absent)
 - `infra/cloudflare/src/auth/verifier.ts`
 - `infra/cloudflare/package.json`
 - `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql`
@@ -194,13 +202,146 @@ after this bridge is real. This route has no reverse dependency on WP03.
 
 ## Completion
 
-- Status: read/current-authority adapter, Account-owned writer, and provider caller source reviewed; Account WP02 target identity reviewed. The verifier reaches current-authority resolution, but the mutation producer is not mounted. Runtime mutation composition, migration execution, expected tests, focused validation, retained proof, and deployment remain deferred. Normal workpack readiness remains blocked. No Cloudflare runtime-ready, deployment-ready, payment-ready, or `DONE` claim is made.
+- Status: read/current-authority adapter, Account-owned writer/provider caller, bounded JSON decoder, and private one-shot WP08 inner-wire verifier source reviewed. Account WP09's durable core exists, but no protected signer, binding/delivery adapter, production caller, authenticated current-key handoff, Cloudflare issuer transport/key-registry consumer, or runtime mount exists. Three Cloudflare production roots, migration execution, all nine expected tests, focused validation, retained proof, and deployment remain open. Normal workpack implementation stays blocked on Account WP09. No Cloudflare runtime-ready, deployment-ready, payment-ready, or `DONE` claim is made.
 - Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 - Runtime/source owner: `infra/cloudflare/src/env.ts`
 - Account D1 and isolated migration configuration: `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, `src/env.ts`, and `package.json`; account DO/KV declarations remain absent and no `BILLING_D1` substitution is allowed
 - Owned migrated-schema surfaces: existing reads in `infra/cloudflare/src/storage/account-identity-authority-store.ts` and `infra/cloudflare/src/storage/account-identity-store.ts`; authoritative writes/currentness source in `infra/cloudflare/src/storage/account-identity-authority-writer.ts`; ordered `infra/cloudflare/migrations/account-identity/0001`-`0004` source
 - Owned auth handoff surface: `infra/cloudflare/src/auth/account-identity-authority-caller.ts` consuming verified Firebase identity plus Account-owned authority. Current-authority resolution is mounted through the verifier; mutation composition remains manual-required.
 - Owned test surfaces: `infra/cloudflare/tests/unit/env-bindings.test.ts`; `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
+
+## 2026-08-19 Account producer transport mapping
+
+Account WP08 now supplies a Rust-owned, crate-private producer transport at
+canonical source `c5ed3ce5c`. Its authority-bearing fields derive from the
+sealed `VerifiedAccountIdentityAuthority`; signer/key custody and an
+authenticated producer adapter are still absent, so the Account issuer is
+typed unavailable. WP06 therefore remains limited to the existing verified-
+provider read/manual boundary. The missing Cloudflare source is a private
+transport verifier/service-binding consumer at the existing caller/runtime
+boundary plus a D1 currentness, revocation, and CAS recheck before writer
+mutations. The exact helper split is a decision blocker, not permission to
+invent a public route or arbitrary module. Expected subject, signature/time,
+currentness, migration, reachability, restart, and concurrency tests are
+mapped but not written or run.
+
+## 2026-08-19 WP06 producer-consumer source contract
+
+The next source packet is a private consumer at the existing
+`account-identity-authority-caller.ts` / `account-identity-authority-runtime.ts`
+seam. It is not a public Worker route and does not add a browser, admin,
+support, Firebase, or request-selected authority path.
+
+### Deep interface and trust route
+
+Account WP09 must provide an authenticated Cloudflare service-binding and
+delivery adapter over WP08's sealed wire. The adapter accepts only the provider and subject
+already returned by the Worker provider verifier as a lookup key and returns
+either a bounded signed producer wire or a typed unavailable result. It must
+never accept household, member, device, role, session, generation, target,
+lease, capability, or receipt scalars from the Worker request.
+
+The Worker must obtain the verification key by `key_id` from an Account-owned,
+durable, versioned public-key registry over that authenticated service binding.
+The registry entry must be checked against `sha256:<public-key>` before use;
+the key is not an environment variable, Firebase key, request header, D1 row
+supplied by the caller, or hard-coded fixture. Until Account supplies durable
+signer/key custody and authenticated registry distribution, the adapter and
+consumer return `account-identity-authority-source-unavailable` and no writer
+operation is mounted. Unknown, revoked, expired, or rotated-out key IDs remain
+manual-required rather than falling back to another key.
+
+The private Worker verifier owns the bounded-wire checks: exact domain
+separator, schema/audience/environment/algorithm, field and payload limits,
+canonical payload bytes, strict timestamp form and lifetime/skew, key-id
+derivation, and Ed25519 signature. It yields only the validated Account
+handoff to the existing server-owned caller; it does not yield a reusable
+authority token to a route caller.
+
+Before create, compare-and-swap, revoke, or any future mutation, the existing
+D1 writer must re-read the provider mapping in the same transaction and
+compare the verified handoff with durable provider/account/household/member/
+device/session/authority-generation state, active mapping/revocation,
+pairing/install/lifecycle state, and the expected session identity and
+generation. A stale, revoked, mismatched, replayed, or unavailable result
+fails closed; only the guarded atomic write/CAS result is returned.
+
+### Exact source and test roots for the packet
+
+Source remains bounded to these owning surfaces; no global graph or unrelated
+Cloudflare route is implied:
+
+```text
+infra/cloudflare/src/auth/account-identity-authority-json-decoder.ts         (bounded duplicate-key-rejecting wire parser)
+infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts  (private one-shot binding/verifier seam)
+infra/cloudflare/src/auth/account-identity-authority-issuer-transport.ts    (planned Account WP09 outer-wire transport; absent)
+infra/cloudflare/src/auth/account-identity-authority-issuer-key-registry.ts (planned authenticated current-key consumer; absent)
+infra/cloudflare/src/auth/account-identity-authority-issuer-runtime.ts      (planned production mount; absent)
+infra/cloudflare/src/auth/account-identity-authority-caller.ts               (mount only after verified handoff)
+infra/cloudflare/src/auth/account-identity-authority-runtime.ts              (retain parameterless manual-required gate)
+infra/cloudflare/src/storage/account-identity-authority-writer.ts            (transactional recheck and guarded mutation)
+infra/cloudflare/src/storage/account-identity-authority-store.ts             (durable currentness read)
+infra/cloudflare/src/env.ts                                                   (private binding declaration only, when Account route exists)
+infra/cloudflare/wrangler.toml                                                (binding shape only; no placeholder readiness claim)
+infra/cloudflare/wrangler.production.toml                                     (binding shape only; no placeholder readiness claim)
+infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql
+```
+
+Expected tests are written later in the plan-wide test phase, through the
+same interface used by production:
+
+```text
+infra/cloudflare/tests/unit/account-identity-authority-producer-transport.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-issuer-transport.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-issuer-key-registry.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-issuer-runtime.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-caller.test.ts
+infra/cloudflare/tests/unit/account-identity-authority-runtime.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-currentness.test.ts
+infra/cloudflare/tests/integration/account-identity-authority-restart-cas.test.ts
+infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts
+```
+
+The test adapter must be an in-memory implementation of the same private
+service-binding/key-registry interface, not a mock or fake authority source.
+Required negatives include unavailable signer/registry/service binding,
+unknown or hash-mismatched key, key rotation/revocation, malformed/tampered/
+non-canonical/oversize wire, invalid signature, expiry/future skew, provider
+subject mismatch, revoked or stale D1 mapping, generation/session conflict,
+restart/replay, concurrent CAS, and proof that no public scalar mutation route
+exists. No test, proof, migration application, runtime readiness, or DONE claim
+is made by this contract update.
+
+### Hard dependencies and stop condition
+
+The packet depends on Account WP09 protected signing, authenticated producer
+issuance, and authenticated public-key registry distribution over Account
+WP08's sealed Rust wire. Cloudflare WP06 owns verification, durable recheck,
+and guarded storage only. Account WP08 owns the sealed wire; Account WP09 owns
+issuer and key custody; Device Trust WP03 remains downstream. If the Account service
+binding or registry cannot be made authenticated and durable, keep the current
+manual-required runtime and do not invent a verifier, key, endpoint, or
+caller-supplied substitute.
+
+## 2026-08-19 private verifier source acceptance
+
+Canonical `da84e6ee3` implements the two planned Cloudflare verifier roots. The
+JSON decoder accepts only a bounded full JSON grammar, rejects duplicate keys
+including escape-equivalent keys before parsing, and retains canonical-string
+equality. The producer transport keeps verified Account binding private through
+an internal symbol/WeakSet plus one-shot WeakMap custody, uses an internal
+finite safe-integer clock, validates Rust-shaped cross-field invariants, and
+classifies digest/key-import failures as verification-key unavailable rather
+than signature invalid. Only a cryptographic verify false/error is an invalid
+signature.
+
+This is a source-only acceptance. Account WP09 now contains a durable issuer/
+key-registry/outbox core, but it has no protected signer, authenticated binding/
+delivery adapter, production caller, or current-key handoff. Cloudflare still
+has no issuer transport/key-registry consumer/runtime mount, migration
+execution, test result, retained proof, deployment, runtime-ready state, or
+`DONE`. Complete the Account and Cloudflare production roots before the nine-
+test WP06 packet.
 
 ## What is actually proved
 

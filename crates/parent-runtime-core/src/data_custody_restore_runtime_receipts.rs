@@ -127,7 +127,7 @@ pub(crate) fn migration_receipt_from_dispatch(
         tombstones_preserved: plan.tombstones_preserved(),
         no_resurrection: plan.no_resurrection(),
         compensation_applied: compensation == PartialWriteCompensation::Applied,
-        provider_operation_ref: provider.cloned(),
+        provider_operation_ref: provider_operation.cloned(),
         rollback_provider_operation_ref: rollback_provider_operation.cloned(),
         note,
     })

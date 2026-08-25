@@ -133,6 +133,19 @@ Required artifacts:
 - [ ] Audit event requirements are explicit.
 - [ ] Focused commands pass or blockers are recorded.
 
+The following production-source rows are separate from the historical
+contract/proof slice and remain open:
+
+- [ ] The Account-owned runtime effect-fencing coordinator is routed through
+  `workpacks/05-runtime-effect-fencing-coordinator.md`; it coordinates opaque
+  owner reservations and does not copy Device Trust or parent-step-up truth.
+- [ ] Account capability and controller-lease reservation adapters bind one
+  exact action/target/generation/expiry and participate in prepare/commit/abort
+  without caller-minted state.
+- [ ] Recovery reopens only an exact idempotent committed outcome after
+  crash/restart; replay, target mismatch, stale generation, owner revocation,
+  partial commit, and uncertainty fail closed without minting a new receipt.
+
 ## Focused commands
 
 ```bash
@@ -209,11 +222,30 @@ The remote packet `ac03afee3a` is rejected/quarantined because its new public
 records did not connect to this composer or any production caller and weakened
 authority provenance. It is not WP05 progress.
 
+### 2026-08-18 CAS/recovery routing correction
+
+The live Account source has a real `HouseholdAuthorityRuntimeCasFence` seam,
+but its shipped implementation is `ManualRequiredHouseholdAuthorityRuntimeCasFence`.
+`account_identity_authority_repository_cas.rs` owns current Account-authority
+CAS, while `account_identity_mutation_authority_repository_effect.rs` owns a
+different canonical mutation envelope/effect table; neither is the durable
+owner of the opaque runtime effect handoff. The WP05 source phase is therefore
+blocked, not implementation-complete.
+
+The next legal source packet is the Account WP05A coordinator in
+`workpacks/05-runtime-effect-fencing-coordinator.md`. It owns coordinator
+schema/recovery and Account-side capability/lease reservation adapters while
+Account WP02/WP08, Device Trust WP01, and Device Trust WP03 retain their own
+currentness and receipt truth. The existing runtime composer/ports remain
+integration seams only and must not be listed as completing this owner. Data
+Custody WP08's confirmation staging/consume path depends on the typed opaque
+handoff and cannot bypass this dependency.
+
 ## Fill before DONE
 
 - Workpack id and branch: `WP05 Device Ownership AuthZ`; `codex/tracking-plan-full-continuation-a`.
 - Current branch note: this historical completion record predates the plan-harness branch. On `codex/plan-harness-update`, treat it as prior proof evidence only; new edits must follow `workpacks/00-owner-boundary-proof-gate.md`, `TEST_PROOF_EXPECTATIONS.md`, and `PROOF_INDEX.md`.
-- Current status: complete for the local contract/proof slice. `00-device-authority-matrix.md`, `01-revoked-device-negative-proof.md`, `02-wrong-household-negative-proof.md`, `03-controller-lease-proof.md`, `04-remote-capability-proof.md`, `05-export-delete-owner-proof.md`, `06-billing-owner-proof.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/05-device-ownership-authz/`.
+- Current status: historical contract/proof slice only; the implementation phase is blocked on the durable Account-owned CAS/recovery owner above. `00-device-authority-matrix.md`, `01-revoked-device-negative-proof.md`, `02-wrong-household-negative-proof.md`, `03-controller-lease-proof.md`, `04-remote-capability-proof.md`, `05-export-delete-owner-proof.md`, `06-billing-owner-proof.md`, and `16-validation-commands.log` remain historical evidence under `output/account-identity-family-plan-proof/05-device-ownership-authz/`.
 - Contract/source changes in this slice: no new WP05-owned production TypeScript or Rust authority logic was required beyond the earlier WP04 repair in `packages/family-domain/src/setup-lifecycle.ts`. This slice only added owner-only export/delete assertions in the shared authority tests at `packages/family-domain/tests/unit/household-authority.test.ts` and `crates/family-identity-core/tests/unit/household_authority.rs` so the proof root could close honestly.
 - Touched files:
   - `packages/family-domain/tests/unit/household-authority.test.ts`
@@ -275,5 +307,5 @@ authority provenance. It is not WP05 progress.
   - `output/account-identity-family-plan-proof/05-device-ownership-authz/05-export-delete-owner-proof.md`
   - `output/account-identity-family-plan-proof/05-device-ownership-authz/06-billing-owner-proof.md`
   - `output/account-identity-family-plan-proof/05-device-ownership-authz/16-validation-commands.log`
-- Known gaps/manual-required states: physical trusted-device proof remains owned by `device-trust-bootstrap-plan`; LAN/remote transport execution remains owned by `lan-plan` and `remote-access-plan`; payment runtime and data-custody execution remain external; crate-wide `cargo lint-architecture crates/family-identity-core` is still red because of pre-existing `src/lib.rs` re-export debt outside this slice, so validation stayed file-scoped as required.
-- No-claim boundaries: do not claim physical trusted-device bootstrap, LAN/remote runtime execution, payment runtime readiness, data-custody execution, WP07 UI readiness, or whole-plan completion from this WP05 closure.
+- Known gaps/manual-required states: durable Account-owned effect CAS/recovery, exact-idempotent crash/restart replay, capability/lease/step-up owners, typed downstream consumers, and the expected test wave remain open; Data Custody WP08 confirmation staging/consume is blocked on this handoff. Physical trusted-device proof remains owned by `device-trust-bootstrap-plan`; LAN/remote transport execution remains owned by `lan-plan` and `remote-access-plan`; payment runtime and data-custody execution remain external; crate-wide `cargo lint-architecture crates/family-identity-core` is still red because of pre-existing `src/lib.rs` re-export debt outside this slice, so validation stayed file-scoped as required.
+- No-claim boundaries: do not claim the WP05 implementation phase, durable effect CAS/recovery, Data Custody WP08 confirmation consumption, physical trusted-device bootstrap, LAN/remote runtime execution, payment runtime readiness, data-custody execution, WP07 UI readiness, or whole-plan completion from this historical WP05 slice.

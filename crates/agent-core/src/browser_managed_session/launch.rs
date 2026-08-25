@@ -1,7 +1,6 @@
 use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener},
     path::Path,
-    process::Command,
 };
 
 use ocentra_parent_agent_protocol::constants;
@@ -9,8 +8,8 @@ use ocentra_parent_agent_protocol::constants;
 use crate::browser_managed_discovery::managed_browser_executable_identity;
 
 use super::{
-    BrowserManagedBridgePortReservation, BrowserManagedLaunch, BrowserManagedLaunchConfig,
-    BrowserManagedLaunchError, BrowserManagedLaunchPlan,
+    BrowserManagedBridgePortReservation, BrowserManagedLaunchConfig, BrowserManagedLaunchError,
+    BrowserManagedLaunchPlan,
 };
 
 pub(crate) fn launch_error_reason(error: &BrowserManagedLaunchError) -> &'static str {
@@ -24,6 +23,9 @@ pub(crate) fn launch_error_reason(error: &BrowserManagedLaunchError) -> &'static
         }
         BrowserManagedLaunchError::UnsupportedBrowser => {
             constants::value::MANAGED_BROWSER_UNSUPPORTED_EXECUTABLE
+        }
+        BrowserManagedLaunchError::ManualRequired => {
+            constants::value::MANAGED_BROWSER_BRIDGE_ENDPOINT_MANUAL_REQUIRED
         }
         BrowserManagedLaunchError::Io => constants::value::MANAGED_BROWSER_LAUNCH_ERROR,
     }
@@ -103,21 +105,8 @@ pub(crate) fn managed_browser_launch_plan(
 
 pub(crate) fn launch_managed_browser(
     config: BrowserManagedLaunchConfig,
-) -> Result<BrowserManagedLaunch, BrowserManagedLaunchError> {
-    let plan = managed_browser_launch_plan(config)?;
-    let child = Command::new(&plan.executable_path)
-        .args(&plan.args)
-        .spawn()
-        .map_err(|_error| BrowserManagedLaunchError::Io)?;
-
-    Ok(BrowserManagedLaunch {
-        process_id: child.id(),
-        bridge_port: plan.bridge_port,
-        browser_family: plan.browser_family,
-        browser_channel: plan.browser_channel,
-        profile_path_ref: plan.profile_path_ref,
-        bridge_endpoint_ref: plan.bridge_endpoint_ref,
-    })
+) -> Result<super::BrowserManagedLaunch, BrowserManagedLaunchError> {
+    super::capability::launch_managed_browser(config)
 }
 
 pub(crate) fn default_profile_path_rejected(path: &Path) -> bool {

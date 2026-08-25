@@ -51,17 +51,20 @@ impl ParentRestoreRuntime {
         .await?;
         self.dispatch_started_restore
             .insert(plan.operation_ref().as_str().to_owned());
+        self.revalidate_authority(plan, mount)?;
 
         let observation = execute_restore_operation(plan, provider)?;
         if observation.compensation() == PartialWriteCompensation::Required {
+            let (applied_sections, rejected_sections, rollback_binding) =
+                observation.into_rollback_observation();
             return self
                 .rollback_after_observation(
                     plan,
                     mount,
                     provider,
-                    observation.applied_sections().to_vec(),
-                    observation.rejected_sections().to_vec(),
-                    observation.provider_operation_ref().cloned(),
+                    applied_sections,
+                    rejected_sections,
+                    rollback_binding,
                 )
                 .await;
         }
@@ -73,7 +76,7 @@ impl ParentRestoreRuntime {
             observation.applied_sections().to_vec(),
             observation.rejected_sections().to_vec(),
             observation.compensation(),
-            observation.provider_operation_ref().as_ref(),
+            observation.provider_operation_ref(),
             None,
             self.next_recorded_at()?,
             note,

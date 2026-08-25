@@ -91,21 +91,42 @@ fn restore_transition_allowed(
     from: contracts::ExportImportRestoreApplyState,
     to: contracts::ExportImportRestoreApplyState,
 ) -> bool {
-    use contracts::ExportImportRestoreApplyState::*;
     matches!(
         (from, to),
         (
-            NotApplied,
-            ApplyPending | Blocked | WrongHousehold | WrongKey | Corrupt
+            contracts::ExportImportRestoreApplyState::NotApplied,
+            contracts::ExportImportRestoreApplyState::ApplyPending
+                | contracts::ExportImportRestoreApplyState::Blocked
+                | contracts::ExportImportRestoreApplyState::WrongHousehold
+                | contracts::ExportImportRestoreApplyState::WrongKey
+                | contracts::ExportImportRestoreApplyState::Corrupt
         ) | (
-            ApplyPending,
-            ApplyPending | Applied | Partial | Blocked | Corrupt
-        ) | (Applied, Applied | Partial)
-            | (Partial, Partial)
-            | (WrongHousehold, WrongHousehold)
-            | (WrongKey, WrongKey)
-            | (Corrupt, Corrupt)
-            | (Blocked, Blocked)
+            contracts::ExportImportRestoreApplyState::ApplyPending,
+            contracts::ExportImportRestoreApplyState::ApplyPending
+                | contracts::ExportImportRestoreApplyState::Applied
+                | contracts::ExportImportRestoreApplyState::Partial
+                | contracts::ExportImportRestoreApplyState::Blocked
+                | contracts::ExportImportRestoreApplyState::Corrupt
+        ) | (
+            contracts::ExportImportRestoreApplyState::Applied,
+            contracts::ExportImportRestoreApplyState::Applied
+                | contracts::ExportImportRestoreApplyState::Partial
+        ) | (
+            contracts::ExportImportRestoreApplyState::Partial,
+            contracts::ExportImportRestoreApplyState::Partial
+        ) | (
+            contracts::ExportImportRestoreApplyState::WrongHousehold,
+            contracts::ExportImportRestoreApplyState::WrongHousehold
+        ) | (
+            contracts::ExportImportRestoreApplyState::WrongKey,
+            contracts::ExportImportRestoreApplyState::WrongKey
+        ) | (
+            contracts::ExportImportRestoreApplyState::Corrupt,
+            contracts::ExportImportRestoreApplyState::Corrupt
+        ) | (
+            contracts::ExportImportRestoreApplyState::Blocked,
+            contracts::ExportImportRestoreApplyState::Blocked
+        )
     )
 }
 
@@ -113,21 +134,47 @@ fn migration_transition_allowed(
     from: contracts::ExportImportMigrationOutcome,
     to: contracts::ExportImportMigrationOutcome,
 ) -> bool {
-    use contracts::ExportImportMigrationOutcome::*;
     matches!(
         (from, to),
         (
-            Planned,
-            Planned | Applied | Partial | RolledBack | Reconciled | Failed | ManualRequired
+            contracts::ExportImportMigrationOutcome::Planned,
+            contracts::ExportImportMigrationOutcome::Planned
+                | contracts::ExportImportMigrationOutcome::Applied
+                | contracts::ExportImportMigrationOutcome::Partial
+                | contracts::ExportImportMigrationOutcome::RolledBack
+                | contracts::ExportImportMigrationOutcome::Reconciled
+                | contracts::ExportImportMigrationOutcome::Failed
+                | contracts::ExportImportMigrationOutcome::ManualRequired
         ) | (
-            Applied,
-            Applied | Partial | RolledBack | Reconciled | Failed | ManualRequired
+            contracts::ExportImportMigrationOutcome::Applied,
+            contracts::ExportImportMigrationOutcome::Applied
+                | contracts::ExportImportMigrationOutcome::Partial
+                | contracts::ExportImportMigrationOutcome::RolledBack
+                | contracts::ExportImportMigrationOutcome::Reconciled
+                | contracts::ExportImportMigrationOutcome::Failed
+                | contracts::ExportImportMigrationOutcome::ManualRequired
         ) | (
-            Partial,
-            Partial | RolledBack | Reconciled | Failed | ManualRequired
-        ) | (Failed, Failed | Reconciled | ManualRequired)
-            | (ManualRequired, ManualRequired | Reconciled)
-            | (Reconciled, Reconciled)
-            | (RolledBack, RolledBack)
+            contracts::ExportImportMigrationOutcome::Partial,
+            contracts::ExportImportMigrationOutcome::Partial
+                | contracts::ExportImportMigrationOutcome::RolledBack
+                | contracts::ExportImportMigrationOutcome::Reconciled
+                | contracts::ExportImportMigrationOutcome::Failed
+                | contracts::ExportImportMigrationOutcome::ManualRequired
+        ) | (
+            contracts::ExportImportMigrationOutcome::Failed,
+            contracts::ExportImportMigrationOutcome::Failed
+                | contracts::ExportImportMigrationOutcome::Reconciled
+                | contracts::ExportImportMigrationOutcome::ManualRequired
+        ) | (
+            contracts::ExportImportMigrationOutcome::ManualRequired,
+            contracts::ExportImportMigrationOutcome::ManualRequired
+                | contracts::ExportImportMigrationOutcome::Reconciled
+        ) | (
+            contracts::ExportImportMigrationOutcome::Reconciled,
+            contracts::ExportImportMigrationOutcome::Reconciled
+        ) | (
+            contracts::ExportImportMigrationOutcome::RolledBack,
+            contracts::ExportImportMigrationOutcome::RolledBack
+        )
     )
 }

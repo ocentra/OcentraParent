@@ -19,19 +19,25 @@ Use this index to select exactly one workpack.
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | partial | [WP01 Auth Provider Decision](workpacks/01-auth-provider-decision.md) | 10/10 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/cloud.md` | `output/account-identity-family-plan-proof/01-auth-provider-decision/` |
-| validation / replacement source accepted / tests deferred | [WP08 Rust Schema And Account Authority](workpacks/08-rust-schema-workers-d1-runtime-migration.md) | 9/9 prior packet; replacement schema/repository source reviewed, current test/proof rows open | `PLAN_STATE.md`, accepted WP01 custody decision, canonical Rust contract boundary | `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/` |
+| validation / bounded producer source accepted / tests deferred | [WP08 Rust Schema And Account Authority](workpacks/08-rust-schema-workers-d1-runtime-migration.md) | Prior packet plus crate-private Account producer transport; current test/proof rows open | `PLAN_STATE.md`, accepted WP01 custody decision, canonical Rust contract boundary | `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/` |
 | target-aware source reviewed / tests and composition open | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 13/13 historical proof plus reviewed target-aware resolver/storage-custody consumer source; expected tests, Cloudflare provider composition, and current proof open | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
 | validation / production source reviewed / route-store tests and proof open | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) + [current boundary addendum](workpacks/03-current-boundary-addendum.md) | 14/14 historical proof; reviewed Cloudflare browser-session migrations/store/routes now mapped with trusted-time, forward schema sentinel, complete support provenance, and runtime row validation; expected route/store/request-safety tests and proof remain open | `RESEARCH_AND_DECISIONS.md`, `crates/family-identity-core/src/session_lifecycle.rs`, `infra/cloudflare/migrations/account-identity/0007_account_browser_session_custody_hardening.sql`, `infra/cloudflare/src/storage/account-identity-authority-store.ts`, `infra/cloudflare/src/storage/account-browser-session-store.ts`, `infra/cloudflare/src/auth/browser-session-routes.ts` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
-| validation / lifecycle source accepted / orchestration and tests open | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 historical proof; owner-derived lifecycle records accepted, atomic runtime/custody/tests open | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
-| validation / authority consumers accepted / handoffs and tests open | [WP05 Device Ownership AuthZ](workpacks/05-device-ownership-authz.md) | 13/13 historical proof; current Account-bound billing/support source accepted, remaining consumers/tests open | `docs/features/family-setup-device-roles.md`, `docs/expectations/platforms.md` | `output/account-identity-family-plan-proof/05-device-ownership-authz/` |
+| source reviewed / owner adapters and six expected test roots open | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 historical proof; strict durable repository, rate/replay custody, private owner receipts, and typed handoff source reviewed; shipped identity/membership/support/Data owners, tests, and current proof open | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
+| blocked / coordinator and owner participants missing / tests and handoffs open | [WP05 Device Ownership AuthZ](workpacks/05-device-ownership-authz.md) | 13/13 historical proof; current Account-bound billing/support source is bounded, but capability/lease reservations and the multi-owner fence handoff remain open | `docs/features/family-setup-device-roles.md`, `docs/expectations/platforms.md`, `MULTI_OWNER_EFFECT_FENCING_DECISION.md` | `output/account-identity-family-plan-proof/05-device-ownership-authz/` |
+| blocked / planned source route / owner-specific fencing and recovery absent | [WP05A Runtime Effect Fencing Coordinator](workpacks/05-runtime-effect-fencing-coordinator.md) | New routing workpack; coordinator/recovery plus private Account participant and capability/lease reservation adapters are absent and must not duplicate Account, Device Trust, or step-up truth | `MULTI_OWNER_EFFECT_FENCING_DECISION.md`, `PLAN_STATE.md` | `output/account-identity-family-plan-proof/05-runtime-effect-fencing-coordinator/` |
 | complete | [WP07 Parent Account Family Setup UI](workpacks/07-parent-account-family-setup-ui.md) | 13/13 | `docs/expectations/portal.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/` |
 | open | [WP06 Security Proof And Route Gate](workpacks/06-security-proof-and-route-gate.md) | 14/18 | all prior workpack proof roots, including WP08 | `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/` |
+| blocked on Protected Custody WP01 / partial source reviewed / adapters, caller, tests, and Cloudflare consumer open | [WP09 Account Issuer Key Custody And Cloudflare Handoff](workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md) | Canonical `4f6245e51` integrates durable issuer/key lineage, startup validation, and receipt/wire outbox core; no protected signer, binding authenticator, delivery owner, production caller, Cloudflare outer-wire/key-registry consumer, or seven expected test roots exist | `PLAN_STATE.md`, WP08 sealed transport contract, Protected Custody WP01, `docs/engineering-graph/code-map.json` | `docs/proof/account-identity-family-plan/09-account-issuer-key-custody-and-cloudflare-handoff/` |
 
 ## Default execution order
 
 ```text
-WP01 -> Account WP08 -> Account WP02 target authority -> Cloudflare WP06 writer/caller -> Device Trust WP03 ceremony -> Cloudflare WP08 -> WP03 -> WP04 -> WP05 -> WP07 -> Account WP06
+WP01 -> Account WP08 -> (Protected Custody WP01 -> Account WP09 issuer/key custody || Account WP02 target authority) -> Cloudflare WP06 writer/caller -> Device Trust WP03 ceremony -> Account WP05A multi-owner fence -> Cloudflare WP08 -> WP03 -> WP04 -> WP05 -> WP07 -> Account WP06
 ```
+
+## WP09 route state
+
+WP09's Account-owned durable issuer core is independently reviewed and integrated through canonical `4f6245e51`. It owns monotonic public-key registry/revocation, strict startup validation/recovery, household-scoped receipt/wire outbox custody, and the typed handoff over WP08's existing sealed contract. Its direct prerequisites are Account WP08 and Protected Custody WP01: the latter must supply the neutral isolated broker/client and opaque protected signing admission before Account implements its signer adapter. The crate-private signer/binding/delivery seams have no implementation or production caller, seven expected test roots are absent, and Cloudflare has no outer-wire/key-registry consumer. This route does not claim a complete producer adapter, Cloudflare runtime readiness, Device Trust, Account WP02, Account WP05A, tests, proof, READY, or DONE.
 
 ## WP08 verification state
 
@@ -53,12 +59,15 @@ Cloudflare WP08 proof remain open.
 ## WP02-WP05 live production correction
 
 The checked WP02-WP05 rows preserve an earlier local contract/proof slice and
-do not close the replacement source. The accepted `35edb2830` packet adds the
-sealed capability, local durable repository/CAS, persisted session currentness,
-owner-derived invite/recovery records, and Account-bound billing/support
-consumers. WP02's actor-versus-target correction, Cloudflare's authoritative
-writer/provider composition, remaining runtime handoffs, the complete
-expected-test wave, validation, and proof are still open.
+do not close the replacement source. Current reviewed source adds the sealed
+Account capability, durable authority/session custody, target-aware action
+resolution, and WP04 strict invite/recovery repository with private owner
+receipts. WP05's current runtime composer is only a fail-closed boundary: its
+manual-required CAS fence has no durable Account-owned opaque-effect repository,
+schema, or crash/replay recovery owner. Data Custody WP08 confirmation
+staging/consume depends on that handoff. Cloudflare provider composition, WP04
+production owner adapters, remaining runtime handoffs, the complete
+expected-test wave, validation, and current proof are still open.
 
 The rejected `codex/account-wp02-wp05-source-wave` packet at `ac03afee3a` is
 quarantined remote evidence only. It added public deserializable lifecycle
@@ -72,7 +81,7 @@ legal replacement is the accepted `35edb2830` packet now integrated through
 ```text
 WP01 blocks runtime provider/session implementation.
 WP08 owns only the Rust-owned account/family contract authority and account-authority parity. It is not WP01 provider-decision work and it does not own any Cloudflare binding, adapter, migration, or worker test runner.
-WP02 consumes WP08. Its target-aware actor/action source now rejects caller-supplied same-family, capability, lease, and step-up trust, but expected tests and normal completion remain open. Cloudflare WP06 still owns authoritative provider composition and remains the next source dependency before most downstream authorization, UI, policy, payment, remote-access, and Device Trust handoffs.
+WP02 consumes WP08. Its target-aware actor/action source now rejects caller-supplied same-family, capability, lease, and step-up trust, but expected tests and normal completion remain open. WP05 consumes the new WP05A multi-owner fence and owns Account authorization only; it must not copy Device Trust or parent-step-up state. WP05A owns coordinator/recovery, the private Account participant adapter, and Account-side capability/lease reservations, while Account WP02/WP08 retain Account source truth and Device Trust WP01/WP03 retain their own source-of-truth participants. Data Custody WP08/WP09/WP10/WP11 confirmation and runtime composition remain blocked behind those typed opaque handoffs. Cloudflare WP06 still owns authoritative provider composition and remains the next source dependency before most downstream authorization, UI, policy, payment, remote-access, and Device Trust handoffs.
 Cloudflare WP06 consumes WP02 and owns the authoritative D1 writer/update/revocation/CAS surface, provider-to-sealed-authority caller, migration execution, and storage-proof packet. Its existing D1 read adapter is not sufficient. Cloudflare WP08 owns the Cloudflare runner/pyramid proof after WP06. Neither packet redefines account/family authority.
 WP03 blocks secure-login/session claims and must be read with workpacks/03-current-boundary-addendum.md.
 WP04 may run after WP02 but must not implement data-custody side effects itself.

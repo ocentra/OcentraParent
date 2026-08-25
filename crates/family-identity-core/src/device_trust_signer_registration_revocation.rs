@@ -41,8 +41,8 @@ pub(crate) fn revoke_for_lifecycle(
                     parent_presence_receipt,
                     parent_intent_digest,
                     parent_route_id,
-                    credential_algorithm,
-                    credential_sign_count,
+                    *credential_algorithm,
+                    *credential_sign_count,
                 )
             },
         )

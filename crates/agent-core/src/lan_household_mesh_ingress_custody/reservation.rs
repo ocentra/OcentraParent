@@ -1,5 +1,6 @@
 use ocentra_lan_core::lan_pairing::signed_household_mesh_ingress::{
-    LanCryptographicallyVerifiedHouseholdMeshIngress, LanHouseholdMeshDurableReplayIdentity,
+    replay_identity::LanHouseholdMeshDurableReplayIdentity,
+    LanCryptographicallyVerifiedHouseholdMeshIngress,
 };
 use ocentra_parent_agent_protocol::household_mesh::{
     HouseholdMeshAuthenticationState, HouseholdMeshBridgeState, HouseholdMeshPolicyAuthority,

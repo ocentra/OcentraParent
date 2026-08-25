@@ -27,9 +27,34 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. Use `WORKPACK_INDEX.md` to pick the exact assigned browser control/reference row.
-2. If the task names a settings inventory, coverage matrix, schema proposal, questionnaire forest, or managed/unmanaged browser boundary, open only that reference workpack.
-3. If the task is implementation or proof, route from the selected reference row into the owning browser implementation workpack/checklist row before making claims.
+1. Continue WP06 from the independently accepted fail-closed `93f875134`
+   safety boundary: add the dependency-owned protected owner receipt/key,
+   retained root/profile identity, safe platform-specific no-follow
+   mutation/recovery, and real service caller. Keep unsupported platforms
+   unavailable and never claim `Ready` from path existence.
+2. After that coherent source packet is independently accepted, write the five
+   named protocol/core/service test roots together; do not churn source and
+   tests one line at a time. Existing tests using removed public store config,
+   old error variants, and public status-entry fields are stale.
+3. Canonical `f80b47c6a` is the accepted fail-closed WP07/WP09 source baseline.
+   It removes unreachable launch state, env/dev profile authority, placeholder
+   bridge polling, and the dead Browser-to-Screen runtime surface. Production
+   managed-browser status is explicitly manual-required.
+4. Do not recreate the deleted surface. The next WP07 source packet requires a
+   private owner-issued start/stop lifecycle, retained launch custody, pre/post
+   I/O process/port/profile revalidation, confirmed teardown, and explicit
+   restart/expiry state. WP09 follows WP07 and may bind targets only from that
+   retained owner state; active tab remains `Unknown`.
+5. After the repository-wide source wave, repair the exact stale Browser tests
+   using old helper arities/private launch fields, then write the missing WP07
+   and WP09 integration roots together. Include owner mismatch, process
+   replacement, teardown, restart/expiry, malformed/oversized/timeout,
+   disappearance/navigation, no-active-tab-claim, and manual-required Screen
+   handoff.
+6. WP06, WP07, and WP09 remain blocked/open. WP07's public launch seam may not
+   mint CDP authority from a caller-supplied managed-looking path; it must
+   consume the future owner-issued WP06 binding. No test, build, proof, PR_READY,
+   runtime, or DONE claim follows from a pushed source branch.
 
 ## PR readiness guard
 

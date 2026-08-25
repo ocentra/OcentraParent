@@ -1,5 +1,5 @@
 use super::authenticated_delivery_grant::IssuanceFixture;
-use ocentra_eventing::bus::EventBus;
+use ocentra_eventing::bus::{publisher::RootEventPublisher, EventBus};
 use ocentra_eventing::ids::EventType;
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
 use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
@@ -216,7 +216,7 @@ pub(super) fn executable_conflict_decision() -> PolicyConflictDecision {
 
 pub(super) fn durable_milestone_bus(
     journal_path: &std::path::Path,
-) -> Result<EventBus, ocentra_eventing::error::EventingError> {
+) -> Result<RootEventPublisher, ocentra_eventing::error::EventingError> {
     let event_type = EventType::parse("authenticated-delivery-grant.issuance.milestone")?;
     Ok(EventBus::with_journal(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
