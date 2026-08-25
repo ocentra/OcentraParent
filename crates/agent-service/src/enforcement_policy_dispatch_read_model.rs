@@ -71,7 +71,7 @@ pub(crate) fn v08_enforcement_policy_dispatch_read_model(
 fn policy_dispatch_entries(
     generated_at: &DispatchText,
 ) -> Vec<EnforcementPolicyDispatchReadModelEntry> {
-    let mut entries = implemented_dispatch_entries(generated_at);
+    let mut entries = baseline_dispatch_entries(generated_at);
     entries.push(ask_parent_dry_run_dispatch_entry(generated_at));
     entries.push(report_only_dispatch_entry(generated_at));
     entries.push(manual_required_dispatch_entry(generated_at));
@@ -81,7 +81,7 @@ fn policy_dispatch_entries(
     entries
 }
 
-fn implemented_dispatch_entries(
+fn baseline_dispatch_entries(
     generated_at: &DispatchText,
 ) -> Vec<EnforcementPolicyDispatchReadModelEntry> {
     vec![
@@ -112,19 +112,19 @@ fn implemented_dispatch_entries(
             generated_at,
             DispatchEntryInput {
                 intent_id: dispatch::INTENT_APP_GAME_SESSION_HANDOFF,
-                matrix_id: dispatch::MATRIX_APP_GAME_TIME_LIMIT_IMPLEMENTED,
+                matrix_id: dispatch::MATRIX_APP_GAME_TIME_LIMIT_MANUAL_REQUIRED,
                 surface: V08EnforcementProductControlSurface::WindowsAppTimeLimitLifecycle,
                 adapter_kind: EnforcementAdapterKind::ProcessControl,
                 requested_action: V08EnforcementProductControlParentAction::TimeLimit,
                 mode: EnforcementMode::TimeLimit,
-                capability_state: EnforcementCapabilityState::Supported,
-                proof_level: EnforcementPolicyDispatchProofLevel::Implemented,
-                outcome_state: EnforcementPolicyDispatchOutcomeState::DispatchReady,
-                rejection_reason: EnforcementPolicyDispatchRejectionReason::None,
+                capability_state: EnforcementCapabilityState::ManualRequired,
+                proof_level: EnforcementPolicyDispatchProofLevel::ManualRequired,
+                outcome_state: EnforcementPolicyDispatchOutcomeState::ManualRequired,
+                rejection_reason: EnforcementPolicyDispatchRejectionReason::AdapterManualRequired,
                 source_state: EnforcementPolicyDispatchSourceState::Ready,
-                approval_state: EnforcementPolicyDispatchApprovalState::Pending,
+                approval_state: EnforcementPolicyDispatchApprovalState::ManualRequired,
                 timer_state: EnforcementPolicyDispatchTimerState::RestartRecovered,
-                child_reason_code: dispatch::CHILD_REASON_BONUS_TIME,
+                child_reason_code: dispatch::CHILD_REASON_MANUAL_REQUIRED,
                 target_type: PolicyTargetType::App,
                 target_value: dispatch::TARGET_APP_GAME_LAUNCHER,
                 evidence_reference_id: dispatch::EVIDENCE_APP_GAME_SESSION_SUMMARY,

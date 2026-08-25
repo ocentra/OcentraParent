@@ -24,7 +24,8 @@ pub const INTENT_MISSING_SOURCE_REJECTED: &str = "dispatch-missing-source-reject
 pub const INTENT_TAMPER_ALERT_SCAFFOLD: &str = "dispatch-tamper-alert-scaffold";
 
 pub const MATRIX_OWNED_PROCESS_IMPLEMENTED: &str = "matrix-owned-process-implemented";
-pub const MATRIX_APP_GAME_TIME_LIMIT_IMPLEMENTED: &str = "matrix-app-game-time-limit-implemented";
+pub const MATRIX_APP_GAME_TIME_LIMIT_MANUAL_REQUIRED: &str =
+    "matrix-app-game-time-limit-manual-required";
 pub const MATRIX_ASK_PARENT_DRY_RUN: &str = "matrix-ask-parent-dry-run";
 pub const MATRIX_UNMANAGED_BROWSER_REPORT_ONLY: &str = "matrix-unmanaged-browser-report-only";
 pub const MATRIX_NETWORK_DOMAIN_MANUAL_REQUIRED: &str = "matrix-network-domain-manual-required";
