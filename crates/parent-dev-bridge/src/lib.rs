@@ -2,7 +2,7 @@ use std::{env, net::{IpAddr, Ipv4Addr, SocketAddr}};
 
 use axum::{
     extract::Json,
-    http::{HeaderValue, Method, StatusCode},
+    http::{HeaderValue, Method, StatusCode, Uri},
     routing::post,
     Router,
 };
@@ -61,6 +61,15 @@ struct ParentDevBridgeAgentAddress(String);
 
 #[derive(Clone, Copy)]
 struct AllowedOriginsTextRef<'a>(&'a str);
+
+#[derive(Clone, Copy)]
+struct AllowedOriginTextRef<'a>(&'a str);
+
+const HTTP_SCHEME: &str = "http";
+const HTTPS_SCHEME: &str = "https";
+const NULL_ORIGIN: &str = "null";
+const NULL_AUTHORITY_PREFIX: &str = "null:";
+const WILDCARD_ORIGIN: &str = "*";
 
 pub fn configured_parent_dev_bridge_address() -> Option<SocketAddr> {
     let port = std::env::var(constants::env_var::PARENT_DEV_BRIDGE_PORT)
@@ -164,20 +173,81 @@ fn parent_dev_bridge_cors_layer() -> CorsLayer {
 
 fn read_allowed_origins() -> Vec<HeaderValue> {
     env::var(constants::env_var::AGENT_ALLOWED_ORIGINS)
-        .ok()
         .map(|value| parse_allowed_origins(AllowedOriginsTextRef(&value)))
-        .filter(|origins| !origins.is_empty())
-        .unwrap_or_else(default_allowed_origins)
+        .unwrap_or_else(|error| {
+            matches!(error, env::VarError::NotPresent)
+                .then(default_allowed_origins)
+                .unwrap_or_default()
+        })
 }
 
 fn parse_allowed_origins(input: AllowedOriginsTextRef<'_>) -> Vec<HeaderValue> {
-    input
+    let origins = input
         .0
         .split(constants::delimiter::LIST)
         .map(str::trim)
-        .filter(|origin| !origin.is_empty())
-        .filter_map(|origin| HeaderValue::from_str(origin).ok())
-        .collect()
+        .map(AllowedOriginTextRef)
+        .collect::<Vec<_>>();
+
+    let origins_are_valid = !origins.is_empty()
+        && origins
+            .iter()
+            .all(|origin| is_valid_allowed_origin(*origin));
+    origins_are_valid
+        .then(|| {
+            origins
+                .into_iter()
+                .map(|origin| HeaderValue::from_str(origin.0))
+                .collect::<Result<Vec<_>, _>>()
+                .unwrap_or_default()
+        })
+        .unwrap_or_default()
+}
+
+fn is_valid_allowed_origin(origin: AllowedOriginTextRef<'_>) -> bool {
+    let Ok(uri) = origin.0.parse::<Uri>() else {
+        return false;
+    };
+    let Some(scheme) = uri.scheme_str() else {
+        return false;
+    };
+    if !scheme.eq_ignore_ascii_case(HTTP_SCHEME) && !scheme.eq_ignore_ascii_case(HTTPS_SCHEME) {
+        return false;
+    }
+
+    let Some(authority) = uri.authority() else {
+        return false;
+    };
+    let authority_text = authority.as_str();
+    let Some(host) = uri.host() else {
+        return false;
+    };
+    if host.is_empty()
+        || host.eq_ignore_ascii_case(NULL_ORIGIN)
+        || authority_text.contains('@')
+        || authority_text.contains(WILDCARD_ORIGIN)
+        || authority_text.contains('%')
+        || authority_text.eq_ignore_ascii_case(NULL_ORIGIN)
+        || authority_text
+            .to_ascii_lowercase()
+            .starts_with(NULL_AUTHORITY_PREFIX)
+    {
+        return false;
+    }
+
+    let has_explicit_port = if authority_text.starts_with('[') {
+        authority_text
+            .find(']')
+            .map(|index| authority_text[index + 1..].starts_with(':'))
+            .unwrap_or(false)
+    } else {
+        authority_text.rsplit_once(':').is_some()
+    };
+    if has_explicit_port && authority.port_u16().is_none() {
+        return false;
+    }
+
+    uri.path().is_empty() && !origin.0.contains('?') && !origin.0.contains('#')
 }
 
 fn default_allowed_origins() -> Vec<HeaderValue> {
