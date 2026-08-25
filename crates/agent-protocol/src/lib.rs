@@ -6,6 +6,7 @@ mod activity_conversions;
 pub mod activity_memory_graph;
 pub mod activity_query;
 pub mod activity_surface;
+pub mod ai_contracts;
 pub mod app_game;
 pub mod app_game_adapter_dispatch_preflight;
 pub mod app_game_adapter_dispatch_result;

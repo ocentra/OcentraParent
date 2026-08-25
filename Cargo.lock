@@ -2786,6 +2786,7 @@ dependencies = [
 name = "ocentra-parent-agent-protocol"
 version = "0.1.1"
 dependencies = [
+ "ocentra-ai-contracts",
  "ocentra-eventing",
  "ocentra-evidence",
  "ocentra-network-evidence",
