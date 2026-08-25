@@ -2466,12 +2466,34 @@
       "roots": [
         "crates/billing-core/src/billing_subscription.rs",
         "crates/billing-core/src/billing_subscription_webhook.rs",
+        "crates/billing-core/src/billing_subscription_projection.rs",
+        "crates/billing-core/src/billing_subscription_review.rs",
+        "crates/billing-core/src/billing_subscription_review",
         "crates/billing-core/tests/unit/provider_webhook.rs",
+        "infra/cloudflare/src/auth/provider-webhook.ts",
         "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/routes.ts",
         "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/src/storage/account-identity-billing-store.ts",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/src/providers/README.md",
         "infra/cloudflare/tests/integration/provider-webhooks.test.ts",
-        "infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts"
-      ]
+        "infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts",
+        "packages/billing-domain/src/billing-account-runtime-boundary.ts",
+        "packages/billing-domain/src/billing-checkout-portal-boundary.ts",
+        "packages/billing-domain/tests/unit/billing-account-runtime-boundary.test.ts",
+        "packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts"
+      ],
+      "plannedImplementationRoots": [
+        "packages/billing-domain/src/billing-account-runtime-boundary.ts",
+        "packages/billing-domain/src/billing-checkout-portal-boundary.ts"
+      ],
+      "expectedTestRoots": [
+        "packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts",
+        "packages/billing-domain/tests/unit/billing-account-runtime-boundary.test.ts"
+      ],
+      "note": "Reviewed 2026-08-25 against canonical 4ecf83198: the Cloudflare provider boundary verifies Stripe raw HMAC only; Razorpay, PayPal, Apple, and Google fail closed as manual-required, the provider directory has no payment adapters, and checkout/portal execution lacks a provider owner. Rust billing-core exposes provider lifecycle classifications but has no non-test production caller and accepts caller-supplied trust/state enums. Durable receipt, cursor, queue, retry, dead-letter, and mutation-outbox custody plus Account-composite mapping rechecks exist, but receipt rows lack normalized signature, payload-parse, and provider-mode fields. Planned billing-domain source/tests and the WP08 proof root are absent; mapped Cloudflare tests use local-safe fixtures and some non-Stripe expectations are stale. No completionEvidence, READY, DONE, proof, CI, or PR claim follows."
     },
     "WP-payment-subscription-plan-09-regional-payment-rollout": {
       "planSlug": "payment-subscription-plan",
@@ -2479,10 +2501,26 @@
         "infra/cloudflare/src/fixtures.ts",
         "infra/cloudflare/src/index.ts",
         "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/src/routes.ts",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/src/generated/billing-contracts.ts",
         "infra/cloudflare/tests/integration/payment-routes-real.test.ts",
         "infra/cloudflare/tests/integration/pricing-public.test.ts",
-        "infra/cloudflare/tests/integration/worker-runtime-real.test.ts"
-      ]
+        "infra/cloudflare/tests/integration/worker-runtime-real.test.ts",
+        "packages/billing-domain/src/billing-pricing-matrix.ts",
+        "packages/billing-domain/src/billing-checkout-portal-boundary.ts",
+        "packages/billing-domain/tests/unit/billing-pricing-matrix.test.ts",
+        "packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts"
+      ],
+      "plannedImplementationRoots": [
+        "packages/billing-domain/src/billing-pricing-matrix.ts",
+        "packages/billing-domain/src/billing-checkout-portal-boundary.ts"
+      ],
+      "expectedTestRoots": [
+        "packages/billing-domain/tests/unit/billing-pricing-matrix.test.ts",
+        "packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts"
+      ],
+      "note": "Reviewed 2026-08-25 against canonical 4ecf83198: the regional strategy and market matrix are policy inputs only. No non-test Worker caller selects a provider by region or enforces currency/tax launch gates; the Worker accepts a free-form region only for support/admin manual-invoice and exposes stripe-hosted/manual-invoice status modes. No regional provider API owner, currentness binding, or live fallback caller exists. Pakistan and China remain manual/support paths, while UAE and other fallbacks remain strategy-only. Planned billing-domain source/tests and the WP09 proof root are absent; mapped Cloudflare tests use local fixtures and do not prove live regional execution. No completionEvidence, READY, DONE, proof, CI, or PR claim follows."
     },
     "WP-payment-subscription-plan-10-referral-growth-entitlement": {
       "planSlug": "payment-subscription-plan",
