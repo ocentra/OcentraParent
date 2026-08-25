@@ -107,7 +107,7 @@ async fn recover_timer(
         &outcome,
         &timer_state_path,
         EnforcementTimerStoredAtTextRef(&request.transition_ids.observed_at),
-        None,
+        state.app_game_session.clone(),
     )
     .await
     .map_err(timer_state_file_error)?;
