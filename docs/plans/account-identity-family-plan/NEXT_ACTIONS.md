@@ -163,6 +163,41 @@ present yet and remain deferred to the test/proof phase:
 and `infra/cloudflare/tests/integration/account-browser-session-real.test.ts`.
 Applied migrations, deployment, retained proof, and DONE remain open.
 
+### 3a. WP03 live production truth correction — 2026-08-25
+
+The accepted Cloudflare files are implementation topology only. WP03 remains
+`BLOCKED`/`REPAIR` and must stay unavailable/manual-required for provider-only
+login and every trusted-device route: `verifier.ts` projects a verified
+provider bearer to `trustedDevice: true` without a request-bound owner/device
+credential. Provider identity is not physical parent-device trust; the trusted
+device value must be derived from an owner-issued credential matched to current
+device/session authority before enablement.
+
+The session contracts/routes are registered but unbound and the Worker returns
+HTTP 501/manual-required before Account session dispatch. Production auth mode
+is `account-auth-adapter-manual-required`; the Account D1 binding is
+optional/placeholder, and migration application, live D1/Worker mounting, and
+startup/provider composition are not proven. The codec/store/Firebase/JWKS,
+ordered migration, and Rust session repository sources remain positive
+evidence, but the Rust repository has no non-owner production caller and the
+Cloudflare runtime composition is blocked behind WP06 and the unbound route
+contracts.
+
+The four expected Cloudflare runtime test/proof roots remain absent:
+
+```text
+infra/cloudflare/tests/unit/account-browser-session-store.test.ts
+infra/cloudflare/tests/unit/account-browser-session-routes.test.ts
+infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts
+infra/cloudflare/tests/integration/account-browser-session-real.test.ts
+```
+
+Keep the exact hard dependencies on Account WP02 and Cloudflare WP06. The next
+legal actions are owner-side request-bound device credential/currentness
+composition, mounted auth/D1/migrations, and the four focused runtime tests
+with retained proof. Do not add source, tests, proof, CI, PR, READY, or DONE in
+this truth packet.
+
 ### 4. WP04 Invites Recovery Lifecycle
 
 Expected result:

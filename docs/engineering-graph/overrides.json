@@ -205,7 +205,7 @@
         "docs/PLAN_CODE_STATUS_MATRIX.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "Candidate WP03 session source composes browser login, refresh, refresh-bound logout/global revoke, strict digest-only custody, current-authority revalidation, and redacted audit outcomes through Cloudflare WP06's final provider caller/runtime seam. Cloudflare WP06 owns the account-identity authority store/caller/runtime and Cloudflare WP04 owns auth/verifier.ts plus routes.ts; Account WP03 no longer claims those shared authority roots. Trusted store time and runtime D1 row validation fail closed. Independent review remains open; the exact route/store/request-safety/integration tests, migration execution, live D1/Worker validation, proof, deployment, and DONE remain open."
+      "reason": "Account WP03's isolated codec/store/routes, Firebase/JWKS inputs, ordered session migrations, and Rust session repository are positive source topology only. A P0 remains: infra/cloudflare/src/auth/verifier.ts projects provider-bearer identity to trustedDevice=true without a request-bound owner/device credential, so provider-only login and affected trusted-device routes must remain unavailable/manual-required. Session contracts/routes are registered but unbound and return HTTP 501/manual-required before dispatch; production auth mode, D1 binding, migration application, live D1/Worker mounting, and startup/provider composition are unproven. The Rust repository has no non-owner production caller, Cloudflare runtime composition remains blocked behind WP06, and the four expected Cloudflare runtime test/proof roots remain absent. WP03 does not re-claim Cloudflare WP06 authority store/caller/runtime or WP04 auth/verifier.ts/routes.ts ownership, and no implementation, READY, or DONE authorization is made."
     },
     {
       "id": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
@@ -9688,8 +9688,8 @@
     {
       "id": "WP-account-identity-family-plan-03-session-token-lifecycle",
       "state": "validation",
-      "reason": "Independent coordinator re-review accepted the repaired browser-session source boundary after the persisted-row casing fix and exact rotate-first D1 batch binding review. Expected route/store/request-safety tests, migration execution, live D1/Worker validation, proof, CI, PR, and DONE remain open.",
-      "statusText": "Validation — production source reviewed / route-store tests, migration execution, and proof open.",
+      "reason": "Independent production-source review records a P0 provider-to-trusted-device binding repair: verifier.ts projects provider-bearer identity to trustedDevice=true without a request-bound owner/device credential. Session contracts/routes are unbound and return HTTP 501/manual-required before dispatch; production auth mode, D1 binding, migration application, live D1/Worker mounting, and startup/provider composition are unproven. The isolated codec/store/Firebase/JWKS/migration and Rust repository sources remain positive topology only; the Rust repository has no non-owner caller, Cloudflare composition is blocked behind WP06, and four expected Cloudflare runtime test/proof roots are absent. Preserve the blocked dependency state; no completion or runtime authorization is claimed.",
+      "statusText": "Validation blocked — P0 request-bound trusted-device repair, unbound 501/manual-required routes, auth/D1/migration mounting, Rust caller, and four Cloudflare test/proof roots remain open.",
       "needsReview": false,
       "evidence": [
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",

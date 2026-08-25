@@ -298,6 +298,58 @@ do migration application, live D1/Worker execution, retained proof, precommit,
 CI, PR, and DONE. The final WP06 parameterless mutation-readiness seam remains
 manual-required; this source does not fabricate provider or Account authority.
 
+## 2026-08-25 Account WP03 live production truth packet
+
+The independent production-source review classifies Account WP03 as
+`BLOCKED` with `REPAIR` required. This packet records live source and caller
+truth only; it does not add completion evidence, change the WP02/Cloudflare
+WP06 dependencies, or authorize login/session or trusted-device enablement.
+
+- **P0 — provider identity is not device trust.** The provider-bearer path in
+  `infra/cloudflare/src/auth/verifier.ts` projects `trustedDevice: true`
+  without a request-bound owner/device credential. A Firebase/provider bearer
+  proves only the verified provider subject; it does not prove the physical
+  parent device. Affected trusted-device routes and provider-only login must
+  remain unavailable/manual-required until an owner-issued, request-bound
+  device credential is matched to current device/session authority and the
+  trusted-device value is derived from that binding.
+- **P1 — registered routes are not dispatched.** Account session contracts and
+  routes are registered in the Worker source, but their request/response
+  bindings are unbound. The Worker returns HTTP 501/manual-required before
+  Account session dispatch. Production remains
+  `account-auth-adapter-manual-required`; the Account D1 binding is
+  optional/placeholder, and migration application, live D1/Worker mounting,
+  and runtime startup composition are not proven.
+- **Positive implementation topology is not runtime proof.** The isolated
+  Cloudflare codec/store/routes, Firebase verifier/JWKS inputs, ordered
+  Account session migrations (`0005`, `0006`, and forward `0007`), and the
+  Rust session repository/evaluator are reviewed source evidence:
+  `infra/cloudflare/src/storage/account-browser-session-codec.ts`,
+  `infra/cloudflare/src/storage/account-browser-session-store.ts`,
+  `infra/cloudflare/src/auth/browser-session-routes.ts`,
+  `infra/cloudflare/src/providers/firebase-auth.ts`,
+  `infra/cloudflare/src/providers/firebase-auth-jwks.ts`,
+  `infra/cloudflare/migrations/account-identity/0005_account_browser_session_custody.sql`,
+  `infra/cloudflare/migrations/account-identity/0006_account_browser_session_refresh_custody.sql`,
+  `infra/cloudflare/migrations/account-identity/0007_account_browser_session_custody_hardening.sql`,
+  and `crates/family-identity-core/src/session_lifecycle_repository.rs`.
+  The Rust repository has no non-owner production caller, and Cloudflare
+  runtime composition remains blocked behind the unbound/manual-required
+  route and WP06 authority/runtime seam.
+- **P2 — expected runtime tests/proof are absent.** These four expected
+  Cloudflare roots remain unwritten: `infra/cloudflare/tests/unit/account-browser-session-store.test.ts`,
+  `infra/cloudflare/tests/unit/account-browser-session-routes.test.ts`,
+  `infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts`,
+  and `infra/cloudflare/tests/integration/account-browser-session-real.test.ts`.
+  Existing plan/source notes do not substitute for their execution, retained
+  proof, CI, PR, or completion gates.
+
+The smallest legal repair sequence is WP02/WP06 authority and caller
+composition, an owner-issued request-bound device credential with current
+device/session matching, mounted auth/D1/migrations, then the four focused
+Cloudflare test/proof roots. Until that sequence is complete, WP03 remains
+blocked and no implementation, READY, or DONE claim is made.
+
 ## Default execution order
 
 ```text

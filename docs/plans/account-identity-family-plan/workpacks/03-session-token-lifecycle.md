@@ -305,3 +305,42 @@ WP04 is the sole route/auth owner of
 one-way `WP03 -> WP06` dependency and does not re-claim those authority roots.
 This docs/graph correction does not imply tests, migration execution, live
 Worker/D1 validation, proof, READY, or DONE.
+
+## 2026-08-25 live production-source truth correction
+
+The independent production-source review accepts the mapped files as isolated
+implementation topology only and classifies WP03 `BLOCKED` with `REPAIR`
+required. The exact hard dependencies remain Account WP02 and Cloudflare WP06.
+
+- **P0 provider/device binding:** `infra/cloudflare/src/auth/verifier.ts`
+  projects a verified provider bearer to `trustedDevice: true` without a
+  request-bound owner/device credential. Provider identity is not physical
+  parent-device trust. Provider-only login and every affected trusted-device
+  route must remain unavailable/manual-required until an owner-issued,
+  request-bound device credential is matched to current device/session
+  authority and trusted-device state is derived from that match.
+- **P1 route/runtime reachability:** the session contracts/routes are registered
+  but unbound; Worker dispatch returns HTTP 501/manual-required before Account
+  session handlers run. Production auth mode remains
+  `account-auth-adapter-manual-required`; the Account D1 binding is
+  optional/placeholder, and migration application, live D1/Worker mounting,
+  and startup/provider composition are not proven.
+- **Positive source topology only:** the codec/store/routes,
+  Firebase/JWKS inputs, ordered `0005`/`0006`/`0007` session migrations, and
+  `crates/family-identity-core/src/session_lifecycle_repository.rs` are
+  reviewed source evidence. The Rust repository has no non-owner production
+  caller. Cloudflare runtime composition remains blocked behind the WP06
+  authority/runtime seam and the unbound route contracts.
+- **P2 missing runtime tests/proof:** the four expected Cloudflare roots remain
+  absent:
+
+  ```text
+  infra/cloudflare/tests/unit/account-browser-session-store.test.ts
+  infra/cloudflare/tests/unit/account-browser-session-routes.test.ts
+  infra/cloudflare/tests/security/account-browser-session-request-safety.test.ts
+  infra/cloudflare/tests/integration/account-browser-session-real.test.ts
+  ```
+
+This correction does not add source, tests, proof, CI, completion evidence, or
+implementation authorization. It preserves the blocked dependency state and
+the existing mapped positive implementation topology.
