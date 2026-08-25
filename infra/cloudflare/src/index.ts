@@ -54,6 +54,7 @@ import {
 } from './env.js';
 import {
   findRoute,
+  routeContractReadiness,
   ROUTE_HANDLER_KEYS,
   ROUTE_MANIFEST,
   type RouteHandlerMap,
@@ -319,48 +320,86 @@ function parseContentLengthHeader(request: Request): { ok: true; value: number }
   };
 }
 
-function manualRequiredResponse(route: RouteManifestEntry, identity?: VerifiedIdentity): Response {
+function manualRequiredResponse(
+  route: RouteManifestEntry,
+  identity?: VerifiedIdentity,
+  contractReadiness = routeContractReadiness(route)
+): Response {
   return json(501, {
     status: 'manual-required',
     handlerKey: route.handlerKey,
     authState: route.authState,
-    contractState: route.contract.state,
-    contractBlocker: 'blocker' in route.contract ? route.contract.blocker : null,
+    requestModel: route.requestModel,
+    responseModel: route.responseModel,
+    contractState: contractReadiness.ready ? 'ready' : 'manual-required',
+    contractSide: contractReadiness.ready ? null : contractReadiness.side,
+    contractBlocker: contractReadiness.ready ? 'handler-unavailable' : contractReadiness.blocker,
     proofIdFamily: route.proofIdFamily,
     actorRole: identity?.role ?? null,
-    message:
-      'This route is contract-shaped, but provider-backed behavior is still owned by the active payment workpacks.',
-    nextStep: `Implement ${route.handlerKey} behind the shared billing contract before calling this route production-ready.`,
+    message: 'Route dispatch is disabled until its request, response, and owner execution contracts are bound.',
   });
 }
 
 function parseManifestResponse(route: RouteManifestEntry, value: unknown): unknown | Response {
-  const codec = route.contract.responseCodec;
-  if (!codec) {
-    return json(503, {
-      status: 'manual-required',
-      handlerKey: route.handlerKey,
-      contractState: route.contract.state,
-      contractBlocker: 'blocker' in route.contract ? route.contract.blocker : 'response-codec-unbound',
-    });
-  }
+  const responseContract = route.contract.response;
+  if (responseContract.state !== 'bound') return manualRequiredResponse(route);
 
   try {
-    return codec.parse(value);
+    return responseContract.descriptor.codec.parse(value);
   } catch {
     return json(500, {
       error: 'route-response-contract-rejected',
       handlerKey: route.handlerKey,
-      contractState: route.contract.state,
+      responseModel: route.responseModel,
     });
   }
 }
 
-function requireManifestRequestCodec(route: RouteManifestEntry, identity?: VerifiedIdentity): Response | null {
-  if (route.contract.requestCodec) {
+async function validateManifestRequest(route: RouteManifestEntry, request: Request): Promise<Response | null> {
+  const requestContract = route.contract.request;
+  if (requestContract.state === 'unbound') return manualRequiredResponse(route);
+  if (requestContract.state === 'none') {
+    if (request.body !== null || new URL(request.url).search.length > 0) {
+      return json(400, {
+        error: 'route-request-contract-rejected',
+        handlerKey: route.handlerKey,
+        requestModel: route.requestModel,
+        reason: 'request-input-not-allowed',
+      });
+    }
     return null;
   }
-  return manualRequiredResponse(route, identity);
+
+  let payload: unknown;
+  try {
+    payload = await request.clone().json();
+    requestContract.descriptor.codec.parse(payload);
+  } catch {
+    return json(400, {
+      error: 'route-request-contract-rejected',
+      handlerKey: route.handlerKey,
+      requestModel: route.requestModel,
+      reason: 'request-codec-rejected',
+    });
+  }
+  return null;
+}
+
+async function validateManifestResponse(route: RouteManifestEntry, response: Response): Promise<Response> {
+  if (response.status < 200 || response.status >= 300) return response;
+  const responseContract = route.contract.response;
+  if (responseContract.state !== 'bound') return manualRequiredResponse(route);
+
+  try {
+    responseContract.descriptor.codec.parse(await response.clone().json());
+    return response;
+  } catch {
+    return json(500, {
+      error: 'route-response-contract-rejected',
+      handlerKey: route.handlerKey,
+      responseModel: route.responseModel,
+    });
+  }
 }
 
 function sanitizeIdFragment(value: string): string {
@@ -1414,9 +1453,6 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
       }
       const subject = authority.providerSubject;
 
-      const requestContractFailure = requireManifestRequestCodec(route, identity);
-      if (requestContractFailure) return requestContractFailure;
-
       const body = await readJsonObject<ReferralInviteRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1515,9 +1551,6 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
       }
       const subject = authority.providerSubject;
 
-      const requestContractFailure = requireManifestRequestCodec(route, identity);
-      if (requestContractFailure) return requestContractFailure;
-
       const body = await readJsonObject<LicenseCheckRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1534,8 +1567,6 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
     },
 
     async 'billing-manual-invoice'({ request, env, route, identity }): Promise<Response> {
-      const contractFailure = manualRequiredResponse(route, identity);
-      if (route.contract.state !== 'bound') return contractFailure;
       if (!identity) {
         return json(500, {
           error: 'identity-missing',
@@ -1597,7 +1628,6 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
     },
 
     async 'stripe-webhook'({ request, env, route }): Promise<Response> {
-      if (route.contract.state !== 'bound') return manualRequiredResponse(route);
       const signatureHeader = request.headers.get(signatureHeaderName(new URL(request.url).pathname));
       if (!signatureHeader) {
         return json(401, {
@@ -1744,9 +1774,6 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
     },
 
     async 'admin-billing-reconciliation'({ request, env, route, identity }): Promise<Response> {
-      const requestContractFailure = requireManifestRequestCodec(route, identity);
-      if (requestContractFailure) return requestContractFailure;
-
       const body = await readJsonObject<ReconciliationRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1864,19 +1891,28 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     });
   }
 
-  const handlers = await routeHandlerMap();
-  const handler = handlers[route.handlerKey];
-
   if (route.authState === 'public') {
+    const contractReadiness = routeContractReadiness(route);
+    if (!contractReadiness.ready) {
+      return manualRequiredResponse(route, undefined, contractReadiness);
+    }
+    const requestContractFailure = await validateManifestRequest(route, request);
+    if (requestContractFailure) return requestContractFailure;
+
+    const handlers = await routeHandlerMap();
+    const handler = handlers[route.handlerKey];
     if (!handler) {
-      return manualRequiredResponse(route);
+      return manualRequiredResponse(route, undefined, contractReadiness);
     }
     try {
-      return await handler({
-        request,
-        env,
+      return validateManifestResponse(
         route,
-      });
+        await handler({
+          request,
+          env,
+          route,
+        })
+      );
     } catch (error) {
       if (error instanceof BillingReadModelUnavailableError) {
         return billingReadModelUnavailableResponse(route, error);
@@ -1896,17 +1932,29 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     return authResult.response;
   }
 
+  const contractReadiness = routeContractReadiness(route);
+  if (!contractReadiness.ready) {
+    return manualRequiredResponse(route, authResult.identity, contractReadiness);
+  }
+  const requestContractFailure = await validateManifestRequest(route, request);
+  if (requestContractFailure) return requestContractFailure;
+
+  const handlers = await routeHandlerMap();
+  const handler = handlers[route.handlerKey];
   if (!handler) {
-    return manualRequiredResponse(route, authResult.identity);
+    return manualRequiredResponse(route, authResult.identity, contractReadiness);
   }
 
   try {
-    return await handler({
-      request,
-      env,
+    return validateManifestResponse(
       route,
-      identity: authResult.identity,
-    });
+      await handler({
+        request,
+        env,
+        route,
+        identity: authResult.identity,
+      })
+    );
   } catch (error) {
     if (error instanceof BillingReadModelUnavailableError) {
       return billingReadModelUnavailableResponse(route, error, authResult.identity);

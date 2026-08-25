@@ -40,7 +40,10 @@ export interface AuthStateModel {
   adapterMethod: AuthAdapterMethod;
   privateRoute: boolean;
   manualRequiredOwner:
-    'not-applicable' | 'account-identity-family-plan' | 'provider-webhook-proof' | 'cloudflare-control-plane-plan';
+    | 'not-applicable'
+    | 'account-identity-family-plan'
+    | 'provider-webhook-proof'
+    | 'cloudflare-control-plane-plan';
 }
 
 export const AUTH_STATE_MODELS: Record<AuthState, AuthStateModel> = {
