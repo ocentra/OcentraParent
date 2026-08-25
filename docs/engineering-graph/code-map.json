@@ -5411,17 +5411,25 @@
     },
     "WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states": {
       "planSlug": "portal-ux-household-surfaces-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/src/vendor-parent-portal-surface.js",
         "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
         "apps/portal/tests/live-activity",
+        "apps/portal/tests/e2e/lan-command-center-proof.spec.ts",
+        "apps/portal/tests/e2e/portal-route-scaffold-lan.ts",
         "apps/portal/tests/network/network-evidence-drawer-route-panel.test.ts",
         "packages/portal-domain/src/live-activity-lan-add-device.ts",
+        "packages/portal-domain/src/live-activity-lan-add-device-records.ts",
         "packages/portal-domain/src/live-activity-lan-diagnostics.ts",
         "crates/parent-runtime-core/src/parent_ui_bridge/lan_route",
         "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/lan.rs",
-        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs"
-      ]
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx"
+      ],
+      "note": "Canonical b6d8d12ea includes accepted source commits aa5f4579e and adba0c9c1 in activity-ui-intent.ts. The mapped production caller consumes the Rust LAN read model through ParentPortalRoute and ParentPortalSvgSurface; lanDeviceSlots order is canonical -> discovered -> trusted -> pairing -> selected, and matched revoked state is absorbing across later selected updates without inheriting across a true identity/slot change. Existing route/live-activity surfaces do not directly test both revocation update directions and identity semantics; the focused projection test and WP03 proof root remain absent. This is source-truth routing only and does not claim READY or DONE."
     },
     "WP-portal-ux-household-surfaces-plan-04-selected-device-context": {
       "planSlug": "portal-ux-household-surfaces-plan",

@@ -42,14 +42,22 @@ confidence, controllability, and next action without duplicate truths.
 Device UI reads service state and never treats passive LAN neighbors as policy
 targets.
 
-Current checkpoint truth on this branch/worktree (2026-06-18):
+## Current Source-Truth Packet (2026-08-25)
 
-- Focused proof is now recorded under `output/portal-ux-household-surfaces-plan-proof/03-device-inventory-and-source-states/`.
-- The current packet proves the LAN inventory owner seam on current source: local child-agent, LAN child-agent, passive neighbor, router, ignored, stale, offline, and revoked states are all distinguished in the service-backed slot model instead of collapsing into fake green readiness.
-- Passive LAN neighbors remain visible inventory rows but do not become canonical policy targets; ignored and revoked neighbors stay excluded from `createParentPortalCanonicalDeviceSlots(...)`.
-- The selected-device surface now carries explicit source/custody/control-state consumption for the service-backed LAN slots, including distinct `Ignored`, `Revoked`, `Stale`, and `Offline` control labels.
-- Missing LAN hardware details stay on the `Not reported` fallback path instead of inventing CPU/GPU/memory values, and the dense grid render proof keeps long selected labels and many-device layouts visible without synthetic hardware fill-in.
-- This checklist row is now locally closed on this branch/worktree because the owner seam, focused portal tests, and portal app typecheck all reran green after the WP03 state and detail-surface corrections.
+The accepted production source is present at canonical `b6d8d12ead5965cea80625431fdc67e518702403`, including source commits `aa5f4579e` and `adba0c9c1` in `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts`. This packet records that source state only; it makes no production-source change.
+
+- The Rust owner/read-model seam is `crates/agent-service/src/lan_pairing_browser_add_device_state.rs`, which supplies the typed LAN snapshot, trusted registry, and revoked-device identifiers. The shipped Portal caller path is `apps/portal/src/ParentPortalRoute.tsx` -> `apps/portal/src/vendor-parent-portal-surface.js` -> `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx` -> `activity-ui-intent.ts`.
+- `lanDeviceSlots` collects canonical, discovered, trusted, pairing, and selected sources in that order. The accepted `upsertLanDeviceSlot` behavior is absorbing for a matched slot: an incoming `revoked` state stays revoked, and a matching existing revoked slot cannot be overwritten by a later ready/online selected update. A genuine identity/slot change uses the new slot and does not inherit the prior revoked badge.
+- The existing `apps/portal/tests/e2e/lan-command-center-proof.spec.ts`, `apps/portal/tests/e2e/portal-route-scaffold-lan.ts`, and `apps/portal/tests/live-activity` surfaces cover service-backed LAN/source-state presentation, but no focused test directly exercises these projection helpers for both revocation update directions and the identity/slot boundary. The accepted source commits changed no test or proof path.
+- The expected proof root `output/portal-ux-household-surfaces-plan-proof/03-device-inventory-and-source-states/` is absent in this checkout. No test, proof, CI, or pre-commit command was run or recorded in this source-only packet.
+
+The requirement boxes above remain checked as the intended device-inventory coverage; they are not completion evidence for this packet.
+
+## Remaining Validation And Proof Gaps
+
+- Add the focused projection coverage expected by this workpack: canonical online state followed by matched revoked state, incoming revoked state followed by pairing/selected ready state, and a true identity/slot change that must not inherit revocation. The assertions must retain source/custody and no-fake-data boundaries.
+- Run the workpack-selected service-backed projection/route checks and record the required negative states in the named proof manifest; those checks were intentionally not run here.
+- Physical/provider pairing, freshness, and device-authority validation remain outside the Portal owner boundary. This workpack is source accepted and validation open; it is not `READY`, `PR_READY`, or `DONE`.
 
 ## Parallel Ownership Notes
 
