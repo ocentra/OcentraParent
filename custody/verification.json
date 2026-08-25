@@ -1,0 +1,115 @@
+{
+  "schema": "ocentra-parent-public-custody-verification/v1",
+  "snapshotId": "2026-08-25-030153Z-custody",
+  "archiveRef": "refs/heads/codex/archive/ocentra-parent-custody",
+  "snapshotCommit": "880832e80241e93c51f016493035bc64574c33a1",
+  "snapshotTree": "5f0459281ec0832b3242068341393a56af03d755",
+  "publicManifest": {
+    "path": "custody/manifest.json",
+    "fileSha256": "3c520c1858e531d96374219e6adc17b1cc8eb19fb2770fd56e5b3e527377b697",
+    "blobSha": "0ae4f0952d99863179b15630121b7a20593283f0"
+  },
+  "remoteRefMap": {
+    "path": "custody/remote-refs.tsv",
+    "fileSha256": "8bbdff759c5060fcd6d316d10acef6ba639f4d5f5a1bbaf37da360e4996e5574",
+    "blobSha": "065df698972e3dc3935470509ef832fd04088a50",
+    "count": 1828,
+    "freezeHash": "8bbdff759c5060fcd6d316d10acef6ba639f4d5f5a1bbaf37da360e4996e5574",
+    "recheckHash": "8bbdff759c5060fcd6d316d10acef6ba639f4d5f5a1bbaf37da360e4996e5574",
+    "unchangedSinceFreeze": true
+  },
+  "canonical": {
+    "ref": "refs/heads/codex/eventing-wp09-production",
+    "sha": "1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f",
+    "tree": "7cf3d5308d284d60a10c399b67f9323d07a2c9a3",
+    "worktree": "E:/OcentraWorktrees/lanes/eventing-wp09-production",
+    "clean": true
+  },
+  "firstAncestryAnchor": {
+    "ref": "refs/heads/codex/archive/all-local-remote-tips-20260816",
+    "sha": "ac9f65bb4a7f84abc52ff4034940a6140e2744bb"
+  },
+  "anchorCount": 156,
+  "ancestryFailures": 0,
+  "batchParentLimit": 20,
+  "batches": [
+    {
+      "ordinal": 1,
+      "sha": "d12a5ad8cdb5133f4337386754bd8b20f2f7d7ab",
+      "parentCount": 20
+    },
+    {
+      "ordinal": 2,
+      "sha": "87fbd89a07c3655bd8fee90a0728d6f7155c6c3c",
+      "parentCount": 20
+    },
+    {
+      "ordinal": 3,
+      "sha": "df080b1e3198d54a38b75abbd95bbaa9f868ceb3",
+      "parentCount": 20
+    },
+    {
+      "ordinal": 4,
+      "sha": "7b644d4f0d32988101d369671a92ca67fe0e46b6",
+      "parentCount": 20
+    },
+    {
+      "ordinal": 5,
+      "sha": "052b3968ec5ac159c1395c09f57373732ee79002",
+      "parentCount": 20
+    },
+    {
+      "ordinal": 6,
+      "sha": "810b92ff4f0830f7720314e0ca07b48b997d3797",
+      "parentCount": 20
+    },
+    {
+      "ordinal": 7,
+      "sha": "4db1d0c0a98b62deabf20a81eb34a5b46029d10d",
+      "parentCount": 20
+    },
+    {
+      "ordinal": 8,
+      "sha": "5d82c6fee9d00579bfdf9f0ab635eb4a65dc8070",
+      "parentCount": 15
+    }
+  ],
+  "publicBuilder": {
+    "headsAndTagsExact": true,
+    "availableRefCount": 1120
+  },
+  "privateCustody": {
+    "privateManifestSha256": "4a7e383a393193802a56f3f82b8f80dfc7b36b136ff162319ee33c52d63b4da0",
+    "localRefCount": 1586,
+    "detachedWorktreeHeadCount": 12,
+    "privateCustodyRefCount": 1598
+  },
+  "exclusions": [
+    {
+      "class": "refs/pull/*",
+      "count": 708,
+      "reason": "GitHub ephemeral pull refs are recorded in the full remote map but are not fetched by a GitHub bare mirror and are not public parent anchors"
+    },
+    {
+      "class": "refs/tags/*",
+      "count": 964,
+      "reason": "tags are retained in the GitHub mirror and full map but policy anchors remote heads only"
+    },
+    {
+      "class": "local-only/stash/dirty/worktree objects",
+      "reason": "never published; retained only in the private mirror"
+    },
+    {
+      "path": "E:/OcentraParent/.codex/config.toml",
+      "reason": "sensitive untracked local state; not copied"
+    },
+    {
+      "path": "E:/OcentraWorktrees/lanes/device-wp01-packet-review2-aug25/.target-review",
+      "reason": "generated target output; not copied"
+    },
+    {
+      "path": "E:/OcentraWorktrees/lanes/ai-wp03-review5-aug25",
+      "reason": "49 staged blobs exactly match pushed origin/codex/ai-wp03-contract-repair5-aug25; recoverable duplicate, no patch published"
+    }
+  ]
+}
