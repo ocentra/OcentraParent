@@ -66,8 +66,36 @@ mod app_game_boundary_read_model_payload;
 mod app_game_boundary_read_model_payload_rows;
 #[path = "activity_api/app_game_child_runtime_transport_receipt_payload.rs"]
 pub(crate) mod app_game_child_runtime_transport_receipt_payload;
+#[path = "activity_api/app_game_linux_docker_host_preflight.rs"]
+mod app_game_linux_docker_host_preflight;
+#[path = "activity_api/app_game_linux_docker_host_preflight_cleanup.rs"]
+mod app_game_linux_docker_host_preflight_cleanup;
+#[path = "activity_api/app_game_linux_docker_host_preflight_cleanup_owner.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_owner;
+#[path = "activity_api/app_game_linux_docker_host_preflight_cleanup_process.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_process;
+#[path = "activity_api/app_game_linux_docker_host_preflight_cleanup_worker.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_worker;
+#[path = "activity_api/app_game_linux_docker_host_preflight_group.rs"]
+mod app_game_linux_docker_host_preflight_group;
+#[path = "activity_api/app_game_linux_docker_host_preflight_output.rs"]
+mod app_game_linux_docker_host_preflight_output;
+#[path = "activity_api/app_game_linux_docker_host_preflight_path_security.rs"]
+mod app_game_linux_docker_host_preflight_path_security;
+#[path = "activity_api/app_game_linux_docker_host_preflight_paths.rs"]
+mod app_game_linux_docker_host_preflight_paths;
+#[path = "activity_api/app_game_linux_docker_host_preflight_process.rs"]
+mod app_game_linux_docker_host_preflight_process;
+#[path = "activity_api/app_game_linux_docker_host_preflight_state.rs"]
+mod app_game_linux_docker_host_preflight_state;
+#[path = "activity_api/app_game_linux_docker_host_preflight_supervisor.rs"]
+mod app_game_linux_docker_host_preflight_supervisor;
+#[path = "activity_api/app_game_linux_docker_host_preflight_wait.rs"]
+mod app_game_linux_docker_host_preflight_wait;
 #[path = "activity_api/app_game_notification_readiness_payload.rs"]
 mod app_game_notification_readiness_payload;
+#[path = "activity_api/app_game_platform_probe_cache.rs"]
+pub(crate) mod app_game_platform_probe_cache;
 #[path = "activity_api/app_game_platform_proof_status_payload.rs"]
 pub(crate) mod app_game_platform_proof_status_payload;
 #[path = "activity_api/app_game_policy_readiness_payload.rs"]
