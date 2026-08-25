@@ -203,15 +203,11 @@ async function verifyProviderBoundRequest(
     providerVerifier
   );
   if (authorityResult.status === 'trusted') {
-    const role = browserSessionRole(authorityResult.capability.role);
-    if (role === null) return forbidden('browser-session-role-ineligible', authState);
-    return authStateIdentity(
-      authorityResult.capability.providerSubject,
-      authState,
-      role,
-      true,
-      authorityResult.capability
-    );
+    // Provider verification and a subject-keyed Account row do not prove that
+    // this request holds the owner-issued credential for the stored device.
+    // Keep the provider-only boundary manual-required until that request-bound
+    // device credential is verified by its owning runtime.
+    return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
   }
   if (authorityResult.status === 'rejected') {
     return forbidden(`account-identity-authority-${authorityResult.reason}`, authState);
