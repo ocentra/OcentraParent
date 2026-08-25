@@ -61,7 +61,7 @@ pub fn derive_backup_schedule(
 
     Ok(contracts::ExportImportBackupSchedule {
         schedule_ref,
-        bundle_id: request.input.bundle_id,
+        bundle_id: authorization.bundle_id,
         household_id,
         cadence,
         interval_seconds: request.interval_seconds,

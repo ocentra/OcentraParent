@@ -27,24 +27,34 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
-1. WP07/WP09 have completed a plan-local source reachability review. Do not
-   claim readiness from the existing launcher/parser tests: the service drops
-   `BrowserManagedLaunch` and later polls with unknown/process-placeholder
-   custody, while the CDP-to-Screen path has no production caller.
-2. The next implementation packet must retain the managed launch/process/
-   session/private authority in the service-owned `AppState` route, poll from
-   that authority, mint target authority only from a same-launch trusted page
-   candidate, and invoke the existing Screen handoff. Preserve target-list
-   `Unknown` active-tab state and explicit teardown/restart/expiry failures.
-3. Before implementation, route exact source and test roots through the global
-   graph/coordinator. Required test roots include retained-launch lifecycle,
-   owner/custody mismatch, malformed/oversized/timeout bridge responses,
-   target disappearance/navigation/process replacement, same-launch target
-   authority, Screen handoff outcomes, and no-active-tab-claim regression.
-4. This plan-local route intentionally does not edit `graph.json`, global
-   indexes/matrices, source, tests, or proof. A later coordinator rebuild is
-   required before the packet can be considered READY; all WP07/WP09 rows and
-   proof remain open.
+1. Continue WP06 from the independently accepted fail-closed `93f875134`
+   safety boundary: add the dependency-owned protected owner receipt/key,
+   retained root/profile identity, safe platform-specific no-follow
+   mutation/recovery, and real service caller. Keep unsupported platforms
+   unavailable and never claim `Ready` from path existence.
+2. After that coherent source packet is independently accepted, write the five
+   named protocol/core/service test roots together; do not churn source and
+   tests one line at a time. Existing tests using removed public store config,
+   old error variants, and public status-entry fields are stale.
+3. Canonical `f80b47c6a` is the accepted fail-closed WP07/WP09 source baseline.
+   It removes unreachable launch state, env/dev profile authority, placeholder
+   bridge polling, and the dead Browser-to-Screen runtime surface. Production
+   managed-browser status is explicitly manual-required.
+4. Do not recreate the deleted surface. The next WP07 source packet requires a
+   private owner-issued start/stop lifecycle, retained launch custody, pre/post
+   I/O process/port/profile revalidation, confirmed teardown, and explicit
+   restart/expiry state. WP09 follows WP07 and may bind targets only from that
+   retained owner state; active tab remains `Unknown`.
+5. After the repository-wide source wave, repair the exact stale Browser tests
+   using old helper arities/private launch fields, then write the missing WP07
+   and WP09 integration roots together. Include owner mismatch, process
+   replacement, teardown, restart/expiry, malformed/oversized/timeout,
+   disappearance/navigation, no-active-tab-claim, and manual-required Screen
+   handoff.
+6. WP06, WP07, and WP09 remain blocked/open. WP07's public launch seam may not
+   mint CDP authority from a caller-supplied managed-looking path; it must
+   consume the future owner-issued WP06 binding. No test, build, proof, PR_READY,
+   runtime, or DONE claim follows from a pushed source branch.
 
 ## PR readiness guard
 

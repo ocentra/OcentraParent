@@ -5,8 +5,9 @@ use super::support::{
     tracking_config_update_applied_report, tracking_config_update_response,
 };
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
-    error::EventingError, ids::EventType, ids::SubscriberId, ids::TargetHandler,
+    bus::publisher::RootEventPublisher, bus::subscriber::EventSubscriber,
+    bus::subscriber::SubscriptionReport, error::EventingError, ids::EventType, ids::SubscriberId,
+    ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::config_update_event::{
@@ -15,7 +16,7 @@ use ocentra_parent_agent_protocol::tracking::config_update_event::{
 };
 
 pub(super) async fn subscribe_parent_tracking_config_updated_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: TrackingConfigUpdateEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ParentTrackingConfigUpdatedEvent, _, _>(
@@ -53,7 +54,7 @@ pub(super) async fn subscribe_parent_tracking_config_updated_events(
 }
 
 pub(super) async fn subscribe_child_tracking_config_updated_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildTrackingConfigUpdatedEvent, _, _>(
         EventSubscriber::new(
@@ -85,7 +86,7 @@ pub(super) async fn subscribe_child_tracking_config_updated_events(
 }
 
 pub(super) async fn subscribe_child_tracking_config_applied_events(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: TrackingConfigUpdateEventState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<TrackingConfigUpdateAppliedEvent, _, _>(

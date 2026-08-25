@@ -151,13 +151,37 @@ screen-AI service runtime and several platform owners are absent.
 | 34 OCR Tesseract Baseline | Tests/proof only | Validation-only; no runtime implementation. |
 | 35 OCR PaddleOCR PP-OCR Evaluation | Tests/proof only | Validation-only; no runtime implementation. |
 | 36 Small VLM Guided Classifier Evaluation | AI analysis/runtime modules | AI evaluation/runtime only; outside this non-AI pass. |
-| 37 Household Mesh Screen Analysis Queue | Child mesh + screen-AI routing | AI/mesh handoff only; no independent capture or retention effect. |
+| 37 Household Mesh Screen Analysis Queue | Child mesh + screen-AI routing | Contract/proof-shaped redacted-summary path only; public arbitrary-string input, an in-memory owner-less bus, and synthetic claim/lease state are not authority. No authenticated durable provider selection, provider result receipt, restart/replay custody, or `agent-service` startup composition is connected. |
 | 38 Local AI Resource Scheduler Priority Queue | Local AI provider scheduler | AI resource scheduling only; outside capture/provider ownership. |
 | 39 Redacted Summary Only Remote Boundary | Protocol/live-view/mesh boundary types | Boundary contract only; remote transport/custody owners remain external and raw upload stays disabled. |
 | 40 Detector Prompt Packs And Schema Tests | Tests/proof only | Validation-only; no runtime implementation. |
 | Screen Control Settings Inventory | Generated documentation | Inventory only; no runtime entrypoint or product effect. |
 | Screen Evidence Analysis Capability Guide | Capability documentation | Guidance only; no runtime entrypoint or product effect. |
 | Screen Evidence Analysis Schema Proposal | Proposal documentation | Proposal only; not source/runtime authority. |
+
+### WP37 source truth reconciliation (2026-08-24)
+
+The screen household-mesh path is not production-complete. Its public
+`ScreenHouseholdMeshInput`, `proof_fixture()`, and
+`ScreenHouseholdMeshSpine::without_owner_handlers()` path use caller-supplied
+strings and in-memory state; they cannot mint authenticated provider, claim,
+lease, result, custody, or policy authority. The service row-ready subscriber
+returns `RuntimeOwnerUnavailable`, and service startup does not wire a
+household-mesh producer/consumer. Current lease identifiers are synthesized
+from job IDs in process-local state, while heartbeat/read-model/environment
+availability remains non-authoritative.
+
+The indexed owner route is explicit: AI WP07 owns the queue claim/lease/result
+contract, AI WP08 the provider-route contract, AI WP32 the household/remote
+boundary, LAN WP26 the authenticated household ingress/selected-route and
+durable ingress custody, and Eventing WP10 the local mesh import/republish
+boundary. AI WP19 is the result journal/read-model sink; Eventing WP08 is the
+generic parent-runtime integration boundary. Those owners are incomplete or
+contract-only for this path. No indexed owner currently supplies the complete
+screen-specific provider transfer/result receipt plus `agent-service` startup
+composition; that missing owner is an explicit blocker, not an invented graph
+edge. WP37 remains blocked/source-incomplete with all six workpack checklist
+rows open; no test, proof, READY, or DONE claim is made.
 
 The one production correction in this pass is in
 `crates/agent-core/src/screen_event_runtime.rs`: degraded service rows no

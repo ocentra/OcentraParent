@@ -1,5 +1,6 @@
 use std::net::TcpStream;
-use std::time::Duration;
+use std::sync::atomic::AtomicBool;
+use std::time::{Duration, Instant};
 
 use super::{SsdpDeviceDescription, SsdpDiscoveryError};
 
@@ -11,6 +12,14 @@ pub(super) fn fetch_ssdp_description(
     timeout: Duration,
 ) -> Result<SsdpDeviceDescription, SsdpDiscoveryError> {
     fetch::fetch_ssdp_description(location, timeout)
+}
+
+pub(super) fn fetch_ssdp_description_until(
+    location: &str,
+    deadline: Instant,
+    cancellation: Option<&AtomicBool>,
+) -> Result<SsdpDeviceDescription, SsdpDiscoveryError> {
+    fetch::fetch_ssdp_description_until(location, deadline, cancellation)
 }
 
 pub(super) fn read_http_response(stream: &mut TcpStream) -> Result<Vec<u8>, SsdpDiscoveryError> {

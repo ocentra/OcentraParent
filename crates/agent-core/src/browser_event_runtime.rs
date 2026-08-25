@@ -1,9 +1,10 @@
 use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
 use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
-    bus::EventBus, envelope::EventMetadata, envelope::EventSource, error::EventingError,
-    ids::CorrelationId, ids::EventCustody, ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId,
-    ids::SourceComponent, ids::SourceService, ids::TargetHandler, topology::EventTopologyManifest,
+    bus::publisher::RootEventPublisher, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
+    ids::EventId, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
+    ids::SourceService, ids::TargetHandler, topology::EventTopologyManifest,
 };
 use ocentra_parent_agent_protocol::browser::{
     BrowserRuntimeEventPayload as ProtocolBrowserRuntimeEventPayload, BrowserRuntimePhase,
@@ -230,7 +231,7 @@ pub async fn publish_browser_runtime_chain_for_input(
 }
 
 struct BrowserRuntimeSpine {
-    bus: EventBus,
+    bus: RootEventPublisher,
 }
 
 impl BrowserRuntimeSpine {

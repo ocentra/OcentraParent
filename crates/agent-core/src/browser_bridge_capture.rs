@@ -12,8 +12,8 @@ use std::{
     fmt,
     path::Path,
     sync::{
-        Arc,
         atomic::{AtomicBool, AtomicU64, Ordering},
+        Arc,
     },
 };
 
@@ -21,9 +21,8 @@ use crate::{
     browser_bridge_poll::BrowserBridgePollError, browser_managed_session::BrowserManagedLaunch,
 };
 use ocentra_schema::managed_browser_cdp_capture::{
-    MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION, ManagedBrowserCdpCaptureMode,
-    ManagedBrowserCdpCaptureReceipt, ManagedBrowserCdpCaptureRequest,
-    ManagedBrowserCdpEvidenceRefs,
+    ManagedBrowserCdpCaptureMode, ManagedBrowserCdpCaptureReceipt, ManagedBrowserCdpCaptureRequest,
+    ManagedBrowserCdpEvidenceRefs, MANAGED_BROWSER_CDP_CAPTURE_SCHEMA_VERSION,
 };
 use sha2::{Digest, Sha256};
 

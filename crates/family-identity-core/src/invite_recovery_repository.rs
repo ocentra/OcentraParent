@@ -18,8 +18,10 @@ use rusqlite::Connection;
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 use crate::account_identity_authority_repository::SqliteAccountIdentityAuthorityRepository;
 use crate::family_identity::{RecoveryId, SetupInviteId};
-use crate::recovery_lifecycle::{RecoveryCustodyHandoff, RecoveryKind, RecoveryState};
-use crate::setup_lifecycle::{RecoverySupportChannel, SetupInvitePurpose, SetupInviteTargetRole};
+use crate::recovery_lifecycle::RecoveryCustodyHandoff;
+use crate::setup_lifecycle::{
+    RecoveryKind, RecoveryState, RecoverySupportChannel, SetupInvitePurpose, SetupInviteTargetRole,
+};
 
 const INVITE_TOKEN_DIGEST_DOMAIN: &[u8] = b"ocentra-account-invite-v1";
 const MAX_INVITE_TTL: Duration = Duration::from_secs(30 * 24 * 60 * 60);

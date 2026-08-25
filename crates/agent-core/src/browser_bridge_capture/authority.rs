@@ -6,7 +6,7 @@ use std::{
 
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
 
-use super::{ManagedBrowserCdpCaptureError, binding};
+use super::{binding, ManagedBrowserCdpCaptureError};
 use crate::browser_managed_session::BrowserManagedLaunch;
 
 #[derive(Clone)]

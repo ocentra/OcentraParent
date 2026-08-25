@@ -7,7 +7,7 @@ use ocentra_schema::account_identity_authority_producer::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_SIGNATURE_ALGORITHM,
 };
 
-use super::account_identity_authority_producer_error::AccountIdentityAuthorityProducerError;
+use crate::account_identity_authority_producer_error::AccountIdentityAuthorityProducerError;
 
 const DOMAIN_SEPARATOR: &[u8] = b"ocentra.account-authority-producer.signing.v1\0";
 

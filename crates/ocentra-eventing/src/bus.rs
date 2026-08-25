@@ -17,6 +17,9 @@ mod active_dispatch;
 mod aggregate_gate;
 mod builders;
 mod dispatch;
+mod dispatch_chain;
+mod handler_scope;
+mod identity;
 mod journaling;
 mod lifecycle;
 mod publish;
@@ -29,7 +32,7 @@ use subscriber::{insert_subscriber, record_for, remove_subscriber, SubscriberRec
 
 use active_dispatch::ActiveDispatchTracker;
 
-use publisher::{EventContext, EventPublisher};
+use publisher::{EventContext, EventPublisher, RootEventPublisher};
 use reports::dead_letter::DeadLetter;
 use reports::handler::{EventMetricsSnapshot, HandlerReport, PublishReport, QueueDrainReport};
 use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport};
@@ -82,6 +85,7 @@ pub struct EventBusShutdownReport {
 
 #[derive(Clone)]
 pub struct EventBus {
+    identity: identity::EventBusIdentity,
     registry: Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
     stored_journal: Arc<RwLock<Vec<StoredEventEnvelope>>>,
     dead_letters: Arc<RwLock<Vec<DeadLetter>>>,
@@ -94,6 +98,51 @@ pub struct EventBus {
     clock: SharedEventClock,
     shutdown: Arc<Mutex<EventBusLifecycleState>>,
     active_dispatches: ActiveDispatchTracker,
+}
+
+impl RootEventPublisher {
+    pub async fn subscribe<E, F, Fut>(
+        &self,
+        subscriber: EventSubscriber,
+        handler: F,
+    ) -> Result<SubscriptionReport, EventingError>
+    where
+        E: DomainEvent,
+        F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
+    {
+        self.bus
+            .subscribe_internal::<E, _, _>(subscriber, handler)
+            .await
+    }
+
+    pub async fn subscribe_with_handle<E, F, Fut>(
+        &self,
+        subscriber: EventSubscriber,
+        handler: F,
+    ) -> Result<SubscriptionHandle, EventingError>
+    where
+        E: DomainEvent,
+        F: Fn(EventContext<E>) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = Result<(), EventingError>> + Send + 'static,
+    {
+        self.bus
+            .subscribe_with_handle_internal::<E, _, _>(subscriber, handler)
+            .await
+    }
+
+    pub async fn subscribe_sync<E, F>(
+        &self,
+        subscriber: EventSubscriber,
+        handler: F,
+    ) -> Result<SubscriptionReport, EventingError>
+    where
+        E: DomainEvent,
+        F: Fn(EventContext<E>) -> Result<(), EventingError> + Send + Sync + 'static,
+    {
+        self.subscribe::<E, _, _>(subscriber, move |context| ready(handler(context)))
+            .await
+    }
 }
 
 impl EventBus {
@@ -122,7 +171,7 @@ impl EventBus {
         self.queue.policy().no_subscriber()
     }
 
-    pub async fn subscribe<E, F, Fut>(
+    async fn subscribe_internal<E, F, Fut>(
         &self,
         subscriber: EventSubscriber,
         handler: F,
@@ -147,7 +196,7 @@ impl EventBus {
         Ok(report)
     }
 
-    pub async fn subscribe_with_handle<E, F, Fut>(
+    async fn subscribe_with_handle_internal<E, F, Fut>(
         &self,
         subscriber: EventSubscriber,
         handler: F,
@@ -170,19 +219,6 @@ impl EventBus {
             ..report
         };
         Ok(SubscriptionHandle::new(Arc::clone(&self.registry), report))
-    }
-
-    pub async fn subscribe_sync<E, F>(
-        &self,
-        subscriber: EventSubscriber,
-        handler: F,
-    ) -> Result<SubscriptionReport, EventingError>
-    where
-        E: DomainEvent,
-        F: Fn(EventContext<E>) -> Result<(), EventingError> + Send + Sync + 'static,
-    {
-        self.subscribe::<E, _, _>(subscriber, move |context| ready(handler(context)))
-            .await
     }
 
     fn insert_subscriber(&self, record: SubscriberRecord) -> Result<(), EventingError> {

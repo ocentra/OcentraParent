@@ -5,8 +5,9 @@ use super::routing::{
 };
 use super::state::ChildDomainRuntimeFlowState;
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
-    error::EventingError, ids::EventType, ids::SubscriberId, ids::TargetHandler,
+    bus::publisher::RootEventPublisher, bus::subscriber::EventSubscriber,
+    bus::subscriber::SubscriptionReport, error::EventingError, ids::EventType, ids::SubscriberId,
+    ids::TargetHandler,
 };
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_notification_requested_event,
@@ -18,7 +19,7 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
 use ocentra_parent_agent_protocol::constants;
 
 pub(super) async fn subscribe_child_domain_observer(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     domain: ChildRuntimeDomain,
     state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
@@ -81,7 +82,7 @@ pub(super) async fn subscribe_child_domain_observer(
 }
 
 pub(super) async fn subscribe_child_domain_ai(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     domain: ChildRuntimeDomain,
     state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
@@ -121,7 +122,7 @@ pub(super) async fn subscribe_child_domain_ai(
 }
 
 pub(super) async fn subscribe_child_domain_ai_policy_bridge(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildDomainAiAnalysisCompletedEvent, _, _>(
@@ -164,7 +165,7 @@ pub(super) async fn subscribe_child_domain_ai_policy_bridge(
 }
 
 pub(super) async fn subscribe_child_domain_policy(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     domain: ChildRuntimeDomain,
     state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
@@ -206,7 +207,7 @@ pub(super) async fn subscribe_child_domain_policy(
 }
 
 pub(super) async fn subscribe_child_domain_notification(
-    bus: &EventBus,
+    bus: &RootEventPublisher,
     state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildDomainPolicyViolationDetectedEvent, _, _>(

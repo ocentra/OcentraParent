@@ -62,7 +62,7 @@ Failure conditions:
 
 ## Completion
 
-- Status: production source packet strengthened but incomplete; expected tests, focused execution, proof refresh, external owner mounting, and runtime composition remain open. Scheduled backup and unavailable-provider paths remain manual-required.
+- Status: bounded fail-closed base source accepted but unmounted; all five expected runtime test roots, focused execution, proof refresh, dependency-owned adapters/caller, and WP11 runtime composition remain open. Scheduled backup and unavailable-provider paths remain manual-required.
 - Proof root: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/`
 - Canonical owners: `crates/schema` for the shared export/import/restore contract and durable backup/schedule/job/migration/rollback shapes; `crates/storage-custody-core` for pure bundle derivation, import preflight, restore/migration orchestration, fail-closed compensation, and provider-neutral ports; `crates/parent-runtime-core` for durable scheduler/job persistence, restore/migration ledgers, restart reconciliation, executor/rollback mounting, and real Eventing journal/outbox composition.
 - TS/shared edge note: no new `packages/schema-domain` surface was needed for WP05. TS ownership was not widened.
@@ -221,6 +221,28 @@ reachability. The provider-neutral restore port, Account/family authority,
 key/import custody, producer composition, five expected runtime tests, focused
 validation, proof, precommit, CI, and DONE remain open; unavailable provider
 paths stay manual-required.
+
+## 2026-08-19 live caller and test-gap audit
+
+The bounded schema, storage-decision, parent-ledger, restart, rollback, and
+Eventing/outbox source is real and fail-closed. It is not reachable product
+behavior: repository-wide caller tracing found no production caller or
+implementation for the Account authority, provider operation, key/import
+custody, or producer-result ports, and the mount methods remain crate-private.
+`ImportCustodyCapabilityPort` is sealed inside `storage-custody-core`; a legal
+cross-crate mount needs an owner-side adapter/interface decision, not a public
+escape hatch.
+
+All five expected runtime test roots are absent. One existing blocked-restore
+test is stale against source: the source returns
+`local_truth_authoritative=false` and `tombstones_preserved=false`, while the
+test expects true/true. That discrepancy is carried into the later test-source
+wave and must be resolved from the custody contract before any test execution.
+
+No honest WP05-only production edit closes the remaining route. The next code
+order is Account WP05 current authority/fencing, Data WP09 byte custody, WP10
+producer handoffs, WP11 composition/mount, and then a real runtime caller. This
+audit makes no test, proof, validation, runtime-ready, or `DONE` claim.
 
 ## Candidate source acceptance (tests and proof unresolved)
 

@@ -137,7 +137,7 @@ WP01: crates/schema source-of-truth contract plus generated edge; no shipped run
 WP02: decrypt-scope authority now fails closed against the selected platform row; real platform/provider key consumers remain adjacent-owner work.
 WP03: sync manifest custody is validated before claim-safe state derivation; provider SDK/OAuth/upload/delete/retrieval execution remains adjacent-owner work.
 WP04: generic retention/delete derivation remains in storage-custody-core; the durable tombstone/effect owner is now child-runtime and is reached by its internal custody command path.
-WP05: dishonest import bundles are rejected before derivation, and the bounded schema/storage/parent-runtime backup, restore, migration, rollback, reconciliation, and Eventing source packet is present. Provider/filesystem execution, external authority/key/provider/producer composition, production callers, tests, focused validation, and proof remain open.
+WP05: dishonest import bundles are rejected before derivation, and the bounded schema/storage/parent-runtime backup, restore, migration, rollback, reconciliation, and Eventing source packet is present and fail-closed. No production caller implements the external Account/provider/key/producer ports; five expected runtime test roots are absent. The sealed `ImportCustodyCapabilityPort` also requires an owner-side adapter design before a legal cross-crate mount. The current blocked-restore source returns false for local-authoritative/tombstone-preserved while an existing stale test expects true, so source/test reconciliation is explicitly deferred to the test-writing phase. Provider/filesystem execution, dependency composition, production reachability, focused validation, and proof remain open.
 WP06: an Account-issued authority-snapshot-derived opaque query-source capability, request/row authority and citation binding, session expiry, exact actor-role binding, all-seven-state completeness, source/proof page bounds, and cursor/source/stable-sort continuity now fail closed at the Rust boundary with generated TypeScript parity. The snapshot is not a race-safe repository-currentness claim. No report/query/notification/AI/portal runtime consumer reaches the boundary; stale Rust tests and the unwritten TypeScript contract test remain open.
 WP07: submit_storage_custody_action -> PublishStorageCustody -> dynamic Device Trust gate -> ChildStorageCustodyRuntime::execute -> durable effect/journal/tombstone lifecycle is real source. Default custody authority is manual-required and no trusted Account/family adapter or external caller supplies the opaque handle.
 WP08: schema/storage-custody-core parent-storage settings/apply derivation plus generated edge; no portal/desktop host/provider apply caller found.
@@ -273,3 +273,28 @@ capability, and WP10 supplies owner-derived outcomes. WP09 and WP10 now depend
 on the WP05 base only and remain independent of WP11, so the route is acyclic.
 No private trait is made public, and no runtime completeness, proof, PR
 readiness, or plan completion is claimed.
+
+## 2026-08-19 WP05 live source and test-gap audit
+
+The bounded WP05 source is real: shared schema contracts, pure storage
+decisions, durable parent backup/restore/migration ledgers, restart
+reconciliation, rollback validation, and Eventing/outbox composition all exist
+and fail closed when an external owner is unavailable. It is not mounted
+product behavior. Repository-wide caller tracing found no production caller or
+implementation for the Account authority, provider operation, key/import
+custody, or producer-result ports; the relevant parent-runtime methods remain
+crate-private.
+
+All five expected runtime test roots are absent. The current source/test tree
+also contains an explicit mismatch: `blocked_restore()` reports
+`local_truth_authoritative=false` and `tombstones_preserved=false`, while the
+stale test still expects both true. `ImportCustodyCapabilityPort` is sealed
+inside `storage-custody-core`, so mounting it from another crate requires an
+owner-side adapter/interface decision rather than making the port public or
+inventing authority.
+
+There is no honest WP05-only source patch that closes those gaps. The first
+remaining order is Account WP05 current authority/fencing, then Data WP09 byte
+custody, WP10 producer handoffs, WP11 composition/mount, and finally a real
+runtime caller. Tests are written after those production owners are complete;
+no proof, validation, or completion promotion is implied by this audit.

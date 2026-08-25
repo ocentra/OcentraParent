@@ -241,7 +241,7 @@ impl ParentDeviceTrustCommandFacade {
             .seal_verified_parent_device_trust(
                 staged.trust_bootstrap_ref,
                 staged.ceremony,
-                &material,
+                &material[..],
             )
             .map_err(ParentDeviceTrustCommandError::Runtime)
     }

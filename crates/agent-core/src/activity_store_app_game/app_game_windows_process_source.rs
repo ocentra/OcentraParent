@@ -189,7 +189,7 @@ fn record_from_process(
 fn runtime_evidence_id(process_id: u64, start_time: u64, observed_at: &str) -> String {
     let mut evidence_id = String::from(APP_GAME_RUNTIME_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(&process_id.to_string());
-    evidence_id.push_str(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
+    evidence_id.push(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
     evidence_id.push_str(&start_time.to_string());
     evidence_id.push_str(&observed_at_suffix(observed_at));
     evidence_id
@@ -200,7 +200,7 @@ fn process_identity(process_id: u64, start_time: u64) -> String {
         ocentra_parent_agent_protocol::constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX,
     );
     process_identity.push_str(&process_id.to_string());
-    process_identity.push_str(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
+    process_identity.push(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
     process_identity.push_str(&start_time.to_string());
     process_identity
 }

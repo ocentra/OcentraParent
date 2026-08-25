@@ -14,7 +14,7 @@ pub(super) fn implemented_source_rows() -> Vec<LanDiscoverySourceRow> {
         implemented_interface_selection_source(),
     ];
     rows.extend(implemented_neighbor_source_rows());
-    rows.extend(partial_active_refresh_source_rows());
+    rows.extend(unavailable_command_source_rows());
     rows.push(implemented_previous_scan_source());
     rows
 }
@@ -80,21 +80,10 @@ fn implemented_interface_selection_source() -> LanDiscoverySourceRow {
 }
 
 fn implemented_neighbor_source_rows() -> Vec<LanDiscoverySourceRow> {
-    vec![
-        implemented_neighbor_source(
-            LanDiscoverySourceKind::WindowsNeighborTable,
-            constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR,
-        ),
-        implemented_neighbor_source(
-            LanDiscoverySourceKind::LinuxProcNetArp,
-            constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP,
-        ),
-        implemented_neighbor_source(
-            LanDiscoverySourceKind::LinuxIpNeigh,
-            constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH,
-        ),
-        partial_macos_arp_source(),
-    ]
+    vec![implemented_neighbor_source(
+        LanDiscoverySourceKind::LinuxProcNetArp,
+        constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP,
+    )]
 }
 
 fn implemented_neighbor_source(
@@ -120,54 +109,53 @@ fn implemented_neighbor_source(
     )
 }
 
-fn partial_macos_arp_source() -> LanDiscoverySourceRow {
-    source_row(
-        LanDiscoverySourceKind::MacosArp,
-        LanPlanWorkpackId::W04,
-        SourceRowDetails {
-            status: LanDiscoverySourceStatus::Partial,
-            authority: LanDiscoverySourceAuthority::WeakIdentity,
-            runtime_path: LanDiscoverySourceRuntimePath::RustServiceReadModel,
-            ui_surface: LanDiscoverySourceUiSurface::DevicesLan,
-            can_confirm_child_agent: false,
-            can_assign_child_profile: false,
-            can_control_route: false,
-            requires_selected_interface: true,
-            persists_across_restart: false,
-            evidence_label: constants::lan_pairing::LAN_SCAN_SOURCE_MACOS_ARP,
-            required_artifact_summary: Some(
-                constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_PHYSICAL.to_string(),
-            ),
-        },
-    )
-}
-
-fn partial_active_refresh_source_rows() -> Vec<LanDiscoverySourceRow> {
+fn unavailable_command_source_rows() -> Vec<LanDiscoverySourceRow> {
     vec![
-        implemented_presence_source(
+        unavailable_command_source(
+            LanDiscoverySourceKind::WindowsNeighborTable,
+            LanPlanWorkpackId::W04,
+            constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR,
+            LanDiscoverySourceAuthority::WeakIdentity,
+        ),
+        unavailable_command_source(
+            LanDiscoverySourceKind::LinuxIpNeigh,
+            LanPlanWorkpackId::W04,
+            constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH,
+            LanDiscoverySourceAuthority::WeakIdentity,
+        ),
+        unavailable_command_source(
+            LanDiscoverySourceKind::MacosArp,
+            LanPlanWorkpackId::W04,
+            constants::lan_pairing::LAN_SCAN_SOURCE_MACOS_ARP,
+            LanDiscoverySourceAuthority::WeakIdentity,
+        ),
+        unavailable_command_source(
             LanDiscoverySourceKind::TargetedArpRefresh,
             LanPlanWorkpackId::W05,
             constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_05,
+            LanDiscoverySourceAuthority::PresenceOnly,
         ),
-        implemented_presence_source(
+        unavailable_command_source(
             LanDiscoverySourceKind::BoundedArpSweep,
             LanPlanWorkpackId::W06,
             constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_06,
+            LanDiscoverySourceAuthority::PresenceOnly,
         ),
     ]
 }
 
-fn implemented_presence_source(
+fn unavailable_command_source(
     source: LanDiscoverySourceKind,
     workpack_id: LanPlanWorkpackId,
     evidence_label: &'static str,
+    authority: LanDiscoverySourceAuthority,
 ) -> LanDiscoverySourceRow {
     source_row(
         source,
         workpack_id,
         SourceRowDetails {
-            status: LanDiscoverySourceStatus::Implemented,
-            authority: LanDiscoverySourceAuthority::PresenceOnly,
+            status: LanDiscoverySourceStatus::NotImplemented,
+            authority,
             runtime_path: LanDiscoverySourceRuntimePath::RustServiceReadModel,
             ui_surface: LanDiscoverySourceUiSurface::DevicesLan,
             can_confirm_child_agent: false,

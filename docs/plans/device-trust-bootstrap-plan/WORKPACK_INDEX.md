@@ -20,7 +20,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| partial / foundation-source only; expected tests, authority bridge, and caller open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | accepted continuation is integrated through `68717b5b7`: durable lifecycle/current-binding source is present, but no shipped authority issuer, platform ceremony, production caller, expected-test wave, proof, or completion exists | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
+| blocked / lifecycle source retained; unsafe owner-side fence withdrawn | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | accepted lifecycle/current-binding source remains, but the attempted runtime-fence participant was removed after review found caller-mintable committed rows, no explicit migration for existing databases, and unbounded retention/startup scanning. Protected Device-owned receipts, Account WP05A caller, migration/retention owners, expected tests, proof, and completion are absent | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
 | partial / Windows custody source with desktop mount; downstream of WP01 | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | DPAPI/registry and opaque runtime seams exist, and the parent desktop custody-sealing command is mounted; its success is custody-sealed-only, `require_authenticated_parent_authority()` remains permanently unavailable, no ceremony issuer or custody-to-lifecycle startup composition reaches it, and current tests/end-to-end sealing proof remain open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
 | blocked / bounded custody retained / target authority, runtime, and coordinator participant missing | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; target-aware Account WP02 is transitive through WP06. Atomic ceremony custody/recovery and linked-challenge lifecycle source are retained, but planned target-authority/runtime owners, private WP05A reservation participant, platform/passkey provider, durable sign counter, expected tests, proof, LAN handoff, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
@@ -56,15 +56,15 @@ those owners. The graph validator reported checked-in graph/source drift during
 the prior audit; the 2026-08-17 coordinator updates record bounded reviewed
 implementation and dependency evidence without changing any DONE state.
 
-## Current implementation-phase disposition — 2026-08-17
+## Current implementation-phase disposition — 2026-08-24
 
-The accepted Device Trust continuation is integrated through `68717b5b7` and independently reviewed
-with no P0/P1 findings. The graph records its five reviewed
-`family-identity-core` source paths as implementation evidence; WP01 remains a
-foundation/source-only validation route, not a shipped authority or production
-caller. Focused source-format, architecture, Enforcer, diff, and guard checks
-passed. Expected-test migration, functional validation, proof, production caller
-integration, repo-wide Enforcer/architecture acceptance, platform custody, and
+The accepted Device Trust lifecycle/current-binding continuation remains, but
+the later private runtime-fence packet is rejected and withdrawn. The graph no
+longer records its deleted participant/helper paths as implementation evidence.
+WP01 is blocked on protected Device-owned receipt custody, versioned migration,
+bounded retention/archive policy, and a real Account WP05A caller before the
+participant can be reintroduced. Expected tests, lifecycle-test migration,
+functional validation, proof, repo-wide acceptance, platform custody, and
 broader lifecycle composition remain open.
 
 WP05's signed authority source packet and absent child-runtime entitlement
@@ -143,7 +143,10 @@ transitively through WP06; it is not duplicated as a direct WP03 edge. Device
 Trust WP02 is conditional only for a demonstrated private-key/install custody
 requirement.
 WP04 depends on WP03 and blocks phone/QR approval claims.
-WP05 depends on WP01/WP02 and payment handoff; license never unlocks behavior alone.
+WP05 depends on WP01. WP02 is conditional only when the selected entitlement
+route requires local-key-sealing/lifecycle-revocation custody; payment remains
+a typed handoff with no hard graph edge until its exact producer workpack is
+named. License never unlocks behavior alone.
 WP06 depends on WP02/WP03/WP04 and blocks recovery/reset claims.
 WP07 depends on WP01/WP02/WP06 and blocks child uninstall/tamper claims.
 LAN WP26 and any child current-binding consumer are ordered after WP03's

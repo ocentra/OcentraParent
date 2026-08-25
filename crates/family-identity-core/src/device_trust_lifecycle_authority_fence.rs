@@ -10,10 +10,11 @@ use rusqlite::{params, Connection, Transaction};
 use crate::{
     device_trust_lifecycle::DeviceTrustLifecycleError,
     device_trust_lifecycle_authority_intent::{self, AuthorityIntent},
+    device_trust_lifecycle_authority_lock,
     device_trust_lifecycle_authority_reconciliation::{
         reconcile_locked, require_expected_generation,
     },
-    device_trust_lifecycle_authority_store::{load_values, open_lock},
+    device_trust_lifecycle_authority_store::open_lock,
     device_trust_signer_registration_validation::random_receipt,
 };
 
@@ -115,8 +116,7 @@ pub(crate) fn begin(
         target_generation,
     )?;
     let lock = open_lock(lock_path)?;
-    lock.lock_exclusive()
-        .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+    device_trust_lifecycle_authority_lock::lock_exclusive_bounded(&lock)?;
     let preparation = (|| {
         let values = reconcile_locked(connection, values_path, intent_path)?;
         require_expected_generation(&values, &intent.authority_key, intent.expected_generation)?;
@@ -147,22 +147,13 @@ pub(crate) fn matches(
     key: &str,
     generation: u64,
 ) -> Result<bool, DeviceTrustLifecycleError> {
-    let lock = open_lock(lock_path)?;
-    lock.lock_shared()
-        .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
-    let result = (|| {
-        let has_pending_intent =
-            device_trust_lifecycle_authority_intent::load(intent_path)?.is_some();
-        let generation_matches =
-            load_values(values_path, true)?.get(key).copied() == Some(generation);
-        Ok(!has_pending_intent && generation_matches)
-    })();
-    let unlock_result =
-        FileExt::unlock(&lock).map_err(|_error| DeviceTrustLifecycleError::Unavailable);
-    match (result, unlock_result) {
-        (Err(error), _) | (Ok(_), Err(error)) => Err(error),
-        (Ok(matches), Ok(())) => Ok(matches),
-    }
+    device_trust_lifecycle_authority_lock::matches(
+        values_path,
+        intent_path,
+        lock_path,
+        key,
+        generation,
+    )
 }
 
 fn to_sql_generation(generation: u64) -> Result<i64, DeviceTrustLifecycleError> {

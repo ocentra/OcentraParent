@@ -24,7 +24,7 @@ pub(super) fn build_report_query_custody_proof(
     )?;
     super::report_query_custody_proof_validate::validate_page_result_limit(request, sources.len())?;
 
-    let mut rows = Vec::with_capacity(sources.len());
+    let mut rows: Vec<contracts::ReportQueryCustodyRow> = Vec::with_capacity(sources.len());
     let mut seen_cursor_refs: BTreeSet<contracts::ReportQueryCustodyCursorRef> = BTreeSet::new();
     let mut seen_source_refs: BTreeSet<contracts::ReportQueryCustodySourceRef> = BTreeSet::new();
     let mut seen_sort_keys: BTreeSet<contracts::ReportQueryCustodySortKey> = BTreeSet::new();

@@ -33,7 +33,7 @@ pub fn advance_backup_job(
     record: &contracts::ExportImportBackupJobRecord,
     transition: BackupJobTransition,
 ) -> Result<contracts::ExportImportBackupJobRecord, BackupJobStateError> {
-    let updated_at = contracts::ExportImportTimestamp::parse(transition.updated_at)
+    let updated_at = contracts::ExportImportTimestamp::parse(transition.updated_at.clone())
         .ok_or(BackupJobStateError::InvalidTimestamp)?;
     let (execution_ref, provider_operation_ref) = parse_transition_refs(&transition)?;
     validate_transition(
@@ -166,16 +166,42 @@ fn transition_is_allowed(
     from: contracts::ExportImportBackupJobLifecycle,
     to: contracts::ExportImportBackupJobLifecycle,
 ) -> bool {
-    use contracts::ExportImportBackupJobLifecycle::*;
     matches!(
         (from, to),
-        (Scheduled, Claimed | ManualRequired)
-            | (Claimed, Running | Retryable | Failed | ManualRequired)
-            | (Running, Succeeded | Retryable | Failed | ManualRequired)
-            | (Retryable, Claimed | Failed | ManualRequired)
-            | (Failed, ManualRequired | Reconciled)
-            | (ManualRequired, Reconciled)
-            | (Reconciled, Reconciled)
-            | (Succeeded, Succeeded)
+        (
+            contracts::ExportImportBackupJobLifecycle::Scheduled,
+            contracts::ExportImportBackupJobLifecycle::Claimed
+                | contracts::ExportImportBackupJobLifecycle::ManualRequired
+        ) | (
+            contracts::ExportImportBackupJobLifecycle::Claimed,
+            contracts::ExportImportBackupJobLifecycle::Running
+                | contracts::ExportImportBackupJobLifecycle::Retryable
+                | contracts::ExportImportBackupJobLifecycle::Failed
+                | contracts::ExportImportBackupJobLifecycle::ManualRequired
+        ) | (
+            contracts::ExportImportBackupJobLifecycle::Running,
+            contracts::ExportImportBackupJobLifecycle::Succeeded
+                | contracts::ExportImportBackupJobLifecycle::Retryable
+                | contracts::ExportImportBackupJobLifecycle::Failed
+                | contracts::ExportImportBackupJobLifecycle::ManualRequired
+        ) | (
+            contracts::ExportImportBackupJobLifecycle::Retryable,
+            contracts::ExportImportBackupJobLifecycle::Claimed
+                | contracts::ExportImportBackupJobLifecycle::Failed
+                | contracts::ExportImportBackupJobLifecycle::ManualRequired
+        ) | (
+            contracts::ExportImportBackupJobLifecycle::Failed,
+            contracts::ExportImportBackupJobLifecycle::ManualRequired
+                | contracts::ExportImportBackupJobLifecycle::Reconciled
+        ) | (
+            contracts::ExportImportBackupJobLifecycle::ManualRequired,
+            contracts::ExportImportBackupJobLifecycle::Reconciled
+        ) | (
+            contracts::ExportImportBackupJobLifecycle::Reconciled,
+            contracts::ExportImportBackupJobLifecycle::Reconciled
+        ) | (
+            contracts::ExportImportBackupJobLifecycle::Succeeded,
+            contracts::ExportImportBackupJobLifecycle::Succeeded
+        )
     )
 }

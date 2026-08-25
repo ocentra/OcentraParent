@@ -205,8 +205,18 @@ parent runtime: crates/parent-runtime-core/src/data_custody_backup_runtime.rs,
                 crates/parent-runtime-core/src/data_custody_restore_runtime_rollback.rs,
                 crates/parent-runtime-core/tests/unit/data_custody_backup_runtime.rs,
                 crates/parent-runtime-core/tests/unit/data_custody_restore_runtime.rs,
-                crates/parent-runtime-core/tests/integration/data_custody_runtime.rs
+                 crates/parent-runtime-core/tests/integration/data_custody_runtime.rs
 ```
+
+Live 2026-08-19 audit: all five test roots named above are absent. The source
+packet is fail-closed but has no production caller or implementation of its
+Account/provider/key/producer ports. The existing blocked-restore test is also
+stale: source reports `local_truth_authoritative=false` and
+`tombstones_preserved=false`, while that test expects both true. The test wave
+must resolve the intended contract from the owning custody semantics, then
+write the complete five-root family; it must not change source merely to make a
+stale assertion pass. The sealed `ImportCustodyCapabilityPort` requires an
+owner-side production adapter and may not be made public for test convenience.
 
 ## WP06 Report Query Custody
 

@@ -3,14 +3,15 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use fs2::FileExt;
 use rusqlite::Connection;
 use sha2::{Digest, Sha256};
 
 use crate::{
     device_trust_lifecycle::DeviceTrustLifecycleError,
     device_trust_lifecycle_authority_fence::{self, AuthorityTransition},
-    device_trust_lifecycle_authority_intent, device_trust_lifecycle_authority_reconciliation,
+    device_trust_lifecycle_authority_intent,
+    device_trust_lifecycle_authority_lock::{self, AuthorityReadFence},
+    device_trust_lifecycle_authority_reconciliation,
     device_trust_lifecycle_authority_store::{load_values, open_lock, persist_values},
 };
 
@@ -27,8 +28,7 @@ impl ExternalLifecycleAuthority {
         let intent_path = database_path.with_extension("authority-intent.json");
         let lock_path = database_path.with_extension("authority.lock");
         let lock = open_lock(&lock_path)?;
-        lock.lock_exclusive()
-            .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+        device_trust_lifecycle_authority_lock::lock_exclusive_bounded(&lock)?;
         let values = load_values(&path, database_path.exists()).and_then(|values| {
             device_trust_lifecycle_authority_intent::load(&intent_path)?;
             Ok(values)
@@ -36,7 +36,7 @@ impl ExternalLifecycleAuthority {
         let values = match values {
             Ok(values) => values,
             Err(error) => {
-                let _unlock_result = FileExt::unlock(&lock);
+                let _unlock_result = fs2::FileExt::unlock(&lock);
                 return Err(error);
             }
         };
@@ -48,11 +48,11 @@ impl ExternalLifecycleAuthority {
         };
         if !authority.path.exists() {
             if let Err(error) = authority.persist() {
-                let _unlock_result = FileExt::unlock(&lock);
+                let _unlock_result = fs2::FileExt::unlock(&lock);
                 return Err(error);
             }
         }
-        FileExt::unlock(&lock).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+        fs2::FileExt::unlock(&lock).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
         Ok(authority)
     }
 
@@ -112,6 +112,14 @@ impl ExternalLifecycleAuthority {
             Ok(matches) => matches,
             Err(_error) => false,
         }
+    }
+
+    pub(crate) fn read_fence(&self) -> Result<AuthorityReadFence, DeviceTrustLifecycleError> {
+        device_trust_lifecycle_authority_lock::read_fence(
+            &self.path,
+            &self.intent_path,
+            &self.lock_path,
+        )
     }
 
     fn persist(&self) -> Result<(), DeviceTrustLifecycleError> {

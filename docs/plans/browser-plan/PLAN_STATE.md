@@ -108,40 +108,36 @@ references to `packages/activity-domain/src/browser*.ts` remain stale; the
 active TypeScript edge ownership is `packages/browser-domain` and the active
 runtime ownership is the Rust paths in `source-index.md`.
 
-Reviewed readiness route (2026-08-18, WP07/WP09 production follow-up): the
-existing launcher and CDP adapter implementations are real and bounded, but
-their parent-service seam is not yet a delivered managed-browser runtime.
-The service currently discards the private `BrowserManagedLaunch` authority
-after launch, and its later bridge polling falls back to
-`PROCESS_ID_UNKNOWN`/`Unknown` custody, which the bridge rejects. The CDP
-version/target parser and capture/target-authority modules are present, but
-have no production caller that retains the same managed launch and hands the
-result into Screen. This is a reviewed implementation route, not a DONE or
-PR-ready claim.
+Reviewed source result (2026-08-19, WP07/WP09): canonical `f80b47c6a` removes
+the unreachable service launch state, environment/dev profile authority,
+placeholder bridge polling, and dead Browser-to-Screen handoff. The production
+websocket path now returns explicit managed-browser manual-required/unavailable
+status; it cannot claim a retained launch, connected bridge, trusted target, or
+Screen delivery. Core launch/capture authority remains private and bounded,
+but no service owner mounts it. This is honest source consolidation, not
+delivered WP07/WP09 behavior, validation, or PR readiness.
 
-The first coherent production packet is:
+The next coherent production packet remains owner-gated:
 
-1. Retain a cloneable, service-owned managed-browser runtime in `AppState` and
-   websocket routing, including process/session lifecycle and the private
-   launch authority; do not recreate custody from environment/dev constants.
-2. Poll `/json/version` and `/json/list` from that retained authority and
-   preserve the existing tab-list-only/active-unknown semantics.
-3. Mint CDP target authority only from a trusted same-launch page candidate;
-   target-list visibility must remain `Unknown` active-tab state.
-4. Route the existing typed Screen handoff from that source-backed capture,
-   with teardown, restart, process-exit, expiry, and bridge-disconnect state
-   transitions kept explicit.
+1. Introduce a private owner-issued start/stop boundary that retains
+   `BrowserManagedLaunch` in service state without env/dev/caller authority.
+2. Revalidate PID, executable, exact profile argument, and bridge ownership
+   before and after `/json/version` and `/json/list` I/O; teardown must wait for
+   and confirm process exit rather than reporting stopped optimistically.
+3. Keep target-list activity `Unknown`; mint same-launch target authority only
+   from the retained owner state.
+4. Add a typed Screen-owned handoff only after Screen accepts that boundary.
+   Browser must not import or simulate Screen runtime authority.
 
-Expected source/test debt for this packet is still open: a real AppState and
-websocket integration path; launch/process/session retention and restart or
-expiry tests; bridge custody/owner-mismatch and malformed/oversized/timeout
-tests through the retained launch; target disappearance/navigation and
-process-replacement tests; trusted same-launch target-authority tests; Screen
-handoff success/manual-required/failure tests; and a no-active-tab-claim
-regression. No fixture, environment constant, or caller-supplied authority is
-acceptable as a substitute for these tests. WP07/WP09 remain open and
-implementation-blocked until this packet is routed and implemented; no
-global graph or matrix state is changed by this plan-local update.
+The later test-source wave must first repair the now-stale Browser tests:
+`browser_runtime_status.rs` and `browser_runtime_tests.rs` use old status-helper
+arities, while `browser_inventory_read_model_tests.rs` and
+`browser_runtime_tests.rs` construct private `BrowserManagedLaunch` fields.
+Then write the missing retained-launch integration test root and the missing
+same-launch CDP integration root, including owner mismatch, process
+replacement, teardown, restart/expiry, malformed/oversized/timeout, target
+disappearance/navigation, no-active-tab-claim, and unavailable Screen handoff.
+WP07/WP09 remain open and blocked; no proof or completion is inferred.
 
 ## Scope
 
@@ -230,7 +226,15 @@ Current implementation is concentrated in `crates/schema`,
 ## Open gaps / missing product runtime
 
 - Browser inventory is not a complete product read model across installed, running, supported, unsupported, managed, unmanaged, packaged, and portable browsers.
-- Managed profile store repair, custody, redaction, and restart semantics need explicit workpack proof.
+- Browser WP06 superseding head `93f875134` is independently accepted as a
+  fail-closed source correction and integrated into the consolidation line. It
+  removes caller-mintable JSON/path authority and env/temp-dir mutation; all
+  store operations return `ProtectedCustodyAdapterUnavailable`, and no
+  `Ready`/`Deleted` record can be constructed. Completion still requires the
+  protected owner adapter, retained root/profile identity, real platform
+  mutation/recovery, a production caller, then the five expected test roots;
+  proof stays
+  last.
 - Active tab proof is still separate from target-list proof. `/json/list` target rows should remain `unknown` active state until focus/activation proof exists.
 - Managed browser intervention proof exists as a harness, but product-level warning/blocking still needs typed policy decision refs, journaled action refs, audit refs, child-facing delivery state, and portal proof.
 - Unmanaged browser URL evidence remains not claimed. Unmanaged process terminate/warn states exist only as scoped proof paths, not broad OS blocking.

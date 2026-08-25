@@ -66,8 +66,10 @@ test-only constructor with no production caller is not progress.
 
 PR #607 is closed without merge. Do not rebase its TypeScript Cloudflare
 adapter/D1-test-double slice into this plan. Start with Rust-owned account
-schema authority. Then hand the contract to Cloudflare WP06 for D1/DO/KV
-persistence/migration and Cloudflare WP08 for runner/integration proof.
+schema authority. Then route the contract through Account WP09 issuer/key
+custody and authenticated producer binding, then hand the contract to
+Cloudflare WP06 for D1/DO/KV persistence/migration and Cloudflare WP08 for
+runner/integration proof.
 
 ### 0. WP08 Rust Schema And Account Authority
 
@@ -82,6 +84,23 @@ cross-household, stale/revoked, malformed, duplicate, and schema-incompatible ne
 redacted correlated authority proof and retained focused Rust command log
 explicit handoff to Cloudflare WP06 then WP08; no worker-runtime claim
 ```
+
+### 0b. WP09 Account Issuer Key Custody And Cloudflare Handoff
+
+Reviewed core result: canonical `4f6245e51` contains durable issuer/key lineage,
+strict startup recovery, and a household-scoped receipt/wire outbox over the
+typed WP08 handoff. First accept Protected Custody WP01's isolated broker/client
+and opaque protected admission; Account must consume that boundary and must not
+recreate in-process key custody. Live caller tracing found no protected signer,
+binding authenticator, delivery-owner implementation, or production lifecycle
+caller. Then write the coherent Account-owned adapter/runtime packet; it must
+deliver the outer wire plus an authenticated current public-key record and
+accept only an exactly bound Cloudflare acknowledgement. Cloudflare WP06 then
+owns its private consumer/mount. The later test wave must write all seven
+expected custody/registry/adapter/runtime roots before focused execution. Retained proof
+comes only after code and tests converge. Do not add Account WP02, Account WP05A,
+Device Trust, or Cloudflare source ownership here, duplicate the WP08 schema/wire
+contract, permit caller-selected keys, or use mock/no-op/in-memory custody.
 
 ### 1. WP01 Auth Provider Decision
 

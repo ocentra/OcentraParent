@@ -24,6 +24,8 @@ pub mod account_identity_authority;
 pub mod account_identity_authority_producer;
 pub mod account_identity_authority_ts;
 pub mod activity_event_kind_ts;
+pub mod ai_contracts;
+pub mod ai_contracts_ts;
 pub mod app_game_preview_source_freshness;
 pub mod app_game_preview_source_freshness_ts;
 pub mod app_game_source_freshness_policy_consumption;

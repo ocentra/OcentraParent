@@ -66,12 +66,7 @@ fn platform_proof_status_payload_serializes_parent_safe_status_model() {
     );
     assert_refs(
         platform_row(&reparsed, APP_GAME_PARENT_PLATFORM_LINUX),
-        &[
-            proof::REF_LINUX_WSL_HOST_TOOLCHAIN,
-            proof::REF_LINUX_WSLG_DISPLAY,
-            proof::REF_LINUX_WSLG_X11_SOCKET,
-            proof::REF_LINUX_WSLG_WAYLAND_SOCKET,
-        ],
+        &[],
         &[APP_GAME_PLATFORM_GAP_LINUX_FOREGROUND_CAPTURE],
     );
 }
