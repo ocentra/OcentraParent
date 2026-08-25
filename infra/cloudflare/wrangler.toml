@@ -19,6 +19,7 @@ ENTITLEMENT_SIGNING_KEY_REF = "manual-required-local-ref"
 binding = "BILLING_D1"
 database_name = "ocentra-parent-billing-dev"
 database_id = "REPLACE_WITH_DEV_D1_ID"
+migrations_dir = "migrations/billing"
 
 [[d1_databases]]
 binding = "ACCOUNT_IDENTITY_D1"

@@ -83,6 +83,42 @@ export const BILLING_AUDIT_APPEND_PATH = '/internal/billing-audit/append';
 const MAX_BILLING_OUTBOX_DRAIN_ROWS = 20;
 const MAX_BILLING_OUTBOX_ATTEMPTS = 5;
 
+const BILLING_MUTATION_OUTBOX_FAILURE_CODES = [
+  'billing-audit-event-invalid',
+  'billing-audit-owner-unavailable',
+  'billing-mutation-outbox-delivery-failed',
+  'billing-mutation-outbox-legacy-error-quarantined',
+  'billing-read-model-unavailable',
+] as const;
+type BillingMutationOutboxFailureCode = (typeof BILLING_MUTATION_OUTBOX_FAILURE_CODES)[number];
+
+const PROVIDER_EVENT_FAILURE_CODES = [
+  'billing-control-do-binding-missing',
+  'billing-queue-operation-failed',
+  'billing-read-model-unavailable',
+  'provider-event-authority-revoked-or-changed',
+  'provider-event-authority-unresolved',
+  'provider-event-legacy-error-quarantined',
+  'provider-event-order-metadata-missing',
+  'provider-event-queue-delivery-failed',
+] as const;
+export type ProviderEventFailureCode = (typeof PROVIDER_EVENT_FAILURE_CODES)[number];
+export type ProviderEventFingerprint = `provider-event:sha256:${string}`;
+
+const PROVIDER_EVENT_FINGERPRINT_PATTERN = /^provider-event:sha256:[0-9a-f]{64}$/;
+
+function decodeProviderEventFingerprint(value: unknown, scope: string): ProviderEventFingerprint {
+  const decoded = decodeNonEmptyString(value, scope);
+  if (!PROVIDER_EVENT_FINGERPRINT_PATTERN.test(decoded)) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+  return decoded as ProviderEventFingerprint;
+}
+
+function decodeProviderEventFailureCode(value: unknown, scope: string): ProviderEventFailureCode {
+  return decodeLiteral(value, PROVIDER_EVENT_FAILURE_CODES, scope);
+}
+
 const REFUND_LEDGER_TOTAL_GUARD_SQL =
   "CREATE TRIGGER IF NOT EXISTS billing_refund_ledger_total_guard BEFORE INSERT ON billing_refund_ledger BEGIN SELECT RAISE(ABORT, 'billing-refund-ledger-total-exceeded') WHERE EXISTS (SELECT 1 FROM billing_refund_ledger WHERE invoice_id = NEW.invoice_id AND invoice_total_cents != NEW.invoice_total_cents) OR COALESCE((SELECT SUM(amount_cents) FROM billing_refund_ledger WHERE invoice_id = NEW.invoice_id), 0) + NEW.amount_cents > NEW.invoice_total_cents; END";
 
@@ -95,11 +131,45 @@ const BILLING_PROVIDER_RECEIPT_STATE_GUARD_SQL =
 const BILLING_PROVIDER_CURSOR_GUARD_SQL =
   "CREATE TRIGGER IF NOT EXISTS billing_provider_cursor_guard BEFORE INSERT ON billing_mutation_outbox BEGIN SELECT RAISE(ABORT, 'billing-provider-event-cursor-cas-failed') WHERE json_extract(NEW.mutation_json, '$.kind') = 'provider-webhook' AND (json_extract(NEW.mutation_json, '$.providerCursorExpectedVersion') IS NULL OR NOT EXISTS (SELECT 1 FROM billing_provider_event_cursors WHERE provider = json_extract(NEW.mutation_json, '$.provider') AND billing_subject = json_extract(NEW.mutation_json, '$.subject') AND last_event_id = json_extract(NEW.mutation_json, '$.eventId') AND state_version = json_extract(NEW.mutation_json, '$.providerCursorExpectedVersion') + 1)); END";
 
+const CREATE_PROVIDER_EVENT_QUARANTINE_SQL =
+  "CREATE TABLE IF NOT EXISTS billing_provider_event_quarantine (provider TEXT NOT NULL, event_id TEXT NOT NULL, reason TEXT NOT NULL CHECK (reason = 'legacy-fingerprint-invalid'), quarantined_at TEXT NOT NULL, PRIMARY KEY (provider, event_id))";
+const CREATE_BILLING_CUSTODY_MIGRATIONS_SQL =
+  'CREATE TABLE IF NOT EXISTS billing_custody_migrations (migration_id TEXT PRIMARY KEY, applied_at TEXT NOT NULL)';
+const SELECT_BILLING_CUSTODY_MIGRATION_SQL = normalizeSql(
+  'SELECT migration_id FROM billing_custody_migrations WHERE migration_id = ?1 LIMIT 1'
+);
+const INSERT_BILLING_CUSTODY_MIGRATION_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_custody_migrations (migration_id, applied_at) VALUES (?1, ?2)'
+);
+const MUTATION_OUTBOX_ERROR_MIGRATION_ID = 'mutation-outbox-error-codes-v1';
+const PROVIDER_EVENT_CUSTODY_MIGRATION_ID = 'provider-event-custody-v1';
+const QUARANTINE_LEGACY_PROVIDER_EVENTS_SQL = normalizeSql(
+  "INSERT OR IGNORE INTO billing_provider_event_quarantine (provider, event_id, reason, quarantined_at) SELECT provider, event_id, 'legacy-fingerprint-invalid', updated_at FROM billing_provider_event_receipts WHERE length(event_fingerprint) <> 86 OR event_fingerprint NOT GLOB 'provider-event:sha256:*' OR substr(event_fingerprint, 23) GLOB '*[^0-9a-f]*'"
+);
+const DELETE_LEGACY_PROVIDER_EVENTS_SQL = normalizeSql(
+  "DELETE FROM billing_provider_event_receipts WHERE length(event_fingerprint) <> 86 OR event_fingerprint NOT GLOB 'provider-event:sha256:*' OR substr(event_fingerprint, 23) GLOB '*[^0-9a-f]*'"
+);
+const NORMALIZE_PROVIDER_EVENT_ERRORS_SQL = normalizeSql(
+  "UPDATE billing_provider_event_receipts SET last_error = 'provider-event-legacy-error-quarantined' WHERE last_error IS NOT NULL AND last_error NOT IN ('billing-control-do-binding-missing', 'billing-queue-operation-failed', 'billing-read-model-unavailable', 'provider-event-authority-revoked-or-changed', 'provider-event-authority-unresolved', 'provider-event-legacy-error-quarantined', 'provider-event-order-metadata-missing', 'provider-event-queue-delivery-failed')"
+);
+const NORMALIZE_MUTATION_OUTBOX_ERRORS_SQL = normalizeSql(
+  "UPDATE billing_mutation_outbox SET last_error = 'billing-mutation-outbox-legacy-error-quarantined' WHERE last_error IS NOT NULL AND last_error NOT IN ('billing-audit-event-invalid', 'billing-audit-owner-unavailable', 'billing-mutation-outbox-delivery-failed', 'billing-mutation-outbox-legacy-error-quarantined', 'billing-read-model-unavailable')"
+);
+const BILLING_PROVIDER_RECEIPT_CUSTODY_GUARDS_SQL = [
+  "CREATE TRIGGER IF NOT EXISTS billing_provider_receipt_custody_insert_guard BEFORE INSERT ON billing_provider_event_receipts BEGIN SELECT RAISE(ABORT, 'billing-provider-event-custody-invalid') WHERE length(NEW.event_fingerprint) <> 86 OR NEW.event_fingerprint NOT GLOB 'provider-event:sha256:*' OR substr(NEW.event_fingerprint, 23) GLOB '*[^0-9a-f]*' OR (NEW.last_error IS NOT NULL AND NEW.last_error NOT IN ('billing-control-do-binding-missing', 'billing-queue-operation-failed', 'billing-read-model-unavailable', 'provider-event-authority-revoked-or-changed', 'provider-event-authority-unresolved', 'provider-event-legacy-error-quarantined', 'provider-event-order-metadata-missing', 'provider-event-queue-delivery-failed')); END",
+  "CREATE TRIGGER IF NOT EXISTS billing_provider_receipt_custody_update_guard BEFORE UPDATE OF event_fingerprint, last_error ON billing_provider_event_receipts BEGIN SELECT RAISE(ABORT, 'billing-provider-event-custody-invalid') WHERE length(NEW.event_fingerprint) <> 86 OR NEW.event_fingerprint NOT GLOB 'provider-event:sha256:*' OR substr(NEW.event_fingerprint, 23) GLOB '*[^0-9a-f]*' OR (NEW.last_error IS NOT NULL AND NEW.last_error NOT IN ('billing-control-do-binding-missing', 'billing-queue-operation-failed', 'billing-read-model-unavailable', 'provider-event-authority-revoked-or-changed', 'provider-event-authority-unresolved', 'provider-event-legacy-error-quarantined', 'provider-event-order-metadata-missing', 'provider-event-queue-delivery-failed')); END",
+].join(';\n');
+const BILLING_MUTATION_OUTBOX_CUSTODY_GUARDS_SQL = [
+  "CREATE TRIGGER IF NOT EXISTS billing_mutation_outbox_custody_insert_guard BEFORE INSERT ON billing_mutation_outbox BEGIN SELECT RAISE(ABORT, 'billing-mutation-outbox-error-code-invalid') WHERE NEW.last_error IS NOT NULL AND NEW.last_error NOT IN ('billing-audit-event-invalid', 'billing-audit-owner-unavailable', 'billing-mutation-outbox-delivery-failed', 'billing-mutation-outbox-legacy-error-quarantined', 'billing-read-model-unavailable'); END",
+  "CREATE TRIGGER IF NOT EXISTS billing_mutation_outbox_custody_update_guard BEFORE UPDATE OF last_error ON billing_mutation_outbox BEGIN SELECT RAISE(ABORT, 'billing-mutation-outbox-error-code-invalid') WHERE NEW.last_error IS NOT NULL AND NEW.last_error NOT IN ('billing-audit-event-invalid', 'billing-audit-owner-unavailable', 'billing-mutation-outbox-delivery-failed', 'billing-mutation-outbox-legacy-error-quarantined', 'billing-read-model-unavailable'); END",
+].join(';\n');
+
 function normalizeSql(sql: string): string {
   return sql.replace(/\s+/g, ' ').trim();
 }
 
 const CREATE_READ_MODEL_SCHEMA_SQL = [
+  CREATE_BILLING_CUSTODY_MIGRATIONS_SQL,
   'CREATE TABLE IF NOT EXISTS billing_status (subject TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_invoices (subject TEXT NOT NULL, invoice_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_referrals (subject TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
@@ -108,20 +178,22 @@ const CREATE_READ_MODEL_SCHEMA_SQL = [
   'CREATE TABLE IF NOT EXISTS billing_admin_invoices (invoice_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_admin_disputes (dispute_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_admin_referrals (referral_code TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
-  "CREATE TABLE IF NOT EXISTS billing_provider_event_receipts (provider TEXT NOT NULL, event_id TEXT NOT NULL, event_fingerprint TEXT NOT NULL, event_type TEXT NOT NULL, provider_occurred_at TEXT, provider_sequence INTEGER CHECK (provider_sequence IS NULL OR provider_sequence BETWEEN 0 AND 4294967295), state_version INTEGER NOT NULL DEFAULT 0 CHECK (state_version BETWEEN 0 AND 4294967295), account_id TEXT, provider_customer_id TEXT, provider_subscription_id TEXT, provider_invoice_id TEXT, billing_subject TEXT, parent_account_ref TEXT, family_ref TEXT, billing_invoice_id TEXT, processing_state TEXT NOT NULL CHECK (processing_state IN ('received', 'ignored', 'queued', 'applied', 'manual-required', 'dead-letter')), queue_state TEXT NOT NULL CHECK (queue_state IN ('pending', 'queued', 'delivered', 'manual-required', 'dead-letter')), queue_attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (queue_attempt_count BETWEEN 0 AND 4294967295), last_queue_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (provider, event_id))",
+  "CREATE TABLE IF NOT EXISTS billing_provider_event_receipts (provider TEXT NOT NULL, event_id TEXT NOT NULL, event_fingerprint TEXT NOT NULL CHECK (length(event_fingerprint) = 86 AND event_fingerprint GLOB 'provider-event:sha256:*' AND substr(event_fingerprint, 23) NOT GLOB '*[^0-9a-f]*'), event_type TEXT NOT NULL, provider_occurred_at TEXT, provider_sequence INTEGER CHECK (provider_sequence IS NULL OR provider_sequence BETWEEN 0 AND 4294967295), state_version INTEGER NOT NULL DEFAULT 0 CHECK (state_version BETWEEN 0 AND 4294967295), account_id TEXT, provider_customer_id TEXT, provider_subscription_id TEXT, provider_invoice_id TEXT, billing_subject TEXT, parent_account_ref TEXT, family_ref TEXT, billing_invoice_id TEXT, processing_state TEXT NOT NULL CHECK (processing_state IN ('received', 'ignored', 'queued', 'applied', 'manual-required', 'dead-letter')), queue_state TEXT NOT NULL CHECK (queue_state IN ('pending', 'queued', 'delivered', 'manual-required', 'dead-letter')), queue_attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (queue_attempt_count BETWEEN 0 AND 4294967295), last_queue_attempt_at TEXT, last_error TEXT CHECK (last_error IS NULL OR last_error IN ('billing-control-do-binding-missing', 'billing-queue-operation-failed', 'billing-read-model-unavailable', 'provider-event-authority-revoked-or-changed', 'provider-event-authority-unresolved', 'provider-event-legacy-error-quarantined', 'provider-event-order-metadata-missing', 'provider-event-queue-delivery-failed')), created_at TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (provider, event_id))",
+  CREATE_PROVIDER_EVENT_QUARANTINE_SQL,
   'CREATE TABLE IF NOT EXISTS billing_provider_event_cursors (provider TEXT NOT NULL, billing_subject TEXT NOT NULL, last_occurred_at TEXT, last_sequence INTEGER CHECK (last_sequence IS NULL OR last_sequence BETWEEN 0 AND 4294967295), last_event_id TEXT NOT NULL, state_version INTEGER NOT NULL DEFAULT 0 CHECK (state_version BETWEEN 0 AND 4294967295), updated_at TEXT NOT NULL, PRIMARY KEY (provider, billing_subject))',
   "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
   'CREATE TABLE IF NOT EXISTS billing_subject_versions (subject TEXT PRIMARY KEY, version INTEGER NOT NULL CHECK (version >= 0), last_mutation_token TEXT, updated_at TEXT NOT NULL)',
-  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, lease_token TEXT, lease_expires_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT CHECK (last_error IS NULL OR last_error IN ('billing-audit-event-invalid', 'billing-audit-owner-unavailable', 'billing-mutation-outbox-delivery-failed', 'billing-mutation-outbox-legacy-error-quarantined', 'billing-read-model-unavailable')), lease_token TEXT, lease_expires_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   REFUND_LEDGER_TOTAL_GUARD_SQL,
   BILLING_PROVIDER_RECEIPT_STATE_GUARD_SQL,
   BILLING_PROVIDER_CURSOR_GUARD_SQL,
 ].join(';\n');
 
 const CREATE_MUTATION_SCHEMA_SQL = [
+  CREATE_BILLING_CUSTODY_MIGRATIONS_SQL,
   "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
   'CREATE TABLE IF NOT EXISTS billing_subject_versions (subject TEXT PRIMARY KEY, version INTEGER NOT NULL CHECK (version >= 0), last_mutation_token TEXT, updated_at TEXT NOT NULL)',
-  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, lease_token TEXT, lease_expires_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT CHECK (last_error IS NULL OR last_error IN ('billing-audit-event-invalid', 'billing-audit-owner-unavailable', 'billing-mutation-outbox-delivery-failed', 'billing-mutation-outbox-legacy-error-quarantined', 'billing-read-model-unavailable')), lease_token TEXT, lease_expires_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   REFUND_LEDGER_TOTAL_GUARD_SQL,
 ].join(';\n');
 
@@ -169,11 +241,14 @@ const SELECT_ADMIN_REFERRALS_SQL = normalizeSql(
 const SELECT_PROVIDER_EVENT_RECEIPT_SQL = normalizeSql(
   'SELECT provider, event_id, event_fingerprint, event_type, provider_occurred_at, provider_sequence, state_version, account_id, provider_customer_id, provider_subscription_id, provider_invoice_id, billing_subject, parent_account_ref, family_ref, billing_invoice_id, processing_state, queue_state, queue_attempt_count, last_queue_attempt_at, last_error, created_at, updated_at FROM billing_provider_event_receipts WHERE provider = ?1 AND event_id = ?2 LIMIT 1'
 );
+const SELECT_PROVIDER_EVENT_QUARANTINE_SQL = normalizeSql(
+  'SELECT reason FROM billing_provider_event_quarantine WHERE provider = ?1 AND event_id = ?2 LIMIT 1'
+);
 const INSERT_PROVIDER_EVENT_RECEIPT_SQL = normalizeSql(
   "INSERT INTO billing_provider_event_receipts (provider, event_id, event_fingerprint, event_type, provider_occurred_at, provider_sequence, state_version, account_id, provider_customer_id, provider_subscription_id, provider_invoice_id, billing_subject, parent_account_ref, family_ref, billing_invoice_id, processing_state, queue_state, queue_attempt_count, last_queue_attempt_at, last_error, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, 'pending', 0, NULL, NULL, ?16, ?16)"
 );
 const UPDATE_PROVIDER_EVENT_RECEIPT_QUEUE_SQL = normalizeSql(
-  "UPDATE billing_provider_event_receipts SET processing_state = ?6, queue_state = ?7, queue_attempt_count = queue_attempt_count + ?8, state_version = state_version + 1, last_queue_attempt_at = ?9, last_error = ?10, updated_at = ?9 WHERE provider = ?1 AND event_id = ?2 AND state_version = ?3 AND processing_state = ?4 AND queue_state = ?5 AND queue_attempt_count BETWEEN 0 AND 4294967294 AND state_version BETWEEN 0 AND 4294967294 AND NOT (queue_state IN ('delivered', 'manual-required', 'dead-letter') AND ?7 <> queue_state) AND NOT (processing_state IN ('applied', 'ignored', 'manual-required', 'dead-letter') AND ?6 <> processing_state) AND (?7 <> 'queued' OR queue_state = 'pending') AND (?7 <> 'delivered' OR queue_state IN ('queued', 'pending'))"
+  "UPDATE billing_provider_event_receipts SET processing_state = ?6, queue_state = ?7, queue_attempt_count = queue_attempt_count + ?8, state_version = state_version + 1, last_queue_attempt_at = ?9, last_error = ?10, updated_at = ?9 WHERE provider = ?1 AND event_id = ?2 AND state_version = ?3 AND processing_state = ?4 AND queue_state = ?5 AND queue_attempt_count BETWEEN 0 AND 4294967294 AND state_version BETWEEN 0 AND 4294967294 AND NOT (queue_state IN ('delivered', 'manual-required', 'dead-letter') AND ?7 <> queue_state) AND NOT (processing_state IN ('applied', 'ignored', 'manual-required', 'dead-letter') AND ?6 <> processing_state) AND (?7 <> 'queued' OR queue_state = 'pending') AND (?7 <> 'delivered' OR queue_state IN ('queued', 'pending')) AND (?10 IS NULL OR ?10 IN ('billing-control-do-binding-missing', 'billing-queue-operation-failed', 'billing-read-model-unavailable', 'provider-event-authority-revoked-or-changed', 'provider-event-authority-unresolved', 'provider-event-legacy-error-quarantined', 'provider-event-order-metadata-missing', 'provider-event-queue-delivery-failed'))"
 );
 const SELECT_PROVIDER_EVENT_CURSOR_SQL = normalizeSql(
   'SELECT provider, billing_subject, last_occurred_at, last_sequence, last_event_id, state_version, updated_at FROM billing_provider_event_cursors WHERE provider = ?1 AND billing_subject = ?2 LIMIT 1'
@@ -225,15 +300,8 @@ const INSERT_MUTATION_OUTBOX_SQL = normalizeSql(
 const MARK_MUTATION_OUTBOX_ATTEMPT_SQL = normalizeSql(
   "UPDATE billing_mutation_outbox SET attempt_count = attempt_count + 1, last_attempt_at = ?2, last_error = NULL, lease_token = ?3, lease_expires_at = ?4, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending' AND attempt_count < ?5 AND (lease_expires_at IS NULL OR lease_expires_at <= ?2)"
 );
-const BILLING_MUTATION_OUTBOX_FAILURE_CODES = [
-  'billing-audit-event-invalid',
-  'billing-audit-owner-unavailable',
-  'billing-mutation-outbox-delivery-failed',
-  'billing-read-model-unavailable',
-] as const;
-type BillingMutationOutboxFailureCode = (typeof BILLING_MUTATION_OUTBOX_FAILURE_CODES)[number];
 const MARK_MUTATION_OUTBOX_FAILURE_SQL = normalizeSql(
-  "UPDATE billing_mutation_outbox SET last_error = ?2, lease_token = NULL, lease_expires_at = NULL, updated_at = ?3 WHERE request_key = ?1 AND audit_state = 'pending' AND lease_token = ?4 AND ?2 IN ('billing-audit-event-invalid', 'billing-audit-owner-unavailable', 'billing-mutation-outbox-delivery-failed', 'billing-read-model-unavailable')"
+  "UPDATE billing_mutation_outbox SET last_error = ?2, lease_token = NULL, lease_expires_at = NULL, updated_at = ?3 WHERE request_key = ?1 AND audit_state = 'pending' AND lease_token = ?4 AND ?2 IN ('billing-audit-event-invalid', 'billing-audit-owner-unavailable', 'billing-mutation-outbox-delivery-failed', 'billing-mutation-outbox-legacy-error-quarantined', 'billing-read-model-unavailable')"
 );
 const MARK_MUTATION_AUDIT_DELIVERED_SQL = normalizeSql(
   "UPDATE billing_mutation_outbox SET audit_state = 'delivered', last_error = NULL, lease_token = NULL, lease_expires_at = NULL, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending' AND lease_token = ?3"
@@ -287,6 +355,10 @@ interface MutationOutboxColumnRow {
   name: string;
 }
 
+interface BillingCustodyMigrationRow {
+  migration_id: string;
+}
+
 interface ManualReviewOutboxCountRow {
   manual_review_count: number | string;
 }
@@ -316,6 +388,10 @@ interface ProviderEventReceiptRow {
   updated_at: string;
 }
 
+interface ProviderEventQuarantineRow {
+  reason: 'legacy-fingerprint-invalid';
+}
+
 interface ProviderEventCursorRow {
   provider: string;
   billing_subject: string;
@@ -329,7 +405,7 @@ interface ProviderEventCursorRow {
 export interface ProviderEventReceipt {
   provider: string;
   eventId: string;
-  eventFingerprint: string;
+  eventFingerprint: ProviderEventFingerprint;
   eventType: string;
   providerOccurredAt: string | null;
   providerSequence: number | null;
@@ -346,7 +422,7 @@ export interface ProviderEventReceipt {
   queueState: 'pending' | 'queued' | 'delivered' | 'manual-required' | 'dead-letter';
   queueAttemptCount: number;
   lastQueueAttemptAt: string | null;
-  lastError: string | null;
+  lastError: ProviderEventFailureCode | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -1157,7 +1233,7 @@ interface LocalMutationOutboxEntry {
   auditJson: string;
   attemptCount: number;
   lastAttemptAt: string | null;
-  lastError: string | null;
+  lastError: BillingMutationOutboxFailureCode | null;
   leaseToken: string | null;
   leaseExpiresAt: string | null;
   createdAt: string;
@@ -1165,6 +1241,7 @@ interface LocalMutationOutboxEntry {
 }
 
 interface LocalBillingD1State {
+  custodyMigrations: Map<string, string>;
   statusBySubject: Map<string, BillingStatusSummary>;
   invoicesBySubject: Map<string, ReadonlyArray<BillingInvoiceSummary>>;
   referralsBySubject: Map<string, BillingReferralSummary>;
@@ -1348,6 +1425,10 @@ class LocalD1Statement implements D1PreparedStatement {
     switch (this.normalizedQuery) {
       case SELECT_STATUS_ROW_COUNT_SQL:
         return [{ row_count: this.state.statusBySubject.size } as T];
+      case SELECT_BILLING_CUSTODY_MIGRATION_SQL: {
+        const migrationId = String(this.values[0] ?? '');
+        return this.state.custodyMigrations.has(migrationId) ? [{ migration_id: migrationId } as T] : [];
+      }
       case SELECT_STATUS_BY_SUBJECT_SQL: {
         const subject = String(this.values[0] ?? '');
         const status = this.state.statusBySubject.get(subject);
@@ -1544,6 +1625,12 @@ class LocalD1Statement implements D1PreparedStatement {
 
   private executeMutation(): void {
     switch (this.normalizedQuery) {
+      case INSERT_BILLING_CUSTODY_MIGRATION_SQL: {
+        const migrationId = decodeNonEmptyString(this.values[0], 'billing-custody-migration-id');
+        const appliedAt = decodeTimestamp(this.values[1], 'billing-custody-migration-applied-at');
+        this.state.custodyMigrations.set(migrationId, appliedAt);
+        return;
+      }
       case INSERT_SUBJECT_VERSION_SQL: {
         const subject = decodeNonEmptyString(this.values[0], 'billing-subject-version-subject');
         const updatedAt = decodeTimestamp(this.values[1], 'billing-subject-version-updated-at');
@@ -1704,7 +1791,7 @@ class LocalD1Statement implements D1PreparedStatement {
         this.state.providerEventReceipts.set(key, {
           provider,
           eventId,
-          eventFingerprint: decodeNonEmptyString(this.values[2], 'billing-provider-event-fingerprint'),
+          eventFingerprint: decodeProviderEventFingerprint(this.values[2], 'billing-provider-event-fingerprint'),
           eventType: decodeNonEmptyString(this.values[3], 'billing-provider-event-type'),
           providerOccurredAt:
             this.values[4] === null ? null : decodeTimestamp(this.values[4], 'billing-provider-event-occurred-at'),
@@ -1795,7 +1882,9 @@ class LocalD1Statement implements D1PreparedStatement {
           stateVersion: incrementBillingCount(current.stateVersion, 'billing-provider-event-state-version'),
           lastQueueAttemptAt: updatedAt,
           lastError:
-            this.values[9] === null ? null : decodeNonEmptyString(this.values[9], 'billing-provider-event-error'),
+            this.values[9] === null
+              ? null
+              : decodeProviderEventFailureCode(this.values[9], 'billing-provider-event-error'),
           updatedAt,
         });
         return;
@@ -1992,6 +2081,7 @@ class LocalD1Statement implements D1PreparedStatement {
 
 class LocalBillingD1Database implements D1Database {
   private readonly state: LocalBillingD1State = {
+    custodyMigrations: new Map<string, string>(),
     statusBySubject: new Map<string, BillingStatusSummary>(),
     invoicesBySubject: new Map<string, ReadonlyArray<BillingInvoiceSummary>>(),
     referralsBySubject: new Map<string, BillingReferralSummary>(),
@@ -2015,6 +2105,7 @@ class LocalBillingD1Database implements D1Database {
     statements: ReadonlyArray<D1PreparedStatement>
   ): Promise<ReadonlyArray<{ results: ReadonlyArray<unknown>; success: true }>> {
     const backup = {
+      custodyMigrations: new Map(this.state.custodyMigrations),
       statusBySubject: new Map(this.state.statusBySubject),
       invoicesBySubject: new Map(this.state.invoicesBySubject),
       referralsBySubject: new Map(this.state.referralsBySubject),
@@ -2036,6 +2127,7 @@ class LocalBillingD1Database implements D1Database {
       }
       return results;
     } catch (error) {
+      this.state.custodyMigrations = backup.custodyMigrations;
       this.state.statusBySubject = backup.statusBySubject;
       this.state.invoicesBySubject = backup.invoicesBySubject;
       this.state.referralsBySubject = backup.referralsBySubject;
@@ -2286,6 +2378,18 @@ async function d1All<T>(
   return result.results;
 }
 
+async function billingCustodyMigrationApplied(database: D1Database, migrationId: string): Promise<boolean> {
+  const row = await d1First<BillingCustodyMigrationRow>(database, SELECT_BILLING_CUSTODY_MIGRATION_SQL, migrationId);
+  return row?.migration_id === migrationId;
+}
+
+async function recordBillingCustodyMigration(database: D1Database, migrationId: string): Promise<void> {
+  await database.prepare(INSERT_BILLING_CUSTODY_MIGRATION_SQL).bind(migrationId, new Date().toISOString()).run();
+  if (!(await billingCustodyMigrationApplied(database, migrationId))) {
+    throw new BillingReadModelUnavailableError(`billing-custody-migration-record-missing:${migrationId}`);
+  }
+}
+
 async function ensureMutationSchema(env: Env): Promise<void> {
   const database = requireBillingD1Database(env);
   await database.exec(CREATE_MUTATION_SCHEMA_SQL);
@@ -2321,6 +2425,11 @@ async function ensureMutationSchema(env: Env): Promise<void> {
       }
     }
   }
+  if (!(await billingCustodyMigrationApplied(database, MUTATION_OUTBOX_ERROR_MIGRATION_ID))) {
+    await database.prepare(NORMALIZE_MUTATION_OUTBOX_ERRORS_SQL).run();
+    await recordBillingCustodyMigration(database, MUTATION_OUTBOX_ERROR_MIGRATION_ID);
+  }
+  await database.exec(BILLING_MUTATION_OUTBOX_CUSTODY_GUARDS_SQL);
   await database.exec(BILLING_MUTATION_AUTHORITY_GUARD_SQL);
   await database.exec(BILLING_PROVIDER_CURSOR_GUARD_SQL);
 }
@@ -2358,9 +2467,19 @@ async function ensureProviderEventReceiptSchema(database: D1Database): Promise<v
       }
     }
   }
+  await database.exec(CREATE_PROVIDER_EVENT_QUARANTINE_SQL);
+  if (!(await billingCustodyMigrationApplied(database, PROVIDER_EVENT_CUSTODY_MIGRATION_ID))) {
+    await database.batch([
+      database.prepare(QUARANTINE_LEGACY_PROVIDER_EVENTS_SQL),
+      database.prepare(DELETE_LEGACY_PROVIDER_EVENTS_SQL),
+      database.prepare(NORMALIZE_PROVIDER_EVENT_ERRORS_SQL),
+    ]);
+    await recordBillingCustodyMigration(database, PROVIDER_EVENT_CUSTODY_MIGRATION_ID);
+  }
   await database.exec(
     'CREATE TABLE IF NOT EXISTS billing_provider_event_cursors (provider TEXT NOT NULL, billing_subject TEXT NOT NULL, last_occurred_at TEXT, last_sequence INTEGER CHECK (last_sequence IS NULL OR last_sequence BETWEEN 0 AND 4294967295), last_event_id TEXT NOT NULL, state_version INTEGER NOT NULL DEFAULT 0 CHECK (state_version BETWEEN 0 AND 4294967295), updated_at TEXT NOT NULL, PRIMARY KEY (provider, billing_subject))'
   );
+  await database.exec(BILLING_PROVIDER_RECEIPT_CUSTODY_GUARDS_SQL);
   await database.exec(BILLING_PROVIDER_RECEIPT_STATE_GUARD_SQL);
 }
 
@@ -2438,7 +2557,7 @@ function stableMutationValue(value: unknown): unknown {
   );
 }
 
-function mutationFingerprint(mutation: BillingStateMutation): string {
+function canonicalMutationJson(mutation: BillingStateMutation): string {
   if (mutation.kind === 'provider-webhook') {
     const identity = Object.fromEntries(
       Object.entries(mutation).filter(([key]) => key !== 'providerCursorExpectedVersion')
@@ -2487,7 +2606,7 @@ function billingMutationOutboxStatement(
       decodeBillingCount(authorityVersion, 'billing-mutation-outbox-authority-version'),
       decodeNonEmptyString(authorityToken, 'billing-mutation-outbox-authority-token'),
       mutation.kind,
-      mutationFingerprint(mutation),
+      canonicalMutationJson(mutation),
       'pending',
       JSON.stringify(auditEvent),
       now,
@@ -2535,7 +2654,7 @@ function decodeMutationOutboxRow(row: MutationOutboxRow): MutationOutboxRow {
   decodeBillingCount(row.attempt_count, 'billing-mutation-outbox-attempt-count');
   decodeNullableTimestamp(row.last_attempt_at, 'billing-mutation-outbox-last-attempt-at');
   if (row.last_error !== null && row.last_error !== undefined) {
-    decodeNonEmptyString(row.last_error, 'billing-mutation-outbox-last-error');
+    decodeLiteral(row.last_error, BILLING_MUTATION_OUTBOX_FAILURE_CODES, 'billing-mutation-outbox-last-error');
   }
   if (row.lease_token !== null && row.lease_token !== undefined) {
     decodeNonEmptyString(row.lease_token, 'billing-mutation-outbox-lease-token');
@@ -2553,7 +2672,10 @@ function decodeProviderEventReceiptRow(row: ProviderEventReceiptRow): ProviderEv
     'billing-provider-event-provider'
   );
   const eventId = decodeNonEmptyString(row.event_id, 'billing-provider-event-id');
-  const eventFingerprint = decodeNonEmptyString(row.event_fingerprint, `billing-provider-event-fingerprint:${eventId}`);
+  const eventFingerprint = decodeProviderEventFingerprint(
+    row.event_fingerprint,
+    `billing-provider-event-fingerprint:${eventId}`
+  );
   const eventType = decodeNonEmptyString(row.event_type, `billing-provider-event-type:${eventId}`);
   const providerOccurredAt =
     row.provider_occurred_at === null
@@ -2603,7 +2725,9 @@ function decodeProviderEventReceiptRow(row: ProviderEventReceiptRow): ProviderEv
       `billing-provider-event-last-attempt:${eventId}`
     ),
     lastError:
-      row.last_error === null ? null : decodeNonEmptyString(row.last_error, `billing-provider-event-error:${eventId}`),
+      row.last_error === null
+        ? null
+        : decodeProviderEventFailureCode(row.last_error, `billing-provider-event-error:${eventId}`),
     createdAt: decodeTimestamp(row.created_at, `billing-provider-event-created:${eventId}`),
     updatedAt: decodeTimestamp(row.updated_at, `billing-provider-event-updated:${eventId}`),
   };
@@ -2710,7 +2834,7 @@ function providerEventCursorStatement(
 export interface RegisterBillingProviderEventInput {
   provider: string;
   eventId: string;
-  eventFingerprint: string;
+  eventFingerprint: ProviderEventFingerprint;
   eventType: string;
   providerOccurredAt: string | null;
   providerSequence: number | null;
@@ -2728,7 +2852,8 @@ export interface RegisterBillingProviderEventInput {
 export type RegisterBillingProviderEventResult =
   | { status: 'created'; receipt: ProviderEventReceipt }
   | { status: 'replay'; receipt: ProviderEventReceipt }
-  | { status: 'conflict'; receipt: ProviderEventReceipt };
+  | { status: 'conflict'; receipt: ProviderEventReceipt }
+  | { status: 'quarantined' };
 
 function optionalBindingText(value: string | null, scope: string): string | null {
   return value === null ? null : decodeNonEmptyString(value, scope);
@@ -2770,7 +2895,7 @@ export async function registerBillingProviderEvent(
     'billing-provider-event-provider'
   );
   const eventId = decodeNonEmptyString(input.eventId, 'billing-provider-event-id');
-  const eventFingerprint = decodeNonEmptyString(
+  const eventFingerprint = decodeProviderEventFingerprint(
     input.eventFingerprint,
     `billing-provider-event-fingerprint:${eventId}`
   );
@@ -2788,6 +2913,20 @@ export async function registerBillingProviderEvent(
     ['received', 'ignored', 'manual-required'] as const,
     `billing-provider-event-processing-state:${eventId}`
   );
+  const quarantine = await d1First<ProviderEventQuarantineRow>(
+    database,
+    SELECT_PROVIDER_EVENT_QUARANTINE_SQL,
+    provider,
+    eventId
+  );
+  if (quarantine) {
+    decodeLiteral(
+      quarantine.reason,
+      ['legacy-fingerprint-invalid'] as const,
+      `billing-provider-event-quarantine:${eventId}`
+    );
+    return { status: 'quarantined' };
+  }
   const existing = await d1First<ProviderEventReceiptRow>(
     database,
     SELECT_PROVIDER_EVENT_RECEIPT_SQL,
@@ -2887,14 +3026,14 @@ export async function markBillingProviderEventQueue(
   eventId: string,
   queueState: ProviderEventReceipt['queueState'],
   processingState: ProviderEventReceipt['processingState'],
-  error: string | null,
+  error: ProviderEventFailureCode | null,
   expected?: Pick<ProviderEventReceipt, 'stateVersion' | 'processingState' | 'queueState'>
 ): Promise<ProviderEventReceipt> {
   await ensureReadModelSeed(env);
   const database = requireBillingD1Database(env);
   const now = new Date().toISOString();
-  const boundedError =
-    error === null ? null : decodeNonEmptyString(error, `billing-provider-event-error:${eventId}`).slice(0, 240);
+  const failureCode =
+    error === null ? null : decodeProviderEventFailureCode(error, `billing-provider-event-error:${eventId}`);
   const currentRow = await d1First<ProviderEventReceiptRow>(
     database,
     SELECT_PROVIDER_EVENT_RECEIPT_SQL,
@@ -2929,7 +3068,7 @@ export async function markBillingProviderEventQueue(
       queueState,
       1,
       now,
-      boundedError
+      failureCode
     )
     .run();
   if ((update.meta?.changes ?? 0) !== 1) {
@@ -3282,7 +3421,7 @@ async function completeBillingMutation(env: Env, mutation: BillingStateMutation)
   if (!outbox) {
     throw new BillingReadModelUnavailableError(`billing-mutation-outbox-missing:${mutationReplayKey(mutation)}`);
   }
-  if (outbox.mutation_kind !== mutation.kind || outbox.mutation_json !== mutationFingerprint(mutation)) {
+  if (outbox.mutation_kind !== mutation.kind || outbox.mutation_json !== canonicalMutationJson(mutation)) {
     throw new BillingReadModelUnavailableError(`billing-mutation-outbox-conflict:${mutationReplayKey(mutation)}`);
   }
   await deliverBillingMutationOutbox(env, outbox);
@@ -3410,7 +3549,7 @@ async function replayKnownBillingMutation(env: Env, mutation: BillingStateMutati
     return false;
   }
   const storedMutation = parseUnknownPayload(outbox.mutation_json, 'billing-mutation-outbox-replay-mutation');
-  if (JSON.stringify(stableMutationValue(storedMutation)) !== mutationFingerprint(mutation)) {
+  if (JSON.stringify(stableMutationValue(storedMutation)) !== canonicalMutationJson(mutation)) {
     throw new BillingReadModelUnavailableError(
       `billing-mutation-outbox-fingerprint-mismatch:${mutationReplayKey(mutation)}`
     );

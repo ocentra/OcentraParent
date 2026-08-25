@@ -27,6 +27,8 @@ import {
   markBillingProviderEventQueue,
   registerBillingProviderEvent,
   type BillingStateMutation,
+  type ProviderEventFailureCode,
+  type ProviderEventFingerprint,
   type ProviderEventReceipt,
 } from './billing-binding-read-model.js';
 import {
@@ -138,7 +140,7 @@ type IdempotentWriteResult = {
 };
 type DurableIdempotencyRecord = {
   state: 'pending' | 'completed' | 'manual-required';
-  requestFingerprint: string;
+  requestFingerprint: StoredIdempotencyFingerprint;
   responseStatus: number;
   responseBody: unknown;
   stateVersion: number;
@@ -146,14 +148,23 @@ type DurableIdempotencyRecord = {
   leaseToken: string | null;
   leaseExpiresAt: string | null;
   retryAt: string | null;
-  lastError: string | null;
+  lastError: IdempotencyFailureCode | null;
 };
 type QueueFailureReason =
   | 'reconciliation-queue-missing'
   | 'reconciliation-queue-send-failed'
   | 'queue-consumer-invalid-message'
   | 'queue-consumer-manual-required';
-type QueueFailureCode = 'billing-queue-operation-failed' | 'billing-read-model-unavailable';
+type QueueFailureCode = Extract<
+  ProviderEventFailureCode,
+  'billing-queue-operation-failed' | 'billing-read-model-unavailable'
+>;
+type IdempotencyFailureCode = QueueFailureCode | 'billing-idempotency-legacy-state-quarantined';
+const IDEMPOTENCY_FAILURE_CODES = [
+  'billing-idempotency-legacy-state-quarantined',
+  'billing-queue-operation-failed',
+  'billing-read-model-unavailable',
+] as const satisfies ReadonlyArray<IdempotencyFailureCode>;
 type DeadLetterPayloadKind =
   | 'manual-invoice'
   | 'provider-webhook'
@@ -511,7 +522,11 @@ async function deadLetterPayload(
     sourceQueue: 'BILLING_RECONCILIATION_QUEUE',
     reason,
     payloadKind: deadLetterPayloadKind(payload),
-    payloadDigest: await domainSeparatedSha256('ocentra.billing.dead-letter.payload.v1', serializedPayload),
+    payloadDigest: await domainSeparatedSha256(
+      'ocentra.billing.dead-letter.payload.v1',
+      'dead-letter-payload',
+      serializedPayload
+    ),
     failedAt: new Date().toISOString(),
     errorCode: queueFailureCode(error),
   };
@@ -758,19 +773,57 @@ function durableWriteKey(action: string, subject: string, requestId: string): st
 
 type BillingDigestDomain =
   | 'ocentra.billing.dead-letter.payload.v1'
+  | 'ocentra.billing.idempotency.legacy-quarantine.v1'
   | 'ocentra.billing.idempotency.request-fingerprint.v1'
+  | 'ocentra.billing.provider-event.fingerprint.v1'
   | 'ocentra.billing.provider-webhook.body-id.v1'
   | 'ocentra.billing.provider-webhook.body.v1';
-type Sha256Digest = `sha256:${string}`;
+type BillingDigestTag =
+  | 'dead-letter-payload'
+  | 'idempotency-quarantine'
+  | 'idempotency-request'
+  | 'provider-event'
+  | 'provider-webhook-body-id'
+  | 'provider-webhook-body';
+type TaggedSha256Digest<Tag extends BillingDigestTag> = `${Tag}:sha256:${string}`;
+type IdempotencyRequestFingerprint = TaggedSha256Digest<'idempotency-request'>;
+type IdempotencyQuarantineFingerprint = TaggedSha256Digest<'idempotency-quarantine'>;
+type StoredIdempotencyFingerprint = IdempotencyRequestFingerprint | IdempotencyQuarantineFingerprint;
+
+const IDEMPOTENCY_REQUEST_FINGERPRINT_PATTERN = /^idempotency-request:sha256:[0-9a-f]{64}$/;
+const IDEMPOTENCY_QUARANTINE_FINGERPRINT_PATTERN = /^idempotency-quarantine:sha256:[0-9a-f]{64}$/;
+
+function parseIdempotencyRequestFingerprint(value: unknown): IdempotencyRequestFingerprint | null {
+  return typeof value === 'string' && IDEMPOTENCY_REQUEST_FINGERPRINT_PATTERN.test(value)
+    ? (value as IdempotencyRequestFingerprint)
+    : null;
+}
+
+function parseStoredIdempotencyFingerprint(value: unknown): StoredIdempotencyFingerprint | null {
+  const requestFingerprint = parseIdempotencyRequestFingerprint(value);
+  if (requestFingerprint) {
+    return requestFingerprint;
+  }
+  return typeof value === 'string' && IDEMPOTENCY_QUARANTINE_FINGERPRINT_PATTERN.test(value)
+    ? (value as IdempotencyQuarantineFingerprint)
+    : null;
+}
+
+function parseIdempotencyFailureCode(value: unknown): IdempotencyFailureCode | null {
+  return typeof value === 'string' && IDEMPOTENCY_FAILURE_CODES.includes(value as IdempotencyFailureCode)
+    ? (value as IdempotencyFailureCode)
+    : null;
+}
 
 async function opaqueRequestFingerprint(
   action: string,
   subject: string | null,
   requestId: string,
   details: Readonly<Record<string, unknown>> = {}
-): Promise<Sha256Digest> {
+): Promise<IdempotencyRequestFingerprint> {
   return domainSeparatedSha256(
     'ocentra.billing.idempotency.request-fingerprint.v1',
+    'idempotency-request',
     JSON.stringify({ ...details, action, subject, requestId })
   );
 }
@@ -780,22 +833,33 @@ async function sha256Hex(value: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-async function domainSeparatedSha256(domain: BillingDigestDomain, value: string): Promise<Sha256Digest> {
-  return `sha256:${await sha256Hex(`${domain}\0${value}`)}`;
+async function domainSeparatedSha256<Tag extends BillingDigestTag>(
+  domain: BillingDigestDomain,
+  tag: Tag,
+  value: string
+): Promise<TaggedSha256Digest<Tag>> {
+  return `${tag}:sha256:${await sha256Hex(`${domain}\0${value}`)}`;
 }
 
 function webhookIdempotencyKey(provider: string, eventId: string, billingSubject: string | null): string {
   return durableWriteKey('provider-webhook', billingSubject ?? 'unresolved', `${provider}:${eventId}`);
 }
 
-async function webhookRequestFingerprint(
+async function webhookRequestFingerprints(
   provider: string,
   body: string,
   event: { eventId: string; eventType: string },
   authority: ProviderBillingAuthority | null
-): Promise<string> {
-  const bodyDigest = await domainSeparatedSha256('ocentra.billing.provider-webhook.body.v1', body);
-  return opaqueRequestFingerprint('provider-webhook', authority?.billingSubject ?? null, event.eventId, {
+): Promise<{
+  requestFingerprint: IdempotencyRequestFingerprint;
+  eventFingerprint: ProviderEventFingerprint;
+}> {
+  const bodyDigest = await domainSeparatedSha256(
+    'ocentra.billing.provider-webhook.body.v1',
+    'provider-webhook-body',
+    body
+  );
+  const details = {
     provider,
     eventType: event.eventType,
     bodyDigest,
@@ -804,7 +868,20 @@ async function webhookRequestFingerprint(
     providerSubscriptionId: authority?.providerSubscriptionId ?? null,
     providerInvoiceId: authority?.providerInvoiceId ?? null,
     billingInvoiceId: authority?.billingInvoiceId ?? null,
-  });
+  };
+  return {
+    requestFingerprint: await opaqueRequestFingerprint(
+      'provider-webhook',
+      authority?.billingSubject ?? null,
+      event.eventId,
+      details
+    ),
+    eventFingerprint: await domainSeparatedSha256(
+      'ocentra.billing.provider-event.fingerprint.v1',
+      'provider-event',
+      JSON.stringify({ ...details, subject: authority?.billingSubject ?? null, eventId: event.eventId })
+    ),
+  };
 }
 
 function acceptedWebhookResponse(
@@ -856,7 +933,7 @@ async function executeIdempotentWrite(
   objectName: string,
   envelope: {
     requestKey: string;
-    requestFingerprint: string;
+    requestFingerprint: IdempotencyRequestFingerprint;
     responseStatus: number;
     responseBody: unknown;
     queueMessage: Record<string, unknown> | null;
@@ -983,8 +1060,12 @@ function providerEventDetails(
 }
 
 async function providerWebhookBodyId(provider: string, body: string): Promise<string> {
-  const digest = await domainSeparatedSha256('ocentra.billing.provider-webhook.body-id.v1', `${provider}\0${body}`);
-  return `${provider}_evt_body_${digest.slice('sha256:'.length)}`;
+  const digest = await domainSeparatedSha256(
+    'ocentra.billing.provider-webhook.body-id.v1',
+    'provider-webhook-body-id',
+    `${provider}\0${body}`
+  );
+  return `${provider}_evt_body_${digest.slice('provider-webhook-body-id:sha256:'.length)}`;
 }
 
 function providerWebhookReferences(payload: unknown, eventType: string): ProviderBillingReferenceHints {
@@ -1139,7 +1220,12 @@ async function acceptProviderWebhook(
   const subject = trustedAuthority?.billingSubject ?? null;
   const invoiceId = trustedAuthority?.billingInvoiceId ?? null;
   const disputeId = providerWebhookDisputeId(payload, event.eventType, `dispute-${provider}-${event.eventId}`);
-  const requestFingerprint = await webhookRequestFingerprint(provider, body, event, trustedAuthority);
+  const { requestFingerprint, eventFingerprint } = await webhookRequestFingerprints(
+    provider,
+    body,
+    event,
+    trustedAuthority
+  );
   const processingState =
     trustedAuthority !== null && occurrence.valid && (occurrence.occurredAt !== null || occurrence.sequence !== null)
       ? isIgnoredProviderWebhookEvent(event.eventType)
@@ -1149,7 +1235,7 @@ async function acceptProviderWebhook(
   const registration = await registerBillingProviderEvent(env, {
     provider,
     eventId: event.eventId,
-    eventFingerprint: requestFingerprint,
+    eventFingerprint,
     eventType: event.eventType,
     providerOccurredAt: occurrence.occurredAt,
     providerSequence: occurrence.sequence,
@@ -1163,7 +1249,7 @@ async function acceptProviderWebhook(
     billingInvoiceId: invoiceId,
     processingState,
   });
-  if (registration.status === 'conflict') {
+  if (registration.status === 'conflict' || registration.status === 'quarantined') {
     return json(409, conflictingWebhookResponse(provider, proofIdFamily, event));
   }
   const receipt = registration.receipt;
@@ -2045,12 +2131,16 @@ function storedIdempotencyTimestamp(value: unknown, fallback: string | null): st
   return typeof value === 'string' && Number.isFinite(Date.parse(value)) ? value : null;
 }
 
-function normalizeDurableIdempotencyRecord(value: unknown): DurableIdempotencyRecord | null {
+function normalizeDurableIdempotencyRecord(
+  value: unknown,
+  migratedFingerprint: StoredIdempotencyFingerprint | null = null,
+  normalizeLegacyError = false
+): DurableIdempotencyRecord | null {
   if (!isPlainObject(value)) {
     return null;
   }
   const state = stringOrNull(value.state);
-  const requestFingerprint = stringOrNull(value.requestFingerprint);
+  const requestFingerprint = migratedFingerprint ?? parseStoredIdempotencyFingerprint(value.requestFingerprint);
   const responseStatus = numberOrNull(value.responseStatus);
   const stateVersion = storedIdempotencyCounter(value.stateVersion, 0);
   const attemptCount = storedIdempotencyCounter(value.attemptCount, 0);
@@ -2058,7 +2148,12 @@ function normalizeDurableIdempotencyRecord(value: unknown): DurableIdempotencyRe
     value.leaseToken === undefined || value.leaseToken === null ? null : stringOrNull(value.leaseToken);
   const leaseExpiresAt = storedIdempotencyTimestamp(value.leaseExpiresAt, null);
   const retryAt = storedIdempotencyTimestamp(value.retryAt, null);
-  const lastError = value.lastError === undefined || value.lastError === null ? null : stringOrNull(value.lastError);
+  const rawLastError = value.lastError === undefined || value.lastError === null ? null : value.lastError;
+  const lastError =
+    rawLastError === null
+      ? null
+      : (parseIdempotencyFailureCode(rawLastError) ??
+        (normalizeLegacyError ? ('billing-queue-operation-failed' as const) : null));
   if (
     (state !== 'pending' && state !== 'completed' && state !== 'manual-required') ||
     requestFingerprint === null ||
@@ -2067,7 +2162,7 @@ function normalizeDurableIdempotencyRecord(value: unknown): DurableIdempotencyRe
     stateVersion === null ||
     attemptCount === null ||
     (value.leaseToken !== undefined && value.leaseToken !== null && leaseToken === null) ||
-    (value.lastError !== undefined && value.lastError !== null && lastError === null) ||
+    (rawLastError !== null && lastError === null) ||
     (value.leaseExpiresAt !== undefined && value.leaseExpiresAt !== null && leaseExpiresAt === null) ||
     (value.retryAt !== undefined && value.retryAt !== null && retryAt === null) ||
     !Object.prototype.hasOwnProperty.call(value, 'responseBody') ||
@@ -2089,6 +2184,213 @@ function normalizeDurableIdempotencyRecord(value: unknown): DurableIdempotencyRe
     retryAt,
     lastError,
   };
+}
+
+function hasExactKeys(value: Record<string, unknown>, expected: ReadonlyArray<string>): boolean {
+  const actual = Object.keys(value).sort();
+  const wanted = [...expected].sort();
+  return actual.length === wanted.length && actual.every((key, index) => key === wanted[index]);
+}
+
+function legacyFingerprintIdentity(
+  record: Record<string, unknown>
+): { action: string; subject: string | null; requestId: string } | null {
+  const action = stringOrNull(record.action);
+  const requestId = stringOrNull(record.requestId);
+  const subject = record.subject === null ? null : stringOrNull(record.subject);
+  return action && requestId && (record.subject === null || subject !== null) ? { action, subject, requestId } : null;
+}
+
+async function migrateLegacyCanonicalRequestFingerprint(value: unknown): Promise<IdempotencyRequestFingerprint | null> {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    return null;
+  }
+  if (!isPlainObject(parsed) || JSON.stringify(parsed) !== value) {
+    return null;
+  }
+  const identity = legacyFingerprintIdentity(parsed);
+  if (!identity) {
+    return null;
+  }
+  switch (identity.action) {
+    case 'referral-invite': {
+      if (!hasExactKeys(parsed, ['invitedIdentifier', 'referralCode', 'action', 'subject', 'requestId'])) {
+        return null;
+      }
+      const invitedIdentifier = parsed.invitedIdentifier === null ? null : stringOrNull(parsed.invitedIdentifier);
+      const referralCode = stringOrNull(parsed.referralCode);
+      if ((parsed.invitedIdentifier !== null && invitedIdentifier === null) || referralCode === null) {
+        return null;
+      }
+      if (JSON.stringify({ invitedIdentifier, referralCode, ...identity }) !== value) {
+        return null;
+      }
+      return opaqueRequestFingerprint(identity.action, identity.subject, identity.requestId, {
+        invitedIdentifier,
+        referralCode,
+      });
+    }
+    case 'manual-invoice': {
+      if (!hasExactKeys(parsed, ['region', 'action', 'subject', 'requestId'])) {
+        return null;
+      }
+      const region = stringOrNull(parsed.region);
+      if (region === null || JSON.stringify({ region, ...identity }) !== value) {
+        return null;
+      }
+      return opaqueRequestFingerprint(identity.action, identity.subject, identity.requestId, { region });
+    }
+    case 'reconciliation': {
+      if (!hasExactKeys(parsed, ['actorRole', 'action', 'subject', 'requestId'])) {
+        return null;
+      }
+      const actorRole = stringOrNull(parsed.actorRole);
+      if (actorRole === null || JSON.stringify({ actorRole, ...identity }) !== value) {
+        return null;
+      }
+      return opaqueRequestFingerprint(identity.action, identity.subject, identity.requestId, { actorRole });
+    }
+    case 'provider-webhook': {
+      if (
+        !hasExactKeys(parsed, [
+          'provider',
+          'eventType',
+          'body',
+          'accountId',
+          'providerCustomerId',
+          'providerSubscriptionId',
+          'providerInvoiceId',
+          'billingInvoiceId',
+          'action',
+          'subject',
+          'requestId',
+        ])
+      ) {
+        return null;
+      }
+      const provider = stringOrNull(parsed.provider);
+      const eventType = stringOrNull(parsed.eventType);
+      const body = typeof parsed.body === 'string' ? parsed.body : null;
+      if (provider === null || eventType === null || body === null) {
+        return null;
+      }
+      const nullableReference = (entry: unknown): string | null | undefined =>
+        entry === null ? null : (stringOrNull(entry) ?? undefined);
+      const accountId = nullableReference(parsed.accountId);
+      const providerCustomerId = nullableReference(parsed.providerCustomerId);
+      const providerSubscriptionId = nullableReference(parsed.providerSubscriptionId);
+      const providerInvoiceId = nullableReference(parsed.providerInvoiceId);
+      const billingInvoiceId = nullableReference(parsed.billingInvoiceId);
+      if (
+        accountId === undefined ||
+        providerCustomerId === undefined ||
+        providerSubscriptionId === undefined ||
+        providerInvoiceId === undefined ||
+        billingInvoiceId === undefined
+      ) {
+        return null;
+      }
+      if (
+        JSON.stringify({
+          provider,
+          eventType,
+          body,
+          accountId,
+          providerCustomerId,
+          providerSubscriptionId,
+          providerInvoiceId,
+          billingInvoiceId,
+          ...identity,
+        }) !== value
+      ) {
+        return null;
+      }
+      const bodyDigest = await domainSeparatedSha256(
+        'ocentra.billing.provider-webhook.body.v1',
+        'provider-webhook-body',
+        body
+      );
+      return opaqueRequestFingerprint(identity.action, identity.subject, identity.requestId, {
+        provider,
+        eventType,
+        bodyDigest,
+        accountId,
+        providerCustomerId,
+        providerSubscriptionId,
+        providerInvoiceId,
+        billingInvoiceId,
+      });
+    }
+    default:
+      return null;
+  }
+}
+
+async function quarantineIdempotencyRecord(value: unknown): Promise<DurableIdempotencyRecord> {
+  let serialized = 'unserializable-legacy-state';
+  try {
+    serialized = JSON.stringify(value) ?? serialized;
+  } catch {
+    // The replacement intentionally retains only the digest and a fixed blocker.
+  }
+  return {
+    state: 'manual-required',
+    requestFingerprint: await domainSeparatedSha256(
+      'ocentra.billing.idempotency.legacy-quarantine.v1',
+      'idempotency-quarantine',
+      serialized
+    ),
+    responseStatus: 503,
+    responseBody: { status: 'manual-required', blocker: 'billing-control-do-idempotency-state-quarantined' },
+    stateVersion: 0,
+    attemptCount: 0,
+    leaseToken: null,
+    leaseExpiresAt: null,
+    retryAt: null,
+    lastError: 'billing-idempotency-legacy-state-quarantined',
+  };
+}
+
+async function migrateStoredIdempotencyRecord(value: unknown): Promise<{
+  record: DurableIdempotencyRecord;
+  quarantined: boolean;
+  changed: boolean;
+}> {
+  const current = normalizeDurableIdempotencyRecord(value);
+  if (current) {
+    return {
+      record: current,
+      quarantined: current.requestFingerprint.startsWith('idempotency-quarantine:'),
+      changed: false,
+    };
+  }
+  const currentFingerprint = isPlainObject(value) ? parseStoredIdempotencyFingerprint(value.requestFingerprint) : null;
+  if (currentFingerprint) {
+    const normalizedErrorRecord = normalizeDurableIdempotencyRecord(value, currentFingerprint, true);
+    if (normalizedErrorRecord) {
+      return {
+        record: normalizedErrorRecord,
+        quarantined: currentFingerprint.startsWith('idempotency-quarantine:'),
+        changed: true,
+      };
+    }
+  }
+  const legacyFingerprint = isPlainObject(value)
+    ? await migrateLegacyCanonicalRequestFingerprint(value.requestFingerprint)
+    : null;
+  if (legacyFingerprint) {
+    const migrated = normalizeDurableIdempotencyRecord(value, legacyFingerprint, true);
+    if (migrated) {
+      return { record: migrated, quarantined: false, changed: true };
+    }
+  }
+  return { record: await quarantineIdempotencyRecord(value), quarantined: true, changed: true };
 }
 
 function idempotencyRetryDelayMs(attemptCount: number): number {
@@ -2136,7 +2438,7 @@ class IdempotentWriteDO extends BasePlaceholderDO {
     }
 
     const requestKey = stringOrNull(envelope.requestKey);
-    const requestFingerprint = stringOrNull(envelope.requestFingerprint);
+    const requestFingerprint = parseIdempotencyRequestFingerprint(envelope.requestFingerprint);
     const responseStatus = numberOrNull(envelope.responseStatus);
     if (
       requestKey === null ||
@@ -2160,18 +2462,24 @@ class IdempotentWriteDO extends BasePlaceholderDO {
 
     const storageKey = `idempotency:${requestKey}`;
     let existing: DurableIdempotencyRecord | undefined;
+    let existingQuarantined = false;
     try {
       const stored = await this.state.storage.get<unknown>(storageKey);
       if (stored !== undefined) {
-        existing = normalizeDurableIdempotencyRecord(stored) ?? undefined;
-        if (!existing) {
-          return idempotencyRetryResponse('billing-control-do-idempotency-state-invalid');
+        const migrated = await migrateStoredIdempotencyRecord(stored);
+        existing = migrated.record;
+        existingQuarantined = migrated.quarantined;
+        if (migrated.changed) {
+          await this.state.storage.put(storageKey, existing);
         }
       }
     } catch {
       return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
     }
     if (existing !== undefined) {
+      if (existingQuarantined) {
+        return idempotencyRetryResponse('billing-control-do-idempotency-state-quarantined');
+      }
       if (existing.requestFingerprint !== requestFingerprint) {
         const conflictResponseStatus = numberOrNull(envelope.conflictResponseStatus) ?? 409;
         const conflictResponseBody = envelope.conflictResponseBody ?? {
@@ -2206,7 +2514,7 @@ class IdempotentWriteDO extends BasePlaceholderDO {
             leaseToken: null,
             leaseExpiresAt: null,
             retryAt: null,
-            lastError: existing.lastError ?? 'idempotency-attempt-limit-exhausted',
+            lastError: existing.lastError,
           } satisfies DurableIdempotencyRecord;
           try {
             await this.state.storage.put(storageKey, exhausted);
