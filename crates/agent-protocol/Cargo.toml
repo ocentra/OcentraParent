@@ -22,6 +22,7 @@ name = "unit"
 path = "tests/unit/main.rs"
 
 [dependencies]
+ocentra-ai-contracts = { path = "../ai-contracts" }
 ocentra-evidence = { path = "../ocentra-evidence" }
 ocentra-eventing = { path = "../ocentra-eventing" }
 serde = { version = "1.0.228", features = ["derive"] }
