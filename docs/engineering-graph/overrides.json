@@ -9726,6 +9726,28 @@
       ]
     },
     {
+      "id": "WP-eventing-plan-02-crate-contract-and-type-boundary",
+      "state": "validation",
+      "reason": "Independent production-source review at canonical 5b55cca81 records exactly four WP02-owned roots: typed IDs/taxonomy with OS-CSPRNG generation and schema validation in ids.rs and ids/validation.rs; live/stored envelope and payload-identity custody in envelope.rs; and duplicate-contract registry boundaries in contract_registry.rs, with no Rust public re-export in those roots. Real non-test callers are present in child-runtime, agent-core, agent-service, parent-runtime-core, family-identity-core, and app-game-core. This is reviewed implementation/routing truth only: the five expected WP02 test roots, focused execution, proof artifact, checklist acceptance, CI, PR/review, runtime durability/currentness/authorization, READY, and DONE remain open; no completion evidence is asserted.",
+      "statusText": "Validation — four WP02 source roots and production callers reviewed; expected tests, proof, checklist, execution, CI/PR/review, runtime, and completion remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/eventing-plan/PLAN_STATE.md",
+        "docs/plans/eventing-plan/WORKPACK_INDEX.md",
+        "docs/plans/eventing-plan/workpacks/02-crate-contract-and-type-boundary.md",
+        "crates/ocentra-eventing/src/ids.rs",
+        "crates/ocentra-eventing/src/ids/validation.rs",
+        "crates/ocentra-eventing/src/envelope.rs",
+        "crates/ocentra-eventing/src/contract_registry.rs",
+        "crates/child-runtime/src/child_domain_runtime_flow.rs",
+        "crates/agent-core/src/browser_event_runtime/action_handoff.rs",
+        "crates/agent-service/src/browser_runtime_stream_request.rs",
+        "crates/parent-runtime-core/src/data_custody_runtime_eventing.rs",
+        "crates/family-identity-core/src/parent_presence_event_delivery.rs",
+        "crates/app-game-core/src/app_game_unknown_approval.rs"
+      ]
+    },
+    {
       "id": "WP-app-plan-01-contract-boundary-and-effect-schemas",
       "state": "validation",
       "reason": "The runtime-decision contract slice is code/test/proof/CI/main-merge verified, but the workpack's broader identity, inventory, runtime, session, policy, authority, action, enforcement, platform, and AI checklist remains open.",
