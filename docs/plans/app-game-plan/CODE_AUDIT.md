@@ -26,6 +26,88 @@ still absent, covering preflight, path security, process identity, output,
 cleanup, and transport admission. This checkpoint updates source topology only;
 it does not claim test execution, proof, runtime readiness, or closure.
 
+## Current App/Game source-pass truth packet — 2026-08-25
+
+This is a consolidated source/graph truth correction recorded from the current
+canonical integration head. It is not completion evidence, a checklist update,
+proof, test result, graph-state promotion, product-status change, PR claim, or
+runtime claim.
+
+Canonical execution context:
+
+- Physical `repoRoot/worktreeRoot`: `E:\OcentraWorktrees\lanes\app-game-plan-source-manager-aug25`
+- Branch: `codex/app-game-plan-source-manager-aug25`
+- Audited `HEAD`: `7b4838762b5d212a0d8a31f3e9b537a3c5a04d44`
+- At the initial packet write time, `origin/codex/eventing-wp09-production` was
+  `b6eb2fc0198dc44e4a42cc6ff80872b4536e2dcb`; `git rev-list --left-right
+  --count HEAD...origin/codex/eventing-wp09-production` was `0 6`. The six
+  newer commits were `dbfb8745c`, `cadad18f7`, `3e7c0c1c0`, `03428a35f`,
+  `c08a62249`, and `b6eb2fc01` (account/LAN/payment lanes). Before finalizing
+  this packet, the observed origin advanced to
+  `ab0bcbac8c0cb14d38acb8d23e81c4d69144c0d8`; the final observed count was
+  `0 7`, adding `ab0bcbac8` (account provider-device trust).
+- The audit evidence below is for `7b4838762`; the worktree was dirty with this
+  claimed packet while the ref advanced, so no fast-forward/rebase was attempted
+  and no source claim is made about those seven newer commits.
+- The graph was validated and queried with
+  `graph:next --phase implementation`; graph JSON, checklist rows, proof, and
+  lifecycle state were not edited.
+- Exact workpacks audited in this bounded source pass: WP01, WP04, WP05, WP06,
+  WP07, WP08, WP09, WP10, WP11, WP12, WP13, WP14, WP15, WP17, WP18, WP19,
+  WP20, WP21, WP24, WP27, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP49,
+  WP51, WP52, WP53, WP54, WP56, WP59, WP61, WP64, WP65, WP66, WP67, WP68,
+  WP70, WP177, WP189, and WP197 (44 workpacks). No additional workpack was
+  opened after this checkpoint was requested.
+
+### Material truth corrections
+
+| Workpack | Current canonical source/caller truth | Consequence |
+| --- | --- | --- |
+| WP53 | Rust notification readiness exists at `crates/agent-protocol/src/app_game_notification_readiness.rs` and is consumed by the real service/parent-runtime path. The workpack's requested parent-domain Effect Schema `NotificationIntent` owner and caller are absent under `packages/*`. | Do not treat the Rust readiness model as the missing parent-domain contract; no safe parallel TS source packet was authorized. |
+| WP54 | `apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx` is present, renders the Rust-owned read-model rows, keeps missing input unavailable, and is wired through the App/Game proof-panel route. | No bounded portal source gap found; tests/proof remain separate. |
+| WP56 | Rust protocol/service notification readiness is backed by the real ActivityStore read model and parent-runtime response decoding. The historical standalone TS parser owner named by the workpack is absent; current custody is Rust-first. | No duplicate parser or competing source owner was added. |
+| WP59 | The Rust app-game-core scheduler bridge validates WP58, schedules only linked local rows, keeps manual/unavailable rows blocked, round-trips canonical scheduler JSONL, and uses locked atomic idempotent custody. Historical parent-domain routes are absent. | No source gap found; provider/runtime claims remain false. |
+| WP61 | The Rust provider-preflight bridge requires matching persisted WP59 scheduler custody, preserves blocked rows, and maps only verified DueLocal rows to provider-adapter-required preflight. Historical parent-domain routes are absent. | No source gap found; provider delivery, receipt, credentials, runtime, UI, child, adapter, and platform claims remain false. |
+| WP64 | `graph:inspect` reports `blocked`; dependencies are WP59 and WP61, with proof still missing. | Do not claim implementation-ready or status-handoff completion. |
+| WP65 | `graph:inspect` reports `blocked`; dependencies are WP59 and WP62, with proof still missing. | Do not claim implementation-ready or status-handoff completion. |
+| WP66-WP67 | Rust parent-surface intent/bridge and the Portal App/Game notification panel exist; family/row-count checks, redaction, unavailable state, and no-runtime claims are present. | No bounded source gap found; actual UI/runtime/provider proof remains open. |
+| WP68 | The portal overview requests the existing notification-readiness command; parent-runtime validates/decodes the event and builds the live panel snapshot. The historical portal-domain parser/projection files are absent and have no current caller. | Rust remains the active composition owner; no competing TS live parser was added. |
+| WP70 | The current `packages/schema-domain` Effect Schema and generated rules exist, while the historical `packages/parent-domain` owner is absent. No production caller was found beyond contract/source tests. The TS schema requires `device`, `policyVersion`, and `policyTarget` fields not carried by the Rust handoff row. | Cross-runtime field parity and production handoff are not claimed; no source edit was safe without a real caller/owner. |
+| WP27 | No current performance-health source/rules owner or live caller exists; the workpack's required scale/load harness and proof are not a bounded product-source gap. | Remains a harness/proof/runtime follow-up, not a source-only packet. |
+| WP189 / WP197 | WP189 still lacks Linux foreground acquisition source. WP197 source is integrated, but its focused preflight/path/process/output/cleanup/transport test roots and proof remain absent. | No Linux foreground or preflight source claim was made. |
+
+The caller-backed/source-complete rows in this packet are WP54, WP56, WP59,
+WP61, WP66, WP67, and WP68; their concrete Rust/Portal callers and custody
+boundaries are stated in the table above. WP53 is only partially composed
+because its requested parent-domain owner/caller is absent. WP197 has source
+integration but is not a source-pass completion claim because its focused
+validation roots and proof are absent.
+
+### Validation debt preserved without churn
+
+- WP12's prior focused source-shape findings remain in
+  `crates/app-game-core/src/app_game_risk_candidate_detection.rs`: nesting depth
+  5 (maximum 4) and 15 branch points (maximum 12).
+- WP59/WP61 focused source-shape checks also surface the pre-existing shared
+  `crates/agent-protocol/src/schema_domain_mirrors.rs` size finding: 57
+  structs/enums (maximum 24), rules `SRC-1.1` and `SRC-2.4`. This checkpoint
+  did not refactor shared schema custody.
+- Focused Enforcer no-test-doubles, validation-bypass, reexports, architecture,
+  and Rust string-boundary checks passed on the audited production roots unless
+  the pre-existing source-shape findings above are stated. Tests, proof, CI,
+  and runtime execution were intentionally not run in this source phase.
+
+Semantic Enforcer ledger evidence for this checkpoint: WP53
+`evt_84443d77b3b14bcf9a7b202e70694d23`, WP54
+`evt_8a192e14dcb74764b4188cfbe81e5087`, WP56
+`evt_b0a79bb4ded4402cba0f1e42cdb7548b`, WP59
+`evt_9b54b3b97430446fa5adc4a3206cff8e`, WP61
+`evt_bf68df1d329e48eb9243d710fb073554`, WP66
+`evt_6d9424f3429e4e53802bad131a20735a`, WP67
+`evt_2083fb451d0b4abeab7dc5fe107003a4`, WP68
+`evt_025ab8413f0b455e9204f9bcac56e1cf`, and WP70
+`evt_dc88161e888e41a08f0e5b7ae922ba62`.
+
 ## Result
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
