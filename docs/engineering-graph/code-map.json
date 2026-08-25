@@ -2325,11 +2325,16 @@
         "infra/cloudflare/migrations/account-identity/0003_provider_billing_mappings.sql",
         "infra/cloudflare/migrations/account-identity/0004_provider_billing_mappings_canonical_identity.sql",
         "infra/cloudflare/src/storage/account-identity-billing-store.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
         "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/src/routes.ts",
         "crates/schema/src/billing_checkout_portal_boundary_ts.rs",
         "crates/schema/src/billing_checkout_portal_boundary_values_ts.rs",
         "crates/schema/tests/contract/billing_checkout_portal_boundary.rs",
         "crates/schema/tests/contract/billing_checkout_portal_boundary_values.rs",
+        "packages/schema-domain/src/billing-checkout-portal-boundary.ts",
         "packages/schema-domain/src/billing-checkout-portal-boundary-values.ts",
         "packages/schema-domain/src/generated-billing-checkout-portal-boundary.ts",
         "packages/schema-domain/src/generated-billing-checkout-portal-boundary-values.ts",
@@ -2340,8 +2345,16 @@
         "infra/cloudflare/tests/integration/checkout-portal-hosted.test.ts",
         "infra/cloudflare/tests/integration/worker-runtime-real.test.ts",
         "infra/cloudflare/tests/property/billing-idempotency.property.test.ts",
-        "infra/cloudflare/tests/security/interactive-billing-boundary.test.ts"
-      ]
+        "infra/cloudflare/tests/security/interactive-billing-boundary.test.ts",
+        "packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts",
+        "packages/billing-domain/tests/unit/billing-account-runtime-boundary.test.ts"
+      ],
+      "plannedImplementationRoots": ["packages/schema-domain/src/billing-checkout-portal-boundary.ts"],
+      "expectedTestRoots": [
+        "packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts",
+        "packages/billing-domain/tests/unit/billing-account-runtime-boundary.test.ts"
+      ],
+      "note": "Reviewed 2026-08-25: Cloudflare exposes the checkout and portal routes and binds generated request/response codecs, but both executions remain manual-required because the provider execution owner is missing. Account current-authority/provider mapping is consumed by status and webhook seams only; ACCOUNT_IDENTITY_D1 remains manual-required and no real checkout/portal caller exists. Rust/schema generated contract sources are present, while the planned schema-domain adapter and billing-domain expected tests are absent. Existing infra/cloudflare hosted-session tests use local-safe fixtures and assert accepted sessions, so they are not live provider evidence. No completionEvidence, READY, DONE, proof, CI, or PR claim follows."
     },
     "WP-payment-subscription-plan-03-subscription-webhook-lifecycle": {
       "planSlug": "payment-subscription-plan",

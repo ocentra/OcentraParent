@@ -1,6 +1,6 @@
 # Workpack 02: Checkout and Billing Portal
 
-Status: `blocked / proof-present`
+Status: `blocked / route contracts present / provider execution owner, Account authority, boundary adapter, and expected tests open`
 
 ## Goal
 
@@ -8,19 +8,47 @@ Define the hosted checkout and billing portal boundary so payment actions stay s
 
 ## Execution truth
 
-- Live first-touch edge contracts are `packages/schema-domain/src/billing-checkout-portal-boundary.ts` and `packages/schema-domain/src/billing-checkout-portal-boundary-values.ts`; the older `packages/billing-domain/src/...` references in plan text were stale.
-- `packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts` and `scripts/test/payment-checkout-boundary-proof.mjs` now prove hosted checkout and billing-portal request/response boundary states, explicit return resolutions, redirect allowlist, origin/csrf rejection, plan rejection, and client-secret leak rejection.
-- `packages/billing-domain/tests/unit/billing-account-runtime-boundary.test.ts` and `scripts/test/billing-account-endpoint-contract-proof.mjs` now prove the billing account endpoint contract and explicit runtime non-claims around provider/backend/portal ownership.
-- This packet does not move runtime ownership back into TypeScript. The touched TypeScript files remain thin edge validation or proof-consumer surfaces; Cloudflare Worker runtime, provider runtime, account backend runtime, entitlement runtime, and portal UI runtime remain outside WP02.
+- The actual Cloudflare route manifest owns `POST /auth/billing/checkout` and
+  `POST /auth/billing/portal` as parent-session-required billing writes. Their
+  request/response codecs are bound to
+  `infra/cloudflare/src/generated/billing-contracts.ts`, but both route
+  execution bindings are `manual-required` with
+  `payment-provider-execution-owner-missing`.
+- Both Worker handlers return the shared 501 manual-required response. No
+  Stripe/other-provider checkout or portal API client, session creator, or
+  real production caller exists. Environment provider-key declarations,
+  webhook signature verification, and fixture hosted URLs do not establish
+  provider-session custody.
+- Account authority is composed for browser-session/status and provider-webhook
+  seams through current-authority and provider-mapping reads. The
+  `ACCOUNT_IDENTITY_D1` binding remains manual-required, migration `0004`
+  requires the Account current-authority schema, and no checkout/portal handler
+  consumes that authority to create a provider session.
+- Rust-owned canonical templates and generated schema-domain files exist. The
+  planned `packages/schema-domain/src/billing-checkout-portal-boundary.ts`
+  adapter is absent, and the `packages/billing-domain` package is absent.
+- The existing Cloudflare hosted-session tests are local-fixture tests using
+  `createTestHarness` and accepted-session assertions; they do not prove a
+  live provider caller and are stale against the current manual-required
+  source. The planned WP02 package tests and named proof scripts are absent.
+- This packet does not move runtime ownership back into TypeScript. Cloudflare
+  Worker runtime, provider runtime, Account backend readiness, entitlement
+  runtime, and portal UI runtime remain outside the legal WP02 source packet.
 
 ## First-touch surface
 
-- `packages/schema-domain/src/billing-checkout-portal-boundary.ts`
+- `infra/cloudflare/src/routes.ts`
+- `infra/cloudflare/src/index.ts`
+- `infra/cloudflare/src/auth/verifier.ts`
+- `infra/cloudflare/src/storage/account-identity-billing-store.ts`
+- `infra/cloudflare/src/generated/billing-contracts.ts`
+- `packages/schema-domain/src/billing-checkout-portal-boundary.ts` (missing
+  planned adapter)
 - `packages/schema-domain/src/billing-checkout-portal-boundary-values.ts`
 - `packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts`
+  (missing expected test)
 - `packages/billing-domain/tests/unit/billing-account-runtime-boundary.test.ts`
-- `scripts/test/payment-checkout-boundary-proof.mjs`
-- `scripts/test/billing-account-endpoint-contract-proof.mjs`
+  (missing expected test)
 
 ## Read inputs
 
@@ -42,34 +70,45 @@ Define the hosted checkout and billing portal boundary so payment actions stay s
 
 - `output/payment-subscription-plan-proof/02-checkout-billing-portal/`
 
-## Proved now
+## Source-level contract facts (not runtime proof)
 
-- Hosted checkout requests accept only interactive `parent` or `guardian` actors.
-- Hosted checkout requests accept only allowlisted billable plan ids.
-- Hosted checkout and portal requests require `same-origin-verified`, `csrf-token-verified`, and `surfaceSecretCustody: not-present`.
-- Hosted return routes are explicit and stable:
-  - checkout success -> `awaiting-provider-webhook`
-  - checkout cancel -> `cancelled-before-provider-confirmation`
-  - portal return -> `portal-management-only`
-- Checkout and portal URLs reject `client_secret=` leakage.
-- Explicit rejected checkout states exist for `auth-required`, `invalid-plan`, and `abuse-gate-required` without implying paid success.
-- The billing account boundary keeps Cloudflare runtime, provider backend runtime, account backend runtime, portal UI runtime, and child activity custody as explicit non-claims.
+- Rust/schema-domain contract sources encode interactive actor, allowlisted
+  plan, return-route, origin/csrf, surface-secret, and no-client-secret
+  boundaries.
+- Cloudflare route metadata and generated request/response codecs expose the
+  intended hosted-session models, but the execution side is manual-required.
+- Local fixture tests contain accepted and rejected hosted-session assertions;
+  they do not establish provider API execution, Account authority composition,
+  durable provider-session custody, or payment completion.
+- Redirect success remains explicitly distinct from paid access, and provider
+  webhook/account-ledger ownership remains an open dependency.
 
-## Acceptance
+## Acceptance intent and current result
 
-- Checkout sessions are created server-side by the Worker.
-- Portal sessions cover payment method updates, cancellations, invoices, and plan changes.
-- Redirect success is never used as proof of payment.
-- The browser never receives provider secrets or webhook secrets.
+- Checkout and portal sessions must be created server-side by an owned provider
+  adapter; current Worker execution is manual-required, so this is not met.
+- Portal sessions must cover payment method updates, cancellations, invoices,
+  and plan changes; no live provider session caller exists.
+- Redirect success is never valid proof of payment; this remains a preserved
+  boundary fact.
+- The browser must never receive provider secrets or webhook secrets; schema
+  and route boundary sources encode this, but focused expected tests remain
+  open.
 - Referral enrollment stays separate from billing checkout.
 
 ## Manual-required / blocked
 
-- This workpack still does not claim Cloudflare Worker runtime, provider backend runtime, account backend runtime, entitlement signing runtime, portal UI runtime, or live payment completion.
-- Separate household-membership authority beyond the request-role boundary remains an adjacent account-identity/runtime concern and is not claimed from WP02.
-- The packet remains `blocked / proof-present` because the required broader validation gates fail outside WP02 scope:
-  - `cmd /c npm run format:check` -> `Code style issues found in 1015 files. Run Prettier with --write to fix.`
-  - `cmd /c npm run lint:schema-boundaries` -> `Weak assertion guard failed` in `crates/agent-protocol/tests/contract/*.rs` and `crates/agent-service/tests/unit/lan_pairing.rs`
+- The Cloudflare checkout and portal execution bindings remain manual-required
+  because `payment-provider-execution-owner-missing`; both handlers return
+  501 and do not call a provider API.
+- Account current-authority/D1 readiness remains manual-required, and the
+  Account migration dependency must land before the provider mapping migration
+  can be treated as executable runtime custody.
+- The schema-domain boundary adapter, the two planned WP02 package tests, and
+  the named proof scripts are absent. Existing Cloudflare local-fixture tests
+  are not a substitute for those expected tests or a real caller.
+- This workpack remains blocked. No completion evidence, READY, DONE, proof,
+  deployment, CI, PR, or live payment claim is made.
 
 ## Proof IDs
 
@@ -80,16 +119,17 @@ Define the hosted checkout and billing portal boundary so payment actions stay s
 
 ## Validation
 
-- Docs validation: `npm run format:check`; `npm run lint:schema-boundaries`
-- Focused pass commands:
-  - `cmd /c npm run build --workspace @ocentra-parent/schema-domain`
-  - `cmd /c npm run test --workspace @ocentra-parent/billing-domain -- tests/unit/billing-checkout-portal-boundary.test.ts`
-  - `cmd /c npm run test --workspace @ocentra-parent/billing-domain -- tests/unit/billing-account-runtime-boundary.test.ts`
-  - `node scripts/test/payment-checkout-boundary-proof.mjs`
-  - `node scripts/test/billing-account-endpoint-contract-proof.mjs`
-  - `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/billing-checkout-portal-boundary.ts packages/schema-domain/src/billing-checkout-portal-boundary-values.ts packages/billing-domain/tests/unit/billing-checkout-portal-boundary.test.ts scripts/test/payment-checkout-boundary-proof.mjs`
+- This docs/graph truth packet did not run WP02 tests, proof, CI, or a
+  provider request.
+- The future source/test wave must first supply the missing provider owner,
+  schema-domain adapter, and expected tests, then run the focused Cloudflare
+  route/authority tests, Rust/schema parity tests, and architecture/source-shape
+  checks for the actual touched files.
+- Whole-plan format/precommit and broad validation remain deferred; no prior
+  local-fixture assertion is promoted to runtime evidence here.
 - Required proof families: `payment-checkout.auth-required`, `payment-checkout.household-role-required`, `payment-checkout.invalid-product-rejected`, `payment-checkout.redirect-allowlist`, `payment-checkout.origin-csrf-negative`, `payment-checkout.bot-abuse-gate`, `payment-checkout.no-desktop-secrets`, `payment-checkout.no-client-secret-exposure`, `payment-checkout.return-success-not-entitlement`, `payment-checkout.cancel-state`
-- Proof bundle: `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-cloudflare-billing-api-boundary-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-hosted-checkout-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-billing-portal-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-no-client-secret-proof.md`, `output/payment-subscription-plan-proof/02-checkout-billing-portal/02-redirect-origin-negative-proof.md`
+- Expected proof bundle (currently absent):
+  `output/payment-subscription-plan-proof/02-checkout-billing-portal/`
 
 ## No-claim boundary
 
