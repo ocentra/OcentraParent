@@ -11,7 +11,7 @@ mod security;
 
 use super::super::handles::last_error;
 use super::super::handles::{ScManagerInner, ServiceInner};
-use crate::{Error, OwnedScManager, OwnedService, Result, ServiceObservation};
+use crate::{Error, OwnedScManager, OwnedService, Result, ServiceName, ServiceObservation};
 use std::ptr;
 use windows_sys::Win32::Storage::FileSystem::READ_CONTROL;
 use windows_sys::Win32::System::Services::{
@@ -29,8 +29,8 @@ impl OwnedScManager {
         })
     }
 
-    pub fn open_service(&self, name: &str) -> Result<OwnedService> {
-        let name_wide = config::strings::wide_string(name)?;
+    pub fn open_service(&self, name: &ServiceName) -> Result<OwnedService> {
+        let name_wide = name.wide_nul()?;
         let handle = unsafe {
             OpenServiceW(
                 self.inner.handle,
@@ -43,13 +43,18 @@ impl OwnedScManager {
         }
         Ok(OwnedService {
             inner: ServiceInner { handle },
-            service_name: name.to_owned(),
+            service_name: name.text(),
         })
     }
 }
 
 impl OwnedService {
     pub fn observation(&self) -> Result<ServiceObservation> {
+        self.reobserve()
+    }
+
+    /// Repeat the complete observation on the same retained SCM service handle.
+    pub fn reobserve(&self) -> Result<ServiceObservation> {
         let config = config::query_service_config(self.inner.handle)?;
         let failure = failure::query_failure_actions(self.inner.handle)?;
         Ok(ServiceObservation {

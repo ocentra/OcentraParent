@@ -1,6 +1,6 @@
 //! Service failure-action observation accessors.
 
-use super::super::{ServiceFailureAction, ServiceObservation};
+use super::super::{ServiceFailureAction, ServiceObservation, WindowsText};
 
 impl ServiceFailureAction {
     pub fn action_type(&self) -> i32 {
@@ -17,12 +17,12 @@ impl ServiceObservation {
         self.failure_actions_reset_period
     }
 
-    pub fn failure_actions_reboot_message(&self) -> Option<&str> {
-        self.failure_actions_reboot_message.as_deref()
+    pub fn failure_actions_reboot_message(&self) -> Option<&WindowsText> {
+        self.failure_actions_reboot_message.as_ref()
     }
 
-    pub fn failure_actions_command(&self) -> Option<&str> {
-        self.failure_actions_command.as_deref()
+    pub fn failure_actions_command(&self) -> Option<&WindowsText> {
+        self.failure_actions_command.as_ref()
     }
 
     pub fn failure_actions(&self) -> &[ServiceFailureAction] {

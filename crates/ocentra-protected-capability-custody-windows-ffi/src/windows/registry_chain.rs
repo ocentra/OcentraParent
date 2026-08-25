@@ -8,8 +8,9 @@ mod value;
 use super::super::handles::{RegistryChainInner, RegistryKeyInner};
 use crate::security;
 use crate::{
-    Error, OwnedRegistryChain, RegistryAncestorObservation, Result, SecurityDescriptorObservation,
-    MAX_WIDE_CHARS,
+    Error, InputFault, OwnedRegistryChain, RegistryAncestorObservation, RegistryPath,
+    RegistryValueName, RegistryValueObservation, Result, SecurityDescriptorObservation,
+    WindowsText,
 };
 use std::ptr;
 use windows_sys::Win32::Foundation::ERROR_FILE_NOT_FOUND;
@@ -21,17 +22,17 @@ use windows_sys::Win32::System::Registry::{
 const ERROR_MORE_DATA: u32 = 234;
 
 impl OwnedRegistryChain {
-    pub fn open_hklm(path: &str) -> Result<Self> {
-        let components = split_registry_path(path, 64)?;
+    pub fn open_hklm(path: &RegistryPath) -> Result<Self> {
+        let components = path.components()?;
         Self::open_components(&components)
     }
 
-    fn open_components(components: &[&str]) -> Result<Self> {
+    fn open_components(components: &[WindowsText]) -> Result<Self> {
         let mut keys = Vec::with_capacity(components.len());
         let mut observations = Vec::with_capacity(components.len());
         let mut parent = HKEY_LOCAL_MACHINE;
         for end in 1..=components.len() {
-            let component_wide = wide_string(components[end - 1])?;
+            let component_wide = components[end - 1].wide_nul()?;
             let mut key: HKEY = ptr::null_mut();
             let status = unsafe {
                 RegOpenKeyExW(
@@ -50,7 +51,7 @@ impl OwnedRegistryChain {
             parent = key.handle;
             let security =
                 security::copy_descriptor(security_snapshot::query_registry_security(key.handle)?)?;
-            let path = components[..end].join("\\");
+            let path = WindowsText::join(&components[..end])?;
             keys.push(key);
             observations.push(RegistryAncestorObservation { path, security });
         }
@@ -59,13 +60,24 @@ impl OwnedRegistryChain {
         })
     }
 
-    pub fn read_value(&self, name: &str) -> Result<crate::RegistryValue> {
+    pub fn observe_value(&self, name: &RegistryValueName) -> Result<RegistryValueObservation> {
         let key = self
             .inner
             .keys
             .last()
-            .ok_or(Error::InvalidInput("registry chain is empty"))?;
-        value::read_value_handle(key.handle, name)
+            .ok_or(Error::InvalidInput(InputFault::RegistryChainEmpty))?;
+        let value = value::read_value_handle(key.handle, name)?;
+        Ok(RegistryValueObservation {
+            name: name.clone(),
+            value,
+        })
+    }
+
+    pub fn reobserve_value(
+        &self,
+        previous: &RegistryValueObservation,
+    ) -> Result<RegistryValueObservation> {
+        self.observe_value(&previous.name)
     }
 
     pub fn security(&self) -> Result<SecurityDescriptorObservation> {
@@ -73,7 +85,7 @@ impl OwnedRegistryChain {
             .inner
             .keys
             .last()
-            .ok_or(Error::InvalidInput("registry chain is empty"))?;
+            .ok_or(Error::InvalidInput(InputFault::RegistryChainEmpty))?;
         security::copy_descriptor(security_snapshot::query_registry_security(key.handle)?)
     }
 
@@ -83,11 +95,12 @@ impl OwnedRegistryChain {
 
     pub fn revalidate(&self) -> Result<()> {
         for (key, expected) in self.inner.keys.iter().zip(&self.inner.observations) {
+            reject_symbolic_link(key.handle)?;
             let current =
                 security::copy_descriptor(security_snapshot::query_registry_security(key.handle)?)?;
             if current != expected.security {
                 return Err(Error::InvalidInput(
-                    "registry ancestor security changed during admission",
+                    InputFault::RegistryAncestorSecurityChanged,
                 ));
             }
         }
@@ -95,35 +108,16 @@ impl OwnedRegistryChain {
     }
 }
 
-fn split_registry_path(path: &str, max_depth: usize) -> Result<Vec<&str>> {
-    let components: Vec<&str> = path
-        .split('\\')
-        .filter(|component| !component.is_empty())
-        .collect();
-    if components.is_empty() || components.len() > max_depth {
-        return Err(Error::InvalidInput(
-            "registry path has invalid ancestor depth",
-        ));
-    }
-    if components
-        .iter()
-        .any(|component| *component == "." || *component == "..")
-    {
-        return Err(Error::InvalidInput(
-            "registry path contains a traversal component",
-        ));
-    }
-    Ok(components)
-}
-
 fn reject_symbolic_link(key: HKEY) -> Result<()> {
-    let value_name = wide_string("SymbolicLinkValue")?;
+    const SYMBOLIC_LINK_VALUE: [u16; 18] = [
+        83, 121, 109, 98, 111, 108, 105, 99, 76, 105, 110, 107, 86, 97, 108, 117, 101, 0,
+    ];
     let mut value_type: REG_VALUE_TYPE = 0;
     let mut length = 0u32;
     let status = unsafe {
         RegQueryValueExW(
             key,
-            value_name.as_ptr(),
+            SYMBOLIC_LINK_VALUE.as_ptr(),
             ptr::null(),
             &mut value_type,
             ptr::null_mut(),
@@ -137,21 +131,7 @@ fn reject_symbolic_link(key: HKEY) -> Result<()> {
         return Err(Error::Win32(status));
     }
     if value_type == REG_LINK {
-        return Err(Error::InvalidInput(
-            "registry symbolic links are not accepted for custody",
-        ));
+        return Err(Error::InvalidInput(InputFault::RegistrySymbolicLink));
     }
     Ok(())
-}
-
-fn wide_string(value: &str) -> Result<Vec<u16>> {
-    if value.is_empty() || value.contains('\0') {
-        return Err(Error::InvalidInput(
-            "Windows string is empty or contains NUL",
-        ));
-    }
-    if value.encode_utf16().count() >= MAX_WIDE_CHARS {
-        return Err(Error::BufferTooLarge);
-    }
-    Ok(value.encode_utf16().chain(core::iter::once(0)).collect())
 }

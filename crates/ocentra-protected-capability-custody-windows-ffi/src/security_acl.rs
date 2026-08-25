@@ -1,6 +1,6 @@
 //! Bounded ACL mechanics.
 
-use crate::{AceObservation, Error, Result, MAX_ACES, MAX_BUFFER_BYTES};
+use crate::{AceObservation, Error, InputFault, Result, MAX_ACES, MAX_BUFFER_BYTES};
 use windows_sys::Win32::Security::{IsValidAcl, ACL};
 
 pub(super) fn copy_aces(
@@ -10,7 +10,7 @@ pub(super) fn copy_aces(
 ) -> Result<Vec<AceObservation>> {
     let (acl_header_end, acl_end, header) = bounded_acl(acl, descriptor, descriptor_length)?;
     if unsafe { IsValidAcl(acl) } == 0 {
-        return Err(Error::InvalidInput("Windows returned an invalid ACL"));
+        return Err(Error::InvalidInput(InputFault::AclInvalid));
     }
     let count = usize::from(header.AceCount);
     if count > MAX_ACES {
@@ -43,9 +43,7 @@ fn bounded_acl(
         .checked_add(core::mem::size_of::<ACL>())
         .ok_or(Error::BufferTooLarge)?;
     if acl_start < descriptor_start || acl_header_end > descriptor_end {
-        return Err(Error::InvalidInput(
-            "DACL pointer is outside its descriptor",
-        ));
+        return Err(Error::InvalidInput(InputFault::AclOutsideDescriptor));
     }
     let header = unsafe { core::ptr::read_unaligned(acl) };
     let acl_size = usize::from(header.AclSize);
@@ -56,7 +54,7 @@ fn bounded_acl(
         || acl_size > MAX_BUFFER_BYTES
         || acl_end > descriptor_end
     {
-        return Err(Error::InvalidInput("ACL size is outside the bounded shape"));
+        return Err(Error::InvalidInput(InputFault::AclSizeInvalid));
     }
     Ok((acl_header_end, acl_end, header))
 }

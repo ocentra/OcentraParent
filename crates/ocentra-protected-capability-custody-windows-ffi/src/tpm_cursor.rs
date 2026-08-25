@@ -33,7 +33,7 @@ impl<'a> ResponseCursor<'a> {
         })
     }
 
-    pub(super) fn expect_response_code(&mut self) -> Result<()> {
+    pub(super) fn expect_response_code(&self) -> Result<()> {
         if self.response_code != TPM_RC_SUCCESS {
             return Err(Error::Tpm(self.response_code));
         }

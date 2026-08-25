@@ -5,10 +5,14 @@
 //! comparisons, persistence, transcript construction, and authority remain
 //! in the private core adapter.  In particular, no public API accepts caller
 //! attestation or returns a raw Windows handle.
+//! This package is non-publishable and its only permitted workspace consumer
+//! is that private core adapter; it is not a general platform utility.
 
 #![deny(unsafe_op_in_unsafe_fn)]
 
 mod error;
+mod ffi;
+mod input_fault;
 mod observations;
 mod owned_types;
 #[cfg(windows)]
@@ -21,6 +25,12 @@ mod unsupported;
 mod windows;
 
 use core::fmt;
+
+pub type RegistryPath = ffi::text::RegistryPath;
+pub type RegistryValueName = ffi::text::RegistryValueName;
+pub type ServiceName = ffi::text::ServiceName;
+pub type WindowsText = ffi::text::WindowsText;
+pub type InputFault = input_fault::InputFault;
 
 /// Maximum size of a value copied from an operating-system API.
 pub const MAX_BUFFER_BYTES: usize = 1024 * 1024;
@@ -41,7 +51,7 @@ pub enum Error {
     /// An input exceeded a bounded ABI buffer.
     BufferTooLarge,
     /// An input or operating-system response was malformed.
-    InvalidInput(&'static str),
+    InvalidInput(InputFault),
     /// A response did not satisfy the strict TPM wire shape.
     MalformedTpm,
 }
@@ -62,9 +72,23 @@ pub struct ImageIdentity {
 /// is retained by [`OwnedProcess`] while this value is consumed by a caller.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ImageObservation {
-    path: String,
+    path: WindowsText,
     identity: ImageIdentity,
     sha256: [u8; 32],
+    security: SecurityDescriptorObservation,
+    ancestors: Vec<ImageAncestorObservation>,
+    file_attributes: u32,
+    reparse_tag: u32,
+}
+
+/// A pinned executable ancestor observed through a retained directory handle.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ImageAncestorObservation {
+    path: WindowsText,
+    identity: ImageIdentity,
+    security: SecurityDescriptorObservation,
+    file_attributes: u32,
+    reparse_tag: u32,
 }
 
 /// A process identity snapshot obtained from an owned process and image
@@ -115,6 +139,17 @@ pub struct RegistryValue {
     data: Vec<u8>,
 }
 
+/// A value copied from the final retained registry key in a custody chain.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RegistryValueObservation {
+    name: RegistryValueName,
+    value: RegistryValue,
+}
+
+/// An opaque mechanically validated TPM2 NV index handle.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct TpmNvIndex(u32);
+
 /// The bounded public metadata returned by TPM2 `NV_ReadPublic`.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct NvPublic {
@@ -129,23 +164,23 @@ pub struct NvPublic {
 /// the Service Control Manager.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ServiceObservation {
-    service_name: String,
+    service_name: WindowsText,
     service_type: u32,
     start_type: u32,
     error_control: u32,
-    binary_path: Option<String>,
-    load_order_group: Option<String>,
+    binary_path: Option<WindowsText>,
+    load_order_group: Option<WindowsText>,
     tag_id: u32,
-    dependencies: Vec<String>,
-    start_name: Option<String>,
-    display_name: Option<String>,
+    dependencies: Vec<WindowsText>,
+    start_name: Option<WindowsText>,
+    display_name: Option<WindowsText>,
     service_sid_type: u32,
-    required_privileges: Vec<String>,
+    required_privileges: Vec<WindowsText>,
     delayed_auto_start: bool,
     launch_protected: u32,
     failure_actions_reset_period: u32,
-    failure_actions_reboot_message: Option<String>,
-    failure_actions_command: Option<String>,
+    failure_actions_reboot_message: Option<WindowsText>,
+    failure_actions_command: Option<WindowsText>,
     failure_actions: Vec<ServiceFailureAction>,
     failure_actions_on_non_crash_failures: bool,
     security: SecurityDescriptorObservation,
@@ -161,7 +196,7 @@ pub struct ServiceFailureAction {
 /// An installer/SCM-owned path and its exact ancestor security observations.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct RegistryAncestorObservation {
-    path: String,
+    path: WindowsText,
     security: SecurityDescriptorObservation,
 }
 

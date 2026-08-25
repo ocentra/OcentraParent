@@ -41,7 +41,8 @@ pub(crate) struct TokenInner {
 }
 
 pub(crate) struct ImageInner {
-    pub(crate) _handle: HandleInner,
+    pub(crate) handle: HandleInner,
+    pub(crate) ancestor_handles: Vec<HandleInner>,
     pub(crate) observation: ImageObservation,
 }
 

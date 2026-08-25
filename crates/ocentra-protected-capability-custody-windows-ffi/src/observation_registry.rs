@@ -1,6 +1,8 @@
 //! Registry observation accessors.
 
-use super::super::{RegistryAncestorObservation, RegistryValue, SecurityDescriptorObservation};
+use super::super::{
+    RegistryAncestorObservation, RegistryValue, SecurityDescriptorObservation, WindowsText,
+};
 
 impl RegistryValue {
     pub fn value_type(&self) -> u32 {
@@ -13,7 +15,7 @@ impl RegistryValue {
 }
 
 impl RegistryAncestorObservation {
-    pub fn path(&self) -> &str {
+    pub fn path(&self) -> &WindowsText {
         &self.path
     }
 
