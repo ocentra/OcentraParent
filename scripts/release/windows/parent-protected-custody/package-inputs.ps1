@@ -29,26 +29,6 @@ function Resolve-RequiredCommand {
     return $command.Source
 }
 
-function Resolve-UnderRoot {
-    param(
-        [Parameter(Mandatory)]
-        [string]$Path,
-
-        [Parameter(Mandatory)]
-        [string]$Root,
-
-        [Parameter(Mandatory)]
-        [string]$Description
-    )
-
-    $resolvedRoot = [System.IO.Path]::GetFullPath($Root).TrimEnd('\') + '\'
-    $resolvedPath = [System.IO.Path]::GetFullPath($Path).TrimEnd('\')
-    if (-not $resolvedPath.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-        throw "$Description '$resolvedPath' must remain under '$($resolvedRoot.TrimEnd('\'))'."
-    }
-    return $resolvedPath
-}
-
 function Get-Sha256Hex {
     param(
         [Parameter(Mandatory)]
@@ -119,17 +99,6 @@ function Write-DeterministicJson {
 
     $json = $Value | ConvertTo-Json -Depth 16
     Write-Utf8NoBom -Path $Path -Content ($json + "`n")
-}
-
-function Remove-ExactPath {
-    param(
-        [Parameter(Mandatory)]
-        [string]$Path
-    )
-
-    if (Test-Path -LiteralPath $Path) {
-        Remove-Item -LiteralPath $Path -Recurse -Force
-    }
 }
 
 function Assert-NonEmptyFile {

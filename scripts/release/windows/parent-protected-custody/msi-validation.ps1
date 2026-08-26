@@ -1,3 +1,5 @@
+. (Join-Path $PSScriptRoot 'msi-contract.ps1')
+
 function Release-MsiComObject {
     param(
         [Parameter()]
@@ -322,7 +324,24 @@ function Assert-MsiRequiredTables {
         [string[]]$TableNames
     )
 
-    $required = @('Component', 'CustomAction', 'File', 'InstallExecuteSequence', 'Property', 'Registry', 'ServiceInstall', 'Wix4ServiceConfig')
+    $required = @(
+        'Component',
+        'CreateFolder',
+        'CustomAction',
+        'Directory',
+        'Feature',
+        'FeatureComponents',
+        'File',
+        'InstallExecuteSequence',
+        'LaunchCondition',
+        'MsiLockPermissionsEx',
+        'Property',
+        'Registry',
+        'ServiceControl',
+        'ServiceInstall',
+        'Upgrade',
+        'Wix4ServiceConfig'
+    )
     foreach ($tableName in $required) {
         if ($TableNames -notcontains $tableName) {
             throw "Normalized MSI is missing required fixed table '$tableName'."
@@ -372,6 +391,7 @@ function Assert-MsiFixedContent {
     $tableRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Name` FROM `_Tables`' -FieldNames @('Name'))
     $tableNames = @($tableRows | ForEach-Object { $_.Name })
     Assert-MsiRequiredTables -TableNames $tableNames
+    Assert-MsiExecutableLifecycleContract -Database $Database -ExpectedVersion $ExpectedVersion -ExpectedRegistryId $ExpectedRegistryId -ExpectedBrokerHash $ExpectedBrokerHash
 
     $propertyRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Property`,`Value` FROM `Property`' -FieldNames @('Property', 'Value'))
     $expectedProperties = [ordered]@{
@@ -548,9 +568,12 @@ function Assert-MsiFixedContent {
 
     $decompileRoot = Join-Path $CandidateIntermediatePath 'payload-validation'
     $decompiledSourcePath = Join-Path $CandidateIntermediatePath 'normalized-validation.wxs'
-    Remove-ExactPath -Path $decompileRoot
-    Remove-ExactPath -Path $decompiledSourcePath
-    New-Item -ItemType Directory -Path $decompileRoot -Force | Out-Null
+    foreach ($validationOutput in @($decompileRoot, $decompiledSourcePath)) {
+        if (Test-Path -LiteralPath $validationOutput) {
+            throw "Unique MSI validation output '$validationOutput' already exists; refusing to overwrite or reuse it."
+        }
+    }
+    New-Item -ItemType Directory -Path $decompileRoot | Out-Null
     Invoke-CheckedCommand -Command $DotnetCommand -ArgumentList @(
         'wix',
         'msi',
