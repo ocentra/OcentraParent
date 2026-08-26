@@ -8,6 +8,7 @@ use crate::account_identity_authority_producer_v2::{
     self, AccountIdentityAuthorityProducerV2Request,
 };
 
+use super::account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
 use super::account_identity_authority_issuer_client_types::{
     AccountIdentityIssuerOutboxClaim, AccountIdentityIssuerV2KeyId,
     AccountIdentityIssuerV2ServiceBindingId, ProtectedAccountIssuerKeyRegistration,
@@ -23,8 +24,14 @@ mod receipt;
 mod receipt_ack;
 #[path = "account_identity_authority_issuer_client_transaction_receipt_load.rs"]
 mod receipt_load;
+#[path = "account_identity_authority_issuer_client_transaction_recovery.rs"]
+mod recovery;
 #[path = "account_identity_authority_issuer_client_transaction_replay.rs"]
 mod replay;
+#[path = "account_identity_authority_issuer_client_transaction_reservation.rs"]
+mod reservation;
+#[path = "account_identity_authority_issuer_client_transaction_reservation_validation.rs"]
+mod reservation_validation;
 
 impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
     pub fn ensure_current(
@@ -205,13 +212,18 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         currentness: &AccountIdentityIssuerCurrentness,
         correlation_id: &str,
         idempotency_key: &str,
-    ) -> Result<AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityIssuerClientError>
-    {
+    ) -> Result<
+        (
+            AccountIdentityAuthorityProducerV2Request,
+            AccountIdentityIssuerReservation,
+        ),
+        AccountIdentityAuthorityIssuerClientError,
+    > {
         self.ensure_current(currentness)?;
         let key = self.current_key(currentness)?;
-        let (_, now) = super::clock::now(&self.transaction)?;
-        let now = super::clock::parse_timestamp(&now)?;
-        account_identity_authority_producer_v2::issue_request(
+        let (now, now_text) = super::clock::now(&self.transaction)?;
+        let issued_at = super::clock::parse_timestamp(&now_text)?;
+        let request = account_identity_authority_producer_v2::issue_request(
             currentness.authority(),
             key.key_id().as_str(),
             key.key_generation(),
@@ -220,9 +232,12 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
             key.service_binding_id().as_str(),
             correlation_id,
             idempotency_key,
-            now,
+            issued_at,
         )
-        .map_err(Into::into)
+        .map_err(AccountIdentityAuthorityIssuerClientError::from)?;
+        let reservation =
+            reservation::reserve_issue(&self.transaction, currentness, &request, now)?;
+        Ok((request, reservation))
     }
 
     pub fn prepare_acknowledge_receipt(
@@ -257,6 +272,23 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         self.transaction
             .commit()
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)
+    }
+}
+
+pub(super) fn reconcile_issue_reservations(
+    transaction: &Transaction<'_>,
+    now: i64,
+) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    recovery::reconcile_issue_reservations(transaction, now)
+}
+
+impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
+    pub fn mark_issue_signing(
+        &mut self,
+        reservation: &AccountIdentityIssuerReservation,
+    ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+        let (now, _) = super::clock::now(&self.transaction)?;
+        recovery::mark_signing(&self.transaction, reservation, now)
     }
 }
 

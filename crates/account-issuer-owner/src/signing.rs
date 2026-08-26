@@ -64,15 +64,18 @@ impl AccountIssuerOwner {
         command: &IssueCurrentAuthorityCommand,
     ) -> Result<AccountIssuerPreparation, AccountIssuerRpcError> {
         let current = self.resolve_current_for_signing(provider, provider_subject)?;
-        let request = match self.prepare_issue(&current, command)? {
+        let (request, reservation) = match self.prepare_issue(&current, command)? {
             IssuePreparation::Replay(transport) => {
                 return Ok(AccountIssuerPreparation::Replay(Self::replayed_authority(
                     transport,
                 )?))
             }
-            IssuePreparation::Request(request) => request,
+            IssuePreparation::Request((request, reservation)) => {
+                self.mark_issue_signing(&reservation)?;
+                (request, reservation)
+            }
         };
-        let prepared = PreparedAccountIssuerV2Request::from_request(request);
+        let prepared = PreparedAccountIssuerV2Request::from_parts(request, reservation);
         Ok(AccountIssuerPreparation::Prepared(prepared))
     }
 
@@ -86,10 +89,10 @@ impl AccountIssuerOwner {
         prepared: PreparedAccountIssuerV2Request,
         capability: AccountIssuerSignerCapability,
     ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
-        let request = prepared.into_parts();
+        let (request, reservation) = prepared.into_parts();
         let transport = finalize_with_protected_capability(request, capability)
             .map_err(AccountIssuerRpcError::Signing)?;
-        self.record_issued_transport(provider, provider_subject, transport)
+        self.record_issued_transport(provider, provider_subject, reservation, transport)
     }
 }
 

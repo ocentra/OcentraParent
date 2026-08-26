@@ -19,9 +19,8 @@ impl From<AccountIdentityAuthorityIssuerClientError> for AccountIssuerRepository
                 Self::ReceiptUnavailable
             }
             AccountIdentityAuthorityIssuerClientError::ReplayDetected => Self::ReplayDetected,
-            AccountIdentityAuthorityIssuerClientError::ClockUnavailable
-            | AccountIdentityAuthorityIssuerClientError::Unavailable => Self::Unavailable,
             AccountIdentityAuthorityIssuerClientError::Producer(_) => Self::Producer,
+            _ => Self::Unavailable,
         }
     }
 }

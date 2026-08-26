@@ -8,6 +8,7 @@ use crate::account_identity_authority_producer_v2::{
     self, AccountIdentityAuthorityProducerV2Error, AccountIdentityAuthorityProducerV2Transport,
 };
 
+use super::super::account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
 use super::super::account_identity_authority_issuer_client_types::AccountIdentityIssuerRecordedTransport;
 use super::super::{
     AccountIdentityAuthorityIssuerClientError, AccountIdentityAuthorityIssuerTransaction,
@@ -18,6 +19,7 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
     pub fn record_issued_transport(
         &mut self,
         currentness: &AccountIdentityIssuerCurrentness,
+        reservation: &AccountIdentityIssuerReservation,
         transport: &AccountIdentityAuthorityProducerV2Transport,
     ) -> Result<AccountIdentityIssuerRecordedTransport, AccountIdentityAuthorityIssuerClientError>
     {
@@ -32,6 +34,14 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
             currentness,
             receipt.idempotency_key.as_str(),
         )? {
+            if existing.provenance_state != "exact"
+                || existing.provider.as_deref()
+                    != Some(super::provider_label(currentness.authority().provider()))
+                || existing.provider_subject.as_deref()
+                    != Some(currentness.authority().provider_subject().as_str())
+            {
+                return Err(AccountIdentityAuthorityIssuerClientError::ReplayDetected);
+            }
             if !same_receipt_identity(&existing, receipt) {
                 return Err(AccountIdentityAuthorityIssuerClientError::ReplayDetected);
             }
@@ -42,8 +52,15 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
                 replayed: true,
             });
         }
+        super::reservation_validation::validate_signing_reservation(
+            &self.transaction,
+            currentness,
+            reservation,
+            transport,
+        )?;
         insert_receipt(&self.transaction, currentness, &key, transport)?;
         insert_outbox(&self.transaction, currentness, &key, transport)?;
+        super::recovery::mark_issued(&self.transaction, reservation, receipt.receipt_id.as_str())?;
         Ok(AccountIdentityIssuerRecordedTransport {
             transport: transport.clone_durable(),
             replayed: false,
@@ -170,9 +187,9 @@ fn insert_receipt(
                 key_generation, enrollment_generation, authority_generation, session_generation,
                 correlation_id,
                 idempotency_key, payload_digest, issued_at, expires_at, wire, ack_wire,
-                receipt_state
+                receipt_state, provider, provider_subject, provenance_state
              ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16,
-                       NULL, 'issued')",
+                       NULL, 'issued', ?17, ?18, 'exact')",
             params![
                 receipt.receipt_id,
                 currentness.account_id().as_str(),
@@ -190,6 +207,8 @@ fn insert_receipt(
                 receipt.issued_at,
                 receipt.expires_at,
                 transport.wire_bytes(),
+                super::provider_label(currentness.authority().provider()),
+                currentness.authority().provider_subject().as_str(),
             ],
         )
         .map(|_| ())

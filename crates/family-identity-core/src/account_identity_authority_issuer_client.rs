@@ -21,6 +21,8 @@ use crate::account_identity_authority_repository::{
 };
 use crate::session_lifecycle_custody::SessionLifecyclePolicy;
 
+#[path = "account_identity_authority_issuer_client_reservation.rs"]
+pub mod account_identity_authority_issuer_client_reservation;
 #[path = "account_identity_authority_issuer_client_types.rs"]
 pub mod account_identity_authority_issuer_client_types;
 #[path = "account_identity_authority_issuer_client_currentness.rs"]
@@ -57,6 +59,9 @@ pub enum AccountIdentityAuthorityIssuerClientError {
     ReceiptUnavailable,
     DeliveryUnavailable,
     ClockUnavailable,
+    ReservationUnavailable,
+    ReservationExpired,
+    ManualRequired,
     Producer(AccountIdentityAuthorityProducerV2Error),
 }
 
@@ -141,6 +146,7 @@ impl AccountIdentityAuthorityIssuerClient {
         )
         .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
         let (now, _) = clock::now(&transaction)?;
+        transaction::reconcile_issue_reservations(&transaction, now)?;
         transaction_outbox::reconcile_startup(&transaction, now)?;
         transaction
             .commit()

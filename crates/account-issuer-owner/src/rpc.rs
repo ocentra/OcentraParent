@@ -3,6 +3,8 @@
 use ocentra_family_identity_core::account_identity_authority_producer_v2::{
     AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityProducerV2Transport,
 };
+use ocentra_family_identity_core::account_identity_authority_issuer_client::
+    account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
@@ -29,7 +31,12 @@ pub struct IssuedAuthority {
 
 pub(crate) enum IssuePreparation {
     Replay(AccountIdentityAuthorityProducerV2Transport),
-    Request(AccountIdentityAuthorityProducerV2Request),
+    Request(
+        (
+            AccountIdentityAuthorityProducerV2Request,
+            AccountIdentityIssuerReservation,
+        ),
+    ),
 }
 
 /// Result of the owner-only preparation phase. A replay is already durable;
@@ -94,6 +101,15 @@ impl AccountIssuerOwner {
             .map_err(AccountIssuerRpcError::Repository)
     }
 
+    pub(crate) fn mark_issue_signing(
+        &mut self,
+        reservation: &AccountIdentityIssuerReservation,
+    ) -> Result<(), AccountIssuerRpcError> {
+        self.repository
+            .mark_issue_signing(reservation)
+            .map_err(AccountIssuerRpcError::Repository)
+    }
+
     pub(crate) fn prepare_issue(
         &mut self,
         current: &CurrentAuthority,
@@ -108,11 +124,12 @@ impl AccountIssuerOwner {
             .map_err(AccountIssuerRpcError::Repository)?
         {
             Some(transport) => IssuePreparation::Replay(transport),
-            None => IssuePreparation::Request(
-                transaction
+            None => {
+                let (request, reservation) = transaction
                     .prepare_issue(current, command)
-                    .map_err(AccountIssuerRpcError::Repository)?,
-            ),
+                    .map_err(AccountIssuerRpcError::Repository)?;
+                IssuePreparation::Request((request, reservation))
+            }
         };
         transaction
             .commit()
@@ -144,7 +161,7 @@ impl AccountIssuerOwner {
             .map_err(AccountIssuerRpcError::Repository)?;
         let _request = match self.prepare_issue(&current, command)? {
             IssuePreparation::Replay(transport) => return Self::replayed_authority(transport),
-            IssuePreparation::Request(request) => request,
+            IssuePreparation::Request(_) => (),
         };
         Err(AccountIssuerRpcError::Signing(signing::fail_closed()))
     }
@@ -153,6 +170,7 @@ impl AccountIssuerOwner {
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
+        reservation: AccountIdentityIssuerReservation,
         transport: AccountIdentityAuthorityProducerV2Transport,
     ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
         let current = self
@@ -165,7 +183,7 @@ impl AccountIssuerOwner {
             .map_err(AccountIssuerRpcError::Repository)?
             .into_issue_transaction();
         let recorded = issue_transaction
-            .record_transport(&current, &transport)
+            .record_transport(&current, &reservation, &transport)
             .map_err(AccountIssuerRpcError::Repository)?;
         let receipt = AccountIssuerReceiptView::from_receipt(recorded.transport().receipt())
             .ok_or(AccountIssuerRpcError::Repository(

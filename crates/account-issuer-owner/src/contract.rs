@@ -9,6 +9,8 @@ use ocentra_schema::account_identity_authority_producer_v2::{
 };
 
 use ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request;
+use ocentra_family_identity_core::account_identity_authority_issuer_client::
+    account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
 use ocentra_protected_capability_custody_core::account_issuer::{
     AccountIssuerP256Signer, AccountIssuerP256SignerError, AccountIssuerSignerCapability,
 };
@@ -143,11 +145,18 @@ impl IssueCurrentAuthorityCommand {
 /// family request, a raw signer, or a platform handle.
 pub struct PreparedAccountIssuerV2Request {
     request: AccountIdentityAuthorityProducerV2Request,
+    reservation: AccountIdentityIssuerReservation,
 }
 
 impl PreparedAccountIssuerV2Request {
-    pub(crate) fn from_request(request: AccountIdentityAuthorityProducerV2Request) -> Self {
-        Self { request }
+    pub(crate) fn from_parts(
+        request: AccountIdentityAuthorityProducerV2Request,
+        reservation: AccountIdentityIssuerReservation,
+    ) -> Self {
+        Self {
+            request,
+            reservation,
+        }
     }
 
     /// Return the exact binding selected by the Account-owned request.
@@ -165,7 +174,12 @@ impl PreparedAccountIssuerV2Request {
         signer.sign_request(&self.request)
     }
 
-    pub(crate) fn into_parts(self) -> AccountIdentityAuthorityProducerV2Request {
-        self.request
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        AccountIdentityAuthorityProducerV2Request,
+        AccountIdentityIssuerReservation,
+    ) {
+        (self.request, self.reservation)
     }
 }

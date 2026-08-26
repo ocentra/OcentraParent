@@ -8,6 +8,8 @@ use ocentra_family_identity_core::account_identity_authority_issuer_client::
     account_identity_authority_issuer_client_types::{
         AccountIdentityIssuerOutboxClaim, ProtectedAccountIssuerKeyRegistration,
     };
+use ocentra_family_identity_core::account_identity_authority_issuer_client::
+    account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
@@ -94,6 +96,15 @@ impl AccountIssuerRepository {
             )
             .map_err(AccountIssuerRepositoryError::from)
     }
+
+    pub(crate) fn mark_issue_signing(
+        &mut self,
+        reservation: &AccountIdentityIssuerReservation,
+    ) -> Result<(), AccountIssuerRepositoryError> {
+        let mut transaction = self.begin()?;
+        transaction.mark_issue_signing(reservation)?;
+        transaction.commit()
+    }
 }
 
 impl<'a> AccountIssuerTransaction<'a> {
@@ -101,7 +112,13 @@ impl<'a> AccountIssuerTransaction<'a> {
         &mut self,
         current: &CurrentAuthority,
         command: &IssueCurrentAuthorityCommand,
-    ) -> Result<ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request, AccountIssuerRepositoryError>
+    ) -> Result<
+        (
+            ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request,
+            AccountIdentityIssuerReservation,
+        ),
+        AccountIssuerRepositoryError,
+    >
     {
         self.inner
             .prepare_issue_current_authority(
@@ -109,6 +126,15 @@ impl<'a> AccountIssuerTransaction<'a> {
                 command.correlation_id().as_str(),
                 command.idempotency_key().as_str(),
             )
+            .map_err(AccountIssuerRepositoryError::from)
+    }
+
+    pub(crate) fn mark_issue_signing(
+        &mut self,
+        reservation: &AccountIdentityIssuerReservation,
+    ) -> Result<(), AccountIssuerRepositoryError> {
+        self.inner
+            .mark_issue_signing(reservation)
             .map_err(AccountIssuerRepositoryError::from)
     }
 
@@ -193,6 +219,9 @@ pub enum AccountIssuerRepositoryError {
     KeyUnavailable,
     InvalidKey,
     ReplayDetected,
+    ReservationUnavailable,
+    ReservationExpired,
+    ManualRequired,
     ReceiptUnavailable,
     Producer,
 }

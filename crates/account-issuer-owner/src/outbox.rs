@@ -2,7 +2,11 @@
 
 use ocentra_family_identity_core::account_identity_authority_issuer_client::AccountIdentityAuthorityIssuerTransaction;
 use ocentra_family_identity_core::account_identity_authority_issuer_client::
-    account_identity_authority_issuer_client_types::AccountIdentityIssuerRecordedTransport;
+    account_identity_authority_issuer_client_types::{
+        AccountIdentityIssuerRecordedTransport,
+    };
+use ocentra_family_identity_core::account_identity_authority_issuer_client::
+    account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
 use ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Transport;
 
 use crate::currentness::CurrentAuthority;
@@ -17,10 +21,11 @@ impl<'a> IssueTransaction<'a> {
     pub fn record_transport(
         &mut self,
         current: &CurrentAuthority,
+        reservation: &AccountIdentityIssuerReservation,
         transport: &AccountIdentityAuthorityProducerV2Transport,
     ) -> Result<AccountIdentityIssuerRecordedTransport, AccountIssuerRepositoryError> {
         self.inner
-            .record_issued_transport(&current.inner, transport)
+            .record_issued_transport(&current.inner, reservation, transport)
             .map_err(AccountIssuerRepositoryError::from)
     }
 
