@@ -13,6 +13,7 @@ path = "src/lib.rs"
 [dependencies]
 chrono = { version = "0.4.42", default-features = false, features = ["std"] }
 ocentra-family-identity-core = { path = "../family-identity-core" }
+ocentra-protected-capability-custody-core = { path = "../protected-capability-custody-core" }
 ocentra-protected-capability-custody-protocol = { path = "../protected-capability-custody-protocol" }
 ocentra-schema = { path = "../schema" }
 ring = "0.17.14"

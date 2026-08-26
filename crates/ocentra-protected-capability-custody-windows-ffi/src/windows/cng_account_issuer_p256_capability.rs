@@ -28,12 +28,6 @@ pub(super) const BROKER_SERVICE_NAME: &[u8] = &[
     79, 99, 101, 110, 116, 114, 97, 80, 114, 111, 116, 101, 99, 116, 101, 100, 67, 97, 112, 97, 98,
     105, 108, 105, 116, 121, 67, 117, 115, 116, 111, 100, 121, 66, 114, 111, 107, 101, 114,
 ];
-pub(super) const ACCOUNT_ISSUER_SIGNING_DOMAIN: &[u8] = &[
-    111, 99, 101, 110, 116, 114, 97, 46, 97, 99, 99, 111, 117, 110, 116, 45, 97, 117, 116, 104,
-    111, 114, 105, 116, 121, 45, 112, 114, 111, 100, 117, 99, 101, 114, 46, 115, 105, 103, 110,
-    105, 110, 103, 46, 118, 50, 0,
-];
-
 pub(super) struct AccountIssuerP256Handles {
     pub(super) provider: NCRYPT_PROV_HANDLE,
     pub(super) key: NCRYPT_KEY_HANDLE,
@@ -97,5 +91,23 @@ impl BoundAccountIssuerP256Key {
     pub fn public_key_sec1(&self) -> Result<[u8; 65]> {
         self.observation()
             .map(|observation| *observation.public_key_sec1())
+    }
+
+    /// Consume one owner-created canonical request and return only the
+    /// protocol-owned signed capability.  No raw payload, digest, key, or
+    /// provider handle crosses this boundary.
+    pub fn sign_prepared_account_issuer_v2(
+        &self,
+        request: ocentra_protected_capability_custody_protocol::account_issuer_contract::PreparedAccountIssuerV2Request,
+    ) -> Result<ocentra_protected_capability_custody_protocol::account_issuer_contract::ProtectedAccountIssuerSignerCapability>
+    {
+        self.revalidate()?;
+        let signature = super::cng_account_issuer_p256_sign::sign_request_digest(
+            self.handles.key,
+            request.request_digest().as_bytes(),
+        )?;
+        Ok(
+            ocentra_protected_capability_custody_protocol::account_issuer_contract::ProtectedAccountIssuerSignerCapability::from_prepared_request(&request, *signature.as_bytes()),
+        )
     }
 }

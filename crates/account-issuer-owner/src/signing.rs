@@ -8,9 +8,17 @@
 use ocentra_family_identity_core::account_identity_authority_producer_v2::{
     AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityProducerV2Transport,
 };
-use ocentra_protected_capability_custody_protocol::account_issuer_contract::ProtectedAccountIssuerSignerCapability;
+use ocentra_protected_capability_custody_core::account_issuer::AccountIssuerSignerCapability;
+use ocentra_schema::account_identity_authority::{
+    AccountIdentityProvider, AccountIdentityProviderSubject,
+};
 use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_ISSUER_SIGNING_ERROR;
-use ring::digest::{digest, SHA256};
+
+use crate::contract::{IssueCurrentAuthorityCommand, PreparedAccountIssuerV2Request};
+use crate::rpc::{
+    AccountIssuerOwner, AccountIssuerPreparation, AccountIssuerRpcError, IssuePreparation,
+    IssuedAuthority,
+};
 
 #[derive(Debug)]
 pub enum AccountIssuerSigningError {
@@ -26,12 +34,71 @@ impl std::fmt::Display for AccountIssuerSigningError {
 
 impl std::error::Error for AccountIssuerSigningError {}
 
+impl AccountIssuerOwner {
+    pub(crate) fn issue_current_authority_with_protected_capability(
+        &mut self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
+        command: &IssueCurrentAuthorityCommand,
+        capability: AccountIssuerSignerCapability,
+    ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
+        match self.prepare_current_authority(provider, provider_subject, command)? {
+            AccountIssuerPreparation::Replay(authority) => Ok(authority),
+            AccountIssuerPreparation::Prepared(prepared) => self
+                .finalize_prepared_current_authority(
+                    provider,
+                    provider_subject,
+                    prepared,
+                    capability,
+                ),
+        }
+    }
+
+    /// Prepare one Account-owned request after resolving currentness and
+    /// durable idempotency. A fresh request is represented by a non-Clone
+    /// owner envelope; the family request never leaves this crate.
+    pub fn prepare_current_authority(
+        &mut self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
+        command: &IssueCurrentAuthorityCommand,
+    ) -> Result<AccountIssuerPreparation, AccountIssuerRpcError> {
+        let current = self.resolve_current_for_signing(provider, provider_subject)?;
+        let request = match self.prepare_issue(&current, command)? {
+            IssuePreparation::Replay(transport) => {
+                return Ok(AccountIssuerPreparation::Replay(Self::replayed_authority(
+                    transport,
+                )))
+            }
+            IssuePreparation::Request(request) => request,
+        };
+        let prepared = PreparedAccountIssuerV2Request::from_request(request)
+            .map_err(|_| AccountIssuerRpcError::Signing(AccountIssuerSigningError::Rejected))?;
+        Ok(AccountIssuerPreparation::Prepared(prepared))
+    }
+
+    /// Finalize an owner-prepared request with the core-owned protected
+    /// capability, then re-resolve currentness and atomically record the
+    /// resulting transport in the same Account-owned repository.
+    pub fn finalize_prepared_current_authority(
+        &mut self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
+        prepared: PreparedAccountIssuerV2Request,
+        capability: AccountIssuerSignerCapability,
+    ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
+        let request = prepared.into_parts();
+        let transport = finalize_with_protected_capability(request, capability)
+            .map_err(AccountIssuerRpcError::Signing)?;
+        self.record_issued_transport(provider, provider_subject, transport)
+    }
+}
+
 pub(crate) fn finalize_with_protected_capability(
     request: AccountIdentityAuthorityProducerV2Request,
-    capability: &ProtectedAccountIssuerSignerCapability,
+    capability: AccountIssuerSignerCapability,
 ) -> Result<AccountIdentityAuthorityProducerV2Transport, AccountIssuerSigningError> {
-    let request_digest = digest(&SHA256, request.signing_bytes());
-    if request_digest.as_ref() != capability.request_digest() {
+    if !capability.matches_request(&request) {
         return Err(AccountIssuerSigningError::Rejected);
     }
     let signature: [u8; 64] = (*capability.signature())
