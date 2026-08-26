@@ -2,6 +2,9 @@
 
 mod codec;
 
+pub mod account_issuer;
+pub mod account_issuer_contract;
+pub mod account_issuer_v2_codec;
 pub mod bootstrap;
 pub mod constants;
 pub mod handshake;
@@ -74,4 +77,28 @@ pub fn write_frame(
     frame: &[u8],
 ) -> Result<(), types::ProtocolError> {
     codec::write_frame(writer, frame)
+}
+
+pub fn encode_account_issuer_request(
+    request: &account_issuer::AccountIssuerRequest,
+) -> Result<Vec<u8>, types::ProtocolError> {
+    account_issuer_v2_codec::encode_request(request)
+}
+
+pub fn decode_account_issuer_request(
+    frame: &[u8],
+) -> Result<account_issuer::AccountIssuerRequest, types::ProtocolError> {
+    account_issuer_v2_codec::decode_request(frame)
+}
+
+pub fn encode_account_issuer_receipt(
+    receipt: &account_issuer::AccountIssuerReceipt,
+) -> Result<Vec<u8>, types::ProtocolError> {
+    account_issuer_v2_codec::encode_receipt(receipt)
+}
+
+pub fn decode_account_issuer_receipt(
+    frame: &[u8],
+) -> Result<account_issuer::AccountIssuerReceipt, types::ProtocolError> {
+    account_issuer_v2_codec::decode_receipt(frame)
 }

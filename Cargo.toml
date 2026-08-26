@@ -19,6 +19,7 @@ members = [
   "crates/child-runtime-android-bridge",
   "crates/entitlement-core",
   "crates/family-identity-core",
+  "crates/account-issuer-owner",
   "crates/lan-core",
   "crates/network-core",
   "crates/ocentra-evidence",

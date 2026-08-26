@@ -129,6 +129,16 @@ impl SqliteAccountIdentityAuthorityRepository {
     }
 }
 
+/// Shared Account-owned durable clock bridge for sibling issuer facades.
+/// Keeping this call in the repository module preserves the existing
+/// monotonic runtime-clock policy and prevents each capability from opening a
+/// separate time source.
+pub(crate) fn trusted_runtime_now_in_transaction(
+    transaction: &Transaction<'_>,
+) -> Result<(i64, String), invite_recovery_repository::InviteRecoveryRepositoryError> {
+    invite_recovery_repository::authority::trusted_now_in_transaction(transaction)
+}
+
 /// Reachable family-owned producer/composition seam. External adapters can
 /// resolve an opaque capability by the provider-verified subject, but cannot
 /// construct one from a serialized handoff or caller-selected target.

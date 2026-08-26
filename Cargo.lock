@@ -2509,6 +2509,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "ocentra-account-issuer-owner"
+version = "0.1.1"
+dependencies = [
+ "chrono",
+ "ocentra-family-identity-core",
+ "ocentra-protected-capability-custody-protocol",
+ "ocentra-schema",
+ "ring",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "ocentra-ai-contracts"
 version = "0.1.1"
 dependencies = [
@@ -2688,6 +2702,7 @@ dependencies = [
  "ocentra-eventing",
  "ocentra-schema",
  "ocentra-storage-custody-core",
+ "ring",
  "rusqlite",
  "rustix 1.1.4",
  "same-file",
@@ -2949,6 +2964,7 @@ name = "ocentra-protected-capability-custody-protocol"
 version = "0.1.1"
 dependencies = [
  "getrandom 0.3.4",
+ "ocentra-schema",
  "ring",
  "sha2",
  "zeroize",
