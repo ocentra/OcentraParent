@@ -518,6 +518,13 @@ foreach ($generatedFile in @($msiPath, $checksumPath, $manifestPath)) {
     }
 }
 
+Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @(
+    'tool',
+    'restore',
+    '--tool-manifest',
+    (Join-Path $repoRoot '.config\dotnet-tools.json')
+) -FailureMessage 'Pinned WiX dotnet tool restore failed'
+
 $extensionList = (& $dotnetCommand wix extension list | Out-String)
 if ($LASTEXITCODE -ne 0 -or $extensionList -notmatch 'WixToolset\.Util\.wixext\s+6\.0\.2') {
     Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @('wix', 'extension', 'add', 'WixToolset.Util.wixext/6.0.2') -FailureMessage 'WiX Util extension is unavailable'
