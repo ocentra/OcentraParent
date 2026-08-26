@@ -52,9 +52,10 @@ fn copy_key_registry(
             .execute(
                 "INSERT INTO account_identity_issuer_v2_key_registry
                     (account_id, household_id, service, service_binding_id, key_id,
-                     key_generation, public_key, authority_generation, key_state)
+                     key_generation, enrollment_generation, public_key, authority_generation,
+                     key_state)
                  SELECT account_id, household_id, ?1, service_binding_id, key_id,
-                        key_generation, public_key, authority_generation, key_state
+                        key_generation, NULL, public_key, authority_generation, key_state
                    FROM account_identity_issuer_v2_key_registry_legacy",
                 [ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE],
             )
@@ -69,13 +70,14 @@ fn copy_receipts(connection: &Connection) -> Result<(), AccountIdentityAuthority
             .execute(
                 "INSERT INTO account_identity_issuer_v2_receipt
                     (receipt_id, account_id, household_id, service,
-                     service_binding_id, key_id, key_generation, authority_generation,
+                     service_binding_id, key_id, key_generation, enrollment_generation,
+                     authority_generation,
                      session_generation, correlation_id, idempotency_key, payload_digest,
-                     issued_at, expires_at, wire, receipt_state)
+                     issued_at, expires_at, wire, ack_wire, receipt_state)
                  SELECT receipt_id, account_id, household_id, ?1, service_binding_id,
-                        key_id, key_generation, authority_generation, session_generation,
+                        key_id, key_generation, NULL, authority_generation, session_generation,
                         correlation_id, idempotency_key, payload_digest, issued_at,
-                        expires_at, wire, receipt_state
+                        expires_at, wire, NULL, receipt_state
                    FROM account_identity_issuer_v2_receipt_legacy",
                 [ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE],
             )
@@ -90,19 +92,25 @@ fn copy_outbox(connection: &Connection) -> Result<(), AccountIdentityAuthorityIs
             .execute(
                 "INSERT INTO account_identity_issuer_v2_outbox
                     (receipt_id, account_id, household_id, service, service_binding_id,
-                     key_id, key_generation, authority_generation, wire, delivery_state,
-                     claim_id, claimed_at, attempt_count, last_error, last_result,
+                     key_id, key_generation, enrollment_generation, authority_generation,
+                     wire, delivery_state,
+                     claim_id, claimed_at, claim_expires_at, attempt_count,
+                     last_error_code, last_error_digest, last_result, ack_wire,
                      next_attempt_at)
                  SELECT outbox.receipt_id, receipt.account_id, receipt.household_id, ?1,
                         receipt.service_binding_id, receipt.key_id, receipt.key_generation,
-                        receipt.authority_generation, outbox.wire,
+                        NULL, receipt.authority_generation, outbox.wire,
                         CASE outbox.delivery_state
                             WHEN 'pending' THEN 'pending'
                             WHEN 'sent' THEN 'sent'
                             WHEN 'failed' THEN 'failed'
                             ELSE 'failed'
                         END,
-                        NULL, NULL, outbox.attempt_count, outbox.last_error, NULL, NULL
+                        NULL, NULL, NULL, outbox.attempt_count,
+                        CASE WHEN outbox.last_error IS NULL THEN NULL ELSE 'delivery_failed' END,
+                        CASE WHEN outbox.last_error IS NULL THEN NULL
+                             ELSE 'sha256:delivery-detail:0000000000000000000000000000000000000000000000000000000000000000' END,
+                        NULL, NULL, NULL
                    FROM account_identity_issuer_v2_outbox_legacy AS outbox
                    JOIN account_identity_issuer_v2_receipt AS receipt
                      ON receipt.receipt_id = outbox.receipt_id",

@@ -27,6 +27,7 @@ pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX: &str = "sha256:e
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_RECEIPT_ID_PREFIX: &str = "sha256:receipt:";
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES: usize = 64;
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES: usize = 65;
+pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION: u64 = i64::MAX as u64;
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES: usize = 1_024;
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_PAYLOAD_BYTES: usize = 16 * 1_024;
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS: i64 = 5 * 60;
@@ -42,6 +43,8 @@ pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_ACKNOWLEDGE_MESSAGE_KIND: u8 = 
 pub const ACCOUNT_ISSUER_COMMAND_INVALID: &str =
     "AccountIssuer command correlation/idempotency is invalid";
 pub const ACCOUNT_ISSUER_DELIVERY_ERROR: &str = "account_issuer_delivery_error";
+pub const ACCOUNT_ISSUER_DELIVERY_FAILURE_CODE: &str = "delivery_failed";
+pub const ACCOUNT_ISSUER_DIGEST_HEX: &[u8; 16] = b"0123456789abcdef";
 pub const ACCOUNT_ISSUER_REPOSITORY_ERROR: &str = "account_issuer_repository_error";
 pub const ACCOUNT_ISSUER_RPC_ERROR: &str = "account_issuer_rpc_error";
 pub const ACCOUNT_ISSUER_SIGNING_ERROR: &str = "account_issuer_signing_error";
@@ -152,6 +155,7 @@ pub struct AccountIdentityAuthorityProducerV2Binding {
     pub service_binding_id: String,
     pub key_id: String,
     pub key_generation: u64,
+    pub enrollment_generation: u64,
     pub authority_generation: u64,
     pub session_generation: u64,
     pub correlation_id: String,
@@ -176,6 +180,9 @@ impl AccountIdentityAuthorityProducerV2Binding {
             }
         }
         if self.key_generation == 0
+            || self.enrollment_generation == 0
+            || self.enrollment_generation
+                > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION
             || self.authority_generation == 0
             || self.session_generation == 0
         {
@@ -210,6 +217,7 @@ pub struct AccountIdentityAuthorityProducerV2Receipt {
     pub payload_digest: String,
     pub key_id: String,
     pub key_generation: u64,
+    pub enrollment_generation: u64,
     pub authority_generation: u64,
     pub session_generation: u64,
     pub issued_at: String,
@@ -237,6 +245,9 @@ impl AccountIdentityAuthorityProducerV2Receipt {
             }
         }
         if self.key_generation == 0
+            || self.enrollment_generation == 0
+            || self.enrollment_generation
+                > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION
             || self.authority_generation == 0
             || self.session_generation == 0
             || !self

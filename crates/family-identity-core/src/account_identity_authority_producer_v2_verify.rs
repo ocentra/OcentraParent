@@ -51,6 +51,7 @@ pub(crate) fn verify(
         key_id: parsed.key_id,
         service_binding_id: parsed.service_binding_id,
         key_generation: parsed.key_generation,
+        enrollment_generation: parsed.enrollment_generation,
         authority_generation: parsed.authority_generation,
         session_generation: parsed.session_generation,
         correlation_id: parsed.correlation_id,
@@ -101,6 +102,7 @@ pub(crate) fn verify_receipt(
         || receipt.key_id != parsed.key_id
         || receipt.service_binding_id != parsed.service_binding_id
         || receipt.key_generation != parsed.key_generation
+        || receipt.enrollment_generation != parsed.enrollment_generation
         || receipt.authority_generation != parsed.authority_generation
         || receipt.session_generation != parsed.session_generation
         || receipt.correlation_id != parsed.correlation_id

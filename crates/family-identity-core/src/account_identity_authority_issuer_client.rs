@@ -94,6 +94,7 @@ pub struct AccountIdentityIssuerCurrentness {
 pub struct AccountIdentityIssuerV2KeyRecord {
     key_id: AccountIdentityIssuerV2KeyId,
     key_generation: u64,
+    enrollment_generation: u64,
     public_key: [u8; 65],
     authority_generation: u64,
     service_binding_id: AccountIdentityIssuerV2ServiceBindingId,
@@ -214,14 +215,15 @@ impl AccountIdentityAuthorityIssuerClient {
     pub fn record_outbox_failure(
         &mut self,
         claim: &account_identity_authority_issuer_client_types::AccountIdentityIssuerOutboxClaim,
-        message: &str,
+        error_code: &str,
+        error_digest: Option<&str>,
     ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
         let transaction = self
             .repository
             .begin_account_issuer_transaction()
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
         let (now, _) = clock::now(&transaction)?;
-        transaction_outbox::record_failure(&transaction, claim, message, now)?;
+        transaction_outbox::record_failure(&transaction, claim, error_code, error_digest, now)?;
         transaction
             .commit()
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)

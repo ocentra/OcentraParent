@@ -8,6 +8,10 @@ use super::AccountIdentityAuthorityIssuerClientError;
 
 const RETRY_BASE_MILLIS: i64 = 5 * 1_000;
 const RETRY_MAX_MILLIS: i64 = 15 * 60 * 1_000;
+const CLAIM_LEASE_MILLIS: i64 = 60 * 1_000;
+const MAX_RECLAIMED_CLAIMS: i64 = 64;
+const ERROR_CODE_DELIVERY_FAILED: &str = "delivery_failed";
+const ERROR_CODE_LEASE_EXPIRED: &str = "lease_expired";
 
 pub(super) fn reconcile_startup(
     transaction: &Transaction<'_>,
@@ -18,10 +22,22 @@ pub(super) fn reconcile_startup(
         .execute(
             "UPDATE account_identity_issuer_v2_outbox
                 SET delivery_state = 'failed', claim_id = NULL, claimed_at = NULL,
-                    last_error = 'startup-recovery-lease-released',
-                    next_attempt_at = ?1
-              WHERE service = ?2 AND delivery_state = 'claimed'",
-            params![now_text, ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE],
+                    claim_expires_at = NULL, last_error_code = ?1,
+                    last_error_digest = NULL, last_result = NULL,
+                    next_attempt_at = ?2
+              WHERE rowid IN (
+                    SELECT rowid FROM account_identity_issuer_v2_outbox
+                     WHERE service = ?3 AND delivery_state = 'claimed'
+                       AND claim_expires_at IS NOT NULL AND claim_expires_at <= ?4
+                     ORDER BY claim_expires_at, receipt_id LIMIT ?5
+              )",
+            params![
+                ERROR_CODE_LEASE_EXPIRED,
+                now_text,
+                ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+                now_text,
+                MAX_RECLAIMED_CLAIMS
+            ],
         )
         .map(|_| ())
         .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)
@@ -31,7 +47,12 @@ pub(super) fn claim_pending(
     transaction: &Transaction<'_>,
     now: i64,
 ) -> Result<Option<AccountIdentityIssuerOutboxClaim>, AccountIdentityAuthorityIssuerClientError> {
+    reconcile_startup(transaction, now)?;
     let now_text = timestamp(now)?;
+    let claim_expires_at = now
+        .checked_add(CLAIM_LEASE_MILLIS)
+        .ok_or(AccountIdentityAuthorityIssuerClientError::ClockUnavailable)?;
+    let claim_expires_at_text = timestamp(claim_expires_at)?;
     let row: Option<(String, Vec<u8>, i64)> = transaction
         .query_row(
             "SELECT receipt_id, wire, attempt_count
@@ -59,14 +80,17 @@ pub(super) fn claim_pending(
         .execute(
             "UPDATE account_identity_issuer_v2_outbox
                 SET delivery_state = 'claimed', claim_id = ?1, claimed_at = ?2,
-                    attempt_count = ?3, last_error = NULL, next_attempt_at = NULL
-              WHERE receipt_id = ?4 AND service = ?5
+                    claim_expires_at = ?3, attempt_count = ?4,
+                    last_error_code = NULL, last_error_digest = NULL,
+                    last_result = NULL, next_attempt_at = NULL
+              WHERE receipt_id = ?5 AND service = ?6
                 AND (delivery_state = 'pending'
                      OR (delivery_state = 'failed'
                          AND (next_attempt_at IS NULL OR next_attempt_at <= ?2)))",
             params![
                 claim_id,
                 claimed_at,
+                claim_expires_at_text,
                 next_attempts,
                 receipt_id,
                 ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
@@ -79,6 +103,7 @@ pub(super) fn claim_pending(
     Ok(Some(AccountIdentityIssuerOutboxClaim {
         receipt_id,
         claim_id,
+        claim_expires_at: claim_expires_at_text,
         wire,
     }))
 }
@@ -86,31 +111,49 @@ pub(super) fn claim_pending(
 pub(super) fn record_failure(
     transaction: &Transaction<'_>,
     claim: &AccountIdentityIssuerOutboxClaim,
-    message: &str,
+    error_code: &str,
+    error_digest: Option<&str>,
     now: i64,
 ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
-    if message.trim().is_empty() || message.len() > 1_024 {
+    if error_code != ERROR_CODE_DELIVERY_FAILED || !valid_error_digest(error_digest) {
         return Err(AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable);
     }
     let next_attempt = now
         .checked_add(retry_delay(transaction, claim)?)
         .ok_or(AccountIdentityAuthorityIssuerClientError::ClockUnavailable)?;
     let next_attempt_text = timestamp(next_attempt)?;
-    let result = format!("sha256:delivery-failure:{}", digest_hex(message.as_bytes()));
+    let now_text = timestamp(now)?;
+    let result = format!(
+        "sha256:delivery-result:{}",
+        digest_hex(
+            [
+                error_code.as_bytes(),
+                error_digest.unwrap_or_default().as_bytes()
+            ]
+            .concat()
+            .as_slice(),
+        )
+    );
     let changed = transaction
         .execute(
             "UPDATE account_identity_issuer_v2_outbox
                 SET delivery_state = 'failed', claim_id = NULL, claimed_at = NULL,
-                    last_error = ?1, last_result = ?2, next_attempt_at = ?3
-              WHERE receipt_id = ?4 AND claim_id = ?5 AND service = ?6
+                    claim_expires_at = NULL, last_error_code = ?1,
+                    last_error_digest = ?2, last_result = ?3, next_attempt_at = ?4
+              WHERE receipt_id = ?5 AND claim_id = ?6 AND claim_expires_at = ?7
+                AND service = ?8
+                AND claim_expires_at > ?9
                 AND delivery_state = 'claimed'",
             params![
-                message,
+                error_code,
+                error_digest,
                 result,
                 next_attempt_text,
                 claim.receipt_id(),
                 claim.claim_id(),
-                ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE
+                claim.claim_expires_at(),
+                ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+                now_text,
             ],
         )
         .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)?;
@@ -118,6 +161,16 @@ pub(super) fn record_failure(
         return Err(AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable);
     }
     Ok(())
+}
+
+fn valid_error_digest(value: Option<&str>) -> bool {
+    let Some(value) = value else {
+        return false;
+    };
+    let Some(hex) = value.strip_prefix("sha256:delivery-detail:") else {
+        return false;
+    };
+    hex.len() == 64 && hex.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
 fn retry_delay(

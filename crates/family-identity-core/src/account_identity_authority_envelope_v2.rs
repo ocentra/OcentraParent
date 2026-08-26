@@ -20,6 +20,7 @@ pub(crate) struct CanonicalAuthorityProducerV2Envelope {
     pub(crate) key_id: String,
     pub(crate) service_binding_id: String,
     pub(crate) key_generation: u64,
+    pub(crate) enrollment_generation: u64,
     pub(crate) authority_generation: u64,
     pub(crate) session_generation: u64,
     pub(crate) correlation_id: String,
@@ -37,6 +38,7 @@ pub(crate) struct ParsedAuthorityProducerV2Envelope {
     pub(crate) key_id: String,
     pub(crate) service_binding_id: String,
     pub(crate) key_generation: u64,
+    pub(crate) enrollment_generation: u64,
     pub(crate) authority_generation: u64,
     pub(crate) session_generation: u64,
     pub(crate) correlation_id: String,
@@ -60,6 +62,7 @@ pub(crate) fn encode(
     validate_text(&envelope.issued_at)?;
     validate_text(&envelope.expires_at)?;
     if envelope.key_generation == 0
+        || envelope.enrollment_generation == 0
         || envelope.authority_generation == 0
         || envelope.session_generation == 0
         || envelope.payload.is_empty()
@@ -69,9 +72,10 @@ pub(crate) fn encode(
     }
 
     let key_generation = envelope.key_generation.to_be_bytes();
+    let enrollment_generation = envelope.enrollment_generation.to_be_bytes();
     let authority_generation = envelope.authority_generation.to_be_bytes();
     let session_generation = envelope.session_generation.to_be_bytes();
-    let fields: [&[u8]; 15] = [
+    let fields: [&[u8]; 16] = [
         ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SCHEMA_VERSION.as_bytes(),
         ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_AUDIENCE.as_bytes(),
         ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_ENVIRONMENT.as_bytes(),
@@ -81,6 +85,7 @@ pub(crate) fn encode(
         envelope.key_id.as_bytes(),
         envelope.service_binding_id.as_bytes(),
         &key_generation,
+        &enrollment_generation,
         &authority_generation,
         &session_generation,
         envelope.correlation_id.as_bytes(),

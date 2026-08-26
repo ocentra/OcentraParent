@@ -19,6 +19,7 @@ pub(super) struct StoredIssue {
     pub(super) service_binding_id: String,
     pub(super) key_id: String,
     pub(super) key_generation: i64,
+    pub(super) enrollment_generation: i64,
     pub(super) authority_generation: i64,
     pub(super) session_generation: i64,
     pub(super) correlation_id: String,
@@ -66,7 +67,8 @@ pub(super) fn load_stored_issue_by_idempotency(
     transaction
         .query_row(
             "SELECT receipt_id, account_id, household_id, service, service_binding_id,
-                    key_id, key_generation, authority_generation, session_generation,
+                    key_id, key_generation, enrollment_generation, authority_generation,
+                    session_generation,
                     correlation_id, idempotency_key, payload_digest, issued_at,
                     expires_at, wire
                FROM account_identity_issuer_v2_receipt
@@ -85,14 +87,15 @@ pub(super) fn load_stored_issue_by_idempotency(
                     service_binding_id: row.get(4)?,
                     key_id: row.get(5)?,
                     key_generation: row.get(6)?,
-                    authority_generation: row.get(7)?,
-                    session_generation: row.get(8)?,
-                    correlation_id: row.get(9)?,
-                    idempotency_key: row.get(10)?,
-                    payload_digest: row.get(11)?,
-                    issued_at: row.get(12)?,
-                    expires_at: row.get(13)?,
-                    wire: row.get(14)?,
+                    enrollment_generation: row.get(7)?,
+                    authority_generation: row.get(8)?,
+                    session_generation: row.get(9)?,
+                    correlation_id: row.get(10)?,
+                    idempotency_key: row.get(11)?,
+                    payload_digest: row.get(12)?,
+                    issued_at: row.get(13)?,
+                    expires_at: row.get(14)?,
+                    wire: row.get(15)?,
                 })
             },
         )
@@ -124,6 +127,7 @@ pub(super) fn verify_stored_issue(
         || verified.key_id() != key.key_id().as_str()
         || verified.service_binding_id() != key.service_binding_id().as_str()
         || verified.key_generation() != key.key_generation()
+        || verified.enrollment_generation() != key.enrollment_generation()
         || verified.authority_generation() != key.authority_generation()
         || verified.session_generation() != receipt.session_generation
         || verified.correlation_id() != receipt.correlation_id
@@ -156,6 +160,8 @@ fn receipt_from_stored(
         key_id: stored.key_id.clone(),
         key_generation: u64::try_from(stored.key_generation)
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
+        enrollment_generation: u64::try_from(stored.enrollment_generation)
+            .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
         authority_generation: u64::try_from(stored.authority_generation)
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?,
         session_generation: u64::try_from(stored.session_generation)
@@ -183,6 +189,7 @@ fn validate_current_receipt(
     }
     if receipt.key_id != key.key_id().as_str()
         || receipt.key_generation != key.key_generation()
+        || receipt.enrollment_generation != key.enrollment_generation()
         || receipt.service_binding_id != key.service_binding_id().as_str()
     {
         return Err(AccountIdentityAuthorityIssuerClientError::CurrentnessRejected);

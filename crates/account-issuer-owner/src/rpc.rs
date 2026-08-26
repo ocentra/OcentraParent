@@ -11,7 +11,10 @@ use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_ISSUER_RPC_E
 
 use crate::contract::IssueCurrentAuthorityCommand;
 use crate::currentness::CurrentAuthority;
-use crate::delivery::{AccountIssuerDeliveryError, DeliveryClaim, DeliveryFailure};
+use crate::delivery::{
+    AccountIssuerDeliveryError, DeliveryClaim, DeliveryFailure, PreparedAcknowledgeReceipt,
+    ProtectedAccountIssuerReceipt,
+};
 use crate::repository::{AccountIssuerRepository, AccountIssuerRepositoryError};
 use crate::signing::{self, AccountIssuerSigningError};
 
@@ -57,17 +60,6 @@ impl std::error::Error for AccountIssuerRpcError {}
 impl DeliveryClaim {
     pub fn wire(&self) -> &[u8] {
         self.inner.wire()
-    }
-}
-
-impl DeliveryFailure {
-    pub fn from_bytes(message: Vec<u8>) -> Result<Self, AccountIssuerDeliveryError> {
-        let message =
-            String::from_utf8(message).map_err(|_| AccountIssuerDeliveryError::Rejected)?;
-        if message.trim().is_empty() || message.len() > 1_024 {
-            return Err(AccountIssuerDeliveryError::Rejected);
-        }
-        Ok(Self { message })
     }
 }
 
@@ -186,7 +178,53 @@ impl AccountIssuerOwner {
         failure: &DeliveryFailure,
     ) -> Result<(), AccountIssuerRpcError> {
         self.repository
-            .record_delivery_failure(&claim.inner, failure)
+            .record_delivery_failure(claim, failure)
+            .map_err(AccountIssuerRpcError::Repository)
+    }
+
+    pub fn prepare_acknowledge_receipt(
+        &mut self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
+        claim: &DeliveryClaim,
+    ) -> Result<PreparedAcknowledgeReceipt, AccountIssuerRpcError> {
+        let current = self
+            .repository
+            .resolve_current(provider, provider_subject)
+            .map_err(AccountIssuerRpcError::Repository)?;
+        let transaction = self
+            .repository
+            .begin()
+            .map_err(AccountIssuerRpcError::Repository)?;
+        let request = transaction
+            .prepare_acknowledge_receipt(&current, claim)
+            .map_err(AccountIssuerRpcError::Repository)?;
+        transaction
+            .commit()
+            .map_err(AccountIssuerRpcError::Repository)?;
+        Ok(request)
+    }
+
+    pub fn acknowledge_receipt(
+        &mut self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
+        claim: DeliveryClaim,
+        protected_receipt: ProtectedAccountIssuerReceipt,
+    ) -> Result<(), AccountIssuerRpcError> {
+        let current = self
+            .repository
+            .resolve_current(provider, provider_subject)
+            .map_err(AccountIssuerRpcError::Repository)?;
+        let mut transaction = self
+            .repository
+            .begin()
+            .map_err(AccountIssuerRpcError::Repository)?;
+        transaction
+            .acknowledge_receipt(&current, &claim, &protected_receipt)
+            .map_err(AccountIssuerRpcError::Repository)?;
+        transaction
+            .commit()
             .map_err(AccountIssuerRpcError::Repository)
     }
 }

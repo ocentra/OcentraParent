@@ -56,6 +56,7 @@ impl AccountIdentityIssuerV2ServiceBindingId {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct ProtectedAccountIssuerKeyRegistration {
     public_key: [u8; 65],
+    enrollment_generation: u64,
 }
 
 impl ProtectedAccountIssuerKeyRegistration {
@@ -63,34 +64,22 @@ impl ProtectedAccountIssuerKeyRegistration {
         &self.public_key
     }
 
-    pub(crate) fn from_protected_adapter(public_key: [u8; 65]) -> Self {
-        Self { public_key }
-    }
-}
-
-/// Exact durable proof for an issued receipt.  The value is created only by
-/// the transaction that found and verified the stored receipt and matching
-/// outbox row; callers cannot construct one from a wire or receipt DTO.
-pub struct AccountIdentityIssuerReceiptProof {
-    pub(crate) receipt: ocentra_schema::account_identity_authority_producer_v2::
-        AccountIdentityAuthorityProducerV2Receipt,
-    pub(crate) wire: Vec<u8>,
-}
-
-impl AccountIdentityIssuerReceiptProof {
-    pub fn receipt_id(&self) -> &str {
-        self.receipt.receipt_id.as_str()
+    pub(crate) fn from_protected_adapter(
+        public_key: [u8; 65],
+        enrollment_generation: u64,
+    ) -> Option<Self> {
+        (enrollment_generation > 0
+            && enrollment_generation
+                <= ocentra_schema::account_identity_authority_producer_v2::
+                    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION)
+        .then_some(Self {
+            public_key,
+            enrollment_generation,
+        })
     }
 
-    pub fn receipt(
-        &self,
-    ) -> &ocentra_schema::account_identity_authority_producer_v2::
-    AccountIdentityAuthorityProducerV2Receipt{
-        &self.receipt
-    }
-
-    pub fn wire_bytes(&self) -> &[u8] {
-        self.wire.as_slice()
+    pub(crate) fn enrollment_generation(&self) -> u64 {
+        self.enrollment_generation
     }
 }
 
@@ -116,6 +105,7 @@ impl AccountIdentityIssuerRecordedTransport {
 pub struct AccountIdentityIssuerOutboxClaim {
     pub(crate) receipt_id: String,
     pub(crate) claim_id: String,
+    pub(crate) claim_expires_at: String,
     pub(crate) wire: Vec<u8>,
 }
 
@@ -130,6 +120,10 @@ impl AccountIdentityIssuerOutboxClaim {
 
     pub(crate) fn claim_id(&self) -> &str {
         self.claim_id.as_str()
+    }
+
+    pub(crate) fn claim_expires_at(&self) -> &str {
+        self.claim_expires_at.as_str()
     }
 }
 use crate::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Transport;

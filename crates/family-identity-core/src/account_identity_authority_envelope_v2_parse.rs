@@ -55,6 +55,7 @@ pub(super) fn parse(
     let key_id = take_text(&signing_bytes, &mut cursor)?;
     let service_binding_id = take_text(&signing_bytes, &mut cursor)?;
     let key_generation = take_u64(&signing_bytes, &mut cursor)?;
+    let enrollment_generation = take_u64(&signing_bytes, &mut cursor)?;
     let authority_generation = take_u64(&signing_bytes, &mut cursor)?;
     let session_generation = take_u64(&signing_bytes, &mut cursor)?;
     let correlation_id = take_text(&signing_bytes, &mut cursor)?;
@@ -73,6 +74,7 @@ pub(super) fn parse(
         key_id,
         service_binding_id,
         key_generation,
+        enrollment_generation,
         authority_generation,
         session_generation,
         correlation_id,
@@ -144,7 +146,10 @@ fn take_u64(
     bytes: &[u8],
     cursor: &mut usize,
 ) -> Result<u64, AccountIdentityAuthorityProducerV2Error> {
-    let value = take_exact(bytes, cursor, 8)?;
+    let value = take_field(bytes, cursor)?;
+    if value.len() != 8 {
+        return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);
+    }
     let value = u64::from_be_bytes(
         value
             .try_into()

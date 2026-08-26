@@ -4,6 +4,7 @@ use ocentra_schema::account_identity_authority_producer_v2::{
     AccountIdentityAuthorityProducerV2Binding, AccountIdentityAuthorityProducerV2Claims,
     AccountIdentityAuthorityProducerV2Operation, AccountIdentityAuthorityProducerV2Receipt,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES,
@@ -32,6 +33,10 @@ impl AccountIdentityAuthorityProducerV2Request {
 
     pub fn payload_digest(&self) -> &str {
         self.payload_digest.as_str()
+    }
+
+    pub fn enrollment_generation(&self) -> u64 {
+        self.binding.enrollment_generation
     }
 
     pub fn issued_at(&self) -> &str {
@@ -71,6 +76,7 @@ impl AccountIdentityAuthorityProducerV2Request {
                 payload_digest: self.payload_digest,
                 key_id: self.binding.key_id,
                 key_generation: self.binding.key_generation,
+                enrollment_generation: self.binding.enrollment_generation,
                 authority_generation: self.binding.authority_generation,
                 session_generation: self.binding.session_generation,
                 issued_at: self.issued_at,
@@ -101,13 +107,20 @@ pub(crate) fn issue_request(
     authority: &Authority,
     key_id: &str,
     key_generation: u64,
+    enrollment_generation: u64,
     public_key: &[u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES],
     service_binding_id: &str,
     correlation_id: &str,
     idempotency_key: &str,
     issued_at: DateTime<Utc>,
 ) -> Result<AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityProducerV2Error> {
-    validate_issue_key(key_id, key_generation, public_key, service_binding_id)?;
+    validate_issue_key(
+        key_id,
+        key_generation,
+        enrollment_generation,
+        public_key,
+        service_binding_id,
+    )?;
     let expires_at = issued_at
         .checked_add_signed(Duration::seconds(
             ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS,
@@ -125,6 +138,7 @@ pub(crate) fn issue_request(
         service_binding_id: service_binding_id.to_owned(),
         key_id: key_id.to_owned(),
         key_generation,
+        enrollment_generation,
         authority_generation: authority.authority_generation(),
         session_generation: authority.session_generation(),
         correlation_id: correlation_id.to_owned(),
@@ -140,6 +154,7 @@ pub(crate) fn issue_request(
             key_id: key_id.to_owned(),
             service_binding_id: service_binding_id.to_owned(),
             key_generation,
+            enrollment_generation,
             authority_generation: authority.authority_generation(),
             session_generation: authority.session_generation(),
             correlation_id: correlation_id.to_owned(),
@@ -188,6 +203,7 @@ pub(crate) fn acknowledge_request(
         service_binding_id: receipt.service_binding_id.clone(),
         key_id: receipt.key_id.clone(),
         key_generation: receipt.key_generation,
+        enrollment_generation: receipt.enrollment_generation,
         authority_generation: receipt.authority_generation,
         session_generation: receipt.session_generation,
         correlation_id: receipt.correlation_id.clone(),
@@ -203,6 +219,7 @@ pub(crate) fn acknowledge_request(
             key_id: receipt.key_id.clone(),
             service_binding_id: receipt.service_binding_id.clone(),
             key_generation: receipt.key_generation,
+            enrollment_generation: receipt.enrollment_generation,
             authority_generation: receipt.authority_generation,
             session_generation: receipt.session_generation,
             correlation_id: receipt.correlation_id.clone(),
@@ -235,23 +252,23 @@ fn sha256_hex(value: &[u8]) -> String {
 }
 
 fn receipt_id_for(correlation_id: &str, idempotency_key: &str, payload_digest: &str) -> String {
-    format!(
-        "sha256:receipt:{}",
-        sha256_hex(
-            [
-                correlation_id.as_bytes(),
-                idempotency_key.as_bytes(),
-                payload_digest.as_bytes(),
-            ]
-            .concat()
-            .as_slice(),
-        )
-    )
+    let mut framed = Vec::new();
+    framed.extend_from_slice(b"ocentra.account-authority-producer.receipt-id.v2\0");
+    for value in [
+        correlation_id.as_bytes(),
+        idempotency_key.as_bytes(),
+        payload_digest.as_bytes(),
+    ] {
+        framed.extend_from_slice(&(value.len() as u64).to_be_bytes());
+        framed.extend_from_slice(value);
+    }
+    format!("sha256:receipt:{}", sha256_hex(framed.as_slice()))
 }
 
 fn validate_issue_key(
     key_id: &str,
     key_generation: u64,
+    enrollment_generation: u64,
     public_key: &[u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES],
     service_binding_id: &str,
 ) -> Result<(), AccountIdentityAuthorityProducerV2Error> {
@@ -263,7 +280,11 @@ fn validate_issue_key(
     {
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidKeyId);
     }
-    if key_generation == 0 || service_binding_id.trim().is_empty() {
+    if key_generation == 0
+        || enrollment_generation == 0
+        || enrollment_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION
+        || service_binding_id.trim().is_empty()
+    {
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);
     }
     Ok(())

@@ -22,7 +22,7 @@ pub const ACCOUNT_ISSUER_SIGNER_CAPABILITY_BYTES: usize = 32 + 64;
 pub struct AccountIssuerField(String);
 
 impl AccountIssuerField {
-    pub(crate) fn from_wire(bytes: Vec<u8>) -> Result<Self, ProtocolError> {
+    pub fn from_wire(bytes: Vec<u8>) -> Result<Self, ProtocolError> {
         if bytes.is_empty() {
             return Err(ProtocolError::EmptyField);
         }
@@ -54,7 +54,7 @@ pub struct ProtectedAccountIssuerSignerCapability {
 }
 
 impl ProtectedAccountIssuerSignerCapability {
-    pub(crate) fn decode(frame: &[u8]) -> Result<Self, ProtocolError> {
+    pub fn decode(frame: &[u8]) -> Result<Self, ProtocolError> {
         let expected =
             ACCOUNT_ISSUER_SIGNER_CAPABILITY_DOMAIN.len() + ACCOUNT_ISSUER_SIGNER_CAPABILITY_BYTES;
         if frame.len() != expected
@@ -83,23 +83,5 @@ impl ProtectedAccountIssuerSignerCapability {
 
     pub fn signature(&self) -> &[u8; 64] {
         &self.signature
-    }
-}
-
-/// Opaque public-key enrollment capability.  Only the protected custody
-/// adapter may create this value in a later wave; callers can carry it to the
-/// owner but cannot mint one from a raw public key.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct ProtectedAccountIssuerKeyRegistration {
-    public_key: [u8; 65],
-}
-
-impl ProtectedAccountIssuerKeyRegistration {
-    pub fn public_key(&self) -> &[u8; 65] {
-        &self.public_key
-    }
-
-    pub(crate) fn from_protected_adapter(public_key: [u8; 65]) -> Self {
-        Self { public_key }
     }
 }

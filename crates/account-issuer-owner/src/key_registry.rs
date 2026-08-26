@@ -20,6 +20,10 @@ impl KeyRecord {
         self.inner.key_generation()
     }
 
+    pub fn enrollment_generation(&self) -> u64 {
+        self.inner.enrollment_generation()
+    }
+
     pub fn public_key(&self) -> &[u8; 65] {
         self.inner.public_key()
     }

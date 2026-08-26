@@ -6,18 +6,20 @@ use ocentra_family_identity_core::account_identity_authority_issuer_client::{
 };
 use ocentra_family_identity_core::account_identity_authority_issuer_client::
     account_identity_authority_issuer_client_types::{
-        AccountIdentityIssuerOutboxClaim, AccountIdentityIssuerReceiptProof,
-        ProtectedAccountIssuerKeyRegistration,
+        AccountIdentityIssuerOutboxClaim, ProtectedAccountIssuerKeyRegistration,
     };
-use ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
-use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_ISSUER_REPOSITORY_ERROR;
+use ocentra_schema::account_identity_authority_producer_v2::{
+    ACCOUNT_ISSUER_DELIVERY_FAILURE_CODE, ACCOUNT_ISSUER_REPOSITORY_ERROR,
+};
 
-use crate::contract::{AccountIssuerReceiptId, IssueCurrentAuthorityCommand};
+use crate::contract::IssueCurrentAuthorityCommand;
 use crate::currentness::CurrentAuthority;
-use crate::delivery::DeliveryFailure;
+use crate::delivery::{
+    DeliveryClaim, DeliveryFailure, PreparedAcknowledgeReceipt, ProtectedAccountIssuerReceipt,
+};
 use crate::key_registry::KeyRecord;
 use crate::outbox::IssueTransaction;
 
@@ -66,7 +68,7 @@ impl AccountIssuerRepository {
             .map_err(AccountIssuerRepositoryError::from)
     }
 
-    pub fn claim_delivery(
+    pub(crate) fn claim_delivery(
         &mut self,
     ) -> Result<Option<AccountIdentityIssuerOutboxClaim>, AccountIssuerRepositoryError> {
         self.client
@@ -76,17 +78,25 @@ impl AccountIssuerRepository {
 
     pub fn record_delivery_failure(
         &mut self,
-        claim: &AccountIdentityIssuerOutboxClaim,
+        claim: &DeliveryClaim,
         failure: &DeliveryFailure,
     ) -> Result<(), AccountIssuerRepositoryError> {
         self.client
-            .record_outbox_failure(claim, failure.message.as_str())
+            .record_outbox_failure(
+                &claim.inner,
+                match failure.code {
+                    crate::delivery::DeliveryFailureCode::TransportRejected => {
+                        ACCOUNT_ISSUER_DELIVERY_FAILURE_CODE
+                    }
+                },
+                Some(failure.detail_digest.as_str()),
+            )
             .map_err(AccountIssuerRepositoryError::from)
     }
 }
 
 impl<'a> AccountIssuerTransaction<'a> {
-    pub fn prepare_issue(
+    pub(crate) fn prepare_issue(
         &mut self,
         current: &CurrentAuthority,
         command: &IssueCurrentAuthorityCommand,
@@ -142,29 +152,22 @@ impl<'a> AccountIssuerTransaction<'a> {
     pub fn prepare_acknowledge_receipt(
         &self,
         current: &CurrentAuthority,
-        receipt_id: &AccountIssuerReceiptId,
-    ) -> Result<
-        (
-            AccountIdentityAuthorityProducerV2Request,
-            AccountIdentityIssuerReceiptProof,
-        ),
-        AccountIssuerRepositoryError,
-    > {
-        let proof = self
-            .inner
-            .load_receipt_proof(
-                &current.inner,
-                std::str::from_utf8(receipt_id.as_bytes())
-                    .map_err(|_| AccountIssuerRepositoryError::ReceiptUnavailable)?,
-            )
-            .map_err(AccountIssuerRepositoryError::from)?;
+        claim: &DeliveryClaim,
+    ) -> Result<PreparedAcknowledgeReceipt, AccountIssuerRepositoryError> {
         self.inner
-            .prepare_acknowledge_receipt(
-                &current.inner,
-                std::str::from_utf8(receipt_id.as_bytes())
-                    .map_err(|_| AccountIssuerRepositoryError::ReceiptUnavailable)?,
-            )
-            .map(|request| (request, proof))
+            .prepare_acknowledge_receipt(&current.inner, &claim.inner)
+            .map(|request| PreparedAcknowledgeReceipt { request })
+            .map_err(AccountIssuerRepositoryError::from)
+    }
+
+    pub fn acknowledge_receipt(
+        &mut self,
+        current: &CurrentAuthority,
+        claim: &DeliveryClaim,
+        protected_receipt: &ProtectedAccountIssuerReceipt,
+    ) -> Result<(), AccountIssuerRepositoryError> {
+        self.inner
+            .acknowledge_receipt(&current.inner, &claim.inner, protected_receipt.wire())
             .map_err(AccountIssuerRepositoryError::from)
     }
 

@@ -6,7 +6,7 @@ use rusqlite::{params, OptionalExtension, Transaction};
 
 use crate::account_identity_authority_producer_v2;
 
-use super::super::account_identity_authority_issuer_client_types::AccountIdentityIssuerReceiptProof;
+use super::super::account_identity_authority_issuer_client_types::AccountIdentityIssuerOutboxClaim;
 use super::super::{
     AccountIdentityAuthorityIssuerClientError, AccountIdentityIssuerCurrentness,
     AccountIdentityIssuerV2KeyRecord,
@@ -15,14 +15,19 @@ use super::receipt::{
     from_sql, validate_issue_receipt, validate_receipt_key, validate_verified_receipt,
 };
 
-pub(super) fn load_receipt_proof(
+pub(super) struct VerifiedClaimedIssue {
+    pub(super) receipt: AccountIdentityAuthorityProducerV2Receipt,
+    pub(super) wire: Vec<u8>,
+}
+
+pub(super) fn load_verified_claimed_issue(
     transaction: &Transaction<'_>,
     currentness: &AccountIdentityIssuerCurrentness,
     key: &AccountIdentityIssuerV2KeyRecord,
-    receipt_id: &str,
-) -> Result<AccountIdentityIssuerReceiptProof, AccountIdentityAuthorityIssuerClientError> {
-    let (receipt, wire, outbox_state) = load_receipt_row(transaction, currentness, receipt_id)?;
-    if outbox_state == "acknowledged" {
+    claim: &AccountIdentityIssuerOutboxClaim,
+) -> Result<VerifiedClaimedIssue, AccountIdentityAuthorityIssuerClientError> {
+    let (receipt, wire, outbox_state) = load_claimed_receipt_row(transaction, currentness, claim)?;
+    if outbox_state != "claimed" {
         return Err(AccountIdentityAuthorityIssuerClientError::ReplayDetected);
     }
     validate_issue_receipt(currentness, &receipt)?;
@@ -39,22 +44,24 @@ pub(super) fn load_receipt_proof(
         now,
     )?;
     validate_verified_receipt(&verified, &receipt)?;
-    Ok(AccountIdentityIssuerReceiptProof { receipt, wire })
+    Ok(VerifiedClaimedIssue { receipt, wire })
 }
 
-fn load_receipt_row(
+fn load_claimed_receipt_row(
     transaction: &Transaction<'_>,
     currentness: &AccountIdentityIssuerCurrentness,
-    receipt_id: &str,
+    claim: &AccountIdentityIssuerOutboxClaim,
 ) -> Result<
     (AccountIdentityAuthorityProducerV2Receipt, Vec<u8>, String),
     AccountIdentityAuthorityIssuerClientError,
 > {
+    let (_, now_text) = super::super::clock::now(transaction)?;
     transaction
         .query_row(
             "SELECT receipt.receipt_id, receipt.account_id, receipt.household_id,
                     receipt.service_binding_id, receipt.key_id, receipt.key_generation,
-                    receipt.authority_generation, receipt.session_generation,
+                    receipt.enrollment_generation, receipt.authority_generation,
+                    receipt.session_generation,
                     receipt.correlation_id, receipt.idempotency_key, receipt.payload_digest,
                     receipt.issued_at, receipt.expires_at, receipt.wire, outbox.delivery_state
                FROM account_identity_issuer_v2_receipt AS receipt
@@ -62,19 +69,27 @@ fn load_receipt_row(
                  ON outbox.receipt_id = receipt.receipt_id
               WHERE receipt.receipt_id = ?1 AND receipt.account_id = ?2
                 AND receipt.household_id = ?3 AND receipt.service = ?4
+                AND outbox.claim_id = ?5 AND outbox.claim_expires_at = ?6
+                AND outbox.delivery_state = 'claimed'
                 AND outbox.account_id = receipt.account_id
                 AND outbox.household_id = receipt.household_id
                 AND outbox.service = receipt.service
                 AND outbox.service_binding_id = receipt.service_binding_id
                 AND outbox.key_id = receipt.key_id
                 AND outbox.key_generation = receipt.key_generation
+                AND outbox.enrollment_generation = receipt.enrollment_generation
                 AND outbox.authority_generation = receipt.authority_generation
-                AND outbox.wire = receipt.wire",
+                AND outbox.wire = receipt.wire
+                AND outbox.wire = ?7 AND outbox.claim_expires_at > ?8",
             params![
-                receipt_id,
+                claim.receipt_id(),
                 currentness.account_id().as_str(),
                 currentness.household_id().as_str(),
                 ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+                claim.claim_id(),
+                claim.claim_expires_at(),
+                claim.wire(),
+                now_text,
             ],
             |row| {
                 Ok((
@@ -87,16 +102,17 @@ fn load_receipt_row(
                         service_binding_id: row.get(3)?,
                         key_id: row.get(4)?,
                         key_generation: from_sql(row.get(5)?)?,
-                        authority_generation: from_sql(row.get(6)?)?,
-                        session_generation: from_sql(row.get(7)?)?,
-                        correlation_id: row.get(8)?,
-                        idempotency_key: row.get(9)?,
-                        payload_digest: row.get(10)?,
-                        issued_at: row.get(11)?,
-                        expires_at: row.get(12)?,
+                        enrollment_generation: from_sql(row.get(6)?)?,
+                        authority_generation: from_sql(row.get(7)?)?,
+                        session_generation: from_sql(row.get(8)?)?,
+                        correlation_id: row.get(9)?,
+                        idempotency_key: row.get(10)?,
+                        payload_digest: row.get(11)?,
+                        issued_at: row.get(12)?,
+                        expires_at: row.get(13)?,
                     },
-                    row.get(13)?,
                     row.get(14)?,
+                    row.get(15)?,
                 ))
             },
         )

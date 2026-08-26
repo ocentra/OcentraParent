@@ -38,6 +38,10 @@ impl AccountIdentityAuthorityProducerV2Verified {
         self.authority_generation
     }
 
+    pub fn enrollment_generation(&self) -> u64 {
+        self.enrollment_generation
+    }
+
     pub fn session_generation(&self) -> u64 {
         self.session_generation
     }

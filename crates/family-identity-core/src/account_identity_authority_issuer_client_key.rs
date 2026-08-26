@@ -12,6 +12,10 @@ impl AccountIdentityIssuerV2KeyRecord {
         self.key_generation
     }
 
+    pub fn enrollment_generation(&self) -> u64 {
+        self.enrollment_generation
+    }
+
     pub fn public_key(&self) -> &[u8; 65] {
         &self.public_key
     }

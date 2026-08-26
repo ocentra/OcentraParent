@@ -1,82 +1,14 @@
 use std::collections::HashSet;
 
-use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE;
 use rusqlite::{Connection, OptionalExtension};
 
 #[path = "account_identity_authority_issuer_client_schema_rows.rs"]
 mod schema_rows;
 
 use super::{
-    has_legacy_table, AccountIdentityAuthorityIssuerClientError, CANONICAL_SCHEMA_SQL,
-    SCHEMA_META_SQL, SCHEMA_NAME, SCHEMA_VERSION,
+    AccountIdentityAuthorityIssuerClientError, CANONICAL_SCHEMA_SQL, SCHEMA_META_SQL, SCHEMA_NAME,
+    SCHEMA_VERSION,
 };
-
-pub(super) fn validate_legacy_shape(
-    connection: &Connection,
-) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
-    let expected = [
-        (
-            "account_identity_issuer_v2_key_registry",
-            &[
-                ("account_id", "TEXT", 1_i64, 0_i64),
-                ("household_id", "TEXT", 1, 0),
-                ("service_binding_id", "TEXT", 1, 0),
-                ("key_id", "TEXT", 1, 0),
-                ("key_generation", "INTEGER", 1, 4),
-                ("public_key", "BLOB", 1, 0),
-                ("authority_generation", "INTEGER", 1, 0),
-                ("key_state", "TEXT", 1, 0),
-            ][..],
-        ),
-        (
-            "account_identity_issuer_v2_receipt",
-            &[
-                ("receipt_id", "TEXT", 1_i64, 1_i64),
-                ("account_id", "TEXT", 1, 0),
-                ("household_id", "TEXT", 1, 0),
-                ("service_binding_id", "TEXT", 1, 0),
-                ("key_id", "TEXT", 1, 0),
-                ("key_generation", "INTEGER", 1, 0),
-                ("authority_generation", "INTEGER", 1, 0),
-                ("session_generation", "INTEGER", 1, 0),
-                ("correlation_id", "TEXT", 1, 0),
-                ("idempotency_key", "TEXT", 1, 0),
-                ("payload_digest", "TEXT", 1, 0),
-                ("issued_at", "TEXT", 1, 0),
-                ("expires_at", "TEXT", 1, 0),
-                ("wire", "BLOB", 1, 0),
-                ("receipt_state", "TEXT", 1, 0),
-            ][..],
-        ),
-        (
-            "account_identity_issuer_v2_outbox",
-            &[
-                ("receipt_id", "TEXT", 1_i64, 1_i64),
-                ("wire", "BLOB", 1, 0),
-                ("delivery_state", "TEXT", 1, 0),
-                ("attempt_count", "INTEGER", 1, 0),
-                ("last_error", "TEXT", 0, 0),
-            ][..],
-        ),
-    ];
-    for (table, columns) in expected {
-        if !has_legacy_table(connection, table)? {
-            return Err(AccountIdentityAuthorityIssuerClientError::InvalidSchema);
-        }
-        validate_table_columns(connection, table, columns)?;
-        let sql = connection
-            .query_row(
-                "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?1",
-                [table],
-                |row| row.get::<_, String>(0),
-            )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
-        if !compact_sql(&sql).starts_with(&format!("CREATETABLE{}", compact_sql(table))) {
-            return Err(AccountIdentityAuthorityIssuerClientError::InvalidSchema);
-        }
-    }
-    Ok(())
-}
 
 pub(super) fn validate_in_transaction(
     connection: &Connection,
@@ -128,6 +60,7 @@ fn validate_key_registry(
             ("service_binding_id", "TEXT", 1, 0),
             ("key_id", "TEXT", 1, 0),
             ("key_generation", "INTEGER", 1, 4),
+            ("enrollment_generation", "INTEGER", 1, 0),
             ("public_key", "BLOB", 1, 0),
             ("authority_generation", "INTEGER", 1, 0),
             ("key_state", "TEXT", 1, 0),
@@ -154,6 +87,7 @@ fn validate_receipt(
             ("service_binding_id", "TEXT", 1, 0),
             ("key_id", "TEXT", 1, 0),
             ("key_generation", "INTEGER", 1, 0),
+            ("enrollment_generation", "INTEGER", 1, 0),
             ("authority_generation", "INTEGER", 1, 0),
             ("session_generation", "INTEGER", 1, 0),
             ("correlation_id", "TEXT", 1, 0),
@@ -162,6 +96,7 @@ fn validate_receipt(
             ("issued_at", "TEXT", 1, 0),
             ("expires_at", "TEXT", 1, 0),
             ("wire", "BLOB", 1, 0),
+            ("ack_wire", "BLOB", 0, 0),
             ("receipt_state", "TEXT", 1, 0),
         ],
     )
@@ -186,14 +121,18 @@ fn validate_outbox(
             ("service_binding_id", "TEXT", 1, 0),
             ("key_id", "TEXT", 1, 0),
             ("key_generation", "INTEGER", 1, 0),
+            ("enrollment_generation", "INTEGER", 1, 0),
             ("authority_generation", "INTEGER", 1, 0),
             ("wire", "BLOB", 1, 0),
             ("delivery_state", "TEXT", 1, 0),
             ("claim_id", "TEXT", 0, 0),
             ("claimed_at", "TEXT", 0, 0),
+            ("claim_expires_at", "TEXT", 0, 0),
             ("attempt_count", "INTEGER", 1, 0),
-            ("last_error", "TEXT", 0, 0),
+            ("last_error_code", "TEXT", 0, 0),
+            ("last_error_digest", "TEXT", 0, 0),
             ("last_result", "TEXT", 0, 0),
+            ("ack_wire", "BLOB", 0, 0),
             ("next_attempt_at", "TEXT", 0, 0),
         ],
     )
@@ -231,7 +170,13 @@ fn validate_indexes(
     validate_index(
         connection,
         "account_identity_issuer_v2_outbox_delivery",
-        &["service", "delivery_state", "next_attempt_at", "receipt_id"],
+        &[
+            "service",
+            "delivery_state",
+            "claim_expires_at",
+            "next_attempt_at",
+            "receipt_id",
+        ],
     )?;
     validate_index_sql(
         connection,

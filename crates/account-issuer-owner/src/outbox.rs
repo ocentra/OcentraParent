@@ -2,12 +2,11 @@
 
 use ocentra_family_identity_core::account_identity_authority_issuer_client::AccountIdentityAuthorityIssuerTransaction;
 use ocentra_family_identity_core::account_identity_authority_issuer_client::
-    account_identity_authority_issuer_client_types::{
-        AccountIdentityIssuerReceiptProof, AccountIdentityIssuerRecordedTransport,
-    };
+    account_identity_authority_issuer_client_types::AccountIdentityIssuerRecordedTransport;
 use ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Transport;
 
 use crate::currentness::CurrentAuthority;
+use crate::delivery::{DeliveryClaim, ProtectedAccountIssuerReceipt};
 use crate::repository::AccountIssuerRepositoryError;
 
 pub struct IssueTransaction<'a> {
@@ -28,10 +27,11 @@ impl<'a> IssueTransaction<'a> {
     pub fn acknowledge_receipt(
         &mut self,
         current: &CurrentAuthority,
-        proof: &AccountIdentityIssuerReceiptProof,
+        claim: &DeliveryClaim,
+        protected_receipt: &ProtectedAccountIssuerReceipt,
     ) -> Result<(), AccountIssuerRepositoryError> {
         self.inner
-            .acknowledge_receipt(&current.inner, proof)
+            .acknowledge_receipt(&current.inner, &claim.inner, protected_receipt.wire())
             .map_err(AccountIssuerRepositoryError::from)
     }
 
