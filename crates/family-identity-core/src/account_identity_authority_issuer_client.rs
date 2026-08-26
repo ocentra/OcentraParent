@@ -68,6 +68,8 @@ pub enum AccountIdentityAuthorityIssuerClientError {
     ReservationUnavailable,
     ReservationExpired,
     ManualRequired,
+    SigningUnavailable,
+    SigningRejected,
     Producer(AccountIdentityAuthorityProducerV2Error),
 }
 
@@ -89,6 +91,7 @@ impl From<AccountIdentityAuthorityProducerV2Error> for AccountIdentityAuthorityI
 pub struct AccountIdentityAuthorityIssuerStartupState {
     active_key_count: u64,
     pending_outbox_count: u64,
+    recovery_backlog: bool,
 }
 
 pub struct AccountIdentityAuthorityIssuerClient {
@@ -120,14 +123,14 @@ pub(crate) struct AccountIdentityAuthorityIssuerTransaction<'a> {
 /// protected signer; the reservation itself never crosses this crate's public
 /// boundary and cannot be cloned, serialized, or caller-minted.
 #[must_use]
-pub struct AccountIdentityIssuerPreparedIssue {
+pub(crate) struct AccountIdentityIssuerPreparedIssue {
     request: AccountIdentityAuthorityProducerV2Request,
     reservation:
         account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation,
 }
 
 impl AccountIdentityIssuerPreparedIssue {
-    pub fn request(&self) -> &AccountIdentityAuthorityProducerV2Request {
+    pub(crate) fn request(&self) -> &AccountIdentityAuthorityProducerV2Request {
         &self.request
     }
 
@@ -143,7 +146,7 @@ impl AccountIdentityIssuerPreparedIssue {
     /// Consume the prepared request after the protected Account signer has
     /// produced its exact signature.  The returned transition still carries
     /// the family-owned reservation, but exposes no reservation authority.
-    pub fn finalize_with_signature(
+    pub(crate) fn finalize_with_signature(
         self,
         signature: [u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES],
     ) -> Result<AccountIdentityIssuerSignedIssue, AccountIdentityAuthorityProducerV2Error> {
@@ -163,7 +166,7 @@ impl AccountIdentityIssuerPreparedIssue {
 /// intentionally non-Clone and has no serialization or raw reservation
 /// accessors; only the family client can consume its private parts.
 #[must_use]
-pub struct AccountIdentityIssuerSignedIssue {
+pub(crate) struct AccountIdentityIssuerSignedIssue {
     reservation:
         account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation,
     transport: AccountIdentityAuthorityProducerV2Transport,
@@ -180,7 +183,7 @@ impl AccountIdentityIssuerSignedIssue {
     }
 }
 
-pub enum AccountIdentityIssuerIssuePreparation {
+pub(crate) enum AccountIdentityIssuerIssuePreparation {
     Replay(AccountIdentityAuthorityProducerV2Transport),
     Prepared(AccountIdentityIssuerPreparedIssue),
 }
@@ -216,6 +219,7 @@ impl AccountIdentityAuthorityIssuerClient {
     ) -> Result<AccountIdentityAuthorityIssuerStartupState, AccountIdentityAuthorityIssuerClientError>
     {
         self.initialize_schema()?;
+        let mut recovery_backlog = false;
         loop {
             let transaction = Transaction::new_unchecked(
                 self.repository.account_issuer_connection(),
@@ -224,11 +228,12 @@ impl AccountIdentityAuthorityIssuerClient {
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
             let (now, _) = clock::now(&transaction)?;
             let issue_backlog = transaction::reconcile_issue_reservations(&transaction, now)?;
-            transaction_outbox::reconcile_startup(&transaction, now)?;
+            let outbox_backlog = transaction_outbox::reconcile_startup(&transaction, now)?;
+            recovery_backlog = issue_backlog || outbox_backlog;
             transaction
                 .commit()
                 .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
-            if !issue_backlog {
+            if !recovery_backlog {
                 break;
             }
         }
@@ -244,6 +249,7 @@ impl AccountIdentityAuthorityIssuerClient {
         Ok(AccountIdentityAuthorityIssuerStartupState {
             active_key_count,
             pending_outbox_count,
+            recovery_backlog,
         })
     }
 

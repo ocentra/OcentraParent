@@ -2920,8 +2920,10 @@ version = "0.1.1"
 dependencies = [
  "getrandom 0.3.4",
  "interprocess",
+ "ocentra-account-issuer-owner",
  "ocentra-protected-capability-custody-core",
  "ocentra-protected-capability-custody-protocol",
+ "ocentra-schema",
  "sysinfo",
  "widestring 1.2.1",
  "windows-service",

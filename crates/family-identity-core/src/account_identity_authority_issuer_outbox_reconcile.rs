@@ -129,6 +129,7 @@ fn supersede_stale_rows(
                                SELECT 1 FROM account_identity_issuer_key_registry AS newer
                                 WHERE newer.account_id = active_key.account_id
                                   AND newer.household_id = active_key.household_id
+                                  AND newer.service_binding_id = active_key.service_binding_id
                                   AND newer.service_label = active_key.service_label
                                   AND newer.key_version > active_key.key_version
                            )

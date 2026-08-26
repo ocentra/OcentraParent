@@ -10,6 +10,7 @@ use super::super::{
     AccountIdentityAuthorityIssuerClientError, AccountIdentityAuthorityIssuerTransaction,
     AccountIdentityIssuerCurrentness, AccountIdentityIssuerV2KeyRecord,
 };
+use super::receipt::validate_verified_currentness;
 
 pub(super) struct StoredIssue {
     pub(super) receipt_id: String,
@@ -139,6 +140,7 @@ pub(super) fn verify_stored_issue(
         key.public_key(),
         now,
     )?;
+    validate_verified_currentness(currentness, &verified)?;
     if verified.operation() != AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority
         || verified.key_id() != key.key_id().as_str()
         || verified.service_binding_id() != key.service_binding_id().as_str()

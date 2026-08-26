@@ -72,6 +72,15 @@ pub(super) fn serve(
     super::io::write_frame(stream, encoded_hello.as_ref(), deadline)?;
 
     let request_frame = Zeroizing::new(super::io::read_frame(stream, deadline)?);
+    if has_account_issuer_domain(request_frame.as_ref()) {
+        return serve_account_issuer(
+            stream,
+            deadline,
+            custody,
+            request_frame.as_ref(),
+            &broker_hello,
+        );
+    }
     let request =
         ocentra_protected_capability_custody_protocol::decode_request(request_frame.as_ref())?;
     let request = request.into_authenticated_session(
@@ -84,6 +93,47 @@ pub(super) fn serve(
     let encoded_response =
         Zeroizing::new(ocentra_protected_capability_custody_protocol::encode_response(&response)?);
     super::io::write_frame(stream, encoded_response.as_ref(), deadline)
+}
+
+fn has_account_issuer_domain(frame: &[u8]) -> bool {
+    let prefix_length = std::mem::size_of::<u32>();
+    let domain =
+        ocentra_protected_capability_custody_protocol::account_issuer_contract::
+            ACCOUNT_ISSUER_TRANSPORT_DOMAIN;
+    frame.get(prefix_length..prefix_length.saturating_add(domain.len())) == Some(domain)
+}
+
+fn serve_account_issuer(
+    stream: &mut PipeStream,
+    deadline: Instant,
+    custody: &BrokerCustodyService,
+    request_frame: &[u8],
+    broker_hello: &UntrustedBrokerHello,
+) -> Result<(), BrokerError> {
+    let request =
+        ocentra_protected_capability_custody_protocol::account_issuer_session::decode_request(
+            request_frame,
+        )?;
+    let authenticated = request.into_authenticated_session(
+        broker_hello,
+        unix_now_millis()?,
+        INITIAL_SESSION_SEQUENCE,
+        broker_hello.authenticator(),
+    )?;
+    let receipt = custody.execute_account_issuer(&authenticated)?;
+    let authenticated_receipt =
+        ocentra_protected_capability_custody_protocol::account_issuer_session::
+            AuthenticatedAccountIssuerReceipt::authenticate(
+                authenticated,
+                receipt,
+                broker_hello.authenticator(),
+            )?;
+    let encoded_receipt = Zeroizing::new(
+        ocentra_protected_capability_custody_protocol::account_issuer_session::encode_receipt(
+            &authenticated_receipt,
+        )?,
+    );
+    super::io::write_frame(stream, encoded_receipt.as_ref(), deadline)
 }
 
 fn authenticate_pipe_client(

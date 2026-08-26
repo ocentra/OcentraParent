@@ -12,7 +12,8 @@ use super::super::{
     AccountIdentityIssuerV2KeyRecord,
 };
 use super::receipt::{
-    from_sql, validate_issue_receipt, validate_receipt_key, validate_verified_receipt,
+    from_sql, validate_issue_receipt, validate_receipt_key, validate_verified_currentness,
+    validate_verified_receipt,
 };
 
 pub(super) struct VerifiedClaimedIssue {
@@ -44,6 +45,7 @@ pub(super) fn load_verified_claimed_issue(
         now,
     )?;
     validate_verified_receipt(&verified, &receipt)?;
+    validate_verified_currentness(currentness, &verified)?;
     Ok(VerifiedClaimedIssue { receipt, wire })
 }
 

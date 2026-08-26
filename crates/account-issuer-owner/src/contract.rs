@@ -1,5 +1,8 @@
 //! Owner-facing AccountIssuer v2 command and result contracts.
 
+use ocentra_schema::account_identity_authority::{
+    AccountIdentityProvider, AccountIdentityProviderSubject,
+};
 use ocentra_schema::account_identity_authority_producer_v2::{
     AccountIdentityAuthorityProducerV2CorrelationId,
     AccountIdentityAuthorityProducerV2IdempotencyKey, AccountIdentityAuthorityProducerV2Receipt,
@@ -8,15 +11,31 @@ use ocentra_schema::account_identity_authority_producer_v2::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
 };
 
-use ocentra_family_identity_core::account_identity_authority_issuer_client::AccountIdentityIssuerPreparedIssue;
-use ocentra_protected_capability_custody_core::account_issuer::{
-    AccountIssuerP256Signer, AccountIssuerP256SignerError, AccountIssuerSignerCapability,
-};
 use ocentra_protected_capability_custody_protocol::account_issuer_contract::AccountIssuerField;
 
 pub const PRODUCER: &str = ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SCHEMA_VERSION;
 pub const AUDIENCE: &str = ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_AUDIENCE;
 pub const SERVICE: &str = ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE;
+
+/// Account-owned authorization for one protected issuer request.
+///
+/// The provider and subject are intentionally private.  The broker cannot
+/// construct this value from the transport operation; only the Account owner
+/// may return it after binding the protected peer to its current authority.
+pub struct AccountIssuerRequestAuthorization {
+    provider: AccountIdentityProvider,
+    provider_subject: AccountIdentityProviderSubject,
+}
+
+impl AccountIssuerRequestAuthorization {
+    pub(crate) fn provider(&self) -> &AccountIdentityProvider {
+        &self.provider
+    }
+
+    pub(crate) fn provider_subject(&self) -> &AccountIdentityProviderSubject {
+        &self.provider_subject
+    }
+}
 
 /// Owner-derived fields from a verified, durable issuer receipt.
 ///
@@ -133,66 +152,5 @@ impl IssueCurrentAuthorityCommand {
 
     pub(crate) fn idempotency_key(&self) -> &AccountIdentityAuthorityProducerV2IdempotencyKey {
         &self.idempotency_key
-    }
-}
-
-/// Owner-created bridge state for the protected P-256 signer.
-///
-/// The family request remains private inside this value until the owner has
-/// received the exact protected signing capability. Callers never receive the
-/// family request, a raw signer, or a platform handle.
-pub(crate) struct PreparedAccountIssuerV2Request {
-    prepared: AccountIdentityIssuerPreparedIssue,
-}
-
-impl PreparedAccountIssuerV2Request {
-    pub(crate) fn from_inner(prepared: AccountIdentityIssuerPreparedIssue) -> Self {
-        Self { prepared }
-    }
-
-    /// Consume the owner-created request while retaining it on signer failure
-    /// so the owner can durably record protected-signing uncertainty.
-    pub(crate) fn sign_with(
-        self,
-        signer: &AccountIssuerP256Signer,
-    ) -> Result<
-        SignedAccountIssuerV2Envelope,
-        (PreparedAccountIssuerV2Request, AccountIssuerP256SignerError),
-    > {
-        let Self { prepared } = self;
-        let capability = match signer.sign_request(prepared.request()) {
-            Ok(capability) => capability,
-            Err(error) => return Err((Self { prepared }, error)),
-        };
-        Ok(SignedAccountIssuerV2Envelope {
-            prepared,
-            capability,
-        })
-    }
-
-    pub(crate) fn into_inner(self) -> AccountIdentityIssuerPreparedIssue {
-        self.prepared
-    }
-}
-
-/// The single-use owner envelope returned after the protected signer has
-/// produced a capability for the exact prepared request.  Its fields and
-/// constructor are private so callers can only hand the complete transition
-/// to the owner finalizer; the request, reservation, and capability cannot be
-/// split into independently reusable values at the public boundary.
-#[must_use]
-pub(crate) struct SignedAccountIssuerV2Envelope {
-    prepared: AccountIdentityIssuerPreparedIssue,
-    capability: AccountIssuerSignerCapability,
-}
-
-impl SignedAccountIssuerV2Envelope {
-    pub(crate) fn into_parts(
-        self,
-    ) -> (
-        AccountIdentityIssuerPreparedIssue,
-        AccountIssuerSignerCapability,
-    ) {
-        (self.prepared, self.capability)
     }
 }

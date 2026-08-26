@@ -1,5 +1,11 @@
-#[path = "account_identity_authority_issuer_client_api_issue.rs"]
-mod issue;
+#[path = "account_identity_authority_issuer_client_api_issue_legacy.rs"]
+mod issue_legacy;
+#[path = "account_identity_authority_issuer_client_api_issue_signer_failure.rs"]
+mod issue_signer_failure;
+#[path = "account_identity_authority_issuer_client_api_issue_signer_flow.rs"]
+mod issue_signer_flow;
+#[path = "account_identity_authority_issuer_client_api_issue_signer_transitions.rs"]
+mod issue_signer_transitions;
 #[path = "account_identity_authority_issuer_client_api_state.rs"]
 mod state;
 

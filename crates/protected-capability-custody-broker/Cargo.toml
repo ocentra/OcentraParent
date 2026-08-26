@@ -16,8 +16,10 @@ path = "src/main.rs"
 
 [dependencies]
 getrandom = "0.3.4"
+ocentra-account-issuer-owner = { path = "../account-issuer-owner" }
 ocentra-protected-capability-custody-core = { path = "../protected-capability-custody-core" }
 ocentra-protected-capability-custody-protocol = { path = "../protected-capability-custody-protocol" }
+ocentra-schema = { path = "../schema" }
 sysinfo = "0.37.2"
 zeroize = "1.8.2"
 
