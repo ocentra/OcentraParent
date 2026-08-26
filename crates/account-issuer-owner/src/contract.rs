@@ -12,7 +12,6 @@ use ocentra_family_identity_core::account_identity_authority_producer_v2::Accoun
 use ocentra_protected_capability_custody_core::account_issuer::{
     AccountIssuerP256Signer, AccountIssuerP256SignerError, AccountIssuerSignerCapability,
 };
-use ocentra_protected_capability_custody_protocol::account_issuer_contract::ProtectedAccountIssuerRequestDigest;
 
 pub const PRODUCER: &str = ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SCHEMA_VERSION;
 pub const AUDIENCE: &str = ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_AUDIENCE;
@@ -51,32 +50,16 @@ impl IssueCurrentAuthorityCommand {
 /// family request, a raw signer, or a platform handle.
 pub struct PreparedAccountIssuerV2Request {
     request: AccountIdentityAuthorityProducerV2Request,
-    request_digest: ProtectedAccountIssuerRequestDigest,
 }
 
 impl PreparedAccountIssuerV2Request {
-    pub(crate) fn from_request(
-        request: AccountIdentityAuthorityProducerV2Request,
-    ) -> Result<Self, ()> {
-        let protected = ocentra_protected_capability_custody_protocol::account_issuer_contract::PreparedAccountIssuerV2Request::from_owner_request(
-            request.signing_bytes(),
-            request.binding().clone(),
-        )
-        .map_err(|_| ())?;
-        Ok(Self {
-            request,
-            request_digest: *protected.request_digest(),
-        })
+    pub(crate) fn from_request(request: AccountIdentityAuthorityProducerV2Request) -> Self {
+        Self { request }
     }
 
     /// Return the exact binding selected by the Account-owned request.
     pub fn binding(&self) -> &ocentra_schema::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Binding{
         self.request.binding()
-    }
-
-    /// Return the immutable protected digest capability for this request.
-    pub fn request_digest(&self) -> &ProtectedAccountIssuerRequestDigest {
-        &self.request_digest
     }
 
     /// Ask the Account-specific protected core adapter to sign this exact

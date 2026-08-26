@@ -72,8 +72,7 @@ impl AccountIssuerOwner {
             }
             IssuePreparation::Request(request) => request,
         };
-        let prepared = PreparedAccountIssuerV2Request::from_request(request)
-            .map_err(|_| AccountIssuerRpcError::Signing(AccountIssuerSigningError::Rejected))?;
+        let prepared = PreparedAccountIssuerV2Request::from_request(request);
         Ok(AccountIssuerPreparation::Prepared(prepared))
     }
 
@@ -98,11 +97,8 @@ pub(crate) fn finalize_with_protected_capability(
     request: AccountIdentityAuthorityProducerV2Request,
     capability: AccountIssuerSignerCapability,
 ) -> Result<AccountIdentityAuthorityProducerV2Transport, AccountIssuerSigningError> {
-    if !capability.matches_request(&request) {
-        return Err(AccountIssuerSigningError::Rejected);
-    }
-    let signature: [u8; 64] = (*capability.signature())
-        .try_into()
+    let signature = capability
+        .into_signature_for(&request)
         .map_err(|_| AccountIssuerSigningError::Rejected)?;
     request
         .finalize(signature)

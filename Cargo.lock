@@ -2985,7 +2985,7 @@ dependencies = [
 name = "ocentra-protected-capability-custody-windows-ffi"
 version = "0.1.1"
 dependencies = [
- "ocentra-protected-capability-custody-protocol",
+ "ocentra-family-identity-core",
  "sha2",
  "windows-sys 0.61.2",
 ]

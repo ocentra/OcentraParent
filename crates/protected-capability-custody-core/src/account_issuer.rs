@@ -9,8 +9,6 @@ use ocentra_family_identity_core::account_identity_authority_producer_v2::Accoun
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
-use ocentra_protected_capability_custody_protocol::account_issuer_contract::ProtectedAccountIssuerSignerCapability;
-
 use crate::account_issuer_signing;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
@@ -31,19 +29,24 @@ pub struct AccountIssuerSignerCapability {
 }
 
 impl AccountIssuerSignerCapability {
-    pub fn matches_request(&self, request: &AccountIdentityAuthorityProducerV2Request) -> bool {
+    pub fn into_signature_for(
+        self,
+        request: &AccountIdentityAuthorityProducerV2Request,
+    ) -> Result<[u8; 64], AccountIssuerP256SignerError> {
         let request_digest: [u8; 32] = Sha256::digest(request.signing_bytes()).into();
-        request_digest == self.request_digest
+        if request_digest != self.request_digest {
+            return Err(AccountIssuerP256SignerError::Rejected);
+        }
+        Ok(self.signature)
     }
 
-    pub fn signature(&self) -> &[u8; 64] {
-        &self.signature
-    }
-
-    pub(crate) fn from_protocol(capability: &ProtectedAccountIssuerSignerCapability) -> Self {
+    pub(crate) fn from_signed_request(
+        request: &AccountIdentityAuthorityProducerV2Request,
+        signature: [u8; 64],
+    ) -> Self {
         Self {
-            request_digest: *capability.request_digest(),
-            signature: *capability.signature(),
+            request_digest: Sha256::digest(request.signing_bytes()).into(),
+            signature,
         }
     }
 }

@@ -7,7 +7,7 @@
 #![cfg(windows)]
 
 use crate::account_issuer_types::AccountIssuerP256Observation;
-use crate::{OwnedService, Result};
+use crate::{Error, OwnedService, Result};
 use windows_sys::core::PCWSTR;
 use windows_sys::Win32::Security::Cryptography::{NCRYPT_KEY_HANDLE, NCRYPT_PROV_HANDLE};
 
@@ -93,21 +93,24 @@ impl BoundAccountIssuerP256Key {
             .map(|observation| *observation.public_key_sec1())
     }
 
-    /// Consume one owner-created canonical request and return only the
-    /// protocol-owned signed capability.  No raw payload, digest, key, or
+    /// Sign only an Account-owned request that cannot be constructed outside
+    /// family-identity-core. No independent payload, binding, digest, key, or
     /// provider handle crosses this boundary.
-    pub fn sign_prepared_account_issuer_v2(
+    pub fn sign_account_issuer_v2_request(
         &self,
-        request: ocentra_protected_capability_custody_protocol::account_issuer_contract::PreparedAccountIssuerV2Request,
-    ) -> Result<ocentra_protected_capability_custody_protocol::account_issuer_contract::ProtectedAccountIssuerSignerCapability>
-    {
-        self.revalidate()?;
-        let signature = super::cng_account_issuer_p256_sign::sign_request_digest(
+        request: &ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request,
+    ) -> Result<crate::account_issuer_types::AccountIssuerP256Signature> {
+        let current = self.observation()?;
+        let expected_key_id =
+            ocentra_family_identity_core::account_identity_authority_producer_v2::expected_key_id(
+                current.public_key_sec1(),
+            );
+        if request.binding().key_id != expected_key_id {
+            return Err(Error::CryptoPropertyViolation);
+        }
+        super::cng_account_issuer_p256_sign::sign_account_issuer_v2_request(
             self.handles.key,
-            request.request_digest().as_bytes(),
-        )?;
-        Ok(
-            ocentra_protected_capability_custody_protocol::account_issuer_contract::ProtectedAccountIssuerSignerCapability::from_prepared_request(&request, *signature.as_bytes()),
+            request,
         )
     }
 }
