@@ -13,11 +13,30 @@
 ## Purpose
 
 Define the single fixed-pipe client admission boundary and the retained
-OS-derived broker anchor. The base lifecycle is planned/source-authorable for
-this bounded fail-closed packet. The WP01 dependency remains
+OS-derived broker anchor. The base lifecycle is source-present for this bounded
+fail-closed packet after the 2026-08-26 audit. The WP01 dependency remains
 `reviewed-implementation`; WP02, WP03, and Parent WP12 are
 `implementation-independent` for source phase only. Normal derived state and
 completion remain blocked until those operational predecessors are DONE.
+
+## Audited source truth — 2026-08-26
+
+At source head `cbd974291`, all 21 expected production roots below are present,
+registered by their Rust module hosts, and composed through the broker/client
+transport. The bounded Windows FFI owns the unsafe boundary and now provides
+retained process handles opened with limited-query plus synchronize access,
+process creation/liveness/image observations, process and impersonated-thread
+token handles, SID/integrity/session observations, bounded `TokenGroups`, and
+service virtual-SID resolution from the retained SCM service name. The private
+core anchor and peer admission retain and revalidate those observations; the
+broker performs peer admission before it creates the fixed listener or reports
+`Running`, and the client rechecks the kernel-reported server PID/session before
+bootstrap and broker-hello acceptance.
+
+This is reviewed production-source truth only. It does not establish external
+enrollment, a protected monotonic provider, an owner-bound parent caller,
+operational readiness, tests, proof, READY, or DONE. No bounded dependency-legal
+WP04 source gap remains in this checkout.
 
 ## Expected production roots
 
@@ -80,17 +99,21 @@ the owner-approved observation source. No broker/protocol handshake redesign,
 spawned child, stdin bootstrap, nonce pipe, caller PID/SID/path, `sysinfo`, or
 `dunce` fallback is part of this route.
 
-The shared anchor packet must add bounded FFI/core observation for
-TokenGroups and a service-SID resolver based on LookupAccountNameW. It must
-return OS-derived observations only; it may not accept caller SDDL/SID or
-replace service identity with broad SYSTEM/BA authority. The current token
-observation lacks TokenGroups and SCM exposes only SID type, so this is a
-runtime/source gap and not an operational authorization claim.
+The shared anchor source now includes bounded FFI/core observation for
+`TokenGroups` and a service-SID resolver based on `LookupAccountNameW`. It
+returns OS-derived observations only; it does not accept caller SDDL/SID or
+replace service identity with broad SYSTEM/BA authority. The service SID is
+derived from the retained fixed SCM service name, and the core compares the
+resolved SID against the broker token's OS-reported group SIDs. This closes the
+bounded source gap without making an operational authorization claim.
 
 ## Dependencies and state
 
 Normal completion depends on WP01, WP02, WP03, and Parent WP12. WP04 remains
-open for the real caller, three expected tests, proof, and DONE; source-phase
-authorization does not claim any of them. Account issuer signing/store
-authority is the distinct typed WP05 contract; lifecycle operation bytes and
+open for the owner-bound production caller, three expected tests, proof, and
+DONE; source-phase authorization does not claim any of them. The current
+source-only packet has no missing bounded adapter, but external enrollment,
+monotonic currentness, package/lifecycle invocation, and operational anchor
+state remain upstream owner work. Account issuer signing/store authority is
+the distinct typed WP05 contract; lifecycle operation bytes and
 `OpaquePreparedToken` are not a substitute.

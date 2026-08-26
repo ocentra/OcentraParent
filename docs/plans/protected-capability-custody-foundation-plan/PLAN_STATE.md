@@ -35,7 +35,10 @@ The plan remains an active neutral foundation route with one workpack in
   define/undefine lifecycle, authenticated owner handoff, protected
   registry/SCM mutation, and enrolled counter generation remain unavailable;
 - independent broker/client/token current observations and the core monotonic
-  provider, plus real broker/client transport callers, remain open;
+  provider, plus the owner-bound production broker/client caller, remain open;
+  the bounded WP04 process/token/service-SID observation adapters and fixed-pipe
+  broker/client composition are source-present, but operational enrollment and
+  currentness are not available.
 - SQLite remains a checked replica, not protected authority;
 - all 13 expected test roots remain absent, as do retained proof and release
   evidence.
@@ -43,6 +46,29 @@ The plan remains an active neutral foundation route with one workpack in
 The graph records the route as `validation`. Accepted mechanics and a
 read-only preflight do not derive READY or DONE while the external authority,
 caller, test, proof, and release gates remain open.
+
+## WP04 source audit checkpoint — 2026-08-26
+
+The fresh Windows lane audit at source head `cbd974291` confirmed the complete
+21-root WP04 production packet is present and registered. The designated FFI
+owner provides retained process handles with limited-query and synchronize
+access, process epoch/liveness/image observations, process and impersonated
+thread token handles, bounded TokenUser/integrity/session/TokenGroups
+observations, and `LookupAccountNameW` service-SID resolution from the retained
+SCM service name. The private core `ClientAnchor` and peer admission retain and
+revalidate those OS observations; the broker performs peer admission before
+creating the fixed listener or reporting `Running`, and the client rechecks the
+kernel-reported server PID/session before bootstrap and broker-hello acceptance.
+
+The source packet has no caller-supplied identity/path, `sysinfo` substitution,
+weak same-user/session trust, public adapter constructor, or unsafe code outside
+the Windows FFI owner. Linux and Windows-target focused library checks and
+formatting passed, as did scoped source-shape, no-test-doubles,
+validation-bypass, and reexport checks. The architecture gate reports the
+expected absent organized test scaffolds. This is source/validation truth only:
+the owner-bound production caller, external enrollment/SCM authority, hardware
+monotonic provider, three WP04 transport tests, retained proof, operational
+readiness, READY, and DONE remain open.
 
 ## Installer-side ownership checkpoint — 2026-08-25
 
@@ -118,10 +144,11 @@ disk state never restores the generation.
 This is graph implementation-phase routing only. If the graph derives
 implementation authorization, it authorizes only the remaining production
 roots; the normal WP01 lifecycle remains `validation`, not READY or DONE. The
-broker/client/FFI/private-core and read-only provisioner source is present, but
-runtime remains blocked by external platform/installer authority,
-authenticated owner handoff, independent current observations, monotonic
-provider, and real transport caller boundaries. All 13 expected test roots remain absent, with these core-private
+broker/client/FFI/private-core and read-only provisioner source is present,
+including the complete WP04 fixed-pipe/retained-observation packet, but runtime
+remains blocked by external platform/installer authority, authenticated owner
+handoff, operational current observations, monotonic provider, and real
+transport caller boundaries. All 13 expected test roots remain absent, with these core-private
 adapter/TPM test expectations recorded as absent planned tests only:
 
 ```text
@@ -237,16 +264,18 @@ operational owner work that must follow it:
   transaction remain normal hard prerequisites; disk, SQLite, rollback, and
   caller counters are not authority.
 - **WP04 Client Broker Anchor Transport** owns the client-side fixed-pipe
-  admission and retained OS-derived broker anchor. Its base lifecycle is
-  planned/source-authorable, and the reviewed WP01 plus
-  implementation-independent WP02/WP03/Parent WP12 edges authorize only the
-  bounded fail-closed source packet. Normal derived state remains blocked and
-  normal completion depends on WP01, WP02, WP03, and Parent WP12. Its source
-  packet is the private Windows `client_anchor` plus
-  client fixed-pipe transport/session, using the existing interprocess
-  PID/session and RAII process/token/image/SCM/enrollment observations. It
-  cannot use sysinfo or caller-supplied identity, and does not redesign the
-  broker/protocol handshake.
+  admission and retained OS-derived broker anchor. Its 21-root fail-closed
+  source packet is present at `cbd974291`, and the reviewed WP01 plus
+  implementation-independent WP02/WP03/Parent WP12 edges authorize only this
+  bounded source truth. Normal derived state remains blocked and normal
+  completion depends on WP01, WP02, WP03, and Parent WP12. The packet is the
+  private Windows `client_anchor` plus client fixed-pipe transport/session,
+  using the existing interprocess PID/session and RAII
+  process/token/image/SCM/enrollment observations, including TokenGroups and
+  service-SID resolution. It cannot use sysinfo or caller-supplied identity,
+  and does not redesign the broker/protocol handshake. Focused host and
+  Windows-target library checks pass; the owner-bound caller, tests, proof, and
+  operational enrollment remain open.
 - **WP05 Account Issuer Key and Store Custody** is a planned/source-authorable
   route for Account WP09. WP01's `Seal`/`Rotate`/`Revoke`/`Recover` protocol
   actions and opaque prepared token are not signer/store authority. The new
@@ -286,8 +315,10 @@ operational owner work that must follow it:
   idempotency receipt only.
 
   Service-specific key custody is REJECT/runtime-blocked: the existing key ACL
-  is SYSTEM GenericAll, SCM exposes only SID type, token observation lacks
-  TokenGroups, and LookupAccountNameW service-SID resolution is absent.
+  is SYSTEM GenericAll, SCM exposes only SID type, and CNG security-descriptor
+  revalidation is absent. The shared WP04 TokenGroups and LookupAccountNameW
+  service-SID observations are source-present but do not provision or authorize
+  the service-specific ACL.
   External provisioning must create/set the service-specific ACL; the broker
   only opens and revalidates the descriptor and token/service observations.
   Caller SDDL/SID and broad SYSTEM/BA authority are forbidden. WP04 owns the
