@@ -58,21 +58,29 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         currentness: &AccountIdentityIssuerCurrentness,
         claim: &AccountIdentityIssuerOutboxClaim,
         protected_receipt_wire: &[u8],
-    ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    ) -> Result<AccountIdentityAuthorityProducerV2Receipt, AccountIdentityAuthorityIssuerClientError>
+    {
         self.transaction
             .execute_batch("SAVEPOINT account_identity_issuer_ack")
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;
-        let result = self.acknowledge_receipt_inner(currentness, claim, protected_receipt_wire);
-        if let Err(error) = result {
-            rollback_ack_savepoint(&self.transaction);
-            return Err(error);
-        }
-        self.transaction
+        let receipt =
+            match self.acknowledge_receipt_inner(currentness, claim, protected_receipt_wire) {
+                Ok(receipt) => receipt,
+                Err(error) => {
+                    rollback_ack_savepoint(&self.transaction);
+                    return Err(error);
+                }
+            };
+        match self
+            .transaction
             .execute_batch("RELEASE account_identity_issuer_ack")
-            .map_err(|_| {
+        {
+            Ok(()) => Ok(receipt),
+            Err(_) => {
                 rollback_ack_savepoint(&self.transaction);
-                AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable
-            })
+                Err(AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)
+            }
+        }
     }
 
     fn acknowledge_receipt_inner(
@@ -80,7 +88,8 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         currentness: &AccountIdentityIssuerCurrentness,
         claim: &AccountIdentityIssuerOutboxClaim,
         protected_receipt_wire: &[u8],
-    ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    ) -> Result<AccountIdentityAuthorityProducerV2Receipt, AccountIdentityAuthorityIssuerClientError>
+    {
         self.ensure_current(currentness)?;
         let key = self.current_key(currentness)?;
         let stored = super::receipt_load::load_verified_claimed_issue(
@@ -126,7 +135,7 @@ fn acknowledge_receipt_rows(
     stored_wire: &[u8],
     protected_receipt_wire: &[u8],
     now_text: &str,
-) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+) -> Result<AccountIdentityAuthorityProducerV2Receipt, AccountIdentityAuthorityIssuerClientError> {
     update_receipt_row(
         transaction,
         currentness,
@@ -143,7 +152,7 @@ fn acknowledge_receipt_rows(
         protected_receipt_wire,
         now_text,
     )?;
-    Ok(())
+    Ok(receipt.clone())
 }
 
 fn update_receipt_row(
