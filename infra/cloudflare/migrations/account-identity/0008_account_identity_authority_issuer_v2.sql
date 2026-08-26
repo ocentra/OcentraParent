@@ -11,10 +11,10 @@ CREATE TABLE ocentra_account_identity_issuer_v2_currentness (
     substr(service_binding_id, 1, 15) = 'sha256:binding:' AND
     substr(service_binding_id, 16) NOT GLOB '*[^0-9a-f]*'
   ),
-  account_id TEXT NOT NULL CHECK (length(account_id) BETWEEN 1 AND 1024),
-  household_id TEXT NOT NULL CHECK (length(household_id) BETWEEN 1 AND 1024),
+  account_id TEXT NOT NULL CHECK (length(CAST(account_id AS BLOB)) BETWEEN 1 AND 1024),
+  household_id TEXT NOT NULL CHECK (length(CAST(household_id AS BLOB)) BETWEEN 1 AND 1024),
   provider TEXT NOT NULL CHECK (provider IN ('authjs', 'firebase')),
-  provider_subject TEXT NOT NULL CHECK (length(provider_subject) BETWEEN 1 AND 1024),
+  provider_subject TEXT NOT NULL CHECK (length(CAST(provider_subject AS BLOB)) BETWEEN 1 AND 1024),
   service TEXT NOT NULL CHECK (
     service = 'ocentra.account-authority-producer.cloudflare.v2'
   ),
@@ -60,10 +60,10 @@ CREATE TABLE ocentra_account_identity_issuer_v2_inbound_receipts (
   operation TEXT NOT NULL CHECK (
     operation IN ('IssueCurrentAuthority', 'AcknowledgeReceipt')
   ),
-  account_id TEXT NOT NULL CHECK (length(account_id) BETWEEN 1 AND 1024),
-  household_id TEXT NOT NULL CHECK (length(household_id) BETWEEN 1 AND 1024),
+  account_id TEXT NOT NULL CHECK (length(CAST(account_id AS BLOB)) BETWEEN 1 AND 1024),
+  household_id TEXT NOT NULL CHECK (length(CAST(household_id AS BLOB)) BETWEEN 1 AND 1024),
   provider TEXT NOT NULL CHECK (provider IN ('authjs', 'firebase')),
-  provider_subject TEXT NOT NULL CHECK (length(provider_subject) BETWEEN 1 AND 1024),
+  provider_subject TEXT NOT NULL CHECK (length(CAST(provider_subject AS BLOB)) BETWEEN 1 AND 1024),
   service TEXT NOT NULL CHECK (
     service = 'ocentra.account-authority-producer.cloudflare.v2'
   ),
@@ -72,8 +72,8 @@ CREATE TABLE ocentra_account_identity_issuer_v2_inbound_receipts (
     substr(service_binding_id, 1, 15) = 'sha256:binding:' AND
     substr(service_binding_id, 16) NOT GLOB '*[^0-9a-f]*'
   ),
-  correlation_id TEXT NOT NULL CHECK (length(correlation_id) BETWEEN 1 AND 1024),
-  idempotency_key TEXT NOT NULL CHECK (length(idempotency_key) BETWEEN 1 AND 1024),
+  correlation_id TEXT NOT NULL CHECK (length(CAST(correlation_id AS BLOB)) BETWEEN 1 AND 1024),
+  idempotency_key TEXT NOT NULL CHECK (length(CAST(idempotency_key AS BLOB)) BETWEEN 1 AND 1024),
   payload_digest TEXT NOT NULL CHECK (
     length(payload_digest) = 71 AND
     substr(payload_digest, 1, 7) = 'sha256:' AND

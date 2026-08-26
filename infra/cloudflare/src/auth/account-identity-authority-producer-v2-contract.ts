@@ -29,7 +29,7 @@ export const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES = 64 as cons
 export const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES = 65 as const;
 export const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES = 1_024 as const;
 export const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_PAYLOAD_BYTES = 16_384 as const;
-export const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION = 9_007_199_254_740_991 as const;
+export const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION = 9_007_199_254_740_991 as const;
 export const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS = 300 as const;
 export const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FUTURE_ISSUED_SKEW_SECONDS = 30 as const;
 export const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES =
@@ -143,9 +143,10 @@ export function isAccountIdentityAuthorityProducerV2Digest(value: string): boole
 }
 
 export function isAccountIdentityAuthorityProducerV2Text(value: string): boolean {
+  const byteLength = new TextEncoder().encode(value).byteLength;
   return (
     value.trim().length > 0 &&
-    value.length <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES &&
+    byteLength <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES &&
     !CONTROL_CHARACTER_PATTERN.test(value)
   );
 }
@@ -331,9 +332,7 @@ class WireCursor {
     if (field === null || field.byteLength !== 8) return null;
     const value = new DataView(field.buffer, field.byteOffset, field.byteLength).getBigUint64(0, false);
     const number = Number(value);
-    return Number.isSafeInteger(number) &&
-      number > 0 &&
-      number <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION
+    return Number.isSafeInteger(number) && number > 0 && number <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
       ? number
       : null;
   }

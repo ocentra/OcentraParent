@@ -3,6 +3,7 @@ import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 import {
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX,
+  ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION,
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
   ACCOUNT_ISSUER_MAX_FIELD_BYTES,
   deriveAccountIdentityAuthorityProducerV2ServiceBindingId,
@@ -19,7 +20,6 @@ log.register(import.meta.url);
 
 const SCHEMA_NAME = 'account_identity_issuer_v2';
 const SCHEMA_VERSION = 9;
-const MAX_SAFE_GENERATION = Number.MAX_SAFE_INTEGER;
 const MISSING_SCHEMA_REASON = 'account-identity-issuer-v2-schema-missing' as const;
 const UNAVAILABLE_REASON = 'account-identity-issuer-v2-unavailable' as const;
 const MILLIS_UTC_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u;
@@ -596,10 +596,6 @@ function inboundInsertValues(
 
 function resultChanges(value: unknown): number {
   if (typeof value !== 'object' || value === null) return 0;
-  if ('results' in value) {
-    const results = (value as { results?: unknown }).results;
-    if (Array.isArray(results)) return results.length;
-  }
   if ('meta' in value) {
     const meta = (value as { meta?: unknown }).meta;
     if (typeof meta === 'object' && meta !== null && 'changes' in meta) {
@@ -718,11 +714,20 @@ function readPublicKey(value: unknown): Uint8Array | null {
 }
 
 function isValidText(value: string, maxBytes: number): boolean {
-  return typeof value === 'string' && value.length <= maxBytes && isAccountIdentityAuthorityProducerV2Text(value);
+  return (
+    typeof value === 'string' &&
+    new TextEncoder().encode(value).byteLength <= maxBytes &&
+    isAccountIdentityAuthorityProducerV2Text(value)
+  );
 }
 
 function isValidGeneration(value: unknown): value is number {
-  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0 && value <= MAX_SAFE_GENERATION;
+  return (
+    typeof value === 'number' &&
+    Number.isSafeInteger(value) &&
+    value > 0 &&
+    value <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
+  );
 }
 
 function parseTimestamp(value: string): number | null {

@@ -12,13 +12,15 @@ import {
   verifyAccountIdentityAuthorityProducerV2RequestFrame,
   type AccountIdentityAuthorityIssuerV2CurrentVerification,
 } from '../auth/account-identity-authority-issuer-v2.js';
-import { ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE } from '../auth/account-identity-authority-producer-v2-contract.js';
+import {
+  ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION,
+  ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+} from '../auth/account-identity-authority-producer-v2-contract.js';
 import type {
   AccountIdentityAuthorityIssuerV2Store,
   AccountIdentityAuthorityIssuerV2Verifier,
 } from './account-identity-authority-issuer-v2.js';
 
-const MAX_SAFE_GENERATION = Number.MAX_SAFE_INTEGER;
 const MAX_IDENTITY_TEXT_LENGTH = 256;
 const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001f\u007f]/;
 const RFC3339_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/;
@@ -219,16 +221,13 @@ function isDuplicateAuthorityKeyError(error: unknown): boolean {
 }
 
 function isValidGeneration(value: number): boolean {
-  return Number.isSafeInteger(value) && value > 0 && value <= MAX_SAFE_GENERATION;
+  return Number.isSafeInteger(value) && value > 0 && value <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION;
 }
 
 function isValidAuthorityText(value: string): boolean {
   const normalised = value.trim();
-  return (
-    normalised.length > 0 &&
-    normalised.length <= MAX_IDENTITY_TEXT_LENGTH &&
-    !CONTROL_CHARACTER_PATTERN.test(normalised)
-  );
+  const byteLength = new TextEncoder().encode(normalised).byteLength;
+  return normalised.length > 0 && byteLength <= MAX_IDENTITY_TEXT_LENGTH && !CONTROL_CHARACTER_PATTERN.test(normalised);
 }
 
 function isValidProviderSubject(provider: string, providerSubject: string): providerSubject is string {
@@ -564,9 +563,9 @@ export function createAccountIdentityAuthorityWriter(database: D1Database | unde
       }
       if (
         !isValidGeneration(expectedAuthorityGeneration) ||
-        expectedAuthorityGeneration >= MAX_SAFE_GENERATION ||
+        expectedAuthorityGeneration >= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION ||
         !isValidGeneration(expectedSessionGeneration) ||
-        expectedSessionGeneration >= MAX_SAFE_GENERATION ||
+        expectedSessionGeneration >= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION ||
         !isValidAuthorityText(expectedSessionId)
       ) {
         return { status: 'rejected', reason: 'authority-generation-invalid' };
@@ -634,9 +633,9 @@ export function createAccountIdentityAuthorityWriter(database: D1Database | unde
       }
       if (
         !isValidGeneration(expectedAuthorityGeneration) ||
-        expectedAuthorityGeneration >= MAX_SAFE_GENERATION ||
+        expectedAuthorityGeneration >= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION ||
         !isValidGeneration(expectedSessionGeneration) ||
-        expectedSessionGeneration >= MAX_SAFE_GENERATION ||
+        expectedSessionGeneration >= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION ||
         !isValidAuthorityText(expectedSessionId)
       ) {
         return { status: 'rejected', reason: 'authority-generation-invalid' };
@@ -654,8 +653,8 @@ export function createAccountIdentityAuthorityWriter(database: D1Database | unde
               expectedAuthorityGeneration,
               expectedSessionGeneration,
               expectedSessionId,
-              MAX_SAFE_GENERATION,
-              MAX_SAFE_GENERATION
+              ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION,
+              ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
             )
         );
         return outcome === 'written'
