@@ -7,6 +7,7 @@
 //! points, and parent-visible service state. Child evidence logic must stay in
 //! child runtime feature crates.
 
+pub mod account_issuer_owner;
 mod agent_service_client;
 pub mod data_custody_backup_runtime;
 pub(crate) mod data_custody_backup_runtime_job_ledger;
