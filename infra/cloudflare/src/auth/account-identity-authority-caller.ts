@@ -5,6 +5,7 @@ import {
 } from '../storage/account-identity-authority-writer.js';
 import type { VerifiedAccountIdentityAuthorityCapability } from '../storage/account-identity-authority-store.js';
 import type { ProviderVerificationPort, ProviderVerificationResult } from './verifier.js';
+import type { AccountIdentityAuthorityIssuerV2CurrentVerification } from './account-identity-authority-issuer-v2.js';
 
 export type VerifiedProviderAuthorityResult =
   | {
@@ -34,6 +35,10 @@ export interface AccountIdentityAuthorityCaller {
     request: Request,
     providerVerifier: ProviderVerificationPort | undefined
   ): Promise<VerifiedProviderAuthorityResult>;
+  verifyAccountIssuerFrame(
+    frame: ArrayBuffer | Uint8Array,
+    nowMs?: number
+  ): Promise<AccountIdentityAuthorityIssuerV2CurrentVerification>;
 }
 
 function createCaller(writer: AccountIdentityAuthorityWriter): AccountIdentityAuthorityCaller {
@@ -76,6 +81,9 @@ function createCaller(writer: AccountIdentityAuthorityWriter): AccountIdentityAu
         case 'rejected':
           return authority;
       }
+    },
+    verifyAccountIssuerFrame(frame, nowMs = Date.now()) {
+      return writer.verifyAccountIssuerFrame(frame, nowMs);
     },
   };
 }

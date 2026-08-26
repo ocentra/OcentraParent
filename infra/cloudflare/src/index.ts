@@ -37,6 +37,7 @@ import {
   type ProviderBillingAuthority,
 } from './storage/account-identity-billing-store.js';
 import { signatureHeaderName, verifyAuthState, type VerifiedIdentity } from './auth/verifier.js';
+import { createAccountIdentityAuthorityRuntime } from './auth/account-identity-authority-runtime.js';
 import { PROVIDER_WEBHOOK_UNAVAILABLE_BLOCKERS, verifyStripeWebhookSignature } from './auth/provider-webhook.js';
 import { createFirebaseProviderVerificationPort } from './providers/firebase-auth.js';
 import { validateAuthBoundaryRoute } from './auth/model.js';
@@ -356,6 +357,7 @@ function manualRequiredResponse(
 
 function parseManifestResponse(route: RouteManifestEntry, value: unknown): unknown | Response {
   const responseContract = route.contract.response;
+  if (responseContract.state === 'raw') return value;
   if (responseContract.state !== 'bound') return manualRequiredResponse(route);
 
   try {
@@ -372,6 +374,7 @@ function parseManifestResponse(route: RouteManifestEntry, value: unknown): unkno
 async function validateManifestRequest(route: RouteManifestEntry, request: Request): Promise<Response | null> {
   const requestContract = route.contract.request;
   if (requestContract.state === 'unbound') return manualRequiredResponse(route);
+  if (requestContract.state === 'raw') return null;
   if (requestContract.state === 'none') {
     if (request.body !== null || new URL(request.url).search.length > 0) {
       return json(400, {
@@ -402,6 +405,7 @@ async function validateManifestRequest(route: RouteManifestEntry, request: Reque
 async function validateManifestResponse(route: RouteManifestEntry, response: Response): Promise<Response> {
   if (response.status < 200 || response.status >= 300) return response;
   const responseContract = route.contract.response;
+  if (responseContract.state === 'raw') return response;
   if (responseContract.state !== 'bound') return manualRequiredResponse(route);
 
   try {
@@ -1944,6 +1948,10 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
       );
     },
 
+    async 'account-issuer-v2-internal'({ request, env }): Promise<Response> {
+      return handleAccountIssuerV2Dispatch(request, env);
+    },
+
     async 'admin-billing-audit'({ request, env, route, identity }): Promise<Response> {
       const verifiedIdentity = requireSupportAdminReadIdentity(identity);
       const query = new URL(request.url).searchParams.get('q');
@@ -1959,6 +1967,24 @@ async function routeHandlerMap(): Promise<RouteHandlerMap<RouteHandler>> {
       return json(200, response);
     },
   };
+}
+
+async function handleAccountIssuerV2Dispatch(request: Request, env: Env): Promise<Response> {
+  let frame: ArrayBuffer;
+  try {
+    frame = await request.arrayBuffer();
+  } catch {
+    return json(400, { error: 'account-issuer-v2-body-unreadable' });
+  }
+  const result = await createAccountIdentityAuthorityRuntime(env).verifyAccountIssuerFrame(frame);
+  if (result.status === 'trusted') {
+    return json(200, { status: 'trusted', receipt: result.receipt, envelope: result.envelope });
+  }
+  if (result.status === 'manual-required') {
+    return json(503, { status: 'manual-required', reason: result.reason });
+  }
+  const status = result.reason === 'currentness-mismatch' || result.reason === 'receipt-replay-conflict' ? 409 : 400;
+  return json(status, { status: 'rejected', reason: result.reason });
 }
 
 async function handleRequest(request: Request, env: Env): Promise<Response> {
