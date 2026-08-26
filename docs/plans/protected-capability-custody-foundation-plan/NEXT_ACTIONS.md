@@ -10,8 +10,9 @@
 <!-- /agent-capsule -->
 
 1. Preserve the accepted CNG/TPM mechanics, private `cfg(windows)` core
-   adapter, and the WP01-owned BIN-only provisioner source integrated at
-   canonical `a6d7d9adf`. The graph records 114 implementation files, 0 tests,
+   adapter, the WP01-owned BIN-only provisioner source, and the reviewed WP04
+   client/broker anchor source integrated at canonical `cbd974291`. The graph
+   records 114 implementation files, 0 tests,
    and no workspace requirement gaps. The provisioner is only a read-only
    preflight: it revalidates enrollment and always returns
    `ExternalProvisioningRequired`; it cannot create or publish enrollment.
@@ -19,15 +20,18 @@
 2. Obtain the external protected runtime authority that remains unavailable:
    OEM/firmware/MDM authorization for `TPM_RH_PLATFORM` plus NV define/undefine
    lifecycle, authenticated owner handoff, protected registry/SCM mutation,
-   enrolled counter generation, independent broker/client/token observations,
-   and the core monotonic provider. Startup must remain fail-closed
-   `DeploymentRequired` before DB/state/listener mutation; there is no reachable
-   success path in the current checkout. Parent Runtime WP12 owns only package
+   enrolled counter generation, operational use of the independent
+   broker/client/token observations, and the core monotonic provider. The
+   bounded WP04 observation adapters are source-present, but startup must remain
+   fail-closed `DeploymentRequired` before DB/state/listener mutation; there is no
+   reachable success path in the current checkout. Parent Runtime WP12 owns only package
    invocation and lifecycle.
-3. Add real broker/client transport callers only after the protected owner and
-   WP12 package boundaries exist. No second helper process/protocol,
-   caller-supplied identity/attestation, raw `authValue`, disk generation
-   restore, or caller-minted authority is allowed.
+3. Connect and verify the real owner-bound broker/client transport caller only
+   after the protected owner and WP12 package boundaries exist. The WP04 fixed
+   pipe, retained OS anchor, and fail-closed broker/client composition are
+   source-present; no second helper process/protocol, caller-supplied
+   identity/attestation, raw `authValue`, disk generation restore, or
+   caller-minted authority is allowed.
 4. After production source is stable, write and execute all 13 expected test
    roots listed in `TEST_PROOF_EXPECTATIONS.md`, including the core-private
    Windows adapter and TPM2 NV/TBS monotonic-counter roots. Tests must exercise
@@ -57,13 +61,15 @@
 3. Route WP03 only after WP01 and the WP02 owner transaction. Its bounded roots
    are `core windows/monotonic.rs` and `platform/anti_rollback.rs`; the
    `tests/security/tpm_nv_counter.rs` obligation remains absent.
-4. Route WP04 as planned/source-authorable for only the fixed-pipe client
+4. Keep WP04 as source-present but normal-blocked for only the fixed-pipe client
    admission, private `client_anchor`, and retained OS-derived
    process/token/image/SCM/enrollment observations. Its WP01 edge remains
    reviewed-implementation; WP02/WP03/Parent WP12 edges are
    implementation-independent. Normal derived state and completion remain
    blocked; no sysinfo, caller identity, handshake redesign, or runtime claim
-   is authorized.
+   is authorized. The 21 expected production roots compile on Linux and the
+   Windows target; the three transport tests, owner-bound caller, proof, and
+   DONE remain open.
 5. Route WP05 as planned/source-authorable for the Account-owned
    `crates/account-issuer-owner` statically linked into the existing broker.
    It absorbs issuer/key-registry/outbox/delivery/startup/recovery/signing/RPC
@@ -95,9 +101,10 @@
    recovery, provider binding, service-binding lineage, tests, proof, and DONE
    remain open.
    Keep service-specific key custody fail-closed: external provisioning must
-   create/set the service ACL, while broker revalidates only. Add the WP04
+   create/set the service ACL, while broker revalidates only. Retain the WP04
    FFI/core TokenGroups and LookupAccountNameW service-SID observation roots
-   and the WP05 CNG security-descriptor revalidation root. Use locked ring
+   now present in source, and add only the WP05 CNG security-descriptor
+   revalidation root. Use locked ring
    0.17.14 ECDSA_P256_SHA256_FIXED after explicit low-S precheck; sha2 is only
    for key-ID hashing and no p256/ecdsa dependency is permitted.
 7. Keep Parent WP12 installer-only and package-focused. No package success may
