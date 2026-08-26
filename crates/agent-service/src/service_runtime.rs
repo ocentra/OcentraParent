@@ -14,7 +14,7 @@ mod startup_error;
 const STARTUP_LOG_CONTEXT_FIELD: &str = "context";
 const STARTUP_LOG_CONTEXT_VALUE: &str = "startup";
 
-struct StartupErrorReason(String);
+pub(crate) struct StartupErrorReason(pub(crate) String);
 
 #[derive(Debug)]
 pub enum NetworkRuntimeStartupError {
@@ -50,7 +50,10 @@ pub fn startup_log_fields(network: &NetworkPolicy) -> LogFields {
     ])
 }
 
-fn startup_error_log_fields(network: &NetworkPolicy, reason: StartupErrorReason) -> LogFields {
+pub(crate) fn startup_error_log_fields(
+    network: &NetworkPolicy,
+    reason: StartupErrorReason,
+) -> LogFields {
     fields_from_pairs(vec![
         (
             STARTUP_LOG_CONTEXT_FIELD,

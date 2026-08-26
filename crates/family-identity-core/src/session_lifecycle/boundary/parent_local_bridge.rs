@@ -37,7 +37,7 @@ impl fmt::Debug for ParentLocalBridgeSessionCapability {
 }
 
 impl ParentLocalBridgeSessionCapability {
-    pub fn expose_secret(&self) -> &str {
+    pub(crate) fn expose_secret(&self) -> &str {
         &self.0
     }
 
@@ -93,14 +93,6 @@ impl fmt::Debug for IssuedParentLocalBridgeSession {
 }
 
 impl IssuedParentLocalBridgeSession {
-    pub fn capability(&self) -> &ParentLocalBridgeSessionCapability {
-        &self.capability
-    }
-
-    pub fn handshake(&self) -> &AccountIdentityParentLocalBridgeHandshake {
-        &self.handshake
-    }
-
     pub fn expires_at_epoch_millis(&self) -> i64 {
         self.expires_at_epoch_millis
     }

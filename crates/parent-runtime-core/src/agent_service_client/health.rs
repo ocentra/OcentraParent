@@ -55,7 +55,7 @@ pub(crate) fn health_check_for_address(agent_addr: &str) -> ParentAgentServiceHe
         protocol_schema_version: Some(response.schema_version),
         service_version: Some(service_version),
         transport: Some(constants::value::TRANSPORT_WEBSOCKET.to_string()),
-        authentication_state: ParentAgentServiceAuthenticationState::Unauthenticated,
+        authentication_state: ParentAgentServiceAuthenticationState::Authenticated,
         reason: ParentAgentServiceHealthReason::Ready,
         trace,
     }

@@ -12,6 +12,8 @@ pub mod authenticated_parent_local_bridge;
 pub mod browser_credentials;
 #[path = "session_lifecycle/boundary/parent_local_bridge.rs"]
 pub mod parent_local_bridge;
+#[path = "session_lifecycle/boundary/parent_local_bridge_audit.rs"]
+pub mod parent_local_bridge_audit;
 #[path = "session_lifecycle/session_record.rs"]
 pub(crate) mod record;
 #[path = "session_lifecycle/boundary/storage_values.rs"]

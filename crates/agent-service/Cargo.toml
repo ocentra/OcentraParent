@@ -23,6 +23,7 @@ ocentra-lan-core = { path = "../lan-core" }
 ocentra-parent-logging-core = { path = "../logging-core" }
 ocentra-child-runtime = { path = "../child-runtime" }
 ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-family-identity-core = { path = "../family-identity-core" }
 ocentra-policy-control-core = { path = "../policy-control-core" }
 ocentra-parent-runtime-core = { path = "../parent-runtime-core" }
 ocentra-parent-screen-capture-adapter = { path = "../screen-capture-adapter" }

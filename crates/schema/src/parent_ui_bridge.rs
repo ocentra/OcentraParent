@@ -800,6 +800,7 @@ pub enum ParentServiceHealthTransport {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ParentServiceHealthAuthenticationState {
+    Authenticated,
     Unauthenticated,
     Unavailable,
 }

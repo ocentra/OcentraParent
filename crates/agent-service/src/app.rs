@@ -24,6 +24,7 @@ use crate::{
         },
     },
     network::NetworkPolicy,
+    parent_local_bridge_admission::ParentLocalBridgeAdmission,
     screen_settings_runtime::ScreenSettingsRuntime,
     snapshot::build_dev_log_snapshot,
     websocket::{
@@ -40,11 +41,15 @@ pub struct AppState {
     browser_runtime: BrowserManagedRuntime,
     screen_settings: ScreenSettingsRuntime,
     platform_probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
+    parent_local_bridge_admission: ParentLocalBridgeAdmission,
     _platform_probe_runtime: Arc<PlatformProbeRuntimeOwner>,
     _passive_discovery_runtime: Option<LanPassiveDiscoveryServiceRuntime>,
 }
 
-pub fn router(network: NetworkPolicy) -> Router {
+pub(crate) fn router(
+    network: NetworkPolicy,
+    parent_local_bridge_admission: ParentLocalBridgeAdmission,
+) -> Router {
     let cors_layer = network.cors_layer();
     let lan_pairing = LanPairingRuntime::from_env();
     let passive_discovery_runtime = if lan_pairing.durable_pairing_registry_available() {
@@ -61,6 +66,7 @@ pub fn router(network: NetworkPolicy) -> Router {
         browser_runtime: BrowserManagedRuntime::new(),
         screen_settings: ScreenSettingsRuntime::from_env(),
         platform_probe_dispatcher: platform_probe_dispatcher(platform_probe_runtime.cache()),
+        parent_local_bridge_admission,
         _platform_probe_runtime: platform_probe_runtime,
         _passive_discovery_runtime: passive_discovery_runtime,
     };
@@ -120,6 +126,7 @@ async fn websocket(
             WebsocketCommandOrigin(origin),
             state.platform_probe_dispatcher,
             provenance,
+            state.parent_local_bridge_admission,
         )
     })
 }

@@ -70,7 +70,7 @@ impl SqliteAccountIdentityAuthorityRepository {
     /// Account-owned protected store boundary. This keeps authority state and
     /// issuer state in one SQLite locking domain without reopening the path.
     pub(crate) fn from_owned_connection(
-        connection: Connection,
+        mut connection: Connection,
         session_policy: SessionLifecyclePolicy,
     ) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         connection
@@ -101,6 +101,11 @@ impl SqliteAccountIdentityAuthorityRepository {
         connection
             .execute_batch(session_lifecycle_repository::SESSION_SCHEMA_SQL)
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        session_lifecycle_repository::parent_local_bridge_schema::initialize(
+            &mut connection,
+            session_policy.audit_delivery_lease_millis,
+        )
+        .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         connection
             .execute_batch(invite_recovery_repository::INVITE_RECOVERY_SCHEMA_SQL)
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
@@ -149,6 +154,13 @@ pub struct AccountIdentityAuthorityService {
 }
 
 impl AccountIdentityAuthorityService {
+    /// Mount the fixed Account-owned bridge repository selected by protected
+    /// installer custody. Until that owner provides a verified handle, bridge
+    /// startup remains unavailable rather than accepting a caller path.
+    pub fn mount_account_owned() -> Result<Self, AccountIdentityAuthorityRepositoryError> {
+        Err(AccountIdentityAuthorityRepositoryError::Unavailable)
+    }
+
     pub fn open(path: impl AsRef<Path>) -> Result<Self, AccountIdentityAuthorityRepositoryError> {
         Ok(Self {
             repository: SqliteAccountIdentityAuthorityRepository::open(path)?,
@@ -171,7 +183,7 @@ impl AccountIdentityAuthorityService {
         })
     }
 
-    pub fn resolve_current(
+    pub(crate) fn resolve_current(
         &self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,

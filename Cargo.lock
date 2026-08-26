@@ -2825,6 +2825,7 @@ dependencies = [
  "ocentra-app-game-core",
  "ocentra-child-runtime",
  "ocentra-eventing",
+ "ocentra-family-identity-core",
  "ocentra-lan-core",
  "ocentra-network-evidence",
  "ocentra-parent-agent-core",

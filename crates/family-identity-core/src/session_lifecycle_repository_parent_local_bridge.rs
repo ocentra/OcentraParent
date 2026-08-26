@@ -18,12 +18,17 @@ use crate::session_lifecycle_custody::authenticated_parent_local_bridge::Authent
 use crate::session_lifecycle_custody::parent_local_bridge::{
     IssuedParentLocalBridgeSession, ParentLocalBridgeSessionCapability,
 };
+use crate::session_lifecycle_custody::parent_local_bridge_audit::{
+    ParentLocalBridgeAuditDeliveryClaim, ParentLocalBridgeStartupRecovery,
+};
 use crate::session_lifecycle_custody::record::SessionAuthorityBinding;
 
 use super::SessionLifecycleRepositoryError;
 
 #[path = "session_lifecycle_repository_parent_local_bridge_audit.rs"]
-mod audit;
+pub(super) mod audit;
+#[path = "session_lifecycle_repository_parent_local_bridge_audit_delivery.rs"]
+mod audit_delivery;
 #[path = "session_lifecycle_repository_parent_local_bridge_authenticate.rs"]
 mod authenticate;
 #[path = "session_lifecycle_repository_parent_local_bridge_issue.rs"]
@@ -34,6 +39,8 @@ mod revalidate;
 mod revoke;
 #[path = "session_lifecycle_repository_parent_local_bridge_storage.rs"]
 mod storage;
+#[path = "session_lifecycle_repository_parent_local_bridge_storage_time.rs"]
+mod storage_time;
 
 const DIGEST_ALGORITHM: &str = "sha256";
 const ACTIVE_STATE: &str = "active";
@@ -107,6 +114,40 @@ impl AccountIdentityAuthorityService {
     ) -> Result<u64, SessionLifecycleRepositoryError> {
         self.repository
             .revoke_all_parent_local_bridge_sessions(current_authority)
+    }
+
+    pub fn claim_parent_local_bridge_audit_delivery(
+        &mut self,
+        current_authority: &VerifiedAccountIdentityAuthority,
+    ) -> Result<Option<ParentLocalBridgeAuditDeliveryClaim>, SessionLifecycleRepositoryError> {
+        self.repository
+            .claim_parent_local_bridge_audit_delivery(current_authority)
+    }
+
+    pub fn acknowledge_parent_local_bridge_audit_delivery(
+        &mut self,
+        current_authority: &VerifiedAccountIdentityAuthority,
+        claim: ParentLocalBridgeAuditDeliveryClaim,
+    ) -> Result<(), SessionLifecycleRepositoryError> {
+        self.repository
+            .acknowledge_parent_local_bridge_audit_delivery(current_authority, claim)
+    }
+
+    pub fn release_parent_local_bridge_audit_delivery(
+        &mut self,
+        current_authority: &VerifiedAccountIdentityAuthority,
+        claim: ParentLocalBridgeAuditDeliveryClaim,
+    ) -> Result<(), SessionLifecycleRepositoryError> {
+        self.repository
+            .release_parent_local_bridge_audit_delivery(current_authority, claim)
+    }
+
+    pub fn recover_parent_local_bridge_startup(
+        &mut self,
+        current_authority: &VerifiedAccountIdentityAuthority,
+    ) -> Result<ParentLocalBridgeStartupRecovery, SessionLifecycleRepositoryError> {
+        self.repository
+            .recover_parent_local_bridge_startup(current_authority)
     }
 }
 

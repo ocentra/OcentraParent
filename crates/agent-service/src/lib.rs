@@ -122,6 +122,7 @@ mod parent_assistant_evidence_context;
 mod parent_assistant_payload;
 mod parent_assistant_report_history;
 mod parent_assistant_runtime;
+mod parent_local_bridge_admission;
 mod policy_preview_api;
 mod policy_preview_payload;
 mod screen_ai_analysis_runtime;

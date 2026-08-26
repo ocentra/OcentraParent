@@ -19,20 +19,14 @@ pub(super) fn log_fields_from_json(value: &Value) -> Result<LogFields, String> {
     Ok(fields)
 }
 
-pub(super) fn resolve_command_origin(payload: &LogFields) -> String {
-    payload
-        .get(constants::field::ORIGIN)
-        .and_then(log_field_string)
-        .filter(|value| !value.is_empty())
-        .map(ToOwned::to_owned)
-        .or_else(read_allowed_origin_from_env)
-        .unwrap_or_else(|| {
-            constants::bind::DEFAULT_ALLOWED_ORIGINS
-                .first()
-                .copied()
-                .unwrap_or(constants::lan_pairing::ALLOWED_ORIGIN)
-                .to_string()
-        })
+pub(super) fn resolve_command_origin() -> String {
+    read_allowed_origin_from_env().unwrap_or_else(|| {
+        constants::bind::DEFAULT_ALLOWED_ORIGINS
+            .first()
+            .copied()
+            .unwrap_or(constants::lan_pairing::ALLOWED_ORIGIN)
+            .to_string()
+    })
 }
 
 pub(super) fn log_field_string(value: &LogFieldValue) -> Option<&str> {
