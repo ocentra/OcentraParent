@@ -1,5 +1,8 @@
 use std::fmt;
 
+use ocentra_protected_capability_custody_protocol::account_issuer::{
+    AccountIssuerReceipt, AccountIssuerRequest,
+};
 use ocentra_protected_capability_custody_protocol::constants;
 use ocentra_protected_capability_custody_protocol::request::{ExpectedGenerations, RequestKind};
 use ocentra_protected_capability_custody_protocol::response::{
@@ -79,6 +82,21 @@ impl AuthenticatedBrokerSession {
         {
             let response = self.session.execute(request)?;
             Ok(AuthenticatedResponse { response })
+        }
+        #[cfg(not(windows))]
+        {
+            let _request = request;
+            Err(ClientError::UnsupportedPlatform)
+        }
+    }
+
+    pub(crate) fn execute_account_issuer(
+        self,
+        request: AccountIssuerRequest,
+    ) -> Result<AccountIssuerReceipt, ClientError> {
+        #[cfg(windows)]
+        {
+            self.session.execute_account_issuer(request)
         }
         #[cfg(not(windows))]
         {
