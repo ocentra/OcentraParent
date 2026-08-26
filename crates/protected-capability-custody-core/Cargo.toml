@@ -20,6 +20,7 @@ same-file = "1.0.6"
 sha2 = "0.10.9"
 thiserror = "2.0.18"
 ocentra-protected-capability-custody-protocol = { path = "../protected-capability-custody-protocol" }
+ocentra-family-identity-core = { path = "../family-identity-core" }
 zeroize = "1.8.2"
 
 [target.'cfg(unix)'.dependencies]

@@ -2,9 +2,9 @@
 
 #![cfg(windows)]
 
-use super::cng_account_issuer_p256_capability::ACCOUNT_ISSUER_SIGNING_DOMAIN;
 use crate::account_issuer_types::AccountIssuerP256Signature;
 use crate::{Error, Result, MAX_BUFFER_BYTES};
+use ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request;
 use sha2::{Digest, Sha256};
 use std::cmp::Ordering;
 use windows_sys::Win32::Security::Cryptography::{
@@ -22,24 +22,26 @@ const P256_HALF_ORDER: [u8; P256_SCALAR_BYTES] = [
     0xde, 0x73, 0x7d, 0x56, 0xd3, 0x8b, 0xcf, 0x42, 0x79, 0xdc, 0xe5, 0x61, 0x7e, 0x31, 0x92, 0xa8,
 ];
 
-pub(super) fn sign_domain_bound_request(
+pub(super) fn sign_account_issuer_v2_request(
     key: NCRYPT_KEY_HANDLE,
-    canonical_payload: &[u8],
+    request: &AccountIdentityAuthorityProducerV2Request,
 ) -> Result<AccountIssuerP256Signature> {
-    if canonical_payload.len() > MAX_BUFFER_BYTES
-        || !canonical_payload.starts_with(ACCOUNT_ISSUER_SIGNING_DOMAIN)
+    let canonical_payload = request.signing_bytes();
+    if canonical_payload.is_empty()
+        || canonical_payload.len() > MAX_BUFFER_BYTES
+        || request.binding().validate_shape().is_err()
     {
         return Err(Error::CryptoPropertyViolation);
     }
-    let digest = Sha256::digest(canonical_payload);
+    let request_digest = Sha256::digest(canonical_payload);
     let mut signature = [0_u8; P256_SIGNATURE_BYTES];
     let mut written = 0_u32;
     let status = unsafe {
         NCryptSignHash(
             key,
             core::ptr::null(),
-            digest.as_ptr(),
-            u32::try_from(digest.len())?,
+            request_digest.as_ptr(),
+            u32::try_from(request_digest.len())?,
             signature.as_mut_ptr(),
             u32::try_from(signature.len())?,
             &mut written,

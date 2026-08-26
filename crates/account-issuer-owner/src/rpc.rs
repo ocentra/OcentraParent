@@ -3,13 +3,12 @@
 use ocentra_family_identity_core::account_identity_authority_producer_v2::{
     AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityProducerV2Transport,
 };
-use ocentra_protected_capability_custody_protocol::account_issuer_contract::ProtectedAccountIssuerSignerCapability;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
 use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_ISSUER_RPC_ERROR;
 
-use crate::contract::IssueCurrentAuthorityCommand;
+use crate::contract::{IssueCurrentAuthorityCommand, PreparedAccountIssuerV2Request};
 use crate::currentness::CurrentAuthority;
 use crate::delivery::{
     AccountIssuerDeliveryError, DeliveryClaim, DeliveryFailure, PreparedAcknowledgeReceipt,
@@ -27,9 +26,16 @@ pub struct IssuedAuthority {
     replayed: bool,
 }
 
-enum IssuePreparation {
+pub(crate) enum IssuePreparation {
     Replay(AccountIdentityAuthorityProducerV2Transport),
     Request(AccountIdentityAuthorityProducerV2Request),
+}
+
+/// Result of the owner-only preparation phase. A replay is already durable;
+/// a fresh request must cross the typed protected signer before finalization.
+pub enum AccountIssuerPreparation {
+    Replay(IssuedAuthority),
+    Prepared(PreparedAccountIssuerV2Request),
 }
 
 impl IssuedAuthority {
@@ -77,7 +83,17 @@ impl AccountIssuerOwner {
         Self { repository }
     }
 
-    fn prepare_issue(
+    pub(crate) fn resolve_current_for_signing(
+        &self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
+    ) -> Result<CurrentAuthority, AccountIssuerRpcError> {
+        self.repository
+            .resolve_current(provider, provider_subject)
+            .map_err(AccountIssuerRpcError::Repository)
+    }
+
+    pub(crate) fn prepare_issue(
         &mut self,
         current: &CurrentAuthority,
         command: &IssueCurrentAuthorityCommand,
@@ -103,7 +119,7 @@ impl AccountIssuerOwner {
         Ok(preparation)
     }
 
-    fn replayed_authority(
+    pub(crate) fn replayed_authority(
         transport: AccountIdentityAuthorityProducerV2Transport,
     ) -> IssuedAuthority {
         IssuedAuthority {
@@ -129,23 +145,16 @@ impl AccountIssuerOwner {
         Err(AccountIssuerRpcError::Signing(signing::fail_closed()))
     }
 
-    pub(crate) fn issue_current_authority_with_protected_capability(
+    pub(crate) fn record_issued_transport(
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
-        command: &IssueCurrentAuthorityCommand,
-        capability: &ProtectedAccountIssuerSignerCapability,
+        transport: AccountIdentityAuthorityProducerV2Transport,
     ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
         let current = self
             .repository
             .resolve_current(provider, provider_subject)
             .map_err(AccountIssuerRpcError::Repository)?;
-        let request = match self.prepare_issue(&current, command)? {
-            IssuePreparation::Replay(transport) => return Ok(Self::replayed_authority(transport)),
-            IssuePreparation::Request(request) => request,
-        };
-        let transport = signing::finalize_with_protected_capability(request, capability)
-            .map_err(AccountIssuerRpcError::Signing)?;
         let mut issue_transaction = self
             .repository
             .begin()

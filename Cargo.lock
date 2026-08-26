@@ -2514,6 +2514,7 @@ version = "0.1.1"
 dependencies = [
  "chrono",
  "ocentra-family-identity-core",
+ "ocentra-protected-capability-custody-core",
  "ocentra-protected-capability-custody-protocol",
  "ocentra-schema",
  "ring",
@@ -2945,6 +2946,7 @@ dependencies = [
  "file-id",
  "fs2",
  "getrandom 0.3.4",
+ "ocentra-family-identity-core",
  "ocentra-protected-capability-custody-protocol",
  "ocentra-protected-capability-custody-windows-ffi",
  "rusqlite",
@@ -2983,6 +2985,7 @@ dependencies = [
 name = "ocentra-protected-capability-custody-windows-ffi"
 version = "0.1.1"
 dependencies = [
+ "ocentra-family-identity-core",
  "sha2",
  "windows-sys 0.61.2",
 ]

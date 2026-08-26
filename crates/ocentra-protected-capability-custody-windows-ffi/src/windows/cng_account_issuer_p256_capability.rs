@@ -7,7 +7,7 @@
 #![cfg(windows)]
 
 use crate::account_issuer_types::AccountIssuerP256Observation;
-use crate::{OwnedService, Result};
+use crate::{Error, OwnedService, Result};
 use windows_sys::core::PCWSTR;
 use windows_sys::Win32::Security::Cryptography::{NCRYPT_KEY_HANDLE, NCRYPT_PROV_HANDLE};
 
@@ -28,12 +28,6 @@ pub(super) const BROKER_SERVICE_NAME: &[u8] = &[
     79, 99, 101, 110, 116, 114, 97, 80, 114, 111, 116, 101, 99, 116, 101, 100, 67, 97, 112, 97, 98,
     105, 108, 105, 116, 121, 67, 117, 115, 116, 111, 100, 121, 66, 114, 111, 107, 101, 114,
 ];
-pub(super) const ACCOUNT_ISSUER_SIGNING_DOMAIN: &[u8] = &[
-    111, 99, 101, 110, 116, 114, 97, 46, 97, 99, 99, 111, 117, 110, 116, 45, 97, 117, 116, 104,
-    111, 114, 105, 116, 121, 45, 112, 114, 111, 100, 117, 99, 101, 114, 46, 115, 105, 103, 110,
-    105, 110, 103, 46, 118, 50, 0,
-];
-
 pub(super) struct AccountIssuerP256Handles {
     pub(super) provider: NCRYPT_PROV_HANDLE,
     pub(super) key: NCRYPT_KEY_HANDLE,
@@ -97,5 +91,26 @@ impl BoundAccountIssuerP256Key {
     pub fn public_key_sec1(&self) -> Result<[u8; 65]> {
         self.observation()
             .map(|observation| *observation.public_key_sec1())
+    }
+
+    /// Sign only an Account-owned request that cannot be constructed outside
+    /// family-identity-core. No independent payload, binding, digest, key, or
+    /// provider handle crosses this boundary.
+    pub fn sign_account_issuer_v2_request(
+        &self,
+        request: &ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request,
+    ) -> Result<crate::account_issuer_types::AccountIssuerP256Signature> {
+        let current = self.observation()?;
+        let expected_key_id =
+            ocentra_family_identity_core::account_identity_authority_producer_v2::expected_key_id(
+                current.public_key_sec1(),
+            );
+        if request.binding().key_id != expected_key_id {
+            return Err(Error::CryptoPropertyViolation);
+        }
+        super::cng_account_issuer_p256_sign::sign_account_issuer_v2_request(
+            self.handles.key,
+            request,
+        )
     }
 }
