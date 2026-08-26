@@ -37,7 +37,7 @@ struct StoredParentLocalBridgeRow {
     authority_expires_at_epoch_millis: i64,
     issued_at_epoch_millis: i64,
     expires_at_epoch_millis: i64,
-    global_revoke_epoch: i64,
+    bridge_revoke_epoch: i64,
     state: String,
     last_transition_at_epoch_millis: i64,
 }
@@ -45,6 +45,9 @@ struct StoredParentLocalBridgeRow {
 pub(super) fn read_record(
     transaction: &Transaction<'_>,
     capability_digest: &str,
+    now_epoch_millis: i64,
+    clock_skew_millis: i64,
+    freshness_ttl_millis: i64,
 ) -> Result<Option<StoredParentLocalBridgeSession>, SessionLifecycleRepositoryError> {
     transaction
         .query_row(
@@ -54,7 +57,7 @@ pub(super) fn read_record(
                     authority_session_id, authority_session_generation,
                     authority_generation, authority_expires_at_epoch_millis,
                     issued_at_epoch_millis, expires_at_epoch_millis,
-                    global_revoke_epoch, state, last_transition_at_epoch_millis
+                    bridge_revoke_epoch, state, last_transition_at_epoch_millis
              FROM account_identity_parent_local_bridge_session
             WHERE capability_digest = ?1 LIMIT 1",
             [capability_digest],
@@ -77,7 +80,7 @@ pub(super) fn read_record(
                     authority_expires_at_epoch_millis: row.get(14)?,
                     issued_at_epoch_millis: row.get(15)?,
                     expires_at_epoch_millis: row.get(16)?,
-                    global_revoke_epoch: row.get(17)?,
+                    bridge_revoke_epoch: row.get(17)?,
                     state: row.get(18)?,
                     last_transition_at_epoch_millis: row.get(19)?,
                 })
@@ -85,14 +88,29 @@ pub(super) fn read_record(
         )
         .optional()
         .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?
-        .map(decode_record)
+        .map(|row| {
+            decode_record(
+                row,
+                now_epoch_millis,
+                clock_skew_millis,
+                freshness_ttl_millis,
+            )
+        })
         .transpose()
 }
 
 fn decode_record(
     row: StoredParentLocalBridgeRow,
+    now_epoch_millis: i64,
+    clock_skew_millis: i64,
+    freshness_ttl_millis: i64,
 ) -> Result<StoredParentLocalBridgeSession, SessionLifecycleRepositoryError> {
-    validate_record_shape(&row)?;
+    validate_record_shape(
+        &row,
+        now_epoch_millis,
+        clock_skew_millis,
+        freshness_ttl_millis,
+    )?;
     let audience = decode_audience(&row.audience)?;
     let state = decode_state(&row.state)?;
     let binding = decode_binding(&row)?;
@@ -103,7 +121,7 @@ fn decode_record(
         binding,
         issued_at_epoch_millis: row.issued_at_epoch_millis,
         expires_at_epoch_millis: row.expires_at_epoch_millis,
-        global_revoke_epoch: positive_generation(row.global_revoke_epoch)?,
+        bridge_revoke_epoch: positive_generation(row.bridge_revoke_epoch)?,
         state,
         last_transition_at_epoch_millis: row.last_transition_at_epoch_millis,
     })
@@ -111,7 +129,17 @@ fn decode_record(
 
 fn validate_record_shape(
     row: &StoredParentLocalBridgeRow,
+    now_epoch_millis: i64,
+    clock_skew_millis: i64,
+    freshness_ttl_millis: i64,
 ) -> Result<(), SessionLifecycleRepositoryError> {
+    let future_ceiling = now_epoch_millis
+        .checked_add(clock_skew_millis)
+        .ok_or(SessionLifecycleRepositoryError::InvalidStoredSession)?;
+    let max_expiry = row
+        .issued_at_epoch_millis
+        .checked_add(freshness_ttl_millis)
+        .ok_or(SessionLifecycleRepositoryError::InvalidStoredSession)?;
     if row.digest_algorithm != DIGEST_ALGORITHM
         || row.capability_digest_domain != CAPABILITY_DIGEST_DOMAIN
         || !is_hex_digest(&row.capability_digest)
@@ -119,7 +147,10 @@ fn validate_record_shape(
         || row.issued_at_epoch_millis <= 0
         || row.expires_at_epoch_millis <= row.issued_at_epoch_millis
         || row.expires_at_epoch_millis > row.authority_expires_at_epoch_millis
-        || row.global_revoke_epoch <= 0
+        || row.bridge_revoke_epoch <= 0
+        || row.issued_at_epoch_millis > future_ceiling
+        || row.last_transition_at_epoch_millis > future_ceiling
+        || row.expires_at_epoch_millis > max_expiry
         || row.last_transition_at_epoch_millis < row.issued_at_epoch_millis
         || ((row.state == ACTIVE_STATE
             && row.last_transition_at_epoch_millis != row.issued_at_epoch_millis)
@@ -134,12 +165,72 @@ fn validate_record_shape(
 fn decode_audience(
     audience: &str,
 ) -> Result<AccountIdentityParentLocalBridgeAudience, SessionLifecycleRepositoryError> {
-    match audience {
-        "parent-desktop-agent-service" => {
-            Ok(AccountIdentityParentLocalBridgeAudience::ParentDesktopAgentService)
+    (audience == AccountIdentityParentLocalBridgeAudience::fixed().as_str())
+        .then_some(AccountIdentityParentLocalBridgeAudience::fixed())
+        .ok_or(SessionLifecycleRepositoryError::InvalidStoredSession)
+}
+
+pub(super) fn current_bridge_revoke_epoch(
+    transaction: &Transaction<'_>,
+    account_id: &ParentAccountId,
+) -> Result<u64, SessionLifecycleRepositoryError> {
+    let account_id = account_id.to_string();
+    let epoch = transaction
+        .query_row(
+            "SELECT epoch
+               FROM account_identity_parent_local_bridge_revoke_epoch
+              WHERE account_id = ?1",
+            [account_id.as_str()],
+            |row| row.get::<_, i64>(0),
+        )
+        .optional()
+        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+    match epoch {
+        Some(epoch) => positive_generation(epoch),
+        None => {
+            let inserted = transaction
+                .execute(
+                    "INSERT INTO account_identity_parent_local_bridge_revoke_epoch
+                         (account_id, epoch) VALUES (?1, 1)",
+                    [account_id.as_str()],
+                )
+                .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
+            (inserted == 1)
+                .then_some(1)
+                .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)
         }
-        _ => Err(SessionLifecycleRepositoryError::InvalidStoredSession),
     }
+}
+
+pub(super) fn advance_bridge_revoke_epoch(
+    transaction: &Transaction<'_>,
+    account_id: &ParentAccountId,
+    expected_epoch: u64,
+) -> Result<u64, SessionLifecycleRepositoryError> {
+    let next_epoch = expected_epoch
+        .checked_add(1)
+        .ok_or(SessionLifecycleRepositoryError::InvalidTransition)?;
+    let changed = transaction
+        .execute(
+            "UPDATE account_identity_parent_local_bridge_revoke_epoch
+                SET epoch = ?2
+              WHERE account_id = ?1 AND epoch = ?3",
+            rusqlite::params![
+                account_id.to_string(),
+                super::super::codec::to_sql_generation(next_epoch)?,
+                super::super::codec::to_sql_generation(expected_epoch)?,
+            ],
+        )
+        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+    if changed != 1 {
+        let reloaded = current_bridge_revoke_epoch(transaction, account_id)?;
+        return if reloaded != expected_epoch {
+            Err(SessionLifecycleRepositoryError::CurrentnessConflict)
+        } else {
+            Err(SessionLifecycleRepositoryError::Unavailable)
+        };
+    }
+    Ok(next_epoch)
 }
 
 fn decode_state(state: &str) -> Result<ParentLocalBridgeState, SessionLifecycleRepositoryError> {

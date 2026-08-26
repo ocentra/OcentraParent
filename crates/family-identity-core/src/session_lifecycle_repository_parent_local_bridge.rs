@@ -7,6 +7,7 @@
 //! the bridge bearer, nonce, lifecycle, and currentness checks are owned by the
 //! Account SQLite repository.
 
+use ocentra_schema::account_identity_authority::AccountIdentityRole;
 use ocentra_schema::account_identity_parent_local_bridge::{
     AccountIdentityParentLocalBridgeAudience, AccountIdentityParentLocalBridgeHandshake,
 };
@@ -21,6 +22,8 @@ use crate::session_lifecycle_custody::record::SessionAuthorityBinding;
 
 use super::SessionLifecycleRepositoryError;
 
+#[path = "session_lifecycle_repository_parent_local_bridge_audit.rs"]
+mod audit;
 #[path = "session_lifecycle_repository_parent_local_bridge_authenticate.rs"]
 mod authenticate;
 #[path = "session_lifecycle_repository_parent_local_bridge_issue.rs"]
@@ -51,7 +54,7 @@ struct StoredParentLocalBridgeSession {
     binding: SessionAuthorityBinding,
     issued_at_epoch_millis: i64,
     expires_at_epoch_millis: i64,
-    global_revoke_epoch: u64,
+    bridge_revoke_epoch: u64,
     state: ParentLocalBridgeState,
     last_transition_at_epoch_millis: i64,
 }
@@ -60,10 +63,9 @@ impl AccountIdentityAuthorityService {
     pub fn issue_parent_local_bridge_session(
         &mut self,
         current_authority: &VerifiedAccountIdentityAuthority,
-        audience: AccountIdentityParentLocalBridgeAudience,
     ) -> Result<IssuedParentLocalBridgeSession, SessionLifecycleRepositoryError> {
         self.repository
-            .issue_parent_local_bridge_session(current_authority, audience)
+            .issue_parent_local_bridge_session(current_authority)
     }
 
     pub fn authenticate_parent_local_bridge_handshake(
@@ -84,10 +86,11 @@ impl AccountIdentityAuthorityService {
 
     pub fn revoke_parent_local_bridge_session(
         &mut self,
+        current_authority: &VerifiedAccountIdentityAuthority,
         capability: &ParentLocalBridgeSessionCapability,
     ) -> Result<(), SessionLifecycleRepositoryError> {
         self.repository
-            .revoke_parent_local_bridge_session(capability)
+            .revoke_parent_local_bridge_session(current_authority, capability)
     }
 
     pub fn revoke_authenticated_parent_local_bridge_session(
@@ -97,4 +100,16 @@ impl AccountIdentityAuthorityService {
         self.repository
             .revoke_authenticated_parent_local_bridge_session(authenticated)
     }
+
+    pub fn revoke_all_parent_local_bridge_sessions(
+        &mut self,
+        current_authority: &VerifiedAccountIdentityAuthority,
+    ) -> Result<u64, SessionLifecycleRepositoryError> {
+        self.repository
+            .revoke_all_parent_local_bridge_sessions(current_authority)
+    }
+}
+
+pub(super) fn is_parent_owner(role: AccountIdentityRole) -> bool {
+    role == AccountIdentityRole::ParentOwner
 }

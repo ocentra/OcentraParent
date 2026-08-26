@@ -15,7 +15,7 @@ use crate::session_lifecycle_custody::parent_local_bridge::{
 };
 
 use super::super::{authority, clock, codec, labels, SessionLifecycleRepositoryError};
-use super::{ParentLocalBridgeState, StoredParentLocalBridgeSession, DIGEST_ALGORITHM};
+use super::{audit, ParentLocalBridgeState, StoredParentLocalBridgeSession, DIGEST_ALGORITHM};
 
 impl super::super::SqliteAccountIdentityAuthorityRepository {
     /// Issue one short-lived, one-connection parent-local capability from an
@@ -24,9 +24,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
     pub fn issue_parent_local_bridge_session(
         &mut self,
         current_authority: &VerifiedAccountIdentityAuthority,
-        audience: AccountIdentityParentLocalBridgeAudience,
     ) -> Result<IssuedParentLocalBridgeSession, SessionLifecycleRepositoryError> {
-        let now_epoch_millis = clock::trusted_now_epoch_millis()?;
         let capability = ParentLocalBridgeSessionCapability::issue()
             .map_err(|_| SessionLifecycleRepositoryError::EntropyUnavailable)?;
         let connection_nonce = issue_connection_nonce()
@@ -36,12 +34,14 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+        let now_epoch_millis = clock::trusted_now_in_transaction(&transaction)?;
         let binding = authority::parent_local_bridge_binding_from_verified(
             &transaction,
             current_authority,
             now_epoch_millis,
         )?;
-        let current_epoch = codec::current_revoke_epoch(&transaction, &binding.account_id)?;
+        let current_epoch =
+            super::storage::current_bridge_revoke_epoch(&transaction, &binding.account_id)?;
         let expires_at_epoch_millis = now_epoch_millis
             .checked_add(bridge_ttl_millis)
             .ok_or(SessionLifecycleRepositoryError::InvalidTransition)?
@@ -54,16 +54,18 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let capability_wire = capability.expose_secret().to_owned();
         let record = StoredParentLocalBridgeSession {
             capability_digest: capability.digest(),
-            audience,
+            audience: AccountIdentityParentLocalBridgeAudience::fixed(),
             connection_nonce_digest,
             binding,
             issued_at_epoch_millis: now_epoch_millis,
             expires_at_epoch_millis,
-            global_revoke_epoch: current_epoch,
+            bridge_revoke_epoch: current_epoch,
             state: ParentLocalBridgeState::Active,
             last_transition_at_epoch_millis: now_epoch_millis,
         };
         insert_record(&transaction, &record)?;
+        audit::insert_session_event(&transaction, &record, "issued", now_epoch_millis)?;
+        audit::cleanup(&transaction, now_epoch_millis)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
@@ -72,7 +74,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             AccountIdentityParentLocalBridgeHandshake {
                 schema_version: ACCOUNT_IDENTITY_PARENT_LOCAL_BRIDGE_SCHEMA_VERSION,
                 capability: capability_wire,
-                audience,
+                audience: AccountIdentityParentLocalBridgeAudience::fixed(),
                 connection_nonce,
             },
             expires_at_epoch_millis,
@@ -93,7 +95,7 @@ pub(super) fn insert_record(
                  authority_session_id, authority_session_generation,
                  authority_generation, authority_expires_at_epoch_millis,
                  issued_at_epoch_millis, expires_at_epoch_millis,
-                 global_revoke_epoch, state, last_transition_at_epoch_millis
+                 bridge_revoke_epoch, state, last_transition_at_epoch_millis
              ) VALUES (
                  ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10,
                  ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19, ?20
@@ -116,7 +118,7 @@ pub(super) fn insert_record(
                 record.binding.authority_expires_at_epoch_millis,
                 record.issued_at_epoch_millis,
                 record.expires_at_epoch_millis,
-                codec::to_sql_generation(record.global_revoke_epoch)?,
+                codec::to_sql_generation(record.bridge_revoke_epoch)?,
                 state_label(record.state),
                 record.last_transition_at_epoch_millis,
             ],
