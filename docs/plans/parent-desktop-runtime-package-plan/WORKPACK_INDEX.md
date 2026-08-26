@@ -25,7 +25,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | active | [WP03 Parent Desktop Shell Package](workpacks/03-parent-desktop-shell-package.md) | 12/12 historical; refreshed source tests open | `output/parent-client-runtime-distribution-plan-proof/03-parent-desktop-shell-package/` |
 | complete | [WP04 Parent Android Package](workpacks/04-parent-android-package.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/04-parent-android-package/` |
 | open | [WP05 Parent iOS Package](workpacks/05-parent-ios-package.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/05-parent-ios-package/` |
-| active | [WP06 Parent Local Service Route Bridge](workpacks/06-parent-local-service-route-bridge.md) | 12/12 historical; refreshed source tests open | `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/` |
+| blocked | [WP06 Parent Local Service Route Bridge](workpacks/06-parent-local-service-route-bridge.md) | 12/12 historical only; authenticated source and tests open | `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/` |
 | open | [WP07 Parent Client Signing Store Matrix](workpacks/07-parent-client-signing-store-matrix.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/07-parent-client-signing-store-matrix/` |
 | complete | [WP08 Parent Client Update Rollback](workpacks/08-parent-client-update-rollback.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/08-parent-client-update-rollback/` |
 | complete | [WP09 Parent Client Launch Smoke Matrix](workpacks/09-parent-client-launch-smoke-matrix.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/` |
@@ -46,7 +46,7 @@ WP01 fixes scope and route boundary before package work.
 WP02 handles web portal distribution.
 WP03 handles desktop shell/package only.
 WP04/WP05 handle parent mobile package claims separately.
-WP06 handles local service route bridge without claiming setup completion.
+WP06 handles the local-service route bridge without claiming setup completion and requires Account WP03's opaque current/revocable parent-session authority before authenticated transport composition.
 WP07 handles signing/store/notarization matrix before release claims.
 WP08 handles update/rollback/checksum/SBOM.
 WP09 handles launch smoke by artifact/platform.

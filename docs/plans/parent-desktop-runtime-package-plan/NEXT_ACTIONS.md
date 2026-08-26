@@ -77,10 +77,11 @@
 - The first Playwright attempt hit a foreign process on default port `4490`; the focused hosted spec passed on explicit free ports `4590`-`4592`, and the proof log records that reroute.
 - WP02 does not claim production publishing, setup readiness, desktop/mobile package readiness, or child runtime authority.
 
-## WP06 source acceptance and open test wave
+## WP06 authenticated source repair before tests
 
-- WP06 has independently accepted refreshed production source. The prior proof root remains historical until the complete response-identity, freshness, deadline, dependency/LAN failure, and no-stale-connected test family is refreshed, run, and re-proved.
-- Focused cargo tests passed for Devices-route unavailable, timeout, passive-local-target, and setup-first-run separation behavior, and the schema contract test passed for the canonical route bridge shape and generated thin TS artifacts.
+- WP06 is blocked in the production-source phase. The existing response identity, freshness, deadline, dependency/LAN failure, and no-stale-connected handling is useful, but it runs over an unauthenticated WebSocket session: missing `Origin` is accepted, connection readiness precedes authentication, health can report `Ready` with `Unauthenticated`, and the parent supplies its own `ws://` origin.
+- First decompose Account WP03's provider-independent parent-local authority slice from its downstream Cloudflare/Protected/Parent dependency cycle, then implement its opaque owner-issued current/revocable capability and owner-bound handshake. Compose that into agent-service admission, readiness, health, route reads, and action dispatch before writing the full WP06 expected-test family.
+- Earlier focused cargo/schema passes cover route degradation and contract shape only. They neither authenticate the live transport nor accept the current source or historical proof.
 - WP06 does not claim setup readiness, child runtime distribution ownership, desktop/mobile/web package readiness, or portal UX ownership.
 
 ## WP03 source acceptance and open test wave

@@ -22361,11 +22361,11 @@
       "parent": "PLAN-parent-desktop-runtime-package-plan",
       "dependsOn": ["WP-logging-domain-parity-04-rust-logging-core-crate"],
       "state": "blocked",
-      "lifecycleState": "active",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "parent-desktop-runtime-package-plan",
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-        "statusText": "active",
+        "statusText": "blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -22375,9 +22375,11 @@
           ],
           "evidence": [
             "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md",
+            "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md",
+            "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
             "docs/plans/logging-domain-parity/workpacks/04-rust-logging-core-crate.md"
           ],
-          "reason": "Actual source audit routes Parent Desktop Runtime WP06 local-service bridge logging through the Rust logging-core owner; this reviewed-implementation gate records source handoff only and does not claim route readiness or DONE."
+          "reason": "Live production-call audit found that Parent Runtime WP06's typed response identity, freshness, deadline, and degradation checks run over an unauthenticated WebSocket: missing Origin is accepted, AgentConnectionReady precedes authentication, health can be Ready while authentication is Unauthenticated, and parent runtime supplies its own ws origin. Account WP03 is the current authority owner, but adding WP06 -> Account WP03 as a hard edge creates the existing Account WP03 -> Cloudflare WP06 -> Account WP09 -> Protected WP04 -> Parent WP12 -> Parent WP03 -> Parent WP06 cycle. That authority slice must be decomposed into an independently owned workpack before a valid hard edge can be recorded. Logging WP04 remains the reviewed hard dependency. This review does not claim route readiness, tests, proof, or DONE."
         }
       },
       "completion": {
@@ -42926,6 +42928,11 @@
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "workpackCount": 20
+      },
+      {
+        "scope": "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge -> Account parent-local session authority",
+        "reason": "WP06 needs an opaque Account-owned current/revocable parent-local bridge capability and owner-bound handshake, but the current Account WP03 workpack also depends through Cloudflare WP06, Account WP09, Protected WP04, Parent WP12, and Parent WP03 back on WP06. Recording the whole WP03 workpack as a hard dependency would create an invalid cycle and hide the missing ownership decomposition.",
+        "nextAction": "Decompose the provider-independent Account parent-local session capability into an independently owned workpack, review its exact dependencies, then add the valid WP06 hard edge and authenticated composition source packet."
       },
       {
         "scope": "all imported workpacks",
