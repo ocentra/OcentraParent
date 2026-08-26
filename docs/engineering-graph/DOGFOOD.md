@@ -5,8 +5,8 @@ repository. It does not claim all workpacks are complete; it demonstrates that
 the graph can answer the orchestration questions without chat history.
 
 ```text
-Imported plans: 23
-Imported workpacks: 681
+Imported plans: all plan directories parsed from current source
+Imported workpacks: all indexed workpack rows parsed from current source
 Graph valid: 705 nodes, 742 edges
 Review items: 34
 Unindexed workpack files requiring review: 40
@@ -54,8 +54,9 @@ dependency edge still requires DONE unless that one reviewed edge opts into
 reviewed implementation evidence. No dependency edge is opted in merely because
 source files exist.
 
-It reports all 23 plans and 681 workpack rows, with graph-derived workpack
-state alongside live implementation/test topology under reviewed plan roots.
+It reports all imported plans and indexed workpack rows, with graph-derived
+workpack state alongside live implementation/test topology under reviewed plan
+roots.
 680 workpacks have reviewed code/test ownership maps. The unmapped tracking
 runtime-ingress workpack remains explicit unknown ownership rather than
 inheriting a plan-wide count. Mapped rows expose exact reviewed roots (or an
