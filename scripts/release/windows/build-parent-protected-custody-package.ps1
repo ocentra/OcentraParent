@@ -198,6 +198,236 @@ function Assert-ByteIdentical {
     }
 }
 
+function Read-CfbUInt16Le {
+    param(
+        [Parameter(Mandatory)]
+        [byte[]]$Bytes,
+
+        [Parameter(Mandatory)]
+        [int]$Offset
+    )
+
+    if ($Offset -lt 0 -or $Offset -gt ($Bytes.Length - 2)) {
+        throw "CFB UInt16 read at offset $Offset is outside the MSI byte bounds."
+    }
+    $value = [uint32]$Bytes[$Offset]
+    $value = $value -bor (([uint32]$Bytes[$Offset + 1]) -shl 8)
+    return [uint16]$value
+}
+
+function Read-CfbUInt32Le {
+    param(
+        [Parameter(Mandatory)]
+        [byte[]]$Bytes,
+
+        [Parameter(Mandatory)]
+        [int]$Offset
+    )
+
+    if ($Offset -lt 0 -or $Offset -gt ($Bytes.Length - 4)) {
+        throw "CFB UInt32 read at offset $Offset is outside the MSI byte bounds."
+    }
+    [uint64]$value = $Bytes[$Offset]
+    $value = $value -bor (([uint64]$Bytes[$Offset + 1]) -shl 8)
+    $value = $value -bor (([uint64]$Bytes[$Offset + 2]) -shl 16)
+    $value = $value -bor (([uint64]$Bytes[$Offset + 3]) -shl 24)
+    return [uint32]$value
+}
+
+function Normalize-CfbRootModifiedFileTime {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    if (-not [System.BitConverter]::IsLittleEndian) {
+        throw 'CFB normalization requires a little-endian host; refusing to mutate the MSI.'
+    }
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw "Cannot normalize missing MSI '$Path'."
+    }
+
+    $bytes = [System.IO.File]::ReadAllBytes($Path)
+    if ($bytes.Length -lt 512) {
+        throw "MSI '$Path' is shorter than the CFB header; refusing to mutate it."
+    }
+
+    $signature = [byte[]](0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1)
+    for ($index = 0; $index -lt $signature.Length; $index++) {
+        if ($bytes[$index] -ne $signature[$index]) {
+            throw "MSI '$Path' does not have the expected CFB signature; refusing to mutate it."
+        }
+    }
+
+    $byteOrder = Read-CfbUInt16Le -Bytes $bytes -Offset 28
+    if ($byteOrder -ne [uint16]0xFFFE) {
+        throw "MSI '$Path' has an invalid CFB byte order 0x$($byteOrder.ToString('X4')); refusing to mutate it."
+    }
+
+    $majorVersion = Read-CfbUInt16Le -Bytes $bytes -Offset 26
+    $sectorShift = Read-CfbUInt16Le -Bytes $bytes -Offset 30
+    if (($majorVersion -eq 3 -and $sectorShift -ne 9) -or ($majorVersion -eq 4 -and $sectorShift -ne 12)) {
+        throw "MSI '$Path' has an invalid CFB version/sector shift ($majorVersion/$sectorShift); refusing to mutate it."
+    }
+    if ($majorVersion -ne 3 -and $majorVersion -ne 4) {
+        throw "MSI '$Path' has unsupported CFB major version $majorVersion; refusing to mutate it."
+    }
+    $miniSectorShift = Read-CfbUInt16Le -Bytes $bytes -Offset 32
+    if ($miniSectorShift -ne 6) {
+        throw "MSI '$Path' has an invalid CFB mini-sector shift $miniSectorShift; refusing to mutate it."
+    }
+
+    [uint64]$sectorSize = [uint64]1 -shl $sectorShift
+    [uint32]$firstDirectorySector = Read-CfbUInt32Le -Bytes $bytes -Offset 48
+    [uint32]$firstReservedSector = 4294967292
+    if ($firstDirectorySector -ge $firstReservedSector) {
+        throw "MSI '$Path' has no valid first CFB directory sector; refusing to mutate it."
+    }
+
+    [uint64]$fileLength = $bytes.LongLength
+    [uint64]$directoryOffset = ([uint64]$firstDirectorySector + 1) * $sectorSize
+    if ($directoryOffset -lt [uint64]$firstDirectorySector -or $directoryOffset -gt $fileLength) {
+        throw "MSI '$Path' has an out-of-bounds CFB directory offset; refusing to mutate it."
+    }
+    [uint64]$directoryEnd = $directoryOffset + 128
+    if ($directoryEnd -lt $directoryOffset -or $directoryEnd -gt $fileLength -or $directoryOffset -gt [uint64][int]::MaxValue) {
+        throw "MSI '$Path' has an out-of-bounds CFB root directory entry; refusing to mutate it."
+    }
+    $directoryEntryOffset = [int]$directoryOffset
+
+    $nameLength = Read-CfbUInt16Le -Bytes $bytes -Offset ($directoryEntryOffset + 64)
+    if ($nameLength -lt 2 -or $nameLength -gt 64 -or ($nameLength % 2) -ne 0) {
+        throw "MSI '$Path' has an invalid CFB root directory name length $nameLength; refusing to mutate it."
+    }
+    if ($bytes[$directoryEntryOffset + $nameLength - 2] -ne 0 -or $bytes[$directoryEntryOffset + $nameLength - 1] -ne 0) {
+        throw "MSI '$Path' has an unterminated CFB root directory name; refusing to mutate it."
+    }
+    $rootName = [System.Text.Encoding]::Unicode.GetString($bytes, $directoryEntryOffset, $nameLength - 2)
+    if ($rootName -cne 'Root Entry') {
+        throw "MSI '$Path' root CFB directory entry is '$rootName', not 'Root Entry'; refusing to mutate it."
+    }
+    if ($bytes[$directoryEntryOffset + 66] -ne 5) {
+        throw "MSI '$Path' root CFB directory entry has an invalid object type; refusing to mutate it."
+    }
+
+    [uint64]$modifiedFileTimeOffset = $directoryOffset + 108
+    if ($modifiedFileTimeOffset -lt $directoryOffset -or $modifiedFileTimeOffset + 8 -gt $fileLength) {
+        throw "MSI '$Path' has an out-of-bounds root modified FILETIME; refusing to mutate it."
+    }
+    $modifiedFileTimeOffset = [int]$modifiedFileTimeOffset
+    $changed = $false
+    for ($index = 0; $index -lt 8; $index++) {
+        if ($bytes[$modifiedFileTimeOffset + $index] -ne 0) {
+            $bytes[$modifiedFileTimeOffset + $index] = 0
+            $changed = $true
+        }
+    }
+    if (-not $changed) {
+        return
+    }
+
+    $temporaryPath = "$Path.cfb-normalized.tmp"
+    $backupPath = "$Path.cfb-normalized.bak"
+    if (Test-Path -LiteralPath $temporaryPath) {
+        throw "CFB normalization temporary path '$temporaryPath' already exists; refusing to overwrite it."
+    }
+    if (Test-Path -LiteralPath $backupPath) {
+        throw "CFB normalization backup path '$backupPath' already exists; refusing to overwrite it."
+    }
+    try {
+        $stream = $null
+        try {
+            $stream = [System.IO.FileStream]::new(
+                $temporaryPath,
+                [System.IO.FileMode]::CreateNew,
+                [System.IO.FileAccess]::Write,
+                [System.IO.FileShare]::None
+            )
+            $stream.Write($bytes, 0, $bytes.Length)
+            $stream.Flush($true)
+        } finally {
+            if ($null -ne $stream) {
+                $stream.Dispose()
+            }
+        }
+        [System.IO.File]::Replace($temporaryPath, $Path, $backupPath, $true)
+        if (Test-Path -LiteralPath $backupPath) {
+            Remove-Item -LiteralPath $backupPath -Force
+        }
+    } catch {
+        if (Test-Path -LiteralPath $temporaryPath) {
+            Remove-Item -LiteralPath $temporaryPath -Force
+        }
+        if (Test-Path -LiteralPath $backupPath) {
+            Remove-Item -LiteralPath $backupPath -Force
+        }
+        throw "Safe CFB root FILETIME normalization failed for '$Path': $($_.Exception.Message)"
+    }
+
+    $normalizedBytes = [System.IO.File]::ReadAllBytes($Path)
+    for ($index = 0; $index -lt 8; $index++) {
+        if ($normalizedBytes[$modifiedFileTimeOffset + $index] -ne 0) {
+            throw "CFB root modified FILETIME was not fully normalized in '$Path'."
+        }
+    }
+}
+
+function Assert-MsiCandidate {
+    param(
+        [Parameter(Mandatory)]
+        [string]$CandidateMsiPath,
+
+        [Parameter(Mandatory)]
+        [string]$CandidateIntermediatePath
+    )
+
+    $installer = $null
+    $database = $null
+    $summary = $null
+    try {
+        $installer = New-Object -ComObject WindowsInstaller.Installer
+        $database = $installer.OpenDatabase((Resolve-Path -LiteralPath $CandidateMsiPath).Path, 0)
+        if ($null -eq $database) {
+            throw 'Windows Installer returned no database handle.'
+        }
+        $summary = $database.SummaryInformation(0)
+        if ($null -eq $summary) {
+            throw 'Windows Installer returned no summary-information handle.'
+        }
+    } catch {
+        throw "Windows Installer could not open normalized MSI '$CandidateMsiPath': $($_.Exception.Message)"
+    } finally {
+        foreach ($comObject in @($summary, $database, $installer)) {
+            if ($null -ne $comObject) {
+                [System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($comObject) | Out-Null
+            }
+        }
+    }
+
+    $decompiledPath = Join-Path $CandidateIntermediatePath 'normalized-validation.wxs'
+    if (Test-Path -LiteralPath $decompiledPath) {
+        Remove-Item -LiteralPath $decompiledPath -Force
+    }
+    Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @(
+        'wix',
+        'msi',
+        'decompile',
+        $CandidateMsiPath,
+        '-out',
+        $decompiledPath
+    ) -FailureMessage 'Normalized MSI decompile validation failed'
+    if (-not (Test-Path -LiteralPath $decompiledPath -PathType Leaf) -or (Get-Item -LiteralPath $decompiledPath).Length -le 0) {
+        throw "Normalized MSI decompile produced no source at '$decompiledPath'."
+    }
+
+    Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @(
+        'wix',
+        'msi',
+        'validate',
+        $CandidateMsiPath
+    ) -FailureMessage 'Normalized MSI validation failed'
+}
+
 $scriptRoot = (Resolve-Path -LiteralPath $PSScriptRoot).Path
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $scriptRoot '..\..\..')).Path
 $wixSourcePath = Join-Path $scriptRoot 'parent-protected-custody.wxs'
@@ -341,6 +571,8 @@ function Invoke-WixCandidateBuild {
     }
 
     Set-DeterministicMsiSummary -Path $CandidateMsiPath -PackageCode $packageCode
+    Normalize-CfbRootModifiedFileTime -Path $CandidateMsiPath
+    Assert-MsiCandidate -CandidateMsiPath $CandidateMsiPath -CandidateIntermediatePath $CandidateIntermediatePath
 }
 
 # WiX and the Windows Installer OLE container can carry metadata outside the
@@ -350,6 +582,11 @@ function Invoke-WixCandidateBuild {
 Invoke-WixCandidateBuild -CandidateMsiPath $firstMsiPath -CandidateIntermediatePath $firstIntermediatePath
 Invoke-WixCandidateBuild -CandidateMsiPath $secondMsiPath -CandidateIntermediatePath $secondIntermediatePath
 Assert-ByteIdentical -LeftPath $firstMsiPath -RightPath $secondMsiPath
+$firstMsiHash = Get-Sha256Hex -Path $firstMsiPath
+$secondMsiHash = Get-Sha256Hex -Path $secondMsiPath
+if ($firstMsiHash -cne $secondMsiHash) {
+    throw "WiX repeated-build SHA-256 values differ ($firstMsiHash vs $secondMsiHash); refusing to emit a non-deterministic MSI."
+}
 Copy-Item -LiteralPath $firstMsiPath -Destination $msiPath -Force
 
 if (-not (Test-Path -LiteralPath $msiPath -PathType Leaf) -or (Get-Item -LiteralPath $msiPath).Length -le 0) {
@@ -357,6 +594,9 @@ if (-not (Test-Path -LiteralPath $msiPath -PathType Leaf) -or (Get-Item -Literal
 }
 
 $msiHash = Get-Sha256Hex -Path $msiPath
+if ($msiHash -cne $firstMsiHash) {
+    throw "Published MSI SHA-256 '$msiHash' differs from the validated repeat-build SHA-256 '$firstMsiHash'."
+}
 Write-Utf8NoBom -Path $checksumPath -Content "$msiHash *$([System.IO.Path]::GetFileName($msiPath))`n"
 
 $manifest = [ordered]@{
@@ -370,8 +610,9 @@ $manifest = [ordered]@{
         checksumFile = [System.IO.Path]::GetFileName($checksumPath)
     }
     reproducibility = [ordered]@{
-        verification = 'two independent WiX builds compared byte-for-byte after MSI metadata normalization'
+        verification = 'two independent WiX builds opened, decompiled, validated, normalized for MSI metadata and CFB root FILETIME, then compared byte-for-byte and by SHA-256'
         byteIdenticalRepeatBuilds = $true
+        repeatSha256 = $firstMsiHash
     }
     inputs = @(
         [ordered]@{ role = 'broker'; file = [System.IO.Path]::GetFileName($brokerBinaryPath); sha256 = $brokerHash },
