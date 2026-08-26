@@ -5,6 +5,7 @@ use ocentra_schema::account_identity_authority_producer_v2::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_ENVIRONMENT,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_INNER_DOMAIN,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_PAYLOAD_BYTES,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SCHEMA_VERSION,
@@ -62,9 +63,13 @@ pub(crate) fn encode(
     validate_text(&envelope.issued_at)?;
     validate_text(&envelope.expires_at)?;
     if envelope.key_generation == 0
+        || envelope.key_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
         || envelope.enrollment_generation == 0
+        || envelope.enrollment_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
         || envelope.authority_generation == 0
+        || envelope.authority_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
         || envelope.session_generation == 0
+        || envelope.session_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
         || envelope.payload.is_empty()
         || envelope.payload.len() > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_PAYLOAD_BYTES
     {
@@ -132,6 +137,9 @@ pub(crate) fn parse(
 fn validate_text(value: &str) -> Result<(), AccountIdentityAuthorityProducerV2Error> {
     if value.trim().is_empty()
         || value.len() > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES
+        || value
+            .chars()
+            .any(|character| character <= '\u{001f}' || character == '\u{007f}')
     {
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);
     }

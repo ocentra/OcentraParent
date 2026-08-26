@@ -27,7 +27,9 @@ pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX: &str = "sha256:e
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_RECEIPT_ID_PREFIX: &str = "sha256:receipt:";
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES: usize = 64;
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES: usize = 65;
-pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION: u64 = i64::MAX as u64;
+pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION: u64 = 9_007_199_254_740_991;
+pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION: u64 =
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION;
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES: usize = 1_024;
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_PAYLOAD_BYTES: usize = 16 * 1_024;
 pub const ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS: i64 = 5 * 60;
@@ -82,8 +84,15 @@ impl AccountIdentityAuthorityProducerV2IdempotencyKey {
 }
 
 fn valid_identifier(value: &str) -> bool {
+    valid_text(value)
+}
+
+fn valid_text(value: &str) -> bool {
     !value.trim().is_empty()
         && value.len() <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES
+        && !value
+            .chars()
+            .any(|character| character <= '\u{001f}' || character == '\u{007f}')
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -136,9 +145,7 @@ impl AccountIdentityAuthorityProducerV2Claims {
             self.device_id.as_str(),
             self.session_id.as_str(),
         ] {
-            if value.trim().is_empty()
-                || value.len() > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES
-            {
+            if !valid_text(value) {
                 return Err("v2 producer authority claim is invalid");
             }
         }
@@ -173,18 +180,18 @@ impl AccountIdentityAuthorityProducerV2Binding {
             self.correlation_id.as_str(),
             self.idempotency_key.as_str(),
         ] {
-            if value.trim().is_empty()
-                || value.len() > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES
-            {
+            if !valid_text(value) {
                 return Err("v2 producer binding field is invalid");
             }
         }
         if self.key_generation == 0
+            || self.key_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
             || self.enrollment_generation == 0
-            || self.enrollment_generation
-                > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION
+            || self.enrollment_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
             || self.authority_generation == 0
+            || self.authority_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
             || self.session_generation == 0
+            || self.session_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
         {
             return Err("v2 producer binding generation is invalid");
         }
@@ -238,18 +245,18 @@ impl AccountIdentityAuthorityProducerV2Receipt {
             self.issued_at.as_str(),
             self.expires_at.as_str(),
         ] {
-            if value.trim().is_empty()
-                || value.len() > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES
-            {
+            if !valid_text(value) {
                 return Err("v2 producer receipt field is invalid");
             }
         }
         if self.key_generation == 0
+            || self.key_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
             || self.enrollment_generation == 0
-            || self.enrollment_generation
-                > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION
+            || self.enrollment_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
             || self.authority_generation == 0
+            || self.authority_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
             || self.session_generation == 0
+            || self.session_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
             || !self
                 .key_id
                 .starts_with(ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX)

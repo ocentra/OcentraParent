@@ -30,7 +30,11 @@ impl AccountIssuerField {
             return Err(ProtocolError::FieldTooLarge);
         }
         let value = String::from_utf8(bytes).map_err(|_| ProtocolError::InvalidDiscriminant(0))?;
-        if value.trim().is_empty() {
+        if value.trim().is_empty()
+            || value
+                .chars()
+                .any(|character| character <= '\u{001f}' || character == '\u{007f}')
+        {
             return Err(ProtocolError::EmptyField);
         }
         Ok(Self(value))

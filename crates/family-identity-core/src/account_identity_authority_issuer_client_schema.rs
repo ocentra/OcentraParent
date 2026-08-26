@@ -118,12 +118,16 @@ const CANONICAL_SCHEMA_SQL: &str = "CREATE TABLE account_identity_issuer_v2_key_
     service TEXT NOT NULL CHECK (service = 'ocentra.account-authority-producer.cloudflare.v2'),
     service_binding_id TEXT NOT NULL CHECK (length(service_binding_id) > 0),
     key_id TEXT NOT NULL CHECK (key_id LIKE 'sha256:ecdsa-p256:%'),
-    key_generation INTEGER NOT NULL CHECK (key_generation > 0),
+    key_generation INTEGER NOT NULL CHECK (
+        key_generation > 0 AND key_generation <= 9007199254740991
+    ),
     enrollment_generation INTEGER NOT NULL CHECK (
-        enrollment_generation > 0 AND enrollment_generation <= 9223372036854775807
+        enrollment_generation > 0 AND enrollment_generation <= 9007199254740991
     ),
     public_key BLOB NOT NULL CHECK (length(public_key) = 65),
-    authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
+    authority_generation INTEGER NOT NULL CHECK (
+        authority_generation > 0 AND authority_generation <= 9007199254740991
+    ),
     key_state TEXT NOT NULL CHECK (key_state IN ('active','revoked')),
     PRIMARY KEY (account_id, household_id, service, key_generation),
     UNIQUE (key_id)
@@ -138,12 +142,18 @@ CREATE TABLE account_identity_issuer_v2_receipt (
     service TEXT NOT NULL CHECK (service = 'ocentra.account-authority-producer.cloudflare.v2'),
     service_binding_id TEXT NOT NULL CHECK (length(service_binding_id) > 0),
     key_id TEXT NOT NULL CHECK (length(key_id) > 0),
-    key_generation INTEGER NOT NULL CHECK (key_generation > 0),
-    enrollment_generation INTEGER NOT NULL CHECK (
-        enrollment_generation > 0 AND enrollment_generation <= 9223372036854775807
+    key_generation INTEGER NOT NULL CHECK (
+        key_generation > 0 AND key_generation <= 9007199254740991
     ),
-    authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
-    session_generation INTEGER NOT NULL CHECK (session_generation > 0),
+    enrollment_generation INTEGER NOT NULL CHECK (
+        enrollment_generation > 0 AND enrollment_generation <= 9007199254740991
+    ),
+    authority_generation INTEGER NOT NULL CHECK (
+        authority_generation > 0 AND authority_generation <= 9007199254740991
+    ),
+    session_generation INTEGER NOT NULL CHECK (
+        session_generation > 0 AND session_generation <= 9007199254740991
+    ),
     correlation_id TEXT NOT NULL CHECK (length(correlation_id) > 0),
     idempotency_key TEXT NOT NULL CHECK (length(idempotency_key) > 0),
     payload_digest TEXT NOT NULL CHECK (length(payload_digest) > 0),
@@ -166,11 +176,15 @@ CREATE TABLE account_identity_issuer_v2_outbox (
     service TEXT NOT NULL CHECK (service = 'ocentra.account-authority-producer.cloudflare.v2'),
     service_binding_id TEXT NOT NULL CHECK (length(service_binding_id) > 0),
     key_id TEXT NOT NULL CHECK (length(key_id) > 0),
-    key_generation INTEGER NOT NULL CHECK (key_generation > 0),
-    enrollment_generation INTEGER NOT NULL CHECK (
-        enrollment_generation > 0 AND enrollment_generation <= 9223372036854775807
+    key_generation INTEGER NOT NULL CHECK (
+        key_generation > 0 AND key_generation <= 9007199254740991
     ),
-    authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
+    enrollment_generation INTEGER NOT NULL CHECK (
+        enrollment_generation > 0 AND enrollment_generation <= 9007199254740991
+    ),
+    authority_generation INTEGER NOT NULL CHECK (
+        authority_generation > 0 AND authority_generation <= 9007199254740991
+    ),
     wire BLOB NOT NULL CHECK (length(wire) > 0),
     delivery_state TEXT NOT NULL CHECK (
         delivery_state IN ('pending','claimed','sent','failed','acknowledged')

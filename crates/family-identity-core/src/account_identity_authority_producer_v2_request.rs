@@ -4,7 +4,7 @@ use ocentra_schema::account_identity_authority_producer_v2::{
     AccountIdentityAuthorityProducerV2Binding, AccountIdentityAuthorityProducerV2Claims,
     AccountIdentityAuthorityProducerV2Operation, AccountIdentityAuthorityProducerV2Receipt,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX,
-    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES,
@@ -281,8 +281,9 @@ fn validate_issue_key(
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidKeyId);
     }
     if key_generation == 0
+        || key_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
         || enrollment_generation == 0
-        || enrollment_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION
+        || enrollment_generation > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION
         || service_binding_id.trim().is_empty()
     {
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);

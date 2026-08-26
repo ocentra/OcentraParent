@@ -2,8 +2,12 @@ use std::collections::HashSet;
 
 use rusqlite::{Connection, OptionalExtension};
 
+#[path = "account_identity_authority_issuer_client_schema_key_rows.rs"]
+mod schema_key_rows;
 #[path = "account_identity_authority_issuer_client_schema_rows.rs"]
 mod schema_rows;
+#[path = "account_identity_authority_issuer_client_schema_text_rows.rs"]
+mod schema_text_rows;
 
 use super::{
     AccountIdentityAuthorityIssuerClientError, CANONICAL_SCHEMA_SQL, SCHEMA_META_SQL, SCHEMA_NAME,

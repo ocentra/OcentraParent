@@ -1,4 +1,3 @@
-use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE;
 use rusqlite::Connection;
 
 use super::{has_legacy_table, AccountIdentityAuthorityIssuerClientError, CANONICAL_SCHEMA_SQL};
@@ -6,14 +5,72 @@ use super::{has_legacy_table, AccountIdentityAuthorityIssuerClientError, CANONIC
 pub(super) fn rebuild_legacy(
     connection: &Connection,
 ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    preflight_empty_legacy(connection)?;
     backup_legacy_tables(connection)?;
     connection
         .execute_batch(CANONICAL_SCHEMA_SQL)
         .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
-    copy_key_registry(connection)?;
-    copy_receipts(connection)?;
-    copy_outbox(connection)?;
     drop_legacy_tables(connection)
+}
+
+fn preflight_empty_legacy(
+    connection: &Connection,
+) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    let tables = [
+        "account_identity_issuer_v2_key_registry",
+        "account_identity_issuer_v2_receipt",
+        "account_identity_issuer_v2_outbox",
+    ];
+    let mut has_data = false;
+    for table in tables {
+        if has_legacy_table(connection, table)? {
+            let count = connection
+                .query_row(&format!("SELECT COUNT(*) FROM {table}"), [], |row| {
+                    row.get::<_, i64>(0)
+                })
+                .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+            has_data |= count != 0;
+        }
+    }
+
+    let has_receipts = has_legacy_table(connection, "account_identity_issuer_v2_receipt")?;
+    let has_outbox = has_legacy_table(connection, "account_identity_issuer_v2_outbox")?;
+    let orphan_count = if has_receipts && has_outbox {
+        connection
+            .query_row(
+                "SELECT COUNT(*)
+                   FROM account_identity_issuer_v2_outbox AS outbox
+              LEFT JOIN account_identity_issuer_v2_receipt AS receipt
+                     ON receipt.receipt_id = outbox.receipt_id
+                  WHERE receipt.receipt_id IS NULL",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+    } else {
+        0
+    };
+    has_data |= orphan_count != 0;
+
+    let invalid_state_count = if has_outbox {
+        connection
+            .query_row(
+                "SELECT COUNT(*)
+                   FROM account_identity_issuer_v2_outbox
+                  WHERE delivery_state NOT IN ('pending','claimed','sent','failed','acknowledged')",
+                [],
+                |row| row.get::<_, i64>(0),
+            )
+            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?
+    } else {
+        0
+    };
+    has_data |= invalid_state_count != 0;
+
+    if has_data {
+        return Err(AccountIdentityAuthorityIssuerClientError::InvalidSchema);
+    }
+    Ok(())
 }
 
 fn backup_legacy_tables(
@@ -40,83 +97,6 @@ fn backup_legacy_tables(
                 ))
                 .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
         }
-    }
-    Ok(())
-}
-
-fn copy_key_registry(
-    connection: &Connection,
-) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
-    if has_legacy_table(connection, "account_identity_issuer_v2_key_registry_legacy")? {
-        connection
-            .execute(
-                "INSERT INTO account_identity_issuer_v2_key_registry
-                    (account_id, household_id, service, service_binding_id, key_id,
-                     key_generation, enrollment_generation, public_key, authority_generation,
-                     key_state)
-                 SELECT account_id, household_id, ?1, service_binding_id, key_id,
-                        key_generation, NULL, public_key, authority_generation, key_state
-                   FROM account_identity_issuer_v2_key_registry_legacy",
-                [ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE],
-            )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
-    }
-    Ok(())
-}
-
-fn copy_receipts(connection: &Connection) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
-    if has_legacy_table(connection, "account_identity_issuer_v2_receipt_legacy")? {
-        connection
-            .execute(
-                "INSERT INTO account_identity_issuer_v2_receipt
-                    (receipt_id, account_id, household_id, service,
-                     service_binding_id, key_id, key_generation, enrollment_generation,
-                     authority_generation,
-                     session_generation, correlation_id, idempotency_key, payload_digest,
-                     issued_at, expires_at, wire, ack_wire, receipt_state)
-                 SELECT receipt_id, account_id, household_id, ?1, service_binding_id,
-                        key_id, key_generation, NULL, authority_generation, session_generation,
-                        correlation_id, idempotency_key, payload_digest, issued_at,
-                        expires_at, wire, NULL, receipt_state
-                   FROM account_identity_issuer_v2_receipt_legacy",
-                [ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE],
-            )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
-    }
-    Ok(())
-}
-
-fn copy_outbox(connection: &Connection) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
-    if has_legacy_table(connection, "account_identity_issuer_v2_outbox_legacy")? {
-        connection
-            .execute(
-                "INSERT INTO account_identity_issuer_v2_outbox
-                    (receipt_id, account_id, household_id, service, service_binding_id,
-                     key_id, key_generation, enrollment_generation, authority_generation,
-                     wire, delivery_state,
-                     claim_id, claimed_at, claim_expires_at, attempt_count,
-                     last_error_code, last_error_digest, last_result, ack_wire,
-                     next_attempt_at)
-                 SELECT outbox.receipt_id, receipt.account_id, receipt.household_id, ?1,
-                        receipt.service_binding_id, receipt.key_id, receipt.key_generation,
-                        NULL, receipt.authority_generation, outbox.wire,
-                        CASE outbox.delivery_state
-                            WHEN 'pending' THEN 'pending'
-                            WHEN 'sent' THEN 'sent'
-                            WHEN 'failed' THEN 'failed'
-                            ELSE 'failed'
-                        END,
-                        NULL, NULL, NULL, outbox.attempt_count,
-                        CASE WHEN outbox.last_error IS NULL THEN NULL ELSE 'delivery_failed' END,
-                        CASE WHEN outbox.last_error IS NULL THEN NULL
-                             ELSE 'sha256:delivery-detail:0000000000000000000000000000000000000000000000000000000000000000' END,
-                        NULL, NULL, NULL
-                   FROM account_identity_issuer_v2_outbox_legacy AS outbox
-                   JOIN account_identity_issuer_v2_receipt AS receipt
-                     ON receipt.receipt_id = outbox.receipt_id",
-                [ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE],
-            )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
     }
     Ok(())
 }

@@ -86,40 +86,22 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         let enrollment_generation = registration.enrollment_generation();
         let enrollment_generation_sql = i64::try_from(enrollment_generation)
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
-        let latest: Option<i64> = self
-            .transaction
-            .query_row(
-                "SELECT MAX(key_generation) FROM account_identity_issuer_v2_key_registry
-                 WHERE account_id = ?1 AND household_id = ?2 AND service = ?3",
-                params![
-                    currentness.account_id().as_str(),
-                    currentness.household_id().as_str(),
-                    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE
-                ],
-                |row| row.get(0),
-            )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
-        let key_generation = latest
-            .unwrap_or(0)
-            .checked_add(1)
-            .ok_or(AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
+        let key_generation = next_key_generation(
+            &self.transaction,
+            currentness.account_id().as_str(),
+            currentness.household_id().as_str(),
+            &service_binding_id,
+        )?;
         let key_generation_u64 = u64::try_from(key_generation)
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         let authority_generation = i64::try_from(currentness.authority_generation())
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
-        self.transaction
-            .execute(
-                "UPDATE account_identity_issuer_v2_key_registry
-                    SET key_state = 'revoked'
-                  WHERE account_id = ?1 AND household_id = ?2 AND service = ?3
-                    AND key_state = 'active'",
-                params![
-                    currentness.account_id().as_str(),
-                    currentness.household_id().as_str(),
-                    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE
-                ],
-            )
-            .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+        revoke_active_keys(
+            &self.transaction,
+            currentness.account_id().as_str(),
+            currentness.household_id().as_str(),
+            &service_binding_id,
+        )?;
         self.transaction
             .execute(
                 "INSERT INTO account_identity_issuer_v2_key_registry (
@@ -156,6 +138,7 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         currentness: &AccountIdentityIssuerCurrentness,
     ) -> Result<AccountIdentityIssuerV2KeyRecord, AccountIdentityAuthorityIssuerClientError> {
         self.ensure_current(currentness)?;
+        let expected_service_binding_id = service_binding_id(currentness.authority());
         let row = self
             .transaction
             .query_row(
@@ -163,12 +146,14 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
                         authority_generation, service_binding_id
                    FROM account_identity_issuer_v2_key_registry
                   WHERE account_id = ?1 AND household_id = ?2 AND service = ?3
+                    AND service_binding_id = ?4
                     AND key_state = 'active'
                   ORDER BY key_generation DESC LIMIT 1",
                 params![
                     currentness.account_id().as_str(),
                     currentness.household_id().as_str(),
-                    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE
+                    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+                    expected_service_binding_id
                 ],
                 |row| {
                     Ok((
@@ -195,7 +180,6 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
         let authority_generation = u64::try_from(row.5)
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidKey)?;
-        let expected_service_binding_id = service_binding_id(currentness.authority());
         if row.0 != ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE
             || authority_generation != currentness.authority_generation()
             || enrollment_generation == 0
@@ -284,6 +268,56 @@ fn count_transaction(
     u64::try_from(value).map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
+fn next_key_generation(
+    transaction: &Transaction<'_>,
+    account_id: &str,
+    household_id: &str,
+    service_binding_id: &str,
+) -> Result<i64, AccountIdentityAuthorityIssuerClientError> {
+    let latest: Option<i64> = transaction
+        .query_row(
+            "SELECT MAX(key_generation) FROM account_identity_issuer_v2_key_registry
+             WHERE account_id = ?1 AND household_id = ?2 AND service = ?3
+               AND service_binding_id = ?4",
+            params![
+                account_id,
+                household_id,
+                ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+                service_binding_id
+            ],
+            |row| row.get(0),
+        )
+        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+    latest
+        .unwrap_or(0)
+        .checked_add(1)
+        .ok_or(AccountIdentityAuthorityIssuerClientError::InvalidKey)
+}
+
+fn revoke_active_keys(
+    transaction: &Transaction<'_>,
+    account_id: &str,
+    household_id: &str,
+    service_binding_id: &str,
+) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    transaction
+        .execute(
+            "UPDATE account_identity_issuer_v2_key_registry
+                SET key_state = 'revoked'
+              WHERE account_id = ?1 AND household_id = ?2 AND service = ?3
+                AND service_binding_id = ?4
+                AND key_state = 'active'",
+            params![
+                account_id,
+                household_id,
+                ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+                service_binding_id
+            ],
+        )
+        .map(|_| ())
+        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)
+}
+
 fn provider_label(provider: &AccountIdentityProvider) -> &'static str {
     match provider {
         AccountIdentityProvider::Authjs => "authjs",
@@ -292,17 +326,21 @@ fn provider_label(provider: &AccountIdentityProvider) -> &'static str {
 }
 
 fn service_binding_id(authority: &VerifiedAccountIdentityAuthority) -> String {
+    service_binding_id_for_values(
+        authority.account_id().to_string().as_str(),
+        authority.household_id().to_string().as_str(),
+    )
+}
+
+pub(super) fn service_binding_id_for_values(account_id: &str, household_id: &str) -> String {
     let mut binding = Vec::new();
     binding.extend_from_slice(b"ocentra.account-authority-producer.v2.binding\0");
     append_length_prefixed(
         &mut binding,
         ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE.as_bytes(),
     );
-    append_length_prefixed(&mut binding, authority.account_id().to_string().as_bytes());
-    append_length_prefixed(
-        &mut binding,
-        authority.household_id().to_string().as_bytes(),
-    );
+    append_length_prefixed(&mut binding, account_id.as_bytes());
+    append_length_prefixed(&mut binding, household_id.as_bytes());
     format!("sha256:binding:{}", sha256_hex(binding.as_slice()))
 }
 

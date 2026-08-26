@@ -3,6 +3,7 @@ use ocentra_schema::account_identity_authority_producer_v2::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_ENVIRONMENT,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_INNER_DOMAIN,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_PAYLOAD_BYTES,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SCHEMA_VERSION,
@@ -98,6 +99,9 @@ fn operation_from_kind(
 fn validate_text(value: &str) -> Result<(), AccountIdentityAuthorityProducerV2Error> {
     if value.trim().is_empty()
         || value.len() > ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FIELD_BYTES
+        || value
+            .chars()
+            .any(|character| character <= '\u{001f}' || character == '\u{007f}')
     {
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);
     }
@@ -155,7 +159,7 @@ fn take_u64(
             .try_into()
             .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?,
     );
-    (value > 0)
+    (value > 0 && value <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION)
         .then_some(value)
         .ok_or(AccountIdentityAuthorityProducerV2Error::InvalidWire)
 }
