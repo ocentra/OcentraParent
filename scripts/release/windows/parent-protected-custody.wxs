@@ -70,6 +70,12 @@
   </Package>
 
   <Fragment>
+    <!-- The build supplies this verified image digest as a bind-time WiX
+         variable. Delaying substitution keeps the REG_BINARY value as
+         hexadecimal data instead of making the compiler resolve it as a
+         source-file path. -->
+    <WixVariable Id="BrokerDigestHex" Value="$(var.BrokerDigestHex)" />
+
     <ComponentGroup Id="ProtectedCustodyProgramFiles" Directory="INSTALLFOLDER">
       <Component Id="ProtectedBrokerService" Guid="65D9B85B-1DBA-4B42-86F1-DB8F20BD4F51">
         <File
@@ -172,7 +178,9 @@
 
     <!-- Runtime is installer-owned deployment metadata, not protected
          Enrollment authority. It contains only the broker image digest; the
-         broker reads it as REG_BINARY through its fixed registry identity. -->
+         broker reads it as REG_BINARY through its fixed registry identity.
+         The package build binds the verified hexadecimal digest at MSI bind
+         time; it is not an enrollment or authentication secret. -->
     <Component Id="ProtectedRegistryRuntime" Directory="INSTALLFOLDER" Guid="C5C0C36B-3DAB-4C6C-8C67-BB5297F14F25" Permanent="yes">
       <RegistryKey
         Root="HKLM"
@@ -185,7 +193,7 @@
         <RegistryValue
           Name="broker-image-sha256"
           Type="binary"
-          Value="$(var.BrokerDigestHex)"
+          Value="!(wix.BrokerDigestHex)"
           KeyPath="yes"
         />
       </RegistryKey>
