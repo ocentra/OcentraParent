@@ -1,8 +1,9 @@
 //! AccountIssuer owner command orchestration.
 
-use ocentra_family_identity_core::account_identity_authority_producer_v2::{
-    AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityProducerV2Transport,
+use ocentra_family_identity_core::account_identity_authority_issuer_client::{
+    AccountIdentityIssuerIssuePreparation, AccountIdentityIssuerSignedIssue,
 };
+use ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Transport;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
@@ -10,7 +11,6 @@ use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_ISSUER_RPC_E
 
 use crate::contract::AccountIssuerReceiptView;
 use crate::contract::{IssueCurrentAuthorityCommand, PreparedAccountIssuerV2Request};
-use crate::currentness::CurrentAuthority;
 use crate::delivery::{
     AccountIssuerDeliveryError, DeliveryClaim, DeliveryFailure, PreparedAcknowledgeReceipt,
     ProtectedAccountIssuerReceipt,
@@ -29,7 +29,8 @@ pub struct IssuedAuthority {
 
 pub(crate) enum IssuePreparation {
     Replay(AccountIdentityAuthorityProducerV2Transport),
-    Request(AccountIdentityAuthorityProducerV2Request),
+    Request(ocentra_family_identity_core::account_identity_authority_issuer_client::
+        AccountIdentityIssuerPreparedIssue),
 }
 
 /// Result of the owner-only preparation phase. A replay is already durable;
@@ -84,40 +85,24 @@ impl AccountIssuerOwner {
         Self { repository }
     }
 
-    pub(crate) fn resolve_current_for_signing(
-        &self,
-        provider: &AccountIdentityProvider,
-        provider_subject: &AccountIdentityProviderSubject,
-    ) -> Result<CurrentAuthority, AccountIssuerRpcError> {
-        self.repository
-            .resolve_current(provider, provider_subject)
-            .map_err(AccountIssuerRpcError::Repository)
-    }
-
     pub(crate) fn prepare_issue(
         &mut self,
-        current: &CurrentAuthority,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
         command: &IssueCurrentAuthorityCommand,
     ) -> Result<IssuePreparation, AccountIssuerRpcError> {
-        let mut transaction = self
+        match self
             .repository
-            .begin()
-            .map_err(AccountIssuerRpcError::Repository)?;
-        let preparation = match transaction
-            .existing_issued_transport(current, command)
+            .prepare_issue(provider, provider_subject, command)
             .map_err(AccountIssuerRpcError::Repository)?
         {
-            Some(transport) => IssuePreparation::Replay(transport),
-            None => IssuePreparation::Request(
-                transaction
-                    .prepare_issue(current, command)
-                    .map_err(AccountIssuerRpcError::Repository)?,
-            ),
-        };
-        transaction
-            .commit()
-            .map_err(AccountIssuerRpcError::Repository)?;
-        Ok(preparation)
+            AccountIdentityIssuerIssuePreparation::Replay(transport) => {
+                Ok(IssuePreparation::Replay(transport))
+            }
+            AccountIdentityIssuerIssuePreparation::Prepared(prepared) => {
+                Ok(IssuePreparation::Request(prepared))
+            }
+        }
     }
 
     pub(crate) fn replayed_authority(
@@ -134,18 +119,13 @@ impl AccountIssuerOwner {
 
     pub fn issue_current_authority(
         &mut self,
-        provider: &AccountIdentityProvider,
-        provider_subject: &AccountIdentityProviderSubject,
-        command: &IssueCurrentAuthorityCommand,
+        _provider: &AccountIdentityProvider,
+        _provider_subject: &AccountIdentityProviderSubject,
+        _command: &IssueCurrentAuthorityCommand,
     ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
-        let current = self
-            .repository
-            .resolve_current(provider, provider_subject)
-            .map_err(AccountIssuerRpcError::Repository)?;
-        let _request = match self.prepare_issue(&current, command)? {
-            IssuePreparation::Replay(transport) => return Self::replayed_authority(transport),
-            IssuePreparation::Request(request) => request,
-        };
+        // This legacy convenience path has no protected signer parameter. It
+        // must fail before preparation so an unavailable signer cannot burn
+        // an idempotency key or leave a durable signing reservation behind.
         Err(AccountIssuerRpcError::Signing(signing::fail_closed()))
     }
 
@@ -153,28 +133,17 @@ impl AccountIssuerOwner {
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
-        transport: AccountIdentityAuthorityProducerV2Transport,
+        signed: AccountIdentityIssuerSignedIssue,
     ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
-        let current = self
+        let recorded = self
             .repository
-            .resolve_current(provider, provider_subject)
-            .map_err(AccountIssuerRpcError::Repository)?;
-        let mut issue_transaction = self
-            .repository
-            .begin()
-            .map_err(AccountIssuerRpcError::Repository)?
-            .into_issue_transaction();
-        let recorded = issue_transaction
-            .record_transport(&current, &transport)
+            .finalize_issued_transport(provider, provider_subject, signed)
             .map_err(AccountIssuerRpcError::Repository)?;
         let receipt = AccountIssuerReceiptView::from_receipt(recorded.transport().receipt())
             .ok_or(AccountIssuerRpcError::Repository(
                 AccountIssuerRepositoryError::InvalidSchema,
             ))?;
         let replayed = recorded.replayed();
-        issue_transaction
-            .commit()
-            .map_err(AccountIssuerRpcError::Repository)?;
         Ok(IssuedAuthority { receipt, replayed })
     }
 
@@ -201,19 +170,9 @@ impl AccountIssuerOwner {
         provider_subject: &AccountIdentityProviderSubject,
         claim: &DeliveryClaim,
     ) -> Result<PreparedAcknowledgeReceipt, AccountIssuerRpcError> {
-        let current = self
+        let request = self
             .repository
-            .resolve_current(provider, provider_subject)
-            .map_err(AccountIssuerRpcError::Repository)?;
-        let transaction = self
-            .repository
-            .begin()
-            .map_err(AccountIssuerRpcError::Repository)?;
-        let request = transaction
-            .prepare_acknowledge_receipt(&current, claim)
-            .map_err(AccountIssuerRpcError::Repository)?;
-        transaction
-            .commit()
+            .prepare_acknowledge_receipt(provider, provider_subject, claim)
             .map_err(AccountIssuerRpcError::Repository)?;
         Ok(request)
     }
@@ -225,19 +184,9 @@ impl AccountIssuerOwner {
         claim: DeliveryClaim,
         protected_receipt: ProtectedAccountIssuerReceipt,
     ) -> Result<AccountIssuerReceiptView, AccountIssuerRpcError> {
-        let current = self
+        let receipt = self
             .repository
-            .resolve_current(provider, provider_subject)
-            .map_err(AccountIssuerRpcError::Repository)?;
-        let mut transaction = self
-            .repository
-            .begin()
-            .map_err(AccountIssuerRpcError::Repository)?;
-        let receipt = transaction
-            .acknowledge_receipt(&current, &claim, &protected_receipt)
-            .map_err(AccountIssuerRpcError::Repository)?;
-        transaction
-            .commit()
+            .acknowledge_receipt(provider, provider_subject, &claim, &protected_receipt)
             .map_err(AccountIssuerRpcError::Repository)?;
         AccountIssuerReceiptView::from_receipt(&receipt).ok_or(AccountIssuerRpcError::Repository(
             AccountIssuerRepositoryError::InvalidSchema,

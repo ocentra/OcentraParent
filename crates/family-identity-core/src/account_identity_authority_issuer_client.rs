@@ -10,17 +10,23 @@ use std::path::Path;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
+use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES;
 use rusqlite::{Connection, Transaction, TransactionBehavior};
 
 use crate::account_identity_authority::{
     AccountIdentityCurrentMemberAuthorityProducer, VerifiedAccountIdentityAuthority,
 };
-use crate::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Error;
+use crate::account_identity_authority_producer_v2::{
+    AccountIdentityAuthorityProducerV2Error, AccountIdentityAuthorityProducerV2Request,
+    AccountIdentityAuthorityProducerV2Transport,
+};
 use crate::account_identity_authority_repository::{
     AccountIdentityAuthorityRepositoryError, SqliteAccountIdentityAuthorityRepository,
 };
 use crate::session_lifecycle_custody::SessionLifecyclePolicy;
 
+#[path = "account_identity_authority_issuer_client_reservation.rs"]
+mod account_identity_authority_issuer_client_reservation;
 #[path = "account_identity_authority_issuer_client_types.rs"]
 pub mod account_identity_authority_issuer_client_types;
 #[path = "account_identity_authority_issuer_client_currentness.rs"]
@@ -32,6 +38,8 @@ use account_identity_authority_issuer_client_types::{
     AccountIdentityIssuerAccountId, AccountIdentityIssuerHouseholdId, AccountIdentityIssuerV2KeyId,
     AccountIdentityIssuerV2ServiceBindingId,
 };
+#[path = "account_identity_authority_issuer_client_api.rs"]
+mod api;
 #[path = "account_identity_authority_issuer_client_clock.rs"]
 mod clock;
 #[path = "account_identity_authority_issuer_client_schema.rs"]
@@ -57,6 +65,9 @@ pub enum AccountIdentityAuthorityIssuerClientError {
     ReceiptUnavailable,
     DeliveryUnavailable,
     ClockUnavailable,
+    ReservationUnavailable,
+    ReservationExpired,
+    ManualRequired,
     Producer(AccountIdentityAuthorityProducerV2Error),
 }
 
@@ -100,8 +111,69 @@ pub struct AccountIdentityIssuerV2KeyRecord {
     service_binding_id: AccountIdentityIssuerV2ServiceBindingId,
 }
 
-pub struct AccountIdentityAuthorityIssuerTransaction<'a> {
+pub(crate) struct AccountIdentityAuthorityIssuerTransaction<'a> {
     transaction: Transaction<'a>,
+}
+
+/// Family-owned one-way transition from a durable prepared reservation to a
+/// signed receipt.  The request is available only for the Account-owned
+/// protected signer; the reservation itself never crosses this crate's public
+/// boundary and cannot be cloned, serialized, or caller-minted.
+#[must_use]
+pub struct AccountIdentityIssuerPreparedIssue {
+    request: AccountIdentityAuthorityProducerV2Request,
+    reservation:
+        account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation,
+}
+
+impl AccountIdentityIssuerPreparedIssue {
+    pub fn request(&self) -> &AccountIdentityAuthorityProducerV2Request {
+        &self.request
+    }
+
+    /// Consume the prepared request after the protected Account signer has
+    /// produced its exact signature.  The returned transition still carries
+    /// the family-owned reservation, but exposes no reservation authority.
+    pub fn finalize_with_signature(
+        self,
+        signature: [u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES],
+    ) -> Result<AccountIdentityIssuerSignedIssue, AccountIdentityAuthorityProducerV2Error> {
+        let Self {
+            request,
+            reservation,
+        } = self;
+        let transport = request.finalize(signature)?;
+        Ok(AccountIdentityIssuerSignedIssue {
+            reservation,
+            transport,
+        })
+    }
+}
+
+/// Opaque signed issue transition accepted by the family finalizer.  It is
+/// intentionally non-Clone and has no serialization or raw reservation
+/// accessors; only the family client can consume its private parts.
+#[must_use]
+pub struct AccountIdentityIssuerSignedIssue {
+    reservation:
+        account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation,
+    transport: AccountIdentityAuthorityProducerV2Transport,
+}
+
+impl AccountIdentityIssuerSignedIssue {
+    fn into_parts(
+        self,
+    ) -> (
+        account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation,
+        AccountIdentityAuthorityProducerV2Transport,
+    ) {
+        (self.reservation, self.transport)
+    }
+}
+
+pub enum AccountIdentityIssuerIssuePreparation {
+    Replay(AccountIdentityAuthorityProducerV2Transport),
+    Prepared(AccountIdentityIssuerPreparedIssue),
 }
 
 impl AccountIdentityAuthorityIssuerClient {
@@ -141,6 +213,7 @@ impl AccountIdentityAuthorityIssuerClient {
         )
         .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
         let (now, _) = clock::now(&transaction)?;
+        transaction::reconcile_issue_reservations(&transaction, now)?;
         transaction_outbox::reconcile_startup(&transaction, now)?;
         transaction
             .commit()
@@ -177,20 +250,6 @@ impl AccountIdentityAuthorityIssuerClient {
             account_id,
             household_id,
         })
-    }
-
-    pub fn begin(
-        &mut self,
-    ) -> Result<
-        AccountIdentityAuthorityIssuerTransaction<'_>,
-        AccountIdentityAuthorityIssuerClientError,
-    > {
-        let transaction = Transaction::new_unchecked(
-            self.repository.account_issuer_connection(),
-            TransactionBehavior::Immediate,
-        )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
-        Ok(AccountIdentityAuthorityIssuerTransaction { transaction })
     }
 
     pub fn claim_pending_outbox(
@@ -256,6 +315,14 @@ fn count_connection(
         .query_row(query, [], |row| row.get(0))
         .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
     u64::try_from(value).map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+}
+
+fn is_manual_transition(error: &AccountIdentityAuthorityIssuerClientError) -> bool {
+    matches!(
+        error,
+        AccountIdentityAuthorityIssuerClientError::ReservationExpired
+            | AccountIdentityAuthorityIssuerClientError::ManualRequired
+    )
 }
 
 fn map_repository_error(

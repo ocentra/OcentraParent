@@ -13,7 +13,7 @@ use super::super::{
 };
 
 impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
-    pub fn acknowledge_receipt(
+    pub(crate) fn acknowledge_receipt(
         &mut self,
         currentness: &AccountIdentityIssuerCurrentness,
         claim: &AccountIdentityIssuerOutboxClaim,

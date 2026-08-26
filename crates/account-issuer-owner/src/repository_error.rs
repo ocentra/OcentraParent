@@ -1,27 +1,14 @@
+#[path = "repository_error_common.rs"]
+mod common;
+#[path = "repository_error_reservation.rs"]
+mod reservation;
+
 use super::{AccountIdentityAuthorityIssuerClientError, AccountIssuerRepositoryError};
 
 impl From<AccountIdentityAuthorityIssuerClientError> for AccountIssuerRepositoryError {
     fn from(error: AccountIdentityAuthorityIssuerClientError) -> Self {
-        match error {
-            AccountIdentityAuthorityIssuerClientError::InvalidPath => Self::InvalidPath,
-            AccountIdentityAuthorityIssuerClientError::InvalidSchema => Self::InvalidSchema,
-            AccountIdentityAuthorityIssuerClientError::CurrentnessUnavailable => {
-                Self::CurrentnessUnavailable
-            }
-            AccountIdentityAuthorityIssuerClientError::CurrentnessRejected => {
-                Self::CurrentnessRejected
-            }
-            AccountIdentityAuthorityIssuerClientError::KeyUnavailable => Self::KeyUnavailable,
-            AccountIdentityAuthorityIssuerClientError::InvalidKey => Self::InvalidKey,
-            AccountIdentityAuthorityIssuerClientError::InvalidReceipt
-            | AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable
-            | AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable => {
-                Self::ReceiptUnavailable
-            }
-            AccountIdentityAuthorityIssuerClientError::ReplayDetected => Self::ReplayDetected,
-            AccountIdentityAuthorityIssuerClientError::ClockUnavailable
-            | AccountIdentityAuthorityIssuerClientError::Unavailable => Self::Unavailable,
-            AccountIdentityAuthorityIssuerClientError::Producer(_) => Self::Producer,
-        }
+        common::map(&error)
+            .or_else(|| reservation::map(&error))
+            .unwrap_or(Self::Unavailable)
     }
 }

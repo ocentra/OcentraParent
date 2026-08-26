@@ -8,7 +8,7 @@ use ocentra_schema::account_identity_authority_producer_v2::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
 };
 
-use ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request;
+use ocentra_family_identity_core::account_identity_authority_issuer_client::AccountIdentityIssuerPreparedIssue;
 use ocentra_protected_capability_custody_core::account_issuer::{
     AccountIssuerP256Signer, AccountIssuerP256SignerError, AccountIssuerSignerCapability,
 };
@@ -142,30 +142,52 @@ impl IssueCurrentAuthorityCommand {
 /// received the exact protected signing capability. Callers never receive the
 /// family request, a raw signer, or a platform handle.
 pub struct PreparedAccountIssuerV2Request {
-    request: AccountIdentityAuthorityProducerV2Request,
+    prepared: AccountIdentityIssuerPreparedIssue,
 }
 
 impl PreparedAccountIssuerV2Request {
-    pub(crate) fn from_request(request: AccountIdentityAuthorityProducerV2Request) -> Self {
-        Self { request }
+    pub(crate) fn from_inner(prepared: AccountIdentityIssuerPreparedIssue) -> Self {
+        Self { prepared }
     }
 
     /// Return the exact binding selected by the Account-owned request.
     pub fn binding(&self) -> &ocentra_schema::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Binding{
-        self.request.binding()
+        self.prepared.request().binding()
     }
 
     /// Ask the Account-specific protected core adapter to sign this exact
     /// owner-created request. The family request remains private here and is
     /// retained for owner-side verification and durable finalization.
     pub fn sign_with(
-        &self,
+        self,
         signer: &AccountIssuerP256Signer,
-    ) -> Result<AccountIssuerSignerCapability, AccountIssuerP256SignerError> {
-        signer.sign_request(&self.request)
+    ) -> Result<SignedAccountIssuerV2Envelope, AccountIssuerP256SignerError> {
+        let capability = signer.sign_request(self.prepared.request())?;
+        Ok(SignedAccountIssuerV2Envelope {
+            prepared: self.prepared,
+            capability,
+        })
     }
+}
 
-    pub(crate) fn into_parts(self) -> AccountIdentityAuthorityProducerV2Request {
-        self.request
+/// The single-use owner envelope returned after the protected signer has
+/// produced a capability for the exact prepared request.  Its fields and
+/// constructor are private so callers can only hand the complete transition
+/// to the owner finalizer; the request, reservation, and capability cannot be
+/// split into independently reusable values at the public boundary.
+#[must_use]
+pub struct SignedAccountIssuerV2Envelope {
+    prepared: AccountIdentityIssuerPreparedIssue,
+    capability: AccountIssuerSignerCapability,
+}
+
+impl SignedAccountIssuerV2Envelope {
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        AccountIdentityIssuerPreparedIssue,
+        AccountIssuerSignerCapability,
+    ) {
+        (self.prepared, self.capability)
     }
 }

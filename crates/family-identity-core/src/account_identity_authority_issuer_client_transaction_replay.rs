@@ -15,6 +15,9 @@ pub(super) struct StoredIssue {
     pub(super) receipt_id: String,
     pub(super) account_id: String,
     pub(super) household_id: String,
+    pub(super) provider: Option<String>,
+    pub(super) provider_subject: Option<String>,
+    pub(super) provenance_state: String,
     pub(super) service: String,
     pub(super) service_binding_id: String,
     pub(super) key_id: String,
@@ -31,7 +34,7 @@ pub(super) struct StoredIssue {
 }
 
 impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
-    pub fn existing_issued_transport(
+    pub(crate) fn existing_issued_transport(
         &self,
         currentness: &AccountIdentityIssuerCurrentness,
         correlation_id: &str,
@@ -47,6 +50,16 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         let Some(stored) = stored else {
             return Ok(None);
         };
+        if stored.provenance_state != "exact"
+            || stored.provider.as_deref()
+                != Some(super::provider_label(currentness.authority().provider()))
+            || stored.provider_subject.as_deref()
+                != Some(currentness.authority().provider_subject().as_str())
+        {
+            // v3 rows were intentionally migrated without fabricated
+            // provider provenance.  They cannot authorize exact replay.
+            return Err(AccountIdentityAuthorityIssuerClientError::ReplayDetected);
+        }
         if stored.correlation_id != correlation_id || stored.idempotency_key != idempotency_key {
             return Err(AccountIdentityAuthorityIssuerClientError::ReplayDetected);
         }
@@ -66,9 +79,9 @@ pub(super) fn load_stored_issue_by_idempotency(
 ) -> Result<Option<StoredIssue>, AccountIdentityAuthorityIssuerClientError> {
     transaction
         .query_row(
-            "SELECT receipt_id, account_id, household_id, service, service_binding_id,
-                    key_id, key_generation, enrollment_generation, authority_generation,
-                    session_generation,
+            "SELECT receipt_id, account_id, household_id, provider, provider_subject,
+                    provenance_state, service, service_binding_id, key_id, key_generation,
+                    enrollment_generation, authority_generation, session_generation,
                     correlation_id, idempotency_key, payload_digest, issued_at,
                     expires_at, wire
                FROM account_identity_issuer_v2_receipt
@@ -83,19 +96,22 @@ pub(super) fn load_stored_issue_by_idempotency(
                     receipt_id: row.get(0)?,
                     account_id: row.get(1)?,
                     household_id: row.get(2)?,
-                    service: row.get(3)?,
-                    service_binding_id: row.get(4)?,
-                    key_id: row.get(5)?,
-                    key_generation: row.get(6)?,
-                    enrollment_generation: row.get(7)?,
-                    authority_generation: row.get(8)?,
-                    session_generation: row.get(9)?,
-                    correlation_id: row.get(10)?,
-                    idempotency_key: row.get(11)?,
-                    payload_digest: row.get(12)?,
-                    issued_at: row.get(13)?,
-                    expires_at: row.get(14)?,
-                    wire: row.get(15)?,
+                    provider: row.get(3)?,
+                    provider_subject: row.get(4)?,
+                    provenance_state: row.get(5)?,
+                    service: row.get(6)?,
+                    service_binding_id: row.get(7)?,
+                    key_id: row.get(8)?,
+                    key_generation: row.get(9)?,
+                    enrollment_generation: row.get(10)?,
+                    authority_generation: row.get(11)?,
+                    session_generation: row.get(12)?,
+                    correlation_id: row.get(13)?,
+                    idempotency_key: row.get(14)?,
+                    payload_digest: row.get(15)?,
+                    issued_at: row.get(16)?,
+                    expires_at: row.get(17)?,
+                    wire: row.get(18)?,
                 })
             },
         )
