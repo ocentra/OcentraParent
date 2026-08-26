@@ -10,17 +10,12 @@ use crate::{WindowsText, MAX_WIDE_CHARS};
 use windows_sys::Win32::Security::Cryptography::{
     BCRYPT_RSAPUBLIC_MAGIC, NCRYPT_ALLOW_SIGNING_FLAG, NCRYPT_IMPL_HARDWARE_FLAG,
     NCRYPT_IMPL_REMOVABLE_FLAG, NCRYPT_IMPL_SOFTWARE_FLAG, NCRYPT_PCP_SIGNATURE_KEY,
-    NCRYPT_PROV_HANDLE,
 };
 
 const TPM_MARKER: &str = "TPM";
 const TPM2_VERSION_PREFIX: &str = "2.0";
 
-pub(super) fn valid_identity(
-    observation: &AccountIssuerP256Observation,
-    observed_provider: NCRYPT_PROV_HANDLE,
-    expected_provider: NCRYPT_PROV_HANDLE,
-) -> bool {
+pub(super) fn valid_identity(observation: &AccountIssuerP256Observation) -> bool {
     let implementation_mask =
         NCRYPT_IMPL_HARDWARE_FLAG | NCRYPT_IMPL_SOFTWARE_FLAG | NCRYPT_IMPL_REMOVABLE_FLAG;
     let exact_properties = (
@@ -32,7 +27,6 @@ pub(super) fn valid_identity(
         observation.key_usage,
         observation.pcp_key_usage_policy,
         observation.key_length_bits,
-        observed_provider,
     );
     exact_properties
         == (
@@ -44,9 +38,8 @@ pub(super) fn valid_identity(
             NCRYPT_ALLOW_SIGNING_FLAG,
             NCRYPT_PCP_SIGNATURE_KEY,
             256,
-            expected_provider,
         )
-        && observation.provider_version != 0
+        && valid_stable_text(&observation.provider_version)
         && valid_stable_text(&observation.unique_name)
         && valid_tpm2_platform(&observation.platform_type)
         && valid_selected_ek_public_blob(&observation.ek_public)

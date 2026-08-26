@@ -13,7 +13,7 @@ pub struct AccountIssuerP256Observation {
     pub(crate) algorithm_group: WindowsText,
     pub(crate) unique_name: WindowsText,
     pub(crate) implementation_type: u32,
-    pub(crate) provider_version: u32,
+    pub(crate) provider_version: WindowsText,
     pub(crate) export_policy: u32,
     pub(crate) key_usage: u32,
     pub(crate) pcp_key_usage_policy: u32,
@@ -47,8 +47,8 @@ impl AccountIssuerP256Observation {
         self.implementation_type
     }
 
-    pub fn provider_version(&self) -> u32 {
-        self.provider_version
+    pub fn provider_version(&self) -> &WindowsText {
+        &self.provider_version
     }
 
     pub fn export_policy(&self) -> u32 {

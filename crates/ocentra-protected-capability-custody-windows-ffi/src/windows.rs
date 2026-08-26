@@ -7,6 +7,7 @@ pub(crate) mod cng_account_issuer_p256_capability;
 pub(crate) mod cng_account_issuer_p256_export;
 pub(crate) mod cng_account_issuer_p256_identity;
 pub(crate) mod cng_account_issuer_p256_lifecycle;
+pub(crate) mod cng_account_issuer_p256_provider_observation;
 pub(crate) mod cng_account_issuer_p256_security;
 pub(crate) mod cng_account_issuer_p256_sign;
 pub(crate) mod cng_account_issuer_p256_storage;

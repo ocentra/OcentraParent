@@ -14,9 +14,8 @@ use windows_sys::Win32::Security::Cryptography::{
     NCRYPT_KEY_HANDLE, NCRYPT_KEY_USAGE_PROPERTY, NCRYPT_LENGTH_PROPERTY, NCRYPT_NAME_PROPERTY,
     NCRYPT_PCP_EKPUB_PROPERTY, NCRYPT_PCP_KEY_USAGE_POLICY_PROPERTY,
     NCRYPT_PCP_PLATFORM_TYPE_PROPERTY, NCRYPT_PCP_PROVIDER_VERSION_PROPERTY,
-    NCRYPT_PCP_TPM2BNAME_PROPERTY, NCRYPT_PROVIDER_HANDLE_PROPERTY, NCRYPT_PROV_HANDLE,
-    NCRYPT_SECURITY_DESCR_PROPERTY, NCRYPT_SECURITY_DESCR_SUPPORT_PROPERTY, NCRYPT_SILENT_FLAG,
-    NCRYPT_UNIQUE_NAME_PROPERTY,
+    NCRYPT_PCP_TPM2BNAME_PROPERTY, NCRYPT_PROV_HANDLE, NCRYPT_SECURITY_DESCR_PROPERTY,
+    NCRYPT_SECURITY_DESCR_SUPPORT_PROPERTY, NCRYPT_SILENT_FLAG, NCRYPT_UNIQUE_NAME_PROPERTY,
 };
 use windows_sys::Win32::Security::{
     DACL_SECURITY_INFORMATION, OBJECT_SECURITY_INFORMATION, OWNER_SECURITY_INFORMATION,
@@ -32,15 +31,15 @@ struct KeyTextProperties {
     unique_name: WindowsText,
 }
 
+#[derive(Eq, PartialEq)]
 struct ProviderProperties {
     implementation_type: u32,
-    provider_version: u32,
+    provider_version: WindowsText,
     platform_type: WindowsText,
     ek_public: Vec<u8>,
 }
 
 struct KeyNumericProperties {
-    observed_provider: NCRYPT_PROV_HANDLE,
     export_policy: u32,
     key_usage: u32,
     pcp_key_usage_policy: u32,
@@ -55,7 +54,6 @@ struct KeyMaterial {
 
 struct RawObservation {
     observation: AccountIssuerP256Observation,
-    observed_provider: NCRYPT_PROV_HANDLE,
 }
 
 pub(super) fn observe_key(
@@ -79,11 +77,7 @@ fn observe_key_with_security_policy(
 ) -> Result<AccountIssuerP256Observation> {
     ensure_security_descriptor_support(provider)?;
     let raw = read_observation(provider, key)?;
-    let identity_valid = super::cng_account_issuer_p256_identity::valid_identity(
-        &raw.observation,
-        raw.observed_provider,
-        provider,
-    );
+    let identity_valid = super::cng_account_issuer_p256_identity::valid_identity(&raw.observation);
     let base_security_valid =
         super::cng_account_issuer_p256_acl::valid_base_security(raw.observation.security());
     let security_valid = (require_protected_base_security, base_security_valid) != (true, false);
@@ -99,6 +93,7 @@ fn read_observation(
 ) -> Result<RawObservation> {
     let text = read_key_text_properties(key)?;
     let provider_properties = read_provider_properties(provider)?;
+    validate_key_provider_identity(key, &provider_properties)?;
     let numeric = read_key_numeric_properties(key)?;
     let material = read_key_material(key)?;
     Ok(RawObservation {
@@ -119,8 +114,25 @@ fn read_observation(
             public_key_sec1: material.public_key_sec1,
             security: material.security,
         },
-        observed_provider: numeric.observed_provider,
     })
+}
+
+fn validate_key_provider_identity(
+    key: NCRYPT_KEY_HANDLE,
+    expected: &ProviderProperties,
+) -> Result<()> {
+    // The expected handle was opened by the compiled Microsoft Platform
+    // Provider name. The key-acquired handle must independently expose the
+    // same provider properties and algorithm surface; numeric handle equality
+    // is neither required nor treated as identity.
+    let observed = super::cng_account_issuer_p256_provider_observation::from_key(key)?;
+    super::cng_account_issuer_p256_algorithm::validate_provider_algorithm(observed.handle())?;
+    ensure_security_descriptor_support(observed.handle())?;
+    let observed_properties = read_provider_properties(observed.handle())?;
+    if &observed_properties != expected {
+        return Err(Error::CryptoPropertyViolation);
+    }
+    Ok(())
 }
 
 fn read_key_text_properties(key: NCRYPT_KEY_HANDLE) -> Result<KeyTextProperties> {
@@ -135,7 +147,7 @@ fn read_key_text_properties(key: NCRYPT_KEY_HANDLE) -> Result<KeyTextProperties>
 fn read_provider_properties(provider: NCRYPT_PROV_HANDLE) -> Result<ProviderProperties> {
     Ok(ProviderProperties {
         implementation_type: get_u32_property(provider, NCRYPT_IMPL_TYPE_PROPERTY)?,
-        provider_version: get_u32_property(provider, NCRYPT_PCP_PROVIDER_VERSION_PROPERTY)?,
+        provider_version: read_text_property(provider, NCRYPT_PCP_PROVIDER_VERSION_PROPERTY)?,
         platform_type: read_text_property(provider, NCRYPT_PCP_PLATFORM_TYPE_PROPERTY)?,
         ek_public: get_property(provider, NCRYPT_PCP_EKPUB_PROPERTY, NCRYPT_SILENT_FLAG)?,
     })
@@ -143,7 +155,6 @@ fn read_provider_properties(provider: NCRYPT_PROV_HANDLE) -> Result<ProviderProp
 
 fn read_key_numeric_properties(key: NCRYPT_KEY_HANDLE) -> Result<KeyNumericProperties> {
     Ok(KeyNumericProperties {
-        observed_provider: get_usize_property(key, NCRYPT_PROVIDER_HANDLE_PROPERTY)?,
         export_policy: get_u32_property(key, NCRYPT_EXPORT_POLICY_PROPERTY)?,
         key_usage: get_u32_property(key, NCRYPT_KEY_USAGE_PROPERTY)?,
         pcp_key_usage_policy: get_u32_property(key, NCRYPT_PCP_KEY_USAGE_POLICY_PROPERTY)?,
@@ -188,7 +199,7 @@ fn read_text_property(handle: usize, property: PCWSTR) -> Result<WindowsText> {
     decode_text(&get_property(handle, property, NCRYPT_SILENT_FLAG)?)
 }
 
-fn get_property(
+pub(super) fn get_property(
     handle: usize,
     property: PCWSTR,
     flags: OBJECT_SECURITY_INFORMATION,
@@ -222,16 +233,6 @@ fn get_u32_property(handle: usize, property: PCWSTR) -> Result<u32> {
         return Err(Error::CryptoPropertyViolation);
     }
     Ok(u32::from_le_bytes([value[0], value[1], value[2], value[3]]))
-}
-
-fn get_usize_property(handle: usize, property: PCWSTR) -> Result<usize> {
-    let value = get_property(handle, property, NCRYPT_SILENT_FLAG)?;
-    if value.len() != core::mem::size_of::<usize>() {
-        return Err(Error::CryptoPropertyViolation);
-    }
-    let mut bytes = [0_u8; core::mem::size_of::<usize>()];
-    bytes.copy_from_slice(&value);
-    Ok(usize::from_le_bytes(bytes))
 }
 
 fn decode_text(bytes: &[u8]) -> Result<WindowsText> {
