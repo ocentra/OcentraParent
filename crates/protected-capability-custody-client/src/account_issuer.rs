@@ -13,8 +13,11 @@ use ocentra_protected_capability_custody_protocol::account_issuer::{
     AccountIssuerMessageKind, AccountIssuerReceipt as ProtocolAccountIssuerReceipt,
     AccountIssuerRequest as ProtocolAccountIssuerRequest,
 };
-use ocentra_protected_capability_custody_protocol::account_issuer_contract::AccountIssuerField;
+use ocentra_protected_capability_custody_protocol::account_issuer_contract::{
+    AccountIssuerField, ACCOUNT_ISSUER_MAX_INNER_BYTES,
+};
 use ocentra_protected_capability_custody_protocol::constants;
+use ocentra_protected_capability_custody_protocol::types::ProtocolError;
 
 /// Opaque, bounded bytes produced by the Account-owned authority/receipt
 /// serializer. The client can carry this payload, but cannot interpret it or
@@ -25,8 +28,18 @@ pub struct AccountIssuerPayload {
 }
 
 impl AccountIssuerPayload {
-    pub fn from_wire(wire: Vec<u8>) -> Self {
-        Self { wire }
+    pub fn from_wire(wire: Vec<u8>) -> Result<Self, AccountIssuerClientError> {
+        if wire.is_empty() {
+            return Err(AccountIssuerClientError::Protocol(
+                ProtocolError::EmptyField,
+            ));
+        }
+        if wire.len() > ACCOUNT_ISSUER_MAX_INNER_BYTES {
+            return Err(AccountIssuerClientError::Protocol(
+                ProtocolError::FieldTooLarge,
+            ));
+        }
+        Ok(Self { wire })
     }
 
     pub(crate) fn into_wire(self) -> Vec<u8> {

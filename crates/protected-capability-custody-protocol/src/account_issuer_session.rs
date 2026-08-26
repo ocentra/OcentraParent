@@ -27,7 +27,7 @@ pub(crate) const ACCOUNT_ISSUER_SESSION_REQUEST_DOMAIN: &[u8] =
 pub(crate) const ACCOUNT_ISSUER_SESSION_RECEIPT_DOMAIN: &[u8] =
     crate::constants::RESPONSE_DIGEST_DOMAIN.as_bytes();
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub(crate) struct SessionBinding {
     pub(crate) version: ProtocolVersion,
     pub(crate) protocol_generation: ProtocolGeneration,
@@ -93,7 +93,7 @@ impl SessionBinding {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct AuthenticatedAccountIssuerRequest {
     binding: SessionBinding,
     request: AccountIssuerRequest,
@@ -101,7 +101,7 @@ pub struct AuthenticatedAccountIssuerRequest {
     authentication_tag: AuthenticationTag,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct UntrustedAccountIssuerRequest {
     binding: SessionBinding,
     request: AccountIssuerRequest,
@@ -109,7 +109,7 @@ pub struct UntrustedAccountIssuerRequest {
     authentication_tag: AuthenticationTag,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct AuthenticatedAccountIssuerReceipt {
     binding: SessionBinding,
     request_digest: [u8; crate::constants::REQUEST_DIGEST_BYTES],
@@ -117,7 +117,7 @@ pub struct AuthenticatedAccountIssuerReceipt {
     authentication_tag: AuthenticationTag,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct UntrustedAccountIssuerReceipt {
     binding: SessionBinding,
     request_digest: [u8; crate::constants::REQUEST_DIGEST_BYTES],
@@ -214,7 +214,7 @@ impl UntrustedAccountIssuerRequest {
 
 impl AuthenticatedAccountIssuerReceipt {
     pub fn authenticate(
-        request: &AuthenticatedAccountIssuerRequest,
+        request: AuthenticatedAccountIssuerRequest,
         receipt: AccountIssuerReceipt,
         authenticator: &BootstrapAuthenticator,
     ) -> Result<Self, ProtocolError> {
@@ -249,14 +249,13 @@ impl UntrustedAccountIssuerReceipt {
         now_unix_millis: u64,
         authenticator: &BootstrapAuthenticator,
     ) -> Result<AccountIssuerReceipt, ProtocolError> {
-        if self.binding != request.binding
+        if self.binding.ne(&request.binding)
             || self.request_digest != request.request_digest
-            || self.binding
-                != SessionBinding::from_hello(
-                    hello,
-                    request.binding.sequence,
-                    request.binding.expires_at_unix_millis,
-                )?
+            || self.binding.ne(&SessionBinding::from_hello(
+                hello,
+                request.binding.sequence,
+                request.binding.expires_at_unix_millis,
+            )?)
         {
             return Err(ProtocolError::AuthenticationFailed);
         }
