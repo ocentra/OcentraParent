@@ -131,6 +131,15 @@ impl AccountIdentityIssuerPreparedIssue {
         &self.request
     }
 
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        AccountIdentityAuthorityProducerV2Request,
+        account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation,
+    ) {
+        (self.request, self.reservation)
+    }
+
     /// Consume the prepared request after the protected Account signer has
     /// produced its exact signature.  The returned transition still carries
     /// the family-owned reservation, but exposes no reservation authority.
@@ -207,17 +216,22 @@ impl AccountIdentityAuthorityIssuerClient {
     ) -> Result<AccountIdentityAuthorityIssuerStartupState, AccountIdentityAuthorityIssuerClientError>
     {
         self.initialize_schema()?;
-        let transaction = Transaction::new_unchecked(
-            self.repository.account_issuer_connection(),
-            TransactionBehavior::Immediate,
-        )
-        .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
-        let (now, _) = clock::now(&transaction)?;
-        transaction::reconcile_issue_reservations(&transaction, now)?;
-        transaction_outbox::reconcile_startup(&transaction, now)?;
-        transaction
-            .commit()
+        loop {
+            let transaction = Transaction::new_unchecked(
+                self.repository.account_issuer_connection(),
+                TransactionBehavior::Immediate,
+            )
             .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+            let (now, _) = clock::now(&transaction)?;
+            let issue_backlog = transaction::reconcile_issue_reservations(&transaction, now)?;
+            transaction_outbox::reconcile_startup(&transaction, now)?;
+            transaction
+                .commit()
+                .map_err(|_| AccountIdentityAuthorityIssuerClientError::Unavailable)?;
+            if !issue_backlog {
+                break;
+            }
+        }
         let connection = self.repository.account_issuer_connection();
         let active_key_count = count_connection(
             connection,

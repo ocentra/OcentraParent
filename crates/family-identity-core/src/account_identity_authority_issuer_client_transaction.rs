@@ -260,6 +260,15 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         Ok((request, reservation))
     }
 
+    pub(crate) fn record_signing_failure(
+        &self,
+        request: &AccountIdentityAuthorityProducerV2Request,
+        reservation: &AccountIdentityIssuerReservation,
+    ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+        let (now, _) = super::clock::now(&self.transaction)?;
+        recovery::mark_signing_failure(&self.transaction, request, reservation, now)
+    }
+
     pub(crate) fn prepare_acknowledge_receipt(
         &self,
         currentness: &AccountIdentityIssuerCurrentness,
@@ -300,7 +309,7 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
 pub(super) fn reconcile_issue_reservations(
     transaction: &Transaction<'_>,
     now: i64,
-) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+) -> Result<bool, AccountIdentityAuthorityIssuerClientError> {
     recovery::reconcile_issue_reservations(transaction, now)
 }
 
