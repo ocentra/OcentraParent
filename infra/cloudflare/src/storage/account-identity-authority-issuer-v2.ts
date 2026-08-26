@@ -412,9 +412,10 @@ export function createAccountIdentityAuthorityIssuerV2Store(
         if (isMissingTableError(error)) return manualRequired(MISSING_SCHEMA_REASON);
         if (!isUniqueConstraintError(error)) return manualRequired(UNAVAILABLE_REASON);
         try {
-          const existing = await readExistingInbound(database, receipt);
-          if (existing === null) return { status: 'conflict' };
-          return sameInboundReceipt(existing, receipt) ? { status: 'duplicate' } : { status: 'conflict' };
+          const existing = await readExistingInboundWithCurrentness(database, receipt, expected);
+          if (existing.status === 'currentness-mismatch') return existing;
+          if (existing.row === null) return { status: 'conflict' };
+          return sameInboundReceipt(existing.row, receipt) ? { status: 'duplicate' } : { status: 'conflict' };
         } catch (readError) {
           return manualRequired(isMissingTableError(readError) ? MISSING_SCHEMA_REASON : UNAVAILABLE_REASON);
         }
@@ -467,28 +468,27 @@ async function isValidVerifier(
   if (typeof value !== 'object' || value === null || !(value.publicKey instanceof Uint8Array)) return false;
   if (
     !(
-      (value.service === ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE &&
-        isValidText(value.serviceBindingId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
-        isAccountIdentityAuthorityProducerV2ServiceBindingId(value.serviceBindingId) &&
-        isValidText(value.accountId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
-        isValidText(value.householdId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
-        (value.provider === 'authjs' || value.provider === 'firebase') &&
-        isValidText(value.providerSubject, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
-        isAccountIdentityAuthorityProducerV2KeyId(value.keyId) &&
-        value.keyId.startsWith(ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX) &&
-        isValidGeneration(value.keyGeneration) &&
-        isValidGeneration(value.enrollmentGeneration) &&
-        isValidGeneration(value.authorityGeneration) &&
-        isValidGeneration(value.sessionGeneration) &&
-        value.publicKey.byteLength === 65 &&
-        value.publicKey[0] === 0x04 &&
-        value.publicKey.slice(1).some((byte) => byte !== 0) &&
-        value.status === 'active') ||
-      (allowRevoked && value.status === 'revoked')
+      value.service === ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE &&
+      isValidText(value.serviceBindingId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
+      isAccountIdentityAuthorityProducerV2ServiceBindingId(value.serviceBindingId) &&
+      isValidText(value.accountId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
+      isValidText(value.householdId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
+      (value.provider === 'authjs' || value.provider === 'firebase') &&
+      isValidText(value.providerSubject, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
+      isAccountIdentityAuthorityProducerV2KeyId(value.keyId) &&
+      value.keyId.startsWith(ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX) &&
+      isValidGeneration(value.keyGeneration) &&
+      isValidGeneration(value.enrollmentGeneration) &&
+      isValidGeneration(value.authorityGeneration) &&
+      isValidGeneration(value.sessionGeneration) &&
+      value.publicKey.byteLength === 65 &&
+      value.publicKey[0] === 0x04 &&
+      value.publicKey.slice(1).some((byte) => byte !== 0)
     )
   ) {
     return false;
   }
+  if (value.status !== 'active' && (!allowRevoked || value.status !== 'revoked')) return false;
   try {
     const [expectedKeyId, expectedServiceBindingId] = await Promise.all([
       deriveAccountIdentityAuthorityProducerV2KeyId(value.publicKey),
@@ -610,29 +610,46 @@ function resultChanges(value: unknown): number {
   return 0;
 }
 
-async function readExistingInbound(
+async function readExistingInboundWithCurrentness(
   database: D1Database,
-  receipt: AccountIdentityAuthorityIssuerV2InboundReceipt
-): Promise<InboundReceiptRow | null> {
-  const byIdempotency = await database
-    .prepare(SELECT_INBOUND_BY_IDEMPOTENCY_SQL)
-    .bind(
-      ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
-      receipt.serviceBindingId,
-      receipt.operation,
-      receipt.idempotencyKey
-    )
-    .first<InboundReceiptRow>();
-  if (byIdempotency !== null) return byIdempotency;
-  return database
-    .prepare(SELECT_INBOUND_BY_RECEIPT_SQL)
-    .bind(
-      ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
-      receipt.serviceBindingId,
-      receipt.operation,
-      receipt.receiptId
-    )
-    .first<InboundReceiptRow>();
+  receipt: AccountIdentityAuthorityIssuerV2InboundReceipt,
+  expected: AccountIdentityAuthorityIssuerV2Verifier
+): Promise<
+  { readonly status: 'current'; readonly row: InboundReceiptRow | null } | { readonly status: 'currentness-mismatch' }
+> {
+  const results = await database.batch([
+    database.prepare(GUARD_CURRENT_VERIFIER_SQL).bind(...verifierBindingValues(expected)),
+    database
+      .prepare(SELECT_INBOUND_BY_IDEMPOTENCY_SQL)
+      .bind(
+        ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+        receipt.serviceBindingId,
+        receipt.operation,
+        receipt.idempotencyKey
+      ),
+    database
+      .prepare(SELECT_INBOUND_BY_RECEIPT_SQL)
+      .bind(
+        ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+        receipt.serviceBindingId,
+        receipt.operation,
+        receipt.receiptId
+      ),
+  ]);
+  if (resultChanges(results[0]) !== 1) return { status: 'currentness-mismatch' };
+  return {
+    status: 'current',
+    row: firstBatchRow(results[1]) ?? firstBatchRow(results[2]),
+  };
+}
+
+function firstBatchRow(value: unknown): InboundReceiptRow | null {
+  if (typeof value !== 'object' || value === null || !('results' in value)) return null;
+  const results = (value as { results?: unknown }).results;
+  if (!Array.isArray(results) || results.length === 0 || typeof results[0] !== 'object' || results[0] === null) {
+    return null;
+  }
+  return results[0] as InboundReceiptRow;
 }
 
 function sameInboundReceipt(row: InboundReceiptRow, value: AccountIdentityAuthorityIssuerV2InboundReceipt): boolean {
