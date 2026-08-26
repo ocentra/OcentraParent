@@ -40,7 +40,6 @@
     <Feature Id="ProtectedCustodyFeature" Title="Ocentra Parent protected custody" Level="1">
       <ComponentGroupRef Id="ProtectedCustodyProgramFiles" />
       <ComponentRef Id="ProtectedInstallDirectory" />
-      <ComponentRef Id="ProtectedDataRoot" />
       <ComponentRef Id="ProtectedCustodyDataDirectory" />
       <ComponentRef Id="ProtectedRegistryRoot" />
       <ComponentRef Id="ProtectedRegistryIdentity" />
@@ -90,6 +89,7 @@
           Account="LocalSystem"
           Vital="yes"
         >
+          <ServiceConfig ServiceSid="unrestricted" OnInstall="yes" OnReinstall="yes" />
           <util:ServiceConfig
             FirstFailureActionType="restart"
             SecondFailureActionType="restart"
@@ -127,14 +127,6 @@
       <CreateFolder>
         <PermissionEx
           Sddl="O:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464G:S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464D:P(A;;FA;;;S-1-5-18)(A;;FA;;;S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464)"
-        />
-      </CreateFolder>
-    </Component>
-
-    <Component Id="ProtectedDataRoot" Directory="PARENTDATAROOT" Guid="D9094AA5-ED49-4C8A-97BA-3FC8FAF14D56" Permanent="yes">
-      <CreateFolder>
-        <PermissionEx
-          Sddl="O:S-1-5-18G:S-1-5-18D:P(A;;FA;;;S-1-5-18)"
         />
       </CreateFolder>
     </Component>

@@ -78,14 +78,16 @@ function Get-Sha256Hex {
 function Get-RegistryId {
     param(
         [Parameter(Mandatory)]
-        [string]$ExecutablePath
+        [string]$CanonicalDatabasePath
     )
 
-    # This mirrors protected-capability-custody-core registry_id exactly:
+    # This mirrors protected-capability-custody-core registry_id exactly for
+    # broker_admission::storage_path::fixed_database_identity_path:
     # UTF-16 code units are encoded big-endian, with a big-endian byte length
-    # after the fixed domain. No caller-supplied path participates here.
+    # after the fixed domain. The path is an owner-approved package input, not
+    # a caller-supplied executable or command-line value.
     $domainBytes = [System.Text.Encoding]::UTF8.GetBytes('ocentra.pcc.registry-path.v1')
-    $canonicalBytes = [System.Text.Encoding]::BigEndianUnicode.GetBytes($ExecutablePath)
+    $canonicalBytes = [System.Text.Encoding]::BigEndianUnicode.GetBytes($CanonicalDatabasePath)
     $lengthBytes = [BitConverter]::GetBytes([uint32]$canonicalBytes.Length)
     [Array]::Reverse($lengthBytes)
     $payload = [byte[]]::new($domainBytes.Length + $lengthBytes.Length + $canonicalBytes.Length)
@@ -143,10 +145,10 @@ function Set-DeterministicMsiSummary {
         [string]$PackageCode
     )
 
-    # WiX 6.0.2 emits random SummaryInformation.PackageCode and current
-    # Created/LastSaved metadata. Normalize the package identity and supported
-    # timestamps through the Windows Installer COM API. Failure is a hard build
-    # error; the artifact hash is always recorded for release verification.
+    # WiX 6.0.2 emits mutable SummaryInformation.PackageCode and current
+    # Created/LastSaved metadata. Normalize the supported fields through the
+    # Windows Installer COM API, then require a complete repeated-build byte
+    # comparison below. This helper alone is not a reproducibility claim.
     $installer = $null
     $database = $null
     $summary = $null
@@ -171,6 +173,27 @@ function Set-DeterministicMsiSummary {
             if ($null -ne $comObject) {
                 [System.Runtime.InteropServices.Marshal]::FinalReleaseComObject($comObject) | Out-Null
             }
+        }
+    }
+}
+
+function Assert-ByteIdentical {
+    param(
+        [Parameter(Mandatory)]
+        [string]$LeftPath,
+
+        [Parameter(Mandatory)]
+        [string]$RightPath
+    )
+
+    $left = [System.IO.File]::ReadAllBytes($LeftPath)
+    $right = [System.IO.File]::ReadAllBytes($RightPath)
+    if ($left.Length -ne $right.Length) {
+        throw "WiX repeated-build outputs differ in length ($($left.Length) vs $($right.Length)); refusing to emit a non-deterministic MSI."
+    }
+    for ($index = 0; $index -lt $left.Length; $index++) {
+        if ($left[$index] -ne $right[$index]) {
+            throw "WiX repeated-build outputs differ at byte offset $index; the local toolchain cannot guarantee byte-for-byte MSI reproducibility, refusing to emit a package."
         }
     }
 }
@@ -214,7 +237,12 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
 $brokerBinaryPath = Join-Path $targetRoot 'ocentra-protected-capability-custody-broker.exe'
 $provisionerBinaryPath = Join-Path $targetRoot 'ocentra-protected-capability-custody-provisioner.exe'
 $brokerInstallPath = 'C:\Program Files\Ocentra\OcentraParent\ocentra-protected-capability-custody-broker.exe'
-$registryId = Get-RegistryId -ExecutablePath $brokerInstallPath
+$brokerDatabaseIdentityPath = 'C:\ProgramData\Ocentra\OcentraParent\protected-capability-custody\custody.sqlite'
+$expectedRegistryId = '2cc753a30323ee51ee0301439996c5e4077fe49d3a31250ee75b32b6ecd1baf7'
+$registryId = Get-RegistryId -CanonicalDatabasePath $brokerDatabaseIdentityPath
+if ($registryId -cne $expectedRegistryId) {
+    throw "Canonical database identity registry id '$registryId' does not match the owner-approved core/provisioner identity '$expectedRegistryId'; refusing to package."
+}
 $productCode = Get-DeterministicGuid -Seed "ocentra-parent-protected-custody/msi/$Version"
 
 Invoke-CheckedCommand -Command $cargoCommand -ArgumentList @(
@@ -265,39 +293,69 @@ if ($LASTEXITCODE -ne 0 -or $extensionList -notmatch 'WixToolset\.Util\.wixext\s
     Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @('wix', 'extension', 'add', 'WixToolset.Util.wixext/6.0.2') -FailureMessage 'WiX Util extension is unavailable'
 }
 
-Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @(
-    'wix',
-    'build',
-    $wixSourcePath,
-    '-ext',
-    'WixToolset.Util.wixext',
-    '-arch',
-    'x64',
-    '-d',
-    "ProductVersion=$Version",
-    '-d',
-    "ProductCode=$productCode",
-    '-d',
-    "BrokerBinaryPath=$brokerBinaryPath",
-    '-d',
-    "ProvisionerBinaryPath=$provisionerBinaryPath",
-    '-d',
-    "BrokerDigestHex=$brokerHash",
-    '-d',
-    "RegistryId=$registryId",
-    '-intermediatefolder',
-    $wixIntermediateRoot,
-    '-out',
-    $msiPath,
-    '-pdbtype',
-    'none'
-) -FailureMessage 'WiX protected custody package build failed'
+$firstMsiPath = Join-Path $wixIntermediateRoot 'candidate-a.msi'
+$secondMsiPath = Join-Path $wixIntermediateRoot 'candidate-b.msi'
+$firstIntermediatePath = Join-Path $wixIntermediateRoot 'candidate-a'
+$secondIntermediatePath = Join-Path $wixIntermediateRoot 'candidate-b'
 
-if (-not (Test-Path -LiteralPath $msiPath -PathType Leaf) -or (Get-Item -LiteralPath $msiPath).Length -le 0) {
-    throw "WiX reported success without a non-empty MSI at '$msiPath'."
+function Invoke-WixCandidateBuild {
+    param(
+        [Parameter(Mandatory)]
+        [string]$CandidateMsiPath,
+
+        [Parameter(Mandatory)]
+        [string]$CandidateIntermediatePath
+    )
+
+    New-Item -ItemType Directory -Path $CandidateIntermediatePath -Force | Out-Null
+    Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @(
+        'wix',
+        'build',
+        $wixSourcePath,
+        '-ext',
+        'WixToolset.Util.wixext',
+        '-arch',
+        'x64',
+        '-d',
+        "ProductVersion=$Version",
+        '-d',
+        "ProductCode=$productCode",
+        '-d',
+        "BrokerBinaryPath=$brokerBinaryPath",
+        '-d',
+        "ProvisionerBinaryPath=$provisionerBinaryPath",
+        '-d',
+        "BrokerDigestHex=$brokerHash",
+        '-d',
+        "RegistryId=$registryId",
+        '-intermediatefolder',
+        $CandidateIntermediatePath,
+        '-out',
+        $CandidateMsiPath,
+        '-pdbtype',
+        'none'
+    ) -FailureMessage 'WiX protected custody package build failed'
+
+    if (-not (Test-Path -LiteralPath $CandidateMsiPath -PathType Leaf) -or (Get-Item -LiteralPath $CandidateMsiPath).Length -le 0) {
+        throw "WiX reported success without a non-empty MSI at '$CandidateMsiPath'."
+    }
+
+    Set-DeterministicMsiSummary -Path $CandidateMsiPath -PackageCode $packageCode
 }
 
-Set-DeterministicMsiSummary -Path $msiPath -PackageCode $packageCode
+# WiX and the Windows Installer OLE container can carry metadata outside the
+# MSI tables. Build twice with isolated intermediates and compare every byte;
+# if the toolchain leaves any mutable container metadata, fail closed before a
+# final MSI, checksum, or manifest is published.
+Invoke-WixCandidateBuild -CandidateMsiPath $firstMsiPath -CandidateIntermediatePath $firstIntermediatePath
+Invoke-WixCandidateBuild -CandidateMsiPath $secondMsiPath -CandidateIntermediatePath $secondIntermediatePath
+Assert-ByteIdentical -LeftPath $firstMsiPath -RightPath $secondMsiPath
+Copy-Item -LiteralPath $firstMsiPath -Destination $msiPath -Force
+
+if (-not (Test-Path -LiteralPath $msiPath -PathType Leaf) -or (Get-Item -LiteralPath $msiPath).Length -le 0) {
+    throw "Deterministic WiX comparison passed without a non-empty final MSI at '$msiPath'."
+}
+
 $msiHash = Get-Sha256Hex -Path $msiPath
 Write-Utf8NoBom -Path $checksumPath -Content "$msiHash *$([System.IO.Path]::GetFileName($msiPath))`n"
 
@@ -311,12 +369,18 @@ $manifest = [ordered]@{
         sha256 = $msiHash
         checksumFile = [System.IO.Path]::GetFileName($checksumPath)
     }
+    reproducibility = [ordered]@{
+        verification = 'two independent WiX builds compared byte-for-byte after MSI metadata normalization'
+        byteIdenticalRepeatBuilds = $true
+    }
     inputs = @(
         [ordered]@{ role = 'broker'; file = [System.IO.Path]::GetFileName($brokerBinaryPath); sha256 = $brokerHash },
         [ordered]@{ role = 'provisioner'; file = [System.IO.Path]::GetFileName($provisionerBinaryPath); sha256 = $provisionerHash }
     )
     fixedIdentity = [ordered]@{
         brokerInstallPath = $brokerInstallPath
+        databaseIdentityPath = $brokerDatabaseIdentityPath
+        registryIdBasis = 'protected-capability-custody-core fixed_database_identity_path and provisioner fixed registry identity'
         registryId = $registryId
         productCode = $productCode
         packageCode = $packageCode
@@ -335,6 +399,7 @@ $manifest = [ordered]@{
     }
     protectedBoundary = [ordered]@{
         enrollment = 'External WP02 owner ceremony; package does not create or overwrite Enrollment\\authority-v1.'
+        permanentEnrollmentRepair = 'manual-required: permanent TrustedInstaller-owned Enrollment\\authority-v1 remains external WP02 owner state.'
         tpmOwnerCeremony = 'External OEM/firmware/MDM owner ceremony; not packaged.'
         tpmAuthorizationSecret = 'Never packaged, registered, logged, or passed on the command line.'
         readiness = 'Not claimed by MSI success, checksum, signing status, or service registration.'
