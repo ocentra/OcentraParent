@@ -1,6 +1,8 @@
 //! Fixed AccountIssuer v2 transport contract.
 
 use ocentra_schema::account_identity_authority_producer_v2::{
+    AccountIdentityAuthorityProducerV2CorrelationId,
+    AccountIdentityAuthorityProducerV2IdempotencyKey,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_OUTER_DOMAIN,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNER_CAPABILITY_DOMAIN,
 };
@@ -42,6 +44,20 @@ impl AccountIssuerField {
 
     pub(crate) fn as_bytes(&self) -> &[u8] {
         self.0.as_bytes()
+    }
+
+    pub fn parse_correlation_id(
+        &self,
+    ) -> Result<AccountIdentityAuthorityProducerV2CorrelationId, ProtocolError> {
+        AccountIdentityAuthorityProducerV2CorrelationId::parse(self.0.clone())
+            .map_err(|_| ProtocolError::InvalidDiscriminant(0))
+    }
+
+    pub fn parse_idempotency_key(
+        &self,
+    ) -> Result<AccountIdentityAuthorityProducerV2IdempotencyKey, ProtocolError> {
+        AccountIdentityAuthorityProducerV2IdempotencyKey::parse(self.0.clone())
+            .map_err(|_| ProtocolError::InvalidDiscriminant(0))
     }
 }
 

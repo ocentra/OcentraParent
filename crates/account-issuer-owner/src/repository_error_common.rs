@@ -30,6 +30,12 @@ pub(super) fn map(
         AccountIdentityAuthorityIssuerClientError::ReplayDetected => {
             Some(AccountIssuerRepositoryError::ReplayDetected)
         }
+        AccountIdentityAuthorityIssuerClientError::SigningUnavailable => {
+            Some(AccountIssuerRepositoryError::SigningUnavailable)
+        }
+        AccountIdentityAuthorityIssuerClientError::SigningRejected => {
+            Some(AccountIssuerRepositoryError::SigningRejected)
+        }
         _ => None,
     }
 }

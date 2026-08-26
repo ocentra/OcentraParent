@@ -152,6 +152,7 @@ fn verify_transport(
         now,
     )?;
     validate_verified_receipt(&verified, transport.receipt())?;
+    validate_verified_currentness(currentness, &verified)?;
     if transport.receipt().account_id != currentness.account_id().as_str()
         || transport.receipt().household_id != currentness.household_id().as_str()
     {
@@ -217,6 +218,27 @@ pub(super) fn validate_verified_receipt(
         || verified.claims().household_id != receipt.household_id
     {
         return Err(AccountIdentityAuthorityIssuerClientError::ReplayDetected);
+    }
+    Ok(())
+}
+
+pub(super) fn validate_verified_currentness(
+    currentness: &AccountIdentityIssuerCurrentness,
+    verified: &crate::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Verified,
+) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    let handoff = currentness.authority().handoff();
+    let claims = verified.claims();
+    if claims.account_id != currentness.account_id().as_str()
+        || claims.household_id != currentness.household_id().as_str()
+        || super::provider_label(&handoff.mapping.provider) != claims.provider
+        || handoff.mapping.provider_subject.as_str() != claims.provider_subject
+        || handoff.member.member_id.as_str() != claims.member_id
+        || handoff.member.device_id.as_str() != claims.device_id
+        || handoff.member.session_id.as_str() != claims.session_id
+        || handoff.member.authority_generation != verified.authority_generation()
+        || handoff.member.session_generation != verified.session_generation()
+    {
+        return Err(AccountIdentityAuthorityIssuerClientError::CurrentnessRejected);
     }
     Ok(())
 }

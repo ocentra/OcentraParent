@@ -2,9 +2,7 @@
 
 use ocentra_family_identity_core::account_identity_authority_issuer_client::{
     AccountIdentityAuthorityIssuerClient, AccountIdentityAuthorityIssuerClientError,
-    AccountIdentityIssuerCurrentness, AccountIdentityIssuerIssuePreparation,
-    AccountIdentityIssuerPreparedIssue,
-    AccountIdentityIssuerSignedIssue,
+    AccountIdentityIssuerCurrentness,
 };
 use ocentra_family_identity_core::account_identity_authority_issuer_client::
     account_identity_authority_issuer_client_types::{
@@ -86,39 +84,31 @@ impl AccountIssuerRepository {
             .map_err(AccountIssuerRepositoryError::from)
     }
 
-    pub(crate) fn prepare_issue(
+    pub(crate) fn issue_current_authority_with_signer<F>(
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
         command: &IssueCurrentAuthorityCommand,
-    ) -> Result<AccountIdentityIssuerIssuePreparation, AccountIssuerRepositoryError> {
+        signer: F,
+    ) -> Result<AccountIdentityIssuerRecordedTransport, AccountIssuerRepositoryError>
+    where
+        F: FnOnce(
+            &ocentra_family_identity_core::account_identity_authority_producer_v2::
+                AccountIdentityAuthorityProducerV2Request,
+        ) -> Result<
+            [u8; ocentra_schema::account_identity_authority_producer_v2::
+                ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES],
+            AccountIdentityAuthorityIssuerClientError,
+        >,
+    {
         self.client
-            .prepare_issue_current_authority(
+            .issue_current_authority_with_signer(
                 provider,
                 provider_subject,
                 command.correlation_id().as_str(),
                 command.idempotency_key().as_str(),
+                signer,
             )
-            .map_err(AccountIssuerRepositoryError::from)
-    }
-
-    pub(crate) fn finalize_issued_transport(
-        &mut self,
-        provider: &AccountIdentityProvider,
-        provider_subject: &AccountIdentityProviderSubject,
-        signed: AccountIdentityIssuerSignedIssue,
-    ) -> Result<AccountIdentityIssuerRecordedTransport, AccountIssuerRepositoryError> {
-        self.client
-            .finalize_issued_transport(provider, provider_subject, signed)
-            .map_err(AccountIssuerRepositoryError::from)
-    }
-
-    pub(crate) fn record_signing_failure(
-        &mut self,
-        prepared: AccountIdentityIssuerPreparedIssue,
-    ) -> Result<(), AccountIssuerRepositoryError> {
-        self.client
-            .record_signing_failure(prepared)
             .map_err(AccountIssuerRepositoryError::from)
     }
 
@@ -189,6 +179,8 @@ pub enum AccountIssuerRepositoryError {
     ManualRequired,
     ReceiptUnavailable,
     Producer,
+    SigningUnavailable,
+    SigningRejected,
 }
 
 impl std::fmt::Display for AccountIssuerRepositoryError {

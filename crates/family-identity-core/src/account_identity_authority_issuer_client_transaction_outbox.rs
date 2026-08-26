@@ -16,7 +16,7 @@ const ERROR_CODE_LEASE_EXPIRED: &str = "lease_expired";
 pub(super) fn reconcile_startup(
     transaction: &Transaction<'_>,
     now: i64,
-) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+) -> Result<bool, AccountIdentityAuthorityIssuerClientError> {
     let now_text = timestamp(now)?;
     transaction
         .execute(
@@ -39,15 +39,28 @@ pub(super) fn reconcile_startup(
                 MAX_RECLAIMED_CLAIMS
             ],
         )
-        .map(|_| ())
         .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)
+        .and_then(|_| {
+            transaction
+                .query_row(
+                    "SELECT EXISTS(
+                        SELECT 1 FROM account_identity_issuer_v2_outbox
+                         WHERE service = ?1 AND delivery_state = 'claimed'
+                           AND claim_expires_at IS NOT NULL
+                           AND claim_expires_at <= ?2
+                    )",
+                    params![ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE, now_text],
+                    |row| row.get(0),
+                )
+                .map_err(|_| AccountIdentityAuthorityIssuerClientError::DeliveryUnavailable)
+        })
 }
 
 pub(super) fn claim_pending(
     transaction: &Transaction<'_>,
     now: i64,
 ) -> Result<Option<AccountIdentityIssuerOutboxClaim>, AccountIdentityAuthorityIssuerClientError> {
-    reconcile_startup(transaction, now)?;
+    let _ = reconcile_startup(transaction, now)?;
     let now_text = timestamp(now)?;
     let claim_expires_at = now
         .checked_add(CLAIM_LEASE_MILLIS)

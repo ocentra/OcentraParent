@@ -16,6 +16,10 @@ use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 
 #[path = "account_identity_authority_producer_v2_request.rs"]
 mod account_identity_authority_producer_v2_request;
+#[path = "account_identity_authority_producer_v2_request_finalize.rs"]
+mod account_identity_authority_producer_v2_request_finalize;
+#[path = "account_identity_authority_producer_v2_request_surface.rs"]
+mod account_identity_authority_producer_v2_request_surface;
 #[path = "account_identity_authority_producer_v2_time.rs"]
 mod account_identity_authority_producer_v2_time;
 #[path = "account_identity_authority_producer_v2_verified.rs"]

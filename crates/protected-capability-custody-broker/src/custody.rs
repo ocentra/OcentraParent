@@ -21,6 +21,7 @@ pub(crate) struct BrokerPipeSecurityDescriptor(pub(crate) U16CString);
 
 pub(crate) struct BrokerCustodyService {
     state: runtime::RuntimeState,
+    account_issuer: super::account_issuer_rpc::BrokerAccountIssuerRpc,
 }
 
 impl BrokerCustodyService {
@@ -32,6 +33,7 @@ impl BrokerCustodyService {
     pub(crate) fn open() -> Self {
         Self {
             state: runtime::RuntimeState::open(),
+            account_issuer: super::account_issuer_rpc::BrokerAccountIssuerRpc::open(),
         }
     }
 
@@ -96,5 +98,16 @@ impl BrokerCustodyService {
         authenticator: &BootstrapAuthenticator,
     ) -> Result<UntrustedResponse, BrokerError> {
         response::execute(&self.state, request, authenticator)
+    }
+
+    pub(crate) fn execute_account_issuer(
+        &self,
+        request: &ocentra_protected_capability_custody_protocol::account_issuer_session::
+            AuthenticatedAccountIssuerRequest,
+    ) -> Result<
+        ocentra_protected_capability_custody_protocol::account_issuer::AccountIssuerReceipt,
+        BrokerError,
+    > {
+        self.account_issuer.execute(request)
     }
 }

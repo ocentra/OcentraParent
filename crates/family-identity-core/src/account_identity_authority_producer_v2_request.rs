@@ -7,101 +7,14 @@ use ocentra_schema::account_identity_authority_producer_v2::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_GENERATION,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES,
-    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES,
 };
 use ring::digest::{digest, SHA256};
 
 use super::{
-    account_identity_authority_producer_v2_verify, AccountIdentityAuthorityProducerV2Error,
-    AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityProducerV2Transport,
+    AccountIdentityAuthorityProducerV2Error, AccountIdentityAuthorityProducerV2Request,
     VerifiedAccountIdentityAuthority,
 };
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority as Authority;
-
-impl AccountIdentityAuthorityProducerV2Request {
-    pub fn signing_bytes(&self) -> &[u8] {
-        self.signing_bytes.as_slice()
-    }
-
-    pub fn operation(&self) -> AccountIdentityAuthorityProducerV2Operation {
-        self.operation
-    }
-
-    pub fn binding(&self) -> &AccountIdentityAuthorityProducerV2Binding {
-        &self.binding
-    }
-
-    pub fn payload_digest(&self) -> &str {
-        self.payload_digest.as_str()
-    }
-
-    pub fn enrollment_generation(&self) -> u64 {
-        self.binding.enrollment_generation
-    }
-
-    pub fn issued_at(&self) -> &str {
-        self.issued_at.as_str()
-    }
-
-    pub fn expires_at(&self) -> &str {
-        self.expires_at.as_str()
-    }
-
-    /// Finish an owner-created request with a platform signature. The
-    /// signature is checked immediately with ring and low-S is enforced before
-    /// any transport can be returned.
-    pub fn finalize(
-        self,
-        signature: [u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNATURE_BYTES],
-    ) -> Result<AccountIdentityAuthorityProducerV2Transport, AccountIdentityAuthorityProducerV2Error>
-    {
-        account_identity_authority_producer_v2_verify::verify_signature(
-            &self.public_key,
-            &self.signing_bytes,
-            &signature,
-        )?;
-        let wire =
-            crate::account_identity_authority_envelope_v2::wire(self.signing_bytes, signature)?;
-        let receipt_id = self.binding.receipt_id.clone();
-        Ok(AccountIdentityAuthorityProducerV2Transport {
-            wire,
-            receipt: AccountIdentityAuthorityProducerV2Receipt {
-                receipt_id,
-                operation: self.operation,
-                account_id: self.binding.account_id,
-                household_id: self.binding.household_id,
-                service_binding_id: self.binding.service_binding_id,
-                correlation_id: self.binding.correlation_id,
-                idempotency_key: self.binding.idempotency_key,
-                payload_digest: self.payload_digest,
-                key_id: self.binding.key_id,
-                key_generation: self.binding.key_generation,
-                enrollment_generation: self.binding.enrollment_generation,
-                authority_generation: self.binding.authority_generation,
-                session_generation: self.binding.session_generation,
-                issued_at: self.issued_at,
-                expires_at: self.expires_at,
-            },
-        })
-    }
-}
-
-impl AccountIdentityAuthorityProducerV2Transport {
-    pub fn wire_bytes(&self) -> &[u8] {
-        self.wire.as_slice()
-    }
-
-    pub fn receipt(&self) -> &AccountIdentityAuthorityProducerV2Receipt {
-        &self.receipt
-    }
-
-    pub(crate) fn clone_durable(&self) -> Self {
-        crate::account_identity_authority_producer_v2::from_durable_transport(
-            self.wire.clone(),
-            self.receipt.clone(),
-        )
-    }
-}
 
 pub(crate) fn issue_request(
     authority: &Authority,

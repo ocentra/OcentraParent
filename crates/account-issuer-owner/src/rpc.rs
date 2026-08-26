@@ -1,18 +1,15 @@
 //! AccountIssuer owner command orchestration.
 
-use ocentra_family_identity_core::account_identity_authority_issuer_client::{
-    AccountIdentityIssuerIssuePreparation, AccountIdentityIssuerPreparedIssue,
-    AccountIdentityIssuerSignedIssue,
-};
-use ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Transport;
-use ocentra_protected_capability_custody_core::account_issuer::AccountIssuerP256Signer;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
 use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_ISSUER_RPC_ERROR;
 
-use crate::contract::AccountIssuerReceiptView;
-use crate::contract::{IssueCurrentAuthorityCommand, PreparedAccountIssuerV2Request};
+use ocentra_protected_capability_custody_protocol::account_issuer_session::AuthenticatedAccountIssuerRequest;
+
+use crate::contract::{
+    AccountIssuerReceiptView, AccountIssuerRequestAuthorization, IssueCurrentAuthorityCommand,
+};
 use crate::delivery::{
     AccountIssuerDeliveryError, DeliveryClaim, DeliveryFailure, PreparedAcknowledgeReceipt,
     ProtectedAccountIssuerReceipt,
@@ -25,21 +22,8 @@ pub struct AccountIssuerOwner {
 }
 
 pub struct IssuedAuthority {
-    receipt: AccountIssuerReceiptView,
-    replayed: bool,
-}
-
-pub(crate) enum IssuePreparation {
-    Replay(AccountIdentityAuthorityProducerV2Transport),
-    Request(ocentra_family_identity_core::account_identity_authority_issuer_client::
-        AccountIdentityIssuerPreparedIssue),
-}
-
-/// Result of the owner-only preparation phase. A replay is already durable;
-/// a fresh request must cross the typed protected signer before finalization.
-pub(crate) enum AccountIssuerPreparation {
-    Replay(IssuedAuthority),
-    Prepared(PreparedAccountIssuerV2Request),
+    pub(crate) receipt: AccountIssuerReceiptView,
+    pub(crate) replayed: bool,
 }
 
 impl IssuedAuthority {
@@ -87,36 +71,21 @@ impl AccountIssuerOwner {
         Self { repository }
     }
 
-    pub(crate) fn prepare_issue(
-        &mut self,
-        provider: &AccountIdentityProvider,
-        provider_subject: &AccountIdentityProviderSubject,
-        command: &IssueCurrentAuthorityCommand,
-    ) -> Result<IssuePreparation, AccountIssuerRpcError> {
-        match self
-            .repository
-            .prepare_issue(provider, provider_subject, command)
-            .map_err(AccountIssuerRpcError::Repository)?
-        {
-            AccountIdentityIssuerIssuePreparation::Replay(transport) => {
-                Ok(IssuePreparation::Replay(transport))
-            }
-            AccountIdentityIssuerIssuePreparation::Prepared(prepared) => {
-                Ok(IssuePreparation::Request(prepared))
-            }
-        }
+    pub(crate) fn repository_mut(&mut self) -> &mut AccountIssuerRepository {
+        &mut self.repository
     }
 
-    pub(crate) fn replayed_authority(
-        transport: AccountIdentityAuthorityProducerV2Transport,
-    ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
-        let receipt = AccountIssuerReceiptView::from_receipt(transport.receipt()).ok_or(
-            AccountIssuerRpcError::Repository(AccountIssuerRepositoryError::InvalidSchema),
-        )?;
-        Ok(IssuedAuthority {
-            receipt,
-            replayed: true,
-        })
+    /// Bind a protected transport request to Account-owned authority.
+    ///
+    /// Transport authentication proves the pipe session, not which Account
+    /// the peer may issue for.  The OS enrollment/currentness adapter that can
+    /// produce this opaque authorization is not mounted yet, so this boundary
+    /// remains fail-closed and never promotes caller-selected provider fields.
+    pub fn authorize_protected_request(
+        &self,
+        _request: &AuthenticatedAccountIssuerRequest,
+    ) -> Result<AccountIssuerRequestAuthorization, AccountIssuerRpcError> {
+        Err(AccountIssuerRpcError::Signing(signing::fail_closed()))
     }
 
     pub fn issue_current_authority(
@@ -129,48 +98,6 @@ impl AccountIssuerOwner {
         // must fail before preparation so an unavailable signer cannot burn
         // an idempotency key or leave a durable signing reservation behind.
         Err(AccountIssuerRpcError::Signing(signing::fail_closed()))
-    }
-
-    pub(crate) fn record_signing_failure(
-        &mut self,
-        prepared: AccountIdentityIssuerPreparedIssue,
-    ) -> Result<(), AccountIssuerRpcError> {
-        self.repository
-            .record_signing_failure(prepared)
-            .map_err(AccountIssuerRpcError::Repository)
-    }
-
-    pub(crate) fn sign_prepared(
-        &mut self,
-        prepared: PreparedAccountIssuerV2Request,
-        signer: &AccountIssuerP256Signer,
-    ) -> Result<crate::contract::SignedAccountIssuerV2Envelope, AccountIssuerRpcError> {
-        match prepared.sign_with(signer) {
-            Ok(signed) => Ok(signed),
-            Err((prepared, error)) => {
-                let signing_error = signing::map_signer_error(error);
-                self.record_signing_failure(prepared.into_inner())?;
-                Err(AccountIssuerRpcError::Signing(signing_error))
-            }
-        }
-    }
-
-    pub(crate) fn record_issued_transport(
-        &mut self,
-        provider: &AccountIdentityProvider,
-        provider_subject: &AccountIdentityProviderSubject,
-        signed: AccountIdentityIssuerSignedIssue,
-    ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
-        let recorded = self
-            .repository
-            .finalize_issued_transport(provider, provider_subject, signed)
-            .map_err(AccountIssuerRpcError::Repository)?;
-        let receipt = AccountIssuerReceiptView::from_receipt(recorded.transport().receipt())
-            .ok_or(AccountIssuerRpcError::Repository(
-                AccountIssuerRepositoryError::InvalidSchema,
-            ))?;
-        let replayed = recorded.replayed();
-        Ok(IssuedAuthority { receipt, replayed })
     }
 
     pub fn claim_delivery(&mut self) -> Result<Option<DeliveryClaim>, AccountIssuerRpcError> {
