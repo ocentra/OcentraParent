@@ -13,6 +13,7 @@ use ocentra_schema::account_identity_authority_producer_v2::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES, ACCOUNT_ISSUER_DELIVERY_ERROR,
     ACCOUNT_ISSUER_DIGEST_HEX,
 };
+use ocentra_protected_capability_custody_protocol::account_issuer_contract::AccountIssuerField;
 use ring::digest::{digest, SHA256};
 
 #[derive(Debug)]
@@ -31,6 +32,16 @@ impl std::error::Error for AccountIssuerDeliveryError {}
 
 pub struct DeliveryClaim {
     pub(crate) inner: AccountIdentityIssuerOutboxClaim,
+}
+
+impl DeliveryClaim {
+    /// Return the owner-derived receipt identity without exposing claim or
+    /// lease internals. The field is only a typed match key; acknowledgement
+    /// still consumes this exact claim and revalidates it transactionally.
+    pub fn receipt_id(&self) -> Result<AccountIssuerField, AccountIssuerDeliveryError> {
+        AccountIssuerField::from_wire(self.inner.receipt_id().as_bytes().to_vec())
+            .map_err(|_| AccountIssuerDeliveryError::Rejected)
+    }
 }
 
 pub struct DeliveryFailure {
@@ -73,7 +84,7 @@ pub struct PreparedAcknowledgeReceipt {
 }
 
 impl PreparedAcknowledgeReceipt {
-    pub fn signing_bytes(&self) -> &[u8] {
+    pub(crate) fn signing_bytes(&self) -> &[u8] {
         self.request.signing_bytes()
     }
 }

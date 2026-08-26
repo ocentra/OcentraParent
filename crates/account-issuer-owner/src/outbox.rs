@@ -32,6 +32,7 @@ impl<'a> IssueTransaction<'a> {
     ) -> Result<(), AccountIssuerRepositoryError> {
         self.inner
             .acknowledge_receipt(&current.inner, &claim.inner, protected_receipt.wire())
+            .map(|_| ())
             .map_err(AccountIssuerRepositoryError::from)
     }
 

@@ -12,7 +12,8 @@ use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
 use ocentra_schema::account_identity_authority_producer_v2::{
-    ACCOUNT_ISSUER_DELIVERY_FAILURE_CODE, ACCOUNT_ISSUER_REPOSITORY_ERROR,
+    AccountIdentityAuthorityProducerV2Receipt, ACCOUNT_ISSUER_DELIVERY_FAILURE_CODE,
+    ACCOUNT_ISSUER_REPOSITORY_ERROR,
 };
 
 use crate::contract::IssueCurrentAuthorityCommand;
@@ -160,12 +161,12 @@ impl<'a> AccountIssuerTransaction<'a> {
             .map_err(AccountIssuerRepositoryError::from)
     }
 
-    pub fn acknowledge_receipt(
+    pub(crate) fn acknowledge_receipt(
         &mut self,
         current: &CurrentAuthority,
         claim: &DeliveryClaim,
         protected_receipt: &ProtectedAccountIssuerReceipt,
-    ) -> Result<(), AccountIssuerRepositoryError> {
+    ) -> Result<AccountIdentityAuthorityProducerV2Receipt, AccountIssuerRepositoryError> {
         self.inner
             .acknowledge_receipt(&current.inner, &claim.inner, protected_receipt.wire())
             .map_err(AccountIssuerRepositoryError::from)

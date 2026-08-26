@@ -8,6 +8,7 @@ use ocentra_schema::account_identity_authority::{
 };
 use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_ISSUER_RPC_ERROR;
 
+use crate::contract::AccountIssuerReceiptView;
 use crate::contract::{IssueCurrentAuthorityCommand, PreparedAccountIssuerV2Request};
 use crate::currentness::CurrentAuthority;
 use crate::delivery::{
@@ -22,7 +23,7 @@ pub struct AccountIssuerOwner {
 }
 
 pub struct IssuedAuthority {
-    transport: AccountIdentityAuthorityProducerV2Transport,
+    receipt: AccountIssuerReceiptView,
     replayed: bool,
 }
 
@@ -39,8 +40,8 @@ pub enum AccountIssuerPreparation {
 }
 
 impl IssuedAuthority {
-    pub fn transport(&self) -> &AccountIdentityAuthorityProducerV2Transport {
-        &self.transport
+    pub fn receipt(&self) -> &AccountIssuerReceiptView {
+        &self.receipt
     }
 
     pub fn replayed(&self) -> bool {
@@ -64,7 +65,7 @@ impl std::fmt::Display for AccountIssuerRpcError {
 impl std::error::Error for AccountIssuerRpcError {}
 
 impl DeliveryClaim {
-    pub fn wire(&self) -> &[u8] {
+    pub(crate) fn wire(&self) -> &[u8] {
         self.inner.wire()
     }
 }
@@ -121,11 +122,14 @@ impl AccountIssuerOwner {
 
     pub(crate) fn replayed_authority(
         transport: AccountIdentityAuthorityProducerV2Transport,
-    ) -> IssuedAuthority {
-        IssuedAuthority {
-            transport,
+    ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
+        let receipt = AccountIssuerReceiptView::from_receipt(transport.receipt()).ok_or(
+            AccountIssuerRpcError::Repository(AccountIssuerRepositoryError::InvalidSchema),
+        )?;
+        Ok(IssuedAuthority {
+            receipt,
             replayed: true,
-        }
+        })
     }
 
     pub fn issue_current_authority(
@@ -139,7 +143,7 @@ impl AccountIssuerOwner {
             .resolve_current(provider, provider_subject)
             .map_err(AccountIssuerRpcError::Repository)?;
         let _request = match self.prepare_issue(&current, command)? {
-            IssuePreparation::Replay(transport) => return Ok(Self::replayed_authority(transport)),
+            IssuePreparation::Replay(transport) => return Self::replayed_authority(transport),
             IssuePreparation::Request(request) => request,
         };
         Err(AccountIssuerRpcError::Signing(signing::fail_closed()))
@@ -163,15 +167,15 @@ impl AccountIssuerOwner {
         let recorded = issue_transaction
             .record_transport(&current, &transport)
             .map_err(AccountIssuerRpcError::Repository)?;
-        let winner = recorded.transport().clone();
+        let receipt = AccountIssuerReceiptView::from_receipt(recorded.transport().receipt())
+            .ok_or(AccountIssuerRpcError::Repository(
+                AccountIssuerRepositoryError::InvalidSchema,
+            ))?;
         let replayed = recorded.replayed();
         issue_transaction
             .commit()
             .map_err(AccountIssuerRpcError::Repository)?;
-        Ok(IssuedAuthority {
-            transport: winner,
-            replayed,
-        })
+        Ok(IssuedAuthority { receipt, replayed })
     }
 
     pub fn claim_delivery(&mut self) -> Result<Option<DeliveryClaim>, AccountIssuerRpcError> {
@@ -220,7 +224,7 @@ impl AccountIssuerOwner {
         provider_subject: &AccountIdentityProviderSubject,
         claim: DeliveryClaim,
         protected_receipt: ProtectedAccountIssuerReceipt,
-    ) -> Result<(), AccountIssuerRpcError> {
+    ) -> Result<AccountIssuerReceiptView, AccountIssuerRpcError> {
         let current = self
             .repository
             .resolve_current(provider, provider_subject)
@@ -229,11 +233,14 @@ impl AccountIssuerOwner {
             .repository
             .begin()
             .map_err(AccountIssuerRpcError::Repository)?;
-        transaction
+        let receipt = transaction
             .acknowledge_receipt(&current, &claim, &protected_receipt)
             .map_err(AccountIssuerRpcError::Repository)?;
         transaction
             .commit()
-            .map_err(AccountIssuerRpcError::Repository)
+            .map_err(AccountIssuerRpcError::Repository)?;
+        AccountIssuerReceiptView::from_receipt(&receipt).ok_or(AccountIssuerRpcError::Repository(
+            AccountIssuerRepositoryError::InvalidSchema,
+        ))
     }
 }

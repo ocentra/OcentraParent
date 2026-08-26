@@ -68,7 +68,7 @@ impl AccountIssuerOwner {
             IssuePreparation::Replay(transport) => {
                 return Ok(AccountIssuerPreparation::Replay(Self::replayed_authority(
                     transport,
-                )))
+                )?))
             }
             IssuePreparation::Request(request) => request,
         };
