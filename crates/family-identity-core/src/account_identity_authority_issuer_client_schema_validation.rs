@@ -152,6 +152,7 @@ fn validate_indexes(
             "account_id",
             "household_id",
             "service",
+            "service_binding_id",
             "key_state",
             "key_generation",
         ],

@@ -134,7 +134,7 @@ const CANONICAL_SCHEMA_SQL: &str = "CREATE TABLE account_identity_issuer_v2_key_
 ) STRICT;
 CREATE INDEX account_identity_issuer_v2_key_registry_current
     ON account_identity_issuer_v2_key_registry
-       (account_id, household_id, service, key_state, key_generation);
+       (account_id, household_id, service, service_binding_id, key_state, key_generation);
 CREATE TABLE account_identity_issuer_v2_receipt (
     receipt_id TEXT PRIMARY KEY CHECK (length(receipt_id) > 0),
     account_id TEXT NOT NULL CHECK (length(account_id) > 0),
