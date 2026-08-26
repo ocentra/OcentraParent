@@ -23,6 +23,10 @@ pub enum AccountIdentityParentLocalBridgeAudience {
 }
 
 impl AccountIdentityParentLocalBridgeAudience {
+    pub const fn fixed() -> Self {
+        Self::ParentDesktopAgentService
+    }
+
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::ParentDesktopAgentService => "parent-desktop-agent-service",
@@ -59,6 +63,7 @@ impl fmt::Debug for AccountIdentityParentLocalBridgeHandshake {
 pub enum AccountIdentityParentLocalBridgeHandshakeValidationError {
     UnsupportedSchemaVersion,
     InvalidCapability,
+    InvalidAudience,
     InvalidConnectionNonce,
 }
 
@@ -78,6 +83,9 @@ impl AccountIdentityParentLocalBridgeHandshake {
             return Err(
                 AccountIdentityParentLocalBridgeHandshakeValidationError::InvalidCapability,
             );
+        }
+        if self.audience != AccountIdentityParentLocalBridgeAudience::fixed() {
+            return Err(AccountIdentityParentLocalBridgeHandshakeValidationError::InvalidAudience);
         }
         if !opaque_value_is_valid(
             &self.connection_nonce,

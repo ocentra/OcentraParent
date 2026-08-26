@@ -69,7 +69,7 @@ fn is_owned_trigger_or_view(object_type: &str, name: &str, sql: Option<&str>) ->
         .any(|table| object_text.contains(table))
 }
 
-const OWNER_TABLES: [&str; 9] = [
+const OWNER_TABLES: [&str; 12] = [
     "account_identity_current_authority",
     "account_identity_session",
     "account_identity_session_revoke_epoch",
@@ -79,6 +79,9 @@ const OWNER_TABLES: [&str; 9] = [
     "account_identity_issuer_transport_receipt",
     "account_identity_issuer_clock",
     "account_identity_issuer_transport_outbox",
+    "account_identity_parent_local_bridge_revoke_epoch",
+    "account_identity_parent_local_bridge_session",
+    "account_identity_parent_local_bridge_audit_outbox",
 ];
 
 fn canonical_definition_matches(object_type: &str, name: &str, actual: &str) -> bool {
@@ -134,5 +137,8 @@ fn owner_index(name: &str) -> bool {
             | "account_identity_issuer_key_registry_current"
             | "account_identity_issuer_transport_receipt_lookup"
             | "account_identity_issuer_transport_outbox_delivery"
+            | "account_identity_parent_local_bridge_account"
+            | "account_identity_parent_local_bridge_audit_delivery"
+            | "account_identity_parent_local_bridge_audit_retention"
     )
 }

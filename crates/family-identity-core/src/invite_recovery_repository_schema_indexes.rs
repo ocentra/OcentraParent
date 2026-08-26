@@ -28,6 +28,27 @@ pub(super) fn validate_indexes(connection: &Connection) -> Result<(), ()> {
         "account_identity_recovery_handoff_ready",
         false,
         &["household_id", "state", "lease_expires_at_epoch_millis"],
+    )?;
+    validate_index(
+        connection,
+        "account_identity_parent_local_bridge_session",
+        "account_identity_parent_local_bridge_account",
+        false,
+        &["account_id"],
+    )?;
+    validate_index(
+        connection,
+        "account_identity_parent_local_bridge_audit_outbox",
+        "account_identity_parent_local_bridge_audit_delivery",
+        false,
+        &["delivery_state", "sequence"],
+    )?;
+    validate_index(
+        connection,
+        "account_identity_parent_local_bridge_audit_outbox",
+        "account_identity_parent_local_bridge_audit_retention",
+        false,
+        &["retain_until_epoch_millis"],
     )
 }
 

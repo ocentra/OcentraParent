@@ -10,8 +10,8 @@ use crate::session_lifecycle_custody::parent_local_bridge::{
     connection_nonce_digest, ParentLocalBridgeSessionCapability,
 };
 
-use super::super::{authority, clock, codec, SessionLifecycleRepositoryError};
-use super::{ParentLocalBridgeState, CONSUMED_STATE};
+use super::super::{authority, clock, SessionLifecycleRepositoryError};
+use super::{audit, ParentLocalBridgeState, CONSUMED_STATE};
 
 impl super::super::SqliteAccountIdentityAuthorityRepository {
     /// Verify and consume one typed parent-local handshake. A consumed nonce
@@ -29,13 +29,19 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
                 .ok_or(SessionLifecycleRepositoryError::InvalidParentLocalBridgeHandshake)?;
         let presented_nonce_digest = connection_nonce_digest(&handshake.connection_nonce)
             .ok_or(SessionLifecycleRepositoryError::InvalidParentLocalBridgeHandshake)?;
-        let now_epoch_millis = clock::trusted_now_epoch_millis()?;
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
-        let record = super::storage::read_record(&transaction, &capability_digest)?
-            .ok_or(SessionLifecycleRepositoryError::Missing)?;
+        let now_epoch_millis = clock::trusted_now_in_transaction(&transaction)?;
+        let record = super::storage::read_record(
+            &transaction,
+            &capability_digest,
+            now_epoch_millis,
+            self.session_policy.clock_skew_millis,
+            self.session_policy.freshness_ttl_millis,
+        )?
+        .ok_or(SessionLifecycleRepositoryError::Missing)?;
         reject_non_active(record.state)?;
         if record.audience != handshake.audience
             || record.connection_nonce_digest != presented_nonce_digest
@@ -45,8 +51,9 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         if now_epoch_millis >= record.expires_at_epoch_millis {
             return Err(SessionLifecycleRepositoryError::ParentLocalBridgeExpired);
         }
-        let current_epoch = codec::current_revoke_epoch(&transaction, &record.binding.account_id)?;
-        if current_epoch != record.global_revoke_epoch {
+        let current_epoch =
+            super::storage::current_bridge_revoke_epoch(&transaction, &record.binding.account_id)?;
+        if current_epoch != record.bridge_revoke_epoch {
             return Err(SessionLifecycleRepositoryError::CurrentnessConflict);
         }
         let role = authority::parent_local_bridge_current_role(
@@ -58,25 +65,9 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             now_epoch_millis,
             record.last_transition_at_epoch_millis,
         )?;
-        let changed = transaction
-            .execute(
-                "UPDATE account_identity_parent_local_bridge_session
-                 SET state = ?2, last_transition_at_epoch_millis = ?3
-                 WHERE capability_digest = ?1 AND state = 'active'
-                   AND global_revoke_epoch = ?4
-                   AND last_transition_at_epoch_millis = ?5",
-                params![
-                    record.capability_digest,
-                    CONSUMED_STATE,
-                    transitioned_at,
-                    codec::to_sql_generation(record.global_revoke_epoch)?,
-                    record.last_transition_at_epoch_millis,
-                ],
-            )
-            .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
-        if changed != 1 {
-            return Err(SessionLifecycleRepositoryError::ReplayRejected);
-        }
+        consume_record(&transaction, &record, transitioned_at)?;
+        audit::insert_session_event(&transaction, &record, "authenticated", transitioned_at)?;
+        audit::cleanup(&transaction, now_epoch_millis)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
@@ -95,6 +86,32 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             record.expires_at_epoch_millis,
         ))
     }
+}
+
+fn consume_record(
+    transaction: &rusqlite::Transaction<'_>,
+    record: &super::StoredParentLocalBridgeSession,
+    transitioned_at: i64,
+) -> Result<(), SessionLifecycleRepositoryError> {
+    let changed = transaction
+        .execute(
+            "UPDATE account_identity_parent_local_bridge_session
+             SET state = ?2, last_transition_at_epoch_millis = ?3
+             WHERE capability_digest = ?1 AND state = 'active'
+               AND bridge_revoke_epoch = ?4
+               AND last_transition_at_epoch_millis = ?5",
+            params![
+                record.capability_digest,
+                CONSUMED_STATE,
+                transitioned_at,
+                super::super::codec::to_sql_generation(record.bridge_revoke_epoch)?,
+                record.last_transition_at_epoch_millis,
+            ],
+        )
+        .map_err(|_| SessionLifecycleRepositoryError::CurrentnessConflict)?;
+    (changed == 1)
+        .then_some(())
+        .ok_or(SessionLifecycleRepositoryError::ReplayRejected)
 }
 
 fn reject_non_active(state: ParentLocalBridgeState) -> Result<(), SessionLifecycleRepositoryError> {
