@@ -11,6 +11,7 @@
 
 #![deny(unsafe_op_in_unsafe_fn)]
 
+pub mod account_issuer_types;
 mod error;
 mod ffi;
 mod input_fault;
@@ -305,6 +306,17 @@ pub type OwnedPcpProvider = owned_types::OwnedPcpProvider;
 /// This type exposes only signing and mechanical observations. It does not
 /// mint enrollment, custody, or caller authority.
 pub type OwnedPcpSigningKey = owned_types::OwnedPcpSigningKey;
+
+/// A retained machine-scoped AccountIssuer P-256 key awaiting exact service
+/// binding. This state cannot export or sign.
+#[cfg(windows)]
+pub type AccountIssuerP256Key = windows::cng_account_issuer_p256_capability::AccountIssuerP256Key;
+
+/// A retained non-exportable AccountIssuer P-256 key bound to the exact
+/// broker-service identity and service-only ACL.
+#[cfg(windows)]
+pub type BoundAccountIssuerP256Key =
+    windows::cng_account_issuer_p256_capability::BoundAccountIssuerP256Key;
 
 /// Mechanical properties observed from the fixed PCP signing key.
 #[derive(Clone, Debug, Eq, PartialEq)]

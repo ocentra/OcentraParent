@@ -5,8 +5,10 @@ pub(super) enum Stage {
     RegistryReadback,
     ScmReadback,
     CngReadback,
+    AccountIssuerReadback,
     TpmReadback,
     CngRevalidated,
+    AccountIssuerRevalidated,
     RegistryRevalidated,
     ScmRevalidated,
 }
@@ -27,9 +29,14 @@ impl OrderedCeremony {
             (None, Stage::RegistryReadback)
                 | (Some(Stage::RegistryReadback), Stage::ScmReadback)
                 | (Some(Stage::ScmReadback), Stage::CngReadback)
-                | (Some(Stage::CngReadback), Stage::TpmReadback)
+                | (Some(Stage::CngReadback), Stage::AccountIssuerReadback)
+                | (Some(Stage::AccountIssuerReadback), Stage::TpmReadback)
                 | (Some(Stage::TpmReadback), Stage::CngRevalidated)
-                | (Some(Stage::CngRevalidated), Stage::RegistryRevalidated)
+                | (Some(Stage::CngRevalidated), Stage::AccountIssuerRevalidated)
+                | (
+                    Some(Stage::AccountIssuerRevalidated),
+                    Stage::RegistryRevalidated
+                )
                 | (Some(Stage::RegistryRevalidated), Stage::ScmRevalidated)
         );
         if !valid {
