@@ -105,6 +105,7 @@
     "playwright:install": "playwright install chromium",
     "release:version": "node scripts/release/validate-version.mjs",
     "release:package:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release/windows/build-agent-package.ps1",
+    "release:package:parent-protected-custody": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release/windows/build-parent-protected-custody-package.ps1",
     "release:package:linux": "bash scripts/release/linux/build-agent-package.sh",
     "release:package:macos": "bash scripts/release/macos/build-agent-package.sh",
     "release:package:android": "node scripts/release/android/build-agent-package.mjs",
