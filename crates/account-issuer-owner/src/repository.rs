@@ -12,10 +12,11 @@ use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
 use ocentra_schema::account_identity_authority_producer_v2::{
-    ACCOUNT_ISSUER_DELIVERY_FAILURE_CODE, ACCOUNT_ISSUER_REPOSITORY_ERROR,
+    AccountIdentityAuthorityProducerV2Receipt, ACCOUNT_ISSUER_DELIVERY_FAILURE_CODE,
+    ACCOUNT_ISSUER_REPOSITORY_ERROR,
 };
 
-use crate::contract::{AccountIssuerReceiptView, IssueCurrentAuthorityCommand};
+use crate::contract::IssueCurrentAuthorityCommand;
 use crate::currentness::CurrentAuthority;
 use crate::delivery::{
     DeliveryClaim, DeliveryFailure, PreparedAcknowledgeReceipt, ProtectedAccountIssuerReceipt,
@@ -160,19 +161,15 @@ impl<'a> AccountIssuerTransaction<'a> {
             .map_err(AccountIssuerRepositoryError::from)
     }
 
-    pub fn acknowledge_receipt(
+    pub(crate) fn acknowledge_receipt(
         &mut self,
         current: &CurrentAuthority,
         claim: &DeliveryClaim,
         protected_receipt: &ProtectedAccountIssuerReceipt,
-    ) -> Result<AccountIssuerReceiptView, AccountIssuerRepositoryError> {
+    ) -> Result<AccountIdentityAuthorityProducerV2Receipt, AccountIssuerRepositoryError> {
         self.inner
             .acknowledge_receipt(&current.inner, &claim.inner, protected_receipt.wire())
             .map_err(AccountIssuerRepositoryError::from)
-            .and_then(|receipt| {
-                AccountIssuerReceiptView::from_receipt(&receipt)
-                    .ok_or(AccountIssuerRepositoryError::InvalidSchema)
-            })
     }
 
     pub(crate) fn into_issue_transaction(self) -> IssueTransaction<'a> {

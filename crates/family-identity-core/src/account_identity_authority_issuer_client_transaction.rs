@@ -19,6 +19,8 @@ use super::{
 
 #[path = "account_identity_authority_issuer_client_transaction_receipt.rs"]
 mod receipt;
+#[path = "account_identity_authority_issuer_client_transaction_receipt_ack.rs"]
+mod receipt_ack;
 #[path = "account_identity_authority_issuer_client_transaction_receipt_load.rs"]
 mod receipt_load;
 #[path = "account_identity_authority_issuer_client_transaction_replay.rs"]

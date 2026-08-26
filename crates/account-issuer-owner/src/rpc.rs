@@ -239,6 +239,8 @@ impl AccountIssuerOwner {
         transaction
             .commit()
             .map_err(AccountIssuerRpcError::Repository)?;
-        Ok(receipt)
+        AccountIssuerReceiptView::from_receipt(&receipt).ok_or(AccountIssuerRpcError::Repository(
+            AccountIssuerRepositoryError::InvalidSchema,
+        ))
     }
 }
