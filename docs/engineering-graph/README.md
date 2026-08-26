@@ -107,10 +107,13 @@ infers ownership from filenames or Markdown prose.
 `graph:matrix` is the operator view for a plan-by-plan review. It prints a
 summary row for every plan and a workpack row for every imported workpack with
 derived state, reviewed code/test topology (or explicit unknown ownership),
-completion-gap count, dependency blockers, and downstream unlocks. Use
-`--state` to focus a handoff (for example `--state validation`) or `--json`
-for automation. The matrix is a view over the graph; it is not a second
-source of truth.
+completion-gap count, dependency blockers, implementation authorization,
+implementation-independent dependency annotations, and downstream unlocks.
+Use `--state` to focus a handoff (for example `--state validation`) or
+`--json` for automation. An implementation-independent annotation is not an
+implementation blocker: it records that the normal dependency still has
+`normalGate: "done"` while the implementation phase may proceed. The matrix
+is a view over the graph; it is not a second source of truth.
 
 Use npm's `--silent` form for JSON output so npm does not prepend its lifecycle
 banner to the machine-readable payload. The equivalent direct invocation is
@@ -130,7 +133,14 @@ dependency meets its implementation threshold. Missing phase metadata defaults
 to the normal requirement that the dependency is `DONE`. The command does not
 authorize tests, proof, PR readiness, service activation, merge, or completion.
 It also does not bypass the normal task route, exact-file claim, or Enforcer
-guards.
+guards. A reviewed `depends_on` edge with
+`implementationGate: "implementation-independent"` is the narrow exception
+for a source slice that is safe to author without predecessor completion. An
+existing predecessor is omitted from implementation blockers for this gate,
+but a missing predecessor still fails closed. Authorization, report, matrix,
+and phase-why output expose additive entries shaped as
+`{ id, gate, state, normalGate: "done" }`; normal graph state and completion
+remain dependency-gated.
 Use `graph:why <id> -- --phase implementation` for exact ownership, lifecycle,
 dependency, and reviewed-implementation blockers.
 
@@ -160,6 +170,17 @@ the gate in bulk: the edge reason and evidence must explain why downstream
 source can be written safely before predecessor tests and proof. Authority,
 activation, custody, and release dependencies stay completion-gated unless the
 owning workpack is decomposed into a genuinely safe source-only packet.
+
+A reviewed `depends_on` edge may instead opt into
+`implementationGate: "implementation-independent"` when the downstream source
+is independently authorable and does not need predecessor completion during the
+implementation phase. This gate does not alter normal dependency derivation:
+the predecessor remains a normal blocker until it is `done`, and a missing
+dependency fails closed for both normal and implementation-phase queries. The
+edge must still connect workpack nodes and carry `confidence: "reviewed"`, a
+non-empty reason, and existing evidence. Use the additive independent-dependency
+annotation in authorization/report output to keep this distinction visible;
+never interpret it as tests, proof, runtime, PR, merge, or completion authority.
 
 A reviewed `stateOverrides` entry may record a current validation
 slice (never an unverified `done` claim) and must point to its proof manifest
@@ -223,8 +244,11 @@ queries; unsupported or missing values fail instead of being ignored.
 2. Keep detailed scope, expected tests, proof, and ADR requirements in the
    existing routed documents.
 3. Add only reviewed hard dependencies to `overrides.json` with evidence. Add
-   `implementationGate: "reviewed-implementation"` only to an individually
-   reviewed edge whose downstream source is safe before predecessor completion.
+   `implementationGate: "reviewed-implementation"` or
+   `implementationGate: "implementation-independent"` only to an individually
+   reviewed edge whose downstream source is safe before predecessor completion;
+   the latter records an explicit normal `done` gate in phase output and does
+   not remove the normal dependency.
 4. Add a `workpackReviews` entry only after reviewing the exact workpack's
    dependency context; use an explicit empty `hardDependencies` array when the
    next source-code slice has no hard code-writing prerequisite. Do not use this

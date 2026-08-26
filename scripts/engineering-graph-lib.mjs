@@ -14,7 +14,8 @@ const PLANNED_IMPLEMENTATION_EXPECTATIONS = new Set(['code-and-tests']);
 const PLANNED_TEST_EXPECTATIONS = new Set(['code-and-tests', 'tests-only']);
 const WORKSPACE_TARGET_KINDS = new Set(['lib', 'bin']);
 const IMPLEMENTATION_GATE = 'reviewed-implementation';
-const IMPLEMENTATION_GATE_VALUES = new Set([IMPLEMENTATION_GATE]);
+const IMPLEMENTATION_INDEPENDENT_GATE = 'implementation-independent';
+const IMPLEMENTATION_GATE_VALUES = new Set([IMPLEMENTATION_GATE, IMPLEMENTATION_INDEPENDENT_GATE]);
 const COMPLETION_EVIDENCE_FIELDS = new Set(['id', 'reason', 'evidence']);
 const OVERRIDE_TOP_LEVEL_FIELDS = new Set([
   'schemaVersion',
@@ -817,6 +818,7 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
           blockers,
           unlocks: relatedNodes(graph, workpack.id, 'dependents'),
           implementationAuthorization,
+          implementationIndependentDependencies: implementationAuthorization.implementationIndependentDependencies,
           completionContract: {
             pathsPresent: gaps.length === 0,
             gaps,
@@ -930,6 +932,10 @@ export function flattenProgressReport(report) {
         implementationBlockers: workpack.implementationAuthorization?.blockers ?? [
           { kind: 'internal', reason: 'implementation authorization was not derived' },
         ],
+        implementationIndependentDependencies:
+          workpack.implementationIndependentDependencies ??
+          workpack.implementationAuthorization?.implementationIndependentDependencies ??
+          [],
         completionGapCount: workpack.completionContract.gaps.length,
         completionGaps: workpack.completionContract.gaps,
       };
@@ -1871,6 +1877,7 @@ function implementationDependencyBlocker(graph, edge, states, root) {
   if (!dependency) {
     return { kind: 'dependency', id: edge.to, gate: edge.implementationGate ?? 'done', state: 'missing' };
   }
+  if (edge.implementationGate === IMPLEMENTATION_INDEPENDENT_GATE) return null;
   if (edge.implementationGate === IMPLEMENTATION_GATE) {
     const gaps = completionRequirementGaps(root, dependency, 'implementation', { requireDeclared: true });
     gaps.push(...workspaceRequirementGaps(root, dependency));
@@ -1893,17 +1900,32 @@ function implementationDependencyBlocker(graph, edge, states, root) {
   return state === 'done' ? null : { kind: 'dependency', id: dependency.id, gate: 'done', state, gaps: [] };
 }
 
+function implementationIndependentDependencies(graph, node, states) {
+  if (!node || node.kind !== 'workpack') return [];
+  const map = nodeMap(graph);
+  return dependencyEdges(graph)
+    .filter((edge) => edge.from === node.id && edge.implementationGate === IMPLEMENTATION_INDEPENDENT_GATE)
+    .map((edge) => ({
+      id: edge.to,
+      gate: IMPLEMENTATION_INDEPENDENT_GATE,
+      state: map.has(edge.to) ? (states.get(edge.to) ?? 'unknown') : 'missing',
+      normalGate: 'done',
+    }));
+}
+
 function deriveImplementationAuthorization(
   graph,
   node,
   { root = process.cwd(), states = deriveStates(graph, { root }), workpackMapping = null } = {}
 ) {
+  const independentDependencies = implementationIndependentDependencies(graph, node, states);
   if (!node || node.kind !== 'workpack') {
     return {
       phase: 'implementation',
       status: 'not-applicable',
       authorized: false,
       blockers: [{ kind: 'node', reason: 'implementation authorization requires a workpack node' }],
+      implementationIndependentDependencies: independentDependencies,
     };
   }
   const codeExpectation = workpackMapping?.codeExpectation ?? 'code-and-tests';
@@ -1917,15 +1939,28 @@ function deriveImplementationAuthorization(
           ? { kind: 'ownership', reason: `workpack expects ${codeExpectation}, not implementation source` }
           : { kind: 'ownership', reason: 'reviewed workpack code ownership is not mapped' },
       ],
+      implementationIndependentDependencies: independentDependencies,
     };
   }
   if ((node.lifecycleState ?? node.state) === 'done') {
-    return { phase: 'implementation', status: 'complete', authorized: false, blockers: [] };
+    return {
+      phase: 'implementation',
+      status: 'complete',
+      authorized: false,
+      blockers: [],
+      implementationIndependentDependencies: independentDependencies,
+    };
   }
   const implementationGaps = completionRequirementGaps(root, node, 'implementation', { requireDeclared: true });
   const workspaceGaps = workspaceRequirementGaps(root, node);
   if (implementationGaps.length === 0 && workspaceGaps.length === 0) {
-    return { phase: 'implementation', status: 'complete', authorized: false, blockers: [] };
+    return {
+      phase: 'implementation',
+      status: 'complete',
+      authorized: false,
+      blockers: [],
+      implementationIndependentDependencies: independentDependencies,
+    };
   }
 
   const blockers = [];
@@ -1946,6 +1981,7 @@ function deriveImplementationAuthorization(
     authorized: blockers.length === 0,
     blockers,
     gaps: [...implementationGaps, ...workspaceGaps],
+    implementationIndependentDependencies: independentDependencies,
   };
 }
 
@@ -2002,6 +2038,7 @@ async function explainImplementationAuthorization(graph, nodeId, { root = proces
       status: 'blocked',
       authorized: false,
       blockers: [{ kind: 'node', reason: `unknown node ${nodeId}` }],
+      implementationIndependentDependencies: [],
     };
   }
   const inventory = await buildCodeInventory({ root });
@@ -2230,7 +2267,7 @@ export function validateGraph(graph, { root = process.cwd(), allowStoredStateDri
       if (edge.implementationGate !== undefined && !IMPLEMENTATION_GATE_VALUES.has(edge.implementationGate)) {
         errors.push(`${edge.from} -> ${edge.to} has unsupported implementationGate ${String(edge.implementationGate)}`);
       }
-      if (edge.implementationGate === IMPLEMENTATION_GATE) {
+      if ([IMPLEMENTATION_GATE, IMPLEMENTATION_INDEPENDENT_GATE].includes(edge.implementationGate)) {
         if (map.get(edge.from)?.kind !== 'workpack') {
           errors.push(`${edge.from} -> ${edge.to} implementationGate dependent must be a workpack`);
         }
