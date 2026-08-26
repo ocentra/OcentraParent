@@ -10172,6 +10172,22 @@
         "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
         "docs/engineering-graph/code-map.json"
       ]
+    },
+    {
+      "id": "WP-logging-domain-parity-04-rust-logging-core-crate",
+      "state": "validation",
+      "reason": "Independent Phase-1 source/test audit confirms the mapped Rust logging-core implementation and expected test families are present, including the live agent-service DevLogger consumer and TS/Rust fixture parity test. This validation override records source-and-test writing review only; focused cargo/npm execution, proof root, checklist acceptance, CI/review, PR readiness, and DONE remain open.",
+      "statusText": "Validation — WP04 Phase-1 source and expected-test writing reviewed; focused execution, proof, checklist, CI/review, and DONE remain open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/PLAN_CODE_STATUS_MATRIX.md",
+        "docs/plans/logging-domain-parity/PLAN_STATE.md",
+        "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
+        "docs/plans/logging-domain-parity/workpacks/04-rust-logging-core-crate.md",
+        "docs/engineering-graph/code-map.json",
+        "crates/agent-service/src/dev_log.rs",
+        "crates/agent-service/tests/unit/dev_log.rs"
+      ]
     }
   ],
   "proofOverrides": [
