@@ -2869,6 +2869,7 @@ dependencies = [
  "ocentra-lan-core",
  "ocentra-parent-agent-protocol",
  "ocentra-policy-control-core",
+ "ocentra-protected-capability-custody-client",
  "ocentra-schema",
  "ocentra-storage-custody-core",
  "serde",
