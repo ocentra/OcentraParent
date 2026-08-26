@@ -1,11 +1,19 @@
 //! Protected AccountIssuer v2 messages.
 //!
-//! These values are untrusted transport envelopes.  The inner authority is
-//! only accepted after the family-owned v2 parser verifies its signature and
-//! the Account-owned currentness transaction re-checks the binding.
+//! These values are untrusted transport envelopes. The operation body is
+//! deliberately typed so callers cannot smuggle authority, signer, or
+//! lifecycle fields through a generic byte buffer.
+
+use ocentra_schema::account_identity_authority::{
+    AccountIdentityProvider, AccountIdentityProviderSubject,
+};
+use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES;
 
 use crate::account_issuer_contract::AccountIssuerField;
 use crate::types::ProtocolError;
+
+pub const ACCOUNT_ISSUER_MAX_PROTECTED_RECEIPT_BYTES: usize =
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
@@ -14,50 +22,85 @@ pub enum AccountIssuerMessageKind {
     AcknowledgeReceipt = 7,
 }
 
-impl AccountIssuerMessageKind {
-    pub(crate) fn from_wire(value: u8) -> Result<Self, ProtocolError> {
-        match value {
-            6 => Ok(Self::IssueCurrentAuthority),
-            7 => Ok(Self::AcknowledgeReceipt),
-            other => Err(ProtocolError::InvalidMessageKind(other)),
-        }
-    }
-
-    pub const fn as_wire(self) -> u8 {
-        self as u8
-    }
+/// A bounded protected receipt produced by the Account-owned delivery path.
+///
+/// This is only valid for the AcknowledgeReceipt operation. It is intentionally
+/// move-only and does not expose a generic payload constructor or raw bytes.
+pub struct ProtectedAccountIssuerReceiptWire {
+    pub(crate) wire: Vec<u8>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+/// AccountIssuer request operation bodies. Every variant names the only
+/// identity selector and operation-specific data that may cross this boundary.
+#[derive(Debug, Eq, PartialEq)]
+pub enum AccountIssuerRequestOperation {
+    IssueCurrentAuthority {
+        provider: AccountIdentityProvider,
+        provider_subject: AccountIdentityProviderSubject,
+    },
+    AcknowledgeReceipt {
+        provider: AccountIdentityProvider,
+        provider_subject: AccountIdentityProviderSubject,
+        protected_receipt: ProtectedAccountIssuerReceiptWire,
+    },
+}
+
+#[derive(Debug, Eq, PartialEq)]
 pub struct AccountIssuerRequest {
-    kind: AccountIssuerMessageKind,
     correlation_id: AccountIssuerField,
     idempotency_key: AccountIssuerField,
     key_id: AccountIssuerField,
-    inner_wire: Vec<u8>,
+    operation: AccountIssuerRequestOperation,
 }
 
 impl AccountIssuerRequest {
-    pub fn new(
-        kind: AccountIssuerMessageKind,
+    pub fn issue_current_authority(
         correlation_id: AccountIssuerField,
         idempotency_key: AccountIssuerField,
         key_id: AccountIssuerField,
-        inner_wire: Vec<u8>,
+        provider: AccountIdentityProvider,
+        provider_subject: AccountIdentityProviderSubject,
     ) -> Result<Self, ProtocolError> {
-        let request = Self {
-            kind,
+        Self::new(
             correlation_id,
             idempotency_key,
             key_id,
-            inner_wire,
-        };
-        request.validate()?;
-        Ok(request)
+            AccountIssuerRequestOperation::IssueCurrentAuthority {
+                provider,
+                provider_subject,
+            },
+        )
+    }
+
+    pub fn acknowledge_receipt(
+        correlation_id: AccountIssuerField,
+        idempotency_key: AccountIssuerField,
+        key_id: AccountIssuerField,
+        provider: AccountIdentityProvider,
+        provider_subject: AccountIdentityProviderSubject,
+        protected_receipt: ProtectedAccountIssuerReceiptWire,
+    ) -> Result<Self, ProtocolError> {
+        Self::new(
+            correlation_id,
+            idempotency_key,
+            key_id,
+            AccountIssuerRequestOperation::AcknowledgeReceipt {
+                provider,
+                provider_subject,
+                protected_receipt,
+            },
+        )
     }
 
     pub fn kind(&self) -> AccountIssuerMessageKind {
-        self.kind
+        match &self.operation {
+            AccountIssuerRequestOperation::IssueCurrentAuthority { .. } => {
+                AccountIssuerMessageKind::IssueCurrentAuthority
+            }
+            AccountIssuerRequestOperation::AcknowledgeReceipt { .. } => {
+                AccountIssuerMessageKind::AcknowledgeReceipt
+            }
+        }
     }
 
     pub fn correlation_id(&self) -> &AccountIssuerField {
@@ -72,15 +115,28 @@ impl AccountIssuerRequest {
         &self.key_id
     }
 
-    pub fn inner_wire(&self) -> &[u8] {
-        self.inner_wire.as_slice()
+    pub fn operation(&self) -> &AccountIssuerRequestOperation {
+        &self.operation
     }
 
-    fn validate(&self) -> Result<(), ProtocolError> {
-        validate_text_field(self.correlation_id.as_bytes())?;
-        validate_text_field(self.idempotency_key.as_bytes())?;
-        validate_text_field(self.key_id.as_bytes())?;
-        validate_inner_field(self.inner_wire.as_slice())
+    pub fn into_operation(self) -> AccountIssuerRequestOperation {
+        self.operation
+    }
+
+    fn new(
+        correlation_id: AccountIssuerField,
+        idempotency_key: AccountIssuerField,
+        key_id: AccountIssuerField,
+        operation: AccountIssuerRequestOperation,
+    ) -> Result<Self, ProtocolError> {
+        let request = Self {
+            correlation_id,
+            idempotency_key,
+            key_id,
+            operation,
+        };
+        crate::account_issuer_v2_codec::validate_request(&request)?;
+        Ok(request)
     }
 }
 
@@ -111,7 +167,15 @@ impl AccountIssuerReceipt {
             key_id,
             result_digest,
         };
-        receipt.validate()?;
+        for field in [
+            receipt.receipt_id.as_bytes(),
+            receipt.correlation_id.as_bytes(),
+            receipt.idempotency_key.as_bytes(),
+            receipt.key_id.as_bytes(),
+            receipt.result_digest.as_bytes(),
+        ] {
+            crate::account_issuer_v2_codec::validate_text_field(field)?;
+        }
         Ok(receipt)
     }
 
@@ -138,37 +202,4 @@ impl AccountIssuerReceipt {
     pub fn result_digest(&self) -> &AccountIssuerField {
         &self.result_digest
     }
-
-    fn validate(&self) -> Result<(), ProtocolError> {
-        for field in [
-            self.receipt_id.as_bytes(),
-            self.correlation_id.as_bytes(),
-            self.idempotency_key.as_bytes(),
-            self.key_id.as_bytes(),
-            self.result_digest.as_bytes(),
-        ] {
-            validate_text_field(field)?;
-        }
-        Ok(())
-    }
-}
-
-fn validate_text_field(field: &[u8]) -> Result<(), ProtocolError> {
-    if field.is_empty() {
-        return Err(ProtocolError::EmptyField);
-    }
-    if field.len() > crate::account_issuer_contract::ACCOUNT_ISSUER_MAX_FIELD_BYTES {
-        return Err(ProtocolError::FieldTooLarge);
-    }
-    Ok(())
-}
-
-fn validate_inner_field(field: &[u8]) -> Result<(), ProtocolError> {
-    if field.is_empty() {
-        return Err(ProtocolError::EmptyField);
-    }
-    if field.len() > crate::account_issuer_contract::ACCOUNT_ISSUER_MAX_INNER_BYTES {
-        return Err(ProtocolError::FieldTooLarge);
-    }
-    Ok(())
 }

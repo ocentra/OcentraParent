@@ -14,6 +14,7 @@ path = "src/lib.rs"
 dunce = "1.0.5"
 ocentra-protected-capability-custody-core = { path = "../protected-capability-custody-core" }
 ocentra-protected-capability-custody-protocol = { path = "../protected-capability-custody-protocol" }
+ocentra-schema = { path = "../schema" }
 sysinfo = "0.37.2"
 zeroize = "1.8.2"
 

@@ -2935,6 +2935,7 @@ dependencies = [
  "interprocess",
  "ocentra-protected-capability-custody-core",
  "ocentra-protected-capability-custody-protocol",
+ "ocentra-schema",
  "sysinfo",
  "zeroize",
 ]
