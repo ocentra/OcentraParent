@@ -2,11 +2,13 @@
 
 use ocentra_family_identity_core::account_identity_authority_issuer_client::{
     AccountIdentityAuthorityIssuerClient, AccountIdentityAuthorityIssuerClientError,
-    AccountIdentityAuthorityIssuerTransaction, AccountIdentityIssuerCurrentness,
+    AccountIdentityIssuerCurrentness, AccountIdentityIssuerIssuePreparation,
+    AccountIdentityIssuerSignedIssue,
 };
 use ocentra_family_identity_core::account_identity_authority_issuer_client::
     account_identity_authority_issuer_client_types::{
-        AccountIdentityIssuerOutboxClaim, ProtectedAccountIssuerKeyRegistration,
+        AccountIdentityIssuerOutboxClaim, AccountIdentityIssuerRecordedTransport,
+        ProtectedAccountIssuerKeyRegistration,
     };
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
@@ -22,17 +24,12 @@ use crate::delivery::{
     DeliveryClaim, DeliveryFailure, PreparedAcknowledgeReceipt, ProtectedAccountIssuerReceipt,
 };
 use crate::key_registry::KeyRecord;
-use crate::outbox::IssueTransaction;
 
 #[path = "repository_error.rs"]
 mod error;
 
 pub struct AccountIssuerRepository {
     pub(crate) client: AccountIdentityAuthorityIssuerClient,
-}
-
-pub struct AccountIssuerTransaction<'a> {
-    pub(crate) inner: AccountIdentityAuthorityIssuerTransaction<'a>,
 }
 
 impl AccountIssuerRepository {
@@ -50,13 +47,6 @@ impl AccountIssuerRepository {
         self.client
             .resolve_current(provider, provider_subject)
             .map(|inner| CurrentAuthority { inner })
-            .map_err(AccountIssuerRepositoryError::from)
-    }
-
-    pub fn begin(&mut self) -> Result<AccountIssuerTransaction<'_>, AccountIssuerRepositoryError> {
-        self.client
-            .begin()
-            .map(|inner| AccountIssuerTransaction { inner })
             .map_err(AccountIssuerRepositoryError::from)
     }
 
@@ -94,46 +84,39 @@ impl AccountIssuerRepository {
             )
             .map_err(AccountIssuerRepositoryError::from)
     }
-}
 
-impl<'a> AccountIssuerTransaction<'a> {
     pub(crate) fn prepare_issue(
         &mut self,
-        current: &CurrentAuthority,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
         command: &IssueCurrentAuthorityCommand,
-    ) -> Result<ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Request, AccountIssuerRepositoryError>
-    {
-        self.inner
+    ) -> Result<AccountIdentityIssuerIssuePreparation, AccountIssuerRepositoryError> {
+        self.client
             .prepare_issue_current_authority(
-                &current.inner,
+                provider,
+                provider_subject,
                 command.correlation_id().as_str(),
                 command.idempotency_key().as_str(),
             )
             .map_err(AccountIssuerRepositoryError::from)
     }
 
-    pub fn existing_issued_transport(
-        &self,
-        current: &CurrentAuthority,
-        command: &IssueCurrentAuthorityCommand,
-    ) -> Result<
-        Option<ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Transport>,
-        AccountIssuerRepositoryError,
-    >{
-        self.inner
-            .existing_issued_transport(
-                &current.inner,
-                command.correlation_id().as_str(),
-                command.idempotency_key().as_str(),
-            )
+    pub(crate) fn finalize_issued_transport(
+        &mut self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
+        signed: AccountIdentityIssuerSignedIssue,
+    ) -> Result<AccountIdentityIssuerRecordedTransport, AccountIssuerRepositoryError> {
+        self.client
+            .finalize_issued_transport(provider, provider_subject, signed)
             .map_err(AccountIssuerRepositoryError::from)
     }
 
     pub fn current_key(
-        &self,
+        &mut self,
         current: &CurrentAuthority,
     ) -> Result<KeyRecord, AccountIssuerRepositoryError> {
-        self.inner
+        self.client
             .current_key(&current.inner)
             .map(KeyRecord::from)
             .map_err(AccountIssuerRepositoryError::from)
@@ -144,18 +127,22 @@ impl<'a> AccountIssuerTransaction<'a> {
         current: &CurrentAuthority,
         registration: &ProtectedAccountIssuerKeyRegistration,
     ) -> Result<KeyRecord, AccountIssuerRepositoryError> {
-        self.inner
+        self.client
             .register_protected_key(&current.inner, registration)
             .map(KeyRecord::from)
             .map_err(AccountIssuerRepositoryError::from)
     }
 
     pub fn prepare_acknowledge_receipt(
-        &self,
-        current: &CurrentAuthority,
+        &mut self,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
         claim: &DeliveryClaim,
     ) -> Result<PreparedAcknowledgeReceipt, AccountIssuerRepositoryError> {
-        self.inner
+        let current = self
+            .resolve_current(provider, provider_subject)
+            .map_err(|error| error)?;
+        self.client
             .prepare_acknowledge_receipt(&current.inner, &claim.inner)
             .map(|request| PreparedAcknowledgeReceipt { request })
             .map_err(AccountIssuerRepositoryError::from)
@@ -163,22 +150,16 @@ impl<'a> AccountIssuerTransaction<'a> {
 
     pub(crate) fn acknowledge_receipt(
         &mut self,
-        current: &CurrentAuthority,
+        provider: &AccountIdentityProvider,
+        provider_subject: &AccountIdentityProviderSubject,
         claim: &DeliveryClaim,
         protected_receipt: &ProtectedAccountIssuerReceipt,
     ) -> Result<AccountIdentityAuthorityProducerV2Receipt, AccountIssuerRepositoryError> {
-        self.inner
+        let current = self
+            .resolve_current(provider, provider_subject)
+            .map_err(|error| error)?;
+        self.client
             .acknowledge_receipt(&current.inner, &claim.inner, protected_receipt.wire())
-            .map_err(AccountIssuerRepositoryError::from)
-    }
-
-    pub(crate) fn into_issue_transaction(self) -> IssueTransaction<'a> {
-        IssueTransaction { inner: self.inner }
-    }
-
-    pub fn commit(self) -> Result<(), AccountIssuerRepositoryError> {
-        self.inner
-            .commit()
             .map_err(AccountIssuerRepositoryError::from)
     }
 }
@@ -193,6 +174,9 @@ pub enum AccountIssuerRepositoryError {
     KeyUnavailable,
     InvalidKey,
     ReplayDetected,
+    ReservationUnavailable,
+    ReservationExpired,
+    ManualRequired,
     ReceiptUnavailable,
     Producer,
 }

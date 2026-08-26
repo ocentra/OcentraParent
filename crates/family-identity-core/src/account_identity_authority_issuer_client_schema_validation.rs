@@ -20,6 +20,9 @@ pub(super) fn validate_in_transaction(
     validate_metadata(connection)?;
     validate_key_registry(connection)?;
     validate_receipt(connection)?;
+    validate_receipt_provenance(connection)?;
+    validate_reservation(connection)?;
+    validate_reservation_rows(connection)?;
     validate_outbox(connection)?;
     validate_indexes(connection)?;
     validate_owned_objects(connection)?;
@@ -102,8 +105,107 @@ fn validate_receipt(
             ("wire", "BLOB", 1, 0),
             ("ack_wire", "BLOB", 0, 0),
             ("receipt_state", "TEXT", 1, 0),
+            ("provider", "TEXT", 0, 0),
+            ("provider_subject", "TEXT", 0, 0),
+            ("provenance_state", "TEXT", 1, 0),
         ],
     )
+}
+
+fn validate_reservation(
+    connection: &Connection,
+) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    validate_table_sql(
+        connection,
+        "account_identity_issuer_v2_reservation",
+        CANONICAL_SCHEMA_SQL,
+    )?;
+    validate_table(
+        connection,
+        "account_identity_issuer_v2_reservation",
+        &[
+            ("reservation_id", "TEXT", 1, 1),
+            ("account_id", "TEXT", 1, 0),
+            ("household_id", "TEXT", 1, 0),
+            ("provider", "TEXT", 1, 0),
+            ("provider_subject", "TEXT", 1, 0),
+            ("service", "TEXT", 1, 0),
+            ("service_binding_id", "TEXT", 1, 0),
+            ("key_id", "TEXT", 1, 0),
+            ("key_generation", "INTEGER", 1, 0),
+            ("enrollment_generation", "INTEGER", 1, 0),
+            ("authority_generation", "INTEGER", 1, 0),
+            ("session_generation", "INTEGER", 1, 0),
+            ("correlation_id", "TEXT", 1, 0),
+            ("idempotency_key", "TEXT", 1, 0),
+            ("request_digest", "TEXT", 1, 0),
+            ("request_wire", "BLOB", 1, 0),
+            ("reservation_state", "TEXT", 1, 0),
+            ("signer_status", "TEXT", 1, 0),
+            ("attempt_token", "TEXT", 1, 0),
+            ("lease_expires_at", "TEXT", 1, 0),
+            ("reserved_at", "TEXT", 1, 0),
+            ("signing_started_at", "TEXT", 0, 0),
+            ("uncertain_at", "TEXT", 0, 0),
+            ("receipt_id", "TEXT", 0, 0),
+        ],
+    )
+}
+
+fn validate_receipt_provenance(
+    connection: &Connection,
+) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    let invalid: bool = connection
+        .query_row(
+            "SELECT EXISTS(
+                SELECT 1 FROM account_identity_issuer_v2_receipt
+                 WHERE (provenance_state = 'exact'
+                        AND (provider IS NULL OR provider_subject IS NULL
+                             OR length(provider) = 0 OR length(provider_subject) = 0))
+                    OR (provenance_state = 'legacy-unbound'
+                        AND (provider IS NOT NULL OR provider_subject IS NOT NULL))
+                    OR provenance_state NOT IN ('exact','legacy-unbound')
+            )",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+    (!invalid)
+        .then_some(())
+        .ok_or(AccountIdentityAuthorityIssuerClientError::InvalidSchema)
+}
+
+fn validate_reservation_rows(
+    connection: &Connection,
+) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    let invalid: bool = connection
+        .query_row(
+            "SELECT EXISTS(
+                SELECT 1 FROM account_identity_issuer_v2_reservation
+                 WHERE service != 'ocentra.account-authority-producer.cloudflare.v2'
+                    OR provider NOT IN ('authjs','firebase')
+                    OR length(account_id) = 0 OR length(household_id) = 0
+                    OR length(provider_subject) = 0 OR length(service_binding_id) = 0
+                    OR length(key_id) = 0 OR length(correlation_id) = 0
+                    OR length(idempotency_key) = 0
+                    OR request_digest NOT LIKE 'sha256:request:%'
+                    OR length(request_wire) = 0
+                    OR reservation_state NOT IN ('prepared','signing','manual-required','issued')
+                    OR signer_status NOT IN ('not-started','in-flight','uncertain','succeeded')
+                    OR length(attempt_token) = 0 OR length(lease_expires_at) = 0
+                    OR length(reserved_at) = 0
+                    OR (reservation_state = 'prepared' AND signer_status != 'not-started')
+                    OR (reservation_state = 'signing' AND signer_status != 'in-flight')
+                    OR (reservation_state = 'manual-required' AND signer_status != 'uncertain')
+                    OR (reservation_state = 'issued' AND signer_status != 'succeeded')
+            )",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|_| AccountIdentityAuthorityIssuerClientError::InvalidSchema)?;
+    (!invalid)
+        .then_some(())
+        .ok_or(AccountIdentityAuthorityIssuerClientError::InvalidSchema)
 }
 
 fn validate_outbox(
@@ -186,6 +288,22 @@ fn validate_indexes(
     validate_index_sql(
         connection,
         "account_identity_issuer_v2_outbox_delivery",
+        CANONICAL_SCHEMA_SQL,
+    )?;
+    validate_index(
+        connection,
+        "account_identity_issuer_v2_reservation_lookup",
+        &[
+            "account_id",
+            "service",
+            "idempotency_key",
+            "reservation_state",
+            "lease_expires_at",
+        ],
+    )?;
+    validate_index_sql(
+        connection,
+        "account_identity_issuer_v2_reservation_lookup",
         CANONICAL_SCHEMA_SQL,
     )
 }
@@ -341,11 +459,13 @@ fn validate_owned_objects(
         "account_identity_issuer_v2_key_registry",
         "account_identity_issuer_v2_receipt",
         "account_identity_issuer_v2_outbox",
+        "account_identity_issuer_v2_reservation",
     ];
     let allowed_indexes = [
         "account_identity_issuer_v2_key_registry_current",
         "account_identity_issuer_v2_receipt_lookup",
         "account_identity_issuer_v2_outbox_delivery",
+        "account_identity_issuer_v2_reservation_lookup",
     ];
     let mut statement = connection
         .prepare(

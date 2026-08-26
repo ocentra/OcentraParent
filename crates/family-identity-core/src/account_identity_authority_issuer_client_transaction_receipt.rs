@@ -8,6 +8,7 @@ use crate::account_identity_authority_producer_v2::{
     self, AccountIdentityAuthorityProducerV2Error, AccountIdentityAuthorityProducerV2Transport,
 };
 
+use super::super::account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
 use super::super::account_identity_authority_issuer_client_types::AccountIdentityIssuerRecordedTransport;
 use super::super::{
     AccountIdentityAuthorityIssuerClientError, AccountIdentityAuthorityIssuerTransaction,
@@ -15,9 +16,10 @@ use super::super::{
 };
 
 impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
-    pub fn record_issued_transport(
+    pub(crate) fn record_issued_transport(
         &mut self,
         currentness: &AccountIdentityIssuerCurrentness,
+        reservation: AccountIdentityIssuerReservation,
         transport: &AccountIdentityAuthorityProducerV2Transport,
     ) -> Result<AccountIdentityIssuerRecordedTransport, AccountIdentityAuthorityIssuerClientError>
     {
@@ -32,6 +34,14 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
             currentness,
             receipt.idempotency_key.as_str(),
         )? {
+            if existing.provenance_state != "exact"
+                || existing.provider.as_deref()
+                    != Some(super::provider_label(currentness.authority().provider()))
+                || existing.provider_subject.as_deref()
+                    != Some(currentness.authority().provider_subject().as_str())
+            {
+                return Err(AccountIdentityAuthorityIssuerClientError::ReplayDetected);
+            }
             if !same_receipt_identity(&existing, receipt) {
                 return Err(AccountIdentityAuthorityIssuerClientError::ReplayDetected);
             }
@@ -42,13 +52,90 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
                 replayed: true,
             });
         }
+        super::reservation_validation::validate_signing_reservation(
+            &self.transaction,
+            currentness,
+            &reservation,
+            transport,
+        )?;
         insert_receipt(&self.transaction, currentness, &key, transport)?;
         insert_outbox(&self.transaction, currentness, &key, transport)?;
+        super::recovery::mark_issued(&self.transaction, &reservation, receipt.receipt_id.as_str())?;
+        compact_issued_reservation(&self.transaction, &reservation, receipt, transport)?;
         Ok(AccountIdentityIssuerRecordedTransport {
             transport: transport.clone_durable(),
             replayed: false,
         })
     }
+}
+
+fn compact_issued_reservation(
+    transaction: &Transaction<'_>,
+    reservation: &AccountIdentityIssuerReservation,
+    receipt: &AccountIdentityAuthorityProducerV2Receipt,
+    transport: &AccountIdentityAuthorityProducerV2Transport,
+) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+    let changed = transaction
+        .execute(
+            "DELETE FROM account_identity_issuer_v2_reservation
+              WHERE reservation_id = ?1 AND attempt_token = ?2
+                AND reservation_state = 'issued' AND signer_status = 'succeeded'
+                AND receipt_id = ?3
+                AND request_digest = ?4 AND request_wire = ?5
+                AND EXISTS (
+                    SELECT 1
+                      FROM account_identity_issuer_v2_receipt AS stored_receipt
+                     WHERE stored_receipt.receipt_id = ?3
+                       AND stored_receipt.provenance_state = 'exact'
+                       AND stored_receipt.receipt_state IN ('issued','acknowledged')
+                       AND stored_receipt.account_id = account_identity_issuer_v2_reservation.account_id
+                       AND stored_receipt.household_id = account_identity_issuer_v2_reservation.household_id
+                       AND stored_receipt.provider = account_identity_issuer_v2_reservation.provider
+                       AND stored_receipt.provider_subject = account_identity_issuer_v2_reservation.provider_subject
+                       AND stored_receipt.service = account_identity_issuer_v2_reservation.service
+                       AND stored_receipt.service_binding_id = account_identity_issuer_v2_reservation.service_binding_id
+                       AND stored_receipt.key_id = account_identity_issuer_v2_reservation.key_id
+                       AND stored_receipt.key_generation = account_identity_issuer_v2_reservation.key_generation
+                       AND stored_receipt.enrollment_generation = account_identity_issuer_v2_reservation.enrollment_generation
+                       AND stored_receipt.authority_generation = account_identity_issuer_v2_reservation.authority_generation
+                       AND stored_receipt.session_generation = account_identity_issuer_v2_reservation.session_generation
+                       AND stored_receipt.correlation_id = account_identity_issuer_v2_reservation.correlation_id
+                       AND stored_receipt.idempotency_key = account_identity_issuer_v2_reservation.idempotency_key
+                       AND stored_receipt.payload_digest = ?6
+                       AND stored_receipt.issued_at = ?7
+                       AND stored_receipt.expires_at = ?8
+                       AND stored_receipt.wire = ?9
+                )
+                AND EXISTS (
+                    SELECT 1
+                      FROM account_identity_issuer_v2_outbox AS stored_outbox
+                     WHERE stored_outbox.receipt_id = ?3
+                       AND stored_outbox.account_id = account_identity_issuer_v2_reservation.account_id
+                       AND stored_outbox.household_id = account_identity_issuer_v2_reservation.household_id
+                       AND stored_outbox.service = account_identity_issuer_v2_reservation.service
+                       AND stored_outbox.service_binding_id = account_identity_issuer_v2_reservation.service_binding_id
+                       AND stored_outbox.key_id = account_identity_issuer_v2_reservation.key_id
+                       AND stored_outbox.key_generation = account_identity_issuer_v2_reservation.key_generation
+                       AND stored_outbox.enrollment_generation = account_identity_issuer_v2_reservation.enrollment_generation
+                       AND stored_outbox.authority_generation = account_identity_issuer_v2_reservation.authority_generation
+                       AND stored_outbox.wire = ?9
+                )",
+            params![
+                reservation.reservation_id(),
+                reservation.attempt_token(),
+                receipt.receipt_id,
+                super::reservation::request_digest(reservation.request_wire()),
+                reservation.request_wire(),
+                receipt.payload_digest,
+                receipt.issued_at,
+                receipt.expires_at,
+                transport.wire_bytes(),
+            ],
+        )
+        .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
+    (changed == 1)
+        .then_some(())
+        .ok_or(AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)
 }
 
 fn verify_transport(
@@ -170,9 +257,9 @@ fn insert_receipt(
                 key_generation, enrollment_generation, authority_generation, session_generation,
                 correlation_id,
                 idempotency_key, payload_digest, issued_at, expires_at, wire, ack_wire,
-                receipt_state
+                receipt_state, provider, provider_subject, provenance_state
              ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16,
-                       NULL, 'issued')",
+                       NULL, 'issued', ?17, ?18, 'exact')",
             params![
                 receipt.receipt_id,
                 currentness.account_id().as_str(),
@@ -190,6 +277,8 @@ fn insert_receipt(
                 receipt.issued_at,
                 receipt.expires_at,
                 transport.wire_bytes(),
+                super::provider_label(currentness.authority().provider()),
+                currentness.authority().provider_subject().as_str(),
             ],
         )
         .map(|_| ())

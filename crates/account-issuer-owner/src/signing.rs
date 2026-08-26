@@ -5,16 +5,18 @@
 //! request proof; this module binds that proof to the exact request bytes and
 //! lets the family producer perform the fixed P-256 verification.
 
-use ocentra_family_identity_core::account_identity_authority_producer_v2::{
-    AccountIdentityAuthorityProducerV2Request, AccountIdentityAuthorityProducerV2Transport,
+use ocentra_family_identity_core::account_identity_authority_issuer_client::AccountIdentityIssuerSignedIssue;
+use ocentra_protected_capability_custody_core::account_issuer::{
+    AccountIssuerP256Signer, AccountIssuerP256SignerError,
 };
-use ocentra_protected_capability_custody_core::account_issuer::AccountIssuerSignerCapability;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
 use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_ISSUER_SIGNING_ERROR;
 
-use crate::contract::{IssueCurrentAuthorityCommand, PreparedAccountIssuerV2Request};
+use crate::contract::{
+    IssueCurrentAuthorityCommand, PreparedAccountIssuerV2Request, SignedAccountIssuerV2Envelope,
+};
 use crate::rpc::{
     AccountIssuerOwner, AccountIssuerPreparation, AccountIssuerRpcError, IssuePreparation,
     IssuedAuthority,
@@ -35,22 +37,21 @@ impl std::fmt::Display for AccountIssuerSigningError {
 impl std::error::Error for AccountIssuerSigningError {}
 
 impl AccountIssuerOwner {
-    pub(crate) fn issue_current_authority_with_protected_capability(
+    pub(crate) fn issue_current_authority_with_protected_signer(
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
         command: &IssueCurrentAuthorityCommand,
-        capability: AccountIssuerSignerCapability,
+        signer: &AccountIssuerP256Signer,
     ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
         match self.prepare_current_authority(provider, provider_subject, command)? {
             AccountIssuerPreparation::Replay(authority) => Ok(authority),
-            AccountIssuerPreparation::Prepared(prepared) => self
-                .finalize_prepared_current_authority(
-                    provider,
-                    provider_subject,
-                    prepared,
-                    capability,
-                ),
+            AccountIssuerPreparation::Prepared(prepared) => {
+                let signed = prepared
+                    .sign_with(signer)
+                    .map_err(|error| AccountIssuerRpcError::Signing(map_signer_error(error)))?;
+                self.finalize_prepared_current_authority(provider, provider_subject, signed)
+            }
         }
     }
 
@@ -63,17 +64,17 @@ impl AccountIssuerOwner {
         provider_subject: &AccountIdentityProviderSubject,
         command: &IssueCurrentAuthorityCommand,
     ) -> Result<AccountIssuerPreparation, AccountIssuerRpcError> {
-        let current = self.resolve_current_for_signing(provider, provider_subject)?;
-        let request = match self.prepare_issue(&current, command)? {
+        let prepared = match self.prepare_issue(provider, provider_subject, command)? {
             IssuePreparation::Replay(transport) => {
                 return Ok(AccountIssuerPreparation::Replay(Self::replayed_authority(
                     transport,
                 )?))
             }
-            IssuePreparation::Request(request) => request,
+            IssuePreparation::Request(prepared) => prepared,
         };
-        let prepared = PreparedAccountIssuerV2Request::from_request(request);
-        Ok(AccountIssuerPreparation::Prepared(prepared))
+        Ok(AccountIssuerPreparation::Prepared(
+            PreparedAccountIssuerV2Request::from_inner(prepared),
+        ))
     }
 
     /// Finalize an owner-prepared request with the core-owned protected
@@ -83,26 +84,32 @@ impl AccountIssuerOwner {
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
-        prepared: PreparedAccountIssuerV2Request,
-        capability: AccountIssuerSignerCapability,
+        signed: SignedAccountIssuerV2Envelope,
     ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
-        let request = prepared.into_parts();
-        let transport = finalize_with_protected_capability(request, capability)
-            .map_err(AccountIssuerRpcError::Signing)?;
-        self.record_issued_transport(provider, provider_subject, transport)
+        let signed = finalize_signed_envelope(signed).map_err(AccountIssuerRpcError::Signing)?;
+        self.record_issued_transport(provider, provider_subject, signed)
     }
 }
 
-pub(crate) fn finalize_with_protected_capability(
-    request: AccountIdentityAuthorityProducerV2Request,
-    capability: AccountIssuerSignerCapability,
-) -> Result<AccountIdentityAuthorityProducerV2Transport, AccountIssuerSigningError> {
+fn finalize_signed_envelope(
+    signed: SignedAccountIssuerV2Envelope,
+) -> Result<AccountIdentityIssuerSignedIssue, AccountIssuerSigningError> {
+    let (prepared, capability) = signed.into_parts();
     let signature = capability
-        .into_signature_for(&request)
+        .into_signature_for(prepared.request())
         .map_err(|_| AccountIssuerSigningError::Rejected)?;
-    request
-        .finalize(signature)
+    prepared
+        .finalize_with_signature(signature)
         .map_err(|_| AccountIssuerSigningError::Rejected)
+}
+
+fn map_signer_error(error: AccountIssuerP256SignerError) -> AccountIssuerSigningError {
+    match error {
+        AccountIssuerP256SignerError::DeploymentRequired => {
+            AccountIssuerSigningError::OwnerUnavailable
+        }
+        AccountIssuerP256SignerError::Rejected => AccountIssuerSigningError::Rejected,
+    }
 }
 
 pub(crate) fn fail_closed() -> AccountIssuerSigningError {
