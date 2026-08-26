@@ -17,5 +17,8 @@ pub(crate) fn connect() -> Result<AuthenticatedBrokerSession, ClientError> {
         ConnectWaitMode::Timeout(Duration::from_millis(BROKER_ACCEPT_DEADLINE_MILLIS)),
     )
     .map_err(|_error| ClientError::BrokerUnavailable)?;
+    stream
+        .set_nonblocking(true)
+        .map_err(|_error| ClientError::Transport)?;
     super::session::establish(stream)
 }

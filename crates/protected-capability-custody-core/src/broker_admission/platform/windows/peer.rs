@@ -70,6 +70,23 @@ impl VerifiedBrokerProcess {
         }
         Ok(())
     }
+
+    pub(super) fn observed_identity(&self) -> Result<(u32, u64, u32), PlatformError> {
+        let process = self.process.observation().map_err(map_ffi_error)?;
+        let token = self.token.observation().map_err(map_ffi_error)?;
+        if process != self.initial_process
+            || token != self.initial_token
+            || !process.is_alive()
+            || process.process_id() != std::process::id()
+            || token.sid() != SYSTEM_SID_BYTES
+            || token.integrity_level() != SYSTEM_INTEGRITY_RID
+            || token.session_id() != 0
+        {
+            return Err(PlatformError::Tampered);
+        }
+        let process_epoch = process_epoch_seconds(process.creation_time_100ns())?;
+        Ok((process.process_id(), process_epoch, token.session_id()))
+    }
 }
 
 impl PeerObservation {

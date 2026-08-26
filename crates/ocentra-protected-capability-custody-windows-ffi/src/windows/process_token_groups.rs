@@ -18,7 +18,7 @@ impl OwnedToken {
     /// buffer, or token handle to this observation boundary.
     pub fn group_sids(&self) -> Result<Vec<Vec<u8>>> {
         let bytes = query_token_groups(self.inner.handle.raw())?;
-        if bytes.len() < offset_of!(TOKEN_GROUPS, Groups) {
+        if bytes.len() < size_of::<TOKEN_GROUPS>() {
             return Err(Error::InvalidInput(
                 InputFault::TokenInformationResponseTooLarge,
             ));

@@ -56,6 +56,38 @@ impl ClientProcessIdentity {
     }
 }
 
+/// OS-observed identity for the retained, enrolled broker process.
+#[cfg(windows)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct BrokerProcessIdentity {
+    process_id: u32,
+    process_epoch: u64,
+    session_id: u32,
+}
+
+#[cfg(windows)]
+impl BrokerProcessIdentity {
+    pub(crate) fn new(process_id: u32, process_epoch: u64, session_id: u32) -> Self {
+        Self {
+            process_id,
+            process_epoch,
+            session_id,
+        }
+    }
+
+    pub fn process_id(self) -> u32 {
+        self.process_id
+    }
+
+    pub fn process_epoch(self) -> u64 {
+        self.process_epoch
+    }
+
+    pub fn session_id(self) -> u32 {
+        self.session_id
+    }
+}
+
 #[cfg(windows)]
 impl ClientAnchor {
     pub fn open(

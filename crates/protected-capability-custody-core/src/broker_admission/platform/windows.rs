@@ -45,6 +45,13 @@ impl WindowsCustodyRuntime {
         self.service.revalidate(&self.enrollment)
     }
 
+    pub(in crate::broker_admission) fn broker_process_identity(
+        &self,
+    ) -> Result<(u32, u64, u32), PlatformError> {
+        self.revalidate_broker()?;
+        self.broker_process.observed_identity()
+    }
+
     pub(in crate::broker_admission) fn pipe_sddl(&self) -> Result<String, PlatformError> {
         self.revalidate_broker()?;
         Ok(format!(
