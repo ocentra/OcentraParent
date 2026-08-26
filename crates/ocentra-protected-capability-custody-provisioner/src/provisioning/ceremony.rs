@@ -1,7 +1,7 @@
 use super::error::ProvisioningError;
 
 #[cfg(windows)]
-use super::{cng, registry, scm, state, tpm};
+use super::{account_issuer_acl, cng, registry, scm, state, tpm};
 
 pub(super) fn run() -> Result<(), ProvisioningError> {
     #[cfg(not(windows))]
@@ -17,18 +17,23 @@ pub(super) fn run() -> Result<(), ProvisioningError> {
         ceremony.advance(state::Stage::ScmReadback)?;
         let signer = cng::open_existing(&enrollment)?;
         ceremony.advance(state::Stage::CngReadback)?;
+        account_issuer_acl::readback()?;
+        ceremony.advance(state::Stage::AccountIssuerReadback)?;
         tpm::readback(&enrollment, &signer)?;
         ceremony.advance(state::Stage::TpmReadback)?;
         signer.revalidate(&enrollment)?;
         ceremony.advance(state::Stage::CngRevalidated)?;
+        account_issuer_acl::revalidate()?;
+        ceremony.advance(state::Stage::AccountIssuerRevalidated)?;
         registry::revalidate(&enrollment)?;
         ceremony.advance(state::Stage::RegistryRevalidated)?;
         scm::revalidate(&enrollment)?;
         ceremony.advance(state::Stage::ScmRevalidated)?;
 
         // This is a partial read-only preflight. The current FFI independently
-        // observes the registry/SCM/PCP/NV subset, but cannot pin the broker or
-        // client files or observe the enrolled client token identity/session.
+        // observes the registry/SCM/PCP/AccountIssuer/NV subset, but cannot pin
+        // the broker or client files or observe the enrolled client token
+        // identity/session.
         // It cannot create or publish enrollment: the repository has no
         // authenticated OEM/MDM handoff or protected registry/SCM mutation
         // transaction. A later installer run consumes externally completed
