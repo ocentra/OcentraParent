@@ -95,7 +95,17 @@
           Account="LocalSystem"
           Vital="yes"
         >
-          <ServiceConfig ServiceSid="unrestricted" OnInstall="yes" OnReinstall="yes" />
+          <!--
+            MSI MsiServiceConfig ServiceSid is deliberately not authored:
+            WiX reports WIX1149 for this deprecated/unreliable mechanism.
+            Protected WP02 owns the external SCM ceremony that establishes
+            SERVICE_SID_TYPE_UNRESTRICTED and the expected service identity.
+            The zero-argument provisioner observes and revalidates that state
+            before StartServices and fails closed when it is absent or wrong.
+            This package never authors or overwrites the service SID or
+            Enrollment\\authority-v1. The supported util:ServiceConfig below
+            contains failure actions only.
+          -->
           <util:ServiceConfig
             FirstFailureActionType="restart"
             SecondFailureActionType="restart"
