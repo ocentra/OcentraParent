@@ -7,6 +7,8 @@ import {
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_ISSUE_MESSAGE_KIND,
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_DOMAIN,
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX,
+  accountIdentityAuthorityProducerV2ReceiptIdDomainBytes,
+  ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION,
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FUTURE_ISSUED_SKEW_SECONDS,
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS,
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES,
@@ -19,6 +21,7 @@ import {
   isAccountIdentityAuthorityProducerV2Digest,
   isAccountIdentityAuthorityProducerV2KeyId,
   isAccountIdentityAuthorityProducerV2ReceiptId,
+  isAccountIdentityAuthorityProducerV2ServiceBindingId,
   isAccountIdentityAuthorityProducerV2Text,
   parseAccountIdentityAuthorityProducerV2Wire,
 } from './account-identity-authority-producer-v2-contract.js';
@@ -76,6 +79,7 @@ export interface VerifiedAccountIdentityAuthorityIssuerV2Envelope {
   readonly keyId: string;
   readonly serviceBindingId: string;
   readonly keyGeneration: number;
+  readonly enrollmentGeneration: number;
   readonly authorityGeneration: number;
   readonly sessionGeneration: number;
   readonly correlationId: string;
@@ -113,14 +117,18 @@ export async function verifyAccountIdentityAuthorityProducerV2Wire(
 
   let signatureValid = false;
   try {
-    const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, { name: 'ECDSA', namedCurve: 'P-256' }, false, [
-      'verify',
-    ]);
+    const cryptoKey = await crypto.subtle.importKey(
+      'raw',
+      asArrayBuffer(keyBytes),
+      { name: 'ECDSA', namedCurve: 'P-256' },
+      false,
+      ['verify']
+    );
     signatureValid = await crypto.subtle.verify(
       { name: 'ECDSA', hash: 'SHA-256' },
       cryptoKey,
-      parsed.signature,
-      parsed.signingBytes
+      asArrayBuffer(parsed.signature),
+      asArrayBuffer(parsed.signingBytes)
     );
   } catch {
     return rejected('invalid-key');
@@ -155,6 +163,7 @@ export async function verifyAccountIdentityAuthorityProducerV2Wire(
     receipt.keyId !== parsed.keyId ||
     receipt.serviceBindingId !== parsed.serviceBindingId ||
     receipt.keyGeneration !== parsed.keyGeneration ||
+    receipt.enrollmentGeneration !== parsed.enrollmentGeneration ||
     receipt.authorityGeneration !== parsed.authorityGeneration ||
     receipt.sessionGeneration !== parsed.sessionGeneration ||
     receipt.correlationId !== parsed.correlationId ||
@@ -202,6 +211,7 @@ export async function verifyAccountIdentityAuthorityProducerV2Currentness(
     authorityPayloadDigest: verified.envelope.authorityPayloadDigest,
     keyId: verified.envelope.keyId,
     keyGeneration: verified.envelope.keyGeneration,
+    enrollmentGeneration: verified.envelope.enrollmentGeneration,
     authorityGeneration: verified.envelope.authorityGeneration,
     sessionGeneration: verified.envelope.sessionGeneration,
     issuedAt: verified.envelope.issuedAt,
@@ -210,11 +220,12 @@ export async function verifyAccountIdentityAuthorityProducerV2Currentness(
   };
   let receiptResult: Awaited<ReturnType<AccountIdentityAuthorityIssuerV2Store['recordInboundReceipt']>>;
   try {
-    receiptResult = await store.recordInboundReceipt(inbound);
+    receiptResult = await store.recordInboundReceipt(inbound, current.verifier);
   } catch {
     return manualRequired('account-identity-issuer-v2-unavailable');
   }
   if (receiptResult.status === 'manual-required') return manualRequired(receiptResult.reason);
+  if (receiptResult.status === 'currentness-mismatch') return rejectedCurrent('currentness-mismatch');
   if (receiptResult.status === 'conflict') return rejectedCurrent('receipt-replay-conflict');
   log.logInfo(
     'account issuer v2 inbound receipt accepted',
@@ -329,6 +340,7 @@ function parseReceipt(value: unknown): AccountIdentityAuthorityProducerV2Receipt
     'payloadDigest',
     'keyId',
     'keyGeneration',
+    'enrollmentGeneration',
     'authorityGeneration',
     'sessionGeneration',
     'issuedAt',
@@ -346,6 +358,7 @@ function parseReceipt(value: unknown): AccountIdentityAuthorityProducerV2Receipt
   const issuedAt = textField(record.issuedAt);
   const expiresAt = textField(record.expiresAt);
   const keyGeneration = generationField(record.keyGeneration);
+  const enrollmentGeneration = generationField(record.enrollmentGeneration);
   const authorityGeneration = generationField(record.authorityGeneration);
   const sessionGeneration = generationField(record.sessionGeneration);
   const issuedTimestamp = issuedAt === null ? null : parseTimestamp(issuedAt);
@@ -362,6 +375,7 @@ function parseReceipt(value: unknown): AccountIdentityAuthorityProducerV2Receipt
     issuedAt === null ||
     expiresAt === null ||
     keyGeneration === null ||
+    enrollmentGeneration === null ||
     authorityGeneration === null ||
     sessionGeneration === null ||
     issuedTimestamp === null ||
@@ -369,7 +383,8 @@ function parseReceipt(value: unknown): AccountIdentityAuthorityProducerV2Receipt
     expiresTimestamp <= issuedTimestamp ||
     !isAccountIdentityAuthorityProducerV2ReceiptId(receiptId) ||
     !isAccountIdentityAuthorityProducerV2Digest(payloadDigest) ||
-    !isAccountIdentityAuthorityProducerV2KeyId(keyId)
+    !isAccountIdentityAuthorityProducerV2KeyId(keyId) ||
+    !isAccountIdentityAuthorityProducerV2ServiceBindingId(serviceBindingId)
   ) {
     return null;
   }
@@ -384,6 +399,7 @@ function parseReceipt(value: unknown): AccountIdentityAuthorityProducerV2Receipt
     payloadDigest,
     keyId,
     keyGeneration,
+    enrollmentGeneration,
     authorityGeneration,
     sessionGeneration,
     issuedAt,
@@ -416,6 +432,7 @@ function matchesCurrentVerifier(
     parsed.serviceBindingId === current.serviceBindingId &&
     parsed.keyId === current.keyId &&
     parsed.keyGeneration === current.keyGeneration &&
+    parsed.enrollmentGeneration === current.enrollmentGeneration &&
     parsed.authorityGeneration === current.authorityGeneration &&
     parsed.sessionGeneration === current.sessionGeneration
   );
@@ -429,6 +446,7 @@ function matchesAuthorityBinding(
     envelope.serviceBindingId !== current.serviceBindingId ||
     envelope.keyId !== current.keyId ||
     envelope.keyGeneration !== current.keyGeneration ||
+    envelope.enrollmentGeneration !== current.enrollmentGeneration ||
     envelope.authorityGeneration !== current.authorityGeneration ||
     envelope.sessionGeneration !== current.sessionGeneration
   ) {
@@ -464,6 +482,7 @@ function trustedEnvelope(
       keyId: parsed.keyId,
       serviceBindingId: parsed.serviceBindingId,
       keyGeneration: parsed.keyGeneration,
+      enrollmentGeneration: parsed.enrollmentGeneration,
       authorityGeneration: parsed.authorityGeneration,
       sessionGeneration: parsed.sessionGeneration,
       correlationId: parsed.correlationId,
@@ -525,7 +544,12 @@ function isLowS(signature: Uint8Array): boolean {
 }
 
 function isSafeGeneration(value: unknown): value is number {
-  return typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
+  return (
+    typeof value === 'number' &&
+    Number.isSafeInteger(value) &&
+    value > 0 &&
+    value <= ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_ENROLLMENT_GENERATION
+  );
 }
 
 function isValidClock(value: number): boolean {
@@ -552,22 +576,34 @@ function copyBytes(value: ArrayBuffer | Uint8Array): Uint8Array | null {
 }
 
 async function sha256Prefixed(value: Uint8Array): Promise<string> {
-  return `sha256:${toHex(new Uint8Array(await crypto.subtle.digest('SHA-256', value)))}`;
+  return `sha256:${toHex(new Uint8Array(await crypto.subtle.digest('SHA-256', asArrayBuffer(value))))}`;
 }
 
 async function deriveReceiptId(correlationId: string, idempotencyKey: string, payloadDigest: string): Promise<string> {
-  const first = new TextEncoder().encode(correlationId);
-  const second = new TextEncoder().encode(idempotencyKey);
-  const third = new TextEncoder().encode(payloadDigest);
-  const input = new Uint8Array(first.byteLength + second.byteLength + third.byteLength);
-  input.set(first);
-  input.set(second, first.byteLength);
-  input.set(third, first.byteLength + second.byteLength);
+  const encoder = new TextEncoder();
+  const domain = accountIdentityAuthorityProducerV2ReceiptIdDomainBytes();
+  const fields = [encoder.encode(correlationId), encoder.encode(idempotencyKey), encoder.encode(payloadDigest)];
+  const input = new Uint8Array(domain.byteLength + fields.reduce((total, field) => total + 8 + field.byteLength, 0));
+  input.set(domain);
+  const view = new DataView(input.buffer);
+  let offset = domain.byteLength;
+  for (const field of fields) {
+    view.setBigUint64(offset, BigInt(field.byteLength), false);
+    offset += 8;
+    input.set(field, offset);
+    offset += field.byteLength;
+  }
   return `sha256:receipt:${toHex(new Uint8Array(await crypto.subtle.digest('SHA-256', input)))}`;
 }
 
 function toHex(value: Uint8Array): string {
   return Array.from(value, (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function asArrayBuffer(value: Uint8Array): ArrayBuffer {
+  const copy = new Uint8Array(new ArrayBuffer(value.byteLength));
+  copy.set(value);
+  return copy.buffer;
 }
 
 function rejected(
@@ -591,8 +627,19 @@ function rejected(
 function rejectedCurrent(
   reason: AccountIdentityAuthorityIssuerV2VerificationReason
 ): AccountIdentityAuthorityIssuerV2CurrentVerification {
-  const result = rejected(reason);
-  return result;
+  log.logWarn(
+    'account issuer v2 currentness rejected',
+    getStackTrace(),
+    {
+      owner: 'cloudflare-wp05-account-identity-authority-issuer-v2',
+      boundary: 'account-issuer-v2-currentness',
+      result: 'rejected',
+      noClaimReason: reason,
+      redactionState: 'redacted',
+    },
+    false
+  );
+  return { status: 'rejected', reason };
 }
 
 function manualRequired(

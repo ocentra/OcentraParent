@@ -4,6 +4,10 @@ import {
   type AccountIdentityCurrentMemberDeviceAuthorityHandoff,
   type AccountIdentityProvider,
 } from '@ocentra-parent/schema-domain/account-identity-authority';
+import {
+  createAccountIdentityAuthorityIssuerV2Store,
+  type AccountIdentityAuthorityIssuerV2Store,
+} from './account-identity-authority-issuer-v2.js';
 
 const VERIFIED_AUTHORITY_CAPABILITIES = new WeakSet<object>();
 type VerifiedSupportReceipt = NonNullable<
@@ -255,6 +259,7 @@ export type AccountIdentityAuthorityReadResult =
     };
 
 export interface AccountIdentityAuthorityStore {
+  readonly issuerV2: AccountIdentityAuthorityIssuerV2Store;
   readCurrentAuthority(
     provider: AccountIdentityProvider,
     providerSubject: string
@@ -515,6 +520,7 @@ function validateAuthorityRow(
 
 export function createAccountIdentityAuthorityStore(database: D1Database | undefined): AccountIdentityAuthorityStore {
   return {
+    issuerV2: createAccountIdentityAuthorityIssuerV2Store(database),
     async readCurrentAuthority(provider, providerSubject) {
       if (database === undefined) {
         return { status: 'manual-required', reason: 'account-identity-d1-authority-missing' };

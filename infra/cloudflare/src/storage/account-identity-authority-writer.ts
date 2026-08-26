@@ -8,6 +8,15 @@ import {
   createAccountIdentityAuthorityStore,
   type AccountIdentityAuthorityReadResult,
 } from './account-identity-authority-store.js';
+import {
+  verifyAccountIdentityAuthorityProducerV2RequestFrame,
+  type AccountIdentityAuthorityIssuerV2CurrentVerification,
+} from '../auth/account-identity-authority-issuer-v2.js';
+import { ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE } from '../auth/account-identity-authority-producer-v2-contract.js';
+import type {
+  AccountIdentityAuthorityIssuerV2Store,
+  AccountIdentityAuthorityIssuerV2Verifier,
+} from './account-identity-authority-issuer-v2.js';
 
 const MAX_SAFE_GENERATION = Number.MAX_SAFE_INTEGER;
 const MAX_IDENTITY_TEXT_LENGTH = 256;
@@ -28,6 +37,23 @@ export interface AccountOwnedAuthorityProducer {
     provider: AccountIdentityProvider,
     providerSubject: string
   ): Promise<AccountIdentityCurrentMemberDeviceAuthorityHandoff | null>;
+  /**
+   * Protected owner registration. The Cloudflare worker never constructs a
+   * key or accepts this material from a request; an absent resolver is
+   * deliberately manual-required.
+   */
+  readonly resolveIssuerV2VerifierRegistration?: (
+    provider: AccountIdentityProvider,
+    providerSubject: string
+  ) => Promise<AccountIdentityAuthorityIssuerV2VerifierRegistration | null>;
+}
+
+export interface AccountIdentityAuthorityIssuerV2VerifierRegistration {
+  readonly serviceBindingId: string;
+  readonly keyId: string;
+  readonly keyGeneration: number;
+  readonly enrollmentGeneration: number;
+  readonly publicKey: Uint8Array;
 }
 
 interface ServerOwnedAccountIdentityAuthority {
@@ -68,6 +94,22 @@ export type AccountIdentityAuthorityRevokeResult =
     }
   | { status: 'rejected'; reason: 'provider-subject-invalid' | 'authority-generation-invalid' };
 
+export type AccountIdentityAuthorityIssuerV2MutationResult =
+  | { status: 'written' | 'updated' | 'revoked' }
+  | { status: 'conflict'; reason: 'issuer-v2-currentness-conflict' | 'issuer-v2-verifier-missing' }
+  | {
+      status: 'manual-required';
+      reason:
+        | 'account-identity-d1-authority-missing'
+        | 'account-identity-d1-schema-missing'
+        | 'account-identity-d1-unavailable'
+        | 'account-identity-authority-source-unavailable';
+    }
+  | {
+      status: 'rejected';
+      reason: 'authority-source-invalid' | 'authority-currentness-invalid' | 'provider-subject-invalid';
+    };
+
 export interface AccountIdentityAuthorityWriter {
   readCurrentAuthority(
     provider: AccountIdentityProvider,
@@ -93,6 +135,25 @@ export interface AccountIdentityAuthorityWriter {
     expectedSessionGeneration: number,
     expectedSessionId: string
   ): Promise<AccountIdentityAuthorityRevokeResult>;
+  enrollCurrentIssuerVerifier(
+    producer: AccountOwnedAuthorityProducer,
+    provider: AccountIdentityProvider,
+    providerSubject: string
+  ): Promise<AccountIdentityAuthorityIssuerV2MutationResult>;
+  updateCurrentIssuerVerifier(
+    producer: AccountOwnedAuthorityProducer,
+    provider: AccountIdentityProvider,
+    providerSubject: string
+  ): Promise<AccountIdentityAuthorityIssuerV2MutationResult>;
+  revokeCurrentIssuerVerifier(
+    producer: AccountOwnedAuthorityProducer,
+    provider: AccountIdentityProvider,
+    providerSubject: string
+  ): Promise<AccountIdentityAuthorityIssuerV2MutationResult>;
+  verifyAccountIssuerFrame(
+    frame: ArrayBuffer | Uint8Array,
+    nowMs?: number
+  ): Promise<AccountIdentityAuthorityIssuerV2CurrentVerification>;
 }
 
 type AuthorityHandoff = AccountIdentityCurrentMemberDeviceAuthorityHandoff;
@@ -358,6 +419,86 @@ async function runMutation(
   return result.meta.changes === 1 ? 'written' : 'conflict';
 }
 
+type IssuerOwnerSource =
+  | { status: 'valid'; handoff: AuthorityHandoff }
+  | { status: 'manual-required'; reason: 'account-identity-authority-source-unavailable' }
+  | { status: 'rejected'; reason: 'authority-source-invalid' | 'authority-currentness-invalid' };
+
+async function resolveIssuerOwnerSource(
+  producer: AccountOwnedAuthorityProducer,
+  provider: AccountIdentityProvider,
+  providerSubject: string
+): Promise<IssuerOwnerSource> {
+  const source = await resolveValidatedSource(producer, provider, providerSubject, Date.now());
+  if (source.status !== 'valid') return source;
+  if (source.handoff.member.role !== 'parent-owner') {
+    return { status: 'rejected', reason: 'authority-currentness-invalid' };
+  }
+  return source;
+}
+
+async function resolveIssuerRegistration(
+  producer: AccountOwnedAuthorityProducer,
+  provider: AccountIdentityProvider,
+  providerSubject: string
+): Promise<AccountIdentityAuthorityIssuerV2VerifierRegistration | null> {
+  if (producer.resolveIssuerV2VerifierRegistration === undefined) return null;
+  try {
+    return await producer.resolveIssuerV2VerifierRegistration(provider, providerSubject);
+  } catch {
+    return null;
+  }
+}
+
+function issuerVerifierFromRegistration(
+  handoff: AuthorityHandoff,
+  provider: AccountIdentityProvider,
+  providerSubject: string,
+  registration: AccountIdentityAuthorityIssuerV2VerifierRegistration
+): AccountIdentityAuthorityIssuerV2Verifier | null {
+  if (!(registration.publicKey instanceof Uint8Array)) return null;
+  const publicKey = new Uint8Array(registration.publicKey.byteLength);
+  publicKey.set(registration.publicKey);
+  return {
+    service: ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+    serviceBindingId: registration.serviceBindingId,
+    accountId: handoff.member.accountId,
+    householdId: handoff.member.householdId,
+    provider,
+    providerSubject,
+    keyId: registration.keyId,
+    keyGeneration: registration.keyGeneration,
+    enrollmentGeneration: registration.enrollmentGeneration,
+    authorityGeneration: handoff.member.authorityGeneration,
+    sessionGeneration: handoff.member.sessionGeneration,
+    publicKey,
+    status: 'active',
+  };
+}
+
+function mapIssuerMutationResult(
+  result:
+    | Awaited<ReturnType<AccountIdentityAuthorityIssuerV2Store['enrollCurrentVerifier']>>
+    | Awaited<ReturnType<AccountIdentityAuthorityIssuerV2Store['compareAndSwapCurrentVerifier']>>
+    | Awaited<ReturnType<AccountIdentityAuthorityIssuerV2Store['revokeCurrentVerifier']>>
+): AccountIdentityAuthorityIssuerV2MutationResult {
+  if (result.status === 'enrolled') return { status: 'written' };
+  if (result.status === 'updated') return { status: 'updated' };
+  if (result.status === 'revoked') return { status: 'revoked' };
+  if (result.status === 'manual-required') {
+    return {
+      status: 'manual-required',
+      reason:
+        result.reason === 'account-identity-issuer-v2-schema-missing'
+          ? 'account-identity-d1-schema-missing'
+          : result.reason === 'account-identity-issuer-v2-unavailable'
+            ? 'account-identity-d1-unavailable'
+            : 'account-identity-d1-unavailable',
+    };
+  }
+  return { status: 'conflict', reason: 'issuer-v2-currentness-conflict' };
+}
+
 export function createAccountIdentityAuthorityWriter(database: D1Database | undefined): AccountIdentityAuthorityWriter {
   const readStore = createAccountIdentityAuthorityStore(database);
   return {
@@ -526,6 +667,110 @@ export function createAccountIdentityAuthorityWriter(database: D1Database | unde
         }
         return { status: 'manual-required', reason: 'account-identity-d1-unavailable' };
       }
+    },
+
+    async enrollCurrentIssuerVerifier(producer, provider, providerSubject) {
+      if (database === undefined) {
+        return { status: 'manual-required', reason: 'account-identity-d1-authority-missing' };
+      }
+      if (!isValidProviderSubject(provider, providerSubject)) {
+        return { status: 'rejected', reason: 'provider-subject-invalid' };
+      }
+      const source = await resolveIssuerOwnerSource(producer, provider, providerSubject);
+      if (source.status !== 'valid') return source;
+      const registration = await resolveIssuerRegistration(producer, provider, providerSubject);
+      if (registration === null) {
+        return { status: 'manual-required', reason: 'account-identity-authority-source-unavailable' };
+      }
+      const verifier = issuerVerifierFromRegistration(source.handoff, provider, providerSubject, registration);
+      if (verifier === null) return { status: 'rejected', reason: 'authority-source-invalid' };
+      try {
+        return mapIssuerMutationResult(await readStore.issuerV2.enrollCurrentVerifier(verifier));
+      } catch {
+        return { status: 'manual-required', reason: 'account-identity-d1-unavailable' };
+      }
+    },
+
+    async updateCurrentIssuerVerifier(producer, provider, providerSubject) {
+      if (database === undefined) {
+        return { status: 'manual-required', reason: 'account-identity-d1-authority-missing' };
+      }
+      if (!isValidProviderSubject(provider, providerSubject)) {
+        return { status: 'rejected', reason: 'provider-subject-invalid' };
+      }
+      const source = await resolveIssuerOwnerSource(producer, provider, providerSubject);
+      if (source.status !== 'valid') return source;
+      const registration = await resolveIssuerRegistration(producer, provider, providerSubject);
+      if (registration === null) {
+        return { status: 'manual-required', reason: 'account-identity-authority-source-unavailable' };
+      }
+      const replacement = issuerVerifierFromRegistration(source.handoff, provider, providerSubject, registration);
+      if (replacement === null) return { status: 'rejected', reason: 'authority-source-invalid' };
+      let current: Awaited<ReturnType<AccountIdentityAuthorityIssuerV2Store['readCurrentVerifier']>>;
+      try {
+        current = await readStore.issuerV2.readCurrentVerifier(replacement.serviceBindingId);
+      } catch {
+        return { status: 'manual-required', reason: 'account-identity-d1-unavailable' };
+      }
+      if (current.status === 'manual-required') {
+        return {
+          status: 'manual-required',
+          reason:
+            current.reason === 'account-identity-issuer-v2-schema-missing'
+              ? 'account-identity-d1-schema-missing'
+              : 'account-identity-d1-unavailable',
+        };
+      }
+      if (current.status !== 'current') return { status: 'conflict', reason: 'issuer-v2-verifier-missing' };
+      try {
+        return mapIssuerMutationResult(
+          await readStore.issuerV2.compareAndSwapCurrentVerifier(current.verifier, replacement)
+        );
+      } catch {
+        return { status: 'manual-required', reason: 'account-identity-d1-unavailable' };
+      }
+    },
+
+    async revokeCurrentIssuerVerifier(producer, provider, providerSubject) {
+      if (database === undefined) {
+        return { status: 'manual-required', reason: 'account-identity-d1-authority-missing' };
+      }
+      if (!isValidProviderSubject(provider, providerSubject)) {
+        return { status: 'rejected', reason: 'provider-subject-invalid' };
+      }
+      const source = await resolveIssuerOwnerSource(producer, provider, providerSubject);
+      if (source.status !== 'valid') return source;
+      const registration = await resolveIssuerRegistration(producer, provider, providerSubject);
+      if (registration === null) {
+        return { status: 'manual-required', reason: 'account-identity-authority-source-unavailable' };
+      }
+      const expected = issuerVerifierFromRegistration(source.handoff, provider, providerSubject, registration);
+      if (expected === null) return { status: 'rejected', reason: 'authority-source-invalid' };
+      let current: Awaited<ReturnType<AccountIdentityAuthorityIssuerV2Store['readCurrentVerifier']>>;
+      try {
+        current = await readStore.issuerV2.readCurrentVerifier(expected.serviceBindingId);
+      } catch {
+        return { status: 'manual-required', reason: 'account-identity-d1-unavailable' };
+      }
+      if (current.status === 'manual-required') {
+        return {
+          status: 'manual-required',
+          reason:
+            current.reason === 'account-identity-issuer-v2-schema-missing'
+              ? 'account-identity-d1-schema-missing'
+              : 'account-identity-d1-unavailable',
+        };
+      }
+      if (current.status !== 'current') return { status: 'conflict', reason: 'issuer-v2-verifier-missing' };
+      try {
+        return mapIssuerMutationResult(await readStore.issuerV2.revokeCurrentVerifier(current.verifier));
+      } catch {
+        return { status: 'manual-required', reason: 'account-identity-d1-unavailable' };
+      }
+    },
+
+    verifyAccountIssuerFrame(frame, nowMs = Date.now()) {
+      return verifyAccountIdentityAuthorityProducerV2RequestFrame(readStore.issuerV2, frame, nowMs);
     },
   };
 }

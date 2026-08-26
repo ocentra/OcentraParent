@@ -5,17 +5,20 @@ import {
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX,
   ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
   ACCOUNT_ISSUER_MAX_FIELD_BYTES,
+  deriveAccountIdentityAuthorityProducerV2ServiceBindingId,
   isAccountIdentityAuthorityProducerV2Digest,
   isAccountIdentityAuthorityProducerV2KeyId,
   isAccountIdentityAuthorityProducerV2ReceiptId,
+  isAccountIdentityAuthorityProducerV2ServiceBindingId,
   isAccountIdentityAuthorityProducerV2Text,
 } from '../auth/account-identity-authority-producer-v2-contract.js';
+import { deriveAccountIdentityAuthorityProducerV2KeyId } from '../auth/account-identity-authority-issuer-v2.js';
 
 const log = Logger.instance;
 log.register(import.meta.url);
 
 const SCHEMA_NAME = 'account_identity_issuer_v2';
-const SCHEMA_VERSION = 8;
+const SCHEMA_VERSION = 9;
 const MAX_SAFE_GENERATION = Number.MAX_SAFE_INTEGER;
 const MISSING_SCHEMA_REASON = 'account-identity-issuer-v2-schema-missing' as const;
 const UNAVAILABLE_REASON = 'account-identity-issuer-v2-unavailable' as const;
@@ -30,6 +33,7 @@ export interface AccountIdentityAuthorityIssuerV2Verifier {
   readonly providerSubject: string;
   readonly keyId: string;
   readonly keyGeneration: number;
+  readonly enrollmentGeneration: number;
   readonly authorityGeneration: number;
   readonly sessionGeneration: number;
   readonly publicKey: Uint8Array;
@@ -50,6 +54,7 @@ export interface AccountIdentityAuthorityIssuerV2InboundReceipt {
   readonly authorityPayloadDigest: string;
   readonly keyId: string;
   readonly keyGeneration: number;
+  readonly enrollmentGeneration: number;
   readonly authorityGeneration: number;
   readonly sessionGeneration: number;
   readonly issuedAt: string;
@@ -67,9 +72,20 @@ export type AccountIdentityAuthorityIssuerV2CasResult =
   | { readonly status: 'conflict' }
   | { readonly status: 'manual-required'; readonly reason: typeof MISSING_SCHEMA_REASON | typeof UNAVAILABLE_REASON };
 
+export type AccountIdentityAuthorityIssuerV2EnrollmentResult =
+  | { readonly status: 'enrolled'; readonly verifier: AccountIdentityAuthorityIssuerV2Verifier }
+  | { readonly status: 'conflict' }
+  | { readonly status: 'manual-required'; readonly reason: typeof MISSING_SCHEMA_REASON | typeof UNAVAILABLE_REASON };
+
+export type AccountIdentityAuthorityIssuerV2RevocationResult =
+  | { readonly status: 'revoked' }
+  | { readonly status: 'conflict' }
+  | { readonly status: 'manual-required'; readonly reason: typeof MISSING_SCHEMA_REASON | typeof UNAVAILABLE_REASON };
+
 export type AccountIdentityAuthorityIssuerV2ReceiptResult =
   | { readonly status: 'recorded' }
   | { readonly status: 'duplicate' }
+  | { readonly status: 'currentness-mismatch' }
   | { readonly status: 'conflict' }
   | { readonly status: 'manual-required'; readonly reason: typeof MISSING_SCHEMA_REASON | typeof UNAVAILABLE_REASON };
 
@@ -79,8 +95,15 @@ export interface AccountIdentityAuthorityIssuerV2Store {
     expected: AccountIdentityAuthorityIssuerV2Verifier,
     replacement: AccountIdentityAuthorityIssuerV2Verifier
   ): Promise<AccountIdentityAuthorityIssuerV2CasResult>;
+  enrollCurrentVerifier(
+    verifier: AccountIdentityAuthorityIssuerV2Verifier
+  ): Promise<AccountIdentityAuthorityIssuerV2EnrollmentResult>;
+  revokeCurrentVerifier(
+    expected: AccountIdentityAuthorityIssuerV2Verifier
+  ): Promise<AccountIdentityAuthorityIssuerV2RevocationResult>;
   recordInboundReceipt(
-    receipt: AccountIdentityAuthorityIssuerV2InboundReceipt
+    receipt: AccountIdentityAuthorityIssuerV2InboundReceipt,
+    expected: AccountIdentityAuthorityIssuerV2Verifier
   ): Promise<AccountIdentityAuthorityIssuerV2ReceiptResult>;
 }
 
@@ -93,6 +116,7 @@ interface CurrentVerifierRow {
   provider_subject: string;
   key_id: string;
   key_generation: number;
+  enrollment_generation: number;
   authority_generation: number;
   session_generation: number;
   public_key: unknown;
@@ -113,6 +137,7 @@ interface InboundReceiptRow {
   authority_payload_digest: string;
   key_id: string;
   key_generation: number;
+  enrollment_generation: number;
   authority_generation: number;
   session_generation: number;
   issued_at: string;
@@ -122,7 +147,7 @@ interface InboundReceiptRow {
 
 const SELECT_CURRENT_VERIFIER_SQL = `
 SELECT service, service_binding_id, account_id, household_id, provider, provider_subject,
-       key_id, key_generation, authority_generation, session_generation, public_key, status
+       key_id, key_generation, enrollment_generation, authority_generation, session_generation, public_key, status
 FROM ocentra_account_identity_issuer_v2_currentness
 WHERE service_binding_id = ? AND service = ?
 LIMIT 1
@@ -131,29 +156,68 @@ LIMIT 1
 const UPDATE_CURRENT_VERIFIER_SQL = `
 UPDATE ocentra_account_identity_issuer_v2_currentness
 SET account_id = ?, household_id = ?, provider = ?, provider_subject = ?,
-    key_id = ?, key_generation = ?, authority_generation = ?, session_generation = ?,
+    key_id = ?, key_generation = ?, enrollment_generation = ?, authority_generation = ?, session_generation = ?,
     public_key = ?, status = 'active', updated_at = ?
 WHERE service_binding_id = ? AND service = ?
   AND account_id = ? AND household_id = ? AND provider = ? AND provider_subject = ?
-  AND key_id = ? AND key_generation = ? AND authority_generation = ? AND session_generation = ?
-  AND ? > key_generation AND ? >= authority_generation AND ? >= session_generation
+  AND key_id = ? AND key_generation = ? AND enrollment_generation = ?
+  AND authority_generation = ? AND session_generation = ? AND public_key = ?
+  AND ? >= key_generation AND ? >= enrollment_generation
+  AND ? >= authority_generation AND ? >= session_generation
+  AND (? > key_generation OR ? > enrollment_generation OR ? > authority_generation OR ? > session_generation)
   AND status = 'active'
+`;
+
+const INSERT_CURRENT_VERIFIER_SQL = `
+INSERT INTO ocentra_account_identity_issuer_v2_currentness (
+  service_binding_id, account_id, household_id, provider, provider_subject, service,
+  key_id, key_generation, enrollment_generation, authority_generation, session_generation,
+  public_key, status, created_at, updated_at
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', ?, ?)
+`;
+
+const REVOKE_CURRENT_VERIFIER_SQL = `
+UPDATE ocentra_account_identity_issuer_v2_currentness
+SET status = 'revoked', updated_at = ?
+WHERE service_binding_id = ? AND service = ?
+  AND account_id = ? AND household_id = ? AND provider = ? AND provider_subject = ?
+  AND key_id = ? AND key_generation = ? AND enrollment_generation = ?
+  AND authority_generation = ? AND session_generation = ? AND public_key = ?
+  AND status = 'active'
+`;
+
+const GUARD_CURRENT_VERIFIER_SQL = `
+UPDATE ocentra_account_identity_issuer_v2_currentness
+SET updated_at = updated_at
+WHERE service_binding_id = ? AND service = ?
+  AND account_id = ? AND household_id = ? AND provider = ? AND provider_subject = ?
+  AND key_id = ? AND key_generation = ? AND enrollment_generation = ?
+  AND authority_generation = ? AND session_generation = ? AND public_key = ?
+  AND status = 'active'
+RETURNING service_binding_id
 `;
 
 const INSERT_INBOUND_RECEIPT_SQL = `
 INSERT INTO ocentra_account_identity_issuer_v2_inbound_receipts (
   receipt_id, operation, account_id, household_id, provider, provider_subject,
   service, service_binding_id, correlation_id, idempotency_key, payload_digest,
-  authority_payload_digest, key_id, key_generation, authority_generation,
-  session_generation, issued_at, expires_at, wire_digest, receipt_state, recorded_at
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?)
+  authority_payload_digest, key_id, key_generation, enrollment_generation,
+  authority_generation, session_generation, issued_at, expires_at, wire_digest, receipt_state, recorded_at
+) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'accepted', ?
+FROM ocentra_account_identity_issuer_v2_currentness
+WHERE service_binding_id = ? AND service = ?
+  AND account_id = ? AND household_id = ? AND provider = ? AND provider_subject = ?
+  AND key_id = ? AND key_generation = ? AND enrollment_generation = ?
+  AND authority_generation = ? AND session_generation = ? AND public_key = ?
+  AND status = 'active'
+RETURNING receipt_id
 `;
 
 const SELECT_INBOUND_BY_IDEMPOTENCY_SQL = `
 SELECT receipt_id, operation, account_id, household_id, provider, provider_subject,
        service_binding_id, correlation_id, idempotency_key, payload_digest,
        authority_payload_digest, key_id, key_generation, authority_generation,
-       session_generation, issued_at, expires_at, wire_digest
+       enrollment_generation, session_generation, issued_at, expires_at, wire_digest
 FROM ocentra_account_identity_issuer_v2_inbound_receipts
 WHERE service = ? AND service_binding_id = ? AND operation = ? AND idempotency_key = ?
 LIMIT 1
@@ -163,7 +227,7 @@ const SELECT_INBOUND_BY_RECEIPT_SQL = `
 SELECT receipt_id, operation, account_id, household_id, provider, provider_subject,
        service_binding_id, correlation_id, idempotency_key, payload_digest,
        authority_payload_digest, key_id, key_generation, authority_generation,
-       session_generation, issued_at, expires_at, wire_digest
+       enrollment_generation, session_generation, issued_at, expires_at, wire_digest
 FROM ocentra_account_identity_issuer_v2_inbound_receipts
 WHERE service = ? AND service_binding_id = ? AND operation = ? AND receipt_id = ?
 LIMIT 1
@@ -175,7 +239,12 @@ export function createAccountIdentityAuthorityIssuerV2Store(
   return {
     async readCurrentVerifier(serviceBindingId) {
       if (database === undefined) return manualRequired(MISSING_SCHEMA_REASON);
-      if (!isValidText(serviceBindingId, ACCOUNT_ISSUER_MAX_FIELD_BYTES)) return { status: 'not-found' };
+      if (
+        !isValidText(serviceBindingId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) ||
+        !isAccountIdentityAuthorityProducerV2ServiceBindingId(serviceBindingId)
+      ) {
+        return { status: 'not-found' };
+      }
       const schema = await ensureSchema(database);
       if (schema !== 'ready') return manualRequired(schema === 'missing' ? MISSING_SCHEMA_REASON : UNAVAILABLE_REASON);
       try {
@@ -185,7 +254,9 @@ export function createAccountIdentityAuthorityIssuerV2Store(
           .first<CurrentVerifierRow>();
         if (row === null) return { status: 'not-found' };
         const verifier = parseVerifierRow(row);
-        return verifier === null ? manualRequired(UNAVAILABLE_REASON) : { status: 'current', verifier };
+        if (verifier === null || !(await isValidVerifier(verifier, true))) return manualRequired(UNAVAILABLE_REASON);
+        if (verifier.status === 'revoked') return { status: 'not-found' };
+        return { status: 'current', verifier };
       } catch (error) {
         return manualRequired(isMissingTableError(error) ? MISSING_SCHEMA_REASON : UNAVAILABLE_REASON);
       }
@@ -193,13 +264,21 @@ export function createAccountIdentityAuthorityIssuerV2Store(
 
     async compareAndSwapCurrentVerifier(expected, replacement) {
       if (database === undefined) return manualRequired(MISSING_SCHEMA_REASON);
-      if (!isValidVerifier(expected) || !isValidVerifier(replacement)) return { status: 'conflict' };
+      if (!(await isValidVerifier(expected)) || !(await isValidVerifier(replacement))) return { status: 'conflict' };
       if (
         expected.serviceBindingId !== replacement.serviceBindingId ||
         expected.accountId !== replacement.accountId ||
         expected.householdId !== replacement.householdId ||
         expected.provider !== replacement.provider ||
-        expected.providerSubject !== replacement.providerSubject
+        expected.providerSubject !== replacement.providerSubject ||
+        replacement.keyGeneration < expected.keyGeneration ||
+        replacement.enrollmentGeneration < expected.enrollmentGeneration ||
+        replacement.authorityGeneration < expected.authorityGeneration ||
+        replacement.sessionGeneration < expected.sessionGeneration ||
+        (replacement.keyGeneration === expected.keyGeneration &&
+          replacement.enrollmentGeneration === expected.enrollmentGeneration &&
+          replacement.authorityGeneration === expected.authorityGeneration &&
+          replacement.sessionGeneration === expected.sessionGeneration)
       ) {
         return { status: 'conflict' };
       }
@@ -215,6 +294,7 @@ export function createAccountIdentityAuthorityIssuerV2Store(
             replacement.providerSubject,
             replacement.keyId,
             replacement.keyGeneration,
+            replacement.enrollmentGeneration,
             replacement.authorityGeneration,
             replacement.sessionGeneration,
             replacement.publicKey,
@@ -227,14 +307,21 @@ export function createAccountIdentityAuthorityIssuerV2Store(
             expected.providerSubject,
             expected.keyId,
             expected.keyGeneration,
+            expected.enrollmentGeneration,
             expected.authorityGeneration,
             expected.sessionGeneration,
+            expected.publicKey,
             replacement.keyGeneration,
+            replacement.enrollmentGeneration,
+            replacement.authorityGeneration,
+            replacement.sessionGeneration,
+            replacement.keyGeneration,
+            replacement.enrollmentGeneration,
             replacement.authorityGeneration,
             replacement.sessionGeneration
           )
           .run();
-        if ((result.meta?.changes ?? 0) !== 1) return { status: 'conflict' };
+        if (resultChanges(result) !== 1) return { status: 'conflict' };
         return { status: 'updated', verifier: replacement };
       } catch (error) {
         if (isUniqueConstraintError(error)) return { status: 'conflict' };
@@ -242,38 +329,85 @@ export function createAccountIdentityAuthorityIssuerV2Store(
       }
     },
 
-    async recordInboundReceipt(receipt) {
+    async enrollCurrentVerifier(verifier) {
       if (database === undefined) return manualRequired(MISSING_SCHEMA_REASON);
-      if (!isValidInboundReceipt(receipt)) return { status: 'conflict' };
+      if (!(await isValidVerifier(verifier))) return { status: 'conflict' };
+      const schema = await ensureSchema(database);
+      if (schema !== 'ready') return manualRequired(schema === 'missing' ? MISSING_SCHEMA_REASON : UNAVAILABLE_REASON);
+      const now = new Date().toISOString();
+      try {
+        const result = await database
+          .prepare(INSERT_CURRENT_VERIFIER_SQL)
+          .bind(
+            verifier.serviceBindingId,
+            verifier.accountId,
+            verifier.householdId,
+            verifier.provider,
+            verifier.providerSubject,
+            ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+            verifier.keyId,
+            verifier.keyGeneration,
+            verifier.enrollmentGeneration,
+            verifier.authorityGeneration,
+            verifier.sessionGeneration,
+            verifier.publicKey,
+            now,
+            now
+          )
+          .run();
+        return resultChanges(result) === 1 ? { status: 'enrolled', verifier } : { status: 'conflict' };
+      } catch (error) {
+        if (isUniqueConstraintError(error)) return { status: 'conflict' };
+        return manualRequired(isMissingTableError(error) ? MISSING_SCHEMA_REASON : UNAVAILABLE_REASON);
+      }
+    },
+
+    async revokeCurrentVerifier(expected) {
+      if (database === undefined) return manualRequired(MISSING_SCHEMA_REASON);
+      if (!(await isValidVerifier(expected))) return { status: 'conflict' };
       const schema = await ensureSchema(database);
       if (schema !== 'ready') return manualRequired(schema === 'missing' ? MISSING_SCHEMA_REASON : UNAVAILABLE_REASON);
       try {
         const result = await database
-          .prepare(INSERT_INBOUND_RECEIPT_SQL)
+          .prepare(REVOKE_CURRENT_VERIFIER_SQL)
           .bind(
-            receipt.receiptId,
-            receipt.operation,
-            receipt.accountId,
-            receipt.householdId,
-            receipt.provider,
-            receipt.providerSubject,
+            new Date().toISOString(),
+            expected.serviceBindingId,
             ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
-            receipt.serviceBindingId,
-            receipt.correlationId,
-            receipt.idempotencyKey,
-            receipt.payloadDigest,
-            receipt.authorityPayloadDigest,
-            receipt.keyId,
-            receipt.keyGeneration,
-            receipt.authorityGeneration,
-            receipt.sessionGeneration,
-            receipt.issuedAt,
-            receipt.expiresAt,
-            receipt.wireDigest,
-            new Date().toISOString()
+            expected.accountId,
+            expected.householdId,
+            expected.provider,
+            expected.providerSubject,
+            expected.keyId,
+            expected.keyGeneration,
+            expected.enrollmentGeneration,
+            expected.authorityGeneration,
+            expected.sessionGeneration,
+            expected.publicKey
           )
           .run();
-        return (result.meta?.changes ?? 0) === 1 ? { status: 'recorded' } : { status: 'conflict' };
+        return resultChanges(result) === 1 ? { status: 'revoked' } : { status: 'conflict' };
+      } catch (error) {
+        return manualRequired(isMissingTableError(error) ? MISSING_SCHEMA_REASON : UNAVAILABLE_REASON);
+      }
+    },
+
+    async recordInboundReceipt(receipt, expected) {
+      if (database === undefined) return manualRequired(MISSING_SCHEMA_REASON);
+      if (!(await isValidVerifier(expected)) || !isValidInboundReceipt(receipt)) return { status: 'conflict' };
+      if (!matchesReceiptVerifier(receipt, expected)) return { status: 'currentness-mismatch' };
+      const schema = await ensureSchema(database);
+      if (schema !== 'ready') return manualRequired(schema === 'missing' ? MISSING_SCHEMA_REASON : UNAVAILABLE_REASON);
+      const recordedAt = new Date().toISOString();
+      try {
+        const results = await database.batch([
+          database.prepare(GUARD_CURRENT_VERIFIER_SQL).bind(...verifierBindingValues(expected)),
+          database.prepare(INSERT_INBOUND_RECEIPT_SQL).bind(...inboundInsertValues(receipt, expected, recordedAt)),
+        ]);
+        if (resultChanges(results[0]) !== 1 || resultChanges(results[1]) !== 1) {
+          return { status: 'currentness-mismatch' };
+        }
+        return { status: 'recorded' };
       } catch (error) {
         if (isMissingTableError(error)) return manualRequired(MISSING_SCHEMA_REASON);
         if (!isUniqueConstraintError(error)) return manualRequired(UNAVAILABLE_REASON);
@@ -294,12 +428,14 @@ function parseVerifierRow(row: CurrentVerifierRow): AccountIdentityAuthorityIssu
   if (
     row.service !== ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE ||
     !isValidText(row.service_binding_id, ACCOUNT_ISSUER_MAX_FIELD_BYTES) ||
+    !isAccountIdentityAuthorityProducerV2ServiceBindingId(row.service_binding_id) ||
     !isValidText(row.account_id, ACCOUNT_ISSUER_MAX_FIELD_BYTES) ||
     !isValidText(row.household_id, ACCOUNT_ISSUER_MAX_FIELD_BYTES) ||
     (row.provider !== 'authjs' && row.provider !== 'firebase') ||
     !isValidText(row.provider_subject, ACCOUNT_ISSUER_MAX_FIELD_BYTES) ||
     !isAccountIdentityAuthorityProducerV2KeyId(row.key_id) ||
     !isValidGeneration(row.key_generation) ||
+    !isValidGeneration(row.enrollment_generation) ||
     !isValidGeneration(row.authority_generation) ||
     !isValidGeneration(row.session_generation) ||
     publicKey === null ||
@@ -316,6 +452,7 @@ function parseVerifierRow(row: CurrentVerifierRow): AccountIdentityAuthorityIssu
     providerSubject: row.provider_subject,
     keyId: row.key_id,
     keyGeneration: row.key_generation,
+    enrollmentGeneration: row.enrollment_generation,
     authorityGeneration: row.authority_generation,
     sessionGeneration: row.session_generation,
     publicKey,
@@ -323,25 +460,44 @@ function parseVerifierRow(row: CurrentVerifierRow): AccountIdentityAuthorityIssu
   };
 }
 
-function isValidVerifier(value: AccountIdentityAuthorityIssuerV2Verifier): boolean {
+async function isValidVerifier(
+  value: AccountIdentityAuthorityIssuerV2Verifier,
+  allowRevoked = false
+): Promise<boolean> {
   if (typeof value !== 'object' || value === null || !(value.publicKey instanceof Uint8Array)) return false;
-  return (
-    value.service === ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE &&
-    isValidText(value.serviceBindingId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
-    isValidText(value.accountId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
-    isValidText(value.householdId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
-    (value.provider === 'authjs' || value.provider === 'firebase') &&
-    isValidText(value.providerSubject, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
-    isAccountIdentityAuthorityProducerV2KeyId(value.keyId) &&
-    value.keyId.startsWith(ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX) &&
-    isValidGeneration(value.keyGeneration) &&
-    isValidGeneration(value.authorityGeneration) &&
-    isValidGeneration(value.sessionGeneration) &&
-    value.publicKey.byteLength === 65 &&
-    value.publicKey[0] === 0x04 &&
-    value.publicKey.slice(1).some((byte) => byte !== 0) &&
-    value.status === 'active'
-  );
+  if (
+    !(
+      (value.service === ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE &&
+        isValidText(value.serviceBindingId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
+        isAccountIdentityAuthorityProducerV2ServiceBindingId(value.serviceBindingId) &&
+        isValidText(value.accountId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
+        isValidText(value.householdId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
+        (value.provider === 'authjs' || value.provider === 'firebase') &&
+        isValidText(value.providerSubject, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
+        isAccountIdentityAuthorityProducerV2KeyId(value.keyId) &&
+        value.keyId.startsWith(ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX) &&
+        isValidGeneration(value.keyGeneration) &&
+        isValidGeneration(value.enrollmentGeneration) &&
+        isValidGeneration(value.authorityGeneration) &&
+        isValidGeneration(value.sessionGeneration) &&
+        value.publicKey.byteLength === 65 &&
+        value.publicKey[0] === 0x04 &&
+        value.publicKey.slice(1).some((byte) => byte !== 0) &&
+        value.status === 'active') ||
+      (allowRevoked && value.status === 'revoked')
+    )
+  ) {
+    return false;
+  }
+  try {
+    const [expectedKeyId, expectedServiceBindingId] = await Promise.all([
+      deriveAccountIdentityAuthorityProducerV2KeyId(value.publicKey),
+      deriveAccountIdentityAuthorityProducerV2ServiceBindingId(value.service, value.accountId, value.householdId),
+    ]);
+    return expectedKeyId === value.keyId && expectedServiceBindingId === value.serviceBindingId;
+  } catch {
+    return false;
+  }
 }
 
 function isValidInboundReceipt(value: AccountIdentityAuthorityIssuerV2InboundReceipt): boolean {
@@ -355,12 +511,14 @@ function isValidInboundReceipt(value: AccountIdentityAuthorityIssuerV2InboundRec
     (value.provider === 'authjs' || value.provider === 'firebase') &&
     isValidText(value.providerSubject, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
     isValidText(value.serviceBindingId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
+    isAccountIdentityAuthorityProducerV2ServiceBindingId(value.serviceBindingId) &&
     isValidText(value.correlationId, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
     isValidText(value.idempotencyKey, ACCOUNT_ISSUER_MAX_FIELD_BYTES) &&
     isAccountIdentityAuthorityProducerV2Digest(value.payloadDigest) &&
     isAccountIdentityAuthorityProducerV2Digest(value.authorityPayloadDigest) &&
     isAccountIdentityAuthorityProducerV2KeyId(value.keyId) &&
     isValidGeneration(value.keyGeneration) &&
+    isValidGeneration(value.enrollmentGeneration) &&
     isValidGeneration(value.authorityGeneration) &&
     isValidGeneration(value.sessionGeneration) &&
     issuedAt !== null &&
@@ -368,6 +526,88 @@ function isValidInboundReceipt(value: AccountIdentityAuthorityIssuerV2InboundRec
     expiresAt > issuedAt &&
     isAccountIdentityAuthorityProducerV2Digest(value.wireDigest)
   );
+}
+
+function matchesReceiptVerifier(
+  receipt: AccountIdentityAuthorityIssuerV2InboundReceipt,
+  verifier: AccountIdentityAuthorityIssuerV2Verifier
+): boolean {
+  return (
+    receipt.serviceBindingId === verifier.serviceBindingId &&
+    receipt.accountId === verifier.accountId &&
+    receipt.householdId === verifier.householdId &&
+    receipt.provider === verifier.provider &&
+    receipt.providerSubject === verifier.providerSubject &&
+    receipt.keyId === verifier.keyId &&
+    receipt.keyGeneration === verifier.keyGeneration &&
+    receipt.enrollmentGeneration === verifier.enrollmentGeneration &&
+    receipt.authorityGeneration === verifier.authorityGeneration &&
+    receipt.sessionGeneration === verifier.sessionGeneration
+  );
+}
+
+function verifierBindingValues(verifier: AccountIdentityAuthorityIssuerV2Verifier): ReadonlyArray<unknown> {
+  return [
+    verifier.serviceBindingId,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+    verifier.accountId,
+    verifier.householdId,
+    verifier.provider,
+    verifier.providerSubject,
+    verifier.keyId,
+    verifier.keyGeneration,
+    verifier.enrollmentGeneration,
+    verifier.authorityGeneration,
+    verifier.sessionGeneration,
+    verifier.publicKey,
+  ];
+}
+
+function inboundInsertValues(
+  receipt: AccountIdentityAuthorityIssuerV2InboundReceipt,
+  verifier: AccountIdentityAuthorityIssuerV2Verifier,
+  recordedAt: string
+): ReadonlyArray<unknown> {
+  return [
+    receipt.receiptId,
+    receipt.operation,
+    receipt.accountId,
+    receipt.householdId,
+    receipt.provider,
+    receipt.providerSubject,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+    receipt.serviceBindingId,
+    receipt.correlationId,
+    receipt.idempotencyKey,
+    receipt.payloadDigest,
+    receipt.authorityPayloadDigest,
+    receipt.keyId,
+    receipt.keyGeneration,
+    receipt.enrollmentGeneration,
+    receipt.authorityGeneration,
+    receipt.sessionGeneration,
+    receipt.issuedAt,
+    receipt.expiresAt,
+    receipt.wireDigest,
+    recordedAt,
+    ...verifierBindingValues(verifier),
+  ];
+}
+
+function resultChanges(value: unknown): number {
+  if (typeof value !== 'object' || value === null) return 0;
+  if ('results' in value) {
+    const results = (value as { results?: unknown }).results;
+    if (Array.isArray(results)) return results.length;
+  }
+  if ('meta' in value) {
+    const meta = (value as { meta?: unknown }).meta;
+    if (typeof meta === 'object' && meta !== null && 'changes' in meta) {
+      const changes = (meta as { changes?: unknown }).changes;
+      return typeof changes === 'number' ? changes : 0;
+    }
+  }
+  return 0;
 }
 
 async function readExistingInbound(
@@ -410,6 +650,7 @@ function sameInboundReceipt(row: InboundReceiptRow, value: AccountIdentityAuthor
     row.authority_payload_digest === value.authorityPayloadDigest &&
     row.key_id === value.keyId &&
     row.key_generation === value.keyGeneration &&
+    row.enrollment_generation === value.enrollmentGeneration &&
     row.authority_generation === value.authorityGeneration &&
     row.session_generation === value.sessionGeneration &&
     row.issued_at === value.issuedAt &&

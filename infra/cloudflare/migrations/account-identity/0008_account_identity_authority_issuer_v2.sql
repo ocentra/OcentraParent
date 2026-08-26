@@ -7,7 +7,9 @@
 
 CREATE TABLE ocentra_account_identity_issuer_v2_currentness (
   service_binding_id TEXT NOT NULL PRIMARY KEY CHECK (
-    length(service_binding_id) BETWEEN 1 AND 1024
+    length(service_binding_id) = 79 AND
+    substr(service_binding_id, 1, 15) = 'sha256:binding:' AND
+    substr(service_binding_id, 16) NOT GLOB '*[^0-9a-f]*'
   ),
   account_id TEXT NOT NULL CHECK (length(account_id) BETWEEN 1 AND 1024),
   household_id TEXT NOT NULL CHECK (length(household_id) BETWEEN 1 AND 1024),
@@ -23,6 +25,9 @@ CREATE TABLE ocentra_account_identity_issuer_v2_currentness (
   ),
   key_generation INTEGER NOT NULL CHECK (
     key_generation > 0 AND key_generation <= 9007199254740991
+  ),
+  enrollment_generation INTEGER NOT NULL CHECK (
+    enrollment_generation > 0 AND enrollment_generation <= 9007199254740991
   ),
   authority_generation INTEGER NOT NULL CHECK (
     authority_generation > 0 AND authority_generation <= 9007199254740991
@@ -42,6 +47,10 @@ CREATE TABLE ocentra_account_identity_issuer_v2_currentness (
 CREATE INDEX idx_ocentra_account_identity_issuer_v2_currentness_binding
   ON ocentra_account_identity_issuer_v2_currentness (service, service_binding_id, status);
 
+CREATE INDEX idx_ocentra_account_identity_issuer_v2_currentness_generation
+  ON ocentra_account_identity_issuer_v2_currentness
+  (service, account_id, household_id, enrollment_generation, key_generation);
+
 CREATE TABLE ocentra_account_identity_issuer_v2_inbound_receipts (
   receipt_id TEXT NOT NULL CHECK (
     length(receipt_id) = 79 AND
@@ -58,7 +67,11 @@ CREATE TABLE ocentra_account_identity_issuer_v2_inbound_receipts (
   service TEXT NOT NULL CHECK (
     service = 'ocentra.account-authority-producer.cloudflare.v2'
   ),
-  service_binding_id TEXT NOT NULL CHECK (length(service_binding_id) BETWEEN 1 AND 1024),
+  service_binding_id TEXT NOT NULL CHECK (
+    length(service_binding_id) = 79 AND
+    substr(service_binding_id, 1, 15) = 'sha256:binding:' AND
+    substr(service_binding_id, 16) NOT GLOB '*[^0-9a-f]*'
+  ),
   correlation_id TEXT NOT NULL CHECK (length(correlation_id) BETWEEN 1 AND 1024),
   idempotency_key TEXT NOT NULL CHECK (length(idempotency_key) BETWEEN 1 AND 1024),
   payload_digest TEXT NOT NULL CHECK (
@@ -78,6 +91,9 @@ CREATE TABLE ocentra_account_identity_issuer_v2_inbound_receipts (
   ),
   key_generation INTEGER NOT NULL CHECK (
     key_generation > 0 AND key_generation <= 9007199254740991
+  ),
+  enrollment_generation INTEGER NOT NULL CHECK (
+    enrollment_generation > 0 AND enrollment_generation <= 9007199254740991
   ),
   authority_generation INTEGER NOT NULL CHECK (
     authority_generation > 0 AND authority_generation <= 9007199254740991
@@ -114,14 +130,14 @@ CREATE TABLE IF NOT EXISTS ocentra_account_identity_issuer_v2_schema (
   schema_name TEXT NOT NULL PRIMARY KEY CHECK (
     schema_name = 'account_identity_issuer_v2'
   ),
-  schema_version INTEGER NOT NULL CHECK (schema_version = 8),
+  schema_version INTEGER NOT NULL CHECK (schema_version = 9),
   applied_at TEXT NOT NULL CHECK (julianday(applied_at) IS NOT NULL)
 ) STRICT;
 
 INSERT INTO ocentra_account_identity_issuer_v2_schema
   (schema_name, schema_version, applied_at)
 VALUES
-  ('account_identity_issuer_v2', 8, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  ('account_identity_issuer_v2', 9, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 ON CONFLICT(schema_name) DO UPDATE SET
   schema_version = excluded.schema_version,
   applied_at = excluded.applied_at;

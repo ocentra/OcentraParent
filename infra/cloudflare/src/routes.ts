@@ -95,6 +95,12 @@ export type RouteRequestContract =
       readonly codec: null;
     }
   | {
+      readonly state: 'raw';
+      readonly model: string;
+      readonly transport: 'binary-body';
+      readonly codec: null;
+    }
+  | {
       readonly state: 'unbound';
       readonly model: string;
       readonly transport: 'json-body' | 'query' | 'provider-body';
@@ -112,6 +118,11 @@ export type RouteResponseContract =
       readonly model: string;
       readonly codec: null;
       readonly blocker: string;
+    }
+  | {
+      readonly state: 'raw';
+      readonly model: string;
+      readonly codec: null;
     };
 
 export type RouteContractBinding = {
@@ -398,6 +409,15 @@ const ROUTE_BINDINGS_BY_HANDLER = Object.freeze({
     auditEvent: 'billing.admin.reconciliation.run',
     proofIdFamily: 'payment-route.reconciliation',
   }),
+  'account-issuer-v2-internal': Object.freeze({
+    path: '/internal/account-identity/issuer-v2',
+    method: 'POST',
+    authState: 'internal-queue-only',
+    routeClass: 'internal-queue',
+    auditRule: 'internal-queue',
+    auditEvent: 'account.identity.authority.issuer-v2.verify',
+    proofIdFamily: 'account-identity-family-plan.wp05-issuer-v2',
+  }),
   'admin-billing-audit': Object.freeze({
     path: '/admin/billing/audit',
     method: 'GET',
@@ -415,6 +435,10 @@ type RouteIdentityBinding = (typeof ROUTE_BINDINGS_BY_HANDLER)[RouteHandlerKey];
 /** Every executable handler is bound to one immutable manifest tuple. */
 function noRequest(): Extract<RouteRequestContract, { readonly state: 'none' }> {
   return { state: 'none', model: 'none', transport: 'none', codec: null };
+}
+
+function rawRequest(model: string): Extract<RouteRequestContract, { readonly state: 'raw' }> {
+  return { state: 'raw', model, transport: 'binary-body', codec: null };
 }
 
 function boundRequest<const Descriptor extends RouteContractCodecDescriptor>(
@@ -439,6 +463,10 @@ function boundResponse<const Descriptor extends RouteContractCodecDescriptor>(
   readonly descriptor: Descriptor;
 } {
   return { state: 'bound', descriptor };
+}
+
+function rawResponse(model: string): Extract<RouteResponseContract, { readonly state: 'raw' }> {
+  return { state: 'raw', model, codec: null };
 }
 
 function unboundResponse<const Model extends string>(
@@ -639,6 +667,11 @@ const ROUTE_CONTRACT_BINDINGS = {
       'reconciliation-request-contract-not-generated'
     ),
     response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminReconciliationSummary),
+    execution: EXECUTION_READY,
+  },
+  'account-issuer-v2-internal': {
+    request: rawRequest('AccountIdentityAuthorityIssuerV2Wire'),
+    response: rawResponse('AccountIdentityAuthorityIssuerV2Verification'),
     execution: EXECUTION_READY,
   },
   'admin-billing-audit': {

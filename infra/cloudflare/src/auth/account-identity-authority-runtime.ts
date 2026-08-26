@@ -7,6 +7,7 @@ import {
   type VerifiedProviderAuthorityResult,
 } from './account-identity-authority-caller.js';
 import type { ProviderVerificationPort } from './verifier.js';
+import type { AccountIdentityAuthorityIssuerV2CurrentVerification } from './account-identity-authority-issuer-v2.js';
 
 const log = Logger.instance;
 log.register(import.meta.url);
@@ -24,6 +25,10 @@ export interface AccountIdentityAuthorityRuntime {
     providerVerifier: ProviderVerificationPort | undefined
   ): Promise<VerifiedProviderAuthorityResult>;
   getMutationAuthorityReadiness(): AccountIdentityAuthorityMutationReadiness;
+  verifyAccountIssuerFrame(
+    frame: ArrayBuffer | Uint8Array,
+    nowMs?: number
+  ): Promise<AccountIdentityAuthorityIssuerV2CurrentVerification>;
 }
 
 function mutationAuthorityUnavailable(): AccountIdentityAuthorityMutationReadiness {
@@ -55,6 +60,9 @@ export function createAccountIdentityAuthorityRuntime(
     },
     getMutationAuthorityReadiness(): AccountIdentityAuthorityMutationReadiness {
       return mutationAuthorityUnavailable();
+    },
+    verifyAccountIssuerFrame(frame: ArrayBuffer | Uint8Array, nowMs = Date.now()) {
+      return caller.verifyAccountIssuerFrame(frame, nowMs);
     },
   });
 }
