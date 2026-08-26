@@ -5,6 +5,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use ocentra_protected_capability_custody_core::broker_admission::{
     BrokerRuntimeError, ClientAnchor,
 };
+use ocentra_protected_capability_custody_protocol::account_issuer::AccountIssuerRequest;
+use ocentra_protected_capability_custody_protocol::account_issuer_session::AuthenticatedAccountIssuerRequest;
 use ocentra_protected_capability_custody_protocol::bootstrap::BootstrapPacket;
 use ocentra_protected_capability_custody_protocol::constants::INITIAL_SESSION_SEQUENCE;
 use ocentra_protected_capability_custody_protocol::handshake::{
@@ -90,6 +92,63 @@ pub(crate) fn establish(mut stream: PipeStream) -> Result<AuthenticatedBrokerSes
 }
 
 impl ClientSession {
+    pub(crate) fn execute_account_issuer(
+        mut self,
+        request: AccountIssuerRequest,
+    ) -> Result<
+        ocentra_protected_capability_custody_protocol::account_issuer::AccountIssuerReceipt,
+        ClientError,
+    > {
+        self.anchor.revalidate().map_err(map_anchor_error)?;
+        windows_ipc_peer::reobserve_server(&self.stream, self.peer)?;
+        let now = unix_now_millis()?;
+        self.broker_hello
+            .verify_authenticated_provenance(&self.client_hello, now)
+            .map_err(ClientError::Protocol)?;
+        let expires_at = now
+            .checked_add(
+                ocentra_protected_capability_custody_protocol::constants::MAX_REQUEST_TTL_MILLIS,
+            )
+            .ok_or(ClientError::Protocol(
+                ocentra_protected_capability_custody_protocol::types::ProtocolError::InvalidExpiry,
+            ))?
+            .min(self.broker_hello.session_expires_at_unix_millis());
+        let authenticated = AuthenticatedAccountIssuerRequest::authenticate(
+            &self.broker_hello,
+            request,
+            INITIAL_SESSION_SEQUENCE,
+            expires_at,
+            &self.authenticator,
+        )
+        .map_err(ClientError::Protocol)?;
+        let frame = Zeroizing::new(
+            ocentra_protected_capability_custody_protocol::account_issuer_session::encode_request(
+                &authenticated,
+            )
+            .map_err(ClientError::Protocol)?,
+        );
+        super::io::write_frame(&mut self.stream, frame.as_ref(), connection_deadline())?;
+        let response_frame = Zeroizing::new(super::io::read_frame(
+            &mut self.stream,
+            connection_deadline(),
+        )?);
+        let response =
+            ocentra_protected_capability_custody_protocol::account_issuer_session::decode_receipt(
+                response_frame.as_ref(),
+            )
+            .map_err(ClientError::Protocol)?;
+        let receipt = response
+            .into_verified_receipt(
+                &authenticated,
+                &self.broker_hello,
+                unix_now_millis()?,
+                &self.authenticator,
+            )
+            .map_err(ClientError::Protocol)?;
+        self.anchor.revalidate().map_err(map_anchor_error)?;
+        Ok(receipt)
+    }
+
     pub(crate) fn execute(
         mut self,
         request: ClientRequest,

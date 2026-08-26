@@ -4,6 +4,7 @@ mod codec;
 
 pub mod account_issuer;
 pub mod account_issuer_contract;
+pub mod account_issuer_session;
 pub mod account_issuer_v2_codec;
 pub mod bootstrap;
 pub mod constants;
