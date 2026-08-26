@@ -2,7 +2,7 @@
 
 <!-- agent-capsule -->
 
-> Plan: `parent-client-runtime-distribution-plan`
+> Plan: `parent-desktop-runtime-package-plan`
 > Workpack: `12-protected-broker-provisioner-package`
 > Kind: parent-side installer and package route.
 > Proves: the package ownership boundary, expected artifact roots, and open
@@ -15,14 +15,20 @@
 ## Purpose
 
 Define the parent-side Windows package boundary for the protected broker and its
-installer-only enrollment/provisioner handoff. Protected WP01's private
-FFI/core source boundary and the WP01-owned BIN-only read-only preflight are
-accepted at canonical `a6d7d9adf`, but this workpack remains a routing contract
-for the parent package mechanics that are absent. The preflight only
-revalidates existing enrollment and always returns
-`ExternalProvisioningRequired`; it does not establish protected authority or
-make a package ready. This workpack is not an installer implementation or a
-substitute for protected-custody authority.
+installer-only invocation/lifecycle handoff. This is a planned/source-authorable
+route for the bounded package mechanics; normal derived completion remains
+blocked while package source, tests, proof, signing, and runtime evidence are
+absent. Protected WP01 is the accepted
+neutral core/FFI/protocol foundation; WP02 owns the fixed Enrollment/SCM/TPM
+owner transaction, WP03 owns monotonic/anti-rollback currentness, and WP04
+owns the client anchor/fixed-pipe transport. Those owners and their external
+prerequisites remain separate from this package route. WP12 may invoke the
+fixed owner-approved binary but cannot establish protected authority or make a
+package ready.
+
+WP12 produces the installed broker/provisioner artifact and package boundary
+that Protected WP04 later consumes for client anchor and fixed-pipe transport.
+WP12 does not consume or use WP04 source and has no reverse dependency.
 
 ## Ownership boundary
 
@@ -34,12 +40,15 @@ Parent Client Runtime Distribution owns:
 - install, repair, upgrade, rollback, uninstall, and explicit deprovisioning
   lifecycle outcomes for this parent artifact.
 
-Protected Capability Custody WP01 owns authority creation, the private core/FFI
-Windows adapter, enrollment format/provenance, exact registry/SCM/peer
-validation, TPM policy and non-exportable-handle validation, and opaque
-admission/transcript outcomes. The package may invoke the fixed owner-approved
-provisioner, but it may not mint, parse, transport, or expose protected
-authority.
+Protected Capability Custody WP01 owns the neutral private core/FFI mechanics,
+neutral protocol, sealed admission/transcript boundary, and fail-closed
+foundation. WP02 owns the fixed protected Enrollment/SCM/TPM owner transaction,
+enrollment provenance, and owner-approved provisioner handoff; WP03 owns the
+monotonic/anti-rollback provider; WP04 owns the private client anchor and fixed
+pipe transport/session. The package may invoke the fixed owner-approved
+provisioner, but WP12 may not mint, parse, transport, or expose protected
+authority and may not substitute package success for any of those owner
+boundaries.
 
 Setup owns the user-facing setup journey and readiness state. The child-agent
 distribution plan owns child MSI/package lifecycle. Existing child-agent WiX,
@@ -55,14 +64,14 @@ scripts/release/windows/parent-protected-custody.wxs
 scripts/release/windows/build-parent-protected-custody-package.ps1
 ```
 
-The BIN-only provisioner source is owned and mapped by Protected WP01. WP12
+The BIN-only provisioner source is owned and mapped by Protected WP02. WP12
 does not own its Cargo manifest, `src/main.rs`, or private
 `src/provisioning/` directory; it invokes and packages the fixed owner-approved
 binary. It has no `src/lib.rs` and no public API. Its operation is fixed by the
-Protected/package owner and may depend on the Windows FFI only as the approved
-second consumer alongside the protected core. The provisioner does not accept
-a caller/MSI-provided path, TPM index or policy, `authValue`, SID, image
-identity, generation, lease, capability, or success assertion.
+Protected WP02/package boundary and may depend on the Windows FFI only as the
+approved owner-side consumer alongside the protected core. The provisioner
+does not accept a caller/MSI-provided path, TPM index or policy, `authValue`,
+SID, image identity, generation, lease, capability, or success assertion.
 
 The parent package scripts directory is the ownership boundary for the future
 custom action, installer-only binary invocation, package lifecycle/build
@@ -88,7 +97,7 @@ outside this workpack.
   inside the protected owner/FFI boundary; the package transports only the
   minimum installer lifecycle result needed to report failure or continuation.
 - The provisioner must establish or verify only the installer-owned immutable
-  enrollment expected by Protected WP01. The package cannot self-enroll a
+  enrollment owned by Protected WP02. The package cannot self-enroll a
   caller, widen an ACL, select a replacement key/index, or turn a disk/SQLite
   record into authority.
 - Missing, contradictory, revoked, stale, or unavailable protected enrollment
@@ -96,8 +105,8 @@ outside this workpack.
 - The fixed TPM NV index/policy is not `TPM_RH_PLATFORM` hierarchy authority;
   LocalSystem, elevation, TBS, PCP signing, or an OS account cannot substitute
   for the external OEM/firmware/MDM owner ceremony. Empty or caller-supplied
-  authorization is forbidden, and the current WP01 preflight therefore has no
-  reachable success path.
+  authorization is forbidden, and the current protected preflight therefore has
+  no reachable success path.
 
 ## Upgrade, rollback, and uninstall contract
 
@@ -126,7 +135,8 @@ tests/repo-tooling/parent-protected-custody-package.test.mjs
 The focused family must cover package identity and artifact wiring, elevated
 custom-action input rejection, absence of raw `authValue` transport, repair /
 upgrade idempotency, rollback failure, uninstall/deprovisioning safety, and
-the no-claim boundary between package outcome and Protected WP01 authority.
+the no-claim boundary between package outcome and Protected WP02/Protected
+authority.
 Later retained proof belongs under
 `output/parent-client-runtime-distribution-plan-proof/12-protected-broker-provisioner-package/`.
 
@@ -138,3 +148,28 @@ enrollment API, reports protected readiness from MSI success, restores disk
 generation during rollback, silently removes enrollment on uninstall, or lacks
 real package/lifecycle tests and retained proof. No READY, PR_READY, or DONE
 claim follows from this routing packet.
+
+## Routing refresh — 2026-08-25
+
+WP12 remains the installer-only package and invocation lifecycle owner. Its
+bounded WiX/build/package source slice is authorizable now, while normal
+derived completion remains blocked. Its
+complete expected production boundary is:
+
+```text
+scripts/release/windows/parent-protected-custody/
+scripts/release/windows/parent-protected-custody.wxs
+scripts/release/windows/build-parent-protected-custody-package.ps1
+```
+
+Its expected tests are the package test directory and
+`tests/repo-tooling/parent-protected-custody-package.test.mjs`. The package
+may invoke the fixed Protected owner-approved BIN and report bounded package
+failure/continuation outcomes, but it cannot mint or transport protected
+authority, provide a signer/store lease, or accept raw `authValue`, TPM
+index/policy, SID, path, image, generation, lease, capability, or success
+inputs. No package artifact, signing result, checksum, or service registration
+promotes Protected, Account, setup, or runtime readiness. Source, tests, proof,
+signing, and DONE remain open. The zero-argument provisioner must preserve its
+current `ExternalProvisioningRequired`/manual-required behavior; no service
+start or readiness claim is added.

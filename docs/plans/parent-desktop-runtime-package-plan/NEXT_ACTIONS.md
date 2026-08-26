@@ -39,27 +39,33 @@
   `scripts/release/windows/parent-protected-custody/`, with the manifest at
   `scripts/release/windows/parent-protected-custody.wxs` and the package build
   entry at `scripts/release/windows/build-parent-protected-custody-package.ps1`.
-- [ ] Invoke and package Protected WP01's owner-approved BIN-only provisioner
+- [ ] Invoke and package Protected WP02's owner-approved BIN-only provisioner
   binary. The Cargo manifest, `src/main.rs`, and private `src/provisioning/`
-  source are WP01-owned; WP12 owns no library/public API and accepts no
+  source are WP02-owned; WP12 owns no library/public API and accepts no
   caller/MSI-provided path, TPM index/policy, `authValue`, identity, generation,
   lease, capability, or success input.
-- [ ] Consume Protected WP01's private core/FFI enrollment contract without
+- [ ] Use WP01's neutral private core/FFI foundation and the WP02/WP03 owner
+  boundaries without
   exposing or accepting raw `authValue`, TPM index/policy, SID, path, image,
   generation, lease, capability, or caller-supplied success.
-- [ ] Keep Protected WP01 as the sole owner of the provisioner source,
-  authority creation, TPM policy, enrollment format, and non-exportable-handle
-  acceptance; WP12 owns only binary invocation and
-  install/repair/upgrade/rollback/uninstall lifecycle.
+- [ ] Keep WP02 as the owner of the provisioner source and fixed
+  Enrollment/SCM/TPM transaction, WP03 as the owner of monotonic/anti-rollback
+  currentness, and WP01 as the neutral foundation; WP12 owns only binary
+  invocation and install/repair/upgrade/rollback/uninstall lifecycle. Protected
+  WP04 later consumes the packaged broker boundary for client anchor/transport;
+  WP12 does not consume WP04 source or add a reverse dependency.
 - [ ] Define real install/repair/upgrade/rollback/uninstall and explicit
   deprovisioning outcomes; preserve TPM generation and fail closed on missing
   or contradictory enrollment.
 - [ ] Add the package/lifecycle tests and retained proof under the WP12 roots;
   no package success, signing/checksum, or service registration may claim
   protected authority or runtime readiness.
-- [ ] Keep WP12 blocked until the accepted Protected WP01 owner boundary is
-  consumed by real package invocation/lifecycle implementation, expected
-  tests, focused execution, and proof.
+- [ ] Author the bounded WP12 package/invocation source against the accepted
+  WP01 foundation, WP03 monotonic/package boundary, and Parent WP03 package
+  identity contract. WP12 produces the installed broker/provisioner artifact
+  that WP04 later consumes; it does not consume or use WP04 source. Keep normal
+  completion blocked until real package invocation/lifecycle implementation,
+  expected tests, focused execution, and proof exist.
 
 ## WP01 closeout
 
@@ -95,3 +101,20 @@
 - WP09 does not claim setup completion, child runtime ownership, desktop/mobile parity, or product readiness from smoke alone.
 
 - Next smallest open workpack is WP05 parent iOS package.
+
+## WP12 installer-only refresh — 2026-08-25
+
+WP12 is planned/source-authorable for the bounded package/invocation source
+under
+`scripts/release/windows/parent-protected-custody/`,
+`scripts/release/windows/parent-protected-custody.wxs`, and
+`scripts/release/windows/build-parent-protected-custody-package.ps1`.
+Exercise the package test directory plus
+`tests/repo-tooling/parent-protected-custody-package.test.mjs` remains expected
+and absent. Protected WP01 remains the neutral foundation, while WP02/WP03
+remain the enrollment and monotonic owners; WP12 packages the fixed
+owner-approved binary and produces the package boundary that WP04 later
+consumes for client transport. WP12 cannot mint authority or infer readiness
+from MSI success. The zero-argument provisioner remains
+`ExternalProvisioningRequired`/manual-required, with no service-start claim.
+Normal completion, tests, proof, signing, and runtime evidence remain open.

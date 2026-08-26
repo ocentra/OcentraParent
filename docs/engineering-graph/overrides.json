@@ -2,6 +2,65 @@
   "schemaVersion": 2,
   "workpackReviews": [
     {
+      "id": "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff",
+      "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+      ],
+      "reason": "WP02 is the fixed Protected Enrollment/SCM/TPM owner transaction. The checkout has only fixed constants/read-only preflight, CNG existing-key open, NV public/read/increment for an already-defined object, and Registry/SCM read-only observation; TPM2 NV define/undefine codecs/allowlist, TPM_RH_PLATFORM owner ceremony, protected Registry write/ACL, fixed SCM create/config/security/delete, enrolled generation, and independent observations are absent. TBS/LocalSystem/elevation is not platform owner. External OEM/firmware/MDM authority is absent, so this route is ACCEPT-for-source-design only, has no implementation authorization, and remains blocked; graph topology cannot mint enrollment or imply READY/DONE.",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/02-windows-enrollment-owner-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
+      "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff"
+      ],
+      "reason": "WP03 owns hardware-backed monotonic and anti-rollback currentness after the WP01 foundation and WP02 owner transaction. Disk, SQLite, rollback, and caller counters are not authority; source ordering does not promote readiness.",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/03-monotonic-anti-rollback-provider.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff",
+        "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
+        "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package"
+      ],
+      "reason": "WP04 owns the private Windows client_anchor and fixed-pipe transport/session using existing OS PID/session and RAII process/token/image/SCM/enrollment observations. WP04 is source-authorable only for this bounded fail-closed packet; normal derived state remains blocked by WP02/WP03/Parent WP12 completion. The implementation-independent edges do not waive normal completion, create a caller, or authorize any broader Protected authority.",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody",
+      "hardDependencies": [
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff",
+        "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
+        "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport"
+      ],
+      "reason": "WP05 is the source-authorable Account issuer v2 route. Account WP09 needs an Account-owned crates/account-issuer-owner crate statically linked into the existing Protected broker, with distinct typed protocol/client/broker/parent-runtime facades; the broker must not depend directly on family-identity-core and no cross-process lease is legal. The selected provider is deliberate TPM-native ECDSA P-256: runtime NCryptIsAlgSupported/EnumAlgorithms, a unique non-exportable signing-only Platform Crypto Provider key with service-specific ACL, BCRYPT_ECCPUBLIC_BLOB converted to canonical 65-byte SEC1, NCryptSignHash over SHA-256 with exact 64-byte P1363 r||s and strict low-S, and Cloudflare verification over the original canonical message bytes without digest or double-hash. Ed25519 v1 remains verification-only for migration/history; algorithm-tagged key IDs and schema/D1 v2 fields are required. Unsupported TPM/manual enrollment fails closed. Missing attestation, rotation, recovery, provider binding, tests, proof, READY, and DONE remain open; no software/wrapped fallback, silent downgrade, generic lifecycle operation bytes, direct SQLite sharing, or caller material is legal.",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/05-account-issuer-key-and-store-custody.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
       "hardDependencies": [],
       "reason": "Protected WP01 CNG/TPM mechanics, private core Windows adapter, and the WP01-owned BIN-only read-only preflight are integrated at a6d7d9adf. ADR-PCC-002 preserves one broker front door, package-local raw FFI, private core enrollment/peer/SCM/monotonic modules, and no public authority constructor. The preflight only reads/revalidates enrolled state and always returns ExternalProvisioningRequired; it cannot create or publish enrollment. External OEM/firmware/MDM TPM_RH_PLATFORM authority and NV define/undefine lifecycle, authenticated owner handoff, protected registry/SCM mutation, independent current observations, enrolled counter generation, core monotonic provider, real transport callers, 13 tests, proof, and runtime availability remain absent; source routing does not imply READY or DONE.",
@@ -15,7 +74,8 @@
     {
       "id": "WP-browser-plan-06-managed-profile-store",
       "hardDependencies": [
-        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport"
       ],
       "reason": "Independent review rejected source-only head 5671c06a2: persisted JSON/path state is not authenticated owner authority, path custody is not retained, no-follow/TOCTOU coverage is incomplete, lifecycle mutation/recovery is inert, and no production caller exists. WP06 must remain blocked on the neutral protected-custody owner plus a repaired Browser adapter and five exact expected test roots; no integration, READY, proof, or DONE is claimed.",
       "evidence": [
@@ -81,7 +141,8 @@
         "WP-account-identity-family-plan-03-session-token-lifecycle",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
-        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth"
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+        "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport"
       ],
       "reason": "This is a planned coordinator route, not an implementation-ready packet. It owns only opaque operation identity, durable prepare/commit/abort/recover ordering, exact committed replay, a private Account participant adapter, and Account-side capability/controller-lease reservation adapters for start remote view/control only. It consumes the WP08-owned repository/read/CAS seam and Protected Custody WP01 admission outcome; Account WP02/WP08, Device Trust currentness, and parent step-up remain separate owners. Missing sources/tests/proof and cross-store uncertainty keep this workpack blocked.",
       "evidence": [
@@ -163,7 +224,8 @@
     {
       "id": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
       "hardDependencies": [
-        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport"
       ],
       "evidence": [
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
@@ -389,6 +451,7 @@
       "id": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
       "hardDependencies": [
         "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
         "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
@@ -1956,6 +2019,7 @@
       "id": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
       "hardDependencies": [
         "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
         "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package"
       ],
       "evidence": [
@@ -1967,7 +2031,7 @@
         "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "WP12 is the parent-side package owner for the protected broker/provisioner MSI/WiX, elevated custom-action/build boundary, and upgrade/rollback/uninstall contract. It consumes the Protected WP01 private core/FFI enrollment boundary and the WP03 parent desktop package surface. WP01's current BIN preflight only revalidates enrolled state and always returns ExternalProvisioningRequired; it does not establish protected authority. WP12 may not accept raw authValue or caller authority, edit the child-agent installer, or claim protected readiness; package source, tests, proof, signing, and runtime availability remain open. External OEM/firmware/MDM TPM_RH_PLATFORM authority and authenticated owner handoff remain outside this package route."
+      "reason": "WP12 is the parent-side package owner for the protected broker/provisioner MSI/WiX, elevated custom-action/build boundary, and upgrade/rollback/uninstall contract. It consumes WP01's neutral private core/FFI foundation, invokes the WP02 owner-approved Enrollment/SCM/TPM boundary when available, consumes WP03 monotonic/anti-rollback currentness, and produces the installed broker/provisioner artifact that WP04 later consumes for client anchor/fixed-pipe transport; WP04 is not a WP12 input and those owners and their external prerequisites remain distinct. WP01's current BIN preflight only revalidates enrolled state and always returns ExternalProvisioningRequired; it does not establish protected authority. WP12 may not accept raw authValue or caller authority, edit the child-agent installer, or claim protected readiness; package source, tests, proof, signing, and runtime availability remain open. External OEM/firmware/MDM TPM_RH_PLATFORM authority and authenticated owner handoff remain outside this package route."
     },
     {
       "id": "WP-setup-install-provisioning-plan-06-rollout-proof-and-route-gate",
@@ -2779,7 +2843,9 @@
       "id": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
       "hardDependencies": [
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
-        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
+        "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+        "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+        "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody"
       ],
       "evidence": [
         "docs/plans/account-identity-family-plan/AGENTS.md",
@@ -2789,7 +2855,7 @@
         "docs/plans/protected-capability-custody-foundation-plan/workpacks/01-protected-capability-custody-foundation.md",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "WP09's Account-owned durable issuer/key lineage, private service-binding and delivery traits, startup reconciliation, and household-scoped receipt/wire outbox are independently reviewed and integrated through canonical 4f6245e51. A live caller trace found no protected signer, binding authenticator, delivery owner, production caller, or authenticated current-key handoff. WP08 supplies the sealed Account contract; Protected Custody WP01 must supply the isolated broker/client and opaque protected signing admission. Both are direct source-order and normal completion prerequisites. Three production roots and seven expected test roots remain absent. No Account WP02, WP05A, Device Trust, Cloudflare runtime, test, proof, READY, or DONE claim is made."
+      "reason": "WP09's Account-owned durable issuer/key lineage, private service-binding and delivery traits, startup reconciliation, and household-scoped receipt/wire outbox are independently reviewed and integrated through canonical 4f6245e51. A live caller trace found no protected signer, binding authenticator, delivery owner, production caller, or authenticated current-key handoff. WP08 retains VerifiedAccountIdentityAuthority, the authority repository/source of truth, the inner producer contract, and the opaque BEGIN IMMEDIATE transaction/currentness host. Protected WP01 is only the reviewed neutral foundation; WP04 supplies transport, and the distinct WP05 Account-owned statically linked owner crate supplies the P-256 v2 signer/repository boundary. Three production roots and seven expected test roots remain absent. No Account WP02, WP05A, Device Trust, Cloudflare runtime, test, proof, READY, or DONE claim is made."
     },
     {
       "id": "WP-app-game-plan-197-app-game-linux-docker-host-preflight",
@@ -2805,6 +2871,214 @@
   ],
   "edges": [
     {
+      "from": "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/02-windows-enrollment-owner-handoff.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md"
+      ],
+      "reason": "WP02 requires the neutral WP01 foundation, but external OEM/firmware/MDM owner authority is absent. This is a hard dependency and not implementation authorization."
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/03-monotonic-anti-rollback-provider.md",
+        "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md"
+      ],
+      "reason": "The monotonic provider consumes WP01's protected custody boundary and cannot replace it with disk, SQLite, rollback, or caller state. This is a normal completion dependency; no source authorization is inferred."
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
+      "to": "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/02-windows-enrollment-owner-handoff.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/03-monotonic-anti-rollback-provider.md"
+      ],
+      "reason": "Hardware-backed anti-rollback currentness requires the fixed protected enrollment/owner transaction; a process-local counter is not a provider. This is a normal completion dependency; no source authorization is inferred."
+    },
+    {
+      "from": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "to": "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/03-monotonic-anti-rollback-provider.md"
+      ],
+      "reason": "Parent WP12 packages the fixed owner-approved provisioner only after protected monotonic currentness is operationally complete; package success cannot mint or restore generation. The narrow package source may proceed independently, while normal completion still requires WP03 DONE.",
+      "implementationGate": "implementation-independent"
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
+        "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md"
+      ],
+      "reason": "The client anchor consumes the reviewed WP01 neutral foundation and its private Windows observation boundary. This reviewed-implementation edge is source-order evidence only; normal completion remains separate.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "to": "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/02-windows-enrollment-owner-handoff.md"
+      ],
+      "reason": "The fixed-pipe anchor must bind to protected enrollment/SCM identity. The bounded source packet may proceed independently, while normal completion still requires WP02 DONE; this edge cannot create that owner or authorize runtime.",
+      "implementationGate": "implementation-independent"
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "to": "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/03-monotonic-anti-rollback-provider.md"
+      ],
+      "reason": "Client session admission retains current protected generation. The bounded source packet may proceed independently, while normal completion still requires WP03 DONE; this edge cannot authorize stale or rollback state.",
+      "implementationGate": "implementation-independent"
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "to": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md"
+      ],
+      "reason": "The client transport depends on the fixed parent package/invocation lifecycle for the owner-approved broker binary. The bounded source packet may proceed independently, while normal completion still requires Parent WP12 DONE; no spawned helper or bootstrap substitute is allowed.",
+      "implementationGate": "implementation-independent"
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody",
+      "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/05-account-issuer-key-and-store-custody.md",
+        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md"
+      ],
+      "reason": "Account issuer/store custody consumes the reviewed WP01 isolated foundation, not lifecycle tokens or generic operation bytes. This reviewed-implementation edge is source-order evidence only; the Account owner remains responsible for the typed boundary.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody",
+      "to": "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/05-account-issuer-key-and-store-custody.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/02-windows-enrollment-owner-handoff.md"
+      ],
+      "reason": "The Account owner must consume authenticated protected enrollment without accepting a caller-selected key or path. The WP05 source packet may proceed independently; normal completion still requires WP02 DONE.",
+      "implementationGate": "implementation-independent"
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody",
+      "to": "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/05-account-issuer-key-and-store-custody.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/03-monotonic-anti-rollback-provider.md"
+      ],
+      "reason": "Account key lineage and broker-owned repository custody must be current across restart and rollback; disk generation is not authority. The WP05 source packet may proceed independently; normal completion still requires WP03 DONE.",
+      "implementationGate": "implementation-independent"
+    },
+    {
+      "from": "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody",
+      "to": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/05-account-issuer-key-and-store-custody.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md"
+      ],
+      "reason": "The Account owner uses authenticated fixed-pipe transport; WP04 is not itself signer or repository authority. The WP05 source packet may proceed independently; normal completion still requires WP04 DONE.",
+      "implementationGate": "implementation-independent"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-runtime-effect-fencing-coordinator",
+      "to": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-runtime-effect-fencing-coordinator.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md"
+      ],
+      "reason": "Account WP05A may consume only an authenticated opaque protected outcome through the fixed client transport; this normal dependency does not mint Account authority or make the coordinator ready."
+    },
+    {
+      "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "to": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md"
+      ],
+      "reason": "Account WP09 requires authenticated fixed-pipe transport but WP04 alone is insufficient for the selected P-256 v2 signer and broker-owned repository RPC. This normal dependency does not authorize Account runtime."
+    },
+    {
+      "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",
+      "to": "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/05-account-issuer-key-and-store-custody.md"
+      ],
+      "reason": "Account WP09 requires the distinct Protected WP05 Account-owned crates/account-issuer-owner crate statically linked into the existing broker, not a direct broker-to-family-identity-core dependency; the owner may use family only through the narrow Account transaction/currentness facade while the broker must not import family directly, plus typed protocol/client/broker/parent-runtime facades. The selected contract is a self-contained TPM-native ECDSA P-256 inner/outer v2 with producer ocentra.account-authority-producer.v2, inner/outer domains, audience, service, ecdsa-p256-sha256-p1363, v2-derived sha256:ecdsa-p256:<hex> key IDs, canonical 65-byte SEC1, exact 64-byte low-S P1363 over original canonical bytes, and schema/D1 v2 fields. Protocol envelope message kinds 6 and 7 are AccountIssuerRequest and AccountIssuerResponse carrying the inner operations IssueCurrentAuthority and AcknowledgeReceipt; Verify is owner-local and is not a protected protocol message. Ed25519 v1 is historical parse/verify only and must not wrap a new v2 inner wire. Account SQLite retains authoritative key/receipt/outbox state; D1 owns public currentness/CAS and inbound idempotency receipt only. WP08 retains the Account authority repository/source of truth and opaque transaction/currentness host; the owner crate receives narrow Account transaction and protected-signer capabilities, never raw path, SQL, generic signer, or protected custody.sqlite. Missing provider ACL/provisioning, attestation, rotation, recovery, binding, tests, proof, READY, and DONE remain open; unsupported TPM/manual enrollment fails closed.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "to": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md"
+      ],
+      "reason": "Device Trust WP01 may consume the fixed client transport only after the protected anchor boundary; device currentness and signer ownership remain Device-owned. This is a normal completion dependency; no early source authorization is inferred."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "to": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md"
+      ],
+      "reason": "Device Trust WP03 may consume authenticated protected transport for its ceremony participant, while actor/target/currentness authority remains Device-owned and runtime remains blocked. This is a normal completion dependency; no early source authorization is inferred."
+    },
+    {
+      "from": "WP-browser-plan-06-managed-profile-store",
+      "to": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
+        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md"
+      ],
+      "reason": "Browser WP06 requires the fixed client anchor/transport for future protected profile custody; persisted path/JSON state and client transport alone cannot produce a managed profile owner or runtime caller. This is a normal completion dependency; no early source authorization is inferred."
+    },
+    {
       "from": "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package",
       "to": "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation",
       "kind": "depends_on",
@@ -2814,7 +3088,7 @@
         "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
         "docs/plans/protected-capability-custody-foundation-plan/adr/ADR-PCC-002.md"
       ],
-      "reason": "The parent package can invoke only the Protected WP01 owner-approved enrollment boundary; it cannot mint authority, transport raw authValue, or substitute MSI success for private core/FFI validation.",
+      "reason": "The parent package consumes WP01's neutral foundation and can invoke only owner-approved Protected WP02/WP03 boundaries when those owners are available and produces the installed artifact that WP04 later consumes; it cannot mint authority, transport raw authValue, or substitute MSI success for private core/FFI validation.",
       "implementationGate": "reviewed-implementation"
     },
     {
@@ -2828,7 +3102,7 @@
         "docs/plans/parent-desktop-runtime-package-plan/PLAN_STATE.md"
       ],
       "reason": "The parent protected-broker package is a desktop distribution artifact and must consume the bounded WP03 desktop package identity/surface without transferring protected authority or setup ownership.",
-      "implementationGate": "reviewed-implementation"
+      "implementationGate": "implementation-independent"
     },
     {
       "from": "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate",

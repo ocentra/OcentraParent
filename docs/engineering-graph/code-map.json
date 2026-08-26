@@ -2736,8 +2736,12 @@
         "scripts/release/windows/parent-protected-custody/tests",
         "tests/repo-tooling/parent-protected-custody-package.test.mjs"
       ],
+      "plannedImplementationRoots": [
+        "scripts/release/windows/parent-protected-custody.wxs",
+        "scripts/release/windows/build-parent-protected-custody-package.ps1"
+      ],
       "expectedTestRoots": ["tests/repo-tooling/parent-protected-custody-package.test.mjs"],
-      "note": "Routing-only parent-side MSI/WiX/custom-action/build and upgrade/rollback/uninstall boundary. Protected WP01 owns the separate fixed BIN-only provisioner source and its private FFI use; the current BIN is a read-only preflight that always returns ExternalProvisioningRequired, and WP12 only invokes and packages that owner-approved binary. No raw authValue or caller-supplied authority is allowed; fixed NV index policy is distinct from TPM_RH_PLATFORM authority, and external OEM/firmware/MDM owner handoff remains unavailable. Existing child-agent WiX is out of scope. Package scripts, lifecycle tests, proof, signing, and runtime readiness remain absent."
+      "note": "Planned/source-authorable parent-side MSI/WiX/custom-action/build and upgrade/rollback/uninstall boundary. Exact production roots are scripts/release/windows/parent-protected-custody/, parent-protected-custody.wxs, and build-parent-protected-custody-package.ps1; the graph engine treats normalized .wxs and .ps1 paths as executable planned implementation roots. Protected WP01 owns the neutral foundation; WP02 owns the separate fixed Enrollment/SCM/TPM owner transaction and BIN-only provisioner source, WP03 owns monotonic currentness, and WP04 owns client anchor transport. WP12 has no Rust wrapper or public API: it invokes/packages the fixed zero-arg owner-approved binary, preserves ExternalProvisioningRequired/manual-required behavior, and cannot mint authority or claim service readiness. Existing child-agent WiX is out of scope. Package lifecycle tests, proof, signing, and runtime readiness remain absent; package success cannot mint authority."
     },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
@@ -10408,6 +10412,273 @@
         ]
       },
       "note": "Independently reviewed Protected WP01 CNG/TPM and read-only provisioner source is integrated at canonical a6d7d9adf. The graph maps 114 implementation files, 0 tests, and no Cargo workspace requirement gaps for the mapped core/FFI/provisioner source; exact provisioner Cargo, main, and provisioning modules are mapped. The packet contains package-local-unsafe Windows FFI mechanics, private cfg(windows) core broker-admission modules preserving opaque peer/transcript construction, pub(crate) platform guards, BrokerPlatformOwner, existing broker runtime methods, and a BIN-only preflight that only reads/revalidates enrolled state and always returns ExternalProvisioningRequired. Core is the current FFI consumer; the WP01-owned BIN-only provisioner is the only other permitted FFI consumer, while broker/client/other consumers remain prohibited. External OEM/firmware/MDM TPM_RH_PLATFORM authority and NV define/undefine lifecycle, authenticated owner handoff, protected registry/SCM mutation, independent broker/client/token observations, enrolled counter generation, core monotonic provider, real transport callers, all 13 expected tests, proof, and runtime readiness remain absent; startup stays DeploymentRequired before DB/state/listener."
+    },
+    "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff": {
+      "planSlug": "protected-capability-custody-foundation-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs",
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs",
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/Cargo.toml",
+        "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/mod.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/owner_handoff.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/enrollment.rs",
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/scm.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/mod.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/owner_handoff.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/protected-capability-custody-core/tests/unit/windows_adapter.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/tests/integration/owner_handoff.rs"
+      ],
+      "note": "ACCEPT-for-source-design only. The checkout contains fixed constants/read-only preflight, CNG existing-key open, NV public/read/increment for an already-defined object, and Registry/SCM read-only observation. TPM2_NV_DefineSpace/UndefineSpace codecs/allowlist, TPM_RH_PLATFORM owner ceremony, protected Registry write/ACL transaction, fixed SCM create/config/security/delete transaction, enrolled generation, and independent observations are absent. TBS/LocalSystem/elevation is not platform owner. No implementation authorization exists until the external OEM/firmware/MDM owner is available; mapped roots cannot mint Enrollment/SCM/TPM authority or make READY/DONE."
+    },
+    "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider": {
+      "planSlug": "protected-capability-custody-foundation-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
+        "crates/protected-capability-custody-core/src/platform/anti_rollback.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/monotonic.rs",
+        "crates/protected-capability-custody-core/src/platform/anti_rollback.rs"
+      ],
+      "expectedTestRoots": ["crates/protected-capability-custody-core/tests/security/tpm_nv_counter.rs"],
+      "note": "WP03 is a blocked Protected owner route. Hardware-backed monotonic currentness must remain separate from disk, SQLite, rollback, and caller state; source topology is not operational completion."
+    },
+    "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport": {
+      "planSlug": "protected-capability-custody-foundation-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs",
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/client_anchor.rs",
+        "crates/protected-capability-custody-client/src/lib.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc_connect.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc_io.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc_peer.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc_session.rs",
+        "crates/protected-capability-custody-client/src/admission.rs",
+        "crates/protected-capability-custody-broker/src/authority.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc/service.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc/peer.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token_sid.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token_groups.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/service_sid.rs",
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/token_groups.rs",
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/service_sid.rs"
+      ],
+      "plannedImplementationRoots": [
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs",
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/client_anchor.rs",
+        "crates/protected-capability-custody-client/src/lib.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc_connect.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc_io.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc_peer.rs",
+        "crates/protected-capability-custody-client/src/windows_ipc_session.rs",
+        "crates/protected-capability-custody-client/src/admission.rs",
+        "crates/protected-capability-custody-broker/src/authority.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc/service.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc/peer.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token_groups.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/service_sid.rs",
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/token_groups.rs",
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/service_sid.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
+        "crates/protected-capability-custody-client/tests/admission.rs",
+        "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
+      ],
+      "note": "WP04 owns the private Windows client_anchor plus client fixed-pipe transport/session, including the missing client windows_ipc connect/io/peer/session seams and broker authority OS-observation cleanup. Existing interprocess PID/session and RAII process/token/image/SCM/enrollment observations are sufficient; no handshake redesign, spawned child, stdin bootstrap, nonce pipe, sysinfo, dunce, or caller identity is authorized. The base lifecycle is planned/source-authorable for this bounded fail-closed packet; the WP01 edge is reviewed-implementation and WP02/WP03/Parent WP12 edges are implementation-independent. Normal derived state, operational caller, tests, proof, and DONE remain blocked."
+    },
+    "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody": {
+      "planSlug": "protected-capability-custody-foundation-plan",
+      "codeExpectation": "code-and-tests",
+      "roots": [
+        "Cargo.toml",
+        "crates/schema/Cargo.toml",
+        "crates/schema/src/lib.rs",
+        "crates/schema/src/account_identity_authority_producer_v2.rs",
+        "crates/family-identity-core/src/lib.rs",
+        "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_parse.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_envelope.rs",
+        "crates/family-identity-core/src/account_identity_authority_repository.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_transport.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_transport_codec.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_v2.rs",
+        "crates/family-identity-core/src/account_identity_authority_parser_v2.rs",
+        "crates/family-identity-core/src/account_identity_authority_envelope_v2.rs",
+        "crates/protected-capability-custody-protocol/src/lib.rs",
+        "crates/protected-capability-custody-broker/Cargo.toml",
+        "crates/protected-capability-custody-broker/src/custody.rs",
+        "crates/protected-capability-custody-broker/src/custody/runtime.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc/service.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc/peer.rs",
+        "crates/parent-runtime-core/Cargo.toml",
+        "crates/parent-runtime-core/src/lib.rs",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-producer-transport.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-writer.ts",
+        "infra/cloudflare/migrations/account-identity",
+        "crates/account-issuer-owner/Cargo.toml",
+        "crates/account-issuer-owner/src/lib.rs",
+        "crates/account-issuer-owner/src/contract.rs",
+        "crates/account-issuer-owner/src/repository.rs",
+        "crates/account-issuer-owner/src/currentness.rs",
+        "crates/account-issuer-owner/src/key_registry.rs",
+        "crates/account-issuer-owner/src/outbox.rs",
+        "crates/account-issuer-owner/src/delivery.rs",
+        "crates/account-issuer-owner/src/startup.rs",
+        "crates/account-issuer-owner/src/recovery.rs",
+        "crates/account-issuer-owner/src/signing.rs",
+        "crates/account-issuer-owner/src/rpc.rs",
+        "crates/protected-capability-custody-protocol/src/account_issuer.rs",
+        "crates/protected-capability-custody-protocol/src/account_issuer_contract.rs",
+        "crates/protected-capability-custody-protocol/src/account_issuer_v2_codec.rs",
+        "crates/protected-capability-custody-client/src/account_issuer.rs",
+        "crates/protected-capability-custody-client/src/account_issuer_rpc.rs",
+        "crates/protected-capability-custody-client/src/lib.rs",
+        "crates/protected-capability-custody-broker/src/account_issuer.rs",
+        "crates/protected-capability-custody-broker/src/account_issuer_rpc.rs",
+        "crates/protected-capability-custody-broker/src/lib.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_capability.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_lifecycle.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_export.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_sign.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_security.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/account_issuer_acl.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/mod.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/ceremony.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_client.rs",
+        "crates/parent-runtime-core/src/account_issuer_owner.rs",
+        "infra/cloudflare/src/auth/account-identity-authority-issuer-v2.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-producer-v2-contract.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-producer-v2-transport.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-issuer-v2.ts",
+        "infra/cloudflare/migrations/account-identity/0008_account_identity_authority_issuer_v2.sql"
+      ],
+      "plannedImplementationRoots": [
+        "crates/account-issuer-owner/src/lib.rs",
+        "crates/account-issuer-owner/src/contract.rs",
+        "crates/account-issuer-owner/src/repository.rs",
+        "crates/account-issuer-owner/src/currentness.rs",
+        "crates/account-issuer-owner/src/key_registry.rs",
+        "crates/account-issuer-owner/src/outbox.rs",
+        "crates/account-issuer-owner/src/delivery.rs",
+        "crates/account-issuer-owner/src/startup.rs",
+        "crates/account-issuer-owner/src/recovery.rs",
+        "crates/account-issuer-owner/src/signing.rs",
+        "crates/account-issuer-owner/src/rpc.rs",
+        "crates/protected-capability-custody-broker/src/custody.rs",
+        "crates/protected-capability-custody-broker/src/custody/runtime.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc/service.rs",
+        "crates/protected-capability-custody-broker/src/windows_ipc/peer.rs",
+        "crates/protected-capability-custody-protocol/src/lib.rs",
+        "crates/protected-capability-custody-protocol/src/account_issuer.rs",
+        "crates/protected-capability-custody-protocol/src/account_issuer_contract.rs",
+        "crates/protected-capability-custody-protocol/src/account_issuer_v2_codec.rs",
+        "crates/protected-capability-custody-client/src/account_issuer.rs",
+        "crates/protected-capability-custody-client/src/account_issuer_rpc.rs",
+        "crates/protected-capability-custody-client/src/lib.rs",
+        "crates/protected-capability-custody-broker/src/account_issuer.rs",
+        "crates/protected-capability-custody-broker/src/account_issuer_rpc.rs",
+        "crates/protected-capability-custody-broker/src/lib.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/lib.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_capability.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_lifecycle.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_export.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_sign.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/cng_account_issuer_p256_security.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/account_issuer_acl.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/main.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/mod.rs",
+        "crates/ocentra-protected-capability-custody-provisioner/src/provisioning/ceremony.rs",
+        "crates/family-identity-core/src/account_identity_authority_issuer_client.rs",
+        "crates/family-identity-core/src/account_identity_authority_repository.rs",
+        "crates/family-identity-core/src/lib.rs",
+        "crates/family-identity-core/src/account_identity_authority.rs",
+        "crates/schema/src/account_identity_authority_producer_v2.rs",
+        "crates/schema/src/lib.rs",
+        "crates/family-identity-core/src/account_identity_authority_producer_v2.rs",
+        "crates/family-identity-core/src/account_identity_authority_parser_v2.rs",
+        "crates/family-identity-core/src/account_identity_authority_envelope_v2.rs",
+        "crates/parent-runtime-core/src/account_issuer_owner.rs",
+        "crates/parent-runtime-core/src/lib.rs",
+        "infra/cloudflare/src/auth/account-identity-authority-issuer-v2.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-producer-v2-contract.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-producer-v2-transport.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-issuer-v2.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-caller.ts",
+        "infra/cloudflare/src/auth/account-identity-authority-runtime.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-store.ts",
+        "infra/cloudflare/src/storage/account-identity-authority-writer.ts",
+        "infra/cloudflare/migrations/account-identity/0008_account_identity_authority_issuer_v2.sql"
+      ],
+      "expectedTestRoots": [
+        "crates/account-issuer-owner/tests/account_issuer_owner.rs",
+        "crates/protected-capability-custody-protocol/tests/account_issuer.rs",
+        "crates/protected-capability-custody-client/tests/account_issuer.rs",
+        "crates/protected-capability-custody-broker/tests/account_issuer.rs",
+        "crates/ocentra-protected-capability-custody-windows-ffi/tests/account_issuer_p256.rs",
+        "crates/family-identity-core/tests/contract/account_identity_authority_issuer_transport.rs",
+        "crates/parent-runtime-core/tests/integration/account_issuer_owner.rs",
+        "infra/cloudflare/tests/account-identity-authority-issuer-v2.test.ts"
+      ],
+      "note": "Planned/source-authorable Account issuer v2 route. Source packet 1 freezes a self-contained P-256 inner and outer wire: producer ocentra.account-authority-producer.v2; inner domain ocentra.account-authority-producer.signing.v2\\0; audience ocentra.account.authority.v2; algorithm ecdsa-p256-sha256-p1363; outer transport domain ocentra.account-issuer.transport.v2\\0; service ocentra.account-authority-producer.cloudflare.v2; and algorithm-aware sha256:ecdsa-p256:<hex> key IDs derived with a v2 derivation domain. The wire uses canonical 65-byte SEC1 and exact 64-byte low-S P1363; FFI canonicalizes low-S and Rust/Cloudflare reject high-S. Protocol envelope message kinds 6 and 7 are AccountIssuerRequest and AccountIssuerResponse; they carry the initial inner operations IssueCurrentAuthority and AcknowledgeReceipt. Verify is owner-local and is not a protected protocol message. v2 must not wrap a freshly signed Ed25519-v1 inner wire; Ed25519 v1 remains historical parse/verify-only with no new signing or fallback. Family-core retains VerifiedAccountIdentityAuthority and its authority DTO in existing account_identity_authority.rs, its repository/source of truth, the existing family-owned handoff contract (a separate historical/input boundary that is never embedded, re-signed, or duplicated inside P-256 v2), and the existing v1 historical parse/verifier path in account_identity_authority_producer_parse.rs/account_identity_authority_producer_envelope.rs; no speculative DTO/verifier split is planned. It also retains one opaque BEGIN IMMEDIATE transaction/currentness host. The new Account-owned crates/account-issuer-owner crate absorbs issuer, key-registry, outbox, delivery, startup, recovery, signing, and RPC mechanics and is statically linked into the existing Protected broker; the broker mounts it for service lifetime and retains the protected signer. The broker -> account-issuer-owner crate boundary is one-way: the owner may depend on family-identity-core only through the narrow Account transaction/currentness facade, while the broker must not directly import family-identity-core. The owner receives only narrow opaque Account-specific transaction and protected-signer capabilities and must not open a second Account connection, merge with protected custody.sqlite, or accept caller key/path/private material. Account SQLite owns authoritative key/receipt/outbox state; D1 owns only public verifier currentness/CAS and inbound idempotency receipt, with no duplicate outbox. Service-specific key custody is runtime-blocked: existing key ACL is SYSTEM GenericAll, SCM currently exposes only SID type, and token observation lacks TokenGroups plus a LookupAccountNameW service-SID resolver. External provisioning must create and set the service-specific ACL; the broker only opens and revalidates the descriptor and token/service observations. Caller SDDL/SID and broad SYSTEM/BA grants are forbidden. WP04 maps the shared FFI/core service-SID and TokenGroups observation roots; WP05 maps CNG security-descriptor revalidation. Rust v2 verification uses the locked ring 0.17.14 ECDSA_P256_SHA256_FIXED path over original bytes after explicit low-S precheck; sha2 is direct only for v2 key-ID hashing, with no new p256 or ecdsa dependency. Distinct Rust schema, family producer/parser/envelope, protocol account_issuer request/response codec, Windows CNG/PCP P-256 capability/lifecycle/export/sign/security, family client facade, Parent Runtime composition, and Cloudflare v2 contract/transport/D1 migration roots are planned. Pinned windows-sys 0.61.2 API availability is implementation-authorization evidence only, not provider, ACL, provisioning, runtime, test, proof, READY, or DONE evidence. Unsupported TPM/manual enrollment fails closed. Missing attestation, rotation, recovery, provider binding, cross-binding service_binding_id lineage repair, expected tests, proof, READY, and DONE remain open. No software/wrapped fallback, silent downgrade, generic lifecycle operation bytes, mock, no-op, direct SQLite sharing, or caller material is legal.",
+      "workspaceRequirements": {
+        "rootManifest": "Cargo.toml",
+        "packages": [
+          {
+            "manifest": "crates/account-issuer-owner/Cargo.toml",
+            "package": "ocentra-account-issuer-owner",
+            "activeMember": true,
+            "directDependencies": [
+              {
+                "name": "ring",
+                "version": "0.17.14",
+                "purpose": "P-256 verification over original canonical bytes after explicit low-S precheck"
+              },
+              {
+                "name": "sha2",
+                "version": "0.10.9",
+                "purpose": "v2 algorithm-aware key-ID hashing only"
+              }
+            ],
+            "requiredTargets": [
+              {
+                "kind": "lib",
+                "path": "crates/account-issuer-owner/src/lib.rs"
+              }
+            ]
+          }
+        ]
+      }
     }
   }
 }

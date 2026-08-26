@@ -1,9 +1,11 @@
 # Repository Custody Status
 
 Snapshot: 2026-08-25 after the source-consolidation and archive freeze, based on
-canonical parent `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f`. This supersedes the
-retained 2026-08-24, 2026-08-23, 2026-08-19, and 2026-08-18 snapshots below.
-Exact older branch and worktree inventories remain labelled historical.
+canonical parent
+`3d6f32b8023eee90b5f295a4f7853e58fa04422a` (short `3d6f32b8`). This supersedes
+the retained 2026-08-24, 2026-08-23, 2026-08-19, and 2026-08-18 snapshots below.
+The prior `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` inventory is historical;
+exact older branch and worktree inventories remain labelled historical.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
@@ -16,13 +18,14 @@ worktree and frozen before archive construction:
 
 - canonical is clean, pushed, and equal to
   `origin/codex/eventing-wp09-production` at
-  `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f`;
+  `3d6f32b8023eee90b5f295a4f7853e58fa04422a`;
 - the public archive branch is
   `origin/codex/archive/ocentra-parent-custody` at
   `e59c6647d40ceb4c3d2cffb22df2611bb543c62b`; its top snapshot parent is
   `880832e80241`, the final verification child is
   `e59c6647d40ceb4c3d2cffb22df2611bb543c62b`, and that verification child has
-  tree `3e895a49309d`;
+  tree `3e895a49309d`. It remains a frozen snapshot of the older
+  `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` line;
 - the frozen remote map contains `1,828` refs (`156` heads, `964` tags, and
   `708` pull refs) with SHA-256
   `8bbdff759c5060fcd6d316d10acef6ba639f4d5f5a1bbaf37da360e4996e5574`;
@@ -46,11 +49,15 @@ worktree and frozen before archive construction:
 No ref, stash, branch, or worktree in this inventory is authorized for deletion.
 The archive is recoverability custody, not acceptance. Promotion through
 `develop` to `main`, a fresh open-PR/local-dirty/ancestry/patch/claim audit, and
-explicit user-approved cleanup remain required.
+explicit user-approved cleanup remain required. A fresh drift archive of the
+3d6f32b8 canonical line must be constructed and verified before the frozen archive or
+any related custody ref is considered for deletion. The private mirror fsck and
+mapping checks passed; that does not authorize deletion.
 
-## Current patch-unique branch disposition — canonical `1abe4dfc96fd`
+## Historical patch-unique branch disposition — canonical `1abe4dfc96fd`
 
-The complete audit found `41` non-archive remote refs with patch-unique history:
+The complete historical audit at `1abe4dfc96fd` found `41` non-archive remote
+refs with patch-unique history:
 `9` integrated or squashed into canonical, `28` rejected or superseded, and `4`
 docs-only stale refs. There are zero accepted production tips outside the
 canonical branch. Patch uniqueness is custody evidence, not permission to
@@ -75,13 +82,87 @@ replay a branch tip.
 | --- | --- | --- |
 | `origin/main` | `eb4e66a791` | Historical release baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim main parity. |
 | `origin/develop` | `4ece515282` | Historical promotion baseline. Recheck live ancestry and required PR gates before promotion; this source snapshot does not claim develop parity. |
-| `origin/codex/eventing-wp09-production` | Source-consolidation head `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` | Canonical source-consolidation line. The accepted AI WP03, AppGame WP197, Cloudflare WP04, and Protected Custody WP01 source packets are integrated; their expected tests/callers/adapters/proof and later acceptance gates remain open. |
+| `origin/codex/eventing-wp09-production` | Audited base snapshot `3d6f32b8023eee90b5f295a4f7853e58fa04422a` (2026-08-25) | Audited canonical base for this routing packet. The prior `1abe4dfc96fd` source-consolidation row is historical; accepted source packets still have open expected tests/callers/adapters/proof and later acceptance gates. |
 | `origin/production` | `683a07cf31` | Historical production ref; not the current integration line. |
 | archive refs | public `e59c6647d40c`; private manifest `4a7e383a...` (top snapshot `880832e80241`, verification tree `3e895a49309d`) | Public archive covers the frozen remote map; private E-drive custody covers local refs, detached heads, stash, and dirty overlays. Retain through source/test consolidation and promotion. |
 
 Open pull requests at this snapshot: **0**. No source packet is allowed to skip
 independent review, the later expected-test wave, focused validation,
 precommit, or CI merely because it is pushed.
+
+## Current canonical actual-code census and routing truth — 2026-08-25
+
+The current canonical graph is **24 plans / 692 workpacks / 717 nodes / 1,298
+edges**. The completed 24-plan census records actual production source,
+non-test caller/composition, custody/currentness/owner authority, and expected
+test-source presence/absence. It is a source-truth and routing inventory only:
+tests, results, retained proof, checklist acceptance, PR/CI, READY, and DONE
+remain open.
+
+Accepted narrow source references recorded without completion claims are Eventing
+`c4fe07f99`, `8f30ae565`, `71b90ec66`, `1d3211d09`, Browser `3df242947`, and
+Enforcement `70bfa6332`. The current Browser census supersedes stale wording:
+WP06 has no protected owner/caller and five expected tests are absent; WP07
+managed-runtime/integration is absent; WP09 launch-target binding/integration
+is absent; WP11 is `Unknown`/`TargetListOnly`; WP20 has no OS provider; WP21 is
+validator-only; and WP22 has no live producer.
+
+Current plan-level Screen gaps remain unified capability/permission ownership,
+non-AI capture ingress/currentness, real OCR/VLM/policy composition, child
+disclosure/live view, and complete durable custody. WP31 has source/tests but no
+production caller; WP38 has an in-memory scheduler with AI/assistant callers
+but no Screen-owned durable source; WP32/WP33 and platform/provider roots stay
+open. Enforcement has only the narrow command-dispatch/time-limit path and
+manual-required generic adapters; trusted policy refs, authenticated native
+grant, durable journal, managed-browser action, rollback, and receipt custody
+remain absent.
+
+Protected routing is split without promoting runtime: WP01 is the neutral
+foundation; WP02 is ACCEPT-for-source-design only and blocked on external
+OEM/firmware/MDM owner P0s; WP03 remains blocked; WP04 and WP05 are
+planned/source-authorable only for bounded source packets while their normal
+derived states remain blocked. WP05 selects TPM-native ECDSA P-256 Account
+issuer v2: runtime `NCryptIsAlgSupported`/`EnumAlgorithms`, a unique
+non-exportable signing-only PCP key with service ACL, canonical 65-byte SEC1,
+exact low-S 64-byte P1363 over SHA-256 of original canonical bytes,
+algorithm-tagged key IDs, and schema/D1 v2. Ed25519 v1 is verification-only
+for migration/history; unsupported TPM/manual enrollment fails closed. The
+new Account-owned `crates/account-issuer-owner` is statically linked into the
+existing broker. The broker mounts it for service lifetime and retains the
+protected signer; family-core retains VerifiedAccountIdentityAuthority, the
+authority repository/source of truth, and one opaque `BEGIN IMMEDIATE`
+transaction/currentness host. The existing family-owned handoff contract
+remains a separate historical/input boundary and is never embedded, re-signed,
+or duplicated inside P-256 v2. No second Account connection, protected
+`custody.sqlite` merge, direct broker-to-family-core
+dependency, software/wrapped fallback, silent downgrade, or generic lifecycle
+operation bytes are legal. Missing attestation, rotation, recovery, provider
+binding, service-binding lineage repair, tests, proof, and DONE remain open.
+Parent WP12 remains installer-only and cannot mint authority.
+
+Current WP05 contract truth is Rust-first: crates/schema/src/
+account_identity_authority_producer_v2.rs owns the v2 schema shape; family-core
+retains its existing authority DTO and v1 historical parse/verifier path, and
+v2 never wraps a newly signed v1 inner wire. Protocol envelope kinds 6 and 7
+are AccountIssuerRequest and AccountIssuerResponse carrying the inner
+operations IssueCurrentAuthority and AcknowledgeReceipt; Verify is owner-local.
+The v2 verifier uses locked ring 0.17.14 after an explicit low-S precheck, while
+sha2 is limited to algorithm-aware key-ID hashing and no p256/ecdsa dependency
+is added.
+
+Service-specific key custody is REJECT/runtime-blocked: existing key ACL is
+SYSTEM GenericAll, SCM exposes SID type only, TokenGroups observation and
+LookupAccountNameW service-SID resolution are absent, and CNG security-
+descriptor revalidation is not implemented. External provisioning must
+create/set the service-specific ACL; the broker only opens and revalidates it.
+Caller SDDL/SID and broad SYSTEM/BA grants are forbidden. WP04 owns the shared
+FFI/core service-SID and TokenGroups observation roots; WP05 owns CNG
+descriptor revalidation. Expected tests, proof, runtime callers, and DONE stay
+open.
+
+The prior 1abe-based tables and branch dispositions below are historical custody
+records. They must not be read as current canonical head, current graph counts,
+or completion evidence.
 
 ## Current residual source disposition — 2026-08-25
 

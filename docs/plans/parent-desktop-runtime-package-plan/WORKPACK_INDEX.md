@@ -31,7 +31,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | complete | [WP09 Parent Client Launch Smoke Matrix](workpacks/09-parent-client-launch-smoke-matrix.md) | 12/12 | `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/` |
 | open | [WP10 Setup Handoff Contracts](workpacks/10-setup-handoff-contracts.md) | 0/10 | `output/parent-client-runtime-distribution-plan-proof/10-setup-handoff-contracts/` |
 | open | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | 0/14 | `output/parent-client-runtime-distribution-plan-proof/11-proof-ci-release-gate/` |
-| blocked / routing-only | [WP12 Protected Broker Provisioner Package](workpacks/12-protected-broker-provisioner-package.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/12-protected-broker-provisioner-package/` |
+| planned / source-authorable; normal completion dependency-gated | [WP12 Protected Broker Provisioner Package](workpacks/12-protected-broker-provisioner-package.md) | 0/12 | `output/parent-client-runtime-distribution-plan-proof/12-protected-broker-provisioner-package/` |
 
 ## Default execution order
 
@@ -52,11 +52,15 @@ WP08 handles update/rollback/checksum/SBOM.
 WP09 handles launch smoke by artifact/platform.
 WP10 handles setup handoff contract only.
 WP12 handles the parent-side protected broker/provisioner MSI/WiX, invokes the
-fixed WP01-owned BIN-only provisioner, and owns the package/lifecycle contract;
-it consumes Protected WP01's accepted owner boundary and the WP03 desktop
-package surface, without owning protected authority or the provisioner Cargo
-source. The provisioner has no library or public API and may not accept
-caller/MSI-provided path, index, policy, auth, identity, or success values.
+fixed WP02-owned BIN-only provisioner, and owns the package/lifecycle contract;
+it uses WP01's neutral foundation, WP03 monotonic currentness, and the WP03
+desktop package surface without owning protected authority or the provisioner
+Cargo source. WP12 produces the broker/provisioner package and lifecycle
+boundary that Protected WP04 later consumes for client anchor and fixed-pipe
+transport composition; WP12 has no reverse dependency on WP04 and does not
+consume WP04 source. The provisioner has no library or public API and may not
+accept caller/MSI-provided path, index, policy, auth, identity, or success
+values.
 WP11 is last and consumes all previous proof roots, including WP12.
 ```
 
@@ -65,8 +69,31 @@ WP11 is last and consumes all previous proof roots, including WP12.
 - If a workpack text says proof is recorded but this index says open, keep the row open until the proof root, checklist row, and PLAN_STATE are aligned.
 - Do not raise status from scaffold, source script presence, launch smoke, CI success, preview build, or package metadata alone.
 - Do not use one platform artifact to imply another platform artifact.
-- Keep WP12 blocked if the package accepts raw authority input, reuses the
-  child-agent installer, or reports protected readiness from MSI success.
+- Keep WP12's normal completion blocked if the package accepts raw authority
+  input, reuses the child-agent installer, or reports protected readiness from
+  MSI success. The bounded package-source slice is source-authorable while its
+  tests, proof, signing, and runtime evidence remain open.
+
+## WP12 routing refresh — 2026-08-25
+
+WP12 remains installer-only package and invocation lifecycle ownership. Its
+bounded source slice is planned/source-authorable, while normal derived
+completion remains blocked. Its production roots are exactly:
+
+```text
+scripts/release/windows/parent-protected-custody/
+scripts/release/windows/parent-protected-custody.wxs
+scripts/release/windows/build-parent-protected-custody-package.ps1
+```
+
+Its expected test roots are the package test directory and
+`tests/repo-tooling/parent-protected-custody-package.test.mjs`. WP12 invokes
+and packages the fixed Protected owner-approved binary; it cannot mint
+Enrollment/SCM/TPM authority, accept raw `authValue`, or turn MSI/package
+success into protected readiness. The current zero-argument provisioner
+behavior remains `ExternalProvisioningRequired`/manual-required; no service
+start or readiness claim is added. Keep normal completion blocked and open for
+source, tests, proof, signing, and runtime evidence.
 
 ## Do not select
 

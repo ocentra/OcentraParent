@@ -185,8 +185,8 @@ stable. Internal core behavior must use core-owned unit-test modules under
 constructors public. The two planned Windows tests are:
 
 ```text
-crates/protected-capability-custody-core/src/broker_admission/platform/windows_adapter_test.rs
-crates/protected-capability-custody-core/src/broker_admission/platform/tpm_nv_counter_test.rs
+crates/protected-capability-custody-core/tests/unit/windows_adapter.rs
+crates/protected-capability-custody-core/tests/security/tpm_nv_counter.rs
 ```
 
 Public protocol tests belong to the protocol package; broker process/race/
@@ -207,6 +207,33 @@ dependency cycle merely to reach private state.
 These are downstream source-order relationships only. They do not make any
 consumer runtime-ready and do not remove their existing Account, Device Trust,
 Cloudflare, platform, caller, test, or proof blockers.
+
+## Split ownership routing
+
+WP01 remains the neutral foundation and does not absorb the following owners:
+
+- WP02 owns the external-owner Enrollment/SCM/TPM transaction and its fixed
+  provisioner handoff.
+- WP03 owns the Windows monotonic/anti-rollback provider.
+- WP04 owns the fixed-pipe client admission and retained OS-derived broker
+  anchor.
+- WP05 owns the Account-specific TPM-native ECDSA P-256 v2 issuer signer and
+  Account-owned broker-linked repository owner. Ed25519 v1 remains
+  verification-only for migration/history. WP01's current
+  Seal/Rotate/Revoke/Recover actions and opaque prepared token are not that
+  authority; cross-process SQLite leases are rejected. Family-core retains
+  VerifiedAccountIdentityAuthority, the authority repository/source of truth,
+  and one opaque BEGIN IMMEDIATE host. The existing family-owned handoff
+  contract remains a separate historical/input boundary and is never embedded,
+  re-signed, or duplicated inside P-256 v2.
+
+WP04 is planned/source-authorable only for its bounded fail-closed client
+packet: the WP01 edge is reviewed-implementation and WP02/WP03/Parent WP12
+edges are implementation-independent. Normal derived state remains blocked and
+this does not fabricate WP02/WP03 evidence. WP01 does not mint enrollment,
+monotonic authority, client identity, Account signing, or repository custody,
+and no split row is READY or DONE. WP04 transport alone does not unblock
+Account WP09.
 
 ## Acceptance gates
 

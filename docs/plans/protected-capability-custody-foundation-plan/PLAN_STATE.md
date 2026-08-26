@@ -125,8 +125,8 @@ provider, and real transport caller boundaries. All 13 expected test roots remai
 adapter/TPM test expectations recorded as absent planned tests only:
 
 ```text
-crates/protected-capability-custody-core/src/broker_admission/platform/windows_adapter_test.rs
-crates/protected-capability-custody-core/src/broker_admission/platform/tpm_nv_counter_test.rs
+crates/protected-capability-custody-core/tests/unit/windows_adapter.rs
+crates/protected-capability-custody-core/tests/security/tpm_nv_counter.rs
 ```
 
 Account WP05A, Device Trust WP01/WP03, and Browser WP06 remain blocked
@@ -214,3 +214,95 @@ the broker owns the protected operation; restart/recovery and concurrent
 reservations are covered; and retained proof/checklist/merge evidence is
 current. Until then, keep the state open and report the exact missing adapter
 or caller.
+
+## Routing split — 2026-08-25
+
+WP01 remains the accepted neutral foundation. The graph now separates the
+operational owner work that must follow it:
+
+- **WP02 Windows Enrollment Owner Handoff** is blocked on an external
+  OEM/firmware/MDM owner transaction. It owns the fixed protected
+  Enrollment/SCM/TPM handoff and the provisioner-side package boundary. The
+  current checkout has only fixed constants/read-only preflight, CNG
+  existing-key open, NV public/read/increment for an already-defined object,
+  and Registry/SCM read-only observation. TPM2 NV define/undefine codecs and
+  allowlist, TPM_RH_PLATFORM owner ceremony, protected Registry write/ACL,
+  fixed SCM create/config/security/delete, enrolled generation, and independent
+  observations are absent. TBS/LocalSystem/elevation is not platform owner.
+  WP02 is ACCEPT-for-source-design only; no implementation is authorized until
+  the external owner is available, and no setup field, MSI property, caller
+  identity, or synthetic enrollment result may substitute.
+- **WP03 Monotonic Anti-Rollback Provider** owns the core Windows monotonic
+  provider and platform anti-rollback boundary. WP01 and the WP02 owner
+  transaction remain normal hard prerequisites; disk, SQLite, rollback, and
+  caller counters are not authority.
+- **WP04 Client Broker Anchor Transport** owns the client-side fixed-pipe
+  admission and retained OS-derived broker anchor. Its base lifecycle is
+  planned/source-authorable, and the reviewed WP01 plus
+  implementation-independent WP02/WP03/Parent WP12 edges authorize only the
+  bounded fail-closed source packet. Normal derived state remains blocked and
+  normal completion depends on WP01, WP02, WP03, and Parent WP12. Its source
+  packet is the private Windows `client_anchor` plus
+  client fixed-pipe transport/session, using the existing interprocess
+  PID/session and RAII process/token/image/SCM/enrollment observations. It
+  cannot use sysinfo or caller-supplied identity, and does not redesign the
+  broker/protocol handshake.
+- **WP05 Account Issuer Key and Store Custody** is a planned/source-authorable
+  route for Account WP09. WP01's `Seal`/`Rotate`/`Revoke`/`Recover` protocol
+  actions and opaque prepared token are not signer/store authority. The new
+  Account-owned `crates/account-issuer-owner` is statically linked into the
+  existing broker and absorbs issuer/key-registry/outbox/delivery/startup,
+  recovery, signing, and typed RPC mechanics. The broker mounts it for service
+  lifetime and retains protected signer custody; family-core retains
+  `VerifiedAccountIdentityAuthority`, the authority repository/source of truth,
+  and one opaque `BEGIN IMMEDIATE` transaction/currentness host. The existing
+  family-owned handoff contract remains a separate historical/input boundary
+  and is never embedded, re-signed, or duplicated inside P-256 v2. The owner receives opaque Account-specific
+  transaction and signer capabilities, never raw path, SQL, generic signer,
+  second SQLite connection, or `custody.sqlite` access. WP05 uses the reviewed
+  WP01 edge plus implementation-independent WP02/WP03/WP04 edges, so normal
+  derived state remains blocked.
+
+  The selected issuer is a self-contained TPM-native ECDSA P-256 inner and
+  outer v2: producer ocentra.account-authority-producer.v2, inner domain
+  ocentra.account-authority-producer.signing.v2\\0, audience
+  ocentra.account.authority.v2, algorithm ecdsa-p256-sha256-p1363, outer
+  domain ocentra.account-issuer.transport.v2\\0, service
+  ocentra.account-authority-producer.cloudflare.v2, and
+  sha256:ecdsa-p256:<hex> key IDs derived with a v2 derivation domain. It
+  freezes exact 65-byte SEC1, exact 64-byte low-S P1363, FFI low-S
+  canonicalization, and Rust/Cloudflare high-S rejection. Protocol envelope
+  message kinds 6 and 7 are AccountIssuerRequest and AccountIssuerResponse;
+  they carry the operations IssueCurrentAuthority and AcknowledgeReceipt.
+  Verify remains owner-local and is not a protected protocol message. Ed25519
+  v1 is historical parse/verify only, not a v2 inner-wire wrapper, new signing
+  path, fallback, or downgrade. Family-core retains the authority DTO,
+  VerifiedAccountIdentityAuthority, authority repository/source of truth, the
+  v1 historical verifier, and one opaque BEGIN IMMEDIATE transaction/currentness
+  host. The existing family-owned handoff contract remains a separate
+  historical/input boundary and is never embedded, re-signed, or duplicated
+  inside P-256 v2. Account SQLite owns authoritative
+  key/receipt/outbox state; D1 owns public verifier currentness/CAS and inbound
+  idempotency receipt only.
+
+  Service-specific key custody is REJECT/runtime-blocked: the existing key ACL
+  is SYSTEM GenericAll, SCM exposes only SID type, token observation lacks
+  TokenGroups, and LookupAccountNameW service-SID resolution is absent.
+  External provisioning must create/set the service-specific ACL; the broker
+  only opens and revalidates the descriptor and token/service observations.
+  Caller SDDL/SID and broad SYSTEM/BA authority are forbidden. WP04 owns the
+  shared FFI/core service-SID and TokenGroups observation roots; WP05 owns CNG
+  security-descriptor revalidation. Rust v2 verification uses locked ring
+  0.17.14 ECDSA_P256_SHA256_FIXED over original bytes after explicit low-S
+  precheck; sha2 is only for key-ID hashing, with no new p256/ecdsa dependency.
+  Pinned windows-sys 0.61.2 API availability is implementation-authorization
+  evidence only, not provider, ACL, provisioning, runtime, test, or proof
+  evidence. Unsupported TPM/manual enrollment fails closed. Attestation,
+  rotation, recovery, provider binding, cross-binding lineage
+  (service_binding_id is absent from supersede/newer-row queries), tests,
+  proof, and DONE remain open.
+
+The graph records these as phase-specific implementation routing only. WP02,
+WP03, WP04, WP05, and WP01 remain open for tests, runtime callers, proof, and
+DONE; none of the new rows is READY or DONE. WP04 transport alone does not
+unblock Account WP09.

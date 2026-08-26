@@ -244,8 +244,8 @@ adapter expectations are recorded as absent planned core-private tests only,
 for 13 expected tests total:
 
 ```text
-crates/protected-capability-custody-core/src/broker_admission/platform/windows_adapter_test.rs
-crates/protected-capability-custody-core/src/broker_admission/platform/tpm_nv_counter_test.rs
+crates/protected-capability-custody-core/tests/unit/windows_adapter.rs
+crates/protected-capability-custody-core/tests/security/tpm_nv_counter.rs
 ```
 
 Parent Runtime WP12 separately owns the future package/lifecycle test roots
@@ -268,3 +268,53 @@ The graph may authorize only the remaining implementation phase for installer
 provisioning and caller integration. Normal WP01 state remains validation, and
 READY, PR_READY, tests, proof, merge, and DONE remain unchanged until their own
 evidence exists.
+
+## Routing split addendum — 2026-08-25
+
+This ADR keeps WP01 as the single neutral foundation and routes four distinct
+owners rather than widening the front door:
+
+1. WP02 owns the fixed protected Enrollment/SCM/TPM owner transaction. The
+   external OEM/firmware/MDM prerequisite is not available, so WP02 has no
+   implementation authorization and remains blocked.
+2. WP03 owns the core Windows monotonic provider and platform anti-rollback
+   boundary. Hardware-backed NV currentness remains separate from WP01's
+   existing mechanics and from package or caller state.
+3. WP04 owns the client fixed pipe and retained OS-derived broker anchor. Its
+   base lifecycle is planned/source-authorable for the bounded fail-closed
+   packet: the WP01 edge is reviewed-implementation and WP02/WP03/Parent WP12
+   edges are implementation-independent. Normal derived state and completion
+   remain blocked on those operational dependencies.
+4. WP05 owns Account's protected issuer/repository boundary through a new
+   Account-owned `crates/account-issuer-owner` statically linked into the
+   existing broker. The broker mounts the owner for service lifetime and keeps
+   protected signer custody; family-core retains
+   `VerifiedAccountIdentityAuthority`, the authority repository/source of
+   truth, and one opaque `BEGIN IMMEDIATE` transaction/currentness host. The
+   existing family-owned handoff contract remains a separate historical/input
+   boundary and is never embedded, re-signed, or duplicated inside P-256 v2.
+   The owner receives opaque Account-specific
+   transaction and signer capabilities and must not open a second connection,
+   access `custody.sqlite`, or depend directly on generic lifecycle operation
+   bytes.
+5. The selected issuer is deliberate TPM-native ECDSA P-256 v2. Runtime must
+   check `NCryptIsAlgSupported`/`EnumAlgorithms`, create a unique
+   non-exportable signing-only Platform Crypto Provider key with a
+   service-specific ACL, export `BCRYPT_ECCPUBLIC_BLOB` as canonical 65-byte
+   SEC1, and use `NCryptSignHash` with SHA-256 for exact low-S 64-byte P1363
+   `r||s`. Cloudflare verifies the original canonical message bytes with
+   ECDSA/SHA-256 and never digest/double-hashes. Algorithm-tagged key IDs and
+   schema/D1 v2 fields are required; Ed25519 v1 is verification-only for
+   migration/history. Unsupported TPM/manual enrollment fails closed.
+6. Attestation, rotation, recovery, provider binding, and cross-binding
+   lineage remain open; supersede/newer-row queries currently omit
+   `service_binding_id`. Expected tests, proof, PR readiness, and DONE remain
+   open. No software/wrapped fallback, silent downgrade, mock, no-op, caller
+   authority, or second Account database connection is legal.
+
+The anchor is the retained server process/token/image plus SCM and enrollment
+identity observed through the protected owner. `sysinfo`, path-only data, and
+caller-supplied identity remain non-authoritative. These routing edges are
+phase-specific implementation ordering; none promotes READY, PR_READY, proof,
+or DONE and none creates a second process, protocol, adapter, software-key
+fallback, or authority constructor.

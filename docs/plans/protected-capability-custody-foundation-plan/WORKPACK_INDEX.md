@@ -27,6 +27,20 @@ identity, public proof construction, or fake authority.
 | Status | Workpack | Source boundary | Required proof tier | Open condition |
 | --- | --- | --- | --- | --- |
 | validation / source accepted; runtime and test closure open | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Active fail-closed core, neutral protocol, isolated Windows broker, client, private FFI mechanics, private core Windows adapter, and read-only BIN provisioner preflight at reviewed canonical `a6d7d9adf` (114 implementation files / 0 tests) | P0 security/persistence/platform | External OEM/firmware/MDM `TPM_RH_PLATFORM` + NV lifecycle, authenticated owner handoff, protected registry/SCM mutation, independent current observations, monotonic provider, real transport caller, 13 expected tests, proof, and runtime availability remain absent. |
+| blocked / source-order route only; no implementation authorization while external owner is absent | [02 Windows Enrollment Owner Handoff](workpacks/02-windows-enrollment-owner-handoff.md) | Protected Enrollment/SCM/TPM owner transaction and provisioner handoff | P0 security/platform | External OEM/firmware/MDM authority is a prerequisite. The fixed transaction, owner caller, and two expected test roots are absent; no caller-minted enrollment or READY/DONE route is authorized. |
+| blocked / implementation route remains separate from operational readiness | [03 Monotonic Anti-Rollback Provider](workpacks/03-monotonic-anti-rollback-provider.md) | Core Windows monotonic provider and platform anti-rollback boundary | P0 security/persistence | WP01 and the WP02 owner transaction remain prerequisites. The TPM NV counter test is absent; disk, SQLite, or caller counters cannot substitute for hardware-backed currentness. |
+| planned / bounded source-authorable; normal completion pending operational prerequisites | [04 Client Broker Anchor Transport](workpacks/04-client-broker-anchor-transport.md) | Protected client admission, fixed pipe, and OS-derived broker anchor | P0 security/IPC | WP01/WP02/WP03 and Parent WP12 remain hard completion prerequisites. The implementation-independent edges authorize only the bounded fail-closed source packet; the three transport tests, real owner-bound caller, operational anchor, proof, and DONE remain absent. |
+| planned / bounded source-order route; normal completion dependency-gated | [05 Account Issuer Key and Store Custody](workpacks/05-account-issuer-key-and-store-custody.md) | Account-owned TPM-native ECDSA P-256 v2 self-contained inner/outer issuer owner and typed broker boundary | P0 security/cryptography/persistence | Envelope kinds 6/7 are AccountIssuerRequest/AccountIssuerResponse carrying operations IssueCurrentAuthority/AcknowledgeReceipt; Verify is owner-local. Rust schema is crates/schema/src/account_identity_authority_producer_v2.rs; family retains its existing authority DTO and v1 historical parse/verifier path; v2 has no v1 inner signature. Service-specific ACL is runtime-blocked: external provisioning must create/set it, while broker revalidates only; TokenGroups, LookupAccountNameW service-SID resolution, and CNG security-descriptor revalidation are missing. ring 0.17.14 is the v2 verifier and sha2 is key-ID hashing only; no p256/ecdsa dependency. Tests, proof, provider/ACL/runtime/binding gaps, and DONE remain open.
+
+WP02 has no implementation authorization until the external OEM/firmware/MDM
+owner transaction is available. WP04 and WP05 are planned/source-authorable
+only for their bounded source packets; their implementation-independent edges
+do not alter normal completion, which remains blocked on the operational
+predecessors. WP05 does not open a second Account database connection or merge
+with `custody.sqlite`: the broker mounts the owner for service lifetime and
+retains protected signer custody, family-core retains the Account authority and
+single transaction host, and the owner crate receives opaque Account-specific
+capabilities. No row above is READY or DONE evidence.
 
 ## Ownership and dependency rules
 

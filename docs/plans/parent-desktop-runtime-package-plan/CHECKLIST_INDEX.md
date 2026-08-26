@@ -193,7 +193,9 @@ roots remain mapped only as source inventory.
 - [ ] Elevated installer-only custom-action/provisioner boundary is defined.
 - [ ] Build/release wiring and generated artifact placement are explicit.
 - [ ] Raw `authValue` and caller-supplied authority inputs are rejected by the contract.
-- [ ] Protected WP01 core/FFI authority ownership and opaque handoff are explicit.
+- [ ] Protected WP01 neutral foundation and the WP02/WP03 owner handoffs are
+  explicit; WP12 produces the installed broker/provisioner artifact that WP04
+  later consumes and does not consume or use WP04 source.
 - [ ] Install/repair/upgrade idempotency is defined.
 - [ ] Upgrade rollback preserves TPM generation and fails closed on contradiction.
 - [ ] Uninstall/deprovisioning does not silently remove protected enrollment.
@@ -201,3 +203,21 @@ roots remain mapped only as source inventory.
 - [ ] Required retained proof artifacts are written under the WP12 proof root.
 - [ ] Child-agent installer and setup-journey ownership remain excluded.
 - [ ] No protected readiness, authority, signing, or release claim is made from package success alone.
+- [ ] The zero-argument provisioner remains `ExternalProvisioningRequired`/
+  manual-required; no service-start or readiness claim is introduced.
+- [ ] Normal WP12 completion remains blocked until source, tests, proof, signing,
+  and runtime evidence are present.
+
+## WP12 routing guard — 2026-08-25
+
+- [ ] Package/invocation source is authorable under
+  `scripts/release/windows/parent-protected-custody/` with the named WiX and
+  PowerShell build roots.
+- [ ] Package tests are present under the package test directory and
+  `tests/repo-tooling/parent-protected-custody-package.test.mjs`.
+- [ ] The package invokes only the fixed Protected owner-approved binary and
+  never transports raw `authValue` or caller authority.
+- [ ] Install/repair/upgrade/rollback/uninstall behavior remains separate from
+  protected Enrollment/SCM/TPM ownership and setup completion.
+- [ ] No package success, checksum, signing, or service-registration result is
+  used to claim Protected readiness, Account authority, or DONE.

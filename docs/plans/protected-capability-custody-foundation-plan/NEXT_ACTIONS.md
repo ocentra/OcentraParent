@@ -45,3 +45,61 @@
   success flags.
 - Do not mark the route READY/DONE because the integrated source compiles or the
   graph observes its planned roots.
+
+## Split routing queue — 2026-08-25
+
+1. Keep WP01 as the neutral foundation and retain its fail-closed preflight.
+2. Resolve the external OEM/firmware/MDM owner transaction before authorizing
+   WP02 Windows enrollment source. The fixed Enrollment/SCM/TPM transaction,
+   `tests/unit/windows_adapter.rs`, and
+   `provisioner/tests/integration/owner_handoff.rs` remain
+   open.
+3. Route WP03 only after WP01 and the WP02 owner transaction. Its bounded roots
+   are `core windows/monotonic.rs` and `platform/anti_rollback.rs`; the
+   `tests/security/tpm_nv_counter.rs` obligation remains absent.
+4. Route WP04 as planned/source-authorable for only the fixed-pipe client
+   admission, private `client_anchor`, and retained OS-derived
+   process/token/image/SCM/enrollment observations. Its WP01 edge remains
+   reviewed-implementation; WP02/WP03/Parent WP12 edges are
+   implementation-independent. Normal derived state and completion remain
+   blocked; no sysinfo, caller identity, handshake redesign, or runtime claim
+   is authorized.
+5. Route WP05 as planned/source-authorable for the Account-owned
+   `crates/account-issuer-owner` statically linked into the existing broker.
+   It absorbs issuer/key-registry/outbox/delivery/startup/recovery/signing/RPC
+   mechanics while family-core retains `VerifiedAccountIdentityAuthority`, the
+   authority repository/source of truth, and one opaque `BEGIN IMMEDIATE`
+   transaction/currentness host. The existing family-owned handoff contract
+   remains a separate historical/input boundary and is never embedded,
+   re-signed, or duplicated inside P-256 v2. The broker mounts
+   the owner for service lifetime and retains protected signer custody; the
+   owner receives opaque Account-specific capabilities and never opens a second
+   connection or accesses `custody.sqlite`.
+6. Freeze WP05 source packet 1 before parallel implementation: the
+   self-contained P-256 inner/outer v2 producer, inner/outer domains, audience,
+   service, algorithm-aware `sha256:ecdsa-p256:<hex>` key ID, canonical 65-byte
+   SEC1 public key, exact 64-byte low-S P1363 signature, FFI low-S
+   canonicalization, Rust/Cloudflare high-S rejection,
+   protocol envelope kinds 6/7 are AccountIssuerRequest/AccountIssuerResponse carrying the inner operations IssueCurrentAuthority and AcknowledgeReceipt; Verify remains owner-local and is not a protected protocol message,
+   `Verify`, enrollment metadata, and authority/key-generation binding. Map the
+   exact schema, family producer/parser/envelope, protocol codec, and
+   Cloudflare contract/transport roots; serialize only shared contract/module
+   wiring. Then implement the selected TPM-native P-256 Account issuer shape:
+   runtime `NCryptIsAlgSupported`/`EnumAlgorithms`, unique non-exportable
+   signing-only PCP key with service ACL, canonical 65-byte SEC1 export,
+   exact 64-byte low-S P1363 signature over SHA-256 of original canonical
+   bytes, schema/D1 v2, and Cloudflare original-byte verification without
+   digest/double-hash. Keep Ed25519 v1 historical parse/verify-only; it is not a
+   newly signed inner wire, fallback, or downgrade. Unsupported TPM/manual
+   enrollment fails closed. Attestation, rotation,
+   recovery, provider binding, service-binding lineage, tests, proof, and DONE
+   remain open.
+   Keep service-specific key custody fail-closed: external provisioning must
+   create/set the service ACL, while broker revalidates only. Add the WP04
+   FFI/core TokenGroups and LookupAccountNameW service-SID observation roots
+   and the WP05 CNG security-descriptor revalidation root. Use locked ring
+   0.17.14 ECDSA_P256_SHA256_FIXED after explicit low-S precheck; sha2 is only
+   for key-ID hashing and no p256/ecdsa dependency is permitted.
+7. Keep Parent WP12 installer-only and package-focused. No package success may
+   mint protected authority. Tests, proof, validation, and DONE remain later
+   gates for every split row.

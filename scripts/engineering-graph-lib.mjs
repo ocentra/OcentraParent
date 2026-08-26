@@ -57,10 +57,13 @@ const CODE_EXTENSIONS = new Set([
   '.kt',
   '.kts',
   '.mjs',
+  '.ps1',
   '.rs',
+  '.sql',
   '.swift',
   '.ts',
   '.tsx',
+  '.wxs',
 ]);
 const IGNORED_CODE_DIRECTORIES = new Set([
   '.git',

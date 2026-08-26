@@ -5,10 +5,16 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Current source-consolidation inventory: 2026-08-25, canonical
-`origin/codex/eventing-wp09-production` is `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f`.
-It is not yet promoted to `develop` or `main`, and it has no PR, CI, proof, or
+`origin/codex/eventing-wp09-production` is
+`3d6f32b8023eee90b5f295a4f7853e58fa04422a` (short `3d6f32b8`). It is not yet
+promoted to `develop` or `main`, and it has no PR, CI, proof, or
 pre-commit completion claim. The exact branch/worktree/archive custody and
 promotion state is recorded in `docs/REPOSITORY_CUSTODY_STATUS.md`.
+
+The older `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` source-consolidation
+sections below are historical snapshots unless explicitly superseded by the
+2026-08-25 census. They are retained for custody traceability and are not
+current completion evidence.
 
 ## Completion operating contract - 2026-08-17
 
@@ -38,10 +44,10 @@ The detailed per-workpack gap register is the plan table in this document,
 except for the four large plans whose complete rows live in
 `docs/plans/ai-plan/CODE_AUDIT.md`, `docs/plans/app-plan/CODE_AUDIT.md`,
 `docs/plans/app-game-plan/CODE_AUDIT.md`, and
-`docs/plans/tracking-plan/CODE_AUDIT.md`. The 687-row `graph:matrix` remains the
+`docs/plans/tracking-plan/CODE_AUDIT.md`. The 692-row current `graph:matrix` remains the
 topology/dependency join; it must not overwrite the code-reachability finding.
 
-### Source-consolidation truth refresh — 2026-08-25
+### Historical source-consolidation truth refresh — 2026-08-25 (1abe line)
 
 The accepted source packets are now in canonical source custody, but none is a
 workpack completion claim:
@@ -87,24 +93,24 @@ production/generated files, retained WP06 ownership roots, and four deferred
 test paths are mapped in
 `docs/engineering-graph/code-map.json` and the WP06 workpack.
 
-## Live executable topology matrix - 2026-08-25
+## Canonical executable topology baseline - 2026-08-25
 
 This table is generated from the validated engineering graph and its reviewed
-code map, not from plan checkboxes. The graph currently contains 712 nodes,
-1,266 edges, 24 plans, and 687 workpacks. It maps 3,627 implementation files
-and 1,153 test files: 566 workpacks have both code and tests, 21 are
-source-only, 8 are tests-only, and 92 currently have no source or test files.
-The current matrix records 59 expectation failures, 30 missing expected
-implementation artifacts, and 102 missing expected test artifacts; 217 rows
+code map, not from plan checkboxes. The current canonical graph contains 717
+nodes, 1,298 edges, 24 plans, and 692 workpacks. It maps 3,684 implementation files
+and 1,153 test files: 565 workpacks have both code and tests, 28 are
+source-only, 7 are tests-only, and 92 currently have no source or test files.
+The current matrix records 67 expectation failures, 82 missing expected
+implementation artifacts, and 124 missing expected test artifacts; 217 rows
 have implementation-only source topology without a complete test/completion
 contract. No workpack has unknown ownership. Topology expectations match for
-628/687 workpacks. Derived state is 248 planned, 190 blocked, 4 ready, 4
-active, 240 in validation, and 1 done.
+625/692 workpacks. Derived state is 248 planned, 198 blocked, 4 ready, 4
+active, 237 in validation, and 1 done.
 
 These counts prove file ownership and expected topology only. They do not prove
 that the mapped code is production-reachable, that the tests cover the workpack,
 or that either passes. Only one workpack currently satisfies the complete graph
-contract; 686/687 still lack recorded reviewed completion evidence.
+contract; 691/692 still lack recorded reviewed completion evidence.
 
 Legend: `C+T/S/T/N/U` = code-and-tests / source-only / tests-only / no-source /
 unknown. State counts use `P/B/R/A/V/D` = planned / blocked / ready / active /
@@ -133,12 +139,12 @@ touched plans.
 | Cloudflare control plane | 13 | 9/0/1/3/0 | 45/72 | 0/11/0/0/2/0 | WP04 route/model source is integrated, but route tests are stale and the module dependency tree is empty; Account/Cloudflare producer-consumer roots, tests, authority, proof, migration, deployment, and DONE remain open. |
 | Data custody/storage | 12 | 8/0/0/4/0 | 236/16 | 0/10/1/0/1/0 | WP05 base backup/import source is present and READY for source-only continuation. WP06's Rust plus generated TypeScript custody edge is source-accepted, but no report/query consumer reaches it and its stale/unwritten expected tests remain open. WP09 owns provider/byte capability, WP10 owns restore/producer orchestration, and new WP11 owns the still-missing runtime composition/custody mount; all three have explicit missing code-and-tests roots. WP07 and WP08 remain blocked on the trusted Account/custody chain. Tests, proof, and DONE remain open. |
 | Device trust bootstrap | 9 | 6/0/3/0/0 | 137/36 | 0/8/0/0/1/0 | WP01 retains accepted lifecycle/current-binding source but the runtime-fence participant is withdrawn; WP03 remains blocked with two missing planned owners. Protected custody, migration/retention owners, production callers, expected tests, proof, and completion remain open. |
-| Protected capability custody | 1 | 0/1/0/0/0 | 91/0 | 0/0/0/0/1/0 | Four-package fail-closed source is integrated, but safe Windows adapters, installer/SCM enrollment, caller, 11 tests, proof, and runtime availability remain open. |
+| Protected capability custody | 5 | 0/4/0/0/1 | 159/0 | 0/0/0/0/4/0 | WP01 remains the neutral fail-closed foundation; WP02/WP03 are external-owner/currentness blocked, while WP04/WP05 are bounded source-authorable routes. Safe Windows adapters, installer/SCM enrollment, signer/store provider, callers, expected tests, proof, and runtime availability remain open. |
 | LAN | 26 | 22/1/2/1/0 | 316/63 | 0/1/0/0/25/0 | WP26 is source-only with zero mapped tests and is ordered after Device Trust WP03: it consumes WP01 current binding/revocation and cannot register signer authority locally. |
 | Logging domain parity | 10 | 9/0/0/1/0 | 181/59 | 3/7/0/0/0/0 | Accepted source wave establishes Rust-owned exact 18-key redaction policy and generated TS parity; tests, proof, and external composition remain open. |
 | App | 95 | 87/0/0/8/0 | 246/112 | 0/13/0/0/82/0 | Eight workpacks have no mapped source or tests; remaining compiler/runtime/native gaps stay open. |
 | Network | 8 | 8/0/0/0/0 | 349/88 | 1/6/0/0/1/0 | WP04 remains dependency-blocked despite complete file topology. |
-| Parent desktop/runtime package | 11 | 10/0/0/1/0 | 136/32 | 0/9/0/0/2/0 | Signed package/update/rollback and retained release proof remain open. |
+| Parent desktop/runtime package | 12 | 10/0/0/2/0 | 136/32 | 0/10/0/0/2/0 | WP12 is a bounded installer/package source-authorable route; normal package/protected dependencies, expected tests, signing, runtime, and retained release proof remain open. |
 | Payment/subscription | 13 | 11/0/0/2/0 | 91/53 | 0/11/0/2/0/0 | Accepted source closes caller-minted entitlement, in-memory DO, provider-identity, and pending-recovery defects; Account migration, real issuer/provider authority, and expected tests remain open. |
 | Policy control plane | 8 | 7/0/0/1/0 | 210/46 | 0/6/0/0/2/0 | Six workpacks are blocked on trusted source, Device Trust, delivery owners, or other reviewed dependencies. |
 | Portal UX/household surfaces | 20 | 17/0/1/2/0 | 95/67 | 4/14/0/0/2/0 | One tests-only mismatch; upstream live authority remains absent for several surfaces. |
@@ -153,7 +159,7 @@ touched plans.
 All rows describe the current integration checkout. Git does not encode
 per-plan branch custody; the safe pushed checkpoint and any active local source
 batch are recorded separately in the repository custody status. Use
-`npm run graph:matrix -- --json` for all 687 workpack rows.
+`npm run graph:matrix -- --json` for all 692 current canonical workpack rows.
 
 ## Authoritative production reachability dashboard - 2026-08-16
 
@@ -1417,3 +1423,72 @@ Every plan checklist should retain unchecked rows unless the named workpack has
 all of the following: implementation, focused tests, retained proof artifact,
 and an accepted merge state. A checklist audit may record current code evidence
 and a blocker, but must never turn a code inventory into a completion claim.
+
+## 24-plan actual code/caller/custody census — 2026-08-25
+
+This is the completed plan-level census against canonical
+`70bfa6332322f745bcfb60fb8814534989f9eeca`. `Present`, `partial`, and `absent`
+describe the audited production source/caller and expected-test topology, not
+completion. Renderer/read-model/topology files are not treated as live
+authority. Tests, results, retained proof, checklist closure, PR/CI, and DONE
+remain open for every plan unless separately evidenced later.
+
+| Plan | Production source / caller | Custody, currentness, authority | Expected test source | Graph/audit verdict |
+| --- | --- | --- | --- | --- |
+| Account identity/family | Partial: family/setup helpers, sealed WP08 authority, target-aware WP02, invite/recovery custody, and WP09 issuer/key-registry/outbox core; no complete producer caller. | Partial custody; protected Ed25519 signer, binding authenticator, delivery owner, authenticated current-key handoff, and WP05A coordinator/participants absent. Account also lacks the Protected WP05 broker-owned repository RPC for fixed-path single-connection custody and same-connection authority/key/outbox atomicity. | Partial mapped topology; WP09 seven roots and the consolidated wave absent. | Blocked; source-only WP09 and WP04 transport do not authorize producer runtime. |
+| AI | Partial: local chat/assistant and screen-analysis callers reach a local runner; classifiers/read models exist. | Durable work-item lifecycle, complete custody context, verified provider/model authority, and policy handoff absent. | Partial; accepted contract roots have missing contract/negative/parity tests. | Mixed/incomplete; no plan completion. |
+| App/game | Partial: service runtime captures Windows observations into journal/SQLite/read models. | Compiler/evaluator caller, approval composition, scheduler, child delivery/provider, and authenticated native action owner absent. | Partial; WP197 six exact focused roots absent. | Blocked/incomplete; no legal broad source slice. |
+| App | Partial: service/read models, risk readiness, route/compiler composition, and portal projections reachable. | Live OS/app authority, evaluator runtime, notification/child delivery, durable timer, and native action owner absent. | Partial and open. | Incomplete/manual-required. |
+| Browser | Partial: inventory, unmanaged discovery, CDP target parsing, service events, and portal status reachable; WP06 intentionally unavailable. | Protected profile owner/custody, handle-bound mutation/recovery, real profile caller, owner-bound launch, active-focus authority, intervention delivery, and native receipts absent. | Partial topology but five expected WP06 roots absent; stale/absent downstream integration tests remain open. | Blocked; WP06 safety source is not managed runtime. |
+| Child-agent runtime distribution | Partial: real Rust service startup/recovery and Android Activity/foreground/JNI start/stop path exist. | Event transport, command consumer, verified trust input, health consumer, signed distribution, install/permission ownership, rollback, and release custody absent. | Partial/absent across distribution and delivery workpacks. | Incomplete; service foundation is not distribution completion. |
+| Cloudflare control plane | Partial: Worker routes, Firebase verification, migrations, D1 currentness/CAS, bounded decoder, and WP08 verifier exist. | Account WP09 signer/delivery/runtime, issuer transport/current-key mount, capability/lease/step-up authority, migration/deployment composition absent. | Partial; route tests stale and nine WP06 roots open. | Blocked on Account producer; no runtime/DONE claim. |
+| Data custody/storage | Partial: child durable stores/recovery and WP06 query boundary exist; no report/query consumer. | Default manual-required custody; WP09 provider/byte capability, WP10 restore/producer, WP11 runtime mount, and trusted Account chain absent. | Partial; stale WP06 tests and unwritten contract/test roots remain. | Blocked/incomplete. |
+| Device trust bootstrap | Partial: typed challenge/presence/identity, receipt custody, WP01 binding/currentness and fail-closed lifecycle source exist. | WP03 target-aware authority, parent runtime, native signer, durable counter, Account/Device composition, and LAN handoff absent; WP02 owner route conditional. | Partial mapped source; WP03 runtime/test roots and broader wave absent. | Blocked; no runtime or DONE claim. |
+| Eventing | Partial: shared contracts, journal append/replay, ActivityStore projections, and selected service paths exist. | Generic Eventing does not supply domain policy dispatch, trusted authority, replay/idempotency, or receipt lifecycle for every owner. | Partial; later replay/negative/audit families remain open. | Incomplete/foundational only. |
+| Protected capability custody | Partial/source accepted: WP01 four-package fail-closed core/protocol/broker/client and read-only preflight. | WP02 external owner P0s remain absent; WP03 operational monotonic provider remains absent. WP04 is planned/source-authorable only for bounded fixed-pipe/client-anchor shaping, with normal derived completion blocked. WP05 freezes self-contained TPM-native ECDSA P-256 v2: producer ocentra.account-authority-producer.v2; inner domain ocentra.account-authority-producer.signing.v2\\0; audience ocentra.account.authority.v2; algorithm ecdsa-p256-sha256-p1363; outer domain ocentra.account-issuer.transport.v2\\0; service ocentra.account-authority-producer.cloudflare.v2; algorithm-aware sha256:ecdsa-p256:<hex> IDs; canonical 65-byte SEC1; exact low-S 64-byte P1363. Protocol envelope kinds 6/7 are AccountIssuerRequest/AccountIssuerResponse carrying IssueCurrentAuthority/AcknowledgeReceipt operations; Verify is owner-local. Rust schema is crates/schema/src/account_identity_authority_producer_v2.rs; family retains its existing authority DTO and v1 historical parse/verifier path, not a v1 inner signature inside v2. Service-specific key custody is runtime-blocked: existing ACL is SYSTEM GenericAll, SCM has SID type only, TokenGroups and LookupAccountNameW service-SID resolution are absent; external provisioning creates/sets ACL and broker only revalidates. WP04 maps shared FFI/core observations and WP05 maps CNG descriptor revalidation. ring 0.17.14 verifies original bytes after explicit low-S precheck; sha2 is only for key-ID hashing; no p256/ecdsa dependency. Account SQLite remains authoritative key/receipt/outbox custody; D1 owns public currentness/CAS and inbound idempotency receipt only. Ed25519 v1 is verification-only history; unsupported TPM/manual enrollment fails closed. Attestation, rotation, recovery, provider binding, service-binding lineage repair, tests, proof, and DONE remain open. | Partial map, absent execution: WP01 source accepted; WP02-04 split roots, WP05 Rust schema/owner/protocol/client/broker/FFI/facade/Cloudflare v2 roots, and the D1 .sql root are mapped, but implementation and expected tests remain absent. | WP01 validation; WP02 operationally blocked/no source authorization; WP04/WP05 source-authorable only with normal derived state blocked; no READY/DONE. |
+| LAN | Partial: discovery/pairing commands and parent read paths produce bounded observations/fail-closed state. | Signed child beacon ingress, durable receipt/idempotency, route composition, Eventing authority handoff, and physical proof absent. | Partial and open. | Blocked downstream of Account/Device. |
+| Logging domain parity | Partial: Rust markers/fields and centralized redaction with generated TS consumption are reachable. | External composition, enforcement instrumentation, durable audit custody, abuse/lifecycle execution absent. | Partial; tests/proof deferred. | Incomplete; observability is not authority. |
+| Network | Partial: discovery adapters/read models and runtime-delivery results preserve bounded visibility. | Fabricated caller/pipeline removed; analyzer-policy handoff, blocking adapter, durable rule authority, and provider execution absent. | Partial/open; stale caller tests must not bless removed APIs. | Fail-honest incomplete. |
+| Parent desktop/runtime package | Partial: Tauri route commands and provisioning/install-state contracts reachable. | Signed package/build/update/rollback, integrity verification, installer distribution, and release callers absent; WP12 package source absent. | Partial/open; WP12 package test roots absent. | Blocked on distribution/runtime ownership. |
+| Payment/subscription | Partial: billing routes/read models reach provider mapping, retry/outbox, receipts/CAS, and stale-cursor paths; output unsigned. | Account migration and genuine provider/entitlement issuer-verifier authority absent. | Partial/open. | Source accepted but dependency/manual-required. |
+| Policy control plane | Partial: Rust policy contracts, validator/compiler shapes, decisions/read models, and service guards exist. | Source authority caller-supplied; registration, compiler caller, active policy source, delivery, rollback, and trusted confirmation authority absent. | Partial/open. | Contract-drafted and blocked. |
+| Portal UX/household surfaces | Partial/projection: portal renders snapshots and sends typed parent intents. | Portal owns no Account, child, custody, policy, notification, or native execution authority; upstream callers absent. | Partial mapped source with open missing/absent roots. | Projection-only/incomplete. |
+| Remote access | Partial: typed capability/status boundaries and local read models exist. | Authenticated relay/session owner, durable authorization, provider, and remote execution absent. | Partial/open. | Blocked/manual-required. |
+| Screen AI pipeline | Partial: capture/startup, encrypted queue, local adapter, ActivityStore summaries, and portal status reachable. | Policy resolver/handoff, canonical AI routing, durable replay/custody-negative enforcement, and trusted decision source absent. | Partial/open; fail-closed test rewrite remains. | Incomplete/fail-honest. |
+| Screen | Partial: desktop capture, Android MediaProjection entrypoint, encrypted image queue, deletion/read models, and portal settings/status reachable. | Unified platform capability/permission owner, real OCR/VLM composition, policy authority, child disclosure/live view, and complete custody lifecycle absent. | Partial/absent by cohort; WP31 caller and WP38 durable scheduler gaps remain. | Incomplete/manual-required. |
+| Setup/install/provisioning | Partial: WP07 Start-route source exposes manual-required owner inputs and canonical LAN-command classification. | Authenticated account/session/household, signed packages, child/device trust, pairing, custody sync, policy, network, and recovery aggregation absent. | Partial/open. | Blocked/manual-required. |
+| Tracking | Partial: typed config/check-in/geofence flows, ActivityStore/portal models, and process-local cascades exist. | No shipped caller connects child flow to durable ActivityJournal/ActivityStore; WP40 composition and notifications/providers/UI remain open. | Partial/open. | Incomplete; WP40 remains source-order owner. |
+| V0.8 enforcement | Partial: agent-service dispatch and Windows session-validated PID/name time-limit path reach a narrow manual-required adapter. | Trusted policy refs, authenticated native adapter/grant, durable journal, managed-browser action, broad execution, rollback, and receipt custody absent. | Partial/open; enforcement-specific expected tests/proof remain. | Fail-honest narrow source only; plan blocked/manual-required. |
+
+### Accepted narrow source references without completion claims
+
+- Eventing narrow source fixes: `c4fe07f99`, `8f30ae565`, `71b90ec66`, and
+  `1d3211d09`.
+- Browser narrow source correction: `3df242947`.
+- Enforcement narrow source fixes: `70bfa6332`.
+
+These references record accepted source custody only. They do not imply tests,
+results, proof, runtime reachability, PR/CI, READY, or DONE.
+
+### Browser claims superseded by the current census
+
+The current Browser source audit supersedes stale wording as follows: WP06 has
+no protected owner/caller and five expected tests are absent; WP07 lacks
+`managed_runtime`/integration; WP09 lacks launch-target binding/integration;
+WP11 remains `Unknown`/`TargetListOnly`; WP20 has no OS provider; WP21 is
+validator-only; and WP22 has no live producer. These are current blockers, not
+completion claims.
+
+### Current Screen and Enforcement plan-level gaps
+
+Screen has reachable capture/queue/read-model surfaces but no unified trusted
+capability/permission owner, non-AI Screen-owned capture ingress/currentness,
+real OCR/VLM and policy composition, child disclosure/live view, or complete
+durable custody. WP31 source/tests are present without a production caller;
+WP38 has an in-memory scheduler with real AI/assistant callers but no
+Screen-owned durable source; WP32/WP33 and platform/provider roots remain
+open. Enforcement has a narrow agent-service dispatch/time-limit path and
+manual-required generic adapters, but no trusted policy decision refs,
+authenticated native grant, durable dispatch journal, real managed-browser
+action, rollback, or receipt custody. Both plans keep tests/results/proof/DONE
+open.
