@@ -55,7 +55,7 @@ pub(super) fn serve(
         fresh_session_id,
     )?;
 
-    let broker_identity = current_process_identity()?;
+    let broker_identity = current_process_identity(custody)?;
     let session = BrokerSessionAuthority::generate(
         broker_identity,
         unix_now_millis()?,

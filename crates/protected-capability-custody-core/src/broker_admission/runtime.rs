@@ -14,6 +14,9 @@ use super::{
     BrokerRuntimeError,
 };
 
+#[cfg(windows)]
+use super::BrokerProcessIdentity;
+
 impl BrokerProcessAdmission {
     #[cfg(windows)]
     fn for_current_process() -> Result<Self, BrokerRuntimeError> {
@@ -146,6 +149,19 @@ impl BrokerCustodyRuntime {
         {
             Err(BrokerRuntimeError::Unavailable)
         }
+    }
+
+    #[cfg(windows)]
+    pub fn broker_process_identity(&self) -> Result<BrokerProcessIdentity, BrokerRuntimeError> {
+        let (process_id, process_epoch, session_id) = self
+            .windows
+            .broker_process_identity()
+            .map_err(error_status::platform)?;
+        Ok(BrokerProcessIdentity::new(
+            process_id,
+            process_epoch,
+            session_id,
+        ))
     }
 
     /// Revalidates the one pinned peer observation against immutable

@@ -1,5 +1,7 @@
 mod io;
+#[path = "windows_ipc/peer.rs"]
 mod peer;
+#[path = "windows_ipc/service.rs"]
 mod service;
 mod service_accept;
 mod service_control;

@@ -4,7 +4,6 @@ use ocentra_protected_capability_custody_core::broker_admission::BrokerPlatformS
 use ocentra_protected_capability_custody_protocol::constants::SESSION_TTL_MILLIS;
 use ocentra_protected_capability_custody_protocol::handshake::BrokerSessionWireValues;
 use ocentra_protected_capability_custody_protocol::types::{Nonce, SessionHandle};
-use sysinfo::{Pid, System};
 
 use crate::BrokerError;
 
@@ -52,31 +51,15 @@ impl BrokerSessionAuthority {
     }
 }
 
-pub(crate) fn current_process_identity() -> Result<ProcessIdentity, BrokerError> {
-    let process_id = std::process::id();
-    process_identity(process_id)
-}
-
-fn process_identity(process_id: u32) -> Result<ProcessIdentity, BrokerError> {
-    if process_id == 0 {
-        return Err(BrokerError::PeerAuthentication);
-    }
-    let system = System::new_all();
-    let process = system
-        .process(Pid::from_u32(process_id))
-        .ok_or(BrokerError::PeerAuthentication)?;
-    let process_epoch = process.start_time();
-    let session_id = process
-        .session_id()
-        .map(Pid::as_u32)
-        .ok_or(BrokerError::PeerAuthentication)?;
-    if process_epoch == 0 {
-        return Err(BrokerError::PeerAuthentication);
-    }
+#[cfg(windows)]
+pub(crate) fn current_process_identity(
+    custody: &crate::custody::BrokerCustodyService,
+) -> Result<ProcessIdentity, BrokerError> {
+    let observed = custody.current_process_identity()?;
     Ok(ProcessIdentity {
-        process_id,
-        process_epoch,
-        session_id,
+        process_id: observed.process_id(),
+        process_epoch: observed.process_epoch(),
+        session_id: observed.session_id(),
     })
 }
 

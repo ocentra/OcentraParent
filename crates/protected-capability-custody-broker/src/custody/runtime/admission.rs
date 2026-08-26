@@ -1,6 +1,6 @@
 use ocentra_protected_capability_custody_core::broker_admission::{
     BrokerAuthorizedClientTranscript, BrokerCustodyRuntime, BrokerPeerAdmissionObservation,
-    BrokerRuntimeError,
+    BrokerProcessIdentity, BrokerRuntimeError,
 };
 use ocentra_protected_capability_custody_protocol::bootstrap::BootstrapPacket;
 use ocentra_protected_capability_custody_protocol::handshake::UntrustedClientHello;
@@ -68,6 +68,14 @@ impl RuntimeState {
     pub(crate) fn peer_admission_available(&self) -> Result<(), crate::BrokerError> {
         self.ready_runtime()?
             .peer_admission_available()
+            .map_err(map_peer_error)
+    }
+
+    pub(crate) fn current_process_identity(
+        &self,
+    ) -> Result<BrokerProcessIdentity, crate::BrokerError> {
+        self.ready_runtime()?
+            .broker_process_identity()
             .map_err(map_peer_error)
     }
 

@@ -1,3 +1,5 @@
+#[cfg(windows)]
+use ocentra_protected_capability_custody_core::broker_admission::BrokerProcessIdentity;
 use ocentra_protected_capability_custody_core::broker_admission::{
     BrokerAuthorizedClientTranscript, BrokerPeerAdmissionObservation, BrokerPlatformSessionState,
 };
@@ -81,6 +83,11 @@ impl BrokerCustodyService {
     #[cfg(windows)]
     pub(crate) fn peer_admission_available(&self) -> Result<(), BrokerError> {
         self.state.peer_admission_available()
+    }
+
+    #[cfg(windows)]
+    pub(crate) fn current_process_identity(&self) -> Result<BrokerProcessIdentity, BrokerError> {
+        self.state.current_process_identity()
     }
 
     pub(crate) fn execute(
