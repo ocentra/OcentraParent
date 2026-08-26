@@ -51,8 +51,13 @@ Its rows authorize implementation-source edits only. Normal READY, tests,
 proof, PR readiness, service activation, and DONE remain unchanged. An existing
 dependency edge still requires DONE unless that one reviewed edge opts into
 `implementationGate: "reviewed-implementation"` and its predecessor has exact
-reviewed implementation evidence. No dependency edge is opted in merely because
-source files exist.
+reviewed implementation evidence. A reviewed edge may instead use
+`implementationGate: "implementation-independent"` when the downstream source
+slice is independently authorable; the normal graph remains completion-gated,
+missing dependencies still fail closed, and phase output records the
+predecessor as an implementation-independent dependency with
+`normalGate: "done"`. No dependency edge is opted in merely because source
+files exist.
 
 It reports all 23 plans and 681 workpack rows, with graph-derived workpack
 state alongside live implementation/test topology under reviewed plan roots.

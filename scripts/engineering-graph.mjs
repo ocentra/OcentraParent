@@ -120,6 +120,15 @@ function implementationBlockerText(blocker) {
   return blocker.reason ?? `${blocker.kind} blocker`;
 }
 
+function implementationIndependentDependencyText(dependencies) {
+  return (dependencies ?? [])
+    .map(
+      (dependency) =>
+        `${dependency.id}[${dependency.state}] gate=${dependency.gate} normalGate=${dependency.normalGate}`
+    )
+    .join(',');
+}
+
 function printImplementationRows(rows, { limit = Number.POSITIVE_INFINITY } = {}) {
   if (rows.length === 0) {
     console.log('(none)');
@@ -127,7 +136,11 @@ function printImplementationRows(rows, { limit = Number.POSITIVE_INFINITY } = {}
   }
   for (const row of rows.slice(0, limit)) {
     const gaps = row.authorization?.gaps?.length ? ` gaps=${row.authorization.gaps.join('; ')}` : '';
-    console.log(`${row.node.id} [IMPLEMENTATION-ONLY] ${row.node.title}${gaps}`);
+    const independentDependencies = implementationIndependentDependencyText(
+      row.authorization?.implementationIndependentDependencies
+    );
+    const independent = independentDependencies ? ` independentDeps=${independentDependencies}` : '';
+    console.log(`${row.node.id} [IMPLEMENTATION-ONLY] ${row.node.title}${independent}${gaps}`);
   }
   if (rows.length > limit) console.log(`... ${rows.length - limit} more; scope or use a focused command.`);
 }
@@ -290,6 +303,9 @@ async function run(command, args) {
       );
       for (const workpack of exceptions.slice(0, 8)) {
         const gaps = workpack.completionContract.gaps.length ? ` gaps=${workpack.completionContract.gaps.length}` : '';
+        const independentDependencies = implementationIndependentDependencyText(
+          workpack.implementationIndependentDependencies
+        );
         const topology =
           typeof workpack.codeTestTopology === 'string'
             ? workpack.codeTestTopology
@@ -299,7 +315,8 @@ async function run(command, args) {
               `workspaceGaps=${workpack.codeTestTopology.workspaceRequirementGaps?.length ?? 0}`;
         console.log(
           `  - ${workpack.id} [${workpack.state}] code=${topology} ` +
-            `implementation=${workpack.implementationAuthorization.status}${gaps}`
+            `implementation=${workpack.implementationAuthorization.status}` +
+            `${independentDependencies ? ` independentDeps=${independentDependencies}` : ''}${gaps}`
         );
       }
       if (exceptions.length > 8) console.log(`  - ... ${exceptions.length - 8} more non-planned rows`);
@@ -346,7 +363,7 @@ async function run(command, args) {
     }
     console.log('\nWorkpack matrix:');
     console.log(
-      'PLAN | WORKPACK | STATE | IMPLEMENTATION AUTH | IMPLEMENTATION BLOCKERS | CODE/TEST | GAPS | DEPENDS ON | BLOCKERS | UNLOCKS'
+      'PLAN | WORKPACK | STATE | IMPLEMENTATION AUTH | IMPLEMENTATION BLOCKERS | IMPLEMENTATION-INDEPENDENT DEPS | CODE/TEST | GAPS | DEPENDS ON | BLOCKERS | UNLOCKS'
     );
     for (const row of rows) {
       const topology =
@@ -356,9 +373,11 @@ async function run(command, args) {
             `expected=${row.codeExpectation} satisfied=${row.codeExpectationSatisfied}`;
       const blockerText = row.blockers.map((blocker) => `${blocker.id}[${blocker.state}]`).join(',') || '-';
       const implementationBlockers = row.implementationBlockers.map(implementationBlockerText).join(',') || '-';
+      const independentDependencies =
+        implementationIndependentDependencyText(row.implementationIndependentDependencies) || '-';
       console.log(
         `${row.planId} | ${row.workpackId} | ${row.state} | ${row.implementationAuthorization} | ` +
-          `${implementationBlockers} | ${topology} | ${row.completionGapCount} | ` +
+          `${implementationBlockers} | ${independentDependencies} | ${topology} | ${row.completionGapCount} | ` +
           `${row.dependsOn.join(',') || '-'} | ${blockerText} | ${row.unlocks.join(',') || '-'}`
       );
     }
@@ -478,6 +497,14 @@ async function run(command, args) {
       if (phase === 'implementation') {
         const explanation = await implementationPhase.explain(graph, scope, { root });
         console.log(`${scope} implementation phase is ${explanation.status}.`);
+        const independentDependencies = implementationIndependentDependencyText(
+          explanation.implementationIndependentDependencies
+        );
+        if (independentDependencies) {
+          console.log(
+            `- implementation-independent dependencies (not implementation blockers; normalGate=done): ${independentDependencies}`
+          );
+        }
         if (explanation.authorized) {
           console.log(
             '- IMPLEMENTATION-ONLY source edits are authorized; normal READY and completion remain unchanged.'
