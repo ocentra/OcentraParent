@@ -93,4 +93,40 @@ pub(crate) const SESSION_SCHEMA_SQL: &str =
               OR (delivery_state = 'delivered' AND delivery_attempt_id IS NULL
                   AND delivery_claimed_at_epoch_millis IS NULL
                   AND delivered_at_epoch_millis >= occurred_at_epoch_millis))
-     ) STRICT;";
+     ) STRICT;
+     CREATE TABLE IF NOT EXISTS account_identity_parent_local_bridge_session (
+         capability_digest TEXT NOT NULL PRIMARY KEY
+           CHECK (length(capability_digest) = 64
+             AND capability_digest NOT GLOB '*[^0-9a-f]*'),
+         digest_algorithm TEXT NOT NULL CHECK (digest_algorithm = 'sha256'),
+         capability_digest_domain TEXT NOT NULL CHECK (
+             capability_digest_domain = 'ocentra-account-parent-local-bridge-capability-v1'
+         ),
+         audience TEXT NOT NULL CHECK (audience = 'parent-desktop-agent-service'),
+         connection_nonce_digest TEXT NOT NULL
+           CHECK (length(connection_nonce_digest) = 64
+             AND connection_nonce_digest NOT GLOB '*[^0-9a-f]*'),
+         account_id TEXT NOT NULL CHECK (length(trim(account_id)) > 0),
+         provider TEXT NOT NULL CHECK (provider IN ('authjs','firebase')),
+         provider_subject TEXT NOT NULL CHECK (length(trim(provider_subject)) > 0),
+         household_id TEXT NOT NULL CHECK (length(trim(household_id)) > 0),
+         member_id TEXT NOT NULL CHECK (length(trim(member_id)) > 0),
+         device_id TEXT NOT NULL CHECK (length(trim(device_id)) > 0),
+         authority_session_id TEXT NOT NULL CHECK (length(trim(authority_session_id)) > 0),
+         authority_session_generation INTEGER NOT NULL CHECK (authority_session_generation > 0),
+         authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
+         authority_expires_at_epoch_millis INTEGER NOT NULL
+           CHECK (authority_expires_at_epoch_millis > 0),
+         issued_at_epoch_millis INTEGER NOT NULL CHECK (issued_at_epoch_millis > 0),
+         expires_at_epoch_millis INTEGER NOT NULL
+           CHECK (expires_at_epoch_millis > issued_at_epoch_millis
+             AND expires_at_epoch_millis <= authority_expires_at_epoch_millis),
+         global_revoke_epoch INTEGER NOT NULL CHECK (global_revoke_epoch > 0),
+         state TEXT NOT NULL CHECK (state IN ('active','consumed','revoked')),
+         last_transition_at_epoch_millis INTEGER NOT NULL,
+         CHECK (last_transition_at_epoch_millis >= issued_at_epoch_millis),
+         CHECK ((state = 'active' AND last_transition_at_epoch_millis = issued_at_epoch_millis)
+             OR (state != 'active' AND last_transition_at_epoch_millis > issued_at_epoch_millis))
+     ) STRICT;
+     CREATE INDEX IF NOT EXISTS account_identity_parent_local_bridge_account
+       ON account_identity_parent_local_bridge_session(account_id);";

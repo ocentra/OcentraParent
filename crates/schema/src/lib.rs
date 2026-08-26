@@ -24,6 +24,7 @@ pub mod account_identity_authority;
 pub mod account_identity_authority_producer;
 pub mod account_identity_authority_producer_v2;
 pub mod account_identity_authority_ts;
+pub mod account_identity_parent_local_bridge;
 pub mod activity_event_kind_ts;
 pub mod app_game_preview_source_freshness;
 pub mod app_game_preview_source_freshness_ts;
