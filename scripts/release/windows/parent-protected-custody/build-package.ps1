@@ -20,6 +20,9 @@ Set-StrictMode -Version Latest
 
 $helperRoot = (Resolve-Path -LiteralPath $PSScriptRoot).Path
 . (Join-Path $helperRoot 'package-inputs.ps1')
+. (Join-Path $helperRoot 'package-path-safety.ps1')
+. (Join-Path $helperRoot 'package-publication.ps1')
+. (Join-Path $helperRoot 'wix-extension.ps1')
 . (Join-Path $helperRoot 'msi-validation.ps1')
 
 $repoRoot = [System.IO.Path]::GetFullPath($RepoRoot).TrimEnd('\')
@@ -30,21 +33,20 @@ $manifestPath = $null
 $msiPath = $null
 $checksumPath = $null
 $wixIntermediateRoot = $null
-$success = $false
-$cleanupPaths = [System.Collections.Generic.List[string]]::new()
+$stagingRoot = $null
+$backupRoot = $null
 
 try {
     if (-not (Test-Path -LiteralPath $repoRoot -PathType Container)) {
         throw "Repository root '$repoRoot' is not a directory; refusing to package."
     }
+    Assert-NoPackageReparseChain -Path $repoRoot -Description 'Repository root'
     if (-not (Test-Path -LiteralPath $orchestratorPath -PathType Leaf)) {
         throw "Package orchestrator '$orchestratorPath' is absent; refusing to package."
     }
-    if (-not (Test-Path -LiteralPath $packageRoot -PathType Container)) {
-        New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
-    }
+    New-SafePackageDirectory -Path $packageRoot -Root $repoRoot -Description 'Repository package root' | Out-Null
     $outputRoot = [System.IO.Path]::GetFullPath($OutputRoot).TrimEnd('\')
-    $outputRoot = Resolve-UnderRoot -Path $outputRoot -Root $packageRoot -Description 'OutputRoot'
+    $outputRoot = Assert-PhysicalPackagePathUnderRoot -Path $outputRoot -Root $packageRoot -Description 'OutputRoot'
     if ($outputRoot.Equals([System.IO.Path]::GetFullPath($packageRoot).TrimEnd('\'), [System.StringComparison]::OrdinalIgnoreCase)) {
         throw "OutputRoot must identify a package-specific child under '$packageRoot'."
     }
@@ -52,12 +54,27 @@ try {
     $wixSourcePath = Join-Path $repoRoot 'scripts\release\windows\parent-protected-custody.wxs'
     $validationHelperPath = Join-Path $helperRoot 'msi-validation.ps1'
     $inputsHelperPath = Join-Path $helperRoot 'package-inputs.ps1'
+    $pathSafetyHelperPath = Join-Path $helperRoot 'package-path-safety.ps1'
+    $publicationHelperPath = Join-Path $helperRoot 'package-publication.ps1'
+    $wixExtensionHelperPath = Join-Path $helperRoot 'wix-extension.ps1'
+    $msiContractHelperPath = Join-Path $helperRoot 'msi-contract.ps1'
     $helperPath = Join-Path $helperRoot 'build-package.ps1'
-    foreach ($sourcePath in @($wixSourcePath, $orchestratorPath, $helperPath, $validationHelperPath, $inputsHelperPath)) {
+    $packageSourcePaths = @(
+        $wixSourcePath,
+        $orchestratorPath,
+        $helperPath,
+        $validationHelperPath,
+        $inputsHelperPath,
+        $pathSafetyHelperPath,
+        $publicationHelperPath,
+        $wixExtensionHelperPath,
+        $msiContractHelperPath
+    )
+    foreach ($sourcePath in $packageSourcePaths) {
         if (-not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
             throw "Required package source '$sourcePath' is absent; refusing to package."
         }
-        Resolve-UnderRoot -Path $sourcePath -Root $repoRoot -Description 'Package source' | Out-Null
+        Assert-PhysicalPackagePathUnderRoot -Path $sourcePath -Root $repoRoot -Description 'Package source' | Out-Null
     }
 
     if (-not [string]::IsNullOrWhiteSpace($Version) -and $Version -notmatch '^\d+\.\d+\.\d+$') {
@@ -74,7 +91,7 @@ try {
         if (-not (Test-Path -LiteralPath $anchoredInput -PathType Leaf)) {
             throw "Required repository-anchored input '$anchoredInput' is absent; refusing to package."
         }
-        Resolve-UnderRoot -Path $anchoredInput -Root $repoRoot -Description 'Build input' | Out-Null
+        Assert-PhysicalPackagePathUnderRoot -Path $anchoredInput -Root $repoRoot -Description 'Build input' | Out-Null
     }
 
     Push-Location $repoRoot
@@ -107,32 +124,26 @@ try {
     }
     $productCode = Get-DeterministicGuid -Seed "ocentra-parent-protected-custody/msi/$Version"
 
-    $wixIntermediateRoot = Join-Path $outputRoot 'wix-obj'
-    $msiPath = Join-Path $outputRoot "ocentra-parent-protected-custody-$Version-x64.msi"
-    $checksumPath = "$msiPath.sha256"
-    $manifestPath = Join-Path $outputRoot "ocentra-parent-protected-custody-$Version-x64.manifest.json"
+    $publicationLayout = New-PackagePublicationLayout -PackageRoot $packageRoot -OutputRoot $outputRoot
+    $stagingRoot = $publicationLayout.StagingRoot
+    $backupRoot = $publicationLayout.BackupRoot
+    $msiFileName = "ocentra-parent-protected-custody-$Version-x64.msi"
+    $checksumFileName = "$msiFileName.sha256"
+    $manifestFileName = "ocentra-parent-protected-custody-$Version-x64.manifest.json"
+    $artifactNames = @($msiFileName, $checksumFileName, $manifestFileName)
+    $wixIntermediateRoot = Join-Path $stagingRoot 'wix-obj'
+    $msiPath = Join-Path $stagingRoot $msiFileName
+    $checksumPath = Join-Path $stagingRoot $checksumFileName
+    $manifestPath = Join-Path $stagingRoot $manifestFileName
     $firstMsiPath = Join-Path $wixIntermediateRoot 'candidate-a.msi'
     $secondMsiPath = Join-Path $wixIntermediateRoot 'candidate-b.msi'
     $firstIntermediatePath = Join-Path $wixIntermediateRoot 'candidate-a'
     $secondIntermediatePath = Join-Path $wixIntermediateRoot 'candidate-b'
     $finalValidationPath = Join-Path $wixIntermediateRoot 'final'
-    $cleanupPaths.Add($wixIntermediateRoot)
-    foreach ($knownGeneratedPath in @(
-            "$firstMsiPath.cfb-normalized.tmp",
-            "$firstMsiPath.cfb-normalized.bak",
-            "$secondMsiPath.cfb-normalized.tmp",
-            "$secondMsiPath.cfb-normalized.bak",
-            "$msiPath.cfb-normalized.tmp",
-            "$msiPath.cfb-normalized.bak"
-        )) {
-        $cleanupPaths.Add($knownGeneratedPath)
+    New-SafePackageDirectory -Path $wixIntermediateRoot -Root $packageRoot -Description 'WiX intermediate root' | Out-Null
+    foreach ($stagedLeafPath in @($msiPath, $checksumPath, $manifestPath, $firstMsiPath, $secondMsiPath)) {
+        Assert-SafePackageLeafPath -Path $stagedLeafPath -Root $packageRoot -Description 'Staged package file' | Out-Null
     }
-
-    New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
-    foreach ($knownGeneratedPath in @($wixIntermediateRoot, $msiPath, $checksumPath, $manifestPath)) {
-        Remove-ExactPath -Path $knownGeneratedPath
-    }
-    New-Item -ItemType Directory -Path $wixIntermediateRoot -Force | Out-Null
 
     Push-Location $repoRoot
     try {
@@ -159,23 +170,11 @@ try {
         $helperHash = Get-Sha256Hex -Path $helperPath
         $validationHelperHash = Get-Sha256Hex -Path $validationHelperPath
         $inputsHelperHash = Get-Sha256Hex -Path $inputsHelperPath
+        $pathSafetyHelperHash = Get-Sha256Hex -Path $pathSafetyHelperPath
+        $publicationHelperHash = Get-Sha256Hex -Path $publicationHelperPath
+        $wixExtensionHelperHash = Get-Sha256Hex -Path $wixExtensionHelperPath
+        $msiContractHelperHash = Get-Sha256Hex -Path $msiContractHelperPath
         $packageCode = Get-DeterministicGuid -Seed "ocentra-parent-protected-custody/package/$Version/$brokerHash/$provisionerHash/$wixSourceHash"
-
-        function Get-WixUtilExtensionVersions {
-            $extensionOutput = @(& $dotnetCommand wix extension list 2>&1)
-            if ($LASTEXITCODE -ne 0) {
-                throw 'Pinned WiX extension listing failed; refusing to package.'
-            }
-            $utilLines = @($extensionOutput | ForEach-Object { [string]$_ } | Where-Object { $_ -match '(?i)WixToolset\.Util\.wixext' })
-            $versions = [System.Collections.Generic.List[string]]::new()
-            foreach ($utilLine in $utilLines) {
-                if ($utilLine -notmatch '^\s*WixToolset\.Util\.wixext\s+(?<version>\d+\.\d+\.\d+)\s*$') {
-                    throw "Pinned WiX extension listing has an unparseable Util row '$utilLine'; refusing to accept a prefix or unanchored version."
-                }
-                $versions.Add($Matches['version'])
-            }
-            return @($versions)
-        }
 
         Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @(
             'tool',
@@ -184,23 +183,7 @@ try {
             $dotnetToolManifestPath
         ) -FailureMessage 'Pinned WiX dotnet tool restore failed'
 
-        $extensionVersions = @(Get-WixUtilExtensionVersions)
-        if ($extensionVersions.Count -eq 1 -and $extensionVersions[0] -ceq '6.0.2') {
-            # Exact anchored match is already present.
-        } elseif ($extensionVersions.Count -gt 0) {
-            throw "Pinned WiX Util extension versions '$($extensionVersions -join ', ')' do not equal the required exact version 6.0.2; refusing to continue."
-        } else {
-            Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @(
-                'wix',
-                'extension',
-                'add',
-                'WixToolset.Util.wixext/6.0.2'
-            ) -FailureMessage 'WiX Util extension installation failed'
-            $postAddVersions = @(Get-WixUtilExtensionVersions)
-            if ($postAddVersions.Count -ne 1 -or $postAddVersions[0] -cne '6.0.2') {
-                throw "Post-add WiX Util extension verification found '$($postAddVersions -join ', ')', not exactly 6.0.2; refusing to package."
-            }
-        }
+        Install-ExactWixUtilExtension -DotnetCommand $dotnetCommand
 
         function Invoke-WixCandidateBuild {
             param(
@@ -211,7 +194,8 @@ try {
                 [string]$CandidateIntermediatePath
             )
 
-            New-Item -ItemType Directory -Path $CandidateIntermediatePath -Force | Out-Null
+            New-SafePackageDirectory -Path $CandidateIntermediatePath -Root $packageRoot -Description 'WiX candidate intermediate' | Out-Null
+            Assert-SafePackageLeafPath -Path $CandidateMsiPath -Root $packageRoot -Description 'WiX candidate MSI' | Out-Null
             Invoke-CheckedCommand -Command $dotnetCommand -ArgumentList @(
                 'wix',
                 'build',
@@ -350,6 +334,14 @@ try {
                 validationHelperSha256 = $validationHelperHash
                 inputsHelper = 'scripts/release/windows/parent-protected-custody/package-inputs.ps1'
                 inputsHelperSha256 = $inputsHelperHash
+                pathSafetyHelper = 'scripts/release/windows/parent-protected-custody/package-path-safety.ps1'
+                pathSafetyHelperSha256 = $pathSafetyHelperHash
+                publicationHelper = 'scripts/release/windows/parent-protected-custody/package-publication.ps1'
+                publicationHelperSha256 = $publicationHelperHash
+                wixExtensionHelper = 'scripts/release/windows/parent-protected-custody/wix-extension.ps1'
+                wixExtensionHelperSha256 = $wixExtensionHelperHash
+                msiContractHelper = 'scripts/release/windows/parent-protected-custody/msi-contract.ps1'
+                msiContractHelperSha256 = $msiContractHelperHash
             }
         }
         Write-DeterministicJson -Path $manifestPath -Value $manifest
@@ -365,7 +357,24 @@ try {
                 throw "Generated package manifest lost required boundary text '$requiredBoundaryText'."
             }
         }
-        $success = $true
+        $checksumText = [System.IO.File]::ReadAllText($checksumPath)
+        $expectedChecksumText = "$msiHash *$msiFileName`n"
+        if ($checksumText -cne $expectedChecksumText) {
+            throw 'Generated package checksum does not exactly bind the validated staged MSI.'
+        }
+        $manifestRecord = $manifestText | ConvertFrom-Json
+        if ([string]$manifestRecord.artifact.file -cne $msiFileName -or
+            [string]$manifestRecord.artifact.sha256 -cne $msiHash -or
+            [string]$manifestRecord.artifact.checksumFile -cne $checksumFileName) {
+            throw 'Generated package manifest does not exactly bind the staged MSI/checksum set.'
+        }
+
+        Remove-SafePackagePath -Path $wixIntermediateRoot -Root $packageRoot -Description 'Validated WiX intermediate tree'
+        Assert-ExactPackageDirectoryFiles -Directory $stagingRoot -PackageRoot $packageRoot -ExpectedNames $artifactNames -Description 'Ready-to-publish package set'
+        Publish-StagedPackageDirectory -PackageRoot $packageRoot -OutputRoot $outputRoot -StagingRoot $stagingRoot -BackupRoot $backupRoot -ArtifactNames $artifactNames | Out-Null
+        $msiPath = Join-Path $outputRoot $msiFileName
+        $checksumPath = Join-Path $outputRoot $checksumFileName
+        $manifestPath = Join-Path $outputRoot $manifestFileName
         Write-Output "Built $msiPath"
         Write-Output "SHA256 $msiHash"
         Write-Output "Manifest $manifestPath"
@@ -374,22 +383,14 @@ try {
     }
 } finally {
     $cleanupFailures = [System.Collections.Generic.List[string]]::new()
-    if (-not $success) {
-        $cleanupPaths.Add($msiPath)
-        $cleanupPaths.Add($checksumPath)
-        $cleanupPaths.Add($manifestPath)
-    }
-    foreach ($cleanupPath in @($cleanupPaths | Select-Object -Unique)) {
-        if ([string]::IsNullOrWhiteSpace($cleanupPath)) {
-            continue
-        }
+    if (-not [string]::IsNullOrWhiteSpace($stagingRoot) -and (Test-Path -LiteralPath $stagingRoot)) {
         try {
-            Remove-ExactPath -Path $cleanupPath
+            Remove-SafePackagePath -Path $stagingRoot -Root $packageRoot -Description 'Unpublished package staging cleanup'
         } catch {
-            $cleanupFailures.Add("${cleanupPath}: $($_.Exception.Message)")
+            $cleanupFailures.Add("${stagingRoot}: $($_.Exception.Message)")
         }
     }
     if ($cleanupFailures.Count -gt 0) {
-        throw "Package cleanup failed; refusing to report a usable artifact: $($cleanupFailures -join '; ')"
+        throw "Package staging cleanup failed; prior published package state was not targeted: $($cleanupFailures -join '; ')"
     }
 }
