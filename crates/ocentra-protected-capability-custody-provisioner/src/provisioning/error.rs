@@ -5,6 +5,7 @@ pub(crate) enum ExternalProvisioningBoundary {
     EnrollmentRegistry,
     BrokerService,
     PcpSigningKey,
+    AccountIssuerKey,
     FixedTpmCounter,
     OwnerManagedLifecycle,
 }
@@ -27,6 +28,7 @@ impl ProvisioningError {
                 ExternalProvisioningBoundary::EnrollmentRegistry => 3,
                 ExternalProvisioningBoundary::BrokerService => 4,
                 ExternalProvisioningBoundary::PcpSigningKey => 7,
+                ExternalProvisioningBoundary::AccountIssuerKey => 11,
                 ExternalProvisioningBoundary::FixedTpmCounter => 8,
                 ExternalProvisioningBoundary::OwnerManagedLifecycle => 9,
             },

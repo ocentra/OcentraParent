@@ -13,8 +13,11 @@ pub struct AccountIssuerP256Observation {
     pub(crate) implementation_type: u32,
     pub(crate) export_policy: u32,
     pub(crate) key_usage: u32,
+    pub(crate) pcp_key_usage_policy: u32,
     pub(crate) key_length_bits: u32,
     pub(crate) platform_type: WindowsText,
+    pub(crate) ek_public: Vec<u8>,
+    pub(crate) tpm2b_name: Vec<u8>,
     pub(crate) public_key_sec1: [u8; 65],
     pub(crate) security: SecurityDescriptorObservation,
 }
@@ -41,12 +44,24 @@ impl AccountIssuerP256Observation {
         self.key_usage
     }
 
+    pub fn pcp_key_usage_policy(&self) -> u32 {
+        self.pcp_key_usage_policy
+    }
+
     pub fn key_length_bits(&self) -> u32 {
         self.key_length_bits
     }
 
     pub fn platform_type(&self) -> &WindowsText {
         &self.platform_type
+    }
+
+    pub fn ek_public(&self) -> &[u8] {
+        &self.ek_public
+    }
+
+    pub fn tpm2b_name(&self) -> &[u8] {
+        &self.tpm2b_name
     }
 
     pub fn public_key_sec1(&self) -> &[u8; 65] {

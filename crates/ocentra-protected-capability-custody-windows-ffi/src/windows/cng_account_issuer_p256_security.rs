@@ -17,9 +17,10 @@ use windows_sys::Win32::Security::Cryptography::{
     NCryptGetProperty, NCRYPT_ALGORITHM_PROPERTY, NCRYPT_ALLOW_SIGNING_FLAG,
     NCRYPT_EXPORT_POLICY_PROPERTY, NCRYPT_IMPL_HARDWARE_FLAG, NCRYPT_IMPL_REMOVABLE_FLAG,
     NCRYPT_IMPL_SOFTWARE_FLAG, NCRYPT_IMPL_TYPE_PROPERTY, NCRYPT_KEY_HANDLE,
-    NCRYPT_KEY_USAGE_PROPERTY, NCRYPT_LENGTH_PROPERTY, NCRYPT_PCP_PLATFORM_TYPE_PROPERTY,
-    NCRYPT_PROV_HANDLE, NCRYPT_SECURITY_DESCR_PROPERTY, NCRYPT_SECURITY_DESCR_SUPPORT_PROPERTY,
-    NCRYPT_SILENT_FLAG,
+    NCRYPT_KEY_USAGE_PROPERTY, NCRYPT_LENGTH_PROPERTY, NCRYPT_PCP_EKPUB_PROPERTY,
+    NCRYPT_PCP_KEY_USAGE_POLICY_PROPERTY, NCRYPT_PCP_PLATFORM_TYPE_PROPERTY,
+    NCRYPT_PCP_SIGNATURE_KEY, NCRYPT_PCP_TPM2BNAME_PROPERTY, NCRYPT_PROV_HANDLE,
+    NCRYPT_SECURITY_DESCR_PROPERTY, NCRYPT_SECURITY_DESCR_SUPPORT_PROPERTY, NCRYPT_SILENT_FLAG,
 };
 use windows_sys::Win32::Security::{
     DACL_SECURITY_INFORMATION, OBJECT_SECURITY_INFORMATION, OWNER_SECURITY_INFORMATION,
@@ -58,12 +59,15 @@ pub(super) fn observe_key(
     let implementation_type = get_u32_property(provider, NCRYPT_IMPL_TYPE_PROPERTY)?;
     let export_policy = get_u32_property(key, NCRYPT_EXPORT_POLICY_PROPERTY)?;
     let key_usage = get_u32_property(key, NCRYPT_KEY_USAGE_PROPERTY)?;
+    let pcp_key_usage_policy = get_u32_property(key, NCRYPT_PCP_KEY_USAGE_POLICY_PROPERTY)?;
     let key_length_bits = get_u32_property(key, NCRYPT_LENGTH_PROPERTY)?;
     let platform_type = decode_text(&get_property(
         provider,
         NCRYPT_PCP_PLATFORM_TYPE_PROPERTY,
         NCRYPT_SILENT_FLAG,
     )?)?;
+    let ek_public = get_property(provider, NCRYPT_PCP_EKPUB_PROPERTY, NCRYPT_SILENT_FLAG)?;
+    let tpm2b_name = get_property(key, NCRYPT_PCP_TPM2BNAME_PROPERTY, NCRYPT_SILENT_FLAG)?;
     let security_descriptor = get_property(key, NCRYPT_SECURITY_DESCR_PROPERTY, SECURITY_FLAGS)?;
     let security = crate::security::copy_descriptor(security_descriptor)?;
     let public_key_sec1 = export_public_key(key)?;
@@ -74,9 +78,12 @@ pub(super) fn observe_key(
         implementation_type,
         export_policy,
         key_usage,
+        pcp_key_usage_policy,
         key_length_bits,
         &platform_type,
         &security,
+        &ek_public,
+        &tpm2b_name,
     ) {
         return Err(Error::CryptoPropertyViolation);
     }
@@ -87,8 +94,11 @@ pub(super) fn observe_key(
         implementation_type,
         export_policy,
         key_usage,
+        pcp_key_usage_policy,
         key_length_bits,
         platform_type,
+        ek_public,
+        tpm2b_name,
         public_key_sec1,
         security,
     })
@@ -163,9 +173,12 @@ fn strict_properties(
     implementation_type: u32,
     export_policy: u32,
     key_usage: u32,
+    pcp_key_usage_policy: u32,
     key_length_bits: u32,
     platform_type: &WindowsText,
     security: &SecurityDescriptorObservation,
+    ek_public: &[u8],
+    tpm2b_name: &[u8],
 ) -> bool {
     key_name.as_str().as_bytes() == ACCOUNT_ISSUER_KEY_NAME
         && algorithm.as_str().as_bytes() == ACCOUNT_ISSUER_ALGORITHM_NAME
@@ -174,9 +187,20 @@ fn strict_properties(
         && implementation_type & NCRYPT_IMPL_REMOVABLE_FLAG == 0
         && export_policy == 0
         && key_usage == NCRYPT_ALLOW_SIGNING_FLAG
+        && pcp_key_usage_policy == NCRYPT_PCP_SIGNATURE_KEY
         && key_length_bits == 256
         && !platform_type.as_str().is_empty()
+        && super::cng::valid_rsa_public_blob(ek_public)
+        && valid_tpm2b(tpm2b_name)
         && valid_base_security(security)
+}
+
+fn valid_tpm2b(value: &[u8]) -> bool {
+    if value.len() < 3 {
+        return false;
+    }
+    let declared = usize::from(u16::from_be_bytes([value[0], value[1]]));
+    declared > 0 && declared.checked_add(2) == Some(value.len())
 }
 
 fn valid_base_security(security: &SecurityDescriptorObservation) -> bool {
