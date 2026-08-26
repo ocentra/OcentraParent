@@ -59,6 +59,10 @@ impl VerifiedBrokerService {
         }
         Ok(())
     }
+
+    pub(super) fn service(&self) -> &OwnedService {
+        &self.service
+    }
 }
 
 fn expected_binary_path() -> String {

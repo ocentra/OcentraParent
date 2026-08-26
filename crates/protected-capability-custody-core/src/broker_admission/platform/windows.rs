@@ -2,12 +2,15 @@ use sha2::{Digest, Sha256};
 
 use crate::platform::PlatformError;
 
+mod client_anchor;
 mod enrollment;
 mod enrollment_record;
 mod enrollment_security;
 mod monotonic;
 mod peer;
 mod scm;
+mod service_sid;
+mod token_groups;
 
 pub(in crate::broker_admission) struct WindowsCustodyRuntime {
     enrollment: enrollment::VerifiedEnrollment,
@@ -20,6 +23,8 @@ pub(in crate::broker_admission) struct RetainedPeer(peer::PeerObservation);
 pub(in crate::broker_admission) struct AuthorizedPeer {
     _peer: peer::AuthorizedPeer,
 }
+
+pub(super) type BrokerClientAnchor = client_anchor::ClientAnchor;
 
 impl WindowsCustodyRuntime {
     pub(in crate::broker_admission) fn open(registry_id: &str) -> Result<Self, PlatformError> {

@@ -34,6 +34,9 @@ pub(super) type BrokerPeerObservation = windows::RetainedPeer;
 #[cfg(windows)]
 pub(super) type BrokerAuthorizedPeer = windows::AuthorizedPeer;
 
+#[cfg(windows)]
+pub(super) type BrokerClientAnchor = windows::BrokerClientAnchor;
+
 pub(super) struct BrokerPlatformOwner;
 
 impl BrokerPlatformOwner {

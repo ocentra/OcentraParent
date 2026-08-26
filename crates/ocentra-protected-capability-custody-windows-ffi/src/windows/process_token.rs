@@ -1,5 +1,7 @@
 //! Bounded token SID, integrity, and session mechanics.
 
+#[path = "process_token_groups.rs"]
+mod groups;
 #[path = "process_token_sid.rs"]
 mod sid;
 

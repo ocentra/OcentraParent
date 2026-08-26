@@ -23,6 +23,81 @@ mod storage_path;
 mod token;
 mod wire;
 
+/// A client-side, non-cloneable proof that the fixed named-pipe server and
+/// this process still match protected enrollment and retained OS observations.
+/// The constructor derives the fixed enrollment identity internally; callers
+/// cannot supply a PID, SID, path, image digest, or authority value.
+#[cfg(windows)]
+pub struct ClientAnchor {
+    platform: platform::BrokerClientAnchor,
+}
+
+/// OS-observed identity for the current enrolled client process.
+#[cfg(windows)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ClientProcessIdentity {
+    process_id: u32,
+    process_epoch: u64,
+    session_id: u32,
+}
+
+#[cfg(windows)]
+impl ClientProcessIdentity {
+    pub fn process_id(self) -> u32 {
+        self.process_id
+    }
+
+    pub fn process_epoch(self) -> u64 {
+        self.process_epoch
+    }
+
+    pub fn session_id(self) -> u32 {
+        self.session_id
+    }
+}
+
+#[cfg(windows)]
+impl ClientAnchor {
+    pub fn open(
+        broker_process_id: u32,
+        broker_session_id: u32,
+    ) -> Result<Self, BrokerRuntimeError> {
+        let database_path = storage_path::fixed_database_identity_path()?;
+        let registry_id = platform::registry_id(&database_path).map_err(error_status::platform)?;
+        let platform =
+            platform::BrokerClientAnchor::open(&registry_id, broker_process_id, broker_session_id)
+                .map_err(error_status::platform)?;
+        Ok(Self { platform })
+    }
+
+    pub fn revalidate(&self) -> Result<(), BrokerRuntimeError> {
+        self.platform.revalidate().map_err(error_status::platform)
+    }
+
+    pub fn client_identity(&self) -> Result<ClientProcessIdentity, BrokerRuntimeError> {
+        let (process_id, process_epoch, session_id) = self
+            .platform
+            .client_identity()
+            .map_err(error_status::platform)?;
+        Ok(ClientProcessIdentity {
+            process_id,
+            process_epoch,
+            session_id,
+        })
+    }
+
+    pub fn authorize_broker_hello(
+        &self,
+        hello: &ocentra_protected_capability_custody_protocol::handshake::UntrustedBrokerHello,
+        broker_process_id: u32,
+        broker_session_id: u32,
+    ) -> Result<(), BrokerRuntimeError> {
+        self.platform
+            .authorize_broker_hello(hello, broker_process_id, broker_session_id)
+            .map_err(error_status::platform)
+    }
+}
+
 pub struct BrokerCustodyRuntime {
     store: CustodyStore,
     authority: Arc<authority::BrokerCurrentBindingAuthority>,
