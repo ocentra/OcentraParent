@@ -47,6 +47,7 @@ pub(crate) mod data_custody_runtime_eventing_validation;
 pub(crate) mod data_custody_runtime_eventing_validation_payload;
 pub mod device_trust_bootstrap_runtime;
 pub mod device_trust_bootstrap_runtime_status;
+mod parent_local_bridge_runtime;
 pub mod parent_service_health;
 pub mod parent_ui_bridge;
 pub mod policy_control_dispatch;

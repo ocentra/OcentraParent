@@ -1,25 +1,22 @@
-use super::{NetworkRuntimeStartupError, StartupErrorReason};
+use super::StartupErrorReason;
 use crate::{network::NetworkPolicy, service_runtime::initialize_network_runtime};
 use ocentra_parent_agent_protocol::constants;
 use std::net::SocketAddr;
 
 pub async fn run_agent_service() {
     let network = NetworkPolicy::from_environment();
+    let Some(parent_local_bridge_admission) =
+        crate::parent_local_bridge_admission::ParentLocalBridgeAdmission::mount_for_service(
+            &network,
+        )
+    else {
+        return;
+    };
     if let Err(error) = initialize_network_runtime().await {
-        let reason = match error {
-            NetworkRuntimeStartupError::Spine => {
-                constants::network_flow::NETWORK_RUNTIME_STARTUP_SPINE_INIT_FAILURE
-            }
-            NetworkRuntimeStartupError::SpineJournalPathMismatch => {
-                constants::network_flow::NETWORK_RUNTIME_STARTUP_SPINE_PATH_MISMATCH
-            }
-            NetworkRuntimeStartupError::Reconciliation => {
-                constants::network_flow::NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE
-            }
-        };
+        let reason = super::startup_error::network_runtime_startup_reason(error);
         let _ = crate::dev_log::write_agent_error(
             constants::error::AGENT_SERVICE_RUNS,
-            super::startup_error_log_fields(&network, StartupErrorReason(reason.to_string())),
+            super::startup_error_log_fields(&network, reason),
         );
         return;
     }
@@ -62,7 +59,8 @@ pub async fn run_agent_service() {
 
     if let Err(error) = axum::serve(
         listener,
-        crate::app::router(network.clone()).into_make_service_with_connect_info::<SocketAddr>(),
+        crate::app::router(network.clone(), parent_local_bridge_admission)
+            .into_make_service_with_connect_info::<SocketAddr>(),
     )
     .await
     {

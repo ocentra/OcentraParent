@@ -43,6 +43,8 @@ mod invariants;
 mod labels;
 #[path = "session_lifecycle_repository_parent_local_bridge.rs"]
 mod parent_local_bridge_repository;
+#[path = "session_lifecycle_repository_parent_local_bridge_schema.rs"]
+pub(crate) mod parent_local_bridge_schema;
 #[path = "session_lifecycle_repository_schema.rs"]
 mod schema;
 

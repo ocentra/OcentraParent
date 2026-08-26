@@ -450,6 +450,8 @@ fn parent_platform_proof_state_for_connection(
         service_version: service_health.service_version,
         service_transport: service_health.transport,
         service_authentication_state: match service_health.authentication_state {
+            ocentra_parent_runtime_core::parent_service_health::ParentAgentServiceAuthenticationState::Authenticated =>
+                constants::value::PARENT_DESKTOP_AUTHENTICATION_AUTHENTICATED.to_string(),
             ocentra_parent_runtime_core::parent_service_health::ParentAgentServiceAuthenticationState::Unauthenticated =>
                 constants::value::LAN_AUTH_UNAUTHENTICATED.to_string(),
             ocentra_parent_runtime_core::parent_service_health::ParentAgentServiceAuthenticationState::Unavailable =>

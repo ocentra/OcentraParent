@@ -56,6 +56,7 @@ use self::basic_reports::{
 };
 use crate::activity_api::app_game_platform_probe_cache::PlatformProbeCache;
 use crate::activity_api::app_game_platform_proof_status_payload::platform_probe_dispatcher;
+use crate::parent_local_bridge_admission::ParentLocalBridgeAdmission;
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime, browser_runtime::BrowserManagedRuntime,
     lan_pairing::LanPairingRuntime, screen_settings_runtime::ScreenSettingsRuntime,
@@ -127,7 +128,7 @@ pub(crate) fn handle_command_text_with_browser_policy_for_test(
     )
 }
 
-pub fn dispatch_local_command_text(
+pub(crate) fn dispatch_local_command_text(
     text: WebsocketCommandText,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     command_entry::handle_command_text(
@@ -146,7 +147,7 @@ pub fn dispatch_local_command_text(
     )
 }
 
-pub fn dispatch_local_command_text_with_browser_policy_store(
+pub(crate) fn dispatch_local_command_text_with_browser_policy_store(
     text: WebsocketCommandText,
     store_path: WebsocketBrowserPolicyStorePath,
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
@@ -173,6 +174,7 @@ pub(crate) fn handle_socket(
     origin: WebsocketCommandOrigin,
     probe_dispatcher: Arc<WebsocketPlatformProbeDispatcher>,
     provenance: WebsocketPeerProvenance,
+    admission: ParentLocalBridgeAdmission,
 ) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
     socket_session::handle_socket(
         socket,
@@ -183,5 +185,6 @@ pub(crate) fn handle_socket(
         origin,
         probe_dispatcher,
         provenance,
+        admission,
     )
 }

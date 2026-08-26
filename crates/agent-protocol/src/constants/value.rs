@@ -164,6 +164,7 @@ pub const PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER: &str = "active-cont
 pub const PARENT_DESKTOP_CONTROLLER_ROUTE_MANUAL_REQUIRED: &str =
     "controller-route-manual-required";
 pub const PARENT_DESKTOP_OBSERVER_READ_ONLY: &str = "observer-read-only";
+pub const PARENT_DESKTOP_AUTHENTICATION_AUTHENTICATED: &str = "authenticated";
 pub const PARENT_DESKTOP_AUTHENTICATION_MANUAL_REQUIRED: &str = "authentication-manual-required";
 pub const PARENT_DESKTOP_SOURCE_CUSTODY_LIVE_LOCAL_NETWORK: &str = "live-local-network-custody";
 pub const PARENT_DESKTOP_SOURCE_CUSTODY_MANUAL_REQUIRED: &str = "source-custody-manual-required";

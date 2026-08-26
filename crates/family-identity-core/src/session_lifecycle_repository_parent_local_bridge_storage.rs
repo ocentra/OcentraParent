@@ -133,29 +133,23 @@ fn validate_record_shape(
     clock_skew_millis: i64,
     freshness_ttl_millis: i64,
 ) -> Result<(), SessionLifecycleRepositoryError> {
-    let future_ceiling = now_epoch_millis
-        .checked_add(clock_skew_millis)
-        .ok_or(SessionLifecycleRepositoryError::InvalidStoredSession)?;
-    let max_expiry = row
-        .issued_at_epoch_millis
-        .checked_add(freshness_ttl_millis)
-        .ok_or(SessionLifecycleRepositoryError::InvalidStoredSession)?;
+    super::storage_time::validate_record_time_shape(
+        super::storage_time::ParentLocalBridgeRecordTimeShape {
+            issued_at_epoch_millis: row.issued_at_epoch_millis,
+            expires_at_epoch_millis: row.expires_at_epoch_millis,
+            authority_expires_at_epoch_millis: row.authority_expires_at_epoch_millis,
+            last_transition_at_epoch_millis: row.last_transition_at_epoch_millis,
+            now_epoch_millis,
+            clock_skew_millis,
+            freshness_ttl_millis,
+            active: row.state == ACTIVE_STATE,
+        },
+    )?;
     if row.digest_algorithm != DIGEST_ALGORITHM
         || row.capability_digest_domain != CAPABILITY_DIGEST_DOMAIN
         || !is_hex_digest(&row.capability_digest)
         || !is_hex_digest(&row.connection_nonce_digest)
-        || row.issued_at_epoch_millis <= 0
-        || row.expires_at_epoch_millis <= row.issued_at_epoch_millis
-        || row.expires_at_epoch_millis > row.authority_expires_at_epoch_millis
         || row.bridge_revoke_epoch <= 0
-        || row.issued_at_epoch_millis > future_ceiling
-        || row.last_transition_at_epoch_millis > future_ceiling
-        || row.expires_at_epoch_millis > max_expiry
-        || row.last_transition_at_epoch_millis < row.issued_at_epoch_millis
-        || ((row.state == ACTIVE_STATE
-            && row.last_transition_at_epoch_millis != row.issued_at_epoch_millis)
-            || (row.state != ACTIVE_STATE
-                && row.last_transition_at_epoch_millis <= row.issued_at_epoch_millis))
     {
         return Err(SessionLifecycleRepositoryError::InvalidStoredSession);
     }

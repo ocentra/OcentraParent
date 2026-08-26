@@ -67,7 +67,9 @@ pub(super) fn send_agent_command_to_address(
     context: Option<&ParentRouteContext>,
     route: AgentRoute,
 ) -> Result<AgentServiceCommandResult, String> {
-    let command_origin = resolve_command_origin(&payload);
+    crate::parent_local_bridge_runtime::require_authenticated_transport_owner()
+        .map_err(|error| error.to_string())?;
+    let command_origin = resolve_command_origin();
     let timeout = agent_command_timeout_for(&command);
     let deadline = Instant::now() + timeout;
     let url = agent_ws_url_for_addr(agent_addr);

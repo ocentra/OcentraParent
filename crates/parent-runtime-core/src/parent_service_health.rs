@@ -21,6 +21,7 @@ pub enum ParentAgentServiceHealthState {
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum ParentAgentServiceAuthenticationState {
+    Authenticated,
     Unauthenticated,
     Unavailable,
 }
@@ -98,6 +99,7 @@ impl ParentAgentServiceHealth {
 
     pub fn is_ready(&self) -> bool {
         self.state == ParentAgentServiceHealthState::Ready
+            && self.authentication_state == ParentAgentServiceAuthenticationState::Authenticated
     }
 
     pub fn redacted_detail(&self) -> String {

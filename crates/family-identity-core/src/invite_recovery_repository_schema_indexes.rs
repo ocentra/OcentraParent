@@ -41,7 +41,11 @@ pub(super) fn validate_indexes(connection: &Connection) -> Result<(), ()> {
         "account_identity_parent_local_bridge_audit_outbox",
         "account_identity_parent_local_bridge_audit_delivery",
         false,
-        &["delivery_state", "sequence"],
+        &[
+            "delivery_state",
+            "next_delivery_at_epoch_millis",
+            "sequence",
+        ],
     )?;
     validate_index(
         connection,
