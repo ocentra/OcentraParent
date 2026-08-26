@@ -25,10 +25,8 @@ const P256_HALF_ORDER: [u8; P256_SCALAR_BYTES] = [
 pub(super) fn sign_domain_bound_request(
     key: NCRYPT_KEY_HANDLE,
     canonical_payload: &[u8],
-    service_bound: bool,
 ) -> Result<AccountIssuerP256Signature> {
-    if !service_bound
-        || canonical_payload.len() > MAX_BUFFER_BYTES
+    if canonical_payload.len() > MAX_BUFFER_BYTES
         || !canonical_payload.starts_with(ACCOUNT_ISSUER_SIGNING_DOMAIN)
     {
         return Err(Error::CryptoPropertyViolation);

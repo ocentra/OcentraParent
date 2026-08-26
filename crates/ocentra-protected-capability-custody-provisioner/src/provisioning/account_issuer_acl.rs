@@ -29,9 +29,9 @@ fn observe(
     let service_name =
         ServiceName::try_from_str(constants::FIXED_SERVICE_NAME).map_err(error_mapper)?;
     let service = manager.open_service(&service_name).map_err(error_mapper)?;
-    let mut key = AccountIssuerP256Key::open_machine().map_err(key_error_mapper)?;
-    key.bind_to_service(&service).map_err(error_mapper)?;
-    key.revalidate().map_err(error_mapper)
+    let key = AccountIssuerP256Key::open_machine().map_err(key_error_mapper)?;
+    let bound = key.bind_to_service(&service).map_err(error_mapper)?;
+    bound.revalidate().map_err(error_mapper)
 }
 
 fn map_initial_error(error: FfiError) -> ProvisioningError {

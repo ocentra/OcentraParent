@@ -1,11 +1,15 @@
 //! Windows ABI module split by ownership boundary.
 
 pub(crate) mod cng;
+pub(crate) mod cng_account_issuer_p256_acl;
+pub(crate) mod cng_account_issuer_p256_algorithm;
 pub(crate) mod cng_account_issuer_p256_capability;
 pub(crate) mod cng_account_issuer_p256_export;
+pub(crate) mod cng_account_issuer_p256_identity;
 pub(crate) mod cng_account_issuer_p256_lifecycle;
 pub(crate) mod cng_account_issuer_p256_security;
 pub(crate) mod cng_account_issuer_p256_sign;
+pub(crate) mod cng_account_issuer_p256_storage;
 pub(crate) mod cng_handles;
 pub(crate) mod cng_lifecycle;
 pub(crate) mod cng_observation;

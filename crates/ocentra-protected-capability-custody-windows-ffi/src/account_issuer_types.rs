@@ -10,7 +10,10 @@ use crate::{SecurityDescriptorObservation, WindowsText};
 pub struct AccountIssuerP256Observation {
     pub(crate) key_name: WindowsText,
     pub(crate) algorithm: WindowsText,
+    pub(crate) algorithm_group: WindowsText,
+    pub(crate) unique_name: WindowsText,
     pub(crate) implementation_type: u32,
+    pub(crate) provider_version: u32,
     pub(crate) export_policy: u32,
     pub(crate) key_usage: u32,
     pub(crate) pcp_key_usage_policy: u32,
@@ -32,8 +35,20 @@ impl AccountIssuerP256Observation {
         &self.algorithm
     }
 
+    pub fn algorithm_group(&self) -> &WindowsText {
+        &self.algorithm_group
+    }
+
+    pub fn unique_name(&self) -> &WindowsText {
+        &self.unique_name
+    }
+
     pub fn implementation_type(&self) -> u32 {
         self.implementation_type
+    }
+
+    pub fn provider_version(&self) -> u32 {
+        self.provider_version
     }
 
     pub fn export_policy(&self) -> u32 {
@@ -70,6 +85,23 @@ impl AccountIssuerP256Observation {
 
     pub fn security(&self) -> &SecurityDescriptorObservation {
         &self.security
+    }
+
+    pub(crate) fn same_immutable_identity(&self, other: &Self) -> bool {
+        self.key_name == other.key_name
+            && self.algorithm == other.algorithm
+            && self.algorithm_group == other.algorithm_group
+            && self.unique_name == other.unique_name
+            && self.implementation_type == other.implementation_type
+            && self.provider_version == other.provider_version
+            && self.export_policy == other.export_policy
+            && self.key_usage == other.key_usage
+            && self.pcp_key_usage_policy == other.pcp_key_usage_policy
+            && self.key_length_bits == other.key_length_bits
+            && self.platform_type == other.platform_type
+            && self.ek_public == other.ek_public
+            && self.tpm2b_name == other.tpm2b_name
+            && self.public_key_sec1 == other.public_key_sec1
     }
 }
 
