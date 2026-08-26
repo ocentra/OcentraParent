@@ -41,6 +41,8 @@ mod codec;
 mod invariants;
 #[path = "session_lifecycle_repository_labels.rs"]
 mod labels;
+#[path = "session_lifecycle_repository_parent_local_bridge.rs"]
+mod parent_local_bridge_repository;
 #[path = "session_lifecycle_repository_schema.rs"]
 mod schema;
 
@@ -56,6 +58,9 @@ pub enum SessionLifecycleRepositoryError {
     Missing,
     ReplayRejected,
     InvalidStoredSession,
+    InvalidParentLocalBridgeHandshake,
+    ParentLocalBridgeExpired,
+    ParentLocalBridgeRevoked,
     InvalidAuditRecord,
     InvalidTransition,
     CurrentnessConflict,

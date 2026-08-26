@@ -6,8 +6,12 @@ use std::time::Duration;
 
 #[path = "session_lifecycle/boundary/audit_delivery.rs"]
 pub mod audit_delivery;
+#[path = "session_lifecycle/boundary/authenticated_parent_local_bridge.rs"]
+pub mod authenticated_parent_local_bridge;
 #[path = "session_lifecycle/boundary/browser_credentials.rs"]
 pub mod browser_credentials;
+#[path = "session_lifecycle/boundary/parent_local_bridge.rs"]
+pub mod parent_local_bridge;
 #[path = "session_lifecycle/session_record.rs"]
 pub(crate) mod record;
 #[path = "session_lifecycle/boundary/storage_values.rs"]

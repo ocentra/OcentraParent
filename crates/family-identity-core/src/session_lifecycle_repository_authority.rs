@@ -50,6 +50,38 @@ pub(crate) fn binding_from_verified(
     ))
 }
 
+pub(crate) fn parent_local_bridge_binding_from_verified(
+    transaction: &Transaction<'_>,
+    authority: &VerifiedAccountIdentityAuthority,
+    now_epoch_millis: i64,
+) -> Result<SessionAuthorityBinding, SessionLifecycleRepositoryError> {
+    if !role_can_hold_parent_local_bridge(authority.role()) {
+        return Err(SessionLifecycleRepositoryError::WrongCredentialClass);
+    }
+    binding_from_verified(transaction, authority, now_epoch_millis)
+}
+
+pub(crate) fn parent_local_bridge_current_role(
+    transaction: &Transaction<'_>,
+    expected: &SessionAuthorityBinding,
+    now_epoch_millis: i64,
+) -> Result<AccountIdentityRole, SessionLifecycleRepositoryError> {
+    let current = load_current(
+        transaction,
+        &expected.provider,
+        &expected.provider_subject,
+        now_epoch_millis,
+    )?;
+    if !role_can_hold_parent_local_bridge(current.handoff.member.role) {
+        return Err(SessionLifecycleRepositoryError::WrongCredentialClass);
+    }
+    let current_binding = binding_from_handoff(&current.handoff, current.expires_at_epoch_millis);
+    if current_binding != *expected {
+        return Err(SessionLifecycleRepositoryError::CurrentnessConflict);
+    }
+    Ok(current.handoff.member.role)
+}
+
 pub(crate) fn binding_for_record_current(
     transaction: &Transaction<'_>,
     record: &SessionCredentialRecord,
@@ -176,5 +208,12 @@ fn role_can_hold_browser_session(role: AccountIdentityRole) -> bool {
             | AccountIdentityRole::CoParentGuardian
             | AccountIdentityRole::Observer
             | AccountIdentityRole::ChildProfile
+    )
+}
+
+fn role_can_hold_parent_local_bridge(role: AccountIdentityRole) -> bool {
+    matches!(
+        role,
+        AccountIdentityRole::ParentOwner | AccountIdentityRole::CoParentGuardian
     )
 }
