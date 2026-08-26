@@ -1,9 +1,11 @@
 //! AccountIssuer owner command orchestration.
 
 use ocentra_family_identity_core::account_identity_authority_issuer_client::{
-    AccountIdentityIssuerIssuePreparation, AccountIdentityIssuerSignedIssue,
+    AccountIdentityIssuerIssuePreparation, AccountIdentityIssuerPreparedIssue,
+    AccountIdentityIssuerSignedIssue,
 };
 use ocentra_family_identity_core::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Transport;
+use ocentra_protected_capability_custody_core::account_issuer::AccountIssuerP256Signer;
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
@@ -35,7 +37,7 @@ pub(crate) enum IssuePreparation {
 
 /// Result of the owner-only preparation phase. A replay is already durable;
 /// a fresh request must cross the typed protected signer before finalization.
-pub enum AccountIssuerPreparation {
+pub(crate) enum AccountIssuerPreparation {
     Replay(IssuedAuthority),
     Prepared(PreparedAccountIssuerV2Request),
 }
@@ -127,6 +129,30 @@ impl AccountIssuerOwner {
         // must fail before preparation so an unavailable signer cannot burn
         // an idempotency key or leave a durable signing reservation behind.
         Err(AccountIssuerRpcError::Signing(signing::fail_closed()))
+    }
+
+    pub(crate) fn record_signing_failure(
+        &mut self,
+        prepared: AccountIdentityIssuerPreparedIssue,
+    ) -> Result<(), AccountIssuerRpcError> {
+        self.repository
+            .record_signing_failure(prepared)
+            .map_err(AccountIssuerRpcError::Repository)
+    }
+
+    pub(crate) fn sign_prepared(
+        &mut self,
+        prepared: PreparedAccountIssuerV2Request,
+        signer: &AccountIssuerP256Signer,
+    ) -> Result<crate::contract::SignedAccountIssuerV2Envelope, AccountIssuerRpcError> {
+        match prepared.sign_with(signer) {
+            Ok(signed) => Ok(signed),
+            Err((prepared, error)) => {
+                let signing_error = signing::map_signer_error(error);
+                self.record_signing_failure(prepared.into_inner())?;
+                Err(AccountIssuerRpcError::Signing(signing_error))
+            }
+        }
     }
 
     pub(crate) fn record_issued_transport(

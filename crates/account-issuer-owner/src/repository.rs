@@ -3,6 +3,7 @@
 use ocentra_family_identity_core::account_identity_authority_issuer_client::{
     AccountIdentityAuthorityIssuerClient, AccountIdentityAuthorityIssuerClientError,
     AccountIdentityIssuerCurrentness, AccountIdentityIssuerIssuePreparation,
+    AccountIdentityIssuerPreparedIssue,
     AccountIdentityIssuerSignedIssue,
 };
 use ocentra_family_identity_core::account_identity_authority_issuer_client::
@@ -109,6 +110,15 @@ impl AccountIssuerRepository {
     ) -> Result<AccountIdentityIssuerRecordedTransport, AccountIssuerRepositoryError> {
         self.client
             .finalize_issued_transport(provider, provider_subject, signed)
+            .map_err(AccountIssuerRepositoryError::from)
+    }
+
+    pub(crate) fn record_signing_failure(
+        &mut self,
+        prepared: AccountIdentityIssuerPreparedIssue,
+    ) -> Result<(), AccountIssuerRepositoryError> {
+        self.client
+            .record_signing_failure(prepared)
             .map_err(AccountIssuerRepositoryError::from)
     }
 

@@ -47,6 +47,21 @@ impl AccountIdentityAuthorityIssuerClient {
         let recorded = finalize_and_commit(transaction, &currentness, reservation, &transport)?;
         Ok(recorded)
     }
+
+    /// Consume a prepared issue after the protected signer reports failure.
+    /// The opaque reservation is matched to its exact request before the
+    /// durable signing attempt is moved to manual-required uncertainty.
+    pub fn record_signing_failure(
+        &mut self,
+        prepared: AccountIdentityIssuerPreparedIssue,
+    ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+        let (request, reservation) = prepared.into_parts();
+        let transaction = self.begin_transaction()?;
+        match transaction.record_signing_failure(&request, &reservation) {
+            Ok(()) => transaction.commit(),
+            Err(error) => finish_error(transaction, error),
+        }
+    }
 }
 
 fn prepare_and_commit(

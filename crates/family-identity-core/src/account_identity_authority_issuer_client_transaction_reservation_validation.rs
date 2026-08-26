@@ -44,10 +44,10 @@ pub(super) fn validate_signing_reservation(
     let (_, now_text) = super::super::clock::now(transaction)?;
     let row = load_reservation(transaction, reservation.reservation_id())?
         .ok_or(AccountIdentityAuthorityIssuerClientError::ReservationUnavailable)?;
-    validate_state(&row, &now_text, reservation.reservation_id(), transaction)?;
     validate_binding(&row, currentness, reservation)?;
     validate_wire(&row.14, transport)?;
-    validate_receipt(&row, transport.receipt())
+    validate_receipt(&row, transport.receipt())?;
+    validate_state(&row, &now_text, reservation.reservation_id(), transaction)
 }
 
 fn load_reservation(

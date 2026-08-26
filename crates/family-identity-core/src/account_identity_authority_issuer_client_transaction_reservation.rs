@@ -112,6 +112,15 @@ fn reconcile_existing_reservation(
         && existing.signer_status == SIGNER_IN_FLIGHT
         && existing.lease_expires_at.as_str() <= now_text
     {
+        expired_reservation_matches(
+            existing,
+            currentness,
+            request,
+            expected_request_digest,
+            expected_request_wire,
+        )?
+        .then_some(())
+        .ok_or(AccountIdentityAuthorityIssuerClientError::ReplayDetected)?;
         super::recovery::mark_manual_required(
             transaction,
             existing.reservation_id.as_str(),
@@ -140,7 +149,7 @@ fn reconcile_expired_prepared_reservation(
             existing.signer_status.as_str(),
         );
     }
-    if !expired_prepared_matches(
+    if !expired_reservation_matches(
         existing,
         currentness,
         request,
@@ -257,7 +266,7 @@ struct StoredReservation {
     lease_expires_at: String,
 }
 
-fn expired_prepared_matches(
+fn expired_reservation_matches(
     existing: &StoredReservation,
     currentness: &AccountIdentityIssuerCurrentness,
     request: &AccountIdentityAuthorityProducerV2Request,

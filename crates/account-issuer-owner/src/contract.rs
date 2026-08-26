@@ -141,7 +141,7 @@ impl IssueCurrentAuthorityCommand {
 /// The family request remains private inside this value until the owner has
 /// received the exact protected signing capability. Callers never receive the
 /// family request, a raw signer, or a platform handle.
-pub struct PreparedAccountIssuerV2Request {
+pub(crate) struct PreparedAccountIssuerV2Request {
     prepared: AccountIdentityIssuerPreparedIssue,
 }
 
@@ -150,23 +150,28 @@ impl PreparedAccountIssuerV2Request {
         Self { prepared }
     }
 
-    /// Return the exact binding selected by the Account-owned request.
-    pub fn binding(&self) -> &ocentra_schema::account_identity_authority_producer_v2::AccountIdentityAuthorityProducerV2Binding{
-        self.prepared.request().binding()
-    }
-
-    /// Ask the Account-specific protected core adapter to sign this exact
-    /// owner-created request. The family request remains private here and is
-    /// retained for owner-side verification and durable finalization.
-    pub fn sign_with(
+    /// Consume the owner-created request while retaining it on signer failure
+    /// so the owner can durably record protected-signing uncertainty.
+    pub(crate) fn sign_with(
         self,
         signer: &AccountIssuerP256Signer,
-    ) -> Result<SignedAccountIssuerV2Envelope, AccountIssuerP256SignerError> {
-        let capability = signer.sign_request(self.prepared.request())?;
+    ) -> Result<
+        SignedAccountIssuerV2Envelope,
+        (PreparedAccountIssuerV2Request, AccountIssuerP256SignerError),
+    > {
+        let Self { prepared } = self;
+        let capability = match signer.sign_request(prepared.request()) {
+            Ok(capability) => capability,
+            Err(error) => return Err((Self { prepared }, error)),
+        };
         Ok(SignedAccountIssuerV2Envelope {
-            prepared: self.prepared,
+            prepared,
             capability,
         })
+    }
+
+    pub(crate) fn into_inner(self) -> AccountIdentityIssuerPreparedIssue {
+        self.prepared
     }
 }
 
@@ -176,7 +181,7 @@ impl PreparedAccountIssuerV2Request {
 /// to the owner finalizer; the request, reservation, and capability cannot be
 /// split into independently reusable values at the public boundary.
 #[must_use]
-pub struct SignedAccountIssuerV2Envelope {
+pub(crate) struct SignedAccountIssuerV2Envelope {
     prepared: AccountIdentityIssuerPreparedIssue,
     capability: AccountIssuerSignerCapability,
 }

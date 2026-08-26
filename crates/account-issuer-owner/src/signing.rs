@@ -37,7 +37,11 @@ impl std::fmt::Display for AccountIssuerSigningError {
 impl std::error::Error for AccountIssuerSigningError {}
 
 impl AccountIssuerOwner {
-    pub(crate) fn issue_current_authority_with_protected_signer(
+    /// Execute the complete owner-controlled issue lifecycle. The prepared
+    /// request never crosses this crate's public boundary; protected signer
+    /// failure is consumed into the exact durable manual-required reservation
+    /// instead of leaving a live signing lease behind.
+    pub fn issue_current_authority_with_protected_signer(
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
@@ -47,18 +51,14 @@ impl AccountIssuerOwner {
         match self.prepare_current_authority(provider, provider_subject, command)? {
             AccountIssuerPreparation::Replay(authority) => Ok(authority),
             AccountIssuerPreparation::Prepared(prepared) => {
-                let signed = prepared
-                    .sign_with(signer)
-                    .map_err(|error| AccountIssuerRpcError::Signing(map_signer_error(error)))?;
+                let signed = self.sign_prepared(prepared, signer)?;
                 self.finalize_prepared_current_authority(provider, provider_subject, signed)
             }
         }
     }
 
-    /// Prepare one Account-owned request after resolving currentness and
-    /// durable idempotency. A fresh request is represented by a non-Clone
-    /// owner envelope; the family request never leaves this crate.
-    pub fn prepare_current_authority(
+    /// Prepare one request for the owner-controlled consuming lifecycle.
+    pub(crate) fn prepare_current_authority(
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
@@ -77,10 +77,10 @@ impl AccountIssuerOwner {
         ))
     }
 
-    /// Finalize an owner-prepared request with the core-owned protected
-    /// capability, then re-resolve currentness and atomically record the
-    /// resulting transport in the same Account-owned repository.
-    pub fn finalize_prepared_current_authority(
+    /// Finalize an owner-prepared request after the protected signer has
+    /// produced its exact capability, then re-resolve currentness and
+    /// atomically record the resulting transport in the same repository.
+    pub(crate) fn finalize_prepared_current_authority(
         &mut self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
@@ -103,7 +103,7 @@ fn finalize_signed_envelope(
         .map_err(|_| AccountIssuerSigningError::Rejected)
 }
 
-fn map_signer_error(error: AccountIssuerP256SignerError) -> AccountIssuerSigningError {
+pub(crate) fn map_signer_error(error: AccountIssuerP256SignerError) -> AccountIssuerSigningError {
     match error {
         AccountIssuerP256SignerError::DeploymentRequired => {
             AccountIssuerSigningError::OwnerUnavailable
