@@ -79,34 +79,44 @@ platform E2E: real platform/browser/permission state -> adapter output -> cleanu
 
 A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
 
-## WP07/WP09 deferred test-source debt (2026-08-19)
+## WP06/WP07/WP09 owner-backed integration debt (2026-08-27)
 
-Canonical Browser source is intentionally manual-required. Before running any
-Browser test command, repair these stale compile surfaces without restoring
-caller-mintable authority:
+Canonical Browser source is intentionally manual-required. PR #709 withdrew
+the managed-ready, running, bridge-disconnected, and connected test cases that
+constructed private `BrowserManagedProfileStoreEntry` or
+`BrowserManagedLaunch` authority outside the owning runtime. Do not restore
+those cases through public constructors, fixture authority, or a fake harness.
+
+The retained test roots cover only these direct boundaries:
 
 ```text
 crates/agent-service/tests/unit/browser_runtime_status.rs
-  old bridge_disconnected_status and connected_status arities
+  fail-closed missing/profile-missing/error states, unmanaged observation,
+  payload shape, and empty-inventory serialization
 crates/agent-service/tests/unit/browser_runtime_tests.rs
-  old disconnected helper arity and private BrowserManagedLaunch construction
+  fail-closed missing/error behavior and unmanaged observation
 crates/agent-service/tests/unit/browser_inventory_read_model_tests.rs
-  private BrowserManagedLaunch construction without private CDP authority
+  empty inventory plus direct inventory/policy read-model behavior
 ```
 
-Then create the missing workpack roots:
+The production managed profile store remains
+`ProtectedCustodyAdapterUnavailable`; it cannot produce owner-backed ready or
+running state. Keep these expected integration roots missing/open until a real
+protected owner adapter and launch authority can exercise them:
 
 ```text
 crates/agent-service/tests/integration/browser_managed_runtime.rs
 crates/agent-core/tests/integration/browser_bridge_managed_launch.rs
 ```
 
-Required coverage includes manual-required status with no DEV/env custody,
-owner-issued start/stop, retained launch identity, pre/post I/O revalidation,
-confirmed teardown, restart/expiry/process exit, same-port replacement,
-malformed/oversized/timeout target lists, target disappearance/navigation,
-same-launch target authority, active-tab remaining Unknown, and unavailable
-Screen handoff. Fixture constructors or public authority shims are forbidden.
+Future owner-backed coverage must include managed-ready, running,
+bridge-disconnected, and connected status; manual-required status with no
+DEV/env custody; owner-issued start/stop; retained launch identity; pre/post
+I/O revalidation; confirmed teardown; restart/expiry/process exit; same-port
+replacement; malformed/oversized/timeout target lists; target
+disappearance/navigation; same-launch target authority; active-tab remaining
+Unknown; and unavailable Screen handoff. Fixture constructors or public
+authority shims are forbidden.
 
 ## Structured harness logging expectations
 

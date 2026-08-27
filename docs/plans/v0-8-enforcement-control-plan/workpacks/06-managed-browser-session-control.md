@@ -111,6 +111,25 @@ implemented real service. Those labels are not completion evidence while the
 execution switch still rejects that adapter kind. They must be corrected or
 backed by a real adapter; this workpack remains open.
 
+## Managed Runtime Test-Truth Correction — 2026-08-27
+
+PR #709 withdrew the managed-ready, running, bridge-disconnected, and connected
+agent-service cases that constructed private `BrowserManagedProfileStoreEntry`
+or `BrowserManagedLaunch` owner authority. Retained agent-core and
+agent-service roots still cover fail-closed missing/profile-missing/error
+states, unmanaged observation, payload and empty-inventory behavior, and
+direct inventory/policy models. They do not prove an owner-issued managed
+profile, launch, bridge session, or action target.
+
+The production profile store remains
+`ProtectedCustodyAdapterUnavailable`. Keep
+`crates/agent-service/tests/integration/browser_managed_runtime.rs` and
+`crates/agent-core/tests/integration/browser_bridge_managed_launch.rs`
+missing/open until a protected owner adapter and launch authority provide the
+real integration boundary. Public authority constructors, fixture authority,
+and fake harnesses are not acceptable substitutes. This workpack remains open
+and manual-required.
+
 ## Negative Cases
 
 - stale or missing bridge/session ids must stay rejected or manual-required

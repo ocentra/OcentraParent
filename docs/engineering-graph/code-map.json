@@ -1903,6 +1903,7 @@
     },
     "WP-browser-plan-22-performance-and-service-health": {
       "planSlug": "browser-plan",
+      "note": "Owner-backed managed-runtime coverage is manual-required: PR #709 withdrew managed-ready, running, bridge-disconnected, and connected cases that constructed private BrowserManagedProfileStoreEntry or BrowserManagedLaunch authority. Retained runtime-status tests cover fail-closed missing/profile-missing/error states, unmanaged observation, payload shape, and empty-inventory behavior only. The production profile store remains ProtectedCustodyAdapterUnavailable; crates/agent-service/tests/integration/browser_managed_runtime.rs and crates/agent-core/tests/integration/browser_bridge_managed_launch.rs remain missing/open.",
       "roots": [
         "crates/browser-core/src/performance_budget.rs",
         "crates/browser-core/tests/unit/performance_budget.rs",
@@ -6020,6 +6021,7 @@
     },
     "WP-v0-8-enforcement-control-plan-06-managed-browser-session-control": {
       "planSlug": "v0-8-enforcement-control-plan",
+      "note": "Owner-backed managed-session coverage is manual-required: PR #709 withdrew managed-ready, running, bridge-disconnected, and connected cases that constructed private BrowserManagedProfileStoreEntry or BrowserManagedLaunch authority. Retained agent-core and agent-service roots prove fail-closed missing/error states, unmanaged observation, payload/empty-inventory behavior, and direct inventory/policy models only; they do not prove owner-issued managed profile or launch composition. The production profile store remains ProtectedCustodyAdapterUnavailable; crates/agent-service/tests/integration/browser_managed_runtime.rs and crates/agent-core/tests/integration/browser_bridge_managed_launch.rs remain missing/open.",
       "roots": [
         "crates/agent-core/src/browser_managed_session.rs",
         "crates/agent-core/src/browser_bridge_poll.rs",
