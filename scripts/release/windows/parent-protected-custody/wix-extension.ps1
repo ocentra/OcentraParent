@@ -4,6 +4,7 @@ function Get-WixUtilExtensionVersions {
         [string]$DotnetCommand
     )
 
+    Assert-TrustedCommandIntegrity -Command $DotnetCommand
     $extensionOutput = @(& $DotnetCommand wix extension list 2>&1)
     $extensionExitCode = $LASTEXITCODE
     $outputLines = @($extensionOutput | ForEach-Object { [string]$_ })

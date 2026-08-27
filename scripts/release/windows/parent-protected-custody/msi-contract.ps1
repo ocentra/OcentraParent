@@ -112,17 +112,16 @@ function Assert-MsiExecutableLifecycleContract {
         New-MsiContractSignature @('ProtectedCustodyFeature', 'ProtectedProvisioner')
         New-MsiContractSignature @('ProtectedCustodyFeature', 'ProtectedRegistryIdentity')
         New-MsiContractSignature @('ProtectedCustodyFeature', 'ProtectedRegistryRoot')
-        New-MsiContractSignature @('ProtectedCustodyFeature', 'ProtectedRegistryRuntime')
     )
     Assert-ExactMsiRowSet -Rows $featureComponentRows -Fields $featureComponentFields -ExpectedSignatures $expectedFeatureComponents -Description 'Normalized MSI FeatureComponents table'
 
-    $customActionFields = @('Action', 'Type', 'Source', 'Target')
-    $customActionRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Action`,`Type`,`Source`,`Target` FROM `CustomAction`' -FieldNames $customActionFields)
+    $customActionFields = @('Action', 'Type', 'Source', 'Target', 'ExtendedType')
+    $customActionRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Action`,`Type`,`Source`,`Target`,`ExtendedType` FROM `CustomAction`' -FieldNames $customActionFields)
     $expectedCustomActions = @(
-        New-MsiContractSignature @('RunProtectedProvisioner', '11282', 'ProtectedProvisionerFile', '')
-        New-MsiContractSignature @('Wix4SchedServiceConfig_X64', '1', 'Wix4UtilCA_X64', 'SchedServiceConfig')
-        New-MsiContractSignature @('Wix4ExecServiceConfig_X64', '3073', 'Wix4UtilCA_X64', 'ExecServiceConfig')
-        New-MsiContractSignature @('Wix4RollbackServiceConfig_X64', '3329', 'Wix4UtilCA_X64', 'RollbackServiceConfig')
+        New-MsiContractSignature @('RunProtectedProvisioner', '11282', 'ProtectedProvisionerFile', '', '')
+        New-MsiContractSignature @('Wix4SchedServiceConfig_X64', '1', 'Wix4UtilCA_X64', 'SchedServiceConfig', '')
+        New-MsiContractSignature @('Wix4ExecServiceConfig_X64', '3073', 'Wix4UtilCA_X64', 'ExecServiceConfig', '')
+        New-MsiContractSignature @('Wix4RollbackServiceConfig_X64', '3329', 'Wix4UtilCA_X64', 'RollbackServiceConfig', '')
     )
     Assert-ExactMsiRowSet -Rows $customActionRows -Fields $customActionFields -ExpectedSignatures $expectedCustomActions -Description 'Normalized MSI CustomAction table'
 
@@ -168,10 +167,10 @@ function Assert-MsiExecutableLifecycleContract {
     )
     Assert-ExactMsiRowSet -Rows $serviceControlRows -Fields $serviceControlFields -ExpectedSignatures $expectedServiceControls -Description 'Normalized MSI ServiceControl table'
 
-    $serviceInstallFields = @('ServiceInstall', 'Name', 'DisplayName', 'ServiceType', 'StartType', 'ErrorControl', 'LoadOrderGroup', 'Dependencies', 'StartName', 'Arguments', 'Component')
-    $serviceInstallRows = @(Get-MsiRows -Database $Database -Query 'SELECT `ServiceInstall`,`Name`,`DisplayName`,`ServiceType`,`StartType`,`ErrorControl`,`LoadOrderGroup`,`Dependencies`,`StartName`,`Arguments`,`Component_` FROM `ServiceInstall`' -FieldNames $serviceInstallFields)
+    $serviceInstallFields = @('ServiceInstall', 'Name', 'DisplayName', 'ServiceType', 'StartType', 'ErrorControl', 'LoadOrderGroup', 'Dependencies', 'StartName', 'Password', 'Arguments', 'Component')
+    $serviceInstallRows = @(Get-MsiRows -Database $Database -Query 'SELECT `ServiceInstall`,`Name`,`DisplayName`,`ServiceType`,`StartType`,`ErrorControl`,`LoadOrderGroup`,`Dependencies`,`StartName`,`Password`,`Arguments`,`Component_` FROM `ServiceInstall`' -FieldNames $serviceInstallFields)
     $expectedServiceInstalls = @(
-        New-MsiContractSignature @('ProtectedBrokerServiceInstall', 'OcentraProtectedCapabilityCustodyBroker', 'Ocentra Protected Capability Custody Broker', '16', '2', '32771', '', '', 'LocalSystem', '', 'ProtectedBrokerService')
+        New-MsiContractSignature @('ProtectedBrokerServiceInstall', 'OcentraProtectedCapabilityCustodyBroker', 'Ocentra Protected Capability Custody Broker', '16', '2', '32771', '', '', 'LocalSystem', '', '', 'ProtectedBrokerService')
     )
     Assert-ExactMsiRowSet -Rows $serviceInstallRows -Fields $serviceInstallFields -ExpectedSignatures $expectedServiceInstalls -Description 'Normalized MSI ServiceInstall table'
 
@@ -182,35 +181,30 @@ function Assert-MsiExecutableLifecycleContract {
     $installFolderSddl = "O:$trustedInstallerSid`G:$trustedInstallerSid`D:P(A;;FA;;;S-1-5-18)(A;;FA;;;$trustedInstallerSid)"
     $dataFolderSddl = 'O:S-1-5-18G:S-1-5-18D:P(A;;FA;;;S-1-5-18)'
     $registryOwnerSddl = "O:$trustedInstallerSid`G:$trustedInstallerSid`D:P(A;;0x20019;;;S-1-5-18)(A;;0xF003F;;;$trustedInstallerSid)"
-    $runtimeSddl = 'O:S-1-5-18G:S-1-5-18D:P(A;;0x2001F;;;S-1-5-18)'
     $expectedLocks = @(
         New-MsiContractSignature @('pmeE8Qv5NyzAhksL_QQs7tOVAydpCE', 'ProtectedBrokerServiceInstall', 'ServiceInstall', $serviceSddl, '')
         New-MsiContractSignature @('pmeOjXv8hfnxrhOlGpzKfCz9tJ4LGw', 'INSTALLFOLDER', 'CreateFolder', $installFolderSddl, '')
         New-MsiContractSignature @('pmek06rvwVULLlt2_wt0e0Towrs9W0', 'CUSTODYDATAFOLDER', 'CreateFolder', $dataFolderSddl, '')
         New-MsiContractSignature @('pmei5sGgYqPUxBwNKyfjwd9A2bexvM', 'regozpvmfX_NrEkN4q_wqmS1tt2.4I', 'Registry', $registryOwnerSddl, '')
         New-MsiContractSignature @('pmebk5tH1BaoWD_7hzuR7yzdJyl5MU', 'regxxeh8sZMWNeOQS6NQLf1_.sApTM', 'Registry', $registryOwnerSddl, '')
-        New-MsiContractSignature @('pmekTYAnSvL3ClEVP.nk72wg5mcr8k', 'reg89190W4aUM6l04GpBurHn2xquME', 'Registry', $runtimeSddl, '')
     )
     Assert-ExactMsiRowSet -Rows $lockRows -Fields $lockFields -ExpectedSignatures $expectedLocks -Description 'Normalized MSI MsiLockPermissionsEx table'
 
     $identityKey = "Software\Ocentra\ProtectedCapabilityCustody\$ExpectedRegistryId"
-    $runtimeKey = "$identityKey\Runtime"
     $registryFields = @('Registry', 'Root', 'Key', 'Name', 'Value', 'Component')
     $registryRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Registry`,`Root`,`Key`,`Name`,`Value`,`Component_` FROM `Registry`' -FieldNames $registryFields)
     $expectedRegistryRows = @(
         New-MsiContractSignature @('regozpvmfX_NrEkN4q_wqmS1tt2.4I', '2', 'Software\Ocentra\ProtectedCapabilityCustody', '+', '', 'ProtectedRegistryRoot')
         New-MsiContractSignature @('regxxeh8sZMWNeOQS6NQLf1_.sApTM', '2', $identityKey, '+', '', 'ProtectedRegistryIdentity')
-        New-MsiContractSignature @('reg89190W4aUM6l04GpBurHn2xquME', '2', $runtimeKey, '+', '', 'ProtectedRegistryRuntime')
         New-MsiContractSignature @('regkP_Jbt438.5ExKeM2XCSMBVllIw', '2', 'Software\Ocentra\ProtectedCapabilityCustody', 'package-boundary', 'parent-protected-custody-v1', 'ProtectedRegistryRoot')
         New-MsiContractSignature @('regtTGIb_gK5eVPxxvq3qt45QHEHyE', '2', $identityKey, 'package-boundary', 'parent-protected-custody-v1', 'ProtectedRegistryIdentity')
-        New-MsiContractSignature @('regguXcacexqro0gRB5CoZO.VU3GMo', '2', $runtimeKey, 'broker-image-sha256', "#x$ExpectedBrokerHash", 'ProtectedRegistryRuntime')
     )
     Assert-ExactMsiRowSet -Rows $registryRows -Fields $registryFields -ExpectedSignatures $expectedRegistryRows -Description 'Normalized MSI Registry table'
 
-    $wixServiceFields = @('ServiceName', 'Component', 'First', 'Second', 'Third', 'ResetDays', 'RestartSeconds')
-    $wixServiceRows = @(Get-MsiRows -Database $Database -Query 'SELECT `ServiceName`,`Component_`,`FirstFailureActionType`,`SecondFailureActionType`,`ThirdFailureActionType`,`ResetPeriodInDays`,`RestartServiceDelayInSeconds` FROM `Wix4ServiceConfig`' -FieldNames $wixServiceFields)
+    $wixServiceFields = @('ServiceName', 'Component', 'NewService', 'First', 'Second', 'Third', 'ResetDays', 'RestartSeconds', 'ProgramCommandLine', 'RebootMessage')
+    $wixServiceRows = @(Get-MsiRows -Database $Database -Query 'SELECT `ServiceName`,`Component_`,`NewService`,`FirstFailureActionType`,`SecondFailureActionType`,`ThirdFailureActionType`,`ResetPeriodInDays`,`RestartServiceDelayInSeconds`,`ProgramCommandLine`,`RebootMessage` FROM `Wix4ServiceConfig`' -FieldNames $wixServiceFields)
     $expectedWixServiceRows = @(
-        New-MsiContractSignature @('OcentraProtectedCapabilityCustodyBroker', 'ProtectedBrokerService', 'restart', 'restart', 'restart', '1', '10')
+        New-MsiContractSignature @('OcentraProtectedCapabilityCustodyBroker', 'ProtectedBrokerService', '1', 'restart', 'restart', 'restart', '1', '10', '', '')
     )
     Assert-ExactMsiRowSet -Rows $wixServiceRows -Fields $wixServiceFields -ExpectedSignatures $expectedWixServiceRows -Description 'Normalized MSI Wix4ServiceConfig table'
 
@@ -228,4 +222,18 @@ function Assert-MsiExecutableLifecycleContract {
         New-MsiContractSignature @('NOT WIX_DOWNGRADE_DETECTED', 'A newer Ocentra Parent protected custody package is already installed.')
     )
     Assert-ExactMsiRowSet -Rows $launchRows -Fields $launchFields -ExpectedSignatures $expectedLaunchRows -Description 'Normalized MSI LaunchCondition table'
+}
+
+function Assert-MsiMediaContract {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Database
+    )
+
+    $mediaFields = @('DiskId', 'LastSequence', 'DiskPrompt', 'Cabinet', 'VolumeLabel', 'Source')
+    $mediaRows = @(Get-MsiRows -Database $Database -Query 'SELECT DiskId,LastSequence,DiskPrompt,Cabinet,VolumeLabel,Source FROM Media' -FieldNames $mediaFields)
+    $expectedMedia = @(
+        New-MsiContractSignature @('1', '2', '', '#cab1.cab', '', '')
+    )
+    Assert-ExactMsiRowSet -Rows $mediaRows -Fields $mediaFields -ExpectedSignatures $expectedMedia -Description 'Normalized MSI Media table'
 }

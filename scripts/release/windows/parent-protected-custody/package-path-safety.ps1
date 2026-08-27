@@ -152,6 +152,7 @@ function New-SafePackageDirectory {
                 throw "$Description '$fullPath' crosses non-directory '$currentPath'."
             }
         } else {
+            Assert-PhysicalPackagePathUnderRoot -Path $currentPath -Root $fullRoot -Description "$Description creation parent" | Out-Null
             New-Item -ItemType Directory -Path $currentPath | Out-Null
         }
         Assert-NoPackageReparseChain -Path $currentPath -Description $Description
@@ -187,6 +188,71 @@ function Assert-SafePackageLeafPath {
     return $fullPath
 }
 
+function Copy-SafePackageFile {
+    param(
+        [Parameter(Mandatory)]
+        [string]$SourcePath,
+
+        [Parameter(Mandatory)]
+        [string]$DestinationPath,
+
+        [Parameter(Mandatory)]
+        [string]$Root,
+
+        [Parameter(Mandatory)]
+        [string]$Description
+    )
+
+    $safeSource = Assert-SafePackageLeafPath -Path $SourcePath -Root $Root -Description "$Description source"
+    $safeDestination = Assert-SafePackageLeafPath -Path $DestinationPath -Root $Root -Description "$Description destination"
+    if (Test-Path -LiteralPath $safeDestination) {
+        throw "$Description destination '$safeDestination' already exists; refusing to overwrite it."
+    }
+    Assert-SafePackageLeafPath -Path $safeSource -Root $Root -Description "$Description source immediately before copy" | Out-Null
+    Assert-SafePackageLeafPath -Path $safeDestination -Root $Root -Description "$Description destination immediately before copy" | Out-Null
+    [System.IO.File]::Copy($safeSource, $safeDestination, $false)
+    Assert-SafePackageLeafPath -Path $safeDestination -Root $Root -Description "$Description copied file" | Out-Null
+    return $safeDestination
+}
+
+function Move-SafePackageDirectory {
+    param(
+        [Parameter(Mandatory)]
+        [string]$SourcePath,
+
+        [Parameter(Mandatory)]
+        [string]$DestinationPath,
+
+        [Parameter(Mandatory)]
+        [string]$Root,
+
+        [Parameter(Mandatory)]
+        [string]$Description
+    )
+
+    $safeSource = Assert-PhysicalPackagePathUnderRoot -Path $SourcePath -Root $Root -Description "$Description source"
+    $safeDestination = Assert-PhysicalPackagePathUnderRoot -Path $DestinationPath -Root $Root -Description "$Description destination"
+    if (-not (Test-Path -LiteralPath $safeSource -PathType Container)) {
+        throw "$Description source '$safeSource' is not an existing directory."
+    }
+    if (Test-Path -LiteralPath $safeDestination) {
+        throw "$Description destination '$safeDestination' already exists; refusing replacement."
+    }
+    $sourceParent = [System.IO.Path]::GetDirectoryName($safeSource)
+    $destinationParent = [System.IO.Path]::GetDirectoryName($safeDestination)
+    Assert-PhysicalPackagePathUnderRoot -Path $sourceParent -Root $Root -Description "$Description source parent immediately before move" | Out-Null
+    Assert-PhysicalPackagePathUnderRoot -Path $destinationParent -Root $Root -Description "$Description destination parent immediately before move" | Out-Null
+    Assert-NoPackageReparseChain -Path $safeSource -Description "$Description source immediately before move"
+    Assert-NoPackageReparseChain -Path $destinationParent -Description "$Description destination parent immediately before move"
+    # Directory.Move is an OS rename on one volume and refuses an existing
+    # destination. The lock/journal make this transaction exclusive for
+    # cooperating publishers; Windows provides no universal no-follow rename
+    # primitive, so the immediately-before physical checks are retained.
+    [System.IO.Directory]::Move($safeSource, $safeDestination)
+    Assert-PhysicalPackagePathUnderRoot -Path $safeDestination -Root $Root -Description "$Description moved directory" | Out-Null
+    return $safeDestination
+}
+
 function Remove-SafePackagePath {
     param(
         [Parameter(Mandatory)]
@@ -214,6 +280,16 @@ function Remove-SafePackagePath {
                 }
             }
         }
-        Remove-Item -LiteralPath $fullPath -Recurse -Force
+        Assert-NoPackageReparseChain -Path $fullPath -Description "$Description immediately before removal"
+        # Windows does not expose a universal no-follow recursive-delete
+        # primitive through .NET. The physical checks are therefore repeated
+        # immediately before the delete; callers must treat a concurrent
+        # uncooperating replacement as an OS-level limitation, not as proof of
+        # stronger atomic/no-follow semantics.
+        if ($item.PSIsContainer) {
+            [System.IO.Directory]::Delete($fullPath, $true)
+        } else {
+            [System.IO.File]::Delete($fullPath)
+        }
     }
 }
