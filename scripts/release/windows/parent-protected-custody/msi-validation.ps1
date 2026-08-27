@@ -23,13 +23,17 @@ function Set-DeterministicMsiSummary {
         [string]$Path,
 
         [Parameter(Mandatory)]
-        [string]$PackageCode
+        [string]$PackageCode,
+
+        [Parameter(Mandatory)]
+        [string]$PackageRoot
     )
 
     # WiX emits mutable SummaryInformation.PackageCode and current
     # Created/LastSaved metadata. Normalize only the supported fields through
     # the Windows Installer COM API, then require a repeated-build byte
     # comparison. This helper alone is not a reproducibility claim.
+    Assert-SafePackageLeafPath -Path $Path -Root $PackageRoot -Description 'MSI summary target' | Out-Null
     $installer = $null
     $database = $null
     $summary = $null
@@ -45,7 +49,11 @@ function Set-DeterministicMsiSummary {
         )
         $summary.Property(12) = $fixedDate
         $summary.Property(13) = $fixedDate
+        $summary.Property(14) = 500
+        $summary.Property(15) = 3
+        Assert-SafePackageLeafPath -Path $Path -Root $PackageRoot -Description 'MSI summary target immediately before persist' | Out-Null
         $summary.Persist()
+        Assert-SafePackageLeafPath -Path $Path -Root $PackageRoot -Description 'MSI summary target immediately before commit' | Out-Null
         $database.Commit()
     } catch {
         throw "Windows Installer metadata normalization is unavailable; refusing to emit a non-deterministic MSI: $($_.Exception.Message)"
@@ -53,6 +61,47 @@ function Set-DeterministicMsiSummary {
         Release-MsiComObject -ComObject $summary
         Release-MsiComObject -ComObject $database
         Release-MsiComObject -ComObject $installer
+    }
+}
+
+function Assert-MsiSummaryContract {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Database,
+
+        [Parameter(Mandatory)]
+        [string]$ExpectedPackageCode
+    )
+
+    $summary = $null
+    try {
+        $summary = $Database.SummaryInformation(20)
+        $expected = [ordered]@{
+            1 = '1252'
+            7 = 'x64;1033'
+            9 = $ExpectedPackageCode
+            14 = '500'
+            15 = '3'
+        }
+        foreach ($propertyId in $expected.Keys) {
+            $actual = [string]$summary.Property([int]$propertyId)
+            if ($actual -cne [string]$expected[$propertyId]) {
+                throw "MSI SummaryInformation property $propertyId expected '$($expected[$propertyId])' but found '$actual'."
+            }
+        }
+        $fixedDate = [DateTime]::ParseExact(
+            '2000-01-01T00:00:00',
+            'yyyy-MM-ddTHH:mm:ss',
+            [Globalization.CultureInfo]::InvariantCulture
+        )
+        foreach ($propertyId in @(12, 13)) {
+            $actualDate = [DateTime]$summary.Property($propertyId)
+            if ($actualDate -ne $fixedDate) {
+                throw "MSI SummaryInformation property $propertyId is not the fixed reproducibility timestamp."
+            }
+        }
+    } finally {
+        Release-MsiComObject -ComObject $summary
     }
 }
 
@@ -116,12 +165,16 @@ function Read-CfbUInt32Le {
 function Normalize-CfbRootModifiedFileTime {
     param(
         [Parameter(Mandatory)]
-        [string]$Path
+        [string]$Path,
+
+        [Parameter(Mandatory)]
+        [string]$PackageRoot
     )
 
     if (-not [System.BitConverter]::IsLittleEndian) {
         throw 'CFB normalization requires a little-endian host; refusing to mutate the MSI.'
     }
+    Assert-SafePackageLeafPath -Path $Path -Root $PackageRoot -Description 'CFB normalization target' | Out-Null
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
         throw "Cannot normalize missing MSI '$Path'."
     }
@@ -213,6 +266,8 @@ function Normalize-CfbRootModifiedFileTime {
     if (Test-Path -LiteralPath $backupPath) {
         throw "CFB normalization backup path '$backupPath' already exists; refusing to overwrite it."
     }
+    Assert-SafePackageLeafPath -Path $temporaryPath -Root $PackageRoot -Description 'CFB normalization temporary' | Out-Null
+    Assert-SafePackageLeafPath -Path $backupPath -Root $PackageRoot -Description 'CFB normalization backup' | Out-Null
     try {
         $stream = $null
         try {
@@ -229,16 +284,19 @@ function Normalize-CfbRootModifiedFileTime {
                 $stream.Dispose()
             }
         }
+        Assert-SafePackageLeafPath -Path $temporaryPath -Root $PackageRoot -Description 'CFB temporary immediately before replace' | Out-Null
+        Assert-SafePackageLeafPath -Path $Path -Root $PackageRoot -Description 'CFB target immediately before replace' | Out-Null
+        Assert-SafePackageLeafPath -Path $backupPath -Root $PackageRoot -Description 'CFB backup immediately before replace' | Out-Null
         [System.IO.File]::Replace($temporaryPath, $Path, $backupPath, $true)
         if (Test-Path -LiteralPath $backupPath) {
-            Remove-Item -LiteralPath $backupPath -Force
+            Remove-SafePackagePath -Path $backupPath -Root $PackageRoot -Description 'CFB normalization backup cleanup'
         }
     } catch {
         if (Test-Path -LiteralPath $temporaryPath) {
-            Remove-Item -LiteralPath $temporaryPath -Force
+            Remove-SafePackagePath -Path $temporaryPath -Root $PackageRoot -Description 'CFB normalization temporary cleanup'
         }
         if (Test-Path -LiteralPath $backupPath) {
-            Remove-Item -LiteralPath $backupPath -Force
+            throw "Safe CFB root FILETIME normalization stopped with preserved backup '$backupPath' for '$Path': $($_.Exception.Message)"
         }
         throw "Safe CFB root FILETIME normalization failed for '$Path': $($_.Exception.Message)"
     }
@@ -334,6 +392,7 @@ function Assert-MsiRequiredTables {
         'File',
         'InstallExecuteSequence',
         'LaunchCondition',
+        'Media',
         'MsiLockPermissionsEx',
         'Property',
         'Registry',
@@ -342,6 +401,16 @@ function Assert-MsiRequiredTables {
         'Upgrade',
         'Wix4ServiceConfig'
     )
+    if (@($TableNames | Select-Object -Unique).Count -ne $TableNames.Count) {
+        throw 'Normalized MSI table inventory contains duplicate table names.'
+    }
+    $unexpected = @($TableNames | Where-Object { $required -notcontains $_ })
+    if ($unexpected.Count -gt 0) {
+        throw "Normalized MSI contains unexpected tables '$($unexpected -join ', ')'; the fixed MSI table allowlist is exhaustive."
+    }
+    if ($TableNames.Count -ne $required.Count) {
+        throw "Normalized MSI exposes $($TableNames.Count) tables; the fixed allowlist requires exactly $($required.Count)."
+    }
     foreach ($tableName in $required) {
         if ($TableNames -notcontains $tableName) {
             throw "Normalized MSI is missing required fixed table '$tableName'."
@@ -349,6 +418,56 @@ function Assert-MsiRequiredTables {
     }
     if ($TableNames -contains 'MsiServiceConfig') {
         throw 'Normalized MSI contains deprecated MsiServiceConfig; ServiceSid must remain an external Protected WP02 owner operation.'
+    }
+}
+
+function Assert-MsiTableSchema {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Database
+    )
+
+    $expectedColumns = [ordered]@{
+        Component = @('Component', 'ComponentId', 'Directory_', 'Attributes', 'Condition', 'KeyPath')
+        CreateFolder = @('Directory_', 'Component_')
+        CustomAction = @('Action', 'Type', 'Source', 'Target', 'ExtendedType')
+        Directory = @('Directory', 'Directory_Parent', 'DefaultDir')
+        Feature = @('Feature', 'Feature_Parent', 'Title', 'Description', 'Display', 'Level', 'Directory_', 'Attributes')
+        FeatureComponents = @('Feature_', 'Component_')
+        File = @('File', 'Component_', 'FileName', 'FileSize', 'Version', 'Language', 'Attributes', 'Sequence')
+        InstallExecuteSequence = @('Action', 'Condition', 'Sequence')
+        LaunchCondition = @('Condition', 'Description')
+        Media = @('DiskId', 'LastSequence', 'DiskPrompt', 'Cabinet', 'VolumeLabel', 'Source')
+        MsiLockPermissionsEx = @('MsiLockPermissionsEx', 'LockObject', 'Table', 'SDDLText', 'Condition')
+        Property = @('Property', 'Value')
+        Registry = @('Registry', 'Root', 'Key', 'Name', 'Value', 'Component_')
+        ServiceControl = @('ServiceControl', 'Name', 'Event', 'Arguments', 'Wait', 'Component_')
+        ServiceInstall = @('ServiceInstall', 'Name', 'DisplayName', 'ServiceType', 'StartType', 'ErrorControl', 'LoadOrderGroup', 'Dependencies', 'StartName', 'Password', 'Arguments', 'Component_')
+        Upgrade = @('UpgradeCode', 'VersionMin', 'VersionMax', 'Language', 'Attributes', 'Remove', 'ActionProperty')
+        Wix4ServiceConfig = @('ServiceName', 'Component_', 'NewService', 'FirstFailureActionType', 'SecondFailureActionType', 'ThirdFailureActionType', 'ResetPeriodInDays', 'RestartServiceDelayInSeconds', 'ProgramCommandLine', 'RebootMessage')
+    }
+    $columnRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Table`,`Number`,`Name` FROM `_Columns`' -FieldNames @('Table', 'Number', 'Name'))
+    foreach ($tableName in $expectedColumns.Keys) {
+        $actualRows = @($columnRows | Where-Object { [string]$_.Table -ceq $tableName } | Sort-Object { [int]$_.Number })
+        $actual = @($actualRows | ForEach-Object { [string]$_.Name })
+        $expected = @($expectedColumns[$tableName])
+        $actualNumbers = @($actualRows | ForEach-Object { [int]$_.Number })
+        $expectedNumbers = @(1..$expected.Count)
+        if ($actual.Count -ne $expected.Count -or @($actual | Select-Object -Unique).Count -ne $actual.Count -or
+            @($actualNumbers | Select-Object -Unique).Count -ne $actualNumbers.Count -or
+            (($actualNumbers -join ',') -cne ($expectedNumbers -join ','))) {
+            throw "Normalized MSI table '$tableName' exposes columns '$($actual -join ', ')'; expected the exhaustive fixed schema '$($expected -join ', ')'."
+        }
+        foreach ($columnName in $expected) {
+            if ($actual -notcontains $columnName) {
+                throw "Normalized MSI table '$tableName' is missing fixed column '$columnName'."
+            }
+        }
+    }
+    $knownTables = @($expectedColumns.Keys)
+    $unexpectedRows = @($columnRows | Where-Object { $knownTables -notcontains [string]$_.Table })
+    if ($unexpectedRows.Count -gt 0) {
+        throw "Normalized MSI exposes schema rows for unexpected table '$([string]$unexpectedRows[0].Table)'."
     }
 }
 
@@ -373,6 +492,9 @@ function Assert-MsiFixedContent {
         [string]$ExpectedProductCode,
 
         [Parameter(Mandatory)]
+        [string]$ExpectedPackageCode,
+
+        [Parameter(Mandatory)]
         [string]$ExpectedBrokerHash,
 
         [Parameter(Mandatory)]
@@ -385,13 +507,24 @@ function Assert-MsiFixedContent {
         [string]$BrokerBinaryPath,
 
         [Parameter(Mandatory)]
-        [string]$ProvisionerBinaryPath
+        [string]$ProvisionerBinaryPath,
+
+        [Parameter(Mandatory)]
+        [string]$PackageRoot
     )
+
+    Assert-SafePackageLeafPath -Path $CandidateMsiPath -Root $PackageRoot -Description 'MSI candidate validation input' | Out-Null
+    Assert-PhysicalPackagePathUnderRoot -Path $CandidateIntermediatePath -Root $PackageRoot -Description 'MSI candidate validation root' | Out-Null
+    Assert-SafePackageLeafPath -Path $BrokerBinaryPath -Root (Split-Path -Parent $PackageRoot) -Description 'Broker validation input' | Out-Null
+    Assert-SafePackageLeafPath -Path $ProvisionerBinaryPath -Root (Split-Path -Parent $PackageRoot) -Description 'Provisioner validation input' | Out-Null
 
     $tableRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Name` FROM `_Tables`' -FieldNames @('Name'))
     $tableNames = @($tableRows | ForEach-Object { $_.Name })
     Assert-MsiRequiredTables -TableNames $tableNames
+    Assert-MsiTableSchema -Database $Database
+    Assert-MsiSummaryContract -Database $Database -ExpectedPackageCode $ExpectedPackageCode
     Assert-MsiExecutableLifecycleContract -Database $Database -ExpectedVersion $ExpectedVersion -ExpectedRegistryId $ExpectedRegistryId -ExpectedBrokerHash $ExpectedBrokerHash
+    Assert-MsiMediaContract -Database $Database
 
     $propertyRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Property`,`Value` FROM `Property`' -FieldNames @('Property', 'Value'))
     $expectedProperties = [ordered]@{
@@ -424,15 +557,14 @@ function Assert-MsiFixedContent {
         }
     }
 
-    $componentRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Component`,`ComponentId`,`Directory_`,`Attributes`,`KeyPath` FROM `Component`' -FieldNames @('Component', 'ComponentId', 'Directory', 'Attributes', 'KeyPath'))
+    $componentRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Component`,`ComponentId`,`Directory_`,`Attributes`,`Condition`,`KeyPath` FROM `Component`' -FieldNames @('Component', 'ComponentId', 'Directory', 'Attributes', 'Condition', 'KeyPath'))
     $expectedComponents = [ordered]@{
-        ProtectedBrokerService = @('{65D9B85B-1DBA-4B42-86F1-DB8F20BD4F51}', 'INSTALLFOLDER', '256', 'ProtectedBrokerFile')
-        ProtectedCustodyDataDirectory = @('{A2D4CEFE-44C4-4E33-B96C-6C3AE5BAA6A9}', 'CUSTODYDATAFOLDER', '272', '')
-        ProtectedInstallDirectory = @('{2B86B79F-72B4-4C7A-9B5E-14A3FC1EF1B6}', 'INSTALLFOLDER', '272', '')
-        ProtectedProvisioner = @('{87B06C30-3A3A-44B3-B6B8-F1F6F0A4DFA2}', 'INSTALLFOLDER', '256', 'ProtectedProvisionerFile')
-        ProtectedRegistryIdentity = @('{6D51662C-3D41-4694-8FEF-2548B0DE9DCE}', 'INSTALLFOLDER', '276', '')
-        ProtectedRegistryRoot = @('{C7393427-4FD2-46A8-8A19-CF6ABF4E48A2}', 'INSTALLFOLDER', '276', '')
-        ProtectedRegistryRuntime = @('{C5C0C36B-3DAB-4C6C-8C67-BB5297F14F25}', 'INSTALLFOLDER', '276', '')
+        ProtectedBrokerService = @('{65D9B85B-1DBA-4B42-86F1-DB8F20BD4F51}', 'INSTALLFOLDER', '256', '', 'ProtectedBrokerFile')
+        ProtectedCustodyDataDirectory = @('{A2D4CEFE-44C4-4E33-B96C-6C3AE5BAA6A9}', 'CUSTODYDATAFOLDER', '272', '', '')
+        ProtectedInstallDirectory = @('{2B86B79F-72B4-4C7A-9B5E-14A3FC1EF1B6}', 'INSTALLFOLDER', '272', '', '')
+        ProtectedProvisioner = @('{87B06C30-3A3A-44B3-B6B8-F1F6F0A4DFA2}', 'INSTALLFOLDER', '256', '', 'ProtectedProvisionerFile')
+        ProtectedRegistryIdentity = @('{6D51662C-3D41-4694-8FEF-2548B0DE9DCE}', 'INSTALLFOLDER', '276', '', 'regxxeh8sZMWNeOQS6NQLf1_.sApTM')
+        ProtectedRegistryRoot = @('{C7393427-4FD2-46A8-8A19-CF6ABF4E48A2}', 'INSTALLFOLDER', '276', '', 'regozpvmfX_NrEkN4q_wqmS1tt2.4I')
     }
     if ($componentRows.Count -ne $expectedComponents.Count) {
         throw "Normalized MSI Component table has $($componentRows.Count) rows; expected exactly $($expectedComponents.Count)."
@@ -446,23 +578,19 @@ function Assert-MsiFixedContent {
         Assert-MsiRowValue -Row $row -Field ComponentId -Expected $expected[0] -Description "Component '$componentName' identity"
         Assert-MsiRowValue -Row $row -Field Directory -Expected $expected[1] -Description "Component '$componentName' directory"
         Assert-MsiRowValue -Row $row -Field Attributes -Expected $expected[2] -Description "Component '$componentName' attributes"
-        if ([string]$expected[3] -ne '' -and [string]$row.KeyPath -cne [string]$expected[3]) {
-            throw "Component '$componentName' has key path '$($row.KeyPath)', not '$($expected[3])'."
-        }
-        if ([string]$expected[3] -eq '' -and $componentName.StartsWith('ProtectedRegistry', [System.StringComparison]::Ordinal) -and [string]$row.KeyPath -notmatch '^reg') {
-            throw "Registry component '$componentName' does not have a generated registry key path."
-        }
+        Assert-MsiRowValue -Row $row -Field Condition -Expected $expected[3] -Description "Component '$componentName' condition"
+        Assert-MsiRowValue -Row $row -Field KeyPath -Expected $expected[4] -Description "Component '$componentName' key path"
     }
 
     $brokerSize = [string](Get-Item -LiteralPath $BrokerBinaryPath).Length
     $provisionerSize = [string](Get-Item -LiteralPath $ProvisionerBinaryPath).Length
-    $fileRows = @(Get-MsiRows -Database $Database -Query 'SELECT `File`,`Component_`,`FileName`,`FileSize`,`Sequence` FROM `File`' -FieldNames @('File', 'Component', 'FileName', 'FileSize', 'Sequence'))
+    $fileRows = @(Get-MsiRows -Database $Database -Query 'SELECT `File`,`Component_`,`FileName`,`FileSize`,`Version`,`Language`,`Attributes`,`Sequence` FROM `File`' -FieldNames @('File', 'Component', 'FileName', 'FileSize', 'Version', 'Language', 'Attributes', 'Sequence'))
     if ($fileRows.Count -ne 2) {
         throw "Normalized MSI File table has $($fileRows.Count) rows; expected exactly two fixed payload files."
     }
     $expectedFiles = @{
-        ProtectedBrokerFile = @('ProtectedBrokerService', 'ocentra-protected-capability-custody-broker.exe', $brokerSize, '1', $ExpectedBrokerHash)
-        ProtectedProvisionerFile = @('ProtectedProvisioner', 'ocentra-protected-capability-custody-provisioner.exe', $provisionerSize, '2', $ExpectedProvisionerHash)
+        ProtectedBrokerFile = @('ProtectedBrokerService', 'ocentr~1.exe|ocentra-protected-capability-custody-broker.exe', $brokerSize, '', '', '512', '1')
+        ProtectedProvisionerFile = @('ProtectedProvisioner', 'ocentr~2.exe|ocentra-protected-capability-custody-provisioner.exe', $provisionerSize, '', '', '512', '2')
     }
     foreach ($row in $fileRows) {
         $fileId = [string]$row.File
@@ -471,15 +599,15 @@ function Assert-MsiFixedContent {
         }
         $expected = $expectedFiles[$fileId]
         Assert-MsiRowValue -Row $row -Field Component -Expected $expected[0] -Description "File '$fileId' component"
-        $fileNameParts = ([string]$row.FileName) -split '\|', 2
-        if ($fileNameParts.Count -ne 2 -or $fileNameParts[1] -cne $expected[1]) {
-            throw "File '$fileId' has unexpected short/long name '$($row.FileName)'."
-        }
+        Assert-MsiRowValue -Row $row -Field FileName -Expected $expected[1] -Description "File '$fileId' short/long name"
         Assert-MsiRowValue -Row $row -Field FileSize -Expected $expected[2] -Description "File '$fileId' size"
-        Assert-MsiRowValue -Row $row -Field Sequence -Expected $expected[3] -Description "File '$fileId' sequence"
+        Assert-MsiRowValue -Row $row -Field Version -Expected $expected[3] -Description "File '$fileId' version"
+        Assert-MsiRowValue -Row $row -Field Language -Expected $expected[4] -Description "File '$fileId' language"
+        Assert-MsiRowValue -Row $row -Field Attributes -Expected $expected[5] -Description "File '$fileId' attributes"
+        Assert-MsiRowValue -Row $row -Field Sequence -Expected $expected[6] -Description "File '$fileId' sequence"
     }
 
-    $serviceRows = @(Get-MsiRows -Database $Database -Query 'SELECT `ServiceInstall`,`Name`,`DisplayName`,`ServiceType`,`StartType`,`ErrorControl`,`LoadOrderGroup`,`Dependencies`,`StartName`,`Arguments`,`Component_` FROM `ServiceInstall`' -FieldNames @('ServiceInstall', 'Name', 'DisplayName', 'ServiceType', 'StartType', 'ErrorControl', 'LoadOrderGroup', 'Dependencies', 'StartName', 'Arguments', 'Component'))
+    $serviceRows = @(Get-MsiRows -Database $Database -Query 'SELECT `ServiceInstall`,`Name`,`DisplayName`,`ServiceType`,`StartType`,`ErrorControl`,`LoadOrderGroup`,`Dependencies`,`StartName`,`Password`,`Arguments`,`Component_` FROM `ServiceInstall`' -FieldNames @('ServiceInstall', 'Name', 'DisplayName', 'ServiceType', 'StartType', 'ErrorControl', 'LoadOrderGroup', 'Dependencies', 'StartName', 'Password', 'Arguments', 'Component'))
     if ($serviceRows.Count -ne 1) {
         throw "Normalized MSI ServiceInstall table has $($serviceRows.Count) rows; expected exactly one broker service."
     }
@@ -494,6 +622,7 @@ function Assert-MsiFixedContent {
         LoadOrderGroup = ''
         Dependencies = ''
         StartName = 'LocalSystem'
+        Password = ''
         Arguments = ''
         Component = 'ProtectedBrokerService'
     }
@@ -501,7 +630,7 @@ function Assert-MsiFixedContent {
         Assert-MsiRowValue -Row $service -Field $field -Expected $serviceValues[$field] -Description "Broker ServiceInstall '$field'"
     }
 
-    $customActionRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Action`,`Type`,`Source`,`Target` FROM `CustomAction`' -FieldNames @('Action', 'Type', 'Source', 'Target'))
+    $customActionRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Action`,`Type`,`Source`,`Target`,`ExtendedType` FROM `CustomAction`' -FieldNames @('Action', 'Type', 'Source', 'Target', 'ExtendedType'))
     $provisionerActions = @($customActionRows | Where-Object { $_.Action -eq 'RunProtectedProvisioner' })
     if ($provisionerActions.Count -ne 1) {
         throw "Normalized MSI must contain exactly one RunProtectedProvisioner custom action."
@@ -510,6 +639,7 @@ function Assert-MsiFixedContent {
     Assert-MsiRowValue -Row $provisionerAction -Field Type -Expected '11282' -Description 'RunProtectedProvisioner custom action type'
     Assert-MsiRowValue -Row $provisionerAction -Field Source -Expected 'ProtectedProvisionerFile' -Description 'RunProtectedProvisioner custom action source'
     Assert-MsiRowValue -Row $provisionerAction -Field Target -Expected '' -Description 'RunProtectedProvisioner custom action target'
+    Assert-MsiRowValue -Row $provisionerAction -Field ExtendedType -Expected '' -Description 'RunProtectedProvisioner custom action extended type'
 
     $sequenceRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Action`,`Condition`,`Sequence` FROM `InstallExecuteSequence`' -FieldNames @('Action', 'Condition', 'Sequence'))
     $runSequenceRows = @($sequenceRows | Where-Object { $_.Action -eq 'RunProtectedProvisioner' })
@@ -524,14 +654,11 @@ function Assert-MsiFixedContent {
 
     $registryRows = @(Get-MsiRows -Database $Database -Query 'SELECT `Root`,`Key`,`Name`,`Value` FROM `Registry`' -FieldNames @('Root', 'Key', 'Name', 'Value'))
     $identityKey = "Software\Ocentra\ProtectedCapabilityCustody\$ExpectedRegistryId"
-    $runtimeKey = "$identityKey\Runtime"
     $expectedRegistryRows = @(
         "2|Software\Ocentra\ProtectedCapabilityCustody|+|",
         "2|$identityKey|+|",
-        "2|$runtimeKey|+|",
         "2|Software\Ocentra\ProtectedCapabilityCustody|package-boundary|parent-protected-custody-v1",
-        "2|$identityKey|package-boundary|parent-protected-custody-v1",
-        "2|$runtimeKey|broker-image-sha256|#x$ExpectedBrokerHash"
+        "2|$identityKey|package-boundary|parent-protected-custody-v1"
     )
     $actualRegistryRows = @($registryRows | ForEach-Object { "$($_.Root)|$($_.Key)|$($_.Name)|$($_.Value)" })
     if ($actualRegistryRows.Count -ne $expectedRegistryRows.Count) {
@@ -548,7 +675,7 @@ function Assert-MsiFixedContent {
         }
     }
 
-    $wixServiceRows = @(Get-MsiRows -Database $Database -Query 'SELECT `ServiceName`,`Component_`,`FirstFailureActionType`,`SecondFailureActionType`,`ThirdFailureActionType`,`ResetPeriodInDays`,`RestartServiceDelayInSeconds` FROM `Wix4ServiceConfig`' -FieldNames @('ServiceName', 'Component', 'FirstFailureActionType', 'SecondFailureActionType', 'ThirdFailureActionType', 'ResetPeriodInDays', 'RestartServiceDelayInSeconds'))
+    $wixServiceRows = @(Get-MsiRows -Database $Database -Query 'SELECT `ServiceName`,`Component_`,`NewService`,`FirstFailureActionType`,`SecondFailureActionType`,`ThirdFailureActionType`,`ResetPeriodInDays`,`RestartServiceDelayInSeconds`,`ProgramCommandLine`,`RebootMessage` FROM `Wix4ServiceConfig`' -FieldNames @('ServiceName', 'Component', 'NewService', 'FirstFailureActionType', 'SecondFailureActionType', 'ThirdFailureActionType', 'ResetPeriodInDays', 'RestartServiceDelayInSeconds', 'ProgramCommandLine', 'RebootMessage'))
     if ($wixServiceRows.Count -ne 1) {
         throw "Normalized MSI Wix4ServiceConfig table has $($wixServiceRows.Count) rows; expected one supported failure-action row."
     }
@@ -556,11 +683,14 @@ function Assert-MsiFixedContent {
     $wixServiceValues = [ordered]@{
         ServiceName = 'OcentraProtectedCapabilityCustodyBroker'
         Component = 'ProtectedBrokerService'
+        NewService = '1'
         FirstFailureActionType = 'restart'
         SecondFailureActionType = 'restart'
         ThirdFailureActionType = 'restart'
         ResetPeriodInDays = '1'
         RestartServiceDelayInSeconds = '10'
+        ProgramCommandLine = ''
+        RebootMessage = ''
     }
     foreach ($field in $wixServiceValues.Keys) {
         Assert-MsiRowValue -Row $wixService -Field $field -Expected $wixServiceValues[$field] -Description "Wix4ServiceConfig '$field'"
@@ -573,7 +703,10 @@ function Assert-MsiFixedContent {
             throw "Unique MSI validation output '$validationOutput' already exists; refusing to overwrite or reuse it."
         }
     }
-    New-Item -ItemType Directory -Path $decompileRoot | Out-Null
+    New-SafePackageDirectory -Path $decompileRoot -Root $PackageRoot -Description 'MSI payload validation root' | Out-Null
+    Assert-SafePackageLeafPath -Path $decompiledSourcePath -Root $PackageRoot -Description 'MSI decompile source output' | Out-Null
+    Assert-NoPackageReparseChain -Path $decompileRoot -Description 'MSI payload validation root immediately before decompile'
+    Assert-SafePackageLeafPath -Path $CandidateMsiPath -Root $PackageRoot -Description 'MSI candidate immediately before decompile' | Out-Null
     Invoke-CheckedCommand -Command $DotnetCommand -ArgumentList @(
         'wix',
         'msi',
@@ -587,6 +720,8 @@ function Assert-MsiFixedContent {
     Assert-NonEmptyFile -Path $decompiledSourcePath -Description 'Normalized MSI decompile source'
     $extractedBrokerPath = Join-Path $decompileRoot 'File\ProtectedBrokerFile'
     $extractedProvisionerPath = Join-Path $decompileRoot 'File\ProtectedProvisionerFile'
+    Assert-SafePackageLeafPath -Path $extractedBrokerPath -Root $PackageRoot -Description 'Extracted broker payload' | Out-Null
+    Assert-SafePackageLeafPath -Path $extractedProvisionerPath -Root $PackageRoot -Description 'Extracted provisioner payload' | Out-Null
     Assert-NonEmptyFile -Path $extractedBrokerPath -Description 'Extracted broker payload'
     Assert-NonEmptyFile -Path $extractedProvisionerPath -Description 'Extracted provisioner payload'
     $extractedBrokerHash = Get-Sha256Hex -Path $extractedBrokerPath
@@ -624,6 +759,9 @@ function Assert-MsiCandidate {
         [string]$ExpectedProductCode,
 
         [Parameter(Mandatory)]
+        [string]$ExpectedPackageCode,
+
+        [Parameter(Mandatory)]
         [string]$ExpectedBrokerHash,
 
         [Parameter(Mandatory)]
@@ -636,9 +774,14 @@ function Assert-MsiCandidate {
         [string]$BrokerBinaryPath,
 
         [Parameter(Mandatory)]
-        [string]$ProvisionerBinaryPath
+        [string]$ProvisionerBinaryPath,
+
+        [Parameter(Mandatory)]
+        [string]$PackageRoot
     )
 
+    Assert-SafePackageLeafPath -Path $CandidateMsiPath -Root $PackageRoot -Description 'MSI candidate input' | Out-Null
+    Assert-PhysicalPackagePathUnderRoot -Path $CandidateIntermediatePath -Root $PackageRoot -Description 'MSI candidate intermediate root' | Out-Null
     $installer = $null
     $database = $null
     try {
@@ -654,6 +797,8 @@ function Assert-MsiCandidate {
             DotnetCommand = $DotnetCommand
             ExpectedVersion = $ExpectedVersion
             ExpectedProductCode = $ExpectedProductCode
+            ExpectedPackageCode = $ExpectedPackageCode
+            PackageRoot = $PackageRoot
             ExpectedBrokerHash = $ExpectedBrokerHash
             ExpectedProvisionerHash = $ExpectedProvisionerHash
             ExpectedRegistryId = $ExpectedRegistryId
