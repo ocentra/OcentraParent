@@ -55,17 +55,7 @@ pub(super) fn serve(
         fresh_session_id,
     )?;
 
-    let broker_identity = current_process_identity(custody)?;
-    let session = BrokerSessionAuthority::generate(
-        broker_identity,
-        unix_now_millis()?,
-        custody.platform_session_state(),
-    )?;
-    let broker_hello = UntrustedBrokerHello::authenticate_wire(
-        &client_hello,
-        session.wire_values(),
-        unix_now_millis()?,
-    )?;
+    let broker_hello = issue_broker_hello(custody, &client_hello)?;
     let encoded_hello = Zeroizing::new(
         ocentra_protected_capability_custody_protocol::encode_broker_hello(&broker_hello)?,
     );
@@ -93,6 +83,21 @@ pub(super) fn serve(
     let encoded_response =
         Zeroizing::new(ocentra_protected_capability_custody_protocol::encode_response(&response)?);
     super::io::write_frame(stream, encoded_response.as_ref(), deadline)
+}
+
+fn issue_broker_hello(
+    custody: &BrokerCustodyService,
+    client_hello: &UntrustedClientHello,
+) -> Result<UntrustedBrokerHello, BrokerError> {
+    let broker_identity = current_process_identity(custody)?;
+    let platform_session_state = custody.platform_session_state()?;
+    let session = BrokerSessionAuthority::generate(
+        broker_identity,
+        unix_now_millis()?,
+        Some(platform_session_state),
+    )?;
+    UntrustedBrokerHello::authenticate_wire(client_hello, session.wire_values(), unix_now_millis()?)
+        .map_err(BrokerError::from)
 }
 
 fn has_account_issuer_domain(frame: &[u8]) -> bool {

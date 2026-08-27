@@ -37,7 +37,7 @@ impl BrokerCustodyService {
         }
     }
 
-    pub(crate) fn platform_session_state(&self) -> Option<BrokerPlatformSessionState> {
+    pub(crate) fn platform_session_state(&self) -> Result<BrokerPlatformSessionState, BrokerError> {
         self.state.platform_session_state()
     }
 
