@@ -65,8 +65,7 @@ export const ReportQueryCustodySortKeySchema = Generated.GeneratedReportQueryCus
 export const ReportQueryCustodySourceRefSchema = Generated.GeneratedReportQueryCustodySourceRefSchema;
 export const ReportQueryCustodyConflictRefSchema = Generated.GeneratedReportQueryCustodyConflictRefSchema;
 export const ReportQueryCustodyDeletedSourceRefSchema = Generated.GeneratedReportQueryCustodyDeletedSourceRefSchema;
-export const ReportQueryCustodyParentAuthorityReferenceIdSchema =
-  Generated.GeneratedParentAuthorityReferenceIdSchema;
+export const ReportQueryCustodyParentAuthorityReferenceIdSchema = Generated.GeneratedParentAuthorityReferenceIdSchema;
 const ReportQueryCustodyPositiveCountSchema = Schema.Number.pipe(Schema.int(), Schema.positive());
 
 export type ParentAccountId = ParentAccountIdType;

@@ -63,9 +63,19 @@ export type AiDurabilityState = 'durable' | 'append-pending' | 'replay-only' | '
 export type AiValidationState = 'accepted' | 'rejected' | 'manual-required';
 
 export type AiEvidenceKind =
-  'browser' | 'app' | 'game' | 'network' | 'screen-summary' | 'activity' | 'parent-rule' | 'audit';
+  | 'browser'
+  | 'app'
+  | 'game'
+  | 'network'
+  | 'screen-summary'
+  | 'activity'
+  | 'parent-rule'
+  | 'audit';
 export type AiProvenanceKind =
-  'direct-observation' | 'derived-from-evidence' | 'derived-from-result' | 'parent-authored-rule';
+  | 'direct-observation'
+  | 'derived-from-evidence'
+  | 'derived-from-result'
+  | 'parent-authored-rule';
 export type AiContextBuildState = 'ready' | 'partial' | 'rejected' | 'manual-required';
 export type AiReferenceValidationState = 'validated' | 'missing-source' | 'custody-blocked' | 'stale' | 'rejected';
 
@@ -74,7 +84,11 @@ export type AiGraphNodeKind = 'evidence' | 'activity' | 'result' | 'memory' | 'p
 export type AiGraphEdgeKind = 'supports' | 'derived-from' | 'related-to' | 'governed-by';
 
 export type AiJournalEntryKind =
-  'work-lifecycle' | 'context-built' | 'result-validated' | 'explanation-published' | 'remote-assistant';
+  | 'work-lifecycle'
+  | 'context-built'
+  | 'result-validated'
+  | 'explanation-published'
+  | 'remote-assistant';
 export type AiJournalPayloadKind = 'work-item' | 'evidence-context' | 'result' | 'explanation' | 'remote-assistant';
 
 export type AiResultKind = 'observation' | 'classification' | 'summary' | 'explanation' | 'no-claim';
@@ -89,7 +103,12 @@ export type AiExplanationSurface = 'parent-read-model' | 'child-safety-internal'
 export type AiExplanationState = 'ready' | 'degraded' | 'unavailable' | 'manual-required';
 
 export type AiActorRole =
-  'parent' | 'child-agent' | 'local-runtime' | 'parent-assistant' | 'remote-assistant' | 'system';
+  | 'parent'
+  | 'child-agent'
+  | 'local-runtime'
+  | 'parent-assistant'
+  | 'remote-assistant'
+  | 'system';
 export type AiWorkKind =
   | 'context-build'
   | 'classification'
@@ -99,7 +118,14 @@ export type AiWorkKind =
   | 'parent-assistant'
   | 'remote-assistant';
 export type AiWorkState =
-  'queued' | 'claimed' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'timed-out' | 'manual-required';
+  | 'queued'
+  | 'claimed'
+  | 'running'
+  | 'succeeded'
+  | 'failed'
+  | 'cancelled'
+  | 'timed-out'
+  | 'manual-required';
 
 export type AiRemoteAssistantState =
   | 'disabled'
