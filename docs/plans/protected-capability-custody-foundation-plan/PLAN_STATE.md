@@ -36,9 +36,10 @@ The plan remains an active neutral foundation route with one workpack in
   registry/SCM mutation, and enrolled counter generation remain unavailable;
 - independent broker/client/token current observations and the core monotonic
   provider, plus the owner-bound production broker/client caller, remain open;
-  the bounded WP04 process/token/service-SID observation adapters and fixed-pipe
-  broker/client composition are source-present, but operational enrollment and
-  currentness are not available.
+  the bounded WP04 process/token/service-SID observation adapters are
+  source-present, but fresh per-hello platform state and listener-lifetime
+  fatal-drift revalidation still require internal source repair, while
+  operational enrollment and currentness remain unavailable.
 - SQLite remains a checked replica, not protected authority;
 - all 13 expected test roots remain absent, as do retained proof and release
   evidence.
@@ -47,28 +48,32 @@ The graph records the route as `validation`. Accepted mechanics and a
 read-only preflight do not derive READY or DONE while the external authority,
 caller, test, proof, and release gates remain open.
 
-## WP04 source audit checkpoint — 2026-08-26
+## WP04 source route correction — 2026-08-26
 
-The fresh Windows lane audit at source head `cbd974291` confirmed the complete
-21-root WP04 production packet is present and registered. The designated FFI
-owner provides retained process handles with limited-query and synchronize
-access, process epoch/liveness/image observations, process and impersonated
-thread token handles, bounded TokenUser/integrity/session/TokenGroups
-observations, and `LookupAccountNameW` service-SID resolution from the retained
-SCM service name. The private core `ClientAnchor` and peer admission retain and
-revalidate those OS observations; the broker performs peer admission before
-creating the fixed listener or reporting `Running`, and the client rechecks the
-kernel-reported server PID/session before bootstrap and broker-hello acceptance.
+Independent review at canonical `8f8cdf39e` confirmed that the retained Windows
+FFI/process/token/service-SID observations and client anchor remain real, but
+rejected the earlier conclusion that WP04 implementation was complete. The
+reviewed ownership map now includes 23 production roots, adding the broker
+custody facade and runtime that own platform-session state. Two internal P1s
+remain: broker hellos reuse startup-cached `BrokerPlatformSessionState` after
+custody currentness can advance, and the listener reports SCM `Running` after a
+one-time check while swallowing later peer/currentness failures without a
+service-lifetime revalidation path.
 
-The source packet has no caller-supplied identity/path, `sysinfo` substitution,
-weak same-user/session trust, public adapter constructor, or unsafe code outside
-the Windows FFI owner. Linux and Windows-target focused library checks and
-formatting passed, as did scoped source-shape, no-test-doubles,
-validation-bypass, and reexport checks. The architecture gate reports the
-expected absent organized test scaffolds. This is source/validation truth only:
-the owner-bound production caller, external enrollment/SCM authority, hardware
-monotonic provider, three WP04 transport tests, retained proof, operational
-readiness, READY, and DONE remain open.
+WP04 is therefore implementation-repair-authorized only to load fresh fallible
+platform-session state before every broker hello and to make owner/currentness
+drift service-fatal during listener lifetime, dropping the listener and
+reporting `Stopped` nonzero. Malformed or unauthenticated peers remain
+connection-local failures so the repair cannot become a remote stop primitive.
+No handshake redesign or external-owner substitute is authorized.
+
+The retained source has no caller-supplied identity/path, `sysinfo`
+substitution, weak same-user/session trust, public adapter constructor, or
+unsafe code outside the Windows FFI owner. This correction withdraws the prior
+reviewed implementation evidence; it does not revoke the accepted observation
+primitives. The owner-bound production caller, external enrollment/SCM
+authority, hardware monotonic provider, three WP04 transport tests, retained
+proof, operational readiness, READY, and DONE remain open.
 
 ## Installer-side ownership checkpoint — 2026-08-25
 
@@ -145,10 +150,11 @@ This is graph implementation-phase routing only. If the graph derives
 implementation authorization, it authorizes only the remaining production
 roots; the normal WP01 lifecycle remains `validation`, not READY or DONE. The
 broker/client/FFI/private-core and read-only provisioner source is present,
-including the complete WP04 fixed-pipe/retained-observation packet, but runtime
-remains blocked by external platform/installer authority, authenticated owner
-handoff, operational current observations, monotonic provider, and real
-transport caller boundaries. All 13 expected test roots remain absent, with these core-private
+including the WP04 fixed-pipe/retained-observation primitives, but WP04 still
+has the two bounded internal currentness repairs above. Runtime also remains
+blocked by external platform/installer authority, authenticated owner handoff,
+operational current observations, monotonic provider, and real transport caller
+boundaries. All 13 expected test roots remain absent, with these core-private
 adapter/TPM test expectations recorded as absent planned tests only:
 
 ```text
@@ -264,18 +270,17 @@ operational owner work that must follow it:
   transaction remain normal hard prerequisites; disk, SQLite, rollback, and
   caller counters are not authority.
 - **WP04 Client Broker Anchor Transport** owns the client-side fixed-pipe
-  admission and retained OS-derived broker anchor. Its 21-root fail-closed
-  source packet is present at `cbd974291`, and the reviewed WP01 plus
-  implementation-independent WP02/WP03/Parent WP12 edges authorize only this
-  bounded source truth. Normal derived state remains blocked and normal
-  completion depends on WP01, WP02, WP03, and Parent WP12. The packet is the
-  private Windows `client_anchor` plus client fixed-pipe transport/session,
-  using the existing interprocess PID/session and RAII
+  admission and retained OS-derived broker anchor. Its 23-root ownership map
+  retains the private Windows `client_anchor`, fixed-pipe transport/session,
+  custody platform-session state, interprocess PID/session, and RAII
   process/token/image/SCM/enrollment observations, including TokenGroups and
-  service-SID resolution. It cannot use sysinfo or caller-supplied identity,
-  and does not redesign the broker/protocol handshake. Focused host and
-  Windows-target library checks pass; the owner-bound caller, tests, proof, and
-  operational enrollment remain open.
+  service-SID resolution. The reviewed WP01 plus implementation-independent
+  WP02/WP03/Parent WP12 edges authorize only the bounded fresh per-hello state
+  and listener-lifetime fatal-currentness repair. Normal derived state remains
+  blocked and normal completion depends on WP01, WP02, WP03, and Parent WP12.
+  The route cannot use sysinfo or caller-supplied identity and does not redesign
+  the broker/protocol handshake. The owner-bound caller, three tests, proof,
+  operational enrollment, READY, and DONE remain open.
 - **WP05 Account Issuer Key and Store Custody** is a planned/source-authorable
   route for Account WP09. WP01's `Seal`/`Rotate`/`Revoke`/`Recover` protocol
   actions and opaque prepared token are not signer/store authority. The new

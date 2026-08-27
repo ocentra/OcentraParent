@@ -36,7 +36,7 @@
         "WP-protected-capability-custody-foundation-plan-03-monotonic-anti-rollback-provider",
         "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package"
       ],
-      "reason": "WP04 owns the private Windows client_anchor and fixed-pipe transport/session using retained OS PID/session and RAII process/token/image/SCM/enrollment observations. At source head cbd974291, the audited 21 expected production roots are present and composed: the designated Windows FFI retains limited-query/synchronize process handles, process epoch/liveness/image observations, process and impersonated-thread token handles, bounded TokenUser/integrity/session/TokenGroups observations, and LookupAccountNameW service-SID resolution; private core revalidates the observations, broker admits peers before the fixed listener/Running state, and client checks the kernel PID/session before bootstrap/hello. Focused Linux/Windows-target library checks, formatting, and scoped guards pass. WP04 is source-present with no bounded dependency-legal gap; the owner-bound caller, external enrollment/SCM/monotonic authority, three tests, proof, and operational readiness remain open. Normal derived state stays blocked by WP01/WP02/WP03/Parent WP12; implementation-independent edges do not waive completion or authorize broader Protected authority.",
+      "reason": "WP04 owns the private Windows client_anchor, fixed-pipe transport/session, and the broker custody/runtime/peer/service currentness seams. Independent review at canonical 8f8cdf39e retained the real OS PID/session and RAII process/token/image/SCM/enrollment observation primitives but withdrew the implementation-complete claim: broker hellos reuse startup-cached BrokerPlatformSessionState after custody currentness may advance, and the listener reports SCM Running after a one-time check while swallowing later peer/currentness failures. Only fresh fallible per-hello platform-state loading plus bounded listener-lifetime fatal owner/currentness revalidation is implementation-authorized; malformed peers remain connection-local. The owner-bound caller, external enrollment/SCM/monotonic authority, three tests, proof, and operational readiness remain open. Normal state stays blocked by WP01/WP02/WP03/Parent WP12; implementation-independent edges do not waive completion or authorize broader Protected authority.",
       "evidence": [
         "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
         "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
@@ -2938,7 +2938,7 @@
         "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
         "docs/plans/protected-capability-custody-foundation-plan/workpacks/02-windows-enrollment-owner-handoff.md"
       ],
-      "reason": "The fixed-pipe anchor must bind to protected enrollment/SCM identity. The bounded source packet may proceed independently, while normal completion still requires WP02 DONE; this edge cannot create that owner or authorize runtime.",
+      "reason": "The fixed-pipe anchor must bind to protected enrollment/SCM identity. The bounded internal currentness repair may proceed independently, while normal completion still requires WP02 DONE; this edge cannot create that owner or authorize runtime.",
       "implementationGate": "implementation-independent"
     },
     {
@@ -2950,7 +2950,7 @@
         "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
         "docs/plans/protected-capability-custody-foundation-plan/workpacks/03-monotonic-anti-rollback-provider.md"
       ],
-      "reason": "Client session admission retains current protected generation. The bounded source packet may proceed independently, while normal completion still requires WP03 DONE; this edge cannot authorize stale or rollback state.",
+      "reason": "Client session admission retains current protected generation. The bounded internal currentness repair may proceed independently, while normal completion still requires WP03 DONE; this edge cannot authorize stale or rollback state.",
       "implementationGate": "implementation-independent"
     },
     {
@@ -2962,7 +2962,7 @@
         "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
         "docs/plans/parent-desktop-runtime-package-plan/workpacks/12-protected-broker-provisioner-package.md"
       ],
-      "reason": "The client transport depends on the fixed parent package/invocation lifecycle for the owner-approved broker binary. The bounded source packet may proceed independently, while normal completion still requires Parent WP12 DONE; no spawned helper or bootstrap substitute is allowed.",
+      "reason": "The client transport depends on the fixed parent package/invocation lifecycle for the owner-approved broker binary. The bounded internal currentness repair may proceed independently, while normal completion still requires Parent WP12 DONE; no spawned helper or bootstrap substitute is allowed.",
       "implementationGate": "implementation-independent"
     },
     {
@@ -10207,39 +10207,6 @@
     }
   ],
   "completionEvidenceOverrides": [
-    {
-      "id": "WP-protected-capability-custody-foundation-plan-04-client-broker-anchor-transport",
-      "implementation": [
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs",
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/client_anchor.rs",
-        "crates/protected-capability-custody-client/src/lib.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc_connect.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc_io.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc_peer.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc_session.rs",
-        "crates/protected-capability-custody-client/src/admission.rs",
-        "crates/protected-capability-custody-broker/src/authority.rs",
-        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
-        "crates/protected-capability-custody-broker/src/windows_ipc/service.rs",
-        "crates/protected-capability-custody-broker/src/windows_ipc/peer.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token_sid.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token_groups.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/service_sid.rs",
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/token_groups.rs",
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/service_sid.rs"
-      ],
-      "reason": "Reviewed 2026-08-26 at source head cbd974291c5245330f5e0e82e9fa151346d08e66: the complete WP04 21-root Windows anchor/transport source is present and composed through the designated FFI/private core/broker/client seams; focused Linux/Windows-target library checks, formatting, and scoped source guards pass. This records implementation evidence only. Owner-bound caller, external enrollment/SCM/monotonic authority, three expected WP04 tests, proof, operational readiness, and DONE remain open; normal state remains blocked by WP01/WP02/WP03/Parent WP12.",
-      "evidence": [
-        "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
-        "docs/plans/protected-capability-custody-foundation-plan/PLAN_STATE.md",
-        "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
-        "docs/engineering-graph/code-map.json"
-      ]
-    },
     {
       "id": "WP-ai-plan-03-contract-boundary-and-effect-schemas",
       "implementation": [
