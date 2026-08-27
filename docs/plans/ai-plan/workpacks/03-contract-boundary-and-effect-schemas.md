@@ -24,8 +24,10 @@ All AI input, output, runtime, queue, route, memory, graph, explanation, and rem
 
 The Rust-owned contract source is integrated at source commit `6318d5e3d` in
 the canonical consolidation. Independent review accepted the byte-preserving
-move of the complete contract family, including journal and result digest
-bindings, into `crates/ai-contracts`. The `crates/schema` exporter is the only
+move of the serialized contract family into `crates/ai-contracts`. Owner-only
+journal and result digest issuance is not part of this neutral leaf because no
+current graph-authorized production caller exists; those algorithms remain
+future owner workpack responsibility. The `crates/schema` exporter is the only
 current consumer: it consumes the leaf directly for schema export and continues
 to produce the generated `packages/schema-domain` edge surface. No general
 `agent-protocol` or `agent-service` consumer/provider-owner composition is

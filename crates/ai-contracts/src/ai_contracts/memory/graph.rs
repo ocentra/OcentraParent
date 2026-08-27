@@ -1,88 +1,8 @@
-use super::{AiGraphEdgeKind, AiGraphNodeKind, AiGraphReference, AiResultProvenanceReceipt};
-use crate::ai_contracts::identity::{
-    AiEvidenceReferenceId, AiFamilyId, AiGraphNodeId, AiGraphReferenceId, AiMemoryReferenceId,
-    AiResultId, AiTimestamp,
-};
-use crate::ai_contracts::{AiCustodyState, AiRetentionState};
-
-fn valid_graph_semantics(node_kind: AiGraphNodeKind, edge_kind: AiGraphEdgeKind) -> bool {
-    match edge_kind {
-        AiGraphEdgeKind::GovernedBy => matches!(node_kind, AiGraphNodeKind::PolicyRule),
-        AiGraphEdgeKind::Supports | AiGraphEdgeKind::DerivedFrom => matches!(
-            node_kind,
-            AiGraphNodeKind::Evidence | AiGraphNodeKind::Result | AiGraphNodeKind::Memory
-        ),
-        AiGraphEdgeKind::RelatedTo => true,
-    }
-}
+use super::AiGraphReference;
+use super::{AiGraphEdgeKind, AiGraphNodeKind};
+use crate::ai_contracts::identity::{AiFamilyId, AiGraphNodeId, AiGraphReferenceId};
 
 impl AiGraphReference {
-    pub(crate) fn new(
-        graph_reference_id: AiGraphReferenceId,
-        family_id: AiFamilyId,
-        node_kind: AiGraphNodeKind,
-        target_node_id: AiGraphNodeId,
-        edge_kind: AiGraphEdgeKind,
-        source_memory_reference_id: Option<AiMemoryReferenceId>,
-        source_evidence_reference_ids: Vec<AiEvidenceReferenceId>,
-        source_result: Option<AiResultProvenanceReceipt>,
-        generated_at: AiTimestamp,
-        expires_at: Option<AiTimestamp>,
-        custody: AiCustodyState,
-        retention: AiRetentionState,
-    ) -> Result<Self, &'static str> {
-        if source_result
-            .as_ref()
-            .is_some_and(|receipt| !receipt.is_for_family(&family_id))
-        {
-            return Err("AI graph result family does not match its graph family");
-        }
-        let (source_result_id, source_result_digest) = source_result
-            .map(AiResultProvenanceReceipt::into_parts)
-            .map_or((None, None), |(result_id, digest)| {
-                (Some(result_id), Some(digest))
-            });
-        let grounded = !source_evidence_reference_ids.is_empty()
-            || source_memory_reference_id.is_some()
-            || source_result_id.is_some();
-        if !grounded
-            || !valid_graph_semantics(node_kind, edge_kind)
-            || !generated_at.is_well_formed()
-            || expires_at
-                .as_ref()
-                .is_some_and(|expires| !generated_at.precedes(expires))
-            || source_result_id.is_some() != source_result_digest.is_some()
-            || source_result_digest
-                .as_ref()
-                .is_some_and(|digest| !digest.is_canonical())
-            || matches!(
-                custody,
-                AiCustodyState::Deleted | AiCustodyState::Unavailable
-            )
-            || matches!(
-                retention,
-                AiRetentionState::Deleted | AiRetentionState::Tombstoned
-            )
-        {
-            return Err("AI graph reference is ungrounded or has invalid semantics/state");
-        }
-        Ok(Self {
-            graph_reference_id,
-            family_id,
-            node_kind,
-            target_node_id,
-            edge_kind,
-            source_memory_reference_id,
-            source_evidence_reference_ids,
-            source_result_id,
-            source_result_digest,
-            generated_at,
-            expires_at,
-            custody,
-            retention,
-        })
-    }
-
     pub fn graph_reference_id(&self) -> &AiGraphReferenceId {
         &self.graph_reference_id
     }
@@ -107,28 +27,5 @@ impl AiGraphReference {
         self.source_memory_reference_id.is_some()
             || !self.source_evidence_reference_ids.is_empty()
             || self.source_result_id.is_some()
-    }
-
-    pub(crate) fn source_result_id(&self) -> Option<&AiResultId> {
-        self.source_result_id.as_ref()
-    }
-
-    pub(crate) fn source_result_digest(&self) -> Option<&crate::ai_contracts::identity::AiDigest> {
-        self.source_result_digest.as_ref()
-    }
-
-    pub(crate) fn source_memory_reference_id(&self) -> Option<&AiMemoryReferenceId> {
-        self.source_memory_reference_id.as_ref()
-    }
-
-    pub(crate) fn source_evidence_reference_ids(&self) -> &[AiEvidenceReferenceId] {
-        &self.source_evidence_reference_ids
-    }
-
-    pub(crate) fn is_grounding_safe(&self) -> bool {
-        !matches!(
-            self.custody,
-            AiCustodyState::Deleted | AiCustodyState::Unavailable
-        ) && matches!(self.retention, AiRetentionState::Active)
     }
 }

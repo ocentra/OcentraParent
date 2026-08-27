@@ -28,19 +28,7 @@ pub enum AiRemoteAssistantState {
     ManualRequired,
 }
 
-impl AiRemoteAssistantState {
-    pub(super) fn binding_label(self) -> &'static [u8] {
-        match self {
-            Self::Disabled => b"disabled",
-            Self::AwaitingParentAuthorization => b"awaiting-parent-authorization",
-            Self::Authorized => b"authorized",
-            Self::Submitted => b"submitted",
-            Self::Succeeded => b"succeeded",
-            Self::Degraded => b"degraded",
-            Self::ManualRequired => b"manual-required",
-        }
-    }
-}
+impl AiRemoteAssistantState {}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -115,22 +103,6 @@ pub struct AiRemoteAssistantWireRequest {
     prompt: AiRemoteAssistantWirePrompt,
     requested_at: AiTimestamp,
     state: AiRemoteAssistantState,
-}
-
-/// Owner-resolved source metadata. Wire requests intentionally cannot create
-/// this value; an owner adapter must resolve the evidence IDs and custody
-/// receipt from its own durable state before authorization can proceed.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(crate) struct AiRemoteAssistantOwnerResolvedSource {
-    request_id: AiRemoteAssistantRequestId,
-    family_id: AiFamilyId,
-    authorization_reference_id: AiAuthorizationReferenceId,
-    evidence_reference_ids: Vec<AiEvidenceReferenceId>,
-    custody: AiCustodyState,
-    retention: AiRetentionState,
-    redaction: AiRedactionState,
-    redaction_policy: AiRemoteAssistantRedactionPolicy,
-    safety_boundary: AiRemoteAssistantSafetyBoundary,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]

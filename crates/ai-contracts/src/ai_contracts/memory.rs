@@ -47,16 +47,6 @@ pub struct AiProvenanceLink {
     source_digest: Option<AiDigest>,
 }
 
-/// Opaque result provenance issued from a canonical `AiResult`.  The raw
-/// result identity and digest never enter a memory/graph constructor from a
-/// caller-supplied pair.
-#[derive(Debug)]
-pub(crate) struct AiResultProvenanceReceipt {
-    family_id: AiFamilyId,
-    result_id: AiResultId,
-    digest: AiDigest,
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AiMemoryReference {

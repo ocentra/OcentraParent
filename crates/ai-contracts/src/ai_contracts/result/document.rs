@@ -1,70 +1,11 @@
-use super::digest::digest_for;
-use super::{AiOutputValidationState, AiResult};
+use super::AiResult;
 use crate::ai_contracts::identity::{
-    AiDigest, AiExplanationId, AiFamilyId, AiRequestId, AiResultId, AiSchemaVersion, AiTimestamp,
-    AiWorkItemId,
+    AiDigest, AiFamilyId, AiRequestId, AiResultId, AiSchemaVersion, AiWorkItemId,
 };
-use crate::ai_contracts::{
-    validate_contract_schema_version, AiAuthorityBoundary, AiDegradedState, AiValidationState,
-};
+use crate::ai_contracts::AiAuthorityBoundary;
+use crate::ai_contracts::AiValidationState;
 
 impl AiResult {
-    pub(crate) fn new(
-        schema_version: AiSchemaVersion,
-        family_id: AiFamilyId,
-        result_id: AiResultId,
-        request_id: AiRequestId,
-        work_item_id: AiWorkItemId,
-        generated_at: AiTimestamp,
-        validation: AiValidationState,
-        output_validation: AiOutputValidationState,
-        degraded_state: AiDegradedState,
-        payload: Option<super::AiResultPayload>,
-        explanation_id: Option<AiExplanationId>,
-    ) -> Result<Self, &'static str> {
-        validate_contract_schema_version(&schema_version)?;
-        if !generated_at.is_well_formed()
-            || payload
-                .as_ref()
-                .is_some_and(|payload| payload.family_id() != &family_id)
-            || matches!(validation, AiValidationState::Accepted)
-                && (!matches!(output_validation, AiOutputValidationState::SchemaValid)
-                    || payload.is_none())
-        {
-            return Err("AI result validation, family, or payload state is inconsistent");
-        }
-        let authority_boundary = AiAuthorityBoundary::EvidenceOnly;
-        let digest = digest_for(
-            &schema_version,
-            &family_id,
-            &result_id,
-            &request_id,
-            &work_item_id,
-            &generated_at,
-            validation,
-            output_validation,
-            degraded_state,
-            payload.as_ref(),
-            explanation_id.as_ref(),
-            authority_boundary,
-        )?;
-        Ok(Self {
-            schema_version,
-            family_id,
-            result_id,
-            request_id,
-            work_item_id,
-            generated_at,
-            validation,
-            output_validation,
-            degraded_state,
-            payload,
-            explanation_id,
-            digest,
-            authority_boundary,
-        })
-    }
-
     pub fn schema_version(&self) -> &AiSchemaVersion {
         &self.schema_version
     }

@@ -17,7 +17,6 @@ mod provenance;
 mod request;
 mod result;
 mod rule_prompt;
-mod runtime;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -115,14 +114,6 @@ pub(crate) struct AiRuntimeReference {
     model_id: AiModelId,
     capability_ids: Vec<AiCapabilityId>,
     observed_at: AiTimestamp,
-}
-
-/// Opaque in-process runtime attachment. Only the runtime owner may resolve
-/// provider, model, and capability metadata; untrusted callers cannot build or
-/// deserialize this token.
-#[derive(Debug, PartialEq)]
-pub(crate) struct AiOwnerResolvedRuntime {
-    runtime: Option<AiRuntimeReference>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]

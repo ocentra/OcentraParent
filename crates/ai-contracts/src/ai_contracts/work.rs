@@ -36,37 +36,6 @@ pub enum AiWorkState {
     ManualRequired,
 }
 
-/// Opaque, single-transition authority issued by the owning runtime.  The
-/// schema crate deliberately exposes no constructor for this token: a caller
-/// must receive a real owner-issued capability before it can append a work
-/// transition or lifecycle record.
-#[derive(Debug)]
-pub(crate) struct AiWorkTransitionAuthority {
-    work_item_id: AiWorkItemId,
-    request_id: AiRequestId,
-    actor: AiActorIdentity,
-    sequence: u64,
-    next_state: AiWorkState,
-    max_attempts: u16,
-}
-
-impl AiWorkTransitionAuthority {
-    fn permits(
-        &self,
-        work_item_id: &AiWorkItemId,
-        request_id: &AiRequestId,
-        sequence: u64,
-        next_state: AiWorkState,
-        max_attempts: u16,
-    ) -> bool {
-        &self.work_item_id == work_item_id
-            && &self.request_id == request_id
-            && self.sequence == sequence
-            && self.next_state == next_state
-            && self.max_attempts == max_attempts
-    }
-}
-
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AiRetryPolicy {

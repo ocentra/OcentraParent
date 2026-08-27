@@ -4,26 +4,6 @@ use crate::ai_contracts::identity::{
 };
 
 impl AiParentAuthorization {
-    pub(crate) fn issue(
-        authorization_reference_id: AiAuthorizationReferenceId,
-        actor: AiActorIdentity,
-        authorized_at: AiTimestamp,
-        expires_at: AiTimestamp,
-    ) -> Result<Self, &'static str> {
-        if !actor.is_parent_authority()
-            || actor.subject().is_none()
-            || !authorized_at.precedes(&expires_at)
-        {
-            return Err("AI remote authorization is not parent-issued or has an invalid lifetime");
-        }
-        Ok(Self {
-            authorization_reference_id,
-            actor,
-            authorized_at,
-            expires_at,
-        })
-    }
-
     pub fn authorization_reference_id(&self) -> &AiAuthorizationReferenceId {
         &self.authorization_reference_id
     }

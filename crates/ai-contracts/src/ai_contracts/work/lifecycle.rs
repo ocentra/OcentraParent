@@ -13,45 +13,6 @@ fn follows_previous_transition(
 }
 
 impl AiWorkLifecycleRecord {
-    pub(crate) fn new(
-        work_item_id: AiWorkItemId,
-        request_id: AiRequestId,
-        journal_entry_id: AiJournalEntryId,
-        sequence: u64,
-        previous_state: Option<super::AiWorkState>,
-        next_state: super::AiWorkState,
-        authority: super::AiWorkTransitionAuthority,
-        occurred_at: AiTimestamp,
-        durability: AiDurabilityState,
-    ) -> Result<Self, &'static str> {
-        if !next_state.can_transition_from(previous_state)
-            || (sequence == AI_INITIAL_LIFECYCLE_SEQUENCE && previous_state.is_some())
-            || (sequence != AI_INITIAL_LIFECYCLE_SEQUENCE && previous_state.is_none())
-            || !authority.permits(
-                &work_item_id,
-                &request_id,
-                sequence,
-                next_state,
-                authority.max_attempts,
-            )
-            || !matches!(durability, AiDurabilityState::Durable)
-            || !occurred_at.is_well_formed()
-        {
-            return Err("AI lifecycle record is not a legal durable transition");
-        }
-        Ok(Self {
-            work_item_id,
-            request_id,
-            journal_entry_id,
-            sequence,
-            previous_state,
-            next_state,
-            actor: authority.actor,
-            occurred_at,
-            durability,
-        })
-    }
-
     pub fn work_item_id(&self) -> &AiWorkItemId {
         &self.work_item_id
     }
@@ -86,53 +47,6 @@ impl AiWorkLifecycleRecord {
 }
 
 impl AiDurableWorkLifecycle {
-    pub(crate) fn new(
-        work_item_id: AiWorkItemId,
-        request_id: AiRequestId,
-        max_attempts: u16,
-        records: Vec<AiWorkLifecycleRecord>,
-    ) -> Result<Self, &'static str> {
-        if max_attempts == 0
-            || records.is_empty()
-            || !records[0].next_state.can_transition_from(None)
-        {
-            return Err("AI durable lifecycle must start with the exact initial transition");
-        }
-        let mut journal_ids = HashSet::with_capacity(records.len());
-        for (index, record) in records.iter().enumerate() {
-            if record.work_item_id() != &work_item_id
-                || record.request_id() != &request_id
-                || !matches!(record.durability(), AiDurabilityState::Durable)
-                || !journal_ids.insert(record.journal_entry_id().clone())
-                || record.sequence() != AI_INITIAL_LIFECYCLE_SEQUENCE + index as u64
-            {
-                return Err("AI durable lifecycle has mismatched identity, durability, or duplicate journal identity");
-            }
-            if index > 0 && !follows_previous_transition(&records[index - 1], record) {
-                return Err("AI durable lifecycle contains an ambiguous state transition");
-            }
-        }
-        let attempt_count = records
-            .iter()
-            .filter(|record| matches!(record.next_state(), super::AiWorkState::Claimed))
-            .count();
-        if attempt_count > usize::from(max_attempts) {
-            return Err("AI durable lifecycle exceeds the owner-issued retry budget");
-        }
-        let last_sequence = records
-            .last()
-            .map(AiWorkLifecycleRecord::sequence)
-            .ok_or("AI durable lifecycle is empty")?;
-        Ok(Self {
-            work_item_id,
-            request_id,
-            records,
-            max_attempts,
-            last_sequence,
-            durability: AiDurabilityState::Durable,
-        })
-    }
-
     pub fn work_item_id(&self) -> &AiWorkItemId {
         &self.work_item_id
     }
@@ -154,13 +68,29 @@ impl AiDurableWorkLifecycle {
     }
 
     pub fn has_contiguous_durable_sequence(&self) -> bool {
-        Self::new(
-            self.work_item_id.clone(),
-            self.request_id.clone(),
-            self.max_attempts,
-            self.records.clone(),
-        )
-        .is_ok()
-            && matches!(self.durability, AiDurabilityState::Durable)
+        if self.max_attempts == 0
+            || self.records.is_empty()
+            || !self.records[0].next_state.can_transition_from(None)
+            || !matches!(self.durability, AiDurabilityState::Durable)
+        {
+            return false;
+        }
+        let mut journal_ids = HashSet::with_capacity(self.records.len());
+        for (index, record) in self.records.iter().enumerate() {
+            if record.work_item_id() != &self.work_item_id
+                || record.request_id() != &self.request_id
+                || !matches!(record.durability(), AiDurabilityState::Durable)
+                || !journal_ids.insert(record.journal_entry_id().clone())
+                || record.sequence() != AI_INITIAL_LIFECYCLE_SEQUENCE + index as u64
+                || (index > 0 && !follows_previous_transition(&self.records[index - 1], record))
+            {
+                return false;
+            }
+        }
+        self.records
+            .iter()
+            .filter(|record| matches!(record.next_state(), super::AiWorkState::Claimed))
+            .count()
+            <= usize::from(self.max_attempts)
     }
 }

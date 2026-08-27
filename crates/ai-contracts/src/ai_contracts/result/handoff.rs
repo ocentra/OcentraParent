@@ -3,22 +3,6 @@ use crate::ai_contracts::identity::{AiPolicyReferenceId, AiRequestId, AiResultId
 use crate::ai_contracts::AiAuthorityBoundary;
 
 impl AiPolicyHandoff {
-    pub(crate) fn new(
-        result_id: AiResultId,
-        request_id: AiRequestId,
-        policy_reference_ids: Vec<AiPolicyReferenceId>,
-    ) -> Result<Self, &'static str> {
-        if policy_reference_ids.is_empty() {
-            return Err("AI policy handoff requires at least one policy reference");
-        }
-        Ok(Self {
-            result_id,
-            request_id,
-            policy_reference_ids,
-            authority_boundary: AiAuthorityBoundary::DeterministicPolicyRequired,
-        })
-    }
-
     pub fn result_id(&self) -> &AiResultId {
         &self.result_id
     }

@@ -7,7 +7,6 @@ use super::identity::{
 use super::{AiCustodyState, AiDurabilityState, AiRedactionState, AiRetentionState};
 
 mod cursor;
-mod digest;
 mod entry;
 mod payload;
 
@@ -40,16 +39,6 @@ pub struct AiJournalPayloadReference {
     result_id: Option<AiResultId>,
     explanation_id: Option<AiExplanationId>,
     content_digest: AiDigest,
-}
-
-/// An owner-issued digest receipt for the exact content referenced by a journal entry.
-///
-/// This type deliberately has no public constructor or deserializer. The owner that
-/// materializes journal content must issue the receipt from its canonical content
-/// boundary before a payload reference can be constructed.
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct AiJournalPayloadReceipt {
-    digest: AiDigest,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
