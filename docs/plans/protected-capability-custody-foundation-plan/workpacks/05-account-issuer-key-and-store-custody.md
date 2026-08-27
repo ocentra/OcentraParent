@@ -4,9 +4,11 @@
 
 > Plan: `protected-capability-custody-foundation-plan`
 > Workpack: `05-account-issuer-key-and-store-custody`
-> Kind: Account-owned protected issuer v2 source-order route.
-> Proves: ownership, versioned P-256 v2 contract, and dependency boundaries only.
-> Does not prove: provider execution, implementation, tests, proof, READY, or DONE.
+> Kind: Account-owned protected issuer v2 bounded production-source workpack.
+> Proves: independently reviewed bounded implementation and its ownership,
+> versioned P-256 v2 contract, and dependency boundaries.
+> Does not prove: external provider/owner execution, expected tests, proof,
+> operational readiness, READY, or DONE.
 
 <!-- /agent-capsule -->
 
@@ -167,10 +169,29 @@ WP05 depends on reviewed WP01 implementation source plus implementation-
 independent WP02, WP03, and WP04 operational boundaries for source ordering.
 Account WP09 must depend on reviewed WP05 source as its protected issuer/
 repository owner while retaining its Account WP08 dependency. WP04 alone does
-not unblock Account. The base lifecycle is planned/source-authorable, but
-normal derived state remains blocked until operational owner completion and the
-remaining provider, binding, attestation, rotation, recovery, test, proof, and
-runtime gates close.
+not unblock Account. The bounded production source is integrated and reviewed,
+but normal derived state remains blocked until operational owner completion and
+the remaining provider, binding, attestation, rotation, recovery, test, proof,
+and runtime gates close.
+
+## Reviewed source state — 2026-08-26
+
+Independent review accepted the cumulative bounded source through canonical
+`f6d6dcf542ff`. The final repair sequence closed durable issue reservation and
+idempotency, restart reconciliation, exact receipt/outbox lineage (including
+`service_binding_id`), owner-admission and signer-minting seams, and bounded v2
+time arithmetic. The graph maps 140 production files across the full route;
+128 exact files are retained as reviewed completion evidence, while the
+remainder are shared/historical integration roots and manifests. Focused
+formatting, architecture, Enforcer source-shape,
+no-test-doubles, validation-bypass, re-export, diff, and six affected Rust
+library checks passed during integration.
+
+This is source-phase evidence only. External WP02/WP03/WP04 operational
+authority, service-specific ACL provisioning, real Account/provider/runtime
+composition, all eight expected tests below, proof, pre-commit, CI, PR, READY,
+and DONE remain open. No package or runtime availability claim follows from the
+reviewed source.
 
 ## Expected source and evidence
 
@@ -251,8 +272,10 @@ invoke the service-ACL leaf or the mapped ACL source is unreachable. Finally,
 but there is no real upstream production caller yet; that remains Account
 WP09/runtime integration debt and is not a caller claim.
 
-Mapping these hosts is required to prevent orphan AI files from appearing as
-implementation; it does not claim that any host or leaf exists.
+Mapping these hosts and their source-shape split leaves prevents orphan files
+from being mistaken for implementation. The reviewed mapping proves the
+bounded source exists; it does not prove an external owner/provider is deployed
+or that a production caller can make the protected service operational.
 
 Cloudflare v2 consumer/currentness roots are:
 
