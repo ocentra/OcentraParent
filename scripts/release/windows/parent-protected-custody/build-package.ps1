@@ -450,6 +450,11 @@ try {
                 byteIdenticalRepeatBuilds = $true
                 repeatSha256 = $firstMsiHash
             }
+            publicationIntegrity = [ordered]@{
+                journalSchema = 'append-only schema-v3 records with exact operation/artifact/input contract, sequence, previous-record digest, and legal monotonic phases'
+                exclusiveLock = 'publication and recovery require the exact live FileShare.None lock handle; arbitrary readable streams are rejected'
+                trustLimitation = 'The unkeyed journal and artifact SHA-256 chain detects torn or accidental drift under the cooperating lock; a hostile same-build-user can rewrite bytes and recompute it without an external signing key, so authenticity remains an external signing/owner decision.'
+            }
             inputs = @(
                 [ordered]@{ role = 'broker'; file = [System.IO.Path]::GetFileName($brokerBinaryPath); sha256 = $brokerHash },
                 [ordered]@{ role = 'provisioner'; file = [System.IO.Path]::GetFileName($provisionerBinaryPath); sha256 = $provisionerHash }
@@ -515,7 +520,8 @@ try {
                 'manual-required',
                 'External WP02 owner ceremony',
                 'MsiServiceConfig ServiceSid',
-                'SERVICE_SID_TYPE_UNRESTRICTED'
+                'SERVICE_SID_TYPE_UNRESTRICTED',
+                'hostile same-build-user can rewrite bytes'
             )) {
             if ($manifestText -notmatch [System.Text.RegularExpressions.Regex]::Escape($requiredBoundaryText)) {
                 throw "Generated package manifest lost required boundary text '$requiredBoundaryText'."
