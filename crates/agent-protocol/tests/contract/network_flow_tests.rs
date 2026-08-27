@@ -621,15 +621,15 @@ fn network_flow_observed_event_round_trips_through_typed_event_envelope(
     let decoded: EventEnvelope<NetworkFlowObservedEvent> = envelope.store()?.decode()?;
 
     assert_eq!(
-        envelope.contract.event_type.as_str(),
+        envelope.contract().event_type.as_str(),
         constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED
     );
     assert_ne!(
-        envelope.contract.event_type.as_str(),
+        envelope.contract().event_type.as_str(),
         NetworkFlowObservedEvent::EVENT_TYPE
     );
     assert_eq!(
-        envelope.aggregate_key.as_str(),
+        envelope.aggregate_key().as_str(),
         format!(
             "{}{}",
             constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX,
@@ -637,19 +637,19 @@ fn network_flow_observed_event_round_trips_through_typed_event_envelope(
         )
     );
     assert_eq!(
-        envelope.idempotency_key.as_str(),
+        envelope.idempotency_key().as_str(),
         format!(
             "{}{}-{}:{}-{}:{}",
             constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX,
             constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED,
-            envelope.aggregate_key.as_str().len(),
-            envelope.aggregate_key.as_str(),
+            envelope.aggregate_key().as_str().len(),
+            envelope.aggregate_key().as_str(),
             constants::network_flow::TEST_FLOW_EVENT_REF.len(),
             constants::network_flow::TEST_FLOW_EVENT_REF
         )
     );
     assert_eq!(decoded, envelope);
-    assert_eq!(decoded.payload, payload);
+    assert_eq!(decoded.payload(), &payload);
 
     Ok(())
 }

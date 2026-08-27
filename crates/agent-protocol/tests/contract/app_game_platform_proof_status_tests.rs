@@ -74,6 +74,7 @@ fn platform_row() -> AppGamePlatformProofStatusRow {
         host_capability_state: APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE.to_string(),
         host_capability_evidence_refs: vec!["adapter-capability-state-ref".to_string()],
         host_capability_probe_refs: vec!["windows-host-local-probe-ref".to_string()],
+        linux_docker_host_preflight: None,
         product_meanings: vec![
             APP_GAME_ADAPTER_PRODUCT_NATIVE_APP.to_string(),
             APP_GAME_ADAPTER_PRODUCT_NATIVE_GAME.to_string(),

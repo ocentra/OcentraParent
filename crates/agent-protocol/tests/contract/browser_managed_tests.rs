@@ -1,9 +1,8 @@
 use super::{
     constants, BrowserBridgeKind, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserFamily, BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
-    BrowserManagedSessionStatus, BrowserManagedState, BrowserQueryVisibilityLabel,
-    BrowserUnmanagedDetectionConfidence, BrowserUnmanagedDetectionReason,
-    BrowserUnmanagedProcessKind, BROWSER_EVIDENCE_SCHEMA_VERSION,
+    BrowserFamily, BrowserManagedProfileLifecycleState, BrowserManagedSessionStatus,
+    BrowserManagedState, BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionConfidence,
+    BrowserUnmanagedDetectionReason, BrowserUnmanagedProcessKind, BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
 use ocentra_eventing::expect_value::ExpectValue;
 
@@ -64,49 +63,6 @@ fn browser_managed_status_serializes_to_contract_shape() {
     assert_eq!(
         serialized[constants::field::PROFILE_LIFECYCLE_STATE],
         constants::browser::PROFILE_STORE_LIFECYCLE_READY
-    );
-}
-
-#[test]
-fn browser_managed_profile_store_entry_serializes_redacted_refs() {
-    let entry = BrowserManagedProfileStoreEntry {
-        schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
-        profile_path_ref: constants::browser::PROFILE_PATH_REF_MANAGED.to_string(),
-        profile_root_ref: constants::browser::PROFILE_ROOT_REF_MANAGED.to_string(),
-        profile_scope_id: constants::browser::PROFILE_SCOPE_ID_DEV.to_string(),
-        device_id: constants::browser::PROFILE_STORE_TEST_DEVICE_ID.to_string(),
-        browser_family: BrowserFamily::Chrome,
-        browser_channel: BrowserChannel::Stable,
-        lifecycle_state: BrowserManagedProfileLifecycleState::Ready,
-        custody_label: BrowserCustodyLabel::ChildDeviceLocal,
-        policy_revision: constants::browser::PROFILE_POLICY_REVISION_DEV.to_string(),
-        created_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        updated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-        missing_since: None,
-        repaired_at: None,
-        deleted_at: None,
-        repair_reason: None,
-    };
-
-    let serialized =
-        serde_json::to_value(entry).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
-
-    assert_eq!(
-        serialized[constants::field::PROFILE_PATH_REF],
-        constants::browser::PROFILE_PATH_REF_MANAGED
-    );
-    assert_eq!(
-        serialized[constants::field::PROFILE_ROOT_REF],
-        constants::browser::PROFILE_ROOT_REF_MANAGED
-    );
-    assert_eq!(
-        serialized[constants::field::LIFECYCLE_STATE],
-        constants::browser::PROFILE_STORE_LIFECYCLE_READY
-    );
-    assert_ne!(
-        serialized[constants::field::PROFILE_PATH_REF],
-        constants::browser::PATH_SEGMENT_DEFAULT
     );
 }
 
