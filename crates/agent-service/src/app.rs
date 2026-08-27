@@ -82,7 +82,10 @@ pub(crate) fn router(
         .layer(cors_layer)
 }
 
-async fn health() -> Json<AgentLogSnapshot> {
+async fn health(State(state): State<AppState>) -> impl IntoResponse {
+    if !state.parent_local_bridge_admission.is_ready() {
+        return StatusCode::SERVICE_UNAVAILABLE.into_response();
+    }
     let _ = tokio::task::spawn_blocking(|| {
         write_agent_info(
             constants::dev_log_message::AGENT_HEALTH_REQUESTED,
@@ -90,12 +93,15 @@ async fn health() -> Json<AgentLogSnapshot> {
         )
     })
     .await;
-    Json(build_dev_log_snapshot())
+    Json(build_dev_log_snapshot()).into_response()
 }
 
 // Compatibility snapshot endpoint only: this is status/read-model output, not the primary local dev log store.
-async fn log_snapshot() -> Json<AgentLogSnapshot> {
-    Json(build_dev_log_snapshot())
+async fn log_snapshot(State(state): State<AppState>) -> impl IntoResponse {
+    if !state.parent_local_bridge_admission.is_ready() {
+        return StatusCode::SERVICE_UNAVAILABLE.into_response();
+    }
+    Json(build_dev_log_snapshot()).into_response()
 }
 
 async fn websocket(
@@ -104,6 +110,9 @@ async fn websocket(
     headers: HeaderMap,
     ws: WebSocketUpgrade,
 ) -> impl IntoResponse {
+    if !state.parent_local_bridge_admission.is_ready() {
+        return StatusCode::SERVICE_UNAVAILABLE.into_response();
+    }
     if !state.network.allows_headers(&headers) {
         return StatusCode::FORBIDDEN.into_response();
     }

@@ -97,6 +97,23 @@ impl IssuedParentLocalBridgeSession {
         self.expires_at_epoch_millis
     }
 
+    /// Consume this Account-issued session to present its typed handshake to
+    /// the owner-selected transport exactly once.
+    ///
+    /// The handshake is moved into an `FnOnce` callback instead of being
+    /// returned through a getter. This keeps presentation tied to the
+    /// non-`Clone` issued session and gives the owner-selected transport one
+    /// explicit consuming handoff. Once encoded as wire data, a legitimately
+    /// issued bearer cannot be made non-retainable by this API; the security
+    /// boundary is the durable one-use server consumption and currentness
+    /// revalidation, not an in-process memory-retention guarantee.
+    pub fn present_first_message<F, R>(self, present: F) -> R
+    where
+        F: FnOnce(AccountIdentityParentLocalBridgeHandshake) -> R,
+    {
+        present(self.handshake)
+    }
+
     pub(crate) fn new(
         capability: ParentLocalBridgeSessionCapability,
         handshake: AccountIdentityParentLocalBridgeHandshake,

@@ -92,8 +92,12 @@ fn validate_objects(connection: &Connection) -> Result<(), ()> {
 
 fn canonical_statement(kind: &str, name: &str) -> Option<String> {
     let marker = match kind {
-        "table" => format!("CREATETABLEIFNOTEXISTS{}", normalize_sql(name)),
-        "index" => format!("CREATEINDEXIFNOTEXISTS{}", normalize_sql(name)),
+        // SQLite omits `IF NOT EXISTS` when it stores the canonical SQL in
+        // sqlite_master. Build the marker in the same normalized form so a
+        // freshly-created v2 database is validated against the actual DDL,
+        // rather than failing to find its own schema statements.
+        "table" => format!("CREATETABLE{}", normalize_sql(name)),
+        "index" => format!("CREATEINDEX{}", normalize_sql(name)),
         _ => return None,
     };
     BRIDGE_SCHEMA_SQL
