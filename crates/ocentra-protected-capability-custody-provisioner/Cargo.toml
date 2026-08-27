@@ -16,5 +16,9 @@ path = "src/main.rs"
 ocentra-protected-capability-custody-protocol = { path = "../protected-capability-custody-protocol" }
 sha2 = "0.10.9"
 
+[[test]]
+name = "integration"
+path = "tests/integration/provisioner_cli.rs"
+
 [target.'cfg(windows)'.dependencies]
 ocentra-protected-capability-custody-windows-ffi = { path = "../ocentra-protected-capability-custody-windows-ffi" }
