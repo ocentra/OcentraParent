@@ -745,15 +745,17 @@ This is stream/read-model status only. It does not execute final policy,
 dispatch an adapter, mutate browser state, execute child intervention, or
 enforce.
 
-## Parent-Child Action-Intent Handoff Addendum - 2026-06-08
+## Historical/Test-Only Parent-Child Action-Intent Handoff Addendum - 2026-06-08
 
-`browser-runtime-parent-child-action-intent-handoff-proof` carries the browser
-action-intent handoff into the existing parent/controller to child-agent event
-sequence with a named `browser-action-intent-handoff` child command kind. The
-proof validates parent action receipt, command validation, parent-child
-transport handoff, child command receive/acceptance, and parent read-model
-projection while keeping dispatch, adapter execution, browser mutation, child
-intervention execution, final policy execution, and enforcement at zero.
+This is a historical/test-only fixture description, not current production
+runtime evidence. The fixture describes the intended browser action-intent
+sequence with a named `browser-action-intent-handoff` child command kind. At
+the current Eventing WP08 boundary,
+`crates/agent-core/src/parent_child_event_runtime.rs` returns
+`EventingError::NoSubscriber`; no registered consumer, durable child
+acceptance, child transport handoff, or parent read-model projection exists.
+The decoder and assertions below therefore remain fixture/test-only and do not
+establish a shipped parent/child runtime.
 
 Evidence:
 
@@ -767,18 +769,19 @@ Evidence:
 - `cargo test -p ocentra-parent-agent-protocol child_agent_contracts_serialize_browser_action_intent_handoff_kind --quiet`
 - `cargo test -p ocentra-parent-agent-core browser_action_intent_handoff_uses_parent_child_event_sequence_without_execution --quiet`
 
-This is typed parent/child handoff proof only. It does not add external broker
-or relay delivery, adapter dispatch, browser mutation, child intervention
-execution, final policy execution, unmanaged exact URL support, or enforcement.
+This is historical typed parent/child fixture coverage only. It does not add a
+registered local consumer, durable child acceptance, external broker or relay
+delivery, adapter dispatch, browser mutation, child intervention execution,
+final policy execution, unmanaged exact URL support, or enforcement.
 
-## Action-Intent Child Status Addendum - 2026-06-08
+## Historical/Test-Only Action-Intent Child Status Addendum - 2026-06-08
 
-`browser-runtime-action-intent-child-status-proof` composes the durable browser
-action-intent handoff record with the existing parent/controller to child-agent
-event sequence. The proof validates durable result/read-model refs, the
-`browser-action-intent-handoff` child command kind, child receive/acceptance
-event refs, parent read-model projection visibility, and zero execution
-counters.
+This is also historical/test-only fixture coverage. The former composition
+described by `browser-runtime-action-intent-child-status-proof` expected durable
+result/read-model refs, child receive/acceptance refs, and parent read-model
+projection visibility, but the current parent-child runtime is fail-closed with
+`EventingError::NoSubscriber`. It does not establish a registered consumer,
+durable child acceptance, transport, or production parent read-model path.
 
 Evidence:
 
