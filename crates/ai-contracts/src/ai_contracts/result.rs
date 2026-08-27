@@ -10,7 +10,6 @@ use super::memory::{AiGraphReference, AiMemoryReference};
 use super::{AiAuthorityBoundary, AiConfidence, AiDegradedState, AiSafeText, AiValidationState};
 
 mod claim;
-mod digest;
 mod document;
 mod handoff;
 mod payload;

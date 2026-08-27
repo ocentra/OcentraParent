@@ -22,14 +22,6 @@ impl AiActorIdentity {
         })
     }
 
-    pub(crate) fn trusted_parent(actor_id: AiActorId, subject: AiSubjectIdentity) -> Self {
-        Self {
-            actor_id,
-            role: AiActorRole::Parent,
-            subject: Some(subject),
-        }
-    }
-
     pub fn actor_id(&self) -> &AiActorId {
         &self.actor_id
     }
@@ -40,10 +32,6 @@ impl AiActorIdentity {
 
     pub fn subject(&self) -> Option<&AiSubjectIdentity> {
         self.subject.as_ref()
-    }
-
-    pub(crate) fn is_parent_authority(&self) -> bool {
-        matches!(self.role, AiActorRole::Parent)
     }
 }
 

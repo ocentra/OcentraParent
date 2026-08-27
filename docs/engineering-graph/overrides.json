@@ -89,7 +89,7 @@
     {
       "id": "WP-ai-plan-03-contract-boundary-and-effect-schemas",
       "hardDependencies": [],
-      "reason": "Independent source review accepted canonical source commit 6318d5e3d: the complete Rust AI contract family is present in the neutral ocentra-ai-contracts leaf, including journal/result digest modules, and crates/schema consumes that leaf only for schema export and the generated edge. No general agent-protocol or agent-service consumer/provider-owner composition is mapped. The three expected WP03 contract/negative/parity test roots remain absent; tests, runtime caller/provider composition, proof, READY, and DONE remain open.",
+      "reason": "Independent source review accepted canonical source commit 6318d5e3d: the serialized Rust AI contract family is present in the neutral ocentra-ai-contracts leaf, while owner-only journal/result digest issuance remains outside this neutral boundary because no current graph-authorized production caller exists. crates/schema consumes the leaf only for schema export and the generated edge. No general agent-protocol or agent-service consumer/provider-owner composition is mapped. The three expected WP03 contract/negative/parity test roots remain absent; tests, runtime caller/provider composition, proof, READY, and DONE remain open.",
       "evidence": [
         "docs/plans/ai-plan/PLAN_STATE.md",
         "docs/plans/ai-plan/NEXT_ACTIONS.md",
@@ -10352,12 +10352,10 @@
       "implementation": [
         "crates/ai-contracts/src/lib.rs",
         "crates/ai-contracts/src/ai_contracts.rs",
-        "crates/ai-contracts/src/ai_contracts/journal/digest.rs",
-        "crates/ai-contracts/src/ai_contracts/result/digest.rs",
         "crates/ai-contracts/src/ai_contracts_ts.rs",
         "crates/schema/src/bin/export_ai_contract_types.rs"
       ],
-      "reason": "Independent source review accepted the bounded WP03 implementation at canonical source commit 6318d5e3d: the complete Rust AI contract family is owned by the neutral ocentra-ai-contracts leaf, including journal/result digest bindings, and crates/schema consumes it only for schema export and the generated edge. No general agent-protocol or agent-service consumer/provider-owner composition is present. This records implementation-phase routing only; the three expected WP03 contract/negative/parity test roots, tests, focused validation, proof, CI, PR, READY, and DONE remain open.",
+      "reason": "Independent source review accepted the bounded WP03 implementation at canonical source commit 6318d5e3d: the serialized Rust AI contract family is owned by the neutral ocentra-ai-contracts leaf, and crates/schema consumes it only for schema export and the generated edge. Owner-only journal/result digest issuance is not mapped to this neutral leaf because no current graph-authorized production caller exists; the later owner workpacks retain that future responsibility. No general agent-protocol or agent-service consumer/provider-owner composition is present. This records implementation-phase routing only; the three expected WP03 contract/negative/parity test roots, tests, focused validation, proof, CI, PR, READY, and DONE remain open.",
       "evidence": [
         "docs/plans/ai-plan/PLAN_STATE.md",
         "docs/plans/ai-plan/NEXT_ACTIONS.md",

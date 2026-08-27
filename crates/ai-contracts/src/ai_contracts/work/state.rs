@@ -3,23 +3,26 @@ use serde::Deserialize;
 
 impl AiWorkState {
     pub fn can_transition_from(self, previous: Option<Self>) -> bool {
-        match (previous, self) {
-            (None, Self::Queued) => true,
-            (Some(Self::Queued), Self::Claimed | Self::Cancelled | Self::ManualRequired) => true,
-            (
-                Some(Self::Claimed),
-                Self::Running | Self::Cancelled | Self::Failed | Self::ManualRequired,
-            ) => true,
-            (
-                Some(Self::Running),
-                Self::Succeeded
-                | Self::Failed
-                | Self::Cancelled
-                | Self::TimedOut
-                | Self::ManualRequired,
-            ) => true,
-            _ => false,
-        }
+        matches!(
+            (previous, self),
+            (None, Self::Queued)
+                | (
+                    Some(Self::Queued),
+                    Self::Claimed | Self::Cancelled | Self::ManualRequired
+                )
+                | (
+                    Some(Self::Claimed),
+                    Self::Running | Self::Cancelled | Self::Failed | Self::ManualRequired
+                )
+                | (
+                    Some(Self::Running),
+                    Self::Succeeded
+                        | Self::Failed
+                        | Self::Cancelled
+                        | Self::TimedOut
+                        | Self::ManualRequired
+                )
+        )
     }
 
     pub fn is_terminal(self) -> bool {

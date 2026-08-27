@@ -77,17 +77,6 @@ impl AiTimestamp {
         self.compare(other) == Some(Ordering::Less)
     }
 
-    pub(crate) fn is_at_or_after(&self, other: &Self) -> bool {
-        matches!(
-            self.compare(other),
-            Some(Ordering::Equal | Ordering::Greater)
-        )
-    }
-
-    pub(crate) fn is_before(&self, other: &Self) -> bool {
-        self.precedes(other)
-    }
-
     fn compare(&self, other: &Self) -> Option<Ordering> {
         Some(parse_canonical_utc(self.as_str())?.cmp(&parse_canonical_utc(other.as_str())?))
     }
