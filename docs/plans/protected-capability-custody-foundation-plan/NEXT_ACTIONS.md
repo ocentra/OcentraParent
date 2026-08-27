@@ -11,7 +11,8 @@
 
 1. Preserve the accepted CNG/TPM mechanics, private `cfg(windows)` core
    adapter, the WP01-owned BIN-only provisioner source, and the reviewed WP04
-   client/broker anchor source integrated at canonical `cbd974291`. The graph
+   OS-observation primitives. Do not preserve the superseded claim that WP04
+   implementation is complete. The graph
    records 114 implementation files, 0 tests,
    and no workspace requirement gaps. The provisioner is only a read-only
    preflight: it revalidates enrollment and always returns
@@ -23,21 +24,27 @@
    enrolled counter generation, operational use of the independent
    broker/client/token observations, and the core monotonic provider. The
    bounded WP04 observation adapters are source-present, but startup must remain
-   fail-closed `DeploymentRequired` before DB/state/listener mutation; there is no
-   reachable success path in the current checkout. Parent Runtime WP12 owns only package
-   invocation and lifecycle.
-3. Connect and verify the real owner-bound broker/client transport caller only
+   fail-closed `DeploymentRequired` before DB/state/listener mutation; there is
+   no reachable success path in the current checkout. Parent Runtime WP12 owns
+   only package invocation and lifecycle.
+3. Repair only the two authorized WP04 internal defects: obtain fresh fallible
+   broker platform-session state before every broker hello, and revalidate
+   readiness/currentness through listener lifetime so owner/currentness drift
+   drops the listener and reports SCM `Stopped` nonzero. Keep ordinary malformed
+   peer failures connection-local. Do not use this repair to create enrollment,
+   monotonic authority, caller identity, or a new handshake.
+4. Connect and verify the real owner-bound broker/client transport caller only
    after the protected owner and WP12 package boundaries exist. The WP04 fixed
    pipe, retained OS anchor, and fail-closed broker/client composition are
    source-present; no second helper process/protocol, caller-supplied
    identity/attestation, raw `authValue`, disk generation restore, or
    caller-minted authority is allowed.
-4. After production source is stable, write and execute all 13 expected test
+5. After production source is stable, write and execute all 13 expected test
    roots listed in `TEST_PROOF_EXPECTATIONS.md`, including the core-private
    Windows adapter and TPM2 NV/TBS monotonic-counter roots. Tests must exercise
    the real private seams and must not bless a disconnected helper, fake
    authority, or caller assertion.
-5. Run the selected focused source/tests and Enforcer/architecture checks,
+6. Run the selected focused source/tests and Enforcer/architecture checks,
    then update checklist and retained proof. Repo-wide Enforcer, pre-commit,
    one PR, long CI, and promotion remain final gates.
 
@@ -61,15 +68,14 @@
 3. Route WP03 only after WP01 and the WP02 owner transaction. Its bounded roots
    are `core windows/monotonic.rs` and `platform/anti_rollback.rs`; the
    `tests/security/tpm_nv_counter.rs` obligation remains absent.
-4. Keep WP04 as source-present but normal-blocked for only the fixed-pipe client
-   admission, private `client_anchor`, and retained OS-derived
-   process/token/image/SCM/enrollment observations. Its WP01 edge remains
-   reviewed-implementation; WP02/WP03/Parent WP12 edges are
-   implementation-independent. Normal derived state and completion remain
-   blocked; no sysinfo, caller identity, handshake redesign, or runtime claim
-   is authorized. The 21 expected production roots compile on Linux and the
-   Windows target; the three transport tests, owner-bound caller, proof, and
-   DONE remain open.
+4. Keep WP04 normal-blocked but implementation-repair-authorized only for the
+   fresh per-hello platform-state load and listener-lifetime fatal-currentness
+   handling across the broker custody/runtime/peer/service roots. Its WP01 edge
+   remains reviewed-implementation; WP02/WP03/Parent WP12 edges are
+   implementation-independent for this source phase. No sysinfo, caller
+   identity, handshake redesign, external-owner implementation, or runtime
+   readiness claim is authorized. The three transport tests, owner-bound
+   caller, operational dependencies, proof, and DONE remain open.
 5. Route WP05 as planned/source-authorable for the Account-owned
    `crates/account-issuer-owner` statically linked into the existing broker.
    It absorbs issuer/key-registry/outbox/delivery/startup/recovery/signing/RPC

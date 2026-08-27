@@ -10467,6 +10467,8 @@
         "crates/protected-capability-custody-client/src/windows_ipc_session.rs",
         "crates/protected-capability-custody-client/src/admission.rs",
         "crates/protected-capability-custody-broker/src/authority.rs",
+        "crates/protected-capability-custody-broker/src/custody.rs",
+        "crates/protected-capability-custody-broker/src/custody/runtime.rs",
         "crates/protected-capability-custody-broker/src/windows_ipc.rs",
         "crates/protected-capability-custody-broker/src/windows_ipc/service.rs",
         "crates/protected-capability-custody-broker/src/windows_ipc/peer.rs",
@@ -10480,33 +10482,17 @@
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/service_sid.rs"
       ],
       "plannedImplementationRoots": [
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs",
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/client_anchor.rs",
-        "crates/protected-capability-custody-client/src/lib.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc_connect.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc_io.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc_peer.rs",
-        "crates/protected-capability-custody-client/src/windows_ipc_session.rs",
-        "crates/protected-capability-custody-client/src/admission.rs",
-        "crates/protected-capability-custody-broker/src/authority.rs",
-        "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+        "crates/protected-capability-custody-broker/src/custody.rs",
+        "crates/protected-capability-custody-broker/src/custody/runtime.rs",
         "crates/protected-capability-custody-broker/src/windows_ipc/service.rs",
-        "crates/protected-capability-custody-broker/src/windows_ipc/peer.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token_groups.rs",
-        "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/service_sid.rs",
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/token_groups.rs",
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/service_sid.rs"
+        "crates/protected-capability-custody-broker/src/windows_ipc/peer.rs"
       ],
       "expectedTestRoots": [
         "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
         "crates/protected-capability-custody-client/tests/admission.rs",
         "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
       ],
-      "note": "WP04 owns the private Windows client_anchor plus client fixed-pipe transport/session, including the missing client windows_ipc connect/io/peer/session seams and broker authority OS-observation cleanup. Existing interprocess PID/session and RAII process/token/image/SCM/enrollment observations are sufficient; no handshake redesign, spawned child, stdin bootstrap, nonce pipe, sysinfo, dunce, or caller identity is authorized. The base lifecycle is planned/source-authorable for this bounded fail-closed packet; the WP01 edge is reviewed-implementation and WP02/WP03/Parent WP12 edges are implementation-independent. Normal derived state, operational caller, tests, proof, and DONE remain blocked."
+      "note": "WP04 owns the private Windows client_anchor, client fixed-pipe transport/session, and broker custody/peer/service currentness seams. The retained interprocess PID/session and RAII process/token/image/SCM/enrollment observation primitives remain reviewed, but independent review found two internal P1s: broker hellos reuse startup-cached platform session state, and the listener remains SCM Running without fatal owner/currentness drift revalidation. Only fresh per-hello platform-state loading and bounded listener-lifetime fatal-drift handling are implementation-authorized; malformed peers stay connection-local. No handshake redesign, spawned child, stdin bootstrap, nonce pipe, sysinfo, dunce, caller identity, or external-owner substitute is authorized. WP01 is reviewed-implementation; WP02/WP03/Parent WP12 are implementation-independent for source only. Normal state, operational caller, tests, proof, and DONE remain blocked."
     },
     "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody": {
       "planSlug": "protected-capability-custody-foundation-plan",
