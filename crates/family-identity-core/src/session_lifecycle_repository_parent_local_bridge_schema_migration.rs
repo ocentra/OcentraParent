@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use rusqlite::{Connection, OptionalExtension, TransactionBehavior};
+use rusqlite::{Connection, OptionalExtension, Transaction, TransactionBehavior};
 
 use super::{validation, BRIDGE_SCHEMA_SQL, BRIDGE_SCHEMA_VERSION};
 
@@ -10,59 +10,65 @@ const SESSION_TABLE: &str = "account_identity_parent_local_bridge_session";
 const AUDIT_TABLE: &str = "account_identity_parent_local_bridge_audit_outbox";
 
 pub(super) fn initialize_or_migrate(connection: &mut Connection) -> Result<(), ()> {
-    reject_bridge_triggers_and_views(connection)?;
-    let schema_exists = table_exists(connection, SCHEMA_TABLE)?;
+    // Serialize the complete inspect/validate/replace decision. In particular,
+    // legacy audit preservation must be checked while the same write lock that
+    // protects the subsequent DROP/CREATE is held; a check followed by a later
+    // transaction can lose a row inserted in between those operations.
+    let transaction = connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|_| ())?;
+    initialize_or_migrate_in_transaction(&transaction)?;
+    transaction.commit().map_err(|_| ())
+}
+
+fn initialize_or_migrate_in_transaction(transaction: &Transaction<'_>) -> Result<(), ()> {
+    reject_bridge_triggers_and_views(transaction)?;
+    let schema_exists = table_exists(transaction, SCHEMA_TABLE)?;
     let existing = [
-        table_exists(connection, REVOKE_TABLE)?,
-        table_exists(connection, SESSION_TABLE)?,
-        table_exists(connection, AUDIT_TABLE)?,
+        table_exists(transaction, REVOKE_TABLE)?,
+        table_exists(transaction, SESSION_TABLE)?,
+        table_exists(transaction, AUDIT_TABLE)?,
     ];
     if existing.iter().all(|exists| !exists) {
         if schema_exists {
             return Err(());
         }
-        return create_fresh(connection);
+        return create_fresh(transaction);
     }
     if existing.iter().any(|exists| !exists) {
         return Err(());
     }
     if schema_exists {
-        match read_schema_version(connection)? {
+        match read_schema_version(transaction)? {
             Some(version) if version == BRIDGE_SCHEMA_VERSION => {
-                return validation::validate(connection);
+                return validation::validate(transaction);
             }
             Some(2) => {
-                validation::validate_v2(connection, true)?;
-                return migrate_v2(connection);
+                return migrate_v2(transaction, true);
             }
             Some(_) => return Err(()),
             None => {
-                validation::validate_v2(connection, false)?;
-                return migrate_v2(connection);
+                return migrate_v2(transaction, false);
             }
         }
     }
     (!schema_exists).then_some(()).ok_or(())?;
-    validate_v1_shape(connection)?;
-    migrate_v1(connection)
+    migrate_v1(transaction)
 }
 
-fn create_fresh(connection: &mut Connection) -> Result<(), ()> {
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_| ())?;
+fn create_fresh(transaction: &Transaction<'_>) -> Result<(), ()> {
     transaction
         .execute_batch(BRIDGE_SCHEMA_SQL)
         .map_err(|_| ())?;
-    insert_version(&transaction)?;
-    transaction.commit().map_err(|_| ())
+    insert_version(transaction)?;
+    Ok(())
 }
 
-fn migrate_v2(connection: &mut Connection) -> Result<(), ()> {
-    require_empty_legacy_audit(connection)?;
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_| ())?;
+fn migrate_v2(transaction: &Transaction<'_>, require_version: bool) -> Result<(), ()> {
+    // Validation and the legacy-audit emptiness check happen under the same
+    // immediate transaction as replacement, so no legacy writer can slip in.
+    validation::validate_v2(transaction, require_version)?;
+    require_empty_legacy_audit(transaction)?;
     transaction
         .execute_batch(
             "DROP TABLE account_identity_parent_local_bridge_audit_outbox;
@@ -72,16 +78,15 @@ fn migrate_v2(connection: &mut Connection) -> Result<(), ()> {
     transaction
         .execute_batch(BRIDGE_SCHEMA_SQL)
         .map_err(|_| ())?;
-    insert_version(&transaction)?;
-    validation::validate(&transaction)?;
-    transaction.commit().map_err(|_| ())
+    insert_version(transaction)?;
+    validation::validate(transaction)
 }
 
-fn migrate_v1(connection: &mut Connection) -> Result<(), ()> {
-    require_empty_legacy_audit(connection)?;
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(|_| ())?;
+fn migrate_v1(transaction: &Transaction<'_>) -> Result<(), ()> {
+    // Keep v1 shape/row validation, ambiguous-audit preservation, copying,
+    // and destructive replacement in one serialized transaction.
+    validate_v1_shape(transaction)?;
+    require_empty_legacy_audit(transaction)?;
     transaction
         .execute_batch(
             "CREATE TEMP TABLE account_identity_parent_local_bridge_session_copy AS
@@ -124,9 +129,8 @@ fn migrate_v1(connection: &mut Connection) -> Result<(), ()> {
     transaction
         .execute_batch("DROP TABLE account_identity_parent_local_bridge_session_copy;")
         .map_err(|_| ())?;
-    insert_version(&transaction)?;
-    validation::validate(&transaction)?;
-    transaction.commit().map_err(|_| ())
+    insert_version(transaction)?;
+    validation::validate(transaction)
 }
 
 /// Legacy audit rows do not carry either Account generation. Inferring those
