@@ -597,7 +597,6 @@
       "crates/agent-service/src/websocket/activity_command_reports.rs",
       "crates/agent-service/src/websocket/tracking_retention_settings_write.rs",
       "crates/agent-service/src/websocket/tracking_retention_settings_write_events.rs",
-      "crates/agent-service/tests/unit/tracking_read_model_service_tests.rs",
       "crates/agent-service/tests/unit/tracking_retention_settings_write_tests.rs",
       "packages/portal-domain/src/tracking-status-panel.ts",
       "packages/portal-domain/src/tracking-status-panel-helpers.ts",
@@ -1766,6 +1765,7 @@
     },
     "WP-browser-plan-13-browser-read-models-and-service-events": {
       "planSlug": "browser-plan",
+      "note": "Authenticated service-command coverage is manual-required: PR #709 withdrew unauthenticated tests that called crate-private dispatcher helpers directly. Retained protocol, domain/read-model, payload, and eventing roots cover direct invariants only; they do not prove the authenticated /dev_ws handshake, peer revalidation, or command_entry service path.",
       "roots": [
         "crates/agent-protocol/src/browser_read_model.rs",
         "crates/agent-protocol/src/constants/field.rs",
@@ -2850,8 +2850,7 @@
       "roots": [
         "crates/agent-protocol/src/app_game.rs",
         "crates/agent-service/tests/unit/app_game_activity_read_models.rs",
-        "crates/agent-service/src/websocket/activity_app_game_read_model_reports.rs",
-        "crates/agent-service/tests/unit/app_game_boundary_read_model_service_tests.rs"
+        "crates/agent-service/src/websocket/activity_app_game_read_model_reports.rs"
       ]
     },
     "WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces": {
@@ -3064,8 +3063,7 @@
       "roots": [
         "crates/agent-protocol/src/app_game_boundary_read_model.rs",
         "crates/agent-protocol/tests/contract/app_game_boundary_read_model_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs",
-        "crates/agent-service/tests/unit/app_game_boundary_read_model_service_tests.rs"
+        "crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs"
       ]
     },
     "WP-app-plan-41-live-windows-inventory-source": {
@@ -3167,8 +3165,7 @@
       "roots": [
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_service_tests.rs"
+        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
       ]
     },
     "WP-app-plan-58-notification-local-outbox-bridge": {
@@ -3182,8 +3179,7 @@
         "crates/app-game-core/src/app_game_notification_local_outbox_bridge_validation.rs",
         "crates/app-game-core/src/app_game_child_ux_outbox_store.rs",
         "crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs",
-        "crates/agent-service/src/activity_api.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_service_tests.rs"
+        "crates/agent-service/src/activity_api.rs"
       ]
     },
     "WP-app-plan-59-notification-scheduler-bridge": {
@@ -5173,8 +5169,7 @@
         "crates/tracking-core/tests/migration/read_model_schema.rs",
         "crates/tracking-core/tests/differential/read_model_counts.rs",
         "crates/agent-core/src/tracking/mod.rs",
-        "crates/agent-core/tests/unit/tracking_read_model.rs",
-        "crates/agent-service/tests/unit/tracking_read_model_service_tests.rs"
+        "crates/agent-core/tests/unit/tracking_read_model.rs"
       ]
     },
     "WP-tracking-plan-33-proof-gates-fixtures-rollout-and-pr-gate": {
@@ -5226,8 +5221,7 @@
         "crates/child-runtime/src/tracking_runtime_flow.rs",
         "crates/tracking-core/src/read_model.rs",
         "crates/tracking-core/tests/replay/child_check_in.rs",
-        "crates/tracking-core/tests/unit/read_model.rs",
-        "crates/agent-service/tests/unit/tracking_read_model_service_tests.rs"
+        "crates/tracking-core/tests/unit/read_model.rs"
       ]
     },
     "WP-tracking-plan-38-tracking-notification-and-escalation-event-flow": {
@@ -5252,7 +5246,6 @@
         "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/tracking.rs",
         "packages/portal-domain/src/tracking-status-panel.ts",
         "apps/portal/src/TrackingStatusRoutePanel.tsx",
-        "crates/agent-service/tests/unit/tracking_read_model_service_tests.rs",
         "packages/portal-domain/tests/unit/tracking-status-panel.test.ts",
         "apps/portal/tests/unit/tracking-status-panel.test.ts"
       ]
@@ -5981,6 +5974,7 @@
     },
     "WP-v0-8-enforcement-control-plan-02-policy-decision-evidence-references": {
       "planSlug": "v0-8-enforcement-control-plan",
+      "note": "Authenticated service-command coverage is manual-required: PR #709 withdrew unauthenticated tests that called crate-private dispatcher helpers directly. Retained protocol, domain/read-model, payload, and eventing roots cover direct invariants only; they do not prove the authenticated /dev_ws handshake, peer revalidation, or command_entry service path.",
       "roots": [
         "crates/agent-protocol/src/constants/v08_enforcement_policy_dispatch.rs",
         "crates/agent-protocol/src/enforcement_policy_dispatch.rs",
@@ -5995,6 +5989,7 @@
     },
     "WP-v0-8-enforcement-control-plan-03-adapter-capability-matrix": {
       "planSlug": "v0-8-enforcement-control-plan",
+      "note": "Authenticated service-command coverage is manual-required: PR #709 withdrew unauthenticated tests that called crate-private dispatcher helpers directly. Retained protocol, domain/read-model, payload, and eventing roots cover direct invariants only; they do not prove the authenticated /dev_ws handshake, peer revalidation, or command_entry service path.",
       "roots": [
         "crates/agent-protocol/src/enforcement_supported_adapter_runtime_proof.rs",
         "crates/agent-protocol/src/enforcement_cross_platform_capability_proof.rs",
@@ -6051,6 +6046,7 @@
     },
     "WP-v0-8-enforcement-control-plan-08-network-domain-report-only-boundary": {
       "planSlug": "v0-8-enforcement-control-plan",
+      "note": "Authenticated service-command coverage is manual-required: PR #709 withdrew unauthenticated tests that called crate-private dispatcher helpers directly. Retained protocol, domain/read-model, payload, and eventing roots cover direct invariants only; they do not prove the authenticated /dev_ws handshake, peer revalidation, or command_entry service path.",
       "roots": [
         "crates/agent-protocol/src/enforcement_product_control_spine.rs",
         "crates/agent-protocol/tests/unit/enforcement_product_control_spine_tests.rs",
@@ -6143,6 +6139,7 @@
     },
     "WP-v0-8-enforcement-control-plan-13-service-read-models-and-api": {
       "planSlug": "v0-8-enforcement-control-plan",
+      "note": "Authenticated service-command coverage is manual-required: PR #709 withdrew unauthenticated tests that called crate-private dispatcher helpers directly. Retained protocol, domain/read-model, payload, and eventing roots cover direct invariants only; they do not prove the authenticated /dev_ws handshake, peer revalidation, or command_entry service path.",
       "roots": [
         "crates/agent-protocol/src/enforcement_policy_dispatch.rs",
         "crates/agent-protocol/src/enforcement_supported_adapter_runtime_proof.rs",
@@ -6170,6 +6167,7 @@
     },
     "WP-v0-8-enforcement-control-plan-15-integrity-heartbeat-permission-loss": {
       "planSlug": "v0-8-enforcement-control-plan",
+      "note": "Authenticated service-command coverage is manual-required: PR #709 withdrew unauthenticated tests that called crate-private dispatcher helpers directly. Retained protocol, domain/read-model, payload, and eventing roots cover direct invariants only; they do not prove the authenticated /dev_ws handshake, peer revalidation, or command_entry service path.",
       "roots": [
         "crates/agent-protocol/src/enforcement_integrity_runtime_audit.rs",
         "crates/agent-protocol/tests/contract/enforcement_integrity_runtime_audit_tests.rs",
@@ -7404,8 +7402,7 @@
       "roots": [
         "crates/agent-protocol/src/app_game_boundary_read_model.rs",
         "crates/agent-protocol/tests/contract/app_game_boundary_read_model_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs",
-        "crates/agent-service/tests/unit/app_game_boundary_read_model_service_tests.rs"
+        "crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs"
       ]
     },
     "WP-app-game-plan-41-live-windows-inventory-source": {
@@ -7509,7 +7506,6 @@
         "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources",
         "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts"
       ]
@@ -7535,8 +7531,7 @@
         "crates/agent-protocol/src/app_game_notification_parent_surface_intent.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_service_tests.rs"
+        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
       ]
     },
     "WP-app-game-plan-58-notification-local-outbox-bridge": {
@@ -7550,8 +7545,7 @@
         "crates/app-game-core/src/app_game_notification_local_outbox_bridge_validation.rs",
         "crates/app-game-core/src/app_game_child_ux_outbox_store.rs",
         "crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs",
-        "crates/agent-service/src/activity_api.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_service_tests.rs"
+        "crates/agent-service/src/activity_api.rs"
       ]
     },
     "WP-app-game-plan-59-notification-scheduler-bridge": {
@@ -7662,7 +7656,6 @@
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload",
         "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_notification.rs",
         "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-notification-parent-surface-panel.test.ts"
@@ -7678,7 +7671,6 @@
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload",
         "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_notification.rs",
         "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-notification-parent-surface-panel.test.ts"
@@ -8636,7 +8628,6 @@
         "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources",
         "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts",
         "crates/agent-protocol/src/app_game_adapter_execution_readiness.rs",
@@ -8651,7 +8642,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8674,7 +8664,6 @@
         "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources",
         "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts",
         "crates/agent-protocol/src/app_game_adapter_execution_readiness.rs",
@@ -8689,7 +8678,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8712,7 +8700,6 @@
         "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources",
         "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts",
         "crates/agent-protocol/src/app_game_adapter_execution_readiness.rs",
@@ -8727,7 +8714,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8750,7 +8736,6 @@
         "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources",
         "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts",
         "crates/agent-protocol/src/app_game_adapter_execution_readiness.rs",
@@ -8765,7 +8750,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8788,7 +8772,6 @@
         "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources",
         "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts",
         "crates/agent-protocol/src/app_game_adapter_execution_readiness.rs",
@@ -8803,7 +8786,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8826,7 +8808,6 @@
         "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources",
         "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts",
         "crates/agent-protocol/src/app_game_adapter_execution_readiness.rs",
@@ -8841,7 +8822,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8864,7 +8844,6 @@
         "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources",
         "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts",
         "crates/agent-protocol/src/app_game_adapter_execution_readiness.rs",
@@ -8879,7 +8858,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8901,7 +8879,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8923,7 +8900,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8945,7 +8921,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8967,7 +8942,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -8989,7 +8963,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -9011,7 +8984,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -9033,7 +9005,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -9055,7 +9026,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -9077,7 +9047,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -9099,7 +9068,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -9120,7 +9088,6 @@
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources.rs",
         "crates/agent-service/src/activity_api/app_game_policy_readiness_sources/classification_refs.rs",
         "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
         "crates/parent-runtime-core/src/agent_service_client/snapshots_app_game.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_policy.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_readiness_labels.rs",
@@ -9145,7 +9112,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -9167,7 +9133,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -9189,7 +9154,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
         "crates/agent-service/src/app_game_dispatch_evidence.rs",
         "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
         "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
@@ -9215,7 +9179,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9242,7 +9205,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9269,7 +9231,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9301,7 +9262,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9413,7 +9373,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9450,7 +9409,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9477,7 +9435,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9528,7 +9485,6 @@
         "crates/agent-service/src/websocket/transport_admission.rs",
         "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "crates/parent-runtime-core/tests/integration/parent_ui_bridge.rs",
         "crates/agent-service/tests/unit/app_game_linux_docker_host_preflight.rs",
@@ -9587,7 +9543,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9614,7 +9569,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9641,7 +9595,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9668,7 +9621,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9695,7 +9647,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9722,7 +9673,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9763,7 +9713,6 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_paths.rs",
         "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_platform_proof_status_service_tests.rs",
         "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
         "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
@@ -9789,7 +9738,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -9814,7 +9762,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -9839,7 +9786,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -9864,7 +9810,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -9889,7 +9834,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -9914,7 +9858,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -9939,7 +9882,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -9969,7 +9911,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -9994,7 +9935,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -10019,7 +9959,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -10044,7 +9983,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -10079,7 +10017,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -10104,7 +10041,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",
@@ -10129,7 +10065,6 @@
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload.rs",
         "crates/agent-service/src/activity_api/app_game_child_runtime_transport_receipt_payload_support",
         "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_child_runtime_transport_receipt_service_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_child_runtime_transport_receipt.rs",
         "apps/portal/src/AppGameChildRuntimeTransportReceiptRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-child-runtime-transport-receipt-route-panel.test.ts",

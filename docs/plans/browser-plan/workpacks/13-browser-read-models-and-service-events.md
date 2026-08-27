@@ -1473,3 +1473,19 @@ ingestion, provider credentials, cloud routing, child delivery, quiet-hours
 timer runtime, retry-worker runtime, production durable outbox storage, adapter
 dispatch, report delivery execution, final policy execution, connector/native
 runtime, browser mutation, unmanaged exact URL support, or enforcement.
+
+## Authenticated Service-Command Boundary Addendum — 2026-08-27
+
+PR #709 withdrew the unauthenticated agent-service/WebSocket tests that
+invoked crate-private dispatcher helpers directly. Those tests were not
+evidence of the production boundary
+(`run_agent_service` -> `ParentLocalBridgeAdmission` -> `/dev_ws` ->
+authenticated handshake/revalidation -> `command_entry`).
+
+The retained WP13 protocol, read-model, payload, eventing, and portal-state
+roots prove direct projection and invariant behavior only. They do not prove
+an authenticated `/dev_ws` service command, handshake, peer revalidation, or
+`command_entry` dispatch. That service-command coverage is
+**manual-required** until a real authenticated service integration test
+exercises the production boundary. Do not upgrade WP13, SOCIAL-20, or
+SOCIAL-22, or product release status, from the retained direct tests.

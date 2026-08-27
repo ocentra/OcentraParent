@@ -70,3 +70,14 @@ closure.
 
 This is a shared guardrail for A. Other lanes may consume these states but must
 not define their own capability truth.
+
+## Authenticated Service-Command Boundary Addendum — 2026-08-27
+
+The retained protocol, capability-matrix, and service read-model tests cover
+direct typed states and projection invariants. PR #709 withdrew the
+unauthenticated dispatcher invocation that was previously used as
+service/WebSocket evidence. They do not prove
+`run_agent_service` -> `ParentLocalBridgeAdmission` -> `/dev_ws`
+authenticated handshake/revalidation -> `command_entry`; authenticated
+service-command coverage is **manual-required**. No adapter-ready or release
+claim may be inferred from the retained direct tests.

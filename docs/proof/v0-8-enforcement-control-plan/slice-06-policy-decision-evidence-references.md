@@ -39,3 +39,14 @@
 - host network or domain blocking remains manual-required rather than dispatch-ready
 - managed exact-URL enforcement, unmanaged browser exact evidence, notification delivery, tamper hardening, and mobile enforcement parity remain unclaimed
 - later service API, portal consumption, and rollout/CI workpacks remain open even though the dispatch evidence chain is now proved
+
+## Current Service-Command Boundary Status — 2026-08-27
+
+The historical direct dispatcher tests were withdrawn in PR #709 because
+crate-private dispatcher calls are not authenticated `/dev_ws` evidence. The
+retained protocol, core, and read-model tests still cover typed validation and
+projection, but authenticated
+`run_agent_service` -> `ParentLocalBridgeAdmission` -> `/dev_ws` ->
+handshake/revalidation -> `command_entry` service-command coverage is absent
+and **manual-required**. This does not invalidate the direct contract proof
+above; it prevents upgrading it to authenticated service-route proof.
