@@ -1,5 +1,6 @@
 use std::time::{Duration, Instant};
 
+use ocentra_family_identity_core::session_lifecycle_custody::parent_local_bridge::IssuedParentLocalBridgeSession;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::transport::{
@@ -67,7 +68,7 @@ pub(super) fn send_agent_command_to_address(
     context: Option<&ParentRouteContext>,
     route: AgentRoute,
 ) -> Result<AgentServiceCommandResult, String> {
-    crate::parent_local_bridge_runtime::require_authenticated_transport_owner()
+    let owner_session = crate::parent_local_bridge_runtime::require_authenticated_transport_owner()
         .map_err(|error| error.to_string())?;
     let command_origin = resolve_command_origin();
     let timeout = agent_command_timeout_for(&command);
@@ -84,6 +85,11 @@ pub(super) fn send_agent_command_to_address(
     let (mut socket, _) = websocket_client(request, stream)
         .map_err(|error| format!("agent-service WebSocket handshake failed at {url}: {error}"))?;
     configure_socket_timeouts(socket.get_mut(), remaining_timeout(deadline)?, &url)?;
+    send_owner_handshake(owner_session, |body| {
+        socket
+            .send(Message::Text(body))
+            .map_err(|error| map_websocket_error("bridge-handshake-send", &error, timeout))
+    })?;
     let ready_event = read_agent_event(&mut socket, "connection-ready", timeout, deadline)?;
     if ready_event.event != AgentEventName::AgentConnectionReady {
         return Err(format!(
@@ -137,6 +143,21 @@ pub(super) fn send_agent_command_to_address(
 
 pub(super) fn request_nonce_digest(request_nonce: &str) -> String {
     format!("{:x}", Sha256::digest(request_nonce.as_bytes()))
+}
+
+fn send_owner_handshake<F>(
+    owner_session: IssuedParentLocalBridgeSession,
+    send: F,
+) -> Result<(), String>
+where
+    F: FnOnce(String) -> Result<(), String>,
+{
+    owner_session.present_first_message(|handshake| {
+        let body = serde_json::to_string(&handshake).map_err(|error| {
+            format!("agent-service bridge handshake serialization failed: {error}")
+        })?;
+        send(body)
+    })
 }
 
 fn ensure_phase_deadline(deadline: Instant, timeout: Duration, phase: &str) -> Result<(), String> {

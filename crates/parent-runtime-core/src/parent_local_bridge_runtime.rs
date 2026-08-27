@@ -8,6 +8,7 @@
 //! environment-selected database path.
 
 use ocentra_family_identity_core::account_identity_authority_repository::AccountIdentityAuthorityService;
+use ocentra_family_identity_core::session_lifecycle_custody::parent_local_bridge::IssuedParentLocalBridgeSession;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum ParentLocalBridgeRuntimeError {
@@ -23,7 +24,8 @@ impl std::fmt::Display for ParentLocalBridgeRuntimeError {
 
 impl std::error::Error for ParentLocalBridgeRuntimeError {}
 
-pub(crate) fn require_authenticated_transport_owner() -> Result<(), ParentLocalBridgeRuntimeError> {
+pub(crate) fn require_authenticated_transport_owner(
+) -> Result<IssuedParentLocalBridgeSession, ParentLocalBridgeRuntimeError> {
     let _account_owner = AccountIdentityAuthorityService::mount_account_owned()
         .map_err(|_| ParentLocalBridgeRuntimeError::AccountOwnerUnavailable)?;
 
