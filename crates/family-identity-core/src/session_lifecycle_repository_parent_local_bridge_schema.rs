@@ -8,17 +8,19 @@ use rusqlite::Connection;
 mod migration;
 #[path = "session_lifecycle_repository_parent_local_bridge_schema_v1.rs"]
 mod v1;
-#[path = "session_lifecycle_repository_parent_local_bridge_schema_v1_rows.rs"]
-mod v1_rows;
+#[path = "session_lifecycle_repository_parent_local_bridge_schema_v2.rs"]
+mod v2;
 #[path = "session_lifecycle_repository_parent_local_bridge_schema_validation.rs"]
 mod validation;
+#[path = "session_lifecycle_repository_parent_local_bridge_schema_validation_objects.rs"]
+mod validation_objects;
 
-pub(super) const BRIDGE_SCHEMA_VERSION: i64 = 2;
+pub(super) const BRIDGE_SCHEMA_VERSION: i64 = 3;
 
 pub(super) const BRIDGE_SCHEMA_SQL: &str =
     "CREATE TABLE IF NOT EXISTS account_identity_parent_local_bridge_schema (
          schema_id INTEGER NOT NULL PRIMARY KEY CHECK (schema_id = 1),
-         schema_version INTEGER NOT NULL CHECK (schema_version = 2)
+         schema_version INTEGER NOT NULL CHECK (schema_version = 3)
      ) STRICT;
      CREATE TABLE IF NOT EXISTS account_identity_parent_local_bridge_revoke_epoch (
          account_id TEXT NOT NULL PRIMARY KEY CHECK (length(trim(account_id)) > 0),
@@ -78,6 +80,9 @@ pub(super) const BRIDGE_SCHEMA_SQL: &str =
          member_id TEXT NOT NULL CHECK (length(trim(member_id)) > 0),
          device_id TEXT NOT NULL CHECK (length(trim(device_id)) > 0),
          authority_session_id TEXT NOT NULL CHECK (length(trim(authority_session_id)) > 0),
+         authority_session_generation INTEGER NOT NULL
+           CHECK (authority_session_generation > 0),
+         authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
          audience TEXT NOT NULL CHECK (audience = 'parent-desktop-agent-service'),
          bridge_revoke_epoch INTEGER NOT NULL CHECK (bridge_revoke_epoch > 0),
          action TEXT NOT NULL CHECK (
@@ -128,6 +133,6 @@ pub(crate) fn initialize(
     if delivery_lease_millis <= 0 {
         return Err(());
     }
-    migration::initialize_or_migrate(connection, delivery_lease_millis)?;
+    migration::initialize_or_migrate(connection)?;
     validation::validate(connection)
 }

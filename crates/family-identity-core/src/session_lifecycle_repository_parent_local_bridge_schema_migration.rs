@@ -9,10 +9,7 @@ const REVOKE_TABLE: &str = "account_identity_parent_local_bridge_revoke_epoch";
 const SESSION_TABLE: &str = "account_identity_parent_local_bridge_session";
 const AUDIT_TABLE: &str = "account_identity_parent_local_bridge_audit_outbox";
 
-pub(super) fn initialize_or_migrate(
-    connection: &mut Connection,
-    delivery_lease_millis: i64,
-) -> Result<(), ()> {
+pub(super) fn initialize_or_migrate(connection: &mut Connection) -> Result<(), ()> {
     reject_bridge_triggers_and_views(connection)?;
     let schema_exists = table_exists(connection, SCHEMA_TABLE)?;
     let existing = [
@@ -30,27 +27,24 @@ pub(super) fn initialize_or_migrate(
         return Err(());
     }
     if schema_exists {
-        if read_schema_version(connection)? == Some(BRIDGE_SCHEMA_VERSION) {
-            return validation::validate(connection);
+        match read_schema_version(connection)? {
+            Some(version) if version == BRIDGE_SCHEMA_VERSION => {
+                return validation::validate(connection);
+            }
+            Some(2) => {
+                validation::validate_v2(connection, true)?;
+                return migrate_v2(connection);
+            }
+            Some(_) => return Err(()),
+            None => {
+                validation::validate_v2(connection, false)?;
+                return migrate_v2(connection);
+            }
         }
-        if read_schema_version(connection)?.is_some() {
-            return Err(());
-        }
-    }
-    if validation::v2_shape_without_version(connection).is_ok() {
-        let transaction = connection
-            .transaction_with_behavior(TransactionBehavior::Immediate)
-            .map_err(|_| ())?;
-        transaction
-            .execute_batch(BRIDGE_SCHEMA_SQL)
-            .map_err(|_| ())?;
-        insert_version(&transaction)?;
-        transaction.commit().map_err(|_| ())?;
-        return Ok(());
     }
     (!schema_exists).then_some(()).ok_or(())?;
     validate_v1_shape(connection)?;
-    migrate_v1(connection, delivery_lease_millis)
+    migrate_v1(connection)
 }
 
 fn create_fresh(connection: &mut Connection) -> Result<(), ()> {
@@ -64,7 +58,27 @@ fn create_fresh(connection: &mut Connection) -> Result<(), ()> {
     transaction.commit().map_err(|_| ())
 }
 
-fn migrate_v1(connection: &mut Connection, delivery_lease_millis: i64) -> Result<(), ()> {
+fn migrate_v2(connection: &mut Connection) -> Result<(), ()> {
+    require_empty_legacy_audit(connection)?;
+    let transaction = connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|_| ())?;
+    transaction
+        .execute_batch(
+            "DROP TABLE account_identity_parent_local_bridge_audit_outbox;
+             DROP TABLE account_identity_parent_local_bridge_schema;",
+        )
+        .map_err(|_| ())?;
+    transaction
+        .execute_batch(BRIDGE_SCHEMA_SQL)
+        .map_err(|_| ())?;
+    insert_version(&transaction)?;
+    validation::validate(&transaction)?;
+    transaction.commit().map_err(|_| ())
+}
+
+fn migrate_v1(connection: &mut Connection) -> Result<(), ()> {
+    require_empty_legacy_audit(connection)?;
     let transaction = connection
         .transaction_with_behavior(TransactionBehavior::Immediate)
         .map_err(|_| ())?;
@@ -79,14 +93,6 @@ fn migrate_v1(connection: &mut Connection, delivery_lease_millis: i64) -> Result
                         issued_at_epoch_millis, expires_at_epoch_millis,
                         bridge_revoke_epoch, state, last_transition_at_epoch_millis
                    FROM account_identity_parent_local_bridge_session;
-             CREATE TEMP TABLE account_identity_parent_local_bridge_audit_copy AS
-                 SELECT sequence, event_id, account_id, provider, provider_subject,
-                        household_id, member_id, device_id, authority_session_id,
-                        audience, bridge_revoke_epoch, action,
-                        occurred_at_epoch_millis, retain_until_epoch_millis,
-                        delivery_state, delivery_attempt_id,
-                        delivery_claimed_at_epoch_millis, delivered_at_epoch_millis
-                   FROM account_identity_parent_local_bridge_audit_outbox;
              DROP TABLE account_identity_parent_local_bridge_audit_outbox;
              DROP TABLE account_identity_parent_local_bridge_session;",
         )
@@ -115,16 +121,27 @@ fn migrate_v1(connection: &mut Connection, delivery_lease_millis: i64) -> Result
             [],
         )
         .map_err(|_| ())?;
-    super::v1_rows::migrate_audit_rows(&transaction, delivery_lease_millis)?;
     transaction
-        .execute_batch(
-            "DROP TABLE account_identity_parent_local_bridge_audit_copy;
-             DROP TABLE account_identity_parent_local_bridge_session_copy;",
-        )
+        .execute_batch("DROP TABLE account_identity_parent_local_bridge_session_copy;")
         .map_err(|_| ())?;
     insert_version(&transaction)?;
     validation::validate(&transaction)?;
     transaction.commit().map_err(|_| ())
+}
+
+/// Legacy audit rows do not carry either Account generation. Inferring those
+/// fields from a current authority or a surviving bridge session would rewrite
+/// historical custody, so a non-empty legacy outbox is preserved untouched and
+/// startup fails closed for explicit owner recovery.
+fn require_empty_legacy_audit(connection: &Connection) -> Result<(), ()> {
+    let count = connection
+        .query_row(
+            "SELECT count(*) FROM account_identity_parent_local_bridge_audit_outbox",
+            [],
+            |row| row.get::<_, i64>(0),
+        )
+        .map_err(|_| ())?;
+    (count == 0).then_some(()).ok_or(())
 }
 
 fn validate_v1_shape(connection: &Connection) -> Result<(), ()> {
