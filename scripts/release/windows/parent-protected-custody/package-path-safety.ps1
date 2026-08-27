@@ -210,6 +210,10 @@ function Copy-SafePackageFile {
     }
     Assert-SafePackageLeafPath -Path $safeSource -Root $Root -Description "$Description source immediately before copy" | Out-Null
     Assert-SafePackageLeafPath -Path $safeDestination -Root $Root -Description "$Description destination immediately before copy" | Out-Null
+    # File.Copy has no universal no-follow/handle-bound primitive here. The
+    # immediate checks reject ordinary reparse/path escapes, while a hostile
+    # same-user replacement in the check-to-copy window remains an explicit
+    # TOCTOU limitation; callers must revalidate the resulting bytes.
     [System.IO.File]::Copy($safeSource, $safeDestination, $false)
     Assert-SafePackageLeafPath -Path $safeDestination -Root $Root -Description "$Description copied file" | Out-Null
     return $safeDestination

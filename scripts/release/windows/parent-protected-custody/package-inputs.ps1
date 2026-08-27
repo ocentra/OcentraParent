@@ -80,6 +80,32 @@ function Assert-TrustedCommandIntegrity {
     }
 }
 
+function Get-TrustedCommandSnapshot {
+    if ($script:TrustedPackageCommandHashes.Count -eq 0) {
+        throw 'No trusted package commands were registered; refusing to publish an unanchored package.'
+    }
+    $snapshot = [ordered]@{}
+    foreach ($path in @($script:TrustedPackageCommandHashes.Keys | Sort-Object)) {
+        Assert-TrustedCommandIntegrity -Command $path
+        $snapshot[$path] = Get-TrustedCommandFingerprint -Path $path
+    }
+    return $snapshot
+}
+
+function Assert-TrustedCommandSnapshot {
+    param(
+        [Parameter(Mandatory)]
+        [object]$ExpectedSnapshot
+    )
+
+    $expected = Get-TrustedCommandSnapshot
+    $expectedJson = $expected | ConvertTo-Json -Depth 8 -Compress
+    $anchoredJson = $ExpectedSnapshot | ConvertTo-Json -Depth 8 -Compress
+    if ($expectedJson -cne $anchoredJson) {
+        throw 'A registered package command changed after its anchored fingerprint; refusing to publish a drifted toolchain.'
+    }
+}
+
 function Resolve-RequiredCommand {
     param(
         [Parameter(Mandatory)]
@@ -185,6 +211,10 @@ function Write-Utf8NoBom {
     if (-not [string]::IsNullOrWhiteSpace($Root)) {
         Assert-SafePackageLeafPath -Path $Path -Root $Root -Description 'Package text output immediately before write' | Out-Null
     }
+    # The immediate safe-path check and FileShare.None protect cooperating
+    # publishers. PowerShell/.NET does not provide a universal no-follow
+    # create handle here, so a hostile same-user replacement between the check
+    # and open is outside this boundary and must fail closed at the next gate.
     $stream = $null
     try {
         $stream = [System.IO.FileStream]::new(
