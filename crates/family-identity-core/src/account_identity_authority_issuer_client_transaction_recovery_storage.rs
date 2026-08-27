@@ -3,7 +3,7 @@ use rusqlite::{params, Transaction};
 use super::super::super::AccountIdentityAuthorityIssuerClientError;
 use super::RecoveryReservation;
 
-const RESERVATION_MANUAL_REQUIRED: &str = "manual_required";
+const RESERVATION_MANUAL_REQUIRED: &str = "manual-required";
 const SIGNER_UNCERTAIN: &str = "uncertain";
 
 pub(super) fn delete_valid_prepared(
@@ -56,6 +56,7 @@ fn mark_manual_with_exact_row(
         .execute(
             "UPDATE account_identity_issuer_v2_reservation
                 SET reservation_state = ?1, signer_status = ?2,
+                    signing_started_at = COALESCE(signing_started_at, ?3),
                     uncertain_at = ?3, lease_expires_at = ?3
               WHERE reservation_id = ?4 AND account_id = ?5 AND household_id = ?6
                 AND provider = ?7 AND provider_subject = ?8 AND service = ?9

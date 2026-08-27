@@ -47,10 +47,14 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
             }
             let winner =
                 super::replay::verify_stored_issue(&self.transaction, currentness, &key, existing)?;
-            return Ok(AccountIdentityIssuerRecordedTransport {
-                transport: winner,
-                replayed: true,
-            });
+            return Ok(
+                AccountIdentityIssuerRecordedTransport::from_verified_currentness(
+                    currentness,
+                    &key,
+                    winner,
+                    true,
+                ),
+            );
         }
         super::reservation_validation::validate_signing_reservation(
             &self.transaction,
@@ -62,10 +66,14 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         insert_outbox(&self.transaction, currentness, &key, transport)?;
         super::recovery::mark_issued(&self.transaction, &reservation, receipt.receipt_id.as_str())?;
         compact_issued_reservation(&self.transaction, &reservation, receipt, transport)?;
-        Ok(AccountIdentityIssuerRecordedTransport {
-            transport: transport.clone_durable(),
-            replayed: false,
-        })
+        Ok(
+            AccountIdentityIssuerRecordedTransport::from_verified_currentness(
+                currentness,
+                &key,
+                transport.clone_durable(),
+                false,
+            ),
+        )
     }
 }
 

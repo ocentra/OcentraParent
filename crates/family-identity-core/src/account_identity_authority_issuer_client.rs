@@ -25,10 +25,18 @@ use crate::account_identity_authority_repository::{
 };
 use crate::session_lifecycle_custody::SessionLifecyclePolicy;
 
+#[path = "account_identity_authority_issuer_client_owner_admission.rs"]
+pub mod account_identity_authority_issuer_client_owner_admission;
 #[path = "account_identity_authority_issuer_client_reservation.rs"]
 mod account_identity_authority_issuer_client_reservation;
 #[path = "account_identity_authority_issuer_client_types.rs"]
 pub mod account_identity_authority_issuer_client_types;
+#[path = "account_identity_authority_issuer_client_types_receipt_lineage_delivery.rs"]
+mod account_identity_authority_issuer_client_types_receipt_lineage_delivery;
+#[path = "account_identity_authority_issuer_client_types_receipt_lineage_identity.rs"]
+mod account_identity_authority_issuer_client_types_receipt_lineage_identity;
+#[path = "account_identity_authority_issuer_client_types_recorded_transport.rs"]
+mod account_identity_authority_issuer_client_types_recorded_transport;
 #[path = "account_identity_authority_issuer_client_currentness.rs"]
 mod currentness;
 #[path = "account_identity_authority_issuer_client_key.rs"]

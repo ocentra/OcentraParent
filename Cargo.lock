@@ -2700,6 +2700,7 @@ dependencies = [
  "ed25519-dalek",
  "fs2",
  "getrandom 0.3.4",
+ "num-bigint",
  "ocentra-eventing",
  "ocentra-schema",
  "ocentra-storage-custody-core",

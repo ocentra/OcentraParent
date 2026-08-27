@@ -71,7 +71,10 @@ fn load_claimed_receipt_row(
                  ON outbox.receipt_id = receipt.receipt_id
               WHERE receipt.receipt_id = ?1 AND receipt.account_id = ?2
                 AND receipt.household_id = ?3 AND receipt.service = ?4
-                AND outbox.claim_id = ?5 AND outbox.claim_expires_at = ?6
+                AND receipt.provider = ?5 AND receipt.provider_subject = ?6
+                AND receipt.provenance_state = 'exact'
+                AND receipt.receipt_state = 'issued' AND receipt.ack_wire IS NULL
+                AND outbox.claim_id = ?7 AND outbox.claim_expires_at = ?8
                 AND outbox.delivery_state = 'claimed'
                 AND outbox.account_id = receipt.account_id
                 AND outbox.household_id = receipt.household_id
@@ -82,12 +85,14 @@ fn load_claimed_receipt_row(
                 AND outbox.enrollment_generation = receipt.enrollment_generation
                 AND outbox.authority_generation = receipt.authority_generation
                 AND outbox.wire = receipt.wire
-                AND outbox.wire = ?7 AND outbox.claim_expires_at > ?8",
+                AND outbox.wire = ?9 AND outbox.claim_expires_at > ?10",
             params![
                 claim.receipt_id(),
                 currentness.account_id().as_str(),
                 currentness.household_id().as_str(),
                 ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+                super::provider_label(currentness.authority().provider()),
+                currentness.authority().provider_subject().as_str(),
                 claim.claim_id(),
                 claim.claim_expires_at(),
                 claim.wire(),

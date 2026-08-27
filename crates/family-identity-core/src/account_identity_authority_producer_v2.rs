@@ -14,6 +14,9 @@ use ocentra_schema::account_identity_authority_producer_v2::{
 
 use crate::account_identity_authority::VerifiedAccountIdentityAuthority;
 
+#[path = "account_identity_authority_producer_v2_sec1.rs"]
+pub(super) mod sec1;
+
 #[path = "account_identity_authority_producer_v2_request.rs"]
 mod account_identity_authority_producer_v2_request;
 #[path = "account_identity_authority_producer_v2_request_finalize.rs"]

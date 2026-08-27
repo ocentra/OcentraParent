@@ -10,6 +10,9 @@ use crate::account_issuer_contract::{
 };
 use crate::types::ProtocolError;
 
+#[path = "account_issuer_v2_codec_encode_receipt_lineage.rs"]
+mod receipt_lineage;
+
 const REQUEST_TAG: u8 = 1;
 const RECEIPT_TAG: u8 = 2;
 const AUTHJS_PROVIDER: u8 = 1;
@@ -72,7 +75,13 @@ pub(super) fn receipt(receipt: &AccountIssuerReceipt) -> Result<Vec<u8>, Protoco
         receipt.correlation_id().as_bytes(),
         receipt.idempotency_key().as_bytes(),
         receipt.key_id().as_bytes(),
+    ] {
+        append_field(&mut wire, field, ACCOUNT_ISSUER_MAX_FIELD_BYTES)?;
+    }
+    receipt_lineage::append(&mut wire, receipt.lineage())?;
+    for field in [
         receipt.result_digest().as_bytes(),
+        receipt.signed_transport_digest().as_bytes(),
     ] {
         append_field(&mut wire, field, ACCOUNT_ISSUER_MAX_FIELD_BYTES)?;
     }

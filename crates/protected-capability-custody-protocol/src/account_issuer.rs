@@ -7,10 +7,23 @@
 use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
-use ocentra_schema::account_identity_authority_producer_v2::ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES;
+use ocentra_schema::account_identity_authority_producer_v2::{
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PAYLOAD_DIGEST_PREFIX,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_RECEIPT_ID_PREFIX,
+    ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNED_TRANSPORT_DIGEST_PREFIX,
+};
 
 use crate::account_issuer_contract::AccountIssuerField;
 use crate::types::ProtocolError;
+
+#[path = "account_issuer_receipt_lineage.rs"]
+pub mod account_issuer_receipt_lineage;
+#[path = "account_issuer_receipt_validation.rs"]
+mod account_issuer_receipt_validation;
+
+use account_issuer_receipt_lineage::AccountIssuerReceiptLineage;
 
 pub const ACCOUNT_ISSUER_MAX_PROTECTED_RECEIPT_BYTES: usize =
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_WIRE_BYTES;
@@ -147,7 +160,9 @@ pub struct AccountIssuerReceipt {
     correlation_id: AccountIssuerField,
     idempotency_key: AccountIssuerField,
     key_id: AccountIssuerField,
+    lineage: AccountIssuerReceiptLineage,
     result_digest: AccountIssuerField,
+    signed_transport_digest: AccountIssuerField,
 }
 
 impl AccountIssuerReceipt {
@@ -157,7 +172,9 @@ impl AccountIssuerReceipt {
         correlation_id: AccountIssuerField,
         idempotency_key: AccountIssuerField,
         key_id: AccountIssuerField,
+        lineage: AccountIssuerReceiptLineage,
         result_digest: AccountIssuerField,
+        signed_transport_digest: AccountIssuerField,
     ) -> Result<Self, ProtocolError> {
         let receipt = Self {
             kind,
@@ -165,7 +182,9 @@ impl AccountIssuerReceipt {
             correlation_id,
             idempotency_key,
             key_id,
+            lineage,
             result_digest,
+            signed_transport_digest,
         };
         for field in [
             receipt.receipt_id.as_bytes(),
@@ -173,8 +192,24 @@ impl AccountIssuerReceipt {
             receipt.idempotency_key.as_bytes(),
             receipt.key_id.as_bytes(),
             receipt.result_digest.as_bytes(),
+            receipt.signed_transport_digest.as_bytes(),
         ] {
             crate::account_issuer_v2_codec::validate_text_field(field)?;
+        }
+        if !account_issuer_receipt_validation::valid_sha256_field(
+            receipt.receipt_id.as_bytes(),
+            ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_RECEIPT_ID_PREFIX.as_bytes(),
+        ) || !account_issuer_receipt_validation::valid_sha256_field(
+            receipt.key_id.as_bytes(),
+            ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_KEY_ID_PREFIX.as_bytes(),
+        ) || !account_issuer_receipt_validation::valid_sha256_field(
+            receipt.result_digest.as_bytes(),
+            ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PAYLOAD_DIGEST_PREFIX.as_bytes(),
+        ) || !account_issuer_receipt_validation::valid_sha256_field(
+            receipt.signed_transport_digest.as_bytes(),
+            ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SIGNED_TRANSPORT_DIGEST_PREFIX.as_bytes(),
+        ) {
+            return Err(ProtocolError::InvalidDiscriminant(0));
         }
         Ok(receipt)
     }
@@ -199,7 +234,15 @@ impl AccountIssuerReceipt {
         &self.key_id
     }
 
+    pub fn lineage(&self) -> &AccountIssuerReceiptLineage {
+        &self.lineage
+    }
+
     pub fn result_digest(&self) -> &AccountIssuerField {
         &self.result_digest
+    }
+
+    pub fn signed_transport_digest(&self) -> &AccountIssuerField {
+        &self.signed_transport_digest
     }
 }

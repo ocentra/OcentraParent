@@ -13,8 +13,12 @@ use ocentra_account_issuer_owner::contract::{
 use ocentra_account_issuer_owner::rpc::{AccountIssuerOwner, AccountIssuerRpcError};
 use ocentra_account_issuer_owner::signing::AccountIssuerSigningError;
 use ocentra_protected_capability_custody_core::account_issuer::AccountIssuerP256Signer;
+use ocentra_protected_capability_custody_protocol::account_issuer::account_issuer_receipt_lineage::AccountIssuerReceiptLineage;
 use ocentra_protected_capability_custody_protocol::account_issuer::{
     AccountIssuerMessageKind, AccountIssuerReceipt, AccountIssuerRequestOperation,
+};
+use ocentra_protected_capability_custody_protocol::account_issuer_contract::{
+    AccountIssuerField, ACCOUNT_ISSUER_SERVICE,
 };
 use ocentra_protected_capability_custody_protocol::account_issuer_session::AuthenticatedAccountIssuerRequest;
 use ocentra_protected_capability_custody_protocol::types::ProtocolError;
@@ -71,12 +75,25 @@ impl BrokerAccountIssuer {
         let command = IssueCurrentAuthorityCommand::new(correlation_id, idempotency_key);
         let issued = self
             .owner
-            .issue_current_authority_with_protected_signer(&authorization, &command, &self.signer)
+            .issue_current_authority_with_protected_signer(authorization, &command, &self.signer)
             .map_err(map_owner_error)?;
         let receipt = issued.receipt();
+        let (provider, provider_subject) = match request.request().operation() {
+            AccountIssuerRequestOperation::IssueCurrentAuthority {
+                provider,
+                provider_subject,
+            } => (provider, provider_subject),
+            AccountIssuerRequestOperation::AcknowledgeReceipt { .. } => {
+                return Err(BrokerError::Request)
+            }
+        };
+        let lineage = receipt.lineage();
         if receipt.key_id() != request.request().key_id()
             || receipt.correlation_id() != request.request().correlation_id()
             || receipt.idempotency_key() != request.request().idempotency_key()
+            || lineage.provider() != provider
+            || lineage.provider_subject() != provider_subject
+            || lineage.service() != ACCOUNT_ISSUER_SERVICE
         {
             return Err(BrokerError::Request);
         }
@@ -88,15 +105,39 @@ fn protocol_receipt(
     kind: AccountIssuerMessageKind,
     receipt: &AccountIssuerReceiptView,
 ) -> Result<AccountIssuerReceipt, BrokerError> {
+    let verified = receipt.lineage();
+    let lineage = AccountIssuerReceiptLineage::new(
+        verified.provider().clone(),
+        verified.provider_subject().clone(),
+        field(verified.account_id().as_bytes())?,
+        field(verified.household_id().as_bytes())?,
+        field(verified.member_id().as_bytes())?,
+        field(verified.device_id().as_bytes())?,
+        field(verified.session_id().as_bytes())?,
+        receipt.service_binding_id().clone(),
+        verified.key_generation(),
+        verified.enrollment_generation(),
+        verified.authority_generation(),
+        verified.session_generation(),
+        field(verified.issued_at().as_bytes())?,
+        field(verified.expires_at().as_bytes())?,
+    )
+    .map_err(|_| BrokerError::Request)?;
     AccountIssuerReceipt::new(
         kind,
         receipt.receipt_id().clone(),
         receipt.correlation_id().clone(),
         receipt.idempotency_key().clone(),
         receipt.key_id().clone(),
+        lineage,
         receipt.payload_digest().clone(),
+        receipt.signed_transport_digest().clone(),
     )
     .map_err(|_| BrokerError::Protocol(ProtocolError::InvalidFrameLength))
+}
+
+fn field(value: &[u8]) -> Result<AccountIssuerField, BrokerError> {
+    AccountIssuerField::from_wire(value.to_vec()).map_err(|_| BrokerError::Request)
 }
 
 fn map_owner_error(error: AccountIssuerRpcError) -> BrokerError {

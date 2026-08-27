@@ -1,7 +1,4 @@
-use ocentra_schema::account_identity_authority::{
-    AccountIdentityProvider, AccountIdentityProviderSubject,
-};
-
+use super::super::account_identity_authority_issuer_client_owner_admission::AccountIdentityIssuerOwnerAdmission;
 use super::super::account_identity_authority_issuer_client_types::AccountIdentityIssuerRecordedTransport;
 use super::super::{
     AccountIdentityAuthorityIssuerClient, AccountIdentityAuthorityIssuerClientError,
@@ -9,14 +6,14 @@ use super::super::{
 };
 
 impl AccountIdentityAuthorityIssuerClient {
-    /// Execute one complete Account-owned issue lifecycle while retaining the
-    /// durable reservation inside this crate. The signer callback receives
-    /// only the family-created request; preparation, finalization, and failure
-    /// transitions cannot be abandoned by a caller between public calls.
-    pub fn issue_current_authority_with_signer<F>(
+    /// Execute one complete Account-owned issue lifecycle after consuming a
+    /// non-mintable admission for this exact authority, key, and transport
+    /// session. Admission is revalidated before any reservation lookup,
+    /// capacity query, or write. The signer callback receives only the
+    /// family-created request.
+    pub fn issue_current_authority_with_account_owner_admission<F>(
         &mut self,
-        provider: &AccountIdentityProvider,
-        provider_subject: &AccountIdentityProviderSubject,
+        admission: AccountIdentityIssuerOwnerAdmission,
         correlation_id: &str,
         idempotency_key: &str,
         signer: F,
@@ -30,8 +27,16 @@ impl AccountIdentityAuthorityIssuerClient {
             AccountIdentityAuthorityIssuerClientError,
         >,
     {
-        let currentness = self.resolve_current(provider, provider_subject)?;
+        let currentness =
+            self.resolve_current(admission.provider(), admission.provider_subject())?;
+        admission.validate_currentness(&currentness, correlation_id, idempotency_key)?;
         let transaction = self.begin_transaction()?;
+        transaction.validate_owner_admission(
+            &currentness,
+            &admission,
+            correlation_id,
+            idempotency_key,
+        )?;
         issue_with_transaction(
             transaction,
             &currentness,
@@ -71,11 +76,15 @@ where
     };
     let prepared = match preparation {
         super::super::AccountIdentityIssuerIssuePreparation::Replay(transport) => {
-            transaction.commit()?;
-            return Ok(AccountIdentityIssuerRecordedTransport {
+            let key = transaction.current_key(currentness)?;
+            let recorded = AccountIdentityIssuerRecordedTransport::from_verified_currentness(
+                currentness,
+                &key,
                 transport,
-                replayed: true,
-            });
+                true,
+            );
+            transaction.commit()?;
+            return Ok(recorded);
         }
         super::super::AccountIdentityIssuerIssuePreparation::Prepared(prepared) => prepared,
     };

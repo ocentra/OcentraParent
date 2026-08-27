@@ -88,7 +88,35 @@ impl ProtectedAccountIssuerKeyRegistration {
 /// newly-signed candidate.
 pub struct AccountIdentityIssuerRecordedTransport {
     pub(crate) transport: AccountIdentityAuthorityProducerV2Transport,
+    pub(super) lineage: AccountIdentityIssuerReceiptLineage,
     pub(crate) replayed: bool,
+}
+
+/// Exact owner-facing lineage recovered from a verified signed transport and
+/// its committed Account receipt. It is evidence, never issuance authority.
+pub struct AccountIdentityIssuerReceiptLineage {
+    pub(super) account_id: String,
+    pub(super) household_id: String,
+    pub(super) provider: ocentra_schema::account_identity_authority::AccountIdentityProvider,
+    pub(super) provider_subject:
+        ocentra_schema::account_identity_authority::AccountIdentityProviderSubject,
+    pub(super) member_id: String,
+    pub(super) device_id: String,
+    pub(super) session_id: String,
+    pub(super) service: String,
+    pub(super) service_binding_id: String,
+    pub(super) key_id: String,
+    pub(super) key_generation: u64,
+    pub(super) enrollment_generation: u64,
+    pub(super) authority_generation: u64,
+    pub(super) session_generation: u64,
+    pub(super) correlation_id: String,
+    pub(super) idempotency_key: String,
+    pub(super) receipt_id: String,
+    pub(super) payload_digest: String,
+    pub(super) signed_transport_digest: String,
+    pub(super) issued_at: String,
+    pub(super) expires_at: String,
 }
 
 impl AccountIdentityIssuerRecordedTransport {

@@ -42,15 +42,14 @@ impl AccountIssuerOwner {
     /// the family transaction before the error is returned.
     pub fn issue_current_authority_with_protected_signer(
         &mut self,
-        authorization: &AccountIssuerRequestAuthorization,
+        authorization: AccountIssuerRequestAuthorization,
         command: &IssueCurrentAuthorityCommand,
         signer: &AccountIssuerP256Signer,
     ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
         let recorded = self
             .repository_mut()
-            .issue_current_authority_with_signer(
-                authorization.provider(),
-                authorization.provider_subject(),
+            .issue_current_authority_with_owner_admission(
+                authorization.into_admission(),
                 command,
                 |request| {
                     let capability = signer.sign_request(request).map_err(map_signer_error)?;
@@ -67,13 +66,11 @@ impl AccountIssuerOwner {
 fn issued_authority(
     recorded: AccountIdentityIssuerRecordedTransport,
 ) -> Result<IssuedAuthority, AccountIssuerRpcError> {
-    let receipt = AccountIssuerReceiptView::from_receipt(recorded.transport().receipt()).ok_or(
-        AccountIssuerRpcError::Repository(AccountIssuerRepositoryError::InvalidSchema),
+    let replayed = recorded.replayed();
+    let receipt = AccountIssuerReceiptView::from_lineage(recorded.into_lineage()).ok_or(
+        AccountIssuerRpcError::Repository(AccountIssuerRepositoryError::ReceiptUnavailable),
     )?;
-    Ok(IssuedAuthority {
-        receipt,
-        replayed: recorded.replayed(),
-    })
+    Ok(IssuedAuthority { receipt, replayed })
 }
 
 fn map_signer_error(

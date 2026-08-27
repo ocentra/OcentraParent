@@ -129,7 +129,7 @@ pub(crate) fn expected_key_id(
 pub(crate) fn validate_public_key(
     public_key: &[u8; ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_PUBLIC_KEY_BYTES],
 ) -> Result<(), AccountIdentityAuthorityProducerV2Error> {
-    if public_key[0] != 0x04 || public_key[1..].iter().all(|byte| *byte == 0) {
+    if super::sec1::parse_uncompressed_p256(public_key).is_none() {
         return Err(AccountIdentityAuthorityProducerV2Error::InvalidPublicKey);
     }
     Ok(())

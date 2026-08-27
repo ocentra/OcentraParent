@@ -278,10 +278,23 @@ fn validate_receipt_binding(
     request: &AccountIssuerRequest,
     receipt: &AccountIssuerReceipt,
 ) -> Result<(), ProtocolError> {
+    let (provider, provider_subject) = match request.operation() {
+        crate::account_issuer::AccountIssuerRequestOperation::IssueCurrentAuthority {
+            provider,
+            provider_subject,
+        }
+        | crate::account_issuer::AccountIssuerRequestOperation::AcknowledgeReceipt {
+            provider,
+            provider_subject,
+            ..
+        } => (provider, provider_subject),
+    };
     if receipt.kind() != request.kind()
         || receipt.correlation_id().as_bytes() != request.correlation_id().as_bytes()
         || receipt.idempotency_key().as_bytes() != request.idempotency_key().as_bytes()
         || receipt.key_id().as_bytes() != request.key_id().as_bytes()
+        || receipt.lineage().provider() != provider
+        || receipt.lineage().provider_subject() != provider_subject
     {
         return Err(ProtocolError::AuthenticationFailed);
     }
