@@ -53,3 +53,7 @@ windows-sys = { version = "0.61.2", features = [
   "Win32_System_Threading",
   "Win32_System_TpmBaseServices",
 ] }
+
+[[test]]
+name = "unit"
+path = "tests/unit/text_boundaries.rs"

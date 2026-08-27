@@ -20,3 +20,7 @@ zeroize = "1.8.2"
 
 [target.'cfg(windows)'.dependencies]
 interprocess = "2.4.3"
+
+[[test]]
+name = "unit"
+path = "tests/unit/platform.rs"
