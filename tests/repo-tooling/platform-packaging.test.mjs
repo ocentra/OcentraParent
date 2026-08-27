@@ -134,7 +134,8 @@ test('parent desktop Tauri package connects to the Rust service instead of Vite 
   assert.match(tauriLib, /activity_adapter_state/u);
   assert.match(tauriLib, /parent_assistant_provider_state/u);
   assert.match(tauriLib, /runtime_readiness_state/u);
-  assert.match(tauriLib, /service_health_endpoint/u);
+  assert.match(tauriLib, /parent_agent_service_health_for_address/u);
+  assert.match(tauriLib, /service_transport_endpoint/u);
   assert.match(tauriLib, /route_source_state/u);
   assert.match(tauriLib, /degraded_source_state/u);
   assert.match(tauriLib, /package_frontend_state/u);

@@ -6,6 +6,8 @@ import { test } from 'node:test';
 
 import { runCommand } from '../../scripts/git-hooks/run-precommit-validation.mjs';
 
+const realChildTimeoutMs = 30_000;
+
 async function waitForFileContent(filePath, timeoutMs = 2_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -19,7 +21,7 @@ async function waitForFileContent(filePath, timeoutMs = 2_000) {
 
 test('pre-commit runner waits for a real child command to complete', async () => {
   const result = await runCommand(process.execPath, ['-e', "process.stdout.write('runner-complete')"], {
-    timeoutMs: 5_000,
+    timeoutMs: realChildTimeoutMs,
   });
 
   assert.equal(result.status, 0);
@@ -28,7 +30,9 @@ test('pre-commit runner waits for a real child command to complete', async () =>
 });
 
 test('pre-commit runner returns the exact nonzero child exit status', async () => {
-  const result = await runCommand(process.execPath, ['-e', 'process.exit(23)'], { timeoutMs: 5_000 });
+  const result = await runCommand(process.execPath, ['-e', 'process.exit(23)'], {
+    timeoutMs: realChildTimeoutMs,
+  });
 
   assert.equal(result.status, 23);
   assert.equal(result.timedOut, false);

@@ -590,6 +590,7 @@ test('reviewed implementation gates authorize source edits without changing norm
       authorized: true,
       blockers: [],
       gaps: ['implementation: completion requirement is not declared'],
+      implementationIndependentDependencies: [],
     }
   );
 });
@@ -884,6 +885,7 @@ test('flattened matrix preserves plan, topology, dependency, and completion gaps
           gaps: ['implementation: reviewed evidence is not recorded'],
         },
       ],
+      implementationIndependentDependencies: [],
       completionGapCount: 1,
       completionGaps: ['tests: missing'],
     },
@@ -1397,7 +1399,7 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   const eventingProofOverride = value.nodes.find(
     (node) => node.id === 'WP-eventing-plan-11-type-safety-and-ownership-hardening'
   );
-  assert.deepEqual(eventingProofOverride.completion.references.proof, ['docs/proof/eventing-plan']);
+  assert.deepEqual(eventingProofOverride.completion.references.proof, []);
 
   const eventingWp06 = value.nodes.find((node) => node.id === 'WP-eventing-plan-06-journal-replay-and-lineage');
   assert.equal(eventingWp06.state, 'done');
@@ -1431,7 +1433,16 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   const blockedId = 'WP-policy-control-plane-plan-05-ask-parent-overrides';
   const dependencyId = 'WP-policy-control-plane-plan-04-delivery-ack-audit';
   assert.equal(deriveStates(value, { root: repoRoot }).get(blockedId), 'blocked');
-  assert.deepEqual(relatedNodes(value, blockedId, 'deps'), [dependencyId]);
+  assert.deepEqual(relatedNodes(value, blockedId, 'deps'), [
+    dependencyId,
+    'WP-account-identity-family-plan-02-identity-household-role-model',
+    'WP-account-identity-family-plan-03-session-token-lifecycle',
+    'WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth',
+    'WP-device-trust-bootstrap-plan-03-parent-step-up-auth',
+    'WP-data-custody-storage-plan-11-runtime-composition-and-custody-mount',
+    'WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals',
+    'WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow',
+  ]);
 
   const scoped = scopeNodes(value, planId('app-plan'));
   assert.ok(scoped.some((node) => node.id === planId('app-plan')));
@@ -1442,8 +1453,10 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   assert.deepEqual(
     globalSummary.ready.map((node) => node.id),
     [
-      'WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth',
-      'WP-eventing-plan-11-type-safety-and-ownership-hardening',
+      'WP-app-game-plan-197-app-game-linux-docker-host-preflight',
+      'WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary',
+      'WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package',
+      'WP-data-custody-storage-plan-data-and-ai-ui-plan',
     ]
   );
   assert.ok(globalSummary.blocked.length > 0);
