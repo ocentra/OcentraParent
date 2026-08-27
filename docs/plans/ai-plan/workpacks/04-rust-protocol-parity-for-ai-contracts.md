@@ -46,12 +46,14 @@ explicit before runtime consumers grow.
 WP04 owns the Rust protocol parity source, its explicit adapter over
 `ocentra-ai-contracts`, and `crates/agent-protocol/tests/contract/ai_contracts.rs`. The
 reviewed source adapter is integrated at canonical source commit `d72e1617d`.
-It consumes the leaf through public constructors and current-schema validation,
-rejects prompt/runtime attachments without owner capability, and enforces
-`EvidenceOnly` authority, `Durable` journal state, and exact result/journal
-digest preservation. The required contract test remains absent and
-unregistered, and no general production caller/provider-owner runtime
-composition exists. The shared `packages/schema-domain/tests/contract/ai-contracts.test.ts`
+Its only real leaf constructor caller is `AiWorkRequest::new`; the result,
+context, journal, and remote-assistant adapter paths carry already
+owner-materialized values through safe public validation/read/encoding APIs
+and preserve existing digests. It rejects prompt/runtime attachments without
+owner capability. Owner and digest issuance is not composed in the neutral
+leaf and remains deferred/manual-required. The required contract test remains
+absent and unregistered, and no general production caller/provider-owner
+runtime composition exists. The shared `packages/schema-domain/tests/contract/ai-contracts.test.ts`
 parity test is owned by AI WP03; WP04 consumes it through the reviewed
 `WP04 -> WP03` dependency and does not claim a second copy. Tests, proof, CI,
 PR, READY, and DONE remain open.
