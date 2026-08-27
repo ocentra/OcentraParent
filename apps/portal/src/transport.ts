@@ -1,5 +1,5 @@
 import { ParentAgentCommand, type ParentAgentCommandName } from '../generated/parent-ui-bridge';
-import { PORTAL_HOST_BRIDGE_RUNTIME } from '@ocentra-parent/portal-domain/parent-portal-service-state';
+import { PORTAL_HOST_BRIDGE_RUNTIME } from '@ocentra-parent/portal-domain/portal-host-bridge-runtime';
 
 const DirectEnforcementCommands = [
   ParentAgentCommand.EnforcementExecute,

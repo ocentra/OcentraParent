@@ -6,7 +6,7 @@ import {
   type ParentRouteSnapshot,
   type ParentSubscriptionEvent,
 } from '../../generated/parent-ui-bridge';
-import { PORTAL_HOST_BRIDGE_RUNTIME } from '@ocentra-parent/portal-domain/parent-portal-service-state';
+import { PORTAL_HOST_BRIDGE_RUNTIME } from '@ocentra-parent/portal-domain/portal-host-bridge-runtime';
 import { createUnavailableDevWebRouteSnapshot } from './dev-web-unavailable-snapshot';
 
 type LoadRouteSnapshot = (

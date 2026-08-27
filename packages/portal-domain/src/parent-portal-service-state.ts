@@ -5,10 +5,10 @@ import {
   type GeneratedParentPortalServiceDegradationReasonCode,
   type GeneratedParentPortalServiceReachability,
 } from './portal-route-state.generated';
-import PARENT_PORTAL_SERVICE_STATE, { PORTAL_HOST_BRIDGE_RUNTIME } from './parent-portal-service-state-constants';
+import PARENT_PORTAL_SERVICE_STATE from './parent-portal-service-state-constants';
 import type { PortalRouteEventRecord } from './portal-contract-adapter';
 
-export { PARENT_PORTAL_SERVICE_STATE, PORTAL_HOST_BRIDGE_RUNTIME };
+export { PARENT_PORTAL_SERVICE_STATE };
 
 type ParentPortalServiceReachability = GeneratedParentPortalServiceReachability;
 

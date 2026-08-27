@@ -97,6 +97,10 @@
       "import": "./dist/parent-portal-service-state.js",
       "types": "./dist/parent-portal-service-state.d.ts"
     },
+    "./portal-host-bridge-runtime": {
+      "import": "./dist/portal-host-bridge-runtime.js",
+      "types": "./dist/portal-host-bridge-runtime.d.ts"
+    },
     "./portal-background": {
       "import": "./dist/portal-background.js",
       "types": "./dist/portal-background.d.ts"

@@ -7,7 +7,7 @@ import {
   type ParentRouteId,
   type ParentRouteSnapshot,
 } from '../../generated/parent-ui-bridge';
-import { PORTAL_HOST_BRIDGE_RUNTIME as PortalRuntime } from '@ocentra-parent/portal-domain/parent-portal-service-state';
+import { PORTAL_HOST_BRIDGE_RUNTIME as PortalRuntime } from '@ocentra-parent/portal-domain/portal-host-bridge-runtime';
 
 export function createUnavailableDevWebRouteSnapshot(
   parentDevBridgeUrl: ParentDevBridgeUrl,
