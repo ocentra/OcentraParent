@@ -5,6 +5,7 @@
 
 use std::fmt;
 
+use ocentra_protected_capability_custody_protocol::account_issuer::account_issuer_receipt_lineage::AccountIssuerReceiptLineage as ProtocolAccountIssuerReceiptLineage;
 use ocentra_protected_capability_custody_protocol::account_issuer::{
     AccountIssuerMessageKind, AccountIssuerReceipt as ProtocolAccountIssuerReceipt,
     AccountIssuerRequest as ProtocolAccountIssuerRequest, ProtectedAccountIssuerReceiptWire,
@@ -193,5 +194,13 @@ impl AccountIssuerReceipt {
 
     pub fn result_digest(&self) -> &AccountIssuerField {
         self.inner.result_digest()
+    }
+
+    pub fn lineage(&self) -> &ProtocolAccountIssuerReceiptLineage {
+        self.inner.lineage()
+    }
+
+    pub fn signed_transport_digest(&self) -> &AccountIssuerField {
+        self.inner.signed_transport_digest()
     }
 }

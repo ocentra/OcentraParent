@@ -271,8 +271,7 @@ pub(super) fn key_matches(
     let Ok(public_key) = <[u8; 65]>::try_from(key.public_key.as_slice()) else {
         return false;
     };
-    public_key[0] == 0x04
-        && public_key[1..].iter().any(|byte| *byte != 0)
+    crate::account_identity_authority_producer_v2::validate_public_key(&public_key).is_ok()
         && key.service_binding_id == candidate.service_binding_id
         && key.key_generation == candidate.key_generation
         && key.enrollment_generation == candidate.enrollment_generation

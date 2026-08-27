@@ -5,6 +5,9 @@ use ocentra_family_identity_core::account_identity_authority_issuer_client::{
     AccountIdentityIssuerCurrentness,
 };
 use ocentra_family_identity_core::account_identity_authority_issuer_client::
+    account_identity_authority_issuer_client_owner_admission::
+        AccountIdentityIssuerOwnerAdmission;
+use ocentra_family_identity_core::account_identity_authority_issuer_client::
     account_identity_authority_issuer_client_types::{
         AccountIdentityIssuerOutboxClaim, AccountIdentityIssuerRecordedTransport,
         ProtectedAccountIssuerKeyRegistration,
@@ -84,10 +87,9 @@ impl AccountIssuerRepository {
             .map_err(AccountIssuerRepositoryError::from)
     }
 
-    pub(crate) fn issue_current_authority_with_signer<F>(
+    pub(crate) fn issue_current_authority_with_owner_admission<F>(
         &mut self,
-        provider: &AccountIdentityProvider,
-        provider_subject: &AccountIdentityProviderSubject,
+        admission: AccountIdentityIssuerOwnerAdmission,
         command: &IssueCurrentAuthorityCommand,
         signer: F,
     ) -> Result<AccountIdentityIssuerRecordedTransport, AccountIssuerRepositoryError>
@@ -102,9 +104,8 @@ impl AccountIssuerRepository {
         >,
     {
         self.client
-            .issue_current_authority_with_signer(
-                provider,
-                provider_subject,
+            .issue_current_authority_with_account_owner_admission(
+                admission,
                 command.correlation_id().as_str(),
                 command.idempotency_key().as_str(),
                 signer,

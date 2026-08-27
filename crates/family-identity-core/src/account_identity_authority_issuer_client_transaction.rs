@@ -8,6 +8,7 @@ use crate::account_identity_authority_producer_v2::{
     self, AccountIdentityAuthorityProducerV2Request,
 };
 
+use super::account_identity_authority_issuer_client_owner_admission::AccountIdentityIssuerOwnerAdmission;
 use super::account_identity_authority_issuer_client_reservation::AccountIdentityIssuerReservation;
 use super::account_identity_authority_issuer_client_types::{
     AccountIdentityIssuerOutboxClaim, AccountIdentityIssuerV2KeyId,
@@ -34,6 +35,19 @@ mod reservation;
 mod reservation_validation;
 
 impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
+    pub(crate) fn validate_owner_admission(
+        &self,
+        currentness: &AccountIdentityIssuerCurrentness,
+        admission: &AccountIdentityIssuerOwnerAdmission,
+        correlation_id: &str,
+        idempotency_key: &str,
+    ) -> Result<(), AccountIdentityAuthorityIssuerClientError> {
+        self.ensure_current(currentness)?;
+        admission.validate_currentness(currentness, correlation_id, idempotency_key)?;
+        let key = self.current_key(currentness)?;
+        admission.validate_key(&key)
+    }
+
     pub(crate) fn ensure_current(
         &self,
         currentness: &AccountIdentityIssuerCurrentness,
@@ -197,6 +211,7 @@ impl<'a> AccountIdentityAuthorityIssuerTransaction<'a> {
         {
             return Err(AccountIdentityAuthorityIssuerClientError::InvalidKey);
         }
+        account_identity_authority_producer_v2::validate_public_key(&public_key)?;
         Ok(AccountIdentityIssuerV2KeyRecord {
             key_id: AccountIdentityIssuerV2KeyId::from_value(row.1),
             key_generation,

@@ -127,11 +127,13 @@ fn update_receipt_row(
             "UPDATE account_identity_issuer_v2_receipt
                 SET receipt_state = 'acknowledged', ack_wire = ?1
               WHERE receipt_id = ?2 AND account_id = ?3 AND household_id = ?4
-                AND service = ?5 AND service_binding_id = ?6 AND key_id = ?7
-                AND key_generation = ?8 AND enrollment_generation = ?9
-                AND authority_generation = ?10 AND session_generation = ?11
-                AND correlation_id = ?12 AND idempotency_key = ?13
-                AND payload_digest = ?14 AND wire = ?15
+                AND service = ?5 AND provider = ?6 AND provider_subject = ?7
+                AND provenance_state = 'exact'
+                AND service_binding_id = ?8 AND key_id = ?9
+                AND key_generation = ?10 AND enrollment_generation = ?11
+                AND authority_generation = ?12 AND session_generation = ?13
+                AND correlation_id = ?14 AND idempotency_key = ?15
+                AND payload_digest = ?16 AND wire = ?17
                 AND receipt_state = 'issued' AND ack_wire IS NULL",
             params![
                 protected_receipt_wire,
@@ -139,6 +141,8 @@ fn update_receipt_row(
                 currentness.account_id().as_str(),
                 currentness.household_id().as_str(),
                 ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_SERVICE,
+                super::provider_label(currentness.authority().provider()),
+                currentness.authority().provider_subject().as_str(),
                 receipt.service_binding_id,
                 receipt.key_id,
                 super::receipt::sql_generation(receipt.key_generation)?,
@@ -181,7 +185,25 @@ fn update_outbox_row(
                 AND authority_generation = ?11 AND wire = ?12
                 AND claim_id = ?13 AND claim_expires_at = ?14
                 AND claim_expires_at > ?15
-                AND delivery_state = 'claimed' AND ack_wire IS NULL",
+                AND delivery_state = 'claimed' AND ack_wire IS NULL
+                AND EXISTS (
+                    SELECT 1 FROM account_identity_issuer_v2_receipt AS receipt
+                     WHERE receipt.receipt_id = ?3 AND receipt.account_id = ?4
+                       AND receipt.household_id = ?5 AND receipt.service = ?6
+                       AND receipt.service_binding_id = ?7 AND receipt.key_id = ?8
+                       AND receipt.key_generation = ?9
+                       AND receipt.enrollment_generation = ?10
+                       AND receipt.authority_generation = ?11
+                       AND receipt.session_generation = ?18
+                       AND receipt.provider = ?16 AND receipt.provider_subject = ?17
+                       AND receipt.provenance_state = 'exact'
+                       AND receipt.correlation_id = ?19
+                       AND receipt.idempotency_key = ?20
+                       AND receipt.payload_digest = ?21
+                       AND receipt.wire = ?12
+                       AND receipt.receipt_state = 'acknowledged'
+                       AND receipt.ack_wire = ?2
+                )",
             params![
                 ack_result_digest(protected_receipt_wire),
                 protected_receipt_wire,
@@ -198,6 +220,12 @@ fn update_outbox_row(
                 claim.claim_id(),
                 claim.claim_expires_at(),
                 now_text,
+                super::provider_label(currentness.authority().provider()),
+                currentness.authority().provider_subject().as_str(),
+                super::receipt::sql_generation(receipt.session_generation)?,
+                receipt.correlation_id,
+                receipt.idempotency_key,
+                receipt.payload_digest,
             ],
         )
         .map_err(|_| AccountIdentityAuthorityIssuerClientError::ReceiptUnavailable)?;

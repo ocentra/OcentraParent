@@ -136,13 +136,10 @@ impl AccountIssuerOwner {
         provider_subject: &AccountIdentityProviderSubject,
         claim: DeliveryClaim,
         protected_receipt: ProtectedAccountIssuerReceipt,
-    ) -> Result<AccountIssuerReceiptView, AccountIssuerRpcError> {
-        let receipt = self
-            .repository
+    ) -> Result<(), AccountIssuerRpcError> {
+        self.repository
             .acknowledge_receipt(provider, provider_subject, &claim, &protected_receipt)
             .map_err(AccountIssuerRpcError::Repository)?;
-        AccountIssuerReceiptView::from_receipt(&receipt).ok_or(AccountIssuerRpcError::Repository(
-            AccountIssuerRepositoryError::InvalidSchema,
-        ))
+        Ok(())
     }
 }

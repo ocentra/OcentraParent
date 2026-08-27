@@ -2,6 +2,7 @@ use ocentra_schema::account_identity_authority::{
     AccountIdentityProvider, AccountIdentityProviderSubject,
 };
 
+use crate::account_issuer::account_issuer_receipt_lineage::AccountIssuerReceiptLineage;
 use crate::account_issuer::{
     AccountIssuerMessageKind, AccountIssuerReceipt, AccountIssuerRequest,
     ProtectedAccountIssuerReceiptWire, ACCOUNT_ISSUER_MAX_PROTECTED_RECEIPT_BYTES,
@@ -58,16 +59,47 @@ pub(super) fn request(frame: &[u8]) -> Result<AccountIssuerRequest, ProtocolErro
 
 pub(super) fn receipt(frame: &[u8]) -> Result<AccountIssuerReceipt, ProtocolError> {
     let (kind, mut cursor) = decode_header(frame, RECEIPT_TAG)?;
+    let receipt_id = next_field(frame, &mut cursor)?;
+    let correlation_id = next_field(frame, &mut cursor)?;
+    let idempotency_key = next_field(frame, &mut cursor)?;
+    let key_id = next_field(frame, &mut cursor)?;
+    let provider = take_provider(frame, &mut cursor)?;
+    let provider_subject = take_provider_subject(frame, &mut cursor)?;
+    let lineage = AccountIssuerReceiptLineage::new(
+        provider,
+        provider_subject,
+        next_field(frame, &mut cursor)?,
+        next_field(frame, &mut cursor)?,
+        next_field(frame, &mut cursor)?,
+        next_field(frame, &mut cursor)?,
+        next_field(frame, &mut cursor)?,
+        next_field(frame, &mut cursor)?,
+        take_generation(frame, &mut cursor)?,
+        take_generation(frame, &mut cursor)?,
+        take_generation(frame, &mut cursor)?,
+        take_generation(frame, &mut cursor)?,
+        next_field(frame, &mut cursor)?,
+        next_field(frame, &mut cursor)?,
+    )?;
     let receipt = AccountIssuerReceipt::new(
         kind,
-        next_field(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
-        next_field(frame, &mut cursor)?,
+        receipt_id,
+        correlation_id,
+        idempotency_key,
+        key_id,
+        lineage,
         next_field(frame, &mut cursor)?,
         next_field(frame, &mut cursor)?,
     )?;
     finish(frame, cursor)?;
     Ok(receipt)
+}
+
+fn take_generation(wire: &[u8], cursor: &mut usize) -> Result<u64, ProtocolError> {
+    let bytes: [u8; 8] = take_exact(wire, cursor, 8)?
+        .try_into()
+        .map_err(|_| ProtocolError::Truncated)?;
+    Ok(u64::from_be_bytes(bytes))
 }
 
 fn decode_header(
