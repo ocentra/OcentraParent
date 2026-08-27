@@ -124,6 +124,27 @@ function Assert-TrustedSourceSnapshot {
     }
 }
 
+function Assert-TrustedInputSnapshot {
+    param(
+        [Parameter(Mandatory)]
+        [object]$ExpectedSnapshot,
+
+        [Parameter(Mandatory)]
+        [string[]]$Paths
+    )
+
+    $current = [ordered]@{}
+    foreach ($path in $Paths) {
+        Assert-TrustedSourcePath -Path $path -Root $repoRootForTrust -Description 'Anchored package input' | Out-Null
+        $current[$path] = Get-TrustedSourceHash -Path $path
+    }
+    $expectedJson = $ExpectedSnapshot | ConvertTo-Json -Depth 8 -Compress
+    $currentJson = $current | ConvertTo-Json -Depth 8 -Compress
+    if ($currentJson -cne $expectedJson) {
+        throw 'A repository-anchored package input changed after its snapshot; refusing to publish a drifted package.'
+    }
+}
+
 . (Join-Path $helperRoot 'package-inputs.ps1')
 . (Join-Path $helperRoot 'package-path-safety.ps1')
 . (Join-Path $helperRoot 'package-publication.ps1')
@@ -195,11 +216,17 @@ try {
     $cargoManifestPath = Join-Path $repoRoot 'Cargo.toml'
     $dotnetToolManifestPath = Join-Path $repoRoot '.config\dotnet-tools.json'
     $versionScriptPath = Join-Path $repoRoot 'scripts\release\validate-version.mjs'
-    foreach ($anchoredInput in @($cargoManifestPath, $dotnetToolManifestPath, $versionScriptPath)) {
+    $anchoredInputPaths = @($cargoManifestPath, $dotnetToolManifestPath, $versionScriptPath)
+    foreach ($anchoredInput in $anchoredInputPaths) {
         if (-not (Test-Path -LiteralPath $anchoredInput -PathType Leaf)) {
             throw "Required repository-anchored input '$anchoredInput' is absent; refusing to package."
         }
         Assert-PhysicalPackagePathUnderRoot -Path $anchoredInput -Root $repoRoot -Description 'Build input' | Out-Null
+    }
+    $trustedInputSnapshot = [ordered]@{}
+    foreach ($anchoredInput in $anchoredInputPaths) {
+        Assert-TrustedSourcePath -Path $anchoredInput -Root $repoRootForTrust -Description 'Anchored package input' | Out-Null
+        $trustedInputSnapshot[$anchoredInput] = Get-TrustedSourceHash -Path $anchoredInput
     }
 
     Push-Location $repoRoot
@@ -397,6 +424,17 @@ try {
         }
         Write-Utf8NoBom -Path $checksumPath -Content ("$msiHash *$([System.IO.Path]::GetFileName($msiPath))" + [Environment]::NewLine) -Root $packageRoot
 
+        Assert-TrustedSourceSnapshot
+        Assert-TrustedInputSnapshot -ExpectedSnapshot $trustedInputSnapshot -Paths $anchoredInputPaths
+        $trustedCommandSnapshot = Get-TrustedCommandSnapshot
+        $publicationInputContract = Get-PackagePublicationInputContract -InputContract ([ordered]@{
+                brokerBinarySha256 = $brokerHash
+                provisionerBinarySha256 = $provisionerHash
+                sourceHashes = $trustedSourceSnapshot
+                anchoredInputHashes = $trustedInputSnapshot
+                commandFingerprints = $trustedCommandSnapshot
+            })
+
         $manifest = [ordered]@{
             schema = 'ocentra-parent-protected-custody-package/v1'
             packageId = 'ocentra-parent-protected-custody'
@@ -416,6 +454,7 @@ try {
                 [ordered]@{ role = 'broker'; file = [System.IO.Path]::GetFileName($brokerBinaryPath); sha256 = $brokerHash },
                 [ordered]@{ role = 'provisioner'; file = [System.IO.Path]::GetFileName($provisionerBinaryPath); sha256 = $provisionerHash }
             )
+            inputIntegrity = $publicationInputContract
             digestBinding = 'broker sha256 binds only the compiled payload; live Enrollment\\authority-v1 broker digest remains external WP02 owner state and is never authored by MSI'
             fixedIdentity = [ordered]@{
                 brokerInstallPath = $brokerInstallPath
@@ -497,7 +536,25 @@ try {
         Remove-SafePackagePath -Path $wixIntermediateRoot -Root $packageRoot -Description 'Validated WiX intermediate tree'
         Assert-ExactPackageDirectoryFiles -Directory $stagingRoot -PackageRoot $packageRoot -ExpectedNames $artifactNames -Description 'Ready-to-publish package set'
         Assert-TrustedSourceSnapshot
-        Publish-StagedPackageDirectory -PackageRoot $packageRoot -OutputRoot $outputRoot -StagingRoot $stagingRoot -BackupRoot $backupRoot -ArtifactNames $artifactNames -LockStream $publicationLayout.LockStream | Out-Null
+        Assert-TrustedInputSnapshot -ExpectedSnapshot $trustedInputSnapshot -Paths $anchoredInputPaths
+        Assert-TrustedCommandSnapshot -ExpectedSnapshot $trustedCommandSnapshot
+        if ((Get-Sha256Hex -Path $brokerBinaryPath) -cne $brokerHash -or
+            (Get-Sha256Hex -Path $provisionerBinaryPath) -cne $provisionerHash) {
+            throw 'A protected custody release binary changed after validation; refusing publication.'
+        }
+        $currentPublicationInputContract = Get-PackagePublicationInputContract -InputContract ([ordered]@{
+                brokerBinarySha256 = Get-Sha256Hex -Path $brokerBinaryPath
+                provisionerBinarySha256 = Get-Sha256Hex -Path $provisionerBinaryPath
+                sourceHashes = $trustedSourceSnapshot
+                anchoredInputHashes = $trustedInputSnapshot
+                commandFingerprints = Get-TrustedCommandSnapshot
+            })
+        $expectedContractJson = $publicationInputContract | ConvertTo-Json -Depth 32 -Compress
+        $currentContractJson = $currentPublicationInputContract | ConvertTo-Json -Depth 32 -Compress
+        if ($expectedContractJson -cne $currentContractJson) {
+            throw 'Package inputs, helper sources, or tool fingerprints changed immediately before publication; refusing to publish drifted bytes.'
+        }
+        Publish-StagedPackageDirectory -PackageRoot $packageRoot -OutputRoot $outputRoot -StagingRoot $stagingRoot -BackupRoot $backupRoot -ArtifactNames $artifactNames -LockStream $publicationLayout.LockStream -InputContract $publicationInputContract | Out-Null
         Assert-TrustedSourceSnapshot
         $msiPath = Join-Path $outputRoot $msiFileName
         $checksumPath = Join-Path $outputRoot $checksumFileName

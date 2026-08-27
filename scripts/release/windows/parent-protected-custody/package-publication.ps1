@@ -1,4 +1,231 @@
-$script:PackagePublicationJournalSchema = 2
+$script:PackagePublicationJournalSchema = 3
+$script:PackagePublicationJournalPhases = @('prepared', 'previous-moved', 'staging-moved', 'final-validated', 'committed')
+$script:PackagePublicationJournalFields = @(
+    'schema',
+    'phase',
+    'sequence',
+    'operationId',
+    'outputRoot',
+    'stagingRoot',
+    'backupRoot',
+    'artifactNames',
+    'hadPrevious',
+    'stagedHashes',
+    'previousHashes',
+    'inputContract',
+    'previousRecordHash',
+    'recordHash'
+)
+
+function Get-PackagePublicationMapEntries {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Value,
+
+        [Parameter(Mandatory)]
+        [string]$Description
+    )
+
+    if ($null -eq $Value) {
+        throw "$Description is null."
+    }
+    $entries = [ordered]@{}
+    if ($Value -is [System.Collections.IDictionary]) {
+        foreach ($key in $Value.Keys) {
+            $name = [string]$key
+            if ([string]::IsNullOrWhiteSpace($name) -or $entries.Contains($name)) {
+                throw "$Description contains a missing or duplicate key."
+            }
+            $entries[$name] = $Value[$key]
+        }
+    } else {
+        foreach ($property in @($Value.PSObject.Properties)) {
+            $name = [string]$property.Name
+            if ([string]::IsNullOrWhiteSpace($name) -or $entries.Contains($name)) {
+                throw "$Description contains a missing or duplicate key."
+            }
+            $entries[$name] = $property.Value
+        }
+    }
+    $canonical = [ordered]@{}
+    foreach ($name in @($entries.Keys | Sort-Object)) {
+        $canonical[$name] = $entries[$name]
+    }
+    return $canonical
+}
+
+function ConvertTo-PackagePublicationCanonicalJson {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Value
+    )
+
+    return $Value | ConvertTo-Json -Depth 32 -Compress
+}
+
+function Get-PackagePublicationInputContract {
+    param(
+        [Parameter(Mandatory)]
+        [object]$InputContract
+    )
+
+    $allowed = @('brokerBinarySha256', 'provisionerBinarySha256', 'sourceHashes', 'anchoredInputHashes', 'commandFingerprints')
+    $actual = if ($InputContract -is [System.Collections.IDictionary]) {
+        @($InputContract.Keys | ForEach-Object { [string]$_ })
+    } else {
+        @($InputContract.PSObject.Properties.Name)
+    }
+    if ($actual.Count -ne $allowed.Count -or @($actual | Where-Object { $allowed -notcontains $_ }).Count -gt 0 -or
+        @($allowed | Where-Object { $actual -notcontains $_ }).Count -gt 0) {
+        throw 'Package publication input contract has an unexpected or missing field.'
+    }
+
+    $brokerHash = [string]$InputContract.brokerBinarySha256
+    $provisionerHash = [string]$InputContract.provisionerBinarySha256
+    foreach ($entry in @(@('brokerBinarySha256', $brokerHash), @('provisionerBinarySha256', $provisionerHash))) {
+        if ($entry[1] -notmatch '^[0-9a-f]{64}$' -or $entry[1] -cne $entry[1].ToLowerInvariant()) {
+            throw "Package publication input contract '$($entry[0])' is not a lowercase SHA-256."
+        }
+    }
+
+    $sourceHashes = Get-PackagePublicationMapEntries -Value $InputContract.sourceHashes -Description 'Package publication source hash contract'
+    if ($sourceHashes.Count -eq 0) {
+        throw 'Package publication source hash contract is empty.'
+    }
+    foreach ($name in $sourceHashes.Keys) {
+        $hash = [string]$sourceHashes[$name]
+        if ($hash -notmatch '^[0-9a-f]{64}$' -or $hash -cne $hash.ToLowerInvariant()) {
+            throw "Package publication source hash for '$name' is not a lowercase SHA-256."
+        }
+    }
+
+    $anchoredInputHashes = Get-PackagePublicationMapEntries -Value $InputContract.anchoredInputHashes -Description 'Package publication anchored input hash contract'
+    if ($anchoredInputHashes.Count -eq 0) {
+        throw 'Package publication anchored input hash contract is empty.'
+    }
+    foreach ($name in $anchoredInputHashes.Keys) {
+        $hash = [string]$anchoredInputHashes[$name]
+        if ($hash -notmatch '^[0-9a-f]{64}$' -or $hash -cne $hash.ToLowerInvariant()) {
+            throw "Package publication anchored input hash for '$name' is not a lowercase SHA-256."
+        }
+    }
+
+    $commandFingerprints = Get-PackagePublicationMapEntries -Value $InputContract.commandFingerprints -Description 'Package publication command fingerprint contract'
+    if ($commandFingerprints.Count -eq 0) {
+        throw 'Package publication command fingerprint contract is empty.'
+    }
+    foreach ($name in $commandFingerprints.Keys) {
+        $fingerprint = [string]$commandFingerprints[$name]
+        $parts = $fingerprint -split '\|', 4
+        if ($parts.Count -ne 4 -or [string]::IsNullOrWhiteSpace($parts[0]) -or
+            [string]::IsNullOrWhiteSpace($parts[2]) -or $parts[3] -notmatch '^[0-9a-f]{64}$' -or
+            $parts[3] -cne $parts[3].ToLowerInvariant()) {
+            throw "Package publication command fingerprint for '$name' is malformed."
+        }
+    }
+
+    return [ordered]@{
+        brokerBinarySha256 = $brokerHash
+        provisionerBinarySha256 = $provisionerHash
+        sourceHashes = $sourceHashes
+        anchoredInputHashes = $anchoredInputHashes
+        commandFingerprints = $commandFingerprints
+    }
+}
+
+function Get-PackagePublicationCanonicalRecord {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Record
+    )
+
+    return [ordered]@{
+        schema = [int]$Record.schema
+        phase = [string]$Record.phase
+        sequence = [int]$Record.sequence
+        operationId = [string]$Record.operationId
+        outputRoot = [string]$Record.outputRoot
+        stagingRoot = [string]$Record.stagingRoot
+        backupRoot = [string]$Record.backupRoot
+        artifactNames = @($Record.artifactNames | ForEach-Object { [string]$_ })
+        hadPrevious = [bool]$Record.hadPrevious
+        stagedHashes = Get-PackagePublicationMapEntries -Value $Record.stagedHashes -Description 'Package publication staged hash contract'
+        previousHashes = Get-PackagePublicationMapEntries -Value $Record.previousHashes -Description 'Package publication previous hash contract'
+        inputContract = Get-PackagePublicationInputContract -InputContract $Record.inputContract
+        previousRecordHash = [string]$Record.previousRecordHash
+    }
+}
+
+function Get-PackagePublicationRecordHash {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Record
+    )
+
+    $json = ConvertTo-PackagePublicationCanonicalJson -Value (Get-PackagePublicationCanonicalRecord -Record $Record)
+    $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($json)
+    return ([System.Security.Cryptography.SHA256]::HashData($bytes) | ForEach-Object { $_.ToString('x2') }) -join ''
+}
+
+function Assert-HeldPackagePublicationLock {
+    param(
+        [Parameter(Mandatory)]
+        [string]$PackageRoot,
+
+        [Parameter(Mandatory)]
+        [string]$LockPath,
+
+        [Parameter(Mandatory)]
+        [System.IO.FileStream]$LockStream,
+
+        [Parameter()]
+        [string]$Description = 'Package publication lock'
+    )
+
+    if ($null -eq $LockStream) {
+        throw "$Description is absent; refusing publication or recovery."
+    }
+    try {
+        if ($LockStream.SafeFileHandle.IsClosed -or $LockStream.SafeFileHandle.IsInvalid -or
+            -not $LockStream.CanRead -or -not $LockStream.CanWrite) {
+            throw "$Description is not a live read/write file handle."
+        }
+        $safeLockPath = Assert-SafePackageLeafPath -Path $LockPath -Root $PackageRoot -Description $Description
+        $streamName = Get-NormalizedPackagePath -Path ([string]$LockStream.Name)
+        if (-not $streamName.Equals($safeLockPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "$Description handle '$streamName' is not the exact safe lock path '$safeLockPath'."
+        }
+        $item = Get-Item -LiteralPath $safeLockPath -Force
+        if ($item.PSIsContainer -or ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "$Description '$safeLockPath' is not a regular non-reparse file."
+        }
+        Assert-PhysicalPackagePathUnderRoot -Path $safeLockPath -Root $PackageRoot -Description $Description | Out-Null
+
+        # FileStream does not expose its FileShare flags. Acquire-* below uses
+        # FileShare.None, and this probe must therefore fail while this exact
+        # handle is live. A successful probe means the caller supplied an
+        # arbitrary readable stream or a non-exclusive handle.
+        $probe = $null
+        try {
+            $probe = [System.IO.FileStream]::new(
+                $safeLockPath,
+                [System.IO.FileMode]::Open,
+                [System.IO.FileAccess]::Read,
+                [System.IO.FileShare]::ReadWrite
+            )
+            throw "$Description '$safeLockPath' is not exclusively held by the supplied handle."
+        } catch [System.IO.IOException] {
+            # Expected: the live FileShare.None handle denies this probe.
+        } finally {
+            if ($null -ne $probe) {
+                $probe.Dispose()
+            }
+        }
+        return $safeLockPath
+    } catch {
+        throw "$Description is not the live exclusive lock: $($_.Exception.Message)"
+    }
+}
 
 function Get-PackagePublicationNames {
     param(
@@ -123,6 +350,41 @@ function Assert-PackageManifestBinding {
     }
 }
 
+function Assert-PackageManifestInputContract {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Directory,
+
+        [Parameter(Mandatory)]
+        [string[]]$ExpectedNames,
+
+        [Parameter(Mandatory)]
+        [object]$ExpectedInputContract,
+
+        [Parameter(Mandatory)]
+        [string]$Description
+    )
+
+    $manifestNames = @($ExpectedNames | Where-Object { $_ -like '*.manifest.json' })
+    if ($manifestNames.Count -ne 1) {
+        throw "$Description has no unique manifest for input-integrity binding."
+    }
+    try {
+        $manifestPath = Join-Path $Directory $manifestNames[0]
+        $manifest = [System.IO.File]::ReadAllText($manifestPath, [System.Text.UTF8Encoding]::new($false)) | ConvertFrom-Json
+        if ($null -eq $manifest.PSObject.Properties['inputIntegrity']) {
+            throw 'manifest has no inputIntegrity contract.'
+        }
+        $actual = Get-PackagePublicationInputContract -InputContract $manifest.inputIntegrity
+        $expected = Get-PackagePublicationInputContract -InputContract $ExpectedInputContract
+        if ((ConvertTo-PackagePublicationCanonicalJson -Value $actual) -cne (ConvertTo-PackagePublicationCanonicalJson -Value $expected)) {
+            throw 'manifest inputIntegrity does not exactly match the publication input contract.'
+        }
+    } catch {
+        throw "$Description manifest input-integrity binding is invalid; refusing publication: $($_.Exception.Message)"
+    }
+}
+
 function Assert-PackageDirectoryHashes {
     param(
         [Parameter(Mandatory)]
@@ -160,19 +422,52 @@ function Write-PackagePublicationJournal {
         [string]$JournalPath,
 
         [Parameter(Mandatory)]
-        [object]$State
+        [object]$State,
+
+        [Parameter(Mandatory)]
+        [string]$LockPath,
+
+        [Parameter(Mandatory)]
+        [System.IO.FileStream]$LockStream
     )
 
+    Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
     $safeJournalPath = Assert-SafePackageLeafPath -Path $JournalPath -Root $PackageRoot -Description 'Package publication journal'
     $journalParent = [System.IO.Path]::GetDirectoryName($safeJournalPath)
     Assert-PhysicalPackagePathUnderRoot -Path $journalParent -Root $PackageRoot -Description 'Package publication journal parent' | Out-Null
-    $json = $State | ConvertTo-Json -Depth 12 -Compress
+
+    $existingRecords = @()
+    if (Test-Path -LiteralPath $safeJournalPath -PathType Leaf) {
+        $existingRecords = @(Read-PackagePublicationJournalRecords -PackageRoot $PackageRoot -JournalPath $safeJournalPath)
+    }
+    $record = [ordered]@{
+        schema = $script:PackagePublicationJournalSchema
+        phase = [string]$State.phase
+        sequence = $existingRecords.Count + 1
+        operationId = [string]$State.operationId
+        outputRoot = [string]$State.outputRoot
+        stagingRoot = [string]$State.stagingRoot
+        backupRoot = [string]$State.backupRoot
+        artifactNames = @($State.artifactNames | ForEach-Object { [string]$_ })
+        hadPrevious = [bool]$State.hadPrevious
+        stagedHashes = Get-PackagePublicationMapEntries -Value $State.stagedHashes -Description 'Package publication staged hash contract'
+        previousHashes = Get-PackagePublicationMapEntries -Value $State.previousHashes -Description 'Package publication previous hash contract'
+        inputContract = Get-PackagePublicationInputContract -InputContract $State.inputContract
+        previousRecordHash = if ($existingRecords.Count -eq 0) { '' } else { [string]$existingRecords[-1].recordHash }
+        recordHash = ''
+    }
+    $record.recordHash = Get-PackagePublicationRecordHash -Record ([pscustomobject]$record)
+    $candidate = ($record | ConvertTo-Json -Depth 32 -Compress | ConvertFrom-Json)
+    $allRecords = @($existingRecords + @($candidate))
+    Assert-PackagePublicationJournalChain -PackageRoot $PackageRoot -Records $allRecords | Out-Null
+    $json = $candidate | ConvertTo-Json -Depth 32 -Compress
     $stream = $null
     try {
-        # The publication lock excludes cooperating writers. The journal is
-        # append-only: a process interruption can leave only a torn final
-        # record, while every preceding flushed phase remains available for
-        # recovery. Existing journal bytes are never truncated or replaced.
+        # The held FileStream excludes cooperating writers. The journal is
+        # append-only and chain-validated; a torn or partially written record
+        # is deliberately fatal, so recovery preserves every byte instead of
+        # guessing which earlier phase was durable. The path check immediately
+        # before opening is not a hostile-filesystem no-follow guarantee.
         $mode = if (Test-Path -LiteralPath $safeJournalPath -PathType Leaf) {
             [System.IO.FileMode]::Append
         } else {
@@ -203,31 +498,48 @@ function Read-PackagePublicationJournal {
         [string]$JournalPath
     )
 
+    $records = @(Read-PackagePublicationJournalRecords -PackageRoot $PackageRoot -JournalPath $JournalPath)
+    return $records[$records.Count - 1]
+}
+
+function Read-PackagePublicationJournalRecords {
+    param(
+        [Parameter(Mandatory)]
+        [string]$PackageRoot,
+
+        [Parameter(Mandatory)]
+        [string]$JournalPath
+    )
+
     $safeJournalPath = Assert-SafePackageLeafPath -Path $JournalPath -Root $PackageRoot -Description 'Package publication journal'
     try {
         $text = [System.IO.File]::ReadAllText($safeJournalPath, [System.Text.UTF8Encoding]::new($false))
-        $hasTerminalNewline = $text.EndsWith("`n", [System.StringComparison]::Ordinal)
-        $lines = @($text -split "`n" | ForEach-Object { $_.TrimEnd("`r") } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+        if ([string]::IsNullOrEmpty($text) -or -not $text.EndsWith("`n", [System.StringComparison]::Ordinal)) {
+            throw 'journal does not end in a complete newline-delimited record.'
+        }
+        $rawLines = @($text -split "`n")
+        if ($rawLines.Count -lt 2 -or $rawLines[-1] -cne '') {
+            throw 'journal newline framing is incomplete.'
+        }
         $records = [System.Collections.Generic.List[object]]::new()
-        for ($index = 0; $index -lt $lines.Count; $index++) {
+        for ($index = 0; $index -lt ($rawLines.Count - 1); $index++) {
+            $line = $rawLines[$index].TrimEnd("`r")
+            if ([string]::IsNullOrWhiteSpace($line)) {
+                throw "journal record $index is blank or torn."
+            }
             try {
-                $records.Add(($lines[$index] | ConvertFrom-Json))
+                $records.Add(($line | ConvertFrom-Json))
             } catch {
-                if ($index -eq ($lines.Count - 1) -and -not $hasTerminalNewline) {
-                    # The final append may have been interrupted after the
-                    # last complete phase. Earlier flushed state is sufficient
-                    # to inspect physical final/staging/backup bytes safely.
-                    break
-                }
-                throw "journal record $index is corrupt before the final record."
+                throw "journal record $index is corrupt."
             }
         }
         if ($records.Count -eq 0) {
             throw 'journal contains no complete durable phase record.'
         }
-        return $records[$records.Count - 1]
+        Assert-PackagePublicationJournalChain -PackageRoot $PackageRoot -Records $records.ToArray() | Out-Null
+        return $records.ToArray()
     } catch {
-        throw "Package publication journal '$safeJournalPath' is unreadable or torn; preserving all package bytes and refusing recovery: $($_.Exception.Message)"
+        throw "Package publication journal '$safeJournalPath' is unreadable, torn, or provenance-invalid; preserving all package bytes and refusing recovery: $($_.Exception.Message)"
     }
 }
 
@@ -249,6 +561,7 @@ function Acquire-PackagePublicationLock {
             [System.IO.FileAccess]::ReadWrite,
             [System.IO.FileShare]::None
         )
+        Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $safeLockPath -LockStream $lockStream | Out-Null
         return $lockStream
     } catch {
         if ($null -ne $lockStream) {
@@ -258,53 +571,39 @@ function Acquire-PackagePublicationLock {
     }
 }
 
-function Get-PackagePublicationHashMap {
-    param(
-        [Parameter(Mandatory)]
-        [object]$Journal,
-
-        [Parameter(Mandatory)]
-        [string]$PropertyName
-    )
-
-    $map = [ordered]@{}
-    $property = $Journal.PSObject.Properties[$PropertyName]
-    if ($null -eq $property -or $null -eq $property.Value) {
-        return $map
-    }
-    foreach ($entry in $property.Value.PSObject.Properties) {
-        $map[[string]$entry.Name] = ([string]$entry.Value).ToLowerInvariant()
-    }
-    return $map
-}
-
 function Assert-PackagePublicationJournalShape {
     param(
         [Parameter(Mandatory)]
         [string]$PackageRoot,
 
-        [Parameter(Mandatory)]
+        [Parameter()]
+        [AllowEmptyString()]
         [string]$ExpectedOutputRoot,
 
         [Parameter(Mandatory)]
         [object]$Journal
     )
 
-    if ([int]$Journal.schema -ne $script:PackagePublicationJournalSchema) {
+    $expectedFields = @($script:PackagePublicationJournalFields)
+    $actualFields = @($Journal.PSObject.Properties.Name)
+    $missingFields = @($expectedFields | Where-Object { $actualFields -notcontains $_ })
+    $unexpectedFields = @($actualFields | Where-Object { $expectedFields -notcontains $_ })
+    if ($missingFields.Count -gt 0 -or $unexpectedFields.Count -gt 0) {
+        throw "Package publication journal fields are not exact (missing: '$($missingFields -join ', ')'; unexpected: '$($unexpectedFields -join ', ')'); preserving bytes and refusing recovery."
+    }
+    if ($Journal.schema -is [string] -or [int64]$Journal.schema -ne $script:PackagePublicationJournalSchema) {
         throw "Package publication journal schema '$($Journal.schema)' is unsupported; preserving bytes and refusing recovery."
     }
-    if ([string]$Journal.phase -notin @('prepared', 'previous-moved', 'staging-moved', 'final-validated', 'committed')) {
+    if ([string]$Journal.phase -notin $script:PackagePublicationJournalPhases) {
         throw "Package publication journal phase '$($Journal.phase)' is unsupported; preserving bytes and refusing recovery."
     }
-    foreach ($requiredProperty in @('phase', 'operationId', 'outputRoot', 'stagingRoot', 'backupRoot', 'artifactNames', 'hadPrevious', 'stagedHashes', 'previousHashes')) {
-        if ($null -eq $Journal.PSObject.Properties[$requiredProperty]) {
-            throw "Package publication journal is missing required '$requiredProperty'; preserving bytes and refusing recovery."
-        }
+    if ($Journal.sequence -is [string] -or [int64]$Journal.sequence -lt 1 -or [int64]$Journal.sequence -gt [int64][int]::MaxValue) {
+        throw 'Package publication journal sequence is not a positive bounded integer; preserving bytes and refusing recovery.'
     }
     $journalOutput = Assert-PhysicalPackagePathUnderRoot -Path ([string]$Journal.outputRoot) -Root $PackageRoot -Description 'Journaled final package directory'
     $journalStage = Assert-PhysicalPackagePathUnderRoot -Path ([string]$Journal.stagingRoot) -Root $PackageRoot -Description 'Journaled staged package directory'
     $journalBackup = Assert-PhysicalPackagePathUnderRoot -Path ([string]$Journal.backupRoot) -Root $PackageRoot -Description 'Journaled package backup directory'
-    if (-not $journalOutput.Equals($ExpectedOutputRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+    if (-not [string]::IsNullOrWhiteSpace($ExpectedOutputRoot) -and -not $journalOutput.Equals($ExpectedOutputRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
         throw "Package publication journal targets '$journalOutput', not the requested final '$ExpectedOutputRoot'; preserving bytes and refusing recovery."
     }
     $outputName = [System.IO.Path]::GetFileName($journalOutput)
@@ -322,6 +621,9 @@ function Assert-PackagePublicationJournalShape {
             throw 'Package publication journal paths are not physical siblings; preserving bytes and refusing recovery.'
         }
     }
+    if ($Journal.artifactNames -isnot [System.Array]) {
+        throw 'Package publication journal artifactNames is not an array; preserving bytes and refusing recovery.'
+    }
     $artifactNames = @($Journal.artifactNames | ForEach-Object { [string]$_ })
     if ($artifactNames.Count -eq 0 -or @($artifactNames | Select-Object -Unique).Count -ne $artifactNames.Count) {
         throw 'Package publication journal contains an empty or duplicate artifact contract; preserving bytes and refusing recovery.'
@@ -333,7 +635,7 @@ function Assert-PackagePublicationJournalShape {
             throw "Package publication journal contains unsafe artifact name '$artifactName'; preserving bytes and refusing recovery."
         }
     }
-    $stagedHashes = Get-PackagePublicationHashMap -Journal $Journal -PropertyName 'stagedHashes'
+    $stagedHashes = Get-PackagePublicationMapEntries -Value $Journal.stagedHashes -Description 'Package publication staged hash contract'
     if ($stagedHashes.Count -ne $artifactNames.Count) {
         throw 'Package publication journal staged hash count does not match its artifact contract; preserving bytes and refusing recovery.'
     }
@@ -342,11 +644,11 @@ function Assert-PackagePublicationJournalShape {
             throw "Package publication journal has no canonical staged SHA-256 for '$artifactName'; preserving bytes and refusing recovery."
         }
     }
-    $hadPrevious = [bool]$Journal.hadPrevious
     if ($Journal.hadPrevious -isnot [bool]) {
         throw 'Package publication journal hadPrevious is not a JSON boolean; preserving bytes and refusing recovery.'
     }
-    $previousHashes = Get-PackagePublicationHashMap -Journal $Journal -PropertyName 'previousHashes'
+    $hadPrevious = [bool]$Journal.hadPrevious
+    $previousHashes = Get-PackagePublicationMapEntries -Value $Journal.previousHashes -Description 'Package publication previous hash contract'
     if (($hadPrevious -and $previousHashes.Count -ne $artifactNames.Count) -or
         (-not $hadPrevious -and $previousHashes.Count -ne 0)) {
         throw 'Package publication journal previous hash contract is inconsistent; preserving bytes and refusing recovery.'
@@ -356,7 +658,29 @@ function Assert-PackagePublicationJournalShape {
             throw "Package publication journal has no canonical prior SHA-256 for '$artifactName'; preserving bytes and refusing recovery."
         }
     }
+    if ($Journal.operationId -isnot [string] -or $Journal.outputRoot -isnot [string] -or
+        $Journal.stagingRoot -isnot [string] -or $Journal.backupRoot -isnot [string]) {
+        throw 'Package publication journal identity/path fields have non-string JSON types; preserving bytes and refusing recovery.'
+    }
+    if ($Journal.previousRecordHash -isnot [string] -or $Journal.recordHash -isnot [string]) {
+        throw 'Package publication journal chain digest fields have non-string JSON types; preserving bytes and refusing recovery.'
+    }
+    $sequence = [int]$Journal.sequence
+    $previousRecordHash = [string]$Journal.previousRecordHash
+    if (($sequence -eq 1 -and $previousRecordHash -cne '') -or
+        ($sequence -gt 1 -and $previousRecordHash -notmatch '^[0-9a-f]{64}$') -or
+        [string]$Journal.recordHash -notmatch '^[0-9a-f]{64}$' -or
+        [string]$Journal.recordHash -cne ([string]$Journal.recordHash).ToLowerInvariant()) {
+        throw 'Package publication journal chain digest contract is invalid; preserving bytes and refusing recovery.'
+    }
+    $inputContract = Get-PackagePublicationInputContract -InputContract $Journal.inputContract
+    $expectedRecordHash = Get-PackagePublicationRecordHash -Record $Journal
+    if ([string]$Journal.recordHash -cne $expectedRecordHash) {
+        throw 'Package publication journal record digest does not match its immutable bytes; preserving bytes and refusing recovery.'
+    }
     return [pscustomobject]@{
+        Schema = [int]$Journal.schema
+        Sequence = $sequence
         OutputRoot = $journalOutput
         StagingRoot = $journalStage
         BackupRoot = $journalBackup
@@ -365,7 +689,88 @@ function Assert-PackagePublicationJournalShape {
         PreviousHashes = $previousHashes
         HadPrevious = $hadPrevious
         Phase = [string]$Journal.phase
+        OperationId = [string]$Journal.operationId
+        InputContract = $inputContract
+        PreviousRecordHash = $previousRecordHash
+        RecordHash = [string]$Journal.recordHash
     }
+}
+
+function Get-PackagePublicationImmutableRecord {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Record
+    )
+
+    return [ordered]@{
+        schema = [int]$Record.schema
+        operationId = [string]$Record.operationId
+        outputRoot = [string]$Record.outputRoot
+        stagingRoot = [string]$Record.stagingRoot
+        backupRoot = [string]$Record.backupRoot
+        artifactNames = @($Record.artifactNames | ForEach-Object { [string]$_ })
+        hadPrevious = [bool]$Record.hadPrevious
+        stagedHashes = Get-PackagePublicationMapEntries -Value $Record.stagedHashes -Description 'Package publication staged hash contract'
+        previousHashes = Get-PackagePublicationMapEntries -Value $Record.previousHashes -Description 'Package publication previous hash contract'
+        inputContract = Get-PackagePublicationInputContract -InputContract $Record.inputContract
+    }
+}
+
+function Assert-PackagePublicationJournalChain {
+    param(
+        [Parameter(Mandatory)]
+        [string]$PackageRoot,
+
+        [Parameter(Mandatory)]
+        [object[]]$Records
+    )
+
+    if ($Records.Count -eq 0) {
+        throw 'Package publication journal chain is empty; preserving bytes and refusing recovery.'
+    }
+    $normalized = [System.Collections.Generic.List[object]]::new()
+    $expectedOutput = ''
+    $immutableJson = ''
+    $previousHash = ''
+    $hadPrevious = $false
+    $phaseSequence = $null
+    for ($index = 0; $index -lt $Records.Count; $index++) {
+        $record = $Records[$index]
+        $shape = Assert-PackagePublicationJournalShape -PackageRoot $PackageRoot -ExpectedOutputRoot $expectedOutput -Journal $record
+        if ($index -eq 0) {
+            $expectedOutput = $shape.OutputRoot
+            $hadPrevious = $shape.HadPrevious
+            $phaseSequence = if ($hadPrevious) {
+                @('prepared', 'previous-moved', 'staging-moved', 'final-validated', 'committed')
+            } else {
+                @('prepared', 'staging-moved', 'final-validated', 'committed')
+            }
+            $immutableJson = ConvertTo-PackagePublicationCanonicalJson -Value (Get-PackagePublicationImmutableRecord -Record $record)
+        } else {
+            $candidateImmutable = ConvertTo-PackagePublicationCanonicalJson -Value (Get-PackagePublicationImmutableRecord -Record $record)
+            if ($candidateImmutable -cne $immutableJson) {
+                throw "Package publication journal record $index changes the immutable operation/output/input contract; preserving bytes and refusing recovery."
+            }
+            if ($shape.PreviousRecordHash -cne $previousHash) {
+                throw "Package publication journal record $index does not link to the prior record digest; preserving bytes and refusing recovery."
+            }
+        }
+        if ($shape.Sequence -ne ($index + 1)) {
+            throw "Package publication journal record $index has sequence $($shape.Sequence), expected $($index + 1); preserving bytes and refusing recovery."
+        }
+        if ($shape.Phase -cne $phaseSequence[$index]) {
+            throw "Package publication journal phase '$($shape.Phase)' is not the legal phase $($index + 1) for this operation; preserving bytes and refusing recovery."
+        }
+        if ($shape.HadPrevious -ne $hadPrevious) {
+            throw 'Package publication journal changes hadPrevious across records; preserving bytes and refusing recovery.'
+        }
+        $normalized.Add($shape)
+        $previousHash = $shape.RecordHash
+    }
+    if ($normalized[-1].Phase -eq 'committed' -and $Records.Count -ne $phaseSequence.Count) {
+        throw 'Package publication journal contains records after committed; preserving bytes and refusing recovery.'
+    }
+    return ,$normalized.ToArray()
 }
 
 function Recover-PackagePublication {
@@ -374,9 +779,16 @@ function Recover-PackagePublication {
         [string]$PackageRoot,
 
         [Parameter(Mandatory)]
-        [string]$OutputRoot
+        [string]$OutputRoot,
+
+        [Parameter(Mandatory)]
+        [string]$LockPath,
+
+        [Parameter(Mandatory)]
+        [System.IO.FileStream]$LockStream
     )
 
+    Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
     $names = Get-PackagePublicationNames -OutputRoot $OutputRoot
     $safeJournalPath = Assert-SafePackageLeafPath -Path $names.JournalPath -Root $PackageRoot -Description 'Package publication journal'
     if (-not (Test-Path -LiteralPath $safeJournalPath -PathType Leaf)) {
@@ -390,7 +802,8 @@ function Recover-PackagePublication {
         return
     }
 
-    $journal = Read-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $safeJournalPath
+    $journalRecords = @(Read-PackagePublicationJournalRecords -PackageRoot $PackageRoot -JournalPath $safeJournalPath)
+    $journal = $journalRecords[-1]
     $requestedOutput = Assert-PhysicalPackagePathUnderRoot -Path $OutputRoot -Root $PackageRoot -Description 'Requested final package directory'
     $record = Assert-PackagePublicationJournalShape -PackageRoot $PackageRoot -ExpectedOutputRoot $requestedOutput -Journal $journal
     $finalPresent = Test-Path -LiteralPath $record.OutputRoot
@@ -431,6 +844,7 @@ function Recover-PackagePublication {
     }
 
     if ($finalNew) {
+        Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
         if ($backupPresent -and -not $backupOld) {
             throw 'A valid new final is paired with an invalid rollback backup; preserving both and refusing recovery.'
         }
@@ -449,6 +863,7 @@ function Recover-PackagePublication {
 
     if ($finalOld) {
         if (-not $backupPresent -and $record.Phase -eq 'prepared') {
+            Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
             if ($stageNew) {
                 Remove-SafePackagePath -Path $record.StagingRoot -Root $PackageRoot -Description 'Discard unstarted package staging'
             }
@@ -459,6 +874,7 @@ function Recover-PackagePublication {
     }
 
     if ($backupOld) {
+        Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
         Move-SafePackageDirectory -SourcePath $record.BackupRoot -DestinationPath $record.OutputRoot -Root $PackageRoot -Description 'Recover prior package final'
         if ($stageNew) {
             Remove-SafePackagePath -Path $record.StagingRoot -Root $PackageRoot -Description 'Discard aborted package staging after prior restore'
@@ -469,6 +885,7 @@ function Recover-PackagePublication {
     }
 
     if ($stageNew -and -not $record.HadPrevious) {
+        Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
         Move-SafePackageDirectory -SourcePath $record.StagingRoot -DestinationPath $record.OutputRoot -Root $PackageRoot -Description 'Complete new package publication'
         Assert-PackageDirectoryHashes -Directory $record.OutputRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.StagedHashes -Description 'Completed new package set'
         Remove-SafePackagePath -Path $safeJournalPath -Root $PackageRoot -Description 'Completed new publication journal'
@@ -476,6 +893,7 @@ function Recover-PackagePublication {
     }
 
     if (-not $record.HadPrevious -and -not $stagePresent -and -not $backupPresent -and $record.Phase -eq 'prepared') {
+        Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
         Remove-SafePackagePath -Path $safeJournalPath -Root $PackageRoot -Description 'Empty package publication journal'
         return
     }
@@ -497,7 +915,7 @@ function New-PackagePublicationLayout {
     New-SafePackageDirectory -Path $outputParent -Root $PackageRoot -Description 'OutputRoot parent' | Out-Null
     $lockStream = Acquire-PackagePublicationLock -PackageRoot $PackageRoot -LockPath $names.LockPath
     try {
-        Recover-PackagePublication -PackageRoot $PackageRoot -OutputRoot $safeOutputRoot
+        Recover-PackagePublication -PackageRoot $PackageRoot -OutputRoot $safeOutputRoot -LockPath $names.LockPath -LockStream $lockStream
         $operationId = [Guid]::NewGuid().ToString('N')
         $stagingRoot = Join-Path $outputParent "$($names.OutputName).staging.$operationId"
         $backupRoot = Join-Path $outputParent "$($names.OutputName).backup.$operationId"
@@ -541,12 +959,15 @@ function Publish-StagedPackageDirectory {
         [string[]]$ArtifactNames,
 
         [Parameter(Mandatory)]
-        [System.IO.FileStream]$LockStream
+        [System.IO.FileStream]$LockStream,
+
+        [Parameter(Mandatory)]
+        [object]$InputContract
     )
 
-    if ($null -eq $LockStream -or -not $LockStream.CanRead) {
-        throw 'Package publication requires the live exclusive publication lock.'
-    }
+    $names = Get-PackagePublicationNames -OutputRoot $OutputRoot
+    Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $names.LockPath -LockStream $LockStream | Out-Null
+    $normalizedInputContract = Get-PackagePublicationInputContract -InputContract $InputContract
     $safeOutputRoot = Assert-PhysicalPackagePathUnderRoot -Path $OutputRoot -Root $PackageRoot -Description 'Final package directory'
     $safeStagingRoot = Assert-PhysicalPackagePathUnderRoot -Path $StagingRoot -Root $PackageRoot -Description 'Staged package directory'
     $safeBackupRoot = Assert-PhysicalPackagePathUnderRoot -Path $BackupRoot -Root $PackageRoot -Description 'Package rollback backup'
@@ -559,6 +980,7 @@ function Publish-StagedPackageDirectory {
 
     $stagedHashes = Get-PackageDirectoryHashes -Directory $safeStagingRoot -PackageRoot $PackageRoot -ExpectedNames $ArtifactNames -Description 'Validated staged package set'
     Assert-PackageManifestBinding -Directory $safeStagingRoot -ExpectedNames $ArtifactNames -Hashes $stagedHashes -Description 'Validated staged package set'
+    Assert-PackageManifestInputContract -Directory $safeStagingRoot -ExpectedNames $ArtifactNames -ExpectedInputContract $normalizedInputContract -Description 'Validated staged package set'
     $hadPrevious = Test-Path -LiteralPath $safeOutputRoot
     $previousHashes = [ordered]@{}
     if ($hadPrevious) {
@@ -580,26 +1002,32 @@ function Publish-StagedPackageDirectory {
         hadPrevious = $hadPrevious
         stagedHashes = $stagedHashes
         previousHashes = $previousHashes
+        inputContract = $normalizedInputContract
     }
 
     try {
-        Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal
+        Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $names.LockPath -LockStream $LockStream | Out-Null
+        Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal -LockPath $names.LockPath -LockStream $LockStream
         if ($hadPrevious) {
+            Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $names.LockPath -LockStream $LockStream | Out-Null
             Move-SafePackageDirectory -SourcePath $safeOutputRoot -DestinationPath $safeBackupRoot -Root $PackageRoot -Description 'Move prior package to rollback backup'
             $journal.phase = 'previous-moved'
-            Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal
+            Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal -LockPath $names.LockPath -LockStream $LockStream
         }
+        Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $names.LockPath -LockStream $LockStream | Out-Null
         Move-SafePackageDirectory -SourcePath $safeStagingRoot -DestinationPath $safeOutputRoot -Root $PackageRoot -Description 'Publish staged package'
         $journal.phase = 'staging-moved'
-        Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal
+        Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal -LockPath $names.LockPath -LockStream $LockStream
         Assert-PackageDirectoryHashes -Directory $safeOutputRoot -PackageRoot $PackageRoot -ExpectedNames $ArtifactNames -ExpectedHashes $stagedHashes -Description 'Published package set'
         $journal.phase = 'final-validated'
-        Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal
+        Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal -LockPath $names.LockPath -LockStream $LockStream
         if ($hadPrevious) {
+            Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $names.LockPath -LockStream $LockStream | Out-Null
             Remove-SafePackagePath -Path $safeBackupRoot -Root $PackageRoot -Description 'Superseded package rollback backup'
         }
         $journal.phase = 'committed'
-        Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal
+        Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal -LockPath $names.LockPath -LockStream $LockStream
+        Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $names.LockPath -LockStream $LockStream | Out-Null
         Remove-SafePackagePath -Path $names.JournalPath -Root $PackageRoot -Description 'Committed package publication journal'
     } catch {
         throw "Package publication stopped with durable journal '$($names.JournalPath)'; rerunning will validate and recover without discarding ambiguous bytes: $($_.Exception.Message)"
