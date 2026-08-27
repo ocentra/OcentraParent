@@ -46,7 +46,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         ensure_current_bridge_epoch(&transaction, &record)?;
         let transitioned_at = transition_to_revoked(&transaction, &record, now_epoch_millis)?;
         audit::insert_session_event(&transaction, &record, "revoked", transitioned_at)?;
-        audit::cleanup(&transaction, now_epoch_millis)?;
+        audit::cleanup(&transaction, &record.binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
@@ -85,7 +85,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         }
         let transitioned_at = transition_to_revoked(&transaction, &record, now_epoch_millis)?;
         audit::insert_session_event(&transaction, &record, "revoked", transitioned_at)?;
-        audit::cleanup(&transaction, now_epoch_millis)?;
+        audit::cleanup(&transaction, &record.binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
@@ -119,7 +119,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             current_epoch,
         )?;
         audit::insert_global_event(&transaction, &binding, next_epoch, now_epoch_millis)?;
-        audit::cleanup(&transaction, now_epoch_millis)?;
+        audit::cleanup(&transaction, &binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;

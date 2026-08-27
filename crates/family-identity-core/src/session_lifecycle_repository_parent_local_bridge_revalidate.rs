@@ -49,7 +49,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         if role != authenticated.role() {
             return Err(SessionLifecycleRepositoryError::CurrentnessConflict);
         }
-        audit::cleanup(&transaction, now_epoch_millis)?;
+        audit::cleanup(&transaction, &record.binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)

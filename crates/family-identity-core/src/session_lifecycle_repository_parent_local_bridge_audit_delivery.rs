@@ -40,7 +40,8 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         let binding = audit_owner_binding(&transaction, current_authority, now)?;
         let current_epoch =
             super::storage::current_bridge_revoke_epoch(&transaction, &binding.account_id)?;
-        requeue_expired_claims(&transaction, now)?;
+        reject_noncurrent_undelivered_evidence(&transaction, &binding, current_epoch)?;
+        requeue_expired_claims(&transaction, &binding, current_epoch, now)?;
         let Some(event) = read_next_pending(
             &transaction,
             &binding,
@@ -49,7 +50,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             self.session_policy.clock_skew_millis,
         )?
         else {
-            audit::cleanup(&transaction, now)?;
+            audit::cleanup(&transaction, &binding.account_id, now)?;
             transaction
                 .commit()
                 .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
@@ -70,7 +71,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             lease_expires,
         )?;
         let attempt_count = read_attempt_count(&transaction, event.event_id.as_str())?;
-        audit::cleanup(&transaction, now)?;
+        audit::cleanup(&transaction, &binding.account_id, now)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
@@ -98,7 +99,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             super::storage::current_bridge_revoke_epoch(&transaction, &binding.account_id)?;
         ensure_claim_owner(&claim, &binding, current_epoch)?;
         acknowledge_delivery_row(&transaction, &claim, &binding, current_epoch, now)?;
-        audit::cleanup(&transaction, now)?;
+        audit::cleanup(&transaction, &binding.account_id, now)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
@@ -141,7 +142,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             now,
             next_delivery,
         )?;
-        audit::cleanup(&transaction, now)?;
+        audit::cleanup(&transaction, &binding.account_id, now)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)
@@ -156,9 +157,12 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
         let now = clock::trusted_now_in_transaction(&transaction)?;
-        audit_owner_binding(&transaction, current_authority, now)?;
-        let requeued = requeue_expired_claims(&transaction, now)?;
-        let cleanup = audit::cleanup(&transaction, now)?;
+        let binding = audit_owner_binding(&transaction, current_authority, now)?;
+        let current_epoch =
+            super::storage::current_bridge_revoke_epoch(&transaction, &binding.account_id)?;
+        reject_noncurrent_undelivered_evidence(&transaction, &binding, current_epoch)?;
+        let requeued = requeue_expired_claims(&transaction, &binding, current_epoch, now)?;
+        let cleanup = audit::cleanup(&transaction, &binding.account_id, now)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
@@ -191,7 +195,9 @@ fn claim_pending_event(
                 AND provider = ?7 AND provider_subject_digest = ?8
                 AND member_id = ?9 AND device_id = ?10
                 AND authority_session_id = ?11
-                AND audience = ?12 AND bridge_revoke_epoch = ?13
+                AND authority_session_generation = ?12
+                AND authority_generation = ?13
+                AND audience = ?14 AND bridge_revoke_epoch = ?15
                 AND delivery_state = 'pending' AND delivery_attempt_id IS NULL
                 AND delivery_claimed_at_epoch_millis IS NULL
                 AND delivery_lease_expires_at_epoch_millis IS NULL
@@ -209,6 +215,8 @@ fn claim_pending_event(
                 binding.member_id.as_str(),
                 binding.device_id.as_str(),
                 binding.authority_session_id.as_str(),
+                super::super::codec::to_sql_generation(binding.authority_session_generation)?,
+                super::super::codec::to_sql_generation(binding.authority_generation)?,
                 AccountIdentityParentLocalBridgeAudience::fixed().as_str(),
                 super::super::codec::to_sql_generation(current_epoch)?,
             ],
@@ -239,7 +247,9 @@ fn acknowledge_delivery_row(
                 AND provider = ?8 AND provider_subject_digest = ?9
                 AND member_id = ?10 AND device_id = ?11
                 AND authority_session_id = ?12
-                AND audience = ?13 AND bridge_revoke_epoch = ?14
+                AND authority_session_generation = ?13
+                AND authority_generation = ?14
+                AND audience = ?15 AND bridge_revoke_epoch = ?16
                 AND delivery_state = 'in-flight'
                 AND delivery_claimed_at_epoch_millis = ?6
                 AND delivery_lease_expires_at_epoch_millis = ?7
@@ -258,6 +268,8 @@ fn acknowledge_delivery_row(
                 binding.member_id.as_str(),
                 binding.device_id.as_str(),
                 binding.authority_session_id.as_str(),
+                super::super::codec::to_sql_generation(binding.authority_session_generation)?,
+                super::super::codec::to_sql_generation(binding.authority_generation)?,
                 AccountIdentityParentLocalBridgeAudience::fixed().as_str(),
                 super::super::codec::to_sql_generation(current_epoch)?,
             ],
@@ -288,11 +300,13 @@ fn release_active_delivery(
                 AND provider = ?8 AND provider_subject_digest = ?9
                 AND member_id = ?10 AND device_id = ?11
                 AND authority_session_id = ?12
-                AND audience = ?13 AND bridge_revoke_epoch = ?14
+                AND authority_session_generation = ?13
+                AND authority_generation = ?14
+                AND audience = ?15 AND bridge_revoke_epoch = ?16
                 AND delivery_state = 'in-flight'
                 AND delivery_claimed_at_epoch_millis = ?6
                 AND delivery_lease_expires_at_epoch_millis = ?7
-                AND delivery_lease_expires_at_epoch_millis > ?15
+                AND delivery_lease_expires_at_epoch_millis > ?17
                 AND delivered_at_epoch_millis IS NULL",
             params![
                 claim.event.event_id.as_str(),
@@ -307,6 +321,8 @@ fn release_active_delivery(
                 binding.member_id.as_str(),
                 binding.device_id.as_str(),
                 binding.authority_session_id.as_str(),
+                super::super::codec::to_sql_generation(binding.authority_session_generation)?,
+                super::super::codec::to_sql_generation(binding.authority_generation)?,
                 AccountIdentityParentLocalBridgeAudience::fixed().as_str(),
                 super::super::codec::to_sql_generation(current_epoch)?,
                 now,
@@ -338,11 +354,13 @@ fn release_expired_delivery(
                 AND provider = ?8 AND provider_subject_digest = ?9
                 AND member_id = ?10 AND device_id = ?11
                 AND authority_session_id = ?12
-                AND audience = ?13 AND bridge_revoke_epoch = ?14
+                AND authority_session_generation = ?13
+                AND authority_generation = ?14
+                AND audience = ?15 AND bridge_revoke_epoch = ?16
                 AND delivery_state = 'in-flight'
                 AND delivery_claimed_at_epoch_millis = ?6
                 AND delivery_lease_expires_at_epoch_millis = ?7
-                AND delivery_lease_expires_at_epoch_millis <= ?5
+                AND delivery_lease_expires_at_epoch_millis <= ?17
                 AND delivered_at_epoch_millis IS NULL",
             params![
                 claim.event.event_id.as_str(),
@@ -357,14 +375,17 @@ fn release_expired_delivery(
                 binding.member_id.as_str(),
                 binding.device_id.as_str(),
                 binding.authority_session_id.as_str(),
+                super::super::codec::to_sql_generation(binding.authority_session_generation)?,
+                super::super::codec::to_sql_generation(binding.authority_generation)?,
                 AccountIdentityParentLocalBridgeAudience::fixed().as_str(),
                 super::super::codec::to_sql_generation(current_epoch)?,
+                now,
             ],
         )
         .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
     (changed == 1)
         .then(|| {
-            audit::cleanup(&transaction, now)?;
+            audit::cleanup(&transaction, &binding.account_id, now)?;
             transaction
                 .commit()
                 .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
@@ -398,6 +419,8 @@ fn ensure_claim_owner(
         && &claim.event.member_id == &binding.member_id
         && &claim.event.device_id == &binding.device_id
         && &claim.event.authority_session_id == &binding.authority_session_id
+        && claim.event.authority_session_generation == binding.authority_session_generation
+        && claim.event.authority_generation == binding.authority_generation
         && claim.event.audience == AccountIdentityParentLocalBridgeAudience::fixed()
         && claim.event.bridge_revoke_epoch == current_epoch)
         .then_some(())
@@ -406,6 +429,8 @@ fn ensure_claim_owner(
 
 fn requeue_expired_claims(
     transaction: &Transaction<'_>,
+    binding: &SessionAuthorityBinding,
+    current_epoch: u64,
     now: i64,
 ) -> Result<u64, SessionLifecycleRepositoryError> {
     let changed = transaction
@@ -415,21 +440,79 @@ fn requeue_expired_claims(
                     delivery_claimed_at_epoch_millis = NULL,
                     delivery_lease_expires_at_epoch_millis = NULL,
                     next_delivery_at_epoch_millis = CASE
-                        WHEN occurred_at_epoch_millis > ?1 THEN occurred_at_epoch_millis
-                        ELSE ?1
+                        WHEN occurred_at_epoch_millis > ?12 THEN occurred_at_epoch_millis
+                        ELSE ?12
                     END
               WHERE sequence IN (
                   SELECT sequence
                     FROM account_identity_parent_local_bridge_audit_outbox
                    WHERE delivery_state = 'in-flight'
-                     AND delivery_lease_expires_at_epoch_millis <= ?1
+                     AND account_id = ?1 AND household_id = ?2
+                     AND provider = ?3 AND provider_subject_digest = ?4
+                     AND member_id = ?5 AND device_id = ?6
+                     AND authority_session_id = ?7
+                     AND authority_session_generation = ?8
+                     AND authority_generation = ?9
+                     AND audience = ?10 AND bridge_revoke_epoch = ?11
+                     AND delivery_lease_expires_at_epoch_millis <= ?12
                      AND delivered_at_epoch_millis IS NULL
-                   ORDER BY sequence LIMIT ?2
+                   ORDER BY sequence LIMIT ?13
               )",
-            params![now, MAX_MAINTENANCE_ROWS],
+            params![
+                binding.account_id.to_string(),
+                binding.household_id.to_string(),
+                labels::provider_label(&binding.provider).0,
+                audit::provider_subject_digest(&binding.provider_subject),
+                binding.member_id.as_str(),
+                binding.device_id.as_str(),
+                binding.authority_session_id.as_str(),
+                super::super::codec::to_sql_generation(binding.authority_session_generation)?,
+                super::super::codec::to_sql_generation(binding.authority_generation)?,
+                AccountIdentityParentLocalBridgeAudience::fixed().as_str(),
+                super::super::codec::to_sql_generation(current_epoch)?,
+                now,
+                MAX_MAINTENANCE_ROWS,
+            ],
         )
         .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
     u64::try_from(changed).map_err(|_| SessionLifecycleRepositoryError::Unavailable)
+}
+
+fn reject_noncurrent_undelivered_evidence(
+    transaction: &Transaction<'_>,
+    binding: &SessionAuthorityBinding,
+    current_epoch: u64,
+) -> Result<(), SessionLifecycleRepositoryError> {
+    let count = transaction
+        .query_row(
+            "SELECT count(*)
+               FROM account_identity_parent_local_bridge_audit_outbox
+              WHERE account_id = ?1 AND delivery_state != 'delivered'
+                AND (household_id != ?2 OR provider != ?3
+                  OR provider_subject_digest != ?4 OR member_id != ?5
+                  OR device_id != ?6 OR authority_session_id != ?7
+                  OR authority_session_generation != ?8
+                  OR authority_generation != ?9 OR audience != ?10
+                  OR bridge_revoke_epoch != ?11)",
+            params![
+                binding.account_id.to_string(),
+                binding.household_id.to_string(),
+                labels::provider_label(&binding.provider).0,
+                audit::provider_subject_digest(&binding.provider_subject),
+                binding.member_id.as_str(),
+                binding.device_id.as_str(),
+                binding.authority_session_id.as_str(),
+                super::super::codec::to_sql_generation(binding.authority_session_generation)?,
+                super::super::codec::to_sql_generation(binding.authority_generation)?,
+                AccountIdentityParentLocalBridgeAudience::fixed().as_str(),
+                super::super::codec::to_sql_generation(current_epoch)?,
+            ],
+            |row| row.get::<_, i64>(0),
+        )
+        .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
+    (count == 0)
+        .then_some(())
+        .ok_or(SessionLifecycleRepositoryError::CurrentnessConflict)
 }
 
 fn read_next_pending(
@@ -442,19 +525,22 @@ fn read_next_pending(
     transaction
         .query_row(
             "SELECT event_id, account_id, household_id, member_id, device_id,
-                    authority_session_id, audience, bridge_revoke_epoch, action,
+                    authority_session_id, authority_session_generation,
+                    authority_generation, audience, bridge_revoke_epoch, action,
                     occurred_at_epoch_millis, retain_until_epoch_millis
                FROM account_identity_parent_local_bridge_audit_outbox
               WHERE account_id = ?1 AND household_id = ?2
                 AND provider = ?3 AND provider_subject_digest = ?4
                 AND member_id = ?5 AND device_id = ?6
                 AND authority_session_id = ?7
-                AND audience = ?8 AND bridge_revoke_epoch = ?9
+                AND authority_session_generation = ?8
+                AND authority_generation = ?9
+                AND audience = ?10 AND bridge_revoke_epoch = ?11
                 AND delivery_state = 'pending' AND delivery_attempt_id IS NULL
                 AND delivery_claimed_at_epoch_millis IS NULL
                 AND delivery_lease_expires_at_epoch_millis IS NULL
                 AND delivered_at_epoch_millis IS NULL
-                AND next_delivery_at_epoch_millis <= ?10
+                AND next_delivery_at_epoch_millis <= ?12
               ORDER BY sequence LIMIT 1",
             params![
                 binding.account_id.to_string(),
@@ -464,6 +550,8 @@ fn read_next_pending(
                 binding.member_id.as_str(),
                 binding.device_id.as_str(),
                 binding.authority_session_id.as_str(),
+                super::super::codec::to_sql_generation(binding.authority_session_generation)?,
+                super::super::codec::to_sql_generation(binding.authority_generation)?,
                 AccountIdentityParentLocalBridgeAudience::fixed().as_str(),
                 super::super::codec::to_sql_generation(current_epoch)?,
                 now,
@@ -476,11 +564,13 @@ fn read_next_pending(
                     row.get::<_, String>(3)?,
                     row.get::<_, String>(4)?,
                     row.get::<_, String>(5)?,
-                    row.get::<_, String>(6)?,
+                    row.get::<_, i64>(6)?,
                     row.get::<_, i64>(7)?,
                     row.get::<_, String>(8)?,
                     row.get::<_, i64>(9)?,
-                    row.get::<_, i64>(10)?,
+                    row.get::<_, String>(10)?,
+                    row.get::<_, i64>(11)?,
+                    row.get::<_, i64>(12)?,
                 ))
             },
         )
@@ -497,6 +587,8 @@ type StoredAuditEvent = (
     String,
     String,
     String,
+    i64,
+    i64,
     String,
     i64,
     String,
@@ -512,11 +604,11 @@ fn decode_event(
     let future_ceiling = now
         .checked_add(clock_skew_millis)
         .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)?;
-    if row.9 <= 0
-        || row.9 > future_ceiling
-        || row.10
+    if row.11 <= 0
+        || row.11 > future_ceiling
+        || row.12
             != row
-                .9
+                .11
                 .checked_add(audit::BRIDGE_AUDIT_RETENTION_MILLIS)
                 .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)?
     {
@@ -535,16 +627,22 @@ fn decode_event(
             .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)?,
         authority_session_id: AccountIdentitySessionId::parse(row.5)
             .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)?,
-        audience: (row.6 == AccountIdentityParentLocalBridgeAudience::fixed().as_str())
+        authority_session_generation: decode_generation(row.6)?,
+        authority_generation: decode_generation(row.7)?,
+        audience: (row.8 == AccountIdentityParentLocalBridgeAudience::fixed().as_str())
             .then_some(AccountIdentityParentLocalBridgeAudience::fixed())
             .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)?,
-        bridge_revoke_epoch: u64::try_from(row.7)
-            .ok()
-            .filter(|value| *value > 0)
-            .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)?,
-        action: decode_action(&row.8)?,
-        occurred_at_epoch_millis: row.9,
+        bridge_revoke_epoch: decode_generation(row.9)?,
+        action: decode_action(&row.10)?,
+        occurred_at_epoch_millis: row.11,
     })
+}
+
+fn decode_generation(value: i64) -> Result<u64, SessionLifecycleRepositoryError> {
+    u64::try_from(value)
+        .ok()
+        .filter(|value| *value > 0)
+        .ok_or(SessionLifecycleRepositoryError::InvalidAuditRecord)
 }
 
 fn decode_action(

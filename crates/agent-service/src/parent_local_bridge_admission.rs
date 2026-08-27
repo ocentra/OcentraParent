@@ -15,6 +15,9 @@ use crate::{
     service_runtime::{startup_error_log_fields, StartupErrorReason},
 };
 
+#[path = "parent_local_bridge_admission_startup_recovery.rs"]
+mod startup_recovery;
+
 const ACCOUNT_OWNER_UNAVAILABLE_REASON: &str = "parent-local bridge Account owner unavailable";
 
 #[derive(Clone)]
@@ -76,9 +79,7 @@ impl ParentLocalBridgeAdmission {
         mut account_owner: AccountIdentityAuthorityService,
         current_authority: &VerifiedAccountIdentityAuthority,
     ) -> Result<Self, ParentLocalBridgeAdmissionError> {
-        account_owner
-            .recover_parent_local_bridge_startup(current_authority)
-            .map_err(|_| ParentLocalBridgeAdmissionError::StartupRecoveryRejected)?;
+        startup_recovery::complete(&mut account_owner, current_authority)?;
         Ok(Self {
             account_owner: Arc::new(Mutex::new(account_owner)),
             startup_recovered: true,

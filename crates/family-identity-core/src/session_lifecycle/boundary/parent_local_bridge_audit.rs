@@ -2,10 +2,10 @@
 
 //! Redacted Account-owned bridge audit delivery boundary.
 //!
-//! Delivery values retain the exact Account, household, member, device, and
-//! authority-session binding needed by the owner adapter. Provider subjects,
-//! capability material, connection nonces, and their digests never cross this
-//! boundary.
+//! Delivery values retain the exact Account, household, member, device,
+//! authority-session, session-generation, and authority-generation binding
+//! needed by the owner adapter. Provider subjects, capability material,
+//! connection nonces, and their digests never cross this boundary.
 
 use ocentra_schema::account_identity_authority::{
     AccountIdentityDeviceId, AccountIdentityMemberId, AccountIdentitySessionId,
@@ -31,6 +31,8 @@ pub struct ParentLocalBridgeAuditEvent {
     pub(crate) member_id: AccountIdentityMemberId,
     pub(crate) device_id: AccountIdentityDeviceId,
     pub(crate) authority_session_id: AccountIdentitySessionId,
+    pub(crate) authority_session_generation: u64,
+    pub(crate) authority_generation: u64,
     pub(crate) audience: AccountIdentityParentLocalBridgeAudience,
     pub(crate) bridge_revoke_epoch: u64,
     pub(crate) action: ParentLocalBridgeAuditAction,
@@ -60,6 +62,14 @@ impl ParentLocalBridgeAuditEvent {
 
     pub fn authority_session_id(&self) -> &AccountIdentitySessionId {
         &self.authority_session_id
+    }
+
+    pub fn authority_session_generation(&self) -> u64 {
+        self.authority_session_generation
+    }
+
+    pub fn authority_generation(&self) -> u64 {
+        self.authority_generation
     }
 
     pub fn bridge_revoke_epoch(&self) -> u64 {
@@ -111,22 +121,4 @@ pub struct ParentLocalBridgeStartupRecovery {
     pub(crate) terminal_sessions_removed: u64,
     pub(crate) delivered_audits_removed: u64,
     pub(crate) more_recovery_work: bool,
-}
-
-impl ParentLocalBridgeStartupRecovery {
-    pub fn expired_claims_requeued(&self) -> u64 {
-        self.expired_claims_requeued
-    }
-
-    pub fn terminal_sessions_removed(&self) -> u64 {
-        self.terminal_sessions_removed
-    }
-
-    pub fn delivered_audits_removed(&self) -> u64 {
-        self.delivered_audits_removed
-    }
-
-    pub fn more_recovery_work(&self) -> bool {
-        self.more_recovery_work
-    }
 }

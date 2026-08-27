@@ -3,10 +3,9 @@ use axum::{
     http::{header::ORIGIN, HeaderMap, StatusCode},
     response::IntoResponse,
     routing::get,
-    Json, Router,
+    Router,
 };
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{AgentLogSnapshot, LogFields};
 use std::{net::SocketAddr, sync::Arc};
 
 use crate::{
@@ -15,7 +14,6 @@ use crate::{
     browser_intervention_page::serve_browser_intervention_page,
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::BrowserManagedRuntime,
-    dev_log::write_agent_info,
     lan_pairing::LanPairingRuntime,
     lan_pairing_runtime_state::{
         mdns_advertisement::spawn_lan_mdns_advertisement_runtime,
@@ -26,7 +24,6 @@ use crate::{
     network::NetworkPolicy,
     parent_local_bridge_admission::ParentLocalBridgeAdmission,
     screen_settings_runtime::ScreenSettingsRuntime,
-    snapshot::build_dev_log_snapshot,
     websocket::{
         handle_socket, WebsocketCommandOrigin, WebsocketPeerProvenance,
         WebsocketPlatformProbeDispatcher,
@@ -76,7 +73,6 @@ pub(crate) fn router(
             constants::endpoint::BROWSER_INTERVENTION_PAGE,
             get(serve_browser_intervention_page),
         )
-        .route(constants::endpoint::DEV_LOG_SNAPSHOT, get(log_snapshot))
         .route(constants::endpoint::DEV_WS, get(websocket))
         .with_state(state)
         .layer(cors_layer)
@@ -86,22 +82,7 @@ async fn health(State(state): State<AppState>) -> impl IntoResponse {
     if !state.parent_local_bridge_admission.is_ready() {
         return StatusCode::SERVICE_UNAVAILABLE.into_response();
     }
-    let _ = tokio::task::spawn_blocking(|| {
-        write_agent_info(
-            constants::dev_log_message::AGENT_HEALTH_REQUESTED,
-            LogFields::new(),
-        )
-    })
-    .await;
-    Json(build_dev_log_snapshot()).into_response()
-}
-
-// Compatibility snapshot endpoint only: this is status/read-model output, not the primary local dev log store.
-async fn log_snapshot(State(state): State<AppState>) -> impl IntoResponse {
-    if !state.parent_local_bridge_admission.is_ready() {
-        return StatusCode::SERVICE_UNAVAILABLE.into_response();
-    }
-    Json(build_dev_log_snapshot()).into_response()
+    StatusCode::NO_CONTENT.into_response()
 }
 
 async fn websocket(

@@ -65,7 +65,7 @@ impl super::super::SqliteAccountIdentityAuthorityRepository {
         };
         insert_record(&transaction, &record)?;
         audit::insert_session_event(&transaction, &record, "issued", now_epoch_millis)?;
-        audit::cleanup(&transaction, now_epoch_millis)?;
+        audit::cleanup(&transaction, &record.binding.account_id, now_epoch_millis)?;
         transaction
             .commit()
             .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;

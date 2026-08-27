@@ -4,6 +4,7 @@
 
 use ocentra_schema::account_identity_authority::AccountIdentityProviderSubject;
 use ocentra_schema::account_identity_parent_local_bridge::AccountIdentityParentLocalBridgeAudience;
+use ocentra_schema::report_query_custody::ParentAccountId;
 use rusqlite::{params, ErrorCode, Transaction};
 use sha2::{Digest, Sha256};
 
@@ -79,6 +80,7 @@ fn insert_binding_event(
             "INSERT INTO account_identity_parent_local_bridge_audit_outbox (
                  event_id, account_id, provider, provider_subject_digest,
                  household_id, member_id, device_id, authority_session_id,
+                 authority_session_generation, authority_generation,
                  audience, bridge_revoke_epoch, action,
                  occurred_at_epoch_millis, retain_until_epoch_millis,
                  delivery_state, delivery_attempt_id, delivery_attempt_count,
@@ -87,7 +89,7 @@ fn insert_binding_event(
                  next_delivery_at_epoch_millis, delivered_at_epoch_millis
              ) VALUES (
                  ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12,
-                 ?13, 'pending', NULL, 0, NULL, NULL, ?12, NULL
+                 ?13, ?14, ?15, 'pending', NULL, 0, NULL, NULL, ?14, NULL
              )",
             params![
                 event_id.as_str(),
@@ -98,6 +100,8 @@ fn insert_binding_event(
                 binding.member_id.as_str(),
                 binding.device_id.as_str(),
                 binding.authority_session_id.as_str(),
+                crate::account_identity_authority_repository::session_lifecycle_repository::codec::to_sql_generation(binding.authority_session_generation)?,
+                crate::account_identity_authority_repository::session_lifecycle_repository::codec::to_sql_generation(binding.authority_generation)?,
                 audience.as_str(),
                 crate::account_identity_authority_repository::session_lifecycle_repository::codec::to_sql_generation(bridge_revoke_epoch)?,
                 action,
@@ -125,6 +129,7 @@ pub(in crate::account_identity_authority_repository::session_lifecycle_repositor
 /// batches. Pending and in-flight evidence is not eligible for deletion.
 pub(super) fn cleanup(
     transaction: &Transaction<'_>,
+    account_id: &ParentAccountId,
     now_epoch_millis: i64,
 ) -> Result<CleanupProgress, SessionLifecycleRepositoryError> {
     let terminal_cutoff = now_epoch_millis
@@ -136,13 +141,19 @@ pub(super) fn cleanup(
              WHERE capability_digest IN (
                  SELECT capability_digest
                    FROM account_identity_parent_local_bridge_session
-                  WHERE expires_at_epoch_millis <= ?1
-                     OR (state IN ('consumed','revoked')
-                         AND last_transition_at_epoch_millis <= ?2)
+                  WHERE account_id = ?1
+                    AND (expires_at_epoch_millis <= ?2
+                      OR (state IN ('consumed','revoked')
+                          AND last_transition_at_epoch_millis <= ?3))
                   ORDER BY last_transition_at_epoch_millis, capability_digest
-                  LIMIT ?3
+                  LIMIT ?4
              )",
-            params![now_epoch_millis, terminal_cutoff, MAX_MAINTENANCE_ROWS],
+            params![
+                account_id.to_string(),
+                now_epoch_millis,
+                terminal_cutoff,
+                MAX_MAINTENANCE_ROWS
+            ],
         )
         .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
     let delivered_audits_removed = transaction
@@ -151,12 +162,16 @@ pub(super) fn cleanup(
              WHERE sequence IN (
                  SELECT sequence
                    FROM account_identity_parent_local_bridge_audit_outbox
-                  WHERE delivery_state = 'delivered'
-                    AND retain_until_epoch_millis <= ?1
+                  WHERE account_id = ?1 AND delivery_state = 'delivered'
+                    AND retain_until_epoch_millis <= ?2
                   ORDER BY sequence
-                  LIMIT ?2
+                  LIMIT ?3
              )",
-            params![now_epoch_millis, MAX_MAINTENANCE_ROWS],
+            params![
+                account_id.to_string(),
+                now_epoch_millis,
+                MAX_MAINTENANCE_ROWS
+            ],
         )
         .map_err(|_| SessionLifecycleRepositoryError::Unavailable)?;
     Ok(CleanupProgress {

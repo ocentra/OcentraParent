@@ -2,15 +2,15 @@
 
 use rusqlite::Connection;
 
-use super::{BRIDGE_SCHEMA_SQL, BRIDGE_SCHEMA_VERSION};
+use super::BRIDGE_SCHEMA_VERSION;
 
-const TABLES: &[&str] = &[
+pub(super) const TABLES: &[&str] = &[
     "account_identity_parent_local_bridge_schema",
     "account_identity_parent_local_bridge_revoke_epoch",
     "account_identity_parent_local_bridge_session",
     "account_identity_parent_local_bridge_audit_outbox",
 ];
-const INDEXES: &[&str] = &[
+pub(super) const INDEXES: &[&str] = &[
     "account_identity_parent_local_bridge_account",
     "account_identity_parent_local_bridge_audit_delivery",
     "account_identity_parent_local_bridge_audit_retention",
@@ -19,19 +19,21 @@ const INDEXES: &[&str] = &[
 pub(super) fn validate(connection: &Connection) -> Result<(), ()> {
     require_pragma_ok(connection, "PRAGMA integrity_check")?;
     require_no_foreign_key_violations(connection)?;
-    validate_objects(connection)?;
-    validate_v2_columns(connection)?;
+    super::validation_objects::validate(connection, false)?;
+    validate_v3_columns(connection)?;
     validate_indexes(connection)?;
     validate_foreign_keys(connection)?;
-    validate_rows(connection, true)
+    validate_rows(connection, Some(BRIDGE_SCHEMA_VERSION), true)
 }
 
-pub(super) fn v2_shape_without_version(connection: &Connection) -> Result<(), ()> {
-    validate_objects(connection)?;
-    validate_v2_columns(connection)?;
+pub(super) fn validate_v2(connection: &Connection, require_version: bool) -> Result<(), ()> {
+    require_pragma_ok(connection, "PRAGMA integrity_check")?;
+    require_no_foreign_key_violations(connection)?;
+    super::validation_objects::validate(connection, true)?;
+    validate_legacy_v2_columns(connection)?;
     validate_indexes(connection)?;
     validate_foreign_keys(connection)?;
-    validate_rows(connection, false)
+    validate_rows(connection, require_version.then_some(2), false)
 }
 
 fn require_pragma_ok(connection: &Connection, sql: &str) -> Result<(), ()> {
@@ -53,69 +55,7 @@ fn require_no_foreign_key_violations(connection: &Connection) -> Result<(), ()> 
         .ok_or(())
 }
 
-fn validate_objects(connection: &Connection) -> Result<(), ()> {
-    for (kind, names) in [("table", TABLES), ("index", INDEXES)] {
-        for name in names {
-            let actual = connection
-                .query_row(
-                    "SELECT sql FROM sqlite_master WHERE type = ?1 AND name = ?2 LIMIT 1",
-                    [kind, name],
-                    |row| row.get::<_, String>(0),
-                )
-                .map_err(|_| ())?;
-            let expected = canonical_statement(kind, name).ok_or(())?;
-            if normalize_sql(&actual) != normalize_sql(&expected) {
-                return Err(());
-            }
-        }
-    }
-    let unknown = connection
-        .query_row(
-            "SELECT count(*) FROM sqlite_master
-              WHERE type IN ('table','index','trigger','view')
-                AND name LIKE 'account_identity_parent_local_bridge_%'
-                AND name NOT IN (
-                    'account_identity_parent_local_bridge_schema',
-                    'account_identity_parent_local_bridge_revoke_epoch',
-                    'account_identity_parent_local_bridge_session',
-                    'account_identity_parent_local_bridge_audit_outbox',
-                    'account_identity_parent_local_bridge_account',
-                    'account_identity_parent_local_bridge_audit_delivery',
-                    'account_identity_parent_local_bridge_audit_retention'
-                )",
-            [],
-            |row| row.get::<_, i64>(0),
-        )
-        .map_err(|_| ())?;
-    (unknown == 0).then_some(()).ok_or(())
-}
-
-fn canonical_statement(kind: &str, name: &str) -> Option<String> {
-    let marker = match kind {
-        // SQLite omits `IF NOT EXISTS` when it stores the canonical SQL in
-        // sqlite_master. Build the marker in the same normalized form so a
-        // freshly-created v2 database is validated against the actual DDL,
-        // rather than failing to find its own schema statements.
-        "table" => format!("CREATETABLE{}", normalize_sql(name)),
-        "index" => format!("CREATEINDEX{}", normalize_sql(name)),
-        _ => return None,
-    };
-    BRIDGE_SCHEMA_SQL
-        .split(';')
-        .map(str::trim)
-        .find(|statement| normalize_sql(statement).starts_with(&marker))
-        .map(ToOwned::to_owned)
-}
-
-fn normalize_sql(sql: &str) -> String {
-    sql.chars()
-        .filter(|character| !character.is_ascii_whitespace())
-        .flat_map(char::to_uppercase)
-        .collect::<String>()
-        .replace("IFNOTEXISTS", "")
-}
-
-fn validate_v2_columns(connection: &Connection) -> Result<(), ()> {
+fn validate_v3_columns(connection: &Connection) -> Result<(), ()> {
     validate_columns(
         connection,
         TABLES[0],
@@ -168,6 +108,8 @@ fn validate_v2_columns(connection: &Connection) -> Result<(), ()> {
             ("member_id", "TEXT", 1, 0),
             ("device_id", "TEXT", 1, 0),
             ("authority_session_id", "TEXT", 1, 0),
+            ("authority_session_generation", "INTEGER", 1, 0),
+            ("authority_generation", "INTEGER", 1, 0),
             ("audience", "TEXT", 1, 0),
             ("bridge_revoke_epoch", "INTEGER", 1, 0),
             ("action", "TEXT", 1, 0),
@@ -180,6 +122,64 @@ fn validate_v2_columns(connection: &Connection) -> Result<(), ()> {
             ("delivery_lease_expires_at_epoch_millis", "INTEGER", 0, 0),
             ("next_delivery_at_epoch_millis", "INTEGER", 1, 0),
             ("delivered_at_epoch_millis", "INTEGER", 0, 0),
+        ],
+    )
+}
+
+fn validate_legacy_v2_columns(connection: &Connection) -> Result<(), ()> {
+    validate_exact_columns(connection, TABLES[0], &["schema_id", "schema_version"])?;
+    validate_exact_columns(connection, TABLES[1], &["account_id", "epoch"])?;
+    validate_exact_columns(
+        connection,
+        TABLES[2],
+        &[
+            "capability_digest",
+            "digest_algorithm",
+            "capability_digest_domain",
+            "audience",
+            "connection_nonce_digest",
+            "account_id",
+            "provider",
+            "provider_subject",
+            "household_id",
+            "member_id",
+            "device_id",
+            "authority_session_id",
+            "authority_session_generation",
+            "authority_generation",
+            "authority_expires_at_epoch_millis",
+            "issued_at_epoch_millis",
+            "expires_at_epoch_millis",
+            "bridge_revoke_epoch",
+            "state",
+            "last_transition_at_epoch_millis",
+        ],
+    )?;
+    validate_exact_columns(
+        connection,
+        TABLES[3],
+        &[
+            "sequence",
+            "event_id",
+            "account_id",
+            "provider",
+            "provider_subject_digest",
+            "household_id",
+            "member_id",
+            "device_id",
+            "authority_session_id",
+            "audience",
+            "bridge_revoke_epoch",
+            "action",
+            "occurred_at_epoch_millis",
+            "retain_until_epoch_millis",
+            "delivery_state",
+            "delivery_attempt_id",
+            "delivery_attempt_count",
+            "delivery_claimed_at_epoch_millis",
+            "delivery_lease_expires_at_epoch_millis",
+            "next_delivery_at_epoch_millis",
+            "delivered_at_epoch_millis",
         ],
     )
 }
@@ -334,17 +334,25 @@ fn validate_fk(connection: &Connection, table: &str) -> Result<(), ()> {
         .ok_or(())
 }
 
-fn validate_rows(connection: &Connection, require_version: bool) -> Result<(), ()> {
-    let version_rows = connection
+fn validate_rows(
+    connection: &Connection,
+    expected_version: Option<i64>,
+    require_generations: bool,
+) -> Result<(), ()> {
+    let (version_rows, matching_version_rows) = connection
         .query_row(
-            "SELECT count(*) FROM account_identity_parent_local_bridge_schema
-              WHERE schema_id = 1 AND schema_version = ?1",
-            [BRIDGE_SCHEMA_VERSION],
-            |row| row.get::<_, i64>(0),
+            "SELECT count(*),
+                    coalesce(sum(CASE WHEN schema_id = 1 AND schema_version = ?1
+                                      THEN 1 ELSE 0 END), 0)
+               FROM account_identity_parent_local_bridge_schema",
+            [expected_version.unwrap_or(BRIDGE_SCHEMA_VERSION)],
+            |row| Ok((row.get::<_, i64>(0)?, row.get::<_, i64>(1)?)),
         )
         .map_err(|_| ())?;
-    if (require_version && version_rows != 1) || (!require_version && version_rows > 1) {
-        return Err(());
+    match expected_version {
+        Some(_) if version_rows == 1 && matching_version_rows == 1 => {}
+        None if version_rows == 0 => {}
+        _ => return Err(()),
     }
     require_zero(
         connection,
@@ -371,7 +379,15 @@ fn validate_rows(connection: &Connection, require_version: bool) -> Result<(), (
             OR a.delivery_attempt_count < 0
             OR length(a.provider_subject_digest) != 64
             OR a.provider_subject_digest GLOB '*[^0-9a-f]*'",
-    )
+    )?;
+    if require_generations {
+        require_zero(
+            connection,
+            "SELECT count(*) FROM account_identity_parent_local_bridge_audit_outbox
+              WHERE authority_session_generation <= 0 OR authority_generation <= 0",
+        )?;
+    }
+    Ok(())
 }
 
 fn require_zero(connection: &Connection, sql: &str) -> Result<(), ()> {

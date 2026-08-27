@@ -5,7 +5,6 @@ use ocentra_parent_agent_protocol::{
     logging::{LogFieldValue, LogLevel},
     transport::{AgentEventEnvelope, AgentEventName},
 };
-use ocentra_schema::account_identity_parent_local_bridge::AccountIdentityParentLocalBridgeHandshake;
 use std::{future::Future, pin::Pin, sync::Arc};
 
 use crate::{
@@ -20,8 +19,9 @@ use crate::{
 };
 
 use super::{
-    command_entry::handle_command_text, WebsocketCommandOrigin, WebsocketCommandText,
-    WebsocketPeerProvenance, WebsocketPlatformProbeDispatcher,
+    command_entry::handle_command_text, socket_handshake::authenticate_connection,
+    WebsocketCommandOrigin, WebsocketCommandText, WebsocketPeerProvenance,
+    WebsocketPlatformProbeDispatcher,
 };
 
 enum SocketLoopControl {
@@ -74,20 +74,6 @@ pub(super) fn handle_socket(
             }
         }
     })
-}
-
-async fn authenticate_connection(
-    socket: &mut WebSocket,
-    admission: &ParentLocalBridgeAdmission,
-) -> Option<ocentra_family_identity_core::session_lifecycle_custody::authenticated_parent_local_bridge::AuthenticatedParentLocalBridgeSession>
-{
-    let message = receive_message(socket).await?;
-    let Message::Text(text) = message else {
-        return None;
-    };
-    let handshake =
-        serde_json::from_str::<AccountIdentityParentLocalBridgeHandshake>(&text).ok()?;
-    admission.authenticate(&handshake).ok()
 }
 
 async fn receive_message(socket: &mut WebSocket) -> Option<Message> {
