@@ -11,10 +11,7 @@ describe('portal live activity network flow', () => {
       networkEvidenceDrawerSummary(
         networkFlowReadModel(),
         networkEvidenceDrawerSummaryContext({
-          analyzerAlertRef: 'event.network.analyzer.alert.1',
-          detectionResultRef: 'event.network.detection.result.1',
           aiAuditRef: 'event.ai.analysis.completed.1',
-          riskBudgetRef: 'event.network.risk-budget.1',
           policyDecisionRef: 'event.policy.decision.completed.1',
           interventionResultRef: 'event.enforcement.result.observed.1',
           networkEvidenceGrade: 'A',
@@ -87,12 +84,9 @@ function expectPopulatedNetworkEvidenceDrawerSummary(summary: ReturnType<typeof 
     `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`
   );
   expect(summary.exactUrlClaim).toBe('Not reported');
-  expect(summary.analyzerAlertRef).toBe('event.network.analyzer.alert.1');
-  expect(summary.detectionResultRef).toBe('event.network.detection.result.1');
   expect(summary.aiAuditRef).toBe('event.ai.analysis.completed.1');
   expect(summary.policyDecisionRef).toBe('event.policy.decision.completed.1');
   expect(summary.interventionResultRef).toBe('event.enforcement.result.observed.1');
-  expect(summary.riskBudgetRef).toBe('event.network.risk-budget.1');
   expect(summary.evidenceGrade).toBe('A');
   expect(summary.retentionState).toBe('0 | 1');
   expect(summary.deletedEvidenceReferences).toBe('Not reported');
@@ -119,21 +113,15 @@ function expectDeletedNetworkEvidenceDrawerSummary(summary: ReturnType<typeof ne
 }
 
 function expectSuppliedReferenceNetworkEvidenceDrawerSummary(summary: ReturnType<typeof networkEvidenceDrawerSummary>) {
-  expect(summary.analyzerAlertRef).toBe('Not reported');
-  expect(summary.detectionResultRef).toBe('Not reported');
   expect(summary.aiAuditRef).toBe('local-ai-result.network.preview.1');
   expect(summary.policyDecisionRef).toBe('policy-decision.network.preview.1');
   expect(summary.interventionResultRef).toBe('Not reported');
   expect(summary.evidenceGrade).toBe('A');
-  expect(summary.riskBudgetRef).toBe('Not reported');
 }
 
 function networkEvidenceDrawerSummaryContext(
   networkEvidenceSummary: {
-    readonly analyzerAlertRef?: string;
-    readonly detectionResultRef?: string;
     readonly aiAuditRef?: string;
-    readonly riskBudgetRef?: string;
     readonly policyDecisionRef?: string;
     readonly networkEvidenceGrade?: string;
     readonly interventionResultRef?: string;

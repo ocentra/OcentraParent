@@ -6,6 +6,7 @@ import {
   type ParentRouteSnapshot,
   type ParentSubscriptionEvent,
 } from '../../generated/parent-ui-bridge';
+import { PORTAL_HOST_BRIDGE_RUNTIME } from '@ocentra-parent/portal-domain/parent-portal-service-state';
 import { createUnavailableDevWebRouteSnapshot } from './dev-web-unavailable-snapshot';
 
 type LoadRouteSnapshot = (
@@ -74,11 +75,13 @@ function createDevWebEmitNextSnapshot(
       if (!subscriptionState.active) {
         return;
       }
+      const previousSnapshot = subscriptionState.lastSnapshot;
       if (
-        snapshot.serviceHealth?.state === 'unavailable' &&
-        subscriptionState.lastSnapshot?.serviceHealth?.state === 'unavailable'
+        snapshot.serviceHealth?.state === PORTAL_HOST_BRIDGE_RUNTIME.UnavailableState &&
+        previousSnapshot !== null &&
+        previousSnapshot.serviceHealth?.state === PORTAL_HOST_BRIDGE_RUNTIME.UnavailableState
       ) {
-        snapshot = subscriptionState.lastSnapshot;
+        snapshot = previousSnapshot;
       }
       const snapshotJson = JSON.stringify(snapshot);
       if (snapshotJson === subscriptionState.lastSnapshotJson) {
