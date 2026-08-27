@@ -20,6 +20,7 @@ import {
   presentationOnlyDevWebHostBridgeMessage,
 } from '../generated/parent-ui-bridge';
 import type { ParentRouteId, ParentUnknownRecord } from '../generated/parent-ui-bridge';
+import { PORTAL_HOST_BRIDGE_RUNTIME } from '@ocentra-parent/portal-domain/parent-portal-service-state';
 import { DirectEnforcementCommandBoundaryErrorText, isDirectEnforcementCommand } from './transport';
 import { createDevWebRouteSubscription } from './host-bridge/dev-web-subscription';
 import { createUnavailableDevWebRouteSnapshot } from './host-bridge/dev-web-unavailable-snapshot';
@@ -111,7 +112,10 @@ async function invokeParentDevBridgeCommandOrThrow<TResult>(
   try {
     return await invokeParentDevBridgeCommand<TResult>(parentDevBridgeUrl, route, payload);
   } catch (error) {
-    if (error instanceof TypeError || (error instanceof Error && error.name === 'AbortError')) {
+    if (
+      error instanceof TypeError ||
+      (error instanceof Error && error.name === PORTAL_HOST_BRIDGE_RUNTIME.AbortErrorName)
+    ) {
       throw new Error(parentDevBridgeDispatchUnavailableMessage(parentDevBridgeUrl));
     }
     if (error instanceof Error) {

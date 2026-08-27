@@ -1,4 +1,5 @@
 import { ParentAgentCommand, type ParentAgentCommandName } from '../generated/parent-ui-bridge';
+import { PORTAL_HOST_BRIDGE_RUNTIME } from '@ocentra-parent/portal-domain/parent-portal-service-state';
 
 const DirectEnforcementCommands = [
   ParentAgentCommand.EnforcementExecute,
@@ -8,8 +9,8 @@ const DirectEnforcementCommands = [
 ] as const satisfies readonly ParentAgentCommandName[];
 
 export const DirectEnforcementCommandBoundaryErrorText =
-  'Portal cannot dispatch enforcement mutation commands directly; use the enforcement authority boundary.';
+  PORTAL_HOST_BRIDGE_RUNTIME.DirectEnforcementCommandBoundaryErrorText;
 
-export function isDirectEnforcementCommand(command: string | null | undefined): command is ParentAgentCommandName {
+export function isDirectEnforcementCommand(command: unknown): command is ParentAgentCommandName {
   return DirectEnforcementCommands.some((candidate) => candidate === command);
 }

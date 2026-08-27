@@ -7,6 +7,7 @@ import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/logging
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { createBridgeServer } from '@ocentra-parent/logging-domain/transport/bridgeServer';
 import { getProofTrace, getProofTraceGaps } from '../../../../scripts/dev/lib/log-query-service.mjs';
+import { localArtifactDirectoryDurability } from '../../../../packages/logging-domain/src/local-artifact-path';
 import { resolvePortalProofTraceConfig, sendPortalProofTraceLog } from '../../src/dev-logger';
 
 const LOG_ROOT_ENV = 'OCENTRA_PARENT_LOG_DIR';
@@ -59,7 +60,11 @@ describe('portal proof trace logging', () => {
   });
 
   portalProofTraceConfigTests();
-  portalProofTraceLoggingTests(servers, tempDirs);
+  if (localArtifactDirectoryDurability() === 'mutation-unsupported') {
+    portalProofTraceCapabilityTests();
+  } else {
+    portalProofTraceLoggingTests(servers, tempDirs);
+  }
 });
 
 function portalProofTraceConfigTests(): void {
@@ -87,6 +92,12 @@ function portalProofTraceLoggingTests(servers: Array<ReturnType<typeof createBri
     await emitPortalProofTraceSequence(endpoint, proofId);
     await expectPortalProofTraceRows(proofId);
     await expectPortalProofTraceGapResults(proofId);
+  });
+}
+
+function portalProofTraceCapabilityTests(): void {
+  it('reports unavailable local artifact mutation instead of fabricating proof rows', () => {
+    expect(localArtifactDirectoryDurability()).toBe('mutation-unsupported');
   });
 }
 

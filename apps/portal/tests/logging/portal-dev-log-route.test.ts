@@ -7,7 +7,6 @@ import {
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { resolvePortalDevLogBridgeUrl, sendPortalDevLog } from '../../src/dev-logger';
 import {
-  assertBridgeCompatiblePortalRows,
   closeServers,
   createBridgeWriteServer,
   createFallbackWriteServer,
@@ -31,19 +30,20 @@ describe('portal dev log routing', () => {
     ).toBe('http://127.0.0.1:4999');
   });
 
-  it('sendPortalDevLog: writes bridge-compatible portal rows through the configured local bridge', async () => {
+  it('sendPortalDevLog: fails closed when the configured bridge has no durable browser queue', async () => {
     const bridge = createBridgeWriteServer();
     servers.push(bridge.server);
     await listenOnLoopback(bridge.server);
     const sent = await sendPortalDevLog(
       DevLogMessage.PortalStarted,
       { agentWebSocketUrl: 'ws://127.0.0.1:4477/api/dev/ws' },
-      `http://127.0.0.1:${(bridge.server.address() as { port: number }).port}`
+      `http://127.0.0.1:${(bridge.server.address() as { port: number }).port}`,
+      {}
     );
 
-    expect(sent).toBe(true);
-    expect(bridge.healthChecks()).toBe(1);
-    assertBridgeCompatiblePortalRows(JSON.parse(bridge.readBody()));
+    expect(sent).toBe(false);
+    expect(bridge.healthChecks()).toBe(0);
+    expect(bridge.readBody()).toBe('');
   });
 
   it('sendPortalDevLog: falls back to the same-origin compatibility endpoint when the bridge is unavailable', async () => {
@@ -66,7 +66,7 @@ describe('portal dev log routing', () => {
       schemaVersion: 1,
       source: 'portal',
       message: 'Portal dev runtime started.',
-      fields: { agentWebSocketUrl: 'ws://127.0.0.1:4477/api/dev/ws' },
+      fields: { agentWebSocketUrl: '[REDACTED]' },
     });
   });
 

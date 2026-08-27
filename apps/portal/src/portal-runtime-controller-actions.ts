@@ -85,15 +85,11 @@ function createDispatchActionWithPayload(
   return createDispatchAction(action, deps, dispatchHostAction, payload);
 }
 
-export function createPortalRuntimeActions(
+function createPortalRuntimeRequestActions(
   deps: PortalRuntimeActionDeps,
   dispatchHostAction: (action: ParentUiAction) => Promise<ParentUiActionResult | null>
-): PortalRenderActions {
+) {
   return {
-    reconnect: createReconnectAction(deps, dispatchHostAction),
-    selectCommandResult: createSelectCommandResultAction(deps),
-    sendCommand: createSendCommandAction(deps, dispatchHostAction),
-    refreshRouteSnapshot: createRefreshRouteSnapshotAction(deps, dispatchHostAction),
     requestLanPairingBrowserDiscoveryScan: () =>
       createDispatchActionWithPayload(
         ParentUiActionKind.LanPairingBrowserDiscoveryScanRequested,
@@ -166,5 +162,18 @@ export function createPortalRuntimeActions(
         dispatchHostAction,
         payload
       ),
+  };
+}
+
+export function createPortalRuntimeActions(
+  deps: PortalRuntimeActionDeps,
+  dispatchHostAction: (action: ParentUiAction) => Promise<ParentUiActionResult | null>
+): PortalRenderActions {
+  return {
+    reconnect: createReconnectAction(deps, dispatchHostAction),
+    selectCommandResult: createSelectCommandResultAction(deps),
+    sendCommand: createSendCommandAction(deps, dispatchHostAction),
+    refreshRouteSnapshot: createRefreshRouteSnapshotAction(deps, dispatchHostAction),
+    ...createPortalRuntimeRequestActions(deps, dispatchHostAction),
   };
 }
