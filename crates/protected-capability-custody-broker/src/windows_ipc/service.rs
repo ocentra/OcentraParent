@@ -62,9 +62,13 @@ fn run_registered(
     // Do not report Running or publish a pipe endpoint while the required
     // process/token admission adapter is unavailable. A transport listener
     // with a fail-closed peer path would still misrepresent service health.
-    custody.peer_admission_available()?;
+    revalidate_service_currentness(&custody)?;
     let sddl = custody.broker_pipe_sddl()?;
     let listener = create_listener(&sddl)?;
+    // Listener creation is a lifecycle boundary. Recheck the retained
+    // enrollment/SCM/process observations and attested platform epochs before
+    // publishing Running so creation cannot race owner-controlled drift.
+    revalidate_service_currentness(&custody)?;
     set_status(
         status_handle,
         ServiceState::Running,
@@ -101,15 +105,34 @@ fn serve_until_stopped(
     custody: &BrokerCustodyService,
 ) -> Result<(), BrokerError> {
     while !stopping.load(Ordering::Acquire) {
-        let Some(mut stream) = super::service_accept::accept_until(listener, stopping)? else {
+        // accept_until is bounded by the protocol accept deadline. Revalidating
+        // on both sides means an idle listener cannot advertise Running
+        // indefinitely after enrollment, SCM, process, or provider drift.
+        revalidate_service_currentness(custody)?;
+        let accepted = super::service_accept::accept_until(listener, stopping)?;
+        if stopping.load(Ordering::Acquire) {
+            break;
+        }
+        revalidate_service_currentness(custody)?;
+        let Some(mut stream) = accepted else {
             continue;
         };
         stream.set_nonblocking(true).map_err(map_transport_error)?;
         let deadline = super::service_accept::connection_deadline()?;
         // A malformed or abandoned peer is isolated to this connection. The
-        // SCM service remains available for later authenticated clients.
-        let _ = super::peer::serve(&mut stream, deadline, custody);
+        // SCM service remains available for later authenticated clients. A
+        // separate owner-controlled lifecycle recheck decides whether Running
+        // is still legal, so an Account/request error cannot become a remote
+        // service-stop primitive.
+        let _peer_result = super::peer::serve(&mut stream, deadline, custody);
+        revalidate_service_currentness(custody)?;
     }
+    Ok(())
+}
+
+fn revalidate_service_currentness(custody: &BrokerCustodyService) -> Result<(), BrokerError> {
+    custody.peer_admission_available()?;
+    custody.platform_session_state()?;
     Ok(())
 }
 

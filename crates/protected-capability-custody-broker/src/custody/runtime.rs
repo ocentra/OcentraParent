@@ -3,32 +3,32 @@ use ocentra_protected_capability_custody_core::broker_admission::{
 };
 use ocentra_protected_capability_custody_protocol::response::ResponseStatus;
 
+use crate::BrokerError;
+
 #[cfg(windows)]
 pub(super) mod admission;
 
 pub(super) enum RuntimeState {
-    Ready {
-        runtime: Box<BrokerCustodyRuntime>,
-        platform: BrokerPlatformSessionState,
-    },
+    Ready { runtime: Box<BrokerCustodyRuntime> },
     FailClosed(ResponseStatus),
 }
 
 impl RuntimeState {
     pub(super) fn open() -> Self {
         match open_runtime() {
-            Ok((runtime, platform)) => Self::Ready {
+            Ok(runtime) => Self::Ready {
                 runtime: Box::new(runtime),
-                platform,
             },
             Err(status) => Self::FailClosed(status),
         }
     }
 
-    pub(super) fn platform_session_state(&self) -> Option<BrokerPlatformSessionState> {
+    pub(super) fn platform_session_state(&self) -> Result<BrokerPlatformSessionState, BrokerError> {
         match self {
-            Self::Ready { platform, .. } => Some(*platform),
-            Self::FailClosed(_) => None,
+            Self::Ready { runtime } => runtime
+                .platform_session_state()
+                .map_err(map_currentness_error),
+            Self::FailClosed(_) => Err(BrokerError::DeploymentRequired),
         }
     }
 }
@@ -48,11 +48,15 @@ pub(super) fn runtime_error_status(error: &BrokerRuntimeError) -> ResponseStatus
     }
 }
 
-fn open_runtime() -> Result<(BrokerCustodyRuntime, BrokerPlatformSessionState), ResponseStatus> {
+fn open_runtime() -> Result<BrokerCustodyRuntime, ResponseStatus> {
     let runtime =
         BrokerCustodyRuntime::start_broker_owned().map_err(|error| runtime_error_status(&error))?;
-    let platform = runtime
+    runtime
         .platform_session_state()
         .map_err(|error| runtime_error_status(&error))?;
-    Ok((runtime, platform))
+    Ok(runtime)
+}
+
+fn map_currentness_error(_error: BrokerRuntimeError) -> BrokerError {
+    BrokerError::DeploymentRequired
 }
