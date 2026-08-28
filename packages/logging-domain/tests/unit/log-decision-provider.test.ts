@@ -67,4 +67,31 @@ describe('log decision provider', () => {
     expect(tunnelConfig.bridgeUrl).toBe('https://bridge.example.test');
     expect(tunnelConfig.skipBridgeHealth).toBe(true);
   });
+
+  it('fails closed for invalid sink, level, bridge mode, and bridge URL configuration', () => {
+    const config = createParentLogConfig({
+      NODE_ENV: 'development',
+      OCENTRA_PARENT_LOG_ENABLED: 'maybe',
+      OCENTRA_PARENT_LOG_CONSOLE: 'maybe',
+      OCENTRA_PARENT_LOG_STORE: 'maybe',
+      OCENTRA_PARENT_LOG_LEVEL: 'verbose',
+      OCENTRA_PARENT_LOG_BRIDGE_MODE: 'remote',
+      OCENTRA_PARENT_LOG_BRIDGE_URL: 'https://bridge.example.test/path',
+    });
+
+    expect(config.enabled).toBe(false);
+    expect(config.consoleEnabled).toBe(false);
+    expect(config.storeEnabled).toBe(false);
+    expect(config.minLevel).toBe('error');
+    expect(config.bridgeMode).toBe('disabled');
+    expect(config.bridgeUrl).toBeNull();
+
+    const invalidTunnel = createParentLogConfig({
+      NODE_ENV: 'development',
+      OCENTRA_PARENT_LOG_BRIDGE_MODE: 'tunnel',
+      OCENTRA_PARENT_LOG_BRIDGE_URL: 'https://bridge.example.test/path',
+    });
+    expect(invalidTunnel.bridgeMode).toBe('tunnel');
+    expect(invalidTunnel.bridgeUrl).toBeNull();
+  });
 });

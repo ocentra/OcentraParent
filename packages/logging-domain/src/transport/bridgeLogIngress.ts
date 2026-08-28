@@ -42,6 +42,7 @@ export async function handleBridgeLogs(
         return 'conflict' as const;
       }
       appendTestLogEntries(storedLogs, rootDir);
+      lifecycle.recordStored(payload);
       return 'stored' as const;
     });
     if (outcome === 'manual-required') {

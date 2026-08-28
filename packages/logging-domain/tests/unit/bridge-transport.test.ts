@@ -132,7 +132,7 @@ describe('bridge transport', () => {
     expect(files).toHaveLength(0);
   });
 
-  it('BridgeTransport emits to the configured endpoint and no-ops without one', async () => {
+  it('BridgeTransport skips empty batches and emits to the configured endpoint', async () => {
     const transport = new BridgeTransport();
     await transport.emit([]);
 
@@ -146,5 +146,62 @@ describe('bridge transport', () => {
 
     const entry = readSingleStoredEntry(tempDir);
     expect(entry.message).toBe('bridge write');
+  });
+
+  it('rejects a non-empty emission without an endpoint', async () => {
+    const transport = new BridgeTransport();
+
+    await expect(transport.emit([createBridgeEntry()])).rejects.toThrow('log bridge endpoint is required');
+  });
+
+  it('keeps ingestion unavailable when the bridge is composed without a trusted transport', async () => {
+    const tempDir = makeTempDir();
+    tempDirs.push(tempDir);
+    const server = createBridgeServer({
+      rootDir: tempDir,
+      destructiveOperations: 'disabled',
+      logIngestion: 'disabled',
+    });
+    servers.push(server);
+    const address = await listen(server);
+    const endpoint = `http://127.0.0.1:${address.port}`;
+
+    const healthResponse = await fetch(`${endpoint}/__health__`);
+    expect(healthResponse.status).toBe(200);
+    expect(await healthResponse.json()).toEqual({
+      ok: false,
+      directoryDurability: 'mutation-unsupported',
+      logIngestion: 'disabled',
+      operatorState: null,
+    });
+
+    const ingestionResponse = await fetch(`${endpoint}/__logs__`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify([createBridgeEntry()]),
+    });
+    expect(ingestionResponse.status).toBe(423);
+    expect(await ingestionResponse.json()).toEqual({
+      ok: false,
+      error: 'bridge log ingestion requires a trusted authenticated transport identity',
+    });
+    expect(listNdjsonFiles(getTestLogScopeDir(TestLogScope.ParentTest, tempDir))).toHaveLength(0);
+  });
+
+  it('rejects bridge writes that do not declare JSON content', async () => {
+    const tempDir = makeTempDir();
+    tempDirs.push(tempDir);
+    const server = createBridgeServer({ rootDir: tempDir });
+    servers.push(server);
+    const address = await listen(server);
+
+    const response = await fetch(`http://127.0.0.1:${address.port}/__logs__`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: '[]',
+    });
+
+    expect(response.status).toBe(415);
+    expect(await response.json()).toEqual({ ok: false, error: 'application/json is required' });
   });
 });
