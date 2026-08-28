@@ -145,6 +145,10 @@ pub fn targeted_arp_refresh_evidence_from_observation(
     throttled: bool,
 ) -> LanTargetedArpRefreshEvidence {
     let observed_mac_address = observed_mac_address.and_then(|value| normalize_mac_address(&value));
+    let expected_mac_address = target
+        .expected_mac_address
+        .as_deref()
+        .and_then(normalize_mac_address);
     let outcome = if throttled {
         None
     } else if observed_mac_address.is_some() {
@@ -154,7 +158,7 @@ pub fn targeted_arp_refresh_evidence_from_observation(
     };
     let strong_identity_match = observed_mac_address
         .as_ref()
-        .zip(target.expected_mac_address.as_ref())
+        .zip(expected_mac_address.as_ref())
         .map(|(observed_mac_address, expected_mac_address)| {
             observed_mac_address.eq_ignore_ascii_case(expected_mac_address)
         })
@@ -163,7 +167,7 @@ pub fn targeted_arp_refresh_evidence_from_observation(
     LanTargetedArpRefreshEvidence {
         target_ip_address: target.ip_address.to_string(),
         selected_interface: target.network_interface.clone(),
-        expected_mac_address: target.expected_mac_address.clone(),
+        expected_mac_address,
         observed_mac_address,
         observed_at_unix_ms,
         source: targeted_arp_refresh_source().to_string(),

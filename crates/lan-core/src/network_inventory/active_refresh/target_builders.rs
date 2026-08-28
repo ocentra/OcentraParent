@@ -187,10 +187,7 @@ pub fn target_from_ip_and_interface(
 
     Some(TargetedArpRefreshTarget {
         ip_address: target_ip_address,
-        expected_mac_address: expected_mac_address
-            .map(str::trim)
-            .filter(|value| !value.is_empty())
-            .map(|value| value.to_string()),
+        expected_mac_address: expected_mac_address.and_then(normalize_scan_mac_address),
         network_interface: Some(selected_interface.to_string()),
     })
 }
@@ -200,10 +197,22 @@ pub fn push_targeted_arp_target(
     seen_targets: &mut HashSet<Ipv4Addr>,
     target: Option<TargetedArpRefreshTarget>,
 ) {
-    let Some(target) = target else {
+    let Some(mut target) = target else {
         return;
     };
+    target.expected_mac_address = target
+        .expected_mac_address
+        .take()
+        .and_then(|value| normalize_scan_mac_address(&value));
     if !seen_targets.insert(target.ip_address) {
+        if let Some(existing) = targets
+            .iter_mut()
+            .find(|existing| existing.ip_address == target.ip_address)
+        {
+            if existing.expected_mac_address.is_none() {
+                existing.expected_mac_address = target.expected_mac_address;
+            }
+        }
         return;
     }
     targets.push(target);

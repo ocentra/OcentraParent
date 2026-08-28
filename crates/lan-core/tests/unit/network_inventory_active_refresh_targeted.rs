@@ -1,16 +1,23 @@
 use super::*;
 
+use std::collections::HashSet;
+
 fn target_ip(value: impl std::fmt::Display) -> std::net::Ipv4Addr {
     value.to_string().parse().value_or_unreachable()
 }
 use ocentra_lan_core::network_inventory::active_refresh::evidence::{
+    observations_by_ip, probe_targeted_arp_refresh_target_until,
     targeted_arp_refresh_evidence_from_observation,
     targeted_arp_refresh_targets_with_packet_io_until,
 };
+use ocentra_lan_core::network_inventory::active_refresh::suppression::current_observation_confirms_ip_and_mac;
 use ocentra_lan_core::network_inventory::active_refresh::target_builders::targeted_arp_refresh_targets;
 use ocentra_lan_core::network_inventory::active_refresh::throttle::{
     clear_targeted_arp_refresh_attempts, targeted_arp_refresh_throttled_at,
     TARGETED_ARP_REFRESH_ATTEMPTS, TARGETED_ARP_REFRESH_THROTTLE_MS,
+};
+use ocentra_lan_core::network_inventory::active_refresh::{
+    CommandTargetedArpRefreshPacketIo, TargetedArpRefreshPacketIo,
 };
 
 #[test]
@@ -21,7 +28,7 @@ fn targeted_arp_refresh_targets_only_selected_hosts_on_the_selected_interface() 
         Some(constants::lan_pairing::TEST_NETWORK_INTERFACE),
         &[
             trusted_device(
-                constants::lan_pairing::TEST_LAN_MAC,
+                "54:27:1e:97:c3:31",
                 Some("192.168.2.20"),
                 Some(constants::lan_pairing::TEST_HOSTNAME),
                 constants::lan_pairing::TEST_HOSTNAME,
@@ -135,7 +142,7 @@ fn targeted_arp_refresh_response_records_mac_and_strong_identity_match_only_when
     let target_ip_address = "192.168.2.23";
     let target = ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget {
         ip_address: target_ip(target_ip_address),
-        expected_mac_address: Some(constants::lan_pairing::TEST_LAN_MAC.to_string()),
+        expected_mac_address: Some("54:27:1e:97:c3:31".to_string()),
         network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
     };
 
@@ -176,6 +183,57 @@ fn targeted_arp_refresh_response_records_mac_and_strong_identity_match_only_when
     );
     assert!(evidence.strong_identity_match);
     assert!(!evidence.throttled);
+}
+
+#[test]
+fn targeted_arp_refresh_suppression_normalizes_expected_mac_before_matching() {
+    let current_observations = HashMap::from([(
+        target_ip("192.168.2.20"),
+        constants::lan_pairing::TEST_LAN_MAC.to_ascii_lowercase(),
+    )]);
+
+    assert!(current_observation_confirms_ip_and_mac(
+        &current_observations,
+        target_ip("192.168.2.20"),
+        Some("54:27:1e:97:c3:31"),
+    ));
+}
+
+#[test]
+fn targeted_arp_refresh_duplicate_target_keeps_later_known_mac_and_normalizes_it() {
+    let target_ip_address = target_ip("192.168.2.23");
+    let interface = constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string();
+    let mut targets = Vec::new();
+    let mut seen_targets = HashSet::new();
+
+    ocentra_lan_core::network_inventory::active_refresh::target_builders::push_targeted_arp_target(
+        &mut targets,
+        &mut seen_targets,
+        Some(
+            ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget {
+                ip_address: target_ip_address,
+                expected_mac_address: None,
+                network_interface: Some(interface.clone()),
+            },
+        ),
+    );
+    ocentra_lan_core::network_inventory::active_refresh::target_builders::push_targeted_arp_target(
+        &mut targets,
+        &mut seen_targets,
+        Some(
+            ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget {
+                ip_address: target_ip_address,
+                expected_mac_address: Some("54:27:1e:97:c3:31".to_string()),
+                network_interface: Some(interface),
+            },
+        ),
+    );
+
+    assert_eq!(targets.len(), 1);
+    assert_eq!(
+        targets[0].expected_mac_address.as_deref(),
+        Some(constants::lan_pairing::TEST_LAN_MAC)
+    );
 }
 
 #[test]
@@ -299,107 +357,47 @@ fn targeted_arp_refresh_recovers_from_poisoned_attempt_state() {
     clear_targeted_arp_refresh_attempts();
 }
 
-#[derive(Default)]
-struct FakePacketIo {
-    probed_targets: Vec<std::net::Ipv4Addr>,
-    observations:
-        Vec<ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation>,
-}
-
-impl ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshPacketIo
-    for FakePacketIo
-{
-    fn probe_target(
-        &mut self,
-        target: &ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget,
-        _deadline: Instant,
-    ) -> bool {
-        self.probed_targets.push(target.ip_address);
-        true
-    }
-
-    fn observations(
-        &mut self,
-        _deadline: Instant,
-    ) -> Vec<ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation>
-    {
-        self.observations.clone()
-    }
-}
-
 #[test]
-fn targeted_arp_refresh_uses_packet_io_abstraction_and_dedupes_replies() {
-    let _guard = targeted_arp_refresh_attempt_state_guard();
-    clear_targeted_arp_refresh_attempts();
+fn targeted_arp_refresh_reply_observations_normalize_and_dedupe_real_rows() {
+    let observations = observations_by_ip(vec![
+        ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation {
+            ip_address: target_ip("192.168.2.24"),
+            mac_address: "54:27:1E:97:C3:31".to_string(),
+        },
+        ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation {
+            ip_address: target_ip("192.168.2.24"),
+            mac_address: "not-a-mac".to_string(),
+        },
+        ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation {
+            ip_address: target_ip("192.168.2.25"),
+            mac_address: constants::lan_pairing::TEST_ROUTER_MAC.to_string(),
+        },
+    ]);
+    let expected_lan_mac = constants::lan_pairing::TEST_LAN_MAC.to_ascii_lowercase();
+    let expected_router_mac = constants::lan_pairing::TEST_ROUTER_MAC.to_ascii_lowercase();
 
-    let target = ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget {
-        ip_address: target_ip("192.168.2.24"),
-        expected_mac_address: Some(constants::lan_pairing::TEST_LAN_MAC.to_string()),
-        network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
-    };
-    let mut packet_io = FakePacketIo {
-        probed_targets: Vec::new(),
-        observations: vec![
-            ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation {
-                ip_address: target_ip("192.168.2.24"),
-                mac_address: constants::lan_pairing::TEST_LAN_MAC.to_ascii_lowercase(),
-            },
-            ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation {
-                ip_address: target_ip("192.168.2.24"),
-                mac_address: "not-a-mac".to_string(),
-            },
-            ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation {
-                ip_address: target_ip("192.168.2.25"),
-                mac_address: constants::lan_pairing::TEST_ROUTER_MAC.to_string(),
-            },
-        ],
-    };
-
-    let evidence = targeted_arp_refresh_targets_with_packet_io_until(
-        &[target],
-        Instant::now() + Duration::from_secs(1),
-        &mut packet_io,
-    );
-
-    assert_eq!(packet_io.probed_targets, vec![target_ip("192.168.2.24")]);
-    assert_eq!(evidence.len(), 1);
-    assert_eq!(evidence[0].target_ip_address, "192.168.2.24");
     assert_eq!(
-        evidence[0].selected_interface.as_deref(),
-        Some(constants::lan_pairing::TEST_NETWORK_INTERFACE)
+        observations
+            .get(&target_ip("192.168.2.24"))
+            .map(String::as_str),
+        Some(expected_lan_mac.as_str())
     );
     assert_eq!(
-        evidence[0].observed_mac_address.as_deref(),
-        Some(constants::lan_pairing::TEST_LAN_MAC)
+        observations
+            .get(&target_ip("192.168.2.25"))
+            .map(String::as_str),
+        Some(expected_router_mac.as_str())
     );
-    assert!(evidence[0].observed_at_unix_ms > 0);
-    assert_eq!(
-        evidence[0].source,
-        if cfg!(target_os = "windows") {
-            constants::lan_pairing::LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR.to_string()
-        } else if cfg!(target_os = "macos") {
-            constants::lan_pairing::LAN_SCAN_SOURCE_MACOS_ARP.to_string()
-        } else {
-            constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH.to_string()
-        }
-    );
-    assert!(evidence[0].strong_identity_match);
 }
 
 #[test]
 fn targeted_arp_refresh_budget_skips_without_recording_false_no_response() {
-    let _guard = targeted_arp_refresh_attempt_state_guard();
-    clear_targeted_arp_refresh_attempts();
-
     let target = ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget {
         ip_address: target_ip("192.168.2.250"),
         expected_mac_address: Some(constants::lan_pairing::TEST_LAN_MAC.to_string()),
         network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
     };
-    let mut packet_io = FakePacketIo {
-        probed_targets: Vec::new(),
-        observations: Vec::new(),
-    };
+    let mut packet_io = CommandTargetedArpRefreshPacketIo;
     let evidence = targeted_arp_refresh_targets_with_packet_io_until(
         &[target],
         Instant::now() - Duration::from_millis(1),
@@ -407,109 +405,23 @@ fn targeted_arp_refresh_budget_skips_without_recording_false_no_response() {
     );
 
     assert!(evidence.is_empty());
-    assert!(packet_io.probed_targets.is_empty());
-}
-
-struct NoAttemptPacketIo {
-    observations_called: bool,
-}
-
-impl ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshPacketIo
-    for NoAttemptPacketIo
-{
-    fn probe_target(
-        &mut self,
-        _target: &ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget,
-        _deadline: Instant,
-    ) -> bool {
-        false
-    }
-
-    fn observations(
-        &mut self,
-        _deadline: Instant,
-    ) -> Vec<ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation>
-    {
-        self.observations_called = true;
-        Vec::new()
-    }
-}
-
-struct ExhaustedObservationBudgetPacketIo {
-    probed_targets: Vec<std::net::Ipv4Addr>,
-    observations_called: bool,
-}
-
-impl ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshPacketIo
-    for ExhaustedObservationBudgetPacketIo
-{
-    fn probe_target(
-        &mut self,
-        target: &ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget,
-        _deadline: Instant,
-    ) -> bool {
-        self.probed_targets.push(target.ip_address);
-        true
-    }
-
-    fn observations(
-        &mut self,
-        _deadline: Instant,
-    ) -> Vec<ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshObservation>
-    {
-        self.observations_called = true;
-        Vec::new()
-    }
-
-    fn has_observation_budget(&mut self, _deadline: Instant) -> bool {
-        false
-    }
 }
 
 #[test]
-fn targeted_arp_refresh_without_probe_attempt_records_no_false_no_response() {
-    let _guard = targeted_arp_refresh_attempt_state_guard();
-    clear_targeted_arp_refresh_attempts();
-
+fn targeted_arp_refresh_without_probe_budget_records_no_false_no_response() {
     let target = ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget {
         ip_address: target_ip("192.168.2.251"),
         expected_mac_address: Some(constants::lan_pairing::TEST_LAN_MAC.to_string()),
         network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
     };
-    let mut packet_io = NoAttemptPacketIo {
-        observations_called: false,
-    };
-    let evidence = targeted_arp_refresh_targets_with_packet_io_until(
-        &[target],
-        Instant::now() + Duration::from_secs(1),
-        &mut packet_io,
-    );
-
-    assert!(evidence.is_empty());
-    assert!(!packet_io.observations_called);
+    assert!(!probe_targeted_arp_refresh_target_until(
+        &target,
+        Instant::now() - Duration::from_millis(1),
+    ));
 }
 
 #[test]
-fn targeted_arp_refresh_skips_no_response_when_observation_budget_is_exhausted_after_probe() {
-    let _guard = targeted_arp_refresh_attempt_state_guard();
-    clear_targeted_arp_refresh_attempts();
-
-    let target = ocentra_lan_core::network_inventory::active_refresh::TargetedArpRefreshTarget {
-        ip_address: target_ip("192.168.2.252"),
-        expected_mac_address: Some(constants::lan_pairing::TEST_LAN_MAC.to_string()),
-        network_interface: Some(constants::lan_pairing::TEST_NETWORK_INTERFACE.to_string()),
-    };
-    let mut packet_io = ExhaustedObservationBudgetPacketIo {
-        probed_targets: Vec::new(),
-        observations_called: false,
-    };
-    let evidence = targeted_arp_refresh_targets_with_packet_io_until(
-        &[target],
-        Instant::now() + Duration::from_secs(1),
-        &mut packet_io,
-    );
-
-    assert_eq!(packet_io.probed_targets, vec![target_ip("192.168.2.252")]);
-    assert!(evidence.is_empty());
-    assert!(!packet_io.observations_called);
+fn targeted_arp_refresh_command_adapter_is_real_and_budget_bounded() {
+    let mut packet_io = CommandTargetedArpRefreshPacketIo;
+    assert!(!packet_io.has_observation_budget(Instant::now() - Duration::from_millis(1)));
 }

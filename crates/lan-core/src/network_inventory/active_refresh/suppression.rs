@@ -4,6 +4,8 @@ use std::net::Ipv4Addr;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceRef;
 
+use crate::mac_identity::normalize_scan_mac_address;
+
 use super::super::LanNetworkInventoryDevice;
 use super::observations::current_active_refresh_ipv4_observations_by_ip;
 use super::targets::normalized_household_ipv4_ip;
@@ -98,16 +100,14 @@ pub fn current_observation_confirms_ip_and_mac(
     ip_address: Ipv4Addr,
     expected_mac_address: Option<&str>,
 ) -> bool {
-    let Some(expected_mac_address) = expected_mac_address
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
+    let Some(expected_mac_address) = expected_mac_address.and_then(normalize_scan_mac_address)
     else {
         return false;
     };
 
     current_observations
         .get(&ip_address)
-        .map(|current_mac_address| current_mac_address.eq_ignore_ascii_case(expected_mac_address))
+        .map(|current_mac_address| current_mac_address.eq_ignore_ascii_case(&expected_mac_address))
         .unwrap_or(false)
 }
 
