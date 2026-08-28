@@ -108,3 +108,48 @@ fn child_command_contract_rejects_missing_child_command_ref() {
         Some(serde_json::error::Category::Data)
     );
 }
+
+#[test]
+fn child_agent_contracts_validate_schema_and_owned_refs() {
+    let event = child_command_received_event();
+    assert_eq!(event.validate(), Ok(()));
+
+    let mut schema_skew = event.clone();
+    schema_skew.schema_version = constants::child_agent::EVENT_SCHEMA_VERSION + 1;
+    assert_eq!(
+        schema_skew.validate(),
+        Err(ocentra_eventing::error::EventingError::InvalidVersion)
+    );
+
+    let mut blank_ref = event;
+    blank_ref.child_command_ref = "  ".to_string();
+    assert_eq!(
+        blank_ref.validate(),
+        Err(ocentra_eventing::error::EventingError::EmptyValue {
+            field: "child_command_ref"
+        })
+    );
+}
+
+#[test]
+fn child_agent_contracts_reject_schema_skew_blank_text_and_unknown_fields() {
+    let valid = serde_json::to_value(child_command_received_event())
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    let mut schema_skew = valid.clone();
+    schema_skew["schemaVersion"] =
+        serde_json::json!(constants::child_agent::EVENT_SCHEMA_VERSION + 1);
+    let mut blank_ref = valid.clone();
+    blank_ref["childCommandRef"] = serde_json::json!(" ");
+    let mut unknown_field = valid;
+    unknown_field["futureField"] = serde_json::json!(true);
+
+    for invalid in [schema_skew, blank_ref, unknown_field] {
+        assert_eq!(
+            serde_json::from_value::<ChildCommandReceivedEvent>(invalid)
+                .err()
+                .map(|error| error.classify()),
+            Some(serde_json::error::Category::Data)
+        );
+    }
+}

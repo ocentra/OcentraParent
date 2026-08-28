@@ -866,6 +866,95 @@ fn manual_required_enforcement_result_keeps_adapter_action_false() {
     );
 }
 
+#[test]
+fn network_runtime_contracts_validate_chain_refs_and_privacy_boundary() {
+    assert_eq!(network_flow_observed_event().validate(), Ok(()));
+    assert_eq!(network_domain_observed_event().validate(), Ok(()));
+    assert_eq!(network_activity_classified_event().validate(), Ok(()));
+    assert_eq!(network_ai_analysis_requested_event().validate(), Ok(()));
+    assert_eq!(network_ai_analysis_completed_event().validate(), Ok(()));
+    assert_eq!(
+        network_policy_evaluation_requested_event().validate(),
+        Ok(())
+    );
+    assert_eq!(network_policy_decision_completed_event().validate(), Ok(()));
+    assert_eq!(
+        network_enforcement_command_issued_event().validate(),
+        Ok(())
+    );
+    assert_eq!(
+        network_enforcement_result_observed_event().validate(),
+        Ok(())
+    );
+    assert_eq!(network_audit_entry_committed_event().validate(), Ok(()));
+    assert_eq!(network_portal_read_model_updated_event().validate(), Ok(()));
+
+    let mut schema_skew = network_flow_observed_event();
+    schema_skew.schema_version = constants::network_flow::EVENT_SCHEMA_VERSION + 1;
+    assert_eq!(schema_skew.validate(), Err(EventingError::InvalidVersion));
+
+    let mut blank_evidence = network_policy_decision_completed_event();
+    blank_evidence.evidence_refs = vec!["  ".to_string()];
+    assert_eq!(
+        blank_evidence.validate(),
+        Err(EventingError::EmptyValue {
+            field: "evidence_refs"
+        })
+    );
+
+    let mut raw_payload = network_ai_analysis_requested_event();
+    raw_payload.raw_packet_payload_included = true;
+    assert!(matches!(
+        raw_payload.validate(),
+        Err(EventingError::InvalidValue {
+            field: "raw_packet_payload_included",
+            ..
+        })
+    ));
+}
+
+#[test]
+fn network_runtime_contracts_reject_schema_skew_blank_text_and_unknown_fields() {
+    let valid = serde_json::to_value(network_flow_observed_event()).unwrap_or_default();
+
+    let mut schema_skew = valid.clone();
+    schema_skew["schemaVersion"] =
+        serde_json::json!(constants::network_flow::EVENT_SCHEMA_VERSION + 1);
+    let mut blank_ref = valid.clone();
+    blank_ref["flowEvidenceRef"] = serde_json::json!(" ");
+    let mut unknown_field = valid;
+    unknown_field["futureField"] = serde_json::json!(true);
+
+    for invalid in [schema_skew, blank_ref, unknown_field] {
+        assert_eq!(
+            serde_json::from_value::<NetworkFlowObservedEvent>(invalid)
+                .err()
+                .map(|error| error.classify()),
+            Some(serde_json::error::Category::Data)
+        );
+    }
+
+    let mut raw_payload =
+        serde_json::to_value(network_ai_analysis_requested_event()).unwrap_or_default();
+    raw_payload["rawPacketPayloadIncluded"] = serde_json::json!(true);
+    assert_eq!(
+        serde_json::from_value::<NetworkAiAnalysisRequestedEvent>(raw_payload)
+            .err()
+            .map(|error| error.classify()),
+        Some(serde_json::error::Category::Data)
+    );
+
+    let mut invalid_confidence =
+        serde_json::to_value(network_activity_classified_event()).unwrap_or_default();
+    invalid_confidence["confidence"] = serde_json::json!(1.1);
+    assert_eq!(
+        serde_json::from_value::<NetworkActivityClassifiedEvent>(invalid_confidence)
+            .err()
+            .map(|error| error.classify()),
+        Some(serde_json::error::Category::Data)
+    );
+}
+
 fn network_runtime_event_payload_fixture() -> NetworkRuntimeEventPayload {
     NetworkRuntimeEventPayload {
         phase: NetworkRuntimePhase::FlowObserved,

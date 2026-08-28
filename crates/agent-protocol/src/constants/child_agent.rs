@@ -7,6 +7,14 @@ pub const EVENT_COMMAND_REJECTED: &str = "child_agent.command.rejected";
 pub const EVENT_CAPABILITY_STATE_UPDATED: &str = "child_agent.capability_state.updated";
 pub const EVENT_RUNTIME_HEALTH_UPDATED: &str = "child_agent.runtime_health.updated";
 
+pub const EVENT_TYPES: [&str; 5] = [
+    EVENT_COMMAND_RECEIVED,
+    EVENT_COMMAND_ACCEPTED,
+    EVENT_COMMAND_REJECTED,
+    EVENT_CAPABILITY_STATE_UPDATED,
+    EVENT_RUNTIME_HEALTH_UPDATED,
+];
+
 pub const RUNTIME_COMPONENT_CHILD_AGENT: &str = "child-agent-runtime";
 pub const RUNTIME_INSTANCE_LOCAL_CHILD_AGENT: &str = "local-child-agent";
 pub const SUBSCRIBER_CHILD_COMMAND_RECEIVER: &str = "subscriber.child-agent.command-receiver";

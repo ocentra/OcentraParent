@@ -53,21 +53,8 @@ macro_rules! assert_unique {
 
 #[test]
 fn parent_and_child_event_namespace_constants_are_unique_and_prefixed() {
-    let parent_events = [
-        constants::parent_controller::EVENT_PARENT_ACTION_RECEIVED,
-        constants::parent_controller::EVENT_COMMAND_VALIDATED,
-        constants::parent_controller::EVENT_COMMAND_REJECTED,
-        constants::parent_controller::EVENT_CHILD_COMMAND_FORWARD_REQUESTED,
-        constants::parent_controller::EVENT_CHILD_COMMAND_FORWARDED,
-        constants::parent_controller::EVENT_READ_MODEL_PROJECTED,
-    ];
-    let child_events = [
-        constants::child_agent::EVENT_COMMAND_RECEIVED,
-        constants::child_agent::EVENT_COMMAND_ACCEPTED,
-        constants::child_agent::EVENT_COMMAND_REJECTED,
-        constants::child_agent::EVENT_CAPABILITY_STATE_UPDATED,
-        constants::child_agent::EVENT_RUNTIME_HEALTH_UPDATED,
-    ];
+    let parent_events = constants::parent_controller::EVENT_TYPES;
+    let child_events = constants::child_agent::EVENT_TYPES;
 
     assert_namespace!(&parent_events, constants::parent_controller::NAMESPACE);
     assert_namespace!(&child_events, constants::child_agent::NAMESPACE);
@@ -165,4 +152,49 @@ fn parent_action_contract_rejects_missing_parent_intent_ref() {
         parsed.err().map(|error| error.classify()),
         Some(serde_json::error::Category::Data)
     );
+}
+
+#[test]
+fn parent_controller_contracts_validate_schema_and_owned_refs() {
+    let event = parent_action_received_event();
+    assert_eq!(event.validate(), Ok(()));
+
+    let mut schema_skew = event.clone();
+    schema_skew.schema_version = constants::parent_controller::EVENT_SCHEMA_VERSION + 1;
+    assert_eq!(
+        schema_skew.validate(),
+        Err(ocentra_eventing::error::EventingError::InvalidVersion)
+    );
+
+    let mut blank_ref = event;
+    blank_ref.parent_intent_ref = "  ".to_string();
+    assert_eq!(
+        blank_ref.validate(),
+        Err(ocentra_eventing::error::EventingError::EmptyValue {
+            field: "parent_intent_ref"
+        })
+    );
+}
+
+#[test]
+fn parent_controller_contracts_reject_schema_skew_blank_text_and_unknown_fields() {
+    let valid = serde_json::to_value(parent_action_received_event())
+        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+
+    let mut schema_skew = valid.clone();
+    schema_skew["schemaVersion"] =
+        serde_json::json!(constants::parent_controller::EVENT_SCHEMA_VERSION + 1);
+    let mut blank_ref = valid.clone();
+    blank_ref["parentIntentRef"] = serde_json::json!(" ");
+    let mut unknown_field = valid;
+    unknown_field["futureField"] = serde_json::json!(true);
+
+    for invalid in [schema_skew, blank_ref, unknown_field] {
+        assert_eq!(
+            serde_json::from_value::<ParentActionReceivedEvent>(invalid)
+                .err()
+                .map(|error| error.classify()),
+            Some(serde_json::error::Category::Data)
+        );
+    }
 }

@@ -9,6 +9,15 @@ pub const EVENT_CHILD_COMMAND_FORWARD_REQUESTED: &str =
 pub const EVENT_CHILD_COMMAND_FORWARDED: &str = "parent_controller.child_command.forwarded";
 pub const EVENT_READ_MODEL_PROJECTED: &str = "parent_controller.read_model.projected";
 
+pub const EVENT_TYPES: [&str; 6] = [
+    EVENT_PARENT_ACTION_RECEIVED,
+    EVENT_COMMAND_VALIDATED,
+    EVENT_COMMAND_REJECTED,
+    EVENT_CHILD_COMMAND_FORWARD_REQUESTED,
+    EVENT_CHILD_COMMAND_FORWARDED,
+    EVENT_READ_MODEL_PROJECTED,
+];
+
 pub const CORRELATION_PARENT_CHILD_RUNTIME_PREFIX: &str = "correlation.parent-child-runtime.";
 pub const AGGREGATE_PARENT_CHILD_RUNTIME_PREFIX: &str = "aggregate.parent-child-runtime.";
 pub const IDEMPOTENCY_PARENT_CHILD_RUNTIME_PREFIX: &str = "idempotency.parent-child-runtime.";
