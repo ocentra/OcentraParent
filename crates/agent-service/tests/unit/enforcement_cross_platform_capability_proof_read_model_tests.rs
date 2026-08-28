@@ -3,6 +3,7 @@ use std::collections::BTreeMap;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_capability_proof as proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformAdapterExecutionState;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityClaimState;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofEntry;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
@@ -29,9 +30,9 @@ fn cross_platform_read_model_preserves_honest_capability_states() {
     assert_eq!(read_model.entries.len(), 15);
     assert_eq!(
         claim_count(&claim_counts, proof::CLAIM_IMPLEMENTED_BOUNDARY),
-        4
+        2
     );
-    assert_eq!(claim_count(&claim_counts, proof::CLAIM_MANUAL_REQUIRED), 7);
+    assert_eq!(claim_count(&claim_counts, proof::CLAIM_MANUAL_REQUIRED), 9);
     assert_eq!(claim_count(&claim_counts, proof::CLAIM_SCAFFOLD), 2);
     assert_eq!(claim_count(&claim_counts, proof::CLAIM_PLANNED), 2);
     assert_eq!(platform_count(&platform_counts, ParentPlatform::Windows), 6);
@@ -56,6 +57,14 @@ fn cross_platform_read_model_does_not_upgrade_unproved_claims() {
         &read_model.entries,
         V08CrossPlatformEnforcementCapabilitySurface::WindowsBroadInstalledAppBlocking,
     );
+    let windows_app_time = entry_for(
+        &read_model.entries,
+        V08CrossPlatformEnforcementCapabilitySurface::WindowsAppTimeLimitLifecycle,
+    );
+    let managed_browser = entry_for(
+        &read_model.entries,
+        V08CrossPlatformEnforcementCapabilitySurface::WindowsManagedBrowserBoundary,
+    );
     let android_device_owner = entry_for(
         &read_model.entries,
         V08CrossPlatformEnforcementCapabilitySurface::AndroidDeviceOwnerPolicy,
@@ -69,6 +78,24 @@ fn cross_platform_read_model_does_not_upgrade_unproved_claims() {
         windows_broad.product_claim_state,
         V08CrossPlatformEnforcementCapabilityClaimState::ManualRequired
     );
+    assert_eq!(
+        windows_app_time.product_claim_state,
+        V08CrossPlatformEnforcementCapabilityClaimState::ManualRequired
+    );
+    assert_eq!(
+        managed_browser.product_claim_state,
+        V08CrossPlatformEnforcementCapabilityClaimState::ManualRequired
+    );
+    assert_eq!(
+        windows_app_time.adapter_execution_state,
+        V08CrossPlatformAdapterExecutionState::ReturnsManualRequired
+    );
+    assert_eq!(
+        managed_browser.adapter_execution_state,
+        V08CrossPlatformAdapterExecutionState::ReturnsManualRequired
+    );
+    assert!(!windows_app_time.manual_proof_requirements.is_empty());
+    assert!(!managed_browser.manual_proof_requirements.is_empty());
     assert_eq!(
         android_device_owner.product_claim_state,
         V08CrossPlatformEnforcementCapabilityClaimState::ManualRequired

@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::enforcement_broad_adapter_proof as proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeClaimState;
+use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeEvidenceState;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofEntry;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeProofReadModel;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeSurface;
@@ -26,9 +27,9 @@ fn broad_adapter_proof_read_model_preserves_honest_runtime_states() {
     assert_eq!(read_model.entries.len(), 10);
     assert_eq!(
         claim_count(&claim_counts, proof::CLAIM_IMPLEMENTED_BOUNDARY),
-        2
+        0
     );
-    assert_eq!(claim_count(&claim_counts, proof::CLAIM_MANUAL_REQUIRED), 6);
+    assert_eq!(claim_count(&claim_counts, proof::CLAIM_MANUAL_REQUIRED), 8);
     assert_eq!(claim_count(&claim_counts, proof::CLAIM_UNAVAILABLE), 1);
     assert_eq!(claim_count(&claim_counts, proof::CLAIM_NOT_CLAIMED), 1);
     assert_eq!(
@@ -70,13 +71,35 @@ fn broad_adapter_proof_read_model_keeps_surface_outcomes_exact() {
     assert_surface_state(
         &read_model.entries,
         V08BroadAdapterRuntimeSurface::WindowsOwnedProcessAndTimerRuntimeBoundary,
-        V08BroadAdapterRuntimeClaimState::ImplementedBoundary,
+        V08BroadAdapterRuntimeClaimState::ManualRequired,
     );
     assert_surface_state(
         &read_model.entries,
         V08BroadAdapterRuntimeSurface::WindowsManagedBrowserSessionRuntimeBoundary,
-        V08BroadAdapterRuntimeClaimState::ImplementedBoundary,
+        V08BroadAdapterRuntimeClaimState::ManualRequired,
     );
+    let owned_process = entry_for(
+        &read_model.entries,
+        V08BroadAdapterRuntimeSurface::WindowsOwnedProcessAndTimerRuntimeBoundary,
+    );
+    let managed_browser = entry_for(
+        &read_model.entries,
+        V08BroadAdapterRuntimeSurface::WindowsManagedBrowserSessionRuntimeBoundary,
+    );
+    assert_eq!(
+        owned_process.evidence_state,
+        V08BroadAdapterRuntimeEvidenceState::ManualArtifactRequired
+    );
+    assert_eq!(
+        managed_browser.evidence_state,
+        V08BroadAdapterRuntimeEvidenceState::ManualArtifactRequired
+    );
+    assert!(owned_process
+        .manual_proof_requirements
+        .contains(&proof::REQUIREMENT_ROLLBACK.to_string()));
+    assert!(managed_browser
+        .manual_proof_requirements
+        .contains(&proof::REQUIREMENT_ROLLBACK.to_string()));
     assert_surface_state(
         &read_model.entries,
         V08BroadAdapterRuntimeSurface::WindowsNetworkDomainRuntimeGate,

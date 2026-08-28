@@ -3,6 +3,8 @@ use std::collections::BTreeMap;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::v08_supported_adapter_runtime_proof as proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRefusalReason;
+use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterResult;
 use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeBoundary;
 use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeProofEntry;
 use ocentra_parent_agent_protocol::enforcement_supported_adapter_runtime_proof::V08SupportedAdapterRuntimeProofReadModel;
@@ -27,9 +29,9 @@ fn supported_adapter_runtime_proof_read_model_preserves_honest_states() {
     assert_eq!(read_model.entries.len(), 13);
     assert_eq!(
         state_count(&state_counts, proof::STATE_IMPLEMENTED_BOUNDARY),
-        2
+        1
     );
-    assert_eq!(state_count(&state_counts, proof::STATE_MANUAL_REQUIRED), 7);
+    assert_eq!(state_count(&state_counts, proof::STATE_MANUAL_REQUIRED), 8);
     assert_eq!(state_count(&state_counts, proof::STATE_NOT_CLAIMED), 1);
     assert_eq!(state_count(&state_counts, proof::STATE_DEGRADED), 1);
     assert_eq!(state_count(&state_counts, proof::STATE_UNAVAILABLE), 1);
@@ -77,8 +79,23 @@ fn supported_adapter_runtime_proof_keeps_exact_boundaries() {
     assert_boundary_state(
         &read_model.entries,
         V08SupportedAdapterRuntimeBoundary::WindowsAppGameOwnedProcessTimeLimit,
-        V08SupportedAdapterRuntimeState::ImplementedBoundary,
+        V08SupportedAdapterRuntimeState::ManualRequired,
     );
+    let app_timer = entry_for(
+        &read_model.entries,
+        V08SupportedAdapterRuntimeBoundary::WindowsAppGameOwnedProcessTimeLimit,
+    );
+    assert_eq!(
+        app_timer.adapter_result,
+        V08SupportedAdapterResult::ManualProofRequired
+    );
+    assert_eq!(
+        app_timer.refusal_reason,
+        V08SupportedAdapterRefusalReason::ManualArtifactRequired
+    );
+    assert!(app_timer
+        .manual_proof_requirements
+        .contains(&proof::REQUIREMENT_ROLLBACK.to_string()));
     assert_boundary_state(
         &read_model.entries,
         V08SupportedAdapterRuntimeBoundary::WindowsNetworkFlowObservePolicyHandoff,
