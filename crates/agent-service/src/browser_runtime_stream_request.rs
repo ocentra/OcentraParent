@@ -60,7 +60,7 @@ pub(crate) async fn request_browser_runtime_service_stream_report(
     read_model: BrowserEvidenceReadModel,
     policy_preview: Option<PolicyPreviewReadModel>,
 ) -> Result<BrowserRuntimeServiceStreamReport, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<BrowserRuntimeServiceStreamReportRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(constants::browser::SUBSCRIBER_BROWSER_RUNTIME_STREAM_REPORT)?,

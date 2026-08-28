@@ -65,9 +65,10 @@ pub fn process_snapshot_events_from_system(
     limit: usize,
     system: &ProcessSnapshotSystem,
 ) -> Vec<ActivityEvent> {
-    snapshot_observations_from_system(system, limit)
+    snapshot_observations_from_system(system, usize::MAX)
         .into_iter()
         .filter(|snapshot| snapshot.start_time != 0)
+        .take(limit)
         .enumerate()
         .map(|(index, snapshot)| {
             process_observation_event_with_generation(

@@ -86,9 +86,11 @@ async fn persistent_runtime_restores_known_household_device_into_read_model_as_s
     let runtime = LanPairingRuntime::persistent_json(&registry_path);
     {
         let mut registry = require_ok(runtime.registry.lock(), "registry lock available for test");
-        let changed = registry.merge_known_household_devices(vec![stored_known_router()]);
+        let changed = require_ok(
+            runtime.merge_known_household_devices(&mut registry, vec![stored_known_router()]),
+            "known router persists through runtime",
+        );
         assert!(changed);
-        assert!(runtime.persist_registry(&registry));
     }
 
     let event = handle_command_text_for_test(
@@ -139,9 +141,12 @@ async fn persistent_runtime_restores_offline_known_household_device_as_offline()
     let runtime = LanPairingRuntime::persistent_json(&registry_path);
     {
         let mut registry = require_ok(runtime.registry.lock(), "registry lock available for test");
-        let changed = registry.merge_known_household_devices(vec![stored_offline_known_router()]);
+        let changed = require_ok(
+            runtime
+                .merge_known_household_devices(&mut registry, vec![stored_offline_known_router()]),
+            "offline known router persists through runtime",
+        );
         assert!(changed);
-        assert!(runtime.persist_registry(&registry));
     }
 
     let event = handle_command_text_for_test(

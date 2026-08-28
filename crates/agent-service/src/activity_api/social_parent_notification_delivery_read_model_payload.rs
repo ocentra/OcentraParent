@@ -124,7 +124,7 @@ fn social_parent_notification_delivery_read_model_from_report_writer(
 
 pub async fn request_social_parent_notification_delivery_read_model_from_service(
 ) -> Result<SocialParentNotificationDeliveryReadinessSnapshot, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<SocialParentNotificationDeliveryReadModelRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(

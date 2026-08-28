@@ -141,7 +141,7 @@ async fn production_shutdown_dead_letters_queued_without_dispatch() {
 
 #[tokio::test]
 async fn production_shutdown_waits_for_active_dispatch_before_clearing_state() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handler_started = Arc::new(Notify::new());
     let release_handler = Arc::new(Notify::new());
     let handled = Arc::new(Mutex::new(0_usize));
@@ -236,7 +236,7 @@ async fn test_only_shutdown_drop_reports_dropped_queued_work() {
 
 #[tokio::test]
 async fn production_shutdown_cancels_pending_request_completion() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handler_seen = Arc::new(Notify::new());
     let handler_seen_clone = Arc::clone(&handler_seen);
     bus.subscribe::<ShutdownRequestEvent, _, _>(

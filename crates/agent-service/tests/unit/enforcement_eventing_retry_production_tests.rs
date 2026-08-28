@@ -471,7 +471,7 @@ fn adapter_result_count(records: &[ocentra_eventing::replay::ReplayRecord]) -> u
                 .envelope
                 .decode::<EnforcementAuditJournalEvent>()
                 .is_ok_and(|decoded| {
-                    decoded.payload.provenance == EnforcementAuditJournalProvenance::AdapterResult
+                    decoded.payload().provenance == EnforcementAuditJournalProvenance::AdapterResult
                 })
         })
         .count()

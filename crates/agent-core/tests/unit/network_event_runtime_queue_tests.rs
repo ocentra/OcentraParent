@@ -222,7 +222,7 @@ fn decode_stored_payloads(
                 event.decode::<NetworkRuntimeEventPayload>(),
                 constants::network_flow::ERROR_NETWORK_RUNTIME_PAYLOAD_DECODES,
             )
-            .map(|envelope| envelope.payload)
+            .map(|envelope| envelope.into_payload())
         })
         .collect()
 }

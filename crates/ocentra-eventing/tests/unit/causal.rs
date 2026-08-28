@@ -20,7 +20,7 @@ fn accepts_root_publication_authority(_: &RootEventPublisher) {}
 #[test]
 fn raw_event_bus_is_not_a_root_publication_authority() {
     let raw_bus = EventBus::default();
-    let root = EventBus::new();
+    let root = EventBus::root();
 
     accepts_root_publication_authority(&root);
     assert_ne!(
@@ -31,7 +31,7 @@ fn raw_event_bus_is_not_a_root_publication_authority() {
 
 #[tokio::test]
 async fn task_local_spawn_rejects_causal_publication_without_side_effects() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<super::fixtures::TestEvent, _, _>(
         subscriber(
             TestText(TEST_SUBSCRIBER.to_owned()),
@@ -85,7 +85,7 @@ async fn task_local_spawn_rejects_causal_publication_without_side_effects() {
 
 #[tokio::test]
 async fn cancelling_causal_publication_leaves_no_nested_effects() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let nested_started = Arc::new(Notify::new());
 
     let started_for_handler = Arc::clone(&nested_started);
@@ -173,8 +173,8 @@ async fn cancelling_causal_publication_leaves_no_nested_effects() {
 
 #[tokio::test]
 async fn cross_bus_parent_child_publication_derives_causal_metadata() {
-    let parent_bus = EventBus::new();
-    let child_root = EventBus::new();
+    let parent_bus = EventBus::root();
+    let child_root = EventBus::root();
     let child_bus = child_root.event_bus().clone();
     let observed_child_causality = Arc::new(Mutex::new(None::<(String, Option<String>)>));
     let observed_child_causality_for_handler = Arc::clone(&observed_child_causality);
@@ -289,8 +289,8 @@ fn assert_derived_child_metadata(
 
 #[tokio::test]
 async fn causal_publication_rejects_caller_supplied_causation_without_child_effects() {
-    let parent_bus = EventBus::new();
-    let child_bus = EventBus::new().event_bus().clone();
+    let parent_bus = EventBus::root();
+    let child_bus = EventBus::root().event_bus().clone();
     let child_bus_for_handler = child_bus.clone();
 
     parent_bus

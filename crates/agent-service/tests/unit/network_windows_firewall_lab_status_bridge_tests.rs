@@ -5,15 +5,7 @@ use ocentra_parent_agent_protocol::network_windows_firewall_lab_status::{
     NetworkWindowsFirewallLabCommandStatusKind, NetworkWindowsFirewallLabStatus,
     NetworkWindowsFirewallLabStatusState,
 };
-use ocentra_parent_agent_protocol::policy_constants;
-use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
-    AgentPeerRole, AgentRoute,
-};
-use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
-use ocentra_parent_agent_service::test_support::{
-    handle_local_command_text_for_test, network_windows_firewall_lab_status_payload_for_test,
-};
+use ocentra_parent_agent_service::test_support::network_windows_firewall_lab_status_payload_for_test;
 use serde::de::DeserializeOwned;
 
 #[test]
@@ -25,25 +17,6 @@ fn network_windows_firewall_lab_status_payload_reports_bounded_lab_execution_onl
         constants::network_flow::FIELD_NETWORK_WINDOWS_FIREWALL_LAB_STATUS,
     )?;
 
-    assert_windows_firewall_status(&status);
-    Ok(())
-}
-
-#[tokio::test]
-async fn websocket_network_windows_firewall_lab_status_command_reports_payload(
-) -> Result<(), Box<dyn std::error::Error>> {
-    let body = serde_json::to_string(&command_envelope())?;
-    let event =
-        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let status: NetworkWindowsFirewallLabStatus = status_value(
-        &event.payload,
-        constants::network_flow::FIELD_NETWORK_WINDOWS_FIREWALL_LAB_STATUS,
-    )?;
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentNetworkWindowsFirewallLabStatusReported
-    );
     assert_windows_firewall_status(&status);
     Ok(())
 }
@@ -106,25 +79,6 @@ fn assert_non_claims(status: &NetworkWindowsFirewallLabStatus) {
     assert!(!status.powershell_command_invoked);
     assert!(!status.policy_engine_execution_claimed);
     assert!(!status.enforcement_command_published);
-}
-
-fn command_envelope() -> AgentCommandEnvelope {
-    AgentCommandEnvelope {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: constants::event_id::NETWORK_WINDOWS_FIREWALL_LAB_STATUS_REPORTED.to_string(),
-        sent_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        target: AgentMessageTarget {
-            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
-            route: AgentRoute::Localhost,
-        },
-        command: AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet,
-        payload: Default::default(),
-    }
 }
 
 fn status_value<TStatus: DeserializeOwned>(

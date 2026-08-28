@@ -67,7 +67,7 @@ pub fn social_report_writer_delivery_read_model_from_service() -> SocialReportWr
 
 pub async fn request_social_report_writer_delivery_read_model_from_service(
 ) -> Result<SocialReportWriterDeliveryReadModel, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<SocialReportWriterDeliveryReadModelRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(

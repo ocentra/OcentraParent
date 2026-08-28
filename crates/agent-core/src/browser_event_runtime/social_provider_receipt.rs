@@ -96,7 +96,7 @@ fn social_provider_receipt_status_response_from_payload(
 pub async fn request_browser_runtime_social_provider_receipt_status_for_input(
     input: BrowserRuntimeInput,
 ) -> Result<BrowserRuntimeSocialProviderReceiptStatusReport, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<BrowserRuntimeSocialProviderReceiptStatusRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(

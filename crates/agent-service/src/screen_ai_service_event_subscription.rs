@@ -41,6 +41,7 @@ pub(crate) struct ObservedAtText(pub(crate) String);
 
 #[path = "screen_ai_service_event_subscription/live_view_service_runtime.rs"]
 pub(crate) mod live_view_service_runtime;
+#[path = "screen_ai_service_event_subscription/routing.rs"]
 mod routing;
 
 pub(crate) struct ScreenAiServiceEventRuntime {
@@ -50,7 +51,7 @@ pub(crate) struct ScreenAiServiceEventRuntime {
 
 impl ScreenAiServiceEventRuntime {
     pub(crate) async fn start() -> Result<Self, EventingError> {
-        let bus = EventBus::new();
+        let bus = EventBus::root();
         let state = ScreenAiServiceEventSubscriptionState::default();
         subscribe_screen_service_row_ready_events(&bus, state.clone()).await?;
         Ok(Self {

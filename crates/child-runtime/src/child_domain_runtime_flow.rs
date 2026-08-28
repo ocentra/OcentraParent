@@ -52,7 +52,7 @@ pub struct ChildDomainRuntimeEventFlow {
 
 impl ChildDomainRuntimeEventFlow {
     pub async fn for_domain(domain: ChildRuntimeDomain) -> Result<Self, EventingError> {
-        let bus = EventBus::new();
+        let bus = EventBus::root();
         let state = ChildDomainRuntimeFlowState::default();
         let observer_subscription_report =
             subscribe_child_domain_observer(&bus, domain, state.clone()).await?;

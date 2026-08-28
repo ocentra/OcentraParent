@@ -86,7 +86,7 @@ async fn typed_enforcement_audit_append_is_idempotent_and_replays_projection_onl
     remove_dir(root.join("nested")).expect_value("nested test directory removed");
     remove_dir(&root).expect_value("test directory removed");
 
-    assert_eq!(decoded.payload, event);
+    assert_eq!(decoded.payload(), &event);
 }
 
 #[tokio::test]

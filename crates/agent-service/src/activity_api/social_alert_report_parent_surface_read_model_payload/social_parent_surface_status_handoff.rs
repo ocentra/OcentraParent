@@ -56,7 +56,7 @@ where
 
 pub async fn request_social_provider_status_handoff_from_service(
 ) -> Result<SocialProviderStatusHandoffReadModel, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<SocialProviderStatusHandoffRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(
@@ -103,7 +103,7 @@ pub async fn request_social_provider_status_handoff_from_service(
 
 pub async fn request_social_preference_status_handoff_from_service(
 ) -> Result<SocialPreferenceStatusHandoffReadModel, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<SocialPreferenceStatusHandoffRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(

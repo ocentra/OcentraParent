@@ -10,7 +10,7 @@ use std::{net::SocketAddr, sync::Arc};
 
 use crate::{
     activity_api::app_game_platform_probe_cache::PlatformProbeRuntimeOwner,
-    activity_api::app_game_platform_proof_status_payload::platform_probe_dispatcher,
+    activity_api::app_game_platform_proof_status_transport::platform_probe_dispatcher,
     browser_intervention_page::serve_browser_intervention_page,
     browser_policy_runtime::BrowserPolicyRuntime,
     browser_runtime::BrowserManagedRuntime,

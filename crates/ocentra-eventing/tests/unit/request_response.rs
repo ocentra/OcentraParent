@@ -17,7 +17,7 @@ const REQUEST_TERMINAL_RETENTION_PROBE_COUNT: usize = 4097;
 
 #[tokio::test]
 async fn publish_request_resolves_associated_response_type() {
-    let bus = crate::EventBus::new();
+    let bus = crate::EventBus::root();
     bus.subscribe::<TestRequestEvent, _, _>(
         subscriber_for_event(
             TestText("request-subscriber".to_owned()),
@@ -49,7 +49,7 @@ async fn publish_request_resolves_associated_response_type() {
 
 #[tokio::test]
 async fn request_terminal_retention_uses_completion_order_not_request_id_sort_order() {
-    let bus = crate::EventBus::new();
+    let bus = crate::EventBus::root();
     bus.subscribe::<TestRequestEvent, _, _>(
         subscriber_for_event(
             TestText("request-retention-subscriber".to_owned()),
@@ -157,7 +157,7 @@ async fn publish_retention_probe_request(
 
 #[tokio::test]
 async fn invalid_response_validation_does_not_settle_request() {
-    let bus = crate::EventBus::new();
+    let bus = crate::EventBus::root();
     let invalid_rejected = Arc::new(Mutex::new(false));
     let invalid_rejected_clone = Arc::clone(&invalid_rejected);
     bus.subscribe::<TestRequestEvent, _, _>(
@@ -195,7 +195,7 @@ async fn invalid_response_validation_does_not_settle_request() {
 
 #[tokio::test]
 async fn request_timeout_reports_late_response_without_mutating_result() {
-    let bus = crate::EventBus::new();
+    let bus = crate::EventBus::root();
     let attempts = Arc::new(Mutex::new(Vec::new()));
     let attempts_clone = Arc::clone(&attempts);
     bus.subscribe::<TestRequestEvent, _, _>(
@@ -246,7 +246,7 @@ async fn request_timeout_reports_late_response_without_mutating_result() {
 
 #[tokio::test]
 async fn request_timeout_covers_slow_handler_dispatch() {
-    let bus = crate::EventBus::new();
+    let bus = crate::EventBus::root();
     let outcomes = Arc::new(Mutex::new(Vec::new()));
     let outcomes_clone = Arc::clone(&outcomes);
     bus.subscribe::<TestRequestEvent, _, _>(
@@ -288,7 +288,7 @@ async fn request_timeout_covers_slow_handler_dispatch() {
 
 #[tokio::test]
 async fn request_timeout_aborts_never_completing_publish_and_releases_in_flight() {
-    let bus = crate::EventBus::new();
+    let bus = crate::EventBus::root();
     bus.subscribe::<TestRequestEvent, _, _>(
         subscriber_for_event(
             TestText("request-subscriber".to_owned()),
@@ -321,7 +321,7 @@ async fn request_timeout_aborts_never_completing_publish_and_releases_in_flight(
 
 #[tokio::test]
 async fn publish_request_cancels_registry_entry_when_publish_fails() {
-    let bus = crate::EventBus::new();
+    let bus = crate::EventBus::root();
     let failed = bus
         .publish_request(
             InvalidContractRequestEvent::new(),
@@ -360,7 +360,7 @@ async fn publish_request_cancels_registry_entry_when_publish_fails() {
 
 #[tokio::test]
 async fn double_completion_is_ignored_and_reported() {
-    let bus = crate::EventBus::new();
+    let bus = crate::EventBus::root();
     let outcomes = Arc::new(Mutex::new(Vec::new()));
     let outcomes_clone = Arc::clone(&outcomes);
     bus.subscribe::<TestRequestEvent, _, _>(
@@ -407,7 +407,7 @@ async fn double_completion_is_ignored_and_reported() {
 
 #[tokio::test]
 async fn in_memory_result_event_pattern_remains_separate_from_local_completion() {
-    let bus = crate::EventBus::new();
+    let bus = crate::EventBus::root();
     let result_owner = EventRecorder::<TestResultEvent>::attach(
         &bus,
         subscriber_for_event(

@@ -15,9 +15,9 @@ use ocentra_parent_agent_protocol::{
     },
     browser_inventory::BrowserInventoryReadModel,
     browser_managed::{
-        BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry, BrowserManagedState,
-        BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionConfidence,
-        BrowserUnmanagedDetectionReason, BrowserUnmanagedProcessKind,
+        BrowserManagedProfileLifecycleState, BrowserManagedState, BrowserQueryVisibilityLabel,
+        BrowserUnmanagedDetectionConfidence, BrowserUnmanagedDetectionReason,
+        BrowserUnmanagedProcessKind,
     },
     constants,
     logging::LogFieldValue,
@@ -51,47 +51,6 @@ fn browser_runtime_status_variants_preserve_managed_and_unmanaged_details() {
         Some(BrowserUnmanagedProcessKind::SupportedBrowser)
     );
 
-    let ready = browser_runtime_status::managed_profile_ready_status(
-        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        BrowserFamily::UnknownChromium,
-        BrowserChannel::Unknown,
-        profile_store_entry(),
-    );
-    assert_eq!(
-        ready.managed_state,
-        BrowserManagedState::ManagedProfileReady
-    );
-    assert_eq!(
-        ready.profile_id,
-        Some(constants::browser::PROFILE_ID_DEV.to_string())
-    );
-
-    let running = browser_runtime_status::running_managed_status(
-        constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        managed_launch(),
-        profile_store_entry(),
-        constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-    );
-    assert_eq!(running.managed_state, BrowserManagedState::RunningManaged);
-    assert_eq!(running.process_id, Some(418));
-    assert_eq!(
-        running.bridge_endpoint_ref,
-        Some(constants::browser::BRIDGE_ENDPOINT_REF_LOOPBACK_DEVTOOLS.to_string())
-    );
-
-    let disconnected = browser_runtime_status::bridge_disconnected_status(
-        constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-        constants::value::MANAGED_BROWSER_PROFILE_DIR_MISSING,
-    );
-    assert_eq!(
-        disconnected.managed_state,
-        BrowserManagedState::BridgeDisconnected
-    );
-    assert_eq!(
-        disconnected.capability_status,
-        BrowserCapabilityStatus::Stale
-    );
-
     let error_status = browser_runtime_status::status_with_error(
         constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         constants::value::MANAGED_BROWSER_PROFILE_DIR_MISSING,
@@ -105,24 +64,20 @@ fn browser_runtime_status_variants_preserve_managed_and_unmanaged_details() {
 
 #[test]
 fn browser_runtime_payloads_serialize_status_and_empty_inventory_fields() {
-    let connected = browser_runtime_status::connected_status(
+    let error = browser_runtime_status::status_with_error(
         constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-        Some(constants::browser::SESSION_ID_DEV.to_string()),
-        BrowserCapabilityStatus::Available,
-        None::<String>,
+        constants::value::MANAGED_BROWSER_LAUNCH_ERROR,
     );
-    let status_payload = browser_payload::browser_managed_status_payload(&connected);
+    let status_payload = browser_payload::browser_managed_status_payload(&error);
     assert_eq!(
         status_payload.get(constants::field::MANAGED_STATE),
         Some(&LogFieldValue::String(
-            constants::browser::MANAGED_STATE_BRIDGE_CONNECTED.to_string()
+            constants::browser::MANAGED_STATE_ERROR.to_string()
         ))
     );
     assert_eq!(
         status_payload.get(constants::field::BROWSER_VERSION),
-        Some(&LogFieldValue::String(
-            constants::browser::SESSION_ID_DEV.to_string()
-        ))
+        Some(&LogFieldValue::Null(()))
     );
     assert_eq!(
         status_payload.get(constants::field::UNMANAGED_PROCESS_NAME),
@@ -164,40 +119,4 @@ fn unmanaged_process() -> BrowserUnmanagedProcessObservation {
         detection_confidence: BrowserUnmanagedDetectionConfidence::High,
         detection_reason: BrowserUnmanagedDetectionReason::SupportedBrowserOutsideManagedSession,
     }
-}
-
-fn profile_store_entry() -> BrowserManagedProfileStoreEntry {
-    BrowserManagedProfileStoreEntry {
-        schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
-        profile_path_ref: constants::browser::PROFILE_PATH_REF_MANAGED.to_string(),
-        profile_root_ref: constants::browser::PROFILE_ROOT_REF_MANAGED.to_string(),
-        profile_scope_id: constants::browser::PROFILE_SCOPE_ID_DEV.to_string(),
-        device_id: constants::browser::SESSION_ID_DEV.to_string(),
-        browser_family: BrowserFamily::UnknownChromium,
-        browser_channel: BrowserChannel::Unknown,
-        lifecycle_state: BrowserManagedProfileLifecycleState::Ready,
-        custody_label: BrowserCustodyLabel::ChildDeviceLocal,
-        policy_revision: constants::browser::PROFILE_POLICY_REVISION_DEV.to_string(),
-        created_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        updated_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-        missing_since: None,
-        repaired_at: None,
-        deleted_at: None,
-        repair_reason: None,
-    }
-}
-
-fn managed_launch() -> browser_runtime_status::BrowserManagedLaunchStatus {
-    browser_runtime_status::BrowserManagedLaunchStatus::new(
-        418,
-        BrowserFamily::UnknownChromium,
-        BrowserChannel::Unknown,
-        browser_runtime_status::BrowserRuntimeText::from(
-            constants::browser::PROFILE_PATH_REF_MANAGED,
-        ),
-        browser_runtime_status::BrowserRuntimeText::from(
-            constants::browser::BRIDGE_ENDPOINT_REF_LOOPBACK_DEVTOOLS,
-        ),
-    )
 }

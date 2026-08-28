@@ -173,7 +173,7 @@ async fn rejected_eventing_audit(paths: &EnforcementJournalPaths) -> Enforcement
         .envelope
         .decode::<EnforcementAuditJournalEvent>()
         .expect_value("rejected enforcement audit journal decodes")
-        .payload
+        .into_payload()
 }
 
 #[tokio::test]

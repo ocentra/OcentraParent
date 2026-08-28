@@ -412,7 +412,7 @@ fn decode_payloads(
         .map(|event| {
             event
                 .decode::<NetworkRuntimeEventPayload>()
-                .map(|envelope| envelope.payload)
+                .map(|envelope| envelope.into_payload())
                 .map_err(|error| {
                     TestText::from_display(format!("decode runtime payload: {error:?}"))
                 })

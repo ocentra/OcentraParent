@@ -76,7 +76,7 @@ fn process_exit_closes_running_session() {
 }
 
 #[test]
-fn foreground_duration_uses_window_focus_and_stays_within_running_duration() {
+fn generic_window_observation_uses_window_subject_fallback() {
     let summaries = summaries_from_events(&[
         process_event(constants::activity_store::TEST_FIRST_OBSERVED_AT, 0),
         active_window_event(constants::activity_store::TEST_FIRST_OBSERVED_AT),
@@ -92,16 +92,16 @@ fn foreground_duration_uses_window_focus_and_stays_within_running_duration() {
         .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(game_summary.running_duration_ms, 120000);
-    assert_eq!(game_summary.foreground_duration_ms, 60000);
-    assert_eq!(game_summary.background_duration_ms, 60000);
-    assert_eq!(
-        game_summary.last_foreground_at,
-        Some(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string())
-    );
+    assert_eq!(game_summary.foreground_duration_ms, 0);
+    assert_eq!(game_summary.background_duration_ms, 120000);
+    assert_eq!(game_summary.last_foreground_at, None);
     assert_eq!(
         game_summary.last_background_at,
         Some(constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string())
     );
+    assert!(summaries.iter().any(|summary| {
+        summary.primary_process_identity == constants::activity_store::TEST_WINDOW_SUBJECT_ID
+    }));
 }
 
 #[test]

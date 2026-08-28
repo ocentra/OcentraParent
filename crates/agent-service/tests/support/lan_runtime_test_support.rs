@@ -1,5 +1,8 @@
 use std::fmt::Display;
+use std::fs;
 use std::net::UdpSocket;
+use std::path::{Path, PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryEventHistory;
 use ocentra_lan_core::network_inventory::LanNetworkInventoryDevice;
@@ -12,6 +15,10 @@ use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
 };
 
 use crate::lan_pairing::LanPairingRuntime;
+use crate::lan_pairing_browser_add_device_state::scan_history::{
+    save_scan_history, scan_history_path_for_registry, LanScanHistoryRegistryPath,
+    LanScanHistorySnapshot,
+};
 use crate::test_text::TestText;
 
 #[path = "discovery.rs"]
@@ -48,6 +55,39 @@ pub(crate) fn default_child_mdns_advertisement_fixture(
     support_state: LanMdnsAdvertisementSupportState,
 ) -> LanChildMdnsAdvertisementFixture {
     mdns::default_child_mdns_advertisement_fixture(lifecycle_state, support_state)
+}
+
+pub(crate) fn persistent_runtime_with_devices(
+    devices: &[LanNetworkInventoryDevice],
+) -> (LanPairingRuntime, PathBuf) {
+    let unique_id = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_nanos();
+    let registry_path =
+        std::env::temp_dir().join(format!("ocentra-lan-cache-boundary-{unique_id}.json"));
+    let runtime = LanPairingRuntime::persistent_json(&registry_path);
+    assert!(save_scan_history(&runtime, devices, None));
+    (runtime, registry_path)
+}
+
+pub(crate) fn write_scan_history_snapshot(
+    registry_path: &Path,
+    snapshot: &LanScanHistorySnapshot,
+) -> bool {
+    let history_path =
+        scan_history_path_for_registry(&LanScanHistoryRegistryPath::from(registry_path));
+    serde_json::to_vec_pretty(snapshot)
+        .ok()
+        .is_some_and(|encoded| fs::write(history_path.as_ref(), encoded).is_ok())
+}
+
+pub(crate) fn cleanup_persistent_runtime(registry_path: &Path) {
+    let history_path =
+        scan_history_path_for_registry(&LanScanHistoryRegistryPath::from(registry_path));
+    let _ = fs::remove_file(registry_path);
+    let _ = fs::remove_file(history_path.as_ref());
+    let _ = fs::remove_file(history_path.as_ref().with_extension("lock"));
 }
 
 impl LanPairingRuntime {

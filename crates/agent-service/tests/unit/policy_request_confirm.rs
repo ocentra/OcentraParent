@@ -10,9 +10,6 @@ use std::string::String as TestString;
 #[path = "../support/test_text.rs"]
 mod test_text;
 
-#[path = "../support/command_dispatch_test_support.rs"]
-pub mod test_support;
-
 #[path = "../support/activity_report_env_lock.rs"]
 mod activity_report_env_lock;
 #[path = "../../src/activity_store_path.rs"]

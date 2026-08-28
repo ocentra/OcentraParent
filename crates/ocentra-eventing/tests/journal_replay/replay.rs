@@ -208,7 +208,7 @@ async fn action_replay_skips_two_before_dispatch_records_and_replays_later_actio
         .replay_projection(ReplayFilter::all())
         .await
         .expect_value("projection replay reads all journal records");
-    let replay_bus = EventBus::new();
+    let replay_bus = EventBus::root();
     let replay_handled = Arc::new(tokio::sync::Mutex::new(0_usize));
     let replay_handled_clone = Arc::clone(&replay_handled);
     replay_bus
@@ -390,7 +390,7 @@ async fn projection_replay_cannot_run_handlers_without_action_mode() {
         .replay_projection(ReplayFilter::all())
         .await
         .expect_value("projection replay");
-    let bus = EventBus::new();
+    let bus = EventBus::root();
 
     let blocked = journal.replay_action_records(ReplayFilter::all()).await;
     assert!(matches!(
@@ -464,7 +464,7 @@ async fn action_replay_capability_is_single_use_at_dispatch_boundary() {
     assert_eq!(action.cursor().next_sequence, 2);
     assert_eq!(action.skipped_count(), 0);
 
-    let replay_bus = EventBus::new();
+    let replay_bus = EventBus::root();
     let reports = replay_bus
         .replay_to_handlers(action, DispatchMode::Sequential)
         .await

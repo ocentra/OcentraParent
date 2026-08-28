@@ -51,23 +51,8 @@ mod lab_execution_common;
 mod platform_claim_values;
 mod process_support;
 
-use action_result::{
-    plan_network_action_result_state, NetworkActionResultAdapterProofState,
-    NetworkActionResultCapabilityState, NetworkActionResultError, NetworkActionResultInput,
-    NetworkActionResultProof, NetworkActionResultRequestedAction, NetworkActionResultTargetKind,
-};
 use adapter_capability_status::{
     NetworkAdapterCapabilityStatusProof, NetworkAdapterCapabilityStatusState,
-};
-use ai_audit::{
-    build_network_ai_audit_report, NetworkAiAuditReport, NetworkAiAuditReportError,
-    NetworkAiAuditReportInput,
-};
-use ai_detection::{
-    evaluate_network_ai_detection_fixtures, NetworkAiDetectionEvaluationError,
-    NetworkAiDetectionEvaluationInput, NetworkAiDetectionEvaluationProof,
-    NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind, NetworkAiDetectionLabel,
-    NetworkAiDetectionRiskLevel,
 };
 use android_vpn_service_gate::{
     NetworkAndroidVpnServiceGateProof, NetworkAndroidVpnServiceGateState,
@@ -77,42 +62,20 @@ use apple_network_extension_gate::{
     NetworkAppleNetworkExtensionGateProof, NetworkAppleNetworkExtensionGateState,
     NetworkAppleNetworkExtensionPlatform, NetworkAppleNetworkExtensionRequiredArtifact,
 };
-use bundle::{
-    build_network_cross_slice_evidence_bundle, NetworkCrossSliceEvidenceBundle,
-    NetworkCrossSliceEvidenceBundleError, NetworkCrossSliceEvidenceBundleInput,
-    NetworkCrossSliceEvidenceSource,
-};
 use category::{CategoryFreshnessState, CategoryMatchKind, DomainCategoryLookup, NetworkCategory};
 use dns::types::NetworkEvidenceGrade;
-use dns_adapter::{
-    plan_network_dns_adapter_proof, NetworkDnsAdapterAction, NetworkDnsAdapterCapabilityState,
-    NetworkDnsAdapterProof, NetworkDnsAdapterProofError, NetworkDnsAdapterProofInput,
-    NetworkDnsAdapterProofState,
-};
 use domain::{normalize_domain_with_public_suffix, DomainNormalizationError, PublicSuffixModel};
 use linux_adapter_gate::{
     NetworkLinuxAdapterGateProof, NetworkLinuxAdapterGateState, NetworkLinuxAdapterKind,
     NetworkLinuxAdapterRequiredArtifact,
 };
-use local_ai_queue::{
-    plan_network_local_ai_queue, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
-    NetworkLocalAiQueuePlan,
-};
 use platform_claims::{NetworkPlatformClaimState, NetworkPlatformClaimTarget};
 use policy::{
-    map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
-    NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError,
-    NetworkEvidencePolicyMappingInput, NetworkEvidencePolicyMode,
+    NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping, NetworkEvidencePolicyMode,
 };
 use process::{
     NetworkAppInventoryEntry, NetworkProcessAppCorrelationInput, NetworkProcessCorrelationError,
     NetworkProcessSnapshot,
-};
-use risk_budget::{
-    evaluate_network_risk_budget_threshold, NetworkRiskBudgetAdapterProofState,
-    NetworkRiskBudgetAgeBand, NetworkRiskBudgetEvaluation, NetworkRiskBudgetEvidenceTier,
-    NetworkRiskBudgetHouseholdPolicy, NetworkRiskBudgetPriorEvent, NetworkRiskBudgetSignal,
-    NetworkRiskBudgetThresholdError, NetworkRiskBudgetThresholdInput, NetworkRiskBudgetThresholds,
 };
 use windows_firewall_adapter::{
     NetworkWindowsFirewallAdapterProof, NetworkWindowsFirewallProofState,

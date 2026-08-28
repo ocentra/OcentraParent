@@ -161,7 +161,7 @@ async fn timer_eventing_projection_retains_device_source_and_route_context() -> 
                 .envelope
                 .decode::<EnforcementAuditJournalEvent>()
                 .expect_value("decode timer eventing audit projection")
-                .payload
+                .into_payload()
         })
         .collect::<Vec<_>>();
 

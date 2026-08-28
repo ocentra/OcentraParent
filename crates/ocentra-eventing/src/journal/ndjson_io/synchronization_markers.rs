@@ -25,7 +25,7 @@ pub(super) async fn verified(
             NdjsonJournalRecord::SynchronizationCompletion(marker) => {
                 completion |= marker_matches(
                     marker.sequence,
-                    marker.entry_hash,
+                    marker.entry_hash.as_ref(),
                     marker.synchronization_hash,
                     append,
                 );
@@ -34,7 +34,7 @@ pub(super) async fn verified(
                 activation |= marker.activation
                     && marker_matches(
                         marker.sequence,
-                        marker.entry_hash,
+                        marker.entry_hash.as_ref(),
                         marker.synchronization_hash,
                         append,
                     );
@@ -57,11 +57,11 @@ pub(super) async fn ensure_verified(
 
 fn marker_matches(
     sequence: u64,
-    entry_hash: Option<crate::JournalHash>,
+    entry_hash: Option<&crate::JournalHash>,
     synchronization_hash: crate::JournalHash,
     append: &JournalAppend,
 ) -> bool {
     sequence == append.sequence
-        && entry_hash == append.current_hash
+        && entry_hash == append.current_hash.as_ref()
         && Some(synchronization_hash) == append.synchronization_hash
 }

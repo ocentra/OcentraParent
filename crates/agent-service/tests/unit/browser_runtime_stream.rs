@@ -16,8 +16,6 @@ mod event_builder;
 mod fields;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
-#[path = "../support/command_dispatch_test_support.rs"]
-pub mod test_support;
 #[path = "../support/test_text.rs"]
 mod test_text;
 #[path = "../../src/time.rs"]

@@ -13,14 +13,8 @@ use ocentra_parent_agent_protocol::network_flow::{
     NetworkRemoteDeliveryProviderChildReadinessState, NetworkRemoteDeliveryStatus,
     NetworkRemoteDeliveryStatusState, NetworkRemoteDeliveryTransportDispatchState,
 };
-use ocentra_parent_agent_protocol::policy_constants;
-use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
-    AgentPeerRole, AgentRoute,
-};
-use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::{
-    blocked_dispatch_records_match_outbox_candidates_for_test, handle_local_command_text_for_test,
+    blocked_dispatch_records_match_outbox_candidates_for_test,
     network_remote_delivery_status_payload_for_test,
 };
 use serde::de::DeserializeOwned;
@@ -76,30 +70,6 @@ async fn network_remote_delivery_status_payload_reuses_stable_row10t_status_snap
 
     assert_eq!(first_status, second_status);
     assert_remote_delivery_status(&first_status);
-
-    Ok(())
-}
-
-#[tokio::test]
-async fn websocket_network_remote_delivery_status_command_reports_payload() -> TestResult {
-    let body = serde_json::to_string(&command_envelope()).map_err(|error| {
-        IoError::other(format!(
-            "{}: {error:?}",
-            constants::error::AGENT_EVENT_SERIALIZES
-        ))
-    })?;
-    let event =
-        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
-    let status: NetworkRemoteDeliveryStatus = status_value(
-        &event.payload,
-        constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
-    )?;
-
-    assert_eq!(
-        event.event,
-        AgentEventName::AgentNetworkRemoteDeliveryStatusReported
-    );
-    assert_remote_delivery_status(&status);
 
     Ok(())
 }
@@ -491,25 +461,6 @@ fn assert_remote_delivery_non_claims(status: &NetworkRemoteDeliveryStatus) {
     assert_eq!(status.video_content_available_count, 0);
     assert_eq!(status.private_message_content_available_count, 0);
     assert_eq!(status.search_query_available_count, 0);
-}
-
-fn command_envelope() -> AgentCommandEnvelope {
-    AgentCommandEnvelope {
-        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-        message_id: constants::event_id::NETWORK_REMOTE_DELIVERY_STATUS_REPORTED.to_string(),
-        sent_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        target: AgentMessageTarget {
-            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            platform: policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS.to_string(),
-            route: AgentRoute::Localhost,
-        },
-        command: AgentCommandName::AgentNetworkRemoteDeliveryStatusGet,
-        payload: Default::default(),
-    }
 }
 
 fn status_value<TStatus: DeserializeOwned>(

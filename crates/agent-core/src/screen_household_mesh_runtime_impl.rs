@@ -146,7 +146,7 @@ struct ScreenHouseholdMeshSpine {
 impl ScreenHouseholdMeshSpine {
     fn without_owner_handlers() -> Self {
         Self {
-            bus: EventBus::new(),
+            bus: EventBus::root(),
         }
     }
 

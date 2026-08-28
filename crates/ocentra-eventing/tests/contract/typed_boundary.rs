@@ -17,7 +17,7 @@ use tokio::sync::Mutex;
 
 #[tokio::test]
 async fn event_bus_dispatches_typed_envelope_and_stores_serialized_boundary() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handled = Arc::new(Mutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
     bus.subscribe::<TestEvent, _, _>(
@@ -67,7 +67,7 @@ async fn event_bus_dispatches_typed_envelope_and_stores_serialized_boundary() {
 
 #[tokio::test]
 async fn request_completion_rejects_associated_response_type_mismatch() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let mismatch_error = Arc::new(Mutex::new(None));
     let mismatch_error_clone = Arc::clone(&mismatch_error);
     bus.subscribe::<AssociatedResponseRequest, _, _>(
@@ -127,7 +127,7 @@ async fn request_completion_rejects_associated_response_type_mismatch() {
 
 #[tokio::test]
 async fn target_handler_filter_prevents_wrong_handler_delivery() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handled = Arc::new(Mutex::new(0_usize));
     let handled_clone = Arc::clone(&handled);
     bus.subscribe::<TestEvent, _, _>(
@@ -169,7 +169,7 @@ async fn target_handler_filter_prevents_wrong_handler_delivery() {
 
 #[tokio::test]
 async fn concurrent_dispatch_records_handler_dead_letter_without_losing_journal() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<TestEvent, _, _>(
         subscriber(
             TestText(TEST_SUBSCRIBER.to_owned()),
@@ -210,7 +210,7 @@ async fn concurrent_dispatch_records_handler_dead_letter_without_losing_journal(
 
 #[tokio::test]
 async fn duplicate_subscriber_ids_are_rejected() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let duplicate = subscriber(
         TestText(TEST_SUBSCRIBER.to_owned()),
         TestText(TEST_TARGET.to_owned()),

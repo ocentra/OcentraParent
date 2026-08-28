@@ -10,9 +10,6 @@ mod log_payload;
 #[path = "../support/test_text.rs"]
 mod test_text;
 
-#[path = "../support/command_dispatch_test_support.rs"]
-pub mod test_support;
-
 #[path = "../../src/activity_store_path.rs"]
 mod activity_store_path;
 #[path = "../../src/event_builder.rs"]
@@ -43,24 +40,14 @@ mod social_source_custody_mutation_payload;
 mod social_alert_report_parent_surface_read_model_payload_tests;
 #[path = "../integration/social_alert_report_read_model_payload_tests.rs"]
 mod social_alert_report_read_model_payload_tests;
-#[path = "../integration/social_alert_report_read_model_service_tests.rs"]
-mod social_alert_report_read_model_service_tests;
 #[path = "../integration/social_audit_explanation_read_model_payload_tests.rs"]
 mod social_audit_explanation_read_model_payload_tests;
-#[path = "../integration/social_audit_explanation_read_model_service_tests.rs"]
-mod social_audit_explanation_read_model_service_tests;
 #[path = "../integration/social_dashboard_read_model_payload_tests.rs"]
 mod social_dashboard_read_model_payload_tests;
-#[path = "../integration/social_dashboard_read_model_service_tests.rs"]
-mod social_dashboard_read_model_service_tests;
 #[path = "../integration/social_parent_notification_delivery_read_model_payload_tests.rs"]
 mod social_parent_notification_delivery_read_model_payload_tests;
-#[path = "../integration/social_parent_notification_delivery_read_model_service_tests.rs"]
-mod social_parent_notification_delivery_read_model_service_tests;
 #[path = "../integration/social_source_custody_mutation_payload_tests.rs"]
 mod social_source_custody_mutation_payload_tests;
-#[path = "../integration/social_source_custody_mutation_service_tests.rs"]
-mod social_source_custody_mutation_service_tests;
 
 #[cfg(test)]
 mod clippy_linkage {

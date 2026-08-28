@@ -116,7 +116,7 @@ pub(super) fn handoff_summary(
 pub async fn request_browser_runtime_action_intent_handoff_for_input(
     input: BrowserRuntimeInput,
 ) -> Result<BrowserRuntimeActionIntentHandoffReport, EventingError> {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<BrowserRuntimeActionIntentHandoffRequest, _, _>(
         EventSubscriber::new(
             SubscriberId::parse(constants::browser::SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF)?,

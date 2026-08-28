@@ -13,7 +13,7 @@ use ocentra_eventing::bus::reports::handler::HandlerOutcome;
 
 #[tokio::test]
 async fn ordered_dispatch_serializes_same_aggregate_transitions() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let observed = Arc::new(Mutex::new(Vec::new()));
     let observed_clone = Arc::clone(&observed);
     bus.subscribe::<TestEvent, _, _>(
@@ -84,7 +84,7 @@ async fn ordered_dispatch_serializes_same_aggregate_transitions() {
 
 #[tokio::test]
 async fn ordered_dispatch_allows_different_aggregates_to_run_concurrently() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let barrier = Arc::new(Barrier::new(2));
     let barrier_clone = Arc::clone(&barrier);
     bus.subscribe::<TestEvent, _, _>(
@@ -151,7 +151,7 @@ async fn ordered_dispatch_allows_different_aggregates_to_run_concurrently() {
 
 #[tokio::test]
 async fn nested_publish_uses_context_publisher_without_deadlock() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handled = Arc::new(Mutex::new(Vec::new()));
     let nested_handled = Arc::clone(&handled);
     bus.subscribe::<TestEvent, _, _>(
@@ -210,7 +210,7 @@ async fn nested_publish_uses_context_publisher_without_deadlock() {
 
 #[tokio::test]
 async fn detached_publish_returns_observable_report() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<TestEvent, _, _>(
         subscriber(
             TestText(TEST_SUBSCRIBER.to_owned()),
@@ -237,7 +237,7 @@ async fn detached_publish_returns_observable_report() {
 
 #[tokio::test]
 async fn sync_subscriber_adapter_uses_typed_dispatch_path() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handled = Arc::new(StdMutex::new(Vec::new()));
     let handled_clone = Arc::clone(&handled);
     let subscription = bus
@@ -279,7 +279,7 @@ async fn sync_subscriber_adapter_uses_typed_dispatch_path() {
 
 #[tokio::test]
 async fn panicking_handler_isolated_as_dead_letter_report() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     bus.subscribe::<TestEvent, _, _>(
         subscriber(
             TestText(TEST_SUBSCRIBER.to_owned()),
@@ -316,7 +316,7 @@ async fn panicking_handler_isolated_as_dead_letter_report() {
 
 #[tokio::test]
 async fn subscription_handle_drop_unsubscribes_handler() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handled = Arc::new(Mutex::new(0_usize));
     let handled_clone = Arc::clone(&handled);
     let handle = bus
@@ -359,7 +359,7 @@ async fn subscription_handle_drop_unsubscribes_handler() {
 
 #[tokio::test]
 async fn registrar_dispose_removes_all_owned_subscriptions() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let mut registrar = EventRegistrar::new();
     registrar
         .subscribe::<TestEvent, _, _>(

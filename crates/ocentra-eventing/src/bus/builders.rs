@@ -19,7 +19,7 @@ impl EventBus {
     /// Constructs an event bus together with its nonforgeable root publication
     /// capability. The returned wrapper dereferences to `EventBus` for
     /// subscription and lifecycle operations.
-    pub fn new() -> RootEventPublisher {
+    pub fn root() -> RootEventPublisher {
         RootEventPublisher::for_bus(Self::build())
     }
 

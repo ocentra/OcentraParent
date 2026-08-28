@@ -15,10 +15,8 @@ use ocentra_parent_agent_core::browser_managed_discovery::{
     unmanaged_browser_processes,
 };
 use ocentra_parent_agent_core::browser_managed_session::{
-    create_or_repair_managed_browser_profile_store, delete_managed_browser_profile_store,
-    launch_managed_browser, load_managed_browser_profile_store, managed_browser_launch_plan,
-    reserve_managed_browser_bridge_port, BrowserManagedLaunchConfig, BrowserManagedLaunchError,
-    BrowserManagedProfileStoreConfig, BrowserManagedProfileStoreError,
+    launch_managed_browser, managed_browser_launch_plan, reserve_managed_browser_bridge_port,
+    BrowserManagedLaunchConfig, BrowserManagedLaunchError,
 };
 use ocentra_parent_agent_core::browser_windows_inventory::{
     windows_browser_executable_identity, windows_browser_inventory_observations,

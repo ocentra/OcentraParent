@@ -19,8 +19,6 @@ use crate::{
     test_invariants::require_some,
 };
 
-#[path = "enforcement_os_adapter_product_proof_read_model_tests/product_control_api_tests.rs"]
-mod product_control_api_tests;
 #[path = "enforcement_os_adapter_product_proof_read_model_tests/product_control_spine_tests.rs"]
 mod product_control_spine_tests;
 

@@ -31,7 +31,7 @@ pub struct ParentTrackingChildCheckInRequestEventFlow {
 
 impl ParentTrackingChildCheckInRequestEventFlow {
     pub async fn new(dispatch_request: ParentRuntimeChangeRequest) -> Result<Self, EventingError> {
-        let bus = EventBus::new();
+        let bus = EventBus::root();
         let child_runtime_flow = TrackingRuntimeEventFlow::with_bus(bus.clone()).await?;
         Ok(Self {
             bus,

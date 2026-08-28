@@ -139,8 +139,11 @@ mod lan_runtime_test_support;
 fn lan_runtime_path_included_scheduler_hooks_and_time_helpers_remain_linked() {
     let _spawn_mdns: fn(crate::lan_pairing::LanPairingRuntime) =
         crate::lan_pairing_runtime_state::mdns_advertisement::spawn_lan_mdns_advertisement_runtime;
-    let _spawn_passive: fn(crate::lan_pairing::LanPairingRuntime) =
-        crate::lan_pairing_runtime_state::passive_discovery::spawn_lan_passive_discovery_runtime;
+    let _spawn_passive: fn(
+        crate::lan_pairing::LanPairingRuntime,
+    ) -> std::io::Result<
+        crate::lan_pairing_runtime_state::passive_discovery::LanPassiveDiscoveryServiceRuntime,
+    > = crate::lan_pairing_runtime_state::passive_discovery::spawn_lan_passive_discovery_runtime;
 
     assert_eq!(
         crate::time::timestamp_from_epoch_seconds::<String>(0),

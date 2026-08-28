@@ -328,7 +328,7 @@ fn network_contract_schema_fuzz_seeded_mutation_cases_fail_closed() {
 
 #[tokio::test]
 async fn invalid_serialized_runtime_payload_is_rejected_before_handler_receipt() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let delivered = Arc::new(Mutex::new(Vec::new()));
     let captured = Arc::clone(&delivered);
     bus.subscribe::<NetworkRuntimeEventPayload, _, _>(subscriber(), move |context| {
@@ -363,7 +363,7 @@ async fn invalid_serialized_runtime_payload_is_rejected_before_handler_receipt()
 
 #[tokio::test]
 async fn network_runtime_payload_dispatches_once_through_shared_event_bus() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let delivered = Arc::new(Mutex::new(Vec::new()));
     let captured = Arc::clone(&delivered);
     let payload = payload();

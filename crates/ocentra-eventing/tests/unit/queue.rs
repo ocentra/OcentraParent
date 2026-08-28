@@ -619,7 +619,7 @@ async fn idempotency_registry_rejects_queued_and_completed_duplicates() {
 
 #[tokio::test]
 async fn in_flight_duplicate_guard_rejects_concurrent_event_id() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let started = Arc::new(Notify::new());
     let started_clone = Arc::clone(&started);
     bus.subscribe::<TestEvent, _, _>(

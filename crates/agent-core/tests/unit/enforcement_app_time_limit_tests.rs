@@ -33,30 +33,36 @@ fn app_time_limit_capability_reports_platform_status_without_claiming_other_adap
         capability.adapter_kind,
         EnforcementAdapterKind::ProcessControl
     );
-    assert_eq!(
-        capability.permission_state,
-        EnforcementPermissionState::NotRequired
-    );
-
     #[cfg(windows)]
     {
         assert_eq!(
             capability.capability_state,
-            EnforcementCapabilityState::Supported
+            EnforcementCapabilityState::ManualRequired
         );
         assert_eq!(
             capability.dependency_state,
-            EnforcementDependencyState::Installed
+            EnforcementDependencyState::Unknown
+        );
+        assert_eq!(
+            capability.permission_state,
+            EnforcementPermissionState::Unknown
         );
         assert_eq!(
             capability.supported_actions,
             vec![EnforcementMode::TimeLimit]
         );
-        assert_eq!(capability.degraded_reason, None);
+        assert_eq!(
+            capability.degraded_reason.as_deref(),
+            Some(enforcement::UNAVAILABLE_MANUAL_REQUIRED)
+        );
     }
 
     #[cfg(not(windows))]
     {
+        assert_eq!(
+            capability.permission_state,
+            EnforcementPermissionState::NotRequired
+        );
         assert_eq!(
             capability.capability_state,
             EnforcementCapabilityState::Unavailable
@@ -327,35 +333,19 @@ fn app_time_limit_adapter_reports_real_platform_expiry_or_unavailable_result() -
         policy::TEST_EVALUATED_AT,
     );
 
-    #[cfg(windows)]
-    {
-        assert_eq!(outcome.status, EnforcementResultStatus::Expired);
-        assert_eq!(
-            outcome.adapter_result_code,
-            EnforcementAdapterResultCode::ProcessAlreadyExited
-        );
-        assert_eq!(
-            outcome.rollback_state,
-            EnforcementRollbackState::NotRequired
-        );
-    }
-
-    #[cfg(not(windows))]
-    {
-        assert_eq!(outcome.status, EnforcementResultStatus::Unavailable);
-        assert_eq!(
-            outcome.adapter_result_code,
-            EnforcementAdapterResultCode::UnsupportedPlatform
-        );
-        assert_eq!(
-            outcome.rollback_state,
-            EnforcementRollbackState::Unavailable
-        );
-        assert_eq!(
-            outcome.unavailable_reason.as_deref(),
-            Some(enforcement::UNAVAILABLE_UNSUPPORTED_PLATFORM)
-        );
-    }
+    assert_eq!(outcome.status, EnforcementResultStatus::Unavailable);
+    assert_eq!(
+        outcome.adapter_result_code,
+        EnforcementAdapterResultCode::AdapterUnavailable
+    );
+    assert_eq!(
+        outcome.rollback_state,
+        EnforcementRollbackState::Unavailable
+    );
+    assert_eq!(
+        outcome.unavailable_reason.as_deref(),
+        Some(enforcement::UNAVAILABLE_MANUAL_REQUIRED)
+    );
 
     Ok(())
 }

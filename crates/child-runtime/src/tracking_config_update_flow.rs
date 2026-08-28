@@ -69,7 +69,7 @@ pub struct TrackingConfigUpdateCausalTarget {
 
 impl TrackingConfigUpdateEventFlow {
     pub async fn new() -> Result<Self, EventingError> {
-        let bus = EventBus::new();
+        let bus = EventBus::root();
         let state = TrackingConfigUpdateEventState::default();
         let applied_subscription_report =
             subscribe_child_tracking_config_applied_events(&bus, state.clone()).await?;

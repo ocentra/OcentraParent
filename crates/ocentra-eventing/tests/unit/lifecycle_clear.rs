@@ -111,7 +111,7 @@ async fn clear_for_test_reports_and_resets_local_bus_state() {
 
 #[tokio::test]
 async fn clear_for_test_cancels_pending_request_completion() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let handler_seen = Arc::new(Notify::new());
     let handler_seen_clone = Arc::clone(&handler_seen);
     bus.subscribe::<ClearRequestEvent, _, _>(

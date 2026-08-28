@@ -1,6 +1,5 @@
 #![forbid(unsafe_code)]
 
-extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
 #[path = "../support/activity_capture_mod.rs"]
@@ -11,9 +10,6 @@ mod activity_report_env_lock;
 mod app_game_policy_readiness_sources;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
-#[path = "../support/command_dispatch_test_support.rs"]
-pub mod test_support;
-
 mod test_text {
     use std::{
         fmt::{self, Display},
@@ -124,8 +120,36 @@ mod app_game_boundary_read_model_payload_rows;
 mod app_game_child_runtime_transport_receipt_payload;
 #[path = "../../src/app_game_dispatch_evidence.rs"]
 mod app_game_dispatch_evidence;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight.rs"]
+mod app_game_linux_docker_host_preflight;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_cleanup.rs"]
+mod app_game_linux_docker_host_preflight_cleanup;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_cleanup_owner.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_owner;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_cleanup_process.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_process;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_cleanup_worker.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_worker;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_group.rs"]
+mod app_game_linux_docker_host_preflight_group;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_output.rs"]
+mod app_game_linux_docker_host_preflight_output;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_path_security.rs"]
+mod app_game_linux_docker_host_preflight_path_security;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_paths.rs"]
+mod app_game_linux_docker_host_preflight_paths;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_process.rs"]
+mod app_game_linux_docker_host_preflight_process;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_state.rs"]
+mod app_game_linux_docker_host_preflight_state;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_supervisor.rs"]
+mod app_game_linux_docker_host_preflight_supervisor;
+#[path = "../../src/activity_api/app_game_linux_docker_host_preflight_wait.rs"]
+mod app_game_linux_docker_host_preflight_wait;
 #[path = "../../src/activity_api/app_game_notification_readiness_payload.rs"]
 mod app_game_notification_readiness_payload;
+#[path = "../../src/activity_api/app_game_platform_probe_cache.rs"]
+mod app_game_platform_probe_cache;
 #[path = "../../src/activity_api/app_game_platform_proof_status_payload.rs"]
 mod app_game_platform_proof_status_payload;
 #[path = "../../src/activity_api/app_game_policy_readiness_payload.rs"]
@@ -139,37 +163,23 @@ mod app_game_timer_parent_surface_payload;
 mod app_game_activity_read_models_clippy_linkage_tests;
 #[path = "app_game_adapter_dispatch_preflight_payload_tests.rs"]
 mod app_game_adapter_dispatch_preflight_payload_tests;
-#[path = "app_game_adapter_dispatch_preflight_service_tests.rs"]
-mod app_game_adapter_dispatch_preflight_service_tests;
 #[path = "app_game_adapter_dispatch_result_payload_tests.rs"]
 mod app_game_adapter_dispatch_result_payload_tests;
 #[path = "app_game_adapter_dispatch_result_service_tests.rs"]
 mod app_game_adapter_dispatch_result_service_tests;
 #[path = "app_game_adapter_execution_readiness_payload_tests.rs"]
 mod app_game_adapter_execution_readiness_payload_tests;
-#[path = "app_game_adapter_execution_readiness_service_tests.rs"]
-mod app_game_adapter_execution_readiness_service_tests;
 #[path = "app_game_adapter_host_capabilities.rs"]
 mod app_game_adapter_host_capabilities_tests;
 #[path = "app_game_boundary_read_model_payload_tests.rs"]
 mod app_game_boundary_read_model_payload_tests;
-#[path = "app_game_boundary_read_model_service_tests.rs"]
-mod app_game_boundary_read_model_service_tests;
 #[path = "app_game_child_runtime_transport_receipt_payload_tests.rs"]
 mod app_game_child_runtime_transport_receipt_payload_tests;
-#[path = "app_game_child_runtime_transport_receipt_service_tests.rs"]
-mod app_game_child_runtime_transport_receipt_service_tests;
 #[path = "app_game_notification_readiness_payload_tests.rs"]
 mod app_game_notification_readiness_payload_tests;
-#[path = "app_game_notification_readiness_service_tests.rs"]
-mod app_game_notification_readiness_service_tests;
 #[path = "app_game_platform_proof_status_payload_tests.rs"]
 mod app_game_platform_proof_status_payload_tests;
-#[path = "app_game_platform_proof_status_service_tests.rs"]
-mod app_game_platform_proof_status_service_tests;
 #[path = "app_game_policy_readiness_payload_tests.rs"]
 mod app_game_policy_readiness_payload_tests;
-#[path = "app_game_policy_readiness_service_tests.rs"]
-mod app_game_policy_readiness_service_tests;
 #[path = "app_game_timer_parent_surface_payload_tests.rs"]
 mod app_game_timer_parent_surface_payload_tests;

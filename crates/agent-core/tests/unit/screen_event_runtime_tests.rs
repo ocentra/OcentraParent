@@ -372,7 +372,7 @@ fn decode_payloads(report: &ScreenRuntimeReport) -> Vec<ScreenRuntimeEventPayloa
                 event
                     .decode()
                     .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES);
-            envelope.payload
+            envelope.into_payload()
         })
         .collect()
 }
@@ -421,7 +421,7 @@ async fn test_root_publish_screen_chain(
     degraded_input: ScreenRuntimeDegradedInput,
     degraded: bool,
 ) -> ScreenRuntimeReport {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let target = bus.event_bus().clone();
     register_screen_runtime_test_owners(&bus).await;
     let captured = Arc::new(Mutex::new(None));
@@ -470,12 +470,13 @@ async fn test_root_publish_screen_chain(
     bus.publish(ScreenRuntimeTestTrigger, screen_runtime_test_metadata())
         .await
         .expect_value("screen runtime trigger publishes");
-    captured
+    let report = captured
         .lock()
         .expect_value("screen report lock")
         .take()
         .expect_value("screen runtime report captured")
-        .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES)
+        .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
+    report
 }
 
 async fn register_screen_runtime_test_owners(bus: &RootEventPublisher) {
@@ -498,7 +499,7 @@ async fn register_screen_runtime_test_owners(bus: &RootEventPublisher) {
         (
             constants::screen_flow::SUBSCRIBER_SCREEN_AI_COMPLETE,
             constants::screen_flow::EVENT_SCREEN_AI_ANALYSIS_COMPLETED,
-            constants::screen_flow::TARGET_SCREEN_SUMMARY_WRITER,
+            constants::screen_flow::TARGET_SCREEN_AI_ANALYZER,
         ),
         (
             constants::screen_flow::SUBSCRIBER_SCREEN_SUMMARY_WRITER,
@@ -550,7 +551,7 @@ async fn screen_runtime_test_owner_handler(
     {
         return Err(EventingError::InvalidValue {
             field: "screen_runtime_claim_boundary",
-            value: "raw image escape",
+            value: "raw image escape".to_string(),
         });
     }
     Ok(())

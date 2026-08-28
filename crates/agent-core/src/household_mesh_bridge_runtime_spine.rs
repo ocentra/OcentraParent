@@ -15,7 +15,7 @@ pub(crate) struct HouseholdMeshBridgeSpine {
 impl HouseholdMeshBridgeSpine {
     pub(crate) fn without_owner_handlers() -> Self {
         Self {
-            bus: EventBus::new(),
+            bus: EventBus::root(),
         }
     }
 

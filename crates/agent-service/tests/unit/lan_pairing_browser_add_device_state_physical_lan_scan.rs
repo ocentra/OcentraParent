@@ -20,15 +20,17 @@ use ocentra_parent_agent_protocol::transport::{
 };
 
 use super::{
-    cached_localhost_status_scan_result, cached_runtime_event_stream_scan_result,
-    cached_status_snapshot_devices, command_uses_physical_lan_scan,
-    inventory_refresh_mode_after_targeted_refresh, network_device_scan_result_for_command,
-    recent_previous_scan_agent_truth_devices, refresh_mode_for_command, scan_history_is_recent,
-    scan_truth_context,
+    command_uses_physical_lan_scan, inventory_refresh_mode_after_targeted_refresh,
+    network_device_scan_result_for_command, recent_previous_scan_agent_truth_devices,
+    refresh_mode_for_command, scan_history_is_recent, scan_truth_context,
 };
 use crate::app::lan_pairing::LanPairingRuntime;
 use crate::app::lan_pairing_browser_add_device_state::scan_history::LanScanHistorySnapshot;
+use crate::lan_pairing_browser_add_device_state::scan_history::load_scan_history_snapshot;
 use crate::lan_pairing_test_commands::paired_runtime;
+use crate::lan_runtime_test_support::{
+    cleanup_persistent_runtime, persistent_runtime_with_devices, write_scan_history_snapshot,
+};
 use crate::test_invariants::{require_ok, require_some};
 
 #[test]
@@ -146,43 +148,28 @@ fn active_scan_commands_probe_once_then_read_inventory_passively() {
 
 #[test]
 fn localhost_status_and_runtime_stream_preserve_recent_cached_snapshot_context() {
-    let now = Utc::now();
-    let snapshot = LanScanHistorySnapshot {
-        schema_version: 2,
-        updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-        replay_canonical_projection: None,
-        metadata: None,
-        devices: vec![previous_scan_device(
-            constants::lan_pairing::LOCAL_AGENT_STATUS,
-        )],
-    };
+    let devices = vec![previous_scan_device(
+        constants::lan_pairing::LOCAL_AGENT_STATUS,
+    )];
+    let (runtime, registry_path) = persistent_runtime_with_devices(&devices);
+    let snapshot = require_some(
+        load_scan_history_snapshot(&runtime),
+        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+    );
 
-    let devices = cached_status_snapshot_devices(
+    let status = network_device_scan_result_for_command(
+        &runtime,
         &status_command_for_route(AgentRoute::Localhost),
-        Some(&snapshot),
-        now,
     );
-    let devices = require_some(devices, constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
-
-    assert_eq!(devices.len(), 1);
-    assert_eq!(devices[0].ip_address, constants::lan_pairing::TEST_LAN_IP);
-    let status = require_some(
-        cached_localhost_status_scan_result(
-            &status_command_for_route(AgentRoute::Localhost),
-            Some(snapshot.clone()),
-            now,
-        ),
-        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
-    );
-    let stream = require_some(
-        cached_runtime_event_stream_scan_result(
-            &runtime_stream_command_for_route(AgentRoute::LocalNetwork),
-            Some(snapshot.clone()),
-            now,
-        ),
-        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+    let stream = network_device_scan_result_for_command(
+        &runtime,
+        &runtime_stream_command_for_route(AgentRoute::LocalNetwork),
     );
 
+    cleanup_persistent_runtime(&registry_path);
+
+    assert_eq!(status.devices.len(), 1);
+    assert_eq!(status.devices[0].ip_address, constants::lan_pairing::TEST_LAN_IP);
     assert_eq!(stream, status);
     assert_eq!(stream.previous_scan_snapshot, Some(snapshot.clone()));
     assert_eq!(stream.current_scan_snapshot, Some(snapshot));
@@ -209,31 +196,27 @@ fn localhost_status_and_runtime_stream_preserve_stale_previous_snapshot_context(
             constants::lan_pairing::LAN_PREVIOUS_SCAN_AGENT_TRUTH_REUSE_WINDOW_SECONDS + 1,
         ))
     .to_rfc3339_opts(SecondsFormat::Millis, true);
-    let snapshot = LanScanHistorySnapshot {
-        schema_version: 2,
-        updated_at: stale_updated_at,
-        replay_canonical_projection: None,
-        metadata: None,
-        devices: vec![previous_scan_device(
-            constants::lan_pairing::LOCAL_AGENT_STATUS,
-        )],
-    };
-
-    let expected_snapshot = snapshot.clone();
-    let result = cached_localhost_status_scan_result(
-        &status_command_for_route(AgentRoute::Localhost),
-        Some(snapshot.clone()),
-        now,
-    );
-    let result = require_some(result, constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
-    let stream = require_some(
-        cached_runtime_event_stream_scan_result(
-            &runtime_stream_command_for_route(AgentRoute::LocalNetwork),
-            Some(snapshot),
-            now,
-        ),
+    let devices = vec![previous_scan_device(
+        constants::lan_pairing::LOCAL_AGENT_STATUS,
+    )];
+    let (runtime, registry_path) = persistent_runtime_with_devices(&devices);
+    let mut expected_snapshot = require_some(
+        load_scan_history_snapshot(&runtime),
         constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
     );
+    expected_snapshot.updated_at = stale_updated_at;
+    write_scan_history_snapshot(&registry_path, &expected_snapshot);
+
+    let result = network_device_scan_result_for_command(
+        &runtime,
+        &status_command_for_route(AgentRoute::Localhost),
+    );
+    let stream = network_device_scan_result_for_command(
+        &runtime,
+        &runtime_stream_command_for_route(AgentRoute::LocalNetwork),
+    );
+
+    cleanup_persistent_runtime(&registry_path);
 
     assert_eq!(stream, result);
     assert_eq!(result.devices.len(), 0);
@@ -243,24 +226,28 @@ fn localhost_status_and_runtime_stream_preserve_stale_previous_snapshot_context(
 }
 
 #[test]
-fn local_network_status_does_not_take_cached_snapshot_fast_path() {
-    let now = Utc::now();
-    let snapshot = LanScanHistorySnapshot {
-        schema_version: 2,
-        updated_at: now.to_rfc3339_opts(SecondsFormat::Millis, true),
-        replay_canonical_projection: None,
-        metadata: None,
-        devices: vec![previous_scan_device(
-            constants::lan_pairing::LOCAL_AGENT_STATUS,
-        )],
-    };
-
-    assert!(cached_status_snapshot_devices(
+fn local_network_status_cancellation_preserves_prior_context_without_reusing_it() {
+    let devices = vec![previous_scan_device(
+        constants::lan_pairing::LOCAL_AGENT_STATUS,
+    )];
+    let (runtime, registry_path) = persistent_runtime_with_devices(&devices);
+    let expected_snapshot = require_some(
+        load_scan_history_snapshot(&runtime),
+        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+    );
+    let cancellation = std::sync::atomic::AtomicBool::new(true);
+    let result = crate::lan_pairing_browser_add_device_state::physical_lan_scan::cancellation::refresh_network_device_scan_history_with_cancellation(
+        &runtime,
         &status_command_for_route(AgentRoute::LocalNetwork),
-        Some(&snapshot),
-        now,
-    )
-    .is_none());
+        &cancellation,
+    );
+
+    cleanup_persistent_runtime(&registry_path);
+
+    assert!(result.devices.is_empty());
+    assert!(!result.reused_recent_snapshot);
+    assert_eq!(result.previous_scan_snapshot, Some(expected_snapshot));
+    assert!(result.current_scan_snapshot.is_none());
 }
 
 #[test]

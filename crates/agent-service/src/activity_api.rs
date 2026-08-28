@@ -98,6 +98,8 @@ mod app_game_notification_readiness_payload;
 pub(crate) mod app_game_platform_probe_cache;
 #[path = "activity_api/app_game_platform_proof_status_payload.rs"]
 pub(crate) mod app_game_platform_proof_status_payload;
+#[path = "activity_api/app_game_platform_proof_status_transport.rs"]
+pub(crate) mod app_game_platform_proof_status_transport;
 #[path = "activity_api/app_game_policy_readiness_payload.rs"]
 mod app_game_policy_readiness_payload;
 #[path = "activity_api/app_game_policy_readiness_sources.rs"]

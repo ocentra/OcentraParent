@@ -3,8 +3,6 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
-#[path = "../support/command_dispatch_test_support.rs"]
-pub mod test_support;
 #[path = "../support/test_text.rs"]
 mod test_text;
 

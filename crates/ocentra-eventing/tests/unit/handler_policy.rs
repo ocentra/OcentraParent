@@ -111,7 +111,7 @@ async fn timeout_policy_retries_then_dead_letters_final_timeout() {
 
 #[tokio::test]
 async fn event_recorder_uses_real_subscription_and_can_unsubscribe() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let recorder = EventRecorder::<TestEvent>::attach(
         &bus,
         subscriber(

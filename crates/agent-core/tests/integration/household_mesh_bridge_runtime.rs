@@ -325,7 +325,7 @@ fn decode_payloads(
                 event.decode(),
                 constants::household_mesh::ERROR_BRIDGE_PAYLOAD_DECODES,
             )?;
-            Ok(envelope.payload)
+            Ok(envelope.into_payload())
         })
         .collect()
 }

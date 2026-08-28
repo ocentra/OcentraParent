@@ -545,7 +545,7 @@ async fn tracking_runtime_flow_rejects_invalid_location_before_recording_evidenc
 
 #[tokio::test]
 async fn tracking_runtime_flow_marks_duplicate_parent_requested_check_in_receipts() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::with_bus(bus.clone())
         .await
         .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -596,7 +596,7 @@ async fn tracking_runtime_flow_marks_duplicate_parent_requested_check_in_receipt
 
 #[tokio::test]
 async fn tracking_runtime_flow_marks_stale_parent_requested_check_in_receipts() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::with_bus(bus.clone())
         .await
         .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);
@@ -636,7 +636,7 @@ async fn tracking_runtime_flow_marks_stale_parent_requested_check_in_receipts() 
 
 #[tokio::test]
 async fn tracking_runtime_flow_marks_unsupported_parent_requested_check_in_delivery() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let runtime_flow = ocentra_child_runtime::TrackingRuntimeEventFlow::with_bus(bus.clone())
         .await
         .required(constants::tracking_runtime::ERROR_TRACKING_RUNTIME_FLOW_RECORDED);

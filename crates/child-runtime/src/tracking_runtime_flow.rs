@@ -69,7 +69,7 @@ pub struct TrackingRuntimeEventFlow {
 
 impl TrackingRuntimeEventFlow {
     pub async fn new() -> Result<Self, EventingError> {
-        Self::with_bus(EventBus::new()).await
+        Self::with_bus(EventBus::root()).await
     }
 
     pub async fn with_bus(bus: RootEventPublisher) -> Result<Self, EventingError> {

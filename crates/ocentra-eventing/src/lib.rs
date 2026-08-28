@@ -26,7 +26,7 @@ use bus::reports::handler::{
     QueueDrainReport,
 };
 use bus::subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
-use bus::{DispatchMode, EventBus, EventBusClearReport, EventBusShutdownReport, ShutdownMode};
+use bus::{DispatchMode, EventBusClearReport, EventBusShutdownReport, ShutdownMode};
 use clock::{
     EventClock, EventClockInstant, EventClockSleep, ManualEventClock, SharedEventClock,
     SystemEventClock,

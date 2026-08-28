@@ -122,7 +122,7 @@ async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture
                 event.decode::<ScreenRuntimeEventPayload>(),
                 constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
             )
-            .payload
+            .payload()
             .phase
         })
         .collect::<Vec<_>>();
@@ -162,7 +162,7 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
         report.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
         constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
     )
-    .payload;
+    .into_payload();
     let _ = fs::remove_file(&journal_path);
 
     assert_eq!(payload.phase, ScreenRuntimePhase::DeletionCommitted);
@@ -301,12 +301,12 @@ async fn screen_service_event_runtime_isolates_concurrent_deletion_publication_r
         first.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
         constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
     )
-    .payload;
+    .into_payload();
     let second_payload = require_ok(
         second.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
         constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
     )
-    .payload;
+    .into_payload();
 
     assert_eq!(first.stored_events.len(), 1);
     assert_eq!(second.stored_events.len(), 1);

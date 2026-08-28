@@ -6,9 +6,6 @@ extern crate self as ocentra_parent_agent_service;
 #[path = "../support/test_text.rs"]
 mod test_text;
 
-#[path = "../support/command_dispatch_test_support.rs"]
-pub mod test_support;
-
 #[path = "../support/activity_report_env_lock.rs"]
 mod activity_report_env_lock;
 #[path = "../../src/event_builder.rs"]
@@ -65,7 +62,5 @@ fn tracking_read_model_harness_links_epoch_time_helpers() {
     );
 }
 
-#[path = "tracking_read_model_service_tests.rs"]
-mod tracking_read_model_service_tests;
 #[path = "tracking_retention_settings_write_tests.rs"]
 mod tracking_retention_settings_write_tests;

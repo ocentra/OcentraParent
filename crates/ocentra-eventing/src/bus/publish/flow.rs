@@ -18,6 +18,13 @@ mod receipt;
 
 type BeforeDispatchReceiptValidator = fn(&crate::JournalAppend) -> Result<(), EventingError>;
 
+struct DispatchStoredOptions {
+    queue_report: crate::QueueReport,
+    write_journal: bool,
+    validator: Option<BeforeDispatchReceiptValidator>,
+    dispatch_chain: DispatchChain,
+}
+
 pub(super) async fn publish_with_mode<E>(
     bus: &EventBus,
     event: E,
@@ -129,10 +136,12 @@ impl EventBus {
             stored,
             subscribers,
             dispatch_mode,
-            queue_report,
-            write_journal,
-            None,
-            dispatch_chain,
+            DispatchStoredOptions {
+                queue_report,
+                write_journal,
+                validator: None,
+                dispatch_chain,
+            },
         )
         .await
         .map_err(DispatchStoredError::into_error)
@@ -151,10 +160,12 @@ impl EventBus {
             stored,
             subscribers,
             dispatch_mode,
-            queue_report,
-            write_journal,
-            Some(validator),
-            DispatchChain::root(),
+            DispatchStoredOptions {
+                queue_report,
+                write_journal,
+                validator: Some(validator),
+                dispatch_chain: DispatchChain::root(),
+            },
         )
         .await
         .map_err(DispatchStoredError::into_error)
@@ -172,10 +183,12 @@ impl EventBus {
             stored,
             subscribers,
             dispatch_mode,
-            queue_report,
-            write_journal,
-            None,
-            DispatchChain::root(),
+            DispatchStoredOptions {
+                queue_report,
+                write_journal,
+                validator: None,
+                dispatch_chain: DispatchChain::root(),
+            },
         )
         .await
     }
@@ -185,11 +198,14 @@ impl EventBus {
         stored: StoredEventEnvelope,
         subscribers: Vec<SubscriberRecord>,
         dispatch_mode: DispatchMode,
-        queue_report: crate::QueueReport,
-        write_journal: bool,
-        validator: Option<BeforeDispatchReceiptValidator>,
-        dispatch_chain: DispatchChain,
+        options: DispatchStoredOptions,
     ) -> Result<PublishReport, DispatchStoredError> {
+        let DispatchStoredOptions {
+            queue_report,
+            write_journal,
+            validator,
+            dispatch_chain,
+        } = options;
         let ordered_admission =
             preparation::prepare_ordered(self, &stored, dispatch_mode, &dispatch_chain).await?;
         let reservation = self.queue.reserve_dispatch(&stored)?;

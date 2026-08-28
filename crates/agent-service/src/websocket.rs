@@ -57,7 +57,7 @@ use self::basic_reports::{
     temp_runtime_store_path, BROWSER_POLICY_TEST_STORE_PREFIX, SCREEN_SETTINGS_TEST_STORE_PREFIX,
 };
 use crate::activity_api::app_game_platform_probe_cache::PlatformProbeCache;
-use crate::activity_api::app_game_platform_proof_status_payload::platform_probe_dispatcher;
+use crate::activity_api::app_game_platform_proof_status_transport::platform_probe_dispatcher;
 use crate::parent_local_bridge_admission::ParentLocalBridgeAdmission;
 use crate::{
     browser_policy_runtime::BrowserPolicyRuntime, browser_runtime::BrowserManagedRuntime,

@@ -59,7 +59,7 @@ async fn screen_service_event_runtime_start_registers_subscriber_for_production_
 
 #[tokio::test]
 async fn screen_service_event_subscription_rejects_without_runtime_owner() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let state = ScreenAiServiceEventSubscriptionState::default();
     let subscription = subscribe_screen_service_row_ready_events(&bus, state.clone()).await;
     require_ok(
@@ -116,7 +116,7 @@ async fn screen_service_event_subscription_rejects_without_runtime_owner() {
 
 #[tokio::test]
 async fn screen_service_event_subscription_rejects_degraded_without_runtime_owner() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let state = ScreenAiServiceEventSubscriptionState::default();
     let subscription = subscribe_screen_service_row_ready_events(&bus, state.clone()).await;
     require_ok(
@@ -156,7 +156,7 @@ async fn screen_service_event_subscription_rejects_degraded_without_runtime_owne
 
 #[tokio::test]
 async fn screen_service_event_subscription_rejects_unsafe_rows_before_downstream_publish() {
-    let bus = EventBus::new();
+    let bus = EventBus::root();
     let state = ScreenAiServiceEventSubscriptionState::default();
     let subscription = subscribe_screen_service_row_ready_events(&bus, state.clone()).await;
     require_ok(

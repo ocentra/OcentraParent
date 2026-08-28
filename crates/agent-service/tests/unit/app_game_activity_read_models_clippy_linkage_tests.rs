@@ -187,7 +187,8 @@ fn app_game_activity_read_models_clippy_linkage() {
     let _ = super::app_game_adapter_dispatch_preflight_payload::build_activity_app_game_adapter_dispatch_preflight_report;
     let _ = super::app_game_adapter_execution_readiness_payload::build_activity_app_game_adapter_execution_readiness_report;
     let _ = super::app_game_child_runtime_transport_receipt_payload::build_activity_app_game_child_runtime_transport_receipt_report;
-    let _ = super::app_game_platform_proof_status_payload::build_activity_app_game_platform_proof_status_report;
+    let _ =
+        super::app_game_platform_proof_status_payload::app_game_platform_proof_status_read_model;
 }
 
 #[tokio::test]

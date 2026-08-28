@@ -237,7 +237,7 @@ struct BrowserRuntimeSpine {
 impl BrowserRuntimeSpine {
     fn without_owner_handlers() -> Self {
         Self {
-            bus: EventBus::new(),
+            bus: EventBus::root(),
         }
     }
 

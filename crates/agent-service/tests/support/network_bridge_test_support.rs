@@ -13,7 +13,6 @@ use ocentra_parent_agent_protocol::network_flow::{
     NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_EXPORT_CUSTODY,
     NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
-use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use std::{
     fs,
     path::PathBuf,
@@ -22,8 +21,6 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 use tokio::sync::OnceCell;
-
-use crate::test_text::TestText;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NetworkBridgeTestError {
@@ -111,14 +108,6 @@ pub fn network_runtime_journal_path_for_test() -> NetworkRuntimeJournalPath {
             NetworkRuntimeJournalPath::new(path)
         })
         .clone()
-}
-
-pub(crate) async fn handle_local_command_text_for_test(body: TestText) -> AgentEventEnvelope {
-    ensure_network_runtime_spine_for_test().await;
-    crate::agent_service_lib::websocket::dispatch_local_command_text(
-        crate::agent_service_lib::websocket::WebsocketCommandText(body.0),
-    )
-    .await
 }
 
 pub async fn lock_activity_report_env_for_test() -> tokio::sync::MutexGuard<'static, ()> {

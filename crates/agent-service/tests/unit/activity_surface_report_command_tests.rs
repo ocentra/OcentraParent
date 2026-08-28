@@ -7,70 +7,22 @@ use std::{
 
 use crate::test_text::TestText;
 use ocentra_parent_agent_protocol::activity_surface::{
-    ActivityHistoricalReportList, ActivityReadModelState, ActivityReportDocument,
-    ActivityReportFrequency, ActivitySavedReportState,
+    ActivityReadModelState, ActivityReportDocument, ActivityReportFrequency,
+    ActivitySavedReportState,
 };
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName, AgentMessageTarget,
-    AgentPeer, AgentPeerRole, AgentRoute,
+    AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentPeer, AgentPeerRole,
+    AgentRoute,
 };
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::{
-    build_activity_report_document_for_test, handle_local_command_text_for_test,
-    history_list_from_dir_for_test, lock_activity_report_env_for_test,
-    save_activity_report_document_for_test, save_activity_report_document_to_dir_for_test,
+    build_activity_report_document_for_test, history_list_from_dir_for_test,
+    lock_activity_report_env_for_test, save_activity_report_document_for_test,
+    save_activity_report_document_to_dir_for_test,
 };
 use serde::Serialize;
-
-#[tokio::test]
-async fn activity_report_save_and_history_commands_round_trip_real_json_storage(
-) -> Result<(), TestText> {
-    let _guard = lock_activity_report_env_for_test().await;
-    let report_root = temp_report_root();
-    crate::test_support::cleanup_report_dir(&report_root);
-    env::set_var(constants::env_var::DEV_LOG_DIR, report_root.path());
-    let report = build_activity_report_document_for_test(report_request());
-
-    let save_event = send_activity_surface_command(
-        AgentCommandName::AgentActivityReportSave,
-        save_payload(&report)?,
-    )
-    .await?;
-    let history_event = send_activity_surface_command(
-        AgentCommandName::AgentActivityReportHistoryList,
-        surface_command_payload(),
-    )
-    .await?;
-
-    env::remove_var(constants::env_var::DEV_LOG_DIR);
-    crate::test_support::cleanup_report_dir(&report_root);
-
-    let saved_report = report_from_event(&save_event)?;
-    let history = history_from_event(&history_event)?;
-
-    assert_eq!(save_event.event, AgentEventName::AgentActivityReportSaved);
-    assert_eq!(save_event.severity, LogLevel::Info);
-    assert_eq!(
-        saved_report
-            .saved_metadata
-            .as_ref()
-            .map(|metadata| metadata.saved_state),
-        Some(ActivitySavedReportState::Saved)
-    );
-    assert_eq!(
-        history_event.event,
-        AgentEventName::AgentActivityReportHistoryReported
-    );
-    assert_eq!(history.reports.len(), 1);
-    assert_eq!(history.storage_state, ActivitySavedReportState::Saved);
-    assert_eq!(
-        history.reports[0].parsed_report.report_id,
-        saved_report.report_id
-    );
-    Ok(())
-}
 
 #[tokio::test]
 async fn activity_surface_helper_modules_remain_linked_without_panics() -> Result<(), TestText> {
@@ -416,14 +368,6 @@ fn activity_surface_helper_modules_are_linked_read_models(
     );
 }
 
-async fn send_activity_surface_command(
-    command: AgentCommandName,
-    payload: LogFields,
-) -> Result<AgentEventEnvelope, TestText> {
-    let body = serialize_json(&command_envelope(command, payload))?;
-    Ok(handle_local_command_text_for_test(body).await)
-}
-
 fn save_payload(report: &ActivityReportDocument) -> Result<LogFields, TestText> {
     let mut payload = surface_command_payload();
     payload.insert(
@@ -492,33 +436,6 @@ fn report_request() -> ocentra_parent_agent_protocol::activity_surface::Activity
         requested_at: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
         range_start: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
         range_end: constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-    }
-}
-
-fn report_from_event(event: &AgentEventEnvelope) -> Result<ActivityReportDocument, TestText> {
-    let payload = string_payload_field(event, constants::field::ACTIVITY_REPORT_DOCUMENT)?;
-    serde_json::from_str(payload.0.as_str())
-        .map_err(|error| TestText::from_display(format!("{error:?}")))
-}
-
-fn history_from_event(
-    event: &AgentEventEnvelope,
-) -> Result<ActivityHistoricalReportList, TestText> {
-    let payload = string_payload_field(event, constants::field::ACTIVITY_REPORTS)?;
-    serde_json::from_str(payload.0.as_str())
-        .map_err(|error| TestText::from_display(format!("{error:?}")))
-}
-
-fn string_payload_field(
-    event: &AgentEventEnvelope,
-    field: impl std::fmt::Display,
-) -> Result<TestText, TestText> {
-    let field = field.to_string();
-    match event.payload.get(field.as_str()) {
-        Some(LogFieldValue::String(value)) => Ok(TestText::from_display(value.as_str())),
-        _ => Err(TestText::from_display(
-            constants::error::AGENT_EVENT_SERIALIZES,
-        )),
     }
 }
 

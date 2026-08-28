@@ -80,7 +80,7 @@ impl ParentTrackingConfigUpdateEventFlow {
         child_acknowledgement_state: ChildAcknowledgementState,
         origin_state: ParentRuntimeOriginState,
     ) -> Result<Self, EventingError> {
-        let bus = EventBus::new();
+        let bus = EventBus::root();
         let child_runtime_target = TrackingConfigUpdateEventFlow::new()
             .await?
             .into_causal_target();

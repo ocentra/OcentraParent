@@ -6,7 +6,6 @@ use std::string::String as TestString;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use ocentra_parent_agent_core::browser_managed_discovery::BrowserUnmanagedProcessObservation;
-use ocentra_parent_agent_core::browser_managed_session::BrowserManagedLaunch;
 use ocentra_parent_agent_core::browser_windows_inventory::windows_browser_inventory_observations;
 use ocentra_parent_agent_core::browser_windows_package_inventory::windows_browser_package_observations;
 use ocentra_parent_agent_core::browser_windows_package_source::live_windows_browser_package_entries_from_roots;
@@ -16,9 +15,7 @@ use ocentra_parent_agent_protocol::browser_inventory::{
     BrowserExactUrlCapability, BrowserInventoryInstallState, BrowserManagementTier,
     BrowserSupportTier,
 };
-use ocentra_parent_agent_protocol::browser_managed::{
-    BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
-};
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileLifecycleState;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::transport::{
@@ -48,9 +45,7 @@ use crate::{
     },
     browser_runtime_paths::{managed_browser_executable_path, managed_browser_profile_store},
     browser_runtime_status::{
-        bridge_disconnected_status, connected_status, managed_profile_ready_status,
-        missing_browser_status, profile_missing_status, running_managed_status, status_with_error,
-        unmanaged_browser_status,
+        missing_browser_status, profile_missing_status, status_with_error, unmanaged_browser_status,
     },
     test_invariants::{require_ok, require_some, serialize_test_json},
 };
@@ -118,65 +113,12 @@ fn browser_inventory_support_helpers_link_status_paths_and_policy_modules() {
             detection_reason: ocentra_parent_agent_protocol::browser_managed::BrowserUnmanagedDetectionReason::SupportedBrowserOutsideManagedSession,
         },
     );
-    let profile_store_entry = BrowserManagedProfileStoreEntry {
-        schema_version: ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION,
-        profile_id: constants::browser::PROFILE_ID_DEV.to_string(),
-        profile_path_ref: constants::browser::PROFILE_PATH_REF_MANAGED.to_string(),
-        profile_root_ref: constants::browser::PROFILE_ROOT_REF_MANAGED.to_string(),
-        profile_scope_id: constants::browser::PROFILE_SCOPE_ID_DEV.to_string(),
-        device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-        browser_family: BrowserFamily::Edge,
-        browser_channel: BrowserChannel::Stable,
-        lifecycle_state: BrowserManagedProfileLifecycleState::Ready,
-        custody_label:
-            ocentra_parent_agent_protocol::browser::BrowserCustodyLabel::ChildDeviceLocal,
-        policy_revision: constants::browser::PROFILE_POLICY_REVISION_DEV.to_string(),
-        created_at: checked_at.clone(),
-        updated_at: checked_at.clone(),
-        missing_since: None,
-        repaired_at: None,
-        deleted_at: None,
-        repair_reason: None,
-    };
-    let ready = managed_profile_ready_status(
-        checked_at.clone(),
-        BrowserFamily::Edge,
-        BrowserChannel::Stable,
-        profile_store_entry.clone(),
-    );
-    let profile_path_ref = profile_store_entry.profile_path_ref.clone();
-    let launch = BrowserManagedLaunch {
-        process_id: constants::browser::PROCESS_ID_UNKNOWN,
-        bridge_port: 9222,
-        browser_family: BrowserFamily::Edge,
-        browser_channel: BrowserChannel::Stable,
-        profile_path_ref,
-        bridge_endpoint_ref: constants::browser::BRIDGE_ENDPOINT_REF_LOOPBACK_DEVTOOLS.to_string(),
-    };
-    let running_checked_at = checked_at.clone();
-    let running = running_managed_status(
-        running_checked_at,
-        launch,
-        profile_store_entry,
-        checked_at.clone(),
-    );
-    let disconnected_checked_at = checked_at.clone();
-    let disconnected = bridge_disconnected_status(
-        disconnected_checked_at,
-        constants::browser::MANAGED_STATE_BRIDGE_DISCONNECTED,
-    );
     let errored_checked_at = checked_at.clone();
     let errored = status_with_error(
         errored_checked_at,
         constants::value::MANAGED_BROWSER_LAUNCH_ERROR,
     );
-    let connected = connected_status(
-        checked_at,
-        Some(constants::browser::PRODUCT_NAME_MICROSOFT_EDGE.to_string()),
-        ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus::Available,
-        None,
-    );
-    let payload = browser_managed_status_payload(&connected);
+    let payload = browser_managed_status_payload(&errored);
 
     browser_inventory_status_helpers_assertions(
         missing.managed_state.as_protocol_str().to_string(),
@@ -189,9 +131,6 @@ fn browser_inventory_support_helpers_link_status_paths_and_policy_modules() {
             .unmanaged_process_kind
             .as_ref()
             .map(|value| value.as_protocol_str().to_string()),
-        ready.managed_state.as_protocol_str().to_string(),
-        running.managed_state.as_protocol_str().to_string(),
-        disconnected.managed_state.as_protocol_str().to_string(),
         errored.managed_state.as_protocol_str().to_string(),
         payload.get(constants::field::MANAGED_STATE).cloned(),
     );
@@ -353,9 +292,6 @@ fn browser_inventory_status_helpers_assertions(
     missing_state: TestString,
     profile_missing_state: Option<TestString>,
     unmanaged_kind: Option<TestString>,
-    ready_state: TestString,
-    running_state: TestString,
-    disconnected_state: TestString,
     errored_state: TestString,
     payload_state: Option<LogFieldValue>,
 ) {
@@ -371,23 +307,11 @@ fn browser_inventory_status_helpers_assertions(
         unmanaged_kind,
         Some(constants::browser::UNMANAGED_PROCESS_KIND_SUPPORTED_BROWSER.to_string())
     );
-    assert_eq!(
-        ready_state,
-        constants::browser::MANAGED_STATE_MANAGED_PROFILE_READY
-    );
-    assert_eq!(
-        running_state,
-        constants::browser::MANAGED_STATE_RUNNING_MANAGED
-    );
-    assert_eq!(
-        disconnected_state,
-        constants::browser::MANAGED_STATE_BRIDGE_DISCONNECTED
-    );
     assert_eq!(errored_state, constants::browser::MANAGED_STATE_ERROR);
     assert_eq!(
         payload_state,
         Some(LogFieldValue::String(
-            constants::browser::MANAGED_STATE_BRIDGE_CONNECTED.to_string()
+            constants::browser::MANAGED_STATE_ERROR.to_string()
         ))
     );
 }

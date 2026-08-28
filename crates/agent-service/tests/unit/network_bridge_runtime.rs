@@ -514,9 +514,9 @@ async fn assert_durable_runtime_projection(
             .decode::<ocentra_parent_agent_core::network_event_runtime::NetworkRuntimeEventPayload>(
             )
             .expect("owned runtime payload must decode");
-        assert_eq!(payload.payload.evidence_ref, source_evidence_ref);
+        assert_eq!(payload.payload().evidence_ref, source_evidence_ref);
         assert_eq!(
-            payload.payload.associated_pid_count,
+            payload.payload().associated_pid_count,
             observation.associated_pid_count
         );
         assert_ne!(

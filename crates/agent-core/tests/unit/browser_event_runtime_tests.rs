@@ -653,7 +653,7 @@ fn decoded_payloads(
                 event.decode::<BrowserRuntimeEventPayload>(),
                 "decode browser runtime event payload",
             )
-            .map(|decoded| decoded.payload)
+            .map(|decoded| decoded.into_payload())
         })
         .collect()
 }

@@ -2,7 +2,7 @@ use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_CATALOG_NOT_LOADED, APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
-    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_SESSION_ID_PREFIX,
 };
 use ocentra_parent_agent_protocol::constants;
 
@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[test]
-fn activity_store_reports_app_game_sessions_from_process_and_window_events() {
+fn activity_store_reports_generic_window_subject_without_process_identity() {
     let store =
         ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     let process = process_observation_event(
@@ -39,18 +39,22 @@ fn activity_store_reports_app_game_sessions_from_process_and_window_events() {
 
     assert_eq!(
         report.most_recent_session_id,
-        Some(constants::activity_store::TEST_APP_GAME_SESSION_ID.to_string())
+        Some(format!(
+            "{}{}",
+            APP_GAME_SESSION_ID_PREFIX,
+            constants::activity_store::TEST_WINDOW_SUBJECT_ID
+        ))
     );
-    assert_eq!(report.returned, 1);
+    assert_eq!(report.returned, 2);
     assert_eq!(
         report.most_recent_process_identity,
-        Some(constants::activity_store::TEST_PROCESS_SUBJECT_ID.to_string())
+        Some(constants::activity_store::TEST_WINDOW_SUBJECT_ID.to_string())
     );
     assert_eq!(
         report.most_recent_classification_state,
         Some(APP_GAME_CLASSIFICATION_POSSIBLY_GAME.to_string())
     );
-    assert_eq!(report.most_recent_evidence_count, Some(1));
+    assert_eq!(report.most_recent_evidence_count, Some(2));
 }
 
 #[test]
