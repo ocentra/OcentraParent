@@ -1,6 +1,9 @@
 use ocentra_parent_agent_protocol::browser_intervention_values::BrowserUnmanagedFallbackActionState;
 use ocentra_parent_agent_protocol::{BrowserInterventionAction, BrowserInterventionOutcome};
 
+#[path = "activity_store_browser_intervention_fallback_outcome.rs"]
+mod activity_store_browser_intervention_fallback_outcome;
+
 pub(crate) fn fallback_action_for_intervention(
     intervention_action: &Option<BrowserInterventionAction>,
 ) -> Option<BrowserUnmanagedFallbackActionState> {
@@ -36,13 +39,5 @@ pub(crate) fn fallback_action_for_intervention(
 pub(crate) fn fallback_action_for_outcome(
     intervention_outcome: &Option<BrowserInterventionOutcome>,
 ) -> Option<BrowserUnmanagedFallbackActionState> {
-    match intervention_outcome {
-        Some(BrowserInterventionOutcome::Unsupported) => {
-            Some(BrowserUnmanagedFallbackActionState::Unavailable)
-        }
-        Some(BrowserInterventionOutcome::ManualRequired) => {
-            Some(BrowserUnmanagedFallbackActionState::OsBlockManualRequired)
-        }
-        _ => None,
-    }
+    activity_store_browser_intervention_fallback_outcome::for_outcome(intervention_outcome)
 }

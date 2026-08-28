@@ -1,15 +1,8 @@
 use std::path::PathBuf;
 
 use ocentra_parent_agent_core::{
-    authenticated_delivery_execution::{
-        authenticated_managed_process_target, AuthenticatedDeliveryExecutionReceipt,
-        AuthenticatedDeliveryExecutionState, AuthenticatedDeliveryExecutionStore,
-    },
+    authenticated_delivery_execution::AuthenticatedDeliveryExecutionReceipt,
     authenticated_delivery_grant::{
-        execution_validation::{
-            redacted_delivery_nonce_digest, validate_authenticated_delivery_grant,
-        },
-        AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumer,
         AuthenticatedDeliveryGrantExpectation, AuthenticatedDeliveryGrantTrustedIssuer,
     },
 };
@@ -17,6 +10,9 @@ use ocentra_schema::{
     authenticated_delivery_grant::AuthenticatedDeliveryGrant,
     authenticated_delivery_managed_process::AuthenticatedManagedProcessTargetBinding,
 };
+
+#[path = "authenticated_delivery_execution_api_flow.rs"]
+mod authenticated_delivery_execution_api_flow;
 
 pub struct AuthenticatedDeliveryExecutionRequest {
     pub issuer_key_id: String,
@@ -40,19 +36,22 @@ struct AuthenticatedDeliveryExecutionContext {
     activity_store_path: PathBuf,
 }
 
+pub(crate) struct AuthenticatedDeliveryStorePath(PathBuf);
+pub(crate) struct AuthenticatedDeliveryActivityStorePath(PathBuf);
+
 pub struct AuthenticatedDeliveryExecutionExecutor {
     context: AuthenticatedDeliveryExecutionContext,
 }
 
 impl AuthenticatedDeliveryExecutionExecutor {
     pub(crate) fn from_service_configuration(
-        store_path: PathBuf,
-        activity_store_path: PathBuf,
+        store_path: AuthenticatedDeliveryStorePath,
+        activity_store_path: AuthenticatedDeliveryActivityStorePath,
     ) -> Self {
         Self {
             context: AuthenticatedDeliveryExecutionContext {
-                store_path,
-                activity_store_path,
+                store_path: store_path.0,
+                activity_store_path: activity_store_path.0,
             },
         }
     }
@@ -64,61 +63,12 @@ impl AuthenticatedDeliveryExecutionExecutor {
         expected: &AuthenticatedDeliveryGrantExpectation,
         trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
     ) -> Result<AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionApiError> {
-        validate_authenticated_delivery_grant(grant, expected, trusted_issuer)
-            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;
-        if request.issuer_key_id != grant.issuer_key_id || request.nonce != grant.nonce {
-            return Err(AuthenticatedDeliveryExecutionApiError::GrantRejected);
-        }
-        let target = authenticated_managed_process_target(
+        authenticated_delivery_execution_api_flow::execute(
+            &self.context,
+            request,
             grant,
-            &request.managed_process_binding,
+            expected,
             trusted_issuer,
-            &self.context.activity_store_path,
         )
-        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::TargetBindingRejected)?;
-        let mut store = AuthenticatedDeliveryExecutionStore::open(&self.context.store_path)
-            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?;
-        let receipt = AuthenticatedDeliveryExecutionReceipt {
-            correlation_id: request.correlation_id,
-            nonce_digest: redacted_delivery_nonce_digest(&grant.nonce),
-            state: AuthenticatedDeliveryExecutionState::Pending,
-            adapter_result: None,
-            rollback_required: false,
-        };
-        if store
-            .persist_intent(&grant.issuer_key_id, &grant.nonce, &receipt)
-            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?
-        {
-            let mut grant_consumer = AuthenticatedDeliveryGrantConsumer::open(
-                &self.context.store_path,
-                trusted_issuer.clone(),
-            )
-            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;
-            match grant_consumer
-                .consume(
-                    grant,
-                    expected,
-                    &request.delivered_payload,
-                    receipt.correlation_id.clone(),
-                )
-                .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?
-            {
-                AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_) => {}
-                AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_) => {
-                    return Err(AuthenticatedDeliveryExecutionApiError::ReplayRejected)
-                }
-            }
-            store
-                .execute_authenticated_owned_process(
-                    &grant.issuer_key_id,
-                    &grant.nonce,
-                    &target,
-                    &receipt.correlation_id,
-                    &request.completed_at,
-                )
-                .map_err(|_error| AuthenticatedDeliveryExecutionApiError::ExecutionRejected)
-        } else {
-            Err(AuthenticatedDeliveryExecutionApiError::ReplayRejected)
-        }
     }
 }

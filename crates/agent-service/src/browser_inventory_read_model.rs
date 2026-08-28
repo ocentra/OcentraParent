@@ -13,6 +13,12 @@ pub struct BrowserInventoryGeneratedAtText(pub String);
 
 struct BrowserInventoryRowIdText(String);
 
+#[derive(Clone, Copy)]
+struct BrowserInventoryRowIdPrefix(&'static str);
+
+#[derive(Clone, Copy)]
+struct BrowserInventoryExecutablePathRef(&'static str);
+
 pub fn browser_inventory_read_model_from_windows_inventory(
     generated_at: BrowserInventoryGeneratedAtText,
     observations: &[BrowserWindowsInventoryObservation],
@@ -24,8 +30,10 @@ pub fn browser_inventory_read_model_from_windows_inventory(
     browser_inventory_read_model_from_observations(
         generated_at,
         &observations,
-        constants::browser::INVENTORY_ROW_ID_PREFIX_WINDOWS,
-        constants::browser::INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED,
+        BrowserInventoryRowIdPrefix(constants::browser::INVENTORY_ROW_ID_PREFIX_WINDOWS),
+        BrowserInventoryExecutablePathRef(
+            constants::browser::INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED,
+        ),
     )
 }
 
@@ -36,16 +44,18 @@ pub fn browser_inventory_read_model_from_platform_inventory(
     browser_inventory_read_model_from_observations(
         generated_at,
         observations,
-        constants::browser::INVENTORY_ROW_ID_PREFIX_PLATFORM,
-        constants::browser::INVENTORY_EXECUTABLE_PATH_REF_PLATFORM_REDACTED,
+        BrowserInventoryRowIdPrefix(constants::browser::INVENTORY_ROW_ID_PREFIX_PLATFORM),
+        BrowserInventoryExecutablePathRef(
+            constants::browser::INVENTORY_EXECUTABLE_PATH_REF_PLATFORM_REDACTED,
+        ),
     )
 }
 
 fn browser_inventory_read_model_from_observations(
     generated_at: BrowserInventoryGeneratedAtText,
     observations: &[BrowserPlatformInventoryObservation],
-    row_id_prefix: &'static str,
-    executable_path_ref: &'static str,
+    row_id_prefix: BrowserInventoryRowIdPrefix,
+    executable_path_ref: BrowserInventoryExecutablePathRef,
 ) -> BrowserInventoryReadModel {
     let rows = observations
         .iter()
@@ -80,8 +90,8 @@ fn browser_inventory_row_from_observation(
     generated_at: &BrowserInventoryGeneratedAtText,
     row_index: usize,
     observation: &BrowserPlatformInventoryObservation,
-    row_id_prefix: &'static str,
-    executable_path_ref: &'static str,
+    row_id_prefix: BrowserInventoryRowIdPrefix,
+    executable_path_ref: BrowserInventoryExecutablePathRef,
 ) -> BrowserInventoryRow {
     BrowserInventoryRow {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
@@ -103,7 +113,7 @@ fn browser_inventory_row_from_observation(
         executable_path_ref: observation
             .executable_path
             .as_ref()
-            .map(|_| executable_path_ref.to_string()),
+            .map(|_| executable_path_ref.0.to_string()),
         publisher_signature_ref: None,
         file_hash_ref: None,
         profile_id: None,
@@ -128,9 +138,9 @@ fn latest_observed_at(
 fn inventory_row_id(
     observation: &BrowserPlatformInventoryObservation,
     row_index: usize,
-    row_id_prefix: &'static str,
+    row_id_prefix: BrowserInventoryRowIdPrefix,
 ) -> BrowserInventoryRowIdText {
-    let mut row_id = String::from(row_id_prefix);
+    let mut row_id = String::from(row_id_prefix.0);
     row_id.push(constants::delimiter::HYPHEN);
     row_id.push_str(observation.browser_family.as_protocol_str());
     row_id.push(constants::delimiter::HYPHEN);

@@ -1,11 +1,14 @@
 use std::fs;
-use std::io::{stderr, stdout, Write};
+use std::io::{stdout, Write};
 
 use crate::args::{self, CommandLine};
 use crate::crypto;
 use crate::error::UpdaterError;
 use crate::manifest;
-use crate::update::{self, UpdateOutcome};
+use crate::update;
+
+#[path = "cli_outcome.rs"]
+mod cli_outcome;
 
 pub async fn run_cli() -> Result<(), UpdaterError> {
     match args::parse_args()? {
@@ -26,7 +29,9 @@ pub async fn run_cli() -> Result<(), UpdaterError> {
             manifest_url,
             dry_run,
             current_version,
-        } => print_outcome(update::run_once(&manifest_url, &current_version, dry_run).await)?,
+        } => cli_outcome::print_outcome(
+            update::run_once(&manifest_url, &current_version, dry_run).await,
+        )?,
         CommandLine::RunLoop {
             manifest_url,
             interval_seconds,
@@ -70,40 +75,5 @@ fn verify_manifest(
     manifest::verify_manifest(manifest, public_key_base64)?;
     let mut output = stdout().lock();
     writeln!(output, "manifest-signature-ok")?;
-    Ok(())
-}
-
-fn print_outcome(result: Result<UpdateOutcome, UpdaterError>) -> Result<(), UpdaterError> {
-    match result {
-        Ok(UpdateOutcome::Current { version }) => {
-            write_stdout_line(&format!("updater-current:{version}"))
-        }
-        Ok(UpdateOutcome::WouldInstall { current, latest }) => {
-            write_stdout_line(&format!("updater-would-install:{current}->{latest}"))
-        }
-        Ok(UpdateOutcome::InstallerCompleted { current, latest }) => {
-            write_stdout_line(&format!("updater-installer-completed:{current}->{latest}"))
-        }
-        Ok(UpdateOutcome::InstallerCompletedRebootRequired { current, latest }) => {
-            write_stdout_line(&format!(
-                "updater-installer-completed-reboot-required:{current}->{latest}"
-            ))
-        }
-        Err(error) => {
-            write_stderr_line(&error.to_string())?;
-            std::process::exit(1);
-        }
-    }
-}
-
-fn write_stdout_line(message: &str) -> Result<(), UpdaterError> {
-    let mut output = stdout().lock();
-    writeln!(output, "{message}")?;
-    Ok(())
-}
-
-fn write_stderr_line(message: &str) -> Result<(), UpdaterError> {
-    let mut output = stderr().lock();
-    writeln!(output, "{message}")?;
     Ok(())
 }

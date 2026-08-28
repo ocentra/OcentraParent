@@ -1,6 +1,9 @@
 use super::*;
 use crate::parent_ui_bridge::action_result_app_game;
 
+#[path = "action_result_policy.rs"]
+mod action_result_policy;
+
 pub(super) fn action_result_message(action: &ParentUiAction) -> String {
     match action.action {
         ParentUiActionKind::RefreshRoute => "route snapshot refreshed by parent Rust facade",
@@ -8,17 +11,11 @@ pub(super) fn action_result_message(action: &ParentUiAction) -> String {
         ParentUiActionKind::AgentCommandRequested => {
             "parent Rust facade forwarded LAN agent command request"
         }
-        ParentUiActionKind::PolicyPreviewAuthoringDraftStaged => {
-            "parent Rust facade staged a policy preview draft"
-        }
-        ParentUiActionKind::PolicyPreviewAuthoringDraftCancelled => {
-            "parent Rust facade invalidated a policy preview draft"
-        }
-        ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
-            "parent Rust facade requested policy preview parent confirmation"
-        }
-        ParentUiActionKind::PolicyRequestParentResolutionRequested => {
-            "parent Rust facade requested parent policy request resolution"
+        ParentUiActionKind::PolicyPreviewAuthoringDraftStaged
+        | ParentUiActionKind::PolicyPreviewAuthoringDraftCancelled
+        | ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested
+        | ParentUiActionKind::PolicyRequestParentResolutionRequested => {
+            return action_result_policy::action_result_message(&action.action).to_string();
         }
         ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested => {
             "parent Rust facade requested LAN pairing browser discovery scan"

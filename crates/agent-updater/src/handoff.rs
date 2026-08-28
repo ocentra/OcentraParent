@@ -3,12 +3,14 @@ use ocentra_schema::setup_device_trust_handoff::{
     SetupDeviceTrustHandoffId, SetupDeviceTrustHandoffInstallPreconditionState,
     SetupDeviceTrustHandoffManualRequiredState, SetupDeviceTrustHandoffNoClaim,
     SetupDeviceTrustHandoffPlatform, SetupDeviceTrustHandoffResponse,
-    SetupDeviceTrustHandoffSetupState, SetupDeviceTrustHandoffStatus,
-    SetupDeviceTrustHandoffTrustBootstrapState,
+    SetupDeviceTrustHandoffStatus,
 };
 
 use crate::error::UpdaterError;
 use crate::update::UpdateOutcome;
+
+#[path = "handoff_state.rs"]
+mod handoff_state;
 
 /// The package updater's typed view of a setup handoff. This is a projection,
 /// not install, runtime-health, trust, or service-readiness proof.
@@ -65,55 +67,7 @@ pub fn consume_setup_device_trust_handoff(
         ),
     };
 
-    let state = if response.handoff_status
-        != SetupDeviceTrustHandoffStatus::ReadyForChildPackageDistribution
-    {
-        match response.handoff_status {
-            SetupDeviceTrustHandoffStatus::PendingSetupCompletion => {
-                ChildPackageDistributionHandoffState::AwaitingSetup
-            }
-            SetupDeviceTrustHandoffStatus::Expired
-            | SetupDeviceTrustHandoffStatus::BlockedManualRequired
-            | SetupDeviceTrustHandoffStatus::ConsumedByDistributionProof => {
-                ChildPackageDistributionHandoffState::ManualRequired
-            }
-            SetupDeviceTrustHandoffStatus::ReadyForChildPackageDistribution => update_state,
-        }
-    } else if response.manual_required_state != SetupDeviceTrustHandoffManualRequiredState::Not {
-        ChildPackageDistributionHandoffState::ManualRequired
-    } else if response.setup_state != SetupDeviceTrustHandoffSetupState::TrustBootstrapIssued
-        || response.trust_bootstrap_state
-            != SetupDeviceTrustHandoffTrustBootstrapState::BootstrapBoundToDevice
-    {
-        match (response.setup_state, response.trust_bootstrap_state) {
-            (
-                SetupDeviceTrustHandoffSetupState::ManualRequired
-                | SetupDeviceTrustHandoffSetupState::Expired,
-                _,
-            )
-            | (
-                _,
-                SetupDeviceTrustHandoffTrustBootstrapState::ManualRequired
-                | SetupDeviceTrustHandoffTrustBootstrapState::Expired,
-            ) => ChildPackageDistributionHandoffState::ManualRequired,
-            _ => ChildPackageDistributionHandoffState::RejectedInconsistent,
-        }
-    } else if response.install_precondition_state
-        != SetupDeviceTrustHandoffInstallPreconditionState::ReadyForInstallHandoff
-    {
-        match response.install_precondition_state {
-            SetupDeviceTrustHandoffInstallPreconditionState::ArtifactProofRequired => {
-                ChildPackageDistributionHandoffState::AwaitingArtifactProof
-            }
-            SetupDeviceTrustHandoffInstallPreconditionState::ManualRequired
-            | SetupDeviceTrustHandoffInstallPreconditionState::Expired => {
-                ChildPackageDistributionHandoffState::ManualRequired
-            }
-            SetupDeviceTrustHandoffInstallPreconditionState::ReadyForInstallHandoff => update_state,
-        }
-    } else {
-        update_state
-    };
+    let state = handoff_state::project_handoff_state(response, update_state);
 
     ChildPackageDistributionHandoffProjection {
         handoff_id: response.handoff_id.clone(),
