@@ -35,6 +35,7 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::family::{
 use ocentra_parent_agent_protocol::schema_domain_mirrors::notification::{
     NotificationLocalOutboxSchedulerState, V3NotificationProviderChannel,
 };
+use serde_json::json;
 
 #[test]
 fn scheduler_bridge_consumes_wp58_and_keeps_blocked_rows_unscheduled(
@@ -144,6 +145,65 @@ fn scheduler_bridge_rejects_tampered_wp58_counts_claims_and_identities(
     let mut duplicate = source_bridge()?;
     duplicate.rows[1].bridge_record_id = duplicate.rows[0].bridge_record_id.clone();
     assert_source_rejected(duplicate);
+    Ok(())
+}
+
+#[test]
+fn scheduler_jsonl_rejects_unsafe_claims_and_non_due_state(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let model =
+        build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge()?)?;
+    let mut unsafe_model = model.clone();
+    unsafe_model.rows[0]
+        .scheduler_record
+        .as_mut()
+        .expect_value("scheduled record")
+        .provider_delivery_observed = true;
+    let error = serialize_app_game_notification_scheduler_jsonl(&unsafe_model)
+        .err()
+        .expect_value("unsafe scheduler claim must fail serialization");
+    assert!(error
+        .to_string()
+        .contains("app_game.child_ux_scheduler.scheduler_record"));
+
+    let mut non_due = model.rows[0]
+        .scheduler_record
+        .clone()
+        .expect_value("scheduled record");
+    non_due.scheduler_state = NotificationLocalOutboxSchedulerState::ManualRequired;
+    let jsonl = serde_json::to_string(&non_due)?;
+    let error = parse_app_game_notification_scheduler_jsonl(&jsonl)
+        .err()
+        .expect_value("non-due scheduler state must fail parsing");
+    assert!(error
+        .to_string()
+        .contains("app_game.child_ux_scheduler.scheduler_record"));
+    Ok(())
+}
+
+#[test]
+fn scheduler_store_rejects_tampered_persisted_records_on_reopen(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = test_directory("tamper");
+    let model =
+        build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge()?)?;
+    let store = AppGameChildUxSchedulerProofStore::open(&directory)?;
+    persist_app_game_notification_scheduler_bridge(&store, &model)?;
+
+    let path = directory.join("app-game-child-ux-scheduler-proof.json");
+    let mut persisted: serde_json::Value = serde_json::from_slice(&fs::read(&path)?)?;
+    persisted[0]["providerDeliveryObserved"] = json!(true);
+    fs::write(&path, serde_json::to_vec(&persisted)?)?;
+
+    let error = AppGameChildUxSchedulerProofStore::open(&directory)?
+        .records()
+        .err()
+        .expect_value("tampered scheduler record must fail closed on reopen");
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
+    assert!(error
+        .to_string()
+        .contains("app_game.child_ux_scheduler.scheduler_record"));
+    fs::remove_dir_all(directory)?;
     Ok(())
 }
 

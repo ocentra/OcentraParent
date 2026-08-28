@@ -10,6 +10,7 @@ use crate::app_game_child_ux_scheduler_types::{
 
 const INVALID_SOURCE_FIELD: &str = "app_game.child_ux_scheduler.source_record";
 const INVALID_CONTEXT_FIELD: &str = "app_game.child_ux_scheduler.context";
+const INVALID_RECORD_FIELD: &str = "app_game.child_ux_scheduler.scheduler_record";
 
 pub fn build_app_game_child_ux_scheduler_route(
     input: AppGameChildUxSchedulerInput,
@@ -25,6 +26,48 @@ pub fn build_app_game_child_ux_scheduler_route(
     Ok(AppGameChildUxSchedulerRoute::DueLocal(Box::new(
         build_record(input),
     )))
+}
+
+pub(crate) fn validate_scheduler_record(
+    record: &NotificationLocalOutboxSchedulerRecord,
+) -> Result<(), EventingError> {
+    let identity_invalid = record.scheduler_entry_id.as_str().trim().is_empty()
+        || record.source_entry_id.as_str().trim().is_empty()
+        || record.scheduler_decision_ref.as_str().trim().is_empty()
+        || record.scheduler_artifact_ref.as_str().trim().is_empty()
+        || record.source_outbox_file_ref.as_str().trim().is_empty()
+        || record.local_data_path_ref.as_str().trim().is_empty()
+        || record.scheduler_now_at.as_str().trim().is_empty()
+        || record.scheduler_payload_preview.as_str().trim().is_empty();
+    let state_invalid = record.source_state != NotificationLocalOutboxState::QueuedLocal
+        || record.scheduler_state != NotificationLocalOutboxSchedulerState::DueLocal
+        || record.next_attempt_at.as_ref().map(|value| value.as_str())
+            != Some(record.scheduler_now_at.as_str());
+    let unsupported_lifecycle = record.quiet_hours_window.is_some()
+        || record.retry_window.is_some()
+        || record.dead_letter_review_ref.is_some()
+        || record.provider_receipt_ref.is_some()
+        || !record.manual_proof_requirements.is_empty()
+        || record.manual_action_required;
+    let unsafe_claim = record.raw_child_evidence_included
+        || record.raw_url_or_title_included
+        || record.raw_message_text_included
+        || record.screenshot_or_report_included
+        || record.provider_delivery_attempted
+        || record.provider_delivery_observed
+        || record.provider_receipt_ingested
+        || record.provider_credentials_stored
+        || record.cloud_routing_claimed
+        || record.parent_notification_ui_claimed
+        || record.production_durable_outbox_storage_claimed
+        || record.sensitive_provider_metadata_stored;
+    if identity_invalid || state_invalid || unsupported_lifecycle || unsafe_claim {
+        return Err(invalid_value(
+            INVALID_RECORD_FIELD,
+            record.scheduler_entry_id.as_str(),
+        ));
+    }
+    Ok(())
 }
 
 fn build_record(input: AppGameChildUxSchedulerInput) -> NotificationLocalOutboxSchedulerRecord {

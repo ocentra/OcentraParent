@@ -6,7 +6,9 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::notification::{
     NotificationLocalOutboxSchedulerEntryId, NotificationLocalOutboxSchedulerRecord,
 };
 
-use crate::app_game_child_ux_scheduler::build_app_game_child_ux_scheduler_route;
+use crate::app_game_child_ux_scheduler::{
+    build_app_game_child_ux_scheduler_route, validate_scheduler_record,
+};
 use crate::app_game_child_ux_scheduler_store::AppGameChildUxSchedulerProofStore;
 use crate::app_game_child_ux_scheduler_types::{
     AppGameChildUxSchedulerInput, AppGameChildUxSchedulerPersistResult,
@@ -73,6 +75,14 @@ pub fn persist_app_game_notification_scheduler_bridge(
     read_model
         .rows
         .iter()
+        .filter_map(|row| row.scheduler_record.as_ref())
+        .try_for_each(|record| {
+            validate_scheduler_record(record)
+                .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error.to_string()))
+        })?;
+    read_model
+        .rows
+        .iter()
         .filter_map(|row| row.scheduler_record.clone())
         .map(|record| store.persist(record))
         .collect()
@@ -81,11 +91,16 @@ pub fn persist_app_game_notification_scheduler_bridge(
 pub fn serialize_app_game_notification_scheduler_jsonl(
     read_model: &AppGameNotificationSchedulerBridgeReadModel,
 ) -> Result<String, serde_json::Error> {
+    validate_app_game_notification_scheduler_bridge_read_model(read_model, INVALID_SOURCE_FIELD)
+        .map_err(json_error)?;
     let lines = read_model
         .rows
         .iter()
         .filter_map(|row| row.scheduler_record.as_ref())
-        .map(serde_json::to_string)
+        .map(|record| {
+            validate_scheduler_record(record).map_err(json_error)?;
+            serde_json::to_string(record)
+        })
         .collect::<Result<Vec<_>, _>>()?;
     if lines.is_empty() {
         Ok(String::new())
@@ -100,7 +115,11 @@ pub fn parse_app_game_notification_scheduler_jsonl(
     jsonl
         .lines()
         .filter(|line| !line.trim().is_empty())
-        .map(serde_json::from_str)
+        .map(|line| {
+            let record = serde_json::from_str(line)?;
+            validate_scheduler_record(&record).map_err(json_error)?;
+            Ok(record)
+        })
         .collect()
 }
 
@@ -206,4 +225,11 @@ fn invalid(field: &'static str, value: &str) -> EventingError {
         field,
         value: value.to_owned(),
     }
+}
+
+fn json_error(error: EventingError) -> serde_json::Error {
+    serde_json::Error::io(io::Error::new(
+        io::ErrorKind::InvalidData,
+        error.to_string(),
+    ))
 }
