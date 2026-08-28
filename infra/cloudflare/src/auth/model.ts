@@ -117,6 +117,7 @@ export type AuthBoundaryViolationReason =
   | 'naked-private-route'
   | 'admin-support-route-without-elevated-state'
   | 'admin-support-routes-require-audit-rule'
+  | 'admin-support-routes-require-audit-event'
   | 'webhook-route-auth-state-mismatch'
   | 'internal-queue-route-auth-state-mismatch';
 
@@ -151,6 +152,10 @@ export function validateAuthBoundaryRoute(route: AuthBoundaryRouteLike): AuthBou
 
     if (!ADMIN_SUPPORT_AUDIT_RULES.has(route.auditRule)) {
       return 'admin-support-routes-require-audit-rule';
+    }
+
+    if (typeof route.auditEvent !== 'string' || route.auditEvent.trim().length === 0) {
+      return 'admin-support-routes-require-audit-event';
     }
 
     if (route.authState === 'admin-required' && !route.auditRule.startsWith('admin-')) {

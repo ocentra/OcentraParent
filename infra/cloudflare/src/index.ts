@@ -75,7 +75,7 @@ import {
 } from './auth/browser-session-routes.js';
 import { browserSessionCookieNames, readCookie } from './storage/account-browser-session-codec.js';
 import { createBrowserSessionStore } from './storage/account-browser-session-store.js';
-import { redactPayload } from './security/redaction.js';
+import { redactPayload, sanitizeProviderMetadata } from './security/redaction.js';
 
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const INTERACTIVE_CSRF_HEADER = 'x-ocentra-csrf';
@@ -121,6 +121,39 @@ function logScheduledReconciliationFailure(): void {
       redactionState: 'redacted',
     }),
     false
+  );
+}
+
+/**
+ * Intended abuse-gate limits. Enforcement remains manual-required until a
+ * serialized Durable Object or other transactional owner is bound.
+ */
+export const BILLING_SECURITY_LIMITS = {
+  'billing-parent-write': Object.freeze({ maxRequests: 30, windowSeconds: 60 }),
+  'provider-webhook': Object.freeze({ maxRequests: 120, windowSeconds: 60 }),
+} as const;
+
+type BillingRateLimitRoute = Pick<
+  RouteManifestEntry,
+  'authState' | 'path' | 'routeClass' | 'webhookProvider'
+>;
+
+function logBillingSecurityBoundary(
+  route: Pick<RouteManifestEntry, 'routeClass'>,
+  result: 'blocked' | 'manual-required',
+  noClaimReason: string
+): void {
+  log.logWarn(
+    'billing security boundary decision',
+    getStackTrace(),
+    {
+      owner: 'payment-security-privacy-observability',
+      boundary: route.routeClass,
+      result,
+      noClaimReason,
+      redactionState: 'identifier-free',
+    },
+    true
   );
 }
 
@@ -612,6 +645,35 @@ function explicitProviderHint(payload: unknown): string | null {
   );
 }
 
+function providerWebhookMetadataCandidates(payload: Record<string, unknown>): unknown[] {
+  const candidates: unknown[] = [];
+  if (Object.prototype.hasOwnProperty.call(payload, 'metadata')) {
+    candidates.push(payload.metadata);
+  }
+
+  const data = isPlainObject(payload.data) ? payload.data : null;
+  const object = isPlainObject(data?.object) ? data.object : null;
+  if (object && Object.prototype.hasOwnProperty.call(object, 'metadata')) {
+    candidates.push(object.metadata);
+  }
+  return candidates;
+}
+
+function providerWebhookMetadataFailure(payload: Record<string, unknown>): string | null {
+  const seen = new Set<unknown>();
+  for (const candidate of providerWebhookMetadataCandidates(payload)) {
+    if (seen.has(candidate)) {
+      continue;
+    }
+    seen.add(candidate);
+    const result = sanitizeProviderMetadata(candidate);
+    if (!result.accepted) {
+      return result.reason;
+    }
+  }
+  return null;
+}
+
 function parseBillingStateMutation(value: unknown): BillingStateMutation | null {
   if (!isPlainObject(value)) {
     return null;
@@ -1090,6 +1152,60 @@ function requireServerVerifiedAbuseGate(
   return null;
 }
 
+function billingRateLimitPolicy(route: BillingRateLimitRoute) {
+  if (route.routeClass === 'billing-parent-write' || route.routeClass === 'provider-webhook') {
+    return BILLING_SECURITY_LIMITS[route.routeClass];
+  }
+  return null;
+}
+
+function billingRateLimitPrincipalAvailable(
+  route: BillingRateLimitRoute,
+  identity: VerifiedIdentity | undefined
+): boolean {
+  if (route.routeClass === 'provider-webhook') {
+    return identity?.state === 'provider-webhook-signature-required' && route.webhookProvider !== null;
+  }
+
+  if (route.routeClass !== 'billing-parent-write') {
+    return false;
+  }
+
+  const authority = identity?.authority;
+  return identity?.state === 'parent-session-required' && isVerifiedAccountIdentityAuthorityCapability(authority);
+}
+
+function rateLimitManualRequiredResponse(route: BillingRateLimitRoute, blocker: string): Response {
+  logBillingSecurityBoundary(route, 'manual-required', blocker);
+  return json(503, {
+    status: 'manual-required',
+    authState: route.authState,
+    blocker,
+  });
+}
+
+export async function enforceBillingRateLimit(
+  env: Env,
+  route: BillingRateLimitRoute,
+  identity: VerifiedIdentity | undefined,
+  now = Date.now()
+): Promise<Response | null> {
+  void env;
+  void now;
+  if (!billingRateLimitPolicy(route)) {
+    return null;
+  }
+
+  if (!billingRateLimitPrincipalAvailable(route, identity)) {
+    return rateLimitManualRequiredResponse(route, 'billing-rate-limit-principal-unavailable');
+  }
+
+  // BILLING_RATE_LIMIT_KV cannot safely provide an atomic per-principal counter.
+  // Keep the boundary fail-closed until a serialized Durable Object or other
+  // transactional owner is explicitly bound to this policy.
+  return rateLimitManualRequiredResponse(route, 'billing-rate-limit-transaction-owner-unavailable');
+}
+
 function providerEventDetails(
   provider: string,
   payload: unknown,
@@ -1252,6 +1368,15 @@ async function acceptProviderWebhook(
     return json(400, {
       error: 'invalid-webhook-payload',
       provider,
+    });
+  }
+
+  const metadataFailure = providerWebhookMetadataFailure(payload);
+  if (metadataFailure) {
+    return json(400, {
+      error: 'provider-metadata-validation-failed',
+      provider,
+      reason: metadataFailure,
     });
   }
 
@@ -2143,6 +2268,11 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
   const authResult = await verifyAuthState(route.authState, request, env, providerVerifier);
   if (!authResult.ok) {
     return authResult.response;
+  }
+
+  const rateLimitFailure = await enforceBillingRateLimit(env, route, authResult.identity);
+  if (rateLimitFailure) {
+    return rateLimitFailure;
   }
 
   const contractReadiness = routeContractReadiness(route);

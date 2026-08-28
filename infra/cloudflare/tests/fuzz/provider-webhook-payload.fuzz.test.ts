@@ -37,8 +37,7 @@ describe('stripe webhook fuzz smoke', () => {
           object: {
             amount_total: 1000 + index,
             metadata: {
-              familyRef: `family:fuzz-${index}`,
-              subject: 'parent:demo-active',
+              familyReference: `family:fuzz-${index}`,
             },
           },
         },

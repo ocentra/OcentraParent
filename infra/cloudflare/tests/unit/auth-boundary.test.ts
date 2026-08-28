@@ -7,6 +7,7 @@ import {
   signatureHeaderName,
   verifyAuthState,
 } from '../../src/auth/verifier.js';
+import { validateAuthBoundaryRoute, type AuthBoundaryRouteLike } from '../../src/auth/model.js';
 import type { Env } from '../../src/env.js';
 
 async function readJsonBody(response: Response): Promise<Record<string, unknown>> {
@@ -435,5 +436,19 @@ describe('auth boundary', () => {
       assert.equal(body.error, 'forbidden');
       assert.equal(body.reason, 'support-role-required');
     }
+  });
+
+  it('rejects privileged route definitions that omit an audit event', () => {
+    const route: AuthBoundaryRouteLike = {
+      path: '/admin/billing/accounts',
+      method: 'GET',
+      authState: 'support-required',
+      auditEvent: '   ',
+      auditRule: 'support-read',
+      routeGroup: 'admin',
+      routeBoundary: 'private',
+    };
+
+    assert.equal(validateAuthBoundaryRoute(route), 'admin-support-routes-require-audit-event');
   });
 });

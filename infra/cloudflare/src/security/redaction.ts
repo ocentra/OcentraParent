@@ -19,6 +19,21 @@ const SENSITIVE_FIELD_FRAGMENTS = [
   'childprofile',
   'childactivity',
   'childdevice',
+  'childname',
+  'childid',
+  'childref',
+  'childcontent',
+  'childtelemetry',
+  'childpolicy',
+  'policydetails',
+  'policytext',
+  'screenshot',
+  'urlhistory',
+  'browsinghistory',
+  'providerpayload',
+  'rawproviderpayload',
+  'webhookbody',
+  'rawwebhookbody',
   'devicesecret',
   'localdevicesecret',
   'sessiontoken',
@@ -27,6 +42,46 @@ const SENSITIVE_FIELD_FRAGMENTS = [
   'paypalclientid',
   'applestorekeyref',
 ] as const;
+
+export const PROVIDER_METADATA_ALLOWLIST = [
+  'planReference',
+  'priceReference',
+  'familyReference',
+  'accountReference',
+  'referralCode',
+  'referralReference',
+  'invoiceReference',
+  'receiptReference',
+  'sessionReference',
+  'checkoutReference',
+  'idempotencyReference',
+  'region',
+  'currency',
+  'testLiveMarker',
+] as const;
+
+export const PROVIDER_METADATA_DENYLIST = [
+  'childName',
+  'childId',
+  'childReference',
+  'childActivity',
+  'childContent',
+  'childTelemetry',
+  'childPolicy',
+  'screenshot',
+  'urlHistory',
+  'browsingHistory',
+  'policyDetails',
+  'policyText',
+  'supportBundle',
+  'localDeviceSecret',
+  'providerPayload',
+  'rawWebhookBody',
+] as const;
+
+const PROVIDER_METADATA_VALUE_MAX_LENGTH = 256;
+const PROVIDER_METADATA_DENIED_VALUE_PATTERN =
+  /\b(?:child(?:name|id|reference|activity|content|telemetry|policy)?|screenshot|url\s*history|browsing\s*history|policy(?:details|text)?|support\s*bundle|local\s*device\s*secret)\b/iu;
 const SECRET_VALUE_PATTERNS = [
   /bearer\s+\S+/i,
   /session=[^;\s]+/i,
@@ -44,6 +99,10 @@ function isObjectRecord(value: unknown): value is Record<string, unknown> {
 function normalizeFieldName(fieldName: string): string {
   return fieldName.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
+
+const PROVIDER_METADATA_KEYS_BY_NORMALIZED_NAME = new Map(
+  PROVIDER_METADATA_ALLOWLIST.map((key) => [normalizeFieldName(key), key] as const)
+);
 
 export function isSensitiveFieldName(fieldName: string): boolean {
   const normalized = normalizeFieldName(fieldName);
@@ -86,4 +145,70 @@ export function redactHeaders(headers: Headers): Record<string, string> {
   }
   entries.sort(([left], [right]) => left.localeCompare(right));
   return Object.fromEntries(entries);
+}
+
+export type ProviderMetadataResult =
+  | {
+      readonly accepted: true;
+      readonly metadata: Readonly<Record<string, string>>;
+    }
+  | {
+      readonly accepted: false;
+      readonly reason:
+        | 'metadata-must-be-object'
+        | 'metadata-key-not-allowed'
+        | 'metadata-key-denied'
+        | 'metadata-duplicate-key'
+        | 'metadata-value-invalid'
+        | 'metadata-value-too-large';
+    };
+
+/**
+ * Provider adapters may send only billing reconciliation references. This
+ * boundary is deliberately independent of provider SDKs: an unknown or
+ * privacy-sensitive field is rejected rather than silently forwarded.
+ */
+export function sanitizeProviderMetadata(value: unknown): ProviderMetadataResult {
+  if (!isObjectRecord(value)) {
+    return { accepted: false, reason: 'metadata-must-be-object' };
+  }
+
+  const metadata: Record<string, string> = {};
+  for (const [inputKey, inputValue] of Object.entries(value)) {
+    const normalizedKey = normalizeFieldName(inputKey);
+    if (
+      PROVIDER_METADATA_DENYLIST.some((deniedKey) => normalizeFieldName(deniedKey) === normalizedKey) ||
+      isSensitiveFieldName(inputKey)
+    ) {
+      return { accepted: false, reason: 'metadata-key-denied' };
+    }
+
+    const canonicalKey = PROVIDER_METADATA_KEYS_BY_NORMALIZED_NAME.get(normalizedKey);
+    if (!canonicalKey) {
+      return { accepted: false, reason: 'metadata-key-not-allowed' };
+    }
+    if (Object.prototype.hasOwnProperty.call(metadata, canonicalKey)) {
+      return { accepted: false, reason: 'metadata-duplicate-key' };
+    }
+    if (typeof inputValue !== 'string' || inputValue.trim().length === 0) {
+      return { accepted: false, reason: 'metadata-value-invalid' };
+    }
+
+    const normalizedValue = inputValue.trim();
+    if (normalizedValue.length > PROVIDER_METADATA_VALUE_MAX_LENGTH) {
+      return { accepted: false, reason: 'metadata-value-too-large' };
+    }
+    if (canonicalKey === 'testLiveMarker' && normalizedValue !== 'test' && normalizedValue !== 'live') {
+      return { accepted: false, reason: 'metadata-value-invalid' };
+    }
+    if (
+      redactStringValue(normalizedValue) !== normalizedValue ||
+      PROVIDER_METADATA_DENIED_VALUE_PATTERN.test(normalizedValue)
+    ) {
+      return { accepted: false, reason: 'metadata-value-invalid' };
+    }
+    metadata[canonicalKey] = normalizedValue;
+  }
+
+  return { accepted: true, metadata };
 }

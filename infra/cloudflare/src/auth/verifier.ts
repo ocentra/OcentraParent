@@ -16,6 +16,11 @@ import {
   verifyProviderWebhook,
   type ProviderWebhookName,
 } from './provider-webhook.js';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
+import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
+
+const log = Logger.instance;
+log.register(import.meta.url);
 
 export interface VerifiedIdentity {
   subject: string;
@@ -76,7 +81,23 @@ function json(status: number, body: unknown): Response {
   });
 }
 
+function logAuthBoundaryDecision(authState: AuthState, result: 'rejected' | 'manual-required', reason: string): void {
+  log.logWarn(
+    'billing auth boundary decision',
+    getStackTrace(),
+    {
+      owner: 'billing-auth-verifier',
+      boundary: authState,
+      result,
+      noClaimReason: reason,
+      redactionState: 'identifier-free',
+    },
+    true
+  );
+}
+
 function missingHeader(headerName: string, state: AuthState): AuthFailureResult {
+  logAuthBoundaryDecision(state, 'rejected', 'authentication-header-missing');
   return {
     ok: false,
     response: json(401, {
@@ -88,6 +109,7 @@ function missingHeader(headerName: string, state: AuthState): AuthFailureResult 
 }
 
 function forbidden(reason: string, state: AuthState): AuthFailureResult {
+  logAuthBoundaryDecision(state, 'rejected', reason);
   return {
     ok: false,
     response: json(403, {
@@ -102,6 +124,7 @@ function manualRequired(
   authState: AuthState,
   blocker = ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER
 ): AuthFailureResult {
+  logAuthBoundaryDecision(authState, 'manual-required', blocker);
   return {
     ok: false,
     response: json(503, {
@@ -406,6 +429,7 @@ async function verifyProviderWebhookRequest(
     return missingHeader(result.headerName, authState);
   }
   if (result.status === 'rejected') {
+    logAuthBoundaryDecision(authState, 'rejected', result.reason);
     return {
       ok: false,
       response: json(400, {

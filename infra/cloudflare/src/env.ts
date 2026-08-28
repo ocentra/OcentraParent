@@ -44,6 +44,7 @@ export interface Env {
 
 export const DEFAULT_REQUEST_MAX_BYTES = 1024 * 1024;
 export const FIREBASE_PROJECT_ID_PATTERN = /^[a-z][a-z0-9-]{4,28}[a-z0-9]$/;
+export const BILLING_ENVIRONMENTS = ['local', 'test', 'development', 'production'] as const;
 
 const REQUIRED_ENV_KEYS = ['ENVIRONMENT', 'APP_ORIGIN', 'CORS_ALLOWED_ORIGINS'] as const;
 export const REQUIRED_BINDING_KEYS = [
@@ -236,6 +237,14 @@ function isProductionEnvironment(env: Pick<Env, 'ENVIRONMENT'>): boolean {
   return typeof configuredEnvironment === 'string' && configuredEnvironment.trim().toLowerCase() === 'production';
 }
 
+function normalizedEnvironment(env: Pick<Env, 'ENVIRONMENT'>): string | null {
+  const configuredEnvironment: unknown = env.ENVIRONMENT;
+  if (typeof configuredEnvironment !== 'string' || configuredEnvironment.trim() === '') {
+    return null;
+  }
+  return configuredEnvironment.trim().toLowerCase();
+}
+
 function hasWildcardOrigin(origin: unknown): boolean {
   return typeof origin === 'string' && origin.trim().includes('*');
 }
@@ -294,6 +303,11 @@ export function validateEnv(env: Env): string[] {
     if (typeof configuredValue !== 'string' || configuredValue.trim() === '') {
       errors.push(`missing required env: ${key}`);
     }
+  }
+
+  const environment = normalizedEnvironment(env);
+  if (environment !== null && !(BILLING_ENVIRONMENTS as readonly string[]).includes(environment)) {
+    errors.push('ENVIRONMENT must be one of local, test, development, production');
   }
 
   const allowedOrigins = parseAllowedOrigins(env);

@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
-import { redactHeaders, redactPayload } from '../../src/security/redaction.js';
+import {
+  redactHeaders,
+  redactPayload,
+  sanitizeProviderMetadata,
+} from '../../src/security/redaction.js';
 
 const log = Logger.instance;
 log.register(import.meta.url);
@@ -72,6 +76,44 @@ describe('security redaction', () => {
       APPLE_STORE_KEY_REF: '[redacted]',
       GOOGLE_PLAY_SERVICE_ACCOUNT_REF: '[redacted]',
       ENTITLEMENT_SIGNING_KEY_REF: '[redacted]',
+    });
+  });
+
+  it('accepts only billing reconciliation metadata and rejects child, policy, and secret fields', () => {
+    assert.deepEqual(
+      sanitizeProviderMetadata({
+        plan_reference: 'family-core',
+        accountReference: 'account-123',
+        testLiveMarker: 'test',
+      }),
+      {
+        accepted: true,
+        metadata: {
+          planReference: 'family-core',
+          accountReference: 'account-123',
+          testLiveMarker: 'test',
+        },
+      }
+    );
+    assert.deepEqual(sanitizeProviderMetadata({ childName: 'Ari' }), {
+      accepted: false,
+      reason: 'metadata-key-denied',
+    });
+    assert.deepEqual(sanitizeProviderMetadata({ policyDetails: 'restricted' }), {
+      accepted: false,
+      reason: 'metadata-key-denied',
+    });
+    assert.deepEqual(sanitizeProviderMetadata({ invoiceReference: 'sk_live_not-a-reference' }), {
+      accepted: false,
+      reason: 'metadata-value-invalid',
+    });
+    assert.deepEqual(sanitizeProviderMetadata({ providerSpecificField: 'not-approved' }), {
+      accepted: false,
+      reason: 'metadata-key-not-allowed',
+    });
+    assert.deepEqual(sanitizeProviderMetadata({ testLiveMarker: 'preview' }), {
+      accepted: false,
+      reason: 'metadata-value-invalid',
     });
   });
 });

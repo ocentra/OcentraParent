@@ -211,6 +211,17 @@ describe('env validation', () => {
     assert.ok(validateEnv(env).includes('unknown env key: BILLING_CONFIG_KVV'));
   });
 
+  it('rejects an unclassified environment instead of treating it as a safe test/live mode', () => {
+    assert.ok(
+      validateEnv(
+        createEnv({
+          ENVIRONMENT: 'preview',
+          INTERACTIVE_CSRF_TOKEN: 'csrf-preview-token',
+        })
+      ).includes('ENVIRONMENT must be one of local, test, development, production')
+    );
+  });
+
   it('freezes one owner and one purpose per binding with child-data storage forbidden', () => {
     const ownership = getBindingOwnership();
 
