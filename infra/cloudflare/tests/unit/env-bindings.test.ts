@@ -11,7 +11,13 @@ import type {
   R2Bucket,
 } from '@cloudflare/workers-types';
 import type { Env } from '../../src/env.js';
-import { getBindingHealth, getBindingOwnership, getMissingBindings, validateEnv } from '../../src/env.js';
+import {
+  getBindingHealth,
+  getBindingOwnership,
+  getMissingBindings,
+  parseAllowedOrigins,
+  validateEnv,
+} from '../../src/env.js';
 
 const wranglerDevConfig = readFileSync(resolve(import.meta.dirname, '../../wrangler.toml'), 'utf8');
 const wranglerProductionConfig = readFileSync(resolve(import.meta.dirname, '../../wrangler.production.toml'), 'utf8');
@@ -38,6 +44,7 @@ function createEnv(overrides: Partial<Env> = {}): Env {
     BILLING_ROUTE_KILL_SWITCH: 'false',
     AUTH_ADAPTER_MODE: 'local-safe-fixture',
     INTERNAL_QUEUE_SHARED_SECRET: 'queue-secret',
+    STRIPE_WEBHOOK_TOLERANCE_SECONDS: '300',
     ENTITLEMENT_SIGNING_KEY_REF: 'signing-key-test-ref',
     BILLING_D1: {} as D1Database,
     ACCOUNT_IDENTITY_D1: {} as D1Database,
@@ -52,6 +59,15 @@ function createEnv(overrides: Partial<Env> = {}): Env {
     ANALYTICS: {} as AnalyticsEngineDataset,
     ...overrides,
   };
+}
+
+function createProductionEnv(overrides: Partial<Env> = {}): Env {
+  return createEnv({
+    ENVIRONMENT: 'production',
+    AUTH_ADAPTER_MODE: 'account-auth-adapter-manual-required',
+    INTERACTIVE_CSRF_TOKEN: 'csrf-test-token',
+    ...overrides,
+  });
 }
 
 describe('env validation', () => {
@@ -82,6 +98,66 @@ describe('env validation', () => {
         ENTITLEMENT_SIGNING_KEY_REF: '',
       }).includes('missing required env: ENTITLEMENT_SIGNING_KEY_REF')
     );
+  });
+
+  it('fails closed for missing or non-string origin configuration', () => {
+    const missingAppOriginErrors = validateEnv(createEnv({ APP_ORIGIN: undefined as unknown as string }));
+    assert.deepEqual(
+      missingAppOriginErrors.filter((error) => error.includes('APP_ORIGIN')),
+      ['missing required env: APP_ORIGIN']
+    );
+
+    const nonStringAppOriginErrors = validateEnv(createEnv({ APP_ORIGIN: 42 as unknown as string }));
+    assert.deepEqual(
+      nonStringAppOriginErrors.filter((error) => error.includes('APP_ORIGIN')),
+      ['missing required env: APP_ORIGIN']
+    );
+
+    const missingCorsErrors = validateEnv(createEnv({ CORS_ALLOWED_ORIGINS: undefined as unknown as string }));
+    assert.deepEqual(parseAllowedOrigins(createEnv({ CORS_ALLOWED_ORIGINS: undefined as unknown as string })), []);
+    assert.equal(missingCorsErrors.includes('missing required env: CORS_ALLOWED_ORIGINS'), true);
+    assert.equal(missingCorsErrors.includes('CORS_ALLOWED_ORIGINS must include at least one origin'), true);
+
+    const nonStringCorsErrors = validateEnv(
+      createEnv({ CORS_ALLOWED_ORIGINS: { origin: 'test' } as unknown as string })
+    );
+    assert.equal(nonStringCorsErrors.includes('missing required env: CORS_ALLOWED_ORIGINS'), true);
+    assert.equal(nonStringCorsErrors.includes('CORS_ALLOWED_ORIGINS must include at least one origin'), true);
+  });
+
+  it('rejects malformed app and comma-list origins without throwing', () => {
+    for (const appOrigin of [
+      'ftp://localhost:3000',
+      'https://localhost:3000/path',
+      'https://user:pass@localhost:3000',
+    ]) {
+      assert.equal(
+        validateEnv(createEnv({ APP_ORIGIN: appOrigin })).includes('APP_ORIGIN must be a valid http(s) origin'),
+        true
+      );
+    }
+
+    const corsErrors = validateEnv(
+      createEnv({ CORS_ALLOWED_ORIGINS: 'https://localhost:3000,not-an-origin,https://localhost:3000/path' })
+    );
+    assert.equal(corsErrors.includes('CORS_ALLOWED_ORIGINS must contain only valid http(s) origins'), true);
+  });
+
+  it('preserves wildcard origin behavior for local, test, and development environments', () => {
+    for (const environment of ['local', 'test', 'development'] as const) {
+      assert.deepEqual(
+        validateEnv(
+          createEnv({
+            ENVIRONMENT: environment,
+            APP_ORIGIN: '*',
+            CORS_ALLOWED_ORIGINS: '*, https://localhost:3000',
+            INTERACTIVE_CSRF_TOKEN: 'csrf-test-token',
+          })
+        ),
+        [],
+        environment
+      );
+    }
   });
 
   it('reports malformed request max bytes', () => {
@@ -241,13 +317,14 @@ describe('env validation', () => {
       readinessState: 'required',
     });
     assert.deepEqual(ownership.ACCOUNT_IDENTITY_D1, {
-      owner: 'account-identity-store',
-      purpose: 'minimal provider-subject to Ocentra account mapping',
+      owner: 'account-identity-authority',
+      purpose: 'durable provider-subject to current account/member/role/device/session authority mapping',
       bindingFamily: 'd1',
-      privacyBoundary: 'provider subject and account metadata only; no child telemetry or raw claims',
+      privacyBoundary:
+        'provider subject, account/member/device identifiers, current household target binding, session provenance, and support receipt metadata only; no child telemetry or raw claims',
       childDataStorage: 'forbidden',
       readinessState: 'manual-required',
-      rejectedUse: 'must not become household, child, device, role, or session storage',
+      rejectedUse: 'must not accept caller-supplied household, child, device, role, session, or receipt authority',
     });
     assert.deepEqual(ownership.BILLING_RATE_LIMIT_KV, {
       owner: 'billing-rate-limit-guard',
@@ -297,6 +374,16 @@ describe('env validation', () => {
     assert.doesNotMatch(productionCorsMatch[1], /\*/);
   });
 
+  it('rejects wildcard app and comma-list origins in production after trimming', () => {
+    const appOriginErrors = validateEnv(createProductionEnv({ APP_ORIGIN: 'https://*.ocentra.com' }));
+    assert.equal(appOriginErrors.includes('APP_ORIGIN must not contain a wildcard in production'), true);
+
+    const corsOriginErrors = validateEnv(
+      createProductionEnv({ CORS_ALLOWED_ORIGINS: 'https://parent.ocentra.com, *, https://*.ocentra.com' })
+    );
+    assert.equal(corsOriginErrors.includes('CORS_ALLOWED_ORIGINS must not contain a wildcard in production'), true);
+  });
+
   it('keeps .dev.vars.example secret values placeholder-only and server-side', () => {
     const vars = parseDevVarsExample(devVarsExample);
 
@@ -308,6 +395,7 @@ describe('env validation', () => {
     assert.equal(vars.INTERNAL_QUEUE_SHARED_SECRET, 'REPLACE_WITH_LOCAL_ONLY_SECRET');
     assert.equal(vars.STRIPE_SECRET_KEY, 'REPLACE_WITH_LOCAL_ONLY_SECRET');
     assert.equal(vars.STRIPE_WEBHOOK_SECRET, 'REPLACE_WITH_LOCAL_ONLY_SECRET');
+    assert.equal(vars.STRIPE_WEBHOOK_TOLERANCE_SECONDS, '300');
     assert.equal(vars.RAZORPAY_KEY_ID, 'REPLACE_WITH_LOCAL_ONLY_SECRET');
     assert.equal(vars.RAZORPAY_KEY_SECRET, 'REPLACE_WITH_LOCAL_ONLY_SECRET');
     assert.equal(vars.PAYPAL_CLIENT_ID, 'REPLACE_WITH_LOCAL_ONLY_SECRET');
