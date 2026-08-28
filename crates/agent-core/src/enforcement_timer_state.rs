@@ -56,6 +56,41 @@ pub fn active_timer_state_from_outcome_with_app_game_session(
     })
 }
 
+/// Returns whether a persisted timer state still describes one coherent,
+/// active transition.  Timer state is reconstructed from several protocol
+/// records, so accepting a parseable file is not enough to make restart
+/// recovery safe.
+pub fn active_timer_state_is_consistent(state: &EnforcementActiveTimerState) -> bool {
+    let action = &state.action;
+    let result = &state.result;
+    let audit_event = &state.audit_event;
+    let timer_event = &state.timer_event;
+
+    !action.action_id.trim().is_empty()
+        && !state.stored_at.trim().is_empty()
+        && state.schema_version == action.schema_version
+        && state.state_id
+            == enforcement_timer_state_helpers::active_timer_state_id(&action.action_id)
+        && result.schema_version == action.schema_version
+        && result.action_id == action.action_id
+        && result.capability == action.capability
+        && audit_event.schema_version == action.schema_version
+        && audit_event.action.eq(action)
+        && audit_event.result.eq(result)
+        && audit_event.capability == result.capability
+        && audit_event.unavailable_status == result.unavailable_status
+        && audit_event.evidence_references == action.evidence_references
+        && timer_event.schema_version == action.schema_version
+        && timer_event.action_id == action.action_id
+        && timer_event.policy_decision_id == action.policy_decision_id
+        && timer_event.evidence_references == action.evidence_references
+        && timer_event.rollback_token == action.rollback_token
+        && timer_event.unavailable_reason.is_none()
+        && timer_event.recovered_after_restart
+            == (timer_event.timer_event_kind == EnforcementTimerEventKind::RestartRecovered)
+        && enforcement_timer_state_helpers::active_timer_event(timer_event, result)
+}
+
 pub fn restart_recovered_timer_outcome(
     state: &EnforcementActiveTimerState,
     ids: EnforcementTimerTransitionIds,

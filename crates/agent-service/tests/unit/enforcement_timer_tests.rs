@@ -210,6 +210,81 @@ async fn timer_recovery_reports_unavailable_when_active_state_is_missing() {
     );
 }
 
+#[tokio::test]
+async fn timer_recovery_reports_recovery_needed_for_invalid_persisted_state() -> TestResult {
+    let paths = temp_paths("invalid-persisted-state");
+    cleanup_paths(&paths);
+
+    let execute_event =
+        build_enforcement_audit_report_with_paths(execute_command(), paths.clone()).await;
+    assert_eq!(
+        execute_event.event,
+        AgentEventName::AgentEnforcementAuditReported
+    );
+
+    let mut state = read_state(&paths)?;
+    state.result.action_id.push("-other");
+    let serialized = test_ok(
+        serde_json::to_string(&state),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    )?;
+    test_ok(
+        std::fs::write(&paths.timer_state_path, serialized),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+
+    let inconsistent_event =
+        build_enforcement_timer_report_with_paths(recover_command(), paths.clone()).await;
+    assert_eq!(
+        inconsistent_event.event,
+        AgentEventName::AgentEnforcementTimerReported
+    );
+    assert_eq!(
+        inconsistent_event.payload.get(constants::field::AVAILABLE),
+        Some(&LogFieldValue::Boolean(false))
+    );
+    assert_eq!(
+        inconsistent_event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED.to_string()
+        ))
+    );
+    assert_eq!(
+        inconsistent_event
+            .payload
+            .get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TIMER_RECOVERY_NEEDED.to_string()
+        ))
+    );
+
+    test_ok(
+        std::fs::write(&paths.timer_state_path, "{"),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+    let malformed_event =
+        build_enforcement_timer_report_with_paths(recover_command(), paths.clone()).await;
+    assert_eq!(
+        malformed_event.event,
+        AgentEventName::AgentEnforcementTimerReported
+    );
+    assert_eq!(
+        malformed_event.payload.get(constants::field::AVAILABLE),
+        Some(&LogFieldValue::Boolean(false))
+    );
+    assert_eq!(
+        malformed_event
+            .payload
+            .get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TIMER_RECOVERY_NEEDED.to_string()
+        ))
+    );
+
+    cleanup_paths(&paths);
+    Ok(())
+}
+
 fn execute_command() -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,

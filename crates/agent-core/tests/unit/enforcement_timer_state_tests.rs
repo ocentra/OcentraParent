@@ -1,7 +1,7 @@
 use crate::*;
 use ocentra_parent_agent_core::enforcement_timer_state::{
-    active_timer_state_from_outcome, cancelled_timer_outcome, expired_timer_outcome,
-    restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
+    active_timer_state_from_outcome, active_timer_state_is_consistent, cancelled_timer_outcome,
+    expired_timer_outcome, restart_recovered_timer_outcome, EnforcementTimerTransitionIds,
 };
 use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
@@ -92,6 +92,22 @@ fn active_timer_state_recovers_and_cancels_with_original_identity() -> TestResul
         Some(enforcement::TEST_PARENT_ACTION_REFERENCE_ID)
     );
     assert!(active_timer_state_from_outcome(&cancelled, policy::TEST_EVALUATED_AT).is_none());
+
+    Ok(())
+}
+
+#[test]
+fn persisted_active_timer_state_rejects_cross_record_identity_mutation() -> TestResult {
+    let state = active_state()?;
+    assert!(active_timer_state_is_consistent(&state));
+
+    let mut mismatched_result = state.clone();
+    mismatched_result.result.action_id.push("-other");
+    assert!(!active_timer_state_is_consistent(&mismatched_result));
+
+    let mut mismatched_timer = state;
+    mismatched_timer.timer_event.action_id.push("-other");
+    assert!(!active_timer_state_is_consistent(&mismatched_timer));
 
     Ok(())
 }
