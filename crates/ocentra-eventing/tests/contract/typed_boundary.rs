@@ -52,6 +52,19 @@ async fn event_bus_dispatches_typed_envelope_and_stores_serialized_boundary() {
     assert_eq!(report.subscriber_count, 1);
     assert_eq!(report.handled_count, 1);
     assert_eq!(handled.lock().await.as_slice(), &[TEST_LABEL.to_string()]);
+    assert_eq!(decoded.event_id().as_str(), "event-test-1");
+    assert_eq!(decoded.correlation_id().as_str(), "correlation-test-1");
+    assert_eq!(decoded.source().custody.as_str(), "local-only");
+    assert_eq!(decoded.source().role.as_str(), "agent");
+    assert_eq!(decoded.source().service.as_str(), "eventing-test-service");
+    assert_eq!(
+        decoded.source().component.as_str(),
+        "eventing-test-component"
+    );
+    assert_eq!(
+        decoded.source().instance_id.as_str(),
+        "eventing-test-instance"
+    );
     assert_eq!(decoded.payload().label, TEST_LABEL);
     assert_eq!(
         decoded

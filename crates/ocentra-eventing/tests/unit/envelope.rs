@@ -82,6 +82,13 @@ fn stored_envelope_serde_uses_canonical_eventing_keys() {
         stored_json["source"]["instanceId"],
         json!(TEST_RUNTIME_INSTANCE)
     );
+    assert_eq!(stored_json["source"]["custody"], json!(TEST_CUSTODY));
+    assert_eq!(stored_json["source"]["role"], json!(TEST_RUNTIME_ROLE));
+    assert_eq!(stored_json["source"]["service"], json!(TEST_SOURCE_SERVICE));
+    assert_eq!(
+        stored_json["source"]["component"],
+        json!(TEST_SOURCE_COMPONENT)
+    );
     assert_eq!(stored_json["eventId"], json!(TEST_EVENT_ID));
     assert_eq!(stored_json["correlationId"], json!(TEST_CORRELATION_ID));
     assert_eq!(stored_json["aggregateKey"], json!(TEST_AGGREGATE_KEY));
