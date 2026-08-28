@@ -170,6 +170,75 @@ describe('setup first-run portal route panel', () => {
     expect(markup).not.toContain('onboarding complete');
   });
 
+  it('renders owner-gated first-run states and safe next actions supplied by the Rust snapshot', () => {
+    const panel: ParentSetupFirstRunPanelSnapshot = {
+      ...sampleSetupFirstRunPanelValue,
+      cards: [
+        ...sampleSetupFirstRunPanelValue.cards,
+        {
+          title: 'First-run states and next actions',
+          summary:
+            'The parent route names each setup boundary and the safe next action. Status stays unavailable until the owning authority supplies a typed, current read model.',
+          details: [
+            {
+              label: 'No account / session',
+              value: 'unavailable — Account/session owner must provide current state',
+            },
+            {
+              label: 'Next action — no account / session',
+              value: 'manual-required — request an owner-backed current session',
+            },
+            {
+              label: 'Household exists / no child profile',
+              value: 'unavailable — family authority must provide child-profile state',
+            },
+            {
+              label: 'Next action — household exists / no child profile',
+              value: 'manual-required — request an owner-backed child profile',
+            },
+            {
+              label: 'Discovered unpaired device',
+              value: 'unavailable — LAN may only observe discovery; pairing and ownership are not bound',
+            },
+            {
+              label: 'Next action — discovered unpaired device',
+              value: 'manual-required — use the trusted pairing owner flow',
+            },
+            {
+              label: 'Invite expiry',
+              value: 'unavailable — invite owner must report active, expired, or consumed state',
+            },
+            {
+              label: 'Next action — invite expiry',
+              value: 'manual-required — request a current invite receipt before retrying',
+            },
+            {
+              label: 'Session expiry',
+              value: 'unavailable — Account/session owner must report fresh, stale, or expired state',
+            },
+            {
+              label: 'Next action — session expiry',
+              value: 'manual-required — request a current session receipt before retrying',
+            },
+            {
+              label: 'Child safety',
+              value:
+                'Private child activity is not shown on setup; only authority and readiness boundaries are projected',
+            },
+          ],
+        },
+      ],
+    };
+    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel }));
+
+    expect(markup).toContain('First-run states and next actions');
+    for (const detail of panel.cards[3]!.details) {
+      expect(markup).toContain(detail.label);
+      expect(markup).toContain(detail.value);
+    }
+    expect(markup).not.toContain('onboarding complete');
+  });
+
   it('renders an unavailable panel when the Rust snapshot is missing', () => {
     const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel: null }));
 

@@ -14,6 +14,7 @@ test('start route renders an honest setup boundary panel without invented readin
   await expect(setupRegion.getByRole('heading', { name: 'Current boundary status' })).toBeVisible();
   await expect(setupRegion.getByRole('heading', { name: 'What is real now' })).toBeVisible();
   await expect(setupRegion.getByRole('heading', { name: 'What is missing' })).toBeVisible();
+  await expect(setupRegion.getByRole('heading', { name: 'First-run states and next actions' })).toBeVisible();
   await expect(setupRegion.getByRole('heading', { name: 'Where it belongs' })).toBeVisible();
   await expect(
     setupRegion.getByText(
@@ -31,6 +32,36 @@ test('start route renders an honest setup boundary panel without invented readin
   await expect(setupRegion.getByText('parent runtime + setup read model')).toBeVisible();
   await expect(setupRegion.getByText('presentation only')).toBeVisible();
   await expect(setupRegion.getByText('claim only what the live Rust snapshot can prove')).toBeVisible();
+  await expect(setupRegion.getByText('No account / session', { exact: true })).toBeVisible();
+  await expect(
+    setupRegion.getByText('manual-required — request an owner-backed current session', { exact: true })
+  ).toBeVisible();
+  await expect(setupRegion.getByText('Household exists / no child profile', { exact: true })).toBeVisible();
+  await expect(
+    setupRegion.getByText('manual-required — request an owner-backed child profile', { exact: true })
+  ).toBeVisible();
+  await expect(setupRegion.getByText('Discovered unpaired device', { exact: true })).toBeVisible();
+  await expect(
+    setupRegion.getByText(
+      'unavailable — LAN may only observe discovery; pairing and ownership are not bound',
+      { exact: true }
+    )
+  ).toBeVisible();
+  await expect(setupRegion.getByText('Invite expiry', { exact: true })).toBeVisible();
+  await expect(
+    setupRegion.getByText('manual-required — request a current invite receipt before retrying', { exact: true })
+  ).toBeVisible();
+  await expect(setupRegion.getByText('Session expiry', { exact: true })).toBeVisible();
+  await expect(
+    setupRegion.getByText('manual-required — request a current session receipt before retrying', { exact: true })
+  ).toBeVisible();
+  await expect(setupRegion.getByText('Child safety', { exact: true })).toBeVisible();
+  await expect(
+    setupRegion.getByText(
+      'Private child activity is not shown on setup; only authority and readiness boundaries are projected',
+      { exact: true }
+    )
+  ).toBeVisible();
   await expect(setupRegion.getByText('manual-required', { exact: true }).first()).toBeVisible();
   await expect(
     setupRegion.getByText('observation only; ownership and trust remain unavailable', { exact: true })
