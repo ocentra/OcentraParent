@@ -367,6 +367,37 @@ fn policy_event_consistency_rejects_invalid_scope_audit_reason_and_dead_letter_s
 }
 
 #[test]
+fn policy_event_rejects_rollback_scope_household_mismatch() -> TestResult {
+    let mut event = sample_rollback_applied_event(1)?;
+    match &mut event.scope {
+        PolicyEventScope::Rollback { rollback_ref, .. } => {
+            rollback_ref.household_id = test_ok!(
+                PolicyHouseholdId::parse("household-other"),
+                "other rollback household"
+            );
+        }
+        scope => {
+            return Err(std::io::Error::other(format!(
+                "expected rollback scope, got {scope:?}"
+            ))
+            .into());
+        }
+    }
+
+    assert_eq!(
+        test_err!(
+            event.contract(),
+            "rollback scope household mismatch must fail closed"
+        ),
+        EventingError::InvalidValue {
+            field: "policy_event.scope",
+            value: "rollback household mismatch".to_string(),
+        }
+    );
+    Ok(())
+}
+
+#[test]
 fn policy_event_keys_and_contract_are_stable_for_delivery_events() -> TestResult {
     let event = sample_delivery_queued_event(3)?;
 

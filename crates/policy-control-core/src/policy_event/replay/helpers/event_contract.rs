@@ -5,7 +5,9 @@ use std::collections::BTreeSet;
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey};
 
-use crate::policy_event::{PolicyEvent, PolicyEventKind, PolicyEventReplayRecord};
+use crate::policy_event::{
+    PolicyEvent, PolicyEventKind, PolicyEventReplayRecord, PolicyEventScope,
+};
 
 const POLICY_EVENT_SCHEMA_VERSION_FIELD: &str = "policy_event.schema_version";
 const POLICY_EVENT_SCOPE_FIELD: &str = "policy_event.scope";
@@ -17,6 +19,7 @@ const DUPLICATE_AUDIT_REFERENCE: &str = "duplicate audit reference";
 const UNSUPPORTED_SCHEMA_VERSION_PREFIX: &str = "unsupported schema version ";
 const SCOPE_MISMATCH_PREFIX: &str = "scope does not match event kind: expected ";
 const SCOPE_MISMATCH_SEPARATOR: &str = ", received ";
+const ROLLBACK_HOUSEHOLD_MISMATCH: &str = "rollback household mismatch";
 const MISSING_REASON_PREFIX: &str = "missing reason code for ";
 const UNEXPECTED_REASON_PREFIX: &str = "unexpected reason code for ";
 const INVALID_REASON_PREFIX: &str = "invalid reason code for ";
@@ -47,9 +50,27 @@ pub(crate) fn validate_policy_event(event: &PolicyEvent) -> Result<(), EventingE
         });
     }
 
+    validate_scope_identity(event)?;
     validate_audit_references(event)?;
     validate_reason_code(event)?;
     validate_dead_letter_reason(event)
+}
+
+fn validate_scope_identity(event: &PolicyEvent) -> Result<(), EventingError> {
+    if let PolicyEventScope::Rollback {
+        household_id,
+        rollback_ref,
+    } = &event.scope
+    {
+        if household_id != &rollback_ref.household_id {
+            return Err(EventingError::InvalidValue {
+                field: POLICY_EVENT_SCOPE_FIELD,
+                value: ROLLBACK_HOUSEHOLD_MISMATCH.to_string(),
+            });
+        }
+    }
+
+    Ok(())
 }
 
 fn validate_audit_references(event: &PolicyEvent) -> Result<(), EventingError> {
