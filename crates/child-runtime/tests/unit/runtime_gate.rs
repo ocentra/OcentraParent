@@ -209,6 +209,71 @@ fn child_runtime_preflight_blocks_installed_not_started_separately_from_offline(
 }
 
 #[test]
+fn child_runtime_preflight_rejects_pairing_authority_failures_before_start() {
+    for (pairing_lifecycle_state, blocker_reason) in [
+        (
+            PairingLifecycleState::Expired,
+            ProvisioningBlockerReason::PairingExpired,
+        ),
+        (
+            PairingLifecycleState::Replayed,
+            ProvisioningBlockerReason::PairingReplayRejected,
+        ),
+        (
+            PairingLifecycleState::WrongHousehold,
+            ProvisioningBlockerReason::PairingWrongHousehold,
+        ),
+        (
+            PairingLifecycleState::WrongDevice,
+            ProvisioningBlockerReason::PairingWrongDevice,
+        ),
+        (
+            PairingLifecycleState::Revoked,
+            ProvisioningBlockerReason::PairingRevoked,
+        ),
+    ] {
+        let mut input = valid_child_runtime_preflight_input();
+        input.provisioning_input.pairing_lifecycle_state = pairing_lifecycle_state;
+
+        let decision = ocentra_child_runtime::evaluate_child_runtime_preflight(input);
+
+        assert_eq!(
+            decision.runtime_start_state,
+            ocentra_child_runtime::ChildRuntimeStartState::Blocked
+        );
+        assert_eq!(
+            decision.manual_review_state,
+            ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+        );
+        assert_eq!(
+            decision.provisioning_decision.blocker_reason,
+            Some(blocker_reason)
+        );
+    }
+}
+
+#[test]
+fn child_runtime_preflight_rejects_untrusted_device_even_when_pairing_is_trusted() {
+    let mut input = valid_child_runtime_preflight_input();
+    input.provisioning_input.device_trust_state = DeviceTrustState::Revoked;
+
+    let decision = ocentra_child_runtime::evaluate_child_runtime_preflight(input);
+
+    assert_eq!(
+        decision.runtime_start_state,
+        ocentra_child_runtime::ChildRuntimeStartState::Blocked
+    );
+    assert_eq!(
+        decision.manual_review_state,
+        ocentra_child_runtime::ChildRuntimeManualReviewState::Required
+    );
+    assert_eq!(
+        decision.provisioning_decision.blocker_reason,
+        Some(ProvisioningBlockerReason::ChildDeviceTrustRequired)
+    );
+}
+
+#[test]
 fn child_runtime_remote_access_reuses_remote_session_gate() {
     let decision =
         ocentra_child_runtime::evaluate_child_runtime_remote_access(RemoteAccessSessionRequest {

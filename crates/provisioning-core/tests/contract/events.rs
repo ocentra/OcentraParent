@@ -10,6 +10,7 @@ use ocentra_provisioning_core::provisioning_install::{
     ProvisioningActionPlanId, ProvisioningAggregateId, ProvisioningReadinessEvaluationId,
     ProvisioningReadinessInput, RecoveryState,
 };
+use serde_json::Value;
 
 const PROVISIONING_AGGREGATE_ID: &str = "provisioning-family-default";
 const PROVISIONING_EVALUATION_ID: &str = "provisioning-readiness-default";
@@ -65,4 +66,57 @@ fn readiness_event_projects_typed_action_event_contract() -> Result<(), Eventing
     );
 
     Ok(())
+}
+
+#[test]
+fn readiness_and_action_events_preserve_projection_fields_and_distinct_idempotency_keys(
+) -> Result<(), EventingError> {
+    let readiness_event = provisioning_readiness_evaluated_event(
+        ProvisioningAggregateId::parse(PROVISIONING_AGGREGATE_ID)?,
+        ProvisioningReadinessEvaluationId::parse(PROVISIONING_EVALUATION_ID)?,
+        ready_input(),
+    );
+    let action_event = provisioning_action_planned_event(readiness_event.clone());
+
+    assert_eq!(
+        readiness_event.idempotency_key()?.as_str(),
+        "provisioning.readiness.evaluated:provisioning-readiness-default"
+    );
+    assert_eq!(
+        action_event.idempotency_key()?.as_str(),
+        "provisioning.action.planned:provisioning-action:provisioning-readiness-default"
+    );
+    assert_ne!(
+        readiness_event.idempotency_key()?,
+        action_event.idempotency_key()?
+    );
+
+    let encoded =
+        serde_json::to_value(&readiness_event).map_err(|error| EventingError::InvalidValue {
+            field: "provisioning.readiness_event",
+            value: error.to_string(),
+        })?;
+    assert_eq!(
+        encoded["input"]["pairing_lifecycle_state"],
+        Value::String(String::from("trusted"))
+    );
+    assert_eq!(
+        encoded["decision"]["overall_state"],
+        Value::String(String::from("ready"))
+    );
+    assert_eq!(encoded["decision"]["blocker_reason"], Value::Null);
+
+    Ok(())
+}
+
+#[test]
+fn readiness_event_identifiers_reject_empty_values() {
+    let error = ProvisioningAggregateId::parse(" ").expect_err("empty aggregate id must reject");
+
+    assert_eq!(
+        error,
+        EventingError::EmptyValue {
+            field: "provisioning.aggregate_id"
+        }
+    );
 }

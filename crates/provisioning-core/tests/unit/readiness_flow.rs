@@ -342,6 +342,149 @@ fn family_context_accepted_pairing_waits_for_parent_trust_confirmation() {
 }
 
 #[test]
+fn family_context_accepted_pairing_revalidates_invite_replay_state() {
+    let (projected_input, readiness, actions) =
+        evaluate_family_context(ProvisioningFamilyContextInput {
+            setup_invite_input: SetupInviteInput {
+                replay_state: SetupInviteReplayState::ReplayDetected,
+                ..ready_family_context().setup_invite_input
+            },
+            ..ready_family_context()
+        });
+
+    assert_eq!(
+        projected_input.pairing_lifecycle_state,
+        PairingLifecycleState::Replayed
+    );
+    assert_eq!(
+        readiness.blocker_reason,
+        Some(ProvisioningBlockerReason::PairingReplayRejected)
+    );
+    assert_eq!(
+        actions.recovery_action,
+        ProvisioningRecoveryAction::ReissuePairingCode
+    );
+}
+
+#[test]
+fn family_context_accepted_pairing_rejects_mis_scoped_invite_metadata() {
+    let (projected_input, readiness, actions) =
+        evaluate_family_context(ProvisioningFamilyContextInput {
+            setup_invite_input: SetupInviteInput {
+                target_role: SetupInviteTargetRole::Observer,
+                ..ready_family_context().setup_invite_input
+            },
+            ..ready_family_context()
+        });
+
+    assert_eq!(
+        projected_input.pairing_lifecycle_state,
+        PairingLifecycleState::WrongDevice
+    );
+    assert_eq!(
+        readiness.blocker_reason,
+        Some(ProvisioningBlockerReason::PairingWrongDevice)
+    );
+    assert_eq!(
+        actions.recovery_action,
+        ProvisioningRecoveryAction::RePairChildDevice
+    );
+}
+
+#[test]
+fn family_context_accepted_pairing_rejects_reusable_or_throttled_invites() {
+    for setup_invite_input in [
+        SetupInviteInput {
+            single_use: false,
+            ..ready_family_context().setup_invite_input
+        },
+        SetupInviteInput {
+            abuse_state: SetupRecoveryAbuseState::Throttled,
+            ..ready_family_context().setup_invite_input
+        },
+        SetupInviteInput {
+            response_timing_state: SetupRecoveryResponseTimingState::Variable,
+            ..ready_family_context().setup_invite_input
+        },
+    ] {
+        let (projected_input, readiness, actions) =
+            evaluate_family_context(ProvisioningFamilyContextInput {
+                setup_invite_input,
+                ..ready_family_context()
+            });
+
+        assert_eq!(
+            projected_input.pairing_lifecycle_state,
+            PairingLifecycleState::Revoked
+        );
+        assert_eq!(
+            readiness.blocker_reason,
+            Some(ProvisioningBlockerReason::PairingRevoked)
+        );
+        assert_eq!(
+            actions.recovery_action,
+            ProvisioningRecoveryAction::RePairChildDevice
+        );
+    }
+}
+
+#[test]
+fn family_context_accepted_pairing_requires_authorized_inviter_role() {
+    let (projected_input, readiness, actions) =
+        evaluate_family_context(ProvisioningFamilyContextInput {
+            setup_invite_input: SetupInviteInput {
+                inviter_role: HouseholdRole::Observer,
+                ..ready_family_context().setup_invite_input
+            },
+            ..ready_family_context()
+        });
+
+    assert_eq!(
+        projected_input.pairing_lifecycle_state,
+        PairingLifecycleState::ParentRoleRequired
+    );
+    assert_eq!(
+        readiness.blocker_reason,
+        Some(ProvisioningBlockerReason::PairingParentRoleRequired)
+    );
+    assert_eq!(
+        actions.recovery_action,
+        ProvisioningRecoveryAction::SwitchToCorrectAccount
+    );
+}
+
+#[test]
+fn family_context_expired_and_revoked_invites_remain_rejected() {
+    for (invite_state, pairing_state, blocker_reason, recovery_action) in [
+        (
+            SetupInviteState::Expired,
+            PairingLifecycleState::Expired,
+            ProvisioningBlockerReason::PairingExpired,
+            ProvisioningRecoveryAction::ReissuePairingCode,
+        ),
+        (
+            SetupInviteState::Revoked,
+            PairingLifecycleState::Revoked,
+            ProvisioningBlockerReason::PairingRevoked,
+            ProvisioningRecoveryAction::RePairChildDevice,
+        ),
+    ] {
+        let (projected_input, readiness, actions) =
+            evaluate_family_context(ProvisioningFamilyContextInput {
+                setup_invite_input: SetupInviteInput {
+                    invite_state,
+                    ..ready_family_context().setup_invite_input
+                },
+                ..ready_family_context()
+            });
+
+        assert_eq!(projected_input.pairing_lifecycle_state, pairing_state);
+        assert_eq!(readiness.blocker_reason, Some(blocker_reason));
+        assert_eq!(actions.recovery_action, recovery_action);
+    }
+}
+
+#[test]
 fn family_context_wrong_household_surfaces_pairing_blocker() {
     let (projected_input, readiness, _) = evaluate_family_context(ProvisioningFamilyContextInput {
         setup_invite_input: SetupInviteInput {

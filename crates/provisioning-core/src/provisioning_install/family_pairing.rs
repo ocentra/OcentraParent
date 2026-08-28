@@ -23,6 +23,7 @@ pub(super) fn provisioning_pairing_state_from_family_context(
         ),
         (!input.account_matches_invite_target).then_some(PairingLifecycleState::Untrusted),
         wrong_household_pairing_state(invite_failure_reason, authority_decision.failure_reason),
+        setup_invite_guard_pairing_state(invite_failure_reason),
         household_pairing_failure_state(
             authority_decision.failure_reason,
             HouseholdAuthorizationFailureReason::WrongDeviceScope,
@@ -101,6 +102,31 @@ fn wrong_household_pairing_state(
     .then_some(PairingLifecycleState::WrongHousehold)
 }
 
+fn setup_invite_guard_pairing_state(
+    invite_failure_reason: Option<SetupInviteFailureReason>,
+) -> Option<PairingLifecycleState> {
+    first_some([
+        matches!(
+            invite_failure_reason,
+            Some(
+                SetupInviteFailureReason::InviteNotActive
+                    | SetupInviteFailureReason::InviteNotSingleUse
+            )
+        )
+        .then_some(PairingLifecycleState::Revoked),
+        matches!(
+            invite_failure_reason,
+            Some(SetupInviteFailureReason::WrongTargetRole)
+        )
+        .then_some(PairingLifecycleState::WrongDevice),
+        matches!(
+            invite_failure_reason,
+            Some(SetupInviteFailureReason::InviterNotAuthorized)
+        )
+        .then_some(PairingLifecycleState::ParentRoleRequired),
+    ])
+}
+
 fn household_pairing_failure_state(
     household_failure_reason: Option<HouseholdAuthorizationFailureReason>,
     candidate: HouseholdAuthorizationFailureReason,
@@ -149,41 +175,20 @@ fn recovery_in_progress_pairing_state(
 fn provisioning_setup_invite_failure_reason(
     input: SetupInviteInput,
 ) -> Option<SetupInviteFailureReason> {
-    pending_setup_invite_failure_reason(input)
-        .or_else(|| (!input.single_use).then_some(SetupInviteFailureReason::InviteNotSingleUse))
-        .or_else(|| {
-            (!provisioning_setup_purpose_matches_target_role(input.purpose, input.target_role))
-                .then_some(SetupInviteFailureReason::WrongTargetRole)
-        })
-        .or_else(|| (!input.same_family).then_some(SetupInviteFailureReason::WrongHousehold))
-}
+    if !matches!(
+        input.invite_state,
+        SetupInviteState::Pending | SetupInviteState::Accepted
+    ) {
+        return None;
+    }
 
-fn pending_setup_invite_failure_reason(
-    input: SetupInviteInput,
-) -> Option<SetupInviteFailureReason> {
-    (input.invite_state == SetupInviteState::Pending)
-        .then(|| authorize_setup_invite(input).failure_reason)
-        .flatten()
-}
-
-fn provisioning_setup_purpose_matches_target_role(
-    purpose: SetupInvitePurpose,
-    target_role: SetupInviteTargetRole,
-) -> bool {
-    matches!(
-        (purpose, target_role),
-        (
-            SetupInvitePurpose::CoParentInvite,
-            SetupInviteTargetRole::CoParentGuardian
-        ) | (
-            SetupInvitePurpose::ObserverInvite,
-            SetupInviteTargetRole::Observer
-        ) | (
-            SetupInvitePurpose::ChildDevicePairing,
-            SetupInviteTargetRole::ChildDeviceAgent
-        ) | (
-            SetupInvitePurpose::HouseholdTransfer,
-            SetupInviteTargetRole::ParentOwner
-        )
-    )
+    // Accepted is a lifecycle state, not a bypass of the invite guards. Re-run
+    // the family-owned validation with the active-state marker normalized so
+    // replay, abuse/timing, single-use, role, household, and inviter checks
+    // still apply after a child bootstrap presents an accepted invite.
+    authorize_setup_invite(SetupInviteInput {
+        invite_state: SetupInviteState::Pending,
+        ..input
+    })
+    .failure_reason
 }
