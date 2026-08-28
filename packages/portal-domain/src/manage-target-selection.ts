@@ -30,12 +30,17 @@ export function defaultManageTargetSelection(): ManageTargetSelection {
 export function normalizeManageTargetSelection(value: unknown): ManageTargetSelection | null {
   if (!isManageTargetSelectionRecord(value)) return null;
   if (value.scope !== 'global' && value.scope !== 'perDevice') return null;
+  const device =
+    typeof value.device === 'string' ? value.device : typeof value.deviceLabel === 'string' ? value.deviceLabel : '';
+  const deviceId = typeof value.deviceId === 'string' ? value.deviceId : '';
+  const browser = typeof value.browser === 'string' ? value.browser : '';
   return {
     scope: value.scope,
-    device:
-      typeof value.device === 'string' ? value.device : typeof value.deviceLabel === 'string' ? value.deviceLabel : '',
-    deviceId: typeof value.deviceId === 'string' ? value.deviceId : '',
-    browser: typeof value.browser === 'string' ? value.browser : 'Chrome',
+    // A family-scoped selection cannot carry a hidden device back into a later
+    // per-device route. Keep persisted context canonical and presentation-only.
+    device: value.scope === 'global' ? '' : normalizeSelectionText(device),
+    deviceId: value.scope === 'global' ? '' : normalizeSelectionText(deviceId),
+    browser: normalizeSelectionText(browser) || 'Chrome',
   };
 }
 
@@ -57,8 +62,10 @@ export function writeStoredManageTargetSelection(
   storage: ManageTargetSelectionStorage | null | undefined = browserSessionStorage()
 ): void {
   if (!storage) return;
+  const normalizedSelection = normalizeManageTargetSelection(selection);
+  if (!normalizedSelection) return;
   try {
-    storage.setItem(PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY, JSON.stringify(selection));
+    storage.setItem(PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY, JSON.stringify(normalizedSelection));
   } catch {
     // Ignore storage write failures and keep the in-memory selection authoritative.
   }
@@ -72,17 +79,28 @@ export function withManageTargetSelectionDevice(
   return {
     ...selection,
     scope: 'perDevice',
-    device: deviceLabel,
-    deviceId,
+    device: normalizeSelectionText(deviceLabel),
+    deviceId: normalizeSelectionText(deviceId),
+    browser: normalizeSelectionText(selection.browser) || 'Chrome',
   };
 }
 
+/**
+ * Projects the persisted UI selection into optional route context.
+ *
+ * This value is not proof of ownership, pairing, reachability, or action
+ * authority; those checks remain owned by the parent/LAN runtime boundary.
+ */
 export function selectedChildDeviceIdFromManageTargetSelection(
   selection: ManageTargetSelection | null | undefined
 ): string | null {
   if (!selection || selection.scope !== 'perDevice') return null;
-  const deviceId = selection.deviceId.trim();
+  const deviceId = normalizeSelectionText(selection.deviceId);
   return deviceId.length > 0 ? deviceId : null;
+}
+
+function normalizeSelectionText(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
 }
 
 function browserSessionStorage(): ManageTargetSelectionStorage | null {

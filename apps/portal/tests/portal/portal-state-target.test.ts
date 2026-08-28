@@ -158,6 +158,32 @@ function devicesSnapshotWithReplayHistory(
   } as unknown as ParentRouteSnapshot;
 }
 
+function devicesSnapshotWithSelectedDeviceReadiness(
+  selectedChildDeviceId: string | null,
+  trustState: string,
+  reachability: string,
+  readyForControl: boolean
+): ParentRouteSnapshot {
+  return {
+    ...currentSubscribedDevicesRouteSnapshot,
+    liveActivity: {
+      lanAddDeviceReadModel: {
+        selectedDeviceReadiness: {
+          schemaVersion: 1,
+          selectedChildDeviceId,
+          routeId: selectedChildDeviceId === null ? null : 'lan-route-local-1',
+          pairingId: selectedChildDeviceId === null ? null : 'pairing-child-android-1',
+          trustState,
+          reachability,
+          readyForControl,
+          staleAt: reachability === 'stale' ? '2026-06-28T17:00:10Z' : null,
+          offlineAt: reachability === 'offline' ? '2026-06-28T17:00:10Z' : null,
+        },
+      },
+    },
+  } as unknown as ParentRouteSnapshot;
+}
+
 it('createPortalRuntimeState: starts disconnected until the host bridge supplies a snapshot', () => {
   const state = createPortalRuntimeState();
 
@@ -186,6 +212,34 @@ it('beginParentRouteLoad: preserves same-route rows as stale reconnect evidence'
   expect(state.routeSnapshot).toBe(currentSubscribedDevicesRouteSnapshot);
   expect(state.connectionState).toBe('connecting');
   expect(state.commandEnabled).toBe(false);
+});
+
+it('beginParentRouteLoad: preserves the Rust selected-device readiness projection during same-route reconnect', () => {
+  const state = createPortalRuntimeState();
+  const snapshot = devicesSnapshotWithSelectedDeviceReadiness('child-android-1', 'paired', 'online', true);
+  applyParentRouteSnapshot(state, snapshot);
+
+  beginParentRouteLoad(state, 'devices');
+
+  expect(state.routeSnapshot?.liveActivity?.lanAddDeviceReadModel?.selectedDeviceReadiness).toEqual(
+    snapshot.liveActivity?.lanAddDeviceReadModel?.selectedDeviceReadiness
+  );
+  expect(state.routeSnapshot?.liveActivity?.lanAddDeviceReadModel?.selectedDeviceReadiness.readyForControl).toBe(
+    true
+  );
+});
+
+it('applyParentRouteSnapshot: keeps missing or stale selected-device readiness fail-closed', () => {
+  const state = createPortalRuntimeState();
+  const snapshot = devicesSnapshotWithSelectedDeviceReadiness(null, 'unpaired', 'stale', false);
+
+  applyParentRouteSnapshot(state, snapshot);
+
+  const readiness = state.routeSnapshot?.liveActivity?.lanAddDeviceReadModel?.selectedDeviceReadiness;
+  expect(readiness?.selectedChildDeviceId).toBeNull();
+  expect(readiness?.trustState).toBe('unpaired');
+  expect(readiness?.reachability).toBe('stale');
+  expect(readiness?.readyForControl).toBe(false);
 });
 
 it('applyParentRouteSnapshot: updates portal runtime state from the Rust-owned bridge snapshot', () => {

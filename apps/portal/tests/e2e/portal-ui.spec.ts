@@ -293,6 +293,18 @@ async function assertManageRouteRequiresExplicitDeviceSelection(page: Page): Pro
   await expect(page.getByText('Browser target: Whole family').first()).toBeVisible({
     timeout: portalShellReadyTimeoutMs,
   });
+
+  await page.evaluate(
+    (storageKey) => window.sessionStorage.setItem(storageKey, '{"scope":'),
+    manageTargetSelectionStorageKey
+  );
+  await page.reload();
+  await expect(page.getByText('Per Device').first()).toBeVisible();
+  await expect(page.getByText('Browser target: Whole family').first()).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await page.evaluate((storageKey) => window.sessionStorage.removeItem(storageKey), manageTargetSelectionStorageKey);
+  await page.reload();
 }
 
 async function assertDevicesRoute(page: Page): Promise<string> {
