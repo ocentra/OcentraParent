@@ -333,7 +333,7 @@ pub struct AppGamePlatformAuthorityMatrix {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AppGameAiClassifierResult {
     pub schema_version: u16,
     pub classifier_run_id: String,

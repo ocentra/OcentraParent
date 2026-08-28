@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use ocentra_parent_agent_protocol::activity::{
     ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySubjectKind,
 };
@@ -13,9 +15,16 @@ use ocentra_parent_agent_protocol::app_game::{
 };
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     AppGameAiClassifierResult, AppGameControlActionResult, AppGameControlApprovalAuthority,
-    AppGamePlatformAuthorityMatrix, APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
-    APP_GAME_CONTROL_AUTHORITY_ACTIVE, APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
-    APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
+    AppGamePlatformAuthorityMatrix, APP_GAME_AI_CLASSIFIER_CANDIDATE_GAME_CONTEXT,
+    APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY, APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY,
+    APP_GAME_AI_CLASSIFIER_DIGEST_SESSION_SUMMARY,
+    APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE,
+    APP_GAME_AI_CLASSIFIER_FALLBACK_NOT_NEEDED, APP_GAME_AI_CLASSIFIER_HANDOFF_MANUAL_REVIEW,
+    APP_GAME_AI_CLASSIFIER_HANDOFF_PARENT_REVIEW, APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_APP,
+    APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_GAME, APP_GAME_AI_CLASSIFIER_STATE_CANDIDATE,
+    APP_GAME_AI_CLASSIFIER_STATE_PROVIDER_UNAVAILABLE,
+    APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED, APP_GAME_CONTROL_AUTHORITY_ACTIVE,
+    APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION, APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
 };
 
 use super::app_game_journal_sqlite_ingest_event::{
@@ -234,7 +243,83 @@ pub(super) fn validate_classifier_result(
     if row.direct_action_requested || row.raw_scan_included || row.content_claim_included {
         return Err(AppGameJournalSqliteIngestError::ClassifierRequestsAction);
     }
+    if !row.confidence.is_finite() || !(0.0..=1.0).contains(&row.confidence) {
+        return Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid);
+    }
+    if [
+        row.classifier_run_id.as_str(),
+        row.digest_ref.as_str(),
+        row.model_runtime_ref.as_str(),
+        row.prompt_template_ref.as_str(),
+        row.prompt_version.as_str(),
+        row.generated_at.as_str(),
+    ]
+    .iter()
+    .any(|value| !valid_classifier_identifier(value))
+        || !valid_classifier_text(&row.candidate_label)
+        || !valid_classifier_references(&row.source_evidence_refs, true)
+        || !valid_classifier_references(&row.source_session_refs, false)
+        || row
+            .uncertainty_reason_codes
+            .iter()
+            .any(|reason| !valid_classifier_text(reason))
+    {
+        return Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid);
+    }
+
+    let candidate_kind_matches_product = match row.product_kind.as_str() {
+        APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_APP => {
+            row.candidate_kind == APP_GAME_AI_CLASSIFIER_CANDIDATE_UNKNOWN_IDENTITY
+        }
+        APP_GAME_AI_CLASSIFIER_PRODUCT_UNKNOWN_GAME => {
+            row.candidate_kind == APP_GAME_AI_CLASSIFIER_CANDIDATE_GAME_CONTEXT
+        }
+        _ => false,
+    };
+    if !candidate_kind_matches_product
+        || !matches!(
+            row.source_digest_kind.as_str(),
+            APP_GAME_AI_CLASSIFIER_DIGEST_INVENTORY | APP_GAME_AI_CLASSIFIER_DIGEST_SESSION_SUMMARY
+        )
+        || !matches!(
+            (
+                row.classifier_state.as_str(),
+                row.fallback_state.as_str(),
+                row.policy_handoff.as_str(),
+            ),
+            (
+                APP_GAME_AI_CLASSIFIER_STATE_CANDIDATE,
+                APP_GAME_AI_CLASSIFIER_FALLBACK_NOT_NEEDED,
+                APP_GAME_AI_CLASSIFIER_HANDOFF_PARENT_REVIEW,
+            ) | (
+                APP_GAME_AI_CLASSIFIER_STATE_PROVIDER_UNAVAILABLE,
+                APP_GAME_AI_CLASSIFIER_FALLBACK_LOCAL_MODEL_UNAVAILABLE,
+                APP_GAME_AI_CLASSIFIER_HANDOFF_MANUAL_REVIEW,
+            )
+        )
+    {
+        return Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid);
+    }
     Ok(())
+}
+
+fn valid_classifier_identifier(value: &str) -> bool {
+    !value.trim().is_empty() && value == value.trim()
+}
+
+fn valid_classifier_text(value: &str) -> bool {
+    !value.trim().is_empty()
+}
+
+fn valid_classifier_references(values: &[String], require_one: bool) -> bool {
+    (!require_one || !values.is_empty())
+        && values
+            .iter()
+            .all(|value| valid_classifier_identifier(value))
+        && {
+            let mut seen = BTreeSet::new();
+            values.iter().all(|value| seen.insert(value.as_str()))
+        }
 }
 
 struct StoredProtocolEventInput<'a> {

@@ -135,6 +135,137 @@ fn invalid_protocol_boundary_rows_are_rejected_before_sqlite_ingest() {
 }
 
 #[test]
+fn invalid_ai_classifier_shape_is_rejected_before_sqlite_ingest() {
+    let mut invalid_confidence = classifier_result();
+    invalid_confidence.confidence = 1.01;
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &invalid_confidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut missing_evidence = classifier_result();
+    missing_evidence.source_evidence_refs.clear();
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &missing_evidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut blank_evidence = classifier_result();
+    blank_evidence.source_evidence_refs = vec![" ".to_string()];
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &blank_evidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut duplicate_evidence = classifier_result();
+    duplicate_evidence
+        .source_evidence_refs
+        .push(APP_GAME_TEST_CLASSIFIER_EVIDENCE_REF.to_string());
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &duplicate_evidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut mismatched_candidate = classifier_result();
+    mismatched_candidate.candidate_kind = APP_GAME_AI_CLASSIFIER_CANDIDATE_GAME_CONTEXT.to_string();
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &mismatched_candidate,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut mismatched_fallback = classifier_result();
+    mismatched_fallback.classifier_state = APP_GAME_AI_CLASSIFIER_STATE_CANDIDATE.to_string();
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &mismatched_fallback,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierInputInvalid)
+    );
+
+    let mut raw_scan = classifier_result();
+    raw_scan.raw_scan_included = true;
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &raw_scan,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierRequestsAction)
+    );
+
+    let mut content_claim = classifier_result();
+    content_claim.content_claim_included = true;
+    assert_eq!(
+        app_game_ai_classifier_result_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            &content_claim,
+        ),
+        Err(AppGameJournalSqliteIngestError::ClassifierRequestsAction)
+    );
+}
+
+#[test]
+fn replay_rejects_action_shaped_ai_classifier_json() {
+    let mut event = protocol_boundary_events()
+        .pop()
+        .expect("classifier event fixture is present");
+    let row_json = match event
+        .fields
+        .get(constants::field::APP_GAME_JOURNAL_FIELD_ROW_JSON)
+    {
+        Some(LogFieldValue::String(row_json)) => row_json,
+        _ => panic!("classifier event fixture contains row json"),
+    };
+    let mut encoded: serde_json::Value =
+        serde_json::from_str(row_json).expect("classifier event fixture is valid json");
+    encoded["block"] = serde_json::Value::Bool(true);
+    event.fields.insert(
+        constants::field::APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
+        LogFieldValue::String(encoded.to_string()),
+    );
+
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+
+    match app_game_journal_sqlite_read_model(
+        store.connection_for_test(),
+        constants::activity_store::DEFAULT_RECENT_LIMIT,
+        APP_GAME_TEST_TIMESTAMP,
+    ) {
+        Err(ActivityStoreError::InvalidAppGameJournalRow { reason }) => {
+            assert_eq!(reason, "invalid-ai-classifier-result");
+        }
+        _ => panic!("expected invalid AI classifier row"),
+    }
+}
+
+#[test]
 fn durable_protocol_replay_preserves_manual_required_state_after_restart() {
     let journal_path = protocol_journal_path("protocol-durable-replay");
     let store_path = protocol_store_path("protocol-durable-replay");

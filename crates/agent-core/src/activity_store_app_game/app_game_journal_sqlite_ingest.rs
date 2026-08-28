@@ -34,6 +34,7 @@ pub enum AppGameJournalSqliteIngestError {
     ActionResultManualExecution,
     PlatformAuthorityManualExecution,
     ClassifierRequestsAction,
+    ClassifierInputInvalid,
     Json,
 }
 

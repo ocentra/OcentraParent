@@ -142,6 +142,25 @@ fn app_game_ai_classifier_result_serializes_evidence_only_policy_handoff() {
             "terminate",
         ]
     );
+
+    let round_tripped = serde_json::from_value::<AppGameAiClassifierResult>(candidate_json)
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    assert_eq!(round_tripped, classifier_result_candidate());
+}
+
+#[test]
+fn app_game_ai_classifier_result_rejects_action_shaped_fields() {
+    for forbidden_key in APP_GAME_AI_CLASSIFIER_FORBIDDEN_KEYS {
+        let mut encoded = serde_json::to_value(classifier_result_candidate())
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+        encoded[forbidden_key] = serde_json::Value::Bool(true);
+
+        let parsed = serde_json::from_value::<AppGameAiClassifierResult>(encoded);
+        assert_eq!(
+            parsed.err().map(|error| error.classify()),
+            Some(serde_json::error::Category::Data)
+        );
+    }
 }
 
 fn approved_action_result() -> AppGameControlActionResult {
