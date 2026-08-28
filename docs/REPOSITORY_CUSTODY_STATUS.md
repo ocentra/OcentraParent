@@ -1,7 +1,7 @@
 # Repository Custody Status
 
 Snapshot: 2026-08-28 during one-tree local consolidation, based on canonical
-parent `e0a410368a7989b40a47477769710d08d493caf4` (short `e0a410368`). This
+`2e45967151ab57710480c52338aeb7f7d7726b43` (short `2e4596715`). This
 supersedes the retained 2026-08-25, 2026-08-24, 2026-08-23, 2026-08-19, and
 2026-08-18 snapshots below. The prior `3d6f32b8023eee90b5f295a4f7853e58fa04422a`
 and `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` inventories are historical;
@@ -16,7 +16,7 @@ claim. Refresh Git ancestry and patch identity before deleting any ref.
 The single local integration location is
 `E:\OcentraWorktrees\lanes\eventing-wp09-production`, branch
 `codex/eventing-wp09-production`, at
-`e0a410368a7989b40a47477769710d08d493caf4`. The worktree is clean. Its remote
+`2e45967151ab57710480c52338aeb7f7d7726b43`. The worktree is clean. Its remote
 PR head remains the older `325bd31507dbb41ebeea66bf92a95fcf5a21a3b7` on PR
 `#709` to `develop`; GitHub has exactly one open PR. Nothing in this
 consolidation snapshot has been pushed, tested, proved, or presented as ready.
@@ -38,6 +38,14 @@ Reviewed local source/test packets imported into this one branch are:
   WP04 currentness improvement. This is deliberately incomplete: fresh
   owner-controlled currentness is still required immediately before normal and
   Account-issuer request execution so state cannot drift after broker hello.
+- `701be2b13`, `b6d0ba578`, `eb84f60a5`, `6eb1785c3`, `35306f033`,
+  `597098eea`, `04783a5b7`, and `4ddb47353`, the reviewed Payment WP01, Child
+  WP06, App/Game WP189/WP197, Data WP01, Protected WP04, App/Game WP191, and
+  Cloudflare WP02 code/test-source packets. Their tests are checked in but
+  intentionally unexecuted during the source-writing phase.
+- `dccf18f27` and `2e4596715`, the regenerated graph and plan-state checkpoints
+  that record the corresponding implementation-only evidence and retain all
+  external owner, test-execution, proof, CI, READY, and DONE gaps.
 
 The local branch scan examined `469` non-archive `codex/*` branches and grouped
 the apparent patch-unique tips into their cumulative families. Semantic review,
