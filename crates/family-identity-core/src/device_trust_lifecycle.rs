@@ -11,7 +11,7 @@ use crate::device_trust_lifecycle_authority_fence::AuthorityTransition;
 use crate::device_trust_lifecycle_current_authority::redacted_binding;
 use crate::device_trust_lifecycle_schema;
 use crate::device_trust_signer_registration::{self, CurrentSignerAuthority};
-use rusqlite::{params, Connection, OptionalExtension, TransactionBehavior};
+use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 use serde::{Deserialize, Serialize};
 
 const TRUSTED: &str = "trusted";

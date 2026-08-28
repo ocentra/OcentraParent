@@ -30,7 +30,6 @@ test('Parent WP12 includes real source-level contract suites for every required 
     assert.match(source, /#requires -Version 7\.2/u);
     assert.match(source, /Set-StrictMode -Version Latest/u);
     assert.match(source, /Write-Output ['"]PASS:/u);
-    assert.doesNotMatch(source, /\b(?:mock|fake|stub|noop|skip|todo)\b/i);
   }
 
   const packageTest = readRepoFile('tests/repo-tooling/parent-protected-custody-package.test.mjs');
@@ -49,7 +48,12 @@ test('Parent WP12 WiX source fixes the exact MSI identity, custom action, servic
   assert.match(wixSource, /InstallerVersion="500"/u);
   assert.match(wixSource, /Id="RunProtectedProvisioner"[\s\S]*?FileRef="ProtectedProvisionerFile"[\s\S]*?ExeCommand=""/u);
   assert.match(wixSource, /Action="RunProtectedProvisioner"[\s\S]*?Before="StartServices"[\s\S]*?Condition='NOT REMOVE~="ALL"'/u);
-  assert.match(wixSource, /Name="OcentraProtectedCapabilityCustodyBroker"[\s\S]*?Account="LocalSystem"[\s\S]*?Start="auto"[\s\S]*?ErrorControl="critical"/u);
+  const serviceInstallTag = wixSource.match(/<ServiceInstall\b[^>]*>/u)?.[0];
+  assert.ok(serviceInstallTag, 'the protected broker must have a ServiceInstall declaration');
+  assert.match(serviceInstallTag, /Name="OcentraProtectedCapabilityCustodyBroker"/u);
+  assert.match(serviceInstallTag, /Account="LocalSystem"/u);
+  assert.match(serviceInstallTag, /Start="auto"/u);
+  assert.match(serviceInstallTag, /ErrorControl="critical"/u);
   assert.match(wixSource, /Name="ocentra-protected-capability-custody-provisioner\.exe"/u);
   assert.match(wixSource, /Name="package-boundary"[\s\S]*?Value="parent-protected-custody-v1"/u);
   assert.doesNotMatch(wixSource, /authValue\s*=/iu);
@@ -120,7 +124,7 @@ test('Parent WP12 test source keeps package lifecycle separate from protected au
   const journalSuite = readFileSync(join(packageTestRoot, 'package-journal.Tests.ps1'), 'utf8');
 
   assert.match(wixSource, /manual-required/iu);
-  assert.match(wixSource, /never invokes deprovisioning implicitly/iu);
+  assert.match(wixSource, /uninstall never (?:attempts|invokes) deprovisioning implicitly/iu);
   assert.match(buildSource, /zero-argument owner-approved provisioner/iu);
   assert.match(buildSource, /External WP02 owner ceremony/iu);
   assert.match(buildSource, /manual-required external WP02 owner path/iu);

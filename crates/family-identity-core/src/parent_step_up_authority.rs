@@ -1,6 +1,6 @@
 use chrono::{DateTime, TimeDelta};
 use ocentra_schema::parent_step_up_receipt::{
-    ParentStepUpAuthorityReceipt, PARENT_STEP_UP_RECEIPT_SCHEMA_VERSION,
+    PARENT_STEP_UP_RECEIPT_SCHEMA_VERSION, ParentStepUpAuthorityReceipt,
 };
 
 use crate::household_authority::{HouseholdAuthorityAction, ParentStepUpAssertionSnapshot};

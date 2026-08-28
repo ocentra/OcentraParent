@@ -22,7 +22,7 @@ const MUTATION_EFFECT_COLUMNS: &[(&str, &str, i64, i64)] = &[
     ("retain_until_epoch_millis", "INTEGER", 1, 0),
 ];
 const INVITE_COLUMNS: &[(&str, &str, i64, i64)] = &[
-    ("invite_id", "TEXT", 0, 1),
+    ("invite_id", "TEXT", 1, 1),
     ("token_digest", "TEXT", 1, 0),
     ("household_id", "TEXT", 1, 0),
     ("inviter_account_id", "TEXT", 1, 0),
@@ -45,7 +45,7 @@ const INVITE_COLUMNS: &[(&str, &str, i64, i64)] = &[
     ("use_count", "INTEGER", 1, 0),
 ];
 const PENDING_COLUMNS: &[(&str, &str, i64, i64)] = &[
-    ("invite_id", "TEXT", 0, 1),
+    ("invite_id", "TEXT", 1, 1),
     ("household_id", "TEXT", 1, 0),
     ("recipient_provider", "TEXT", 1, 0),
     ("recipient_provider_subject", "TEXT", 1, 0),
@@ -58,7 +58,7 @@ const PENDING_COLUMNS: &[(&str, &str, i64, i64)] = &[
     ("attempt_count", "INTEGER", 1, 0),
 ];
 const RECOVERY_COLUMNS: &[(&str, &str, i64, i64)] = &[
-    ("recovery_id", "TEXT", 0, 1),
+    ("recovery_id", "TEXT", 1, 1),
     ("household_id", "TEXT", 1, 0),
     ("account_id", "TEXT", 1, 0),
     ("requester_member_id", "TEXT", 1, 0),
@@ -94,12 +94,12 @@ const RECOVERY_COLUMNS: &[(&str, &str, i64, i64)] = &[
     ),
 ];
 const RATE_COLUMNS: &[(&str, &str, i64, i64)] = &[
-    ("subject_digest", "TEXT", 0, 1),
+    ("subject_digest", "TEXT", 1, 1),
     ("window_started_at_epoch_millis", "INTEGER", 1, 0),
     ("attempt_count", "INTEGER", 1, 0),
 ];
 const HANDOFF_COLUMNS: &[(&str, &str, i64, i64)] = &[
-    ("handoff_id", "TEXT", 0, 1),
+    ("handoff_id", "TEXT", 1, 1),
     ("correlation_id", "TEXT", 1, 0),
     ("recovery_id", "TEXT", 1, 0),
     ("household_id", "TEXT", 1, 0),

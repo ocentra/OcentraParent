@@ -1,6 +1,6 @@
 use crate::support::ValueOrUnreachable as _;
 use ocentra_schema::parent_ui_bridge::{
-    ParentAppGameNotificationParentSurfacePanelRowSnapshot,
+    PARENT_UI_BRIDGE_SCHEMA_VERSION, ParentAppGameNotificationParentSurfacePanelRowSnapshot,
     ParentAppGameNotificationParentSurfacePanelSnapshot, ParentAppGamePanelDetailSnapshot,
     ParentAppGamePanelRowSnapshot, ParentAppGamePanelSnapshot, ParentBridgeConnectionState,
     ParentLanAddressRef, ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot, ParentLanDeviceId,
@@ -10,7 +10,7 @@ use ocentra_schema::parent_ui_bridge::{
     ParentPortalShellStatusSnapshot, ParentPortalTone, ParentRouteDataSource, ParentRouteId,
     ParentRouteLiveActivitySnapshot, ParentRoutePeerId, ParentRouteSnapshot, ParentRouteSummary,
     ParentScreenSummaryPanelDetailSnapshot, ParentScreenSummaryPanelRowSnapshot,
-    ParentScreenSummaryPanelSnapshot, PARENT_UI_BRIDGE_SCHEMA_VERSION,
+    ParentScreenSummaryPanelSnapshot,
 };
 
 pub(super) fn route_snapshot(route: ParentRouteId) -> ParentRouteSnapshot {
@@ -58,6 +58,7 @@ pub(super) fn route_snapshot(route: ParentRouteId) -> ParentRouteSnapshot {
             household: "household-alpha".to_string(),
             child_device: "device-alpha".to_string(),
         },
+        service_health: None,
         diagnostic_panels_enabled: false,
         parent_portal_rows: Some(vec![portal_row]),
         parent_portal_shell_status: Some(shell_status),
@@ -74,12 +75,7 @@ pub(super) fn route_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot 
         ingest_status: None,
         activity_screen_read_model: None,
         activity_app_use_read_model: None,
-        activity_app_game_platform_extension_read_model: Some(serde_json::json!({
-            "ok": true,
-            "value": {
-                "rows": [{"platform": "macos"}]
-            }
-        })),
+        activity_app_game_platform_extension_read_model: Some(platform_extension_read_model()),
         activity_browser_read_model: None,
         activity_games_read_model: None,
         activity_tracking_panel: None,
@@ -119,6 +115,15 @@ pub(super) fn route_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot 
     }
 }
 
+fn platform_extension_read_model() -> serde_json::Value {
+    serde_json::json!({
+        "ok": true,
+        "value": {
+            "rows": [{"platform": "macos"}]
+        }
+    })
+}
+
 fn screen_summary_panel() -> ParentScreenSummaryPanelSnapshot {
     ParentScreenSummaryPanelSnapshot {
         eyebrow: "Activity kind".to_string(),
@@ -147,8 +152,8 @@ fn screen_summary_panel() -> ParentScreenSummaryPanelSnapshot {
     }
 }
 
-fn app_game_notification_parent_surface_panel(
-) -> ParentAppGameNotificationParentSurfacePanelSnapshot {
+fn app_game_notification_parent_surface_panel()
+-> ParentAppGameNotificationParentSurfacePanelSnapshot {
     ParentAppGameNotificationParentSurfacePanelSnapshot {
         eyebrow: "Runtime reference".to_string(),
         title: "App/game notification parent surface".to_string(),
@@ -238,8 +243,8 @@ fn app_game_child_runtime_transport_receipt_panel() -> ParentAppGamePanelSnapsho
     }
 }
 
-pub(super) fn browser_add_device_discovery_snapshot(
-) -> ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot {
+pub(super) fn browser_add_device_discovery_snapshot()
+-> ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot {
     let child_device = ParentLanPairingDeviceRefSnapshot {
         device_id: ParentLanDeviceId::parse("lan-device-1")
             .value_or_unreachable(crate::assert_context!("device id must be non-empty")),

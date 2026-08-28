@@ -1,9 +1,12 @@
 use std::collections::HashSet;
 
-use crate::support::{extract_typescript_block, ValueOrUnreachable as _};
+use crate::support::{ValueOrUnreachable as _, extract_typescript_block};
 use ocentra_schema::data_custody_source_of_truth as contracts;
 use ocentra_schema::data_custody_source_of_truth_ts::data_custody_source_of_truth_contracts_typescript;
 use serde_json::json;
+
+#[path = "data_custody_source_of_truth_expected.rs"]
+mod expected;
 
 #[test]
 fn data_custody_source_of_truth_round_trips_through_rust_owned_shape() {
@@ -70,12 +73,12 @@ fn data_custody_source_of_truth_has_the_exact_active_class_inventory() {
         UniversalDecryptKeys,
     ];
     let actual_classes: Vec<_> = proof.rows.iter().map(|row| row.class_id).collect();
-    let unique_row_ids: HashSet<_> = proof
+    let unique_row_ids: HashSet<_> = proof.rows.iter().map(|row| row.row_id.as_str()).collect();
+    let unique_class_ids: HashSet<_> = proof
         .rows
         .iter()
-        .map(|row| row.row_id.as_str())
+        .map(|row| class_id_key(&row.class_id))
         .collect();
-    let unique_class_ids: HashSet<_> = proof.rows.iter().map(class_id_key).collect();
 
     assert_eq!(proof.rows.len(), 28);
     assert_eq!(actual_classes, expected_classes);
@@ -86,22 +89,47 @@ fn data_custody_source_of_truth_has_the_exact_active_class_inventory() {
 #[test]
 fn derived_rows_reference_only_known_source_classes_and_never_become_truth() {
     let proof = contracts::sample_data_custody_source_of_truth_contract_proof();
-    let known_classes: HashSet<_> = proof.rows.iter().map(class_id_key).collect();
+    let known_classes: HashSet<_> = proof
+        .rows
+        .iter()
+        .map(|row| class_id_key(&row.class_id))
+        .collect();
+    let referenced_classes: HashSet<_> = proof
+        .rows
+        .iter()
+        .flat_map(|row| row.source_of_truth.source_class_ids.iter())
+        .map(class_id_key)
+        .collect();
+
+    assert_eq!(
+        referenced_classes.intersection(&known_classes).count(),
+        referenced_classes.len()
+    );
 
     for row in &proof.rows {
-        match row.source_of_truth.kind {
-            contracts::DataCustodySourceOfTruthKind::Self_ => {
-                assert!(row.source_of_truth.source_class_ids.is_empty());
-                assert!(!row.derived_use_only);
-            }
-            contracts::DataCustodySourceOfTruthKind::DerivedFromDataClasses => {
-                assert!(!row.source_of_truth.source_class_ids.is_empty());
-                assert!(row.derived_use_only);
+        assert_source_of_truth_row(row);
+    }
+}
 
-                for source_class in &row.source_of_truth.source_class_ids {
-                    assert!(known_classes.contains(&class_id_key(source_class)));
-                    assert_ne!(*source_class, row.class_id);
-                }
+fn assert_source_of_truth_row(row: &contracts::DataCustodySourceOfTruthRow) {
+    match row.source_of_truth.kind {
+        contracts::DataCustodySourceOfTruthKind::Self_ => {
+            assert!(row.source_of_truth.source_class_ids.is_empty());
+            assert!(!row.derived_use_only);
+        }
+        contracts::DataCustodySourceOfTruthKind::DerivedFromDataClasses => {
+            let expected_sources = expected::expected_derived_source_classes(row.class_id);
+            assert_eq!(
+                row.source_of_truth.source_class_ids.len(),
+                expected_sources.len()
+            );
+            assert_eq!(
+                row.source_of_truth.source_class_ids.as_slice(),
+                expected_sources
+            );
+            assert!(row.derived_use_only);
+            for source_class in &row.source_of_truth.source_class_ids {
+                assert_ne!(*source_class, row.class_id);
             }
         }
     }
@@ -189,7 +217,19 @@ fn sensitive_raw_child_evidence_never_becomes_notification_or_default_hosting_da
         .filter(|row| row.raw_child_evidence_allowed)
         .collect();
 
-    assert!(!raw_child_rows.is_empty());
+    use contracts::DataCustodyClassId::*;
+    let raw_child_classes: Vec<_> = raw_child_rows.iter().map(|row| row.class_id).collect();
+    assert_eq!(
+        raw_child_classes,
+        vec![
+            EvidenceJournalSegments,
+            ScreenshotsAndScreenAnalysisImages,
+            BrowserUrlHistory,
+            NetworkAppGameEvidence,
+            LocationTrackingEvidence,
+            SupportBundlesContainingRawChildActivity,
+        ]
+    );
     for row in raw_child_rows {
         assert!(row.sensitive);
         assert!(row.encrypted_before_upload);

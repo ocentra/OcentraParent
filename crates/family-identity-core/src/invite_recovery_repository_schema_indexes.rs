@@ -79,11 +79,40 @@ fn validate_index(
                 unique,
                 columns,
             )?;
-        } else if !name.starts_with("sqlite_autoindex_") {
+        } else if !name.starts_with("sqlite_autoindex_") && !expected_index_for_table(table, &name)
+        {
             return Err(());
         }
     }
     found.then_some(()).ok_or(())
+}
+
+fn expected_index_for_table(table: &str, index: &str) -> bool {
+    matches!(
+        (table, index),
+        (
+            "account_identity_mutation_effect",
+            "account_identity_mutation_effect_retention"
+        ) | (
+            "account_identity_setup_invite",
+            "account_identity_setup_invite_household"
+        ) | (
+            "account_identity_recovery",
+            "account_identity_recovery_household"
+        ) | (
+            "account_identity_recovery_custody_handoff",
+            "account_identity_recovery_handoff_ready"
+        ) | (
+            "account_identity_parent_local_bridge_session",
+            "account_identity_parent_local_bridge_account"
+        ) | (
+            "account_identity_parent_local_bridge_audit_outbox",
+            "account_identity_parent_local_bridge_audit_delivery"
+        ) | (
+            "account_identity_parent_local_bridge_audit_outbox",
+            "account_identity_parent_local_bridge_audit_retention"
+        )
+    )
 }
 
 fn validate_index_shape(

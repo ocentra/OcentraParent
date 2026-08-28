@@ -13,6 +13,8 @@ use crate::parent_presence_store_sql_shape::{
     challenge_table_is_canonical, decision_outbox_table_is_canonical, receipt_table_is_canonical,
 };
 
+#[path = "parent_presence_store_schema_runtime.rs"]
+mod runtime;
 #[path = "parent_presence_store_schema_step_up.rs"]
 mod step_up;
 
@@ -129,10 +131,28 @@ pub(crate) fn open_initialized_store(
     publish_initialized_store_if_absent(path, initialize_temporary_store)?;
     let file_guard = open_store_file_guard(path)?;
     let mut connection = open_connection(path)?;
+    // Legacy stores may legitimately omit the step-up intent table, so that
+    // table is migrated on first open.  Validate every pre-existing core
+    // object before that migration, however: malformed stores must be
+    // rejected without receiving a new table or any other recovery write.
+    let intent_object_exists = connection
+        .query_row(
+            "SELECT EXISTS(
+                 SELECT 1 FROM sqlite_schema WHERE name = ?1
+             )",
+            [INTENT_TABLE],
+            |row| row.get::<_, bool>(0),
+        )
+        .map_err(|_error| ParentPresenceStoreError::IntegrityRejected)?;
+    if intent_object_exists {
+        validate_store_schema(&connection)?;
+    } else {
+        validate_core_store_schema(&connection, false)?;
+    }
     step_up::migrate(&mut connection)?;
     file_guard.validate_path_identity(path)?;
     validate_store_schema(&connection)?;
-    configure_runtime_durability(&connection)?;
+    runtime::configure_runtime_durability(&connection)?;
     file_guard.validate_path_identity(path)?;
     Ok((connection, file_guard))
 }
@@ -169,26 +189,30 @@ fn open_connection(path: &Path) -> Result<Connection, ParentPresenceStoreError> 
     Ok(connection)
 }
 
-fn configure_runtime_durability(connection: &Connection) -> Result<(), ParentPresenceStoreError> {
-    connection
-        .execute_batch("PRAGMA synchronous = FULL;")
-        .map_err(|_error| ParentPresenceStoreError::Unavailable)
-}
-
 pub(crate) fn validate_store_schema(
     connection: &Connection,
 ) -> Result<(), ParentPresenceStoreError> {
+    validate_core_store_schema(connection, true)?;
+    step_up::validate(connection)?;
+    step_up::validate_rows(connection)?;
+    Ok(())
+}
+
+fn validate_core_store_schema(
+    connection: &Connection,
+    include_intent_table: bool,
+) -> Result<(), ParentPresenceStoreError> {
     validate_foreign_keys_enabled(connection)?;
-    validate_schema_objects(
-        connection,
-        &[
-            ("index", NONCE_IDENTITY_INDEX, CHALLENGE_TABLE),
-            ("table", CHALLENGE_TABLE, CHALLENGE_TABLE),
-            ("table", DECISION_OUTBOX_TABLE, DECISION_OUTBOX_TABLE),
-            ("table", RECEIPT_TABLE, RECEIPT_TABLE),
-            ("table", INTENT_TABLE, INTENT_TABLE),
-        ],
-    )?;
+    let mut expected_objects = vec![
+        ("index", NONCE_IDENTITY_INDEX, CHALLENGE_TABLE),
+        ("table", CHALLENGE_TABLE, CHALLENGE_TABLE),
+        ("table", DECISION_OUTBOX_TABLE, DECISION_OUTBOX_TABLE),
+        ("table", RECEIPT_TABLE, RECEIPT_TABLE),
+    ];
+    if include_intent_table {
+        expected_objects.push(("table", INTENT_TABLE, INTENT_TABLE));
+    }
+    validate_schema_objects(connection, &expected_objects)?;
     validate_challenge_table(connection)?;
     validate_table_properties(connection, DECISION_OUTBOX_TABLE)?;
     require(
@@ -210,8 +234,6 @@ pub(crate) fn validate_store_schema(
     require(decision_outbox_table_is_canonical(&outbox_sql))?;
     validate_receipt_table(connection)?;
     validate_receipt_foreign_key(connection)?;
-    step_up::validate(connection)?;
-    step_up::validate_rows(connection)?;
     validate_foreign_key_rows(connection)
 }
 

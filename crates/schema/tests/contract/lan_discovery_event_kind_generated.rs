@@ -1,5 +1,6 @@
-const AGENT_PROTOCOL_SOURCE: &str =
-    include_str!("../../../agent-protocol/src/lan_pairing_browser_add_device_state.rs");
+const AGENT_PROTOCOL_SOURCE: &str = include_str!(
+    "../../../agent-protocol/src/lan_pairing_browser_add_device_state/discovery_contracts.rs"
+);
 const PARENT_BRIDGE: &str = include_str!("../../../../apps/portal/generated/parent-ui-bridge.ts");
 const PORTAL_CONTRACTS: &str =
     include_str!("../../../../packages/portal-domain/src/generated-portal-contracts.ts");

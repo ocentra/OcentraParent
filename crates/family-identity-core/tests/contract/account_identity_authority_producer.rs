@@ -74,10 +74,11 @@ fn signed_wire(
     let signature = key_pair
         .sign(&rng, &signing_bytes)
         .expect("sign test transport");
-    let signature: [u8; 64] = signature
+    let mut signature: [u8; 64] = signature
         .as_ref()
         .try_into()
         .expect("P-256 signature length");
+    normalize_signature_to_low_s(&mut signature);
     let mut wire = signing_bytes;
     wire.extend_from_slice(&signature);
     SignedWire {
@@ -132,6 +133,37 @@ fn signing_bytes(
 fn append_field(target: &mut Vec<u8>, field: &[u8]) {
     target.extend_from_slice(&(field.len() as u32).to_be_bytes());
     target.extend_from_slice(field);
+}
+
+fn normalize_signature_to_low_s(signature: &mut [u8; 64]) {
+    const P256_HALF_ORDER: [u8; 32] = [
+        0x7f, 0xff, 0xff, 0xff, 0x80, 0x00, 0x00, 0x00, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xde, 0x73, 0x7d, 0x56, 0xd3, 0x8b, 0xcf, 0x42, 0x79, 0xdc, 0xe5, 0x61, 0x7e, 0x31,
+        0x92, 0xa8,
+    ];
+    const P256_ORDER: [u8; 32] = [
+        0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xbc, 0xe6, 0xfa, 0xad, 0xa7, 0x17, 0x9e, 0x84, 0xf3, 0xb9, 0xca, 0xc2, 0xfc, 0x63,
+        0x25, 0x51,
+    ];
+
+    if signature[32..].cmp(P256_HALF_ORDER.as_slice()) != std::cmp::Ordering::Greater {
+        return;
+    }
+
+    let mut low_s = [0u8; 32];
+    let mut borrow = 0_i16;
+    for index in (0..32).rev() {
+        let difference = P256_ORDER[index] as i16 - signature[32 + index] as i16 - borrow;
+        if difference < 0 {
+            low_s[index] = (difference + 256) as u8;
+            borrow = 1;
+        } else {
+            low_s[index] = difference as u8;
+            borrow = 0;
+        }
+    }
+    signature[32..].copy_from_slice(&low_s);
 }
 
 #[test]
