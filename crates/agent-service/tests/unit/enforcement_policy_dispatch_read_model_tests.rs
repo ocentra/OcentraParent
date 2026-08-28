@@ -1,4 +1,5 @@
 use ocentra_parent_agent_core::enforcement_policy_dispatch::validate_enforcement_policy_dispatch_read_model;
+use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchOutcomeState;
 use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchReadModel;
@@ -55,4 +56,61 @@ fn policy_dispatch_read_model_exposes_validation_and_non_claim_states() -> TestR
         .any(|entry| entry.timer_state == EnforcementPolicyDispatchTimerState::RestartRecovered));
 
     Ok(())
+}
+
+#[test]
+fn policy_dispatch_read_model_preserves_reference_correlation_and_provenance() {
+    let read_model =
+        v08_enforcement_policy_dispatch_read_model(policy_constants::TEST_EVALUATED_AT);
+    let entry = &read_model.entries[0];
+
+    assert_eq!(
+        entry.intent.policy_decision_id,
+        "policy-dispatch-owned-process-time-limit"
+    );
+    assert_eq!(
+        entry.intent.policy_decision_ref,
+        "decision-dispatch-owned-process-time-limit"
+    );
+    assert_eq!(entry.intent.evidence_references.len(), 1);
+    assert_eq!(
+        entry.intent.evidence_references[0].kind,
+        ParentEvidenceReferenceKind::ActivityEvent
+    );
+    assert_eq!(
+        entry.intent.evidence_references[0].observed_at,
+        policy_constants::TEST_EVALUATED_AT
+    );
+    assert_eq!(entry.audit_refs.len(), 1);
+    assert_eq!(entry.timer_refs.len(), 1);
+    assert!(entry.intent.approval_ref.is_none());
+    assert_eq!(
+        entry.dispatched_at.as_deref(),
+        Some(policy_constants::TEST_EVALUATED_AT)
+    );
+}
+
+#[test]
+fn policy_dispatch_read_model_rejects_tampered_evidence_reference() {
+    let mut read_model =
+        v08_enforcement_policy_dispatch_read_model(policy_constants::TEST_EVALUATED_AT);
+    read_model.entries[0].intent.evidence_references[0].evidence_reference_id =
+        "not-an-owned-evidence-reference".to_string();
+
+    assert_eq!(
+        validate_enforcement_policy_dispatch_read_model(&read_model),
+        Err(EnforcementPolicyDispatchRejectionReason::MissingEvidence)
+    );
+}
+
+#[test]
+fn policy_dispatch_read_model_rejects_tampered_decision_correlation() {
+    let mut read_model =
+        v08_enforcement_policy_dispatch_read_model(policy_constants::TEST_EVALUATED_AT);
+    read_model.entries[0].intent.policy_decision_ref = "decision-other-intent".to_string();
+
+    assert_eq!(
+        validate_enforcement_policy_dispatch_read_model(&read_model),
+        Err(EnforcementPolicyDispatchRejectionReason::MissingPolicyDecision)
+    );
 }
