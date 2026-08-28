@@ -19,9 +19,16 @@ pub(super) fn apply_observation_to_session(
         .saturating_sub(state.active_sessions[session_index].last_observed_at_ms)
         .max(0) as u64;
     let session = &mut state.active_sessions[session_index];
-    let summary = &mut session.summary;
     let is_process_observation = observation.is_process_observation();
     let is_process_exit = observation.is_process_exit();
+    if is_process_observation {
+        if session.running_started_at_ms.is_none() {
+            session.running_started_at_ms = Some(observed_at_ms);
+        }
+        session.last_process_observed_at_ms = Some(observed_at_ms);
+        session.last_process_observed_at = Some(observation.observed_at.clone());
+    }
+    let summary = &mut session.summary;
     if summary.last_observed_at != observation.observed_at {
         summary.observation_count += 1;
     }
@@ -30,8 +37,10 @@ pub(super) fn apply_observation_to_session(
     session.last_observed_at_ms = observed_at_ms;
     summary.evidence_count += observation.evidence.len() as u64;
     summary.evidence.extend(observation.evidence.clone());
-    if is_process_observation {
-        update_running_duration(summary, session.started_at_ms, observed_at_ms);
+    if let Some(running_started_at_ms) = session.running_started_at_ms {
+        if is_process_observation {
+            update_running_duration(summary, running_started_at_ms, observed_at_ms);
+        }
     }
     if is_stronger_classification(
         &observation.classification_state,
@@ -53,18 +62,24 @@ pub(super) fn apply_observation_to_session(
 pub(super) fn close_session(state: &mut SessionizationState, session_index: usize, reason: &str) {
     let mut session = state.active_sessions.remove(session_index);
     let ended_at = if reason == APP_GAME_SESSION_END_REASON_TIMEOUT_INFERRED {
-        crate::activity_store_app_game::app_game_session_time::add_millis(
-            &session.summary.last_observed_at,
-            super::SESSION_STALE_TIMEOUT_MS as i64,
-        )
-        .unwrap_or_else(|| session.summary.last_observed_at.clone())
+        session
+            .last_process_observed_at
+            .as_deref()
+            .and_then(|observed_at| {
+                crate::activity_store_app_game::app_game_session_time::add_millis(
+                    observed_at,
+                    super::SESSION_STALE_TIMEOUT_MS as i64,
+                )
+            })
+            .unwrap_or_else(|| session.summary.last_observed_at.clone())
     } else {
         session.summary.last_observed_at.clone()
     };
-    if let Some(ended_at_ms) =
-        crate::activity_store_app_game::app_game_session_time::timestamp_ms(&ended_at)
-    {
-        update_running_duration(&mut session.summary, session.started_at_ms, ended_at_ms);
+    if let (Some(running_started_at_ms), Some(ended_at_ms)) = (
+        session.running_started_at_ms,
+        crate::activity_store_app_game::app_game_session_time::timestamp_ms(&ended_at),
+    ) {
+        update_running_duration(&mut session.summary, running_started_at_ms, ended_at_ms);
     }
     if state
         .focused_process

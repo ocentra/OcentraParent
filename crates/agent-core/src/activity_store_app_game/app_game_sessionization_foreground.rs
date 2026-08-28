@@ -15,7 +15,7 @@ pub(super) fn apply_foreground_transition(
     }
 
     match state.focused_process.as_ref() {
-        Some(focus) if focus.process_identity == observation.process_identity => {}
+        Some(focus) if focus.process_identity == observation.process_identity => return,
         Some(_) => close_focused_process(state, observed_at_ms, &observation.observed_at),
         None => {}
     }

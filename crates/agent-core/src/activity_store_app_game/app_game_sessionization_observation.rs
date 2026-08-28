@@ -35,7 +35,10 @@ fn session_index_for_observation(
     observed_at_ms: i64,
 ) -> usize {
     match active_session_index(state, &observation.process_identity) {
-        Some(index) if session_gap_ms(state, index, observed_at_ms) > SESSION_STALE_TIMEOUT_MS => {
+        Some(index)
+            if observation.is_process_observation()
+                && process_gap_ms(state, index, observed_at_ms) > SESSION_STALE_TIMEOUT_MS =>
+        {
             super::app_game_sessionization_lifecycle::close_session(
                 state,
                 index,
@@ -55,10 +58,11 @@ fn active_session_index(state: &SessionizationState, process_identity: &str) -> 
         .position(|session| session.summary.primary_process_identity == process_identity)
 }
 
-fn session_gap_ms(state: &SessionizationState, session_index: usize, observed_at_ms: i64) -> u64 {
-    observed_at_ms
-        .saturating_sub(state.active_sessions[session_index].last_observed_at_ms)
-        .max(0) as u64
+fn process_gap_ms(state: &SessionizationState, session_index: usize, observed_at_ms: i64) -> u64 {
+    state.active_sessions[session_index]
+        .last_process_observed_at_ms
+        .map(|last_observed_at_ms| observed_at_ms.saturating_sub(last_observed_at_ms).max(0) as u64)
+        .unwrap_or(0)
 }
 
 fn push_new_session(
@@ -68,9 +72,12 @@ fn push_new_session(
 ) -> usize {
     let mut summary = observation.clone().into_summary();
     summary.session_id = next_session_id(state, &summary.primary_process_identity);
+    let is_process_observation = observation.is_process_observation();
     let session = SessionState {
         summary,
-        started_at_ms: observed_at_ms,
+        running_started_at_ms: is_process_observation.then_some(observed_at_ms),
+        last_process_observed_at_ms: is_process_observation.then_some(observed_at_ms),
+        last_process_observed_at: is_process_observation.then(|| observation.observed_at.clone()),
         last_observed_at_ms: observed_at_ms,
     };
     state.active_sessions.push(session);
