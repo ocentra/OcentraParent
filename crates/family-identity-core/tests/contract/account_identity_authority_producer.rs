@@ -169,6 +169,28 @@ fn signed_issue_transport_verifies_with_typed_canonical_claims() {
 }
 
 #[test]
+fn signed_issue_transport_rejects_noncanonical_rfc3339_timestamps() {
+    let payload = serde_json::to_vec(&claims()).expect("canonical claims JSON");
+    for (issued_at, expires_at) in [
+        ("2026-08-28T19:00:00Z", EXPIRES_AT),
+        ("2026-08-28T19:00:00.000+00:00", EXPIRES_AT),
+        (ISSUED_AT, "2026-08-28T19:05:00Z"),
+    ] {
+        let fixture = signed_wire(
+            AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
+            payload.clone(),
+            issued_at,
+            expires_at,
+        );
+
+        assert!(matches!(
+            verify(&fixture.wire, &fixture.public_key, now()),
+            Err(AccountIdentityAuthorityProducerV2Error::InvalidWire)
+        ));
+    }
+}
+
+#[test]
 fn domain_key_and_signature_changes_fail_closed() {
     let payload = serde_json::to_vec(&claims()).expect("canonical claims JSON");
     let fixture = signed_wire(

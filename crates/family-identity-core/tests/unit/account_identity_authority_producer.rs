@@ -118,6 +118,42 @@ fn append_field(target: &mut Vec<u8>, field: &[u8]) {
 }
 
 #[test]
+fn canonical_millisecond_utc_timestamps_are_accepted() {
+    let fixture = signed_wire(
+        AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
+        canonical_claims(),
+        NOW,
+        "2026-08-28T19:06:00.000Z",
+    );
+
+    let verified = verify(&fixture.wire, &fixture.public_key, now())
+        .expect("canonical UTC-millisecond timestamps verify");
+    assert_eq!(verified.issued_at(), NOW);
+    assert_eq!(verified.expires_at(), "2026-08-28T19:06:00.000Z");
+}
+
+#[test]
+fn noncanonical_rfc3339_timestamp_forms_are_rejected() {
+    for (issued_at, expires_at) in [
+        ("2026-08-28T19:00:00Z", "2026-08-28T19:06:00.000Z"),
+        ("2026-08-28T19:00:00.000+00:00", "2026-08-28T19:06:00.000Z"),
+        (NOW, "2026-08-28T19:06:00Z"),
+    ] {
+        let fixture = signed_wire(
+            AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,
+            canonical_claims(),
+            issued_at,
+            expires_at,
+        );
+
+        assert!(matches!(
+            verify(&fixture.wire, &fixture.public_key, now()),
+            Err(AccountIdentityAuthorityProducerV2Error::InvalidWire)
+        ));
+    }
+}
+
+#[test]
 fn malformed_wire_is_rejected_before_any_authority_result() {
     let fixture = signed_wire(
         AccountIdentityAuthorityProducerV2Operation::IssueCurrentAuthority,

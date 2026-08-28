@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Duration, SecondsFormat, Utc};
 use ocentra_schema::account_identity_authority_producer_v2::{
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_FUTURE_ISSUED_SKEW_SECONDS,
     ACCOUNT_IDENTITY_AUTHORITY_PRODUCER_V2_MAX_LIFETIME_SECONDS,
@@ -34,7 +34,11 @@ pub(super) fn validate_lifetime(
 }
 
 fn parse_time(value: &str) -> Result<DateTime<Utc>, AccountIdentityAuthorityProducerV2Error> {
-    DateTime::parse_from_rfc3339(value)
+    let parsed = DateTime::parse_from_rfc3339(value)
         .map(|value| value.with_timezone(&Utc))
-        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)
+        .map_err(|_| AccountIdentityAuthorityProducerV2Error::InvalidWire)?;
+    if parsed.to_rfc3339_opts(SecondsFormat::Millis, true) != value {
+        return Err(AccountIdentityAuthorityProducerV2Error::InvalidWire);
+    }
+    Ok(parsed)
 }
