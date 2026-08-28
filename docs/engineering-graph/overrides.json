@@ -10192,21 +10192,102 @@
       ]
     }
   ],
-  "proofOverrides": [
-    {
-      "id": "WP-eventing-plan-06-journal-replay-and-lineage",
-      "proof": [
-        "docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md",
-        "docs/proof/eventing-plan/wp06-01-journal-replay-proof.md",
-        "docs/proof/eventing-plan/wp06-02-topology-lineage-proof.md",
-        "docs/proof/eventing-plan/wp06-16-validation-commands.md"
-      ],
-      "reason": "The retained WP06 handoff, journal/replay, topology/lineage, and validation records are the durable proof bundle named by the workpack.",
-      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
-      "satisfiesExpected": true
-    }
-  ],
   "completionEvidenceOverrides": [
+    {
+      "id": "WP-payment-subscription-plan-01-product-pricing-entitlement",
+      "implementation": [
+        "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_derivation.rs",
+        "crates/schema/src/billing_entitlement_proof.rs",
+        "crates/schema/src/billing_entitlement_values_ts.rs"
+      ],
+      "reason": "Independent source review accepted the checked Rust base, referral, and paid-seat derivation plus the unsigned projection boundary. Canonical 701be2b13 also contains the exact focused derivation test source, but no test has been executed in this code-first phase. Production billing/referral custody, Account and Device Trust authority composition, provider issuance, proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+      "implementation": [
+        "crates/schema/src/child_ios_entitlement_capability_proof.rs",
+        "crates/schema/src/child_ios_entitlement_capability_proof/constants.rs",
+        "crates/schema/src/child_ios_entitlement_capability_proof/enums_capability.rs",
+        "crates/schema/src/child_ios_entitlement_capability_proof/enums_runtime.rs",
+        "crates/schema/src/child_ios_entitlement_capability_proof/identifiers.rs",
+        "crates/schema/src/child_ios_entitlement_capability_proof/lifecycle_proofs.rs",
+        "crates/schema/src/child_ios_entitlement_capability_proof/proof_types.rs",
+        "crates/schema/src/child_ios_entitlement_capability_proof/sample.rs",
+        "crates/schema/src/child_ios_entitlement_capability_proof/surface_proofs.rs",
+        "crates/schema/src/child_ios_entitlement_capability_proof_ts.rs",
+        "crates/schema/src/bin/export_child_ios_entitlement_capability_proof_contract_types.rs",
+        "platforms/ios/OcentraChildAgent/AppDelegate.swift",
+        "platforms/ios/OcentraChildAgent/AgentStatusViewController.swift"
+      ],
+      "reason": "Independent source review accepted the child-owned iOS capability contract and canonical OcentraChildAgent project, product, bundle, scheme, status, and simulator-only unsigned release boundary. Canonical b6d0ba578 contains the exact hostile parent-identity rejection test source, but it has not been executed. Signing, device/store authority, workflow proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-189-app-game-linux-foreground-capture-readiness",
+      "implementation": [
+        "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+        "crates/screen-capture-adapter/src/lib.rs",
+        "crates/screen-capture-adapter/src/linux_display.rs",
+        "crates/screen-capture-adapter/src/linux_display_paths.rs",
+        "crates/screen-capture-adapter/src/linux_display_readiness.rs",
+        "crates/screen-capture-adapter/src/linux_socket_connect.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security.rs",
+        "crates/screen-capture-adapter/src/linux_socket_security_chain.rs",
+        "crates/screen-capture-adapter/src/linux_x11.rs",
+        "crates/screen-capture-adapter/src/linux_x11_capture.rs"
+      ],
+      "reason": "Independent source review accepted the fail-closed Linux display, socket-security, X11 readiness, and capture boundary. Canonical eb84f60a5 contains all three exact real test roots, but none has been executed in this code-first phase. The source still reports degraded or unavailable and does not claim active capture authority, proof, CI, READY, or DONE; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/189-app-game-linux-foreground-capture-readiness.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-197-app-game-linux-docker-host-preflight",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
+        "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+        "crates/agent-service/src/activity_api.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup_owner.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup_process.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_cleanup_worker.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_group.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_output.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_path_security.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_paths.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_process.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_state.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_supervisor.rs",
+        "crates/agent-service/src/activity_api/app_game_linux_docker_host_preflight_wait.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_probe_cache.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+        "crates/agent-service/src/app.rs",
+        "crates/agent-service/src/service_runtime/run.rs",
+        "crates/agent-service/src/websocket.rs",
+        "crates/agent-service/src/websocket/activity_app_game_command_reports.rs",
+        "crates/agent-service/src/websocket/activity_app_game_read_model_reports.rs",
+        "crates/agent-service/src/websocket/activity_command_reports.rs",
+        "crates/agent-service/src/websocket/command_dispatch.rs",
+        "crates/agent-service/src/websocket/command_entry.rs",
+        "crates/agent-service/src/websocket/socket_session.rs",
+        "crates/agent-service/src/websocket/transport_admission.rs"
+      ],
+      "reason": "Independent source review accepted the bounded Linux Docker CLI, daemon, context and object inventory preflight, protected path checks, cleanup supervision, cache, and parent-safe read-model routing. Canonical 6eb1785c3 contains all six exact deterministic real test roots, but none has been executed in this code-first phase. The packet retains redaction and makes no dispatch, enforcement, provider, child, private-diagnostics, proof, CI, READY, or DONE claim; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/197-app-game-linux-docker-host-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody",
       "implementation": [
@@ -10802,6 +10883,20 @@
         "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
         "docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"
       ]
+    }
+  ],
+  "proofOverrides": [
+    {
+      "id": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "proof": [
+        "docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md",
+        "docs/proof/eventing-plan/wp06-01-journal-replay-proof.md",
+        "docs/proof/eventing-plan/wp06-02-topology-lineage-proof.md",
+        "docs/proof/eventing-plan/wp06-16-validation-commands.md"
+      ],
+      "reason": "The retained WP06 handoff, journal/replay, topology/lineage, and validation records are the durable proof bundle named by the workpack.",
+      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+      "satisfiesExpected": true
     }
   ],
   "ambiguities": [
