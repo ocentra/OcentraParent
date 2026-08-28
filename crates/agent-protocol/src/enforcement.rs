@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ParentActionReference {
     pub action_reference_id: String,
     pub actor: ParentActorReference,
@@ -446,7 +446,7 @@ impl EnforcementAuditEventKind {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnforcementCapabilityStatus {
     pub schema_version: String,
     pub platform: ParentPlatform,
@@ -460,7 +460,7 @@ pub struct EnforcementCapabilityStatus {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnforcementUnavailableStatus {
     pub schema_version: String,
     pub capability: EnforcementCapabilityStatus,
@@ -470,7 +470,7 @@ pub struct EnforcementUnavailableStatus {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnforcementIntent {
     pub schema_version: String,
     pub intent_id: String,
@@ -486,7 +486,7 @@ pub struct EnforcementIntent {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnforcementAction {
     pub schema_version: String,
     pub action_id: String,
@@ -509,7 +509,7 @@ pub struct EnforcementAction {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnforcementResult {
     pub schema_version: String,
     pub result_id: String,
@@ -528,7 +528,7 @@ pub struct EnforcementResult {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnforcementAuditEvent {
     pub schema_version: String,
     pub audit_event_id: String,
@@ -546,7 +546,7 @@ pub struct EnforcementAuditEvent {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnforcementAuditJournalEvent {
     pub audit_event_id: String,
     pub action_id: String,
@@ -660,7 +660,7 @@ impl DomainEvent for EnforcementAuditJournalEvent {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnforcementTimerEvent {
     pub schema_version: String,
     pub timer_event_id: String,
@@ -676,7 +676,7 @@ pub struct EnforcementTimerEvent {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnforcementActiveTimerState {
     pub schema_version: String,
     pub state_id: String,
@@ -690,7 +690,7 @@ pub struct EnforcementActiveTimerState {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct AppGameTimerSessionBinding {
     pub session_id: String,
     pub runtime_evidence_id: String,
