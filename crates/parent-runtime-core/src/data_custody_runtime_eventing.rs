@@ -22,6 +22,10 @@ use super::data_custody_parent_runtime_clock::{
 use super::data_custody_runtime_eventing_identity::execution_idempotency_ref;
 use super::data_custody_runtime_eventing_identity_backup::backup_job_event_idempotency_ref;
 
+#[cfg(test)]
+#[path = "data_custody_runtime_eventing_tests.rs"]
+mod data_custody_runtime_eventing_tests;
+
 const DATA_CUSTODY_EVENT_TYPE: &str = "parent-runtime.data-custody.transition";
 const DATA_CUSTODY_SCHEMA_VERSION: u16 = 3;
 const DATA_CUSTODY_EVENT_CUSTODY: &str = "parent-runtime";

@@ -24,6 +24,10 @@ mod export_import_backup_recovery_restore;
 #[path = "export_import_backup_recovery_restore_execution_plan.rs"]
 pub mod export_import_backup_recovery_restore_execution_plan;
 
+#[cfg(test)]
+#[path = "export_import_backup_recovery_tests.rs"]
+mod export_import_backup_recovery_tests;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BackupRequestInput {
     pub bundle_id: contracts::ExportImportBundleId,

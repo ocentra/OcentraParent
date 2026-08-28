@@ -57,6 +57,8 @@ mod encryption_key_custody;
 mod evidence_kinds;
 #[path = "export_import_backup_recovery.rs"]
 mod export_import_backup_recovery;
+#[path = "export_import_backup_recovery_runtime.rs"]
+mod export_import_backup_recovery_runtime;
 #[path = "family_reference_primitives.rs"]
 mod family_reference_primitives;
 #[path = "family_references.rs"]
