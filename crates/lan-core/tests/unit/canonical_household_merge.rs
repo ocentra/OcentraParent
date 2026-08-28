@@ -5,8 +5,9 @@ use ocentra_lan_core::read_model_builder::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingDeviceReachability, LanPairingDiscoveryRuntimeStatus, LanPairingNetworkMode,
-    LanPairingProductionDiscoveryState, LanPairingTrustState, LanTrustedDeviceRegistryEntry,
+    LanPairingDeviceHardwareProfile, LanPairingDeviceReachability,
+    LanPairingDiscoveryRuntimeStatus, LanPairingNetworkMode, LanPairingProductionDiscoveryState,
+    LanPairingTrustState, LanTrustedDeviceRegistryEntry,
 };
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
@@ -63,6 +64,36 @@ fn different_ocentra_device_ids_do_not_auto_merge_even_with_same_stable_mac() {
                     && record.source == LanDiscoveryEvidenceSource::WindowsNeighborTable
             })
     }));
+}
+
+#[test]
+fn hardware_profile_without_child_proof_stays_unassigned_and_non_enrollable() {
+    let mut discovered = discovery_device(
+        "lan-device-hardware-only",
+        None::<&str>,
+        "Observed hardware",
+        None::<&str>,
+        Some(constants::lan_pairing::TEST_LAN_IP),
+        Some(constants::lan_pairing::TEST_LAN_MAC),
+        vec![LanDiscoveryEvidenceSource::WindowsNeighborTable],
+    );
+    discovered.child_device.hardware_profile = Some(LanPairingDeviceHardwareProfile {
+        manufacturer: Some("Observed manufacturer".to_string()),
+        model: Some("Observed model".to_string()),
+        ..Default::default()
+    });
+
+    let model = build_lan_add_device_read_model(lan_input(vec![discovered]));
+    assert_eq!(model.canonical_household_devices.len(), 1);
+    let canonical = &model.canonical_household_devices[0];
+    assert_eq!(
+        canonical.classification,
+        LanCanonicalHouseholdDeviceClassification::UnknownLanDevice
+    );
+    assert!(canonical.role_badges.is_empty());
+    assert!(!canonical.enrollable);
+    assert_eq!(canonical.route_id, None);
+    assert_eq!(canonical.child_agent_inventory, None);
 }
 
 #[test]

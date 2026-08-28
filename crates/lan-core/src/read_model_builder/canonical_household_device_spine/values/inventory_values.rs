@@ -17,7 +17,6 @@ pub(super) fn child_agent_inventory_for(
 ) -> Option<LanChildAgentInventoryPacket> {
     let has_child_agent_truth = device.child_profile_id.is_some()
         || is_confirmed_agent_status(device.agent_status.as_deref())
-        || device.hardware_profile.is_some()
         || trust_state == LanPairingTrustState::Paired;
     if !is_child_agent || !has_child_agent_truth {
         return None;
