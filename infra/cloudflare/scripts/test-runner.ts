@@ -144,6 +144,7 @@ const FAMILY_CONFIG: Record<TestFamily, FamilyConfig> = {
       'tests/security/interactive-billing-boundary.test.ts',
       'tests/security/request-smuggling.test.ts',
       'tests/security/redaction.test.ts',
+      'tests/security/payment-security-boundaries.test.ts',
     ],
     assertionIds: [
       'SEC-SECRETS-01',
