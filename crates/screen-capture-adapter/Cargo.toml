@@ -32,5 +32,13 @@ name = "unit_screen_capture"
 path = "tests/unit/screen_capture.rs"
 
 [[test]]
+name = "unit_linux_x11_capture"
+path = "tests/unit/linux_x11_capture.rs"
+
+[[test]]
+name = "security_linux_capture_custody"
+path = "tests/security/linux_capture_custody.rs"
+
+[[test]]
 name = "unit_trigger_scheduler"
 path = "tests/unit/trigger_scheduler.rs"

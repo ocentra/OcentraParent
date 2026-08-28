@@ -179,6 +179,8 @@ mod app_game_child_runtime_transport_receipt_payload_tests;
 mod app_game_notification_readiness_payload_tests;
 #[path = "app_game_platform_proof_status_payload_tests.rs"]
 mod app_game_platform_proof_status_payload_tests;
+#[path = "app_game_linux_capture_readiness.rs"]
+mod app_game_linux_capture_readiness;
 #[path = "app_game_policy_readiness_payload_tests.rs"]
 mod app_game_policy_readiness_payload_tests;
 #[path = "app_game_timer_parent_surface_payload_tests.rs"]
