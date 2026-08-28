@@ -19,7 +19,7 @@ pub const APP_GAME_TIMER_PARENT_SURFACE_STATE_RUNTIME_MANUAL_REQUIRED: &str =
     "runtime-manual-required";
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AppGameTimerParentSurfaceRow {
     pub schema_version: u16,
     pub row_id: String,
@@ -31,7 +31,7 @@ pub struct AppGameTimerParentSurfaceRow {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
     pub schema_version: u16,
     pub artifact_reference_id: String,
@@ -47,7 +47,7 @@ pub struct AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord {
     pub schema_version: u16,
     pub parent_surface_intent_reference_id: String,
@@ -70,7 +70,7 @@ pub struct AppGameTimerParentSurfaceChildUxParentSurfaceIntentRecord {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord {
     pub schema_version: u16,
     pub parent_preference_setup_reference_id: String,
@@ -95,7 +95,7 @@ pub struct AppGameTimerParentSurfaceChildUxParentPreferenceSetupRecord {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AppGameTimerParentSurfaceReadModel {
     pub schema_version: u16,
     pub generated_at: String,

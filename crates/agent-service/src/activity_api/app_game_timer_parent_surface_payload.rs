@@ -110,6 +110,11 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
     };
     let mut read_model = timer_parent_surface_read_model(model, rows, &runtime_claims);
     apply_timer_parent_surface_control_action_results(model, &mut read_model);
+    // Action-result evidence can be surfaced as read-only handoff detail, but
+    // this service read model does not own adapter dispatch or platform
+    // enforcement. Keep those top-level ownership claims fail closed.
+    read_model.adapter_dispatch_claimed = false;
+    read_model.platform_enforcement_claimed = false;
     read_model
 }
 
