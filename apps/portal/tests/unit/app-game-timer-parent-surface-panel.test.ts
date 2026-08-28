@@ -16,11 +16,15 @@ const PreferenceSetupPayload: ParentUiActionPayload = {
     '{"parentSurfaceIntentReferenceId":"app-game-child-ux-parent-surface-action-result-app-game-1","parentPreferenceSetupReferenceId":"app-game-child-ux-parent-preference-setup-action-result-app-game-1","requestReferenceIds":["app-game-child-ux-local-handoff-action-result-app-game-1","parent-approved","child-status-limit-reached"]}',
 };
 
-const NoopPortalRenderActions: PortalRenderActions = {
-  reconnect() {},
-  selectCommandResult() {},
+const GuardedPortalRenderActions: PortalRenderActions = {
+  reconnect() {
+    throw new Error('unexpected reconnect during timer parent-surface render');
+  },
+  selectCommandResult() {
+    throw new Error('unexpected command-result selection during timer parent-surface render');
+  },
   async sendCommand() {
-    return null;
+    throw new Error('unexpected command dispatch during timer parent-surface render');
   },
 };
 
@@ -33,7 +37,7 @@ describe('app-game timer parent-surface portal route panel', () => {
   it('dispatches parent preference setup through the typed Rust-owned bridge action payload', () => {
     const payloads: ParentUiActionPayload[] = [];
     const actions: PortalRenderActions = {
-      ...NoopPortalRenderActions,
+      ...GuardedPortalRenderActions,
       async requestAppGameTimerParentPreferenceSetup(payload) {
         payloads.push(payload);
         return null;
@@ -45,10 +49,10 @@ describe('app-game timer parent-surface portal route panel', () => {
     expect(payloads).toEqual([PreferenceSetupPayload]);
   });
 
-  it('renders Rust-owned timer parent-surface rows and action controls', () => {
+  it('renders Rust-owned timer parent-surface rows', () => {
     const html = renderToStaticMarkup(
       createElement(AppGameTimerParentSurfaceRoutePanel, {
-        actions: NoopPortalRenderActions,
+        actions: GuardedPortalRenderActions,
         commandEnabled: true,
         panel: AppGameTimerParentSurfacePanelFixture,
       })
@@ -62,10 +66,35 @@ describe('app-game timer parent-surface portal route panel', () => {
     expect(html).toContain('Evidence source</dt><dd>stored journal rows');
   });
 
+  it('withholds parent preference controls when the Rust-owned action is unavailable', () => {
+    const panel = {
+      ...AppGameTimerParentSurfacePanelFixture,
+      parentPreferenceSetupRows: [
+        {
+          title: 'Parent preference setup',
+          details: [{ label: 'Status', value: 'Manual required' }],
+          actionLabel: 'Set up parent preference',
+          actionPayload: PreferenceSetupPayload,
+        },
+      ],
+    };
+    const html = renderToStaticMarkup(
+      createElement(AppGameTimerParentSurfaceRoutePanel, {
+        actions: GuardedPortalRenderActions,
+        commandEnabled: true,
+        panel,
+      })
+    );
+
+    expect(html).toContain('Parent preference setup');
+    expect(html).toContain('Manual required');
+    expect(html).not.toContain('Set up parent preference');
+  });
+
   it('keeps the absent Rust panel explicit instead of inventing rows', () => {
     const html = renderToStaticMarkup(
       createElement(AppGameTimerParentSurfaceRoutePanel, {
-        actions: NoopPortalRenderActions,
+        actions: GuardedPortalRenderActions,
         commandEnabled: false,
         panel: null,
       })

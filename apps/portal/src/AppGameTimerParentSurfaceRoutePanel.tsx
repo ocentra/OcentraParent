@@ -168,7 +168,8 @@ function AppGameTimerParentSurfaceActionRowCard({
       row.actionLabel === undefined ||
       row.actionPayload === null ||
       row.actionPayload === undefined ||
-      actions === undefined ? null : (
+      actions === undefined ||
+      actions.requestAppGameTimerParentPreferenceSetup === undefined ? null : (
         <button
           className={PortalDom.Classes.CommandResultTab}
           disabled={!commandEnabled}
