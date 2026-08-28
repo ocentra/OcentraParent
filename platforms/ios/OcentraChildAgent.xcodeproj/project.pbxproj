@@ -9,17 +9,37 @@
 /* Begin PBXBuildFile section */
     0C0F4B362C00000100A00001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0F4B342C00000100A00001 /* AppDelegate.swift */; };
     0C0F4B372C00000100A00001 /* AgentStatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0F4B352C00000100A00001 /* AgentStatusViewController.swift */; };
+    0C0F4B522C00000100A00001 /* ChildCapabilityIdentityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C0F4B4A2C00000100A00001 /* ChildCapabilityIdentityUITests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+    0C0F4B512C00000100A00001 /* PBXContainerItemProxy */ = {
+      isa = PBXContainerItemProxy;
+      containerPortal = 0C0F4B282C00000100A00001 /* Project object */;
+      proxyType = 1;
+      remoteGlobalIDString = 0C0F4B2F2C00000100A00001;
+      remoteInfo = OcentraChildAgent;
+    };
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
     0C0F4B302C00000100A00001 /* OcentraChildAgent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OcentraChildAgent.app; sourceTree = BUILT_PRODUCTS_DIR; };
     0C0F4B342C00000100A00001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
     0C0F4B352C00000100A00001 /* AgentStatusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentStatusViewController.swift; sourceTree = "<group>"; };
     0C0F4B382C00000100A00001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+    0C0F4B492C00000100A00001 /* OcentraChildAgentUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OcentraChildAgentUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+    0C0F4B4A2C00000100A00001 /* ChildCapabilityIdentityUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChildCapabilityIdentityUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
     0C0F4B2D2C00000100A00001 /* Frameworks */ = {
+      isa = PBXFrameworksBuildPhase;
+      buildActionMask = 2147483647;
+      files = (
+      );
+      runOnlyForDeploymentPostprocessing = 0;
+    };
+    0C0F4B4E2C00000100A00001 /* Frameworks */ = {
       isa = PBXFrameworksBuildPhase;
       buildActionMask = 2147483647;
       files = (
@@ -33,6 +53,7 @@
       isa = PBXGroup;
       children = (
         0C0F4B332C00000100A00001 /* OcentraChildAgent */,
+        0C0F4B4B2C00000100A00001 /* OcentraChildAgentUITests */,
         0C0F4B312C00000100A00001 /* Products */,
       );
       sourceTree = "<group>";
@@ -41,6 +62,7 @@
       isa = PBXGroup;
       children = (
         0C0F4B302C00000100A00001 /* OcentraChildAgent.app */,
+        0C0F4B492C00000100A00001 /* OcentraChildAgentUITests.xctest */,
       );
       name = Products;
       sourceTree = "<group>";
@@ -53,6 +75,14 @@
         0C0F4B382C00000100A00001 /* Info.plist */,
       );
       path = OcentraChildAgent;
+      sourceTree = "<group>";
+    };
+    0C0F4B4B2C00000100A00001 /* OcentraChildAgentUITests */ = {
+      isa = PBXGroup;
+      children = (
+        0C0F4B4A2C00000100A00001 /* ChildCapabilityIdentityUITests.swift */,
+      );
+      path = OcentraChildAgentUITests;
       sourceTree = "<group>";
     };
 /* End PBXGroup section */
@@ -75,7 +105,33 @@
       productReference = 0C0F4B302C00000100A00001 /* OcentraChildAgent.app */;
       productType = "com.apple.product-type.application";
     };
+    0C0F4B432C00000100A00001 /* OcentraChildAgentUITests */ = {
+      isa = PBXNativeTarget;
+      buildConfigurationList = 0C0F4B472C00000100A00001 /* Build configuration list for PBXNativeTarget "OcentraChildAgentUITests" */;
+      buildPhases = (
+        0C0F4B4D2C00000100A00001 /* Sources */,
+        0C0F4B4E2C00000100A00001 /* Frameworks */,
+        0C0F4B4F2C00000100A00001 /* Resources */,
+      );
+      buildRules = (
+      );
+      dependencies = (
+        0C0F4B502C00000100A00001 /* PBXTargetDependency */,
+      );
+      name = OcentraChildAgentUITests;
+      productName = OcentraChildAgentUITests;
+      productReference = 0C0F4B492C00000100A00001 /* OcentraChildAgentUITests.xctest */;
+      productType = "com.apple.product-type.bundle.ui-testing";
+    };
 /* End PBXNativeTarget section */
+
+/* Begin PBXTargetDependency section */
+    0C0F4B502C00000100A00001 /* PBXTargetDependency */ = {
+      isa = PBXTargetDependency;
+      target = 0C0F4B2F2C00000100A00001 /* OcentraChildAgent */;
+      targetProxy = 0C0F4B512C00000100A00001 /* PBXContainerItemProxy */;
+    };
+/* End PBXTargetDependency section */
 
 /* Begin PBXProject section */
     0C0F4B282C00000100A00001 /* Project object */ = {
@@ -87,6 +143,10 @@
         TargetAttributes = {
           0C0F4B2F2C00000100A00001 = {
             CreatedOnToolsVersion = 16.0;
+          };
+          0C0F4B432C00000100A00001 = {
+            CreatedOnToolsVersion = 16.0;
+            TestTargetID = 0C0F4B2F2C00000100A00001;
           };
         };
       };
@@ -104,12 +164,20 @@
       projectRoot = "";
       targets = (
         0C0F4B2F2C00000100A00001 /* OcentraChildAgent */,
+        0C0F4B432C00000100A00001 /* OcentraChildAgentUITests */,
       );
     };
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
     0C0F4B2E2C00000100A00001 /* Resources */ = {
+      isa = PBXResourcesBuildPhase;
+      buildActionMask = 2147483647;
+      files = (
+      );
+      runOnlyForDeploymentPostprocessing = 0;
+    };
+    0C0F4B4F2C00000100A00001 /* Resources */ = {
       isa = PBXResourcesBuildPhase;
       buildActionMask = 2147483647;
       files = (
@@ -125,6 +193,14 @@
       files = (
         0C0F4B362C00000100A00001 /* AppDelegate.swift in Sources */,
         0C0F4B372C00000100A00001 /* AgentStatusViewController.swift in Sources */,
+      );
+      runOnlyForDeploymentPostprocessing = 0;
+    };
+    0C0F4B4D2C00000100A00001 /* Sources */ = {
+      isa = PBXSourcesBuildPhase;
+      buildActionMask = 2147483647;
+      files = (
+        0C0F4B522C00000100A00001 /* ChildCapabilityIdentityUITests.swift in Sources */,
       );
       runOnlyForDeploymentPostprocessing = 0;
     };
@@ -271,6 +347,38 @@
       };
       name = Release;
     };
+    0C0F4B452C00000100A00001 /* Debug */ = {
+      isa = XCBuildConfiguration;
+      buildSettings = {
+        CODE_SIGN_STYLE = Automatic;
+        CURRENT_PROJECT_VERSION = 1;
+        GENERATE_INFOPLIST_FILE = YES;
+        IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+        MARKETING_VERSION = 0.1.1;
+        PRODUCT_BUNDLE_IDENTIFIER = ca.ocentra.child.agent.uitests;
+        PRODUCT_NAME = OcentraChildAgentUITests;
+        SWIFT_VERSION = 5.0;
+        TARGETED_DEVICE_FAMILY = "1,2";
+        TEST_TARGET_NAME = OcentraChildAgent;
+      };
+      name = Debug;
+    };
+    0C0F4B462C00000100A00001 /* Release */ = {
+      isa = XCBuildConfiguration;
+      buildSettings = {
+        CODE_SIGN_STYLE = Automatic;
+        CURRENT_PROJECT_VERSION = 1;
+        GENERATE_INFOPLIST_FILE = YES;
+        IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+        MARKETING_VERSION = 0.1.1;
+        PRODUCT_BUNDLE_IDENTIFIER = ca.ocentra.child.agent.uitests;
+        PRODUCT_NAME = OcentraChildAgentUITests;
+        SWIFT_VERSION = 5.0;
+        TARGETED_DEVICE_FAMILY = "1,2";
+        TEST_TARGET_NAME = OcentraChildAgent;
+      };
+      name = Release;
+    };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -288,6 +396,15 @@
       buildConfigurations = (
         0C0F4B3F2C00000100A00001 /* Debug */,
         0C0F4B402C00000100A00001 /* Release */,
+      );
+      defaultConfigurationIsVisible = 0;
+      defaultConfigurationName = Release;
+    };
+    0C0F4B472C00000100A00001 /* Build configuration list for PBXNativeTarget "OcentraChildAgentUITests" */ = {
+      isa = XCConfigurationList;
+      buildConfigurations = (
+        0C0F4B452C00000100A00001 /* Debug */,
+        0C0F4B462C00000100A00001 /* Release */,
       );
       defaultConfigurationIsVisible = 0;
       defaultConfigurationName = Release;
