@@ -77,11 +77,11 @@ async fn parent_tracking_config_flow_can_attach_once_to_runtime_owned_bus() {
     );
     assert_eq!(
         journal[1].contract.event_type.as_str(),
-        constants::tracking_config_update::CHILD_EVENT_TYPE
+        constants::tracking_config_update::APPLIED_EVENT_TYPE
     );
     assert_eq!(
         journal[2].contract.event_type.as_str(),
-        constants::tracking_config_update::APPLIED_EVENT_TYPE
+        constants::tracking_config_update::CHILD_EVENT_TYPE
     );
 }
 

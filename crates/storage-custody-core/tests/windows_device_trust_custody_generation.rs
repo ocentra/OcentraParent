@@ -19,7 +19,7 @@ fn revoking_the_latest_binding_preserves_generation_for_another_active_binding(
         write_active_record(&root, &generation, "family-a", "account-a", "device-a")?;
     let latest_binding =
         write_active_record(&root, &generation, "family-b", "account-b", "device-b")?;
-    set_sealed_install_generation(&root, &generation, &hex(&latest_binding))?;
+    set_sealed_install_generation(&root, &generation, &hex(Sha256::digest(&latest_binding)))?;
 
     remove_active_record(&root, &latest_binding)?;
     WindowsDeviceTrustCustody::open(&root)
@@ -29,6 +29,29 @@ fn revoking_the_latest_binding_preserves_generation_for_another_active_binding(
     let _cleanup = remove_active_record(&root, &first_binding);
     let _cleanup = remove_install_generation(&root);
     let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn invalid_sealed_binding_anchor_rotates_to_a_fresh_generation() -> Result<(), String> {
+    let root = std::env::temp_dir().join(format!(
+        "ocentra-wp02-invalid-sealed-binding-{}",
+        std::process::id()
+    ));
+    let _cleanup = fs::remove_dir_all(&root);
+    let custody = WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open initial custody: {error:?}"))?;
+    let initial_generation = install_generation(&root)?;
+    set_sealed_install_generation(&root, &initial_generation, "a")?;
+
+    let reopened = WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("reopen after invalid binding anchor: {error:?}"))?;
+    assert_ne!(install_generation(&root)?, initial_generation);
+
+    let _cleanup = remove_install_generation(&root);
+    let _cleanup = fs::remove_dir_all(root);
+    drop(reopened);
+    drop(custody);
     Ok(())
 }
 

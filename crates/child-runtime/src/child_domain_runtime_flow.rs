@@ -15,8 +15,8 @@ use routing::{child_domain_runtime_metadata, ChildDomainRuntimeHop};
 use state::ChildDomainRuntimeFlowState;
 use subscriptions::{
     subscribe_child_domain_ai, subscribe_child_domain_ai_policy_bridge,
-    subscribe_child_domain_notification, subscribe_child_domain_observer,
-    subscribe_child_domain_policy,
+    subscribe_child_domain_evidence, subscribe_child_domain_notification,
+    subscribe_child_domain_observer, subscribe_child_domain_policy,
 };
 
 mod routing;
@@ -54,8 +54,9 @@ impl ChildDomainRuntimeEventFlow {
     pub async fn for_domain(domain: ChildRuntimeDomain) -> Result<Self, EventingError> {
         let bus = EventBus::root();
         let state = ChildDomainRuntimeFlowState::default();
-        let observer_subscription_report =
-            subscribe_child_domain_observer(&bus, domain, state.clone()).await?;
+        let observer_subscription_report = subscribe_child_domain_observer(&bus, domain).await?;
+        let _evidence_subscription_report =
+            subscribe_child_domain_evidence(&bus, domain, state.clone()).await?;
         let ai_subscription_report = subscribe_child_domain_ai(&bus, domain, state.clone()).await?;
         let ai_policy_subscription_report =
             subscribe_child_domain_ai_policy_bridge(&bus, state.clone()).await?;

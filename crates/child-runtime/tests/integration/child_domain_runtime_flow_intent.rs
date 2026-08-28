@@ -13,7 +13,6 @@ trait OptionRequiredExt<T> {
 
 impl<T> OptionRequiredExt<T> for Option<T> {
     fn required(self, context: impl std::fmt::Display) -> T {
-        let context = context.to_string();
         let _ = context;
         self.unwrap_or_else(|| std::process::abort())
     }
@@ -25,7 +24,6 @@ trait ResultRequiredExt<T, E> {
 
 impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
     fn required(self, context: impl std::fmt::Display) -> T {
-        let context = context.to_string();
         let _ = context;
         self.unwrap_or_else(|_| std::process::abort())
     }
@@ -227,8 +225,8 @@ async fn child_domain_runtime_flow_can_attach_once_for_domain_event_family() {
         .required(constants::child_domain_runtime::ERROR_CHILD_DOMAIN_FLOW_RECORDED);
     let metrics_after = runtime_flow.metrics_snapshot().await;
 
-    assert_eq!(metrics_before.subscription_count, 5);
-    assert_eq!(metrics_after.subscription_count, 5);
+    assert_eq!(metrics_before.subscription_count, 6);
+    assert_eq!(metrics_after.subscription_count, 6);
     assert_eq!(report.domain, ChildRuntimeDomain::Browser);
     assert_ai_policy_notification_chain(&report);
 }

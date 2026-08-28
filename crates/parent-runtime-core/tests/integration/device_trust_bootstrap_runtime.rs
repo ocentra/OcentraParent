@@ -34,6 +34,6 @@ fn a_new_runtime_cache_does_not_restore_staged_ceremonies_after_restart() {
     before_restart.insert("before-restart".to_owned(), (), now);
     drop(before_restart);
 
-    let mut after_restart = ExpiringStagedCeremonies::new();
+    let mut after_restart = ExpiringStagedCeremonies::<()>::new();
     assert_eq!(after_restart.remove("before-restart"), None);
 }

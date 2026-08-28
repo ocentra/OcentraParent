@@ -13,10 +13,10 @@ impl NdjsonEventJournal {
     /// so a restarted or competing writer cannot advance the hash chain from a
     /// stale sequence.
     pub(crate) async fn prepare_append_state(&self) -> Result<(), EventingError> {
+        self.repair_incomplete_trailing_record().await?;
         if self.state_matches_file().await? {
             return Ok(());
         }
-        self.repair_incomplete_trailing_record().await?;
         self.refresh_state().await
     }
 

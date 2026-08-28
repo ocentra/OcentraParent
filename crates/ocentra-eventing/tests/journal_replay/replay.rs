@@ -11,9 +11,9 @@ use std::sync::Arc;
 
 use super::{
     super::fixtures::{
-        metadata, subscriber, test_event, test_event_for_type, test_event_with_idempotency,
-        TestEvent, TestText, OTHER_EVENT_TYPE, TEST_EVENT_TYPE, TEST_LABEL, TEST_SUBSCRIBER,
-        TEST_TARGET,
+        metadata, metadata_with_event_id, subscriber, test_event, test_event_for_type,
+        test_event_with_idempotency, TestEvent, TestText, OTHER_EVENT_TYPE, TEST_EVENT_TYPE,
+        TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
     },
     support::{
         bus_with_recording_journal, cleanup, event_type, journal_path, read_lines, shared_log,
@@ -255,7 +255,10 @@ async fn seed_action_replay_journal(journal: NdjsonEventJournal) {
                 TestText(TEST_LABEL.to_owned()),
                 TestText("queued-drain-replay-key".to_owned()),
             ),
-            metadata(TestText(TEST_TARGET.to_owned())),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("queued-drain-replay-first-event".to_owned()),
+            ),
         )
         .await
         .expect_value("first before-dispatch event publishes");
@@ -265,7 +268,10 @@ async fn seed_action_replay_journal(journal: NdjsonEventJournal) {
                 TestText("queued-drain-replay-second".to_owned()),
                 TestText("queued-drain-replay-key-second".to_owned()),
             ),
-            metadata(TestText(TEST_TARGET.to_owned())),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("queued-drain-replay-second-event".to_owned()),
+            ),
         )
         .await
         .expect_value("second no-subscriber event records only before-dispatch evidence");
@@ -297,7 +303,10 @@ async fn seed_action_replay_journal(journal: NdjsonEventJournal) {
                 TestText("later-actionable-replay".to_owned()),
                 TestText("later-actionable-replay-key".to_owned()),
             ),
-            metadata(TestText(TEST_TARGET.to_owned())),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("later-actionable-replay-event".to_owned()),
+            ),
         )
         .await
         .expect_value("later subscriber-backed event records actionable after-dispatch evidence");
@@ -319,7 +328,10 @@ async fn dropped_no_subscriber_event_never_becomes_an_after_dispatch_replay_acti
                 TestText("dropped-no-subscriber".to_owned()),
                 TestText("dropped-no-subscriber-key".to_owned()),
             ),
-            metadata(TestText(TEST_TARGET.to_owned())),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("dropped-no-subscriber-event".to_owned()),
+            ),
         )
         .await
         .expect_value("no-subscriber event completes without action evidence");
@@ -360,7 +372,10 @@ async fn dropped_no_subscriber_event_never_becomes_an_after_dispatch_replay_acti
                 TestText("handled-after-dispatch".to_owned()),
                 TestText("handled-after-dispatch-key".to_owned()),
             ),
-            metadata(TestText(TEST_TARGET.to_owned())),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("handled-after-dispatch-event".to_owned()),
+            ),
         )
         .await
         .expect_value("subscriber-backed event creates action replay evidence");
@@ -379,24 +394,19 @@ async fn dropped_no_subscriber_event_never_becomes_an_after_dispatch_replay_acti
 }
 
 #[tokio::test]
-async fn projection_replay_cannot_run_handlers_without_action_mode() {
+async fn projection_replay_remains_inspection_only_before_explicit_action_replay() {
     let path = journal_path(TestText("projection-gate".to_owned()));
     let journal = NdjsonEventJournal::new(&path);
     journal
         .append(&stored_event(test_event(TestText(TEST_LABEL.to_owned()))))
         .await
         .expect_value("append event");
-    let _projection = journal
+    let projection = journal
         .replay_projection(ReplayFilter::all())
         .await
         .expect_value("projection replay");
+    assert_eq!(projection.mode, ReplayMode::ProjectionOnly);
     let bus = EventBus::root();
-
-    let blocked = journal.replay_action_records(ReplayFilter::all()).await;
-    assert!(matches!(
-        blocked,
-        Err(EventingError::ReplayActionNotAllowed { .. })
-    ));
 
     let handled = Arc::new(tokio::sync::Mutex::new(0_usize));
     let handled_clone = Arc::clone(&handled);

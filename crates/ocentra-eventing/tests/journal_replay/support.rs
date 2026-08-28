@@ -4,7 +4,7 @@ use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{EventId, EventType};
 use ocentra_eventing::journal::ndjson::NdjsonJournalRecord;
-use ocentra_eventing::journal::policy::JournalPolicy;
+use ocentra_eventing::journal::policy::{JournalDispatchPhase, JournalPolicy};
 use ocentra_eventing::journal::{
     EventJournal, JournalAppend, JournalAppendDurability, JournalHashVersion,
 };
@@ -166,5 +166,13 @@ impl EventJournal for RecordingJournal {
                 synchronization_hash: None,
             })
         })
+    }
+
+    fn append_phase_idempotent<'a>(
+        &'a self,
+        envelope: &'a StoredEventEnvelope,
+        _phase: JournalDispatchPhase,
+    ) -> Pin<Box<dyn Future<Output = Result<JournalAppend, EventingError>> + Send + 'a>> {
+        self.append(envelope)
     }
 }

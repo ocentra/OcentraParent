@@ -20,7 +20,9 @@ use subscriptions::{
     subscribe_child_ai_tracking_analysis_events, subscribe_child_notification_policy_events,
     subscribe_child_policy_tracking_analysis_events,
     subscribe_child_policy_tracking_expected_place_events,
-    subscribe_child_tracking_check_in_request_events, subscribe_tracking_location_observed_events,
+    subscribe_child_tracking_check_in_request_events,
+    subscribe_tracking_child_check_in_recorded_events, subscribe_tracking_evidence_recorded_events,
+    subscribe_tracking_geofence_transition_events, subscribe_tracking_location_observed_events,
 };
 
 mod check_in_requests;
@@ -76,6 +78,12 @@ impl TrackingRuntimeEventFlow {
         let state = TrackingRuntimeEventState::default();
         let tracking_subscription_report =
             subscribe_tracking_location_observed_events(&bus, state.clone()).await?;
+        let _evidence_subscription_report =
+            subscribe_tracking_evidence_recorded_events(&bus, state.clone()).await?;
+        let _geofence_subscription_report =
+            subscribe_tracking_geofence_transition_events(&bus, state.clone()).await?;
+        let _child_check_in_subscription_report =
+            subscribe_tracking_child_check_in_recorded_events(&bus, state.clone()).await?;
         let child_check_in_request_subscription_report =
             subscribe_child_tracking_check_in_request_events(&bus, state.clone()).await?;
         let child_ai_subscription_report =

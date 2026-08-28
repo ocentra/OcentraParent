@@ -15,9 +15,13 @@ pub(super) async fn collect(
     ),
     EventingError,
 > {
-    let file = tokio::fs::File::open(journal.path())
-        .await
-        .map_err(|error| EventingError::journal_io(journal.path_string(), &error))?;
+    let file = match tokio::fs::File::open(journal.path()).await {
+        Ok(file) => file,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+            return Ok((Vec::new(), Vec::new(), Vec::new(), 0));
+        }
+        Err(error) => return Err(EventingError::journal_io(journal.path_string(), &error)),
+    };
     let mut lines = BufReader::new(file).lines();
     let mut number = 0;
     let mut entries = Vec::new();

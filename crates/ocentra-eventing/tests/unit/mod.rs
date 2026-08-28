@@ -18,7 +18,7 @@ use ocentra_eventing::ids::{
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
 use ocentra_eventing::journal::{EventJournal, JournalAppend};
 use ocentra_eventing::queue;
-use ocentra_eventing::queue::policy::{EventQueuePolicy, QueueDisposition};
+use ocentra_eventing::queue::policy::{EventQueuePolicy, QueueDisposition, QueueOverflowPolicy};
 use ocentra_eventing::registrar::EventRegistrar;
 use ocentra_eventing::request;
 use ocentra_eventing::request::{

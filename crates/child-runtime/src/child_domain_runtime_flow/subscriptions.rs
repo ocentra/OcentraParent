@@ -13,15 +13,15 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_notification_requested_event,
     child_domain_policy_evaluation_requested_from_ai_result_event_if_required,
     ChildDomainAiAnalysisCompletedEvent, ChildDomainAiAnalysisRequestedEvent, ChildDomainEventType,
-    ChildDomainObservedEvent, ChildDomainPolicyEvaluationRequestedEvent,
-    ChildDomainPolicyViolationDetectedEvent, ChildRuntimeDomain,
+    ChildDomainEvidenceRecordedEvent, ChildDomainObservedEvent,
+    ChildDomainPolicyEvaluationRequestedEvent, ChildDomainPolicyViolationDetectedEvent,
+    ChildRuntimeDomain,
 };
 use ocentra_parent_agent_protocol::constants;
 
 pub(super) async fn subscribe_child_domain_observer(
     bus: &RootEventPublisher,
     domain: ChildRuntimeDomain,
-    state: ChildDomainRuntimeFlowState,
 ) -> Result<SubscriptionReport, EventingError> {
     bus.subscribe::<ChildDomainObservedEvent, _, _>(
         EventSubscriber::new(
@@ -29,21 +29,40 @@ pub(super) async fn subscribe_child_domain_observer(
             EventType::parse(domain.observed_event_type().as_str())?,
             TargetHandler::parse(constants::child_domain_runtime::TARGET_HANDLER_DOMAIN_OBSERVER)?,
         ),
+        move |context| async move {
+            let evidence = child_domain_evidence_recorded_event(context.payload())?;
+            context
+                .publisher()
+                .publish(
+                    evidence.clone(),
+                    child_domain_runtime_metadata(
+                        ChildDomainRuntimeHop::EvidenceRecorded(&evidence.evidence_ref),
+                        &evidence.source_observed_at,
+                    )?,
+                )
+                .await?;
+            Ok(())
+        },
+    )
+    .await
+}
+
+pub(super) async fn subscribe_child_domain_evidence(
+    bus: &RootEventPublisher,
+    domain: ChildRuntimeDomain,
+    state: ChildDomainRuntimeFlowState,
+) -> Result<SubscriptionReport, EventingError> {
+    bus.subscribe::<ChildDomainEvidenceRecordedEvent, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(domain.observer_subscriber_id())?,
+            EventType::parse(domain.evidence_recorded_event_type().as_str())?,
+            TargetHandler::parse(constants::child_domain_runtime::TARGET_HANDLER_DOMAIN_OBSERVER)?,
+        ),
         move |context| {
             let state = state.clone();
             async move {
-                let evidence = child_domain_evidence_recorded_event(context.payload())?;
+                let evidence = context.payload().clone();
                 state.record_evidence(evidence.clone());
-                context
-                    .publisher()
-                    .publish(
-                        evidence.clone(),
-                        child_domain_runtime_metadata(
-                            ChildDomainRuntimeHop::EvidenceRecorded(&evidence.evidence_ref),
-                            &evidence.source_observed_at,
-                        )?,
-                    )
-                    .await?;
                 if let Some(ai_request) = child_domain_ai_analysis_requested_event(&evidence)? {
                     state.record_ai_analysis_request(ai_request.clone());
                     context

@@ -35,7 +35,7 @@ pub(super) fn mark_sealed(root: &Path, generation: &str, binding: &[u8]) -> Resu
         &root_key,
         &format!(
             "{identity}|{generation}|{INSTALL_GENERATION_SEALED}|{}",
-            hex(binding)
+            hex(Sha256::digest(binding))
         ),
     )
     .map_err(|_error| Error::Platform)
@@ -113,16 +113,4 @@ fn fresh() -> Result<String, Error> {
     let mut bytes = [0_u8; 32];
     fill(&mut bytes).map_err(|_error| Error::Platform)?;
     Ok(hex(bytes))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::valid_binding_hex;
-
-    #[test]
-    fn sealed_generation_binding_requires_a_sha256_hex_value() {
-        assert!(valid_binding_hex(&"a".repeat(64)));
-        assert!(!valid_binding_hex("a"));
-        assert!(!valid_binding_hex(&"g".repeat(64)));
-    }
 }

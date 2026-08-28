@@ -45,6 +45,79 @@ pub(super) async fn subscribe_tracking_location_observed_events(
     .await
 }
 
+pub(super) async fn subscribe_tracking_evidence_recorded_events(
+    bus: &RootEventPublisher,
+    state: TrackingRuntimeEventState,
+) -> Result<SubscriptionReport, EventingError> {
+    bus.subscribe::<TrackingEvidenceRecordedEvent, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(constants::tracking_runtime::SUBSCRIBER_CHILD_TRACKING_OBSERVER)?,
+            EventType::parse(constants::tracking_runtime::TRACKING_EVIDENCE_RECORDED_EVENT_TYPE)?,
+            TargetHandler::parse(
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_OBSERVER,
+            )?,
+        ),
+        move |context| {
+            let state = state.clone();
+            async move {
+                state.record_evidence(context.payload().clone());
+                Ok(())
+            }
+        },
+    )
+    .await
+}
+
+pub(super) async fn subscribe_tracking_geofence_transition_events(
+    bus: &RootEventPublisher,
+    state: TrackingRuntimeEventState,
+) -> Result<SubscriptionReport, EventingError> {
+    bus.subscribe::<TrackingGeofenceTransitionDetectedEvent, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(constants::tracking_runtime::SUBSCRIBER_CHILD_TRACKING_OBSERVER)?,
+            EventType::parse(
+                constants::tracking_runtime::TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE,
+            )?,
+            TargetHandler::parse(
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_OBSERVER,
+            )?,
+        ),
+        move |context| {
+            let state = state.clone();
+            async move {
+                state.record_geofence_transition(context.payload().clone());
+                Ok(())
+            }
+        },
+    )
+    .await
+}
+
+pub(super) async fn subscribe_tracking_child_check_in_recorded_events(
+    bus: &RootEventPublisher,
+    state: TrackingRuntimeEventState,
+) -> Result<SubscriptionReport, EventingError> {
+    bus.subscribe::<TrackingChildCheckInRecordedEvent, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(constants::tracking_runtime::SUBSCRIBER_CHILD_TRACKING_OBSERVER)?,
+            EventType::parse(
+                constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE,
+            )?,
+            TargetHandler::parse(
+                constants::tracking_runtime::TARGET_HANDLER_CHILD_TRACKING_OBSERVER,
+            )?,
+        ),
+        move |context| {
+            let state = state.clone();
+            async move {
+                state.record_child_check_in(context.payload().clone());
+                Ok(())
+            }
+        },
+    )
+    .await
+}
+
 async fn handle_tracking_location_observed_event(
     context: EventContext<TrackingLocationObservedEvent>,
     state: TrackingRuntimeEventState,
@@ -53,14 +126,12 @@ async fn handle_tracking_location_observed_event(
     state.record_location_observed(context.payload().clone());
     let observation_report =
         ocentra_tracking_core::runtime_flow::observe_tracking_location(context.payload().clone());
-    let evidence =
-        publish_tracking_evidence(context.publisher(), &state, &observation_report).await?;
-    publish_tracking_geofence(context.publisher(), &state, &evidence).await?;
-    publish_tracking_expected_place(context.publisher(), &state, &evidence).await?;
-    publish_tracking_check_in(context.publisher(), &state, &observation_report, &evidence).await?;
+    let evidence = publish_tracking_evidence(context.publisher(), &observation_report).await?;
+    publish_tracking_geofence(context.publisher(), &evidence).await?;
+    publish_tracking_expected_place(context.publisher(), &evidence).await?;
+    publish_tracking_check_in(context.publisher(), &observation_report, &evidence).await?;
     publish_tracking_ai_request(
         context.publisher(),
-        &state,
         observation_report.ai_analysis_requested,
     )
     .await
@@ -84,11 +155,9 @@ fn validate_tracking_location_observed_event(
 
 async fn publish_tracking_evidence(
     publisher: &EventPublisher,
-    state: &TrackingRuntimeEventState,
     observation_report: &ocentra_tracking_core::runtime_flow::TrackingRuntimeObservationReport,
 ) -> Result<TrackingEvidenceRecordedEvent, EventingError> {
     let evidence = observation_report.evidence_recorded.clone();
-    state.record_evidence(evidence.clone());
     publisher
         .publish(
             evidence.clone(),
@@ -104,12 +173,10 @@ async fn publish_tracking_evidence(
 
 async fn publish_tracking_geofence(
     publisher: &EventPublisher,
-    state: &TrackingRuntimeEventState,
     evidence: &TrackingEvidenceRecordedEvent,
 ) -> Result<TrackingGeofenceTransitionDetectedEvent, EventingError> {
     let geofence =
         ocentra_tracking_core::runtime_flow::tracking_geofence_transition_from_evidence(evidence);
-    state.record_geofence_transition(geofence.clone());
     publisher
         .publish(
             geofence.clone(),
@@ -125,12 +192,10 @@ async fn publish_tracking_geofence(
 
 async fn publish_tracking_expected_place(
     publisher: &EventPublisher,
-    state: &TrackingRuntimeEventState,
     evidence: &TrackingEvidenceRecordedEvent,
 ) -> Result<TrackingExpectedPlaceStateEvaluatedEvent, EventingError> {
     let expected_place =
         ocentra_tracking_core::runtime_flow::tracking_expected_place_state_from_evidence(evidence);
-    state.record_expected_place_state(expected_place.clone());
     publisher
         .publish(
             expected_place.clone(),
@@ -146,7 +211,6 @@ async fn publish_tracking_expected_place(
 
 async fn publish_tracking_check_in(
     publisher: &EventPublisher,
-    state: &TrackingRuntimeEventState,
     observation_report: &ocentra_tracking_core::runtime_flow::TrackingRuntimeObservationReport,
     evidence: &TrackingEvidenceRecordedEvent,
 ) -> Result<TrackingChildCheckInRecordedEvent, EventingError> {
@@ -154,7 +218,6 @@ async fn publish_tracking_check_in(
         &observation_report.location_observed,
         vec![evidence.evidence_ref.clone()],
     );
-    state.record_child_check_in(check_in.clone());
     publisher
         .publish(
             check_in.clone(),
@@ -170,13 +233,11 @@ async fn publish_tracking_check_in(
 
 async fn publish_tracking_ai_request(
     publisher: &EventPublisher,
-    state: &TrackingRuntimeEventState,
     ai_analysis_requested: Option<TrackingAiAnalysisRequestedEvent>,
 ) -> Result<(), EventingError> {
     let Some(ai_request) = ai_analysis_requested else {
         return Ok(());
     };
-    state.record_ai_analysis_request(ai_request.clone());
     publisher
         .publish(
             ai_request.clone(),
@@ -258,6 +319,7 @@ pub(super) async fn subscribe_child_ai_tracking_analysis_events(
         move |context| {
             let state = state.clone();
             async move {
+                state.record_ai_analysis_request(context.payload().clone());
                 let classified =
                     ocentra_child_ai_core::tracking_boundary::classify_tracking_nearby_place(
                         context.payload(),
@@ -355,6 +417,7 @@ pub(super) async fn subscribe_child_policy_tracking_expected_place_events(
         move |context| {
             let state = state.clone();
             async move {
+                state.record_expected_place_state(context.payload().clone());
                 let policy_decision =
                     ocentra_child_policy_core::tracking_policy::evaluate_tracking_expected_place_policy(
                         context.payload(),
