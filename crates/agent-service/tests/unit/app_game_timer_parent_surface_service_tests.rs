@@ -41,7 +41,7 @@ use ocentra_parent_agent_protocol::enforcement::{
     EnforcementResult, EnforcementResultStatus, EnforcementRollbackState, EnforcementTimerEvent,
     EnforcementTimerEventKind, ParentActionReference, ParentPlatform,
 };
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
 use ocentra_parent_agent_protocol::policy_constants;
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentEventName, AgentMessageTarget, AgentPeer,
@@ -100,6 +100,14 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
         event.event,
         AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
     );
+    assert_eq!(
+        event.correlation_id,
+        constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED
+    );
+    assert_eq!(event.source.peer_id, constants::peer::LOCAL_DEV_AGENT);
+    assert_eq!(event.source.role, AgentPeerRole::AgentService);
+    assert_eq!(event.target.peer_id, constants::peer::PORTAL_DEV);
+    assert_eq!(event.target.role, AgentPeerRole::Portal);
     assert_eq!(
         read_model.capability_status,
         APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL
@@ -178,6 +186,10 @@ async fn app_game_timer_parent_surface_reports_state_refs_without_scheduler_clai
         event.event,
         AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
     );
+    assert_eq!(
+        event.correlation_id,
+        constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED
+    );
     assert!(!read_model.timer_runtime_claimed);
     assert!(!read_model.scheduler_persistence_claimed);
     assert!(!read_model.durable_scheduler_storage_claimed);
@@ -188,6 +200,44 @@ async fn app_game_timer_parent_surface_reports_state_refs_without_scheduler_clai
     assert!(!read_model.child_delivery_claimed);
     assert!(!read_model.platform_enforcement_claimed);
     assert!(!read_model.raw_private_source_rows_included);
+}
+
+#[tokio::test]
+async fn app_game_timer_parent_surface_command_fails_closed_without_store() {
+    let _guard = REPORT_ENV_LOCK.lock().await;
+    let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
+    cleanup_path(&store_path);
+    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
+    std::env::remove_var(constants::env_var::AGENT_ENFORCEMENT_TIMER_STATE_PATH);
+
+    let command = command_envelope();
+    let expected_correlation_id = command.message_id.clone();
+    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(
+        serialize_test_json(&command),
+    ))
+    .await;
+
+    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
+    cleanup_path(&store_path);
+
+    assert_eq!(
+        event.event,
+        AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
+    );
+    assert_eq!(event.correlation_id, expected_correlation_id);
+    assert_eq!(event.severity, LogLevel::Error);
+    assert_eq!(event.source.role, AgentPeerRole::AgentService);
+    assert_eq!(event.target.role, AgentPeerRole::Portal);
+    assert!(event
+        .payload
+        .get(constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL)
+        .is_none());
+    assert_eq!(
+        event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::value::ACTIVITY_STORE_UNAVAILABLE.to_string()
+        ))
+    );
 }
 
 #[tokio::test]

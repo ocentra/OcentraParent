@@ -67,15 +67,18 @@ pub async fn build_activity_app_game_timer_parent_surface_report(
                 &model,
                 timer_state.as_ref(),
             );
-            build_event(
-                constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED,
-                &command.message_id,
-                command.source,
-                AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
-                LogLevel::Info,
-                app_game_timer_parent_surface_payload(&read_model),
-                None,
-            )
+            match app_game_timer_parent_surface_payload_result(&read_model) {
+                Ok(payload) => build_event(
+                    constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED,
+                    &command.message_id,
+                    command.source,
+                    AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
+                    LogLevel::Info,
+                    payload,
+                    None,
+                ),
+                Err(_error) => timer_parent_surface_serialization_error_event(command),
+            }
         }
         None => activity_store_error_event(
             command,
@@ -117,7 +120,19 @@ struct TimerParentSurfaceRuntimeClaims {
 pub fn app_game_timer_parent_surface_payload(
     read_model: &AppGameTimerParentSurfaceReadModel,
 ) -> LogFields {
-    fields_from_pairs(vec![
+    app_game_timer_parent_surface_payload_result(read_model).unwrap_or_else(|_error| {
+        fields_from_pairs(vec![(
+            constants::field::REASON,
+            LogFieldValue::String(TIMER_PARENT_SURFACE_SERIALIZATION_ERROR.to_string()),
+        )])
+    })
+}
+
+fn app_game_timer_parent_surface_payload_result(
+    read_model: &AppGameTimerParentSurfaceReadModel,
+) -> Result<LogFields, serde_json::Error> {
+    let serialized_read_model = serde_json::to_string(read_model)?;
+    Ok(fields_from_pairs(vec![
         (
             constants::field::GENERATED_AT,
             LogFieldValue::String(read_model.generated_at.clone()),
@@ -136,9 +151,29 @@ pub fn app_game_timer_parent_surface_payload(
         ),
         (
             constants::field::APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL,
-            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
+            LogFieldValue::String(serialized_read_model),
         ),
-    ])
+    ]))
+}
+
+const TIMER_PARENT_SURFACE_SERIALIZATION_ERROR: &str =
+    "app-game timer parent surface read model serialization failed";
+
+fn timer_parent_surface_serialization_error_event(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    build_event(
+        constants::event_id::ACTIVITY_APP_GAME_TIMER_PARENT_SURFACE_READ_MODEL_REPORTED,
+        &command.message_id,
+        command.source,
+        AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported,
+        LogLevel::Error,
+        fields_from_pairs(vec![(
+            constants::field::REASON,
+            LogFieldValue::String(TIMER_PARENT_SURFACE_SERIALIZATION_ERROR.to_string()),
+        )]),
+        None,
+    )
 }
 
 fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTimerParentSurfaceRow> {
