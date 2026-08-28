@@ -55,6 +55,7 @@ fn empty_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot {
         ingest_status: None,
         activity_screen_read_model: None,
         activity_app_use_read_model: None,
+        activity_app_game_platform_extension_read_model: None,
         activity_browser_read_model: None,
         activity_games_read_model: None,
         screen_summary_panel: None,

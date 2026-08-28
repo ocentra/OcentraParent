@@ -121,6 +121,7 @@ export interface PortalLiveActivityState {
   readonly activityScreenReadModel: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly activityAppUseReadModelEvent: PortalRouteEventRecord | null;
   readonly activityAppUseReadModel: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
+  readonly activityAppGamePlatformExtensionReadModel: unknown | null;
   readonly activityBrowserReadModelEvent: PortalRouteEventRecord | null;
   readonly activityBrowserReadModel: PortalActivitySurfaceAdapterResult<ActivitySurfaceReadModel> | null;
   readonly activityGamesReadModelEvent: PortalRouteEventRecord | null;
@@ -198,6 +199,7 @@ export const EMPTY_PORTAL_LIVE_ACTIVITY_STATE = {
   activityScreenReadModel: null,
   activityAppUseReadModelEvent: null,
   activityAppUseReadModel: null,
+  activityAppGamePlatformExtensionReadModel: null,
   activityBrowserReadModelEvent: null,
   activityBrowserReadModel: null,
   activityGamesReadModelEvent: null,

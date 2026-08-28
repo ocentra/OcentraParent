@@ -74,6 +74,12 @@ pub(super) fn route_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot 
         ingest_status: None,
         activity_screen_read_model: None,
         activity_app_use_read_model: None,
+        activity_app_game_platform_extension_read_model: Some(serde_json::json!({
+            "ok": true,
+            "value": {
+                "rows": [{"platform": "macos"}]
+            }
+        })),
         activity_browser_read_model: None,
         activity_games_read_model: None,
         activity_tracking_panel: None,

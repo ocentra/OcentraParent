@@ -95,6 +95,10 @@ fn route_live_activity_snapshot_preserves_rust_owned_app_game_panel_shapes() {
         json!("Windows")
     );
     assert_eq!(
+        encoded["activityAppGamePlatformExtensionReadModel"]["value"]["rows"][0]["platform"],
+        json!("macos")
+    );
+    assert_eq!(
         encoded["appGameChildRuntimeTransportReceiptPanel"]["rows"][0]["details"][0]["value"],
         json!("manual-required")
     );

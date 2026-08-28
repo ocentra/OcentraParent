@@ -1,6 +1,10 @@
 use super::*;
 
+use ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_PARENT_PLATFORM_WINDOWS;
 use ocentra_parent_agent_protocol::app_game::APP_GAME_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::app_game_platform_proof_status::{
+    AppGamePlatformProofStatusReadModel, AppGamePlatformProofStatusRow,
+};
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::{
     AppGameTimerParentSurfaceReadModel,
     APP_GAME_TIMER_PARENT_SURFACE_STATE_BLOCKED_BY_COMPILER_DECISION,
@@ -48,6 +52,9 @@ pub(super) fn apply_app_game_live_activity_impl(
                     .map(|snapshot| &snapshot.read_model),
             ));
     }
+    snapshot.activity_app_game_platform_extension_read_model = input
+        .app_game_platform_proof_status_snapshot
+        .map(|snapshot| app_game_platform_extension_adapter_value(&snapshot.read_model));
     if input
         .app_game_child_runtime_transport_receipt_snapshot
         .is_some()
@@ -89,6 +96,65 @@ pub(super) fn apply_app_game_live_activity_impl(
                 consumable_timer_parent_surface_snapshot.map(|snapshot| &snapshot.read_model),
             ));
     }
+}
+
+fn app_game_platform_extension_adapter_value(
+    read_model: &AppGamePlatformProofStatusReadModel,
+) -> serde_json::Value {
+    let rows = read_model
+        .rows
+        .iter()
+        .filter_map(app_game_platform_extension_row_value)
+        .collect::<Vec<_>>();
+    let state = if rows.is_empty() {
+        "unavailable"
+    } else if read_model.rows.iter().any(|row| {
+        row.platform != APP_GAME_PARENT_PLATFORM_WINDOWS && !row.open_gaps.is_empty()
+    }) {
+        "manual-required"
+    } else {
+        "ready"
+    };
+    serde_json::json!({
+        "ok": true,
+        "value": {
+            "schemaVersion": read_model.schema_version,
+            "state": state,
+            "generatedAt": read_model.generated_at,
+            "summary": "App/game platform extension proof-pack readiness from service projection",
+            "rows": rows,
+        },
+    })
+}
+
+fn app_game_platform_extension_row_value(
+    row: &AppGamePlatformProofStatusRow,
+) -> Option<serde_json::Value> {
+    if row.platform == APP_GAME_PARENT_PLATFORM_WINDOWS {
+        return None;
+    }
+    let state = if row.open_gaps.is_empty() {
+        "ready"
+    } else {
+        "manual-required"
+    };
+    let proof_pack_state = if row.open_gaps.is_empty() {
+        "proof-pack-ready"
+    } else {
+        "manual-proof-pack-required"
+    };
+    Some(serde_json::json!({
+        "platform": row.platform,
+        "state": state,
+        "setupState": state,
+        "proofPackState": proof_pack_state,
+        "authorityTier": row.authority_state,
+        "adapterExecutionClaim": "not-executed",
+        "broadBlockingClaimed": row.broad_installed_app_blocking_claimed,
+        "privilegedMobileClaimed": false,
+        "childDeviceDeliveryClaimed": row.child_device_delivery_claimed,
+        "requiredProofRefs": row.proof_refs,
+    }))
 }
 
 fn app_game_timer_parent_surface_read_model_is_consumable(

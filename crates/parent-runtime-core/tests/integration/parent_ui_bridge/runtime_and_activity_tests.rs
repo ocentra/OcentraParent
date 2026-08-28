@@ -453,6 +453,45 @@ fn app_game_sessions_route_load_attaches_rust_owned_app_game_panels() {
         json!("Windows")
     );
     assert_eq!(
+        value["liveActivity"]["activityAppGamePlatformExtensionReadModel"]["ok"],
+        json!(true)
+    );
+    assert_eq!(
+        value["liveActivity"]["activityAppGamePlatformExtensionReadModel"]["value"]["state"],
+        json!("manual-required")
+    );
+    assert_eq!(
+        value["liveActivity"]["activityAppGamePlatformExtensionReadModel"]["value"]["rows"]
+            .as_array()
+            .map(Vec::len),
+        Some(4)
+    );
+    assert_eq!(
+        value["liveActivity"]["activityAppGamePlatformExtensionReadModel"]["value"]["rows"][0]
+            ["platform"],
+        json!("android")
+    );
+    assert_eq!(
+        value["liveActivity"]["activityAppGamePlatformExtensionReadModel"]["value"]["rows"][0]
+            ["setupState"],
+        json!("manual-required")
+    );
+    assert_eq!(
+        value["liveActivity"]["activityAppGamePlatformExtensionReadModel"]["value"]["rows"][0]
+            ["proofPackState"],
+        json!("manual-proof-pack-required")
+    );
+    assert_eq!(
+        value["liveActivity"]["activityAppGamePlatformExtensionReadModel"]["value"]["rows"][0]
+            ["adapterExecutionClaim"],
+        json!("not-executed")
+    );
+    assert_eq!(
+        value["liveActivity"]["activityAppGamePlatformExtensionReadModel"]["value"]["rows"][3]
+            ["platform"],
+        json!("ios")
+    );
+    assert_eq!(
         value["liveActivity"]["appGameChildRuntimeTransportReceiptPanel"]["rows"][0]["title"],
         json!("transport-receipt-row-1")
     );
