@@ -13,6 +13,7 @@ import {
   BillingSupportAdminReconciliationSummarySchema,
   BillingSupportAdminRefundResultSchema,
 } from './generated/billing-contracts.js';
+import { BillingPricingPublicResponseSchema, HealthStatusResponseSchema } from './public-route-contracts.js';
 
 export type RouteMethod = 'GET' | 'POST';
 
@@ -58,29 +59,34 @@ const GENERATED_ROUTE_CODECS = Object.freeze({
   BillingSupportAdminAuditEventsResponse: BillingSupportAdminAuditEventsResponseSchema,
 } as const satisfies Record<string, RouteContractCodec>);
 
-type GeneratedRouteCodecRegistry = typeof GENERATED_ROUTE_CODECS;
-type GeneratedRouteModel = keyof GeneratedRouteCodecRegistry;
+const ROUTE_CODECS = Object.freeze({
+  HealthStatusResponse: HealthStatusResponseSchema,
+  BillingPricingPublicResponse: BillingPricingPublicResponseSchema,
+  ...GENERATED_ROUTE_CODECS,
+} as const satisfies Record<string, RouteContractCodec>);
 
-export type RouteContractCodecDescriptor<Model extends GeneratedRouteModel = GeneratedRouteModel> =
-  Model extends GeneratedRouteModel
-    ? {
-        readonly model: Model;
-        readonly codec: GeneratedRouteCodecRegistry[Model];
-      }
-    : never;
+type RouteCodecRegistry = typeof ROUTE_CODECS;
+type RouteModel = keyof RouteCodecRegistry;
+
+export type RouteContractCodecDescriptor<Model extends RouteModel = RouteModel> = Model extends RouteModel
+  ? {
+      readonly model: Model;
+      readonly codec: RouteCodecRegistry[Model];
+    }
+  : never;
 
 type RouteContractCodecDescriptorRegistry = {
-  readonly [Model in GeneratedRouteModel]: RouteContractCodecDescriptor<Model>;
+  readonly [Model in RouteModel]: RouteContractCodecDescriptor<Model>;
 };
 
-function bindGeneratedCodecModels(): RouteContractCodecDescriptorRegistry {
+function bindRouteCodecModels(): RouteContractCodecDescriptorRegistry {
   const descriptors = Object.fromEntries(
-    Object.entries(GENERATED_ROUTE_CODECS).map(([model, codec]) => [model, Object.freeze({ model, codec })])
+    Object.entries(ROUTE_CODECS).map(([model, codec]) => [model, Object.freeze({ model, codec })])
   );
   return Object.freeze(descriptors) as RouteContractCodecDescriptorRegistry;
 }
 
-const GENERATED_ROUTE_CODEC_DESCRIPTORS = bindGeneratedCodecModels();
+const ROUTE_CODEC_DESCRIPTORS = bindRouteCodecModels();
 
 export type RouteRequestContract =
   | {
@@ -487,7 +493,7 @@ function manualExecution(
 const ROUTE_CONTRACT_BINDINGS = {
   health: {
     request: noRequest(),
-    response: unboundResponse('HealthStatusResponse', 'health-response-contract-not-generated'),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.HealthStatusResponse),
     execution: EXECUTION_READY,
   },
   'account-session-login': {
@@ -534,7 +540,7 @@ const ROUTE_CONTRACT_BINDINGS = {
   },
   'pricing-public': {
     request: noRequest(),
-    response: unboundResponse('BillingPricingPublicResponse', 'pricing-contract-owned-by-billing-domain'),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingPricingPublicResponse),
     execution: EXECUTION_READY,
   },
   'billing-status': {
@@ -543,13 +549,13 @@ const ROUTE_CONTRACT_BINDINGS = {
     execution: EXECUTION_READY,
   },
   'billing-checkout': {
-    request: boundRequest(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingCheckoutSessionRequest),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingCheckoutSessionResponse),
+    request: boundRequest(ROUTE_CODEC_DESCRIPTORS.BillingCheckoutSessionRequest),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingCheckoutSessionResponse),
     execution: manualExecution('payment-provider-execution-owner-missing'),
   },
   'billing-portal': {
-    request: boundRequest(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingPortalSessionRequest),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingPortalSessionResponse),
+    request: boundRequest(ROUTE_CODEC_DESCRIPTORS.BillingPortalSessionRequest),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingPortalSessionResponse),
     execution: manualExecution('payment-provider-execution-owner-missing'),
   },
   'billing-invoices': {
@@ -578,7 +584,7 @@ const ROUTE_CONTRACT_BINDINGS = {
       'json-body',
       'billing-referral-invite-request-contract-not-generated'
     ),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingReferralInviteResult),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingReferralInviteResult),
     execution: EXECUTION_READY,
   },
   'billing-entitlement-snapshot': {
@@ -637,27 +643,27 @@ const ROUTE_CONTRACT_BINDINGS = {
   },
   'admin-billing-accounts': {
     request: unboundRequest('AdminBillingAccountsRequest', 'query', 'admin-accounts-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminAccountsResponse),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminAccountsResponse),
     execution: EXECUTION_READY,
   },
   'admin-billing-invoices': {
     request: unboundRequest('AdminBillingInvoicesRequest', 'query', 'admin-invoices-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminInvoicesResponse),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminInvoicesResponse),
     execution: EXECUTION_READY,
   },
   'admin-billing-refunds': {
     request: unboundRequest('AdminBillingRefundRequest', 'json-body', 'admin-refund-request-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminRefundResult),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminRefundResult),
     execution: manualExecution('billing-refund-owner-adapter-missing'),
   },
   'admin-billing-disputes': {
     request: unboundRequest('AdminBillingDisputesRequest', 'query', 'admin-disputes-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminDisputesResponse),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminDisputesResponse),
     execution: EXECUTION_READY,
   },
   'admin-billing-referrals': {
     request: unboundRequest('AdminBillingReferralsRequest', 'query', 'admin-referrals-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminReferralsResponse),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminReferralsResponse),
     execution: EXECUTION_READY,
   },
   'admin-billing-reconciliation': {
@@ -666,7 +672,7 @@ const ROUTE_CONTRACT_BINDINGS = {
       'json-body',
       'reconciliation-request-contract-not-generated'
     ),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminReconciliationSummary),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminReconciliationSummary),
     execution: EXECUTION_READY,
   },
   'account-issuer-v2-internal': {
@@ -676,7 +682,7 @@ const ROUTE_CONTRACT_BINDINGS = {
   },
   'admin-billing-audit': {
     request: unboundRequest('AdminBillingAuditRequest', 'query', 'admin-audit-query-contract-not-generated'),
-    response: boundResponse(GENERATED_ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminAuditEventsResponse),
+    response: boundResponse(ROUTE_CODEC_DESCRIPTORS.BillingSupportAdminAuditEventsResponse),
     execution: EXECUTION_READY,
   },
 } satisfies { [K in RouteHandlerKey]: RouteContractBinding };
