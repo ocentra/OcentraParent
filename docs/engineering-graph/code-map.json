@@ -5672,6 +5672,16 @@
     },
     "WP-data-custody-storage-plan-01-custody-source-of-truth": {
       "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "code-and-tests",
+      "plannedImplementationRoots": [
+        "crates/schema/src/data_custody_source_of_truth.rs",
+        "crates/schema/src/data_custody_source_of_truth/identifiers.rs",
+        "crates/schema/src/data_custody_source_of_truth_ts.rs",
+        "crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/schema/tests/contract/data_custody_source_of_truth.rs"
+      ],
       "roots": [
         "crates/schema/src/data_custody_source_of_truth.rs",
         "crates/schema/src/data_custody_source_of_truth/identifiers.rs",
@@ -5681,7 +5691,8 @@
         "crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs",
         "crates/schema/tests/contract/data_custody_source_of_truth.rs",
         "packages/schema-domain/src/generated-data-custody-source-of-truth-contracts.ts"
-      ]
+      ],
+      "note": "Reviewed Rust-owned WP01 custody matrix source covers all 28 data classes, source/derived ownership, hosting and redaction boundaries, and fail-closed no-claim flags. Canonical 35306f033 expands the exact Rust contract test root with the complete semantic invariant family, but it has not been executed in this code-first phase; proof, CI, READY, and DONE remain open."
     },
     "WP-data-custody-storage-plan-02-encryption-key-custody": {
       "planSlug": "data-custody-storage-plan",

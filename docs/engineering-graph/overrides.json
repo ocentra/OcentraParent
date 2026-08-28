@@ -10194,6 +10194,20 @@
   ],
   "completionEvidenceOverrides": [
     {
+      "id": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "implementation": [
+        "crates/schema/src/data_custody_source_of_truth.rs",
+        "crates/schema/src/data_custody_source_of_truth/identifiers.rs",
+        "crates/schema/src/data_custody_source_of_truth_ts.rs",
+        "crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs"
+      ],
+      "reason": "Independent source review accepted the Rust-owned 28-class custody matrix, unique identifiers, self-versus-derived ownership, exact hosting modes, redaction and notification boundaries, forbidden defaults, and fail-closed no-claim flags. Canonical 35306f033 contains the complete semantic contract test source, but it has not been executed in this code-first phase. Proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-payment-subscription-plan-01-product-pricing-entitlement",
       "implementation": [
         "crates/entitlement-core/src/entitlement_snapshot.rs",

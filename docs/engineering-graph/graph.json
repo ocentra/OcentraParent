@@ -18348,6 +18348,18 @@
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/schema/src/data_custody_source_of_truth.rs",
+            "crates/schema/src/data_custody_source_of_truth/identifiers.rs",
+            "crates/schema/src/data_custody_source_of_truth_ts.rs",
+            "crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs"
+          ],
+          "testRoots": [
+            "crates/schema/tests/contract/data_custody_source_of_truth.rs"
+          ]
+        },
         "dependencyReview": {
           "hardDependencies": [],
           "evidence": [
@@ -18355,14 +18367,27 @@
             "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
           ],
           "reason": "Wave-0 dependency review records exact direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent source review accepted the Rust-owned 28-class custody matrix, unique identifiers, self-versus-derived ownership, exact hosting modes, redaction and notification boundaries, forbidden defaults, and fail-closed no-claim flags. Canonical 35306f033 contains the complete semantic contract test source, but it has not been executed in this code-first phase. Proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+          "evidence": [
+            "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+            "crates/schema/src/data_custody_source_of_truth.rs",
+            "crates/schema/src/data_custody_source_of_truth/identifiers.rs",
+            "crates/schema/src/data_custody_source_of_truth_ts.rs",
+            "crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs"
           ],
           "tests": [
             "docs/plans/data-custody-storage-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -18372,6 +18397,17 @@
             "docs/plans/data-custody-storage-plan/CHECKLIST_INDEX.md"
           ],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "crates/schema/src/data_custody_source_of_truth.rs",
+            "crates/schema/src/data_custody_source_of_truth/identifiers.rs",
+            "crates/schema/src/data_custody_source_of_truth_ts.rs",
+            "crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs"
+          ],
+          "tests": [
+            "crates/schema/tests/contract/data_custody_source_of_truth.rs"
+          ]
         }
       }
     },
