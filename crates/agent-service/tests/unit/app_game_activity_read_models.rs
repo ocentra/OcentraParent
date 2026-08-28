@@ -181,6 +181,8 @@ mod app_game_notification_readiness_payload_tests;
 mod app_game_platform_proof_status_payload_tests;
 #[path = "app_game_linux_capture_readiness.rs"]
 mod app_game_linux_capture_readiness;
+#[path = "app_game_linux_source_preflight.rs"]
+mod app_game_linux_source_preflight;
 #[path = "app_game_linux_docker_host_preflight.rs"]
 mod app_game_linux_docker_host_preflight_tests;
 #[path = "app_game_linux_docker_host_preflight_parser_tests.rs"]

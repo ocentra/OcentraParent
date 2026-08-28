@@ -18,6 +18,8 @@ mod app_game_adapter_execution_readiness;
 mod app_game_boundary_read_model_tests;
 #[path = "app_game_child_runtime_transport_receipt_tests.rs"]
 mod app_game_child_runtime_transport_receipt_tests;
+#[path = "app_game_linux_source_preflight.rs"]
+mod app_game_linux_source_preflight;
 #[path = "app_game_notification_readiness_tests.rs"]
 mod app_game_notification_readiness_tests;
 #[path = "app_game_platform_proof_status_tests.rs"]
