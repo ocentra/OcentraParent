@@ -276,7 +276,17 @@ remain open.
 
 ## Overclaim boundary
 
-This plan is implementation-present but not completion-ready. Cloudflare correctness remains incomplete until expected test source is complete, scoped validation stays green, proof bundles live under `output/cloudflare-control-plane-plan-proof/`, and the WP12 handoff bundle no longer carries open external billing-boundary blockers, WP02 runtime-validation test/proof debt, manual-required authority and deployment states, or downstream payment-plan consumption gaps.
+This plan is implementation-present but not completion-ready. Cloudflare correctness remains incomplete until remaining expected test source is complete, scoped validation stays green, proof bundles live under `output/cloudflare-control-plane-plan-proof/`, and the WP12 handoff bundle no longer carries open external billing-boundary blockers, WP02 test-execution/proof debt, manual-required authority and deployment states, or downstream payment-plan consumption gaps.
+
+## 2026-08-28 WP02 code-and-test-source truth
+
+- Canonical `4ddb47353` retains the accepted fail-closed env/origin source,
+  documents the Stripe webhook tolerance example, and completes the real WP02
+  unit matrix for malformed/non-string origins, wildcard environments,
+  binding ownership, optional bindings, unknown keys, and placeholder secrets.
+- None of those tests has been executed. Live binding IDs/credentials,
+  deployment and rollback proof, `EntitlementSnapshotDO` runtime composition,
+  CI, READY, and DONE remain open.
 
 ## 2026-08-25 WP02 source integration truth
 
@@ -285,10 +295,10 @@ This plan is implementation-present but not completion-ready. Cloudflare correct
 - `validateEnv` and `parseAllowedOrigins` fail closed without throwing for
   missing or non-string app/CORS origin values. Production rejects wildcard
   origins after trimming; local/test/development behavior is unchanged.
-- This closes the bounded production-source defect only. The complete WP02
-  malformed-origin and environment-behavior test source, focused test run,
-  retained proof, real binding provisioning, deployment, rollback, and
-  `EntitlementSnapshotDO` composition remain open.
+- This historical checkpoint closed the bounded production-source defect only.
+  The 2026-08-28 packet above subsequently completed its expected test source;
+  focused execution, retained proof, real binding provisioning, deployment,
+  rollback, and `EntitlementSnapshotDO` composition remain open.
 
 ## 2026-08-18 source-map refresh
 

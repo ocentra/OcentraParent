@@ -2,11 +2,12 @@
 
 ## Status
 
-`source-integrated / expected-test-source-incomplete / retained-proof-absent`
+`code-and-test-source complete / execution-and-proof open`
 
-The accepted source packet is integrated on the canonical consolidation branch
-at `7eabc9ff510fad890d88abb73cd7e3b4e413ed22`. This is implementation-phase
-evidence only; it does not close the workpack.
+The accepted production source is integrated at `7eabc9ff5`, and canonical
+`4ddb47353` completes the expected env-binding test source plus the documented
+Stripe webhook tolerance example. This is implementation-phase evidence only;
+none of the tests has been executed and the workpack is not closed.
 
 ## Goal
 
@@ -73,8 +74,8 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Completion
 
-- Status: open after accepted source integration; expected test-source and
-  retained-proof phases remain.
+- Status: code-and-test source complete; execution, retained proof, deployment,
+  and runtime composition remain open.
 - Expected proof root:
   `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/` (not
   tracked at the current canonical head).
@@ -91,14 +92,14 @@ Define development and production Wrangler config, binding names, and secret cus
 - Checked-in secret-bearing values in `.dev.vars.example` remain placeholders only; no real secret values are kept in repo.
 - Auth and entitlement refs in checked-in Wrangler config remain explicit `manual-required` placeholders rather than accidental readiness claims.
 
-## Open test and delivery truth
+## Open execution and delivery truth
 
-- The existing unit file checks the checked-in production Wrangler values, but
-  it does not yet contain the complete runtime-validation matrix for
-  undefined/non-string origins, comma-list wildcard variants, and preserved
-  development behavior. Write those cases together in the test-source wave.
-- Run the focused WP02 unit/lint commands only after that expected test source
-  is written; do not use source-only inline assertions as workpack test proof.
+- `infra/cloudflare/tests/unit/env-bindings.test.ts` now contains the complete
+  undefined/non-string/malformed origin, comma-list wildcard, preserved local
+  behavior, binding ownership, optional binding, unknown-key, and placeholder
+  secret matrix. It has not been executed.
+- Run the focused WP02 unit/lint commands in the later execution phase; checked
+  in assertions are not test proof until they run.
 - Real binding provisioning, deployment credentials, deployment/rollback
   validation, and the `EntitlementSnapshotDO` runtime remain outside this
   accepted packet and are still open.
@@ -114,9 +115,8 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Focused validations
 
-- Source packet: focused runtime assertions, Prettier, Enforcer source-shape,
-  no-test-doubles, validation-bypass, re-export, diff, commit, lane, and hub
-  guards passed before integration.
+- The 2026-08-28 test-source packet used static review and coordination only;
+  it ran no tests, builds, validation scans, proof, pre-commit, CI, or PR.
 - Deferred test phase:
   `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`.
 - Deferred broader module phase: `npm --prefix infra/cloudflare run test:unit`

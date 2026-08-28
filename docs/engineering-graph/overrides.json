@@ -10194,6 +10194,17 @@
   ],
   "completionEvidenceOverrides": [
     {
+      "id": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
+      "implementation": [
+        "infra/cloudflare/src/env.ts"
+      ],
+      "reason": "Independent review accepted explicit development/production bindings, placeholder-only secret custody, non-throwing malformed origin handling, environment-scoped wildcard behavior, and production wildcard rejection. Canonical 4ddb47353 contains the completed real env-binding test matrix and the documented Stripe webhook tolerance binding, but no test has been executed in this code-first phase. Live binding IDs/credentials, deployment and rollback proof, EntitlementSnapshotDO runtime composition, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-data-custody-storage-plan-01-custody-source-of-truth",
       "implementation": [
         "crates/schema/src/data_custody_source_of_truth.rs",

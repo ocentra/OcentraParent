@@ -17674,11 +17674,11 @@
         "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
       ],
       "state": "blocked",
-      "lifecycleState": "planned",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "source-integrated / expected-test-source-incomplete / retained-proof-absent",
+        "statusText": "Validation — completion contract gaps: tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -17694,15 +17694,29 @@
             "docs/engineering-graph/code-map.json"
           ],
           "reason": "WP02 configuration and binding source can be authored against the reviewed Cloudflare module scaffold, while placeholder/manual-required fixtures prove no deployment or environment readiness."
-        }
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent review accepted explicit development/production bindings, placeholder-only secret custody, non-throwing malformed origin handling, environment-scoped wildcard behavior, and production wildcard rejection. Canonical 4ddb47353 contains the completed real env-binding test matrix and the documented Stripe webhook tolerance binding, but no test has been executed in this code-first phase. Live binding IDs/credentials, deployment and rollback proof, EntitlementSnapshotDO runtime composition, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+          "evidence": [
+            "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
+        },
+        "completionGaps": [
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "code-and-test-source complete / execution-and-proof open"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
-          "implementation": [
-            "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
-          ],
+          "implementation": ["infra/cloudflare/src/env.ts"],
           "tests": [
             "docs/plans/cloudflare-control-plane-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
