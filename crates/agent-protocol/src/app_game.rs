@@ -1,8 +1,9 @@
+use serde::de::{Deserializer, Error as DeError};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ActivityEvidenceRef, AppGameAiClassifierResult, AppGameControlActionResult,
-    AppGameControlApprovalAuthority, AppGamePlatformAuthorityMatrix,
+    activity::ActivityEvidenceKind, ActivityEvidenceRef, AppGameAiClassifierResult,
+    AppGameControlActionResult, AppGameControlApprovalAuthority, AppGamePlatformAuthorityMatrix,
 };
 
 pub const APP_GAME_SCHEMA_VERSION: u16 = 1;
@@ -330,7 +331,7 @@ pub const APP_GAME_TEST_PERMISSION_PROCESS_NAME: &str = "private-process.exe";
 pub const APP_GAME_TEST_PUBLISHER_SIGNATURE_REF: &str = "signature-ref-ocentra-fixture";
 pub const APP_GAME_TEST_FILE_HASH_REF: &str = "hash-ref-ocentra-fixture";
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppGameIdentity {
     pub schema_version: u16,
@@ -357,7 +358,7 @@ pub struct AppGameIdentity {
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppGameIdentityMergeProof {
     pub schema_version: u16,
@@ -370,6 +371,367 @@ pub struct AppGameIdentityMergeProof {
     pub conflicting_file_hash_refs: bool,
     pub shared_deterministic_refs: Vec<String>,
     pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct AppGameEvidenceRefWire {
+    evidence_id: String,
+    kind: ActivityEvidenceKind,
+    digest: Option<String>,
+    uri: Option<String>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct AppGameIdentityWire {
+    schema_version: u16,
+    identity_id: String,
+    product_kind: String,
+    display_label: String,
+    parent_label: Option<String>,
+    confidence: String,
+    classification_state: String,
+    package_id: Option<String>,
+    bundle_id: Option<String>,
+    app_user_model_id: Option<String>,
+    desktop_entry_id: Option<String>,
+    application_token_ref: Option<String>,
+    executable_path_ref: Option<String>,
+    publisher_signature_ref: Option<String>,
+    file_hash_ref: Option<String>,
+    launcher_ref: Option<String>,
+    launcher_app_id: Option<String>,
+    launcher_manifest_id: Option<String>,
+    store_id: Option<String>,
+    catalog_ref: Option<String>,
+    child_game_evidence_claim_id: Option<String>,
+    evidence: Vec<AppGameEvidenceRefWire>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct AppGameIdentityMergeProofWire {
+    schema_version: u16,
+    merge_id: String,
+    target_identity: AppGameIdentity,
+    source_identity_ids: Vec<String>,
+    merge_confidence: f64,
+    display_label_matched: bool,
+    parent_label_changed: bool,
+    conflicting_file_hash_refs: bool,
+    shared_deterministic_refs: Vec<String>,
+    evidence: Vec<AppGameEvidenceRefWire>,
+}
+
+impl<'de> Deserialize<'de> for AppGameIdentity {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = AppGameIdentityWire::deserialize(deserializer)?;
+        let identity: Self = wire.into();
+        identity.validate().map_err(D::Error::custom)?;
+        Ok(identity)
+    }
+}
+
+impl<'de> Deserialize<'de> for AppGameIdentityMergeProof {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = AppGameIdentityMergeProofWire::deserialize(deserializer)?;
+        let merge = Self {
+            schema_version: wire.schema_version,
+            merge_id: wire.merge_id,
+            target_identity: wire.target_identity,
+            source_identity_ids: wire.source_identity_ids,
+            merge_confidence: wire.merge_confidence,
+            display_label_matched: wire.display_label_matched,
+            parent_label_changed: wire.parent_label_changed,
+            conflicting_file_hash_refs: wire.conflicting_file_hash_refs,
+            shared_deterministic_refs: wire.shared_deterministic_refs,
+            evidence: wire.evidence.into_iter().map(Into::into).collect(),
+        };
+        merge.validate().map_err(D::Error::custom)?;
+        Ok(merge)
+    }
+}
+
+impl AppGameIdentity {
+    fn validate(&self) -> Result<(), &'static str> {
+        if self.schema_version != APP_GAME_SCHEMA_VERSION {
+            return Err("app game identity schema version is unsupported");
+        }
+        if is_blank(&self.identity_id) {
+            return Err("app game identity id must not be empty");
+        }
+        if is_blank(&self.display_label) {
+            return Err("app game identity display label must not be empty");
+        }
+        if ![
+            APP_GAME_PRODUCT_NATIVE_APP,
+            APP_GAME_PRODUCT_NATIVE_GAME,
+            APP_GAME_PRODUCT_LAUNCHER,
+            APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE,
+        ]
+        .contains(&self.product_kind.as_str())
+        {
+            return Err("app game identity product kind is unsupported");
+        }
+        if ![
+            APP_GAME_IDENTITY_CONFIDENCE_WEAK,
+            APP_GAME_IDENTITY_CONFIDENCE_CANDIDATE,
+            APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC,
+            APP_GAME_IDENTITY_CONFIDENCE_PARENT_LABELED,
+            APP_GAME_IDENTITY_CONFIDENCE_AI_ASSISTED,
+        ]
+        .contains(&self.confidence.as_str())
+        {
+            return Err("app game identity confidence is unsupported");
+        }
+        if ![
+            APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+            APP_GAME_CLASSIFICATION_KNOWN_APP,
+            APP_GAME_CLASSIFICATION_KNOWN_GAME,
+            APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER,
+            APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE,
+            APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
+            APP_GAME_CLASSIFICATION_PERMISSION_LIMITED,
+            APP_GAME_CLASSIFICATION_UNSUPPORTED_PLATFORM,
+            APP_GAME_CLASSIFICATION_STALE,
+            APP_GAME_CLASSIFICATION_ADAPTER_ERROR,
+        ]
+        .contains(&self.classification_state.as_str())
+        {
+            return Err("app game identity classification state is unsupported");
+        }
+
+        for (field, value) in [
+            ("parentLabel", self.parent_label.as_deref()),
+            ("packageId", self.package_id.as_deref()),
+            ("bundleId", self.bundle_id.as_deref()),
+            ("appUserModelId", self.app_user_model_id.as_deref()),
+            ("desktopEntryId", self.desktop_entry_id.as_deref()),
+            ("applicationTokenRef", self.application_token_ref.as_deref()),
+            ("executablePathRef", self.executable_path_ref.as_deref()),
+            (
+                "publisherSignatureRef",
+                self.publisher_signature_ref.as_deref(),
+            ),
+            ("fileHashRef", self.file_hash_ref.as_deref()),
+            ("launcherRef", self.launcher_ref.as_deref()),
+            ("launcherAppId", self.launcher_app_id.as_deref()),
+            ("launcherManifestId", self.launcher_manifest_id.as_deref()),
+            ("storeId", self.store_id.as_deref()),
+            ("catalogRef", self.catalog_ref.as_deref()),
+            (
+                "childGameEvidenceClaimId",
+                self.child_game_evidence_claim_id.as_deref(),
+            ),
+        ] {
+            if value.is_some_and(is_blank) {
+                return Err(match field {
+                    "parentLabel" => "app game identity parent label must not be empty",
+                    _ => "app game identity reference must not be empty",
+                });
+            }
+        }
+
+        validate_evidence_refs(
+            &self.evidence,
+            "app game identity must cite at least one evidence ref",
+        )?;
+
+        let has_raw_reference = app_game_identity_has_raw_reference(self);
+        if !has_raw_reference
+            && !(self.confidence == APP_GAME_IDENTITY_CONFIDENCE_WEAK
+                && self.classification_state == APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS
+                && self.product_kind == APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE)
+        {
+            return Err("display-name-only app game identity must remain weak and unknown");
+        }
+
+        if (self.confidence == APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC
+            || self.confidence == APP_GAME_IDENTITY_CONFIDENCE_PARENT_LABELED)
+            && !app_game_identity_has_deterministic_reference(self)
+            && !(self.product_kind == APP_GAME_PRODUCT_LAUNCHER && has_raw_reference)
+        {
+            return Err("deterministic app game identity must include an identity reference");
+        }
+
+        if app_game_identity_has_only_launcher_references(self)
+            && (self.product_kind != APP_GAME_PRODUCT_LAUNCHER
+                || self.classification_state == APP_GAME_CLASSIFICATION_KNOWN_GAME)
+        {
+            return Err("launcher-only app game identity cannot claim a known game");
+        }
+
+        Ok(())
+    }
+}
+
+impl AppGameIdentityMergeProof {
+    fn validate(&self) -> Result<(), &'static str> {
+        if self.schema_version != APP_GAME_SCHEMA_VERSION {
+            return Err("app game identity merge schema version is unsupported");
+        }
+        if is_blank(&self.merge_id) {
+            return Err("app game identity merge id must not be empty");
+        }
+        if self.source_identity_ids.len() < 2 {
+            return Err("app game identity merge must cite source identities");
+        }
+        if self.source_identity_ids.iter().any(|id| is_blank(id)) {
+            return Err("app game identity merge source id must not be empty");
+        }
+        for (index, source_id) in self.source_identity_ids.iter().enumerate() {
+            if self.source_identity_ids[..index].contains(source_id) {
+                return Err("app game identity merge source ids must be distinct");
+            }
+            if source_id == &self.target_identity.identity_id {
+                return Err("app game identity merge sources must not include the target");
+            }
+        }
+        if !self.merge_confidence.is_finite()
+            || self.merge_confidence < 0.0
+            || self.merge_confidence > 1.0
+        {
+            return Err("app game identity merge confidence must be between zero and one");
+        }
+        if self.conflicting_file_hash_refs {
+            return Err("conflicting file hashes must block app game identity merge");
+        }
+        if self.merge_confidence > 0.3 && self.shared_deterministic_refs.is_empty() {
+            return Err("non-weak app game identity merge must share deterministic refs");
+        }
+        if self.parent_label_changed
+            && (self.target_identity.parent_label.is_none()
+                || self.shared_deterministic_refs.is_empty())
+        {
+            return Err("parent labels must not create an app game identity merge");
+        }
+        if self
+            .shared_deterministic_refs
+            .iter()
+            .any(|kind| is_blank(kind) || !app_game_identity_deterministic_ref_kind_is_known(kind))
+        {
+            return Err("app game identity merge contains an unsupported deterministic ref kind");
+        }
+        validate_evidence_refs(
+            &self.evidence,
+            "app game identity merge must cite at least one evidence ref",
+        )?;
+        self.target_identity.validate()
+    }
+}
+
+fn validate_evidence_refs(
+    evidence: &[ActivityEvidenceRef],
+    empty_message: &'static str,
+) -> Result<(), &'static str> {
+    if evidence.is_empty() {
+        return Err(empty_message);
+    }
+    if evidence
+        .iter()
+        .any(|reference| is_blank(&reference.evidence_id))
+    {
+        return Err("app game evidence ref id must not be empty");
+    }
+    Ok(())
+}
+
+fn is_blank(value: &str) -> bool {
+    value.trim().is_empty()
+}
+
+fn app_game_identity_has_raw_reference(identity: &AppGameIdentity) -> bool {
+    app_game_identity_has_deterministic_reference(identity)
+        || identity.launcher_ref.is_some()
+        || identity.launcher_app_id.is_some()
+        || identity.launcher_manifest_id.is_some()
+}
+
+fn app_game_identity_has_deterministic_reference(identity: &AppGameIdentity) -> bool {
+    identity.package_id.is_some()
+        || identity.bundle_id.is_some()
+        || identity.app_user_model_id.is_some()
+        || identity.desktop_entry_id.is_some()
+        || identity.application_token_ref.is_some()
+        || identity.executable_path_ref.is_some()
+        || identity.publisher_signature_ref.is_some()
+        || identity.file_hash_ref.is_some()
+        || identity.store_id.is_some()
+        || identity.catalog_ref.is_some()
+        || identity.child_game_evidence_claim_id.is_some()
+}
+
+fn app_game_identity_has_only_launcher_references(identity: &AppGameIdentity) -> bool {
+    !app_game_identity_has_deterministic_reference(identity)
+        && (identity.launcher_ref.is_some()
+            || identity.launcher_app_id.is_some()
+            || identity.launcher_manifest_id.is_some())
+}
+
+fn app_game_identity_deterministic_ref_kind_is_known(kind: &str) -> bool {
+    [
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_PACKAGE_ID,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_BUNDLE_ID,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_APP_USER_MODEL_ID,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_DESKTOP_ENTRY_ID,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_APPLICATION_TOKEN_REF,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_EXECUTABLE_PATH_REF,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_PUBLISHER_SIGNATURE_REF,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_FILE_HASH_REF,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_LAUNCHER_APP_ID,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_LAUNCHER_MANIFEST_ID,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_STORE_ID,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_CATALOG_REF,
+        APP_GAME_IDENTITY_DETERMINISTIC_REF_CHILD_GAME_EVIDENCE_CLAIM_ID,
+    ]
+    .contains(&kind)
+}
+
+impl From<AppGameIdentityWire> for AppGameIdentity {
+    fn from(wire: AppGameIdentityWire) -> Self {
+        Self {
+            schema_version: wire.schema_version,
+            identity_id: wire.identity_id,
+            product_kind: wire.product_kind,
+            display_label: wire.display_label,
+            parent_label: wire.parent_label,
+            confidence: wire.confidence,
+            classification_state: wire.classification_state,
+            package_id: wire.package_id,
+            bundle_id: wire.bundle_id,
+            app_user_model_id: wire.app_user_model_id,
+            desktop_entry_id: wire.desktop_entry_id,
+            application_token_ref: wire.application_token_ref,
+            executable_path_ref: wire.executable_path_ref,
+            publisher_signature_ref: wire.publisher_signature_ref,
+            file_hash_ref: wire.file_hash_ref,
+            launcher_ref: wire.launcher_ref,
+            launcher_app_id: wire.launcher_app_id,
+            launcher_manifest_id: wire.launcher_manifest_id,
+            store_id: wire.store_id,
+            catalog_ref: wire.catalog_ref,
+            child_game_evidence_claim_id: wire.child_game_evidence_claim_id,
+            evidence: wire.evidence.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
+impl From<AppGameEvidenceRefWire> for ActivityEvidenceRef {
+    fn from(wire: AppGameEvidenceRefWire) -> Self {
+        Self {
+            evidence_id: wire.evidence_id,
+            kind: wire.kind,
+            digest: wire.digest,
+            uri: wire.uri,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
