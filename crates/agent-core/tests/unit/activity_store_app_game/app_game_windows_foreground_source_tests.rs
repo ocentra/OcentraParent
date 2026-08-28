@@ -1,6 +1,7 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::app_game::*;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use std::fmt::Display;
 use std::fs::remove_file;
 use std::path::{Path, PathBuf};
@@ -21,9 +22,11 @@ use super::{
         live_windows_foreground_window_journal_event,
         live_windows_foreground_window_journal_event_from_snapshot,
         live_windows_foreground_window_record, live_windows_foreground_window_record_from_snapshot,
-        LiveWindowsForegroundWindowSnapshot,
+        live_windows_foreground_window_record_from_system, LiveWindowsForegroundWindowSnapshot,
     },
 };
+
+use crate::process_capture::process_snapshot_events_from_system;
 
 #[derive(Clone)]
 struct TestPath(PathBuf);
@@ -81,6 +84,50 @@ fn live_foreground_snapshot_uses_opaque_window_refs_without_title_content() {
         rows[0].window_title_ref.as_deref(),
         Some(constants::activity_store::TEST_WINDOW_TITLE)
     );
+}
+
+#[test]
+fn live_foreground_source_fails_closed_without_process_generation() {
+    let system = sysinfo::System::new();
+    let record = live_windows_foreground_window_record_from_system(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        &system,
+    );
+
+    assert!(record.is_none());
+}
+
+#[test]
+fn live_foreground_source_joins_shared_process_generation() {
+    if !sysinfo::IS_SUPPORTED_SYSTEM {
+        return;
+    }
+
+    let system = super::app_game_windows_process_source::live_windows_process_snapshot_system();
+    let Some(record) = live_windows_foreground_window_record_from_system(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        &system,
+    ) else {
+        return;
+    };
+    let process_id = record.process_id;
+    let process_identity = record.process_identity.clone();
+    let rows = windows_foreground_rows_from_records(&[record]);
+    let process_event = process_snapshot_events_from_system(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        usize::MAX,
+        &system,
+    )
+    .into_iter()
+    .find(|event| has_process_id(event, process_id))
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(
+        process_identity.as_deref(),
+        Some(process_event.subject.subject_id.as_str())
+    );
+    assert_eq!(rows[0].process_identity, process_event.subject.subject_id);
+    assert_eq!(rows[0].foreground_state, APP_GAME_FOREGROUND_FOREGROUND);
 }
 
 #[test]
@@ -241,4 +288,11 @@ fn cleanup_journal_files(path: impl AsRef<Path>) {
 
 fn test_key() -> JournalKey {
     JournalKey::from_bytes([10; JOURNAL_KEY_BYTES])
+}
+
+fn has_process_id(event: &ActivityEvent, process_id: u64) -> bool {
+    matches!(
+        event.fields.get(constants::field::PID),
+        Some(LogFieldValue::Number(value)) if *value as u64 == process_id
+    )
 }

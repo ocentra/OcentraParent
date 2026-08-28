@@ -382,6 +382,31 @@ fn app_game_launcher_evidence_row_serializes_launcher_without_game_claim() {
 }
 
 #[test]
+fn app_game_launcher_evidence_row_serializes_candidate_without_game_claim() {
+    let mut row = launcher_evidence_row();
+    row.classification_state = APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE.to_string();
+    row.game_proof_state = APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE.to_string();
+    row.child_process_identity = Some(APP_GAME_TEST_LAUNCHER_CHILD_PROCESS_IDENTITY.to_string());
+
+    let serialized =
+        serde_json::to_value(row).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(
+        serialized["classificationState"],
+        APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE
+    );
+    assert_eq!(
+        serialized["gameProofState"],
+        APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE
+    );
+    assert_eq!(
+        serialized["childProcessIdentity"],
+        APP_GAME_TEST_LAUNCHER_CHILD_PROCESS_IDENTITY
+    );
+    assert!(serialized["childGameEvidenceClaimId"].is_null());
+}
+
+#[test]
 fn app_game_inventory_row_serializes_to_typescript_contract_shape() {
     let row = launcher_inventory_row();
 

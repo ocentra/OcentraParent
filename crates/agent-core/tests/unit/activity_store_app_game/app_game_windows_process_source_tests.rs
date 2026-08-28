@@ -2,15 +2,17 @@ use ocentra_eventing::expect_value::ExpectValue;
 use std::fs::remove_file;
 use std::path::{Path, PathBuf};
 
-use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity::{ActivityEvent, ActivityEventKind};
 use ocentra_parent_agent_protocol::app_game::*;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{
     activity_store::ActivityStore,
     journal::ActivityJournal,
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    process_capture::process_snapshot_events_from_system,
 };
 
 use super::{
@@ -110,6 +112,72 @@ fn live_process_snapshot_collection_contains_current_process_once() {
         .count();
 
     assert_eq!(current_process_count, 1);
+}
+
+#[test]
+fn live_process_snapshot_targeted_missing_pid_returns_no_record() {
+    if !sysinfo::IS_SUPPORTED_SYSTEM {
+        return;
+    }
+
+    let record = live_windows_process_snapshot_record_for_pid(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        u32::MAX,
+    );
+
+    assert!(record.is_none());
+}
+
+#[test]
+fn shared_process_snapshot_preserves_generation_across_runtime_captures() {
+    if !sysinfo::IS_SUPPORTED_SYSTEM {
+        return;
+    }
+
+    let system = super::app_game_windows_process_source::live_windows_process_snapshot_system();
+    let current_pid = u64::from(std::process::id());
+    let generic_events = process_snapshot_events_from_system(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        usize::MAX,
+        &system,
+    );
+    let app_game_events =
+        super::live_windows_process_and_launcher_snapshot_journal_events_from_system(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+            usize::MAX,
+            &system,
+        )
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+
+    let generic_event = generic_events
+        .iter()
+        .find(|event| {
+            event.kind == ActivityEventKind::ProcessObserved && has_process_id(event, current_pid)
+        })
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+    let app_game_event = app_game_events
+        .iter()
+        .find(|event| {
+            event.source.source_id == APP_GAME_JOURNAL_SOURCE_ID
+                && event.kind == ActivityEventKind::ProcessObserved
+                && has_process_id(event, current_pid)
+        })
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert_eq!(
+        generic_event.subject.subject_id,
+        app_game_event.subject.subject_id
+    );
+    assert_ne!(
+        generic_event.subject.subject_id,
+        format!(
+            "{}{}",
+            constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX,
+            current_pid
+        )
+    );
 }
 
 #[test]
@@ -237,4 +305,11 @@ fn cleanup_journal_files(path: impl AsRef<Path>) {
 
 fn test_key() -> JournalKey {
     JournalKey::from_bytes([9; JOURNAL_KEY_BYTES])
+}
+
+fn has_process_id(event: &ActivityEvent, process_id: u64) -> bool {
+    matches!(
+        event.fields.get(constants::field::PID),
+        Some(LogFieldValue::Number(value)) if *value as u64 == process_id
+    )
 }

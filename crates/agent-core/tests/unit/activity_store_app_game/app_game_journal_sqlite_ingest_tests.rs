@@ -205,6 +205,27 @@ fn invalid_inventory_evidence_is_rejected_before_sqlite_ingest() {
     assert_eq!(status.events_stored, 0);
 }
 
+#[test]
+fn launcher_known_game_claim_without_child_proof_is_rejected_before_ingest() {
+    let mut invalid = launcher_row();
+    invalid.classification_state = APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string();
+    invalid.game_proof_state = APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE.to_string();
+    invalid.child_process_identity =
+        Some(APP_GAME_TEST_LAUNCHER_CHILD_PROCESS_IDENTITY.to_string());
+    invalid.child_game_evidence_claim_id = None;
+
+    let result = app_game_launcher_journal_event(
+        constants::peer::LOCAL_DEV_AGENT,
+        std::env::consts::OS,
+        &invalid,
+    );
+
+    assert_eq!(
+        result,
+        Err(AppGameJournalSqliteIngestError::LauncherKnownGameMissingProof)
+    );
+}
+
 fn append_and_replay(
     events: &[ActivityEvent],
     suffix: impl Display,
