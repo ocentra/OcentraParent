@@ -11,6 +11,7 @@ import {
   decodeAppRuntimeDecisionRecordedEvent,
   decodeAppRuntimeDecisionRecordedEventEnvelope,
 } from '../../src/app-runtime-decision';
+import { SchemaDecodeError } from '../../src/effect';
 
 describe('schema-domain app runtime decision edge decoder', () => {
   it('decodes every Rust-owned current decision matrix entry with matching type and version', () => {
@@ -27,6 +28,30 @@ describe('schema-domain app runtime decision edge decoder', () => {
   it('decodes the full Rust-owned serialized EventEnvelope fixture', () => {
     const envelope = rustEventEnvelopeFixture();
     expect(decodeAppRuntimeDecisionRecordedEventEnvelope(envelope)).toEqual(envelope);
+  });
+
+  it('rejects unknown fields at nested event, decision, and envelope-source boundaries', () => {
+    const event = inventoryDecision();
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEvent({
+        ...event,
+        input: { ...event.input, display_name: 'Chat Client' },
+      })
+    ).toThrow(SchemaDecodeError);
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEvent({
+        ...event,
+        decision: { ...event.decision, action: 'terminate' },
+      })
+    ).toThrow(SchemaDecodeError);
+
+    const envelope = rustEventEnvelope(event, AppRuntimeDecisionSchemaVersion);
+    expect(() =>
+      decodeAppRuntimeDecisionRecordedEventEnvelope({
+        ...envelope,
+        source: { ...envelope.source, commandLine: '/usr/bin/chat' },
+      })
+    ).toThrow(SchemaDecodeError);
   });
 
   it('rejects envelopes whose Rust aggregate or idempotency bindings do not match the payload', () => {

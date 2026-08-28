@@ -151,6 +151,69 @@ fn rust_event_envelope_serializes_the_edge_decoder_contract_shape() {
 }
 
 #[test]
+fn serde_rejects_unknown_fields_inside_the_runtime_contract() {
+    let input = AppRuntimeInput {
+        capability_state: AppCapabilityState::Supported,
+        foreground_state: AppForegroundState::Background,
+        classification_state: AppClassificationState::InventoryOnly,
+    };
+    let event = app_runtime_decision_recorded_event(
+        AppAggregateId::parse("app.aggregate.child-device-1").expect("aggregate id parses"),
+        AppRuntimeDecisionId::parse("app.runtime-decision-1").expect("decision id parses"),
+        input,
+    );
+    let mut payload = serde_json::to_value(event).expect("event serializes");
+    payload["input"]["display_name"] = serde_json::json!("Chat Client");
+
+    let decoded = serde_json::from_value::<AppRuntimeDecisionRecordedEvent>(payload);
+    assert!(decoded.is_err(), "unknown nested fields must be rejected");
+}
+
+#[test]
+fn serde_rejects_decisions_that_do_not_match_the_observed_runtime_input() {
+    let input = AppRuntimeInput {
+        capability_state: AppCapabilityState::Supported,
+        foreground_state: AppForegroundState::Background,
+        classification_state: AppClassificationState::InventoryOnly,
+    };
+    let event = app_runtime_decision_recorded_event(
+        AppAggregateId::parse("app.aggregate.child-device-1").expect("aggregate id parses"),
+        AppRuntimeDecisionId::parse("app.runtime-decision-1").expect("decision id parses"),
+        input,
+    );
+    let mut payload = serde_json::to_value(event).expect("event serializes");
+    payload["decision"]["policy_handoff_state"] = serde_json::json!("publish");
+
+    let decoded = serde_json::from_value::<AppRuntimeDecisionRecordedEvent>(payload);
+    assert!(
+        decoded.is_err(),
+        "a caller-supplied decision cannot override the runtime matrix"
+    );
+}
+
+#[test]
+fn serde_rejects_the_legacy_inventory_only_decision_without_a_version_gate() {
+    let input = AppRuntimeInput {
+        capability_state: AppCapabilityState::Supported,
+        foreground_state: AppForegroundState::Foreground,
+        classification_state: AppClassificationState::InventoryOnly,
+    };
+    let event = app_runtime_decision_recorded_event(
+        AppAggregateId::parse("app.aggregate.child-device-1").expect("aggregate id parses"),
+        AppRuntimeDecisionId::parse("app.runtime-decision-1").expect("decision id parses"),
+        input,
+    );
+    let mut payload = serde_json::to_value(event).expect("event serializes");
+    payload["decision"]["runtime_action_state"] = serde_json::json!("record-foreground");
+
+    let decoded = serde_json::from_value::<AppRuntimeDecisionRecordedEvent>(payload);
+    assert!(
+        decoded.is_err(),
+        "the stale v1 inventory-only decision cannot pass as a current event"
+    );
+}
+
+#[test]
 fn runtime_ids_reject_noncanonical_or_empty_suffixes() {
     let invalid_aggregate = AppAggregateId::parse("child-device-1");
     assert!(matches!(
