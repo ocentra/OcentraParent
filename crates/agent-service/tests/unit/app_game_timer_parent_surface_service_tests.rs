@@ -137,7 +137,7 @@ async fn app_game_timer_parent_surface_command_reports_service_backed_rows() {
 }
 
 #[tokio::test]
-async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store() {
+async fn app_game_timer_parent_surface_reports_state_refs_without_scheduler_claims() {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
     let timer_state_path = temp_path(constants::enforcement::TIMER_STATE_ID_PREFIX);
@@ -178,9 +178,9 @@ async fn app_game_timer_parent_surface_reports_existing_active_timer_state_store
         event.event,
         AgentEventName::AgentActivityAppGameTimerParentSurfaceReadModelReported
     );
-    assert!(read_model.timer_runtime_claimed);
-    assert!(read_model.scheduler_persistence_claimed);
-    assert!(read_model.durable_scheduler_storage_claimed);
+    assert!(!read_model.timer_runtime_claimed);
+    assert!(!read_model.scheduler_persistence_claimed);
+    assert!(!read_model.durable_scheduler_storage_claimed);
     assert!(read_model.audit_runtime_claimed);
     assert!(read_model.rollback_runtime_claimed);
     assert_empty_control_child_ux_rows(&read_model);

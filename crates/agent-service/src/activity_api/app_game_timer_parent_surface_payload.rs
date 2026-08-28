@@ -93,7 +93,6 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
 ) -> AppGameTimerParentSurfaceReadModel {
     let rows = timer_parent_surface_rows(model);
     let runtime_claims = TimerParentSurfaceRuntimeClaims {
-        active_timer_state_exists: active_timer_state.is_some(),
         audit_runtime_claimed: active_timer_state
             .and_then(|state| state.audit_event.journal_sequence.as_ref())
             .is_some(),
@@ -111,7 +110,6 @@ pub fn app_game_timer_parent_surface_from_service_model_with_timer_state(
 }
 
 struct TimerParentSurfaceRuntimeClaims {
-    active_timer_state_exists: bool,
     audit_runtime_claimed: bool,
     rollback_runtime_claimed: bool,
 }
@@ -295,9 +293,12 @@ fn timer_parent_surface_read_model(
         child_ux_parent_preference_setup_request_unavailable_visible_count: 0,
         child_ux_parent_preference_setup_request_reference_ids: Vec::new(),
         child_ux_parent_preference_setup_records: Vec::new(),
-        timer_runtime_claimed: runtime_claims.active_timer_state_exists,
-        scheduler_persistence_claimed: runtime_claims.active_timer_state_exists,
-        durable_scheduler_storage_claimed: runtime_claims.active_timer_state_exists,
+        // A persisted active-state file proves state visibility only. It does
+        // not prove a running timer service, scheduler ownership, or durable
+        // scheduler storage/event handoff.
+        timer_runtime_claimed: false,
+        scheduler_persistence_claimed: false,
+        durable_scheduler_storage_claimed: false,
         audit_runtime_claimed: runtime_claims.audit_runtime_claimed,
         rollback_runtime_claimed: runtime_claims.rollback_runtime_claimed,
         adapter_dispatch_claimed: false,
