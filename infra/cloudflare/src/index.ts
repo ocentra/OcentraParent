@@ -1,4 +1,6 @@
 import type { DurableObjectState, MessageBatch } from '@cloudflare/workers-types';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
+import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 import { NonNegativeBillingCountSchema } from '@ocentra-parent/schema-domain/billing-entitlement-values';
 import {
   appendBillingAuditEventAtOwner,
@@ -73,9 +75,54 @@ import {
 } from './auth/browser-session-routes.js';
 import { browserSessionCookieNames, readCookie } from './storage/account-browser-session-codec.js';
 import { createBrowserSessionStore } from './storage/account-browser-session-store.js';
+import { redactPayload } from './security/redaction.js';
 
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const INTERACTIVE_CSRF_HEADER = 'x-ocentra-csrf';
+const log = Logger.instance;
+log.register(import.meta.url);
+
+type GuardBoundary =
+  | 'environment-validation'
+  | 'cors-origin'
+  | 'request-framing'
+  | 'request-size'
+  | 'route-resolution'
+  | 'kill-switch'
+  | 'route-auth-boundary'
+  | 'handler-error';
+
+function logGuardRejection(boundary: GuardBoundary, reason: string, status: number, method: string): void {
+  log.logWarn(
+    'cloudflare worker guard rejected request',
+    getStackTrace(),
+    redactPayload({
+      owner: 'cloudflare-wp03-worker-entrypoint',
+      boundary,
+      result: 'rejected',
+      noClaimReason: reason,
+      method,
+      status,
+      redactionState: 'redacted',
+    }),
+    false
+  );
+}
+
+function logScheduledReconciliationFailure(): void {
+  log.logWarn(
+    'cloudflare worker scheduled reconciliation blocked',
+    getStackTrace(),
+    redactPayload({
+      owner: 'cloudflare-wp03-worker-entrypoint',
+      boundary: 'scheduled-reconciliation',
+      result: 'blocked',
+      noClaimReason: 'scheduled-reconciliation-failed',
+      redactionState: 'redacted',
+    }),
+    false
+  );
+}
 
 function billingReadModelUnavailableResponse(route: RouteManifestEntry, identity?: VerifiedIdentity): Response {
   return json(503, {
@@ -1990,9 +2037,18 @@ async function handleAccountIssuerV2Dispatch(request: Request, env: Env): Promis
 async function handleRequest(request: Request, env: Env): Promise<Response> {
   const validationErrors = validateEnv(env);
   if (validationErrors.length > 0) {
+    logGuardRejection('environment-validation', 'environment-validation-failed', 500, request.method);
     return json(500, {
       error: 'environment-validation-failed',
       status: 'manual-required',
+    });
+  }
+
+  if (!isAllowedOrigin(request.headers.get('origin'), env)) {
+    logGuardRejection('cors-origin', 'cors-origin-rejected', 403, request.method);
+    return json(403, {
+      error: 'cors-origin-rejected',
+      allowedOrigins: parseAllowedOrigins(env),
     });
   }
 
@@ -2000,20 +2056,20 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     return new Response(null, { status: 204 });
   }
 
-  if (!isAllowedOrigin(request.headers.get('origin'), env)) {
-    return json(403, {
-      error: 'cors-origin-rejected',
-      allowedOrigins: parseAllowedOrigins(env),
-    });
-  }
-
   const contentLengthResult = parseContentLengthHeader(request);
   if (!contentLengthResult.ok) {
+    logGuardRejection(
+      'request-framing',
+      'request-framing-rejected',
+      contentLengthResult.response.status,
+      request.method
+    );
     return contentLengthResult.response;
   }
 
   const contentLength = contentLengthResult.value;
   if (contentLength > parseRequestMaxBytes(env)) {
+    logGuardRejection('request-size', 'payload-too-large', 413, request.method);
     return json(413, {
       error: 'payload-too-large',
       maxBytes: parseRequestMaxBytes(env),
@@ -2022,12 +2078,14 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 
   const route = findRoute(new URL(request.url).pathname, request.method);
   if (!route) {
+    logGuardRejection('route-resolution', 'route-not-found', 404, request.method);
     return json(404, {
       error: 'route-not-found',
     });
   }
 
   if (isRouteKillSwitchEnabled(env) && STATE_CHANGING_METHODS.has(request.method) && route.routeGroup !== 'session') {
+    logGuardRejection('kill-switch', 'billing-route-kill-switch-enabled', 503, request.method);
     return json(503, {
       error: 'billing-route-kill-switch-enabled',
       status: 'manual-required',
@@ -2036,6 +2094,7 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
 
   const boundaryViolation = validateAuthBoundaryRoute(route);
   if (boundaryViolation) {
+    logGuardRejection('route-auth-boundary', 'route-auth-boundary-invalid', 500, request.method);
     return json(500, {
       error: 'route-auth-boundary-invalid',
       routeKey: `${route.method} ${route.path}`,
@@ -2069,8 +2128,10 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       );
     } catch (error) {
       if (error instanceof BillingReadModelUnavailableError) {
+        logGuardRejection('handler-error', 'billing-read-model-unavailable', 503, request.method);
         return billingReadModelUnavailableResponse(route);
       }
+      logGuardRejection('handler-error', 'worker-unhandled-error', 500, request.method);
       return json(500, {
         error: 'worker-unhandled-error',
         handlerKey: route.handlerKey,
@@ -2109,8 +2170,10 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
     );
   } catch (error) {
     if (error instanceof BillingReadModelUnavailableError) {
+      logGuardRejection('handler-error', 'billing-read-model-unavailable', 503, request.method);
       return billingReadModelUnavailableResponse(route, authResult.identity);
     }
+    logGuardRejection('handler-error', 'worker-unhandled-error', 500, request.method);
     return json(500, {
       error: 'worker-unhandled-error',
       handlerKey: route.handlerKey,
@@ -2862,6 +2925,7 @@ export default {
     try {
       await drainPendingBillingMutationOutbox(env);
     } catch (_error) {
+      logScheduledReconciliationFailure();
       env.ANALYTICS?.writeDataPoint({
         indexes: ['billing-mutation-outbox-drain-failed'],
         doubles: [1],

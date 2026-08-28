@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { executeRequest, readJson } from '../../src/testing.js';
+
+const log = Logger.instance;
+log.register(import.meta.url);
 
 describe('cors origin rejection', () => {
   it('rejects non-allowlisted origins', async () => {
@@ -27,6 +31,38 @@ describe('cors origin rejection', () => {
 
     assert.equal(response.status, 200);
     assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:3000');
+  });
+
+  it('rejects disallowed preflight origins before returning a successful response', async () => {
+    const { response } = await executeRequest({
+      path: '/public/pricing',
+      method: 'OPTIONS',
+      headers: {
+        origin: 'https://evil.example',
+        'access-control-request-method': 'POST',
+      },
+    });
+
+    const body = await readJson<{ error: string }>(response);
+    assert.equal(response.status, 403);
+    assert.equal(body.error, 'cors-origin-rejected');
+    assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:3000');
+  });
+
+  it('returns an explicit CORS preflight response for an allowlisted origin', async () => {
+    const { response } = await executeRequest({
+      path: '/public/pricing',
+      method: 'OPTIONS',
+      headers: {
+        origin: 'http://localhost:3000',
+        'access-control-request-method': 'POST',
+      },
+    });
+
+    assert.equal(response.status, 204);
+    assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:3000');
+    assert.equal(response.headers.get('access-control-allow-methods'), 'GET,POST,OPTIONS');
+    assert.equal(response.headers.get('access-control-allow-credentials'), 'true');
   });
 
   it('fails closed for empty or wildcard allow-list configurations instead of silently allowing all origins', async () => {

@@ -23,6 +23,9 @@ const SENSITIVE_FIELD_FRAGMENTS = [
   'localdevicesecret',
   'sessiontoken',
   'sessionid',
+  'razorpaykeyid',
+  'paypalclientid',
+  'applestorekeyref',
 ] as const;
 const SECRET_VALUE_PATTERNS = [
   /bearer\s+\S+/i,

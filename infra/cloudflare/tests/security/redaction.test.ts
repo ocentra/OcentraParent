@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { Logger } from '@ocentra-parent/logging-domain/core/logger';
 import { redactHeaders, redactPayload } from '../../src/security/redaction.js';
+
+const log = Logger.instance;
+log.register(import.meta.url);
 
 describe('security redaction', () => {
   it('redacts provider secrets, signing refs, child-data markers, and evidence references', () => {
@@ -50,6 +54,24 @@ describe('security redaction', () => {
       'stripe-signature': '[redacted]',
       'x-request-id': 'req-123',
       'x-session-token': '[redacted]',
+    });
+  });
+
+  it('redacts provider credential identifiers and key references by field name', () => {
+    const value = redactPayload({
+      RAZORPAY_KEY_ID: 'rzp-live-key-id',
+      PAYPAL_CLIENT_ID: 'paypal-client-id',
+      APPLE_STORE_KEY_REF: 'apple-store-key-ref',
+      GOOGLE_PLAY_SERVICE_ACCOUNT_REF: 'google-service-account-ref',
+      ENTITLEMENT_SIGNING_KEY_REF: 'entitlement-signing-key-ref',
+    }) as Record<string, unknown>;
+
+    assert.deepEqual(value, {
+      RAZORPAY_KEY_ID: '[redacted]',
+      PAYPAL_CLIENT_ID: '[redacted]',
+      APPLE_STORE_KEY_REF: '[redacted]',
+      GOOGLE_PLAY_SERVICE_ACCOUNT_REF: '[redacted]',
+      ENTITLEMENT_SIGNING_KEY_REF: '[redacted]',
     });
   });
 });
