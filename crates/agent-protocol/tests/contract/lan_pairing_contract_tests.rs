@@ -15,6 +15,17 @@ use ocentra_parent_agent_protocol::lan_pairing::{
     LanTrustedDeviceRegistrySnapshot,
 };
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
+use ocentra_parent_agent_protocol::lan_pairing::signed_household_mesh_ingress::transport::{
+    lan_signed_household_mesh_transport_signing_bytes, LanHouseholdMeshChildDeviceId,
+    LanHouseholdMeshFamilyHash, LanHouseholdMeshIdempotencyKey,
+    LanHouseholdMeshIngressSchemaVersionDto, LanHouseholdMeshInstallId,
+    LanHouseholdMeshLocalEventRef, LanHouseholdMeshMessageId, LanHouseholdMeshNonce,
+    LanHouseholdMeshPairingId, LanHouseholdMeshParentDeviceId, LanHouseholdMeshPayloadSha256,
+    LanHouseholdMeshRegistryProofDigest, LanHouseholdMeshRouteId, LanHouseholdMeshSequenceDto,
+    LanHouseholdMeshTargetDeviceId, LanHouseholdMeshTimestamp,
+    LanSignedHouseholdMeshMessageType, LanSignedHouseholdMeshTransportClaimDto,
+    LanSignedHouseholdMeshTransportEnvelope, LAN_SIGNED_HOUSEHOLD_MESH_INGRESS_SCHEMA_VERSION,
+};
 use ocentra_parent_agent_protocol::lan_pairing_support::{
     LanPairingManualProofGap, LanPairingPersistenceMode, LanPairingProofMode,
     LanPairingRestartBehavior, LanPairingRouteRequirement, LanPairingRuntimeSupportSurface,
@@ -25,6 +36,56 @@ use super::lan_pairing_helpers::*;
 
 fn to_json<T: serde::Serialize>(value: T) -> serde_json::Value {
     serde_json::to_value(value).expect_value("lan pairing contract serializes")
+}
+
+const TRANSPORT_PAYLOAD_SHA256: &str =
+    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
+fn signed_household_mesh_transport_claim() -> LanSignedHouseholdMeshTransportClaimDto {
+    LanSignedHouseholdMeshTransportClaimDto {
+        schema_version: LanHouseholdMeshIngressSchemaVersionDto::current(),
+        message_kind: LanSignedChildAgentMessageKind::Hello,
+        message_id: LanHouseholdMeshMessageId::try_new("household-mesh-message-1")
+            .expect_value("transport message id constructs"),
+        idempotency_key: LanHouseholdMeshIdempotencyKey::try_new("household-mesh-idempotency-1")
+            .expect_value("transport idempotency key constructs"),
+        local_event_ref: LanHouseholdMeshLocalEventRef::try_new(
+            constants::household_mesh::LOCAL_EVENT_DEVICE_DISCOVERY,
+        )
+        .expect_value("transport local event reference constructs"),
+        lan_message_type: LanSignedHouseholdMeshMessageType::try_new(
+            constants::household_mesh::LAN_MESSAGE_DEVICE_DISCOVERY,
+        )
+        .expect_value("transport LAN message type constructs"),
+        canonical_payload_sha256: LanHouseholdMeshPayloadSha256::try_new(
+            TRANSPORT_PAYLOAD_SHA256,
+        )
+        .expect_value("transport payload digest constructs"),
+        family_hash: LanHouseholdMeshFamilyHash::try_new("family-hash-1")
+            .expect_value("transport family hash constructs"),
+        parent_device_id: LanHouseholdMeshParentDeviceId::try_new("parent-device-1")
+            .expect_value("transport parent device id constructs"),
+        child_device_id: LanHouseholdMeshChildDeviceId::try_new("child-device-1")
+            .expect_value("transport child device id constructs"),
+        target_device_id: LanHouseholdMeshTargetDeviceId::try_new("child-device-1")
+            .expect_value("transport target device id constructs"),
+        install_id: LanHouseholdMeshInstallId::try_new("child-install-1")
+            .expect_value("transport install id constructs"),
+        route_id: LanHouseholdMeshRouteId::try_new("local-network")
+            .expect_value("transport route id constructs"),
+        pairing_id: LanHouseholdMeshPairingId::try_new("pairing-1")
+            .expect_value("transport pairing id constructs"),
+        registry_proof_digest: LanHouseholdMeshRegistryProofDigest::try_new("registry-proof-1")
+            .expect_value("transport registry proof digest constructs"),
+        nonce: LanHouseholdMeshNonce::try_new("nonce-1")
+            .expect_value("transport nonce constructs"),
+        sequence: LanHouseholdMeshSequenceDto::try_new(7)
+            .expect_value("transport sequence constructs"),
+        issued_at: LanHouseholdMeshTimestamp::try_new("2026-08-28T22:00:00Z")
+            .expect_value("transport issued-at timestamp constructs"),
+        expires_at: LanHouseholdMeshTimestamp::try_new("2026-08-28T23:00:00Z")
+            .expect_value("transport expires-at timestamp constructs"),
+    }
 }
 
 #[test]
@@ -175,6 +236,135 @@ fn signed_child_agent_envelopes_keep_hello_and_heartbeat_fields_explicit() {
         heartbeat_json["signatureAlgorithm"],
         constants::lan_pairing::SIGNED_CHILD_AGENT_SIGNATURE_ALGORITHM_ED25519
     );
+}
+
+#[test]
+fn signed_household_mesh_transport_claim_round_trips_versioned_wire_shape() {
+    let claim = signed_household_mesh_transport_claim();
+    let claim_json = to_json(claim.clone());
+
+    assert_eq!(
+        claim_json["schemaVersion"],
+        serde_json::json!(LAN_SIGNED_HOUSEHOLD_MESH_INGRESS_SCHEMA_VERSION)
+    );
+    assert_eq!(claim_json["messageKind"], serde_json::json!("hello"));
+    assert_eq!(
+        claim_json["lanMessageType"],
+        serde_json::json!(constants::household_mesh::LAN_MESSAGE_DEVICE_DISCOVERY)
+    );
+    assert_eq!(
+        claim_json["localEventRef"],
+        serde_json::json!(constants::household_mesh::LOCAL_EVENT_DEVICE_DISCOVERY)
+    );
+    assert_eq!(claim_json["sequence"], serde_json::json!(7));
+
+    let decoded = serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(claim_json)
+        .expect_value("signed household mesh transport claim round trips");
+    assert_eq!(decoded, claim);
+
+    let mut heartbeat_json = to_json(claim);
+    heartbeat_json["messageKind"] = serde_json::json!("heartbeat");
+    let heartbeat = serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(
+        heartbeat_json,
+    )
+    .expect_value("signed household mesh heartbeat claim round trips");
+    assert_eq!(heartbeat.message_kind, LanSignedChildAgentMessageKind::Heartbeat);
+}
+
+#[test]
+fn signed_household_mesh_transport_scalars_reject_invalid_values() {
+    assert!(LanHouseholdMeshMessageId::try_new("").is_err());
+    assert!(LanHouseholdMeshMessageId::try_new("message with whitespace").is_err());
+    assert!(LanHouseholdMeshPayloadSha256::try_new("f".repeat(63)).is_err());
+    assert!(LanHouseholdMeshPayloadSha256::try_new("g".repeat(64)).is_err());
+    assert!(LanSignedHouseholdMeshMessageType::try_new("future-lan-message").is_err());
+
+    let message_type = LanSignedHouseholdMeshMessageType::try_new(
+        constants::household_mesh::LAN_MESSAGE_DEVICE_DISCOVERY,
+    )
+    .expect_value("registered household mesh message type constructs");
+    assert_eq!(
+        message_type.local_event_ref(),
+        Some(constants::household_mesh::LOCAL_EVENT_DEVICE_DISCOVERY)
+    );
+}
+
+#[test]
+fn signed_household_mesh_transport_schema_and_sequence_reject_drift() {
+    let schema_version = LanHouseholdMeshIngressSchemaVersionDto::current();
+    assert_eq!(schema_version.value(), 1);
+    assert!(LanHouseholdMeshIngressSchemaVersionDto::try_new(2).is_err());
+    assert!(
+        serde_json::from_value::<LanHouseholdMeshIngressSchemaVersionDto>(serde_json::json!(2))
+            .is_err()
+    );
+
+    let sequence = LanHouseholdMeshSequenceDto::try_new(7)
+        .expect_value("nonzero household mesh sequence constructs");
+    assert_eq!(sequence.value(), 7);
+    assert!(LanHouseholdMeshSequenceDto::try_new(0).is_err());
+    assert!(
+        serde_json::from_value::<LanHouseholdMeshSequenceDto>(serde_json::json!(0)).is_err()
+    );
+}
+
+#[test]
+fn signed_household_mesh_transport_claim_rejects_unknown_and_future_fields() {
+    let claim_json = to_json(signed_household_mesh_transport_claim());
+
+    let mut unknown_field = claim_json.clone();
+    unknown_field["futureField"] = serde_json::json!(true);
+    assert!(
+        serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(unknown_field).is_err()
+    );
+
+    let mut future_schema = claim_json.clone();
+    future_schema["schemaVersion"] = serde_json::json!(2);
+    assert!(
+        serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(future_schema).is_err()
+    );
+
+    let mut future_message_kind = claim_json;
+    future_message_kind["messageKind"] = serde_json::json!("future-message-kind");
+    assert!(serde_json::from_value::<LanSignedHouseholdMeshTransportClaimDto>(
+        future_message_kind
+    )
+    .is_err());
+}
+
+#[test]
+fn signed_household_mesh_transport_envelope_rejects_unknown_and_missing_fields() {
+    let claim = to_json(signed_household_mesh_transport_claim());
+    let unknown_field = serde_json::json!({
+        "schemaVersion": 1,
+        "claim": claim,
+        "futureField": true,
+    });
+    let error = serde_json::from_value::<LanSignedHouseholdMeshTransportEnvelope>(unknown_field)
+        .expect_err("unknown signed transport envelope fields must be rejected");
+    assert!(error.to_string().contains("unknown field"));
+
+    let missing_fields = serde_json::json!({
+        "schemaVersion": 1,
+        "claim": to_json(signed_household_mesh_transport_claim()),
+    });
+    assert!(serde_json::from_value::<LanSignedHouseholdMeshTransportEnvelope>(missing_fields)
+        .is_err());
+}
+
+#[test]
+fn signed_household_mesh_transport_signing_bytes_are_domain_separated_and_stable() {
+    let claim = signed_household_mesh_transport_claim();
+    let first = lan_signed_household_mesh_transport_signing_bytes(&claim)
+        .expect_value("signed household mesh transport signing bytes construct");
+    let second = lan_signed_household_mesh_transport_signing_bytes(&claim)
+        .expect_value("signed household mesh transport signing bytes remain stable");
+    let claim_bytes = serde_json::to_vec(&claim)
+        .expect_value("signed household mesh transport claim serializes for signing");
+
+    assert_eq!(first, second);
+    assert!(first.starts_with(b"ocentra.lan.household-mesh.transport-claim.v1\0"));
+    assert!(first.ends_with(&claim_bytes));
 }
 
 #[test]
