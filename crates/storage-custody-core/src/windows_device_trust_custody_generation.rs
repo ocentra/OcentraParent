@@ -71,12 +71,18 @@ fn anchor_generation<'a>(
     }
     match (state, binding_hex, generation) {
         (Some(INSTALL_GENERATION_EMPTY), None, Some(generation)) => Ok(Some(generation)),
-        (Some(INSTALL_GENERATION_SEALED), Some(_binding_hex), Some(generation)) => {
+        (Some(INSTALL_GENERATION_SEALED), Some(binding_hex), Some(generation))
+            if valid_binding_hex(binding_hex) =>
+        {
             active_record_scan::any_present(root, generation)
                 .map(|present| present.then_some(generation))
         }
         _ => Ok(None),
     }
+}
+
+fn valid_binding_hex(binding_hex: &str) -> bool {
+    binding_hex.len() == 64 && binding_hex.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
 fn rotate(key: &RegKey, root_key: &str, identity: &str) -> Result<String, Error> {
@@ -107,4 +113,16 @@ fn fresh() -> Result<String, Error> {
     let mut bytes = [0_u8; 32];
     fill(&mut bytes).map_err(|_error| Error::Platform)?;
     Ok(hex(bytes))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::valid_binding_hex;
+
+    #[test]
+    fn sealed_generation_binding_requires_a_sha256_hex_value() {
+        assert!(valid_binding_hex(&"a".repeat(64)));
+        assert!(!valid_binding_hex("a"));
+        assert!(!valid_binding_hex(&"g".repeat(64)));
+    }
 }
