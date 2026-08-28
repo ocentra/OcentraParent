@@ -2,7 +2,8 @@ use std::collections::BTreeSet;
 
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
-    AppGameServiceReadModel, APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_SCHEMA_VERSION,
+    AppGameServiceReadModel, APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_PRODUCT_NATIVE_GAME,
+    APP_GAME_SCHEMA_VERSION,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
@@ -184,7 +185,8 @@ fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTime
     let rows: Vec<_> = model
         .identity_rows
         .iter()
-        .map(|identity| {
+        .filter_map(|identity| {
+            let target_domain = timer_parent_surface_target_domain(&identity.product_kind)?;
             let mut evidence = identity.evidence.clone();
             push_evidence(
                 &mut evidence,
@@ -201,11 +203,7 @@ fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTime
 
             timer_parent_surface_row(TimerParentSurfaceRowSpec {
                 row_id: identity.identity_id.clone(),
-                target_domain: if identity.product_kind == APP_GAME_PRODUCT_NATIVE_GAME {
-                    APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME
-                } else {
-                    APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP
-                },
+                target_domain,
                 timer_surface_state_index,
                 row_count: evidence.len() as u64,
                 evidence,
@@ -213,10 +211,11 @@ fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTime
         })
         .collect();
     let has_rows = !rows.is_empty();
+    let has_identity_rows = !model.identity_rows.is_empty();
 
     rows.into_iter()
         .chain(
-            (!has_rows && !model.evidence_claim_rows.is_empty()).then(|| {
+            (!has_rows && !has_identity_rows && !model.evidence_claim_rows.is_empty()).then(|| {
                 timer_parent_surface_row(TimerParentSurfaceRowSpec {
                     row_id: APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP.to_string(),
                     target_domain: APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP,
@@ -227,6 +226,14 @@ fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTime
             }),
         )
         .collect()
+}
+
+fn timer_parent_surface_target_domain(product_kind: &str) -> Option<&'static str> {
+    match product_kind {
+        APP_GAME_PRODUCT_NATIVE_APP => Some(APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP),
+        APP_GAME_PRODUCT_NATIVE_GAME => Some(APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME),
+        _ => None,
+    }
 }
 
 struct TimerParentSurfaceRowCounts {
