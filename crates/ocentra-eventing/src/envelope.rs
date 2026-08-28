@@ -155,7 +155,11 @@ pub struct EventEnvelope<E: DomainEvent> {
 }
 
 #[derive(Deserialize)]
-#[serde(rename_all = "camelCase", bound(deserialize = "E: Deserialize<'de>"))]
+#[serde(
+    deny_unknown_fields,
+    rename_all = "camelCase",
+    bound(deserialize = "E: Deserialize<'de>")
+)]
 struct EventEnvelopeWire<E> {
     contract: EventContract,
     event_id: EventId,
@@ -278,7 +282,7 @@ impl StoredEventPayload {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct StoredEventEnvelope {
     pub contract: EventContract,
     pub event_id: EventId,

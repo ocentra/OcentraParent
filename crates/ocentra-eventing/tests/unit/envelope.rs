@@ -174,6 +174,32 @@ fn live_and_stored_envelopes_reject_malformed_payloads() {
 }
 
 #[test]
+fn live_and_stored_envelopes_reject_unknown_top_level_fields() {
+    let live = EventEnvelope::from_event(
+        EnvelopeBoundaryEvent {
+            label: String::from("typed-boundary"),
+        },
+        metadata(),
+    )
+    .expect_value("live envelope builds");
+
+    let mut live_json = serde_json::to_value(&live).expect_value("live envelope serializes");
+    live_json["untrustedExtension"] = json!(true);
+    let live_error = serde_json::from_value::<EventEnvelope<EnvelopeBoundaryEvent>>(live_json)
+        .expect_err_value("unknown live envelope fields must fail closed");
+    assert!(live_error.to_string().contains("unknown field"));
+    assert!(live_error.to_string().contains("untrustedExtension"));
+
+    let mut stored_json = serde_json::to_value(live.store().expect_value("stored envelope builds"))
+        .expect_value("stored envelope serializes");
+    stored_json["untrustedExtension"] = json!(true);
+    let stored_error = serde_json::from_value::<StoredEventEnvelope>(stored_json)
+        .expect_err_value("unknown stored envelope fields must fail closed");
+    assert!(stored_error.to_string().contains("unknown field"));
+    assert!(stored_error.to_string().contains("untrustedExtension"));
+}
+
+#[test]
 fn live_and_stored_envelopes_reject_aggregate_and_idempotency_tampering() {
     let live = EventEnvelope::from_event(
         EnvelopeBoundaryEvent {
