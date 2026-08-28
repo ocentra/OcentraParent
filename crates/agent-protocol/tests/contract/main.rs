@@ -8,6 +8,8 @@ mod activity_query_tests;
 mod activity_surface_tests;
 #[path = "activity_tests.rs"]
 mod activity_tests;
+#[path = "ai_contracts.rs"]
+mod ai_contracts_contract;
 #[path = "app_game_adapter_dispatch_preflight.rs"]
 mod app_game_adapter_dispatch_preflight;
 #[path = "app_game_adapter_dispatch_result.rs"]
