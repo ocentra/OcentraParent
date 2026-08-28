@@ -181,6 +181,18 @@ mod app_game_notification_readiness_payload_tests;
 mod app_game_platform_proof_status_payload_tests;
 #[path = "app_game_linux_capture_readiness.rs"]
 mod app_game_linux_capture_readiness;
+#[path = "app_game_linux_docker_host_preflight.rs"]
+mod app_game_linux_docker_host_preflight_tests;
+#[path = "app_game_linux_docker_host_preflight_parser_tests.rs"]
+mod app_game_linux_docker_host_preflight_parser_tests;
+#[path = "app_game_linux_docker_host_preflight_path_security_tests.rs"]
+mod app_game_linux_docker_host_preflight_path_security_tests;
+#[path = "app_game_linux_docker_host_preflight_cleanup_tests.rs"]
+mod app_game_linux_docker_host_preflight_cleanup_tests;
+#[path = "app_game_platform_probe_cache_tests.rs"]
+mod app_game_platform_probe_cache_tests;
+#[path = "app_game_platform_proof_status_route_rejection_tests.rs"]
+mod app_game_platform_proof_status_route_rejection_tests;
 #[path = "app_game_policy_readiness_payload_tests.rs"]
 mod app_game_policy_readiness_payload_tests;
 #[path = "app_game_timer_parent_surface_payload_tests.rs"]

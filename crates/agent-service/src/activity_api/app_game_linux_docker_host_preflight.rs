@@ -15,7 +15,7 @@ use super::{
     app_game_linux_docker_host_preflight_wait::DOCKER_PREFLIGHT_TIMEOUT,
 };
 
-const MAX_DOCKER_INVENTORY_COUNT: u64 = 10_000_000;
+pub(super) const MAX_DOCKER_INVENTORY_COUNT: u64 = 10_000_000;
 
 pub(super) fn detect_linux_docker_host_preflight(
     cleanup_workers: CleanupWorkerRegistry,
@@ -77,7 +77,7 @@ pub(super) fn unavailable_linux_docker_host_preflight() -> AppGameLinuxDockerHos
     )
 }
 
-fn probe_has_fixed_marker(output: DockerProbeOutput) -> bool {
+pub(super) fn probe_has_fixed_marker(output: DockerProbeOutput) -> bool {
     if !output.success {
         return false;
     }
@@ -88,20 +88,26 @@ fn probe_has_fixed_marker(output: DockerProbeOutput) -> bool {
     value == proof::DOCKER_READY_MARKER
 }
 
-fn parse_context_count(output: DockerProbeOutput) -> Option<u64> {
+pub(super) fn parse_context_count(output: DockerProbeOutput) -> Option<u64> {
+    parse_context_count_with_limit(output, MAX_DOCKER_INVENTORY_COUNT)
+}
+
+pub(super) fn parse_context_count_with_limit(
+    output: DockerProbeOutput,
+    max_count: u64,
+) -> Option<u64> {
     if !output.success {
         return None;
     }
     let value = std::str::from_utf8(&output.stdout).ok()?;
     let value = value.strip_suffix('\n').unwrap_or(value);
     let count = value.split('\n').try_fold(0_u64, |count, line| {
-        (line == proof::DOCKER_CONTEXT_COUNT_MARKER && count < MAX_DOCKER_INVENTORY_COUNT)
-            .then_some(count + 1)
+        (line == proof::DOCKER_CONTEXT_COUNT_MARKER && count < max_count).then_some(count + 1)
     })?;
     (count > 0).then_some(count)
 }
 
-fn parse_inventory_counts(output: DockerProbeOutput) -> Option<(u64, u64)> {
+pub(super) fn parse_inventory_counts(output: DockerProbeOutput) -> Option<(u64, u64)> {
     if !output.success {
         return None;
     }
