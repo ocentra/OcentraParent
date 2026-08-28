@@ -1,3 +1,4 @@
+mod account_identity_authority_producer;
 mod device_scope;
 #[path = "household_authority.rs"]
 mod household_authority_tests;
