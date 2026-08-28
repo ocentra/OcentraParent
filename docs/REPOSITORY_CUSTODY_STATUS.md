@@ -1,15 +1,70 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-25 after the source-consolidation and archive freeze, based on
-canonical parent
-`3d6f32b8023eee90b5f295a4f7853e58fa04422a` (short `3d6f32b8`). This supersedes
-the retained 2026-08-24, 2026-08-23, 2026-08-19, and 2026-08-18 snapshots below.
-The prior `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` inventory is historical;
+Snapshot: 2026-08-28 during one-tree local consolidation, based on canonical
+parent `e0a410368a7989b40a47477769710d08d493caf4` (short `e0a410368`). This
+supersedes the retained 2026-08-25, 2026-08-24, 2026-08-23, 2026-08-19, and
+2026-08-18 snapshots below. The prior `3d6f32b8023eee90b5f295a4f7853e58fa04422a`
+and `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` inventories are historical;
 exact older branch and worktree inventories remain labelled historical.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
 claim. Refresh Git ancestry and patch identity before deleting any ref.
+
+## Live one-tree consolidation — 2026-08-28
+
+The single local integration location is
+`E:\OcentraWorktrees\lanes\eventing-wp09-production`, branch
+`codex/eventing-wp09-production`, at
+`e0a410368a7989b40a47477769710d08d493caf4`. The worktree is clean. Its remote
+PR head remains the older `325bd31507dbb41ebeea66bf92a95fcf5a21a3b7` on PR
+`#709` to `develop`; GitHub has exactly one open PR. Nothing in this
+consolidation snapshot has been pushed, tested, proved, or presented as ready.
+
+Reviewed local source/test packets imported into this one branch are:
+
+- `d4e850c6ea100107609fdb0ec3ed6d449726aa1b`, the 131-path Rust/eventing
+  boundary and honest-test cleanup packet. It is source custody only; its later
+  execution phase remains open.
+- `910fc59994df51480d8267d8610b6148b6ffa99c`, the managed-browser graph/test
+  truth correction.
+- `9a7a003caa9fd80ea4b839f5007ab3904655096b`, the 28-path Rust architecture
+  split packet.
+- `06253106b` through `a49e89b3d`, the complete six-commit Parent WP12 package
+  chain: pinned WiX custody, path/reparse safety, MSI contracts, publication
+  locking/journal, source/tool fingerprints, deterministic rebuild checks, and
+  explicit non-authenticity limits for the unkeyed journal.
+- `e0a410368a7989b40a47477769710d08d493caf4`, the four-file Protected Custody
+  WP04 currentness improvement. This is deliberately incomplete: fresh
+  owner-controlled currentness is still required immediately before normal and
+  Account-issuer request execution so state cannot drift after broker hello.
+
+The local branch scan examined `469` non-archive `codex/*` branches and grouped
+the apparent patch-unique tips into their cumulative families. Semantic review,
+not patch uniqueness alone, found no other accepted production/test delta to
+replay. The residual families are already represented by later consolidation
+commits, obsolete schema migrations, docs-only snapshots, cumulative duplicate
+tips, or rejected unsafe authority/custody implementations. In particular, the
+Account WP02/WP05, Data custody/WP05/WP08, Device WP01 fence, stale AI schema,
+AppGame, Browser WP06, Screen WP32, LAN, Logging, Setup, and V0.8 packets must
+not be replayed wholesale.
+
+Bounded dirty states were also reviewed. The detached browser diagnostic tree
+contains only two already-integrated test changes plus three ad-hoc `eprintln!`
+diagnostics. The `041d` agent-core packet is nine paths already contained plus
+two stale reversions. The AI WP03 staged overlay is byte-identical to an old
+remote repair tree whose schema was migrated into `crates/ai-contracts`.
+Repository-wide deletion/reappearance worktrees remain classified corrupt or
+generated custody and are not product patches. The root `.codex/config.toml`
+and root develop graph delta remain user-local and excluded. These states stay
+recoverable until a fresh private archive is built; none is permission to
+merge, delete, or claim completion.
+
+The next phase starts from this one branch and audits actual production code,
+production callers/owners, and real test source for all 24 plans / 692
+workpacks. Missing code and test source is written before test execution. Test
+execution/fixing, Enforcer validation, proof, pre-commit, the single PR/CI run,
+and promotion through `develop` to `main` remain later ordered phases.
 
 ## Live consolidation and archive inventory — 2026-08-25
 
