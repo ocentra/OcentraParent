@@ -10041,8 +10041,8 @@
     {
       "id": "WP-eventing-plan-02-crate-contract-and-type-boundary",
       "state": "validation",
-      "reason": "Independent production-source review at canonical 5b55cca81 records exactly four WP02-owned roots: typed IDs/taxonomy with OS-CSPRNG generation and schema validation in ids.rs and ids/validation.rs; live/stored envelope and payload-identity custody in envelope.rs; and duplicate-contract registry boundaries in contract_registry.rs, with no Rust public re-export in those roots. Real non-test callers are present in child-runtime, agent-core, agent-service, parent-runtime-core, family-identity-core, and app-game-core. This is reviewed implementation/routing truth only: the five expected WP02 test roots, focused execution, proof artifact, checklist acceptance, CI, PR/review, runtime durability/currentness/authorization, READY, and DONE remain open; no completion evidence is asserted.",
-      "statusText": "Validation — four WP02 source roots and production callers reviewed; expected tests, proof, checklist, execution, CI/PR/review, runtime, and completion remain open.",
+      "reason": "Independent production-source review records exactly four WP02-owned roots: typed IDs/taxonomy with OS-CSPRNG generation and schema validation in ids.rs and ids/validation.rs; live/stored envelope and payload-identity custody in envelope.rs; and duplicate-contract registry boundaries in contract_registry.rs, with no Rust public re-export in those roots. Real non-test callers are present in child-runtime, agent-core, agent-service, parent-runtime-core, family-identity-core, and app-game-core. Canonical d23e2d60a completes all five mapped real contract/unit/version-skew test roots, but no test was executed in this code-first phase. Proof, checklist acceptance, CI, PR/review, runtime durability/currentness/authorization, READY, and DONE remain open.",
+      "statusText": "Validation — four WP02 source roots, real production callers, and all five mapped test roots are present; execution, proof, checklist, CI/PR/review, runtime, and completion remain open.",
       "needsReview": false,
       "evidence": [
         "docs/plans/eventing-plan/PLAN_STATE.md",
@@ -10193,6 +10193,20 @@
     }
   ],
   "completionEvidenceOverrides": [
+    {
+      "id": "WP-eventing-plan-02-crate-contract-and-type-boundary",
+      "implementation": [
+        "crates/ocentra-eventing/src/ids.rs",
+        "crates/ocentra-eventing/src/ids/validation.rs",
+        "crates/ocentra-eventing/src/envelope.rs",
+        "crates/ocentra-eventing/src/contract_registry.rs"
+      ],
+      "reason": "Independent review accepted the reusable typed ID/taxonomy, live/stored envelope, source metadata, and duplicate contract-registry implementation boundaries with real production callers. Canonical d23e2d60a contains all five mapped real contract/unit/version-skew test roots, but none was executed in this code-first phase. Retained proof, checklist acceptance, runtime durability/currentness/authorization, transport, consumer behavior, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/02-crate-contract-and-type-boundary.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
       "implementation": [

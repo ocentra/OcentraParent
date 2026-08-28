@@ -16,6 +16,20 @@
 
 Generated from the existing `eventing-plan` docs. This is the default resume/status file; large historical docs are linked, not embedded.
 
+## WP02 code-and-test-source checkpoint — 2026-08-28
+
+- Four reviewed reusable implementation roots own the typed ID/taxonomy,
+  validation, live/stored envelope, and duplicate contract-registry boundaries.
+  Real non-test callers remain present across child runtime, parent runtime,
+  agent core/service, family identity, and app/game owners.
+- Canonical `d23e2d60a` completes the five mapped real test roots with malformed
+  taxonomy separators, strong-ID serde validation, full source metadata,
+  current-schema round-trip, registry Rust-type identity, and typed envelope
+  identity assertions.
+- No test was executed in this code-first phase. Retained WP02 proof, matching
+  checklist acceptance, runtime durability/currentness/authorization, transport,
+  consumer behavior, CI, READY, and DONE remain open.
+
 ## Scope
 
 This folder is the implementation plan for a reusable Rust event bus inspired by the Ocentra Games `@ocentra/eventing-domain` package, but rebuilt as a Rust-first crate that can be used by Ocentra Parent and other Ocentra Rust projects.

@@ -25,6 +25,13 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
+- [02 Crate Contract And Type Boundary](workpacks/02-crate-contract-and-type-boundary.md)
+  has reviewed implementation and real caller coverage plus the complete five-root
+  test packet at canonical `d23e2d60a`. Run the focused contract/unit/version-skew
+  packet only in the later repository execution phase, then retain the exact
+  malformed taxonomy/ID, duplicate registry, live/stored envelope, and schema-skew
+  evidence. No runtime durability, transport, consumer, proof, READY, or DONE claim
+  follows from test source presence.
 - [08 Parent Runtime Integration](workpacks/08-parent-runtime-integration.md)
   now has only the safe service edge: malformed input is rejected and a valid
   intent marker is manual-required with no journal/publish/transport claim.
