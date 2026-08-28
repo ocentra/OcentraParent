@@ -3,6 +3,33 @@ import { describe, it } from 'node:test';
 import { createStripeSignature, createTestHarness, executeRequest, readJson } from '../../src/testing.js';
 
 describe('request smuggling guards', () => {
+  it('rejects a content length that differs from the actual body before dispatch', async () => {
+    const harness = createTestHarness();
+    const payload = JSON.stringify({
+      id: 'evt_mismatched_length',
+      type: 'invoice.paid',
+      subject: 'parent:demo-active',
+    });
+
+    const { response } = await executeRequest({
+      path: '/webhooks/stripe',
+      method: 'POST',
+      harness,
+      body: payload,
+      autoContentLength: false,
+      headers: {
+        'content-type': 'application/json',
+        'content-length': '0',
+      },
+    });
+
+    const body = await readJson<any>(response);
+    assert.equal(response.status, 400);
+    assert.equal(body.error, 'content-length-mismatch');
+    assert.equal(harness.queueMessages.length, 0);
+    assert.equal(harness.deadLetterMessages.length, 0);
+  });
+
   it('rejects invalid content length values instead of coercing them', async () => {
     const { response } = await executeRequest({
       path: '/health',

@@ -133,10 +133,7 @@ export const BILLING_SECURITY_LIMITS = {
   'provider-webhook': Object.freeze({ maxRequests: 120, windowSeconds: 60 }),
 } as const;
 
-type BillingRateLimitRoute = Pick<
-  RouteManifestEntry,
-  'authState' | 'path' | 'routeClass' | 'webhookProvider'
->;
+type BillingRateLimitRoute = Pick<RouteManifestEntry, 'authState' | 'path' | 'routeClass' | 'webhookProvider'>;
 
 function logBillingSecurityBoundary(
   route: Pick<RouteManifestEntry, 'routeClass'>,
@@ -413,6 +410,54 @@ function parseContentLengthHeader(request: Request): { ok: true; value: number }
     ok: true,
     value: Number(trimmed),
   };
+}
+
+async function validateRequestBodyLength(request: Request, declaredLength: number): Promise<Response | null> {
+  if (!STATE_CHANGING_METHODS.has(request.method)) {
+    return null;
+  }
+
+  if (request.body === null) {
+    return declaredLength === 0
+      ? null
+      : json(400, {
+          error: 'content-length-mismatch',
+        });
+  }
+
+  const body = request.clone().body;
+  if (body === null) {
+    return json(400, {
+      error: 'request-body-unreadable',
+    });
+  }
+
+  const reader = body.getReader();
+  let actualLength = 0;
+  try {
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      actualLength += chunk.value.byteLength;
+      if (actualLength > declaredLength) {
+        await reader.cancel();
+        return json(400, {
+          error: 'content-length-mismatch',
+        });
+      }
+    }
+  } catch {
+    await reader.cancel();
+    return json(400, {
+      error: 'request-body-unreadable',
+    });
+  }
+
+  return actualLength === declaredLength
+    ? null
+    : json(400, {
+        error: 'content-length-mismatch',
+      });
 }
 
 function manualRequiredResponse(
@@ -2199,6 +2244,12 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       error: 'payload-too-large',
       maxBytes: parseRequestMaxBytes(env),
     });
+  }
+
+  const bodyLengthFailure = await validateRequestBodyLength(request, contentLength);
+  if (bodyLengthFailure) {
+    logGuardRejection('request-framing', 'content-length-mismatch', bodyLengthFailure.status, request.method);
+    return bodyLengthFailure;
   }
 
   const route = findRoute(new URL(request.url).pathname, request.method);
