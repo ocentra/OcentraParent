@@ -151,6 +151,64 @@ async fn ordered_dispatch_allows_different_aggregates_to_run_concurrently() {
 }
 
 #[tokio::test]
+async fn sequential_dispatch_runs_subscribers_in_registration_order() {
+    let bus = EventBus::root();
+    let observed = Arc::new(Mutex::new(Vec::new()));
+    let first_observed = Arc::clone(&observed);
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText("eventing-sequential-first".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| {
+            let observed = Arc::clone(&first_observed);
+            async move {
+                observed.lock().await.push("first".to_owned());
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect_value("first sequential subscriber registers");
+    let second_observed = Arc::clone(&observed);
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText("eventing-sequential-second".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| {
+            let observed = Arc::clone(&second_observed);
+            async move {
+                observed.lock().await.push("second".to_owned());
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect_value("second sequential subscriber registers");
+
+    let report = bus
+        .publish_with_mode(
+            test_event(TestText("sequential-dispatch".to_owned())),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("sequential-dispatch-event-1".to_owned()),
+            ),
+            DispatchMode::Sequential,
+        )
+        .await
+        .expect_value("sequential publish succeeds");
+
+    assert_eq!(report.dispatch_mode, DispatchMode::Sequential);
+    assert_eq!(report.subscriber_count, 2);
+    assert_eq!(report.handled_count, 2);
+    assert_eq!(
+        observed.lock().await.as_slice(),
+        &["first".to_owned(), "second".to_owned()]
+    );
+}
+
+#[tokio::test]
 async fn concurrent_dispatch_runs_handlers_in_parallel_and_reports_each_result() {
     let bus = EventBus::root();
     let barrier = Arc::new(Barrier::new(2));
