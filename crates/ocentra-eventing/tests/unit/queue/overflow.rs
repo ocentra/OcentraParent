@@ -80,18 +80,19 @@ async fn bounded_queue_overflow_dead_letters_oldest_event_and_keeps_newest() {
 
 #[tokio::test]
 async fn queued_event_expires_before_dispatch_when_ttl_elapsed() {
+    let clock = ManualEventClock::new();
     let policy = EventQueuePolicy::no_subscriber_queue(2)
         .expect_value("queue policy is valid")
         .with_ttl(Duration::from_millis(5))
         .expect_value("ttl policy is valid");
-    let bus = EventBus::with_queue_policy(policy);
+    let bus = EventBus::with_queue_policy_and_clock(policy, clock.shared());
     bus.publish(
         test_event(TestText(TEST_LABEL.to_owned())),
         metadata(TestText(TEST_TARGET.to_owned())),
     )
     .await
     .expect_value("event queues");
-    tokio::time::sleep(Duration::from_millis(20)).await;
+    clock.advance(Duration::from_millis(6));
     bus.subscribe::<TestEvent, _, _>(
         subscriber(
             TestText(TEST_SUBSCRIBER.to_owned()),

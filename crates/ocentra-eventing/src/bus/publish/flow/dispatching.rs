@@ -58,10 +58,10 @@ pub(super) async fn publish_without_subscribers(
             .await
         }
         NoSubscriberQueueDecision::DeadLetter(queue_report, reason, error) => {
+            let reservation = bus.queue.reserve_dispatch(&stored)?;
             bus.record_stored_snapshot(&stored).await;
             let dead_letter = DeadLetter::for_queue(&stored, reason, error);
-            bus.queue
-                .mark_completed(&stored.event_id, stored.idempotency_key.clone());
+            reservation.complete();
             bus.record_dead_letter(dead_letter).await;
             Ok(empty_publish_report(
                 &stored,
@@ -78,6 +78,7 @@ pub(super) async fn dead_letter_expired_deadline(
     stored: StoredEventEnvelope,
     dispatch_mode: DispatchMode,
 ) -> Result<PublishReport, EventingError> {
+    let reservation = bus.queue.reserve_dispatch(&stored)?;
     bus.record_stored_snapshot(&stored).await;
     let dead_letter = DeadLetter::for_queue(
         &stored,
@@ -86,8 +87,7 @@ pub(super) async fn dead_letter_expired_deadline(
             event_type: stored.contract.event_type.clone(),
         },
     );
-    bus.queue
-        .mark_completed(&stored.event_id, stored.idempotency_key.clone());
+    reservation.complete();
     bus.record_dead_letter(dead_letter).await;
     Ok(empty_publish_report(
         &stored,

@@ -64,6 +64,183 @@ async fn no_subscriber_dead_letter_policy_records_typed_metadata() {
 }
 
 #[tokio::test]
+async fn no_subscriber_dead_letter_reserves_in_flight_event_and_idempotency_keys() {
+    let policy = EventQueuePolicy::default()
+        .with_no_subscriber_policy(NoSubscriberQueuePolicy::DeadLetter)
+        .expect_value("dead-letter policy is valid")
+        .with_idempotency_registry();
+    let bus = EventBus::with_queue_policy(policy);
+    let started = Arc::new(Notify::new());
+    let release = Arc::new(Notify::new());
+    let started_clone = Arc::clone(&started);
+    let release_clone = Arc::clone(&release);
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| {
+            let started = Arc::clone(&started_clone);
+            let release = Arc::clone(&release_clone);
+            async move {
+                started.notify_one();
+                release.notified().await;
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect_value("subscriber registers");
+
+    let first_bus = bus.clone();
+    let first = tokio::spawn(async move {
+        first_bus
+            .publish(
+                test_event_with_idempotency(
+                    TestText("in-flight terminal first".to_owned()),
+                    TestText("terminal-shared-key".to_owned()),
+                ),
+                metadata_with_event_id(
+                    TestText(TEST_TARGET.to_owned()),
+                    TestText("terminal-shared-event".to_owned()),
+                ),
+            )
+            .await
+    });
+    started.notified().await;
+
+    let duplicate_event_id = bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("duplicate terminal event id".to_owned()),
+                TestText("terminal-different-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(OTHER_TARGET.to_owned()),
+                TestText("terminal-shared-event".to_owned()),
+            ),
+        )
+        .await;
+    assert!(matches!(
+        duplicate_event_id,
+        Err(EventingError::DuplicateEventId { .. })
+    ));
+
+    let duplicate_key = bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("duplicate terminal idempotency key".to_owned()),
+                TestText("terminal-shared-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(OTHER_TARGET.to_owned()),
+                TestText("terminal-different-event".to_owned()),
+            ),
+        )
+        .await;
+    assert!(matches!(
+        duplicate_key,
+        Err(EventingError::DuplicateInFlight { .. })
+    ));
+
+    release.notify_one();
+    first
+        .await
+        .expect_value("first task joins")
+        .expect_value("first dispatch completes");
+    assert!(bus.dead_letters().await.is_empty());
+}
+
+#[tokio::test]
+async fn expired_deadline_dead_letter_reserves_in_flight_event_and_idempotency_keys() {
+    let clock = ManualEventClock::new();
+    let policy = EventQueuePolicy::default().with_idempotency_registry();
+    let bus = EventBus::with_queue_policy_and_clock(policy, clock.shared());
+    let started = Arc::new(Notify::new());
+    let release = Arc::new(Notify::new());
+    let started_clone = Arc::clone(&started);
+    let release_clone = Arc::clone(&release);
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| {
+            let started = Arc::clone(&started_clone);
+            let release = Arc::clone(&release_clone);
+            async move {
+                started.notify_one();
+                release.notified().await;
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect_value("subscriber registers");
+
+    let first_bus = bus.clone();
+    let first = tokio::spawn(async move {
+        first_bus
+            .publish(
+                test_event_with_idempotency(
+                    TestText("in-flight deadline first".to_owned()),
+                    TestText("deadline-shared-key".to_owned()),
+                ),
+                metadata_with_event_id(
+                    TestText(TEST_TARGET.to_owned()),
+                    TestText("deadline-shared-event".to_owned()),
+                ),
+            )
+            .await
+    });
+    started.notified().await;
+    let expired_deadline = clock.now();
+
+    let duplicate_event_id = bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("duplicate expired event id".to_owned()),
+                TestText("deadline-different-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(OTHER_TARGET.to_owned()),
+                TestText("deadline-shared-event".to_owned()),
+            )
+            .with_deadline(expired_deadline),
+        )
+        .await;
+    assert!(matches!(
+        duplicate_event_id,
+        Err(EventingError::DuplicateEventId { .. })
+    ));
+
+    let duplicate_key = bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("duplicate expired idempotency key".to_owned()),
+                TestText("deadline-shared-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(OTHER_TARGET.to_owned()),
+                TestText("deadline-different-event".to_owned()),
+            )
+            .with_deadline(expired_deadline),
+        )
+        .await;
+    assert!(matches!(
+        duplicate_key,
+        Err(EventingError::DuplicateInFlight { .. })
+    ));
+
+    release.notify_one();
+    first
+        .await
+        .expect_value("first task joins")
+        .expect_value("first dispatch completes");
+    assert!(bus.dead_letters().await.is_empty());
+}
+
+#[tokio::test]
 async fn bounded_queue_reject_overflow_preserves_queued_event() {
     let policy = EventQueuePolicy::no_subscriber_queue(1)
         .expect_value("queue policy is valid")
