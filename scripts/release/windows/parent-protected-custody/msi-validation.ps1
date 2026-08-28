@@ -798,6 +798,10 @@ function Assert-MsiFixedContent {
         [Parameter(Mandatory)]
         [string]$ProvisionerBinaryPath,
 
+        [Parameter()]
+        [AllowNull()]
+        [string]$ExpectedUtilBinaryHash,
+
         [Parameter(Mandatory)]
         [string]$PackageRoot
     )
@@ -812,6 +816,7 @@ function Assert-MsiFixedContent {
     Assert-MsiRequiredTables -TableNames $tableNames
     Assert-MsiTableSchema -Database $Database
     Assert-MsiSummaryContract -Database $Database -ExpectedPackageCode $ExpectedPackageCode
+    Assert-MsiAllowlistedTableContent -Database $Database -ExpectedVersion $ExpectedVersion -ExpectedProductCode $ExpectedProductCode -ExpectedRegistryId $ExpectedRegistryId -BrokerBinaryPath $BrokerBinaryPath -ProvisionerBinaryPath $ProvisionerBinaryPath
     Assert-MsiExecutableLifecycleContract -Database $Database -ExpectedVersion $ExpectedVersion -ExpectedRegistryId $ExpectedRegistryId -ExpectedBrokerHash $ExpectedBrokerHash
     Assert-MsiMediaContract -Database $Database
 
@@ -1015,21 +1020,31 @@ function Assert-MsiFixedContent {
         $decompileRoot,
         '-out',
         $decompiledSourcePath
-    ) -FailureMessage 'Normalized MSI decompile and payload inspection failed'
+    ) -FailureMessage 'Normalized MSI decompile and payload inspection failed' | Out-Null
     Assert-NonEmptyFile -Path $decompiledSourcePath -Description 'Normalized MSI decompile source'
     $extractedBrokerPath = Join-Path $decompileRoot 'File\ProtectedBrokerFile'
     $extractedProvisionerPath = Join-Path $decompileRoot 'File\ProtectedProvisionerFile'
+    $extractedUtilBinaryPath = Join-Path $decompileRoot 'Binary\Wix4UtilCA_X64'
     Assert-SafePackageLeafPath -Path $extractedBrokerPath -Root $PackageRoot -Description 'Extracted broker payload' | Out-Null
     Assert-SafePackageLeafPath -Path $extractedProvisionerPath -Root $PackageRoot -Description 'Extracted provisioner payload' | Out-Null
+    Assert-SafePackageLeafPath -Path $extractedUtilBinaryPath -Root $PackageRoot -Description 'Extracted WiX Util custom-action payload' | Out-Null
     Assert-NonEmptyFile -Path $extractedBrokerPath -Description 'Extracted broker payload'
     Assert-NonEmptyFile -Path $extractedProvisionerPath -Description 'Extracted provisioner payload'
+    Assert-NonEmptyFile -Path $extractedUtilBinaryPath -Description 'Extracted WiX Util custom-action payload'
     $extractedBrokerHash = Get-Sha256Hex -Path $extractedBrokerPath
     $extractedProvisionerHash = Get-Sha256Hex -Path $extractedProvisionerPath
+    $extractedUtilBinaryHash = Get-Sha256Hex -Path $extractedUtilBinaryPath
     if ($extractedBrokerHash -cne $ExpectedBrokerHash -or $extractedBrokerHash -cne (Get-Sha256Hex -Path $BrokerBinaryPath)) {
         throw "Extracted broker payload hash '$extractedBrokerHash' does not match the fixed source hash '$ExpectedBrokerHash'."
     }
     if ($extractedProvisionerHash -cne $ExpectedProvisionerHash -or $extractedProvisionerHash -cne (Get-Sha256Hex -Path $ProvisionerBinaryPath)) {
         throw "Extracted provisioner payload hash '$extractedProvisionerHash' does not match the fixed source hash '$ExpectedProvisionerHash'."
+    }
+    if (-not [string]::IsNullOrEmpty($ExpectedUtilBinaryHash) -and
+        ($ExpectedUtilBinaryHash -notmatch '^[0-9a-f]{64}$' -or
+            $ExpectedUtilBinaryHash -cne $ExpectedUtilBinaryHash.ToLowerInvariant() -or
+            $extractedUtilBinaryHash -cne $ExpectedUtilBinaryHash)) {
+        throw "Extracted WiX Util custom-action payload hash '$extractedUtilBinaryHash' does not match the fixed repeat-build hash '$ExpectedUtilBinaryHash'."
     }
 
     Invoke-CheckedCommand -Command $DotnetCommand -ArgumentList @(
@@ -1037,7 +1052,13 @@ function Assert-MsiFixedContent {
         'msi',
         'validate',
         $CandidateMsiPath
-    ) -FailureMessage 'Normalized MSI table/content validation failed'
+    ) -FailureMessage 'Normalized MSI table/content validation failed' | Out-Null
+
+    return [pscustomobject][ordered]@{
+        BinaryContentHashes = [ordered]@{
+            Wix4UtilCA_X64 = $extractedUtilBinaryHash
+        }
+    }
 }
 
 function Assert-MsiCandidate {
@@ -1075,6 +1096,10 @@ function Assert-MsiCandidate {
         [Parameter(Mandatory)]
         [string]$ProvisionerBinaryPath,
 
+        [Parameter()]
+        [AllowNull()]
+        [string]$ExpectedUtilBinaryHash,
+
         [Parameter(Mandatory)]
         [string]$PackageRoot
     )
@@ -1103,8 +1128,9 @@ function Assert-MsiCandidate {
             ExpectedRegistryId = $ExpectedRegistryId
             BrokerBinaryPath = $BrokerBinaryPath
             ProvisionerBinaryPath = $ProvisionerBinaryPath
+            ExpectedUtilBinaryHash = $ExpectedUtilBinaryHash
         }
-        Assert-MsiFixedContent @fixedContentArguments
+        return Assert-MsiFixedContent @fixedContentArguments
     } catch {
         throw "Windows Installer could not inspect fixed normalized MSI '$CandidateMsiPath': $($_.Exception.Message)"
     } finally {

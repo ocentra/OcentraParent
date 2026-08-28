@@ -1,4 +1,4 @@
-$script:PackagePublicationJournalSchema = 3
+$script:PackagePublicationJournalSchema = 4
 $script:PackagePublicationJournalPhases = @('prepared', 'previous-moved', 'staging-moved', 'final-validated', 'committed')
 $script:PackagePublicationJournalFields = @(
     'schema',
@@ -12,6 +12,8 @@ $script:PackagePublicationJournalFields = @(
     'hadPrevious',
     'stagedHashes',
     'previousHashes',
+    'stagedManifestSemanticSha256',
+    'previousManifestSemanticSha256',
     'inputContract',
     'previousRecordHash',
     'recordHash'
@@ -63,13 +65,240 @@ function ConvertTo-PackagePublicationCanonicalJson {
     return $Value | ConvertTo-Json -Depth 32 -Compress
 }
 
+function ConvertTo-PackageManifestCanonicalValue {
+    param(
+        [Parameter()]
+        [AllowNull()]
+        [object]$Value
+    )
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    if ($Value -is [string] -or $Value -is [bool] -or $Value -is [byte] -or
+        $Value -is [int16] -or $Value -is [int32] -or $Value -is [int64] -or
+        $Value -is [uint16] -or $Value -is [uint32] -or $Value -is [uint64] -or
+        $Value -is [decimal] -or $Value -is [double] -or $Value -is [single]) {
+        return $Value
+    }
+    if ($Value -is [System.Collections.IDictionary]) {
+        $canonical = [ordered]@{}
+        foreach ($key in @($Value.Keys | ForEach-Object { [string]$_ } | Sort-Object)) {
+            $canonical[$key] = ConvertTo-PackageManifestCanonicalValue -Value $Value[$key]
+        }
+        return ,$canonical
+    }
+    if ($Value -is [System.Collections.IEnumerable]) {
+        $canonicalItems = [System.Collections.Generic.List[object]]::new()
+        foreach ($item in $Value) {
+            $canonicalItems.Add((ConvertTo-PackageManifestCanonicalValue -Value $item))
+        }
+        return ,$canonicalItems.ToArray()
+    }
+    $properties = @($Value.PSObject.Properties)
+    if ($properties.Count -gt 0) {
+        $canonical = [ordered]@{}
+        foreach ($propertyName in @($properties.Name | ForEach-Object { [string]$_ } | Sort-Object)) {
+            $canonical[$propertyName] = ConvertTo-PackageManifestCanonicalValue -Value $Value.$propertyName
+        }
+        return ,$canonical
+    }
+    if ($Value.PSObject.TypeNames -contains 'System.Management.Automation.PSCustomObject') {
+        # ConvertFrom-Json represents an empty JSON object as an empty
+        # PSCustomObject. Preserve that object shape instead of falling
+        # through to an empty string, so semantic hashes are stable across
+        # in-memory and serialized manifests.
+        return ,([ordered]@{})
+    }
+    return [string]$Value
+}
+
+function Get-PackageManifestSemanticHash {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Manifest
+    )
+
+    $canonical = ConvertTo-PackageManifestCanonicalValue -Value $Manifest
+    if ($canonical -isnot [System.Collections.IDictionary]) {
+        throw 'Package manifest root is not a JSON object; refusing semantic binding.'
+    }
+    $requiredRootFields = @(
+        'schema',
+        'packageId',
+        'productVersion',
+        'architecture',
+        'artifact',
+        'reproducibility',
+        'publicationIntegrity',
+        'inputs',
+        'inputIntegrity',
+        'digestBinding',
+        'fixedIdentity',
+        'lifecycle',
+        'protectedBoundary',
+        'source',
+        'manifestIntegrity'
+    )
+    $actualRootFields = @($canonical.Keys | ForEach-Object { [string]$_ })
+    if ($actualRootFields.Count -ne $requiredRootFields.Count -or
+        @($actualRootFields | Where-Object { $requiredRootFields -notcontains $_ }).Count -gt 0 -or
+        @($requiredRootFields | Where-Object { $actualRootFields -notcontains $_ }).Count -gt 0) {
+        throw 'Package manifest root fields are not the exact protected-custody contract; refusing semantic binding.'
+    }
+    $integrity = $canonical['manifestIntegrity']
+    if ($integrity -isnot [System.Collections.IDictionary]) {
+        throw 'Package manifest manifestIntegrity is not an object; refusing semantic binding.'
+    }
+    $integrityFields = @($integrity.Keys | ForEach-Object { [string]$_ })
+    if ($integrityFields.Count -ne 2 -or $integrityFields -notcontains 'schema' -or $integrityFields -notcontains 'semanticSha256') {
+        throw 'Package manifest manifestIntegrity fields are not exact; refusing semantic binding.'
+    }
+    if ([string]$integrity['schema'] -cne 'canonical-json-v1') {
+        throw "Package manifest semantic schema '$($integrity['schema'])' is unsupported; refusing semantic binding."
+    }
+    $declaredHash = [string]$integrity['semanticSha256']
+    if (-not [string]::IsNullOrEmpty($declaredHash) -and
+        ($declaredHash -notmatch '^[0-9a-f]{64}$' -or $declaredHash -cne $declaredHash.ToLowerInvariant())) {
+        throw 'Package manifest semanticSha256 is not a lowercase SHA-256 or the permitted empty preimage value.'
+    }
+    $integrity['semanticSha256'] = ''
+    $json = $canonical | ConvertTo-Json -Depth 64 -Compress
+    $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($json)
+    $computedHash = ([System.Security.Cryptography.SHA256]::HashData($bytes) | ForEach-Object { $_.ToString('x2') }) -join ''
+    if (-not [string]::IsNullOrEmpty($declaredHash) -and $declaredHash -cne $computedHash) {
+        throw 'Package manifest declared semanticSha256 does not match its canonical full-manifest preimage.'
+    }
+    return $computedHash
+}
+
+function Get-PackageManifestSemanticHashFromFile {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path,
+
+        [Parameter(Mandatory)]
+        [string]$PackageRoot
+    )
+
+    $safePath = Assert-SafePackageLeafPath -Path $Path -Root $PackageRoot -Description 'Package manifest semantic input'
+    $text = [System.IO.File]::ReadAllText($safePath, [System.Text.UTF8Encoding]::new($false))
+    if ([string]::IsNullOrWhiteSpace($text)) {
+        throw "Package manifest '$safePath' is empty; refusing semantic binding."
+    }
+    try {
+        $manifest = $text | ConvertFrom-Json
+        return Get-PackageManifestSemanticHash -Manifest $manifest
+    } catch {
+        throw "Package manifest '$safePath' is not a canonical semantic object; refusing semantic binding: $($_.Exception.Message)"
+    }
+}
+
+function Get-PackagePublicationToolchainProvenance {
+    param(
+        [Parameter(Mandatory)]
+        [object]$Provenance
+    )
+
+    if ($null -eq $Provenance) {
+        throw 'Package publication toolchain provenance is null.'
+    }
+    $actualFields = if ($Provenance -is [System.Collections.IDictionary]) {
+        @($Provenance.Keys | ForEach-Object { [string]$_ })
+    } else {
+        @($Provenance.PSObject.Properties.Name)
+    }
+    $expectedFields = @('wixTool', 'wixUtilExtension')
+    if ($actualFields.Count -ne $expectedFields.Count -or
+        @($actualFields | Where-Object { $expectedFields -notcontains $_ }).Count -gt 0 -or
+        @($expectedFields | Where-Object { $actualFields -notcontains $_ }).Count -gt 0) {
+        throw 'Package publication toolchain provenance fields are not exact.'
+    }
+
+    function Normalize-PackagePublicationPayload {
+        param(
+            [Parameter(Mandatory)]
+            [object]$Payload,
+
+            [Parameter(Mandatory)]
+            [string[]]$Fields,
+
+            [Parameter(Mandatory)]
+            [string]$Description
+        )
+
+        if ($null -eq $Payload) {
+            throw "$Description is null."
+        }
+        $payloadFields = if ($Payload -is [System.Collections.IDictionary]) {
+            @($Payload.Keys | ForEach-Object { [string]$_ })
+        } else {
+            @($Payload.PSObject.Properties.Name)
+        }
+        if ($payloadFields.Count -ne $Fields.Count -or
+            @($payloadFields | Where-Object { $Fields -notcontains $_ }).Count -gt 0 -or
+            @($Fields | Where-Object { $payloadFields -notcontains $_ }).Count -gt 0) {
+            throw "$Description fields are not exact."
+        }
+        $pathField = if ($Description -ceq 'WiX tool payload provenance') { 'packageRoot' } else { 'payloadRoot' }
+        $idField = if ($Description -ceq 'WiX tool payload provenance') { 'packageId' } else { 'extensionId' }
+        $expectedId = if ($Description -ceq 'WiX tool payload provenance') { 'wix' } else { 'WixToolset.Util.wixext' }
+        if ([string]$Payload.$idField -cne $expectedId -or [string]$Payload.version -cne '6.0.2') {
+            throw "$Description identity/version is not the pinned WiX 6.0.2 payload."
+        }
+        $root = [string]$Payload.$pathField
+        if (-not [System.IO.Path]::IsPathRooted($root) -or [string]::IsNullOrWhiteSpace($root)) {
+            throw "$Description root is not an absolute path."
+        }
+        $fileHashes = Get-PackagePublicationMapEntries -Value $Payload.fileHashes -Description "$Description file hash contract"
+        if ($fileHashes.Count -eq 0) {
+            throw "$Description file hash contract is empty."
+        }
+        foreach ($relativeName in $fileHashes.Keys) {
+            $normalizedRelativeName = $relativeName.Replace('/', '\')
+            $relativeSegments = @($normalizedRelativeName.Split('\'))
+            if ([System.IO.Path]::IsPathRooted($normalizedRelativeName) -or
+                @($relativeSegments | Where-Object { $_ -ceq '..' }).Count -gt 0 -or
+                $normalizedRelativeName.Contains(':')) {
+                throw "$Description contains an unsafe payload-relative path '$relativeName'."
+            }
+            $hash = [string]$fileHashes[$relativeName]
+            if ($hash -notmatch '^[0-9a-f]{64}$' -or $hash -cne $hash.ToLowerInvariant()) {
+                throw "$Description hash for '$relativeName' is not a lowercase SHA-256."
+            }
+        }
+        $contentSha256 = [string]$Payload.contentSha256
+        if ($contentSha256 -notmatch '^[0-9a-f]{64}$' -or $contentSha256 -cne $contentSha256.ToLowerInvariant()) {
+            throw "$Description contentSha256 is not a lowercase SHA-256."
+        }
+        $fileHashJson = ConvertTo-PackagePublicationCanonicalJson -Value $fileHashes
+        $fileHashBytes = [System.Text.UTF8Encoding]::new($false).GetBytes($fileHashJson)
+        $expectedContentSha256 = ([System.Security.Cryptography.SHA256]::HashData($fileHashBytes) | ForEach-Object { $_.ToString('x2') }) -join ''
+        if ($contentSha256 -cne $expectedContentSha256) {
+            throw "$Description contentSha256 does not bind its exact payload file hash map."
+        }
+        return [ordered]@{
+            $idField = $expectedId
+            version = '6.0.2'
+            $pathField = $root
+            fileHashes = $fileHashes
+            contentSha256 = $contentSha256
+        }
+    }
+
+    return [ordered]@{
+        wixTool = Normalize-PackagePublicationPayload -Payload $Provenance.wixTool -Fields @('packageId', 'version', 'packageRoot', 'fileHashes', 'contentSha256') -Description 'WiX tool payload provenance'
+        wixUtilExtension = Normalize-PackagePublicationPayload -Payload $Provenance.wixUtilExtension -Fields @('extensionId', 'version', 'payloadRoot', 'fileHashes', 'contentSha256') -Description 'WiX Util extension payload provenance'
+    }
+}
+
 function Get-PackagePublicationInputContract {
     param(
         [Parameter(Mandatory)]
         [object]$InputContract
     )
 
-    $allowed = @('brokerBinarySha256', 'provisionerBinarySha256', 'sourceHashes', 'anchoredInputHashes', 'commandFingerprints')
+    $allowed = @('brokerBinarySha256', 'provisionerBinarySha256', 'sourceHashes', 'anchoredInputHashes', 'commandFingerprints', 'toolchainProvenance')
     $actual = if ($InputContract -is [System.Collections.IDictionary]) {
         @($InputContract.Keys | ForEach-Object { [string]$_ })
     } else {
@@ -124,12 +353,15 @@ function Get-PackagePublicationInputContract {
         }
     }
 
+    $toolchainProvenance = Get-PackagePublicationToolchainProvenance -Provenance $InputContract.toolchainProvenance
+
     return [ordered]@{
         brokerBinarySha256 = $brokerHash
         provisionerBinarySha256 = $provisionerHash
         sourceHashes = $sourceHashes
         anchoredInputHashes = $anchoredInputHashes
         commandFingerprints = $commandFingerprints
+        toolchainProvenance = $toolchainProvenance
     }
 }
 
@@ -151,6 +383,8 @@ function Get-PackagePublicationCanonicalRecord {
         hadPrevious = [bool]$Record.hadPrevious
         stagedHashes = Get-PackagePublicationMapEntries -Value $Record.stagedHashes -Description 'Package publication staged hash contract'
         previousHashes = Get-PackagePublicationMapEntries -Value $Record.previousHashes -Description 'Package publication previous hash contract'
+        stagedManifestSemanticSha256 = [string]$Record.stagedManifestSemanticSha256
+        previousManifestSemanticSha256 = [string]$Record.previousManifestSemanticSha256
         inputContract = Get-PackagePublicationInputContract -InputContract $Record.inputContract
         previousRecordHash = [string]$Record.previousRecordHash
     }
@@ -165,6 +399,39 @@ function Get-PackagePublicationRecordHash {
     $json = ConvertTo-PackagePublicationCanonicalJson -Value (Get-PackagePublicationCanonicalRecord -Record $Record)
     $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($json)
     return ([System.Security.Cryptography.SHA256]::HashData($bytes) | ForEach-Object { $_.ToString('x2') }) -join ''
+}
+
+function Assert-PackagePublicationPathImmediatelyBeforeAccess {
+    param(
+        [Parameter(Mandatory)]
+        [string]$PackageRoot,
+
+        [Parameter(Mandatory)]
+        [string]$Path,
+
+        [Parameter(Mandatory)]
+        [string]$Description
+    )
+
+    # Keep the journal/lock path check adjacent to the filesystem operation.
+    # The safe-path helper rejects reparse components and verifies the nearest
+    # physical ancestor, while this second check makes that boundary explicit
+    # at every journal read/write and lock probe/open site.
+    $safePath = Assert-SafePackageLeafPath -Path $Path -Root $PackageRoot -Description "$Description path"
+    $parentPath = [System.IO.Path]::GetDirectoryName($safePath)
+    if ([string]::IsNullOrWhiteSpace($parentPath)) {
+        throw "$Description path '$safePath' has no parent filesystem path."
+    }
+    Assert-PhysicalPackagePathUnderRoot -Path $parentPath -Root $PackageRoot -Description "$Description parent immediately before access" | Out-Null
+    Assert-NoPackageReparseChain -Path $parentPath -Description "$Description parent immediately before access"
+    Assert-NoPackageReparseChain -Path $safePath -Description "$Description immediately before access"
+    if (Test-Path -LiteralPath $safePath) {
+        $item = Get-Item -LiteralPath $safePath -Force
+        if ($item.PSIsContainer -or ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            throw "$Description path '$safePath' is not a regular non-reparse file."
+        }
+    }
+    return $safePath
 }
 
 function Assert-HeldPackagePublicationLock {
@@ -190,7 +457,7 @@ function Assert-HeldPackagePublicationLock {
             -not $LockStream.CanRead -or -not $LockStream.CanWrite) {
             throw "$Description is not a live read/write file handle."
         }
-        $safeLockPath = Assert-SafePackageLeafPath -Path $LockPath -Root $PackageRoot -Description $Description
+        $safeLockPath = Assert-PackagePublicationPathImmediatelyBeforeAccess -PackageRoot $PackageRoot -Path $LockPath -Description $Description
         $streamName = Get-NormalizedPackagePath -Path ([string]$LockStream.Name)
         if (-not $streamName.Equals($safeLockPath, [System.StringComparison]::OrdinalIgnoreCase)) {
             throw "$Description handle '$streamName' is not the exact safe lock path '$safeLockPath'."
@@ -206,7 +473,9 @@ function Assert-HeldPackagePublicationLock {
         # handle is live. A successful probe means the caller supplied an
         # arbitrary readable stream or a non-exclusive handle.
         $probe = $null
+        $sharingViolationObserved = $false
         try {
+            $safeLockPath = Assert-PackagePublicationPathImmediatelyBeforeAccess -PackageRoot $PackageRoot -Path $safeLockPath -Description "$Description probe"
             $probe = [System.IO.FileStream]::new(
                 $safeLockPath,
                 [System.IO.FileMode]::Open,
@@ -215,11 +484,21 @@ function Assert-HeldPackagePublicationLock {
             )
             throw "$Description '$safeLockPath' is not exclusively held by the supplied handle."
         } catch [System.IO.IOException] {
-            # Expected: the live FileShare.None handle denies this probe.
+            # ERROR_SHARING_VIOLATION is the only admissible proof that the
+            # live FileShare.None handle denies this probe. Other IO failures
+            # (missing path, access denied, bad device, and so on) must not be
+            # misclassified as evidence of an exclusive lock.
+            if (([int]$_.Exception.HResult -band 0xffff) -ne 32) {
+                throw "$Description lock probe failed with non-sharing IOException HResult $($_.Exception.HResult); refusing to treat it as exclusivity proof."
+            }
+            $sharingViolationObserved = $true
         } finally {
             if ($null -ne $probe) {
                 $probe.Dispose()
             }
+        }
+        if (-not $sharingViolationObserved) {
+            throw "$Description '$safeLockPath' did not produce the required sharing-violation lock proof."
         }
         return $safeLockPath
     } catch {
@@ -323,6 +602,9 @@ function Assert-PackageManifestBinding {
         [object]$Hashes,
 
         [Parameter(Mandatory)]
+        [string]$ExpectedManifestSemanticHash,
+
+        [Parameter(Mandatory)]
         [string]$Description
     )
 
@@ -335,6 +617,12 @@ function Assert-PackageManifestBinding {
     try {
         $manifestPath = Join-Path $Directory $manifestNames[0]
         $manifest = [System.IO.File]::ReadAllText($manifestPath, [System.Text.UTF8Encoding]::new($false)) | ConvertFrom-Json
+        $actualManifestSemanticHash = Get-PackageManifestSemanticHash -Manifest $manifest
+        if ($ExpectedManifestSemanticHash -notmatch '^[0-9a-f]{64}$' -or
+            $ExpectedManifestSemanticHash -cne $ExpectedManifestSemanticHash.ToLowerInvariant() -or
+            $actualManifestSemanticHash -cne $ExpectedManifestSemanticHash) {
+            throw 'manifest canonical semantic digest does not match the journaled full-manifest binding.'
+        }
         if ([string]$manifest.artifact.file -cne $msiNames[0] -or
             [string]$manifest.artifact.sha256 -cne ([string]$Hashes[$msiNames[0]]) -or
             [string]$manifest.artifact.checksumFile -cne $checksumNames[0]) {
@@ -400,6 +688,9 @@ function Assert-PackageDirectoryHashes {
         [object]$ExpectedHashes,
 
         [Parameter(Mandatory)]
+        [string]$ExpectedManifestSemanticHash,
+
+        [Parameter(Mandatory)]
         [string]$Description
     )
 
@@ -410,7 +701,7 @@ function Assert-PackageDirectoryHashes {
             throw "$Description artifact '$artifactName' does not match its journaled SHA-256."
         }
     }
-    Assert-PackageManifestBinding -Directory $Directory -ExpectedNames $ExpectedNames -Hashes $actualHashes -Description $Description
+    Assert-PackageManifestBinding -Directory $Directory -ExpectedNames $ExpectedNames -Hashes $actualHashes -ExpectedManifestSemanticHash $ExpectedManifestSemanticHash -Description $Description
 }
 
 function Write-PackagePublicationJournal {
@@ -432,7 +723,7 @@ function Write-PackagePublicationJournal {
     )
 
     Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
-    $safeJournalPath = Assert-SafePackageLeafPath -Path $JournalPath -Root $PackageRoot -Description 'Package publication journal'
+    $safeJournalPath = Assert-PackagePublicationPathImmediatelyBeforeAccess -PackageRoot $PackageRoot -Path $JournalPath -Description 'Package publication journal'
     $journalParent = [System.IO.Path]::GetDirectoryName($safeJournalPath)
     Assert-PhysicalPackagePathUnderRoot -Path $journalParent -Root $PackageRoot -Description 'Package publication journal parent' | Out-Null
 
@@ -452,6 +743,8 @@ function Write-PackagePublicationJournal {
         hadPrevious = [bool]$State.hadPrevious
         stagedHashes = Get-PackagePublicationMapEntries -Value $State.stagedHashes -Description 'Package publication staged hash contract'
         previousHashes = Get-PackagePublicationMapEntries -Value $State.previousHashes -Description 'Package publication previous hash contract'
+        stagedManifestSemanticSha256 = [string]$State.stagedManifestSemanticSha256
+        previousManifestSemanticSha256 = [string]$State.previousManifestSemanticSha256
         inputContract = Get-PackagePublicationInputContract -InputContract $State.inputContract
         previousRecordHash = if ($existingRecords.Count -eq 0) { '' } else { [string]$existingRecords[-1].recordHash }
         recordHash = ''
@@ -468,6 +761,7 @@ function Write-PackagePublicationJournal {
         # is deliberately fatal, so recovery preserves every byte instead of
         # guessing which earlier phase was durable. The path check immediately
         # before opening is not a hostile-filesystem no-follow guarantee.
+        $safeJournalPath = Assert-PackagePublicationPathImmediatelyBeforeAccess -PackageRoot $PackageRoot -Path $safeJournalPath -Description 'Package publication journal immediately before write'
         $mode = if (Test-Path -LiteralPath $safeJournalPath -PathType Leaf) {
             [System.IO.FileMode]::Append
         } else {
@@ -511,7 +805,7 @@ function Read-PackagePublicationJournalRecords {
         [string]$JournalPath
     )
 
-    $safeJournalPath = Assert-SafePackageLeafPath -Path $JournalPath -Root $PackageRoot -Description 'Package publication journal'
+    $safeJournalPath = Assert-PackagePublicationPathImmediatelyBeforeAccess -PackageRoot $PackageRoot -Path $JournalPath -Description 'Package publication journal immediately before read'
     try {
         $text = [System.IO.File]::ReadAllText($safeJournalPath, [System.Text.UTF8Encoding]::new($false))
         if ([string]::IsNullOrEmpty($text) -or -not $text.EndsWith("`n", [System.StringComparison]::Ordinal)) {
@@ -552,7 +846,7 @@ function Acquire-PackagePublicationLock {
         [string]$LockPath
     )
 
-    $safeLockPath = Assert-SafePackageLeafPath -Path $LockPath -Root $PackageRoot -Description 'Package publication lock'
+    $safeLockPath = Assert-PackagePublicationPathImmediatelyBeforeAccess -PackageRoot $PackageRoot -Path $LockPath -Description 'Package publication lock immediately before open'
     $lockStream = $null
     try {
         $lockStream = [System.IO.FileStream]::new(
@@ -674,6 +968,15 @@ function Assert-PackagePublicationJournalShape {
         throw 'Package publication journal chain digest contract is invalid; preserving bytes and refusing recovery.'
     }
     $inputContract = Get-PackagePublicationInputContract -InputContract $Journal.inputContract
+    $stagedManifestSemanticSha256 = [string]$Journal.stagedManifestSemanticSha256
+    $previousManifestSemanticSha256 = [string]$Journal.previousManifestSemanticSha256
+    if ($stagedManifestSemanticSha256 -notmatch '^[0-9a-f]{64}$' -or
+        $stagedManifestSemanticSha256 -cne $stagedManifestSemanticSha256.ToLowerInvariant() -or
+        ($hadPrevious -and ($previousManifestSemanticSha256 -notmatch '^[0-9a-f]{64}$' -or
+                $previousManifestSemanticSha256 -cne $previousManifestSemanticSha256.ToLowerInvariant())) -or
+        (-not $hadPrevious -and -not [string]::IsNullOrEmpty($previousManifestSemanticSha256))) {
+        throw 'Package publication journal full-manifest semantic digest contract is invalid; preserving bytes and refusing recovery.'
+    }
     $expectedRecordHash = Get-PackagePublicationRecordHash -Record $Journal
     if ([string]$Journal.recordHash -cne $expectedRecordHash) {
         throw 'Package publication journal record digest does not match its immutable bytes; preserving bytes and refusing recovery.'
@@ -687,6 +990,8 @@ function Assert-PackagePublicationJournalShape {
         ArtifactNames = $artifactNames
         StagedHashes = $stagedHashes
         PreviousHashes = $previousHashes
+        StagedManifestSemanticSha256 = $stagedManifestSemanticSha256
+        PreviousManifestSemanticSha256 = $previousManifestSemanticSha256
         HadPrevious = $hadPrevious
         Phase = [string]$Journal.phase
         OperationId = [string]$Journal.operationId
@@ -713,6 +1018,8 @@ function Get-PackagePublicationImmutableRecord {
         stagedHashes = Get-PackagePublicationMapEntries -Value $Record.stagedHashes -Description 'Package publication staged hash contract'
         previousHashes = Get-PackagePublicationMapEntries -Value $Record.previousHashes -Description 'Package publication previous hash contract'
         inputContract = Get-PackagePublicationInputContract -InputContract $Record.inputContract
+        stagedManifestSemanticSha256 = [string]$Record.stagedManifestSemanticSha256
+        previousManifestSemanticSha256 = [string]$Record.previousManifestSemanticSha256
     }
 }
 
@@ -790,7 +1097,7 @@ function Recover-PackagePublication {
 
     Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
     $names = Get-PackagePublicationNames -OutputRoot $OutputRoot
-    $safeJournalPath = Assert-SafePackageLeafPath -Path $names.JournalPath -Root $PackageRoot -Description 'Package publication journal'
+    $safeJournalPath = Assert-PackagePublicationPathImmediatelyBeforeAccess -PackageRoot $PackageRoot -Path $names.JournalPath -Description 'Package publication journal immediately before recovery read'
     if (-not (Test-Path -LiteralPath $safeJournalPath -PathType Leaf)) {
         $orphanEntries = @(Get-ChildItem -LiteralPath $names.OutputParent -Force | Where-Object {
                 $_.Name.StartsWith("$($names.OutputName).staging.", [System.StringComparison]::OrdinalIgnoreCase) -or
@@ -816,12 +1123,12 @@ function Recover-PackagePublication {
 
     if ($finalPresent) {
         try {
-            Assert-PackageDirectoryHashes -Directory $record.OutputRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.StagedHashes -Description 'Journaled final package set'
+            Assert-PackageDirectoryHashes -Directory $record.OutputRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.StagedHashes -ExpectedManifestSemanticHash $record.StagedManifestSemanticSha256 -Description 'Journaled final package set'
             $finalNew = $true
         } catch {
             if ($record.HadPrevious) {
                 try {
-                    Assert-PackageDirectoryHashes -Directory $record.OutputRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.PreviousHashes -Description 'Journaled prior final package set'
+                    Assert-PackageDirectoryHashes -Directory $record.OutputRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.PreviousHashes -ExpectedManifestSemanticHash $record.PreviousManifestSemanticSha256 -Description 'Journaled prior final package set'
                     $finalOld = $true
                 } catch {
                     throw "Journaled final '$($record.OutputRoot)' is neither the expected new nor prior package set; preserving bytes and refusing recovery: $($_.Exception.Message)"
@@ -832,14 +1139,14 @@ function Recover-PackagePublication {
         }
     }
     if ($stagePresent) {
-        Assert-PackageDirectoryHashes -Directory $record.StagingRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.StagedHashes -Description 'Journaled staged package set'
+        Assert-PackageDirectoryHashes -Directory $record.StagingRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.StagedHashes -ExpectedManifestSemanticHash $record.StagedManifestSemanticSha256 -Description 'Journaled staged package set'
         $stageNew = $true
     }
     if ($backupPresent) {
         if (-not $record.HadPrevious) {
             throw "Journaled backup '$($record.BackupRoot)' exists although no prior final was recorded; preserving bytes and refusing recovery."
         }
-        Assert-PackageDirectoryHashes -Directory $record.BackupRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.PreviousHashes -Description 'Journaled rollback package set'
+        Assert-PackageDirectoryHashes -Directory $record.BackupRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.PreviousHashes -ExpectedManifestSemanticHash $record.PreviousManifestSemanticSha256 -Description 'Journaled rollback package set'
         $backupOld = $true
     }
 
@@ -879,7 +1186,7 @@ function Recover-PackagePublication {
         if ($stageNew) {
             Remove-SafePackagePath -Path $record.StagingRoot -Root $PackageRoot -Description 'Discard aborted package staging after prior restore'
         }
-        Assert-PackageDirectoryHashes -Directory $record.OutputRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.PreviousHashes -Description 'Restored prior package set'
+        Assert-PackageDirectoryHashes -Directory $record.OutputRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.PreviousHashes -ExpectedManifestSemanticHash $record.PreviousManifestSemanticSha256 -Description 'Restored prior package set'
         Remove-SafePackagePath -Path $safeJournalPath -Root $PackageRoot -Description 'Recovered rollback publication journal'
         return
     }
@@ -887,7 +1194,7 @@ function Recover-PackagePublication {
     if ($stageNew -and -not $record.HadPrevious) {
         Assert-HeldPackagePublicationLock -PackageRoot $PackageRoot -LockPath $LockPath -LockStream $LockStream | Out-Null
         Move-SafePackageDirectory -SourcePath $record.StagingRoot -DestinationPath $record.OutputRoot -Root $PackageRoot -Description 'Complete new package publication'
-        Assert-PackageDirectoryHashes -Directory $record.OutputRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.StagedHashes -Description 'Completed new package set'
+        Assert-PackageDirectoryHashes -Directory $record.OutputRoot -PackageRoot $PackageRoot -ExpectedNames $record.ArtifactNames -ExpectedHashes $record.StagedHashes -ExpectedManifestSemanticHash $record.StagedManifestSemanticSha256 -Description 'Completed new package set'
         Remove-SafePackagePath -Path $safeJournalPath -Root $PackageRoot -Description 'Completed new publication journal'
         return
     }
@@ -962,7 +1269,10 @@ function Publish-StagedPackageDirectory {
         [System.IO.FileStream]$LockStream,
 
         [Parameter(Mandatory)]
-        [object]$InputContract
+        [object]$InputContract,
+
+        [Parameter(Mandatory)]
+        [string]$ExpectedManifestSemanticHash
     )
 
     $names = Get-PackagePublicationNames -OutputRoot $OutputRoot
@@ -979,13 +1289,25 @@ function Publish-StagedPackageDirectory {
     }
 
     $stagedHashes = Get-PackageDirectoryHashes -Directory $safeStagingRoot -PackageRoot $PackageRoot -ExpectedNames $ArtifactNames -Description 'Validated staged package set'
-    Assert-PackageManifestBinding -Directory $safeStagingRoot -ExpectedNames $ArtifactNames -Hashes $stagedHashes -Description 'Validated staged package set'
+    $manifestNames = @($ArtifactNames | Where-Object { $_ -like '*.manifest.json' })
+    if ($manifestNames.Count -ne 1) {
+        throw 'Validated staged package set does not contain exactly one manifest for semantic publication binding.'
+    }
+    $stagedManifestSemanticHash = Get-PackageManifestSemanticHashFromFile -Path (Join-Path $safeStagingRoot $manifestNames[0]) -PackageRoot $PackageRoot
+    if ($ExpectedManifestSemanticHash -notmatch '^[0-9a-f]{64}$' -or
+        $ExpectedManifestSemanticHash -cne $ExpectedManifestSemanticHash.ToLowerInvariant() -or
+        $stagedManifestSemanticHash -cne $ExpectedManifestSemanticHash) {
+        throw 'Validated staged package set manifest semantic digest does not match the pre-publication binding.'
+    }
+    Assert-PackageManifestBinding -Directory $safeStagingRoot -ExpectedNames $ArtifactNames -Hashes $stagedHashes -ExpectedManifestSemanticHash $stagedManifestSemanticHash -Description 'Validated staged package set'
     Assert-PackageManifestInputContract -Directory $safeStagingRoot -ExpectedNames $ArtifactNames -ExpectedInputContract $normalizedInputContract -Description 'Validated staged package set'
     $hadPrevious = Test-Path -LiteralPath $safeOutputRoot
     $previousHashes = [ordered]@{}
+    $previousManifestSemanticHash = ''
     if ($hadPrevious) {
         $previousHashes = Get-PackageDirectoryHashes -Directory $safeOutputRoot -PackageRoot $PackageRoot -ExpectedNames $ArtifactNames -Description 'Previously published package set'
-        Assert-PackageManifestBinding -Directory $safeOutputRoot -ExpectedNames $ArtifactNames -Hashes $previousHashes -Description 'Previously published package set'
+        $previousManifestSemanticHash = Get-PackageManifestSemanticHashFromFile -Path (Join-Path $safeOutputRoot $manifestNames[0]) -PackageRoot $PackageRoot
+        Assert-PackageManifestBinding -Directory $safeOutputRoot -ExpectedNames $ArtifactNames -Hashes $previousHashes -ExpectedManifestSemanticHash $previousManifestSemanticHash -Description 'Previously published package set'
     }
     if (Test-Path -LiteralPath $safeBackupRoot) {
         throw "Unique package rollback backup '$safeBackupRoot' already exists; refusing publication."
@@ -1002,6 +1324,8 @@ function Publish-StagedPackageDirectory {
         hadPrevious = $hadPrevious
         stagedHashes = $stagedHashes
         previousHashes = $previousHashes
+        stagedManifestSemanticSha256 = $stagedManifestSemanticHash
+        previousManifestSemanticSha256 = $previousManifestSemanticHash
         inputContract = $normalizedInputContract
     }
 
@@ -1018,7 +1342,7 @@ function Publish-StagedPackageDirectory {
         Move-SafePackageDirectory -SourcePath $safeStagingRoot -DestinationPath $safeOutputRoot -Root $PackageRoot -Description 'Publish staged package'
         $journal.phase = 'staging-moved'
         Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal -LockPath $names.LockPath -LockStream $LockStream
-        Assert-PackageDirectoryHashes -Directory $safeOutputRoot -PackageRoot $PackageRoot -ExpectedNames $ArtifactNames -ExpectedHashes $stagedHashes -Description 'Published package set'
+        Assert-PackageDirectoryHashes -Directory $safeOutputRoot -PackageRoot $PackageRoot -ExpectedNames $ArtifactNames -ExpectedHashes $stagedHashes -ExpectedManifestSemanticHash $stagedManifestSemanticHash -Description 'Published package set'
         $journal.phase = 'final-validated'
         Write-PackagePublicationJournal -PackageRoot $PackageRoot -JournalPath $names.JournalPath -State $journal -LockPath $names.LockPath -LockStream $LockStream
         if ($hadPrevious) {

@@ -145,6 +145,105 @@ function Assert-TrustedInputSnapshot {
     }
 }
 
+function Get-ProductionRustSourceClosure {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Root
+    )
+
+    $fullRoot = [System.IO.Path]::GetFullPath($Root).TrimEnd('\')
+    $initialRoots = @(
+        (Join-Path $fullRoot 'crates\protected-capability-custody-broker'),
+        (Join-Path $fullRoot 'crates\ocentra-protected-capability-custody-provisioner')
+    )
+    $queue = [System.Collections.Generic.Queue[string]]::new()
+    foreach ($initialRoot in $initialRoots) {
+        $queue.Enqueue([System.IO.Path]::GetFullPath($initialRoot).TrimEnd('\'))
+    }
+    $visitedRoots = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $sourceRoots = [System.Collections.Generic.List[string]]::new()
+    $sourcePaths = [System.Collections.Generic.List[string]]::new()
+    $sourcePathSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $includeQueue = [System.Collections.Generic.Queue[string]]::new()
+    $visitedIncludePaths = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    while ($queue.Count -gt 0) {
+        $crateRoot = $queue.Dequeue()
+        if (-not $visitedRoots.Add($crateRoot)) {
+            continue
+        }
+        Assert-PhysicalPackagePathUnderRoot -Path $crateRoot -Root $fullRoot -Description 'Production Rust crate root' | Out-Null
+        Assert-NoPackageReparseChain -Path $crateRoot -Description 'Production Rust crate root'
+        $sourceRoots.Add($crateRoot)
+        $cargoManifest = Join-Path $crateRoot 'Cargo.toml'
+        Assert-TrustedSourcePath -Path $cargoManifest -Root $fullRoot -Description 'Production Rust Cargo manifest' | Out-Null
+        $cargoManifest = [System.IO.Path]::GetFullPath($cargoManifest)
+        if ($sourcePathSet.Add($cargoManifest)) {
+            $sourcePaths.Add($cargoManifest)
+        }
+        $sourceRoot = Join-Path $crateRoot 'src'
+        if (-not (Test-Path -LiteralPath $sourceRoot -PathType Container)) {
+            throw "Production Rust crate '$crateRoot' has no src root; refusing incomplete source provenance."
+        }
+        Assert-NoPackageReparseChain -Path $sourceRoot -Description 'Production Rust source root'
+        $sourceFiles = @(Get-ChildItem -LiteralPath $sourceRoot -File -Recurse | Sort-Object FullName)
+        if ($sourceFiles.Count -eq 0) {
+            throw "Production Rust crate '$crateRoot' has no production source files; refusing incomplete source provenance."
+        }
+        foreach ($sourceFile in $sourceFiles) {
+            Assert-TrustedSourcePath -Path $sourceFile.FullName -Root $fullRoot -Description 'Production Rust source asset' | Out-Null
+            $sourcePath = [System.IO.Path]::GetFullPath($sourceFile.FullName)
+            if ($sourcePathSet.Add($sourcePath)) {
+                $sourcePaths.Add($sourcePath)
+            }
+            if ([System.IO.Path]::GetExtension($sourcePath) -ceq '.rs') {
+                $includeQueue.Enqueue($sourcePath)
+            }
+        }
+        # Cargo build scripts and explicitly configured root Rust entrypoints
+        # also affect production bytes but live outside src/. Include every
+        # regular root-level Rust source file so those inputs cannot drift
+        # outside the anchored provenance set.
+        foreach ($rootRustFile in @(Get-ChildItem -LiteralPath $crateRoot -File -Filter '*.rs' | Sort-Object FullName)) {
+            Assert-TrustedSourcePath -Path $rootRustFile.FullName -Root $fullRoot -Description 'Production Rust root source' | Out-Null
+            $sourcePath = [System.IO.Path]::GetFullPath($rootRustFile.FullName)
+            if ($sourcePathSet.Add($sourcePath)) {
+                $sourcePaths.Add($sourcePath)
+            }
+            $includeQueue.Enqueue($sourcePath)
+        }
+        $manifestText = [System.IO.File]::ReadAllText($cargoManifest)
+        foreach ($dependencyMatch in [System.Text.RegularExpressions.Regex]::Matches($manifestText, '(?m)^[ \t]*[^#\[][^=\r\n]*=\s*\{[^}]*?path\s*=\s*"(?<relative>[^\"]+)"')) {
+                $dependencyRoot = [System.IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $cargoManifest) $dependencyMatch.Groups['relative'].Value)).TrimEnd('\')
+                Assert-PhysicalPackagePathUnderRoot -Path $dependencyRoot -Root $fullRoot -Description 'Production Rust path dependency root' | Out-Null
+                $queue.Enqueue($dependencyRoot)
+        }
+    }
+    while ($includeQueue.Count -gt 0) {
+        $sourcePath = $includeQueue.Dequeue()
+        if (-not $visitedIncludePaths.Add($sourcePath)) {
+            continue
+        }
+        $sourceText = [System.IO.File]::ReadAllText($sourcePath)
+        foreach ($includeMatch in [System.Text.RegularExpressions.Regex]::Matches($sourceText, '(?s)include(?:_str|_bytes)?!\s*\(\s*"(?<relative>[^"]+)"')) {
+            $includedPath = [System.IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $sourcePath) $includeMatch.Groups['relative'].Value))
+            Assert-TrustedSourcePath -Path $includedPath -Root $fullRoot -Description 'Production Rust compile-time included asset' | Out-Null
+            if ($sourcePathSet.Add($includedPath)) {
+                $sourcePaths.Add($includedPath)
+            }
+            if ([System.IO.Path]::GetExtension($includedPath) -ceq '.rs') {
+                $includeQueue.Enqueue($includedPath)
+            }
+        }
+    }
+    if ($visitedRoots.Count -eq 0) {
+        throw 'Production Rust source closure is empty; refusing unverifiable package inputs.'
+    }
+    return [pscustomobject]@{
+        Roots = @($sourceRoots | Sort-Object)
+        Paths = @($sourcePaths | Sort-Object)
+    }
+}
+
 . (Join-Path $helperRoot 'package-inputs.ps1')
 . (Join-Path $helperRoot 'package-path-safety.ps1')
 . (Join-Path $helperRoot 'package-publication.ps1')
@@ -214,9 +313,15 @@ try {
     $nodeCommand = Register-TrustedCommand -Command 'node'
     Assert-TrustedSourceSnapshot
     $cargoManifestPath = Join-Path $repoRoot 'Cargo.toml'
+    $cargoLockPath = Join-Path $repoRoot 'Cargo.lock'
     $dotnetToolManifestPath = Join-Path $repoRoot '.config\dotnet-tools.json'
     $versionScriptPath = Join-Path $repoRoot 'scripts\release\validate-version.mjs'
-    $anchoredInputPaths = @($cargoManifestPath, $dotnetToolManifestPath, $versionScriptPath)
+    $productionRustSourceClosure = Get-ProductionRustSourceClosure -Root $repoRoot
+    $productionRustSourcePaths = @($productionRustSourceClosure.Paths)
+    $productionRustSourceRoots = @($productionRustSourceClosure.Roots | ForEach-Object {
+            [System.IO.Path]::GetRelativePath($repoRoot, $_).Replace('\', '/')
+        })
+    $anchoredInputPaths = @($cargoManifestPath, $cargoLockPath, $dotnetToolManifestPath, $versionScriptPath) + $productionRustSourcePaths
     foreach ($anchoredInput in $anchoredInputPaths) {
         if (-not (Test-Path -LiteralPath $anchoredInput -PathType Leaf)) {
             throw "Required repository-anchored input '$anchoredInput' is absent; refusing to package."
@@ -330,6 +435,7 @@ try {
         ) -FailureMessage 'Pinned WiX dotnet tool restore failed'
 
         Install-ExactWixUtilExtension -DotnetCommand $dotnetCommand
+        $toolchainProvenance = Get-WixToolchainProvenance -DotnetCommand $dotnetCommand -RepoRoot $repoRoot
 
         function Invoke-WixCandidateBuild {
             param(
@@ -337,7 +443,11 @@ try {
                 [string]$CandidateMsiPath,
 
                 [Parameter(Mandatory)]
-                [string]$CandidateIntermediatePath
+                [string]$CandidateIntermediatePath,
+
+                [Parameter()]
+                [AllowNull()]
+                [string]$ExpectedUtilBinaryHash
             )
 
             New-SafePackageDirectory -Path $CandidateIntermediatePath -Root $packageRoot -Description 'WiX candidate intermediate' | Out-Null
@@ -385,16 +495,25 @@ try {
                 ExpectedRegistryId = $registryId
                 BrokerBinaryPath = $brokerBinaryPath
                 ProvisionerBinaryPath = $provisionerBinaryPath
+                ExpectedUtilBinaryHash = $ExpectedUtilBinaryHash
                 PackageRoot = $packageRoot
             }
-            Assert-MsiCandidate @candidateValidationArguments
+            return Assert-MsiCandidate @candidateValidationArguments
         }
 
         # Build twice with isolated intermediates and compare every byte. MSI
         # success is not package readiness; all fixed table, boundary, and
         # payload checks must pass before publication.
-        Invoke-WixCandidateBuild -CandidateMsiPath $firstMsiPath -CandidateIntermediatePath $firstIntermediatePath
-        Invoke-WixCandidateBuild -CandidateMsiPath $secondMsiPath -CandidateIntermediatePath $secondIntermediatePath
+        $firstCandidateValidation = Invoke-WixCandidateBuild -CandidateMsiPath $firstMsiPath -CandidateIntermediatePath $firstIntermediatePath
+        $firstUtilBinaryHash = [string]$firstCandidateValidation.BinaryContentHashes.Wix4UtilCA_X64
+        if ($firstUtilBinaryHash -notmatch '^[0-9a-f]{64}$' -or $firstUtilBinaryHash -cne $firstUtilBinaryHash.ToLowerInvariant()) {
+            throw 'First WiX candidate did not return a canonical WiX Util custom-action payload hash.'
+        }
+        $secondCandidateValidation = Invoke-WixCandidateBuild -CandidateMsiPath $secondMsiPath -CandidateIntermediatePath $secondIntermediatePath -ExpectedUtilBinaryHash $firstUtilBinaryHash
+        $secondUtilBinaryHash = [string]$secondCandidateValidation.BinaryContentHashes.Wix4UtilCA_X64
+        if ($secondUtilBinaryHash -cne $firstUtilBinaryHash) {
+            throw "Repeated WiX candidate custom-action payload hash '$secondUtilBinaryHash' differs from the first candidate hash '$firstUtilBinaryHash'."
+        }
         Assert-ByteIdentical -LeftPath $firstMsiPath -RightPath $secondMsiPath
         $firstMsiHash = Get-Sha256Hex -Path $firstMsiPath
         $secondMsiHash = Get-Sha256Hex -Path $secondMsiPath
@@ -415,9 +534,14 @@ try {
             ExpectedRegistryId = $registryId
             BrokerBinaryPath = $brokerBinaryPath
             ProvisionerBinaryPath = $provisionerBinaryPath
+            ExpectedUtilBinaryHash = $firstUtilBinaryHash
             PackageRoot = $packageRoot
         }
-        Assert-MsiCandidate @finalValidationArguments
+        $finalCandidateValidation = Assert-MsiCandidate @finalValidationArguments
+        $finalUtilBinaryHash = [string]$finalCandidateValidation.BinaryContentHashes.Wix4UtilCA_X64
+        if ($finalUtilBinaryHash -cne $firstUtilBinaryHash) {
+            throw "Final WiX candidate custom-action payload hash '$finalUtilBinaryHash' differs from the first candidate hash '$firstUtilBinaryHash'."
+        }
         $msiHash = Get-Sha256Hex -Path $msiPath
         if ($msiHash -cne $firstMsiHash) {
             throw "Published MSI SHA-256 '$msiHash' differs from the validated repeat-build SHA-256 '$firstMsiHash'."
@@ -433,6 +557,7 @@ try {
                 sourceHashes = $trustedSourceSnapshot
                 anchoredInputHashes = $trustedInputSnapshot
                 commandFingerprints = $trustedCommandSnapshot
+                toolchainProvenance = $toolchainProvenance
             })
 
         $manifest = [ordered]@{
@@ -451,7 +576,7 @@ try {
                 repeatSha256 = $firstMsiHash
             }
             publicationIntegrity = [ordered]@{
-                journalSchema = 'append-only schema-v3 records with exact operation/artifact/input contract, sequence, previous-record digest, and legal monotonic phases'
+                journalSchema = 'append-only schema-v4 records with exact operation/artifact/input/full-manifest semantic contract, sequence, previous-record digest, and legal monotonic phases'
                 exclusiveLock = 'publication and recovery require the exact live FileShare.None lock handle; arbitrary readable streams are rejected'
                 trustLimitation = 'The unkeyed journal and artifact SHA-256 chain detects torn or accidental drift under the cooperating lock; a hostile same-build-user can rewrite bytes and recompute it without an external signing key, so authenticity remains an external signing/owner decision.'
             }
@@ -511,8 +636,16 @@ try {
                 wixExtensionHelperSha256 = $wixExtensionHelperHash
                 msiContractHelper = 'scripts/release/windows/parent-protected-custody/msi-contract.ps1'
                 msiContractHelperSha256 = $msiContractHelperHash
+                productionRustSourceScope = 'Every Cargo.toml, crate-root Rust source/build script, regular production src/** file, and plain compile-time include asset under the local path-dependency closure of the fixed broker and provisioner packages is hashed in inputIntegrity; registry sources remain externally resolved and are constrained by Cargo.lock.'
+                productionRustSourceRoots = $productionRustSourceRoots
+            }
+            manifestIntegrity = [ordered]@{
+                schema = 'canonical-json-v1'
+                semanticSha256 = ''
             }
         }
+        $manifestSemanticHash = Get-PackageManifestSemanticHash -Manifest $manifest
+        $manifest.manifestIntegrity.semanticSha256 = $manifestSemanticHash
         Write-DeterministicJson -Path $manifestPath -Value $manifest -Root $packageRoot
         Assert-NonEmptyFile -Path $manifestPath -Root $packageRoot -Description 'Generated package manifest'
         $manifestText = [System.IO.File]::ReadAllText($manifestPath)
@@ -533,6 +666,11 @@ try {
             throw 'Generated package checksum does not exactly bind the validated staged MSI.'
         }
         $manifestRecord = $manifestText | ConvertFrom-Json
+        $manifestSemanticHashFromFile = Get-PackageManifestSemanticHash -Manifest $manifestRecord
+        if ($manifestSemanticHashFromFile -cne $manifestSemanticHash -or
+            [string]$manifestRecord.manifestIntegrity.semanticSha256 -cne $manifestSemanticHash) {
+            throw 'Generated package manifest semantic digest does not bind its exact canonical full-manifest bytes.'
+        }
         if ([string]$manifestRecord.artifact.file -cne $msiFileName -or
             [string]$manifestRecord.artifact.sha256 -cne $msiHash -or
             [string]$manifestRecord.artifact.checksumFile -cne $checksumFileName) {
@@ -544,6 +682,7 @@ try {
         Assert-TrustedSourceSnapshot
         Assert-TrustedInputSnapshot -ExpectedSnapshot $trustedInputSnapshot -Paths $anchoredInputPaths
         Assert-TrustedCommandSnapshot -ExpectedSnapshot $trustedCommandSnapshot
+        Assert-WixToolchainProvenanceSnapshot -Expected $toolchainProvenance -DotnetCommand $dotnetCommand -RepoRoot $repoRoot
         if ((Get-Sha256Hex -Path $brokerBinaryPath) -cne $brokerHash -or
             (Get-Sha256Hex -Path $provisionerBinaryPath) -cne $provisionerHash) {
             throw 'A protected custody release binary changed after validation; refusing publication.'
@@ -554,13 +693,18 @@ try {
                 sourceHashes = $trustedSourceSnapshot
                 anchoredInputHashes = $trustedInputSnapshot
                 commandFingerprints = Get-TrustedCommandSnapshot
+                toolchainProvenance = $toolchainProvenance
             })
         $expectedContractJson = $publicationInputContract | ConvertTo-Json -Depth 32 -Compress
         $currentContractJson = $currentPublicationInputContract | ConvertTo-Json -Depth 32 -Compress
         if ($expectedContractJson -cne $currentContractJson) {
             throw 'Package inputs, helper sources, or tool fingerprints changed immediately before publication; refusing to publish drifted bytes.'
         }
-        Publish-StagedPackageDirectory -PackageRoot $packageRoot -OutputRoot $outputRoot -StagingRoot $stagingRoot -BackupRoot $backupRoot -ArtifactNames $artifactNames -LockStream $publicationLayout.LockStream -InputContract $publicationInputContract | Out-Null
+        $manifestSemanticHashBeforePublication = Get-PackageManifestSemanticHashFromFile -Path $manifestPath -PackageRoot $packageRoot
+        if ($manifestSemanticHashBeforePublication -cne $manifestSemanticHash) {
+            throw 'Package manifest semantic digest changed immediately before publication; refusing to publish drifted bytes.'
+        }
+        Publish-StagedPackageDirectory -PackageRoot $packageRoot -OutputRoot $outputRoot -StagingRoot $stagingRoot -BackupRoot $backupRoot -ArtifactNames $artifactNames -LockStream $publicationLayout.LockStream -InputContract $publicationInputContract -ExpectedManifestSemanticHash $manifestSemanticHash | Out-Null
         Assert-TrustedSourceSnapshot
         $msiPath = Join-Path $outputRoot $msiFileName
         $checksumPath = Join-Path $outputRoot $checksumFileName
