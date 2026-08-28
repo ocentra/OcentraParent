@@ -20,3 +20,7 @@ zeroize = "1.8.2"
 [[test]]
 name = "contract"
 path = "tests/contract/bootstrap.rs"
+
+[[test]]
+name = "wire_contract"
+path = "tests/contract/wire_contract.rs"

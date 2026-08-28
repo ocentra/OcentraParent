@@ -25,6 +25,11 @@ mod transition;
 mod windows;
 mod writer;
 
+#[cfg(test)]
+mod tpm_nv_counter_test;
+#[cfg(test)]
+mod windows_adapter_test;
+
 #[cfg(windows)]
 pub(super) type BrokerWindowsRuntime = windows::WindowsCustodyRuntime;
 

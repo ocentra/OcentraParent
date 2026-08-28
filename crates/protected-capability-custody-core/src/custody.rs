@@ -5,6 +5,9 @@ mod recover;
 mod scope;
 mod support;
 
+#[cfg(test)]
+mod custody_reconciliation_test;
+
 use std::fmt;
 use std::sync::{Arc, Mutex};
 

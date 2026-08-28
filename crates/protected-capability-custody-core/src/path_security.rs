@@ -12,6 +12,9 @@ pub(crate) mod journal_identity;
 mod platform;
 mod validation;
 
+#[cfg(test)]
+mod path_security_test;
+
 pub(crate) struct PendingSecuredPath {
     canonical: PathBuf,
     file_handle: Handle,

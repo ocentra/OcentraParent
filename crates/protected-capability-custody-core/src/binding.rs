@@ -9,6 +9,9 @@ mod decode;
 mod validation;
 mod values;
 
+#[cfg(test)]
+mod binding_test;
+
 const LOCATOR_MAGIC: [u8; 4] = *b"OCPL";
 const BINDING_MAGIC: [u8; 4] = *b"OCPC";
 pub(crate) const BINDING_VERSION: u16 = 2;

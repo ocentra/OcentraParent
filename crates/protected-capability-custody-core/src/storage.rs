@@ -9,6 +9,11 @@ mod configuration;
 mod record;
 mod schema;
 
+#[cfg(test)]
+mod custody_transition_test;
+#[cfg(test)]
+mod storage_schema_test;
+
 pub(crate) const TABLE_NAME: &str = "protected_capability_custody_records";
 pub(crate) const METADATA_TABLE_NAME: &str = "protected_capability_custody_metadata";
 
