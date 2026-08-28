@@ -68,8 +68,8 @@ fn validate_common_response(
     if !snapshot.status.accepts_parent_response() {
         return invalid_transition("terminal approval state rejects another parent response");
     }
-    if event.occurred_at_epoch_ms > snapshot.request.expires_at_epoch_ms {
-        return invalid_transition("parent response arrived after request expiry");
+    if event.occurred_at_epoch_ms >= snapshot.request.expires_at_epoch_ms {
+        return invalid_transition("parent response arrived at or after request expiry");
     }
     require_text(actor_ref, "app_game.unknown_approval.actor_ref")?;
     require_text(audit_ref, "app_game.unknown_approval.audit_ref")?;

@@ -161,6 +161,21 @@ async fn expiry_survives_replay_and_rejects_late_parent_response(
     let _cleanup = JournalCleanup(path.clone());
     let journal = NdjsonEventJournal::new(path.clone());
     open_request(&journal, "request-3").await?;
+    let mut at_expiry = response_input(
+        "request-3",
+        "response-at-expiry-3",
+        AppGameUnknownParentResponse::Deny,
+        AppGameUnknownAdapterCapabilityState::Unproven,
+    );
+    at_expiry.occurred_at_epoch_ms = REQUEST_EXPIRES_AT;
+    let at_expiry_response = persist_app_game_unknown_parent_response(
+        &journal,
+        metadata("event-response-at-expiry-3", "correlation-3")?,
+        at_expiry,
+    )
+    .await;
+    assert_invalid_transition(&at_expiry_response);
+
     let expired = persist_app_game_unknown_approval_expiry(
         &journal,
         metadata("event-expiry-3", "correlation-3")?,
