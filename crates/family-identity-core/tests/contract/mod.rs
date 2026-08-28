@@ -1,3 +1,4 @@
 mod device_trust_lifecycle;
 mod family_identity_contracts;
 mod household_authority_handoff;
+mod recovery_data_custody_handoff;

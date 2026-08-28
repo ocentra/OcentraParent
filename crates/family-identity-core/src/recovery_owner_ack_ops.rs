@@ -267,3 +267,134 @@ fn hex_digest(value: &str) -> bool {
             .bytes()
             .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::recovery_lifecycle::RecoveryCustodyHandoff;
+    use ocentra_schema::account_identity_authority::{
+        AccountIdentityDeviceId, AccountIdentityMemberId,
+    };
+    use ocentra_schema::report_query_custody::{FamilyId, ParentAccountId};
+
+    fn delivery_attempt() -> RecoveryHandoffDeliveryAttempt {
+        let recovery_id = RecoveryId::parse("recovery-1").expect("recovery id");
+        let handoff = RecoveryCustodyHandoff::from_durable(
+            "handoff-1".to_owned(),
+            "correlation-1".to_owned(),
+            recovery_id,
+            FamilyId::parse("household-1").expect("household id"),
+            ParentAccountId::parse("account-1").expect("account id"),
+            AccountIdentityMemberId::parse("member-1").expect("member id"),
+            AccountIdentityDeviceId::parse("device-1").expect("device id"),
+            RecoveryKind::ForgotLogin,
+            "2026-08-28T00:00:00.000Z".to_owned(),
+        );
+        RecoveryHandoffDeliveryAttempt {
+            handoff,
+            attempt_id: "attempt-1".to_owned(),
+            lease_expires_at: "2026-08-28T00:05:00.000Z".to_owned(),
+        }
+    }
+
+    #[test]
+    fn owner_receipt_digest_requires_lowercase_sha256_shape() {
+        assert!(hex_digest(&"a".repeat(64)));
+        assert!(hex_digest(&"0123456789abcdef".repeat(4)));
+        assert!(!hex_digest(&"A".repeat(64)));
+        assert!(!hex_digest(&"0".repeat(63)));
+        assert!(!hex_digest(&format!("{}g", "0".repeat(63))));
+    }
+
+    #[test]
+    fn owner_receipt_input_binds_every_attempt_identity() {
+        let attempt = delivery_attempt();
+        let recovery_id = attempt.handoff.recovery_id().clone();
+        let receipt_digest = "a".repeat(64);
+
+        assert!(validate_owner_receipt_input(
+            &attempt,
+            "handoff-1",
+            "correlation-1",
+            &recovery_id,
+            "attempt-1",
+            "transition-1",
+            &receipt_digest,
+        )
+        .is_ok());
+
+        assert!(matches!(
+            validate_owner_receipt_input(
+                &attempt,
+                "other-handoff",
+                "correlation-1",
+                &recovery_id,
+                "attempt-1",
+                "transition-1",
+                &receipt_digest,
+            ),
+            Err(InviteRecoveryRepositoryError::HandoffConflict)
+        ));
+        assert!(matches!(
+            validate_owner_receipt_input(
+                &attempt,
+                "handoff-1",
+                "other-correlation",
+                &recovery_id,
+                "attempt-1",
+                "transition-1",
+                &receipt_digest,
+            ),
+            Err(InviteRecoveryRepositoryError::HandoffConflict)
+        ));
+        let other_recovery_id = RecoveryId::parse("recovery-2").expect("recovery id");
+        assert!(matches!(
+            validate_owner_receipt_input(
+                &attempt,
+                "handoff-1",
+                "correlation-1",
+                &other_recovery_id,
+                "attempt-1",
+                "transition-1",
+                &receipt_digest,
+            ),
+            Err(InviteRecoveryRepositoryError::HandoffConflict)
+        ));
+        assert!(matches!(
+            validate_owner_receipt_input(
+                &attempt,
+                "handoff-1",
+                "correlation-1",
+                &recovery_id,
+                "other-attempt",
+                "transition-1",
+                &receipt_digest,
+            ),
+            Err(InviteRecoveryRepositoryError::HandoffConflict)
+        ));
+        assert!(matches!(
+            validate_owner_receipt_input(
+                &attempt,
+                "handoff-1",
+                "correlation-1",
+                &recovery_id,
+                "attempt-1",
+                " ",
+                &receipt_digest,
+            ),
+            Err(InviteRecoveryRepositoryError::HandoffConflict)
+        ));
+        assert!(matches!(
+            validate_owner_receipt_input(
+                &attempt,
+                "handoff-1",
+                "correlation-1",
+                &recovery_id,
+                "attempt-1",
+                "transition-1",
+                &"A".repeat(64),
+            ),
+            Err(InviteRecoveryRepositoryError::HandoffConflict)
+        ));
+    }
+}

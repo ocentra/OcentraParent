@@ -40,3 +40,7 @@ path = "tests/unit/mod.rs"
 [[test]]
 name = "contract"
 path = "tests/contract/mod.rs"
+
+[[test]]
+name = "integration"
+path = "tests/integration/invite_recovery_repository.rs"
