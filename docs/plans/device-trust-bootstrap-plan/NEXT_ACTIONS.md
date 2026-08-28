@@ -63,6 +63,15 @@ to WP03.
 5. Re-open WP05 and WP07 around real trust binding and parent-controlled uninstall/tamper execution instead of contract-only frontage. WP07 has a code-drafted local evidence/manual-required boundary; platform removal, attestation, transport, tests, and proof remain open.
 6. After source is complete, write the full expected-test delta for WP01/WP05/WP06/WP07, then run focused crate/domain validation and Enforcer. Proof remains a later phase under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`.
 
+WP02 source/test checkpoint (2026-08-28): canonical `22815871c` now bounds
+Windows custody recovery scans, rejects unsafe filesystem entries, validates
+sealed filename/generation bindings, and contains real DPAPI-context plus
+staged-handle replay/restart negative test source. Do not run or promote those
+tests during the repository-wide code-writing phase. The next WP02 production
+step is still external-owner composition: an authenticated ceremony issuer and
+custody-to-lifecycle caller. Do not replace either with a fixture, caller-held
+authority, or synthetic platform adapter.
+
 ## Accepted source checkpoint (2026-08-17; superseded for WP01 by `f5974c795`)
 
 The independently accepted Device Trust branch `914d06b6a` is integrated

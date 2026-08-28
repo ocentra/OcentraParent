@@ -10769,6 +10769,25 @@
       ]
     },
     {
+      "id": "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+      "implementation": [
+        "crates/storage-custody-core/src/windows_device_trust_custody.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_active_record_scan.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_generation.rs",
+        "crates/storage-custody-core/src/windows_dpapi_key_sealing.rs",
+        "crates/family-identity-core/src/trust_bootstrap/current_authority.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_activation.rs",
+        "crates/parent-runtime-core/src/device_trust_bootstrap_runtime.rs",
+        "apps/parent-desktop/src-tauri/src/lib.rs"
+      ],
+      "reason": "Independent source review accepts the bounded Windows custody repair integrated at 22815871c: recovery enumeration is size/count/reparse bounded, active-record filenames and sealed generation anchors are validated, and real DPAPI-context plus staged-handle replay/restart negative test source exists. Tests have not run in this code-first phase. The authenticated ceremony issuer, custody-to-lifecycle production caller, non-Windows platform stores, proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
       "implementation": [
         "crates/schema/src/account_identity_authority_producer.rs",

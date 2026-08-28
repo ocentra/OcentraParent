@@ -110,13 +110,22 @@ defines an opaque authorization consumer, but no production custody caller
 supplies it. Caller-provided identifiers, synthetic probes, typed receipts,
 or a local staged-handle cache cannot create that missing authority.
 
-The existing Windows custody/lifecycle test files are stale against this
-unavailable boundary and are retained only as migration references. They must
-not be presented as current DPAPI, lifecycle-activation, desktop-dispatch, or
-end-to-end revocation proof. The plan-local route test remains document
-alignment coverage only. A future selected platform route must first provide a
-real authenticated ceremony issuer, desktop/native mount, startup composition,
-and current lifecycle authority before writing fresh platform proof.
+Canonical `22815871c` hardens the bounded source slice without changing that
+authority boundary. Startup recovery now caps directory entries and record
+bytes, rejects reparse/non-file custody entries, verifies the sealed filename
+against the decoded identity/generation binding, and rejects malformed sealed
+generation anchors. Real test source now covers DPAPI context validation and
+redaction plus staged-handle replay and restart-cache loss. Those tests are
+written but deliberately unexecuted in the repository-wide code-first phase.
+
+Older Windows custody/lifecycle test files remain stale against the unavailable
+authority boundary and are retained only as migration references. Neither they
+nor the new bounded negatives may be presented as lifecycle activation,
+desktop dispatch, end-to-end platform sealing, or revocation proof. The
+plan-local route test remains document alignment coverage only. A future
+selected platform route must first provide a real authenticated ceremony
+issuer, desktop/native mount, startup composition, and current lifecycle
+authority before writing fresh platform proof.
 
 ## Downstream composition route
 

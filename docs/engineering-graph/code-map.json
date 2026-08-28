@@ -3695,8 +3695,10 @@
         "crates/parent-runtime-core/src/device_trust_bootstrap_runtime.rs",
         "crates/parent-runtime-core/src/device_trust_bootstrap_runtime_status.rs",
         "apps/parent-desktop/src-tauri/src/lib.rs",
+        "crates/parent-runtime-core/tests/integration/device_trust_bootstrap_runtime.rs",
         "tests/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs"
-      ]
+      ],
+      "note": "Reviewed source at canonical 22815871c bounds Windows active-record recovery scans, rejects reparse/non-file/oversize custody entries, binds sealed filenames and generation anchors, and adds real DPAPI-context plus staged-handle replay/restart negatives. No test has run in the code-first phase. Authenticated ceremony issuance, custody-to-lifecycle production composition, non-Windows platform custody, proof, CI, and DONE remain open."
     },
     "WP-device-trust-bootstrap-plan-03-parent-step-up-auth": {
       "planSlug": "device-trust-bootstrap-plan",

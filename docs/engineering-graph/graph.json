@@ -19264,7 +19264,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / Windows custody source with desktop mount; downstream of WP01",
+        "statusText": "partial / Windows custody source hardened; real negative tests written but unexecuted; downstream of WP01",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -19277,14 +19277,32 @@
             "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md"
           ],
           "reason": "Wave-0 dependency review records direct graph routing only; it does not promote implementation, tests, proof, READY, or DONE."
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent source review accepts the bounded Windows custody repair integrated at 22815871c: recovery enumeration is size/count/reparse bounded, active-record filenames and sealed generation anchors are validated, and real DPAPI-context plus staged-handle replay/restart negative test source exists. Tests have not run in this code-first phase. The authenticated ceremony issuer, custody-to-lifecycle production caller, non-Windows platform stores, proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+          "evidence": [
+            "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md"
+            "crates/storage-custody-core/src/windows_device_trust_custody.rs",
+            "crates/storage-custody-core/src/windows_device_trust_custody_active_record_scan.rs",
+            "crates/storage-custody-core/src/windows_device_trust_custody_generation.rs",
+            "crates/storage-custody-core/src/windows_dpapi_key_sealing.rs",
+            "crates/family-identity-core/src/trust_bootstrap/current_authority.rs",
+            "crates/family-identity-core/src/device_trust_lifecycle_activation.rs",
+            "crates/parent-runtime-core/src/device_trust_bootstrap_runtime.rs",
+            "apps/parent-desktop/src-tauri/src/lib.rs"
           ],
           "tests": [
             "docs/plans/device-trust-bootstrap-plan/TEST_PROOF_EXPECTATIONS.md"
