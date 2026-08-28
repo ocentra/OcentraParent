@@ -1,5 +1,23 @@
 # Cloudflare Control Plane Plan State
 
+## WP03 code-and-test-source checkpoint — 2026-08-28
+
+- Canonical `61c98efa8` retains the reviewed Worker guard chain: environment
+  validation, origin rejection before successful OPTIONS handling, request
+  framing and size rejection, route and kill-switch gates, auth-boundary
+  validation, safe handler failures, and scheduled reconciliation failure
+  logging.
+- Guard outcomes use the existing structured logger with redacted fields.
+  Provider credential identifiers and key references are included in the
+  redaction boundary; no raw provider secret or child-data payload is added.
+- All ten graph-mapped implementation/test roots are present, including the
+  real missing-environment, CORS preflight, and provider-identifier redaction
+  cases added in this packet. No mock dispatch, fake authority, or success
+  fallback was added.
+- None of the WP03 tests has been executed in this code-first phase. Scheduled
+  runtime behavior, retained proof, deployment, consumer runtime, CI, READY,
+  and DONE remain open.
+
 ## WP04 source integration checkpoint — 2026-08-25
 
 The route-manifest source is integrated in the canonical consolidation through

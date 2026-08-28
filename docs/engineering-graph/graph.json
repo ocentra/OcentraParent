@@ -17739,11 +17739,11 @@
         "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings"
       ],
       "state": "blocked",
-      "lifecycleState": "planned",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "source-present / retained-proof-absent",
+        "statusText": "Validation — completion contract gaps: tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -17758,14 +17758,32 @@
             "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md"
           ],
           "reason": "WP03 owns the shared Worker entrypoint and runtime guard chain, so its source-order boundary consumes the Cloudflare module scaffold and Wrangler environment/binding configuration before dispatch claims."
-        }
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent review accepted the complete fail-fast Worker guard chain, CORS validation before successful OPTIONS handling, redacted structured guard and scheduled-reconciliation logging, and provider credential identifier redaction. Canonical 61c98efa8 contains the mapped real missing-environment, CORS preflight, and redaction test additions, while the remaining mapped guard tests already exist; none was executed in this code-first phase. Scheduled runtime behavior, retained proof, deployment, consumer runtime, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+          "evidence": [
+            "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
+        },
+        "completionGaps": [
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "code-and-test-source complete / execution-and-proof open"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md"
+            "infra/cloudflare/src/index.ts",
+            "infra/cloudflare/src/env.ts",
+            "infra/cloudflare/src/security/redaction.ts"
           ],
           "tests": [
             "docs/plans/cloudflare-control-plane-plan/TEST_PROOF_EXPECTATIONS.md"

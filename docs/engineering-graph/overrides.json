@@ -10205,6 +10205,19 @@
       ]
     },
     {
+      "id": "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards",
+      "implementation": [
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/src/security/redaction.ts"
+      ],
+      "reason": "Independent review accepted the complete fail-fast Worker guard chain, CORS validation before successful OPTIONS handling, redacted structured guard and scheduled-reconciliation logging, and provider credential identifier redaction. Canonical 61c98efa8 contains the mapped real missing-environment, CORS preflight, and redaction test additions, while the remaining mapped guard tests already exist; none was executed in this code-first phase. Scheduled runtime behavior, retained proof, deployment, consumer runtime, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/03-worker-entrypoint-runtime-guards.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-data-custody-storage-plan-01-custody-source-of-truth",
       "implementation": [
         "crates/schema/src/data_custody_source_of_truth.rs",
