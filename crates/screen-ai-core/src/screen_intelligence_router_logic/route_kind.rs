@@ -8,6 +8,9 @@ use crate::screen_intelligence_router_logic::consistency;
 pub(super) fn route_kind_for(
     request: &ScreenIntelligenceRouteRequest,
 ) -> ScreenIntelligenceRouteKind {
+    if !consistency::screen_intelligence_route_request_is_consistent(request) {
+        return ScreenIntelligenceRouteKind::Unavailable;
+    }
     if consistency::screen_capture_is_unsafe(request) {
         return ScreenIntelligenceRouteKind::Unavailable;
     }
@@ -39,6 +42,13 @@ pub(super) fn route_kind_for(
         return ScreenIntelligenceRouteKind::Unavailable;
     }
     if !request.parent_allows_screen_capture {
+        return ScreenIntelligenceRouteKind::ManualRequired;
+    }
+    if matches!(
+        request.source_kind,
+        ScreenIntelligenceSourceKind::NetworkOrSessionSummary
+            | ScreenIntelligenceSourceKind::ScreenAdjacentEvidence
+    ) {
         return ScreenIntelligenceRouteKind::ManualRequired;
     }
     match preferred_capture_scope(&request.allowed_capture_scopes) {

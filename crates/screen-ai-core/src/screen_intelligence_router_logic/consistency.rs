@@ -45,9 +45,20 @@ pub(super) fn screen_capture_is_unsafe(value: &ScreenIntelligenceRouteRequest) -
 pub(super) fn screen_intelligence_route_request_is_consistent(
     value: &ScreenIntelligenceRouteRequest,
 ) -> bool {
-    !value
-        .allowed_capture_scopes
-        .contains(&ScreenCaptureScope::FullScreen)
+    value.schema_version
+        == crate::screen_intelligence_router::SCREEN_INTELLIGENCE_ROUTER_SCHEMA_VERSION
+        && !value.request_id.trim().is_empty()
+        && !value.requested_at.trim().is_empty()
+        && !value.device_ref.trim().is_empty()
+        && !value.capture_reason.trim().is_empty()
+        && !value.policy_question.trim().is_empty()
+        && !value
+            .allowed_capture_scopes
+            .contains(&ScreenCaptureScope::FullScreen)
+        && redacted_evidence_refs_are_consistent(&value.existing_evidence_refs)
+        && (value.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
+            || (!value.parent_allows_managed_browser_structured_extraction
+                && value.structured_extraction.is_none()))
         && value
             .structured_extraction
             .as_ref()
@@ -55,6 +66,17 @@ pub(super) fn screen_intelligence_route_request_is_consistent(
                 value.source_kind == ScreenIntelligenceSourceKind::ManagedBrowser
                     && extraction_consistency::is_consistent(extraction)
             })
+}
+
+fn redacted_evidence_refs_are_consistent(
+    value: &[crate::screen_intelligence_router::ActivityEvidenceRef],
+) -> bool {
+    value.iter().all(|reference| {
+        !reference.evidence_id.trim().is_empty()
+            && !reference.kind.trim().is_empty()
+            && !reference.digest.trim().is_empty()
+            && reference.uri.is_none()
+    })
 }
 
 pub(super) fn screen_intelligence_route_decision_is_consistent(

@@ -39,7 +39,9 @@ pub(super) fn plan_screen_intelligence_route(
         ),
         policy_question: request.policy_question.clone(),
         policy_sensitivity: request.policy_sensitivity.clone(),
-        evidence_refs: if matches!(
+        evidence_refs: if route_kind == ScreenIntelligenceRouteKind::Unavailable {
+            Vec::new()
+        } else if matches!(
             &route_kind,
             ScreenIntelligenceRouteKind::NoScreenNeeded
                 | ScreenIntelligenceRouteKind::ManagedBrowserStructuredExtraction
@@ -79,13 +81,21 @@ pub(super) fn plan_screen_intelligence_route(
 fn manual_reason_for(request: &ScreenIntelligenceRouteRequest) -> &'static str {
     if !request.parent_allows_screen_capture {
         crate::screen_intelligence_router::MANUAL_REQUIRED_PARENT_DISABLED
+    } else if matches!(
+        request.source_kind,
+        ScreenIntelligenceSourceKind::NetworkOrSessionSummary
+            | ScreenIntelligenceSourceKind::ScreenAdjacentEvidence
+    ) {
+        crate::screen_intelligence_router::MANUAL_REQUIRED_EVIDENCE_ONLY
     } else {
         crate::screen_intelligence_router::MANUAL_REQUIRED_UNSUPPORTED_SCOPE
     }
 }
 
 fn unavailable_reason_for(request: &ScreenIntelligenceRouteRequest) -> &'static str {
-    if request.protected_surface_suspected
+    if !super::consistency::screen_intelligence_route_request_is_consistent(request) {
+        crate::screen_intelligence_router::UNAVAILABLE_INCONSISTENT_REQUEST
+    } else if request.protected_surface_suspected
         || request.policy_sensitivity == ScreenIntelligencePolicySensitivity::ProtectedSurface
         || request
             .structured_extraction
