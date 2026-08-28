@@ -83,3 +83,20 @@ fn policy_event_deserialization_rejects_zero_schema_version() -> TestResult {
         .contains("event schema version must be nonzero"));
     Ok(())
 }
+
+#[test]
+fn policy_event_deserialization_rejects_unsupported_future_schema_version() -> TestResult {
+    let mut payload = test_ok!(
+        serde_json::to_value(sample_delivery_queued_event(7)?),
+        "policy event payload"
+    );
+    payload["schema_version"] = serde_json::json!(2);
+
+    let error = test_err!(
+        serde_json::from_value::<PolicyEvent>(payload),
+        "future policy event schema version must be rejected"
+    );
+
+    assert!(error.to_string().contains("unsupported schema version 2"));
+    Ok(())
+}

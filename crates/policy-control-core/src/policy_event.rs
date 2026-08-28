@@ -8,7 +8,7 @@ use ocentra_eventing::ids::{
 };
 use ocentra_eventing::topology::EventTopologyFamilyVariant;
 use ocentra_parent_agent_protocol::constants::policy_control;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::policy_delivery::PolicyDeliveryId;
 use crate::policy_request::{PolicyApprovalId, PolicyOverrideId, PolicyRequestId};
@@ -182,7 +182,7 @@ impl PolicyEventScope {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct PolicyEvent {
     pub schema_version: SchemaVersion,
     pub kind: PolicyEventKind,
@@ -193,6 +193,39 @@ pub struct PolicyEvent {
     pub reason_code: Option<PolicyReasonCode>,
     #[serde(default)]
     pub dead_letter_reason: Option<PolicyEventDeadLetterReason>,
+}
+
+#[derive(Deserialize)]
+struct PolicyEventWire {
+    schema_version: SchemaVersion,
+    kind: PolicyEventKind,
+    sequence: PolicyEventSequence,
+    scope: PolicyEventScope,
+    audit_reference_ids: Vec<PolicyAuditReferenceId>,
+    #[serde(default)]
+    reason_code: Option<PolicyReasonCode>,
+    #[serde(default)]
+    dead_letter_reason: Option<PolicyEventDeadLetterReason>,
+}
+
+impl<'de> Deserialize<'de> for PolicyEvent {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = PolicyEventWire::deserialize(deserializer)?;
+        let event = Self {
+            schema_version: wire.schema_version,
+            kind: wire.kind,
+            sequence: wire.sequence,
+            scope: wire.scope,
+            audit_reference_ids: wire.audit_reference_ids,
+            reason_code: wire.reason_code,
+            dead_letter_reason: wire.dead_letter_reason,
+        };
+        replay::policy_event_contract(&event).map_err(serde::de::Error::custom)?;
+        Ok(event)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

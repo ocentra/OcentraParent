@@ -12,6 +12,7 @@ pub(crate) fn apply_policy_event_replay(
     current: &PolicyEventReplayRecord,
     next: &PolicyEvent,
 ) -> Result<PolicyEventApplyOutcome, EventingError> {
+    super::event_contract::validate_policy_event(next)?;
     let next_aggregate_key = super::scope_key::policy_event_scope_aggregate_key(next.scope())?;
     let next_idempotency_key = super::event_contract::policy_event_idempotency_key(next)?;
 
@@ -73,8 +74,8 @@ fn assert_matching_aggregate_key(
 ) -> Result<(), EventingError> {
     if next_aggregate_key != &current.aggregate_key {
         return Err(EventingError::InvalidValue {
-            field: policy_control::source::FIELD_HOUSEHOLD_ID,
-            value: next_aggregate_key.as_str().to_string(),
+            field: "policy_event.aggregate_key",
+            value: "[redacted mismatch]".to_string(),
         });
     }
 
