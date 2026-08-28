@@ -9,7 +9,10 @@ use super::fixtures::{
     OTHER_SUBSCRIBER, OTHER_TARGET, TEST_LABEL, TEST_SUBSCRIBER, TEST_TARGET,
 };
 use crate::{DispatchMode, EventBus, EventRegistrar, EventingError};
-use ocentra_eventing::bus::reports::handler::{EventConsumerOutcome, HandlerOutcome};
+use ocentra_eventing::bus::reports::{
+    dead_letter::{DeadLetterReason, DeadLetterRetryState},
+    handler::{EventConsumerOutcome, HandlerOutcome},
+};
 use ocentra_eventing::queue::policy::EventQueuePolicy;
 
 #[tokio::test]
@@ -465,10 +468,11 @@ async fn publish_and_wait_completes_only_after_handler_work_finishes() {
     tokio::time::timeout(Duration::from_secs(1), entered.notified())
         .await
         .expect_value("publish-and-wait handler starts");
-    tokio::select! {
-        _ = &mut publish => panic!("publish-and-wait completed before handler release"),
-        _ = tokio::task::yield_now() => {}
-    }
+    let completed_early = tokio::select! {
+        _ = &mut publish => true,
+        _ = tokio::task::yield_now() => false,
+    };
+    assert!(!completed_early, "publish-and-wait completed before handler release");
     release.notify_one();
 
     let report = publish
@@ -610,6 +614,7 @@ async fn sync_subscriber_adapter_uses_typed_dispatch_path() {
 #[tokio::test]
 async fn panicking_handler_isolated_as_dead_letter_report() {
     let bus = EventBus::root();
+    let handled = Arc::new(Mutex::new(0_usize));
     bus.subscribe::<TestEvent, _, _>(
         subscriber(
             TestText(TEST_SUBSCRIBER.to_owned()),
@@ -621,6 +626,22 @@ async fn panicking_handler_isolated_as_dead_letter_report() {
     )
     .await
     .expect_value("subscriber registers");
+    let handled_clone = Arc::clone(&handled);
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(OTHER_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |_| {
+            let handled = Arc::clone(&handled_clone);
+            async move {
+                *handled.lock().await += 1;
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect_value("sibling subscriber registers");
 
     let report = bus
         .publish(
@@ -631,21 +652,45 @@ async fn panicking_handler_isolated_as_dead_letter_report() {
         .expect_value("publish survives handler panic");
     let dead_letters = bus.dead_letters().await;
 
+    assert_eq!(report.handler_reports.len(), 2);
     assert_eq!(report.handler_reports[0].outcome, HandlerOutcome::Panicked);
-    assert_eq!(report.handled_count, 0);
+    assert_eq!(report.handler_reports[1].outcome, HandlerOutcome::Handled);
+    assert_eq!(report.handled_count, 1);
     assert_eq!(report.dead_letter_count, 1);
+    assert_eq!(*handled.lock().await, 1);
+    let dead_letter = &dead_letters[0];
+    assert_eq!(dead_letter.envelope.event_id, report.event_id);
+    assert_eq!(dead_letter.envelope.contract.event_type, report.event_type);
     assert_eq!(
-        dead_letters[0]
+        dead_letter
             .subscriber_id
             .as_ref()
             .expect_value("handler dead letter has subscriber")
             .as_str(),
         TEST_SUBSCRIBER
     );
+    assert_eq!(
+        dead_letter
+            .target_handler
+            .as_ref()
+            .expect_value("handler dead letter has target")
+            .as_str(),
+        TEST_TARGET
+    );
+    assert_eq!(dead_letter.reason, DeadLetterReason::HandlerPanicked);
+    assert_eq!(
+        dead_letter.retry_state,
+        DeadLetterRetryState::Exhausted { attempts: 1 }
+    );
+    assert!(matches!(
+        &dead_letter.error,
+        EventingError::HandlerPanicked { subscriber_id }
+            if subscriber_id.as_str() == TEST_SUBSCRIBER
+    ));
 }
 
 #[tokio::test]
-async fn subscription_handle_drop_unsubscribes_handler() {
+async fn subscription_handle_unsubscribe_is_idempotent() {
     let bus = EventBus::root();
     let handled = Arc::new(Mutex::new(0_usize));
     let handled_clone = Arc::clone(&handled);
@@ -687,6 +732,53 @@ async fn subscription_handle_drop_unsubscribes_handler() {
     assert!(first_unsubscribe.removed);
     assert!(!second_unsubscribe.removed);
     assert_eq!(second_report.subscriber_count, 0);
+    assert_eq!(*handled.lock().await, 1);
+}
+
+#[tokio::test]
+async fn subscription_handle_drop_unsubscribes_handler() {
+    let bus = EventBus::root();
+    let handled = Arc::new(Mutex::new(0_usize));
+    let handled_clone = Arc::clone(&handled);
+    {
+        let _handle = bus
+            .subscribe_with_handle::<TestEvent, _, _>(
+                subscriber(
+                    TestText(TEST_SUBSCRIBER.to_owned()),
+                    TestText(TEST_TARGET.to_owned()),
+                ),
+                move |_| {
+                    let handled = Arc::clone(&handled_clone);
+                    async move {
+                        *handled.lock().await += 1;
+                        Ok(())
+                    }
+                },
+            )
+            .await
+            .expect_value("subscriber registers with handle");
+
+        let report = bus
+            .publish(
+                test_event(TestText(TEST_LABEL.to_owned())),
+                metadata(TestText(TEST_TARGET.to_owned())),
+            )
+            .await
+            .expect_value("publish succeeds before handle drop");
+        assert_eq!(report.subscriber_count, 1);
+        assert_eq!(report.handled_count, 1);
+    }
+
+    let report_after_drop = bus
+        .publish(
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("publish succeeds after handle drop");
+
+    assert_eq!(report_after_drop.subscriber_count, 0);
+    assert_eq!(report_after_drop.handled_count, 0);
     assert_eq!(*handled.lock().await, 1);
 }
 
