@@ -13,7 +13,7 @@ mod authority;
 mod lifecycle;
 mod rollback;
 mod schedule;
-mod time;
+pub(crate) mod time;
 
 pub(crate) fn validate_parent_policy_source_document(
     document: &ParentPolicySourceDocument,
