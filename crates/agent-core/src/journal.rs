@@ -5,6 +5,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+use base64::prelude::{Engine as _, BASE64_URL_SAFE_NO_PAD};
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::journal::ACTIVITY_JOURNAL_SCHEMA_VERSION;
@@ -12,6 +13,7 @@ use ocentra_parent_agent_protocol::journal::{
     ActivityJournalCipher, ActivityJournalLine, ActivityJournalRotationPolicy,
     ActivityJournalStatus,
 };
+use sha2::{Digest, Sha256};
 
 use crate::{
     journal_crypto::{decrypt_payload, encrypt_payload, JournalKey},
@@ -84,8 +86,21 @@ impl ActivityJournal {
     }
 
     pub fn decrypt_line(&self, line: &ActivityJournalLine) -> Result<ActivityEvent, JournalError> {
+        if line.schema_version != ACTIVITY_JOURNAL_SCHEMA_VERSION
+            || line.entry_id != entry_id_from_nonce(&line.nonce)
+        {
+            return Err(JournalError::Crypto);
+        }
         let plaintext = decrypt_payload(&self.key, &line.nonce, &line.ciphertext)?;
-        Ok(serde_json::from_slice(&plaintext)?)
+        let activity_digest = BASE64_URL_SAFE_NO_PAD.encode(Sha256::digest(&plaintext));
+        if activity_digest != line.activity_digest {
+            return Err(JournalError::Crypto);
+        }
+        let event = serde_json::from_slice::<ActivityEvent>(&plaintext)?;
+        if event.event_id != line.event_id {
+            return Err(JournalError::Crypto);
+        }
+        Ok(event)
     }
 
     pub fn status(&self) -> ActivityJournalStatus {

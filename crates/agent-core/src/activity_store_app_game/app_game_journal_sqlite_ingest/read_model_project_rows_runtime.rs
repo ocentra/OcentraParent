@@ -9,7 +9,17 @@ pub(crate) fn project_runtime_row(
     row_json: &str,
     seen_runtime_processes: &mut Vec<String>,
 ) -> Result<(), ActivityStoreError> {
-    let runtime = serde_json::from_str::<AppGameRuntimeEvidenceRow>(row_json)?;
+    let runtime = serde_json::from_str::<AppGameRuntimeEvidenceRow>(row_json).map_err(|_| {
+        ActivityStoreError::InvalidAppGameJournalRow {
+            reason: "invalid-runtime-row",
+        }
+    })?;
+    super::super::super::super::app_game_journal_sqlite_ingest_validation::validate_runtime_row(
+        &runtime,
+    )
+    .map_err(|_| ActivityStoreError::InvalidAppGameJournalRow {
+        reason: "invalid-runtime-row",
+    })?;
     if !seen_runtime_processes
         .iter()
         .any(|candidate| candidate == &runtime.process_identity)

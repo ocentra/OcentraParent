@@ -57,16 +57,19 @@ impl ActivityStore {
         &self,
         events: &[ActivityEvent],
     ) -> Result<ActivityIngestStatus, ActivityStoreError> {
+        let transaction = self.connection.unchecked_transaction()?;
         let mut ingested = 0;
         let mut duplicate_events = 0;
         for event in events {
-            if internals::has_event_id(&self.connection, &event.event_id)? {
+            if internals::has_event_id(&transaction, &event.event_id)? {
                 duplicate_events += 1;
                 continue;
             }
-            internals::insert_event(&self.connection, event)?;
+            internals::insert_event(&transaction, event)?;
             ingested += 1;
         }
+
+        transaction.commit()?;
 
         self.status_with_counts(ingested, duplicate_events)
     }

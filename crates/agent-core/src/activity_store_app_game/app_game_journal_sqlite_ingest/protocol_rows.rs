@@ -9,11 +9,13 @@ use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_JOURNAL_ROW_KIND_APPROVAL_ACTION_RESULT, APP_GAME_JOURNAL_ROW_KIND_APPROVAL_AUTHORITY,
     APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM, APP_GAME_JOURNAL_ROW_KIND_IDENTITY,
     APP_GAME_JOURNAL_ROW_KIND_PLATFORM_AUTHORITY_MATRIX, APP_GAME_RUNTIME_NOT_CLAIMED,
+    APP_GAME_SCHEMA_VERSION,
 };
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     AppGameAiClassifierResult, AppGameControlActionResult, AppGameControlApprovalAuthority,
     AppGamePlatformAuthorityMatrix, APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED,
-    APP_GAME_CONTROL_AUTHORITY_ACTIVE, APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
+    APP_GAME_CONTROL_AUTHORITY_ACTIVE, APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION,
+    APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED,
 };
 
 use super::app_game_journal_sqlite_ingest_event::{
@@ -165,9 +167,12 @@ pub fn app_game_ai_classifier_result_journal_event(
     )
 }
 
-fn validate_evidence_claim(
+pub(super) fn validate_evidence_claim(
     row: &AppGameEvidenceClaim,
 ) -> Result<(), AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
     if row.claim_kind == APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY
         && (row.runtime_state != APP_GAME_RUNTIME_NOT_CLAIMED
             || row.foreground_state != APP_GAME_FOREGROUND_NOT_CLAIMED)
@@ -177,9 +182,12 @@ fn validate_evidence_claim(
     Ok(())
 }
 
-fn validate_authority(
+pub(super) fn validate_authority(
     row: &AppGameControlApprovalAuthority,
 ) -> Result<(), AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
     if row.authority_state != APP_GAME_CONTROL_AUTHORITY_ACTIVE
         && (row.can_approve || row.can_deny || row.can_extend || row.can_override)
     {
@@ -188,9 +196,12 @@ fn validate_authority(
     Ok(())
 }
 
-fn validate_action_result(
+pub(super) fn validate_action_result(
     row: &AppGameControlActionResult,
 ) -> Result<(), AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
     if row.result_status == APP_GAME_CONTROL_ACTION_STATUS_MANUAL_REQUIRED
         && row.enforcement_result.is_some()
     {
@@ -199,9 +210,12 @@ fn validate_action_result(
     Ok(())
 }
 
-fn validate_platform_authority_matrix(
+pub(super) fn validate_platform_authority_matrix(
     row: &AppGamePlatformAuthorityMatrix,
 ) -> Result<(), AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_PARENT_CONTRACT_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
     if row.rows.iter().any(|authority| {
         authority.authority_tier == APP_GAME_PLATFORM_TIER_MANUAL_REQUIRED
             && authority.can_execute_adapter
@@ -211,9 +225,12 @@ fn validate_platform_authority_matrix(
     Ok(())
 }
 
-fn validate_classifier_result(
+pub(super) fn validate_classifier_result(
     row: &AppGameAiClassifierResult,
 ) -> Result<(), AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
     if row.direct_action_requested || row.raw_scan_included || row.content_claim_included {
         return Err(AppGameJournalSqliteIngestError::ClassifierRequestsAction);
     }

@@ -26,18 +26,32 @@ pub(crate) fn project_stored_row(
     seen_foreground_processes: &mut Vec<String>,
 ) -> Result<(), ActivityStoreError> {
     let Some(row_kind) = string_field(&row.fields, APP_GAME_JOURNAL_FIELD_ROW_KIND) else {
-        return Ok(());
+        return Err(ActivityStoreError::InvalidAppGameJournalRow {
+            reason: "missing-row-kind",
+        });
     };
     let Some(row_json) = string_field(&row.fields, APP_GAME_JOURNAL_FIELD_ROW_JSON) else {
-        return Ok(());
+        return Err(ActivityStoreError::InvalidAppGameJournalRow {
+            reason: "missing-row-json",
+        });
     };
     if project_protocol_boundary_row(row_kind.as_str(), &row_json, model)? {
         return Ok(());
     }
     match row_kind.as_str() {
-        APP_GAME_JOURNAL_ROW_KIND_INVENTORY => model.inventory_rows.push(serde_json::from_str::<
-            AppGameInventoryEvidenceRow,
-        >(&row_json)?),
+        APP_GAME_JOURNAL_ROW_KIND_INVENTORY => {
+            let inventory = serde_json::from_str::<AppGameInventoryEvidenceRow>(&row_json)
+                .map_err(|_| ActivityStoreError::InvalidAppGameJournalRow {
+                    reason: "invalid-inventory-row",
+                })?;
+            super::super::super::app_game_journal_sqlite_ingest_validation::validate_inventory_row(
+                &inventory,
+            )
+            .map_err(|_| ActivityStoreError::InvalidAppGameJournalRow {
+                reason: "invalid-inventory-row",
+            })?;
+            model.inventory_rows.push(inventory);
+        }
         APP_GAME_JOURNAL_ROW_KIND_RUNTIME => read_model_project_rows_runtime::project_runtime_row(
             model,
             &row_json,
@@ -50,10 +64,26 @@ pub(crate) fn project_stored_row(
                 seen_foreground_processes,
             )?
         }
-        APP_GAME_JOURNAL_ROW_KIND_LAUNCHER => model.launcher_rows.push(serde_json::from_str::<
-            AppGameLauncherEvidenceRow,
-        >(&row_json)?),
-        _ => {}
+        APP_GAME_JOURNAL_ROW_KIND_LAUNCHER => {
+            let launcher =
+                serde_json::from_str::<AppGameLauncherEvidenceRow>(&row_json).map_err(|_| {
+                    ActivityStoreError::InvalidAppGameJournalRow {
+                        reason: "invalid-launcher-row",
+                    }
+                })?;
+            super::super::super::app_game_journal_sqlite_ingest_launcher_validation::validate_launcher_row(
+                &launcher,
+            )
+            .map_err(|_| ActivityStoreError::InvalidAppGameJournalRow {
+                reason: "invalid-launcher-row",
+            })?;
+            model.launcher_rows.push(launcher);
+        }
+        _ => {
+            return Err(ActivityStoreError::InvalidAppGameJournalRow {
+                reason: "unknown-row-kind",
+            })
+        }
     }
     Ok(())
 }

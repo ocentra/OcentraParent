@@ -28,6 +28,7 @@ pub enum AppGameJournalSqliteIngestError {
     LauncherCandidatePromoted,
     LauncherOnlyPromoted,
     LauncherPermissionLimitedClaim,
+    SchemaVersionUnsupported,
     EvidenceClaimInventoryClaimsUse,
     AuthorityInactiveGrants,
     ActionResultManualExecution,

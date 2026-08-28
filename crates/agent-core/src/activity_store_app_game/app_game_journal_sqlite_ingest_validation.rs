@@ -4,7 +4,7 @@ use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_FOREGROUND_NOT_CLAIMED,
     APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW, APP_GAME_OBSERVATION_MODE_PROCESS_EXIT,
     APP_GAME_OBSERVATION_MODE_PROCESS_START, APP_GAME_RUNTIME_NOT_CLAIMED,
-    APP_GAME_RUNTIME_NOT_RUNNING, APP_GAME_RUNTIME_RUNNING,
+    APP_GAME_RUNTIME_NOT_RUNNING, APP_GAME_RUNTIME_RUNNING, APP_GAME_SCHEMA_VERSION,
 };
 
 use super::AppGameJournalSqliteIngestError;
@@ -12,6 +12,9 @@ use super::AppGameJournalSqliteIngestError;
 pub(super) fn validate_inventory_row(
     row: &AppGameInventoryEvidenceRow,
 ) -> Result<(), AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
     if row.runtime_state != APP_GAME_RUNTIME_NOT_CLAIMED
         || row.foreground_state != APP_GAME_FOREGROUND_NOT_CLAIMED
         || row.running_duration_ms != 0
@@ -25,6 +28,9 @@ pub(super) fn validate_inventory_row(
 pub(super) fn validate_runtime_row(
     row: &AppGameRuntimeEvidenceRow,
 ) -> Result<(), AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
     if row.foreground_state != APP_GAME_FOREGROUND_NOT_CLAIMED {
         return Err(AppGameJournalSqliteIngestError::RuntimeClaimsForeground);
     }
@@ -46,6 +52,9 @@ pub(super) fn validate_runtime_row(
 pub(super) fn validate_foreground_row(
     row: &AppGameForegroundEvidenceRow,
 ) -> Result<(), AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
     if row.observation_mode != APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW {
         return Err(AppGameJournalSqliteIngestError::ForegroundWrongMode);
     }

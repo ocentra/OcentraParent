@@ -7,6 +7,7 @@ use ocentra_parent_agent_protocol::activity::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::journal::ActivityJournalLine;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use std::fmt::Display;
 use std::path::{Path, PathBuf};
 
@@ -15,6 +16,8 @@ use crate::{
     journal::ActivityJournal,
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
 };
+use ocentra_parent_agent_core::activity_store_error::ActivityStoreError;
+use ocentra_parent_agent_core::journal_error::JournalError;
 
 use super::app_game_journal_sqlite_ingest::{
     app_game_foreground_journal_event, app_game_inventory_journal_event,
@@ -226,6 +229,215 @@ fn launcher_known_game_claim_without_child_proof_is_rejected_before_ingest() {
     );
 }
 
+#[test]
+fn stale_app_game_schema_rows_are_rejected_before_journal_write() {
+    let mut stale = runtime_row(
+        "wp13-stale-runtime-schema",
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    );
+    stale.schema_version = APP_GAME_SCHEMA_VERSION.saturating_sub(1);
+
+    let result = app_game_runtime_journal_event(
+        constants::peer::LOCAL_DEV_AGENT,
+        std::env::consts::OS,
+        &stale,
+    );
+
+    assert_eq!(
+        result,
+        Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported)
+    );
+}
+
+#[test]
+fn durable_sqlite_replay_preserves_rows_and_rejects_restart_duplicates() {
+    let journal_path = temp_journal_path("durable-replay");
+    let store_path = temp_store_path("durable-replay");
+    cleanup_journal_files(&journal_path);
+    cleanup_store_files(&store_path);
+    let events = journal_replay_events();
+    let key = test_key();
+    let mut journal = ActivityJournal::open(journal_path.0.clone(), key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
+    for event in events.iter().rev() {
+        journal
+            .append(event)
+            .expect_value(constants::error::JOURNAL_APPENDS);
+    }
+    let reader = ActivityJournal::open(journal_path.0.clone(), key)
+        .expect_value(constants::error::JOURNAL_OPENS);
+
+    {
+        let store =
+            ActivityStore::open(&store_path.0).expect_value(constants::error::ACTIVITY_STORE_OPENS);
+        let status = store
+            .ingest_journal(&reader)
+            .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+        assert_eq!(status.events_ingested, events.len() as u64);
+        assert_eq!(status.events_stored, events.len() as u64);
+    }
+
+    let restarted =
+        ActivityStore::open(&store_path.0).expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    let replay_status = restarted
+        .ingest_journal(&reader)
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+    let model = app_game_journal_sqlite_read_model(
+        restarted.connection_for_test(),
+        constants::activity_store::DEFAULT_RECENT_LIMIT,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    )
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+    drop(restarted);
+    cleanup_journal_files(&journal_path);
+    cleanup_store_files(&store_path);
+
+    assert_eq!(replay_status.events_ingested, 0);
+    assert_eq!(replay_status.duplicate_events, events.len() as u64);
+    assert_eq!(replay_status.events_stored, events.len() as u64);
+    assert_eq!(model.inventory_rows.len(), 1);
+    assert_eq!(model.running_now_rows.len(), 1);
+    assert_eq!(model.foreground_now_rows.len(), 1);
+    assert_eq!(model.launcher_rows.len(), 1);
+    assert_eq!(model.daily_rollups.len(), 1);
+}
+
+#[test]
+fn journal_replay_rejects_tampered_digest_and_event_metadata() {
+    let path = temp_journal_path("integrity-metadata");
+    cleanup_journal_files(&path);
+    let mut journal = ActivityJournal::open(path.0.clone(), test_key())
+        .expect_value(constants::error::JOURNAL_OPENS);
+    let event = journal_replay_events()[0].clone();
+    let line = journal
+        .append(&event)
+        .expect_value(constants::error::JOURNAL_APPENDS);
+
+    let mut tampered_digest = line.clone();
+    tampered_digest.activity_digest.push('x');
+    let digest_result = journal.decrypt_line(&tampered_digest);
+
+    let mut tampered_schema = line.clone();
+    tampered_schema.schema_version = tampered_schema.schema_version.saturating_add(1);
+    let schema_result = journal.decrypt_line(&tampered_schema);
+
+    let mut tampered_entry_id = line.clone();
+    tampered_entry_id.entry_id.push('x');
+    let entry_id_result = journal.decrypt_line(&tampered_entry_id);
+
+    let mut tampered_event_id = line;
+    tampered_event_id.event_id.push('x');
+    let event_id_result = journal.decrypt_line(&tampered_event_id);
+    cleanup_journal_files(&path);
+
+    assert!(matches!(digest_result, Err(JournalError::Crypto)));
+    assert!(matches!(schema_result, Err(JournalError::Crypto)));
+    assert!(matches!(entry_id_result, Err(JournalError::Crypto)));
+    assert!(matches!(event_id_result, Err(JournalError::Crypto)));
+}
+
+#[test]
+fn sqlite_batch_ingest_rolls_back_when_a_later_row_fails() {
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    store
+        .connection_for_test()
+        .execute_batch(
+            "CREATE TRIGGER wp13_reject_event BEFORE INSERT ON activity_events
+             WHEN NEW.event_id = 'wp13-rejected-event'
+             BEGIN SELECT RAISE(ABORT, 'wp13 rollback'); END;",
+        )
+        .expect("create rollback trigger");
+    let first = app_game_runtime_journal_event(
+        constants::peer::LOCAL_DEV_AGENT,
+        std::env::consts::OS,
+        &runtime_row(
+            "wp13-first-event",
+            constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        ),
+    )
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    let rejected = app_game_runtime_journal_event(
+        constants::peer::LOCAL_DEV_AGENT,
+        std::env::consts::OS,
+        &runtime_row(
+            "wp13-rejected-event",
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        ),
+    )
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+
+    let result = store.ingest_events(&[first, rejected]);
+    let status = store
+        .status()
+        .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
+
+    assert!(matches!(result, Err(ActivityStoreError::Database(_))));
+    assert_eq!(status.events_stored, 0);
+}
+
+#[test]
+fn app_game_replay_rejects_missing_unknown_and_invalid_rows() {
+    let mut missing_json = LogFields::new();
+    missing_json.insert(
+        APP_GAME_JOURNAL_FIELD_ROW_KIND.to_string(),
+        LogFieldValue::String(APP_GAME_JOURNAL_ROW_KIND_RUNTIME.to_string()),
+    );
+    assert_replayed_row_rejected(
+        raw_app_game_event("wp13-missing-row-json", missing_json),
+        "missing-row-json",
+    );
+
+    let mut malformed_json = LogFields::new();
+    malformed_json.insert(
+        APP_GAME_JOURNAL_FIELD_ROW_KIND.to_string(),
+        LogFieldValue::String(APP_GAME_JOURNAL_ROW_KIND_RUNTIME.to_string()),
+    );
+    malformed_json.insert(
+        APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
+        LogFieldValue::String("{malformed".to_string()),
+    );
+    assert_replayed_row_rejected(
+        raw_app_game_event("wp13-malformed-row-json", malformed_json),
+        "invalid-runtime-row",
+    );
+
+    let mut unknown_kind = LogFields::new();
+    unknown_kind.insert(
+        APP_GAME_JOURNAL_FIELD_ROW_KIND.to_string(),
+        LogFieldValue::String("unknown-app-game-row".to_string()),
+    );
+    unknown_kind.insert(
+        APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
+        LogFieldValue::String("{}".to_string()),
+    );
+    assert_replayed_row_rejected(
+        raw_app_game_event("wp13-unknown-row-kind", unknown_kind),
+        "unknown-row-kind",
+    );
+
+    let mut invalid_runtime = runtime_row(
+        "wp13-invalid-runtime-row",
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+    );
+    invalid_runtime.foreground_state = APP_GAME_FOREGROUND_FOREGROUND.to_string();
+    let invalid_runtime_json =
+        serde_json::to_string(&invalid_runtime).expect("serialize invalid runtime row fixture");
+    let mut invalid_runtime_fields = LogFields::new();
+    invalid_runtime_fields.insert(
+        APP_GAME_JOURNAL_FIELD_ROW_KIND.to_string(),
+        LogFieldValue::String(APP_GAME_JOURNAL_ROW_KIND_RUNTIME.to_string()),
+    );
+    invalid_runtime_fields.insert(
+        APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
+        LogFieldValue::String(invalid_runtime_json),
+    );
+    assert_replayed_row_rejected(
+        raw_app_game_event("wp13-invalid-runtime-row", invalid_runtime_fields),
+        "invalid-runtime-row",
+    );
+}
+
 fn append_and_replay(
     events: &[ActivityEvent],
     suffix: impl Display,
@@ -255,6 +467,37 @@ fn append_and_replay(
     assert_eq!(status.events_ingested, events.len() as u64);
     assert_eq!(status.events_stored, events.len() as u64);
     (store, lines)
+}
+
+fn assert_replayed_row_rejected(event: ActivityEvent, reason: &str) {
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
+    store
+        .ingest_events(std::slice::from_ref(&event))
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
+    let result = app_game_journal_sqlite_read_model(
+        store.connection_for_test(),
+        constants::activity_store::DEFAULT_RECENT_LIMIT,
+        constants::activity_store::TEST_SECOND_OBSERVED_AT,
+    );
+
+    match result {
+        Err(ActivityStoreError::InvalidAppGameJournalRow { reason: actual }) => {
+            assert_eq!(actual, reason);
+        }
+        _ => panic!("expected invalid app-game row"),
+    }
+}
+
+fn raw_app_game_event(event_id: &str, fields: LogFields) -> ActivityEvent {
+    let mut event = app_game_runtime_journal_event(
+        constants::peer::LOCAL_DEV_AGENT,
+        std::env::consts::OS,
+        &runtime_row(event_id, constants::activity_store::TEST_FIRST_OBSERVED_AT),
+    )
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    event.fields = fields;
+    event
 }
 
 fn inventory_row() -> AppGameInventoryEvidenceRow {
@@ -413,6 +656,19 @@ fn temp_journal_path(suffix: impl Display) -> TestPath {
     TestPath(path)
 }
 
+fn temp_store_path(suffix: impl Display) -> TestPath {
+    let suffix = suffix.to_string();
+    let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
+    name.push_str(&std::process::id().to_string());
+    name.push(constants::delimiter::HYPHEN);
+    name.push_str(suffix.as_str());
+
+    let mut path = std::env::temp_dir();
+    path.push(name);
+    path.set_extension(constants::activity_store::FILE_EXTENSION);
+    TestPath(path)
+}
+
 fn cleanup_journal_files(path: impl AsRef<std::path::Path>) {
     let path = path.as_ref();
     let _ = remove_file(path);
@@ -423,6 +679,19 @@ fn cleanup_journal_files(path: impl AsRef<std::path::Path>) {
         extension.push_str(constants::journal::FILE_EXTENSION);
         rotated_path.set_extension(extension);
         let _ = remove_file(rotated_path);
+    }
+}
+
+fn cleanup_store_files(path: impl AsRef<std::path::Path>) {
+    let path = path.as_ref();
+    let _ = remove_file(path);
+    for extension in [
+        constants::activity_store::WAL_FILE_EXTENSION,
+        constants::activity_store::SHM_FILE_EXTENSION,
+    ] {
+        let mut sidecar = path.to_path_buf();
+        sidecar.set_extension(extension);
+        let _ = remove_file(sidecar);
     }
 }
 

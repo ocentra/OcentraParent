@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_LAUNCHER_PROOF_CHILD_PROCESS_CANDIDATE,
     APP_GAME_LAUNCHER_PROOF_CLASSIFIER_BACKED_CHILD_GAME,
     APP_GAME_LAUNCHER_PROOF_DETERMINISTIC_CHILD_GAME, APP_GAME_LAUNCHER_PROOF_LAUNCHER_ONLY,
-    APP_GAME_LAUNCHER_PROOF_MANIFEST_CANDIDATE,
+    APP_GAME_LAUNCHER_PROOF_MANIFEST_CANDIDATE, APP_GAME_SCHEMA_VERSION,
 };
 
 use super::AppGameJournalSqliteIngestError;
@@ -13,6 +13,9 @@ use super::AppGameJournalSqliteIngestError;
 pub(super) fn validate_launcher_row(
     row: &AppGameLauncherEvidenceRow,
 ) -> Result<(), AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
     let has_child_game_proof = matches!(
         row.game_proof_state.as_str(),
         APP_GAME_LAUNCHER_PROOF_DETERMINISTIC_CHILD_GAME
