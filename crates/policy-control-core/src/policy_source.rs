@@ -327,6 +327,13 @@ pub fn validate_parent_policy_source_document(
     validation::validate_parent_policy_source_document(document)
 }
 
+pub(crate) fn assert_policy_utc_timestamp(
+    field: &'static str,
+    value: &str,
+) -> Result<(), EventingError> {
+    validation::time::format::assert_utc_timestamp(field, value)
+}
+
 pub fn register_parent_policy_source_document(
     existing: Option<&ParentPolicySourceDocument>,
     candidate: ParentPolicySourceDocument,

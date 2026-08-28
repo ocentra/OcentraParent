@@ -3,6 +3,7 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
 use ocentra_policy_control_core::policy_conflict::PolicyConflictRecord;
+use ocentra_policy_control_core::policy_conflict::{detect_policy_conflicts, PolicyConflictKind};
 use ocentra_policy_control_core::policy_source::{
     parent_policy_source_schema_version, ParentPolicyActorRole, ParentPolicyDocumentId,
     ParentPolicyRule, ParentPolicySourceDocument, PolicyActorId, PolicyAuditReferenceId,
@@ -204,4 +205,16 @@ pub(super) fn assert_all_conflicts_track_source_context(
     for conflict in conflicts {
         assert_conflict_tracks_source_context(conflict, document);
     }
+}
+
+#[test]
+fn conflict_fixture_exercises_a_real_cross_midnight_overlap() -> TestResult {
+    let document = sample_policy_source_document()?;
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
+
+    assert_eq!(conflicts.len(), 1);
+    assert_eq!(conflicts[0].kind, PolicyConflictKind::OverlappingActions);
+    assert_eq!(conflicts[0].schedule_ids.len(), 2);
+    assert_all_conflicts_track_source_context(&conflicts, &document);
+    Ok(())
 }

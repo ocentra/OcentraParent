@@ -8,11 +8,29 @@ use super::{
     ChildPolicyRequest, ParentPolicyActorRole, ParentPolicyApproval, PolicyApprovalDecision,
     PolicySourceActorState,
 };
-use crate::policy_source::{policy_actor_role_name, policy_actor_state_name};
+use crate::policy_source::{
+    assert_policy_utc_timestamp, policy_actor_role_name, policy_actor_state_name, PolicyRuleAction,
+};
 
 pub(crate) fn validate_parent_policy_approval(
     approval: &ParentPolicyApproval,
 ) -> Result<(), EventingError> {
+    assert_policy_utc_timestamp(
+        policy_control::request::FIELD_TIMESTAMP,
+        approval.decided_at.as_str(),
+    )?;
+    if let Some(override_expires_at) = approval.override_expires_at.as_ref() {
+        assert_policy_utc_timestamp(
+            policy_control::request::FIELD_TIMESTAMP,
+            override_expires_at.as_str(),
+        )?;
+        if override_expires_at <= &approval.decided_at {
+            return Err(EventingError::InvalidValue {
+                field: policy_control::request::FIELD_TIMESTAMP,
+                value: "approval-override-expiry-must-be-after-decision".to_string(),
+            });
+        }
+    }
     assert_parent_actor_authority(
         approval.actor_role,
         approval.actor_state,
@@ -66,6 +84,39 @@ pub(crate) fn assert_request_matches_approval(
             field: policy_control::request::FIELD_STATUS,
             value: policy_control::request::VALUE_EXPIRED_REQUEST_CANNOT_BE_APPROVED.to_string(),
         });
+    }
+
+    if approval.decided_at.as_str() < request.requested_at.as_str()
+        || approval.decided_at.as_str() >= request.expires_at.as_str()
+    {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_TIMESTAMP,
+            value: "approval-decision-must-be-within-request-window".to_string(),
+        });
+    }
+
+    if approval.approved_bonus_minutes.is_some()
+        && request.scope.request_kind != super::PolicyRequestKind::BonusTime
+    {
+        return Err(EventingError::InvalidValue {
+            field: policy_control::request::FIELD_APPROVED_BONUS_MINUTES,
+            value: "only-bonus-time-requests-may-include-approved-minutes".to_string(),
+        });
+    }
+
+    if request.scope.request_kind == super::PolicyRequestKind::BonusTime {
+        let approved_action = approval
+            .approved_action
+            .unwrap_or(request.scope.requested_action);
+        if !matches!(
+            approved_action,
+            PolicyRuleAction::Allow | PolicyRuleAction::TimeLimit
+        ) {
+            return Err(EventingError::InvalidValue {
+                field: policy_control::request::FIELD_APPROVED_BONUS_MINUTES,
+                value: "bonus-time-approvals-require-allow-or-time-limit".to_string(),
+            });
+        }
     }
 
     Ok(())

@@ -85,6 +85,28 @@ fn timezone_mismatch_conflict_stays_explicit_and_manual_required() -> TestResult
 }
 
 #[test]
+fn unsupported_timezone_stays_blocking_until_a_timezone_owner_is_available() -> TestResult {
+    let mut document = sample_policy_source_document()?;
+    document.rules[1].enabled = false;
+    document.schedules[0].timezone_name =
+        test_ok!(PolicyTimezoneName::parse("Europe/London"), "timezone");
+
+    let conflicts = test_ok!(detect_policy_conflicts(&document), "policy conflicts");
+
+    assert_eq!(conflicts.len(), 1);
+    assert_eq!(conflicts[0].kind, PolicyConflictKind::TimezoneBoundary);
+    assert_eq!(conflicts[0].severity, PolicyConflictSeverity::Blocking);
+    assert_eq!(
+        conflicts[0].precedence_state,
+        PolicyConflictPrecedenceState::ManualRequired
+    );
+    assert_eq!(conflicts[0].reason_code.as_str(), "timezone-boundary");
+    assert_conflict_tracks_source_context(&conflicts[0], &document);
+    assert!(has_blocking_policy_conflicts(&conflicts));
+    Ok(())
+}
+
+#[test]
 fn device_targets_missing_from_household_inventory_are_blocking() -> TestResult {
     let mut document = sample_policy_source_document()?;
     document.rules.push(ParentPolicyRule {

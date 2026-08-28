@@ -10,6 +10,9 @@ mod carryover;
 pub(super) fn validate_policy_schedule_time_budget(
     time_budget: &PolicyContractScheduleTimeBudget,
 ) -> PolicyContractValidationResult {
+    if time_budget.budget_window_minutes == 0 {
+        return Err("timeBudget.budgetWindowMinutes must be a positive number".into());
+    }
     assert_local_time(&time_budget.reset.local_time, "timeBudget.reset.localTime")?;
     assert_utc_timestamp(&time_budget.effective_from, "timeBudget.effectiveFrom")?;
 
