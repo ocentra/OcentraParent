@@ -23,7 +23,7 @@ describe('Rust-owned report/query custody contract edge', () => {
       ReportQueryCustodyProofReadModel
     );
     expect(reportQueryCustodyProofIsHonestGenerated(generatedProof)).toBe(true);
-    expect(summarizeReportQueryCustodyStates(ReportQueryCustodyProofReadModel)).toEqual({
+    expect(summarizeReportQueryCustodyStates(ReportQueryCustodyProofReadModel.rows)).toEqual({
       derivedFresh: 1,
       derivedStale: 1,
       partiallyRedacted: 1,
@@ -47,7 +47,8 @@ describe('Rust-owned report/query custody contract edge', () => {
 
   it('binds each row source class to both request scopes', () => {
     const row = generatedProof.rows[0];
-    expect(row).toBeDefined();
+    expect(row?.state).toBe('derivedFresh');
+    expect(row?.sourceDataClass).toBe('sqlite-query-row');
 
     const unboundRow: GeneratedReportQueryCustodyRow = {
       ...row!,
