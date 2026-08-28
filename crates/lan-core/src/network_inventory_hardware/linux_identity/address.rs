@@ -17,7 +17,7 @@ pub(super) fn linux_ipv4_address(record: &serde_json::Value) -> Option<(String, 
         let scope = record_text(addr, constants::lan_pairing::JSON_KEY_SCOPE);
         let local = record_text(addr, constants::lan_pairing::JSON_KEY_LOCAL)?;
         let prefix_length = record_u64(addr, constants::lan_pairing::JSON_KEY_PREFIXLEN)
-            .map(|value| value as u8)?;
+            .and_then(|value| (value <= 32).then_some(value as u8))?;
         if !supported_local_ipv4_text(&local) || scope.as_deref() == Some("host") {
             return None;
         }

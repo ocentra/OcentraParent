@@ -15,10 +15,19 @@ mod address;
 pub fn preferred_windows_local_network_identity(
     records: &[serde_json::Value],
 ) -> Option<LocalNetworkIdentity> {
-    records
+    let candidates = records
         .iter()
         .filter_map(windows_local_network_identity_candidate)
-        .min_by_key(|identity| default_gateway_preference(identity.default_gateway.as_deref()))
+        .collect::<Vec<_>>();
+    let best_preference = candidates
+        .iter()
+        .map(|identity| default_gateway_preference(identity.default_gateway.as_deref()))
+        .min()?;
+    let mut best_candidates = candidates.into_iter().filter(|identity| {
+        default_gateway_preference(identity.default_gateway.as_deref()) == best_preference
+    });
+    let identity = best_candidates.next()?;
+    best_candidates.next().is_none().then_some(identity)
 }
 
 fn windows_local_network_identity_candidate(
@@ -33,8 +42,11 @@ fn windows_local_network_identity_candidate(
     if !supported_local_ipv4_text(&ip_address) {
         return None;
     }
-    let prefix_length =
-        record_u64(record, constants::lan_pairing::JSON_KEY_PREFIX_LENGTH).map(|value| value as u8);
+    let prefix_length = match record_u64(record, constants::lan_pairing::JSON_KEY_PREFIX_LENGTH) {
+        Some(value) if value <= 32 => Some(value as u8),
+        Some(_) => return None,
+        None => None,
+    };
     let dns_servers = sanitized_dns_servers(record_text_values(
         record,
         constants::lan_pairing::JSON_KEY_DNS_SERVERS,
@@ -75,13 +87,11 @@ pub fn preferred_linux_local_network_identity(
     address_records: &[serde_json::Value],
     dns_servers: &[String],
 ) -> Option<LocalNetworkIdentity> {
-    let default_route = linux_default_route(route_records);
+    let default_route = linux_default_route(route_records).ok()?;
     if let Some(default_route) = default_route.as_ref() {
-        if let Some(identity) = address_records.iter().find_map(|record| {
+        return address_records.iter().find_map(|record| {
             linux_local_network_identity_candidate(record, Some(default_route), dns_servers)
-        }) {
-            return Some(identity);
-        }
+        });
     }
     address_records
         .iter()
@@ -129,13 +139,23 @@ struct LinuxDefaultRoute {
     gateway: Option<String>,
 }
 
-fn linux_default_route(route_records: &[serde_json::Value]) -> Option<LinuxDefaultRoute> {
-    route_records.iter().find_map(|record| {
+fn linux_default_route(
+    route_records: &[serde_json::Value],
+) -> Result<Option<LinuxDefaultRoute>, ()> {
+    let mut routes = route_records.iter().filter_map(|record| {
+        if record_text(record, constants::lan_pairing::JSON_KEY_DST).as_deref() != Some("default") {
+            return None;
+        }
         let device = record_text(record, constants::lan_pairing::JSON_KEY_DEV)?;
         let gateway = record_text(record, constants::lan_pairing::JSON_KEY_GATEWAY)
             .filter(|value| supported_local_ipv4_text(value));
         Some(LinuxDefaultRoute { device, gateway })
-    })
+    });
+    let route = routes.next();
+    if route.is_some() && routes.next().is_some() {
+        return Err(());
+    }
+    Ok(route)
 }
 
 pub(super) fn linux_dns_servers_from_resolv_conf() -> Vec<String> {
@@ -164,7 +184,9 @@ pub(super) fn linux_ipv6_prefixes(record: &serde_json::Value) -> Vec<String> {
 }
 
 pub(super) fn cidr_summary(ip_address: &str, prefix_length: Option<u8>) -> Option<String> {
-    prefix_length.map(|prefix_length| format!("{ip_address}/{prefix_length}"))
+    prefix_length
+        .filter(|prefix_length| *prefix_length <= 32)
+        .map(|prefix_length| format!("{ip_address}/{prefix_length}"))
 }
 
 pub(super) fn broadcast_address_for(ip_address: &str, prefix_length: Option<u8>) -> Option<String> {
