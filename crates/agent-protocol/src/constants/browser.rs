@@ -310,6 +310,7 @@ pub const INTERVENTION_TARGET_TYPE_UNKNOWN_SOCIAL_SITE: &str = "unknown-social-s
 pub const INTERVENTION_TARGET_TYPE_UNKNOWN: &str = "unknown";
 pub const INTERVENTION_TARGET_TYPE_URL: &str = "url";
 pub const INTERVENTION_TARGET_TYPE_VIDEO: &str = "video";
+pub const INTERVENTION_TARGET_VALUE_REDACTED: &str = "browser-intervention-target-redacted";
 pub const INVENTORY_INSTALL_STATE_CANDIDATE_RUNNING: &str = "candidate-running";
 pub const INVENTORY_INSTALL_STATE_INSTALLED: &str = "installed";
 pub const INVENTORY_INSTALL_STATE_NOT_INSTALLED: &str = "not-installed";

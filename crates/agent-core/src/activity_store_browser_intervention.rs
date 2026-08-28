@@ -4,8 +4,8 @@ use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionRow;
 use ocentra_parent_agent_protocol::browser_intervention::BROWSER_INTERVENTION_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::browser_intervention_values::{
     BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionCapabilityState,
-    BrowserInterventionDeliveryState, BrowserUnmanagedDetectionState,
-    BrowserUnmanagedFallbackActionState,
+    BrowserInterventionDeliveryState, BrowserInterventionTargetType,
+    BrowserUnmanagedDetectionState, BrowserUnmanagedFallbackActionState,
 };
 use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
 use ocentra_parent_agent_protocol::browser_unmanaged_enforcement::BrowserUnmanagedEnforcementState;
@@ -146,10 +146,10 @@ fn browser_intervention_read_row_from_store(
     row: &BrowserInterventionStoreRow,
 ) -> Option<BrowserInterventionReadRow> {
     let fields = &row.fields;
-    let managed_session_intervention_capability =
-        intervention_capability_field(fields).unwrap_or(BrowserInterventionCapabilityState::Ready);
+    let managed_session_intervention_capability = intervention_capability_field(fields)
+        .unwrap_or(BrowserInterventionCapabilityState::NeedsManagedSession);
     let unmanaged_browser_enforcement = unmanaged_enforcement_field(fields)
-        .unwrap_or(BrowserUnmanagedEnforcementState::MonitorOnly);
+        .unwrap_or(BrowserUnmanagedEnforcementState::Unavailable);
     let derived = browser_intervention_derived_fields(fields, &unmanaged_browser_enforcement);
     let intervention = browser_intervention_row_from_fields(row, fields, &derived)?;
 
@@ -170,22 +170,35 @@ fn browser_intervention_derived_fields(
     let managed_browser_session_id =
         string_field(fields, constants::field::MANAGED_BROWSER_SESSION_ID);
     let profile_id = string_field(fields, constants::field::PROFILE_ID);
-    let process_id = u32_field(fields, constants::field::PROCESS_ID);
+    let process_id = u32_field(fields, constants::field::PROCESS_ID)
+        .filter(|process_id| *process_id != constants::browser::PROCESS_ID_UNKNOWN);
     let requested_url = string_field(fields, constants::field::REQUESTED_URL);
     let observed_url = string_field(fields, constants::field::OBSERVED_URL);
     let browser_boundary_state = browser_boundary_state_field(fields)
         .unwrap_or_else(|| inferred_browser_boundary_state(&managed_browser_session_id));
-    let exact_url_claim_state = exact_url_claim_state_field(fields).unwrap_or_else(|| {
-        inferred_exact_url_claim_state(
-            &browser_boundary_state,
-            &managed_browser_session_id,
-            &requested_url,
-            &observed_url,
-        )
-    });
-    let unmanaged_detection_state = unmanaged_detection_state_field(fields)
-        .unwrap_or_else(|| inferred_unmanaged_detection_state(&browser_boundary_state));
-    let unmanaged_fallback_action =
+    let exact_url_claim_state = normalize_exact_url_claim_state(
+        &browser_boundary_state,
+        &managed_browser_session_id,
+        exact_url_claim_state_field(fields).unwrap_or_else(|| {
+            inferred_exact_url_claim_state(
+                &browser_boundary_state,
+                &managed_browser_session_id,
+                &requested_url,
+                &observed_url,
+            )
+        }),
+    );
+    let unmanaged_detection_state = normalize_unmanaged_detection_state(
+        &browser_boundary_state,
+        process_id.is_some(),
+        unmanaged_detection_state_field(fields)
+            .unwrap_or_else(|| inferred_unmanaged_detection_state(&browser_boundary_state)),
+    );
+    let intervention_action = intervention_action_field(fields);
+    let intervention_outcome = intervention_outcome_field(fields);
+    let unmanaged_fallback_action = normalize_unmanaged_fallback_action(
+        &browser_boundary_state,
+        process_id.is_some(),
         string_field(fields, constants::field::UNMANAGED_FALLBACK_ACTION)
             .and_then(|value| BrowserUnmanagedFallbackActionState::from_protocol_str(&value))
             .unwrap_or_else(|| {
@@ -193,10 +206,11 @@ fn browser_intervention_derived_fields(
                     &browser_boundary_state,
                     unmanaged_browser_enforcement,
                     &unmanaged_detection_state,
-                    &intervention_action_field(fields),
-                    &intervention_outcome_field(fields),
+                    &intervention_action,
+                    &intervention_outcome,
                 )
-            });
+            }),
+    );
 
     BrowserInterventionDerivedFields {
         managed_browser_session_id,
@@ -224,6 +238,20 @@ fn browser_intervention_row_from_fields(
             derived.exact_url_claim_state,
             BrowserExactUrlClaimState::ExactUrlProven
         );
+    let intervention_target_type = intervention_target_type_field(fields)?;
+    let intervention_action = intervention_action_field(fields)?;
+    let intervention_outcome = normalize_intervention_outcome(
+        &derived.browser_boundary_state,
+        derived.process_id.is_some(),
+        intervention_action,
+        intervention_outcome_field(fields)?,
+    );
+    let intervention_target_value = intervention_target_value_for_read_model(
+        intervention_target_type,
+        string_field(fields, constants::field::INTERVENTION_TARGET_VALUE)?,
+        exact_url_visible,
+        derived.process_id.is_some(),
+    );
     Some(BrowserInterventionRow {
         schema_version: BROWSER_INTERVENTION_SCHEMA_VERSION,
         browser_intervention_id: string_field(fields, constants::field::BROWSER_INTERVENTION_ID)?,
@@ -246,12 +274,9 @@ fn browser_intervention_row_from_fields(
         evidence_reference_ids: string_list_field(fields, constants::field::EVIDENCE_REFERENCE_IDS),
         policy_decision_id: string_field(fields, constants::field::POLICY_DECISION_ID),
         decision_source: decision_source_field(fields)?,
-        intervention_action: intervention_action_field(fields)?,
-        intervention_target_type: intervention_target_type_field(fields)?,
-        intervention_target_value: string_field(
-            fields,
-            constants::field::INTERVENTION_TARGET_VALUE,
-        )?,
+        intervention_action,
+        intervention_target_type,
+        intervention_target_value,
         requested_url: exact_url_visible
             .then(|| derived.requested_url.clone())
             .flatten(),
@@ -259,7 +284,7 @@ fn browser_intervention_row_from_fields(
             .then(|| derived.observed_url.clone())
             .flatten(),
         intervention_mechanism: intervention_mechanism_field(fields)?,
-        intervention_outcome: intervention_outcome_field(fields)?,
+        intervention_outcome,
         browser_boundary_state: derived.browser_boundary_state,
         exact_url_claim_state: derived.exact_url_claim_state,
         unmanaged_detection_state: derived.unmanaged_detection_state,
@@ -283,6 +308,83 @@ fn inferred_browser_boundary_state(
     }
 }
 
+fn intervention_target_value_for_read_model(
+    intervention_target_type: BrowserInterventionTargetType,
+    intervention_target_value: String,
+    exact_url_visible: bool,
+    process_identity_proven: bool,
+) -> String {
+    if exact_url_visible
+        || (process_identity_proven
+            && matches!(
+                intervention_target_type,
+                BrowserInterventionTargetType::BrowserProcess
+            ))
+    {
+        intervention_target_value
+    } else {
+        constants::browser::INTERVENTION_TARGET_VALUE_REDACTED.to_string()
+    }
+}
+
+fn normalize_unmanaged_detection_state(
+    browser_boundary_state: &BrowserBoundaryState,
+    process_identity_proven: bool,
+    unmanaged_detection_state: BrowserUnmanagedDetectionState,
+) -> BrowserUnmanagedDetectionState {
+    if matches!(
+        browser_boundary_state,
+        BrowserBoundaryState::UnmanagedBrowserProcess | BrowserBoundaryState::BrowserLikeProcess
+    ) && !process_identity_proven
+    {
+        BrowserUnmanagedDetectionState::Unavailable
+    } else {
+        unmanaged_detection_state
+    }
+}
+
+fn normalize_unmanaged_fallback_action(
+    browser_boundary_state: &BrowserBoundaryState,
+    process_identity_proven: bool,
+    unmanaged_fallback_action: BrowserUnmanagedFallbackActionState,
+) -> BrowserUnmanagedFallbackActionState {
+    if matches!(
+        browser_boundary_state,
+        BrowserBoundaryState::UnmanagedBrowserProcess | BrowserBoundaryState::BrowserLikeProcess
+    ) && !process_identity_proven
+    {
+        BrowserUnmanagedFallbackActionState::Unavailable
+    } else {
+        unmanaged_fallback_action
+    }
+}
+
+fn normalize_intervention_outcome(
+    browser_boundary_state: &BrowserBoundaryState,
+    process_identity_proven: bool,
+    intervention_action: BrowserInterventionAction,
+    intervention_outcome: BrowserInterventionOutcome,
+) -> BrowserInterventionOutcome {
+    if matches!(
+        browser_boundary_state,
+        BrowserBoundaryState::UnmanagedBrowserProcess | BrowserBoundaryState::BrowserLikeProcess
+    ) && !process_identity_proven
+        && matches!(
+            intervention_action,
+            BrowserInterventionAction::TerminateProcess
+                | BrowserInterventionAction::RelaunchManaged
+        )
+        && matches!(
+            intervention_outcome,
+            BrowserInterventionOutcome::Terminated | BrowserInterventionOutcome::RelaunchStarted
+        )
+    {
+        BrowserInterventionOutcome::ManualRequired
+    } else {
+        intervention_outcome
+    }
+}
+
 fn inferred_exact_url_claim_state(
     browser_boundary_state: &BrowserBoundaryState,
     managed_browser_session_id: &Option<String>,
@@ -297,6 +399,23 @@ fn inferred_exact_url_claim_state(
         BrowserExactUrlClaimState::ExactUrlProven
     } else {
         BrowserExactUrlClaimState::NotClaimed
+    }
+}
+
+fn normalize_exact_url_claim_state(
+    browser_boundary_state: &BrowserBoundaryState,
+    managed_browser_session_id: &Option<String>,
+    exact_url_claim_state: BrowserExactUrlClaimState,
+) -> BrowserExactUrlClaimState {
+    if matches!(
+        exact_url_claim_state,
+        BrowserExactUrlClaimState::ExactUrlProven
+    ) && (!matches!(browser_boundary_state, BrowserBoundaryState::ManagedSession)
+        || managed_browser_session_id.is_none())
+    {
+        BrowserExactUrlClaimState::NotClaimed
+    } else {
+        exact_url_claim_state
     }
 }
 
