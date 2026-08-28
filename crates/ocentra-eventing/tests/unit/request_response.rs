@@ -1,7 +1,7 @@
 use crate::ExpectValue;
 use std::{future, sync::Arc, time::Duration};
 
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, Notify};
 
 use super::{
     fixtures::{metadata, metadata_with_event_id, subscriber_for_event, TestText, TEST_TARGET},
@@ -12,6 +12,127 @@ use super::{
     },
 };
 use crate::{EventRecorder, EventingError, RequestCompletionOutcome, RequestId, RequestOptions};
+
+#[test]
+fn request_options_reject_zero_timeout() {
+    let result = RequestOptions::with_timeout(Duration::ZERO);
+
+    assert!(matches!(
+        result,
+        Err(EventingError::InvalidRequestOptions { reason })
+            if reason == "request timeout must be greater than zero"
+    ));
+}
+
+#[tokio::test]
+async fn manual_clock_expires_request_at_exact_timeout_boundary() {
+    let clock = crate::ManualEventClock::new();
+    let bus = crate::EventBus::with_clock(clock.shared());
+    let handler_started = Arc::new(Notify::new());
+    let handler_started_for_subscriber = Arc::clone(&handler_started);
+
+    bus.subscribe::<TestRequestEvent, _, _>(
+        subscriber_for_event(
+            TestText("request-expiry-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
+        move |_context| {
+            let handler_started = Arc::clone(&handler_started_for_subscriber);
+            async move {
+                handler_started.notify_one();
+                future::pending::<Result<(), EventingError>>().await
+            }
+        },
+    )
+    .await
+    .expect_value("subscribe request handler");
+
+    let request_id = "request-response-expiry-boundary";
+    let request_bus = bus.clone();
+    let request = tokio::spawn(async move {
+        request_bus
+            .publish_request(
+                test_request_with_id(
+                    RequestText("expiry-boundary".to_owned()),
+                    RequestText(request_id.to_owned()),
+                ),
+                metadata_with_event_id(
+                    TestText(TEST_TARGET.to_owned()),
+                    TestText("event-expiry-boundary".to_owned()),
+                ),
+                RequestOptions::with_timeout(Duration::from_millis(5))
+                    .expect_value("request options"),
+            )
+            .await
+    });
+
+    handler_started.notified().await;
+    clock.advance(Duration::from_millis(5));
+
+    let result = request.await.expect_value("request task");
+    assert!(matches!(
+        result,
+        Err(EventingError::RequestTimedOut { request_id: actual })
+            if actual.as_str() == request_id
+    ));
+
+    let metrics = bus.metrics_snapshot().await;
+    assert_eq!(metrics.requests.pending_request_count, 0);
+    assert_eq!(metrics.requests.timed_out_request_count, 1);
+}
+
+#[tokio::test]
+async fn dropping_request_future_cancels_pending_completion_and_publish() {
+    let bus = crate::EventBus::root();
+    let handler_started = Arc::new(Notify::new());
+    let handler_started_for_subscriber = Arc::clone(&handler_started);
+
+    bus.subscribe::<TestRequestEvent, _, _>(
+        subscriber_for_event(
+            TestText("request-cancellation-subscriber".to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+            TestText(REQUEST_EVENT_TYPE.to_owned()),
+        ),
+        move |_context| {
+            let handler_started = Arc::clone(&handler_started_for_subscriber);
+            async move {
+                handler_started.notify_one();
+                future::pending::<Result<(), EventingError>>().await
+            }
+        },
+    )
+    .await
+    .expect_value("subscribe request handler");
+
+    let request_bus = bus.clone();
+    let request = tokio::spawn(async move {
+        request_bus
+            .publish_request(
+                test_request_with_id(
+                    RequestText("request-response-cancelled".to_owned()),
+                    RequestText("request-response-cancelled".to_owned()),
+                ),
+                metadata_with_event_id(
+                    TestText(TEST_TARGET.to_owned()),
+                    TestText("event-cancelled".to_owned()),
+                ),
+                RequestOptions::with_timeout(Duration::from_secs(30))
+                    .expect_value("request options"),
+            )
+            .await
+    });
+
+    handler_started.notified().await;
+    request.abort();
+    let join_error = request.await.expect_err("aborted request task");
+    assert!(join_error.is_cancelled());
+
+    tokio::task::yield_now().await;
+    let metrics = bus.metrics_snapshot().await;
+    assert_eq!(metrics.requests.pending_request_count, 0);
+    assert_eq!(metrics.queue.in_flight_event_id_count, 0);
+}
 
 const REQUEST_TERMINAL_RETENTION_PROBE_COUNT: usize = 4097;
 
