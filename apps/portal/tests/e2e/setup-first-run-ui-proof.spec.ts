@@ -31,4 +31,11 @@ test('start route renders an honest setup boundary panel without invented readin
   await expect(setupRegion.getByText('parent runtime + setup read model')).toBeVisible();
   await expect(setupRegion.getByText('presentation only')).toBeVisible();
   await expect(setupRegion.getByText('claim only what the live Rust snapshot can prove')).toBeVisible();
+  await expect(setupRegion.getByText('manual-required', { exact: true }).first()).toBeVisible();
+  await expect(
+    setupRegion.getByText('observation only; ownership and trust remain unavailable', { exact: true })
+  ).toBeVisible();
+  await expect(setupRegion.getByText('Action planning', { exact: true })).toBeVisible();
+  await expect(setupRegion.getByText('not invoked', { exact: true }).first()).toBeVisible();
+  await expect(setupRegion).not.toContainText('onboarding complete');
 });

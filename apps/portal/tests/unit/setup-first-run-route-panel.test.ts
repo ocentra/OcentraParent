@@ -107,6 +107,7 @@ describe('setup first-run portal route panel', () => {
     const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel: sampleSetupFirstRunPanel() }));
 
     expect(markup).toContain('Setup-first-run boundary status');
+    expect(markup).toContain('data-ocentra-setup-proof="first-run-route"');
     expect(markup).toContain('Current boundary status');
     expect(markup).toContain('What is real now');
     expect(markup).toContain('What is missing');
@@ -125,6 +126,48 @@ describe('setup first-run portal route panel', () => {
     expect(markup).not.toContain('welcome-screen');
     expect(markup).not.toContain('setup-complete-screen');
     expect(markup).not.toContain('parent-desktop-runtime-package-plan');
+  });
+
+  it('renders manual-required authority and source boundaries supplied by the Rust snapshot', () => {
+    const panel: ParentSetupFirstRunPanelSnapshot = {
+      ...sampleSetupFirstRunPanelValue,
+      summaryDetails: [
+        ...sampleSetupFirstRunPanelValue.summaryDetails,
+        { label: 'Setup state', value: 'manual-required' },
+      ],
+      cards: [
+        {
+          ...sampleSetupFirstRunPanelValue.cards[0]!,
+          details: [
+            ...sampleSetupFirstRunPanelValue.cards[0]!.details,
+            { label: 'LAN authority', value: 'observation only; ownership and trust remain unavailable' },
+          ],
+        },
+        {
+          ...sampleSetupFirstRunPanelValue.cards[1]!,
+          details: [
+            ...sampleSetupFirstRunPanelValue.cards[1]!.details,
+            { label: 'Account identity', value: 'manual-required' },
+          ],
+        },
+        {
+          ...sampleSetupFirstRunPanelValue.cards[2]!,
+          details: [
+            ...sampleSetupFirstRunPanelValue.cards[2]!.details,
+            { label: 'Degraded/manual state', value: 'manual-required' },
+          ],
+        },
+      ],
+    };
+    const markup = renderToStaticMarkup(createElement(SetupFirstRunRoutePanel, { panel }));
+
+    expect(markup).toContain('Setup state');
+    expect(markup).toContain('manual-required');
+    expect(markup).toContain('LAN authority');
+    expect(markup).toContain('observation only; ownership and trust remain unavailable');
+    expect(markup).toContain('Account identity');
+    expect(markup).toContain('Degraded/manual state');
+    expect(markup).not.toContain('onboarding complete');
   });
 
   it('renders an unavailable panel when the Rust snapshot is missing', () => {

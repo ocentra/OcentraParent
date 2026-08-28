@@ -7,17 +7,17 @@ describe('setup first-run panel intent', () => {
   it('projects the Rust-owned setup snapshot without inventing local state', () => {
     const intent = createSetupFirstRunPanelIntent(sampleSetupFirstRunPanel());
 
-    expect(intent).toEqual(
-      expect.objectContaining({
-        eyebrow: 'Setup route',
-        title: 'Setup-first-run boundary status',
-        body: 'The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot. This panel reports that gap honestly instead of inventing onboarding progress.',
-        summaryCardTitle: 'Current boundary status',
-        summary:
-          'Portal rendering and the Rust-owned route snapshot exist, but live setup/account/trust/custody state is unavailable here today.',
-        productClaim:
-          'This panel reports only whether the Start route has a live Rust-owned setup-first-run snapshot. It does not claim live account readiness, signed installer readiness, pairing trust, data-custody execution, or onboarding completion.',
-      })
+    expect(intent.eyebrow).toBe('Setup route');
+    expect(intent.title).toBe('Setup-first-run boundary status');
+    expect(intent.body).toBe(
+      'The Start route exists, but live setup-first-run runtime state is not yet wired into the Rust parent snapshot. This panel reports that gap honestly instead of inventing onboarding progress.'
+    );
+    expect(intent.summaryCardTitle).toBe('Current boundary status');
+    expect(intent.summary).toBe(
+      'Portal rendering and the Rust-owned route snapshot exist, but live setup/account/trust/custody state is unavailable here today.'
+    );
+    expect(intent.productClaim).toBe(
+      'This panel reports only whether the Start route has a live Rust-owned setup-first-run snapshot. It does not claim live account readiness, signed installer readiness, pairing trust, data-custody execution, or onboarding completion.'
     );
 
     expect(intent.summaryDetails).toEqual([
@@ -68,6 +68,16 @@ describe('setup first-run panel intent', () => {
     expect(readableSetupValue('manual-required')).toBe('Manual required');
     expect(readableSetupValue('live-local')).toBe('Live local');
     expect(readableSetupValue('productionReady')).toBe('ProductionReady');
+  });
+
+  it('rejects an empty nested display value instead of projecting invalid setup state', () => {
+    const panel = sampleSetupFirstRunPanel();
+    const invalidPanel: ParentSetupFirstRunPanelSnapshot = {
+      ...panel,
+      summaryDetails: [{ label: '', value: 'unavailable' }],
+    };
+
+    expect(() => createSetupFirstRunPanelIntent(invalidPanel)).toThrow('DisplayText: expected a non-empty string');
   });
 });
 

@@ -77,6 +77,131 @@ fn start_route_snapshot_attaches_setup_first_run_panel() {
 }
 
 #[test]
+fn start_route_projects_lan_as_observation_without_minting_setup_authority() {
+    let address = start_lan_local_server(
+        AgentEventName::AgentLanPairingStatusReported,
+        sample_lan_read_model(),
+    );
+    let value = with_agent_addr(&address, || {
+        route_snapshot_json(
+            ParentRouteId::Start,
+            None,
+            TestContext("start route available LAN snapshot serializes"),
+        )
+    });
+    let panel = &value["setupFirstRunPanel"];
+
+    assert_eq!(value["dataSource"], "host-bridge");
+    assert_eq!(value["connectionState"], "connected");
+    assert_eq!(panel["summaryDetails"][1]["value"], "unavailable");
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("LAN source"),
+        TestValue("LAN"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("Selected device"),
+        TestValue("not-selected"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("Selected device status"),
+        TestValue("observation; trust=unpaired, reachability=offline, control=false, authority=unavailable"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("LAN authority"),
+        TestValue("observation only; ownership and trust remain unavailable"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Setup state"),
+        TestValue("manual-required"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Account identity"),
+        TestValue("manual-required"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Device authority"),
+        TestValue("manual-required"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][2]["details"],
+        TestLabel("Degraded/manual state"),
+        TestValue("manual-required"),
+    );
+    assert_eq!(panel["productClaim"], "This panel reports only whether the Start route has a live Rust-owned setup-first-run snapshot. It does not claim live account readiness, signed installer readiness, pairing trust, data-custody execution, or onboarding completion.");
+}
+
+#[test]
+fn start_route_unavailable_snapshot_keeps_recovery_and_authority_fail_closed() {
+    let value = with_isolated_agent_addr(|| {
+        route_snapshot_json(
+            ParentRouteId::Start,
+            None,
+            TestContext("start route unavailable snapshot serializes"),
+        )
+    });
+    let panel = &value["setupFirstRunPanel"];
+
+    assert_eq!(value["dataSource"], "unavailable");
+    assert_eq!(value["connectionState"], "error");
+    assert_eq!(panel["summaryDetails"][1]["value"], "unavailable");
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("LAN source"),
+        TestValue("unavailable"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][0]["details"],
+        TestLabel("Diagnostic detail"),
+        TestValue("captured-in-rust-bridge"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Recovery"),
+        TestValue("manual-required"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][1]["details"],
+        TestLabel("Device authority"),
+        TestValue("manual-required"),
+    );
+    assert_panel_detail_value(
+        &panel["cards"][2]["details"],
+        TestLabel("Source and custody"),
+        TestValue("Rust-owned boundary; unavailable owners stay explicit"),
+    );
+    assert_eq!(
+        panel["cards"][2]["details"]
+            .as_array()
+            .and_then(|details| details
+                .iter()
+                .find(|detail| detail["label"] == "Action planning"))
+            .and_then(|detail| detail["value"].as_str()),
+        Some("not invoked")
+    );
+}
+
+#[test]
+fn non_start_route_does_not_attach_first_run_panel() {
+    let value = with_isolated_agent_addr(|| {
+        route_snapshot_json(
+            ParentRouteId::Overview,
+            None,
+            TestContext("overview route snapshot serializes without setup panel"),
+        )
+    });
+
+    assert_eq!(value["route"], "overview");
+    assert!(value["setupFirstRunPanel"].is_null());
+}
+
+#[test]
 fn proof_panels_route_snapshot_attaches_browser_route_panels() {
     let value = with_isolated_agent_addr(|| {
         route_snapshot_json(
