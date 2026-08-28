@@ -9366,8 +9366,12 @@
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
         "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
         "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
-        "crates/screen-capture-adapter/src/linux_foreground_source.rs"
-      ]
+        "crates/screen-capture-adapter/src/linux_foreground_source.rs",
+        "crates/screen-capture-adapter/tests/unit/linux_foreground_source_preflight.rs",
+        "crates/agent-service/tests/unit/app_game_linux_source_preflight.rs",
+        "crates/agent-protocol/tests/contract/app_game_linux_source_preflight.rs"
+      ],
+      "note": "Independent review accepted the fail-closed Linux foreground-source preflight and its service/protocol projections. Canonical 04783a5b7 contains all three exact real test roots, but none has been executed in the code-first source phase. Live foreground-tool/process custody, active capture authority, proof, CI, READY, and DONE remain open."
     },
     "WP-app-game-plan-192-app-game-android-authority-preflight": {
       "planSlug": "app-game-plan",
@@ -10424,7 +10428,10 @@
         "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token_groups.rs",
         "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/service_sid.rs",
         "crates/protected-capability-custody-core/src/broker_admission/platform/windows/token_groups.rs",
-        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/service_sid.rs"
+        "crates/protected-capability-custody-core/src/broker_admission/platform/windows/service_sid.rs",
+        "crates/protected-capability-custody-broker/tests/windows_broker_custody.rs",
+        "crates/protected-capability-custody-client/tests/admission.rs",
+        "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
       ],
       "plannedImplementationRoots": [
         "crates/protected-capability-custody-broker/src/custody.rs",
@@ -10437,7 +10444,7 @@
         "crates/protected-capability-custody-client/tests/admission.rs",
         "crates/protected-capability-custody-client/tests/windows_ipc_authentication.rs"
       ],
-      "note": "WP04 owns the private Windows client_anchor, client fixed-pipe transport/session, and broker custody/peer/service currentness seams. The retained interprocess PID/session and RAII process/token/image/SCM/enrollment observation primitives remain reviewed, but independent review found two internal P1s: broker hellos reuse startup-cached platform session state, and the listener remains SCM Running without fatal owner/currentness drift revalidation. Only fresh per-hello platform-state loading and bounded listener-lifetime fatal-drift handling are implementation-authorized; malformed peers stay connection-local. No handshake redesign, spawned child, stdin bootstrap, nonce pipe, sysinfo, dunce, caller identity, or external-owner substitute is authorized. WP01 is reviewed-implementation; WP02/WP03/Parent WP12 are implementation-independent for source only. Normal state, operational caller, tests, proof, and DONE remain blocked."
+      "note": "WP04 owns the private Windows client_anchor, fixed-pipe transport/session, and broker custody/peer/service currentness seams. Canonical e0a410368 repaired fresh per-hello platform-state loading and listener-lifetime fatal owner/currentness revalidation while keeping malformed peers connection-local; canonical 597098eea adds the three exact typed boundary test roots. The tests are unexecuted. No handshake redesign, caller identity, or external-owner substitute is authorized. WP02/WP03/Parent WP12, the owner-bound production caller, operational enrollment/anchor, proof, CI, READY, and DONE remain blocked."
     },
     "WP-protected-capability-custody-foundation-plan-05-account-issuer-key-and-store-custody": {
       "planSlug": "protected-capability-custody-foundation-plan",

@@ -29,6 +29,15 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 - This audit changes ownership/status routing only. It does not claim Phase 2
   focused tests/Enforcer, Phase 3 proof, or release readiness.
 
+## WP191/WP197 code-and-test-source checkpoint — 2026-08-28
+
+Canonical `04783a5b7` contains WP191's complete typed fail-closed production
+boundary and all three expected real test roots. Canonical `6eb1785c3` contains
+WP197's reviewed Docker preflight source and all six expected real test roots.
+None of these nine tests has been executed in the code-first phase. Live Linux
+foreground-tool/process custody, active capture authority, proof, CI, READY,
+and DONE remain open.
+
 ## WP197 source integration checkpoint — 2026-08-25
 
 The Linux Docker host preflight source is integrated in the canonical tree
@@ -36,8 +45,9 @@ through `5bfb2f6f3` from `origin/codex/app-game-wp197-repair-round4-aug24` at
 `23c08da016`. The current owner is Rust in `crates/agent-protocol` and
 `crates/agent-service`, including the preflight, process/cleanup/path/output
 helpers, service wiring, and websocket report/admission paths; the old
-`packages/parent-domain` file list in the workpack is stale. Six expected test
-roots are still absent:
+`packages/parent-domain` file list in the workpack is stale. The six expected
+test roots listed below were subsequently added at canonical `6eb1785c3`, but
+remain unexecuted:
 
 - `crates/agent-service/tests/unit/app_game_linux_docker_host_preflight.rs`
 - `crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_parser_tests.rs`

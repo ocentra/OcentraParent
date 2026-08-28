@@ -16,13 +16,11 @@ private core Windows production roots, and the WP01-owned BIN-only provisioner
 preflight are live, reviewed topology at canonical `cbd974291`. The preflight
 only revalidates existing enrollment and always fails with
 `ExternalProvisioningRequired`; Parent Runtime WP12 package/lifecycle
-invocation, production callers, and 13 test roots remain open. A focused
-2026-08-26 follow-up confirmed that the WP04 OS-observation primitives remain
-present, but withdrew the implementation-complete claim after finding two
-internal broker currentness gaps: startup-cached platform session state and a
-listener lifetime that does not revalidate fatal owner/currentness drift. This
-is bounded source routing only, not operational readiness or completion
-evidence.
+invocation and production callers remain open. A focused 2026-08-26 follow-up
+found two WP04 internal currentness gaps; canonical `e0a410368` repairs them,
+and `597098eea` adds the three expected WP04 typed test roots. Those tests are
+unexecuted, other plan test roots remain absent, and this is bounded source
+routing only, not operational readiness or completion evidence.
 
 The implementation-only repair route is governed by
 [ADR-PCC-002](adr/ADR-PCC-002.md). It selects one existing Rust Windows
@@ -35,12 +33,12 @@ identity, public proof construction, or fake authority.
 | validation / source accepted; runtime and test closure open | [01 Protected Capability Custody Boundary](workpacks/01-protected-capability-custody-foundation.md) | Active fail-closed core, neutral protocol, isolated Windows broker, client, private FFI mechanics, private core Windows adapter, and read-only BIN provisioner preflight at reviewed canonical `a6d7d9adf` (114 implementation files / 0 tests) | P0 security/persistence/platform | External OEM/firmware/MDM `TPM_RH_PLATFORM` + NV lifecycle, authenticated owner handoff, protected registry/SCM mutation, independent current observations, monotonic provider, real transport caller, 13 expected tests, proof, and runtime availability remain absent. |
 | blocked / source-order route only; no implementation authorization while external owner is absent | [02 Windows Enrollment Owner Handoff](workpacks/02-windows-enrollment-owner-handoff.md) | Protected Enrollment/SCM/TPM owner transaction and provisioner handoff | P0 security/platform | External OEM/firmware/MDM authority is a prerequisite. The fixed transaction, owner caller, and two expected test roots are absent; no caller-minted enrollment or READY/DONE route is authorized. |
 | blocked / implementation route remains separate from operational readiness | [03 Monotonic Anti-Rollback Provider](workpacks/03-monotonic-anti-rollback-provider.md) | Core Windows monotonic provider and platform anti-rollback boundary | P0 security/persistence | WP01 and the WP02 owner transaction remain prerequisites. The TPM NV counter test is absent; disk, SQLite, or caller counters cannot substitute for hardware-backed currentness. |
-| planned / bounded internal source repair authorized; normal completion dependency-gated | [04 Client Broker Anchor Transport](workpacks/04-client-broker-anchor-transport.md) | Protected client admission, fixed pipe, OS-derived broker anchor, fresh broker platform-session state, and listener-lifetime currentness | P0 security/IPC | Retain the reviewed observation primitives, then repair only fresh per-hello platform-state loading and fatal listener/SCM drift revalidation. WP01/WP02/WP03 and Parent WP12 remain hard completion prerequisites, while the three transport tests, real owner-bound caller, operational enrollment/anchor, proof, and DONE remain absent. |
+| validation / code-and-test source complete; normal completion dependency-gated | [04 Client Broker Anchor Transport](workpacks/04-client-broker-anchor-transport.md) | Protected client admission, fixed pipe, OS-derived broker anchor, fresh broker platform-session state, listener-lifetime currentness, and three typed test roots | P0 security/IPC | Internal currentness repairs are integrated at `e0a410368` and test source at `597098eea`. WP01/WP02/WP03 and Parent WP12 remain hard completion prerequisites; the tests are unexecuted and the real owner-bound caller, operational enrollment/anchor, proof, and DONE remain absent. |
 | blocked / independently reviewed bounded source; tests and operational closure open | [05 Account Issuer Key and Store Custody](workpacks/05-account-issuer-key-and-store-custody.md) | Account-owned TPM-native ECDSA P-256 v2 self-contained inner/outer issuer owner and typed broker boundary; 140 production files mapped / 128 exact implementation references reviewed through canonical `f6d6dcf542ff` | P0 security/cryptography/persistence | Durable issue reservation/idempotency, recovery reconciliation, exact service/receipt/outbox lineage, owner admission, signer custody, typed protocol/client/broker/Parent composition, bounded v2 time, CNG P-256, and Cloudflare original-byte verification are source-present. Service-specific ACL provisioning and the external WP02/WP03/WP04 owner/provider/runtime path remain operationally blocked. All eight expected tests, proof, pre-commit, CI, PR, READY, and DONE remain open. |
 
 WP02 has no implementation authorization until the external OEM/firmware/MDM
-owner transaction is available. WP04 has only the bounded internal currentness
-repair authorization described above; WP05 bounded source is reviewed and
+owner transaction is available. WP04's bounded internal currentness repair and
+typed test source are integrated; WP05 bounded source is reviewed and
 integrated, while its operational completion remains dependency-gated.
 Their implementation-independent edges do not alter normal completion, which
 remains blocked on the operational predecessors. WP05 does not open a second

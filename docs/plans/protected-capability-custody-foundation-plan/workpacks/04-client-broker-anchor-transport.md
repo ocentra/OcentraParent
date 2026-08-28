@@ -14,9 +14,9 @@
 
 Define the single fixed-pipe client admission boundary and the retained
 OS-derived broker anchor. The Windows observation primitives are source-present,
-but independent review at canonical `8f8cdf39e` withdrew the earlier
-implementation-complete claim and found two bounded internal currentness gaps.
-WP04 is implementation-repair-authorized only for those gaps. The WP01
+and canonical `e0a410368` closes the two bounded internal currentness gaps found
+by the independent review at `8f8cdf39e`. Canonical `597098eea` adds the three
+expected typed test roots; they are unexecuted. The WP01
 dependency remains `reviewed-implementation`; WP02, WP03, and Parent WP12 are
 `implementation-independent` for source phase only. Normal derived state and
 completion remain blocked until those operational predecessors are DONE.
@@ -35,7 +35,7 @@ core anchor and peer admission retain and revalidate those observations, and
 the client rechecks the kernel-reported server PID/session before bootstrap and
 broker-hello acceptance.
 
-Two independently verified internal P1 defects remain:
+The 2026-08-26 independent review identified two internal P1 defects:
 
 1. Broker custody caches `BrokerPlatformSessionState` at startup, and later
    broker hellos reuse that cached key/writer/watermark after protected custody
@@ -51,12 +51,19 @@ Two independently verified internal P1 defects remain:
    Ordinary malformed or unauthenticated peer traffic remains connection-local
    and must not become a remote service-stop primitive.
 
-This is reviewed production-source truth only. It does not establish external
+## Internal repair and test-source checkpoint — 2026-08-28
+
+Canonical `e0a410368` now obtains fresh fallible platform-session state before
+each broker hello and revalidates fatal owner/currentness drift during listener
+lifetime while keeping malformed peers connection-local. Canonical
+`597098eea` adds the three exact test modules for the fixed pipe, session
+currentness/expiry, process/session drift, request lifetime, protocol codec,
+and typed non-Windows unavailability. They have not been executed.
+
+This is reviewed production-and-test-source truth only. It does not establish external
 enrollment, a protected monotonic provider, an owner-bound parent caller,
-operational readiness, tests, proof, READY, or DONE. The two internal repairs
-above are independently authorable without inventing any missing external
-owner; no broader handshake, identity, enrollment, or provider work is
-authorized by this route.
+operational readiness, test results, proof, READY, or DONE. No broader
+handshake, identity, enrollment, or provider work is authorized by this route.
 
 ## Expected production roots
 
@@ -135,10 +142,10 @@ listener-lifetime currentness gaps above.
 ## Dependencies and state
 
 Normal completion depends on WP01, WP02, WP03, and Parent WP12. WP04 remains
-open for the owner-bound production caller, three expected tests, proof, and
-DONE; source-phase authorization does not claim any of them. The only current
-implementation authorization is the fresh per-hello platform-state read and
-service-lifetime currentness/fatal-drift handling described above. External
+open for the owner-bound production caller, execution of its three expected
+tests, proof, and DONE; source-phase integration does not claim any of them.
+The fresh per-hello platform-state read and service-lifetime
+currentness/fatal-drift handling described above are source-integrated. External
 enrollment, monotonic provider availability, package/lifecycle invocation, and
 operational anchor state remain upstream owner work. Account issuer
 signing/store authority is the distinct typed WP05 contract; lifecycle

@@ -12,6 +12,16 @@
 
 ## Current status
 
+## WP04 code-and-test-source checkpoint — 2026-08-28
+
+Canonical `e0a410368` closes WP04's two internal currentness defects with fresh
+fallible platform-session loading per broker hello and bounded listener-lifetime
+fatal owner/currentness revalidation. Canonical `597098eea` adds all three
+expected typed WP04 test roots. The tests have not been executed. External
+enrollment/SCM ownership, the hardware monotonic provider, Parent WP12 package
+lifecycle composition, a real owner-bound caller, proof, CI, READY, and DONE
+remain blocked.
+
 ## Source-consolidation checkpoint — 2026-08-25
 
 The independently reviewed Protected WP01 source packet and the subsequent
@@ -36,13 +46,13 @@ The plan remains an active neutral foundation route with one workpack in
   registry/SCM mutation, and enrolled counter generation remain unavailable;
 - independent broker/client/token current observations and the core monotonic
   provider, plus the owner-bound production broker/client caller, remain open;
-  the bounded WP04 process/token/service-SID observation adapters are
-  source-present, but fresh per-hello platform state and listener-lifetime
-  fatal-drift revalidation still require internal source repair, while
-  operational enrollment and currentness remain unavailable.
+  the bounded WP04 process/token/service-SID observation adapters, fresh
+  per-hello platform state, and listener-lifetime fatal-drift revalidation are
+  source-present, while operational enrollment and hardware currentness remain
+  unavailable.
 - SQLite remains a checked replica, not protected authority;
-- all 13 expected test roots remain absent, as do retained proof and release
-  evidence.
+- the three WP04 expected test roots are present but unexecuted; other expected
+  plan test roots, retained proof, and release evidence remain open.
 
 The graph records the route as `validation`. Accepted mechanics and a
 read-only preflight do not derive READY or DONE while the external authority,
@@ -150,12 +160,12 @@ This is graph implementation-phase routing only. If the graph derives
 implementation authorization, it authorizes only the remaining production
 roots; the normal WP01 lifecycle remains `validation`, not READY or DONE. The
 broker/client/FFI/private-core and read-only provisioner source is present,
-including the WP04 fixed-pipe/retained-observation primitives, but WP04 still
-has the two bounded internal currentness repairs above. Runtime also remains
+  including the WP04 fixed-pipe/retained-observation primitives and bounded
+  internal currentness repairs. Runtime still remains
 blocked by external platform/installer authority, authenticated owner handoff,
 operational current observations, monotonic provider, and real transport caller
-boundaries. All 13 expected test roots remain absent, with these core-private
-adapter/TPM test expectations recorded as absent planned tests only:
+boundaries. The three WP04 roots are present but unexecuted; other expected
+roots remain absent, including these core-private adapter/TPM expectations:
 
 ```text
 crates/protected-capability-custody-core/tests/unit/windows_adapter.rs
@@ -275,12 +285,14 @@ operational owner work that must follow it:
   custody platform-session state, interprocess PID/session, and RAII
   process/token/image/SCM/enrollment observations, including TokenGroups and
   service-SID resolution. The reviewed WP01 plus implementation-independent
-  WP02/WP03/Parent WP12 edges authorize only the bounded fresh per-hello state
-  and listener-lifetime fatal-currentness repair. Normal derived state remains
+  WP02/WP03/Parent WP12 edges authorized only the bounded fresh per-hello state
+  and listener-lifetime fatal-currentness repair, now source-integrated at
+  `e0a410368`. Normal derived state remains
   blocked and normal completion depends on WP01, WP02, WP03, and Parent WP12.
   The route cannot use sysinfo or caller-supplied identity and does not redesign
-  the broker/protocol handshake. The owner-bound caller, three tests, proof,
-  operational enrollment, READY, and DONE remain open.
+  the broker/protocol handshake. The three expected test roots are checked in
+  but unexecuted; the owner-bound caller, proof, operational enrollment, READY,
+  and DONE remain open.
 - **WP05 Account Issuer Key and Store Custody** has independently reviewed
   bounded production source integrated through canonical `f6d6dcf542ff` for
   Account WP09. WP01's `Seal`/`Rotate`/`Revoke`/`Recover` protocol

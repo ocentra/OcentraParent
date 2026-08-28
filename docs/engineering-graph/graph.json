@@ -5672,7 +5672,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "source-integrated / expected-test-source-incomplete",
+        "statusText": "source-and-test-source integrated / execution open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -9358,7 +9358,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "validation",
+        "statusText": "validation / code-and-test source complete",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -9376,13 +9376,29 @@
             "crates/agent-service/tests/unit/app_game_linux_source_preflight.rs",
             "crates/agent-protocol/tests/contract/app_game_linux_source_preflight.rs"
           ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent source review accepted the typed, fail-closed Linux display/socket foreground-source preflight, hostile caller-observation rejection, service read-model gap preservation, and protocol projection. Canonical 04783a5b7 contains all three exact real test roots, but none has been executed in this code-first phase. Live foreground-tool/process custody, active capture authority, proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/191-app-game-linux-foreground-source-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
-          "implementation": [],
+          "implementation": [
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+            "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities_linux.rs",
+            "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+            "crates/screen-capture-adapter/src/linux_foreground_source.rs"
+          ],
           "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
@@ -25628,11 +25644,11 @@
         "WP-parent-desktop-runtime-package-plan-12-protected-broker-provisioner-package"
       ],
       "state": "blocked",
-      "lifecycleState": "planned",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "protected-capability-custody-foundation-plan",
         "indexPath": "docs/plans/protected-capability-custody-foundation-plan/WORKPACK_INDEX.md",
-        "statusText": "planned / bounded internal source repair authorized; normal completion dependency-gated",
+        "statusText": "validation / code-and-test source complete; normal completion dependency-gated",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -25663,14 +25679,48 @@
             "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "WP04 owns the private Windows client_anchor, fixed-pipe transport/session, and the broker custody/runtime/peer/service currentness seams. Independent review at canonical 8f8cdf39e retained the real OS PID/session and RAII process/token/image/SCM/enrollment observation primitives but withdrew the implementation-complete claim: broker hellos reuse startup-cached BrokerPlatformSessionState after custody currentness may advance, and the listener reports SCM Running after a one-time check while swallowing later peer/currentness failures. Only fresh fallible per-hello platform-state loading plus bounded listener-lifetime fatal owner/currentness revalidation is implementation-authorized; malformed peers remain connection-local. The owner-bound caller, external enrollment/SCM/monotonic authority, three tests, proof, and operational readiness remain open. Normal state stays blocked by WP01/WP02/WP03/Parent WP12; implementation-independent edges do not waive completion or authorize broader Protected authority."
+          "reason": "WP04 owns the private Windows client_anchor, fixed-pipe transport/session, and broker custody/runtime/peer/service currentness seams. Canonical e0a410368 closes the two bounded internal P1s with fresh fallible per-hello platform-session loading and listener-lifetime fatal owner/currentness revalidation; malformed peers remain connection-local. Canonical 597098eea adds all three exact typed boundary test roots, but they are unexecuted. The owner-bound caller, external enrollment/SCM/monotonic authority, proof, CI, and operational readiness remain open. Normal state stays blocked by WP01/WP02/WP03/Parent WP12; implementation-independent edges do not waive completion or authorize broader Protected authority."
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent source review accepted the private OS-derived broker anchor, fixed-pipe transport/session, fresh per-hello platform currentness, and listener-lifetime fatal-drift handling through canonical e0a410368. Canonical 597098eea contains all three exact typed test roots, but none has been executed. External enrollment/SCM ownership, the hardware monotonic provider, Parent WP12 lifecycle composition, a real owner-bound caller, proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+          "evidence": [
+            "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist", "adr"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
-          "implementation": [],
+          "implementation": [
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows.rs",
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/client_anchor.rs",
+            "crates/protected-capability-custody-client/src/lib.rs",
+            "crates/protected-capability-custody-client/src/windows_ipc.rs",
+            "crates/protected-capability-custody-client/src/windows_ipc_connect.rs",
+            "crates/protected-capability-custody-client/src/windows_ipc_io.rs",
+            "crates/protected-capability-custody-client/src/windows_ipc_peer.rs",
+            "crates/protected-capability-custody-client/src/windows_ipc_session.rs",
+            "crates/protected-capability-custody-client/src/admission.rs",
+            "crates/protected-capability-custody-broker/src/authority.rs",
+            "crates/protected-capability-custody-broker/src/custody.rs",
+            "crates/protected-capability-custody-broker/src/custody/runtime.rs",
+            "crates/protected-capability-custody-broker/src/windows_ipc.rs",
+            "crates/protected-capability-custody-broker/src/windows_ipc/service.rs",
+            "crates/protected-capability-custody-broker/src/windows_ipc/peer.rs",
+            "crates/ocentra-protected-capability-custody-windows-ffi/src/windows.rs",
+            "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process.rs",
+            "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token.rs",
+            "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token_sid.rs",
+            "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/process_token_groups.rs",
+            "crates/ocentra-protected-capability-custody-windows-ffi/src/windows/service_sid.rs",
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/token_groups.rs",
+            "crates/protected-capability-custody-core/src/broker_admission/platform/windows/service_sid.rs"
+          ],
           "tests": [
             "docs/plans/protected-capability-custody-foundation-plan/TEST_PROOF_EXPECTATIONS.md"
           ],

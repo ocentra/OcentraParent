@@ -43,20 +43,20 @@ Windows/WSL host state, compose App/Game ownership, or authorize capture.
 - Linux xwd/convert capture stays fail-closed because a safe FD-backed
   producer-owned handoff is not yet established. Selected-window/title capture
   is unavailable because raw-title search is outside the metadata boundary.
-- No workpack tests, proof artifacts, or deployment validation were added in
-  this source-only phase.
+- Canonical `04783a5b7` adds all three expected real test modules for the
+  adapter preflight, service read-model boundary, and protocol serialization.
+  They are checked-in source only and have not been executed in this phase.
 
 ## Validation
 
-Source-only validation is limited to focused Cargo checks, formatting, source
-shape/architecture, Enforcer coordination, graph validation, and diff guards.
-The adapter Linux library check passed under WSL; no tests or proof commands
-were run.
+The prior adapter source packet passed its recorded focused source checks. The
+2026-08-28 code-and-test source packet intentionally ran no tests, builds,
+validation scans, proof, pre-commit, CI, or deployment commands.
 
 ## Proof
 
-No proof artifact exists. The expected Linux preflight test roots are absent and
-this workpack is not DONE or proof-complete.
+No proof artifact exists. The expected Linux preflight test roots are present
+but unexecuted, so this workpack is not DONE or proof-complete.
 
 ## Boundaries (validation-open; not completion)
 
@@ -86,4 +86,5 @@ integration roots: `crates/agent-service/src/activity_api.rs`,
 `crates/screen-capture-adapter/src/linux_foreground_source.rs`. It consumes
 WP189's display/socket/X11 capture-readiness foundation through the reviewed
 `WP191 -> WP189` dependency. WP204 is test/contract-only and owns no
-production root. Expected tests, proof, and runtime validation remain open.
+production root. Canonical `04783a5b7` contains the three expected real test
+roots; their execution, proof, and runtime validation remain open.

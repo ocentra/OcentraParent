@@ -30,10 +30,11 @@ This file is the short resume list for the next worker. It is derived from open 
 ### WP197 source checkpoint — 2026-08-25
 
 WP197 production source is integrated through `5bfb2f6f3` (source packet
-`23c08da016`). Before focused execution, write the six missing Rust test roots
-for preflight, path security, process identity, output, cleanup, and transport
-admission together. Do not revive the stale `packages/parent-domain` test
-paths, and do not call source presence runtime or proof completion.
+`23c08da016`), and canonical `6eb1785c3` adds the six expected Rust test roots
+for preflight, path security, parser/output, cleanup, cache, and route
+admission. Their execution and proof remain later phases. Do not revive the
+stale `packages/parent-domain` test paths or call checked-in source runtime
+completion.
 
 The 2026-08-15 code audit maps all 220 workpacks and leaves 33 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
