@@ -33,10 +33,8 @@ function safeRequest(path: string, headers: HeadersInit = {}): Request {
 
 describe('account browser session routes', () => {
   it('keeps provider-only login manual-required and ignores a legacy trusted-device header', async () => {
-    const harness = createTestHarness({
-      ACCOUNT_IDENTITY_D1: undefined,
-      AUTH_ADAPTER_MODE: 'provider-verified',
-    });
+    const harness = createTestHarness({ ACCOUNT_IDENTITY_D1: undefined });
+    harness.env.AUTH_ADAPTER_MODE = 'provider-verified';
     const response = await loginBrowserSession(
       safeRequest('/auth/session/login', {
         authorization: 'Bearer provider-only-credential.invalid',

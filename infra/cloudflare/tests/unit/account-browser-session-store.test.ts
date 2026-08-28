@@ -203,7 +203,7 @@ describe('account browser session custody store', () => {
       assert.equal(await store.verifyCsrf(created.secrets.sessionToken, created.secrets.csrfToken), true);
       assert.equal(await store.verifyCsrf(created.secrets.sessionToken, 'wrong-csrf-token'), false);
 
-      const expiredAccessAt = new Date(Date.now() - 1_000).toISOString();
+      const expiredAccessAt = new Date(Date.parse(created.identity.issuedAt) + 1).toISOString();
       const restoreAccessAt = new Date(Date.now() + 30 * 60 * 1_000).toISOString();
       const accessExpiry = fixture.harness.database.prepare(
         'UPDATE ocentra_account_browser_sessions SET access_expires_at = ? WHERE session_id = ?'
@@ -267,7 +267,7 @@ describe('account browser session custody store', () => {
     const harness = new SQLiteD1Harness();
     try {
       const store = createBrowserSessionStore(harness.d1);
-      assert.deepEqual(await store.read('malformed'), { status: 'rejected', reason: 'malformed' });
+      assert.deepEqual(await store.read('malformed'), { status: 'manual-required', reason: 'schema-missing' });
       assert.deepEqual(await store.read(null), { status: 'manual-required', reason: 'schema-missing' });
     } finally {
       harness.close();

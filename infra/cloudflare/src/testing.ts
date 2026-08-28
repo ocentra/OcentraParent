@@ -95,6 +95,7 @@ export function createTestHarness(overrides: Partial<Env> = {}): CloudflareTestH
     INTERNAL_QUEUE_SHARED_SECRET: createLocalFixtureValue('-', ['internal', 'test', 'secret']),
     STRIPE_SECRET_KEY: 'sk_test_not_exposed',
     STRIPE_WEBHOOK_SECRET: createLocalFixtureValue('_', ['whsec', 'test', 'secret']),
+    STRIPE_WEBHOOK_TOLERANCE_SECONDS: '300',
     PAYPAL_CLIENT_SECRET: createLocalFixtureValue('-', ['paypal', 'test', 'secret']),
     RAZORPAY_KEY_SECRET: createLocalFixtureValue('-', ['razorpay', 'test', 'secret']),
     APPLE_STORE_KEY_REF: 'apple-store-key-test-ref',
@@ -112,8 +113,8 @@ export function createTestHarness(overrides: Partial<Env> = {}): CloudflareTestH
   env.BILLING_DO = createDurableObjectNamespace(BillingControlDO, env);
   env.REFERRAL_DO = createDurableObjectNamespace(ReferralControlDO, env);
   env.ENTITLEMENT_SNAPSHOT_DO = createDurableObjectNamespace(EntitlementSnapshotDO, env);
-  Object.assign(env, overrides);
   localBindings.state.replaceSeed(buildDefaultBillingBindingSeed(env));
+  Object.assign(env, overrides);
 
   return {
     env,

@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { validateAuthBoundaryRoute, type AuthState, type RouteAuditRule } from '../../src/auth/model.js';
-import { ROUTE_MANIFEST } from '../../src/routes.js';
+import { routeRequestModel, routeResponseModel, ROUTE_MANIFEST } from '../../src/routes.js';
 
 const EXPECTED_AUTH_ROUTES = new Map([
+  ['POST /auth/session/login', 'public'],
+  ['POST /auth/session/refresh', 'browser-refresh-required'],
+  ['POST /auth/session/logout', 'browser-refresh-required'],
+  ['POST /auth/session/revoke', 'browser-refresh-required'],
   ['GET /auth/billing/status', 'parent-session-required'],
   ['POST /auth/billing/checkout', 'parent-session-required'],
   ['POST /auth/billing/portal', 'parent-session-required'],
@@ -35,20 +39,27 @@ const EXPECTED_ADMIN_ROUTES = new Map([
   ['GET /admin/billing/audit', 'admin-required'],
 ] as const);
 
+const EXPECTED_INTERNAL_ROUTES = new Map([
+  ['POST /internal/account-identity/issuer-v2', 'internal-queue-only'],
+] as const);
+
 const EXPECTED_ROUTE_KEYS = [
   'GET /health',
   'GET /public/pricing',
   ...EXPECTED_AUTH_ROUTES.keys(),
   ...EXPECTED_ADMIN_ROUTES.keys(),
+  ...EXPECTED_INTERNAL_ROUTES.keys(),
   ...EXPECTED_WEBHOOK_ROUTES,
 ].sort();
 
 const ALLOWED_ROUTE_PATTERNS = [
   /^\/health$/u,
   /^\/public\/pricing$/u,
+  /^\/auth\/session\/(login|refresh|logout|revoke)$/u,
   /^\/auth\/billing\/[a-z-]+$/u,
   /^\/webhooks\/[a-z]+$/u,
   /^\/admin\/billing\/[a-z-]+$/u,
+  /^\/internal\/account-identity\/issuer-v2$/u,
 ] as const;
 
 describe('ROUTE_MANIFEST', () => {
@@ -68,6 +79,7 @@ describe('ROUTE_MANIFEST', () => {
       ['GET /public/pricing', 'public'],
       ...EXPECTED_AUTH_ROUTES,
       ...EXPECTED_ADMIN_ROUTES,
+      ...EXPECTED_INTERNAL_ROUTES,
       ...EXPECTED_WEBHOOK_ROUTES.map((routeKey) => [routeKey, 'provider-webhook-signature-required'] as const),
     ]);
 
@@ -84,8 +96,8 @@ describe('ROUTE_MANIFEST', () => {
       assert.ok(route.method === 'GET' || route.method === 'POST');
       assert.match(route.authState, /.+/u);
       assert.match(route.handlerKey, /.+/u);
-      assert.match(route.requestModel, /.+/u);
-      assert.match(route.responseModel, /.+/u);
+      assert.match(routeRequestModel(route), /.+/u);
+      assert.match(routeResponseModel(route), /.+/u);
       assert.match(route.auditRule, /.+/u);
       assert.match(route.auditEvent, /.+/u);
       assert.match(route.proofIdFamily, /.+/u);
@@ -95,7 +107,10 @@ describe('ROUTE_MANIFEST', () => {
   it('never marks auth, admin, or webhook billing routes as public', () => {
     const privateRoutes = ROUTE_MANIFEST.filter(
       (route) =>
-        route.path.startsWith('/auth/') || route.path.startsWith('/admin/') || route.path.startsWith('/webhooks/')
+        (route.path.startsWith('/auth/') && route.routeBoundary !== 'session-login') ||
+        route.path.startsWith('/admin/') ||
+        route.path.startsWith('/webhooks/') ||
+        route.path.startsWith('/internal/')
     );
 
     assert.ok(privateRoutes.length > 0);
@@ -125,6 +140,8 @@ describe('ROUTE_MANIFEST', () => {
 
     const nakedPrivateRoute = {
       ...supportRoute,
+      routeGroup: 'billing' as const,
+      path: '/auth/billing/accounts' as const,
       authState: 'public' as AuthState,
       auditRule: 'public-observability' as RouteAuditRule,
     };

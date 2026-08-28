@@ -4,7 +4,7 @@ import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 import {
   createParentPortalActivityUiIntent,
   type ParentPortalActivityStateLike,
-} from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
+} from '../../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
 import { resolveSnapshotLiveActivityState } from '../../src/route-live-activity-state';
 import type { ParentRouteLiveActivitySnapshot } from '../../generated/parent-ui-bridge';
 

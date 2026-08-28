@@ -26,7 +26,8 @@ describe('parent portal app/game source freshness intent', () => {
       label: 'Study Timer', inventoryCount: 1, runningCount: 1, foregroundCount: 1, manualRequired: false, riskCandidate: false,
     });
     expect(rowValues(dashboard, 'game-row-launcher')).toEqual({
-      label: 'Steam Launcher', inventoryCount: 1, runningCount: 1, foregroundCount: 0, manualRequired: true, launcherOnly: true,
+      label: 'Steam Launcher', inventoryCount: 1, runningCount: 1, foregroundCount: 0, manualRequired: true,
+      launcherOnly: true, riskCandidate: false,
     });
     expect(rowValues(dashboard, 'app-row-malicious-name')).toEqual({
       label: 'VPN Proxy Portable <script>alert(1)</script> with a display name that is deliberately too long for one row',
@@ -116,7 +117,7 @@ function rowValues(dashboard: ParentPortalAppGameDashboardIntent, rowId: string)
   return {
     label: row.label, inventoryCount: row.inventoryCount, runningCount: row.runningCount,
     foregroundCount: row.foregroundCount, manualRequired: row.manualRequired,
-    ...(row.launcherOnly ? { launcherOnly: true } : {}), ...(row.riskCandidate ? { riskCandidate: true } : {}),
+    ...(row.launcherOnly ? { launcherOnly: true } : {}), riskCandidate: row.riskCandidate,
   };
 }
 

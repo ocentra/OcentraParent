@@ -23,6 +23,8 @@ function createAuthTestEnv(overrides: Partial<Env> = {}): Env {
     REQUEST_MAX_BYTES: '2048',
     AUTH_ADAPTER_MODE: 'local-safe-fixture',
     INTERNAL_QUEUE_SHARED_SECRET: internalQueueSharedSecret,
+    STRIPE_WEBHOOK_SECRET: ['whsec', 'auth', 'boundary', 'fixture'].join('_'),
+    STRIPE_WEBHOOK_TOLERANCE_SECONDS: '300',
     ENTITLEMENT_SIGNING_KEY_REF: 'signing-key-test-ref',
     ...overrides,
   };
@@ -41,7 +43,7 @@ describe('auth boundary', () => {
     }
   });
 
-  it('accepts bearer parent sessions', async () => {
+  it('does not accept a caller-supplied bearer parent session without bound account authority', async () => {
     const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'parent-session-required',
@@ -53,14 +55,17 @@ describe('auth boundary', () => {
       env
     );
 
-    assert.equal(result.ok, true);
-    if (result.ok) {
-      assert.equal(result.identity.subject, 'parent:demo-active');
-      assert.equal(result.identity.role, 'parent');
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      const body = await readJsonBody(result.response);
+      assert.equal(result.response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.authState, 'parent-session-required');
+      assert.equal(body.blocker, 'account-identity-binding-context-manual-required');
     }
   });
 
-  it('preserves household subject prefixes for downstream role gating', async () => {
+  it('does not infer household authority from a caller-supplied bearer subject', async () => {
     const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'parent-session-required',
@@ -72,13 +77,17 @@ describe('auth boundary', () => {
       env
     );
 
-    assert.equal(result.ok, true);
-    if (result.ok) {
-      assert.equal(result.identity.subject, 'guardian:demo-guardian');
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      const body = await readJsonBody(result.response);
+      assert.equal(result.response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.authState, 'parent-session-required');
+      assert.equal(body.blocker, 'account-identity-binding-context-manual-required');
     }
   });
 
-  it('rejects parent-session routes without an authorization header', async () => {
+  it('keeps parent-session routes manual-required until an account auth adapter is bound', async () => {
     const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'parent-session-required',
@@ -89,14 +98,14 @@ describe('auth boundary', () => {
     assert.equal(result.ok, false);
     if (!result.ok) {
       const body = await readJsonBody(result.response);
-      assert.equal(result.response.status, 401);
-      assert.equal(body.error, 'authentication-required');
+      assert.equal(result.response.status, 503);
+      assert.equal(body.error, 'manual-required');
       assert.equal(body.authState, 'parent-session-required');
-      assert.equal(body.missingHeader, 'authorization');
+      assert.equal(body.blocker, 'account-identity-binding-context-manual-required');
     }
   });
 
-  it('rejects trusted-device routes without the device header', async () => {
+  it('keeps trusted-device routes manual-required until a current browser authority is bound', async () => {
     const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'trusted-parent-device-required',
@@ -110,11 +119,14 @@ describe('auth boundary', () => {
 
     assert.equal(result.ok, false);
     if (!result.ok) {
-      assert.equal(result.response.status, 403);
+      const body = await readJsonBody(result.response);
+      assert.equal(result.response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.blocker, 'account-identity-binding-context-manual-required');
     }
   });
 
-  it('rejects admin routes that only satisfy parent-session auth', async () => {
+  it('keeps admin routes manual-required until an account admin authority is bound', async () => {
     const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'admin-required',
@@ -130,15 +142,15 @@ describe('auth boundary', () => {
     assert.equal(result.ok, false);
     if (!result.ok) {
       const body = await readJsonBody(result.response);
-      assert.equal(result.response.status, 403);
-      assert.equal(body.error, 'forbidden');
+      assert.equal(result.response.status, 503);
+      assert.equal(body.error, 'manual-required');
       assert.equal(body.authState, 'admin-required');
-      assert.equal(body.reason, 'admin-role-required');
+      assert.equal(body.blocker, 'account-identity-binding-context-manual-required');
       assert.equal('authorization' in body, false);
     }
   });
 
-  it('accepts support and admin roles on support-owned routes', async () => {
+  it('does not mint support or admin authority from caller-supplied role headers', async () => {
     const env = createAuthTestEnv();
     const supportResult = await verifyAuthState(
       'support-required',
@@ -161,17 +173,25 @@ describe('auth boundary', () => {
       env
     );
 
-    assert.equal(supportResult.ok, true);
-    if (supportResult.ok) {
-      assert.equal(supportResult.identity.role, 'support');
+    assert.equal(supportResult.ok, false);
+    if (!supportResult.ok) {
+      const body = await readJsonBody(supportResult.response);
+      assert.equal(supportResult.response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.authState, 'support-required');
+      assert.equal(body.blocker, 'account-identity-binding-context-manual-required');
     }
-    assert.equal(adminResult.ok, true);
-    if (adminResult.ok) {
-      assert.equal(adminResult.identity.role, 'admin');
+    assert.equal(adminResult.ok, false);
+    if (!adminResult.ok) {
+      const body = await readJsonBody(adminResult.response);
+      assert.equal(adminResult.response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.authState, 'support-required');
+      assert.equal(body.blocker, 'account-identity-binding-context-manual-required');
     }
   });
 
-  it('rejects support-owned routes without support or admin authority', async () => {
+  it('keeps support-owned routes manual-required without an owner-issued authority capability', async () => {
     const env = createAuthTestEnv();
     const result = await verifyAuthState(
       'support-required',
@@ -187,10 +207,10 @@ describe('auth boundary', () => {
     assert.equal(result.ok, false);
     if (!result.ok) {
       const body = await readJsonBody(result.response);
-      assert.equal(result.response.status, 403);
-      assert.equal(body.error, 'forbidden');
+      assert.equal(result.response.status, 503);
+      assert.equal(body.error, 'manual-required');
       assert.equal(body.authState, 'support-required');
-      assert.equal(body.reason, 'support-role-required');
+      assert.equal(body.blocker, 'account-identity-binding-context-manual-required');
     }
   });
 
@@ -232,13 +252,14 @@ describe('auth boundary', () => {
     }
     assert.equal(invalidResult.ok, false);
     if (!invalidResult.ok) {
-      assert.equal(invalidResult.response.status, 403);
+      assert.equal(invalidResult.response.status, 400);
     }
     assert.equal(wrongProviderHeaderResult.ok, false);
     if (!wrongProviderHeaderResult.ok) {
       const body = await readJsonBody(wrongProviderHeaderResult.response);
-      assert.equal(wrongProviderHeaderResult.response.status, 401);
-      assert.equal(body.missingHeader, 'x-goog-signature');
+      assert.equal(wrongProviderHeaderResult.response.status, 503);
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.blocker, 'google-provider-verifier-unavailable');
     }
   });
 
@@ -431,10 +452,10 @@ describe('auth boundary', () => {
     assert.equal(result.ok, false);
     if (!result.ok) {
       const body = await readJsonBody(result.response);
-      assert.deepEqual(Object.keys(body).sort(), ['authState', 'error', 'reason']);
+      assert.deepEqual(Object.keys(body).sort(), ['authState', 'blocker', 'error']);
       assert.equal(body.authState, 'support-required');
-      assert.equal(body.error, 'forbidden');
-      assert.equal(body.reason, 'support-role-required');
+      assert.equal(body.error, 'manual-required');
+      assert.equal(body.blocker, 'account-identity-binding-context-manual-required');
     }
   });
 

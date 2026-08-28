@@ -215,6 +215,18 @@ function authAdapterBlocker(env: Env, providerVerifier: ProviderVerificationPort
   return UNSUPPORTED_AUTH_ADAPTER_MODE_BLOCKER;
 }
 
+function providerWebhookAuthAdapterBlocker(env: Env): string | null {
+  // Provider webhook signatures are verified by their provider-specific
+  // verifier, not by the Account provider-session adapter. A configured
+  // provider-verified Account adapter therefore does not block this boundary;
+  // unresolved or unknown Account modes still remain explicitly manual.
+  const mode = resolveAuthAdapterMode(env);
+  if (mode === 'provider-verified') {
+    return null;
+  }
+  return authAdapterBlocker(env, undefined);
+}
+
 async function verifyProviderBoundRequest(
   request: Request,
   env: Env,
@@ -416,6 +428,11 @@ async function verifyProviderWebhookRequest(
   env: Env,
   authState: AuthState
 ): Promise<AuthResult> {
+  const adapterBlocker = providerWebhookAuthAdapterBlocker(env);
+  if (adapterBlocker) {
+    return manualRequired(authState, adapterBlocker);
+  }
+
   let result: Awaited<ReturnType<typeof verifyProviderWebhook>>;
   try {
     result = await verifyProviderWebhook(provider, request.clone(), env);

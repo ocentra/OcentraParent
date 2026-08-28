@@ -388,12 +388,7 @@ INSERT INTO ocentra_account_browser_session_audit
 SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?
 FROM ocentra_account_browser_sessions
 WHERE session_id = ? AND status = 'active' AND updated_at = ? AND refresh_generation = ?
-UNION ALL
-SELECT NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-WHERE NOT EXISTS (
-    SELECT 1 FROM ocentra_account_browser_sessions
-    WHERE session_id = ? AND status = 'active' AND updated_at = ? AND refresh_generation = ?
-  )`;
+`;
 
 const AUDIT_ROTATED_SESSION_SQL = `
 INSERT INTO ocentra_account_browser_session_audit
@@ -1089,7 +1084,7 @@ export function createBrowserSessionStore(database: D1Database | undefined): Bro
               issuedAt,
               issuedAt
             ),
-          database.prepare(AUDIT_ACTIVE_SESSION_SQL).bind(...audit, sessionId, issuedAt, 1, sessionId, issuedAt, 1),
+          database.prepare(AUDIT_ACTIVE_SESSION_SQL).bind(...audit, sessionId, issuedAt, 1),
         ]);
         if (changes(results[1]) !== 1) return { status: 'rejected', reason: 'invalid' };
         if (changes(results[2]) !== 1) return { status: 'manual-required', reason: 'd1-unavailable' };

@@ -5,6 +5,7 @@ import type {
   KVNamespace,
   R2Bucket,
 } from '@cloudflare/workers-types';
+import { parseUnknown } from '@ocentra-parent/schema-domain/effect';
 import { BillingEntitlementSeatCompositionSchema } from '@ocentra-parent/schema-domain/billing-entitlement';
 import {
   BillingAuditReferenceSchema,
@@ -516,11 +517,11 @@ function payloadRecord(value: unknown, scope: string): Record<string, unknown> {
 }
 
 function decodeBillingLimit(value: unknown, scope: string): number {
-  return decodeCanonicalValue(scope, () => PositiveBillingLimitSchema.parse(value));
+  return decodeCanonicalValue(scope, () => parseUnknown(PositiveBillingLimitSchema, value));
 }
 
 function decodeBillingCount(value: unknown, scope: string): number {
-  return decodeCanonicalValue(scope, () => NonNegativeBillingCountSchema.parse(value));
+  return decodeCanonicalValue(scope, () => parseUnknown(NonNegativeBillingCountSchema, value));
 }
 
 function decodeNonEmptyString(value: unknown, scope: string): string {
@@ -559,7 +560,7 @@ function decodeCanonicalLiteral<T extends string>(
 }
 
 function decodeTimestamp(value: unknown, scope: string): string {
-  const decoded = decodeCanonicalValue(scope, () => ParentTimestampSchema.parse(value));
+  const decoded = decodeCanonicalValue(scope, () => parseUnknown(ParentTimestampSchema, value));
   if (!Number.isFinite(Date.parse(decoded))) {
     throw new BillingReadModelUnavailableError(`${scope}-invalid`);
   }
@@ -645,7 +646,7 @@ function decodeBillingSeatComposition(value: unknown, scope: string): BillingSea
 function decodePricingPlan(value: unknown, scope: string): PricingPlanSummary {
   const record = payloadRecord(value, scope);
   return {
-    planId: decodeCanonicalValue(scope, () => BillingPlanIdSchema.parse(record.planId)),
+    planId: decodeCanonicalValue(scope, () => parseUnknown(BillingPlanIdSchema, record.planId)),
     displayName: decodeNonEmptyString(record.displayName, `${scope}-display-name`),
     interval: decodeLiteral(record.interval, ['monthly', 'yearly'] as const, `${scope}-interval`),
     priceCents: decodeBillingCount(record.priceCents, `${scope}-price-cents`),
@@ -676,7 +677,7 @@ function decodeBillingInvoiceSummary(value: unknown, scope: string): BillingInvo
     invoiceNumber: decodeNonEmptyString(generated.invoiceNumber, `${scope}-invoice-number`),
     parentAccountRef: decodeNonEmptyString(generated.parentAccountRef, `${scope}-parent-account-ref`),
     familyRef: decodeNonEmptyString(generated.familyRef, `${scope}-family-ref`),
-    planId: decodeCanonicalValue(scope, () => BillingPlanIdSchema.parse(generated.planId)),
+    planId: decodeCanonicalValue(scope, () => parseUnknown(BillingPlanIdSchema, generated.planId)),
     currency: decodeLiteral(generated.currency, ['USD'] as const, `${scope}-currency`),
     subtotalCents,
     taxCents,
@@ -696,7 +697,7 @@ function decodeBillingInvoiceSummary(value: unknown, scope: string): BillingInvo
     periodStart: decodeTimestamp(generated.periodStart, `${scope}-period-start`),
     periodEnd: decodeTimestamp(generated.periodEnd, `${scope}-period-end`),
     updatedAt: decodeTimestamp(generated.updatedAt, `${scope}-updated-at`),
-    auditReference: decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(generated.auditReference)),
+    auditReference: decodeCanonicalValue(scope, () => parseUnknown(BillingAuditReferenceSchema, generated.auditReference)),
   };
 }
 
@@ -796,7 +797,7 @@ function decodeBillingStatusSummary(value: unknown, scope: string, expectedSubje
   }
   const failureState = decodeFailureState(record.failureState, `${scope}-failure-state`);
   const warnings = decodeArray(record.warnings, decodeNonEmptyString, `${scope}-warnings`);
-  const auditReference = decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(record.auditReference));
+  const auditReference = decodeCanonicalValue(scope, () => parseUnknown(BillingAuditReferenceSchema, record.auditReference));
   const updatedAt = decodeTimestamp(record.updatedAt, `${scope}-updated-at`);
 
   if (plan.deviceLimit !== seatComposition.effectiveLimit || deviceUsageLimit !== seatComposition.effectiveLimit) {
@@ -892,11 +893,11 @@ function decodeBillingEntitlementSnapshot(
     throw new BillingReadModelUnavailableError(`${scope}-available-device-slots-mismatch`);
   }
   const snapshot: BillingEntitlementSnapshotSummary = {
-    snapshotId: decodeCanonicalValue(scope, () => BillingEntitlementSnapshotIdSchema.parse(record.snapshotId)),
+    snapshotId: decodeCanonicalValue(scope, () => parseUnknown(BillingEntitlementSnapshotIdSchema, record.snapshotId)),
     subject,
     parentAccountRef: decodeNonEmptyString(record.parentAccountRef, `${scope}-parent-account-ref`),
     familyRef: decodeNonEmptyString(record.familyRef, `${scope}-family-ref`),
-    planId: decodeCanonicalValue(scope, () => BillingPlanIdSchema.parse(record.planId)),
+    planId: decodeCanonicalValue(scope, () => parseUnknown(BillingPlanIdSchema, record.planId)),
     subscriptionStatus: decodeCanonicalLiteral(
       record.subscriptionStatus,
       () => BillingSubscriptionStatusSchema.parse(record.subscriptionStatus),
@@ -933,7 +934,7 @@ function decodeBillingEntitlementSnapshot(
       `${scope}-local-safety-behavior`
     ),
     failureState: decodeFailureState(record.failureState, `${scope}-failure-state`),
-    auditReference: decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(record.auditReference)),
+    auditReference: decodeCanonicalValue(scope, () => parseUnknown(BillingAuditReferenceSchema, record.auditReference)),
   };
   const manualAuthority = snapshot.source === 'manual-admin-review' && snapshot.signatureState === 'manual-required';
   if (snapshot.source === 'signed-local-snapshot' || snapshot.signatureState === 'signed') {
@@ -1752,7 +1753,7 @@ class LocalD1Statement implements D1PreparedStatement {
           'billing-refund-ledger-state'
         );
         const auditReference = decodeCanonicalValue('billing-refund-ledger-audit-reference', () =>
-          BillingAuditReferenceSchema.parse(this.values[6])
+          parseUnknown(BillingAuditReferenceSchema, this.values[6])
         );
         const createdAt = decodeTimestamp(this.values[7], 'billing-refund-ledger-created-at');
         const current = this.state.refundLedgerByInvoice.get(invoiceId) ?? [];
@@ -2220,17 +2221,36 @@ class LocalBillingD1Database implements D1Database {
   }
 }
 
+function buildLocalFixtureBillingState(subject: string, env: Env): {
+  status: BillingStatusSummary;
+  snapshot: BillingEntitlementSnapshotSummary;
+} {
+  const status = buildBillingStatusSummary(subject, env);
+  const snapshot = buildEntitlementSnapshot(subject);
+  if (status.source === 'manual-admin-review' && snapshot.source === 'manual-admin-review') {
+    return { status, snapshot };
+  }
+  return providerManualReviewStatePair(
+    status,
+    snapshot,
+    `${status.auditReference}:local-fixture-manual-review`,
+    status.updatedAt,
+    'local-fixture-provider-authority-unavailable'
+  );
+}
+
 export function buildDefaultBillingBindingSeed(env: Env): BillingBindingSeedPatch {
   if (!isLocalFixtureEnvironment(env)) {
     throw new BillingReadModelUnavailableError('local-fixture-environment-required');
   }
   const subjects = Array.from(DEFAULT_BILLING_SUBJECTS);
+  const billingState = subjectRecord(subjects, (subject) => buildLocalFixtureBillingState(subject, env));
   return {
     pricingPlans: asReadonlyArray(LOCAL_PRICING_PLANS),
-    statusBySubject: subjectRecord(subjects, (subject) => buildBillingStatusSummary(subject, env)),
+    statusBySubject: Object.fromEntries(subjects.map((subject) => [subject, billingState[subject].status])),
     invoicesBySubject: subjectRecord(subjects, (subject) => buildBillingInvoices(subject)),
     referralsBySubject: subjectRecord(subjects, (subject) => buildBillingReferralSummary(subject)),
-    snapshotsBySubject: subjectRecord(subjects, (subject) => buildEntitlementSnapshot(subject)),
+    snapshotsBySubject: Object.fromEntries(subjects.map((subject) => [subject, billingState[subject].snapshot])),
     adminAccounts: listAdminBillingAccounts(null),
     adminInvoices: listAdminBillingInvoices(null),
     adminDisputes: listAdminBillingDisputes(null),
@@ -3199,7 +3219,7 @@ function billingRefundLedgerStatement(
       decodeBillingCount(invoiceTotalCents, 'billing-refund-ledger-invoice-total-cents'),
       mutation.refundState,
       decodeCanonicalValue('billing-refund-ledger-audit-reference', () =>
-        BillingAuditReferenceSchema.parse(mutation.auditReference)
+        parseUnknown(BillingAuditReferenceSchema, mutation.auditReference)
       ),
       decodeTimestamp(createdAt, 'billing-refund-ledger-created-at')
     );
