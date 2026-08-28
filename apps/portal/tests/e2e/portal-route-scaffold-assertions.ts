@@ -1,4 +1,4 @@
-import { type Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 import { PARENT_PORTAL_NAV_LABELS } from '@ocentra-parent/portal-domain/parent-portal-nav';
 import {
   assertAssistantEntryAvailable,
@@ -31,7 +31,6 @@ const productRoutes = [
     title: 'RULES CONTROL DETAIL',
     kind: 'manage',
   },
-  { path: '/#/schedules', nav: 'SCHEDULES', title: 'SCHEDULES CONTROL DETAIL', kind: 'manage' },
   { path: '/#/approvals', nav: 'APPROVALS', title: 'APPROVALS CONTROL DETAIL', kind: 'manage' },
   { path: '/#/enforcement', nav: 'ENFORCE', title: 'ENFORCEMENT CONTROL DETAIL', kind: 'manage' },
   { path: '/#/privacy-design', nav: 'PRIVATE', title: 'PRIVACY AND DATA GUIDE', kind: 'guide' },
@@ -156,6 +155,7 @@ export async function assertRouteScaffolds(page: Page): Promise<void> {
   for (const route of productRoutes) {
     await assertProductRouteSurface(page, route.path, route.nav, route.title, route.kind);
   }
+  await assertScheduleRouteUnavailable(page);
   await assertSidePanelFoldouts(page);
   await assertDuplicateLabelSidePanelRoutes(page);
   await assertPolicyGuideDeepLinks(page);
@@ -172,5 +172,39 @@ export async function assertLanRouteScaffolds(page: Page): Promise<void> {
     }
     await assertProductRouteSurface(page, route.path, route.nav, route.title, route.kind);
   }
+  await assertScheduleRouteUnavailable(page);
   await assertLanRouteSurface(page);
+}
+
+export async function assertScheduleRouteUnavailable(page: Page): Promise<void> {
+  await page.goto('/#/schedules');
+  const panel = page.getByRole('region', { name: 'Schedules unavailable' });
+  await expect(panel).toBeVisible();
+  await expect(panel.getByRole('heading', { exact: true, name: 'Schedules unavailable' })).toBeVisible();
+  await expect(panel).toContainText(
+    'No Rust-owned schedule/time-budget read model or action is composed for this route.',
+  );
+  await expect(panel).toContainText('Manual required');
+  await expect(panel).toContainText('Current/effective state');
+  await expect(panel).toContainText('Not reported');
+  await expect(panel).toContainText('Templates');
+  await expect(panel).toContainText('Timezone/DST');
+  await expect(panel).toContainText('Durability');
+  await expect(panel).toHaveAttribute('data-ocentra-schedule-authority', 'manual-required');
+  await expect(panel).toHaveAttribute('data-ocentra-schedule-state', 'unavailable');
+  await expect(page.locator('svg.parent-portal-svg-surface')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Validate Draft' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Sync Family/ })).toHaveCount(0);
+
+  const viewport = page.viewportSize();
+  await page.setViewportSize({ width: 620, height: Math.max(viewport?.height ?? 720, 720) });
+  try {
+    await expect(panel).toBeVisible();
+    await expect(panel.getByText('Current/effective state', { exact: true })).toBeVisible();
+    await expect(panel.getByText('Rust policy service required', { exact: true })).toBeVisible();
+  } finally {
+    if (viewport) {
+      await page.setViewportSize(viewport);
+    }
+  }
 }

@@ -1,5 +1,6 @@
-import type { ComponentProps, ReactElement } from 'react';
+import { useEffect, type ComponentProps, type ReactElement } from 'react';
 import { PARENT_PORTAL_ROUTE, parentPortalRouteContext } from '@ocentra-parent/portal-domain/parent-portal-data';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   type ParentBrowserPanelSnapshot,
   ParentBridgeConnectionState,
@@ -57,6 +58,7 @@ export function ParentPortalRoute({
   state,
 }: ParentPortalRouteProps): ReactElement {
   const routeContext = parentPortalRouteContext(route);
+  const scheduleRouteUnavailable = route === ParentRoute.Schedules;
   const routeLiveActivity = state.routeSnapshot?.liveActivity ?? null;
   const activityState = resolveSnapshotLiveActivityState(routeLiveActivity);
   const surfaceActivityState = activityState as unknown as ParentPortalSurfaceActivityState;
@@ -67,19 +69,28 @@ export function ParentPortalRoute({
   });
   const commandEnabled = state.commandEnabled;
   const panels = parentPortalRoutePanels(state, activityState);
+  useEffect(() => {
+    if (scheduleRouteUnavailable) {
+      onProductSurfaceReady();
+    }
+  }, [onProductSurfaceReady, scheduleRouteUnavailable]);
   return (
     <div className={PARENT_PORTAL_ROUTE.ClassName}>
-      <ParentPortalRouteSurface
-        actions={actions}
-        activityState={surfaceActivityState}
-        controls={controls}
-        lanPairingAutoScanSequence={lanPairingAutoScanSequence}
-        onProductSurfaceReady={onProductSurfaceReady}
-        route={route}
-        routeContext={routeContext}
-        serviceState={serviceState}
-        state={state}
-      />
+      {scheduleRouteUnavailable ? (
+        <ScheduleRouteUnavailablePanel />
+      ) : (
+        <ParentPortalRouteSurface
+          actions={actions}
+          activityState={surfaceActivityState}
+          controls={controls}
+          lanPairingAutoScanSequence={lanPairingAutoScanSequence}
+          onProductSurfaceReady={onProductSurfaceReady}
+          route={route}
+          routeContext={routeContext}
+          serviceState={serviceState}
+          state={state}
+        />
+      )}
       {route === ParentRoute.Diagnostics ? <PortalDiagnosticsRoutePanel state={state} /> : null}
       <ParentPortalProofPanels
         actions={actions}
@@ -93,6 +104,60 @@ export function ParentPortalRoute({
       ) : null}
       {shouldRenderSetupFirstRunRoute(route) ? <SetupFirstRunRoutePanel panel={panels.setupFirstRunPanel} /> : null}
     </div>
+  );
+}
+
+function ScheduleRouteUnavailablePanel(): ReactElement {
+  return (
+    <section
+      aria-label="Schedules unavailable"
+      className={PortalDom.Classes.TrackingStatusOverlay}
+      data-ocentra-schedule-authority="manual-required"
+      data-ocentra-schedule-state="unavailable"
+    >
+      <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
+        <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
+          <p className={PortalDom.Classes.ProductEyebrow}>Schedules</p>
+          <h2>Schedules unavailable</h2>
+          <p>No Rust-owned schedule/time-budget read model or action is composed for this route.</p>
+        </header>
+        <div className={PortalDom.Classes.TrackingStatusOverlayGrid}>
+          <article className={PortalDom.Classes.Summary}>
+            <h2>Manual required</h2>
+            <p>
+              Active, inactive, upcoming, expired, and conflict state stays unreported until the policy service supplies
+              an owner-backed read model.
+            </p>
+            <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+              <div>
+                <dt>Current/effective state</dt>
+                <dd>Not reported</dd>
+              </div>
+              <div>
+                <dt>Templates</dt>
+                <dd>Not available</dd>
+              </div>
+              <div>
+                <dt>Timer owner</dt>
+                <dd>Rust policy service required</dd>
+              </div>
+              <div>
+                <dt>Timezone/DST</dt>
+                <dd>Not reported</dd>
+              </div>
+              <div>
+                <dt>Durability</dt>
+                <dd>Not reported</dd>
+              </div>
+              <div>
+                <dt>Actions</dt>
+                <dd>Manual required</dd>
+              </div>
+            </dl>
+          </article>
+        </div>
+      </div>
+    </section>
   );
 }
 
