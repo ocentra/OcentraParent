@@ -13,7 +13,7 @@ fn child_ios_entitlement_capability_round_trips_through_rust_owned_shape() {
         encoded["schemaVersion"],
         json!(contracts::CHILD_IOS_ENTITLEMENT_CAPABILITY_PROOF_SCHEMA_VERSION)
     );
-    assert_eq!(encoded["bundleId"], json!("ca.ocentra.parent.agent"));
+    assert_eq!(encoded["bundleId"], json!("ca.ocentra.child.agent"));
     assert_eq!(
         encoded["protocolBridgeProof"]["commands"][0],
         json!("child.ios.entitlement.capability.snapshot.get")
