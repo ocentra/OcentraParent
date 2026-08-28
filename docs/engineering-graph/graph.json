@@ -2874,22 +2874,101 @@
       "path": "docs/plans/app-game-plan/workpacks/10-launcher-evidence-and-game-candidate-model.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "active",
-      "lifecycleState": "active",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "active",
+        "statusText": "Validation — WP10 production source and six mapped real test roots are written; external launcher/classifier ownership, execution, proof, checklist acceptance, and completion remain open.",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "crates/agent-protocol/src/app_game.rs",
+            "crates/agent-protocol/src/app_game_authority_classifier.rs",
+            "crates/agent-protocol/src/constants/field.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_launcher_validation.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_source.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification_state.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_row.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_source.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_process_runtime.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_process_source.rs",
+            "crates/agent-core/src/activity_store_app_game_observation_fields.rs",
+            "crates/agent-core/src/process_capture.rs",
+            "crates/agent-core/src/window_capture_event.rs",
+            "crates/agent-service/src/activity_capture/app_game.rs",
+            "crates/agent-service/src/activity_capture/capture_events.rs"
+          ],
+          "testRoots": [
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_foreground_source_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_launcher_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_process_runtime_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_process_source_tests.rs",
+            "crates/agent-protocol/tests/unit/app_game_tests.rs"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/app-game-plan/AGENTS.md",
+            "docs/plans/app-game-plan/WORKPACK_INDEX.md",
+            "docs/plans/app-game-plan/workpacks/10-launcher-evidence-and-game-candidate-model.md",
+            "docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Reviewed production source and the six mapped real Rust test roots exist for launcher/candidate separation, generation identity, foreground joins, PID reuse, invalid ingest, and no-false-known-game behavior. Live launcher manifest/catalog crawling and the external publisher/classifier proof owner remain external runtime gaps; no hard predecessor, execution, proof, READY, or DONE claim is made."
+        },
+        "stateOverride": {
+          "reason": "Reviewed production source is present and canonical 51d9819a9 adds the six mapped real Rust test roots. No test was executed and no proof was regenerated in the code/test-source phase. Live launcher manifest/catalog crawling and the external publisher/classifier proof owner remain absent; focused execution, retained proof, checklist acceptance, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/PLAN_STATE.md",
+            "docs/plans/app-game-plan/NEXT_ACTIONS.md",
+            "docs/plans/app-game-plan/WORKPACK_INDEX.md",
+            "docs/plans/app-game-plan/workpacks/10-launcher-evidence-and-game-candidate-model.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent review accepted the bounded WP10 production source and canonical 51d9819a9 contains the six mapped real Rust test roots, unexecuted. Live launcher manifest/catalog crawling, the external publisher/classifier proof owner, focused execution, retained proof, checklist acceptance, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/10-launcher-evidence-and-game-candidate-model.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/10-launcher-evidence-and-game-candidate-model.md"
+            "crates/agent-protocol/src/app_game.rs",
+            "crates/agent-protocol/src/app_game_authority_classifier.rs",
+            "crates/agent-protocol/src/constants/field.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_launcher_validation.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_source.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification_state.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_row.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_source.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_process_runtime.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_process_source.rs",
+            "crates/agent-core/src/activity_store_app_game_observation_fields.rs",
+            "crates/agent-core/src/process_capture.rs",
+            "crates/agent-core/src/window_capture_event.rs",
+            "crates/agent-service/src/activity_capture/app_game.rs",
+            "crates/agent-service/src/activity_capture/capture_events.rs"
           ],
           "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
@@ -2899,6 +2978,34 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/10-launcher-evidence-and-game-candidate-model"
+          ],
+          "implementation": [
+            "crates/agent-protocol/src/app_game.rs",
+            "crates/agent-protocol/src/app_game_authority_classifier.rs",
+            "crates/agent-protocol/src/constants/field.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_launcher_validation.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_source.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification_state.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_row.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_source.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_process_runtime.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_process_source.rs",
+            "crates/agent-core/src/activity_store_app_game_observation_fields.rs",
+            "crates/agent-core/src/process_capture.rs",
+            "crates/agent-core/src/window_capture_event.rs",
+            "crates/agent-service/src/activity_capture/app_game.rs",
+            "crates/agent-service/src/activity_capture/capture_events.rs"
+          ],
+          "tests": [
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_foreground_source_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_launcher_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_process_runtime_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_process_source_tests.rs",
+            "crates/agent-protocol/tests/unit/app_game_tests.rs"
           ]
         }
       }

@@ -7122,6 +7122,7 @@
     },
     "WP-app-game-plan-10-launcher-evidence-and-game-candidate-model": {
       "planSlug": "app-game-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "crates/agent-protocol/src/app_game.rs",
         "crates/agent-protocol/src/app_game_authority_classifier.rs",
@@ -7130,6 +7131,16 @@
         "crates/agent-protocol/tests/unit/app_game_evidence_identity_tests.rs",
         "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
         "crates/agent-core/src/activity_store_app_game",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_launcher_validation.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_source.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification_state.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_row.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_source.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_process_runtime.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_process_source.rs",
         "crates/agent-core/src/activity_store_app_game_observation_fields.rs",
         "crates/agent-core/src/process_capture.rs",
         "crates/agent-core/src/window_capture_event.rs",
@@ -7137,7 +7148,36 @@
         "crates/agent-service/src/activity_capture/app_game.rs",
         "crates/agent-service/src/activity_capture/capture_events.rs",
         "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
-      ]
+      ],
+      "plannedImplementationRoots": [
+        "crates/agent-protocol/src/app_game.rs",
+        "crates/agent-protocol/src/app_game_authority_classifier.rs",
+        "crates/agent-protocol/src/constants/field.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_launcher_validation.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_source.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification_state.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_row.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_source.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_process_runtime.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_process_source.rs",
+        "crates/agent-core/src/activity_store_app_game_observation_fields.rs",
+        "crates/agent-core/src/process_capture.rs",
+        "crates/agent-core/src/window_capture_event.rs",
+        "crates/agent-service/src/activity_capture/app_game.rs",
+        "crates/agent-service/src/activity_capture/capture_events.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_foreground_source_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_launcher_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_process_runtime_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_process_source_tests.rs",
+        "crates/agent-protocol/tests/unit/app_game_tests.rs"
+      ],
+      "note": "Reviewed production source is present and canonical 51d9819a9 adds the six mapped real Rust test roots for launcher/candidate separation, generation identity, foreground joins, PID reuse, invalid ingest, and no-false-known-game behavior. No test was executed in the code/test-source phase. Live launcher manifest/catalog crawling, the external publisher/classifier proof owner, retained proof, checklist acceptance, CI, READY, and DONE remain open."
     },
     "WP-app-game-plan-11-cross-platform-authority-matrix": {
       "planSlug": "app-game-plan",

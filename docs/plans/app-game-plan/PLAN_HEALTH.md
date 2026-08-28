@@ -24,8 +24,8 @@ This file records documentation health and consistency checks for the plan. It i
 - Implementation checklist present: true
 - Workpacks indexed: 220
 - Reviewed workpack code/test maps: 220/220
-- Phase 1 source/test status: 151 code+test complete, 19 reviewed no-code,
-  50 with concrete writing gaps
+- Phase 1 source/test status: 172 code+test complete, 20 reviewed no-code,
+  28 with concrete writing gaps
 
 ## Consistency warnings
 

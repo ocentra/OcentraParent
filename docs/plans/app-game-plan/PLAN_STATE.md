@@ -20,9 +20,9 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **171** have current production source plus expected checked-in tests for their
+- **172** have current production source plus expected checked-in tests for their
   bounded scope; **20** are reviewed no-code coordination/proof/reference
-  packets; **29** retain a concrete production-code or expected-test gap.
+  packets; **28** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -69,7 +69,7 @@ discrepancy remains stale and is not completion evidence.
 
 | Workpacks | Reachable production caller and material effect | Remaining production gap / authority boundary |
 | --- | --- | --- |
-| WP01-WP16 | `service_runtime` starts recurring Windows capture; agent-core sources inventory, process, foreground, launcher, and app/game observations; encrypted journal/SQLite and activity-surface read models persist and expose evidence. WP10's accepted source shares one process snapshot and generation-safe process identity across launcher and foreground capture while retaining the generic window identity. The production portal route imports the tracked vendor surface and renders WP16's dashboard, source status, capability matrix, and evidence drawer. | WP10's complete expected-test refresh and focused execution are open. WP16 lacks its focused intent/state/hostile-metadata test family, and its Game budgets tile remains `policy proof pending` because no budget row reaches the service read model. Identity merge, richer subscriptions, and non-Windows acquisition remain absent. Existing read models are evidence, not policy or control. |
+| WP01-WP16 | `service_runtime` starts recurring Windows capture; agent-core sources inventory, process, foreground, launcher, and app/game observations; encrypted journal/SQLite and activity-surface read models persist and expose evidence. WP10's accepted source shares one process snapshot and generation-safe process identity across launcher and foreground capture while retaining the generic window identity. Canonical `51d9819a9` adds the six mapped real test roots for launcher/candidate separation, generation identity, foreground joins, PID reuse, invalid ingest, and no-false-known-game behavior. The production portal route imports the tracked vendor surface and renders WP16's dashboard, source status, capability matrix, and evidence drawer. | WP10 test execution and retained proof are open; live launcher manifest/catalog crawling and the external publisher/classifier proof owner remain absent. WP16 lacks its focused intent/state/hostile-metadata test family, and its Game budgets tile remains `policy proof pending` because no budget row reaches the service read model. Identity merge, richer subscriptions, and non-Windows acquisition remain absent. Existing read models are evidence, not policy or control. |
 | WP17 | Rust typed unknown-candidate producer and Eventing request/response/expiry/replay lifecycle are callable only inside app-game-core. | No service composition feeds a parent approval request into child delivery or an adapter. |
 | WP18-WP20 | Rust game-budget, policy-target compiler, and time-budget evaluator compositions consume bounded stored summaries and remain dry-run. | No parent-authored live rule/context producer, service evaluator caller, scheduler/timer runtime, or enforcement handoff. |
 | WP21-WP22 | Controlled child-UX tokens/outbox contracts exist; the timer command path validates current session evidence and can attempt Windows termination by PID/name. | No child delivery/UI/provider runtime. Timer authority is narrow: executable path, process start time, and owner-SID hardening are not carried into this PID/name path; the authenticated native termination resolver is a separate unused path. |

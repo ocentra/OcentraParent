@@ -36,13 +36,13 @@ admission. Their execution and proof remain later phases. Do not revive the
 stale `packages/parent-domain` test paths or call checked-in source runtime
 completion.
 
-The 2026-08-15 code audit maps all 220 workpacks and leaves 33 source/test
+The current code audit maps all 220 workpacks and leaves 28 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 
-1. WP10 source is independently accepted. In the later plan-wide expected-test
-   wave, refresh/write its launcher/candidate, generation, targeted-PID,
-   foreground-join, duplicate-session, and no-false-known-game cases before
-   running any of them.
+1. WP10 source and its six mapped real test roots are written at canonical
+   `51d9819a9`. Do not add more source-phase churn. Its later validation phase
+   must execute those tests and retain proof; live launcher manifest/catalog
+   crawling and the external publisher/classifier proof owner remain open.
 2. WP62-WP65: preference owners and receipt-backed status. WP59's scheduler
    bridge, WP60's metadata-only audit-history bridge, and WP61's persisted
    provider-preflight bridge are implemented and focused-green at `4cf6a11c9`,
