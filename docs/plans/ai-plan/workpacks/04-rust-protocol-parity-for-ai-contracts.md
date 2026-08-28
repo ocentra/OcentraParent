@@ -51,9 +51,14 @@ context, journal, and remote-assistant adapter paths carry already
 owner-materialized values through safe public validation/read/encoding APIs
 and preserve existing digests. It rejects prompt/runtime attachments without
 owner capability. Owner and digest issuance is not composed in the neutral
-leaf and remains deferred/manual-required. The required contract test remains
-absent and unregistered, and no general production caller/provider-owner
-runtime composition exists. The shared `packages/schema-domain/tests/contract/ai-contracts.test.ts`
+leaf and remains deferred/manual-required. Canonical `191e0d8a0` now registers
+the required Rust contract test and covers the publicly constructible work-
+request/schema/enum wire boundary plus hostile caller prompt/runtime/authority
+and malformed input. Result, context, and journal construction/negative
+encoding remain blocked because those values are owner-materialized, the
+neutral leaf exposes no caller constructor or deserializer, and no general
+production caller/provider-owner runtime composition exists. Do not create a
+test-only or caller-mintable seam. The shared `packages/schema-domain/tests/contract/ai-contracts.test.ts`
 parity test is owned by AI WP03; WP04 consumes it through the reviewed
 `WP04 -> WP03` dependency and does not claim a second copy. Tests, proof, CI,
-PR, READY, and DONE remain open.
+PR, READY, and DONE remain open; none of the new tests has been executed.

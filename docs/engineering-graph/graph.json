@@ -1436,7 +1436,7 @@
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — source adapter reviewed; required contract test, caller/provider-owner composition, proof, and completion remain open.",
+        "statusText": "Validation — source adapter and bounded request/schema/enum contract tests are written; owner-only context/result/journal tests, caller/provider-owner composition, execution, proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -1463,20 +1463,30 @@
           "reason": "Independent review accepted the bounded WP04 source adapter at canonical source commit d72e1617d. crates/agent-protocol/src/ai_contracts.rs has only one real leaf constructor caller, AiWorkRequest::new; its result/context/journal/remote-assistant paths carry already owner-materialized values through safe public validation/read/encoding APIs and preserve existing digests. It rejects prompt/runtime attachments without owner capability. Owner and digest issuance is not composed in the neutral leaf and remains deferred/manual-required; no general production caller/provider-owner runtime composition is present. The required Rust contract test is absent and unregistered; tests, proof, CI, PR, READY, and DONE remain open. WP04 does not duplicate WP03's shared TypeScript parity test or schema ownership, create public re-export shims, or add authority constructors."
         },
         "stateOverride": {
-          "reason": "Independent review accepted the bounded WP04 source adapter at canonical source commit d72e1617d. Its only real leaf constructor caller is AiWorkRequest::new; result/context/journal/remote-assistant paths carry already owner-materialized values through safe public validation/read/encoding APIs and preserve existing digests. It rejects prompt/runtime attachments without owner capability. Owner and digest issuance is not composed in the neutral leaf and remains deferred/manual-required; no general production caller/provider-owner runtime composition exists. This is source-only routing truth; tests, proof, CI, PR, READY, and DONE remain open.",
+          "reason": "Independent review accepted the bounded WP04 source adapter at canonical source commit d72e1617d. Its only real leaf constructor caller is AiWorkRequest::new; result/context/journal/remote-assistant paths carry already owner-materialized values through safe public validation/read/encoding APIs and preserve existing digests. It rejects prompt/runtime attachments without owner capability. Canonical 191e0d8a0 registers real work-request/schema/enum/hostile-input contract coverage, unexecuted. Owner and digest issuance is not composed in the neutral leaf; result/context/journal construction and negative encoding remain blocked without a real owner and no test-only/caller-mintable seam is allowed. No general production caller/provider-owner runtime composition exists. Remaining tests, execution, proof, CI, PR, READY, and DONE remain open.",
           "evidence": [
             "docs/plans/ai-plan/PLAN_STATE.md",
             "docs/plans/ai-plan/NEXT_ACTIONS.md",
             "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
             "docs/engineering-graph/code-map.json"
           ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Independent review accepted the explicit agent-protocol adapter over the neutral AI contract leaf. Canonical 191e0d8a0 contains the real work-request/schema/enum/hostile-input contract test, but it has not been executed. Context/result/journal owner construction, general provider-owner composition, remaining owner-only tests, proof, CI, READY, and DONE remain open; this is bounded implementation-only routing evidence.",
+          "evidence": [
+            "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation"]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
-          "implementation": [],
+          "implementation": ["crates/agent-protocol/src/ai_contracts.rs"],
           "tests": ["docs/plans/ai-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/ai-plan/implementation-checklist.md"],

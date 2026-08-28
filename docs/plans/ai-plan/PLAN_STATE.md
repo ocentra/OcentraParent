@@ -44,6 +44,21 @@ now consumes the leaf through the separately owned WP04 adapter, but its real
 caller remains absent. Tests, proof, CI, and DONE/READY state were not changed
 by this source checkpoint.
 
+## WP04 bounded contract-test checkpoint — 2026-08-28
+
+- Canonical `191e0d8a0` registers the real agent-protocol contract test for the
+  reviewed neutral-leaf adapter. It covers exact work-request wire shape and
+  round-trip, schema linkage, canonical enum values, malformed encoding,
+  caller prompt/runtime injection, unknown fields, invalid time/retry values,
+  unknown work kind, and attempted caller authority fields.
+- Result, context, and journal values remain owner-materialized. The neutral
+  leaf intentionally exposes no public constructor/deserializer for callers,
+  and no production provider/owner composition exists. Their encode/negative
+  tests therefore remain legally blocked; no test-only constructor, mock, or
+  caller-mintable authority seam was added.
+- No test was executed in this code-first phase. Owner composition, remaining
+  owner-only test coverage, retained proof, CI, PR, READY, and DONE remain open.
+
 ## WP04 reviewed source integration checkpoint — 2026-08-25
 
 Canonical source commit `d72e1617d` is independently accepted for the bounded
@@ -55,12 +70,11 @@ evidence context is restricted to `EvidenceOnly`, journal entries to `Durable`,
 and result/journal digests are preserved exactly. The adapter does not mint
 authority or provider/runtime state.
 
-The required `crates/agent-protocol/tests/contract/ai_contracts.rs` file is
-absent and unregistered from the contract test target. No general production
-caller/provider-owner runtime composition consumes the adapter; existing
-legacy local-AI/assistant shapes were not migrated. WP03's three expected
-contract/negative/parity tests remain open. This is reviewed source-only truth:
-tests, proof, CI, PR, READY, and DONE remain open.
+This historical checkpoint preceded the registered contract test described
+above. No general production caller/provider-owner runtime composition consumes
+the adapter; existing legacy local-AI/assistant shapes were not migrated.
+WP03's three expected contract/negative/parity tests remain open. The bounded
+WP04 test packet does not change proof, CI, PR, READY, or DONE.
 
 ## Code-first Phase 1 audit (2026-08-15)
 

@@ -10165,8 +10165,8 @@
     {
       "id": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
       "state": "validation",
-      "reason": "Independent review accepted the bounded WP04 source adapter at canonical source commit d72e1617d. Its only real leaf constructor caller is AiWorkRequest::new; result/context/journal/remote-assistant paths carry already owner-materialized values through safe public validation/read/encoding APIs and preserve existing digests. It rejects prompt/runtime attachments without owner capability. Owner and digest issuance is not composed in the neutral leaf and remains deferred/manual-required; no general production caller/provider-owner runtime composition exists. This is source-only routing truth; tests, proof, CI, PR, READY, and DONE remain open.",
-      "statusText": "Validation — source adapter reviewed; required contract test, caller/provider-owner composition, proof, and completion remain open.",
+      "reason": "Independent review accepted the bounded WP04 source adapter at canonical source commit d72e1617d. Its only real leaf constructor caller is AiWorkRequest::new; result/context/journal/remote-assistant paths carry already owner-materialized values through safe public validation/read/encoding APIs and preserve existing digests. It rejects prompt/runtime attachments without owner capability. Canonical 191e0d8a0 registers real work-request/schema/enum/hostile-input contract coverage, unexecuted. Owner and digest issuance is not composed in the neutral leaf; result/context/journal construction and negative encoding remain blocked without a real owner and no test-only/caller-mintable seam is allowed. No general production caller/provider-owner runtime composition exists. Remaining tests, execution, proof, CI, PR, READY, and DONE remain open.",
+      "statusText": "Validation — source adapter and bounded request/schema/enum contract tests are written; owner-only context/result/journal tests, caller/provider-owner composition, execution, proof, and completion remain open.",
       "needsReview": false,
       "evidence": [
         "docs/plans/ai-plan/PLAN_STATE.md",
@@ -10193,6 +10193,17 @@
     }
   ],
   "completionEvidenceOverrides": [
+    {
+      "id": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
+      "implementation": [
+        "crates/agent-protocol/src/ai_contracts.rs"
+      ],
+      "reason": "Independent review accepted the explicit agent-protocol adapter over the neutral AI contract leaf. Canonical 191e0d8a0 contains the real work-request/schema/enum/hostile-input contract test, but it has not been executed. Context/result/journal owner construction, general provider-owner composition, remaining owner-only tests, proof, CI, READY, and DONE remain open; this is bounded implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-eventing-plan-02-crate-contract-and-type-boundary",
       "implementation": [

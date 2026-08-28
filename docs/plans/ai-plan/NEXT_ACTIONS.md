@@ -45,12 +45,16 @@ source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
    canonical source commit `d72e1617d`: it consumes the neutral leaf through
    public constructors, rejects prompt/runtime attachments without owner
    capability, and preserves the EvidenceOnly/Durable and digest semantics.
-   The separately owned contract test
-   `crates/agent-protocol/tests/contract/ai_contracts.rs` is absent and
-   unregistered, and no general production caller/provider-owner composition
-   exists. Add and review those missing boundaries before focused execution;
-   keep tests, proof, CI, PR, READY, and DONE open. WP04 must not duplicate
-   WP03's leaf/TypeScript tests or schema ownership.
+   Canonical `191e0d8a0` now registers the real Rust contract test for work-
+   request round-trip and exact shape, schema/version linkage, canonical enum
+   values, malformed input, caller prompt/runtime injection, unknown fields,
+   timestamps, retries, work kinds, and authority fields. Context/result/
+   journal construction and negative encoding remain blocked because the
+   neutral leaf exposes no public constructor/deserializer and no real owner
+   composition exists; do not add a test-only or caller-mintable seam. Compose
+   the owner first, then finish those tests and run the full packet. Execution,
+   proof, CI, PR, READY, and DONE remain open. WP04 must not duplicate WP03's
+   leaf/TypeScript tests or schema ownership.
 4. WP07 general durable AI work lifecycle.
 5. WP09 context builder and WP12 prompt registry.
 6. WP14-WP17 local text execution, parser, and degraded boundary.
