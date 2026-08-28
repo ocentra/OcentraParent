@@ -1,7 +1,7 @@
 use std::primitive::str as TestStr;
 use std::{
     sync::{
-        atomic::{AtomicUsize, Ordering},
+        atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc,
     },
     time::Duration,
@@ -21,6 +21,9 @@ use tokio::sync::{Mutex as TokioMutex, Notify};
 
 use crate::local_ai_provider_scheduler::{
     local_ai_provider_scheduler, LocalAiProviderSchedulerRuntime,
+};
+use crate::local_ai_provider_scheduler_queue::{
+    LocalAiProviderRuntimeLaneAdmission, LocalAiProviderRuntimeLaneQueue, MAX_PENDING_RUNTIME_JOBS,
 };
 use crate::local_ai_provider_scheduler_state::LocalAiPhysicalDeviceId;
 use crate::test_invariants::require_ok;
@@ -48,6 +51,97 @@ fn unavailable_runtime_marks_scheduler_unavailable_without_queue() {
     );
     assert_eq!(status.queue.total(), 0);
     assert_eq!(status.current_job_class, None);
+}
+
+#[tokio::test]
+async fn unavailable_runtime_does_not_execute_provider_closure() {
+    let scheduler = LocalAiProviderSchedulerRuntime::new();
+    let invoked = Arc::new(AtomicBool::new(false));
+    let closure_invoked = Arc::clone(&invoked);
+
+    let result = scheduler
+        .run_generation_job(
+            LocalAiProviderSchedulerJobClass::ChildSafety,
+            unavailable_runtime(),
+            move || async move {
+                closure_invoked.store(true, Ordering::SeqCst);
+                completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY)
+            },
+        )
+        .await;
+
+    assert_eq!(result.generation_state, LocalAiGenerationState::Unavailable);
+    assert!(!invoked.load(Ordering::SeqCst));
+    assert_eq!(
+        scheduler.status_snapshot().lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Unavailable
+    );
+}
+
+#[test]
+fn runtime_lane_bounds_pending_jobs_and_removes_cancelled_waiters() {
+    let mut queue = LocalAiProviderRuntimeLaneQueue::new();
+    assert!(matches!(
+        queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport),
+        LocalAiProviderRuntimeLaneAdmission::Running
+    ));
+
+    let mut waiters = Vec::new();
+    for _ in 0..MAX_PENDING_RUNTIME_JOBS {
+        match queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport) {
+            LocalAiProviderRuntimeLaneAdmission::Queued(waiter) => waiters.push(waiter),
+            LocalAiProviderRuntimeLaneAdmission::Running
+            | LocalAiProviderRuntimeLaneAdmission::Rejected => {
+                panic!("queue should accept exactly its bounded pending capacity")
+            }
+        }
+    }
+    assert!(matches!(
+        queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport),
+        LocalAiProviderRuntimeLaneAdmission::Rejected
+    ));
+
+    drop(waiters);
+    let _ = queue.finish_running();
+    assert!(matches!(
+        queue.reserve(LocalAiProviderSchedulerJobClass::ParentReport),
+        LocalAiProviderRuntimeLaneAdmission::Running
+    ));
+}
+
+#[tokio::test]
+async fn failed_generation_remains_visible_as_degraded_scheduler_state() {
+    let scheduler = LocalAiProviderSchedulerRuntime::new();
+    let result = scheduler
+        .run_generation_job(
+            LocalAiProviderSchedulerJobClass::ParentAssistant,
+            ready_runtime(),
+            || async {
+                let mut result =
+                    completed_result(constants::local_ai_runtime::SCHEDULER_JOB_PARENT_ASSISTANT);
+                result.generation_state = LocalAiGenerationState::Failed;
+                result.output_text = None;
+                result.exit_code = None;
+                result.unavailable_reason = Some(
+                    constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_PROCESS_FAILED
+                        .to_string(),
+                );
+                result
+            },
+        )
+        .await;
+
+    assert_eq!(result.generation_state, LocalAiGenerationState::Failed);
+    let status = scheduler.status_snapshot();
+    assert_eq!(
+        status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Degraded
+    );
+    assert_eq!(status.degraded_state, LocalAiDegradedState::InvalidOutput);
+    assert_eq!(
+        status.unavailable_reason,
+        Some(constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_PROCESS_FAILED.to_string())
+    );
 }
 
 #[tokio::test]

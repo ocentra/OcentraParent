@@ -2,7 +2,9 @@ use std::{collections::HashMap, future::Future, sync::OnceLock};
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
-use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::{
+    LocalAiDegradedState, LocalAiGenerationState, LocalAiModelLoadState,
+};
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerDecision;
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
@@ -10,6 +12,9 @@ use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderS
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerQueue;
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerStatus;
 use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime_boundary::{
+    LocalAiAdapterBoundary, LocalAiExecutionState, LocalAiProviderSource,
+};
 use tokio::sync::Mutex;
 
 use crate::{
@@ -26,6 +31,16 @@ use crate::{
 };
 
 static LOCAL_AI_PROVIDER_SCHEDULER: OnceLock<LocalAiProviderSchedulerRuntime> = OnceLock::new();
+
+const SCHEDULER_UNAVAILABLE_RESULT_ID: &str = "local-ai-scheduler-unavailable";
+const SCHEDULER_DEGRADED_RESULT_ID: &str = "local-ai-scheduler-degraded";
+const SCHEDULER_QUEUE_FULL_REASON: &str = "local-ai-provider-scheduler-queue-full";
+const SCHEDULER_RUNTIME_NOT_READY_REASON: &str = "local-ai-provider-runtime-not-ready";
+const SCHEDULER_ADAPTER_UNAVAILABLE_REASON: &str = "local-ai-provider-adapter-unavailable";
+const SCHEDULER_EXECUTION_DISABLED_REASON: &str = "local-ai-provider-execution-disabled";
+const SCHEDULER_PROVIDER_SOURCE_UNAVAILABLE_REASON: &str = "local-ai-provider-source-unavailable";
+const SCHEDULER_MODEL_NOT_READY_REASON: &str = "local-ai-provider-model-not-ready";
+const SCHEDULER_CAPABILITY_UNAVAILABLE_REASON: &str = "local-ai-provider-capability-unavailable";
 
 pub(crate) fn local_ai_provider_scheduler() -> &'static LocalAiProviderSchedulerRuntime {
     LOCAL_AI_PROVIDER_SCHEDULER.get_or_init(LocalAiProviderSchedulerRuntime::new)
@@ -217,9 +232,14 @@ impl LocalAiProviderSchedulerRuntime {
         Fut: Future<Output = LocalAiChatGenerationResult>,
     {
         let finish_physical_device_id = physical_device_id.clone();
-        if runtime.unavailable_reason.is_some() {
-            self.record_unavailable_job_for_device(physical_device_id.clone(), &runtime, job_class);
-            return run().await;
+        if let Some(reason) = runtime_unavailable_reason(&runtime) {
+            let unavailable_runtime = runtime_with_reason(&runtime, reason);
+            self.record_unavailable_job_for_device(
+                physical_device_id,
+                &unavailable_runtime,
+                job_class,
+            );
+            return unavailable_generation_result(&unavailable_runtime);
         }
 
         match self
@@ -235,10 +255,19 @@ impl LocalAiProviderSchedulerRuntime {
                 self.wait_for_runtime_lane(physical_device_id, waiter, &runtime, job_class)
                     .await;
             }
+            LocalAiProviderRuntimeLaneAdmission::Rejected => {
+                self.record_degraded_job_for_device(
+                    physical_device_id,
+                    &runtime,
+                    job_class,
+                    SCHEDULER_QUEUE_FULL_REASON,
+                );
+                return degraded_generation_result(&runtime);
+            }
         }
 
         let result = run().await;
-        self.finish_runtime_lane(finish_physical_device_id, &runtime)
+        self.finish_runtime_lane(finish_physical_device_id, &runtime, &result)
             .await;
         result
     }
@@ -282,6 +311,7 @@ impl LocalAiProviderSchedulerRuntime {
         &self,
         physical_device_id: LocalAiPhysicalDeviceId,
         runtime: &LocalModelRuntimeStatus,
+        result: &LocalAiChatGenerationResult,
     ) {
         let waiting_jobs = {
             let mut lanes = self.lanes.lock().await;
@@ -289,7 +319,7 @@ impl LocalAiProviderSchedulerRuntime {
                 .entry(physical_device_id.clone())
                 .or_insert_with(LocalAiProviderRuntimeLaneQueue::new)
                 .finish_running();
-            self.finish_runtime_lane_state(physical_device_id, runtime);
+            self.finish_runtime_lane_state(physical_device_id, runtime, result);
             waiting_jobs
         };
         for waiting_job in waiting_jobs {
@@ -301,6 +331,7 @@ impl LocalAiProviderSchedulerRuntime {
         &self,
         physical_device_id: LocalAiPhysicalDeviceId,
         runtime: &LocalModelRuntimeStatus,
+        result: &LocalAiChatGenerationResult,
     ) {
         let mut states = self
             .states
@@ -308,19 +339,150 @@ impl LocalAiProviderSchedulerRuntime {
             .unwrap_or_else(std::sync::PoisonError::into_inner);
         let status = status_for_device(&mut states, physical_device_id, runtime);
         status.current_job_class = None;
+        let result_degraded_state = degraded_state_for_generation(result);
         status.lifecycle_state = if status.queue.total() > 0 {
-            LocalAiProviderSchedulerLifecycle::Queued
+            if result_degraded_state.is_some() {
+                LocalAiProviderSchedulerLifecycle::Degraded
+            } else {
+                LocalAiProviderSchedulerLifecycle::Queued
+            }
+        } else if result_degraded_state.is_some() {
+            LocalAiProviderSchedulerLifecycle::Degraded
         } else {
             LocalAiProviderSchedulerLifecycle::Idle
         };
         status.duplicate_runtime_blocked = status.queue.total() > 0;
-        status.degraded_state = if status.queue.total() > 0 {
-            LocalAiDegradedState::Overloaded
-        } else {
-            LocalAiDegradedState::None
-        };
-        status.unavailable_reason = None;
+        status.degraded_state = result_degraded_state.unwrap_or_else(|| {
+            if status.queue.total() > 0 {
+                LocalAiDegradedState::Overloaded
+            } else {
+                LocalAiDegradedState::None
+            }
+        });
+        status.unavailable_reason = result.unavailable_reason.clone();
         copy_runtime_fields(status, runtime);
+    }
+
+    fn record_degraded_job_for_device(
+        &self,
+        physical_device_id: LocalAiPhysicalDeviceId,
+        runtime: &LocalModelRuntimeStatus,
+        job_class: LocalAiProviderSchedulerJobClass,
+        reason: &'static str,
+    ) -> LocalAiProviderSchedulerDecision {
+        let mut states = self
+            .states
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        let status = status_for_device(&mut states, physical_device_id.clone(), runtime);
+        status.lifecycle_state = LocalAiProviderSchedulerLifecycle::Degraded;
+        status.duplicate_runtime_blocked = true;
+        status.degraded_state = LocalAiDegradedState::Overloaded;
+        status.unavailable_reason = Some(reason.to_string());
+        copy_runtime_fields(status, runtime);
+        decision_for(
+            physical_device_id,
+            runtime,
+            job_class,
+            LocalAiProviderSchedulerJobStatus::Degraded,
+            Some(status.queue.total()),
+            Some(LocalAiStatusText(reason.to_string())),
+            true,
+        )
+    }
+}
+
+fn runtime_with_reason(
+    runtime: &LocalModelRuntimeStatus,
+    reason: String,
+) -> LocalModelRuntimeStatus {
+    let mut unavailable_runtime = runtime.clone();
+    unavailable_runtime.unavailable_reason = Some(reason);
+    unavailable_runtime
+}
+
+fn runtime_unavailable_reason(runtime: &LocalModelRuntimeStatus) -> Option<String> {
+    if let Some(reason) = runtime.unavailable_reason.as_deref() {
+        return Some(reason.to_string());
+    }
+    if runtime.resource_class
+        == ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass::RemoteUnavailable
+    {
+        return Some(SCHEDULER_RUNTIME_NOT_READY_REASON.to_string());
+    }
+    if runtime.adapter_boundary != LocalAiAdapterBoundary::LocalAdapterReady {
+        return Some(SCHEDULER_ADAPTER_UNAVAILABLE_REASON.to_string());
+    }
+    if matches!(
+        runtime.execution_state,
+        LocalAiExecutionState::Disabled | LocalAiExecutionState::Failed
+    ) {
+        return Some(SCHEDULER_EXECUTION_DISABLED_REASON.to_string());
+    }
+    if runtime.provider_source == LocalAiProviderSource::Unavailable {
+        return Some(SCHEDULER_PROVIDER_SOURCE_UNAVAILABLE_REASON.to_string());
+    }
+    if runtime.load_state != LocalAiModelLoadState::Loaded {
+        return Some(SCHEDULER_MODEL_NOT_READY_REASON.to_string());
+    }
+    if runtime.capability_flags.is_empty() {
+        return Some(SCHEDULER_CAPABILITY_UNAVAILABLE_REASON.to_string());
+    }
+    None
+}
+
+fn unavailable_generation_result(runtime: &LocalModelRuntimeStatus) -> LocalAiChatGenerationResult {
+    LocalAiChatGenerationResult {
+        local_ai_result_id: format!(
+            "{SCHEDULER_UNAVAILABLE_RESULT_ID}:{}",
+            runtime.runtime_reference_id
+        ),
+        runtime_reference_id: runtime.runtime_reference_id.clone(),
+        provider_id: runtime.provider_id.clone(),
+        model_id: runtime.model_id.clone(),
+        model_reference: runtime.model_reference.clone(),
+        generation_state: LocalAiGenerationState::Unavailable,
+        output_text: None,
+        prompt_char_count: 0,
+        max_output_tokens: constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
+        timeout_ms: constants::local_ai_runtime::DEFAULT_GENERATION_TIMEOUT_MS,
+        duration_ms: 0,
+        exit_code: None,
+        stderr_byte_size: 0,
+        unavailable_reason: runtime.unavailable_reason.clone(),
+    }
+}
+
+fn degraded_generation_result(runtime: &LocalModelRuntimeStatus) -> LocalAiChatGenerationResult {
+    LocalAiChatGenerationResult {
+        local_ai_result_id: format!(
+            "{SCHEDULER_DEGRADED_RESULT_ID}:{}",
+            runtime.runtime_reference_id
+        ),
+        runtime_reference_id: runtime.runtime_reference_id.clone(),
+        provider_id: runtime.provider_id.clone(),
+        model_id: runtime.model_id.clone(),
+        model_reference: runtime.model_reference.clone(),
+        generation_state: LocalAiGenerationState::Failed,
+        output_text: None,
+        prompt_char_count: 0,
+        max_output_tokens: constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
+        timeout_ms: constants::local_ai_runtime::DEFAULT_GENERATION_TIMEOUT_MS,
+        duration_ms: 0,
+        exit_code: None,
+        stderr_byte_size: 0,
+        unavailable_reason: Some(SCHEDULER_QUEUE_FULL_REASON.to_string()),
+    }
+}
+
+fn degraded_state_for_generation(
+    result: &LocalAiChatGenerationResult,
+) -> Option<LocalAiDegradedState> {
+    match result.generation_state {
+        LocalAiGenerationState::Complete | LocalAiGenerationState::Running => None,
+        LocalAiGenerationState::Unavailable => Some(LocalAiDegradedState::ProviderUnavailable),
+        LocalAiGenerationState::TimedOut => Some(LocalAiDegradedState::Overloaded),
+        LocalAiGenerationState::Failed => Some(LocalAiDegradedState::InvalidOutput),
     }
 }
 
