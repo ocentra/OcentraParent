@@ -5339,8 +5339,20 @@
     },
     "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model": {
       "planSlug": "policy-control-plane-plan",
+      "codeExpectation": "code-and-tests",
       "roots": [
+        "crates/policy-control-core/src/policy_conflict/manual_review.rs",
+        "crates/policy-control-core/src/policy_conflict/schedules.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule/time.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule/time_budget/definition.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule/time_budget/definition/carryover.rs",
+        "crates/policy-control-core/src/policy_request/approval.rs",
+        "crates/policy-control-core/src/policy_request/lifecycle.rs",
+        "crates/policy-control-core/src/policy_request/resolution.rs",
+        "crates/policy-control-core/src/policy_request/validation.rs",
         "crates/policy-control-core/src/policy_source.rs",
+        "crates/policy-control-core/src/policy_source/validation/time/budget/carryover.rs",
+        "crates/policy-control-core/src/policy_source/validation/time/format.rs",
         "crates/policy-control-core/src/policy_source/validation/time",
         "crates/policy-control-core/src/policy_contract_helpers/schedule.rs",
         "crates/policy-control-core/src/policy_contract_helpers/schedule",
@@ -5357,7 +5369,30 @@
         "packages/schema-domain/src/policy.ts",
         "packages/schema-domain/src/generated-policy-control-helpers-contracts.ts",
         "packages/schema-domain/src/generated-policy-control-helpers.ts"
-      ]
+      ],
+      "plannedImplementationRoots": [
+        "crates/policy-control-core/src/policy_conflict/manual_review.rs",
+        "crates/policy-control-core/src/policy_conflict/schedules.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule/time.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule/time_budget/definition.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule/time_budget/definition/carryover.rs",
+        "crates/policy-control-core/src/policy_request.rs",
+        "crates/policy-control-core/src/policy_request/approval.rs",
+        "crates/policy-control-core/src/policy_request/lifecycle.rs",
+        "crates/policy-control-core/src/policy_request/resolution.rs",
+        "crates/policy-control-core/src/policy_request/validation.rs",
+        "crates/policy-control-core/src/policy_source.rs",
+        "crates/policy-control-core/src/policy_source/validation/time/budget/carryover.rs",
+        "crates/policy-control-core/src/policy_source/validation/time/format.rs"
+      ],
+      "expectedTestRoots": [
+        "crates/policy-control-core/tests/unit/policy_source.rs",
+        "crates/policy-control-core/tests/unit/policy_contract_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_conflict.rs",
+        "crates/policy-control-core/tests/unit/policy_conflict_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_request.rs"
+      ],
+      "note": "Canonical e565bd9dd contains the reviewed schedule/budget/conflict/request contract packet and focused source in all five mapped Rust test roots. No test was executed in the code-first phase. Trusted clock and timezone/DST ownership, durable timer journal, restart/offline recovery, the production caller for crate-private override expiry, proof, CI, READY, and DONE remain open. Existing TypeScript schema roots are generated/shared edge surfaces, not runtime ownership."
     },
     "WP-policy-control-plane-plan-08-policy-event-model": {
       "planSlug": "policy-control-plane-plan",

@@ -10107,10 +10107,14 @@
       "id": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
       "state": "validation",
       "needsReview": false,
-      "reason": "Real schedule/DST/budget/conflict contract owner and mapped tests exist, but no production caller, trusted clock, timer journal, or offline recovery runtime exists; no hard predecessor is justified and no implementation/runtime authorization is claimed.",
+      "reason": "Canonical e565bd9dd contains the independently reviewed schedule/budget/conflict/request contract packet and focused source in all five mapped Rust test roots. No test was executed and no proof was regenerated in the code-first phase. A shipped trusted clock and timezone/DST owner, durable timer journal, restart/offline recovery composition, and production caller for the crate-private override-expiry transition remain absent; no active-policy, enforcement, READY, or DONE claim is made.",
+      "statusText": "Validation — reviewed WP07 contract and mapped test source are written; trusted time/timezone ownership, durable timer recovery, production expiry composition, execution, proof, and completion remain open.",
       "evidence": [
+        "docs/plans/policy-control-plane-plan/PLAN_STATE.md",
+        "docs/plans/policy-control-plane-plan/NEXT_ACTIONS.md",
         "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md"
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md",
+        "docs/engineering-graph/code-map.json"
       ]
     },
     {
@@ -10193,6 +10197,29 @@
     }
   ],
   "completionEvidenceOverrides": [
+    {
+      "id": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
+      "implementation": [
+        "crates/policy-control-core/src/policy_conflict/manual_review.rs",
+        "crates/policy-control-core/src/policy_conflict/schedules.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule/time.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule/time_budget/definition.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule/time_budget/definition/carryover.rs",
+        "crates/policy-control-core/src/policy_request.rs",
+        "crates/policy-control-core/src/policy_request/approval.rs",
+        "crates/policy-control-core/src/policy_request/lifecycle.rs",
+        "crates/policy-control-core/src/policy_request/resolution.rs",
+        "crates/policy-control-core/src/policy_request/validation.rs",
+        "crates/policy-control-core/src/policy_source.rs",
+        "crates/policy-control-core/src/policy_source/validation/time/budget/carryover.rs",
+        "crates/policy-control-core/src/policy_source/validation/time/format.rs"
+      ],
+      "reason": "Independent review accepted canonical e565bd9dd as the bounded WP07 contract and mapped test-source packet. Tests are present but unexecuted. Trusted clock/timezone ownership, durable timer/restart/offline recovery, a production expiry caller, retained proof, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/07-schedule-time-budget-conflict-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
       "implementation": [

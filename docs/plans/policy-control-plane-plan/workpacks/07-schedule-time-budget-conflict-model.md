@@ -33,6 +33,26 @@ Owns: schedule semantics, time-budget reset and carryover, DST boundaries, ambig
 - Bonus time and overrides expire.
 - Offline timer recovery is defined.
 
+## Canonical code-and-test checkpoint — 2026-08-28
+
+- Canonical `e565bd9dd` hardens the Rust-owned schedule, time-budget,
+  conflict, child-request, parent-approval, temporary-override, and policy-source
+  contracts. The packet enforces real UTC calendar timestamps, strict temporal
+  ordering, positive budget/carryover values, bonus-time/action consistency,
+  manual-required handling for unsupported timezone ownership, replay
+  validation, and deadline-gated expiry.
+- The five mapped Rust test roots now contain focused source for invalid calendar
+  dates, zero budget/carryover, cross-midnight conflicts, unsupported timezone
+  handling, request/approval window ordering, bonus-time bounds, expiry, and
+  replay behavior.
+- No test was executed in this code-first phase. The existing proof files were
+  not regenerated and do not validate this new packet yet.
+- This is not runtime completion. No shipped owner supplies a trusted clock,
+  timezone/DST resolver, durable timer journal, restart/offline recovery, or a
+  production caller for the crate-private override-expiry transition. Those
+  owner/runtime paths and their tests must be written before focused execution
+  and proof regeneration.
+
 ## Negative cases
 
 ```text

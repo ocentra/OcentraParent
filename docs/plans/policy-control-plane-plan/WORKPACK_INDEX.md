@@ -10,7 +10,7 @@ Use this file to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only wh
 | [04-delivery-ack-audit](workpacks/04-delivery-ack-audit.md) | Delivery, ack, retry, rollback, and audit. | Contract and trace-backed receipt bridge code drafted but unvalidated; child handoff/runtime integration, tests, and proof remain blocked; caller receipts remain evidence |
 | [05-ask-parent-overrides](workpacks/05-ask-parent-overrides.md) | Ask-parent, bonus time, overrides, approvals. | Code drafted / unvalidated / tests deferred — Rust-owned typed decision staging/relay is mapped to `action_dispatch.rs`, `policy_preview.rs`, and `policy_preview/resolution.rs`; notification handoff remains explicitly unclaimed until provider dispatch exists; portal, account/identity, WP11 durability, runtime, tests, and proof remain open |
 | [06-rollout-proof-and-route-gate](workpacks/06-rollout-proof-and-route-gate.md) | Proof pack, route sync, and no-overclaim gate. | Checked |
-| [07-schedule-time-budget-conflict-model](workpacks/07-schedule-time-budget-conflict-model.md) | Timezone/DST, budgets, and conflict precedence. | Checked |
+| [07-schedule-time-budget-conflict-model](workpacks/07-schedule-time-budget-conflict-model.md) | Timezone/DST, budgets, and conflict precedence. | Validation — canonical `e565bd9dd` contains the reviewed contract and mapped test source; trusted clock/timezone/timer-journal/offline-recovery ownership, production caller composition, test execution, and proof refresh remain open |
 | [08-policy-event-model](workpacks/08-policy-event-model.md) | Event families, idempotency, replay, and audit linkage. | Checked |
 
 ## Status interpretation

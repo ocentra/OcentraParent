@@ -18,11 +18,17 @@
 - WP02 code pass checkpoint: Rust-owned draft validation/staging, trusted preview-row authority projection, typed confirmed-request relay, and bounded handle mark-before-dispatch/restore-on-failure/commit-on-success now back the portal draft/confirm/cancel surface; missing authority context fails closed for manual review, validation and tests remain deferred, and no runtime completion claim is made.
 - WP05 production-code checkpoint: the Rust resolution command/service and delivery-binding validation exist, and a drafted typed decision staging/relay slice now maps `action_dispatch.rs`, `policy_preview.rs`, and `policy_preview/resolution.rs`. It projects `Modify` from trusted preview context only, binds actor identity to the local active-controller record, and fails closed for missing or ambiguous account/identity context. The rendered portal callback, account/identity provider composition, notification-provider dispatch, WP11 durability, runtime integration, validation/tests, and proof remain open; no completion claim is made.
 - WP05 no-claim correction: `crates/agent-service/src/websocket/policy_request_resolution/apply.rs` leaves `notification_handoff_claim_state` `Unclaimed` until a notification-owned provider dispatch exists; policy resolution alone is not notification delivery.
+- WP07 code/test-source checkpoint: canonical `e565bd9dd` contains the reviewed
+  schedule/budget/conflict/request validation packet and focused source in all
+  five mapped test roots. No test has run. Write the missing trusted clock and
+  timezone/DST owner, durable timer journal and restart/offline recovery path,
+  plus the production caller for override expiry before focused execution and
+  proof regeneration.
 
 ## Ordered workpacks
 
 - [ ] Complete `workpacks/01-policy-source-of-truth.md` after Cloudflare WP06 (transitive Account Identity WP08) and Device Trust WP01/WP03 authority prerequisites are available, then add trusted identity-backed durable source persistence, startup recovery, and a shipped registration/active-version query caller; existing type/proof coverage is contract-only.
-- [x] Close `workpacks/07-schedule-time-budget-conflict-model.md` with timezone/DST and conflict precedence proof.
+- [ ] Complete `workpacks/07-schedule-time-budget-conflict-model.md`: retain canonical `e565bd9dd`, then write the trusted clock/timezone owner, durable timer/recovery composition, production expiry caller, and remaining real tests before execution and proof refresh.
 - [ ] Close `workpacks/02-parent-authoring-preview.md` with preview, conflict, and mobile/accessibility proof.
 - [ ] Complete `workpacks/03-domain-policy-compilers.md` only after WP01's authoritative source registration/active-version query boundary exists, with a shipped active-source-to-domain compiler/persist-or-deliver composition; deterministic library tests are insufficient.
 - [ ] Complete `workpacks/04-delivery-ack-audit.md` with trusted per-device/domain delivery authority and an inspectable execution trace; caller-built receipts are evidence only.
