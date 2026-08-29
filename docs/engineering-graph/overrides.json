@@ -1313,6 +1313,18 @@
       ]
     },
     {
+      "id": "WP-logging-domain-parity-02-typescript-logging-package-parity",
+      "hardDependencies": [],
+      "reason": "Current source and test audit identifies the absent package-owned Windows local-artifact mutation provider as a real WP02 implementation seam. The existing local-artifact path, ownership, identity, append, lock, transaction, retention, bridge, and NDJSON roots are consumers of that provider. This review authorizes only the unsatisfied implementation route for the mapped provider and dedicated test roots; canonical containment, symlink/reparse safety, ownership/currentness, atomic create/write/lock/recovery, provider-issued authority, tests, proof, normal READY, and DONE remain open.",
+      "evidence": [
+        "docs/plans/logging-domain-parity/PLAN_STATE.md",
+        "docs/plans/logging-domain-parity/NEXT_ACTIONS.md",
+        "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
+        "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-logging-domain-parity-03-parent-logging-architecture-and-routing",
       "hardDependencies": [
         "WP-logging-domain-parity-02-typescript-logging-package-parity",
@@ -2884,9 +2896,7 @@
     },
     {
       "id": "WP-tracking-plan-08-android-foreground-location-adapter",
-      "hardDependencies": [
-        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"
-      ],
+      "hardDependencies": ["WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"],
       "reason": "Exact source review found the neutral Rust location validation and child-runtime event consumer, but the shipped Android package, JNI bridge, service lifecycle, and platform test owner belong to Child Runtime Distribution WP05. WP08 may consume that reviewed implementation; it may not create Android package or bridge code independently. This review claims no implementation, platform authority, execution, proof, READY, or DONE.",
       "evidence": [
         "docs/plans/tracking-plan/PLAN_STATE.md",
@@ -2911,9 +2921,7 @@
     },
     {
       "id": "WP-tracking-plan-10-android-battery-connectivity-and-status-adapter",
-      "hardDependencies": [
-        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"
-      ],
+      "hardDependencies": ["WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"],
       "reason": "Exact source review found the neutral Rust battery, connectivity, status, and degraded-reason evaluator with real tests, but the Android producer, JNI bridge, service lifecycle, and platform test owner belong to Child Runtime Distribution WP05. WP10 may consume that reviewed implementation; it may not create an unconsumed Android collector independently. This review claims no implementation, provider authority, execution, proof, READY, or DONE.",
       "evidence": [
         "docs/plans/tracking-plan/PLAN_STATE.md",
@@ -3005,9 +3013,7 @@
     },
     {
       "id": "WP-app-game-plan-208-app-game-child-runtime-transport-receipt-boundary",
-      "hardDependencies": [
-        "WP-app-game-plan-207-app-game-child-device-runtime-writer"
-      ],
+      "hardDependencies": ["WP-app-game-plan-207-app-game-child-device-runtime-writer"],
       "reason": "The typed transport/receipt boundary must consume WP207's durable authenticated child writer. Existing receipt DTO/read-model source does not provide target/currentness or transport ownership and cannot independently authorize runtime delivery.",
       "evidence": [
         "docs/plans/app-game-plan/CODE_AUDIT.md",
@@ -3017,9 +3023,7 @@
     },
     {
       "id": "WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service",
-      "hardDependencies": [
-        "WP-app-game-plan-208-app-game-child-runtime-transport-receipt-boundary"
-      ],
+      "hardDependencies": ["WP-app-game-plan-208-app-game-child-runtime-transport-receipt-boundary"],
       "reason": "Service ingestion must consume the reviewed typed transport/receipt boundary; status payloads and marker files are not authenticated service receipt ingestion.",
       "evidence": [
         "docs/plans/app-game-plan/CODE_AUDIT.md",
@@ -3029,9 +3033,7 @@
     },
     {
       "id": "WP-app-game-plan-210-app-game-child-runtime-transport-receipt-parent-surface",
-      "hardDependencies": [
-        "WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service"
-      ],
+      "hardDependencies": ["WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service"],
       "reason": "The parent surface may project only receipts accepted by the authenticated service owner; existing read models cannot create or validate receipt authority.",
       "evidence": [
         "docs/plans/app-game-plan/CODE_AUDIT.md",
@@ -3041,9 +3043,7 @@
     },
     {
       "id": "WP-app-game-plan-211-app-game-android-child-runtime-transport-receipt-proof",
-      "hardDependencies": [
-        "WP-app-game-plan-210-app-game-child-runtime-transport-receipt-parent-surface"
-      ],
+      "hardDependencies": ["WP-app-game-plan-210-app-game-child-runtime-transport-receipt-parent-surface"],
       "reason": "The checked-in Java helper writes package-local marker files, while the launched child activity/service has no receipt ingress. WP207-WP210 must provide durable authenticated writer, typed transport, service ingestion, and parent surface before Android runtime receipt tests are legal.",
       "evidence": [
         "docs/plans/app-game-plan/workpacks/211-app-game-android-child-runtime-transport-receipt-proof.md",
@@ -3053,9 +3053,7 @@
     },
     {
       "id": "WP-app-game-plan-212-app-game-android-child-runtime-local-receipt-proof",
-      "hardDependencies": [
-        "WP-app-game-plan-211-app-game-android-child-runtime-transport-receipt-proof"
-      ],
+      "hardDependencies": ["WP-app-game-plan-211-app-game-android-child-runtime-transport-receipt-proof"],
       "reason": "Canonical 0505bdd61 adds real package-local receipt behavior tests, but same-app files and broadcasts are not authenticated service receipts. WP211 remains the runtime dependency; no execution, proof, READY, or DONE is claimed.",
       "evidence": [
         "docs/plans/app-game-plan/workpacks/212-app-game-android-child-runtime-local-receipt-proof.md",
@@ -3064,9 +3062,7 @@
     },
     {
       "id": "WP-app-game-plan-214-app-game-android-child-runtime-local-receipt-ack-proof",
-      "hardDependencies": [
-        "WP-app-game-plan-212-app-game-android-child-runtime-local-receipt-proof"
-      ],
+      "hardDependencies": ["WP-app-game-plan-212-app-game-android-child-runtime-local-receipt-proof"],
       "reason": "Canonical e4c147fee adds fail-closed package-local ACK source and real tests. Unknown, replayed, mismatched, stale, and wrong-target external ACK behavior remains unavailable until WP208-WP210 compose the real transport/service/parent route.",
       "evidence": [
         "docs/plans/app-game-plan/workpacks/214-app-game-android-child-runtime-local-receipt-ack-proof.md",
@@ -3075,9 +3071,7 @@
     },
     {
       "id": "WP-app-game-plan-215-app-game-android-child-runtime-local-receipt-channel-proof",
-      "hardDependencies": [
-        "WP-app-game-plan-214-app-game-android-child-runtime-local-receipt-ack-proof"
-      ],
+      "hardDependencies": ["WP-app-game-plan-214-app-game-android-child-runtime-local-receipt-ack-proof"],
       "reason": "Canonical WP212/WP214 tests cover honest package-local filtering/readback/tamper/failure behavior. The launched child service never invokes the receiver and transport remains NOT_IMPLEMENTED, so the live channel stays dependency-blocked.",
       "evidence": [
         "docs/plans/app-game-plan/workpacks/215-app-game-android-child-runtime-local-receipt-channel-proof.md",
@@ -3086,9 +3080,7 @@
     },
     {
       "id": "WP-app-game-plan-216-app-game-android-child-runtime-local-delivery-intake-proof",
-      "hardDependencies": [
-        "WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service"
-      ],
+      "hardDependencies": ["WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service"],
       "reason": "Existing Android code validates only a static action and writes package-local markers; no launched authenticated delivery consumer exists. WP207-WP209 are hard source prerequisites and marker tests are not accepted as delivery evidence.",
       "evidence": [
         "docs/plans/app-game-plan/workpacks/216-app-game-android-child-runtime-local-delivery-intake-proof.md",
@@ -3097,9 +3089,7 @@
     },
     {
       "id": "WP-app-game-plan-217-app-game-android-child-runtime-local-delivery-queue-proof",
-      "hardDependencies": [
-        "WP-app-game-plan-216-app-game-android-child-runtime-local-delivery-intake-proof"
-      ],
+      "hardDependencies": ["WP-app-game-plan-216-app-game-android-child-runtime-local-delivery-intake-proof"],
       "reason": "A durable delivery queue must consume authenticated intake from the launched child runtime. Fixed package-local queue/drain markers have no identity, ordering, retry, restart, idempotency, or receipt custody and are not accepted as implementation.",
       "evidence": [
         "docs/plans/app-game-plan/CODE_AUDIT.md",
@@ -3109,9 +3099,7 @@
     },
     {
       "id": "WP-app-game-plan-220-app-game-android-child-runtime-local-notification-proof",
-      "hardDependencies": [
-        "WP-app-game-plan-217-app-game-android-child-runtime-local-delivery-queue-proof"
-      ],
+      "hardDependencies": ["WP-app-game-plan-217-app-game-android-child-runtime-local-delivery-queue-proof"],
       "reason": "Only legacy undeclared MainActivity invokes the fixed notification/marker helper. A real launched child-service notification requires the authenticated writer, intake, and durable queue; direct static-helper tests would be theater.",
       "evidence": [
         "docs/plans/app-game-plan/workpacks/220-app-game-android-child-runtime-local-notification-proof.md",
@@ -3120,9 +3108,7 @@
     },
     {
       "id": "WP-app-game-plan-221-app-game-android-child-runtime-local-notification-action-proof",
-      "hardDependencies": [
-        "WP-app-game-plan-220-app-game-android-child-runtime-local-notification-proof"
-      ],
+      "hardDependencies": ["WP-app-game-plan-220-app-game-android-child-runtime-local-notification-proof"],
       "reason": "The current static action has no owner-issued request identity, target/currentness, replay/idempotency, durable receipt, or live producer/consumer. It remains blocked on the reviewed writer/intake/queue/notification chain.",
       "evidence": [
         "docs/plans/app-game-plan/workpacks/221-app-game-android-child-runtime-local-notification-action-proof.md",
@@ -3131,9 +3117,7 @@
     },
     {
       "id": "WP-app-game-plan-222-app-game-android-child-runtime-local-notification-request-queue-proof",
-      "hardDependencies": [
-        "WP-app-game-plan-221-app-game-android-child-runtime-local-notification-action-proof"
-      ],
+      "hardDependencies": ["WP-app-game-plan-221-app-game-android-child-runtime-local-notification-action-proof"],
       "reason": "The current helper overwrites fixed queue/drain markers and has no request identity/payload, ordering, retry, restart-safe custody, idempotency, durable receipt, or live service consumer. It remains blocked on the full upstream chain.",
       "evidence": [
         "docs/plans/app-game-plan/workpacks/222-app-game-android-child-runtime-local-notification-request-queue-proof.md",
@@ -11014,9 +10998,7 @@
     },
     {
       "id": "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts",
-      "implementation": [
-        "crates/agent-protocol/src/ai_contracts.rs"
-      ],
+      "implementation": ["crates/agent-protocol/src/ai_contracts.rs"],
       "reason": "Independent review accepted the explicit agent-protocol adapter over the neutral AI contract leaf. Canonical 191e0d8a0 contains the real work-request/schema/enum/hostile-input contract test, but it has not been executed. Context/result/journal owner construction, general provider-owner composition, remaining owner-only tests, proof, CI, READY, and DONE remain open; this is bounded implementation-only routing evidence.",
       "evidence": [
         "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
@@ -11039,9 +11021,7 @@
     },
     {
       "id": "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings",
-      "implementation": [
-        "infra/cloudflare/src/env.ts"
-      ],
+      "implementation": ["infra/cloudflare/src/env.ts"],
       "reason": "Independent review accepted explicit development/production bindings, placeholder-only secret custody, non-throwing malformed origin handling, environment-scoped wildcard behavior, and production wildcard rejection. Canonical 4ddb47353 contains the completed real env-binding test matrix and the documented Stripe webhook tolerance binding, but no test has been executed in this code-first phase. Live binding IDs/credentials, deployment and rollback proof, EntitlementSnapshotDO runtime composition, CI, READY, and DONE remain open; this is implementation-only routing evidence.",
       "evidence": [
         "docs/plans/cloudflare-control-plane-plan/workpacks/02-wrangler-env-bindings.md",
@@ -11947,12 +11927,8 @@
     },
     {
       "id": "WP-app-plan-41-live-windows-inventory-source",
-      "implementation": [
-        "crates/agent-core/src/activity_store_app_game/app_game_windows_inventory_source.rs"
-      ],
-      "tests": [
-        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_inventory_source_tests.rs"
-      ],
+      "implementation": ["crates/agent-core/src/activity_store_app_game/app_game_windows_inventory_source.rs"],
+      "tests": ["crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_inventory_source_tests.rs"],
       "reason": "Reviewed the bounded Windows Start Menu shortcut inventory source, opaque path references, service capture caller, journal/SQLite projection, and real temp-shortcut/limit/nonclaim behavior tests. Live proof, checklist acceptance, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/app-plan/workpacks/41-live-windows-inventory-source.md",
@@ -11965,9 +11941,7 @@
         "crates/agent-service/src/activity_capture/app_game.rs",
         "crates/agent-service/src/activity_capture/capture_events.rs"
       ],
-      "tests": [
-        "crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"
-      ],
+      "tests": ["crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"],
       "reason": "Reviewed the shipped service caller that captures bounded shortcut inventory into the typed journal/SQLite read model and its registered behavioral test. Runtime/foreground authority, retained proof, checklist acceptance, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/app-plan/workpacks/42-service-windows-inventory-capture-bridge.md",
@@ -11980,9 +11954,7 @@
         "crates/agent-core/src/activity_store_app_game/app_game_windows_store_package_source.rs",
         "crates/agent-core/src/activity_store_app_game/app_game_windows_store_package_manifest.rs"
       ],
-      "tests": [
-        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_store_package_source_tests.rs"
-      ],
+      "tests": ["crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_store_package_source_tests.rs"],
       "reason": "Reviewed the bounded Windows Store manifest inventory source, opaque package/path references, journal/SQLite projection, and real manifest/rejection/nonclaim tests. Retained proof, checklist acceptance, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/app-plan/workpacks/43-live-windows-store-package-source.md",
@@ -11995,9 +11967,7 @@
         "crates/agent-service/src/activity_capture/app_game.rs",
         "crates/agent-service/src/activity_capture/capture_events.rs"
       ],
-      "tests": [
-        "crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"
-      ],
+      "tests": ["crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"],
       "reason": "Reviewed the shipped service capture path for Windows Store package evidence into the typed journal/SQLite read model and its registered behavioral test. Retained proof, checklist acceptance, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/app-plan/workpacks/44-service-windows-store-package-capture-bridge.md",
@@ -12010,9 +11980,7 @@
         "crates/agent-core/src/activity_store_app_game/app_game_windows_registry_source.rs",
         "crates/agent-core/src/activity_store_app_game/app_game_windows_registry_live.rs"
       ],
-      "tests": [
-        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_registry_source_tests.rs"
-      ],
+      "tests": ["crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_registry_source_tests.rs"],
       "reason": "Reviewed the bounded HKLM/HKCU uninstall-registry inventory reader, opaque registry/install/uninstall references, hidden-system filtering, journal/SQLite projection, and real registry-fixture behavior tests. Retained proof, checklist acceptance, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/app-plan/workpacks/45-live-windows-registry-inventory-source.md",
@@ -12025,9 +11993,7 @@
         "crates/agent-service/src/activity_capture/app_game.rs",
         "crates/agent-service/src/activity_capture/capture_events.rs"
       ],
-      "tests": [
-        "crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"
-      ],
+      "tests": ["crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"],
       "reason": "Reviewed the shipped service capture path for registry inventory into the typed journal/SQLite read model and its registered behavioral test. Retained proof, checklist acceptance, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/app-plan/workpacks/46-service-windows-registry-capture-bridge.md",
@@ -12040,9 +12006,7 @@
         "crates/agent-protocol/src/activity_surface/source_status.rs",
         "crates/agent-service/src/activity_surface_read_models/app_use/source.rs"
       ],
-      "tests": [
-        "crates/agent-service/tests/unit/app_game_source_status_tests.rs"
-      ],
+      "tests": ["crates/agent-service/tests/unit/app_game_source_status_tests.rs"],
       "reason": "Reviewed source-kind grouping, latest-observation/capability/evidence projection, app-versus-launcher boundaries, real service/WebSocket consumers, and registered grouping/permission-state tests. Retained proof, checklist acceptance, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/app-plan/workpacks/47-backend-source-freshness-read-model.md",
@@ -12051,9 +12015,7 @@
     },
     {
       "id": "WP-app-plan-53-notification-intent-contract",
-      "implementation": [
-        "crates/agent-protocol/src/app_game_notification_readiness.rs"
-      ],
+      "implementation": ["crates/agent-protocol/src/app_game_notification_readiness.rs"],
       "tests": [
         "crates/agent-protocol/tests/contract/app_game_notification_readiness_tests.rs",
         "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
@@ -12092,9 +12054,7 @@
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/rows.rs"
       ],
-      "tests": [
-        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
-      ],
+      "tests": ["crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"],
       "reason": "Reviewed the fail-closed service derivation integrated at 74361ec32 and registered behavior tests. Generic evidence/authority/completed-action rows no longer fabricate time-limit, approval-request, or ready suspicious intents; only explicit unknown classifications produce exact-evidence manual review. Delivery/UI/runtime claims remain false; focused execution, proof, checklist, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/app-plan/workpacks/56-notification-service-read-model.md",
@@ -12113,9 +12073,7 @@
         "crates/app-game-core/src/app_game_child_ux_outbox_store.rs",
         "crates/agent-service/src/activity_api.rs"
       ],
-      "tests": [
-        "crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs"
-      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs"],
       "reason": "Reviewed the fail-closed notification-readiness to local-outbox mapping, atomic persistence, deterministic JSONL round trip, idempotency/conflict rejection, exact-evidence validation, and registered behavioral tests. Shipped runtime currently stops at the readiness report and has no production caller for this bridge; composing durable outbox runtime is explicitly downstream scope. Focused execution, proof, checklist, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/app-plan/workpacks/58-notification-local-outbox-bridge.md",
@@ -12899,7 +12857,9 @@
     },
     {
       "id": "WP-app-game-plan-90-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the existing Rust protocol-command handoff and real proof-required/blocked/non-claim coverage. Retired parent-domain roots are not recreated; no production caller or runtime command is claimed.",
       "evidence": [
@@ -12909,7 +12869,9 @@
     },
     {
       "id": "WP-app-game-plan-91-source-gated-policy-preview-timer-service-readiness-service-handler-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the existing Rust service-handler handoff and no-claim behavior. Retired TypeScript ownership is not restored; no shipped service handler/runtime caller or proof is claimed.",
       "evidence": [
@@ -12919,7 +12881,9 @@
     },
     {
       "id": "WP-app-game-plan-92-source-gated-policy-preview-timer-service-readiness-read-api-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the Rust read-API handoff and behavioral contract coverage for required and blocked rows. No shipped read API/runtime caller exists and retained proof remains open.",
       "evidence": [
@@ -12929,7 +12893,9 @@
     },
     {
       "id": "WP-app-game-plan-93-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the Rust read-API response handoff and real required-row plus omission coverage. Historical TypeScript roots are retired; no production response consumer/runtime caller or proof is claimed.",
       "evidence": [
@@ -12939,7 +12905,9 @@
     },
     {
       "id": "WP-app-game-plan-94-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the Rust response-consumer handoff and its real required/blocked/no-claim contract coverage. Retired parent-domain roots are not restored; no production response consumer or proof is claimed.",
       "evidence": [
@@ -12949,7 +12917,9 @@
     },
     {
       "id": "WP-app-game-plan-95-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the Rust response-consumer parent-surface handoff and real contract coverage. It is a bounded status projection with no live response consumer, parent runtime effect, or proof claim.",
       "evidence": [
@@ -12959,7 +12929,9 @@
     },
     {
       "id": "WP-app-game-plan-96-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the current Rust parent-surface read-model handoff and real required/blocked/no-claim contract coverage. It has no shipped service/parent/portal caller; runtime composition and proof remain open.",
       "evidence": [
@@ -12969,7 +12941,9 @@
     },
     {
       "id": "WP-app-game-plan-97-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the Rust parent-surface status handoff and real behavioral coverage. Retired parent-domain roots are not restored; no production consumer/runtime effect or proof is claimed.",
       "evidence": [
@@ -12979,7 +12953,9 @@
     },
     {
       "id": "WP-app-game-plan-98-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the Rust parent-surface status read-model handoff and real contract tests. It remains a bounded projection without a shipped product caller or retained proof.",
       "evidence": [
@@ -12989,7 +12965,9 @@
     },
     {
       "id": "WP-app-game-plan-99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff",
-      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs"],
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs"
+      ],
       "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
       "reason": "Reviewed the Rust parent-surface handoff. Canonical c9557e040 adds real assertions for row identity, inherited refs, status-model binding, false implementation/render flags, and private-row exclusion. No product caller or proof is claimed.",
       "evidence": [

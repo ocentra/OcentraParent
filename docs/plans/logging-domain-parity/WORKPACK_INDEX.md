@@ -62,6 +62,19 @@ generated TypeScript artifact, generated-policy sanitizer consumption, Logger
 pre-serialization sanitization, and portal fallback pre-serialization
 sanitization. No test, proof, DONE, or external composition claim is implied.
 
+Windows local-artifact owner route (2026-08-29): WP02 is the owner of the
+absent `packages/logging-domain/src/local-artifact-mutation-provider.ts` seam.
+The existing `src/local-artifact-*.ts`, `src/app-log/appNdjsonWriter.ts`,
+`src/test-log/{ingestManifest,logsTree,ndjsonLogFileWriter,ndjsonPaths,ndjsonWriter}.ts`,
+and `src/transport/bridgeServer.ts` paths are consumers of that owner. The
+dedicated unit and integration provider roots are
+`packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts`
+and
+`packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts`;
+both are currently absent. The route is implementation-authorized only for
+that unsatisfied seam after graph regeneration; it does not promote the
+source-hardened status, test/proof rows, normal READY, or DONE.
+
 Default order:
 
 ```text

@@ -23448,8 +23448,41 @@
         "indexPath": "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
         "statusText": "source-hardened / expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true,
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [
+            "packages/logging-domain/src/local-artifact-mutation-provider.ts"
+          ],
+          "testRoots": [
+            "packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts",
+            "packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts",
+            "packages/logging-domain/tests/unit/bridge-run-lifecycle.test.ts",
+            "packages/logging-domain/tests/unit/bridge-transport.test.ts",
+            "packages/logging-domain/tests/unit/ensure-db-script.test.ts",
+            "packages/logging-domain/tests/unit/logs-tree.test.ts",
+            "packages/logging-domain/tests/unit/ndjson-log-file-writer.test.ts",
+            "packages/logging-domain/tests/unit/ndjson-writer.test.ts",
+            "packages/logging-domain/tests/unit/retention-cleanup.test.ts",
+            "packages/logging-domain/tests/unit/retention-logs-script.test.ts",
+            "packages/logging-domain/tests/unit/test-log-duckdb.test.ts",
+            "packages/logging-domain/tests/unit/wipe-logs-script.test.ts",
+            "packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts",
+            "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
+          ]
+        },
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/logging-domain-parity/PLAN_STATE.md",
+            "docs/plans/logging-domain-parity/NEXT_ACTIONS.md",
+            "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
+            "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Current source and test audit identifies the absent package-owned Windows local-artifact mutation provider as a real WP02 implementation seam. The existing local-artifact path, ownership, identity, append, lock, transaction, retention, bridge, and NDJSON roots are consumers of that provider. This review authorizes only the unsatisfied implementation route for the mapped provider and dedicated test roots; canonical containment, symlink/reparse safety, ownership/currentness, atomic create/write/lock/recovery, provider-issued authority, tests, proof, normal READY, and DONE remain open."
+        },
         "completionEvidenceOverride": {
           "reason": "Accepted source head 735df89de records the generated TypeScript edge of the Rust-owned exact 18-key sensitive-key policy. The sanitizer consumes the generated artifact; tests, focused validation, proof, checklist closeout, and DONE remain deferred.",
           "evidence": [
@@ -23476,6 +23509,27 @@
           "proof": [],
           "checklist": ["docs/plans/logging-domain-parity/CHECKLIST_INDEX.md"],
           "adr": []
+        },
+        "expected": {
+          "implementation": [
+            "packages/logging-domain/src/local-artifact-mutation-provider.ts"
+          ],
+          "tests": [
+            "packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts",
+            "packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts",
+            "packages/logging-domain/tests/unit/bridge-run-lifecycle.test.ts",
+            "packages/logging-domain/tests/unit/bridge-transport.test.ts",
+            "packages/logging-domain/tests/unit/ensure-db-script.test.ts",
+            "packages/logging-domain/tests/unit/logs-tree.test.ts",
+            "packages/logging-domain/tests/unit/ndjson-log-file-writer.test.ts",
+            "packages/logging-domain/tests/unit/ndjson-writer.test.ts",
+            "packages/logging-domain/tests/unit/retention-cleanup.test.ts",
+            "packages/logging-domain/tests/unit/retention-logs-script.test.ts",
+            "packages/logging-domain/tests/unit/test-log-duckdb.test.ts",
+            "packages/logging-domain/tests/unit/wipe-logs-script.test.ts",
+            "packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts",
+            "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
+          ]
         }
       }
     },

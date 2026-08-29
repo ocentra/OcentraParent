@@ -61,6 +61,113 @@ There is no alternate TypeScript-local sensitive-key list or regex policy.
 This is source evidence only. The parity test, focused validation, proof-root,
 checklist, and completion rows remain deferred and unchecked.
 
+## Windows local-artifact mutation owner route (2026-08-29)
+
+The current Windows failure is at a real package boundary, not at a test-only
+fixture. `packages/logging-domain/src/local-artifact-path.ts` currently owns
+path containment, canonicalization, directory ownership/currentness, identity
+checks, and the explicit mutation-unsupported result used by the local-artifact
+append, lock, transaction, retention, bridge, and NDJSON callers. Those callers
+must remain consumers of one owner; they must not grow independent filesystem
+authority.
+
+The smallest missing production seam is the absent module:
+
+```text
+packages/logging-domain/src/local-artifact-mutation-provider.ts
+```
+
+WP02 owns this provider contract and its integration with the existing
+`local-artifact-path.ts` boundary and callers. The provider is not a caller-
+minted callback, path-only helper, boolean capability, mock, or temporary
+fallback. It remains an implementation gap until the graph-mapped source exists.
+
+The provider contract is fail-closed and must establish all of the following as
+observable outcomes, without prescribing a platform implementation recipe:
+
+- containment and canonical path: every target is proven inside the owned root
+  in its canonical namespace; traversal, root replacement, ambiguous path
+  forms, and canonicalization failure reject the mutation;
+- symlink/reparse handling: links and Windows reparse substitutions in the
+  root, ancestors, lock path, and target are rejected or independently proven
+  safe before any mutation;
+- directory ownership/currentness: the provider proves the expected directory
+  identity and ownership, then revalidates it at each mutation boundary;
+- atomic create/write/lock/recovery: creation, replacement, append, lock
+  acquisition/release, cleanup, and recovery preserve the transaction and
+  durability contract; partial, conflicting, or uncertain outcomes fail
+  closed;
+- capability provenance: only the provider can issue the opaque mutation
+  authority after those checks; callers cannot mint, widen, replay, or replace
+  that authority.
+
+Required failure classes include containment/canonicalization failure,
+symlink/reparse detection, ownership or identity drift, lock conflict, atomic
+mutation failure, recovery uncertainty, and unsupported provider state. No
+caller may fall back to direct path mutation or convert an unknown result to
+success.
+
+The graph route declares no hard predecessor for this package-owned seam.
+WP09 remains downstream of WP02 and cannot claim lifecycle completion from this
+route. The route authorizes only implementation-phase work for the absent
+provider; it does not claim source completion, focused tests, proof, review,
+normal READY, or DONE.
+
+Exact production consumer roots for this route are:
+
+```text
+packages/logging-domain/src/local-artifact-path.ts
+packages/logging-domain/src/local-artifact-append-codec.ts
+packages/logging-domain/src/local-artifact-append.ts
+packages/logging-domain/src/local-artifact-file.ts
+packages/logging-domain/src/local-artifact-lock-owner.ts
+packages/logging-domain/src/local-artifact-lock.ts
+packages/logging-domain/src/local-artifact-root.ts
+packages/logging-domain/src/local-artifact-transaction-cleanup.ts
+packages/logging-domain/src/local-artifact-transaction-codec.ts
+packages/logging-domain/src/local-artifact-transaction-parsing.ts
+packages/logging-domain/src/local-artifact-transaction-prepare.ts
+packages/logging-domain/src/local-artifact-transaction-recovery.ts
+packages/logging-domain/src/local-artifact-transaction-tree.ts
+packages/logging-domain/src/local-artifact-transaction.ts
+packages/logging-domain/src/local-artifact-tree.ts
+packages/logging-domain/src/app-log/appNdjsonWriter.ts
+packages/logging-domain/src/test-log/ingestManifest.ts
+packages/logging-domain/src/test-log/logsTree.ts
+packages/logging-domain/src/test-log/ndjsonLogFileWriter.ts
+packages/logging-domain/src/test-log/ndjsonPaths.ts
+packages/logging-domain/src/test-log/ndjsonWriter.ts
+packages/logging-domain/src/transport/bridgeServer.ts
+```
+
+The real test ownership is the existing package unit and integration trees,
+with these dedicated provider tests required and currently absent:
+
+```text
+packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts
+packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts
+```
+
+Existing consumer tests that must exercise the provider boundary are:
+
+```text
+packages/logging-domain/tests/unit/bridge-run-lifecycle.test.ts
+packages/logging-domain/tests/unit/bridge-transport.test.ts
+packages/logging-domain/tests/unit/ensure-db-script.test.ts
+packages/logging-domain/tests/unit/logs-tree.test.ts
+packages/logging-domain/tests/unit/ndjson-log-file-writer.test.ts
+packages/logging-domain/tests/unit/ndjson-writer.test.ts
+packages/logging-domain/tests/unit/retention-cleanup.test.ts
+packages/logging-domain/tests/unit/retention-logs-script.test.ts
+packages/logging-domain/tests/unit/test-log-duckdb.test.ts
+packages/logging-domain/tests/unit/wipe-logs-script.test.ts
+packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts
+packages/logging-domain/tests/integration/mcp-query-interface.test.ts
+```
+
+The reported 27 Windows test failures remain the current baseline. No source,
+test, proof, checklist, or DONE claim is made by this routing correction.
+
 Required module groups:
 
 ```text

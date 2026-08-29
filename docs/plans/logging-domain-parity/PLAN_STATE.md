@@ -121,6 +121,35 @@ Test-results roots: test-results/logging-domain-parity-mcp/ and test-results/log
 PR-ready: false
 ```
 
+### Windows local-artifact mutation owner route (2026-08-29)
+
+The 27 reported Windows package failures identify a missing owner seam in
+WP02. `packages/logging-domain/src/local-artifact-path.ts` currently exposes
+the path, ownership, identity, and explicit mutation-unsupported boundary, but
+there is no platform mutation provider behind the local-artifact append, lock,
+transaction, retention, bridge, and NDJSON callers. WP02 therefore owns the
+absent production root
+`packages/logging-domain/src/local-artifact-mutation-provider.ts` and its
+consumer wiring.
+
+The routed contract is fail-closed: canonical containment; symlink/reparse
+rejection or independently proven safety; directory ownership and identity
+currentness; atomic create/write/lock/recovery; and provider-issued opaque
+authority that callers cannot mint, widen, replay, or replace. Containment,
+canonicalization, reparse, ownership/identity, lock, atomicity, recovery, and
+unsupported-provider uncertainty must remain explicit failures. No path-only
+fallback, boolean flip, mock, or temporary provider is an accepted outcome.
+
+The route has no hard predecessor because it is package-owned. WP09 remains a
+downstream consumer and lifecycle dependent. Graph review and code-map entries
+authorize only the absent implementation seam; the source, expected tests,
+focused validation, proof root, checklist, normal READY, and DONE remain open.
+
+Dedicated expected test roots are the absent unit and integration files
+`packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts`
+and
+`packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts`.
+
 ## What is already understood
 
 - `ocentra-games/packages/logging-domain` is the reference implementation.

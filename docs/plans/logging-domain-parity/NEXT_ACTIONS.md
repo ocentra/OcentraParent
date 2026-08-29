@@ -24,6 +24,33 @@
 6. Fill the workpack pre-edit note.
 7. Implement or reconcile, test, run, proof, then update docs.
 
+## Current WP02 Windows owner route (2026-08-29)
+
+The next implementation slice is the missing package-owned provider seam:
+
+```text
+packages/logging-domain/src/local-artifact-mutation-provider.ts
+```
+
+The existing `src/local-artifact-path.ts` boundary and local-artifact
+append/file/lock/transaction, retention, bridge, and NDJSON callers remain
+consumers; they are not alternate mutation owners. The route requires
+canonical containment, symlink/reparse safety, directory ownership/currentness,
+atomic create/write/lock/recovery, and provider-issued opaque authority with no
+caller-minted capability or path-only fallback.
+
+The dedicated expected unit and integration roots are currently absent:
+
+```text
+packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts
+packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts
+```
+
+The 27 reported Windows failures remain open baseline evidence. Proceed only
+when the implementation-phase graph query names WP02 as authorized; do not
+claim source completion, test execution, proof, checklist closeout, normal
+READY, or DONE from this route.
+
 ## Highest-priority queue
 
 ### 0. Accepted Source Delta / Deferred Expected-Test Wave

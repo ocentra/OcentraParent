@@ -4949,9 +4949,7 @@
     },
     "WP-tracking-plan-11-ios-core-location-foreground-adapter": {
       "planSlug": "tracking-plan",
-      "expectedTestRoots": [
-        "platforms/ios/tests/child_foreground_location_runtime.test.mjs"
-      ],
+      "expectedTestRoots": ["platforms/ios/tests/child_foreground_location_runtime.test.mjs"],
       "roots": [
         "platforms/ios/OcentraChildAgent/Tracking/ChildForegroundLocationAdapter.swift",
         "platforms/ios/OcentraChildAgent/Tracking/ChildTrackingLocationIngress.swift",
@@ -4961,9 +4959,7 @@
     },
     "WP-tracking-plan-12-ios-background-region-significant-change-adapter": {
       "planSlug": "tracking-plan",
-      "expectedTestRoots": [
-        "platforms/ios/tests/child_background_location_runtime.test.mjs"
-      ],
+      "expectedTestRoots": ["platforms/ios/tests/child_background_location_runtime.test.mjs"],
       "roots": [
         "platforms/ios/OcentraChildAgent/Tracking/ChildBackgroundLocationAdapter.swift",
         "platforms/ios/OcentraChildAgent/Tracking/ChildTrackingLocationIngress.swift",
@@ -5693,9 +5689,7 @@
         "crates/schema/src/data_custody_source_of_truth_ts.rs",
         "crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs"
       ],
-      "expectedTestRoots": [
-        "crates/schema/tests/contract/data_custody_source_of_truth.rs"
-      ],
+      "expectedTestRoots": ["crates/schema/tests/contract/data_custody_source_of_truth.rs"],
       "roots": [
         "crates/schema/src/data_custody_source_of_truth.rs",
         "crates/schema/src/data_custody_source_of_truth/identifiers.rs",
@@ -6832,15 +6826,39 @@
     },
     "WP-logging-domain-parity-02-typescript-logging-package-parity": {
       "planSlug": "logging-domain-parity",
+      "codeExpectation": "code-and-tests",
       "roots": [
         "packages/logging-domain/package.json",
         "packages/logging-domain/src/logging-contracts.ts",
         "packages/logging-domain/src/core",
         "packages/logging-domain/src/core/log-redaction.ts",
         "packages/logging-domain/src/generated-log-redaction-policy.ts",
+        "packages/logging-domain/src/local-artifact-mutation-provider.ts",
+        "packages/logging-domain/src/local-artifact-append-codec.ts",
+        "packages/logging-domain/src/local-artifact-append.ts",
+        "packages/logging-domain/src/local-artifact-file.ts",
+        "packages/logging-domain/src/local-artifact-lock-owner.ts",
+        "packages/logging-domain/src/local-artifact-lock.ts",
+        "packages/logging-domain/src/local-artifact-path.ts",
+        "packages/logging-domain/src/local-artifact-root.ts",
+        "packages/logging-domain/src/local-artifact-transaction-cleanup.ts",
+        "packages/logging-domain/src/local-artifact-transaction-codec.ts",
+        "packages/logging-domain/src/local-artifact-transaction-parsing.ts",
+        "packages/logging-domain/src/local-artifact-transaction-prepare.ts",
+        "packages/logging-domain/src/local-artifact-transaction-recovery.ts",
+        "packages/logging-domain/src/local-artifact-transaction-tree.ts",
+        "packages/logging-domain/src/local-artifact-transaction.ts",
+        "packages/logging-domain/src/local-artifact-tree.ts",
         "packages/logging-domain/src/test-log",
+        "packages/logging-domain/src/test-log/ingestManifest.ts",
+        "packages/logging-domain/src/test-log/logsTree.ts",
+        "packages/logging-domain/src/test-log/ndjsonLogFileWriter.ts",
+        "packages/logging-domain/src/test-log/ndjsonPaths.ts",
+        "packages/logging-domain/src/test-log/ndjsonWriter.ts",
         "packages/logging-domain/src/transport",
+        "packages/logging-domain/src/transport/bridgeServer.ts",
         "packages/logging-domain/src/app-log",
+        "packages/logging-domain/src/app-log/appNdjsonWriter.ts",
         "packages/logging-domain/src/parent-log-runtime.ts",
         "packages/logging-domain/src/parent-log-runtime-bridge.ts",
         "packages/logging-domain/src/parent-log-runtime-config.ts",
@@ -6862,8 +6880,32 @@
         "packages/logging-domain/tests/unit/package-exports.test.ts",
         "packages/logging-domain/tests/unit/query-test-logs-script.test.ts",
         "packages/logging-domain/tests/unit/rebuild-db-script.test.ts",
-        "packages/logging-domain/tests/unit/test-log-duckdb.test.ts"
-      ]
+        "packages/logging-domain/tests/unit/test-log-duckdb.test.ts",
+        "packages/logging-domain/tests/unit/bridge-run-lifecycle.test.ts",
+        "packages/logging-domain/tests/unit/retention-cleanup.test.ts",
+        "packages/logging-domain/tests/unit/retention-logs-script.test.ts",
+        "packages/logging-domain/tests/unit/wipe-logs-script.test.ts",
+        "packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts",
+        "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
+      ],
+      "plannedImplementationRoots": ["packages/logging-domain/src/local-artifact-mutation-provider.ts"],
+      "expectedTestRoots": [
+        "packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts",
+        "packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts",
+        "packages/logging-domain/tests/unit/bridge-run-lifecycle.test.ts",
+        "packages/logging-domain/tests/unit/bridge-transport.test.ts",
+        "packages/logging-domain/tests/unit/ensure-db-script.test.ts",
+        "packages/logging-domain/tests/unit/logs-tree.test.ts",
+        "packages/logging-domain/tests/unit/ndjson-log-file-writer.test.ts",
+        "packages/logging-domain/tests/unit/ndjson-writer.test.ts",
+        "packages/logging-domain/tests/unit/retention-cleanup.test.ts",
+        "packages/logging-domain/tests/unit/retention-logs-script.test.ts",
+        "packages/logging-domain/tests/unit/test-log-duckdb.test.ts",
+        "packages/logging-domain/tests/unit/wipe-logs-script.test.ts",
+        "packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts",
+        "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
+      ],
+      "note": "WP02 owns the absent package-local Windows local-artifact mutation provider and the existing path, ownership, identity, append, lock, transaction, retention, bridge, NDJSON, unit, and integration consumer roots. The provider contract is fail-closed for canonical containment, symlink/reparse safety, directory currentness, atomic mutation and recovery, and provider-issued opaque authority; no caller-minted capability or path-only fallback is accepted. Missing implementation and dedicated provider test roots keep the route unsatisfied."
     },
     "WP-logging-domain-parity-03-parent-logging-architecture-and-routing": {
       "planSlug": "logging-domain-parity",
