@@ -75,4 +75,33 @@ describe('app/game notification parent surface panel', () => {
     expect(shouldRenderAppGameNotificationParentSurfaceRoute(ParentRoute.AppGameSessions)).toBe(true);
     expect(shouldRenderAppGameNotificationParentSurfaceRoute(ParentRoute.Notifications)).toBe(false);
   });
+
+  it('keeps long and hostile Rust-owned row metadata text-visible and escaped', () => {
+    const hostile = '<img src=x onerror=alert(1)> & <script>alert(2)</script>';
+    const panel: ParentAppGameNotificationParentSurfacePanelSnapshot = {
+      ...NotificationParentSurfacePanel,
+      rows: [
+        {
+          key: 'hostile-row',
+          title: `${hostile} ${'long-'.repeat(80)}`,
+          details: [
+            { label: 'Status', value: hostile },
+            { label: 'Manual proof', value: `${hostile} provider-adapter-required` },
+          ],
+        },
+        NotificationParentSurfacePanel.rows[1],
+      ],
+    };
+
+    const html = renderToStaticMarkup(
+      createElement(AppGameNotificationParentSurfaceRoutePanel, { panel })
+    );
+
+    expect(html).toContain('hostile-row');
+    expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(html).toContain('&lt;script&gt;alert(2)&lt;/script&gt;');
+    expect(html).not.toContain('<img src=x onerror=alert(1)>');
+    expect(html).not.toContain('<script>alert(2)</script>');
+    expect((html.match(/product-status-card/g) ?? []).length).toBe(3);
+  });
 });
