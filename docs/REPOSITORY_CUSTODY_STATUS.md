@@ -1,15 +1,92 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-28 during one-tree local consolidation, based on canonical
-`2e45967151ab57710480c52338aeb7f7d7726b43` (short `2e4596715`). This
-supersedes the retained 2026-08-25, 2026-08-24, 2026-08-23, 2026-08-19, and
-2026-08-18 snapshots below. The prior `3d6f32b8023eee90b5f295a4f7853e58fa04422a`
-and `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` inventories are historical;
+Snapshot: 2026-08-29 during one-tree local consolidation, based on canonical
+`ee5ac2dadb512f0da93237158a454d0ae7ecf6dd` (short `ee5ac2dad`). This
+supersedes the retained 2026-08-28, 2026-08-25, 2026-08-24, 2026-08-23,
+2026-08-19, and 2026-08-18 snapshots below. The prior
+`2e45967151ab57710480c52338aeb7f7d7726b43`,
+`3d6f32b8023eee90b5f295a4f7853e58fa04422a`, and
+`1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` inventories are historical;
 exact older branch and worktree inventories remain labelled historical.
 
 This document records where unpromoted Ocentra Parent work is physically and
 remotely recoverable. It is not a completion, test, proof, CI, or release
 claim. Refresh Git ancestry and patch identity before deleting any ref.
+
+## Live one-tree consolidation — 2026-08-29
+
+The single local integration location remains
+`E:\OcentraWorktrees\lanes\eventing-wp09-production`, branch
+`codex/eventing-wp09-production`, now clean at
+`ee5ac2dadb512f0da93237158a454d0ae7ecf6dd`. It is `154` commits ahead of the
+live remote head `325bd31507dbb41ebeea66bf92a95fcf5a21a3b7`. Nothing in this
+snapshot was pushed, tested, proved, submitted to CI, or merged.
+
+The regenerated graph still contains `24` plans and `692` workpacks. Its
+derived states at this snapshot are `242` planned, `203` blocked, `4` ready,
+`3` active, `239` validation, and `1` done. The four READY rows do not identify
+missing source work: App/Game WP197 and Child iOS WP06 already have their real
+production and behavioral-test source; Child WP01 and the migrated Data/AI UI
+row are route-only and explicitly require no code. Their validation, proof,
+checklist, CI, and release work remains later.
+
+The current source-order blocker is external and must not be replaced with a
+caller-minted token, boolean, DTO, mock, or no-op provider. Protected Custody
+WP01 has the neutral fail-closed verification source and all `13` mapped real
+test roots, but the repository has no authenticated OEM/firmware/MDM owner able
+to perform the TPM NV lifecycle plus protected Registry and SCM enrollment
+transaction. Consequently WP02 owner handoff and WP03 monotonic authority are
+not implementation-authorized. Account WP09, Cloudflare WP06, Child WP10, and
+the dependent Data WP09/WP10 runtime owners remain blocked behind that owner
+decision. The next conditional missing-source rows are Child WP05 after Child
+WP10, and Data WP09/WP10 after Account WP05/WP05A; none is legal to fabricate
+now.
+
+The complete current local branch/worktree inventory is:
+
+- `346` local `codex/*` heads; `345` were audited after excluding the retained
+  archive-upstream Data WP05 branch;
+- `93` are canonical ancestors or have no unique patch, `191` are divergent
+  but patch-equivalent, and `61` retain one or more patch-unique commits (`128`
+  unique `+` commit objects across cumulative families);
+- `384` registered worktrees: `14` dirty attached `codex/*` worktrees, `5`
+  dirty detached worktrees, and the dirty root `develop` worktree make `20`
+  dirty states overall; all remain MUST-PRESERVE until a fresh archive and
+  exact cleanup decision;
+- the dirty Child WP10 Cargo manifest is byte-identical to canonical and adds
+  only the already-integrated real `integration_device_trust_handoff` target;
+  it remains preserved rather than reset during this audit;
+- root `E:\OcentraParent` contains user-local `.codex/config.toml` and one
+  partial stale `code-map.json` deletion. The config was not read or copied.
+  The graph hunk is internally inconsistent with the old `develop` tree and
+  must not be committed or replayed as a standalone change.
+
+The focused `*-code-tests-aug28/29` scan covered `79` local branches. `74` are
+ancestors or patch-equivalent. The remaining five patch-unique tips were
+semantically reviewed and contain no accepted delta: Account WP04 and WP08,
+App/Game WP14, Data WP05, and LAN WP03 are already represented by equal or
+stronger canonical blobs; the only residual App/Game difference is a vacuous
+test and is rejected. Additional local-only Aug-28/29 residuals were also
+closed without integration: AI WP04 and the Cloudflare test batch are
+byte-equivalent to canonical; the parent-labelled iOS scaffold, Logging WP02
+mutation bypass, and stale Policy WP07 tip are rejected; Payment WP06 is
+superseded.
+
+The live remote inventory contains `249` `codex/*` heads. After retaining three
+archive heads and excluding the old remote canonical head, `245` candidates
+remain: `41` are canonical ancestors, `153` are patch-zero divergent, and `51`
+retain patch-unique history. Those `51` are preserved historical custody
+families, not accepted integration packets. Current semantic review continues
+to reject or supersede their Account WP02/WP05/WP09, AI WP03, App/Game Linux
+and WP197, Browser WP06, Cloudflare, Data custody, Device Trust WP01, LAN WP07,
+Protected Custody, Screen WP32, Setup, and V0.8 residuals. No remote branch is
+authorized for deletion until promotion, a fresh archive, open-PR and Enforcer
+checks, and an exact post-promotion drift audit.
+
+No product source or test file was changed by this custody refresh. The next
+phase remains production/test-source completion where legal; test execution,
+Enforcer validation, proof, pre-commit, the single PR/CI run, and promotion
+through `develop` to `main` remain deliberately later.
 
 ## Live one-tree consolidation — 2026-08-28
 
