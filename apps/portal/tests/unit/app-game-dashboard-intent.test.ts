@@ -260,7 +260,7 @@ describe('app-game dashboard platform capability intent', () => {
     expect(hostileRow.unknownApproval).toBe(true);
     expect(hostileRow.manualRequired).toBe(true);
     expect(hostileRow.foregroundCount).toBe(1);
-    expect(hostileRow.tone).toBe('red');
+    expect(hostileRow.tone).toBe('gold');
     expect(launcherRow.launcherOnly).toBe(true);
     expect(launcherRow.foregroundCount).toBe(0);
     expect(JSON.stringify(dashboard)).not.toContain('providerDispatchTarget');

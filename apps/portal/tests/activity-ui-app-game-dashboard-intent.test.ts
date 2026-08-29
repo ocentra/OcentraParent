@@ -24,7 +24,7 @@ describe('parent portal app/game source freshness intent', () => {
     expect(metricPair(dashboard, 'Game budgets')).toEqual(['Game budgets', 'policy proof pending']);
     expect(metricPair(dashboard, 'Boundary rows')).toEqual(['Boundary rows', '10']);
     expect(metricPair(dashboard, 'AI classifier')).toEqual(['AI classifier', '2']);
-    expect(metricPair(dashboard, 'Readiness blockers')).toEqual(['Readiness blockers', '7']);
+    expect(metricPair(dashboard, 'Readiness blockers')).toEqual(['Readiness blockers', '8']);
     expect(rowValues(dashboard, 'app-row-study-timer')).toEqual({
       label: 'Study Timer', inventoryCount: 1, runningCount: 1, foregroundCount: 1, manualRequired: false, riskCandidate: false,
     });

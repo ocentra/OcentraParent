@@ -1454,6 +1454,7 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
     globalSummary.ready.map((node) => node.id),
     [
       'WP-app-game-plan-197-app-game-linux-docker-host-preflight',
+      'WP-app-game-plan-203-app-game-windows-local-policy-evidence-proof',
       'WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary',
       'WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package',
       'WP-data-custody-storage-plan-data-and-ai-ui-plan',

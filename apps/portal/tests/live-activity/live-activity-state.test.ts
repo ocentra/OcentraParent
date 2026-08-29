@@ -10,7 +10,7 @@ import {
   activityTrackingReadModelResultSnapshot,
   networkFlowReadModelSnapshot,
 } from './live-activity-state-test-support';
-import { createParentPortalActivityUiIntent } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
+import { createParentPortalActivityUiIntent } from '../../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {

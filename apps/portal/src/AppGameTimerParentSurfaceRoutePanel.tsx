@@ -21,6 +21,7 @@ const EmptyTimerParentSurfacePanel: ParentAppGameTimerParentSurfacePanelSnapshot
   summaryDetails: [{ label: PortalDetails.ProductClaim, value: 'Timer parent surface has not been reported yet.' }],
   parentActionRows: [],
   parentPreferenceSetupRows: [],
+  localHandoffArtifactRows: [],
   rows: [],
   emptyMessage: 'No timer parent surface rows have been reported yet.',
   productClaim: 'Timer runtime, child handoff, and preference setup remain unreported.',

@@ -4,11 +4,11 @@ import { getStackTrace } from '@ocentra-parent/logging-domain/core/stackTrace';
 import { PortalAgentLanHouseholdActionKind } from '@ocentra-parent/portal-domain/contracts';
 import {
   createParentPortalLanPairingUiSlots,
-} from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
+} from '../../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
 import {
   lanPairingHouseholdActionCommandPayload,
   lanPairingRouteIntentCommandPayload,
-} from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
+} from '../../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface';
 import { lanAddDeviceReadModel } from '../fixtures/activity-ui-lan-pairing-fixtures';
 
 const log = Logger.instance;

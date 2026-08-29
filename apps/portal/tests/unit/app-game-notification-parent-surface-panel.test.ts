@@ -97,7 +97,7 @@ describe('app/game notification parent surface panel', () => {
       createElement(AppGameNotificationParentSurfaceRoutePanel, { panel })
     );
 
-    expect(html).toContain('hostile-row');
+    expect(html).toContain('long-'.repeat(80));
     expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
     expect(html).toContain('&lt;script&gt;alert(2)&lt;/script&gt;');
     expect(html).not.toContain('<img src=x onerror=alert(1)>');
