@@ -8,6 +8,8 @@ export const AppGameTimerParentSurfacePanelFixture: ParentAppGameTimerParentSurf
   loadState: 'ready',
   summaryDetails: [
     { label: 'Timer runtime', value: 'Ready' },
+    { label: 'Audit runtime', value: 'Ready' },
+    { label: 'Rollback runtime', value: 'Ready' },
     { label: 'Session duration', value: '15 min from stored evidence' },
     { label: PortalDetails.ProductClaim, value: 'Timer runtime remains Rust-owned.' },
   ],

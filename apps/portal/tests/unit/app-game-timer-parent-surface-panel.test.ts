@@ -62,6 +62,8 @@ describe('app-game timer parent-surface portal route panel', () => {
     expect(html).toContain('App/game timer parent surface');
     expect(html).toContain('Refresh timer parent surface');
     expect(html).toContain('Timer runtime</dt><dd>Ready');
+    expect(html).toContain('Audit runtime</dt><dd>Ready');
+    expect(html).toContain('Rollback runtime</dt><dd>Ready');
     expect(html).toContain('Session duration</dt><dd>15 min from stored evidence');
     expect(html).toContain('Session duration</dt><dd>15 min');
     expect(html).toContain('Evidence source</dt><dd>stored journal rows');
