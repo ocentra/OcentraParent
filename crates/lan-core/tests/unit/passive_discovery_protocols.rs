@@ -1,4 +1,8 @@
 use super::*;
+use ocentra_lan_core::lan_mdns_advertiser::{
+    encode_advertisement_packet, LanMdnsAdvertisementInstance,
+};
+use ocentra_parent_agent_protocol::lan_pairing::LanMdnsTxtRecord;
 use ocentra_lan_core::network_inventory::passive_discovery::dns_like::{
     passive_llmnr_summary, passive_netbios_summary,
 };
@@ -672,16 +676,17 @@ fn udp_socket_packets_feed_the_existing_passive_state_path() {
 
     let sender = UdpSocket::bind((Ipv4Addr::LOCALHOST, 0)).value_or_unreachable();
     let receiver_addr = receiver.local_addr().value_or_unreachable();
-    let payload = serde_json::to_vec(&serde_json::json!({
-        "schemaVersion": LanPassiveDiscoveryListenerState::SCHEMA_VERSION,
-        "source": "mdns",
-        "triggerReason": "app-resumed",
-        "observedAt": "2026-06-25T00:00:01Z",
-        "deviceId": "device-sdp-transport",
-        "scanSessionId": "scan-sdp-transport",
-        "summary": "mdns multicast update"
-    }))
-    .value_or_unreachable();
+    let payload = encode_advertisement_packet(
+        &[LanMdnsAdvertisementInstance {
+            service_type: "_ocentra-parent._tcp.local".to_string(),
+            instance_name: "parent._ocentra-parent._tcp.local".to_string(),
+            txt_records: vec![LanMdnsTxtRecord {
+                key: "lan.mdns_advertisement_id".to_string(),
+                value: "parent-test-advertisement".to_string(),
+            }],
+        }],
+        120,
+    );
 
     sender
         .send_to(&payload, receiver_addr)
@@ -701,17 +706,20 @@ fn udp_socket_packets_feed_the_existing_passive_state_path() {
     );
     assert_eq!(
         snapshot.rows[0].trigger_reason,
-        LanPassiveDiscoveryTriggerReason::AppResumed
+        LanPassiveDiscoveryTriggerReason::PassivePacketObserved
     );
     assert_eq!(
         snapshot.rows[0].device_id.as_ref().map(AsRef::as_ref),
-        Some("device-sdp-transport")
+        None
     );
     assert_eq!(
         snapshot.rows[0].scan_session_id.as_ref().map(AsRef::as_ref),
-        Some("scan-sdp-transport")
+        None
     );
-    assert_eq!(snapshot.rows[0].summary, "mdns multicast update");
+    assert_eq!(
+        snapshot.rows[0].summary,
+        "mDNS DNS-SD packet: 1 service type(s), 1 instance(s); first service=_ocentra-parent._tcp.local; display=parent"
+    );
 }
 
 #[test]

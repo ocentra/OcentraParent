@@ -246,7 +246,7 @@ fn classify_interface(
         return LocalNetworkInterfaceClassification::Wsl;
     }
     if normalized.starts_with("docker")
-        || normalized.starts_with("veth")
+        || (normalized.starts_with("veth") && !normalized.starts_with("vethernet"))
         || normalized.starts_with("br-")
         || normalized.contains("container")
         || normalized.starts_with("cni")
