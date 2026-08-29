@@ -41,6 +41,8 @@ mod bind;
 mod engine;
 #[path = "listener_runtime/receive.rs"]
 mod receive;
+#[path = "listener_runtime/cycle_cursor.rs"]
+mod cycle_cursor;
 
 struct PassiveDiscoveryListenerRuntime {
     listener_state: Weak<Mutex<LanPassiveDiscoveryListenerState>>,

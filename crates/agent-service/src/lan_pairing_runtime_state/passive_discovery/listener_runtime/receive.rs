@@ -13,6 +13,7 @@ use super::super::{
     PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE, PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE,
 };
 use super::PassiveDiscoveryListenerRuntime;
+use super::cycle_cursor::PassiveDiscoveryCycleCursor;
 
 impl PassiveDiscoveryListenerRuntime {
     pub(super) fn receive_listener_cycle(
@@ -26,15 +27,19 @@ impl PassiveDiscoveryListenerRuntime {
         let cycle_started = Instant::now();
         let cycle_deadline = cycle_started + PASSIVE_DISCOVERY_MAX_CYCLE_DURATION;
         let mut received_datagrams = 0;
-        for offset in 0..listener_count {
-            let listener_index = (self.next_listener_index + offset) % listener_count;
+        let mut cursor = PassiveDiscoveryCycleCursor::new(self.next_listener_index, listener_count);
+        for _ in 0..listener_count {
             let remaining_cycle_time = cycle_deadline.saturating_duration_since(Instant::now());
-            if received_datagrams >= PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE
-                || remaining_cycle_time.is_zero()
-            {
+            if !PassiveDiscoveryCycleCursor::should_continue(
+                is_running(listener_state), received_datagrams,
+                PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE, remaining_cycle_time,
+            ) {
                 std::thread::yield_now();
                 break;
             }
+            let Some(listener_index) = cursor.take_next() else {
+                break;
+            };
             let remaining_budget = PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_CYCLE
                 .saturating_sub(received_datagrams)
                 .min(PASSIVE_DISCOVERY_MAX_DATAGRAMS_PER_SOURCE);
@@ -44,7 +49,7 @@ impl PassiveDiscoveryListenerRuntime {
                 remaining_budget,
                 cycle_deadline,
             ));
-            self.next_listener_index = (listener_index + 1) % listener_count;
+            self.next_listener_index = cursor.resume_index();
             if !is_running(listener_state) {
                 break;
             }

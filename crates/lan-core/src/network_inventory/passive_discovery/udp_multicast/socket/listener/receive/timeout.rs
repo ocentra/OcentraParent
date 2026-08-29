@@ -8,7 +8,7 @@ use super::super::super::super::{
     LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpReceiveBatch,
 };
 use super::super::super::errors::listener_io_issue;
-use super::super::super::ReadTimeoutRestoreGuard;
+use super::super::super::timeout_guard::ReadTimeoutRestoreGuard;
 
 pub(super) fn receive_bounded_until(
     listener: &LanPassiveDiscoveryUdpListener,

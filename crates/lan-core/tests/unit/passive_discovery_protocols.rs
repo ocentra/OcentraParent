@@ -54,6 +54,46 @@ fn native_ws_discovery_datagram_records_passive_observation_withost_json_envelop
     );
 }
 
+#[path = "../../src/network_inventory/passive_discovery/udp_multicast/deadline.rs"]
+mod deadline_helper;
+#[path = "../../src/network_inventory/passive_discovery/udp_multicast/timeout_guard.rs"]
+mod timeout_guard_helper;
+
+#[test]
+fn passive_listener_deadline_is_absolute_and_expiry_is_empty() {
+    let start = std::time::Instant::now();
+    let deadline = start + std::time::Duration::from_secs(2);
+    assert_eq!(deadline_helper::remaining_read_timeout_at(deadline, start + std::time::Duration::from_millis(900)), Some(std::time::Duration::from_millis(1100)));
+    assert_eq!(deadline_helper::remaining_read_timeout_at(deadline, deadline), None);
+}
+
+#[test]
+fn passive_listener_timeout_guard_restores_explicitly() -> std::io::Result<()> {
+    let socket = std::net::UdpSocket::bind("127.0.0.1:0")?;
+    socket.set_read_timeout(Some(std::time::Duration::from_millis(25)))?;
+    let previous = socket.read_timeout()?;
+    let mut guard = timeout_guard_helper::ReadTimeoutRestoreGuard::new(&socket, previous);
+    socket.set_read_timeout(Some(std::time::Duration::from_millis(1)))?;
+    guard.restore()?;
+    assert_eq!(socket.read_timeout()?, previous);
+    Ok(())
+}
+
+#[test]
+fn passive_listener_timeout_guard_restores_on_unwind() -> std::io::Result<()> {
+    let socket = std::net::UdpSocket::bind("127.0.0.1:0")?;
+    socket.set_read_timeout(Some(std::time::Duration::from_millis(25)))?;
+    let previous = socket.read_timeout()?;
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let _guard = timeout_guard_helper::ReadTimeoutRestoreGuard::new(&socket, previous);
+        assert!(socket.set_read_timeout(Some(std::time::Duration::from_millis(1))).is_ok());
+        panic!("exercise timeout restoration on unwind");
+    }));
+    assert!(result.is_err());
+    assert_eq!(socket.read_timeout()?, previous);
+    Ok(())
+}
+
 #[test]
 fn native_llmnr_datagram_records_passive_observation_withost_json_envelope() {
     let mut state = LanPassiveDiscoveryListenerState::running("2026-06-25T00:00:00Z".to_string());

@@ -15,6 +15,58 @@ use crate::app::lan_pairing_runtime_state::passive_discovery::{
 use crate::app::lan_pairing_runtime_state::provider_heartbeat::LanAiProviderHeartbeatState;
 use crate::test_invariants::require_ok;
 
+#[path = "../../../src/lan_pairing_runtime_state/passive_discovery/listener_runtime/cycle_cursor.rs"]
+mod cycle_cursor_helper;
+
+#[test]
+fn passive_cycle_cursor_rotates_all_six_listeners_fairly() {
+    let mut cursor = cycle_cursor_helper::PassiveDiscoveryCycleCursor::new(0, 6);
+    for expected in 0..6 {
+        assert_eq!(cursor.take_next(), Some(expected));
+    }
+    assert_eq!(cursor.take_next(), Some(0));
+    let mut offset = cycle_cursor_helper::PassiveDiscoveryCycleCursor::new(4, 6);
+    let sequence = (0..6).map(|_| offset.take_next()).collect::<Vec<_>>();
+    assert_eq!(
+        sequence,
+        vec![Some(4), Some(5), Some(0), Some(1), Some(2), Some(3)]
+    );
+    let mut partial = cycle_cursor_helper::PassiveDiscoveryCycleCursor::new(2, 6);
+    assert_eq!(partial.take_next(), Some(2));
+    assert_eq!(partial.resume_index(), 3);
+    let mut empty = cycle_cursor_helper::PassiveDiscoveryCycleCursor::new(0, 0);
+    assert_eq!(empty.take_next(), None);
+    assert_eq!(empty.resume_index(), 0);
+}
+
+#[test]
+fn passive_cycle_cursor_honors_shared_budget_and_cancellation() {
+    assert!(cycle_cursor_helper::PassiveDiscoveryCycleCursor::should_continue(
+        true,
+        0,
+        6,
+        std::time::Duration::from_millis(1),
+    ));
+    assert!(!cycle_cursor_helper::PassiveDiscoveryCycleCursor::should_continue(
+        true,
+        6,
+        6,
+        std::time::Duration::from_millis(1),
+    ));
+    assert!(!cycle_cursor_helper::PassiveDiscoveryCycleCursor::should_continue(
+        true,
+        0,
+        6,
+        std::time::Duration::ZERO,
+    ));
+    assert!(!cycle_cursor_helper::PassiveDiscoveryCycleCursor::should_continue(
+        false,
+        0,
+        6,
+        std::time::Duration::from_millis(1),
+    ));
+}
+
 const CURRENT_HEARTBEAT_AT: &str = "2026-06-27T07:00:00.000Z";
 const SECOND_HEARTBEAT_LOSS_AT: &str = "2026-06-27T07:05:00.000Z";
 
