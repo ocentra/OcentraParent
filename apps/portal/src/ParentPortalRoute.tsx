@@ -26,6 +26,7 @@ import {
   AppGamePolicyReadinessRoutePanel,
   shouldRenderAppGamePolicyReadinessRoute,
 } from './AppGamePolicyReadinessRoutePanel';
+import { createParentPortalActivityUiIntent } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
 
 type ParentPortalRouteProps = {
   readonly actions: PortalRenderActions;
@@ -95,6 +96,9 @@ export function ParentPortalRoute({
             serviceState={serviceState}
             state={state}
           />
+          {shouldRenderAppGameInventorySessionDashboard(route) ? (
+            <AppGameInventorySessionDashboard activityState={activityState} />
+          ) : null}
           {shouldRenderAppGamePolicyReadinessRoute(route) ? (
             <AppGamePolicyReadinessRoutePanel
               actions={actions}
@@ -118,6 +122,65 @@ export function ParentPortalRoute({
       {shouldRenderSetupFirstRunRoute(route) ? <SetupFirstRunRoutePanel panel={panels.setupFirstRunPanel} /> : null}
     </div>
   );
+}
+
+export function AppGameInventorySessionDashboard({
+  activityState,
+}: {
+  readonly activityState: ParentPortalLiveActivity;
+}): ReactElement {
+  const dashboard = createParentPortalActivityUiIntent(activityState, 0).appGameDashboard;
+  return (
+    <section
+      aria-label="App inventory and running sessions"
+      data-ocentra-app-game-dashboard-state={dashboard.state}
+    >
+      <h2>App inventory and running sessions</h2>
+      <p>{dashboard.summary}</p>
+      <dl>
+        {dashboard.metrics.slice(0, 6).map((metric) => (
+          <div key={metric.label}>
+            <dt>{metric.label}</dt>
+            <dd>{metric.value}</dd>
+          </div>
+        ))}
+      </dl>
+      {dashboard.rows.length === 0 ? (
+        <p>{dashboard.emptyMessage}</p>
+      ) : (
+        <ul>
+          {dashboard.rows.map((row) => (
+            <li key={`${row.sourceKind}:${row.rowId}`}>
+              <strong>{row.label}</strong>
+              <span>
+                {`${row.sourceLabel}; inventory ${row.inventoryCount}; running ${row.runningCount}; foreground ${row.foregroundCount}; ${row.eventCountLabel}; ${row.totalDurationLabel}; ${row.dailyRollupCount} daily rollups; ${row.evidenceCount} evidence refs; last observed ${row.lastObservedLabel}; ${row.manualRequired ? 'manual-required' : row.state}`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <details>
+        <summary>Capability and authority</summary>
+        <ul>
+          {dashboard.capabilityRows.map((row) => (
+            <li key={`${row.label}:${row.value}`}>{`${row.label}: ${row.value}`}</li>
+          ))}
+        </ul>
+      </details>
+      <details>
+        <summary>Evidence details</summary>
+        <ul>
+          {dashboard.evidenceRows.map((row) => (
+            <li key={`${row.label}:${row.value}`}>{`${row.label}: ${row.value}`}</li>
+          ))}
+        </ul>
+      </details>
+    </section>
+  );
+}
+
+export function shouldRenderAppGameInventorySessionDashboard(route: ParentRouteId): boolean {
+  return route === ParentRoute.AppGameSessions;
 }
 
 function ScheduleRouteUnavailablePanel(): ReactElement {

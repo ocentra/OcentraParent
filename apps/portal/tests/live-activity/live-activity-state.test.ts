@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ParentAgentEvent as AgentEvent,
+  ParentRoute,
   type ParentNetworkRuntimeEventResultSnapshot,
   type ParentRouteLiveActivitySnapshot,
 } from '../../generated/parent-ui-bridge';
@@ -9,6 +10,13 @@ import {
   activityTrackingReadModelResultSnapshot,
   networkFlowReadModelSnapshot,
 } from './live-activity-state-test-support';
+import { createParentPortalActivityUiIntent } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import {
+  AppGameInventorySessionDashboard,
+  shouldRenderAppGameInventorySessionDashboard,
+} from '../../src/ParentPortalRoute';
 
 type ResolvedLiveActivityState = ReturnType<typeof resolveSnapshotLiveActivityState>;
 
@@ -129,6 +137,95 @@ const rustOwnedRouteSnapshotValue: ParentRouteLiveActivitySnapshot = {
 };
 
 describe('portal live activity state', () => {
+  it('mounts the dashboard only on the app and game sessions route', () => {
+    expect(shouldRenderAppGameInventorySessionDashboard(ParentRoute.AppGameSessions)).toBe(true);
+    expect(shouldRenderAppGameInventorySessionDashboard(ParentRoute.Activity)).toBe(false);
+    expect(shouldRenderAppGameInventorySessionDashboard(ParentRoute.Diagnostics)).toBe(false);
+  });
+
+  it('renders the mounted dashboard HTML for ready and unavailable service states', () => {
+    const readyState = resolveSnapshotLiveActivityState({
+      ...rustOwnedRouteSnapshot(),
+      activityAppUseReadModel: {
+        ok: true,
+        state: 'ready',
+        value: {
+          state: 'ready',
+          rows: [
+            {
+              rowId: 'app-1',
+              appName: 'Study Timer',
+              inventoryState: 'installed',
+              runtimeState: 'running',
+              foregroundState: 'foreground',
+              runningRowCount: 1,
+              foregroundRowCount: 1,
+              inventoryRowCount: 1,
+              launchCount: 3,
+              totalMs: 120000,
+              dailyRollupCount: 2,
+              lastObservedAt: '2026-08-29T12:00:00Z',
+              evidence: [{ evidenceId: 'evidence-app-1' }],
+            },
+          ],
+        },
+      },
+      activityGamesReadModel: { ok: true, state: 'ready', value: { state: 'ready', rows: [] } },
+    });
+    const readyHtml = renderToStaticMarkup(
+      createElement(AppGameInventorySessionDashboard, { activityState: readyState })
+    );
+    expect(readyHtml).toContain('aria-label="App inventory and running sessions"');
+    expect(readyHtml).toContain('Study Timer');
+    expect(readyHtml).toContain('inventory 1; running 1; foreground 1; 3 launches; 2 min');
+    expect(readyHtml).toContain('2 daily rollups; 1 evidence refs');
+    expect(readyHtml).toContain('Capability and authority');
+    expect(readyHtml).toContain('Evidence details');
+    expect(readyHtml).toContain('data-ocentra-app-game-dashboard-state="ready"');
+
+    const unavailableHtml = renderToStaticMarkup(
+      createElement(AppGameInventorySessionDashboard, {
+        activityState: resolveSnapshotLiveActivityState(null),
+      })
+    );
+    expect(unavailableHtml).toContain('No app/game read model rows reported by the local service.');
+    expect(unavailableHtml).toContain('data-ocentra-app-game-dashboard-state="unavailable"');
+  });
+
+  it('derives the mounted app inventory/session dashboard from service-backed states', () => {
+    const intent = createParentPortalActivityUiIntent(
+      {
+        activityAppUseReadModel: {
+          ok: true,
+          state: 'ready',
+          value: {
+            state: 'ready',
+            rows: [
+              {
+                rowId: 'app-1',
+                appName: 'Study Timer',
+                inventoryState: 'installed',
+                runtimeState: 'running',
+                foregroundState: 'foreground',
+                runningRowCount: 1,
+                foregroundRowCount: 1,
+                inventoryRowCount: 1,
+              },
+            ],
+          },
+        },
+        activityGamesReadModel: { ok: true, state: 'ready', value: { state: 'ready', rows: [] } },
+      },
+      0
+    );
+
+    expect(intent.appGameDashboard.rows[0]?.label).toBe('Study Timer');
+    expect(intent.appGameDashboard.rows[0]?.inventoryCount).toBe(1);
+    expect(intent.appGameDashboard.rows[0]?.runningCount).toBe(1);
+    expect(intent.appGameDashboard.rows[0]?.foregroundCount).toBe(1);
+    expect(intent.appGameDashboard.emptyMessage).toContain('No app/game read model rows');
+  });
+
   it('overlays Rust-owned route snapshot activity values without requiring raw agent events', () => {
     const state = resolveSnapshotLiveActivityState(rustOwnedRouteSnapshot());
 
