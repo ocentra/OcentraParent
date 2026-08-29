@@ -7,6 +7,7 @@ use rusqlite::Connection;
 use sysinfo::System;
 
 pub mod app_game_journal_sqlite_ingest;
+pub mod app_game_performance_health;
 pub mod app_game_session_rollups;
 mod app_game_session_time;
 pub mod app_game_sessionization;

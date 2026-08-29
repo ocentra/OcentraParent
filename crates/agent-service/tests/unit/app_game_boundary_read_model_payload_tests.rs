@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
-    self, AppGameEvidenceClaim, AppGameServiceReadModel,
+    self, AppGameEvidenceClaim, AppGameServiceReadModel, AppGameSessionDailyRollup,
 };
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     self, AppGamePlatformAuthorityMatrix,
@@ -41,6 +41,12 @@ fn app_game_boundary_payload_contains_dedicated_counts_and_citations() {
     );
 
     assert_eq!(decoded.returned, 3);
+    assert_eq!(decoded.performance_health.limit, constants::activity_store::DEFAULT_RECENT_LIMIT);
+    assert_eq!(decoded.performance_health.status, app_game_boundary_read_model::AppGameHealthStatus::Healthy);
+    assert_eq!(decoded.performance_health.daily_rollup_returned, 1);
+    assert_eq!(decoded.performance_health.returned, 1);
+    assert_eq!(decoded.performance_health.custody_label, app_game::APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE);
+    assert_eq!(decoded.performance_health.replay_state, app_game::APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED);
     assert_eq!(decoded.evidence_claim_row_count, 1);
     assert_eq!(decoded.platform_authority_matrix_count, 1);
     assert_eq!(decoded.platform_authority_row_count, 1);
@@ -72,12 +78,12 @@ fn service_model() -> AppGameServiceReadModel {
         limit: constants::activity_store::DEFAULT_RECENT_LIMIT,
         custody_label: app_game::APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE.to_string(),
         replay_state: app_game::APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED.to_string(),
-        capability_status: app_game::APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED.to_string(),
+        capability_status: app_game::APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
         inventory_returned: 0,
         running_now_returned: 0,
         foreground_now_returned: 0,
         launcher_returned: 0,
-        daily_rollup_returned: 0,
+        daily_rollup_returned: 1,
         evidence_claim_returned: 1,
         identity_returned: 0,
         approval_authority_returned: 0,
@@ -88,7 +94,18 @@ fn service_model() -> AppGameServiceReadModel {
         running_now_rows: Vec::new(),
         foreground_now_rows: Vec::new(),
         launcher_rows: Vec::new(),
-        daily_rollups: Vec::new(),
+        daily_rollups: vec![AppGameSessionDailyRollup {
+            schema_version: app_game::APP_GAME_SCHEMA_VERSION,
+            rollup_date: APP_GAME_TEST_TIMESTAMP.to_string(),
+            classification_state: app_game::APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string(),
+            session_count: 1,
+            running_duration_ms: 1_000,
+            foreground_duration_ms: 500,
+            background_duration_ms: 500,
+            evidence_count: 1,
+            session_ids: vec!["session-1".to_string()],
+            evidence: vec![local_db_ref(APP_GAME_TEST_EVIDENCE_REF_ID)],
+        }],
         evidence_claim_rows: vec![evidence_claim()],
         identity_rows: Vec::new(),
         approval_authority_rows: Vec::new(),
