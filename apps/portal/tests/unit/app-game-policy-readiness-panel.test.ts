@@ -88,6 +88,28 @@ describe('app-game policy readiness portal route panel', () => {
     expect(html).toContain('Approval workflow, category routing, and adapter dispatch remain unclaimed.');
     expect(html).toContain('disabled=""');
   });
+
+  it('keeps a non-ready service snapshot visibly non-ready without inventing rows', () => {
+    const html = renderToStaticMarkup(
+      createElement(AppGamePolicyReadinessRoutePanel, {
+        actions: testActions(),
+        commandEnabled: true,
+        panel: {
+          ...PolicyReadinessPanel,
+          loadState: 'warn',
+          rows: [],
+          emptyMessage: 'Readiness payload could not be parsed by the parent bridge.',
+          productClaim: 'Policy execution remains unclaimed while the service payload is invalid.',
+        },
+      })
+    );
+
+    expect(html).toContain('data-ocentra-policy-readiness-source="rust-service-read-model"');
+    expect(html).toContain('data-ocentra-policy-readiness-state="warn"');
+    expect(html).toContain('Readiness payload could not be parsed by the parent bridge.');
+    expect(html).toContain('Policy execution remains unclaimed while the service payload is invalid.');
+    expect(html).not.toContain('Policy evidence');
+  });
 });
 
 function testActions(): PortalRenderActions {

@@ -126,7 +126,6 @@ const ProductOverlayPanelsRemovedFromRouteShell = [
   'AppGameChildRuntimeTransportReceiptRoutePanel',
   'AppGameNotificationParentSurfaceRoutePanel',
   'AppGamePlatformProofStatusRoutePanel',
-  'AppGamePolicyReadinessRoutePanel',
   'AppGameTimerParentSurfaceRoutePanel',
   'BrowserParentExplanationRoutePanel',
   'ScreenSettingsRoutePanel',
@@ -295,8 +294,10 @@ it('product bridge guard: product snapshot route panels refresh through the Rust
   }
 });
 
-it('product bridge guard: the product route shell does not mount parallel diagnostic overlays on top of the SVG surface', () => {
+it('product bridge guard: the product route shell mounts only the assigned app-game readiness overlay', () => {
   const source = readFileSync(resolve(TestDirectory, '..', 'src/ParentPortalRoute.tsx'), 'utf8');
+
+  expect(source).toContain('AppGamePolicyReadinessRoutePanel');
 
   for (const panel of ProductOverlayPanelsRemovedFromRouteShell) {
     expect(source).not.toContain(panel);

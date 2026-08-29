@@ -22,6 +22,10 @@ import { PortalProofPanelsRoutePanel } from './PortalProofPanelsRoutePanel';
 import type { PortalRenderActions } from './portal-actions';
 import type { PortalRuntimeState } from './portal-state';
 import { SetupFirstRunRoutePanel, shouldRenderSetupFirstRunRoute } from './SetupFirstRunRoutePanel';
+import {
+  AppGamePolicyReadinessRoutePanel,
+  shouldRenderAppGamePolicyReadinessRoute,
+} from './AppGamePolicyReadinessRoutePanel';
 
 type ParentPortalRouteProps = {
   readonly actions: PortalRenderActions;
@@ -79,17 +83,26 @@ export function ParentPortalRoute({
       {scheduleRouteUnavailable ? (
         <ScheduleRouteUnavailablePanel />
       ) : (
-        <ParentPortalRouteSurface
-          actions={actions}
-          activityState={surfaceActivityState}
-          controls={controls}
-          lanPairingAutoScanSequence={lanPairingAutoScanSequence}
-          onProductSurfaceReady={onProductSurfaceReady}
-          route={route}
-          routeContext={routeContext}
-          serviceState={serviceState}
-          state={state}
-        />
+        <>
+          <ParentPortalRouteSurface
+            actions={actions}
+            activityState={surfaceActivityState}
+            controls={controls}
+            lanPairingAutoScanSequence={lanPairingAutoScanSequence}
+            onProductSurfaceReady={onProductSurfaceReady}
+            route={route}
+            routeContext={routeContext}
+            serviceState={serviceState}
+            state={state}
+          />
+          {shouldRenderAppGamePolicyReadinessRoute(route) ? (
+            <AppGamePolicyReadinessRoutePanel
+              actions={actions}
+              commandEnabled={commandEnabled}
+              panel={panels.appGamePolicyReadinessPanel}
+            />
+          ) : null}
+        </>
       )}
       {route === ParentRoute.Diagnostics ? <PortalDiagnosticsRoutePanel state={state} /> : null}
       <ParentPortalProofPanels

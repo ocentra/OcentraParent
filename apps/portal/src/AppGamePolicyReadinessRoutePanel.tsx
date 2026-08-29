@@ -40,6 +40,8 @@ export function AppGamePolicyReadinessRoutePanel({
     <section
       aria-label={resolvePortalDevText(PortalDevTextToken.AppGamePolicyReadiness)}
       className={PortalDom.Classes.TrackingStatusOverlay}
+      data-ocentra-policy-readiness-source="rust-service-read-model"
+      data-ocentra-policy-readiness-state={resolvedPanel.loadState}
     >
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
