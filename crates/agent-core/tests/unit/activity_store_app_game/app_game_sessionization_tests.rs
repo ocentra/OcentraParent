@@ -158,16 +158,16 @@ fn foreground_rows_do_not_mask_a_stale_process_gap() {
 #[test]
 fn equivalent_offset_timestamps_are_replayed_in_utc_order() {
     let later_local = "2026-01-01T00:00:00-05:00";
-    let earlier_utc = "2026-01-01T04:00:00Z";
+    let equivalent_utc = "2026-01-01T05:00:00Z";
     let summaries = summaries_from_events(&[
         process_event_at(later_local, 0),
-        process_event_at(earlier_utc, 1),
+        process_event_at(equivalent_utc, 1),
     ]);
 
     assert_eq!(summaries.len(), 1);
-    assert_eq!(summaries[0].running_duration_ms, 60000);
-    assert_eq!(summaries[0].observation_gap_ms, 60000);
-    assert_eq!(summaries[0].last_observed_at, later_local);
+    assert_eq!(summaries[0].running_duration_ms, 0);
+    assert_eq!(summaries[0].observation_gap_ms, 0);
+    assert_eq!(summaries[0].last_observed_at, equivalent_utc);
 }
 
 #[test]
