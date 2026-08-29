@@ -2,16 +2,12 @@ use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
 use ocentra_parent_agent_protocol::AppGameNotificationReadinessReadModel;
 use ocentra_parent_agent_protocol::AppGameNotificationReadinessRow;
-use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_APPROVAL_REQUEST;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_MANUAL_REQUIRED;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_SUSPICIOUS_UNKNOWN;
-use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_TIME_LIMIT;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_UNAVAILABLE;
-use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_APPROVAL_REQUEST;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_CAPABILITY_UNAVAILABLE;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_MANUAL_REQUIRED;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_SUSPICIOUS_UNKNOWN;
-use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_REASON_TIME_LIMIT_EXCEEDED;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATE_UNAVAILABLE;
@@ -19,10 +15,12 @@ use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATUS_NO_ROW
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_STATUS_READY;
 
+use super::super::super::app_game_policy_readiness_sources::{
+    unknown_review_refs, unknown_review_row_count,
+};
 use super::super::evidence::{
-    app_game_boundary_row_count, approval_authority_refs, count_rows_with_state,
-    evidence_claim_refs, manual_required_refs, platform_authority_row_count, policy_evidence_refs,
-    push_evidence, NotificationReadinessTextRef,
+    app_game_boundary_row_count, count_rows_with_state, manual_required_refs,
+    platform_authority_row_count, NotificationReadinessTextRef,
 };
 
 pub(super) fn app_game_notification_readiness_from_service_model(
@@ -67,49 +65,16 @@ pub(super) fn app_game_notification_readiness_from_service_model(
 fn notification_rows(model: &AppGameServiceReadModel) -> Vec<AppGameNotificationReadinessRow> {
     let mut rows = Vec::new();
     let policy_ready = policy_evaluation_ready(model);
-    let policy_evidence = policy_evidence_refs(model);
-    let approval_evidence = approval_authority_refs(model);
-    if policy_ready {
-        rows.push(notification_row(
-            NotificationReadinessTextRef(
-                APP_GAME_NOTIFICATION_READINESS_REASON_TIME_LIMIT_EXCEEDED,
-            ),
-            NotificationReadinessTextRef(
-                APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT,
-            ),
-            policy_evidence.len() as u64,
-            NotificationReadinessTextRef(
-                APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_TIME_LIMIT,
-            ),
-            policy_evidence.clone(),
-        ));
-    }
-    if !policy_evidence.is_empty() && !approval_evidence.is_empty() {
-        let mut evidence = policy_evidence;
-        push_evidence(&mut evidence, approval_evidence);
-        rows.push(notification_row(
-            NotificationReadinessTextRef(APP_GAME_NOTIFICATION_READINESS_REASON_APPROVAL_REQUEST),
-            NotificationReadinessTextRef(
-                APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT,
-            ),
-            evidence.len() as u64,
-            NotificationReadinessTextRef(
-                APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_APPROVAL_REQUEST,
-            ),
-            evidence,
-        ));
-    }
-    if !model.evidence_claim_rows.is_empty() {
+    let unknown_review_count = unknown_review_row_count(model);
+    if unknown_review_count > 0 {
         rows.push(notification_row(
             NotificationReadinessTextRef(APP_GAME_NOTIFICATION_READINESS_REASON_SUSPICIOUS_UNKNOWN),
-            NotificationReadinessTextRef(
-                APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT,
-            ),
-            model.evidence_claim_rows.len() as u64,
+            NotificationReadinessTextRef(APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED),
+            unknown_review_count,
             NotificationReadinessTextRef(
                 APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_SUSPICIOUS_UNKNOWN,
             ),
-            evidence_claim_refs(model),
+            unknown_review_refs(model),
         ));
     }
     if !policy_ready || model.ai_classifier_result_rows.is_empty() {

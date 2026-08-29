@@ -1,11 +1,13 @@
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::app_game::{
-    AppGameEvidenceClaim, AppGameIdentity, AppGameServiceReadModel,
+    AppGameEvidenceClaim, AppGameIdentity, AppGameInventoryEvidenceRow, AppGameServiceReadModel,
     APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED, APP_GAME_CATALOG_READY,
-    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_FOREGROUND_NOT_CLAIMED,
+    APP_GAME_CLASSIFICATION_KNOWN_GAME, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT,
+    APP_GAME_INVENTORY_SOURCE_UNKNOWN, APP_GAME_INVENTORY_STATE_DETECTABLE,
     APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE, APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED,
-    APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION,
-    APP_GAME_TEST_DISPLAY_LABEL,
+    APP_GAME_PRODUCT_NATIVE_APP, APP_GAME_PRODUCT_NATIVE_GAME, APP_GAME_RUNTIME_NOT_CLAIMED,
+    APP_GAME_SCHEMA_VERSION, APP_GAME_TEST_DISPLAY_LABEL,
 };
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     AppGameControlActionResult, AppGameControlApprovalAuthority, AppGameControlApprovalDecision,
@@ -25,10 +27,10 @@ use ocentra_parent_agent_protocol::app_game_notification_readiness::{
     AppGameNotificationReadinessReadModel, AppGameNotificationReadinessRow,
     APP_GAME_NOTIFICATION_READINESS_REASON_APPROVAL_REQUEST,
     APP_GAME_NOTIFICATION_READINESS_REASON_MANUAL_REQUIRED,
+    APP_GAME_NOTIFICATION_READINESS_REASON_SUSPICIOUS_UNKNOWN,
     APP_GAME_NOTIFICATION_READINESS_REASON_TIME_LIMIT_EXCEEDED,
     APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED,
-    APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT,
-    APP_GAME_NOTIFICATION_READINESS_STATUS_READY,
+    APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL,
 };
 use ocentra_parent_agent_protocol::constants;
 use std::primitive::str as TestStr;
@@ -74,12 +76,13 @@ const APP_GAME_TEST_REQUEST_ID: &TestStr = "approval-request-app-game-1";
 const APP_GAME_TEST_TARGET_ID: &TestStr = "target-app-game-1";
 const APP_GAME_TEST_TARGET_VALUE: &TestStr = "process:ocentra-game.exe";
 const APP_GAME_TEST_TIMESTAMP: &TestStr = "2026-06-03T22:15:00Z";
+const APP_GAME_TEST_UNKNOWN_SOURCE_REF: &TestStr = "source-display-only-unknown";
 const APP_GAME_TEST_WINDOWS_LIMITATION: &TestStr =
     "Broad installed-app blocking needs AppLocker or App Control proof before execution.";
 const APP_GAME_TEST_WINDOWS_ROW_ID: &TestStr = "windows-block-launch-row";
 
 #[test]
-fn app_game_notification_readiness_payload_reports_service_intents_without_delivery_claims() {
+fn app_game_notification_readiness_payload_does_not_fabricate_intents_without_signals() {
     let read_model = app_game_notification_readiness_from_service_model(service_model());
     let payload = app_game_notification_readiness_payload(&read_model);
     let read_model_json = string_payload(
@@ -91,12 +94,12 @@ fn app_game_notification_readiness_payload_reports_service_intents_without_deliv
         constants::error::AGENT_EVENT_SERIALIZES,
     );
 
-    assert_eq!(decoded.returned, 4);
+    assert_eq!(decoded.returned, 1);
     assert_eq!(
         decoded.capability_status,
-        APP_GAME_NOTIFICATION_READINESS_STATUS_READY
+        APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL
     );
-    assert_eq!(decoded.ready_intent_count, 3);
+    assert_eq!(decoded.ready_intent_count, 0);
     assert_eq!(decoded.manual_required_count, 1);
     assert_eq!(decoded.unavailable_count, 0);
     assert!(!decoded.provider_delivery_claimed);
@@ -106,39 +109,18 @@ fn app_game_notification_readiness_payload_reports_service_intents_without_deliv
     assert!(!decoded.adapter_dispatch_claimed);
     assert!(!decoded.parent_ui_claimed);
     assert!(!decoded.child_delivery_claimed);
-    assert_eq!(
-        readiness_row(
-            &decoded.rows,
-            APP_GAME_NOTIFICATION_READINESS_REASON_TIME_LIMIT_EXCEEDED
-        )
-        .readiness_state,
-        APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT
-    );
-    assert_eq!(
-        readiness_row(
-            &decoded.rows,
-            APP_GAME_NOTIFICATION_READINESS_REASON_TIME_LIMIT_EXCEEDED
-        )
-        .evidence_reference_ids,
-        vec![
-            APP_GAME_TEST_EVIDENCE_REF_ID,
-            APP_GAME_TEST_EVIDENCE_CLAIM_ID,
-            APP_GAME_TEST_IDENTITY_ID
-        ]
-    );
-    assert_eq!(
-        readiness_row(
-            &decoded.rows,
-            APP_GAME_NOTIFICATION_READINESS_REASON_APPROVAL_REQUEST
-        )
-        .evidence_reference_ids,
-        vec![
-            APP_GAME_TEST_EVIDENCE_REF_ID,
-            APP_GAME_TEST_EVIDENCE_CLAIM_ID,
-            APP_GAME_TEST_IDENTITY_ID,
-            APP_GAME_TEST_AUTHORITY_ID
-        ]
-    );
+    assert!(!decoded
+        .rows
+        .iter()
+        .any(|row| row.reason == APP_GAME_NOTIFICATION_READINESS_REASON_TIME_LIMIT_EXCEEDED));
+    assert!(!decoded
+        .rows
+        .iter()
+        .any(|row| row.reason == APP_GAME_NOTIFICATION_READINESS_REASON_APPROVAL_REQUEST));
+    assert!(!decoded
+        .rows
+        .iter()
+        .any(|row| row.reason == APP_GAME_NOTIFICATION_READINESS_REASON_SUSPICIOUS_UNKNOWN));
     assert_eq!(
         readiness_row(
             &decoded.rows,
@@ -146,6 +128,36 @@ fn app_game_notification_readiness_payload_reports_service_intents_without_deliv
         )
         .readiness_state,
         APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED
+    );
+}
+
+#[test]
+fn app_game_notification_readiness_marks_explicit_unknown_classification_for_manual_review() {
+    let mut model = service_model();
+    model.inventory_rows.push(unknown_inventory_row());
+
+    let read_model = app_game_notification_readiness_from_service_model(model);
+
+    assert_eq!(read_model.returned, 2);
+    assert_eq!(read_model.capability_status, APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL);
+    assert_eq!(read_model.ready_intent_count, 0);
+    assert_eq!(read_model.manual_required_count, 2);
+    assert_eq!(read_model.unavailable_count, 0);
+    let unknown_row = readiness_row(
+        &read_model.rows,
+        APP_GAME_NOTIFICATION_READINESS_REASON_SUSPICIOUS_UNKNOWN,
+    );
+    assert_eq!(
+        unknown_row.readiness_state,
+        APP_GAME_NOTIFICATION_READINESS_STATE_MANUAL_REQUIRED
+    );
+    assert_eq!(unknown_row.row_count, 1);
+    assert_eq!(
+        unknown_row.evidence_reference_ids,
+        vec![
+            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_EVIDENCE_ID,
+            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_INVENTORY_ENTRY_ID,
+        ]
     );
 }
 
@@ -179,6 +191,46 @@ fn service_model() -> AppGameServiceReadModel {
         approval_action_result_rows: vec![control_action_result()],
         platform_authority_matrices: vec![platform_matrix()],
         ai_classifier_result_rows: Vec::new(),
+    }
+}
+
+fn unknown_inventory_row() -> AppGameInventoryEvidenceRow {
+    AppGameInventoryEvidenceRow {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        inventory_entry_id:
+            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_INVENTORY_ENTRY_ID
+                .to_string(),
+        observed_at: APP_GAME_TEST_TIMESTAMP.to_string(),
+        source_kind: APP_GAME_INVENTORY_SOURCE_UNKNOWN.to_string(),
+        source_ref: APP_GAME_TEST_UNKNOWN_SOURCE_REF.to_string(),
+        custody_state: APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT.to_string(),
+        product_kind: APP_GAME_PRODUCT_NATIVE_APP.to_string(),
+        display_label: constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_DISPLAY_LABEL
+            .to_string(),
+        identity_id: None,
+        package_id: None,
+        bundle_id: None,
+        app_user_model_id: None,
+        desktop_entry_id: None,
+        executable_path_ref: None,
+        launcher_ref: None,
+        launcher_app_id: None,
+        launcher_manifest_id: None,
+        store_id: None,
+        catalog_ref: None,
+        inventory_state: APP_GAME_INVENTORY_STATE_DETECTABLE.to_string(),
+        classification_state: APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS.to_string(),
+        catalog_ready_state: APP_GAME_CATALOG_READY.to_string(),
+        capability_status: APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED.to_string(),
+        confidence: 0.22,
+        category_candidates: Vec::new(),
+        runtime_state: APP_GAME_RUNTIME_NOT_CLAIMED.to_string(),
+        foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
+        running_duration_ms: 0,
+        foreground_duration_ms: 0,
+        evidence: vec![local_db_ref(
+            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_EVIDENCE_ID,
+        )],
     }
 }
 
