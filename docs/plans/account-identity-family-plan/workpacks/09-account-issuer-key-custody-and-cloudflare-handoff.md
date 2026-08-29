@@ -2,7 +2,7 @@
 
 > **Plan:** Account Identity Family
 > **Workpack:** WP09
-> **Status:** independently reviewed durable issuer core is integrated at canonical `4f6245e51`; the protected signer is blocked on Protected Custody WP01, while authenticated binding/delivery adapters, production caller, Cloudflare consumer, expected tests, proof, and normal completion remain open.
+> **Status:** planned implementation-only adapter and real test-source wave; the durable issuer core plus reviewed Protected Custody WP04/WP05 boundaries are present, while production composition, Cloudflare consumer, execution, proof, and normal completion remain open.
 
 ## Agent capsule
 
@@ -83,12 +83,15 @@ composition; the branch must not be merged or cherry-picked wholesale.
 
 ## Dependency route
 
-WP09 has two direct prerequisites: Account WP08 and Protected Custody WP01.
-WP08 supplies the reviewed sealed Account contract; Protected Custody WP01
-supplies the neutral isolated broker/client and opaque protected signing
-admission. Both are reviewed-implementation source-order gates and normal
-completion dependencies. WP09 has no dependency on Account WP02, Account
-WP05A, Device Trust WP01 or WP03, or Cloudflare source.
+WP09 has four direct source-order prerequisites: Account WP08, Protected
+Custody WP01, Protected Custody WP04, and Protected Custody WP05. WP08 supplies
+the reviewed sealed Account contract; WP01 supplies the neutral foundation;
+WP04 supplies the reviewed retained fixed-pipe process/token transport; and
+WP05 supplies the reviewed Account issuer-owner, protected signing, and broker
+RPC boundary. These reviewed implementations authorize only the missing WP09
+adapter/runtime and expected-test source wave. Normal completion still requires
+their operational gates. WP09 has no dependency on Account WP02, Account WP05A,
+Device Trust WP01 or WP03, or Cloudflare source.
 
 Cloudflare WP06 retains its direct WP08 dependency and adds WP09 as an additional reviewed-implementation prerequisite for the durable issuer/key custody and authenticated producer binding. This does not transfer Account ownership or claim Cloudflare runtime readiness.
 

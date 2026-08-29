@@ -1158,11 +1158,11 @@
         "WP-protected-capability-custody-foundation-plan-01-protected-capability-custody-foundation"
       ],
       "state": "blocked",
-      "lifecycleState": "blocked",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked on Protected Custody WP01 / partial source reviewed / adapters, caller, tests, and Cloudflare consumer open",
+        "statusText": "planned / implementation-only adapter and test-source wave authorized / runtime and proof open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -36256,7 +36256,8 @@
         "docs/plans/account-identity-family-plan/workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md",
         "docs/plans/protected-capability-custody-foundation-plan/workpacks/04-client-broker-anchor-transport.md"
       ],
-      "reason": "Account WP09 requires authenticated fixed-pipe transport but WP04 alone is insufficient for the selected P-256 v2 signer and broker-owned repository RPC. This normal dependency does not authorize Account runtime."
+      "reason": "Account WP09 requires authenticated fixed-pipe transport but WP04 alone is insufficient for the selected P-256 v2 signer and broker-owned repository RPC. WP04's retained process/token/image/currentness implementation and exact test roots are reviewed and source-complete, so Account source work may consume that boundary before proof; normal completion still requires WP04 DONE and this does not authorize Account runtime.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-account-identity-family-plan-09-account-issuer-key-custody-and-cloudflare-handoff",

@@ -92,11 +92,11 @@ explicit handoff to Cloudflare WP06 then WP08; no worker-runtime claim
 
 Reviewed core result: canonical `4f6245e51` contains durable issuer/key lineage,
 strict startup recovery, and a household-scoped receipt/wire outbox over the
-typed WP08 handoff. First accept Protected Custody WP01's isolated broker/client
-and opaque protected admission; Account must consume that boundary and must not
-recreate in-process key custody. Live caller tracing found no protected signer,
+typed WP08 handoff. The reviewed Protected Custody WP04 fixed-pipe transport and
+WP05 Account issuer-owner now provide the source boundary that Account must
+consume without recreating in-process key custody. Live caller tracing found no protected signer,
 binding authenticator, delivery-owner implementation, or production lifecycle
-caller. Then write the coherent Account-owned adapter/runtime packet; it must
+caller. Write the coherent Account-owned adapter/runtime packet now; it must
 deliver the outer wire plus an authenticated current public-key record and
 accept only an exactly bound Cloudflare acknowledgement. Cloudflare WP06 then
 owns its private consumer/mount. The later test wave must write all seven
