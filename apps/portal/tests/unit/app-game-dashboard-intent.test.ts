@@ -46,17 +46,30 @@ function exactMetric(
 
 function dashboardForSnapshot(snapshot: ParentRouteLiveActivitySnapshot) {
   const state = resolveSnapshotLiveActivityState(snapshot);
+  const appUseReadModel = state.activityAppUseReadModel;
+  const gamesReadModel = state.activityGamesReadModel;
   const activityState: ParentPortalActivityStateLike = {
-    activityAppUseReadModel:
-      state.activityAppUseReadModel as ParentPortalActivityStateLike['activityAppUseReadModel'],
-    // The generated bridge intentionally exposes this newly-added extension as
-    // an unknown record; this assertion narrows only at the existing adapter
-    // boundary, which performs the runtime ok/value shape check.
-    activityAppGamePlatformExtensionReadModel:
-      state.activityAppGamePlatformExtensionReadModel as ParentPortalActivityStateLike['activityAppGamePlatformExtensionReadModel'],
-    activityGamesReadModel: state.activityGamesReadModel as ParentPortalActivityStateLike['activityGamesReadModel'],
+    ...(appUseReadModel === undefined ? {} : { activityAppUseReadModel: appUseReadModel }),
+    // The generated bridge intentionally exposes this extension as an unknown
+    // record; retain only object-shaped adapter results before the existing
+    // boundary performs the runtime ok/value shape check.
+    activityAppGamePlatformExtensionReadModel: parentPortalActivityAdapterResult(
+      state.activityAppGamePlatformExtensionReadModel
+    ),
+    ...(gamesReadModel === undefined ? {} : { activityGamesReadModel: gamesReadModel }),
   };
   return createParentPortalActivityUiIntent(activityState, 3).appGameDashboard;
+}
+
+type ParentPortalActivityAdapterResult = NonNullable<
+  ParentPortalActivityStateLike['activityAppGamePlatformExtensionReadModel']
+>;
+
+function parentPortalActivityAdapterResult(value: unknown): ParentPortalActivityAdapterResult | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return null;
+  }
+  return value;
 }
 
 describe('app-game dashboard platform capability intent', () => {
@@ -255,6 +268,13 @@ describe('app-game dashboard platform capability intent', () => {
     const dashboard = dashboardForSnapshot(snapshot);
     const hostileRow = dashboard.appRows[0];
     const launcherRow = dashboard.gameRows[0];
+
+    if (hostileRow === undefined) {
+      throw new Error('Expected the hostile app row to be rendered.');
+    }
+    if (launcherRow === undefined) {
+      throw new Error('Expected the launcher-only game row to be rendered.');
+    }
 
     expect(hostileRow.label).toBe(longHostileName);
     expect(hostileRow.unknownApproval).toBe(true);

@@ -151,8 +151,9 @@ export const defaultSidebarIconConfig = {
 } as const;
 
 type SidebarIconConfig = typeof defaultSidebarIconConfig;
+type ConfigLeaf<T> = T extends string ? string : T extends number ? number : T extends boolean ? boolean : T;
 type DeepPartial<T> = {
-  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : ConfigLeaf<T[K]>;
 };
 
 type AnimatedSidebarIconButtonProps = {

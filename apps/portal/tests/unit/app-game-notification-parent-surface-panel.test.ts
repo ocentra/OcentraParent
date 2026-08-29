@@ -78,6 +78,10 @@ describe('app/game notification parent surface panel', () => {
 
   it('keeps long and hostile Rust-owned row metadata text-visible and escaped', () => {
     const hostile = '<img src=x onerror=alert(1)> & <script>alert(2)</script>';
+    const unavailableRow = NotificationParentSurfacePanel.rows[1];
+    if (unavailableRow === undefined) {
+      throw new Error('Expected the unavailable notification row to be present.');
+    }
     const panel: ParentAppGameNotificationParentSurfacePanelSnapshot = {
       ...NotificationParentSurfacePanel,
       rows: [
@@ -89,13 +93,11 @@ describe('app/game notification parent surface panel', () => {
             { label: 'Manual proof', value: `${hostile} provider-adapter-required` },
           ],
         },
-        NotificationParentSurfacePanel.rows[1],
+        unavailableRow,
       ],
     };
 
-    const html = renderToStaticMarkup(
-      createElement(AppGameNotificationParentSurfaceRoutePanel, { panel })
-    );
+    const html = renderToStaticMarkup(createElement(AppGameNotificationParentSurfaceRoutePanel, { panel }));
 
     expect(html).toContain('long-'.repeat(80));
     expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');

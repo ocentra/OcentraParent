@@ -389,11 +389,15 @@ async function assertInvalidStoredDeviceContextFailsClosed(page: Page, selectedD
   const missingDeviceLabel = 'Removed persisted target';
   await page.goto('/#/browser-settings');
   await page.evaluate(
-    ([storageKey, deviceId, deviceLabel]) =>
+    ([storageKey, deviceId, deviceLabel]) => {
+      if (typeof storageKey !== 'string' || storageKey.length === 0) {
+        throw new Error('Portal manage-target selection storage key is required.');
+      }
       window.sessionStorage.setItem(
         storageKey,
         JSON.stringify({ scope: 'perDevice', device: deviceLabel, deviceId, browser: 'Chrome' })
-      ),
+      );
+    },
     [manageTargetSelectionStorageKey, missingDeviceId, missingDeviceLabel]
   );
   await page.reload();
@@ -404,11 +408,15 @@ async function assertInvalidStoredDeviceContextFailsClosed(page: Page, selectedD
   await expect(page.getByRole('button', { exact: true, name: `Select ${missingDeviceLabel}` })).toHaveCount(0);
 
   await page.evaluate(
-    ([storageKey, deviceId, deviceLabel]) =>
+    ([storageKey, deviceId, deviceLabel]) => {
+      if (typeof storageKey !== 'string' || storageKey.length === 0) {
+        throw new Error('Portal manage-target selection storage key is required.');
+      }
       window.sessionStorage.setItem(
         storageKey,
         JSON.stringify({ scope: 'perDevice', device: deviceLabel, deviceId, browser: 'Chrome' })
-      ),
+      );
+    },
     [manageTargetSelectionStorageKey, missingDeviceId, selectedDeviceLabel]
   );
   await page.reload();

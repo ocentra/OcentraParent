@@ -30,8 +30,6 @@ export const AppGameTimerParentSurfacePanelFixture: ParentAppGameTimerParentSurf
         { label: 'Adapter dispatch', value: 'Not claimed' },
         { label: 'Platform state', value: 'Not claimed' },
       ],
-      actionLabel: null,
-      actionPayload: null,
     },
   ],
   parentPreferenceSetupRows: [

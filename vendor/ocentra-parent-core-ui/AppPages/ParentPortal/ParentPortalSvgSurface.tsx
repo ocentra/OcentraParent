@@ -9,6 +9,7 @@ import {
   type CSSProperties,
   type KeyboardEvent,
   type MouseEvent,
+  type PointerEvent,
   type ReactElement,
   type ReactNode,
   type WheelEvent,
@@ -63,6 +64,7 @@ import {
   createParentPortalLanPairingUiSlots,
   parentPortalActivityAdapterRecord,
 } from './activity-ui-intent';
+import type { ParentPortalActivityReportView, ParentPortalActivityStateLike } from './activity-ui-intent';
 import type {
   ParentPortalAppGameDashboardIntent,
   ParentPortalAppGameDashboardMetric,
@@ -82,8 +84,8 @@ import {
   PortalAgentProtocolField,
   PortalAgentTargetDefaults,
   PortalLanPairingScan,
-  type PortalRouteEventId as AgentEventId,
 } from '@ocentra-parent/portal-domain/contracts';
+import type { AgentEventId } from '@ocentra-parent/schema-domain/event-primitives';
 import {
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
   type ParentAssistantPortalQuickActionId,
@@ -141,7 +143,11 @@ import {
   parentNavIconAssetUrls,
 } from '../../Common/NavSvgIcons/ParentNavSvgIcons';
 import { ScopeToggle } from './ScopeToggle/ScopeToggle';
-import { BrowserRulesQuestionnaire, type BrowserRulesQuestion } from './BrowserRulesQuestionnaire';
+import {
+  BrowserRulesQuestionnaire,
+  type BrowserRulesChoiceOption,
+  type BrowserRulesQuestion,
+} from './BrowserRulesQuestionnaire';
 import './ParentPortalSvgSurface.css';
 
 type IconProps = {
@@ -240,17 +246,9 @@ type ParentPortalSvgSurfaceProps = {
   onInitialLayoutReady?: () => void;
 };
 
-type ParentPortalActivityState = {
+type ParentPortalActivityState = ParentPortalActivityStateLike & {
   ingestStatus?: Record<string, unknown> | null;
   recentSummary?: Record<string, unknown> | null;
-  activityReport?: unknown;
-  activityReportHistory?: unknown;
-  activityScreenReadModel?: unknown;
-  activityAppUseReadModel?: unknown;
-  activityAppGamePlatformExtensionReadModel?: unknown;
-  activityBrowserReadModel?: unknown;
-  activityGamesReadModel?: unknown;
-  activityNetworkReadModel?: unknown;
   browserEvidenceReadModel?: Record<string, unknown> | null;
   browserManagedStatus?: Record<string, unknown> | null;
   activityMemoryGraphReadModel?: Record<string, unknown> | null;
@@ -548,7 +546,7 @@ const ASSISTANT_NEW_CHAT_NAV_ITEM = {
   groupId: 'quickGlance',
   tone: 'cyan',
   routePath: `${ASSISTANT_NAV_ROUTE_PREFIX}new-chat`,
-};
+} satisfies NavItem;
 
 function assistantHistoryNavItem(action: AssistantQuickAction): NavItem {
   return {
@@ -567,11 +565,11 @@ function assistantQuickActionNavGroups(navGroups: NavGroup[]): NavGroup[] {
         ...group,
         items: actionIds
           .map((actionId) => assistantQuickActionById(actionId))
-          .filter(Boolean)
-          .map((action) => assistantQuickActionNavItem(action as AssistantQuickAction, group.id)),
+          .filter((action): action is AssistantQuickAction => action !== null)
+          .map((action) => assistantQuickActionNavItem(action, group.id)),
       };
     })
-    .filter((group) => group && group.items.length > 0);
+    .filter((group): group is NavGroup => group !== null && group.items.length > 0);
 }
 
 function assistantQuickActionNavItem(action: AssistantQuickAction, groupId: string): NavItem {
@@ -704,7 +702,7 @@ const ASSISTANT_SIDE_PANEL_ICON_CONFIG = {
       glowOpacityOpen: 0.74,
     },
   },
-};
+} as const;
 
 function clampValue(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -812,6 +810,7 @@ const iconByName: Record<ParentPortalIconName, IconComponent> = {
   manage: ManageFileSettingsIcon,
   policy: PolicyShieldDocumentIcon,
   browser: BrowserStackIcon,
+  chat: AiGuideIdeaIcon,
   web: WebGlobeIcon,
   schedule: ScheduleCalendarClockIcon,
   alerts: AlertNotificationBellIcon,
@@ -1349,7 +1348,7 @@ function toDisplayRows(
       readiness,
       primaryArea: row.primaryArea ?? primaryArea,
       trend: row.trend ?? (index % 3 === 0 ? '+2' : index % 3 === 1 ? '+1' : '-'),
-      tone: row.tone ?? tones[index % tones.length],
+      tone: row.tone ?? tones[index % tones.length] ?? 'purple',
     };
   });
 }
@@ -1635,7 +1634,7 @@ function buildControlCategorySummaries(controls: QuickControl[]): ControlCategor
       label,
       detail: 'Catalog scope',
       count: 0,
-      tone: tones[index % tones.length],
+      tone: tones[index % tones.length] ?? 'purple',
       sampleControl: fallbackControl,
       subcategories: [],
     });
@@ -4305,7 +4304,7 @@ type LanPairingDetailTab = {
   readonly tone: Tone;
 };
 
-const LAN_PAIRING_DETAIL_TABS: readonly LanPairingDetailTab[] = [
+const LAN_PAIRING_DETAIL_TABS: readonly [LanPairingDetailTab, ...LanPairingDetailTab[]] = [
   { id: 'info', label: 'Info', icon: OverviewListIcon, tone: 'cyan' },
   { id: 'pair', label: 'Pair', icon: PortalGatewayIcon, tone: 'gold' },
   { id: 'update', label: 'Update', icon: UpdatesSyncDocumentIcon, tone: 'gold' },
@@ -4689,7 +4688,6 @@ function LanPairingDeviceEditDialog({
       />
       <foreignObject x={x} y={y} width={w} height={h}>
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           onClick={(event) => event.stopPropagation()}
           onPointerDown={(event) => event.stopPropagation()}
           style={{
@@ -5066,12 +5064,14 @@ type ActivityManageTabId =
   | 'games'
   | 'network';
 
-const ACTIVITY_MANAGE_TABS: readonly {
+type ActivityManageTab = {
   readonly id: ActivityManageTabId;
   readonly label: string;
   readonly icon: IconComponent;
   readonly tone: Tone;
-}[] = [
+};
+
+const ACTIVITY_MANAGE_TABS: readonly [ActivityManageTab, ...ActivityManageTab[]] = [
   { id: 'reports', label: 'Reports', icon: ReportDocumentIcon, tone: 'purple' },
   { id: 'browser', label: 'Browser', icon: BrowserStackIcon, tone: 'cyan' },
   { id: 'apps', label: 'App Use', icon: AppIcon, tone: 'gold' },
@@ -5126,11 +5126,13 @@ function activityRecord(value: unknown): Record<string, unknown> | null {
 }
 
 function activityRecordArray(value: unknown): readonly Record<string, unknown>[] {
-  return Array.isArray(value) ? value.map(activityRecord).filter(Boolean) : [];
+  return Array.isArray(value)
+    ? value.map(activityRecord).filter((record): record is Record<string, unknown> => record !== null)
+    : [];
 }
 
 function activityStateRows(model: Record<string, unknown> | null | undefined): readonly Record<string, unknown>[] {
-  return activityRecordArray(model?.rows);
+  return activityRecordArray(model?.['rows']);
 }
 
 function activityLatestRow(model: Record<string, unknown> | null | undefined): Record<string, unknown> | null {
@@ -5159,8 +5161,8 @@ function activityFormatBytes(value: unknown): string {
 function activityEndpointLabel(value: unknown): string {
   const endpoint = activityRecord(value);
   if (!endpoint) return activityStateValue(value);
-  const ip = activityStateValue(endpoint.ip, '');
-  const port = activityStateValue(endpoint.port, '');
+  const ip = activityStateValue(endpoint['ip'], '');
+  const port = activityStateValue(endpoint['port'], '');
   if (ip && port) return `${ip}:${port}`;
   return ip || port || 'Not reported';
 }
@@ -5197,10 +5199,12 @@ function activityLanRouteSafetyRow(
   signedSpine: Record<string, unknown> | null,
   selectedDevice: DeviceSlot | null
 ): Record<string, unknown> | null {
-  const rows = activityRecordArray(signedSpine?.routeSafetyRows);
+  const rows = activityRecordArray(signedSpine?.['routeSafetyRows']);
   const selectedRouteId = activityStateValue(selectedDevice?.device?.routeId, '');
   return (
-    rows.find((row) => activitySameDeviceValue(activityStateValue(row.routeId, ''), selectedRouteId)) ?? rows[0] ?? null
+    rows.find((row) => activitySameDeviceValue(activityStateValue(row['routeId'], ''), selectedRouteId)) ??
+    rows[0] ??
+    null
   );
 }
 
@@ -5212,10 +5216,10 @@ function activityLanSpineStateRow(
 }
 
 function activityLanSignedAdapterRow(signedSpine: Record<string, unknown> | null): Record<string, unknown> | null {
-  const rows = activityRecordArray(signedSpine?.adapterRows);
+  const rows = activityRecordArray(signedSpine?.['adapterRows']);
   return (
-    rows.find((row) => activityStateValue(row.adapter, '') === 'signed-child-agent-heartbeat') ??
-    rows.find((row) => activityStateValue(row.adapter, '') === 'signed-child-agent-hello') ??
+    rows.find((row) => activityStateValue(row['adapter'], '') === 'signed-child-agent-heartbeat') ??
+    rows.find((row) => activityStateValue(row['adapter'], '') === 'signed-child-agent-hello') ??
     rows[0] ??
     null
   );
@@ -5223,26 +5227,26 @@ function activityLanSignedAdapterRow(signedSpine: Record<string, unknown> | null
 
 function activityLanAdapterLabel(row: Record<string, unknown> | null): string {
   if (!row) return 'Not reported';
-  return `${activityStateValue(row.adapter)}; ${activityStateValue(row.proofState)}`;
+  return `${activityStateValue(row['adapter'])}; ${activityStateValue(row['proofState'])}`;
 }
 
 function activityLanSignedProofLabel(row: Record<string, unknown> | null): string {
   if (!row) return 'Not reported';
-  return `${activityStateValue(row.check)}; ${activityStateValue(row.proofState)}`;
+  return `${activityStateValue(row['check'])}; ${activityStateValue(row['proofState'])}`;
 }
 
 function activityLanRouteSafetyLabel(row: Record<string, unknown> | null): string {
   if (!row) return 'Not reported';
-  const reason = activityStateValue(row.rejectionReason, '');
-  const result = activityStateValue(row.responseState ?? row.discoveryState);
+  const reason = activityStateValue(row['rejectionReason'], '');
+  const result = activityStateValue(row['responseState'] ?? row['discoveryState']);
   return reason
-    ? `${activityStateValue(row.check)}; ${result}; ${reason}`
-    : `${activityStateValue(row.check)}; ${result}`;
+    ? `${activityStateValue(row['check'])}; ${result}; ${reason}`
+    : `${activityStateValue(row['check'])}; ${result}`;
 }
 
 function activityLanRelayCacheLabel(row: Record<string, unknown> | null): string {
   if (!row) return 'Not reported';
-  return `${activityStateValue(row.check)}; ${activityStateValue(row.decisionState ?? row.proofState)}`;
+  return `${activityStateValue(row['check'])}; ${activityStateValue(row['decisionState'] ?? row['proofState'])}`;
 }
 
 function activityPerDeviceGateRows(
@@ -5299,16 +5303,16 @@ function activityLanDiagnosticsRows(
   gateRows: readonly ActivityManageDetailRow[]
 ): readonly ActivityManageDetailRow[] | null {
   if (!addDeviceReadModel) return null;
-  const canonicalDevices = activityRecordArray(addDeviceReadModel.canonicalHouseholdDevices);
-  const householdDecisions = activityRecordArray(addDeviceReadModel.householdDeviceDecisions);
-  const scanSummary = activityRecord(addDeviceReadModel.scanSummary);
-  const signedSpine = activityRecord(addDeviceReadModel.signedDiscoveryRelaySpine);
-  const sourceMatrix = activityRecord(addDeviceReadModel.lanDiscoverySourceMatrix);
+  const canonicalDevices = activityRecordArray(addDeviceReadModel['canonicalHouseholdDevices']);
+  const householdDecisions = activityRecordArray(addDeviceReadModel['householdDeviceDecisions']);
+  const scanSummary = activityRecord(addDeviceReadModel['scanSummary']);
+  const signedSpine = activityRecord(addDeviceReadModel['signedDiscoveryRelaySpine']);
+  const sourceMatrix = activityRecord(addDeviceReadModel['lanDiscoverySourceMatrix']);
   const signedProofRow = activityLanSpineStateRow(signedSpine, 'signedProofRows');
   const routeSafetyRow = activityLanRouteSafetyRow(signedSpine, selectedDevice);
   const relayCacheRow = activityLanSpineStateRow(signedSpine, 'relayCacheRows');
   const signedAdapterRow = activityLanSignedAdapterRow(signedSpine);
-  const selectedReadiness = activityRecord(addDeviceReadModel.selectedDeviceReadiness);
+  const selectedReadiness = activityRecord(addDeviceReadModel['selectedDeviceReadiness']);
   const selectedCanonicalDevice =
     scopeValue === 'device' && selectedDevice
       ? canonicalDevices.find((device) => activityCanonicalDeviceMatchesSlot(device, selectedDevice))
@@ -5317,41 +5321,41 @@ function activityLanDiagnosticsRows(
   const relevantDecisions = selectedCanonicalDevice
     ? householdDecisions.filter((decision) =>
         activitySameDeviceValue(
-          activityStateValue(decision.canonicalDeviceId, ''),
-          activityStateValue(selectedCanonicalDevice.canonicalDeviceId, '')
+          activityStateValue(decision['canonicalDeviceId'], ''),
+          activityStateValue(selectedCanonicalDevice['canonicalDeviceId'], '')
         )
       )
     : householdDecisions;
   const evidenceRecords = relevantDevices.flatMap((device) =>
-    activityRecordArray(activityRecord(device.networkIdentity)?.evidenceRecords)
+    activityRecordArray(activityRecord(device['networkIdentity'])?.['evidenceRecords'])
   );
   const latestEvidence = evidenceRecords[0] ?? null;
   const latestDecision = relevantDecisions[0] ?? null;
-  const policyTargetSurfaces = relevantDevices.flatMap((device) => activityStringArray(device.policyTargetSurfaces));
+  const policyTargetSurfaces = relevantDevices.flatMap((device) => activityStringArray(device['policyTargetSurfaces']));
   const sourceLabels = Array.from(
     new Set(
-      evidenceRecords.map((record) => activityStateValue(record.source, '')).filter((source) => source.length > 0)
+      evidenceRecords.map((record) => activityStateValue(record['source'], '')).filter((source) => source.length > 0)
     )
   );
   const targetLabel = selectedCanonicalDevice
-    ? activityStateValue(selectedCanonicalDevice.displayName)
+    ? activityStateValue(selectedCanonicalDevice['displayName'])
     : scopeValue === 'device'
       ? activityManageTargetLabel(scopeValue, selectedDevice)
       : 'Family';
   return [
     ...gateRows,
     { label: 'LAN target', value: targetLabel, tone: 'cyan' },
-    { label: 'LAN read model', value: activityStateValue(addDeviceReadModel.addDeviceState), tone: 'gold' },
-    { label: 'Cloud relay', value: activityStateValue(addDeviceReadModel.cloudRelayState), tone: 'purple' },
+    { label: 'LAN read model', value: activityStateValue(addDeviceReadModel['addDeviceState']), tone: 'gold' },
+    { label: 'Cloud relay', value: activityStateValue(addDeviceReadModel['cloudRelayState']), tone: 'purple' },
     {
       label: 'Physical LAN',
-      value: activityStateValue(addDeviceReadModel.physicalHouseholdLanState),
+      value: activityStateValue(addDeviceReadModel['physicalHouseholdLanState']),
       tone: 'purple',
     },
     ...activityLanSourceMatrixRows(sourceMatrix),
     {
       label: 'Selected route',
-      value: `${activityStateValue(selectedReadiness?.routeId)}; ${activityStateValue(selectedReadiness?.trustState)}`,
+      value: `${activityStateValue(selectedReadiness?.['routeId'])}; ${activityStateValue(selectedReadiness?.['trustState'])}`,
       tone: 'cyan',
     },
     { label: 'Signed proof', value: activityLanSignedProofLabel(signedProofRow), tone: 'gold' },
@@ -5359,22 +5363,22 @@ function activityLanDiagnosticsRows(
     { label: 'Relay/cache', value: activityLanRelayCacheLabel(relayCacheRow), tone: 'cyan' },
     {
       label: 'Manual proof',
-      value: activityListSummary(signedSpine?.manualProofRequired),
+      value: activityListSummary(signedSpine?.['manualProofRequired']),
       tone: 'gold',
     },
     {
       label: 'Unproved claims',
-      value: activityListSummary(signedSpine?.claimsNotProved ?? addDeviceReadModel.honestNonClaims),
+      value: activityListSummary(signedSpine?.['claimsNotProved'] ?? addDeviceReadModel['honestNonClaims']),
       tone: 'purple',
     },
     {
       label: 'Route requirements',
-      value: activityListSummary(addDeviceReadModel.routeRequirementLabels),
+      value: activityListSummary(addDeviceReadModel['routeRequirementLabels']),
       tone: 'cyan',
     },
     {
       label: 'Audit checks',
-      value: activityListSummary(addDeviceReadModel.auditCheckLabels),
+      value: activityListSummary(addDeviceReadModel['auditCheckLabels']),
       tone: 'gold',
     },
     {
@@ -5386,39 +5390,39 @@ function activityLanDiagnosticsRows(
     { label: 'Parent decisions', value: activityStateValue(relevantDecisions.length), tone: 'purple' },
     {
       label: 'Latest decision',
-      value: activityStateValue(latestDecision?.actionKind ?? latestDecision?.displayName),
+      value: activityStateValue(latestDecision?.['actionKind'] ?? latestDecision?.['displayName']),
       tone: 'gold',
     },
     {
       label: 'Sources',
-      value: sourceLabels.length > 0 ? sourceLabels.join(', ') : activityStateValue(scanSummary?.sourceLabels),
+      value: sourceLabels.length > 0 ? sourceLabels.join(', ') : activityStateValue(scanSummary?.['sourceLabels']),
       tone: 'cyan',
     },
     {
       label: 'Latest evidence',
-      value: activityStateValue(latestEvidence?.evidenceKind ?? latestEvidence?.value),
+      value: activityStateValue(latestEvidence?.['evidenceKind'] ?? latestEvidence?.['value']),
       tone: 'purple',
     },
     {
       label: 'Scan summary',
-      value: `agent ${activityStateValue(scanSummary?.agentDeviceCount)} / passive ${activityStateValue(
-        scanSummary?.passiveDeviceCount
-      )} / infrastructure ${activityStateValue(scanSummary?.infrastructureDeviceCount)}`,
+      value: `agent ${activityStateValue(scanSummary?.['agentDeviceCount'])} / passive ${activityStateValue(
+        scanSummary?.['passiveDeviceCount']
+      )} / infrastructure ${activityStateValue(scanSummary?.['infrastructureDeviceCount'])}`,
       tone: 'gold',
     },
     {
       label: 'Scan first seen',
-      value: activityStateValue(latestEvidence?.firstSeenAt ?? addDeviceReadModel.generatedAt),
+      value: activityStateValue(latestEvidence?.['firstSeenAt'] ?? addDeviceReadModel['generatedAt']),
       tone: 'cyan',
     },
     {
       label: 'Scan last seen',
-      value: activityStateValue(latestEvidence?.lastSeenAt ?? addDeviceReadModel.generatedAt),
+      value: activityStateValue(latestEvidence?.['lastSeenAt'] ?? addDeviceReadModel['generatedAt']),
       tone: 'gold',
     },
     {
       label: 'Evidence expiry',
-      value: activityStateValue(latestEvidence?.expiresAt),
+      value: activityStateValue(latestEvidence?.['expiresAt']),
       tone: 'purple',
     },
     {
@@ -5436,18 +5440,18 @@ function activityLanDiagnosticsRows(
 
 function activityLanSourceMatrixRows(sourceMatrix: Record<string, unknown> | null): readonly ActivityManageDetailRow[] {
   if (!sourceMatrix) return [];
-  const workpackRows = activityRecordArray(sourceMatrix.workpackRows);
-  const sourceRows = activityRecordArray(sourceMatrix.sourceRows);
-  const implemented = workpackRows.filter((row) => activityStateValue(row.status, '') === 'implemented').length;
-  const partial = workpackRows.filter((row) => activityStateValue(row.status, '') === 'partial').length;
-  const manual = workpackRows.filter((row) => activityStateValue(row.status, '') === 'manual-required').length;
-  const missing = workpackRows.filter((row) => activityStateValue(row.status, '') === 'not-implemented').length;
+  const workpackRows = activityRecordArray(sourceMatrix['workpackRows']);
+  const sourceRows = activityRecordArray(sourceMatrix['sourceRows']);
+  const implemented = workpackRows.filter((row) => activityStateValue(row['status'], '') === 'implemented').length;
+  const partial = workpackRows.filter((row) => activityStateValue(row['status'], '') === 'partial').length;
+  const manual = workpackRows.filter((row) => activityStateValue(row['status'], '') === 'manual-required').length;
+  const missing = workpackRows.filter((row) => activityStateValue(row['status'], '') === 'not-implemented').length;
   const implementedSources = sourceRows
-    .filter((row) => activityStateValue(row.status, '') === 'implemented')
-    .map((row) => activityStateValue(row.source, ''))
+    .filter((row) => activityStateValue(row['status'], '') === 'implemented')
+    .map((row) => activityStateValue(row['source'], ''))
     .filter((source) => source.length > 0);
   const weakSources = sourceRows.filter(
-    (row) => row.canConfirmChildAgent !== true && row.canAssignChildProfile !== true
+    (row) => row['canConfirmChildAgent'] !== true && row['canAssignChildProfile'] !== true
   ).length;
   return [
     {
@@ -5467,24 +5471,24 @@ function activityLanSourceMatrixRows(sourceMatrix: Record<string, unknown> | nul
     },
     {
       label: 'Matrix generated',
-      value: activityStateValue(sourceMatrix.generatedAt),
+      value: activityStateValue(sourceMatrix['generatedAt']),
       tone: 'cyan',
     },
   ];
 }
 
 function activityCanonicalDeviceMatchesSlot(device: Record<string, unknown>, slot: DeviceSlot): boolean {
-  const networkIdentity = activityRecord(device.networkIdentity);
-  const deviceIds = [activityStateValue(device.canonicalDeviceId, ''), activityStateValue(device.routeId, '')];
-  const ipAddresses = activityRecordArray(networkIdentity?.ipAddresses);
-  const networkIps = Array.isArray(networkIdentity?.ipAddresses)
-    ? networkIdentity.ipAddresses.map((value) => activityStateValue(value, ''))
+  const networkIdentity = activityRecord(device['networkIdentity']);
+  const deviceIds = [activityStateValue(device['canonicalDeviceId'], ''), activityStateValue(device['routeId'], '')];
+  const ipAddresses = activityRecordArray(networkIdentity?.['ipAddresses']);
+  const networkIps = Array.isArray(networkIdentity?.['ipAddresses'])
+    ? networkIdentity['ipAddresses'].map((value) => activityStateValue(value, ''))
     : [];
   return (
     deviceIds.some(
       (deviceId) => activitySameDeviceValue(deviceId, slot.value) || activitySameDeviceValue(deviceId, slot.device?.id)
     ) ||
-    activitySameDeviceValue(activityStateValue(networkIdentity?.macAddress, ''), slot.device?.mac) ||
+    activitySameDeviceValue(activityStateValue(networkIdentity?.['macAddress'], ''), slot.device?.mac) ||
     networkIps.some((ip) => activitySameDeviceValue(ip, slot.device?.ip)) ||
     ipAddresses.some((ip) => activitySameDeviceValue(activityStateValue(ip, ''), slot.device?.ip))
   );
@@ -5498,10 +5502,10 @@ function activitySameDeviceValue(left: string | undefined, right: string | undef
 
 function activityReportHistoryLabel(reportHistory: Record<string, unknown> | null): string {
   if (!reportHistory) return 'Unavailable';
-  const reports = reportHistory.reports;
+  const reports = reportHistory['reports'];
   const count = Array.isArray(reports) ? reports.length : 0;
-  const state = activityStateValue(reportHistory.state);
-  const storage = activityStateValue(reportHistory.storageState);
+  const state = activityStateValue(reportHistory['state']);
+  const storage = activityStateValue(reportHistory['storageState']);
   return count > 0 ? `${count} saved (${storage})` : `${state}; ${storage}`;
 }
 
@@ -5543,7 +5547,10 @@ function activityRowsFromReadModels(
       { label: 'Mode', value: scopeValue === 'device' ? overrideLabel : 'Family defaults', tone: 'purple' },
       {
         label: 'Report state',
-        value: activityStateValue(reportDocument?.savedMetadata ? 'saved' : reportDocument?.generatedAt, 'Unavailable'),
+        value: activityStateValue(
+          reportDocument?.['savedMetadata'] ? 'saved' : reportDocument?.['generatedAt'],
+          'Unavailable'
+        ),
         tone: 'cyan',
       },
       {
@@ -5573,23 +5580,23 @@ function activityRowsFromReadModels(
       ...gateRows,
       {
         label: 'Latest summary',
-        value: activityStateValue(screen.summary, 'No screen summary reported'),
+        value: activityStateValue(screen['summary'], 'No screen summary reported'),
         tone: 'cyan',
       },
-      { label: 'Read model state', value: activityStateValue(screen.state), tone: 'gold' },
-      { label: 'Top row', value: activityStateValue(screenRow?.label), tone: 'purple' },
-      { label: 'Trigger', value: activityStateValue(screenRow?.captureReason), tone: 'cyan' },
-      { label: 'Capture scope', value: activityStateValue(screenRow?.captureScope), tone: 'gold' },
-      { label: 'Capability', value: activityStateValue(screenRow?.capabilityStatus), tone: 'purple' },
-      { label: 'AI provider', value: activityStateValue(screenRow?.providerKind), tone: 'cyan' },
-      { label: 'Category', value: activityStateValue(screenRow?.primaryCategory), tone: 'purple' },
-      { label: 'Confidence', value: activityPercentValue(screenRow?.confidence), tone: 'gold' },
-      { label: 'Policy eligible', value: activityStateValue(screenRow?.policyEligible), tone: 'cyan' },
-      { label: 'Raw image', value: activityStateValue(screenRow?.imageDeletionState), tone: 'gold' },
-      { label: 'Custody', value: activityStateValue(screenRow?.custodyState), tone: 'purple' },
-      { label: 'Queue job', value: activityStateValue(screenRow?.queueJobId), tone: 'cyan' },
-      { label: 'Image digest', value: activityDigestLabel(screenRow?.imageDigest), tone: 'gold' },
-      { label: 'Evidence refs', value: activityEvidenceCount(screenRow?.evidence), tone: 'gold' },
+      { label: 'Read model state', value: activityStateValue(screen['state']), tone: 'gold' },
+      { label: 'Top row', value: activityStateValue(screenRow?.['label']), tone: 'purple' },
+      { label: 'Trigger', value: activityStateValue(screenRow?.['captureReason']), tone: 'cyan' },
+      { label: 'Capture scope', value: activityStateValue(screenRow?.['captureScope']), tone: 'gold' },
+      { label: 'Capability', value: activityStateValue(screenRow?.['capabilityStatus']), tone: 'purple' },
+      { label: 'AI provider', value: activityStateValue(screenRow?.['providerKind']), tone: 'cyan' },
+      { label: 'Category', value: activityStateValue(screenRow?.['primaryCategory']), tone: 'purple' },
+      { label: 'Confidence', value: activityPercentValue(screenRow?.['confidence']), tone: 'gold' },
+      { label: 'Policy eligible', value: activityStateValue(screenRow?.['policyEligible']), tone: 'cyan' },
+      { label: 'Raw image', value: activityStateValue(screenRow?.['imageDeletionState']), tone: 'gold' },
+      { label: 'Custody', value: activityStateValue(screenRow?.['custodyState']), tone: 'purple' },
+      { label: 'Queue job', value: activityStateValue(screenRow?.['queueJobId']), tone: 'cyan' },
+      { label: 'Image digest', value: activityDigestLabel(screenRow?.['imageDigest']), tone: 'gold' },
+      { label: 'Evidence refs', value: activityEvidenceCount(screenRow?.['evidence']), tone: 'gold' },
     ];
   }
 
@@ -5644,37 +5651,37 @@ function activityRowsFromReadModels(
       ...gateRows,
       {
         label: 'Current app',
-        value: activityStateValue(appRow?.appName),
+        value: activityStateValue(appRow?.['appName']),
         tone: 'cyan',
       },
       {
         label: 'Read model state',
-        value: activityStateValue(appRow?.state ?? appUse?.state),
+        value: activityStateValue(appRow?.['state'] ?? appUse?.['state']),
         tone: 'gold',
       },
       {
         label: 'Total time',
-        value: activityFormatDurationMs(appRow?.totalMs),
+        value: activityFormatDurationMs(appRow?.['totalMs']),
         tone: 'purple',
       },
       {
         label: 'Launches',
-        value: activityStateValue(appRow?.launchCount),
+        value: activityStateValue(appRow?.['launchCount']),
         tone: 'cyan',
       },
       {
         label: 'Summary',
-        value: activityStateValue(appUse?.summary),
+        value: activityStateValue(appUse?.['summary']),
         tone: 'gold',
       },
       {
         label: 'Evidence refs',
-        value: activityEvidenceCount(appRow?.evidence),
+        value: activityEvidenceCount(appRow?.['evidence']),
         tone: 'purple',
       },
       {
         label: 'Generated',
-        value: activityStateValue(appUse?.generatedAt),
+        value: activityStateValue(appUse?.['generatedAt']),
         tone: 'cyan',
       },
     ];
@@ -5688,26 +5695,32 @@ function activityRowsFromReadModels(
       ...gateRows,
       {
         label: 'Domain',
-        value: activityStateValue(browserRow?.domainLabel ?? browserRow?.domain ?? browserRow?.origin),
+        value: activityStateValue(browserRow?.['domainLabel'] ?? browserRow?.['domain'] ?? browserRow?.['origin']),
         tone: 'cyan',
       },
-      { label: 'Visits', value: activityStateValue(browserRow?.visitCount), tone: 'gold' },
-      { label: 'Total time', value: activityFormatDurationMs(browserRow?.totalMs), tone: 'purple' },
+      { label: 'Visits', value: activityStateValue(browserRow?.['visitCount']), tone: 'gold' },
+      { label: 'Total time', value: activityFormatDurationMs(browserRow?.['totalMs']), tone: 'purple' },
       {
         label: 'Browser',
-        value: activityStateValue(browserRow?.browserFamily ?? browserManaged?.browserFamily),
+        value: activityStateValue(browserRow?.['browserFamily'] ?? browserManaged?.['browserFamily']),
         tone: 'cyan',
       },
-      { label: 'Read model state', value: activityStateValue(browserRow?.state ?? browser?.state), tone: 'gold' },
+      {
+        label: 'Read model state',
+        value: activityStateValue(browserRow?.['state'] ?? browser?.['state']),
+        tone: 'gold',
+      },
       {
         label: 'Capability',
-        value: activityStateValue(browserRow?.capabilityStatus ?? browserEvidence?.capabilityStatus ?? browser?.state),
+        value: activityStateValue(
+          browserRow?.['capabilityStatus'] ?? browserEvidence?.['capabilityStatus'] ?? browser?.['state']
+        ),
         tone: 'purple',
       },
-      { label: 'Managed state', value: activityStateValue(browserManaged?.managedState), tone: 'cyan' },
+      { label: 'Managed state', value: activityStateValue(browserManaged?.['managedState']), tone: 'cyan' },
       {
         label: 'Evidence',
-        value: activityStateValue(browserRow?.evidenceDigest ?? browserEvidence?.latestEventId),
+        value: activityStateValue(browserRow?.['evidenceDigest'] ?? browserEvidence?.['latestEventId']),
         tone: 'gold',
       },
     ];
@@ -5721,32 +5734,32 @@ function activityRowsFromReadModels(
       ...gateRows,
       {
         label: 'Current game',
-        value: activityStateValue(gameRow?.displayName),
+        value: activityStateValue(gameRow?.['displayName']),
         tone: 'cyan',
       },
       {
         label: 'Read model state',
-        value: activityStateValue(gameRow?.state ?? games?.state),
+        value: activityStateValue(gameRow?.['state'] ?? games?.['state']),
         tone: 'gold',
       },
       {
         label: 'Total time',
-        value: activityFormatDurationMs(gameRow?.totalMs),
+        value: activityFormatDurationMs(gameRow?.['totalMs']),
         tone: 'purple',
       },
       {
         label: 'Sessions',
-        value: activityStateValue(gameRow?.sessionCount),
+        value: activityStateValue(gameRow?.['sessionCount']),
         tone: 'cyan',
       },
       {
         label: 'Summary',
-        value: activityStateValue(games?.summary),
+        value: activityStateValue(games?.['summary']),
         tone: 'gold',
       },
       {
         label: 'Evidence refs',
-        value: activityEvidenceCount(gameRow?.evidence),
+        value: activityEvidenceCount(gameRow?.['evidence']),
         tone: 'cyan',
       },
     ];
@@ -5760,24 +5773,28 @@ function activityRowsFromReadModels(
       );
     }
     const endpoint =
-      networkRow?.destinationLabel ??
-      networkRow?.destinationDomain ??
-      activityEndpointLabel(networkRow?.destinationEndpoint);
-    const counters = activityRecord(networkRow?.counters);
-    const networkRows = [
+      networkRow?.['destinationLabel'] ??
+      networkRow?.['destinationDomain'] ??
+      activityEndpointLabel(networkRow?.['destinationEndpoint']);
+    const counters = activityRecord(networkRow?.['counters']);
+    const networkRows: ActivityManageDetailRow[] = [
       ...gateRows,
       { label: 'Destination', value: activityStateValue(endpoint), tone: 'purple' },
-      { label: 'Process', value: activityStateValue(networkRow?.processName), tone: 'cyan' },
-      { label: 'Read model state', value: activityStateValue(networkRow?.state ?? network?.state), tone: 'gold' },
+      { label: 'Process', value: activityStateValue(networkRow?.['processName']), tone: 'cyan' },
       {
-        label: 'Connections',
-        value: activityStateValue(networkRow?.connectionCount ?? counters?.connectionCount),
+        label: 'Read model state',
+        value: activityStateValue(networkRow?.['state'] ?? network?.['state']),
         tone: 'gold',
       },
-      { label: 'Total bytes', value: activityFormatBytes(networkRow?.totalBytes), tone: 'cyan' },
-      { label: 'Received', value: activityFormatBytes(counters?.bytesReceived), tone: 'cyan' },
-      { label: 'Sent', value: activityFormatBytes(counters?.bytesSent), tone: 'gold' },
-      { label: 'Summary', value: activityStateValue(network?.summary ?? networkFlow?.custody), tone: 'purple' },
+      {
+        label: 'Connections',
+        value: activityStateValue(networkRow?.['connectionCount'] ?? counters?.['connectionCount']),
+        tone: 'gold',
+      },
+      { label: 'Total bytes', value: activityFormatBytes(networkRow?.['totalBytes']), tone: 'cyan' },
+      { label: 'Received', value: activityFormatBytes(counters?.['bytesReceived']), tone: 'cyan' },
+      { label: 'Sent', value: activityFormatBytes(counters?.['bytesSent']), tone: 'gold' },
+      { label: 'Summary', value: activityStateValue(network?.['summary'] ?? networkFlow?.['custody']), tone: 'purple' },
     ];
     const lanRows = activityLanDiagnosticsRows(lanAddDeviceReadModel, scopeValue, selectedDevice, []);
     return lanRows ? [...networkRows, ...lanRows] : networkRows;
@@ -5785,9 +5802,9 @@ function activityRowsFromReadModels(
 
   return [
     { label: 'Target', value: targetLabel, tone: 'cyan' },
-    { label: 'Recent subject', value: activityStateValue(recent?.mostRecentSubjectName), tone: 'gold' },
-    { label: 'Ingested', value: activityStateValue(ingest?.eventsIngested), tone: 'purple' },
-    { label: 'Stored', value: activityStateValue(ingest?.eventsStored), tone: 'cyan' },
+    { label: 'Recent subject', value: activityStateValue(recent?.['mostRecentSubjectName']), tone: 'gold' },
+    { label: 'Ingested', value: activityStateValue(ingest?.['eventsIngested']), tone: 'purple' },
+    { label: 'Stored', value: activityStateValue(ingest?.['eventsStored']), tone: 'cyan' },
   ];
 }
 
@@ -9251,9 +9268,24 @@ const POLICY_FIRST_PASS_AREA_PROOF = {
   ],
 } as const satisfies Record<string, readonly BrowserRulesChoiceOption[]>;
 
+type PolicyFirstPassTargetArea = keyof typeof POLICY_FIRST_PASS_AREA_TARGETS;
+type PolicyFirstPassProofArea = keyof typeof POLICY_FIRST_PASS_AREA_PROOF;
+
+function isPolicyFirstPassTargetArea(area: string): area is PolicyFirstPassTargetArea {
+  return Object.prototype.hasOwnProperty.call(POLICY_FIRST_PASS_AREA_TARGETS, area);
+}
+
+function isPolicyFirstPassProofArea(area: string): area is PolicyFirstPassProofArea {
+  return Object.prototype.hasOwnProperty.call(POLICY_FIRST_PASS_AREA_PROOF, area);
+}
+
 function policyFirstPassRuleQuestions(area: string): readonly PolicyFirstPassRuleQuestionDefinition[] {
-  const targets = POLICY_FIRST_PASS_AREA_TARGETS[area] ?? POLICY_FIRST_PASS_AREA_TARGETS.Network;
-  const proof = POLICY_FIRST_PASS_AREA_PROOF[area] ?? POLICY_FIRST_PASS_AREA_PROOF.Network;
+  const targets = isPolicyFirstPassTargetArea(area)
+    ? POLICY_FIRST_PASS_AREA_TARGETS[area]
+    : POLICY_FIRST_PASS_AREA_TARGETS.Network;
+  const proof = isPolicyFirstPassProofArea(area)
+    ? POLICY_FIRST_PASS_AREA_PROOF[area]
+    : POLICY_FIRST_PASS_AREA_PROOF.Network;
   const areaName = area.toLowerCase();
   return [
     {
@@ -9317,10 +9349,10 @@ function PolicyRulesGridGuide({
         y={y}
         w={w}
         h={h}
-        disabled={disabled}
+        {...(disabled === undefined ? {} : { disabled })}
         enforcementChoice={enforcementChoice}
         onEnforcementChange={onEnforcementChange}
-        onInfoClick={onInfoClick}
+        {...(onInfoClick === undefined ? {} : { onInfoClick })}
       />
     );
   }
@@ -9332,10 +9364,10 @@ function PolicyRulesGridGuide({
       y={y}
       w={w}
       h={h}
-      disabled={disabled}
+      {...(disabled === undefined ? {} : { disabled })}
       enforcementChoice={enforcementChoice}
       onEnforcementChange={onEnforcementChange}
-      onInfoClick={onInfoClick}
+      {...(onInfoClick === undefined ? {} : { onInfoClick })}
     />
   );
 }
@@ -9427,11 +9459,11 @@ function GenericPolicyRulesGridGuide({
 
   return (
     <foreignObject x={x} y={y} width={w} height={h}>
-      <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: w, height: h }}>
+      <div style={{ width: w, height: h }}>
         <BrowserRulesQuestionnaire
           availableWidth={w}
-          disabled={disabled}
-          onInfoClick={onInfoClick}
+          {...(disabled === undefined ? {} : { disabled })}
+          {...(onInfoClick === undefined ? {} : { onInfoClick })}
           questions={questions}
         />
       </div>
@@ -9524,11 +9556,11 @@ function BrowserRulesGridGuide({
 
   return (
     <foreignObject x={x} y={y} width={w} height={h}>
-      <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: w, height: h }}>
+      <div style={{ width: w, height: h }}>
         <BrowserRulesQuestionnaire
           availableWidth={w}
-          disabled={disabled}
-          onInfoClick={onInfoClick}
+          {...(disabled === undefined ? {} : { disabled })}
+          {...(onInfoClick === undefined ? {} : { onInfoClick })}
           questions={questions}
         />
       </div>
@@ -9640,12 +9672,18 @@ const BROWSER_POLICY_MATRIX_COLORS = {
   block: '#ff5e68',
 } as const;
 
+type PolicyMatrixArea = keyof typeof POLICY_APPROVAL_ROWS_BY_AREA;
+
+function isPolicyMatrixArea(area: string): area is PolicyMatrixArea {
+  return Object.prototype.hasOwnProperty.call(POLICY_APPROVAL_ROWS_BY_AREA, area);
+}
+
 function policyApprovalRowsForArea(area: string) {
-  return POLICY_APPROVAL_ROWS_BY_AREA[area] ?? BROWSER_POLICY_APPROVAL_ROWS;
+  return isPolicyMatrixArea(area) ? POLICY_APPROVAL_ROWS_BY_AREA[area] : BROWSER_POLICY_APPROVAL_ROWS;
 }
 
 function policyBudgetRowsForArea(area: string) {
-  return POLICY_BUDGET_ROWS_BY_AREA[area] ?? BROWSER_POLICY_BUDGET_ROWS;
+  return isPolicyMatrixArea(area) ? POLICY_BUDGET_ROWS_BY_AREA[area] : BROWSER_POLICY_BUDGET_ROWS;
 }
 
 function policyAuditRowsForArea(area: string) {
@@ -9692,7 +9730,7 @@ function BrowserPolicyTabMatrixSurface({
   if (tabId === 'schedule') {
     return (
       <foreignObject x={x} y={y} width={w} height={h}>
-        <div xmlns="http://www.w3.org/1999/xhtml" style={{ height: h, overflow: 'hidden', width: w }}>
+        <div style={{ height: h, overflow: 'hidden', width: w }}>
           <WeeklySchedulerScratchPage embedded policyArea={weeklySchedulerPolicyAreaForLabel(policyAreaLabel)} />
         </div>
       </foreignObject>
@@ -9706,7 +9744,7 @@ function BrowserPolicyTabMatrixSurface({
         y={y}
         w={w}
         h={h}
-        disabled={disabled}
+        {...(disabled === undefined ? {} : { disabled })}
         cfg={cfg}
       />
     );
@@ -9719,13 +9757,21 @@ function BrowserPolicyTabMatrixSurface({
         y={y}
         w={w}
         h={h}
-        disabled={disabled}
+        {...(disabled === undefined ? {} : { disabled })}
         cfg={cfg}
       />
     );
   }
   return (
-    <BrowserPolicyAuditMatrix policyAreaLabel={policyAreaLabel} x={x} y={y} w={w} h={h} disabled={disabled} cfg={cfg} />
+    <BrowserPolicyAuditMatrix
+      policyAreaLabel={policyAreaLabel}
+      x={x}
+      y={y}
+      w={w}
+      h={h}
+      {...(disabled === undefined ? {} : { disabled })}
+      cfg={cfg}
+    />
   );
 }
 
@@ -9824,7 +9870,7 @@ function BrowserPolicyBudgetMatrix({
       h={h}
       title={`${policyAreaLabel}: budgets and caps`}
       subtitle="Limit means minutes here; schedules only choose when those caps run"
-      disabled={disabled}
+      {...(disabled === undefined ? {} : { disabled })}
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
@@ -9836,49 +9882,61 @@ function BrowserPolicyBudgetMatrix({
           stroke={cfg.colors.panelStroke}
         />
         <g transform={`translate(8, ${guideY - 18})`}>
-          {[
-            ['Family default', 'applies first', cfg.colors.cyan],
-            ['Device override', 'grey until enabled', cfg.colors.gold],
-            ['Schedule', 'gates active time', BROWSER_POLICY_MATRIX_COLORS.ask],
-          ].map((item, index) => {
+          {(
+            [
+              ['Family default', 'applies first', cfg.colors.cyan],
+              ['Device override', 'grey until enabled', cfg.colors.gold],
+              ['Schedule', 'gates active time', BROWSER_POLICY_MATRIX_COLORS.ask],
+            ] satisfies readonly (readonly [string, string, string])[]
+          ).map((item, index) => {
             const pillW = compact ? (tableW - 28) / 3 : 172;
             const pillX = index * (pillW + 8);
+            const label = item[0];
+            const detail = item[1];
+            const color = item[2];
             return (
-              <g key={`browser-policy-budget-guide:${item[0]}`} transform={`translate(${pillX}, 0)`}>
+              <g key={`browser-policy-budget-guide:${label}`} transform={`translate(${pillX}, 0)`}>
                 <rect
                   width={pillW}
                   height={26}
                   rx={4}
                   fill="rgba(5, 27, 46, 0.64)"
-                  stroke={item[2]}
+                  stroke={color}
                   strokeWidth={0.72}
                   opacity={0.95}
                 />
-                <circle cx={11} cy={13} r={3.2} fill={item[2]} />
+                <circle cx={11} cy={13} r={3.2} fill={color} />
                 <text x={21} y={11} fontSize={8.9} fontWeight={950} fill={cfg.colors.bodyText}>
-                  {truncateTextForWidth(item[0], pillW - 30, 8.9, 0.58)}
+                  {truncateTextForWidth(label, pillW - 30, 8.9, 0.58)}
                 </text>
                 <text x={21} y={21} fontSize={7.8} fontWeight={760} fill={cfg.colors.mutedText}>
-                  {truncateTextForWidth(item[1], pillW - 30, 7.8, 0.58)}
+                  {truncateTextForWidth(detail, pillW - 30, 7.8, 0.58)}
                 </text>
               </g>
             );
           })}
         </g>
         <g transform={`translate(8, ${rowsY - 23})`}>
-          {visibleColumns.map((column, index) => (
-            <text
-              key={`browser-policy-budget-column:${column}`}
-              x={columnStarts[index] + (index === 0 ? 8 : columnWidths[index] / 2)}
-              y={13}
-              textAnchor={index === 0 ? 'start' : 'middle'}
-              fontSize={9.8}
-              fontWeight={950}
-              fill={cfg.colors.gold}
-            >
-              {column}
-            </text>
-          ))}
+          {visibleColumns.map((column, index) =>
+            (() => {
+              const columnStart = columnStarts[index];
+              const columnWidth = columnWidths[index];
+              if (columnStart === undefined || columnWidth === undefined) return null;
+              return (
+                <text
+                  key={`browser-policy-budget-column:${column}`}
+                  x={columnStart + (index === 0 ? 8 : columnWidth / 2)}
+                  y={13}
+                  textAnchor={index === 0 ? 'start' : 'middle'}
+                  fontSize={9.8}
+                  fontWeight={950}
+                  fill={cfg.colors.gold}
+                >
+                  {column}
+                </text>
+              );
+            })()
+          )}
         </g>
         <g transform={`translate(8, ${rowsY})`}>
           {rows.map((row, rowIndex) => {
@@ -9912,8 +9970,11 @@ function BrowserPolicyBudgetMatrix({
                   opacity={0.7}
                 />
                 {row.slice(0, visibleColumns.length).map((value, index) => {
-                  const cellX = columnStarts[index] + 8;
-                  const cellW = columnWidths[index] - 16;
+                  const columnStart = columnStarts[index];
+                  const columnWidth = columnWidths[index];
+                  if (columnStart === undefined || columnWidth === undefined || value === undefined) return null;
+                  const cellX = columnStart + 8;
+                  const cellW = columnWidth - 16;
                   const fill =
                     index === 0
                       ? cfg.colors.bodyText
@@ -9980,7 +10041,7 @@ function BrowserPolicyApprovalsMatrix({
       h={h}
       title={`${policyAreaLabel}: request matrix`}
       subtitle="What can ask, who is notified, and what happens if parent is quiet"
-      disabled={disabled}
+      {...(disabled === undefined ? {} : { disabled })}
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
@@ -10082,7 +10143,7 @@ function BrowserPolicyAuditMatrix({
       h={h}
       title={`${policyAreaLabel}: effective-policy checkpoint`}
       subtitle="Conflicts, inheritance, budgets, approvals, and capability state before apply"
-      disabled={disabled}
+      {...(disabled === undefined ? {} : { disabled })}
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
@@ -10352,14 +10413,14 @@ function ManageWorkspacePanel({
       {targetSurfaceEnabled ? (
         <>
           <foreignObject x={workspaceTopX} y={workspaceTopY} width={workspaceAvailableW} height={workspaceSelectorH}>
-            <div xmlns="http://www.w3.org/1999/xhtml" style={workspaceGridHostStyle}>
+            <div style={workspaceGridHostStyle}>
               <DeviceChoiceGrid
                 scope={
                   workspaceTargetKey === 'perDevice' ? 'parent' : workspaceTargetKey === 'portal' ? 'portal' : 'lan'
                 }
                 value={workspaceSelectedValue}
-                options={workspaceSlots}
-                portalDeviceIds={workspacePortalIds}
+                options={[...workspaceSlots]}
+                portalDeviceIds={[...workspacePortalIds]}
                 rows={workspaceGridRows}
                 columns={workspaceGridColumns}
                 parentRows={workspaceGridRows}
@@ -10592,11 +10653,11 @@ function ManageWorkspacePanel({
       {kind === 'policy' && !policyCustomSurfaceMode ? (
         <g>
           <foreignObject x={workspaceBodyX + 22} y={policyChoiceBarY} width={policyChoiceW} height={66}>
-            <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: policyChoiceW, height: 66 }}>
+            <div style={{ width: policyChoiceW, height: 66 }}>
               <ScopeToggle
                 title={managePolicyPrimaryChoiceTitle(activeTabKey)}
                 value={policyPrimaryChoice}
-                options={policyPrimaryOptions}
+                options={[...policyPrimaryOptions]}
                 disabled={policyChoiceDisabled}
                 onChange={(nextValue) => setPolicyPrimaryChoice(nextValue)}
                 config={activityScopeToggleConfig(policyChoiceW)}
@@ -10604,11 +10665,11 @@ function ManageWorkspacePanel({
             </div>
           </foreignObject>
           <foreignObject x={policySecondaryX} y={policySecondaryY} width={policyChoiceW} height={66}>
-            <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: policyChoiceW, height: 66 }}>
+            <div style={{ width: policyChoiceW, height: 66 }}>
               <ScopeToggle
                 title={managePolicySecondaryChoiceTitle(activeTabKey)}
                 value={policySecondaryChoice}
-                options={policySecondaryOptions}
+                options={[...policySecondaryOptions]}
                 disabled={policyChoiceDisabled}
                 onChange={(nextValue) => setPolicySecondaryChoice(nextValue)}
                 config={activityScopeToggleConfig(policyChoiceW)}
@@ -10644,6 +10705,18 @@ function ManageWorkspacePanel({
           w={workspaceBodyW - 56}
           h={Math.max(260, bodyY + bodyH - cardsTop - 18)}
           cfg={cfg}
+          workspaceTarget={workspaceTarget}
+          disabled={policyChoiceDisabled}
+          decisionChoice={policyPrimaryChoice}
+          enforcementChoice={browserRulesEnforcementChoice}
+          onDecisionChange={setPolicyPrimaryChoice}
+          onEnforcementChange={setBrowserRulesEnforcementChoice}
+          {...(onNavigate
+            ? {
+                onInfoClick: () =>
+                  onNavigate(guideRoutePathForManageTab(activeNavLabel, selectedControlName, activeTabKey)),
+              }
+            : {})}
         />
       ) : policyRulesChoiceMode ? (
         <PolicyRulesGridGuide
@@ -10957,7 +11030,7 @@ function ManageTargetPanel({
                 label={choice}
                 selected={targetSelection.device === choice}
                 tone={index === 1 ? 'gold' : index === 2 ? 'purple' : 'cyan'}
-                themeColor={themeColor}
+                {...(themeColor === undefined ? {} : { themeColor })}
                 onSelect={() => {
                   const selectedSlot = runtimeDeviceSlots?.find(
                     (slot) => slot.label === choice || slot.device?.name === choice
@@ -10999,7 +11072,7 @@ function ManageTargetPanel({
               label={choice.label}
               selected={targetSelection.browser === choice.label}
               tone={choice.tone}
-              themeColor={themeColor}
+              {...(themeColor === undefined ? {} : { themeColor })}
               onSelect={() => onTargetChange({ ...targetSelection, browser: choice.label })}
               cfg={cfg}
             />
@@ -11063,7 +11136,7 @@ function ManageControlPanel({
   const [activityReportFrequency, setActivityReportFrequency] = useState('daily');
   const [activityReportOverrideMode, setActivityReportOverrideMode] = useState('family-defaults');
   const [activityReportSelectedFileId, setActivityReportSelectedFileId] = useState<string | null>(null);
-  const [activityReportDraft, setActivityReportDraft] = useState(null);
+  const [activityReportDraft, setActivityReportDraft] = useState<ParentPortalActivityReportView | null>(null);
   const [manageWorkspaceActiveTab, setManageWorkspaceActiveTab] = useState('');
   const specKey = `${lane}:${spec.title}:${spec.options.map((option) => option.label).join('|')}`;
   useEffect(() => {
@@ -11231,7 +11304,9 @@ function ManageControlPanel({
     setLanPairingActiveTab(lanPairingDetailTabs[0]?.id ?? 'info');
   }, [lanPairingActiveTab, lanPairingDetailTabs]);
   const lanPairingDetailTab =
-    lanPairingDetailTabs.find((tab) => tab.id === lanPairingActiveTab) ?? lanPairingDetailTabs[0];
+    lanPairingDetailTabs.find((tab) => tab.id === lanPairingActiveTab) ??
+    lanPairingDetailTabs[0] ??
+    LAN_PAIRING_DETAIL_TABS[0];
   const lanPairingDetailColor = toneColor(lanPairingDetailTab.tone, cfg);
   const lanPairingDetailY = lanPairingDividerY + 16;
   const lanPairingDetailH = Math.max(1, y + h - lanPairingDetailY - 8);
@@ -11502,11 +11577,11 @@ function ManageControlPanel({
       {isLanPairingPanel ? (
         <>
           <foreignObject x={lanPairingGridX} y={lanPairingGridY} width={lanPairingGridW} height={lanPairingGridH}>
-            <div xmlns="http://www.w3.org/1999/xhtml" style={lanPairingGridHostStyle}>
+            <div style={lanPairingGridHostStyle}>
               <DeviceChoiceGrid
                 defaultScope="lan"
-                defaultPortalDeviceIds={lanPairingPortalIds}
-                options={lanPairingSlots}
+                defaultPortalDeviceIds={[...lanPairingPortalIds]}
+                options={[...lanPairingSlots]}
                 parentRows={1}
                 parentColumns={LAN_PAIRING_BASIC_PORTAL_SLOT_LIMIT}
                 onChange={(choice) => {
@@ -11929,18 +12004,18 @@ function ManageControlPanel({
           w={w}
           h={h}
           dashboard={appGameDashboard}
-          themeColor={themeColor}
+          {...(themeColor === undefined ? {} : { themeColor })}
           cfg={cfg}
         />
       ) : isReportsPanel ? (
         <>
           <foreignObject x={reportTopX} y={reportSelectorY} width={reportAvailableW} height={reportSelectorH}>
-            <div xmlns="http://www.w3.org/1999/xhtml" style={reportGridHostStyle}>
+            <div style={reportGridHostStyle}>
               <DeviceChoiceGrid
                 scope={reportScopeValue === 'device' ? 'parent' : 'lan'}
                 value={reportSelectedValue}
-                options={reportSlots}
-                portalDeviceIds={reportPortalIds}
+                options={[...reportSlots]}
+                portalDeviceIds={[...reportPortalIds]}
                 rows={reportGridRows}
                 columns={reportGridColumns}
                 parentRows={reportGridRows}
@@ -12026,7 +12101,7 @@ function ManageControlPanel({
                     width={activityReportSplitToggleW}
                     height={66}
                   >
-                    <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: activityReportSplitToggleW, height: 66 }}>
+                    <div style={{ width: activityReportSplitToggleW, height: 66 }}>
                       <ScopeToggle
                         title="Report"
                         value={activityReportOverrideMode}
@@ -12049,10 +12124,7 @@ function ManageControlPanel({
                   width={activityReportFrequencyToggleW}
                   height={66}
                 >
-                  <div
-                    xmlns="http://www.w3.org/1999/xhtml"
-                    style={{ width: activityReportFrequencyToggleW, height: 66 }}
-                  >
+                  <div style={{ width: activityReportFrequencyToggleW, height: 66 }}>
                     <ScopeToggle
                       title="Frequency"
                       value={activityReportFrequency}
@@ -12611,13 +12683,13 @@ function ManageControlPanel({
             setLastAction(`${tabId} tab`);
             setSyncStatus('Workspace tab changed');
           }}
-          onNavigate={onNavigate}
+          {...(onNavigate === undefined ? {} : { onNavigate })}
           activeNavLabel={activeNavLabel}
           selectedControlName={selectedControlName}
           runtimeDeviceSlots={runtimeDeviceSlots}
           sharedTargetSelection={targetSelection}
-          onSharedTargetChange={onTargetChange}
-          activityState={activityState}
+          {...(onTargetChange === undefined ? {} : { onSharedTargetChange: onTargetChange })}
+          {...(activityState === undefined ? {} : { activityState })}
           cfg={cfg}
         />
       ) : (
@@ -12626,7 +12698,15 @@ function ManageControlPanel({
             {truncateTextForWidth(panelTitle, w - 40, titleSize, 0.58)}
           </text>
           <path d={`M ${x} ${y + 39} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.55} />
-          <SurfacePanel x={x} y={controlY} w={leftW} h={editorH} tone={themeTone} accentColor={themeColor} cfg={cfg}>
+          <SurfacePanel
+            x={x}
+            y={controlY}
+            w={leftW}
+            h={editorH}
+            tone={themeTone}
+            {...(themeColor === undefined ? {} : { accentColor: themeColor })}
+            cfg={cfg}
+          >
             <text x={x + 18} y={controlY + 28} fontSize={10} fontWeight={950} fill={activeModeColor}>
               {isDeviceOpsLane ? 'COMMAND MODE' : 'SETTING MODE'}
             </text>
@@ -12639,7 +12719,7 @@ function ManageControlPanel({
                 h={36}
                 item={item}
                 selected={mode === item.label}
-                themeColor={themeColor}
+                {...(themeColor === undefined ? {} : { themeColor })}
                 onSelect={() => {
                   setMode(item.label);
                   setLastAction(`${item.label} selected`);
@@ -12667,7 +12747,7 @@ function ManageControlPanel({
                   option={controlOption}
                   selected={enabled.has(option.label)}
                   disabled={!controlsActive}
-                  themeColor={themeColor}
+                  {...(themeColor === undefined ? {} : { themeColor })}
                   onToggle={() => {
                     if (!controlsActive) return;
                     setEnabled((current) => {
@@ -12701,7 +12781,7 @@ function ManageControlPanel({
                       label={item.label}
                       selected={schedule === item.label}
                       tone={item.tone}
-                      themeColor={themeColor}
+                      {...(themeColor === undefined ? {} : { themeColor })}
                       onSelect={() => {
                         if (!controlsActive) return;
                         setSchedule(item.label);
@@ -12722,7 +12802,7 @@ function ManageControlPanel({
             w={rightW}
             h={actionH}
             tone={themeTone}
-            accentColor={themeColor}
+            {...(themeColor === undefined ? {} : { accentColor: themeColor })}
             cfg={cfg}
           >
             <text x={actionX + 18} y={actionY + 27} fontSize={10} fontWeight={950} fill={color}>
@@ -12734,7 +12814,7 @@ function ManageControlPanel({
               w={rightW - 36}
               h={38}
               action={{ label: 'Validate Draft', detail: '', tone: 'cyan' }}
-              themeColor={themeColor}
+              {...(themeColor === undefined ? {} : { themeColor })}
               onSelect={() => {
                 setLastAction('Draft validated');
                 setSyncStatus('Validated locally');
@@ -12747,7 +12827,7 @@ function ManageControlPanel({
               w={rightW - 36}
               h={38}
               action={{ label: applyLabel, detail: '', tone: 'gold' }}
-              themeColor={themeColor}
+              {...(themeColor === undefined ? {} : { themeColor })}
               onSelect={() => {
                 setLastAction(applyLabel);
                 setSyncStatus(isPortalLane ? 'Saved in portal draft' : `Pending sync to ${targetLabel}`);
@@ -12760,7 +12840,7 @@ function ManageControlPanel({
               w={rightW - 36}
               h={38}
               action={{ label: 'Revert', detail: '', tone: 'red' }}
-              themeColor={themeColor}
+              {...(themeColor === undefined ? {} : { themeColor })}
               onSelect={() => {
                 setEnabled(new Set(spec.options.filter((option) => option.enabled).map((option) => option.label)));
                 setMode(spec.modes[0]?.label ?? '');
@@ -12783,7 +12863,7 @@ function ManageControlPanel({
                     w={rightW - 36}
                     h={34}
                     action={{ ...action, detail: '' }}
-                    themeColor={themeColor}
+                    {...(themeColor === undefined ? {} : { themeColor })}
                     onSelect={() => {
                       setLastAction(action.label);
                       setSyncStatus(
@@ -12955,7 +13035,7 @@ function AssistantModeBoard({
   const messageScrollRailEndY = Math.max(chatY + 54, followUpPanelH > 0 ? followUpY - 20 : chatY + chatH - 22);
   const messageScrollThumbEndY = Math.min(messageScrollRailEndY, chatY + 118);
   const messageLayouts = messages.map((message) => {
-    const variant = message.sender === 'user' ? 'outgoing' : 'incoming';
+    const variant: 'incoming' | 'outgoing' = message.sender === 'user' ? 'outgoing' : 'incoming';
     const config =
       variant === 'outgoing' ? ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG : ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG;
     const collapsed = Boolean(collapsedMessages[message.id]);
@@ -12982,7 +13062,7 @@ function AssistantModeBoard({
     nextMessageY += layout.bubbleH + messageGap;
     return { ...layout, y: bubbleY };
   });
-  const updateComposerSplitFromPointer = (event) => {
+  const updateComposerSplitFromPointer = (event: PointerEvent<SVGGElement>) => {
     const svg = event.currentTarget.ownerSVGElement;
     const rect = svg?.getBoundingClientRect();
     if (!rect || rect.height <= 0) return;
@@ -12990,7 +13070,7 @@ function AssistantModeBoard({
     const nextBottomReserve = y + h - svgY;
     setComposerSplitOffset(clampNumber(nextBottomReserve, minBottomReserve, maxBottomReserve) - defaultBottomReserve);
   };
-  const updateQuestionnaireSplitFromPointer = (event) => {
+  const updateQuestionnaireSplitFromPointer = (event: PointerEvent<SVGGElement>) => {
     const svg = event.currentTarget.ownerSVGElement;
     const rect = svg?.getBoundingClientRect();
     if (!rect || rect.height <= 0 || questionnaire.options.length === 0) return;
@@ -13137,11 +13217,11 @@ function AssistantModeBoard({
               collapsed={collapsed}
               onCollapsedChange={() => toggleCollapsed(message.id)}
               onCopy={() => copyMessageText(message.text)}
-              choices={choices}
-              choiceActionLabel={message.choiceActionLabel}
-              onChoiceSelect={
-                message.action ? (choice) => selectMainChoice(choice, message.action ?? currentAction) : undefined
-              }
+              {...(choices === undefined ? {} : { choices })}
+              {...(message.choiceActionLabel === undefined ? {} : { choiceActionLabel: message.choiceActionLabel })}
+              {...(message.action === undefined || message.action === null
+                ? {}
+                : { onChoiceSelect: (choice: AssistantQuickChoice) => selectMainChoice(choice, message.action) })}
             />
           ))}
         </g>
@@ -13241,7 +13321,149 @@ function AssistantModeBoard({
   );
 }
 
-function AssistantChatFrame({ x, y, w, h, underlineX, underlineW, children, cfg }) {
+type AssistantChatFrameProps = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  underlineX: number;
+  underlineW: number;
+  children: ReactNode;
+  cfg: ParentPortalSvgControls;
+};
+
+type AssistantHeaderDividerProps = {
+  x: number;
+  y: number;
+  w: number;
+  underlineX: number;
+  underlineW: number;
+  cfg: ParentPortalSvgControls;
+};
+
+type AssistantCloseButtonProps = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  ariaLabel: string;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+};
+
+type AssistantChatBubbleConfig =
+  | typeof ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG
+  | typeof ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG;
+
+type AssistantChatBubbleProps = {
+  id: string;
+  x: number;
+  y: number;
+  w: number;
+  senderLabel: string;
+  text: string;
+  variant: 'incoming' | 'outgoing';
+  collapsed?: boolean;
+  onCollapsedChange: () => void;
+  onCopy: () => void;
+  choices?: readonly AssistantQuickChoice[];
+  choiceActionLabel?: string;
+  onChoiceSelect?: (choice: AssistantQuickChoice) => void;
+};
+
+type AssistantChatBubbleBodyProps = {
+  text: string;
+  choices?: readonly AssistantQuickChoice[];
+  choiceColumnCount: number;
+  choiceActionLabel?: string;
+  onChoiceSelect?: (choice: AssistantQuickChoice) => void;
+};
+
+type AssistantFollowUpPanelProps = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  question: string;
+  options: readonly AssistantQuestionnaireOption[];
+  onSelect: (option: AssistantQuestionnaireOption) => void;
+  cfg: ParentPortalSvgControls;
+};
+
+type AssistantComposerSplitterProps = {
+  x: number;
+  y: number;
+  w: number;
+  dragging: boolean;
+  ariaLabel: string;
+  onPointerDown: (event: PointerEvent<SVGGElement>) => void;
+  onPointerMove: (event: PointerEvent<SVGGElement>) => void;
+  onPointerUp: (event: PointerEvent<SVGGElement>) => void;
+  onPointerCancel: (event: PointerEvent<SVGGElement>) => void;
+  cfg: ParentPortalSvgControls;
+};
+
+type AssistantComposerProps = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  prompt: string;
+  onPromptChange: (value: string) => void;
+  onSend: () => void;
+  cfg: ParentPortalSvgControls;
+};
+
+type ManagePillProps = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  selected: boolean;
+  tone: Tone;
+  themeColor?: string;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+};
+
+type ManageModeButtonProps = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  item: ManageControlAction;
+  selected: boolean;
+  themeColor?: string;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+};
+
+type ManageToggleProps = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  option: ManageControlOption;
+  selected: boolean;
+  disabled?: boolean;
+  themeColor?: string;
+  onToggle: () => void;
+  cfg: ParentPortalSvgControls;
+};
+
+type ManageActionButtonProps = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  action: ManageControlAction;
+  themeColor?: string;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+};
+
+function AssistantChatFrame({ x, y, w, h, underlineX, underlineW, children, cfg }: AssistantChatFrameProps) {
   const headerH = 62;
   return (
     <g>
@@ -13267,7 +13489,7 @@ function AssistantChatFrame({ x, y, w, h, underlineX, underlineW, children, cfg 
   );
 }
 
-function AssistantHeaderDivider({ x, y, w, underlineX, underlineW, cfg }) {
+function AssistantHeaderDivider({ x, y, w, underlineX, underlineW, cfg }: AssistantHeaderDividerProps) {
   const handleW = clampNumber(underlineW, 112, 186);
   const handleX = clampNumber(underlineX, x + 36, x + w - 36 - handleW);
   const lineStart = x + 36;
@@ -13304,7 +13526,7 @@ function AssistantHeaderDivider({ x, y, w, underlineX, underlineW, cfg }) {
   );
 }
 
-function AssistantCloseButton({ x, y, w, h, ariaLabel, onSelect, cfg }) {
+function AssistantCloseButton({ x, y, w, h, ariaLabel, onSelect, cfg }: AssistantCloseButtonProps) {
   const [hovered, setHovered] = useState(false);
   const color = hovered ? cfg.colors.red : cfg.colors.cyan;
   return (
@@ -13344,7 +13566,13 @@ function AssistantCloseButton({ x, y, w, h, ariaLabel, onSelect, cfg }) {
   );
 }
 
-function assistantChatBubbleHeight(w, text, collapsed, config, extraExpandedHeight = 0) {
+function assistantChatBubbleHeight(
+  w: number,
+  text: string,
+  collapsed: boolean,
+  config: AssistantChatBubbleConfig,
+  extraExpandedHeight = 0
+) {
   return estimateChatBubbleHeight({ width: w, text, collapsed, config }) + (collapsed ? 0 : extraExpandedHeight);
 }
 
@@ -13376,6 +13604,7 @@ function assistantSmartBubbleWidth({
 }
 
 function AssistantChatBubble({
+  id,
   x,
   y,
   w,
@@ -13388,7 +13617,7 @@ function AssistantChatBubble({
   choices,
   choiceActionLabel,
   onChoiceSelect,
-}) {
+}: AssistantChatBubbleProps) {
   const config = variant === 'outgoing' ? ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG : ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG;
   const choicesExtra = choices?.length ? assistantBubbleChoiceBodyHeight(w, choices.length) : 0;
   const choiceColumnCount = choices?.length ? assistantBubbleChoiceColumnCount(w) : 1;
@@ -13396,6 +13625,7 @@ function AssistantChatBubble({
   const inset = 10;
   return (
     <foreignObject
+      id={id}
       x={x - inset}
       y={y - inset}
       width={w + inset * 2}
@@ -13403,7 +13633,6 @@ function AssistantChatBubble({
       style={{ overflow: 'visible' }}
     >
       <div
-        xmlns="http://www.w3.org/1999/xhtml"
         style={{
           width: w + inset * 2,
           height: bubbleH + inset * 2,
@@ -13427,10 +13656,10 @@ function AssistantChatBubble({
             body={
               <AssistantChatBubbleBody
                 text={text}
-                choices={choices}
                 choiceColumnCount={choiceColumnCount}
-                choiceActionLabel={choiceActionLabel}
-                onChoiceSelect={onChoiceSelect}
+                {...(choices === undefined ? {} : { choices })}
+                {...(choiceActionLabel === undefined ? {} : { choiceActionLabel })}
+                {...(onChoiceSelect === undefined ? {} : { onChoiceSelect })}
               />
             }
           />
@@ -13440,7 +13669,13 @@ function AssistantChatBubble({
   );
 }
 
-function AssistantChatBubbleBody({ text, choices, choiceColumnCount, choiceActionLabel, onChoiceSelect }) {
+function AssistantChatBubbleBody({
+  text,
+  choices,
+  choiceColumnCount,
+  choiceActionLabel,
+  onChoiceSelect,
+}: AssistantChatBubbleBodyProps) {
   const choicesVisible = choices?.length && onChoiceSelect;
   return (
     <div
@@ -13562,7 +13797,7 @@ function assistantFollowUpPanelHeight(
   return Math.min(maxHeight, contentHeight);
 }
 
-function AssistantFollowUpPanel({ x, y, w, h, question, options, onSelect, cfg }) {
+function AssistantFollowUpPanel({ x, y, w, h, question, options, onSelect, cfg }: AssistantFollowUpPanelProps) {
   const layout = assistantFollowUpLayout(w - ASSISTANT_FOLLOW_UP_PAD_X * 2, options);
   const labelY = y + ASSISTANT_FOLLOW_UP_PAD_Y + 20;
   const listY = y + ASSISTANT_FOLLOW_UP_PAD_Y + ASSISTANT_FOLLOW_UP_HEADER_H;
@@ -13597,7 +13832,6 @@ function AssistantFollowUpPanel({ x, y, w, h, question, options, onSelect, cfg }
       />
       <foreignObject x={listX} y={listY} width={bodyW} height={bodyH}>
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             alignContent: 'flex-start',
             boxSizing: 'border-box',
@@ -13655,7 +13889,7 @@ function AssistantComposerSplitter({
   onPointerUp,
   onPointerCancel,
   cfg,
-}) {
+}: AssistantComposerSplitterProps) {
   const [hovered, setHovered] = useState(false);
   const handleW = Math.min(148, Math.max(78, w * 0.14));
   const handleX = x + w / 2 - handleW / 2;
@@ -13709,7 +13943,7 @@ function AssistantComposerSplitter({
   );
 }
 
-function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }) {
+function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }: AssistantComposerProps) {
   const displayPrompt = prompt || 'Ask MIA about activity, rules, reports, setup...';
   const attachSize = 30;
   const sendW = 58;
@@ -13751,7 +13985,6 @@ function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }) 
       </g>
       <foreignObject x={inputX} y={y + 9} width={inputW} height={Math.max(32, h - 18)}>
         <textarea
-          xmlns="http://www.w3.org/1999/xhtml"
           aria-label="Message MIA"
           value={prompt}
           placeholder={displayPrompt}
@@ -13872,7 +14105,7 @@ function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }) 
   );
 }
 
-function ManagePill({ x, y, w, h, label, selected, tone, themeColor, onSelect, cfg }) {
+function ManagePill({ x, y, w, h, label, selected, tone, themeColor, onSelect, cfg }: ManagePillProps) {
   const [hovered, setHovered] = useState(false);
   const color = themeColor ?? toneColor(tone, cfg);
   return (
@@ -13907,7 +14140,7 @@ function ManagePill({ x, y, w, h, label, selected, tone, themeColor, onSelect, c
   );
 }
 
-function ManageModeButton({ x, y, w, h, item, selected, themeColor, onSelect, cfg }) {
+function ManageModeButton({ x, y, w, h, item, selected, themeColor, onSelect, cfg }: ManageModeButtonProps) {
   const [hovered, setHovered] = useState(false);
   const color = themeColor ?? toneColor(item.tone, cfg);
   const titleText = item.detail ? `${item.label}: ${item.detail}` : item.label;
@@ -13936,7 +14169,18 @@ function ManageModeButton({ x, y, w, h, item, selected, themeColor, onSelect, cf
   );
 }
 
-function ManageToggle({ x, y, w, h, option, selected, disabled = false, themeColor, onToggle, cfg }) {
+function ManageToggle({
+  x,
+  y,
+  w,
+  h,
+  option,
+  selected,
+  disabled = false,
+  themeColor,
+  onToggle,
+  cfg,
+}: ManageToggleProps) {
   const [hovered, setHovered] = useState(false);
   const color = themeColor ?? toneColor(option.tone, cfg);
   return (
@@ -13983,7 +14227,7 @@ function ManageToggle({ x, y, w, h, option, selected, disabled = false, themeCol
   );
 }
 
-function ManageActionButton({ x, y, w, h, action, themeColor, onSelect, cfg }) {
+function ManageActionButton({ x, y, w, h, action, themeColor, onSelect, cfg }: ManageActionButtonProps) {
   const [hovered, setHovered] = useState(false);
   const color = themeColor ?? toneColor(action.tone, cfg);
   return (
@@ -14195,7 +14439,7 @@ function ParentPortalDetailPanel({
           quickPanelMode={quickPanelMode}
           onQuickPanelModeChange={onQuickPanelModeChange}
           onNoteSelect={onGuideNoteSelect}
-          themeColor={themeColor}
+          {...(themeColor === undefined ? {} : { themeColor })}
           cfg={cfg}
         />
         {showRouteStatus ? (
@@ -14206,7 +14450,7 @@ function ParentPortalDetailPanel({
             h={routeStatusH}
             rows={routeStatusRows}
             themeTone={guideTopic.tone}
-            themeColor={themeColor}
+            {...(themeColor === undefined ? {} : { themeColor })}
             cfg={cfg}
           />
         ) : null}
@@ -14237,19 +14481,20 @@ function ParentPortalDetailPanel({
           selectedControlName={selectedControlName}
           spec={manageSpec}
           themeTone={themeTone ?? detail.tone}
-          themeColor={themeColor}
+          {...(themeColor === undefined ? {} : { themeColor })}
           targetSelection={
             manageTargetSelection ?? {
               scope: manageInitialScopeForSpec(manageLaneForKey(activeNavLabel, selectedControlName), manageSpec),
               device: manageDefaultDeviceSelection(manageSpec),
+              deviceId: '',
               browser: manageBrowserTargetsForKey(activeNavLabel, selectedControlName)[0]?.label ?? 'All targets',
             }
           }
-          onTargetChange={onManageTargetChange}
-          activityState={activityState}
+          {...(onManageTargetChange === undefined ? {} : { onTargetChange: onManageTargetChange })}
+          {...(activityState === undefined ? {} : { activityState })}
           parentPortalRows={parentPortalRows}
-          onNavigate={onNavigate}
-          onAgentCommand={onAgentCommand}
+          {...(onNavigate === undefined ? {} : { onNavigate })}
+          {...(onAgentCommand === undefined ? {} : { onAgentCommand })}
           cfg={cfg}
         />
         {showRouteStatus ? (
@@ -14260,7 +14505,7 @@ function ParentPortalDetailPanel({
             h={routeStatusH}
             rows={routeStatusRows}
             themeTone={themeTone ?? detail.tone}
-            themeColor={themeColor}
+            {...(themeColor === undefined ? {} : { themeColor })}
             cfg={cfg}
           />
         ) : null}
@@ -14272,7 +14517,7 @@ function ParentPortalDetailPanel({
   const usableH = Math.max(120, h);
   const title = activeNavLabel || detail.title;
   const bodyLines = wrapCardText(detail.summary, w - 40, 12, 2);
-  const featureCards = [
+  const featureCards: ManageWorkspaceCard[] = [
     {
       label: 'WHAT PARENTS CONTROL',
       value: detail.primary,
@@ -14344,7 +14589,7 @@ function ParentPortalDetailPanel({
             w={cardW}
             h={cardH}
             tone={card.tone}
-            accentColor={themeColor}
+            {...(themeColor === undefined ? {} : { accentColor: themeColor })}
             cfg={cfg}
           >
             <text x={cardX + 16} y={cardY + 25} fontSize={9.8} fontWeight={900} fill={cardColor}>
@@ -14601,7 +14846,15 @@ function GuideTopicDetailPanel({
   const visibleNotes = quickNotes.slice(0, Math.max(1, Math.floor((sideH - noteHeaderH - 14) / (noteH + noteGap))));
   return (
     <g>
-      <SurfacePanel x={x} y={y} w={mainW} h={mainH} tone={topic.tone} accentColor={themeColor} cfg={cfg}>
+      <SurfacePanel
+        x={x}
+        y={y}
+        w={mainW}
+        h={mainH}
+        tone={topic.tone}
+        {...(themeColor === undefined ? {} : { accentColor: themeColor })}
+        cfg={cfg}
+      >
         <text x={x + 18} y={y + 28} fontSize={9.8} fontWeight={950} fill={color}>
           {currentPage.eyebrow}
         </text>
@@ -14714,7 +14967,15 @@ function GuideTopicDetailPanel({
           </g>
         ) : null}
       </SurfacePanel>
-      <SurfacePanel x={sideX} y={sideY} w={sideW} h={sideH} tone={topic.tone} accentColor={themeColor} cfg={cfg}>
+      <SurfacePanel
+        x={sideX}
+        y={sideY}
+        w={sideW}
+        h={sideH}
+        tone={topic.tone}
+        {...(themeColor === undefined ? {} : { accentColor: themeColor })}
+        cfg={cfg}
+      >
         <GuideQuickTab
           x={sideX + 14}
           y={sideY + 14}
@@ -14723,7 +14984,7 @@ function GuideTopicDetailPanel({
           label="QUICK READ"
           active={quickPanelMode === 'read'}
           tone={topic.tone}
-          themeColor={themeColor}
+          {...(themeColor === undefined ? {} : { themeColor })}
           onClick={() => onQuickPanelModeChange('read')}
           cfg={cfg}
         />
@@ -14735,7 +14996,7 @@ function GuideTopicDetailPanel({
           label="QUICK ACTION"
           active={quickPanelMode === 'action'}
           tone="gold"
-          themeColor={themeColor}
+          {...(themeColor === undefined ? {} : { themeColor })}
           onClick={() => onQuickPanelModeChange('action')}
           cfg={cfg}
         />
@@ -14754,7 +15015,7 @@ function GuideTopicDetailPanel({
             h={noteH}
             note={note}
             mode={quickPanelMode}
-            themeColor={themeColor}
+            {...(themeColor === undefined ? {} : { themeColor })}
             onSelect={onNoteSelect}
             cfg={cfg}
           />
@@ -15606,7 +15867,7 @@ function ParentPortalTopCarousel({
             h={h}
             selected={selected}
             onSelect={() => onSelect(item)}
-            onHoverChange={onHoverChange}
+            {...(onHoverChange === undefined ? {} : { onHoverChange })}
             cfg={cfg}
           />
         );
@@ -15791,7 +16052,7 @@ function ControlCategoryGrid({
             width={handleW}
             disabled={false}
             onClick={() => onPageChange(wrapIndex(page - 1, pageCount))}
-            accentColor={themeColor}
+            {...(themeColor === undefined ? {} : { accentColor: themeColor })}
             cfg={cfg}
           />
           <ParentPortalFrameSideHandle
@@ -15802,7 +16063,7 @@ function ControlCategoryGrid({
             width={handleW}
             disabled={false}
             onClick={() => onPageChange(wrapIndex(page + 1, pageCount))}
-            accentColor={themeColor}
+            {...(themeColor === undefined ? {} : { accentColor: themeColor })}
             cfg={cfg}
           />
         </>
@@ -15818,7 +16079,7 @@ function ControlCategoryGrid({
             w={cardW}
             h={h}
             selected={category.id === selectedCategoryId}
-            themeColor={themeColor}
+            {...(themeColor === undefined ? {} : { themeColor })}
             onSelect={() => onSelect(category)}
             cfg={cfg}
           />
@@ -16634,13 +16895,13 @@ function MainBoard({
           }
           headerIcon={activeFrameIcon}
           tone={activeFrameTone}
-          accentColor={activeGroupThemeColor}
+          {...(activeGroupThemeColor === undefined ? {} : { accentColor: activeGroupThemeColor })}
           headerH={manageMode ? 44 : controlBrowserMode ? 48 : 40}
           footerH={topFrameFooterH}
-          innerStrokeOpacity={manageMode ? 0.34 : controlBrowserMode ? 0.24 : undefined}
-          bodyStrokeOpacity={manageMode || controlBrowserMode ? 0 : undefined}
-          bodyFill={manageMode || controlBrowserMode ? PARENT_PORTAL_FRAME_MATERIAL.transparentFill : undefined}
-          footerLineOpacity={topFramePaged && !controlBrowserMode ? undefined : 0}
+          {...(manageMode || controlBrowserMode ? { innerStrokeOpacity: manageMode ? 0.34 : 0.24 } : {})}
+          {...(manageMode || controlBrowserMode ? { bodyStrokeOpacity: 0 } : {})}
+          {...(manageMode || controlBrowserMode ? { bodyFill: PARENT_PORTAL_FRAME_MATERIAL.transparentFill } : {})}
+          {...(topFramePaged && !controlBrowserMode ? {} : { footerLineOpacity: 0 })}
           headerRight={null}
           showSideHandles={topFramePaged && !controlBrowserMode}
           sideDisabled={false}
@@ -16835,22 +17096,22 @@ function MainBoard({
           }
           headerIcon={lanPairingDeviceGridMode ? LanNetworkMonitorsIcon : manageWorkspaceHeaderIcon}
           tone={activeFrameTone}
-          accentColor={activeGroupThemeColor}
+          {...(activeGroupThemeColor === undefined ? {} : { accentColor: activeGroupThemeColor })}
           headerRight={manageDeviceGridMode ? manageDeviceGridScanAction : tableHeaderAction}
-          headerInfoLabel={manageHeaderInfoLabel}
-          onHeaderInfoClick={
-            manageHeaderInfoLabel && manageGuideRoutePath ? () => onNavigate?.(manageGuideRoutePath) : undefined
-          }
-          headerH={manageSharedWorkspaceFrameMode ? 58 : undefined}
-          footerH={manageSharedWorkspaceFrameMode ? 0 : undefined}
-          bodyInset={manageSharedWorkspaceFrameMode ? 0 : undefined}
+          {...(manageHeaderInfoLabel === undefined ? {} : { headerInfoLabel: manageHeaderInfoLabel })}
+          {...(manageHeaderInfoLabel && manageGuideRoutePath && onNavigate
+            ? { onHeaderInfoClick: () => onNavigate(manageGuideRoutePath) }
+            : {})}
+          {...(manageSharedWorkspaceFrameMode ? { headerH: 58 } : {})}
+          {...(manageSharedWorkspaceFrameMode ? { footerH: 0 } : {})}
+          {...(manageSharedWorkspaceFrameMode ? { bodyInset: 0 } : {})}
           fullHeaderLine={manageSharedWorkspaceFrameMode}
           bodyStrokeOpacity={0}
           bodyFill={PARENT_PORTAL_FRAME_MATERIAL.transparentFill}
-          footerLineOpacity={manageSharedWorkspaceFrameMode ? 0 : undefined}
+          {...(manageSharedWorkspaceFrameMode ? { footerLineOpacity: 0 } : {})}
           selected={detailPanelCanFocus ? tableFocused : false}
-          onSelect={detailPanelCanFocus ? () => setFocusedSection('table') : undefined}
-          ariaLabel={detailPanelCanFocus ? detailPanelAriaLabel : undefined}
+          {...(detailPanelCanFocus ? { onSelect: () => setFocusedSection('table') } : {})}
+          {...(detailPanelCanFocus ? { ariaLabel: detailPanelAriaLabel } : {})}
           cfg={cfg}
         >
           {(body) => {
@@ -16869,17 +17130,17 @@ function MainBoard({
                 selectedControlName={selectedControlName}
                 themeTone={manageThemeTone}
                 themeColor={activeGroupThemeColor}
-                guideTopic={selectedGuideTopic}
+                {...(selectedGuideTopic === undefined ? {} : { guideTopic: selectedGuideTopic })}
                 guidePage={guidePage}
                 onGuidePageChange={setGuidePage}
                 quickPanelMode={guideQuickPanelMode}
                 onQuickPanelModeChange={setGuideQuickPanelMode}
                 onGuideNoteSelect={handleGuideNoteSelect}
-                manageTargetSelection={manageTargetSelection}
+                {...(manageTargetSelection === undefined ? {} : { manageTargetSelection })}
                 onManageTargetChange={setManageTargetSelection}
-                activityState={activityState}
-                onNavigate={onNavigate}
-                onAgentCommand={onAgentCommand}
+                {...(activityState === undefined ? {} : { activityState })}
+                {...(onNavigate === undefined ? {} : { onNavigate })}
+                {...(onAgentCommand === undefined ? {} : { onAgentCommand })}
                 cfg={cfg}
               />
             );
@@ -17180,17 +17441,19 @@ export function ParentPortalSvgSurface({
       icon: iconForName(control.icon),
     }));
     if (controlEntries.length > 0) return controlEntries;
-    return pageContent.controlAreas.map((control) => ({
-      id: control.id,
-      name: control.name,
-      detail: typeof control.controlCode === 'number' ? `Area ${control.controlCode}` : 'View parent portal',
-      icon: ManageFileSettingsIcon,
-      tone: control.tone,
-      category: control.category,
-      subcategory: control.subcategory,
-      controlCode: control.controlCode,
-      routePath: control.routePath,
-    }));
+    return pageContent.controlAreas.map(
+      (control): QuickControl => ({
+        id: control.id,
+        name: control.name,
+        detail: typeof control.controlCode === 'number' ? `Area ${control.controlCode}` : 'View parent portal',
+        icon: ManageFileSettingsIcon,
+        tone: control.tone,
+        ...(control.category === undefined ? {} : { category: control.category }),
+        ...(control.subcategory === undefined ? {} : { subcategory: control.subcategory }),
+        ...(control.controlCode === undefined ? {} : { controlCode: control.controlCode }),
+        ...(control.routePath === undefined ? {} : { routePath: control.routePath }),
+      })
+    );
   }, [pageContent.quickControls, pageContent.controlAreas]);
   const renderTransitionKey = `${pageMode}:${controlId ?? ''}:${initialNavLabel ?? ''}:${
     initialSelectedControlId ?? ''
@@ -17418,6 +17681,7 @@ export function ParentPortalSvgSurface({
     (activeTab === 'aiStatus' ? null : userDisplayRow) ??
     rows[0] ??
     toDisplayRows(pageContent.fallbackRows, pageMode, selectedControlName, controlId)[0];
+  if (!selectedRow) return null;
   const leftX = cfg.layout.outerPad;
   const sideMainGap = Math.max(1, Math.round(cfg.layout.gap * 0.5));
   const mainX = leftX + cfg.layout.leftW + sideMainGap;
@@ -17608,7 +17872,7 @@ export function ParentPortalSvgSurface({
         ) : (
           <MainBoard
             activeNavLabel={activeNavLabel}
-            activeNavItem={activeNavItem}
+            {...(activeNavItem === null ? {} : { activeNavItem })}
             activeNavGroupId={activeNavGroupId}
             activeTab={activeTab}
             rows={rows}
@@ -17631,8 +17895,8 @@ export function ParentPortalSvgSurface({
             onPageChange={setPage}
             onDetailClose={() => setDetailMode(null)}
             onControlSelect={selectControl}
-            onNavigate={onNavigate}
-            onAgentCommand={onAssistantCommand}
+            {...(onNavigate === undefined ? {} : { onNavigate })}
+            {...(onAssistantCommand === undefined ? {} : { onAgentCommand: onAssistantCommand })}
             onSelectNavLabel={(navLabel) => {
               const item = navItems.find((entry) => entry.label === navLabel);
               if (item) {
@@ -17641,7 +17905,7 @@ export function ParentPortalSvgSurface({
               }
               activateNavLabel(navLabel);
             }}
-            activityState={activityState}
+            {...(activityState === undefined ? {} : { activityState })}
             lanPairingAutoScanSequence={lanPairingAutoScanSequence}
             cfg={cfg}
             mainX={mainX}

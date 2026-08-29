@@ -26,7 +26,10 @@ import {
   AppGamePolicyReadinessRoutePanel,
   shouldRenderAppGamePolicyReadinessRoute,
 } from './AppGamePolicyReadinessRoutePanel';
-import { createParentPortalActivityUiIntent } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
+import {
+  createParentPortalActivityUiIntent,
+  type ParentPortalActivityStateLike,
+} from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent';
 
 type ParentPortalRouteProps = {
   readonly actions: PortalRenderActions;
@@ -129,12 +132,9 @@ export function AppGameInventorySessionDashboard({
 }: {
   readonly activityState: ParentPortalLiveActivity;
 }): ReactElement {
-  const dashboard = createParentPortalActivityUiIntent(activityState, 0).appGameDashboard;
+  const dashboard = createParentPortalActivityUiIntent(parentPortalActivityUiState(activityState), 0).appGameDashboard;
   return (
-    <section
-      aria-label="App inventory and running sessions"
-      data-ocentra-app-game-dashboard-state={dashboard.state}
-    >
+    <section aria-label="App inventory and running sessions" data-ocentra-app-game-dashboard-state={dashboard.state}>
       <h2>App inventory and running sessions</h2>
       <p>{dashboard.summary}</p>
       <dl>
@@ -177,6 +177,32 @@ export function AppGameInventorySessionDashboard({
       </details>
     </section>
   );
+}
+
+type ParentPortalActivityAdapterResult = NonNullable<
+  ParentPortalActivityStateLike['activityAppGamePlatformExtensionReadModel']
+>;
+
+function parentPortalActivityUiState(activityState: ParentPortalLiveActivity): ParentPortalActivityStateLike {
+  return {
+    activityReport: activityState.activityReport,
+    activityReportHistory: activityState.activityReportHistory,
+    activityScreenReadModel: activityState.activityScreenReadModel,
+    activityAppUseReadModel: activityState.activityAppUseReadModel,
+    activityAppGamePlatformExtensionReadModel: parentPortalActivityAdapterResult(
+      activityState.activityAppGamePlatformExtensionReadModel
+    ),
+    activityBrowserReadModel: activityState.activityBrowserReadModel,
+    activityGamesReadModel: activityState.activityGamesReadModel,
+    activityNetworkReadModel: activityState.activityNetworkReadModel,
+  };
+}
+
+function parentPortalActivityAdapterResult(value: unknown): ParentPortalActivityAdapterResult | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return null;
+  }
+  return value;
 }
 
 export function shouldRenderAppGameInventorySessionDashboard(route: ParentRouteId): boolean {
