@@ -22,6 +22,9 @@ describe('parent portal app/game source freshness intent', () => {
     expect(metricPair(dashboard, 'Source rows')).toEqual(['Source rows', '6']);
     expect(metricPair(dashboard, 'Fresh sources')).toEqual(['Fresh sources', '4']);
     expect(metricPair(dashboard, 'Game budgets')).toEqual(['Game budgets', 'policy proof pending']);
+    expect(metricPair(dashboard, 'Boundary rows')).toEqual(['Boundary rows', '10']);
+    expect(metricPair(dashboard, 'AI classifier')).toEqual(['AI classifier', '2']);
+    expect(metricPair(dashboard, 'Readiness blockers')).toEqual(['Readiness blockers', '7']);
     expect(rowValues(dashboard, 'app-row-study-timer')).toEqual({
       label: 'Study Timer', inventoryCount: 1, runningCount: 1, foregroundCount: 1, manualRequired: false, riskCandidate: false,
     });
@@ -40,6 +43,14 @@ describe('parent portal app/game source freshness intent', () => {
       .toContainEqual(['Steam Launcher', 'Launcher Manifest', '2026-06-01T14:57:00Z']);
     expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('source rows');
     expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('refs');
+    expect(dashboard.evidenceRows.map((row) => row.label)).toEqual(expect.arrayContaining([
+      'VPN Proxy Portable <script>alert(1)</script> with a display name that is deliberately too long for one row approval blocker',
+      'VPN Proxy Portable <script>alert(1)</script> with a display name that is deliberately too long for one row AI review',
+      'VPN Proxy Portable <script>alert(1)</script> with a display name that is deliberately too long for one row manual blocker',
+      'Voxel Quest Candidate approval review',
+    ]));
+    expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('evidence-only; no direct action');
+    expect(dashboard.evidenceRows.map((row) => row.value).join(' ')).toContain('adapter dispatch not claimed');
     expect(dashboard.sourcePanelSections.map((section) => [
       section.title, section.rowCount, section.freshCount, section.manualRequiredCount, section.evidenceCount, section.state,
     ])).toEqual([
@@ -140,6 +151,8 @@ function appUseReadModel(): Record<string, unknown> {
     appRow('app-row-malicious-name', 'VPN Proxy Portable <script>alert(1)</script> with a display name that is deliberately too long for one row', {
       inventoryState: 'stale', runtimeState: 'running', capabilityStatus: 'manual-required', runningRowCount: 1,
       evidence: [evidence('app-ev-3')], executablePathRef: 'C:\\Users\\child\\AppData\\Local\\Study Timer\\study-timer.exe',
+      evidenceClaimRowCount: 1, identityRowCount: 1, approvalAuthorityRowCount: 1, platformAuthorityRowCount: 1,
+      aiClassifierResultRowCount: 1,
       sourceStatusRows: [sourceStatusRow('processSnapshot', 'stale', 1, '2026-06-01T14:58:00Z', 'manual-required', ['app-source-4'])],
     }),
   ] };
@@ -155,6 +168,8 @@ function gamesReadModel(): Record<string, unknown> {
       classificationState: 'possible-game', inventoryState: 'detected', runtimeState: 'running', foregroundState: 'foreground',
       capabilityStatus: 'permission-required', sessionCount: 1, runningRowCount: 1, foregroundRowCount: 1,
       evidence: [evidence('game-ev-2')], executablePathRef: 'C:\\Program Files\\VoxelQuest\\VoxelQuest.exe',
+      evidenceClaimRowCount: 1, identityRowCount: 1, approvalAuthorityRowCount: 1, platformAuthorityRowCount: 1,
+      aiClassifierResultRowCount: 1,
       sourceStatusRows: [sourceStatusRow('foregroundWindow', 'ready', 1, '2026-06-01T14:56:00Z', 'available', ['game-source-2'])],
     }),
   ] };
