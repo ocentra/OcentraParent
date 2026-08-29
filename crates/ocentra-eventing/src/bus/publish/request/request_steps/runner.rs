@@ -5,6 +5,7 @@ use super::super::EventBus;
 use super::helpers::{
     abort_request_publish, await_publish_after_response, await_response_after_publish,
     complete_request, handle_publish_result, handle_receiver_result,
+    receiver_requires_publish_abort,
 };
 
 pub(super) async fn run<E>(
@@ -36,6 +37,9 @@ where
             true
         }
         payload = &mut receiver => {
+            if receiver_requires_publish_abort(&payload) {
+                abort_request_publish(&mut publish, false).await;
+            }
             response_payload = Some(handle_receiver_result(bus, &request_id, payload).await?);
             false
         }
@@ -94,7 +98,7 @@ impl RequestCancellation {
 
 impl Drop for RequestCancellation {
     fn drop(&mut self) {
-        if self.requests.cancel_pending(&self.request_id) {
+        if self.requests.cancel_pending(&self.request_id).is_some() {
             self.publish_abort.abort();
         }
     }

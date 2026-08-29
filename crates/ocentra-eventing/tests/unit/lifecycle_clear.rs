@@ -11,8 +11,8 @@ use super::fixtures::{
 };
 use crate::{
     AggregateKey, DispatchMode, DomainEvent, EventBus, EventContract, EventQueuePolicy,
-    EventResponseContract, EventingError, HandlerExecutionPolicy, IdempotencyKey, RequestEvent,
-    RequestId, RequestOptions, SchemaVersion,
+    EventResponseContract, EventingError, HandlerExecutionPolicy, IdempotencyKey,
+    RequestCompletionOutcome, RequestEvent, RequestId, RequestOptions, SchemaVersion,
 };
 
 const CLEAR_REQUEST_EVENT_TYPE: &str = "eventing.lifecycle.clear.request";
@@ -147,7 +147,18 @@ async fn clear_for_test_cancels_pending_request_completion() {
     let result = request.await.expect_value("request task joins");
 
     assert_eq!(clear_report.pending_request_count, 1);
-    assert!(matches!(result, Err(EventingError::RequestTimedOut { .. })));
+    assert!(matches!(
+        result,
+        Err(EventingError::RequestCancelled { request_id })
+            if request_id.as_str() == CLEAR_REQUEST_ID
+    ));
+    assert_eq!(
+        clear_report.cancelled_request_reports,
+        vec![ocentra_eventing::request::RequestCompletionReport {
+            request_id: RequestId::parse(CLEAR_REQUEST_ID).expect_value("request id parses"),
+            outcome: RequestCompletionOutcome::Cancelled,
+        }]
+    );
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

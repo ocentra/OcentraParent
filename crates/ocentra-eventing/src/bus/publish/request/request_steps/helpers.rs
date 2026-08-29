@@ -37,23 +37,45 @@ pub(super) async fn handle_publish_result(
 pub(super) async fn handle_receiver_result(
     bus: &EventBus,
     request_id: &RequestId,
-    payload: Result<crate::request::RequestPayload, tokio::sync::oneshot::error::RecvError>,
+    payload: Result<crate::request::RequestCompletionSignal, tokio::sync::oneshot::error::RecvError>,
 ) -> Result<crate::request::RequestPayload, EventingError> {
     match payload {
-        Ok(payload) => Ok(payload),
-        Err(_) => {
-            bus.requests.timeout(request_id);
+        Ok(crate::request::RequestCompletionSignal::Response(payload)) => Ok(payload),
+        Ok(crate::request::RequestCompletionSignal::TimedOut) => {
             Err(EventingError::RequestTimedOut {
+                request_id: request_id.clone(),
+            })
+        }
+        Ok(crate::request::RequestCompletionSignal::Cancelled) => {
+            Err(EventingError::RequestCancelled {
+                request_id: request_id.clone(),
+            })
+        }
+        Err(_) => {
+            bus.requests.cancel(request_id);
+            Err(EventingError::RequestCancelled {
                 request_id: request_id.clone(),
             })
         }
     }
 }
 
+pub(super) fn receiver_requires_publish_abort(
+    payload: &Result<
+        crate::request::RequestCompletionSignal,
+        tokio::sync::oneshot::error::RecvError,
+    >,
+) -> bool {
+    matches!(
+        payload,
+        Ok(crate::request::RequestCompletionSignal::Cancelled) | Err(_)
+    )
+}
+
 pub(super) async fn await_response_after_publish(
     bus: &EventBus,
     request_id: &RequestId,
-    receiver: &mut tokio::sync::oneshot::Receiver<crate::request::RequestPayload>,
+    receiver: &mut tokio::sync::oneshot::Receiver<crate::request::RequestCompletionSignal>,
     timeout: &mut EventClockSleep<'_>,
     publish: &mut JoinHandle<Result<PublishReport, EventingError>>,
     response_payload: &mut Option<crate::request::RequestPayload>,

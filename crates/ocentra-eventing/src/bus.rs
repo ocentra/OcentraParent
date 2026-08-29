@@ -9,8 +9,8 @@ use tokio::sync::{RwLock, Semaphore};
 use crate::queue::policy::NoSubscriberQueuePolicy;
 use crate::{
     AggregateKey, DomainEvent, EventQueue, EventType, EventingError, ExpectValue,
-    HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestRegistry, SharedEventClock,
-    SharedEventJournal, StoredEventEnvelope,
+    HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestCompletionReport,
+    RequestRegistry, SharedEventClock, SharedEventJournal, StoredEventEnvelope,
 };
 
 mod active_dispatch;
@@ -57,6 +57,7 @@ pub struct EventBusClearReport {
     pub pending_request_count: usize,
     pub completed_request_count: usize,
     pub timed_out_request_count: usize,
+    pub cancelled_request_reports: Vec<RequestCompletionReport>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -81,6 +82,7 @@ pub struct EventBusShutdownReport {
     pub pending_request_count: usize,
     pub completed_request_count: usize,
     pub timed_out_request_count: usize,
+    pub cancelled_request_reports: Vec<RequestCompletionReport>,
 }
 
 #[derive(Clone)]
@@ -296,12 +298,6 @@ impl EventBus {
             EventBusLifecycleState::Shutdown;
     }
 
-    fn rollback_shutdown(&self) {
-        let mut shutdown = self.shutdown.lock().expect_value("event bus shutdown lock");
-        if *shutdown == EventBusLifecycleState::ShuttingDown {
-            *shutdown = EventBusLifecycleState::Active;
-        }
-    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

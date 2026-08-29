@@ -103,6 +103,9 @@ pub enum EventingError {
     RequestTimedOut {
         request_id: RequestId,
     },
+    RequestCancelled {
+        request_id: RequestId,
+    },
     RequestResponseEncode {
         request_id: RequestId,
         reason: String,

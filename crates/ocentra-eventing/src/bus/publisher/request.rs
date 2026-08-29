@@ -1,5 +1,5 @@
 use crate::bus::EventBus;
-use crate::request::{RequestPayload, RequestRegistry};
+use crate::request::{RequestCompletionSignal, RequestPayload, RequestRegistry};
 use crate::{
     EventClockSleep, EventMetadata, EventingError, PublishReport, RequestEvent, RequestId,
     RequestOptions, RequestReport,
@@ -27,16 +27,27 @@ impl EventPublisher {
         let mut registration =
             CausalRequestRegistration::new(target_bus.requests.clone(), request_id.clone());
         let mut timeout = target_bus.clock.sleep(options.timeout());
-        let publish_report = await_causal_publish(
+        let (publish_report, response_payload) = match await_causal_publish(
             self,
             target_bus,
             event,
             metadata,
+            &mut receiver,
             &mut timeout,
             &mut registration,
         )
-        .await?;
-        let payload = await_causal_response(&mut receiver, &mut timeout, &mut registration).await?;
+        .await
+        {
+            Ok(report) => report,
+            Err(error) => {
+                registration.cancel_for_publish_failure();
+                return Err(error);
+            }
+        };
+        let payload = match response_payload {
+            Some(payload) => payload,
+            None => await_causal_response(&mut receiver, &mut timeout, &mut registration).await?,
+        };
         registration.retain_terminal_state();
         let response = payload.decode::<E::Response>(&request_id)?;
         Ok(RequestReport {
@@ -52,9 +63,10 @@ async fn await_causal_publish<E>(
     target_bus: &EventBus,
     event: E,
     metadata: EventMetadata,
+    receiver: &mut tokio::sync::oneshot::Receiver<RequestCompletionSignal>,
     timeout: &mut EventClockSleep<'_>,
     registration: &mut CausalRequestRegistration,
-) -> Result<PublishReport, EventingError>
+) -> Result<(PublishReport, Option<RequestPayload>), EventingError>
 where
     E: RequestEvent,
 {
@@ -62,13 +74,22 @@ where
     tokio::pin!(publish);
     tokio::select! {
         biased;
-        result = &mut publish => result,
+        result = &mut publish => result.map(|report| (report, None)),
+        result = receiver => {
+            let payload = receive_payload(result, registration)?;
+            let publish_report = tokio::select! {
+                biased;
+                result = &mut publish => result?,
+                _ = timeout.as_mut() => return Err(registration.timeout_error()),
+            };
+            Ok((publish_report, Some(payload)))
+        }
         _ = timeout.as_mut() => Err(registration.timeout_error()),
     }
 }
 
 async fn await_causal_response(
-    receiver: &mut tokio::sync::oneshot::Receiver<RequestPayload>,
+    receiver: &mut tokio::sync::oneshot::Receiver<RequestCompletionSignal>,
     timeout: &mut EventClockSleep<'_>,
     registration: &mut CausalRequestRegistration,
 ) -> Result<RequestPayload, EventingError> {
@@ -80,12 +101,15 @@ async fn await_causal_response(
 }
 
 fn receive_payload(
-    result: Result<RequestPayload, tokio::sync::oneshot::error::RecvError>,
+    result: Result<RequestCompletionSignal, tokio::sync::oneshot::error::RecvError>,
     registration: &mut CausalRequestRegistration,
 ) -> Result<RequestPayload, EventingError> {
     match result {
-        Ok(payload) => Ok(payload),
-        Err(_) => Err(registration.timeout_error()),
+        Ok(RequestCompletionSignal::Response(payload)) => Ok(payload),
+        Ok(RequestCompletionSignal::TimedOut) => Err(registration.timeout_error()),
+        Ok(RequestCompletionSignal::Cancelled) | Err(_) => {
+            registration.cancelled_error()
+        }
     }
 }
 
@@ -115,12 +139,27 @@ impl CausalRequestRegistration {
             request_id: self.request_id.clone(),
         }
     }
+
+    fn cancelled_error(&mut self) -> EventingError {
+        self.requests.cancel(&self.request_id);
+        self.retain_terminal_state();
+        EventingError::RequestCancelled {
+            request_id: self.request_id.clone(),
+        }
+    }
+
+    fn cancel_for_publish_failure(&mut self) {
+        if self.cancel_on_drop {
+            self.requests.cancel(&self.request_id);
+            self.cancel_on_drop = false;
+        }
+    }
 }
 
 impl Drop for CausalRequestRegistration {
     fn drop(&mut self) {
         if self.cancel_on_drop {
-            self.requests.cancel(&self.request_id);
+            self.requests.cancel_pending(&self.request_id);
         }
     }
 }

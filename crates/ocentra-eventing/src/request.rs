@@ -14,6 +14,7 @@ use crate::{DomainEvent, EventingError, ExpectValue, PublishReport, RequestId};
 mod request_helpers;
 
 const TERMINAL_REQUEST_RETENTION_LIMIT: usize = 4096;
+const CANCELLATION_REPORT_RETENTION_LIMIT: usize = 4096;
 
 pub trait EventResponseContract:
     Clone + Send + Sync + Serialize + DeserializeOwned + 'static
@@ -55,6 +56,7 @@ pub enum RequestCompletionOutcome {
     Completed,
     Duplicate,
     Late,
+    Cancelled,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -83,7 +85,7 @@ impl RequestRegistry {
     pub(crate) fn register<E>(
         &self,
         request_id: RequestId,
-    ) -> Result<oneshot::Receiver<RequestPayload>, EventingError>
+    ) -> Result<oneshot::Receiver<RequestCompletionSignal>, EventingError>
     where
         E: RequestEvent,
     {
@@ -137,7 +139,9 @@ impl RequestRegistry {
         if let Some(entry) = state.entries.get_mut(request_id) {
             if entry.state == RequestState::Pending {
                 entry.state = RequestState::TimedOut;
-                entry.sender.take();
+                if let Some(sender) = entry.sender.take() {
+                    let _ = sender.send(RequestCompletionSignal::TimedOut);
+                }
                 request_helpers::mark_terminal(&mut state, request_id);
             }
         }
@@ -155,16 +159,30 @@ impl RequestRegistry {
         removed
     }
 
-    pub(crate) fn cancel_pending(&self, request_id: &RequestId) -> bool {
+    pub(crate) fn cancel_pending(
+        &self,
+        request_id: &RequestId,
+    ) -> Option<RequestCompletionReport> {
         let mut state = self.state.lock().expect_value("request registry lock");
         let is_pending = matches!(
             state.entries.get(request_id),
             Some(entry) if entry.state == RequestState::Pending
         );
         if !is_pending {
-            return false;
+            return None;
         }
-        state.entries.remove(request_id).is_some()
+        state.entries.remove(request_id)?;
+        let report = completion_report(
+            request_id.clone(),
+            RequestCompletionOutcome::Cancelled,
+        );
+        request_helpers::record_cancellation_report(&mut state, report.clone());
+        Some(report)
+    }
+
+    pub(crate) fn take_cancellation_reports(&self) -> Vec<RequestCompletionReport> {
+        let mut state = self.state.lock().expect_value("request registry lock");
+        state.cancellation_reports.drain(..).collect()
     }
 
     pub(crate) fn metrics(&self) -> EventRequestMetrics {
@@ -193,15 +211,32 @@ impl RequestRegistry {
     }
 
     pub(crate) fn cancel_for_shutdown(&self) -> RequestRegistryClearReport {
-        self.clear_entries()
+        let mut state = self.state.lock().expect_value("request registry lock");
+        let report = request_helpers::request_registry_report(&state);
+        let cancelled_request_reports = request_helpers::cancel_pending_requests(&mut state);
+        state.entries.clear();
+        state.terminal_order.clear();
+        RequestRegistryClearReport {
+            pending_request_count: report.pending_request_count,
+            completed_request_count: report.completed_request_count,
+            timed_out_request_count: report.timed_out_request_count,
+            cancelled_request_reports,
+        }
     }
 
     fn clear_entries(&self) -> RequestRegistryClearReport {
         let mut state = self.state.lock().expect_value("request registry lock");
         let report = request_helpers::request_registry_report(&state);
+        let cancelled_request_reports = request_helpers::cancel_pending_requests(&mut state);
         state.entries.clear();
         state.terminal_order.clear();
-        report
+        state.cancellation_reports.clear();
+        RequestRegistryClearReport {
+            pending_request_count: report.pending_request_count,
+            completed_request_count: report.completed_request_count,
+            timed_out_request_count: report.timed_out_request_count,
+            cancelled_request_reports,
+        }
     }
 }
 
@@ -209,22 +244,24 @@ impl RequestRegistry {
 struct RequestRegistryState {
     entries: BTreeMap<RequestId, RequestEntry>,
     terminal_order: VecDeque<RequestId>,
+    cancellation_reports: VecDeque<RequestCompletionReport>,
 }
 
 pub(crate) struct RequestRegistryClearReport {
     pub(crate) pending_request_count: usize,
     pub(crate) completed_request_count: usize,
     pub(crate) timed_out_request_count: usize,
+    pub(crate) cancelled_request_reports: Vec<RequestCompletionReport>,
 }
 
 struct RequestEntry {
     state: RequestState,
     request_type: TypeId,
-    sender: Option<oneshot::Sender<RequestPayload>>,
+    sender: Option<oneshot::Sender<RequestCompletionSignal>>,
 }
 
 impl RequestEntry {
-    fn pending<E>(sender: oneshot::Sender<RequestPayload>) -> Self
+    fn pending<E>(sender: oneshot::Sender<RequestCompletionSignal>) -> Self
     where
         E: RequestEvent,
     {
@@ -234,6 +271,12 @@ impl RequestEntry {
             sender: Some(sender),
         }
     }
+}
+
+pub(crate) enum RequestCompletionSignal {
+    Response(RequestPayload),
+    TimedOut,
+    Cancelled,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

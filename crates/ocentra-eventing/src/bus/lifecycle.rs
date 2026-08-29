@@ -1,4 +1,4 @@
-use crate::{DispatchMode, EventingError, ExpectValue};
+use crate::{DispatchMode, EventingError, ExpectValue, RequestCompletionReport};
 
 use super::{
     publisher::RootEventPublisher,
@@ -24,6 +24,9 @@ impl EventBus {
             return Ok(empty_shutdown_report(mode, true));
         }
 
+        // Cancel local request completions before waiting for active dispatches
+        // so a causal request can observe shutdown and unwind its publication.
+        let request_report = self.requests.cancel_for_shutdown();
         let in_flight_dispatch_count = self.active_dispatches.active_count();
         self.active_dispatches.wait_for_idle().await;
         // Admitted work may enqueue or complete state while shutdown begins;
@@ -32,20 +35,28 @@ impl EventBus {
         let mut report = match self.shutdown_queue(mode).await {
             Ok(report) => report,
             Err(error) => {
-                self.rollback_shutdown();
+                // Request cancellation is irreversible once signalled. Finish
+                // lifecycle cleanup instead of rolling back to an Active bus
+                // whose request registry has already been cleared.
+                let remaining_queued = self.queue.take_all_queued();
+                self.dead_letter_shutdown_queue(remaining_queued).await;
+                self.clear_subscriptions_for_shutdown();
+                self.clear_aggregate_gates_for_shutdown();
+                self.queue.finalize_shutdown();
+                self.mark_shutdown();
                 return Err(error);
             }
         };
         report.in_flight_dispatch_count = in_flight_dispatch_count;
         report.subscription_count = self.clear_subscriptions_for_shutdown();
         report.aggregate_gate_count = self.clear_aggregate_gates_for_shutdown();
-        let request_report = self.requests.cancel_for_shutdown();
         self.queue.finalize_shutdown();
         self.mark_shutdown();
 
         report.pending_request_count = request_report.pending_request_count;
         report.completed_request_count = request_report.completed_request_count;
         report.timed_out_request_count = request_report.timed_out_request_count;
+        report.cancelled_request_reports = request_report.cancelled_request_reports;
         Ok(report)
     }
 
@@ -152,7 +163,16 @@ impl EventBus {
             pending_request_count: request_report.pending_request_count,
             completed_request_count: request_report.completed_request_count,
             timed_out_request_count: request_report.timed_out_request_count,
+            cancelled_request_reports: request_report.cancelled_request_reports,
         }
+    }
+
+    /// Takes caller-drop cancellation reports recorded by this bus.
+    ///
+    /// These reports are local diagnostics and never enter an event payload,
+    /// journal, or transport boundary.
+    pub fn take_request_cancellation_reports(&self) -> Vec<RequestCompletionReport> {
+        self.requests.take_cancellation_reports()
     }
 }
 fn empty_shutdown_report(mode: ShutdownMode, already_shutdown: bool) -> EventBusShutdownReport {
@@ -170,5 +190,6 @@ fn empty_shutdown_report(mode: ShutdownMode, already_shutdown: bool) -> EventBus
         pending_request_count: 0,
         completed_request_count: 0,
         timed_out_request_count: 0,
+        cancelled_request_reports: Vec::new(),
     }
 }

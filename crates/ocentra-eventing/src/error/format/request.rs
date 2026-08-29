@@ -27,6 +27,13 @@ pub(super) fn fmt_request_error(
                 request_id.as_str()
             )
         }
+        EventingError::RequestCancelled { request_id } => {
+            write!(
+                formatter,
+                "event request cancelled: {}",
+                request_id.as_str()
+            )
+        }
         EventingError::RequestResponseEncode { request_id, reason } => {
             write!(
                 formatter,

@@ -51,6 +51,7 @@ pub(super) fn fmt_eventing_error(
         | EventingError::DuplicateRequest { .. }
         | EventingError::RequestTypeMismatch { .. }
         | EventingError::RequestTimedOut { .. }
+        | EventingError::RequestCancelled { .. }
         | EventingError::RequestResponseEncode { .. }
         | EventingError::RequestResponseDecode { .. }
         | EventingError::BusShutdown => request::fmt_request_error(error, formatter),
