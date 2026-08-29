@@ -7,5 +7,4 @@ mod parent_owned_sync_export;
 mod parent_storage_settings_apply_flow;
 mod report_query_custody;
 mod retention_delete_tombstone;
-mod retention_delete_tombstone_store;
 mod support;
