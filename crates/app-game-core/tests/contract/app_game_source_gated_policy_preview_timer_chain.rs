@@ -70,6 +70,29 @@ fn timer_runtime_readiness_keeps_proof_ref_expansion_only_for_runtime_rows() {
 }
 
 #[test]
+fn timer_runtime_readiness_keeps_scheduler_persistence_fail_closed() {
+    let readiness = build_app_game_source_gated_policy_preview_timer_runtime_readiness(
+        &timer_runtime_options(),
+        &timer_status_input(),
+    );
+
+    let runtime_row = &readiness.rows[0];
+    assert!(runtime_row.scheduler_persistence_proof_required);
+    assert!(!runtime_row.scheduler_persistence_claimed);
+    assert!(!runtime_row.timer_scheduled);
+    assert!(!readiness.scheduler_persistence_claimed);
+    assert!(!readiness.timer_scheduled);
+    assert!(readiness
+        .runtime_readiness_non_claims
+        .iter()
+        .any(|claim| claim == "no-scheduler-persistence-runtime"));
+    assert!(readiness
+        .runtime_readiness_non_claims
+        .iter()
+        .any(|claim| claim == "no-durable-scheduler-storage"));
+}
+
+#[test]
 fn timer_service_readiness_handoff_keeps_parent_surface_to_service_mapping() {
     let handoff = build_app_game_source_gated_policy_preview_timer_service_readiness_handoff(
         &service_readiness_options(),
