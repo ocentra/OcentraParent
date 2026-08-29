@@ -31,6 +31,9 @@ mod network_inventory_command;
 #[path = "network_inventory_hardware.rs"]
 mod network_inventory_hardware;
 
+#[path = "network_inventory_hardware_interface_map.rs"]
+mod network_inventory_hardware_interface_map;
+
 #[path = "network_inventory_linux_neighbors.rs"]
 mod network_inventory_linux_neighbors;
 

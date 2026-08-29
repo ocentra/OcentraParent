@@ -1,4 +1,5 @@
 mod gpu;
+mod interface_map;
 pub mod linux_identity;
 pub mod network_identity_support;
 
@@ -18,6 +19,7 @@ use self::linux_identity::{
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingDeviceHardwareProfile;
+use serde::{Deserialize, Serialize};
 
 use crate::network_inventory_command::{
     command_json_records, command_json_records_with_timeout_and_cancellation, command_json_single,
@@ -66,6 +68,75 @@ pub struct LocalNetworkIdentity {
     pub dhcp_server: Option<String>,
     pub broadcast_address: Option<String>,
     pub ipv6_prefixes: Vec<String>,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum LocalNetworkInterfaceClassification {
+    Physical,
+    Virtual,
+    VpnOrTunnel,
+    Container,
+    Wsl,
+    Loopback,
+    LinkLocalOnly,
+    #[default]
+    Unknown,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalNetworkInterfaceMap {
+    pub interfaces: Vec<LocalNetworkInterface>,
+    #[serde(default)]
+    pub recommended_interface_id: Option<String>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LocalNetworkInterface {
+    pub id: String,
+    pub name: String,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub index: Option<u32>,
+    #[serde(default)]
+    pub mac_address: Option<String>,
+    #[serde(default)]
+    pub ip_addresses: Vec<String>,
+    #[serde(default)]
+    pub default_gateway: Option<String>,
+    #[serde(default)]
+    pub dns_servers: Vec<String>,
+    #[serde(default)]
+    pub dhcp_server: Option<String>,
+    #[serde(default)]
+    pub broadcast_address: Option<String>,
+    #[serde(default)]
+    pub ipv4_cidr: Option<String>,
+    #[serde(default)]
+    pub ipv6_prefixes: Vec<String>,
+    #[serde(default)]
+    pub is_up: bool,
+    #[serde(default)]
+    pub is_connected: bool,
+    #[serde(default)]
+    pub state_observed: bool,
+    #[serde(default)]
+    pub is_loopback: bool,
+    #[serde(default)]
+    pub classification: LocalNetworkInterfaceClassification,
+    #[serde(default)]
+    pub ignored_reason: Option<network_identity_support::LocalNetworkInterfaceIgnoreReason>,
+    #[serde(default)]
+    pub is_link_local_only: bool,
+    #[serde(default)]
+    pub wifi_ssid: Option<String>,
+    #[serde(default)]
+    pub wifi_signal_percent: Option<u8>,
+    #[serde(default)]
+    pub has_default_route: bool,
 }
 
 pub(crate) fn local_hardware_profile() -> LocalHardwareProfile {
