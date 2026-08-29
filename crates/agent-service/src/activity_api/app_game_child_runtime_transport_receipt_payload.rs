@@ -1,6 +1,7 @@
 #[path = "app_game_child_runtime_transport_receipt_payload_support.rs"]
 mod app_game_child_runtime_transport_receipt_payload_support;
 
+#[cfg(test)]
 pub(super) fn app_game_child_runtime_transport_receipt_read_model_from_service_model_for_test(
     model: ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel,
 ) -> ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::AppGameChildRuntimeTransportReceiptReadModel {

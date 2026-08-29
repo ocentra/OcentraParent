@@ -21,6 +21,7 @@ pub async fn build_activity_app_game_timer_parent_preference_setup_request_repor
     .await
 }
 
+#[cfg(test)]
 pub(super) async fn build_activity_app_game_timer_parent_preference_setup_request_report_for_test(
     command: AgentCommandEnvelope,
     store_path: AppGameTimerSetupStorePath,
