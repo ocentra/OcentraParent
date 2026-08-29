@@ -260,18 +260,19 @@ fn replay_rejects_action_shaped_ai_classifier_json() {
     let mut event = protocol_boundary_events()
         .pop()
         .expect("classifier event fixture is present");
-    let row_json = match event
+    let row_json = event
         .fields
-        .get(constants::field::APP_GAME_JOURNAL_FIELD_ROW_JSON)
-    {
-        Some(LogFieldValue::String(row_json)) => row_json,
-        _ => panic!("classifier event fixture contains row json"),
-    };
+        .get(APP_GAME_JOURNAL_FIELD_ROW_JSON)
+        .and_then(|value| match value {
+            LogFieldValue::String(row_json) => Some(row_json),
+            _ => None,
+        })
+        .expect_value("classifier event fixture contains row json");
     let mut encoded: serde_json::Value =
         serde_json::from_str(row_json).expect("classifier event fixture is valid json");
     encoded["block"] = serde_json::Value::Bool(true);
     event.fields.insert(
-        constants::field::APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
+        APP_GAME_JOURNAL_FIELD_ROW_JSON.to_string(),
         LogFieldValue::String(encoded.to_string()),
     );
 
@@ -281,16 +282,16 @@ fn replay_rejects_action_shaped_ai_classifier_json() {
         .ingest_events(std::slice::from_ref(&event))
         .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
 
-    match app_game_journal_sqlite_read_model(
+    let result = app_game_journal_sqlite_read_model(
         store.connection_for_test(),
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         APP_GAME_TEST_TIMESTAMP,
-    ) {
-        Err(ActivityStoreError::InvalidAppGameJournalRow { reason }) => {
-            assert_eq!(reason, "invalid-ai-classifier-result");
-        }
-        _ => panic!("expected invalid AI classifier row"),
-    }
+    );
+    assert!(matches!(
+        result,
+        Err(ActivityStoreError::InvalidAppGameJournalRow { reason })
+            if reason == "invalid-ai-classifier-result"
+    ));
 }
 
 #[test]
@@ -373,12 +374,11 @@ fn replay_rejects_semantically_invalid_protocol_rows_from_sqlite() {
         APP_GAME_TEST_TIMESTAMP,
     );
 
-    match result {
-        Err(ActivityStoreError::InvalidAppGameJournalRow { reason }) => {
-            assert_eq!(reason, "invalid-evidence-claim");
-        }
-        _ => panic!("expected invalid protocol row"),
-    }
+    assert!(matches!(
+        result,
+        Err(ActivityStoreError::InvalidAppGameJournalRow { reason })
+            if reason == "invalid-evidence-claim"
+    ));
 }
 
 fn protocol_boundary_events() -> Vec<ActivityEvent> {

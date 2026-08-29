@@ -268,8 +268,10 @@ fn activity_store_fails_closed_when_replayed_custody_fields_are_missing() -> Tes
         constants::error::ACTIVITY_STORE_OPENS,
     )?;
     let mut event = browser_event()?;
-    event.fields.remove(constants::field::CUSTODY_LABEL);
-    event.fields.remove(constants::field::QUERY_VISIBILITY);
+    let mut fields = event.fields.into_inner();
+    fields.remove(constants::field::CUSTODY_LABEL);
+    fields.remove(constants::field::QUERY_VISIBILITY);
+    event.fields = fields.into();
     ok(
         store.ingest_events(std::slice::from_ref(&event)),
         constants::error::ACTIVITY_STORE_INGESTS,

@@ -26,7 +26,7 @@ use super::{
     },
 };
 
-use crate::process_capture::process_snapshot_events_from_system;
+use ocentra_parent_agent_core::process_capture::process_snapshot_events_from_system;
 
 #[derive(Clone)]
 struct TestPath(PathBuf);

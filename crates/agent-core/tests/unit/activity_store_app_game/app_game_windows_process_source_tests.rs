@@ -12,8 +12,8 @@ use crate::{
     activity_store::ActivityStore,
     journal::ActivityJournal,
     journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
-    process_capture::process_snapshot_events_from_system,
 };
+use ocentra_parent_agent_core::process_capture::process_snapshot_events_from_system;
 
 use super::{
     app_game_journal_sqlite_ingest::read_model::app_game_journal_sqlite_read_model,

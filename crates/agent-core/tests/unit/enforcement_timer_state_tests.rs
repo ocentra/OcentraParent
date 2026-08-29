@@ -152,11 +152,11 @@ fn persisted_active_timer_state_rejects_cross_record_identity_mutation() -> Test
     assert!(active_timer_state_is_consistent(&state));
 
     let mut mismatched_result = state.clone();
-    mismatched_result.result.action_id.push("-other");
+    mismatched_result.result.action_id.push_str("-other");
     assert!(!active_timer_state_is_consistent(&mismatched_result));
 
     let mut mismatched_timer = state;
-    mismatched_timer.timer_event.action_id.push("-other");
+    mismatched_timer.timer_event.action_id.push_str("-other");
     assert!(!active_timer_state_is_consistent(&mismatched_timer));
 
     Ok(())
