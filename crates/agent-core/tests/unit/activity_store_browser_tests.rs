@@ -261,6 +261,73 @@ fn activity_store_reports_empty_browser_evidence_without_inventing_rows() -> Tes
     Ok(())
 }
 
+#[test]
+fn activity_store_fails_closed_when_replayed_custody_fields_are_missing() -> TestResult {
+    let store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    let mut event = browser_event()?;
+    event.fields.remove(constants::field::CUSTODY_LABEL);
+    event.fields.remove(constants::field::QUERY_VISIBILITY);
+    ok(
+        store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+
+    let read_model = ok(
+        store.browser_evidence_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
+
+    assert_eq!(read_model.returned, 1);
+    assert_eq!(
+        read_model.rows[0].custody_label,
+        BrowserCustodyLabel::Unavailable
+    );
+    assert_eq!(
+        read_model.rows[0].query_visibility,
+        BrowserQueryVisibilityLabel::Unavailable
+    );
+
+    let invalid_store = ok(
+        ActivityStore::open_in_memory(),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+    event.fields.insert(
+        constants::field::CUSTODY_LABEL.to_string(),
+        LogFieldValue::String("untrusted-custody".to_string()),
+    );
+    event.fields.insert(
+        constants::field::QUERY_VISIBILITY.to_string(),
+        LogFieldValue::String("untrusted-visibility".to_string()),
+    );
+    ok(
+        invalid_store.ingest_events(std::slice::from_ref(&event)),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )?;
+    let invalid_read_model = ok(
+        invalid_store.browser_evidence_read_model(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_SECOND_OBSERVED_AT,
+        ),
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
+    assert_eq!(invalid_read_model.returned, 1);
+    assert_eq!(
+        invalid_read_model.rows[0].custody_label,
+        BrowserCustodyLabel::Unavailable
+    );
+    assert_eq!(
+        invalid_read_model.rows[0].query_visibility,
+        BrowserQueryVisibilityLabel::Unavailable
+    );
+    Ok(())
+}
+
 fn browser_event() -> Result<ActivityEvent, TestText> {
     browser_event_with_status(BrowserCapabilityStatus::TabListOnly, None)
 }
