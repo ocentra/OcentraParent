@@ -101,6 +101,36 @@ fn audit_history_jsonl_is_deterministic_and_includes_blocked_rows(
 }
 
 #[test]
+fn audit_history_rebuild_is_idempotent_and_handoff_identity_is_current() -> Result<(), Box<dyn std::error::Error>> {
+    let source = source_bridge()?;
+    let first = build_app_game_notification_audit_history_bridge(audit_options(), source.clone())?;
+    let second = build_app_game_notification_audit_history_bridge(audit_options(), source)?;
+    assert_eq!(first, second);
+
+    let mut newer_options = audit_options();
+    newer_options.handoff_id = "audit-handoff-60-newer".to_owned();
+    let newer = build_app_game_notification_audit_history_bridge(newer_options, source_bridge()?)?;
+    assert_ne!(first.entries[0].audit_entry_id, newer.entries[0].audit_entry_id);
+    assert_eq!(first.entries[0].source_bridge_record_id, newer.entries[0].source_bridge_record_id);
+    assert_eq!(first.entries[0].source_readiness_row_id, newer.entries[0].source_readiness_row_id);
+    Ok(())
+}
+
+#[test]
+fn audit_history_rejects_malformed_context_jsonl_and_conflicting_status_counts(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut missing_handoff = audit_options();
+    missing_handoff.handoff_id.clear();
+    assert!(build_app_game_notification_audit_history_bridge(missing_handoff, source_bridge()?).is_err());
+    assert!(parse_app_game_notification_audit_history_jsonl("{not-json}").is_err());
+
+    let mut tampered = build_app_game_notification_audit_history_bridge(audit_options(), source_bridge()?)?;
+    tampered.queued_local_count = 0;
+    assert!(serialize_app_game_notification_audit_history_jsonl(&tampered).is_err());
+    Ok(())
+}
+
+#[test]
 fn audit_history_bridge_rejects_tampered_refs_claims_and_identities(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let mut bad_refs = source_bridge()?;

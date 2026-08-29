@@ -186,6 +186,53 @@ fn preference_preflight_bridge_rejects_missing_persisted_scheduler_record() {
 }
 
 #[test]
+fn preference_preflight_bridge_rejects_mismatched_persisted_scheduler_record(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = test_directory("preference-preflight-mismatch");
+    let store = AppGameChildUxSchedulerProofStore::open(&directory)?;
+    let scheduler =
+        build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge()?)?;
+    let record = scheduler.rows[0].scheduler_record.clone().expect_value("scheduled record");
+    store.persist(record)?;
+
+    let mut tampered_scheduler = scheduler;
+    tampered_scheduler.rows[0]
+        .scheduler_record
+        .as_mut()
+        .expect_value("scheduled record")
+        .scheduler_decision_ref = "tampered-scheduler-decision".into();
+    let result = build_app_game_notification_preference_preflight_bridge(
+        &store,
+        AppGameNotificationPreferencePreflightBridgeOptions {
+            bridge_id: "bridge-62".to_owned(),
+            generated_at: "2026-08-15T00:02:00Z".into(),
+        },
+        tampered_scheduler,
+    );
+    assert!(result.is_err());
+    fs::remove_dir_all(directory)?;
+    Ok(())
+}
+
+#[test]
+fn preference_preflight_bridge_rejects_empty_bridge_context(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = test_directory("preference-preflight-context");
+    let store = AppGameChildUxSchedulerProofStore::open(&directory)?;
+    let result = build_app_game_notification_preference_preflight_bridge(
+        &store,
+        AppGameNotificationPreferencePreflightBridgeOptions {
+            bridge_id: " ".to_owned(),
+            generated_at: "2026-08-15T00:02:00Z".into(),
+        },
+        build_app_game_notification_scheduler_bridge(scheduler_options(), source_bridge()?)?,
+    );
+    assert!(result.is_err());
+    fs::remove_dir_all(directory)?;
+    Ok(())
+}
+
+#[test]
 fn scheduler_records_round_trip_persist_reopen_and_replay_idempotently(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let directory = test_directory("persist");
