@@ -9,8 +9,9 @@ use std::{
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
-use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
-use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiResourceClass;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::{
+    LocalAiDegradedState, LocalAiGenerationState, LocalAiResourceClass,
+};
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
 use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerLifecycle;
