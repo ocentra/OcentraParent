@@ -62,6 +62,13 @@ pub fn app_game_identity_journal_event(
     observed_at: &str,
     row: &AppGameIdentity,
 ) -> Result<ActivityEvent, AppGameJournalSqliteIngestError> {
+    if row.schema_version != APP_GAME_SCHEMA_VERSION {
+        return Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported);
+    }
+    let row_json = serde_json::to_string(row)
+        .map_err(|_error| AppGameJournalSqliteIngestError::Json)?;
+    serde_json::from_str::<AppGameIdentity>(&row_json)
+        .map_err(|_error| AppGameJournalSqliteIngestError::IdentityInvalid)?;
     stored_protocol_event(
         device_id,
         platform,
@@ -71,8 +78,7 @@ pub fn app_game_identity_journal_event(
             observer: ActivityObserver::AgentService,
             event_kind: ActivityEventKind::DeviceIdleStateObserved,
             row_kind: APP_GAME_JOURNAL_ROW_KIND_IDENTITY,
-            row_json: &serde_json::to_string(row)
-                .map_err(|_error| AppGameJournalSqliteIngestError::Json)?,
+            row_json: &row_json,
             classification_state: Some(&row.classification_state),
             subject_id: APP_GAME_JOURNAL_IDENTITY_SUBJECT_ID.to_string(),
             display_name: Some(row.display_label.clone()),

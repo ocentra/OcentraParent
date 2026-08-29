@@ -135,6 +135,34 @@ fn invalid_protocol_boundary_rows_are_rejected_before_sqlite_ingest() {
 }
 
 #[test]
+fn invalid_identity_rows_are_rejected_before_sqlite_ingest() {
+    let mut stale = identity();
+    stale.schema_version = APP_GAME_SCHEMA_VERSION.saturating_sub(1);
+    assert_eq!(
+        app_game_identity_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            APP_GAME_TEST_TIMESTAMP,
+            &stale,
+        ),
+        Err(AppGameJournalSqliteIngestError::SchemaVersionUnsupported)
+    );
+
+    let mut missing_evidence = identity();
+    missing_evidence.evidence.clear();
+    assert_eq!(
+        app_game_identity_journal_event(
+            constants::peer::LOCAL_DEV_AGENT,
+            std::env::consts::OS,
+            APP_GAME_TEST_TIMESTAMP,
+            &missing_evidence,
+        ),
+        Err(AppGameJournalSqliteIngestError::IdentityInvalid)
+    );
+
+}
+
+#[test]
 fn invalid_ai_classifier_shape_is_rejected_before_sqlite_ingest() {
     let mut invalid_confidence = classifier_result();
     invalid_confidence.confidence = 1.01;
