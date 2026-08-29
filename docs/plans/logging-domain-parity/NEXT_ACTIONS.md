@@ -46,6 +46,42 @@ packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts
 packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts
 ```
 
+The package has no production Node-native binding to reuse. Route the Windows
+mutation through the repository's existing Rust FFI plus bounded process shape:
+
+```text
+crates/logging-core/src/local_artifact_mutation.rs
+crates/logging-local-artifact-windows-ffi/Cargo.toml
+crates/logging-local-artifact-windows-ffi/src/lib.rs
+crates/logging-local-artifact-provider/Cargo.toml
+crates/logging-local-artifact-provider/src/main.rs
+packages/logging-domain/src/local-artifact-mutation-provider.ts
+```
+
+The implementation must add the two crates to `Cargo.toml`, connect the
+Windows-only FFI dependency from `crates/logging-core/Cargo.toml`, and extend
+`packages/logging-domain/package.json` to resolve a pinned built provider
+executable. The provider must own the retained root/session authority and
+bounded framed process protocol; the TypeScript layer must not mint authority,
+perform direct path mutation, or invoke `cargo` in a shipped runtime. Existing
+dev/test/MCP child processes and protected-custody FFI remain reference shapes,
+not this provider.
+
+Required real integration roots are currently absent:
+
+```text
+crates/logging-core/tests/integration/local_artifact_mutation.rs
+crates/logging-local-artifact-windows-ffi/tests/integration/local_artifact_windows.rs
+crates/logging-local-artifact-provider/tests/integration/local_artifact_provider.rs
+packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts
+```
+
+The native owner must fail closed on canonical containment, reparse/symlink
+substitution, directory identity/currentness drift, atomic create/write/lock/
+recovery uncertainty, process/protocol loss, and authority provenance. This is
+an implementation-authorized but unsatisfied route; do not claim source,
+tests, proof, checklist, review, normal READY, or DONE.
+
 The 27 reported Windows failures remain open baseline evidence. Proceed only
 when the implementation-phase graph query names WP02 as authorized; do not
 claim source completion, test execution, proof, checklist closeout, normal

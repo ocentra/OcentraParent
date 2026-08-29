@@ -1315,7 +1315,7 @@
     {
       "id": "WP-logging-domain-parity-02-typescript-logging-package-parity",
       "hardDependencies": [],
-      "reason": "Current source and test audit identifies the absent package-owned Windows local-artifact mutation provider as a real WP02 implementation seam. The existing local-artifact path, ownership, identity, append, lock, transaction, retention, bridge, and NDJSON roots are consumers of that provider. This review authorizes only the unsatisfied implementation route for the mapped provider and dedicated test roots; canonical containment, symlink/reparse safety, ownership/currentness, atomic create/write/lock/recovery, provider-issued authority, tests, proof, normal READY, and DONE remain open.",
+      "reason": "Current source and test audit identifies the absent package-owned Windows local-artifact mutation provider as a real WP02 implementation seam. No production Node-native binding exists: the shippable route is the safe crates/logging-core/src/local_artifact_mutation.rs owner plus a new package-specific Windows FFI crate and long-lived Rust provider process, consumed by the TypeScript adapter. The existing local-artifact path, ownership, identity, append, lock, transaction, retention, bridge, and NDJSON roots remain consumers. This review authorizes only the unsatisfied implementation route for the mapped native/provider and dedicated Rust/TypeScript test roots; canonical containment, symlink/reparse safety, ownership/currentness, atomic create/write/lock/recovery, provider-issued authority, build/staging, tests, proof, normal READY, and DONE remain open.",
       "evidence": [
         "docs/plans/logging-domain-parity/PLAN_STATE.md",
         "docs/plans/logging-domain-parity/NEXT_ACTIONS.md",
@@ -11387,7 +11387,7 @@
         "packages/logging-domain/src/core/log-redaction.ts",
         "packages/logging-domain/src/generated-log-redaction-policy.ts"
       ],
-      "reason": "Accepted source head 735df89de records the generated TypeScript edge of the Rust-owned exact 18-key sensitive-key policy. The sanitizer consumes the generated artifact; tests, focused validation, proof, checklist closeout, and DONE remain deferred.",
+      "reason": "Accepted source head 735df89de records the generated TypeScript edge of the Rust-owned exact 18-key sensitive-key policy. The sanitizer consumes the generated artifact; that existing source evidence is separate from the absent Windows local-artifact native/provider route. Its build integration, native/provider source, dedicated Rust/TypeScript tests, focused validation, proof, checklist closeout, and DONE remain deferred.",
       "evidence": [
         "docs/plans/logging-domain-parity/PLAN_STATE.md",
         "docs/plans/logging-domain-parity/workpacks/02-typescript-logging-package-parity.md",

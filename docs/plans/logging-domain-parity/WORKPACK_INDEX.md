@@ -75,6 +75,30 @@ both are currently absent. The route is implementation-authorized only for
 that unsatisfied seam after graph regeneration; it does not promote the
 source-hardened status, test/proof rows, normal READY, or DONE.
 
+The native expansion of this route (2026-08-29) is also WP02-owned because the
+package has no production Node-native binding. The shippable shape is a
+package-specific Windows FFI crate consumed by a safe
+`crates/logging-core/src/local_artifact_mutation.rs` owner and a long-lived
+Rust provider process, with
+`packages/logging-domain/src/local-artifact-mutation-provider.ts` as the
+TypeScript process/session adapter. The new native roots are
+`crates/logging-local-artifact-windows-ffi/{Cargo.toml,src/lib.rs}` and
+`crates/logging-local-artifact-provider/{Cargo.toml,src/main.rs}`; workspace
+membership (`Cargo.toml`), the logging-core dependency edge, and package
+build/runtime resolution (`packages/logging-domain/package.json`) are required
+integration inputs. Existing dev/test child-process scripts, the protected
+custody FFI crate, and the child-agent MSI are not this provider.
+
+The expected real integration roots are
+`crates/logging-core/tests/integration/local_artifact_mutation.rs`,
+`crates/logging-local-artifact-windows-ffi/tests/integration/local_artifact_windows.rs`,
+`crates/logging-local-artifact-provider/tests/integration/local_artifact_provider.rs`,
+and
+`packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts`
+(with the dedicated TypeScript unit root above). These roots are absent; the
+route remains implementation-authorized but unsatisfied and does not claim
+source, tests, proof, review, READY, or DONE.
+
 Default order:
 
 ```text

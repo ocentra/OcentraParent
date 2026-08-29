@@ -27,7 +27,13 @@ packages/logging-domain:
   TypeScript local logging helpers, bridge transport/server, NDJSON writers, DuckDB/query helpers, log-control/wipe/retention helpers, MCP query helpers, and proof-trace helper surfaces.
 
 crates/logging-core:
-  Rust NDJSON/artifact/dev-log/diagnostic/redaction/source/context helper crate.
+  Rust NDJSON/artifact/dev-log/diagnostic/redaction/source/context helper crate,
+  plus the WP02-owned local-artifact mutation owner only for this route.
+
+crates/logging-local-artifact-windows-ffi and
+crates/logging-local-artifact-provider:
+  Dedicated Windows ABI boundary and long-lived provider process required by
+  the WP02 local-artifact owner; neither exists in the current workspace.
 
 scripts/dev:
   Local agent wrapper, query, evidence, MCP, and proof-trace entrypoints used by Codex/local development flows.
@@ -150,6 +156,48 @@ Dedicated expected test roots are the absent unit and integration files
 and
 `packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts`.
 
+### Native adapter expansion (2026-08-29)
+
+The current workspace has no production Node-native binding for this package.
+The existing Node child-process usage is limited to dev/test/MCP tooling, and
+the existing Windows FFI crate is protected-custody-specific. WP02 therefore
+routes the smallest shippable native boundary as two new workspace crates:
+
+```text
+crates/logging-local-artifact-windows-ffi/Cargo.toml
+crates/logging-local-artifact-windows-ffi/src/lib.rs
+crates/logging-local-artifact-provider/Cargo.toml
+crates/logging-local-artifact-provider/src/main.rs
+```
+
+`crates/logging-core/src/local_artifact_mutation.rs` is the safe owner module;
+the Windows FFI crate owns only bounded ABI/handle mechanics, and the provider
+binary owns the long-lived framed process/session boundary. The TypeScript
+adapter remains
+`packages/logging-domain/src/local-artifact-mutation-provider.ts`. This avoids
+inventing N-API while keeping callers unable to mint filesystem authority.
+
+The implementation must add both crates to the root `Cargo.toml`, add the
+Windows-only dependency from `crates/logging-core/Cargo.toml`, and extend
+`packages/logging-domain/package.json` to resolve a pinned built provider
+executable. A parent-desktop/release owner must separately stage and
+integrity-check that executable; no installer or release artifact is claimed
+here. The route must fail closed for containment/canonicalization, reparse or
+symlink substitution, directory ownership/currentness, atomic
+create/write/lock/recovery, protocol/process loss, and provider-authority
+provenance.
+
+The native Rust integration roots
+`crates/logging-core/tests/integration/local_artifact_mutation.rs`,
+`crates/logging-local-artifact-windows-ffi/tests/integration/local_artifact_windows.rs`,
+and
+`crates/logging-local-artifact-provider/tests/integration/local_artifact_provider.rs`,
+plus the TypeScript integration root
+`packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts`,
+are required and currently absent. This expands implementation authorization
+only; source, tests, focused validation, proof, checklist, review, normal
+READY, and DONE remain open.
+
 ## What is already understood
 
 - `ocentra-games/packages/logging-domain` is the reference implementation.
@@ -172,6 +220,7 @@ and
 - Decide whether done in this plan means source present, proof present, or both; the current docs mix those states
 - The WP03 Rust-side mapping is source-present: app::health, service_runtime::run_agent_service, and activity_capture call agent-service::dev_log, which converts protocol fields and invokes logging-core::DevLogger. Keep focused validation/proof deferred in this code-only pass, and hand off the separate root dev-log-routing failure before claiming full WP06 focused-validation closure
 - Accepted source through integration `3fec0793a` materially advances WP02/WP03/WP04/WP07/WP08: Rust owns the exact 18-key sensitive-key policy and generated TypeScript artifact; the TypeScript sanitizer is fail-closed and JSON-safe for unsupported/reflection failures; Vite uses the canonical writer; Logger and the portal compatibility fallback sanitize before serialization; and query reads enforce realpath/symlink containment without absolute-path diagnostics. Independent review found no remaining P0/P1 source defect, but no expected-test source was added or executed; focused validation, proof, external composition, and every DONE claim remain deferred.
+- WP02's Windows local-artifact route still lacks its native owner, package-specific Windows FFI boundary, provider process/build integration, and real Rust/TypeScript integration tests. No Node-native binding is present to reuse; do not substitute N-API, a caller callback, a path-only CLI, or a temporary/mock provider.
 ```
 
 ## No-claim boundaries

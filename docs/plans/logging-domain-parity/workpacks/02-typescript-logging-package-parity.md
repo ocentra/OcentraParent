@@ -7,7 +7,7 @@
 > Read when: selected by WORKPACK_INDEX.md or explicit assignment.
 > Stop rule: Do not open sibling workpacks unless a dependency is named here.
 > Proves: TypeScript package parity only after tests/proof pass.
-> Does not prove: Rust logging-core, local validation wrappers, or production readiness.
+> Does not prove: unrelated Rust logging-core surfaces, local validation wrappers, or production readiness.
 > Proof rule: Before DONE, run focused commands and write proof artifacts.
 
 <!-- /agent-capsule -->
@@ -112,6 +112,83 @@ WP09 remains downstream of WP02 and cannot claim lifecycle completion from this
 route. The route authorizes only implementation-phase work for the absent
 provider; it does not claim source completion, focused tests, proof, review,
 normal READY, or DONE.
+
+### Native Windows adapter route (2026-08-29)
+
+Inspection of the current workspace found no production Node-native binding for
+this boundary. Existing TypeScript `child_process` callers launch development,
+test, or MCP tools, and the existing Windows FFI crate is restricted to
+protected-capability custody. Neither is a local-artifact mutation provider.
+
+The smallest shippable adapter therefore follows the repository's existing
+Rust FFI plus bounded process pattern, without introducing N-API or a
+path-oriented command helper:
+
+```text
+crates/logging-core/src/local_artifact_mutation.rs
+  safe logging-core owner for the local-artifact mutation contract
+crates/logging-local-artifact-windows-ffi/Cargo.toml
+crates/logging-local-artifact-windows-ffi/src/lib.rs
+  new package-specific Windows ABI/handle boundary; no raw handle escapes
+crates/logging-local-artifact-provider/Cargo.toml
+crates/logging-local-artifact-provider/src/main.rs
+  new long-lived Rust provider process with a bounded framed protocol
+packages/logging-domain/src/local-artifact-mutation-provider.ts
+  TypeScript process/session adapter; it performs no direct filesystem mutation
+```
+
+The provider process must retain the owner-issued root/session state and return
+only bounded mutation outcomes. Its protocol must not accept a caller-minted
+capability, target identity, or path authority, and a lost process, malformed
+frame, stale identity, or uncertain mutation must fail closed. The native
+boundary must provide the canonical containment, reparse/symlink rejection,
+directory ownership/currentness, atomic create/write/lock/recovery, and
+durability observations required above. The existing protected-custody FFI
+crate and child-agent MSI are not substitutes for this owner.
+
+The build integration is part of the same implementation route but is not
+present yet: add the two new crates to the workspace in `Cargo.toml`, add the
+Windows-only dependency from `crates/logging-core/Cargo.toml` to the dedicated
+FFI crate, and extend `packages/logging-domain/package.json` so the adapter
+resolves a pinned built provider executable rather than invoking `cargo` in a
+shipped runtime. A parent-desktop/release owner must separately stage and
+integrity-check that executable; this WP02 route does not claim an installer or
+release artifact.
+
+The exact native and adapter route roots (with the new provider/FFI source
+roots currently absent) are:
+
+```text
+Cargo.toml
+crates/logging-core/Cargo.toml
+crates/logging-core/src/lib.rs
+crates/logging-core/src/local_artifact_mutation.rs
+crates/logging-local-artifact-windows-ffi/Cargo.toml
+crates/logging-local-artifact-windows-ffi/src/lib.rs
+crates/logging-local-artifact-provider/Cargo.toml
+crates/logging-local-artifact-provider/src/main.rs
+packages/logging-domain/package.json
+packages/logging-domain/src/local-artifact-mutation-provider.ts
+```
+
+The real Rust integration coverage must exercise the core owner, native
+reparse/identity boundary, and provider process against a Windows filesystem;
+the real TypeScript integration coverage must exercise the built provider
+through the package adapter and then the existing local-artifact consumers.
+Those expected roots are:
+
+```text
+crates/logging-core/tests/integration/local_artifact_mutation.rs
+crates/logging-local-artifact-windows-ffi/tests/integration/local_artifact_windows.rs
+crates/logging-local-artifact-provider/tests/integration/local_artifact_provider.rs
+packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts
+packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts
+```
+
+Until those source, build, and test roots exist and are independently
+validated, WP02 remains implementation-authorized but unsatisfied. No source,
+test, proof, checklist, review, normal READY, or DONE claim is made by this
+route expansion.
 
 Exact production consumer roots for this route are:
 
@@ -241,7 +318,16 @@ Required artifacts:
 Likely files:
 
 ```text
+Cargo.toml
+crates/logging-core/Cargo.toml
+crates/logging-core/src/lib.rs
+crates/logging-core/src/local_artifact_mutation.rs
+crates/logging-local-artifact-windows-ffi/Cargo.toml
+crates/logging-local-artifact-windows-ffi/src/lib.rs
+crates/logging-local-artifact-provider/Cargo.toml
+crates/logging-local-artifact-provider/src/main.rs
 packages/logging-domain/package.json
+packages/logging-domain/src/local-artifact-mutation-provider.ts
 packages/logging-domain/src/test-log/**
 packages/logging-domain/src/transport/**
 packages/logging-domain/src/app-log/**

@@ -6828,6 +6828,14 @@
       "planSlug": "logging-domain-parity",
       "codeExpectation": "code-and-tests",
       "roots": [
+        "Cargo.toml",
+        "crates/logging-core/Cargo.toml",
+        "crates/logging-core/src/lib.rs",
+        "crates/logging-core/src/local_artifact_mutation.rs",
+        "crates/logging-local-artifact-windows-ffi/Cargo.toml",
+        "crates/logging-local-artifact-windows-ffi/src/lib.rs",
+        "crates/logging-local-artifact-provider/Cargo.toml",
+        "crates/logging-local-artifact-provider/src/main.rs",
         "packages/logging-domain/package.json",
         "packages/logging-domain/src/logging-contracts.ts",
         "packages/logging-domain/src/core",
@@ -6886,12 +6894,25 @@
         "packages/logging-domain/tests/unit/retention-logs-script.test.ts",
         "packages/logging-domain/tests/unit/wipe-logs-script.test.ts",
         "packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts",
+        "packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts",
+        "packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts",
+        "crates/logging-core/tests/integration/local_artifact_mutation.rs",
+        "crates/logging-local-artifact-windows-ffi/tests/integration/local_artifact_windows.rs",
+        "crates/logging-local-artifact-provider/tests/integration/local_artifact_provider.rs",
         "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
       ],
-      "plannedImplementationRoots": ["packages/logging-domain/src/local-artifact-mutation-provider.ts"],
+      "plannedImplementationRoots": [
+        "crates/logging-core/src/local_artifact_mutation.rs",
+        "crates/logging-local-artifact-windows-ffi/src/lib.rs",
+        "crates/logging-local-artifact-provider/src/main.rs",
+        "packages/logging-domain/src/local-artifact-mutation-provider.ts"
+      ],
       "expectedTestRoots": [
         "packages/logging-domain/tests/unit/local-artifact-mutation-provider.test.ts",
         "packages/logging-domain/tests/integration/local-artifact-mutation-provider.test.ts",
+        "crates/logging-core/tests/integration/local_artifact_mutation.rs",
+        "crates/logging-local-artifact-windows-ffi/tests/integration/local_artifact_windows.rs",
+        "crates/logging-local-artifact-provider/tests/integration/local_artifact_provider.rs",
         "packages/logging-domain/tests/unit/bridge-run-lifecycle.test.ts",
         "packages/logging-domain/tests/unit/bridge-transport.test.ts",
         "packages/logging-domain/tests/unit/ensure-db-script.test.ts",
@@ -6905,7 +6926,7 @@
         "packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts",
         "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
       ],
-      "note": "WP02 owns the absent package-local Windows local-artifact mutation provider and the existing path, ownership, identity, append, lock, transaction, retention, bridge, NDJSON, unit, and integration consumer roots. The provider contract is fail-closed for canonical containment, symlink/reparse safety, directory currentness, atomic mutation and recovery, and provider-issued opaque authority; no caller-minted capability or path-only fallback is accepted. Missing implementation and dedicated provider test roots keep the route unsatisfied."
+      "note": "WP02 owns the absent package-local Windows local-artifact mutation provider and the existing path, ownership, identity, append, lock, transaction, retention, bridge, NDJSON, unit, and integration consumer roots. Because no production Node-native binding exists, the route also maps the new package-specific Windows FFI crate, the safe logging-core local_artifact_mutation.rs owner, and the long-lived Rust provider process, with Cargo workspace/dependency and package build/runtime integration inputs. The provider contract is fail-closed for canonical containment, symlink/reparse safety, directory currentness, atomic mutation and recovery, provider-issued opaque authority, and process/protocol loss; no caller-minted capability or path-only fallback is accepted. Missing native/provider implementation and dedicated Rust/TypeScript provider test roots keep the route implementation-authorized but unsatisfied."
     },
     "WP-logging-domain-parity-03-parent-logging-architecture-and-routing": {
       "planSlug": "logging-domain-parity",
