@@ -21,6 +21,8 @@ mod fields;
 mod json_contract;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
+#[path = "../support/test_text.rs"]
+mod test_text;
 #[path = "../../src/time.rs"]
 mod time;
 mod activity_api {
