@@ -55,8 +55,9 @@ revalidates the canonical scheduler bridge read model before writing atomic
 records. Invalid source rows/counts/claims remain rejected; provider delivery,
 retry workers, quiet-hours timers, child delivery, and UI remain unclaimed.
 
-The 15 Phase 1 gaps are WP15, WP16, WP17, WP18, WP19, WP20, WP26, WP48,
-WP49, WP62, WP63, WP64, WP65, and WP102. WP26 is a tests-only performance
+The remaining Phase 1 gaps are WP15, WP16, WP17, WP18, WP19, WP20, WP26,
+WP48, WP49, WP63, WP64, WP65, and WP102. WP62's bounded source and real
+behavioral test roots are now reviewed; focused execution and proof remain. WP26 is a tests-only performance
 harness gap. WP102 is a route-only shared-dependency validation gap. Neither
 requires new App production source.
 

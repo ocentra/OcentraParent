@@ -83,8 +83,9 @@ What is now real:
 - WP03 currentness comes from persisted session identity, generation, expiry,
   freshness, and revocation state instead of request booleans;
 - WP04 has a strict durable invite/recovery repository without public authority
-  or owner-receipt construction; recovery remains `Approved` until a real
-  downstream owner receipt is acknowledged;
+  or owner-receipt construction; all six expected behavioral test roots are
+  present and source-reviewed, but remain unexecuted; recovery remains
+  `Approved` until a real downstream owner receipt is acknowledged;
 - WP05 billing and support/admin consumers bind action identity to current
   repository authority and a complete support receipt, but this does not close
   the workpack: the runtime effect handoff still has no durable Account-owned
@@ -102,10 +103,12 @@ What remains before product completion:
 - a shipped Cloudflare authoritative writer/currentness/revocation/CAS owner,
   Firebase/provider-to-Account caller, and account/session route composition;
 - ship identity/membership/support/Data owner adapters for the reviewed WP04
-  repository and typed custody handoff;
+  repository and typed custody handoff, then execute its existing six-root
+  behavioral test packet;
 - Device Trust step-up plus remote/export/delete consumers;
-- the full expected-test wave for reload, concurrency, replay, expiry,
-  revocation, cross-household, support-receipt, migration, and route negatives;
+- the remaining WP02/WP03/WP05/WP08 expected-test wave for reload,
+  concurrency, replay, expiry, revocation, cross-household, migration, and
+  route negatives;
 - focused execution, proof regeneration, precommit, PR, CI, and merge.
 
 Therefore WP02-WP05 and WP08 have bounded source slices but remain open;

@@ -36,19 +36,22 @@ admission. Their execution and proof remain later phases. Do not revive the
 stale `packages/parent-domain` test paths or call checked-in source runtime
 completion.
 
-The current code audit maps all 220 workpacks and leaves 28 source/test
-writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
+The 2026-08-15 code audit mapped all 220 workpacks and recorded 28 source/test
+writing gaps. The 2026-08-29 source-first review has since confirmed bounded
+production and real behavioral test source through WP49, except WP27's scale
+harnesses and WP24's owner-blocked live classifier/provider producer. Work from
+[CODE_AUDIT.md](CODE_AUDIT.md) plus the newer checkpoints, in this order:
 
 1. WP10 source and its six mapped real test roots are written at canonical
    `51d9819a9`. Do not add more source-phase churn. Its later validation phase
    must execute those tests and retain proof; live launcher manifest/catalog
    crawling and the external publisher/classifier proof owner remain open.
 2. WP62-WP65: preference owners and receipt-backed status. WP59's scheduler
-   bridge, WP60's metadata-only audit-history bridge, and WP61's persisted
-   provider-preflight bridge are implemented and focused-green at `4cf6a11c9`,
-   `bae505ce8`, and `8355613d8`; production
-   history persistence, retry/quiet-hours workers, and provider delivery remain
-   later runtime boundaries.
+   bridge, WP60's metadata-only audit-history bridge, WP61's persisted
+   provider-preflight bridge, and WP62's preference-preflight source plus real
+   tests are reviewed; production history persistence, real preference/status
+   owners, retry/quiet-hours workers, provider delivery, execution, and proof
+   remain later boundaries.
 3. WP16 and WP159: remaining cohesive dashboard/source UI and hostile/large
    metadata tests. WP48/WP63's shared focused source is already canonical and
    awaits execution/proof only.

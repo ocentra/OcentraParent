@@ -33,12 +33,12 @@ legacy package/script paths embedded in old workpack prose.
    - Compose sessions, schedules, bonus/allow-once state, timer lifecycle, and
      child warning/request delivery with restart tests.
 4. **WP62-WP65 — notification preference and delivery status**
-   - WP59's scheduler bridge, WP60's metadata-only audit-history bridge, and
-     WP61's persisted provider-preflight bridge are implemented and
-     focused-green at `4cf6a11c9`, `bae505ce8`, and `8355613d8`; implement
-     preference preflight and real status producers next. Durable
-     history/query, quiet-hours, retry/dead-letter, and provider delivery remain
-     separate runtime boundaries.
+   - WP59's scheduler bridge, WP60's metadata-only audit-history bridge, WP61's
+     persisted provider-preflight bridge, and WP62's preference-preflight
+     bridge plus real behavioral test source are reviewed. Implement the real
+     WP64/WP65 status producers and preference owner next. Durable history/query,
+     quiet-hours, retry/dead-letter, provider delivery, focused execution, and
+     retained proof remain separate boundaries.
 5. **WP15 + WP48 + WP63 — parent product surface**
    - Render inventory/running/foreground/session and source freshness states,
      evidence drill-in, empty/stale/degraded/manual states, and malicious/large

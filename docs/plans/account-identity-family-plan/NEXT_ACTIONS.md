@@ -47,7 +47,7 @@ accepted WP08 schema + sealed authority + local repository/CAS
   -> Account WP09 current-v2 family lifecycle composition
   -> Cloudflare WP06 authenticated delivery/current-key/D1 consumer
   -> Device Trust WP03 RegisterLanSignerAnchor actor/target composition
-  -> mount reviewed WP04 repository behind real identity/membership/support/Data owners and write its six expected test roots
+  -> mount reviewed WP04 repository behind real identity/membership/support/Data owners, then execute and review its existing six expected test roots
   -> complete WP05 Device Trust/remote/export/delete step-up consumers
   -> write the full WP02-WP05/WP08 expected-test wave
   -> run focused tests and focused Enforcer only after test source is complete

@@ -733,7 +733,7 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "source reviewed / owner adapters and six expected test roots open",
+        "statusText": "source and six expected test roots reviewed / owner adapters and execution open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -3513,16 +3513,34 @@
         "statusText": "checked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the live staged classifier/evidence boundary and its real serde/projection negatives. Legacy AI digest DTOs have no production caller and were deliberately not expanded. Live classifier/provider execution, focused test execution, proof, CI, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/24-ai-classifier-digest-boundary.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/24-ai-classifier-digest-boundary.md"
+            "crates/agent-protocol/src/app_game.rs",
+            "crates/agent-protocol/src/app_game_authority_classifier.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/protocol_rows.rs",
+            "crates/agent-service/src/activity_capture/app_game.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-protocol/tests/unit/app_game_evidence_identity_tests.rs",
+            "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_protocol_rows_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -3585,16 +3603,32 @@
         "statusText": "checked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the bounded performance/service-health rows, service caller, and behavioral contract/payload tests. The specified 1000-rule, 100000-event replay, 500-row UI-load, stale-age, and portal-virtualization harnesses are still absent; no scale or proof claim is made.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/27-performance-and-service-health.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/27-performance-and-service-health.md"
+            "crates/agent-core/src/activity_store_app_game/app_game_performance_health.rs",
+            "crates/agent-protocol/src/app_game_boundary_read_model.rs",
+            "crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-protocol/tests/contract/app_game_boundary_read_model_tests.rs",
+            "crates/agent-service/tests/unit/app_game_boundary_read_model_payload_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -3621,16 +3655,27 @@
         "statusText": "checked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Canonical ec65cf634 validates the live AppGameEvidenceClaim boundary and adds real valid-roundtrip plus malformed-state negatives. Dead legacy AI-digest DTO expansion was rejected. The tests are unexecuted and no live evidence producer, proof, CI, or DONE claim is made.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/29-rust-protocol-evidence-identity-parity.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
-          "implementation": [
-            "docs/plans/app-game-plan/workpacks/29-rust-protocol-evidence-identity-parity.md"
+          "implementation": ["crates/agent-protocol/src/app_game.rs"],
+          "tests": [
+            "crates/agent-protocol/tests/unit/app_game_evidence_identity_tests.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -3657,16 +3702,29 @@
         "statusText": "checked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed all seven strict authority/classifier shapes, fail-closed/manual states, caller projection, and real serde/negative tests. Test execution, live provider authority, proof, CI, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/30-rust-protocol-authority-classifier-parity.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/30-rust-protocol-authority-classifier-parity.md"
+            "crates/agent-protocol/src/app_game_authority_classifier.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -3693,16 +3751,33 @@
         "statusText": "checked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed encrypted-journal to SQLite projection for staged evidence, identity, authority, action-result, platform-matrix, and classifier rows plus real malformed/roundtrip tests. No live classifier/provider/service/portal policy caller exists; tests and retained proof remain unexecuted.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/31-journal-sqlite-authority-classifier-storage.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/31-journal-sqlite-authority-classifier-storage.md"
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/protocol_rows.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_project.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_project_boundary.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_sqlite.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_protocol_rows_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -6559,13 +6634,19 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the live Windows process snapshot source, generation-safe process identity, opaque path refs, shipped service caller, SQLite replay, unsupported-platform behavior, and real behavioral tests. Execution/proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/32-live-process-snapshot-source.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        },
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
           "checklist: reviewed evidence is not recorded"
         ],
@@ -6573,12 +6654,17 @@
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/32-live-process-snapshot-source.md"
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_process_source.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_process_source_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -6602,13 +6688,19 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the process snapshot to typed event, encrypted journal, SQLite projection, running-row read model, durable retry, and invalid-key rejection coverage. Tests/proof/CI remain unexecuted.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/33-live-process-journal-sqlite-bridge.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        },
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
           "checklist: reviewed evidence is not recorded"
         ],
@@ -6616,12 +6708,19 @@
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/33-live-process-journal-sqlite-bridge.md"
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -6645,13 +6744,19 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the bounded service capture bridge and real journal/store behavior tests for live process evidence. Focused execution, proof, CI, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/34-service-capture-app-game-live-process-bridge.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        },
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
           "checklist: reviewed evidence is not recorded"
         ],
@@ -6659,12 +6764,18 @@
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/34-service-capture-app-game-live-process-bridge.md"
+            "crates/agent-service/src/activity_capture/app_game.rs",
+            "crates/agent-service/src/activity_capture/capture_events.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-service/tests/unit/activity_capture_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -6688,13 +6799,19 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the Windows-gated recurring capture cadence, journal/store handoff, structured failure path, and real freshness behavior source. Tests, long-run proof, CI, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/35-service-app-game-recurring-freshness.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        },
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
           "checklist: reviewed evidence is not recorded"
         ],
@@ -6702,12 +6819,21 @@
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/35-service-app-game-recurring-freshness.md"
+            "crates/agent-service/src/network_runtime_delivery/capture_loop.rs",
+            "crates/agent-service/src/service_runtime/run.rs",
+            "crates/agent-service/src/activity_capture.rs",
+            "crates/agent-protocol/src/constants/activity_capture.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-service/tests/unit/activity_capture_freshness_tests.rs",
+            "crates/agent-service/tests/support/activity_capture_test_support.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11142,16 +11268,29 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the live Windows foreground-window source, generation-safe process join, opaque refs, fail-closed absence, encrypted journal replay, and real behavioral tests. Execution and proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/36-live-foreground-window-source.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/36-live-foreground-window-source.md"
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_source.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_foreground_source_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11178,16 +11317,33 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the foreground source to service capture/journal/store bridge and real freshness/capture/source tests. Focused execution and retained proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/37-service-foreground-capture-bridge.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/37-service-foreground-capture-bridge.md"
+            "crates/agent-service/src/activity_capture/capture_events.rs",
+            "crates/agent-service/src/activity_capture/app_game.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_source.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-service/tests/unit/activity_capture_freshness_tests.rs",
+            "crates/agent-service/tests/unit/activity_capture_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_foreground_source_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11214,16 +11370,31 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed propagation of staged evidence, identity, authority, action-result, platform-matrix, and classifier refs into app-use/games surfaces with real boundary tests. The refs are evidence only; no trusted live provider or policy authority is claimed.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/38-service-authority-classifier-surface-evidence.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/38-service-authority-classifier-surface-evidence.md"
+            "crates/agent-service/src/activity_surface_read_models/shared_boundary.rs",
+            "crates/agent-service/src/activity_surface_read_models/app_use.rs",
+            "crates/agent-service/src/activity_surface_read_models/games.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-service/tests/unit/app_game_boundary_evidence_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11250,16 +11421,35 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed authority/classifier count projection through the protocol and service read models plus real direct/payload/boundary tests. Counts do not authorize policy or adapter execution; test execution/proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/39-authority-classifier-read-model-counts.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/39-authority-classifier-read-model-counts.md"
+            "crates/agent-protocol/src/activity_surface.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_counts.rs",
+            "crates/agent-service/src/activity_surface_read_models/shared.rs",
+            "crates/agent-service/src/activity_surface_read_models/app_use/helpers.rs",
+            "crates/agent-service/src/activity_surface_read_models/games.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-service/tests/unit/app_game_boundary_evidence_tests.rs",
+            "crates/agent-service/tests/unit/activity_surface_read_models_direct_tests.rs",
+            "crates/agent-service/tests/unit/app_game_boundary_read_model_payload_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11286,16 +11476,33 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the strict boundary event, service payload, real WebSocket dispatch path, and contract/service behavior tests. No classifier/provider execution, portal authority effect, focused execution, or proof claim is made.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/40-app-game-boundary-read-model-event.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/40-app-game-boundary-read-model-event.md"
+            "crates/agent-protocol/src/app_game_boundary_read_model.rs",
+            "crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs",
+            "crates/agent-service/src/activity_api.rs",
+            "crates/agent-service/src/websocket/activity_app_game_read_model_reports.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-protocol/tests/contract/app_game_boundary_read_model_tests.rs",
+            "crates/agent-service/tests/unit/app_game_boundary_read_model_payload_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11322,16 +11529,29 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed bounded Windows Start Menu inventory acquisition, opaque path refs, installed-only semantics, shipped capture caller, journal/SQLite projection, and real source/replay tests. Runtime/foreground claims, execution, and proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/41-live-windows-inventory-source.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/41-live-windows-inventory-source.md"
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_inventory_source.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_inventory_source_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11358,16 +11578,30 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the bounded live inventory capture bridge, encrypted journal/SQLite projection, inventory-only claims, and real service behavior tests. Execution/proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/42-service-windows-inventory-capture-bridge.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/42-service-windows-inventory-capture-bridge.md"
+            "crates/agent-service/src/activity_capture/app_game.rs",
+            "crates/agent-service/src/activity_capture/capture_events.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11394,16 +11628,30 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed bounded Windows package-manifest acquisition, hashed refs, inventory-only semantics, invalid-manifest and unsupported-platform behavior, and real tests. Execution/proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/43-live-windows-store-package-source.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/43-live-windows-store-package-source.md"
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_store_package_source.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_store_package_manifest.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_store_package_source_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11430,16 +11678,31 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the package source to service capture, encrypted journal, SQLite projection, and inventory-only behavioral tests. Test execution and proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/44-service-windows-store-package-capture-bridge.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/44-service-windows-store-package-capture-bridge.md"
+            "crates/agent-service/src/activity_capture/app_game.rs",
+            "crates/agent-service/src/activity_capture/capture_events.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-service/tests/unit/activity_capture_inventory_tests.rs",
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_store_package_source_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11466,16 +11729,30 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed live HKLM/HKCU uninstall inventory, hidden-system filtering, SHA-256 opaque registry/path refs, inventory event projection, unsupported-platform behavior, and real fixture/limit/SQLite tests. Execution/proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/45-live-windows-registry-inventory-source.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/45-live-windows-registry-inventory-source.md"
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_registry_source.rs",
+            "crates/agent-core/src/activity_store_app_game/app_game_windows_registry_live.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_registry_source_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11502,16 +11779,33 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the live registry source service bridge, error mapping, recurring production caller, encrypted journal/SQLite projection, and real temp-export behavior tests. Execution/proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/46-service-windows-registry-capture-bridge.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/46-service-windows-registry-capture-bridge.md"
+            "crates/agent-service/src/activity_capture/capture_events.rs",
+            "crates/agent-service/src/activity_capture/app_game.rs",
+            "crates/agent-service/src/activity_capture/errors.rs",
+            "crates/agent-service/src/network_runtime_delivery/capture_loop.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-service/tests/unit/activity_capture_inventory_tests.rs",
+            "crates/agent-service/tests/support/activity_capture_test_support.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11538,16 +11832,30 @@
         "statusText": "reference/no boxes",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed source-kind grouping, latest observation, capability/evidence projection, app-versus-launcher boundaries, real consumers, and behavioral coverage. Canonical c70dea035 registers the dedicated test target so it will run in the later validation phase. Proof/CI/DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/47-backend-source-freshness-read-model.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/47-backend-source-freshness-read-model.md"
+            "crates/agent-protocol/src/activity_surface/source_status.rs",
+            "crates/agent-service/src/activity_surface_read_models/app_use/source.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/agent-service/tests/unit/app_game_source_status_tests.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -11631,16 +11939,33 @@
         "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed all seven candidate mappings, active proof/evidence/confidence/digest validation, hard-action manualization, dry-run/no-adapter behavior, and the real risk-detection caller. Live classifier/provider execution, service policy consumption, child delivery, adapter execution, and proof remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/49-category-risk-policy-routing.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/49-category-risk-policy-routing.md"
+            "crates/app-game-core/src/app_game_category_risk_policy_routing.rs",
+            "crates/app-game-core/src/app_game_category_risk_policy_routing_manual.rs",
+            "crates/app-game-core/src/app_game_category_risk_policy_routing_types.rs",
+            "crates/app-game-core/src/app_game_category_risk_policy_routing_validation.rs",
+            "crates/app-game-core/src/app_game_risk_candidate_detection.rs"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/app-game-core/tests/contract/app_game_category_risk_policy_routing.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -14411,13 +14736,19 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Canonical 46a7c0512 mounts the AppGameSessions-only policy-readiness panel and preserves fail-closed null, unavailable, and non-ready behavior with real panel tests. Test execution, trusted policy authority, proof, CI, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-plan/workpacks/54-policy-readiness-portal-renderer.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        },
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
           "checklist: reviewed evidence is not recorded"
         ],
@@ -14425,12 +14756,18 @@
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-plan/workpacks/54-policy-readiness-portal-renderer.md"
+            "apps/portal/src/ParentPortalRoute.tsx",
+            "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx"
           ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
@@ -14564,13 +14901,19 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed the scheduler bridge, atomic persistence and read-model revalidation plus real scheduler/outbox tests. No production scheduler writer/runtime, provider delivery, child delivery, focused execution, or retained proof is claimed.",
+          "evidence": [
+            "docs/plans/app-plan/workpacks/59-notification-scheduler-bridge.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        },
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
           "checklist: reviewed evidence is not recorded"
         ],
@@ -14578,12 +14921,22 @@
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-plan/workpacks/59-notification-scheduler-bridge.md"
+            "crates/app-game-core/src/app_game_notification_scheduler_bridge.rs",
+            "crates/app-game-core/src/app_game_notification_scheduler_bridge_types.rs",
+            "crates/app-game-core/src/app_game_notification_scheduler_bridge_read_model_validation.rs",
+            "crates/app-game-core/src/app_game_child_ux_scheduler.rs",
+            "crates/app-game-core/src/app_game_child_ux_scheduler_store.rs"
           ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs",
+            "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
@@ -14605,13 +14958,19 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Canonical 8d3ef287e validates the whole audit-history model before JSONL serialization and adds a real tampered-history rejection test. No shipped trusted durable history owner/runtime caller exists; execution, proof, CI, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-plan/workpacks/60-notification-audit-history-bridge.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        },
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
           "checklist: reviewed evidence is not recorded"
         ],
@@ -14619,12 +14978,17 @@
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-plan/workpacks/60-notification-audit-history-bridge.md"
+            "crates/app-game-core/src/app_game_notification_audit_history_bridge.rs"
           ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
@@ -14648,13 +15012,19 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed persisted scheduler identity binding, provider-preflight validation, manual/unavailable fail-closed states, false-claim guards, and real bridge behavior tests. Provider credentials/runtime/delivery, execution, and proof remain open.",
+          "evidence": [
+            "docs/plans/app-plan/workpacks/61-notification-provider-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        },
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
           "checklist: reviewed evidence is not recorded"
         ],
@@ -14662,12 +15032,20 @@
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-plan/workpacks/61-notification-provider-preflight.md"
+            "crates/app-game-core/src/app_game_child_ux_provider_preflight.rs",
+            "crates/app-game-core/src/app_game_child_ux_provider_preflight_types.rs",
+            "crates/app-game-core/src/app_game_notification_provider_preflight_bridge.rs",
+            "crates/app-game-core/src/app_game_notification_provider_preflight_bridge_types.rs"
           ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/app-game-core/tests/contract/app_game_notification_provider_preflight_bridge.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
@@ -14684,24 +15062,42 @@
       "path": "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Production code drafted; expected bridge tests and validation deferred**",
+        "statusText": "**Bounded Phase 1 source/test reviewed; focused execution and proof open**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true,
+        "completionEvidenceOverride": {
+          "reason": "Reviewed persisted scheduler/preference identity binding, missing/unavailable/manual preference states, false-claim guards, and real scheduler/outbox behavioral coverage. No preference mutation owner, production runtime caller, delivery, execution, or proof is claimed.",
+          "evidence": [
+            "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md"
+            "crates/app-game-core/src/app_game_child_ux_preference_preflight.rs",
+            "crates/app-game-core/src/app_game_child_ux_preference_preflight_types.rs",
+            "crates/app-game-core/src/app_game_notification_preference_preflight_bridge.rs",
+            "crates/app-game-core/src/app_game_notification_preference_preflight_bridge_types.rs",
+            "crates/app-game-core/src/app_game_notification_scheduler_bridge_read_model_validation.rs"
           ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs",
+            "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []

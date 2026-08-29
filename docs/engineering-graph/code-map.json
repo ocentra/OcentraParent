@@ -3124,6 +3124,7 @@
     "WP-app-plan-54-policy-readiness-portal-renderer": {
       "planSlug": "app-plan",
       "roots": [
+        "apps/portal/src/ParentPortalRoute.tsx",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts"
       ]
@@ -3158,6 +3159,7 @@
         "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
         "crates/app-game-core/src/app_game_notification_scheduler_bridge.rs",
         "crates/app-game-core/src/app_game_notification_scheduler_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_scheduler_bridge_read_model_validation.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_types.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_store.rs",
@@ -3204,7 +3206,8 @@
         "crates/app-game-core/src/app_game_notification_preference_preflight_bridge_types.rs",
         "crates/app-game-core/src/app_game_notification_scheduler_bridge_read_model_validation.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_types.rs",
-        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs"
       ]
     },
     "WP-app-plan-63-source-freshness-source-panel-polish": {
@@ -7362,15 +7365,11 @@
     "WP-app-game-plan-27-performance-and-service-health": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game.rs",
-        "crates/agent-protocol/src/app_game_authority_classifier.rs",
-        "crates/agent-protocol/tests/unit/app_game_tests.rs",
-        "crates/agent-protocol/tests/unit/app_game_evidence_identity_tests.rs",
-        "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
-        "crates/agent-core/src/activity_store_app_game",
-        "crates/agent-core/tests/unit/activity_store_app_game",
-        "crates/agent-service/src/activity_capture/app_game.rs",
-        "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
+        "crates/agent-core/src/activity_store_app_game/app_game_performance_health.rs",
+        "crates/agent-protocol/src/app_game_boundary_read_model.rs",
+        "crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs",
+        "crates/agent-protocol/tests/contract/app_game_boundary_read_model_tests.rs",
+        "crates/agent-service/tests/unit/app_game_boundary_read_model_payload_tests.rs"
       ]
     },
     "WP-app-game-plan-28-e2e-manual-proof-rollout-pr-gate": {
@@ -7395,7 +7394,12 @@
     "WP-app-game-plan-31-journal-sqlite-authority-classifier-storage": {
       "planSlug": "app-game-plan",
       "roots": [
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/protocol_rows.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_project.rs",
         "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_project_boundary.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_sqlite.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_counts.rs",
         "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_protocol_rows_tests.rs"
       ]
     },
@@ -7448,6 +7452,7 @@
     "WP-app-game-plan-38-service-authority-classifier-surface-evidence": {
       "planSlug": "app-game-plan",
       "roots": [
+        "crates/agent-service/src/activity_surface_read_models/shared_boundary.rs",
         "crates/agent-service/src/activity_surface_read_models/app_use.rs",
         "crates/agent-service/src/activity_surface_read_models/games.rs",
         "crates/agent-service/tests/unit/app_game_boundary_evidence_tests.rs"
@@ -7456,9 +7461,15 @@
     "WP-app-game-plan-39-authority-classifier-read-model-counts": {
       "planSlug": "app-game-plan",
       "roots": [
+        "crates/agent-protocol/src/activity_surface.rs",
         "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_counts.rs",
+        "crates/agent-service/src/activity_surface_read_models/shared.rs",
         "crates/agent-service/src/activity_surface_read_models/app_use.rs",
-        "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
+        "crates/agent-service/src/activity_surface_read_models/app_use/helpers.rs",
+        "crates/agent-service/src/activity_surface_read_models/games.rs",
+        "crates/agent-service/tests/unit/app_game_activity_read_models.rs",
+        "crates/agent-service/tests/unit/activity_surface_read_models_direct_tests.rs",
+        "crates/agent-service/tests/unit/app_game_boundary_read_model_payload_tests.rs"
       ]
     },
     "WP-app-game-plan-40-app-game-boundary-read-model-event": {
@@ -7466,7 +7477,10 @@
       "roots": [
         "crates/agent-protocol/src/app_game_boundary_read_model.rs",
         "crates/agent-protocol/tests/contract/app_game_boundary_read_model_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs"
+        "crates/agent-service/src/activity_api/app_game_boundary_read_model_payload.rs",
+        "crates/agent-service/src/activity_api.rs",
+        "crates/agent-service/src/websocket/activity_app_game_read_model_reports.rs",
+        "crates/agent-service/tests/unit/app_game_boundary_read_model_payload_tests.rs"
       ]
     },
     "WP-app-game-plan-41-live-windows-inventory-source": {
@@ -7521,6 +7535,7 @@
       "roots": [
         "crates/agent-protocol/src/activity_surface/source_status.rs",
         "crates/agent-service/src/activity_surface_read_models/app_use/source.rs",
+        "crates/agent-service/Cargo.toml",
         "crates/agent-service/tests/unit/app_game_source_status_tests.rs"
       ]
     },

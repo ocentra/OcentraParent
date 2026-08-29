@@ -38,6 +38,18 @@ None of these nine tests has been executed in the code-first phase. Live Linux
 foreground-tool/process custody, active capture authority, proof, CI, READY,
 and DONE remain open.
 
+## WP24-WP49 code-and-test-source checkpoint — 2026-08-29
+
+The current source-first review confirms bounded production and real behavioral
+test source for WP29-WP49, including live Windows process, foreground, Start
+Menu, Store-package, and registry acquisition; recurring service capture;
+encrypted journal/SQLite projection; source-freshness read models and portal
+intent; category-risk routing; and the WP47 Cargo test-target registration at
+canonical `c70dea035`. WP24's live staged boundary is covered but still lacks a
+production classifier/provider producer. WP27 still lacks its specified scale,
+replay, and portal-load harnesses. No tests in this checkpoint were executed;
+trusted policy/provider authority, proof, CI, READY, and DONE remain open.
+
 ## Android child-runtime receipt/notification correction — 2026-08-29
 
 Canonical `0505bdd61` and `e4c147fee` add real package-local receipt and ACK
