@@ -10,7 +10,11 @@ use ocentra_parent_agent_protocol::child_domain_runtime::{
     child_domain_observed_event, child_domain_policy_evaluation_requested_from_ai_result_event,
     child_domain_policy_request_id_from_fact_ref, child_domain_policy_violation_detected_event,
     child_domain_policy_violation_id_from_policy_request_id, ChildDomainEventType,
-    ChildDomainObservedEvent, ChildRuntimeDomain, CHILD_DOMAIN_RUNTIME_SCHEMA_VERSION,
+    ChildDomainAiAnalysisCompletedEvent, ChildDomainAiAnalysisRequestedEvent,
+    ChildDomainEvidenceRecordedEvent, ChildDomainNotificationRequestedEvent,
+    ChildDomainObservedEvent, ChildDomainPolicyEvaluationRequestedEvent,
+    ChildDomainPolicyViolationDetectedEvent, ChildRuntimeDomain,
+    CHILD_DOMAIN_RUNTIME_SCHEMA_VERSION,
 };
 use ocentra_parent_agent_protocol::constants;
 
@@ -116,6 +120,45 @@ fn child_domain_policy_and_notification_helpers_canonicalize_evidence_refs() {
     assert_eq!(violation.evidence_refs.len(), 1);
     assert_eq!(notification.evidence_refs.len(), 1);
     assert_eq!(notification.evidence_refs, violation.evidence_refs);
+}
+
+macro_rules! assert_child_domain_payload_shape {
+    ($event:expr, $event_type:ty) => {{
+        let encoded = serde_json::to_value(&$event).expect("child domain event must serialize");
+        let decoded = serde_json::from_value::<$event_type>(encoded.clone())
+            .expect("valid child domain event must deserialize");
+        assert_eq!(decoded, $event);
+
+        let mut with_unknown_field = encoded;
+        with_unknown_field["unexpectedField"] = serde_json::json!("not-in-contract");
+        let error = serde_json::from_value::<$event_type>(with_unknown_field)
+            .expect_err_value("unknown child domain event fields must fail deserialization");
+        assert_eq!(error.classify(), serde_json::error::Category::Data);
+    }};
+}
+
+#[test]
+fn child_domain_event_payloads_round_trip_and_reject_unknown_fields() {
+    let observed =
+        child_domain_observed_event(ChildRuntimeDomain::Browser.default_observed_profile());
+    let evidence = child_domain_evidence_recorded_event(&observed);
+    let ai_requested = child_domain_ai_analysis_requested_event(&evidence);
+    let ai_completed = child_domain_ai_analysis_completed_event(&ai_requested);
+    let policy_requested =
+        child_domain_policy_evaluation_requested_from_ai_result_event(&ai_completed);
+    let violation = child_domain_policy_violation_detected_event(&policy_requested);
+    let notification = child_domain_notification_requested_event(&violation);
+
+    assert_child_domain_payload_shape!(observed, ChildDomainObservedEvent);
+    assert_child_domain_payload_shape!(evidence, ChildDomainEvidenceRecordedEvent);
+    assert_child_domain_payload_shape!(ai_requested, ChildDomainAiAnalysisRequestedEvent);
+    assert_child_domain_payload_shape!(ai_completed, ChildDomainAiAnalysisCompletedEvent);
+    assert_child_domain_payload_shape!(
+        policy_requested,
+        ChildDomainPolicyEvaluationRequestedEvent
+    );
+    assert_child_domain_payload_shape!(violation, ChildDomainPolicyViolationDetectedEvent);
+    assert_child_domain_payload_shape!(notification, ChildDomainNotificationRequestedEvent);
 }
 
 #[test]

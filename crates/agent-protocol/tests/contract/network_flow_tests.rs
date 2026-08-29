@@ -655,6 +655,36 @@ fn network_flow_observed_event_round_trips_through_typed_event_envelope(
 }
 
 #[test]
+fn network_flow_observed_event_rejects_invalid_fields_before_envelope_creation(
+) -> Result<(), EventingError> {
+    let mut payload = network_flow_observed_event();
+    payload.flow_event_ref = " ".to_string();
+
+    let result = EventEnvelope::from_event(
+        payload,
+        EventMetadata::new(
+            CorrelationId::parse("network-flow-envelope-invalid-1")?,
+            EventSource::new(
+                EventCustody::parse("test-custody")?,
+                RuntimeRole::parse("child-agent")?,
+                SourceService::parse("agent-protocol-contract-test")?,
+                SourceComponent::parse("network-flow-eventing-contract")?,
+                RuntimeInstanceId::parse("network-flow-eventing-contract-1")?,
+            ),
+        ),
+    );
+
+    assert_eq!(
+        result,
+        Err(EventingError::EmptyValue {
+            field: "flow_event_ref"
+        })
+    );
+
+    Ok(())
+}
+
+#[test]
 fn network_flow_observed_event_rejects_noncanonical_schema_version() {
     let mut payload = network_flow_observed_event();
     payload.schema_version = constants::network_flow::EVENT_SCHEMA_VERSION + 1;
