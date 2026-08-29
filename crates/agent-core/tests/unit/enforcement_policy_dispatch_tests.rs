@@ -141,6 +141,93 @@ fn rejects_wrong_device_before_dispatch() -> TestResult {
 }
 
 #[test]
+fn rejects_dry_run_dispatch_ready_before_execution() -> TestResult {
+    let mut read_model = read_model(vec![entry(
+        dispatch::TEST_SUFFIX_DRY_RUN_ONLY,
+        EnforcementPolicyDispatchOutcomeState::DispatchReady,
+        EnforcementCapabilityState::Supported,
+        EnforcementPolicyDispatchRejectionReason::None,
+        EnforcementPolicyDispatchTimerState::Active,
+    )]);
+    read_model.entries[0].intent.dry_run = true;
+
+    let rejection = err(
+        validate_enforcement_policy_dispatch_read_model(&read_model),
+        dispatch::TEST_SUFFIX_DRY_RUN_ONLY,
+    )?;
+
+    assert_eq!(
+        rejection,
+        EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved
+    );
+
+    Ok(())
+}
+
+#[test]
+fn rejects_unapproved_dispatch_ready_before_execution() -> TestResult {
+    for approval_state in [
+        EnforcementPolicyDispatchApprovalState::Pending,
+        EnforcementPolicyDispatchApprovalState::Denied,
+        EnforcementPolicyDispatchApprovalState::Expired,
+        EnforcementPolicyDispatchApprovalState::ManualRequired,
+    ] {
+        let mut read_model = read_model(vec![entry(
+            dispatch::TEST_SUFFIX_MISSING_POLICY_DECISION,
+            EnforcementPolicyDispatchOutcomeState::DispatchReady,
+            EnforcementCapabilityState::Supported,
+            EnforcementPolicyDispatchRejectionReason::None,
+            EnforcementPolicyDispatchTimerState::Active,
+        )]);
+        read_model.entries[0].approval_state = approval_state;
+        read_model.entries[0].intent.approval_ref = Some(approval_reference(
+            dispatch::TEST_SUFFIX_MISSING_POLICY_DECISION,
+        ));
+
+        let rejection = err(
+            validate_enforcement_policy_dispatch_read_model(&read_model),
+            dispatch::TEST_SUFFIX_MISSING_POLICY_DECISION,
+        )?;
+
+        assert_eq!(
+            rejection,
+            EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved
+        );
+    }
+
+    Ok(())
+}
+
+#[test]
+fn accepts_approved_dispatch_ready_states_with_valid_approval_reference() -> TestResult {
+    for approval_state in [
+        EnforcementPolicyDispatchApprovalState::Approved,
+        EnforcementPolicyDispatchApprovalState::OverrideActive,
+    ] {
+        let mut read_model = read_model(vec![entry(
+            dispatch::TEST_SUFFIX_DISPATCH_READY,
+            EnforcementPolicyDispatchOutcomeState::DispatchReady,
+            EnforcementCapabilityState::Supported,
+            EnforcementPolicyDispatchRejectionReason::None,
+            EnforcementPolicyDispatchTimerState::Active,
+        )]);
+        read_model.entries[0].approval_state = approval_state;
+        read_model.entries[0].intent.approval_ref = Some(approval_reference(
+            dispatch::TEST_SUFFIX_DISPATCH_READY,
+        ));
+
+        let validation = ok(
+            validate_enforcement_policy_dispatch_read_model(&read_model),
+            dispatch::READ_MODEL_ID,
+        )?;
+
+        assert_eq!(validation.dispatch_ready_count, 1);
+    }
+
+    Ok(())
+}
+
+#[test]
 fn rejects_missing_evidence_before_dispatch() -> TestResult {
     let mut read_model = read_model(vec![entry(
         dispatch::TEST_SUFFIX_MISSING_EVIDENCE,

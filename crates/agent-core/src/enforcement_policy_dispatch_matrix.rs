@@ -1,8 +1,9 @@
 use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
 use ocentra_parent_agent_protocol::enforcement::EnforcementCapabilityState;
 use ocentra_parent_agent_protocol::enforcement_policy_dispatch::{
-    EnforcementPolicyDispatchOutcomeState, EnforcementPolicyDispatchProofLevel,
-    EnforcementPolicyDispatchReadModelEntry, EnforcementPolicyDispatchRejectionReason,
+    EnforcementPolicyDispatchApprovalState, EnforcementPolicyDispatchOutcomeState,
+    EnforcementPolicyDispatchProofLevel, EnforcementPolicyDispatchReadModelEntry,
+    EnforcementPolicyDispatchRejectionReason,
 };
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlParentAction;
 
@@ -38,6 +39,16 @@ pub(super) fn validate_entry_matrix(
 
     match entry.matrix_row.outcome_state {
         EnforcementPolicyDispatchOutcomeState::DispatchReady => {
+            if entry.intent.dry_run
+                || !matches!(
+                    entry.approval_state,
+                    EnforcementPolicyDispatchApprovalState::NotRequired
+                        | EnforcementPolicyDispatchApprovalState::Approved
+                        | EnforcementPolicyDispatchApprovalState::OverrideActive
+                )
+            {
+                return Err(EnforcementPolicyDispatchRejectionReason::BroadClaimNotProved);
+            }
             if entry.matrix_row.capability_state != EnforcementCapabilityState::Supported {
                 return Err(EnforcementPolicyDispatchRejectionReason::AdapterUnavailable);
             }
