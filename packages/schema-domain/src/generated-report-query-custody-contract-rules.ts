@@ -1,6 +1,7 @@
 /* generated from crates/schema/src/report_query_custody.rs */
 
 import {
+  ReportQueryCustodyContractRuntime,
   GeneratedReportQueryCustodyMaxPageSize,
   GeneratedReportQueryCustodyNonClaims,
   GeneratedReportQueryCustodySourceDataClasses,
@@ -55,6 +56,7 @@ function reportQueryCustodyCitationIsBoundGenerated(
 
 export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedReportQueryCustodyRequest): boolean {
   return (
+    request.schemaVersion === ReportQueryCustodyContractRuntime.SchemaVersion &&
     reportQueryCustodyAuthorityReferenceIsConsistentGenerated(request) &&
     !request.rawChildEvidenceRequested &&
     request.pageSize > 0 &&
@@ -307,6 +309,7 @@ function reportQueryCustodyCitationsMatchGenerated(
 
 export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQueryCustodyContractProof): boolean {
   return (
+    proof.schemaVersion === ReportQueryCustodyContractRuntime.SchemaVersion &&
     GeneratedReportQueryCustodyStates.every((state) => proof.rows.some((row) => row.state === state)) &&
     GeneratedReportQueryCustodyNonClaims.every((nonClaim) => proof.nonClaims.includes(nonClaim)) &&
     reportQueryCustodyRequestIsHonestGenerated(proof.request) &&

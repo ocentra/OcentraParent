@@ -1,4 +1,4 @@
-use crate::support::{assert_generated_line_eq, ContractLine, ValueOrUnreachable};
+use crate::support::ValueOrUnreachable;
 use ocentra_schema::report_query_custody as contracts;
 use ocentra_schema::report_query_custody_ts::{
     report_query_custody_contract_rules_typescript, report_query_custody_contracts_typescript,
@@ -25,63 +25,40 @@ pub(super) fn assert_report_query_custody_contracts() {
     let decoded: contracts::ReportQueryCustodyContractProof = serde_json::from_value(encoded)
         .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
+    assert_eq!(
+        decoded.schema_version,
+        contracts::REPORT_QUERY_CUSTODY_SCHEMA_VERSION
+    );
+    assert_eq!(
+        decoded.rows.len(),
+        contracts::required_report_query_custody_states().len()
+    );
+}
 
+pub(super) fn assert_generated_report_query_custody_contracts() {
     let checked_in = include_str!(
         "../../../../packages/schema-domain/src/generated-report-query-custody-contracts.ts"
     );
-    let generated = report_query_custody_contracts_typescript();
-    let generated = crate::contract_text!(&generated);
-
+    let generated_source = report_query_custody_contracts_typescript();
+    let generated = crate::contract_text!(&generated_source);
     assert_eq!(checked_in, generated.0);
-    assert_generated_line_eq(
-        generated,
-        crate::contract_text!("export interface GeneratedReportQueryCustodyContractProof"),
-        ContractLine("export interface GeneratedReportQueryCustodyContractProof {"),
-    );
-    assert_generated_line_eq(
-        generated,
-        crate::contract_text!("export interface GeneratedReportQueryCustodyRow"),
-        ContractLine("export interface GeneratedReportQueryCustodyRow {"),
-    );
-    assert_generated_line_eq(
-        generated,
-        crate::contract_text!("export const GeneratedReportQueryCustodyKnownGaps = ["),
-        ContractLine("export const GeneratedReportQueryCustodyKnownGaps = ["),
-    );
-    assert_generated_line_eq(
-        generated,
-        crate::contract_text!("export const GeneratedReportQueryCustodyStates = ["),
-        ContractLine("export const GeneratedReportQueryCustodyStates = ["),
-    );
+}
 
+pub(super) fn assert_generated_report_query_custody_contract_rules() {
     let checked_in = include_str!(
         "../../../../packages/schema-domain/src/generated-report-query-custody-contract-rules.ts"
     );
-    let generated = report_query_custody_contract_rules_typescript();
-    let generated = crate::contract_text!(&generated);
-
+    let generated_source = report_query_custody_contract_rules_typescript();
+    let generated = crate::contract_text!(&generated_source);
     assert_eq!(checked_in, generated.0);
-    assert_generated_line_eq(
-        generated,
-        crate::contract_text!("export function reportQueryCustodyRequestIsHonestGenerated("),
-        ContractLine(
-            "export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedReportQueryCustodyRequest): boolean {",
-        ),
-    );
-    assert_generated_line_eq(
-        generated,
-        crate::contract_text!("export function reportQueryCustodyRowIsHonestGenerated("),
-        ContractLine(
-            "export function reportQueryCustodyRowIsHonestGenerated(row: GeneratedReportQueryCustodyRow): boolean {",
-        ),
-    );
-    assert_generated_line_eq(
-        generated,
-        crate::contract_text!("export function reportQueryCustodyProofIsHonestGenerated("),
-        ContractLine(
-            "export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQueryCustodyContractProof): boolean {",
-        ),
-    );
+}
+
+pub(super) fn assert_report_query_custody_non_claims() {
+    let non_claims = contracts::required_report_query_custody_non_claims();
+    assert_eq!(non_claims.len(), 6);
+    assert!(non_claims.contains(&contracts::ReportQueryCustodyNonClaim::SecondTruthStore));
+    assert!(non_claims.contains(&contracts::ReportQueryCustodyNonClaim::RawChildEvidence));
+    assert!(non_claims.contains(&contracts::ReportQueryCustodyNonClaim::UnboundedPagination));
 }
 
 pub(super) fn assert_raw_report_query_custody_proof_is_untrusted() {

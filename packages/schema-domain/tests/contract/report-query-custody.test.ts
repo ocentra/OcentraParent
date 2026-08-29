@@ -14,6 +14,7 @@ import {
 import {
   ReportQueryCustodyProofReadModel,
   ReportQueryCustodyProofSchema,
+  ReportQueryCustodyRequestSchema,
   summarizeReportQueryCustodyStates,
 } from '../../src/report-query-custody';
 
@@ -43,6 +44,54 @@ describe('Rust-owned report/query custody contract edge', () => {
     };
 
     expect(reportQueryCustodyRequestIsHonestGenerated(request)).toBe(false);
+  });
+
+  it('rejects missing, zero, and unsupported custody schema versions', () => {
+    const missingVersion = { ...generatedProof.request } as Record<string, unknown>;
+    delete missingVersion.schemaVersion;
+    const invalidRequests = [
+      missingVersion,
+      {
+        ...generatedProof.request,
+        schemaVersion: '0',
+      },
+      {
+        ...generatedProof.request,
+        schemaVersion: 'report-query-custody-proof-v0',
+      },
+    ] as const;
+
+    for (const request of invalidRequests) {
+      expect(
+        reportQueryCustodyRequestIsHonestGenerated(
+          request as unknown as typeof generatedProof.request
+        )
+      ).toBe(false);
+      expect(() => ReportQueryCustodyRequestSchema.parse(request)).toThrow();
+    }
+
+    const missingProofVersion = { ...generatedProof } as Record<string, unknown>;
+    delete missingProofVersion.schemaVersion;
+    const invalidProofs = [
+      missingProofVersion,
+      {
+        ...generatedProof,
+        schemaVersion: '0',
+      },
+      {
+        ...generatedProof,
+        schemaVersion: 'report-query-custody-proof-v0',
+      },
+    ] as const;
+
+    for (const proof of invalidProofs) {
+      expect(
+        reportQueryCustodyProofIsHonestGenerated(
+          proof as unknown as GeneratedReportQueryCustodyContractProof
+        )
+      ).toBe(false);
+      expect(() => ReportQueryCustodyProofSchema.parse(proof)).toThrow();
+    }
   });
 
   it('binds each row source class to both request scopes', () => {

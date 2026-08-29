@@ -1,6 +1,7 @@
 /* generated from crates/schema/src/report_query_custody.rs */
 
 import {
+  ReportQueryCustodyContractRuntime,
   GeneratedReportQueryCustodyMaxPageSize,
   GeneratedReportQueryCustodyNonClaims,
   GeneratedReportQueryCustodySourceDataClasses,
@@ -55,6 +56,7 @@ function reportQueryCustodyCitationIsBoundGenerated(
 
 export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedReportQueryCustodyRequest): boolean {
   return (
+    request.schemaVersion === ReportQueryCustodyContractRuntime.SchemaVersion &&
     reportQueryCustodyAuthorityReferenceIsConsistentGenerated(request) &&
     !request.rawChildEvidenceRequested &&
     request.pageSize > 0 &&

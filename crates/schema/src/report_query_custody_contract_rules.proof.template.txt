@@ -71,6 +71,7 @@ function reportQueryCustodyCitationsMatchGenerated(
 
 export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQueryCustodyContractProof): boolean {
   return (
+    proof.schemaVersion === ReportQueryCustodyContractRuntime.SchemaVersion &&
     GeneratedReportQueryCustodyStates.every((state) => proof.rows.some((row) => row.state === state)) &&
     GeneratedReportQueryCustodyNonClaims.every((nonClaim) => proof.nonClaims.includes(nonClaim)) &&
     reportQueryCustodyRequestIsHonestGenerated(proof.request) &&

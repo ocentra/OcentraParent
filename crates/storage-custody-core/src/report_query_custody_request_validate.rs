@@ -27,6 +27,7 @@ pub(super) fn validate_report_query_custody_request_at(
     authority: &VerifiedAccountIdentityAuthority,
     now: DateTime<Utc>,
 ) -> Result<(), ReportQueryCustodyDerivationError> {
+    validate_report_query_custody_schema_version(request)?;
     validate_parent_authority_snapshot(request, authority, now)?;
     let authority_reference = &request.parent_authority;
     if authority_reference.authority_generation == 0 {
@@ -98,6 +99,14 @@ pub(super) fn validate_report_query_custody_request_at(
         return Err(ReportQueryCustodyDerivationError::CitationSourceClassMismatch);
     }
     Ok(())
+}
+
+fn validate_report_query_custody_schema_version(
+    request: &contracts::ReportQueryCustodyRequest,
+) -> Result<(), ReportQueryCustodyDerivationError> {
+    (request.schema_version == contracts::REPORT_QUERY_CUSTODY_SCHEMA_VERSION)
+        .then_some(())
+        .ok_or(ReportQueryCustodyDerivationError::InvalidContractVersion)
 }
 
 /// Validates the supplied opaque authority snapshot and its expiry. This does
@@ -174,4 +183,26 @@ fn request_actor_role_matches_authority(
             AccountIdentityRole::CoParentGuardian
         )
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_report_query_custody_schema_version;
+    use crate::report_query_custody::ReportQueryCustodyDerivationError;
+    use ocentra_schema::report_query_custody as contracts;
+
+    #[test]
+    fn schema_version_requires_the_canonical_non_empty_contract_identifier() {
+        let mut request = contracts::sample_report_query_custody_contract_proof().request;
+
+        assert!(validate_report_query_custody_schema_version(&request).is_ok());
+
+        for invalid_version in [String::new(), String::from("0"), String::from("unsupported")] {
+            request.schema_version = invalid_version;
+            assert_eq!(
+                validate_report_query_custody_schema_version(&request),
+                Err(ReportQueryCustodyDerivationError::InvalidContractVersion)
+            );
+        }
+    }
 }
