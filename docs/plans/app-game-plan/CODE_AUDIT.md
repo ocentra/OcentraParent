@@ -1,5 +1,22 @@
 # App + Game Plan Code/Test Audit
 
+## Source-review truth reconciliation - 2026-08-29
+
+Canonical reviewed integration: WP120 source/tests `edaf153f8`; WP150 durable
+outbox source/tests `4d6d8c3f1`; WP163/WP164 dashboard test depth `712704a38`.
+WP165-WP220 are modern source/test audits only, not DONE or proof. WP167's
+standalone surface is superseded by WP168's live preflight chain. Open source
+owners are WP193/WP203 Windows authority sampler, WP195/WP205 upstream proof
+refs, WP204 OS-custody/test owner, and WP207/WP211/WP216/WP217/WP220
+authenticated child writer/transport/ingress. Physical Android, WSL, and Apple
+proof remains open. Canonical `101995347c8` integrates WP130/WP132 mounted
+behavior coverage and WP156/WP158/WP217 package-local intake/queue/drain test
+source, including idempotent rewrites, receiver filtering, null-context and
+storage-failure fail-closed paths, proof refs, and explicit non-claims. It does
+not prove authenticated runtime delivery, multi-record ordering, retry, or
+restart; execution and proof remain open. Retired `packages/parent-domain` and
+stale mapping debt, not current owners.
+
 Date: 2026-08-15
 Audited branch baseline: `codex/app-game-plan-code-audit` from tree-equal
 `develop`/`main` after PRs `#706`, `#707`, and `#708`.
@@ -345,7 +362,7 @@ Semantic Enforcer ledger evidence for this checkpoint: WP53
 | WP214 App/Game Android Child Runtime Local Receipt Ack Proof | Package-local ACK behavior plus real Robolectric tests | **Incomplete overall; bounded local tests written** | Canonical `e4c147fee` covers null context, ACK write/readback, action filtering, storage failure, and non-claims. Unknown/replayed/mismatched external ACK semantics await WP208-WP210. |
 | WP215 App/Game Android Child Runtime Local Receipt Channel Proof | Non-exported marker receiver covered by WP212/WP214 tests | **Incomplete overall; bounded local tests written** | Honest local filtering/readback/tamper/failure behavior is covered, but the launched service never invokes the channel and transport remains `NOT_IMPLEMENTED`. |
 | WP216 App/Game Android Child Runtime Local Delivery Intake Proof | Static action receiver/marker helper; no launched consumer | **Incomplete / owner-blocked** | Source order is WP207 durable writer -> WP208 typed boundary -> WP209 authenticated service ingestion. Tests now would certify marker theater. |
-| WP217 App/Game Android Child Runtime Local Delivery Queue Proof | Rust receipt surface plus Android Java child-runtime sources | **Incomplete** | Android local queue source exists, but no tracked focused tests cover persistence, ordering, retry, and restart. |
+| WP217 App/Game Android Child Runtime Local Delivery Queue Proof | Rust receipt surface plus Android Java child-runtime sources | **Complete for bounded source/test-writing phase; runtime blocked** | Canonical `101995347c8` covers package-local intake/queue/drain filesystem state, idempotent rewrites, exact receiver action filtering, null-context/storage-failure fail-closed paths, proof refs, and explicit non-claims. It does not prove authenticated runtime delivery, multi-record ordering, retry, or restart; those remain blocked. |
 | WP218 App/Game Android UsageEvents Granted Sample Proof | Docs/proof/reference route (no product source required) | **Complete for bounded Phase 1 (no code required)** | Phase 2/3 validation or proof may remain; no product source/test-writing gap belongs to this packet. |
 | WP219 App/Game Android Accessibility Enablement Sample Boundary | Docs/proof/reference route (no product source required) | **Complete for bounded Phase 1 (no code required)** | Phase 2/3 validation or proof may remain; no product source/test-writing gap belongs to this packet. |
 | WP220 App/Game Android Child Runtime Local Notification Proof | Legacy static notification/marker helper | **Incomplete / owner-blocked** | Unlaunched `MainActivity` is the only caller. A real notification requires WP207 -> WP216 -> WP217 and launched child-service composition. |

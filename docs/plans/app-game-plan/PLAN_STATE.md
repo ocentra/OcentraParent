@@ -16,13 +16,27 @@
 
 Generated from the existing `app-game-plan` docs. This is the default resume/status file; large historical docs are linked, not embedded.
 
+## Source-review truth reconciliation - 2026-08-29
+
+Canonical reviewed integration: WP120 source/tests `edaf153f8`; WP150 durable
+outbox source/tests `4d6d8c3f1`; WP163/WP164 dashboard test depth `712704a38`.
+WP165-WP220 are modern source/test audits only, not DONE or runtime proof.
+Open blockers are WP167 -> WP168 supersession, absent Windows authority
+samplers (WP193/WP203), absent upstream proof refs (WP195/WP205), absent
+OS-custody/test ownership (WP204), and absent authenticated child
+writer/transport/ingress (WP207/WP211/WP216/WP217/WP220). Physical
+Android/WSL/Apple proof remains open. WP156/WP158/WP217 test-source integration,
+plus WP130/WP132 mounted behavior, is covered by canonical `101995347c8`; no
+tests/proof/DONE are claimed. Retired `packages/parent-domain` and
+proof-runner wording remains mapping debt, not product ownership.
+
 ## Code-first audit baseline - 2026-08-15
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **172** have current production source plus expected checked-in tests for their
+- **173** have current production source plus expected checked-in tests for their
   bounded scope; **20** are reviewed no-code coordination/proof/reference
-  packets; **28** retain a concrete production-code or expected-test gap.
+  packets; **27** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.

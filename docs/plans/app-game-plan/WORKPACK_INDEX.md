@@ -1,5 +1,11 @@
 # App + Game Plan Workpack Index
 
+Source-review reconciliation (2026-08-29): WP120=`edaf153f8`, WP150=`4d6d8c3f1`,
+WP163/WP164=`712704a38`; WP130/WP132 mounted behavior plus WP156/WP158/WP217
+package-local test-source integration are canonical in `101995347c8`. WP165-WP220 are modern source/test audits only. Exact
+blockers and retired `packages/parent-domain` mapping debt are recorded in
+`CODE_AUDIT.md`.
+
 <!-- agent-capsule -->
 
 > Agent Capsule

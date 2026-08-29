@@ -14,6 +14,17 @@
 
 <!-- /agent-capsule -->
 
+## Truth reconciliation checkpoint - 2026-08-29
+
+WP120, WP150, WP163/WP164, and WP165-WP220 have source-review dispositions in
+`CODE_AUDIT.md`; these are not DONE/proof claims. Open blockers are WP167 ->
+WP168 supersession, WP193/WP203 Windows authority samplers, WP195/WP205 proof
+refs, WP204 OS-custody/test ownership, and WP207/WP211/WP216/WP217/WP220
+authenticated child writer/transport/ingress. Physical Android/WSL/Apple proof
+remains open. Canonical `101995347c8` also integrates WP130/WP132 mounted
+behavior coverage and WP156/WP158/WP217 test-source coverage; execution and
+proof remain open.
+
 This file is the short resume list for the next worker. It is derived from open workpack/checklist status and does not replace the assigned workpack.
 
 ## How to use
