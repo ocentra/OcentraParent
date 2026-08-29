@@ -76,11 +76,8 @@ import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubbl
 import {
   PortalAgentCommand as AgentCommand,
   type PortalAgentCommandName as AgentCommandName,
-  PortalAgentLanHouseholdActionDeviceKindField,
   PortalAgentLanHouseholdActionKind,
   PortalAgentLanHouseholdDeviceKindValues,
-  PortalAgentLanIntentKind,
-  PortalAgentLanParentAuthority,
   PortalAgentPeerDefaults,
   PortalAgentProtocolField,
   PortalAgentTargetDefaults,
@@ -4913,72 +4910,26 @@ function lanPairingPairCommandPayload(slot: DeviceSlot | null): Record<string, s
   return lanPairingAddDeviceCommandPayload(slot);
 }
 
-function lanPairingHouseholdActionCommandPayload(
+export function lanPairingHouseholdActionCommandPayload(
   slot: DeviceSlot | null,
-  actionKind: string,
-  override: { readonly displayName?: string; readonly deviceKind?: DeviceKind; readonly requiresRoute?: boolean } = {}
+  _actionKind: string,
+  _override: { readonly displayName?: string; readonly deviceKind?: DeviceKind; readonly requiresRoute?: boolean } = {}
 ): Record<string, string> | null {
   if (!slot) return null;
-  const basePayload = lanPairingAddDeviceCommandPayload(slot);
-  const canonicalDeviceId = slot.device?.id || slot.value;
-  if (override.requiresRoute !== false && !basePayload) return null;
-  if (!canonicalDeviceId) return null;
-  const issuedAt = basePayload?.[PortalAgentProtocolField.StartedAt] ?? new Date().toISOString();
-  const payload: Record<string, string> = {
-    ...(basePayload ?? {}),
-    [PortalAgentProtocolField.Origin]:
-      basePayload?.[PortalAgentProtocolField.Origin] ??
-      (typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin),
-    [PortalAgentProtocolField.StartedAt]: issuedAt,
-    [PortalAgentProtocolField.LanHouseholdActionId]: `lan-ui-${actionKind}-${Date.now()}`,
-    [PortalAgentProtocolField.LanHouseholdActionKind]: actionKind,
-    [PortalAgentProtocolField.LanCanonicalDeviceId]: canonicalDeviceId,
-    [PortalAgentProtocolField.LanParentActorId]: PortalAgentPeerDefaults.PortalDev.peerId,
-    [PortalAgentProtocolField.LanHouseholdActionDisplayName]: override.displayName || lanPairingDeviceName(slot),
-  };
-  if (slot.device?.childProfileId) {
-    payload[PortalAgentProtocolField.LanHouseholdActionChildProfileId] = slot.device.childProfileId;
-  }
-  if (override.deviceKind) {
-    payload[PortalAgentLanHouseholdActionDeviceKindField] = override.deviceKind;
-  }
-  if (actionKind === PortalAgentLanHouseholdActionKind.Ignore) {
-    payload[PortalAgentProtocolField.LanHouseholdActionRevokedAt] = issuedAt;
-  }
-  return payload;
+  // Household decisions require an owner-issued intent, controller lease, and
+  // parent authority. The current DeviceSlot/read-model projection carries
+  // discovery and pairing evidence only, so no mutation payload can satisfy
+  // the Rust-owned boundary. Keep the visible controls unavailable until the
+  // owner-backed authority contract is projected here; never synthesize it.
+  return null;
 }
 
-function lanPairingRouteIntentCommandPayload(slot: DeviceSlot | null): Record<string, string> | null {
-  if (!slot || lanPairingDeviceIsInfrastructure(slot) || slot.status === 'unsupported') return null;
-  const childDeviceId = slot.device?.id || slot.value;
-  const routeId = slot.device?.routeId;
-  const pairingId = slot.device?.pairingId;
-  const proofDigest = slot.device?.proofDigest;
-  if (!childDeviceId || !routeId || !pairingId || !proofDigest) return null;
-  const issuedAt = new Date().toISOString();
-  const staleAt = slot.device?.expiresAt || new Date(Date.now() + 5 * 60 * 1000).toISOString();
-  const leaseExpiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
-  return {
-    [PortalAgentProtocolField.LanIntentId]: `lan-ui-intent-${Date.now()}`,
-    [PortalAgentProtocolField.LanIntentKind]: PortalAgentLanIntentKind.ConfigurationUpdate,
-    [PortalAgentProtocolField.LanChildDeviceId]: childDeviceId,
-    [PortalAgentProtocolField.LanRouteId]: routeId,
-    [PortalAgentProtocolField.LanPairingId]: pairingId,
-    [PortalAgentProtocolField.LanProofDigest]: proofDigest,
-    [PortalAgentProtocolField.Origin]: slot.device?.origin || lanPairingPortalOrigin(),
-    [PortalAgentProtocolField.StartedAt]: issuedAt,
-    [PortalAgentProtocolField.StaleAt]: staleAt,
-    [PortalAgentProtocolField.LanControllerLeaseId]: `lan-ui-lease-${Date.now()}`,
-    [PortalAgentProtocolField.LanControllerDeviceId]: PortalAgentPeerDefaults.PortalDev.peerId,
-    [PortalAgentProtocolField.LanParentActorId]: PortalAgentPeerDefaults.PortalDev.peerId,
-    [PortalAgentProtocolField.LanParentAuthority]: PortalAgentLanParentAuthority.ActiveController,
-    [PortalAgentProtocolField.LanControllerLeaseIssuedAt]: issuedAt,
-    [PortalAgentProtocolField.LanControllerLeaseExpiresAt]: leaseExpiresAt,
-  };
-}
-
-function lanPairingPortalOrigin(): string {
-  return typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin;
+export function lanPairingRouteIntentCommandPayload(slot: DeviceSlot | null): Record<string, string> | null {
+  if (!slot) return null;
+  // Route select/revoke also require an owner-issued intent, controller lease,
+  // and parent authority. The current projection has no such fields, so keep
+  // these commands unavailable rather than minting caller-owned authority.
+  return null;
 }
 
 function lanPairingContextRowsFor(selectedDevice: DeviceSlot | null): readonly LanPairingContextRow[] {
