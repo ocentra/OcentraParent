@@ -66,6 +66,11 @@ describe('app-game timer parent-surface portal route panel', () => {
     expect(html).toContain('Rollback runtime</dt><dd>Ready');
     expect(html).toContain('Control action results</dt><dd>1');
     expect(html).toContain('Control action result refs</dt><dd>action-result-app-game-1');
+    expect(html).toContain('Child UX handoff ready</dt><dd>1');
+    expect(html).toContain('Child UX handoff blocked</dt><dd>0');
+    expect(html).toContain(
+      'Child UX handoff refs</dt><dd>app-game-child-ux-local-handoff-action-result-app-game-1'
+    );
     expect(html).toContain('Session duration</dt><dd>15 min from stored evidence');
     expect(html).toContain('Session duration</dt><dd>15 min');
     expect(html).toContain('Evidence source</dt><dd>stored journal rows');
