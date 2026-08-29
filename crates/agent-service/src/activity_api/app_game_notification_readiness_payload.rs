@@ -20,9 +20,8 @@ pub(crate) struct AppGameNotificationReadinessReport {
 
 pub fn app_game_notification_readiness_from_service_model(
     model: AppGameServiceReadModel,
-    local_outbox_runtime_claimed: bool,
 ) -> AppGameNotificationReadinessReadModel {
-    logic::app_game_notification_readiness_from_service_model(model, local_outbox_runtime_claimed)
+    logic::app_game_notification_readiness_from_service_model(model)
 }
 
 pub fn app_game_notification_readiness_payload(
@@ -54,10 +53,8 @@ pub fn app_game_notification_readiness_payload(
 
 pub(crate) fn app_game_notification_readiness_report_from_service_model(
     model: AppGameServiceReadModel,
-    local_outbox_runtime_claimed: bool,
 ) -> AppGameNotificationReadinessReport {
-    let read_model =
-        app_game_notification_readiness_from_service_model(model, local_outbox_runtime_claimed);
+    let read_model = app_game_notification_readiness_from_service_model(model);
     let status_read_models =
         logic::notification_status_read_models(&read_model.rows, &read_model.generated_at);
     AppGameNotificationReadinessReport {

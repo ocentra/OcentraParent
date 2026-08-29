@@ -80,7 +80,7 @@ const APP_GAME_TEST_WINDOWS_ROW_ID: &TestStr = "windows-block-launch-row";
 
 #[test]
 fn app_game_notification_readiness_payload_reports_service_intents_without_delivery_claims() {
-    let read_model = app_game_notification_readiness_from_service_model(service_model(), true);
+    let read_model = app_game_notification_readiness_from_service_model(service_model());
     let payload = app_game_notification_readiness_payload(&read_model);
     let read_model_json = string_payload(
         &payload,
@@ -101,9 +101,9 @@ fn app_game_notification_readiness_payload_reports_service_intents_without_deliv
     assert_eq!(decoded.unavailable_count, 0);
     assert!(!decoded.provider_delivery_claimed);
     assert!(!decoded.provider_receipt_ingestion_claimed);
-    assert!(decoded.local_outbox_runtime_claimed);
+    assert!(!decoded.local_outbox_runtime_claimed);
     assert!(!decoded.scheduler_runtime_claimed);
-    assert!(decoded.adapter_dispatch_claimed);
+    assert!(!decoded.adapter_dispatch_claimed);
     assert!(!decoded.parent_ui_claimed);
     assert!(!decoded.child_delivery_claimed);
     assert_eq!(

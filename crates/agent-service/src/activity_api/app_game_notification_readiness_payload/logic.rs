@@ -22,9 +22,8 @@ use ocentra_parent_agent_protocol::AppGameNotificationReadinessRow;
 
 pub(super) fn app_game_notification_readiness_from_service_model(
     model: AppGameServiceReadModel,
-    local_outbox_runtime_claimed: bool,
 ) -> AppGameNotificationReadinessReadModel {
-    rows::app_game_notification_readiness_from_service_model(model, local_outbox_runtime_claimed)
+    rows::app_game_notification_readiness_from_service_model(model)
 }
 
 pub(super) fn notification_status_read_models<T: ToString>(

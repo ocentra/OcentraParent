@@ -27,7 +27,6 @@ use super::super::evidence::{
 
 pub(super) fn app_game_notification_readiness_from_service_model(
     model: AppGameServiceReadModel,
-    local_outbox_runtime_claimed: bool,
 ) -> AppGameNotificationReadinessReadModel {
     let rows = notification_rows(&model);
     let returned = rows.len() as u64;
@@ -43,11 +42,6 @@ pub(super) fn app_game_notification_readiness_from_service_model(
         &rows,
         NotificationReadinessTextRef(APP_GAME_NOTIFICATION_READINESS_STATE_UNAVAILABLE),
     );
-    let adapter_dispatch_claimed = model
-        .approval_action_result_rows
-        .iter()
-        .any(|row| row.result_status == ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_CONTROL_ACTION_STATUS_ENFORCED);
-
     AppGameNotificationReadinessReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         generated_at: model.generated_at,
@@ -61,9 +55,9 @@ pub(super) fn app_game_notification_readiness_from_service_model(
         unavailable_count,
         provider_delivery_claimed: false,
         provider_receipt_ingestion_claimed: false,
-        local_outbox_runtime_claimed,
+        local_outbox_runtime_claimed: false,
         scheduler_runtime_claimed: false,
-        adapter_dispatch_claimed,
+        adapter_dispatch_claimed: false,
         parent_ui_claimed: false,
         child_delivery_claimed: false,
         rows,
