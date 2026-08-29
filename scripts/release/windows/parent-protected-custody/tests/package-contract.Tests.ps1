@@ -145,7 +145,11 @@ Assert-Equal $brokerControl.Remove 'uninstall' 'broker service uninstall control
 Assert-Equal $brokerControl.Stop 'both' 'broker service stop control'
 Assert-Equal $provisionerComponent.File.Name 'ocentra-protected-capability-custody-provisioner.exe' 'provisioner payload name'
 
-$registryValues = @($components | Where-Object { $null -ne $_.RegistryKey } | ForEach-Object { $_.RegistryKey.RegistryValue } | Where-Object { $_.Name -ceq 'package-boundary' })
+$registryValues = @(
+    $components |
+        ForEach-Object { $_.SelectNodes('./*[local-name()="RegistryKey"]/*[local-name()="RegistryValue"]') } |
+        Where-Object { $_.Name -ceq 'package-boundary' }
+)
 Assert-Equal $registryValues.Count 2 'package-boundary registry value count'
 foreach ($registryValue in $registryValues) {
     Assert-Equal $registryValue.Value 'parent-protected-custody-v1' 'package-boundary registry value'
