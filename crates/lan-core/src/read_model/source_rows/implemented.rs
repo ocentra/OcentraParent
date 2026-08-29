@@ -111,31 +111,31 @@ fn implemented_neighbor_source(
 
 fn unavailable_command_source_rows() -> Vec<LanDiscoverySourceRow> {
     vec![
-        unavailable_command_source(
+        implemented_command_source(
             LanDiscoverySourceKind::WindowsNeighborTable,
             LanPlanWorkpackId::W04,
             constants::lan_pairing::PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR,
             LanDiscoverySourceAuthority::WeakIdentity,
         ),
-        unavailable_command_source(
+        implemented_command_source(
             LanDiscoverySourceKind::LinuxIpNeigh,
             LanPlanWorkpackId::W04,
             constants::lan_pairing::LAN_SCAN_SOURCE_LINUX_IP_NEIGH,
             LanDiscoverySourceAuthority::WeakIdentity,
         ),
-        unavailable_command_source(
+        partial_command_source(
             LanDiscoverySourceKind::MacosArp,
             LanPlanWorkpackId::W04,
             constants::lan_pairing::LAN_SCAN_SOURCE_MACOS_ARP,
             LanDiscoverySourceAuthority::WeakIdentity,
         ),
-        unavailable_command_source(
+        implemented_command_source(
             LanDiscoverySourceKind::TargetedArpRefresh,
             LanPlanWorkpackId::W05,
             constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_05,
             LanDiscoverySourceAuthority::PresenceOnly,
         ),
-        unavailable_command_source(
+        implemented_command_source(
             LanDiscoverySourceKind::BoundedArpSweep,
             LanPlanWorkpackId::W06,
             constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_06,
@@ -167,6 +167,30 @@ fn unavailable_command_source(
             required_artifact_summary: None,
         },
     )
+}
+
+fn implemented_command_source(
+    source: LanDiscoverySourceKind,
+    workpack_id: LanPlanWorkpackId,
+    evidence_label: &'static str,
+    authority: LanDiscoverySourceAuthority,
+) -> LanDiscoverySourceRow {
+    let mut row = unavailable_command_source(source, workpack_id, evidence_label, authority);
+    row.status = LanDiscoverySourceStatus::Implemented;
+    row
+}
+
+fn partial_command_source(
+    source: LanDiscoverySourceKind,
+    workpack_id: LanPlanWorkpackId,
+    evidence_label: &'static str,
+    authority: LanDiscoverySourceAuthority,
+) -> LanDiscoverySourceRow {
+    let mut row = unavailable_command_source(source, workpack_id, evidence_label, authority);
+    row.status = LanDiscoverySourceStatus::Partial;
+    row.required_artifact_summary =
+        Some(constants::lan_pairing::LAN_SOURCE_MATRIX_ARTIFACT_PHYSICAL.to_string());
+    row
 }
 
 fn implemented_previous_scan_source() -> LanDiscoverySourceRow {
