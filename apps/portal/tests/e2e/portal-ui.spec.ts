@@ -39,6 +39,7 @@ test('portal UI connects to the real agent and renders command results', async (
   await assertManageRouteRequiresExplicitDeviceSelection(page);
   const selectedDeviceLabel = await assertDevicesRoute(page);
   await assertSelectedDeviceContextPersistsAcrossRoutes(page, selectedDeviceLabel);
+  await assertInvalidStoredDeviceContextFailsClosed(page, selectedDeviceLabel);
   await assertLanRouteScaffolds(page);
 
   expect(browserFailures).toEqual([]);
@@ -381,6 +382,43 @@ async function assertSelectedDeviceContextOnActivityRoute(page: Page, selectedDe
   });
   await expect(page.getByText('Report device: Whole family')).toHaveCount(0);
   await expect(page.getByText('Report device: No device selected')).toHaveCount(0);
+}
+
+async function assertInvalidStoredDeviceContextFailsClosed(page: Page, selectedDeviceLabel: string): Promise<void> {
+  const missingDeviceId = 'missing-persisted-child-device';
+  const missingDeviceLabel = 'Removed persisted target';
+  await page.goto('/#/browser-settings');
+  await page.evaluate(
+    ([storageKey, deviceId, deviceLabel]) =>
+      window.sessionStorage.setItem(
+        storageKey,
+        JSON.stringify({ scope: 'perDevice', device: deviceLabel, deviceId, browser: 'Chrome' })
+      ),
+    [manageTargetSelectionStorageKey, missingDeviceId, missingDeviceLabel]
+  );
+  await page.reload();
+  await expect(page.getByText('Browser target: No device selected').first()).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expect(page.getByText(`Browser target: ${missingDeviceLabel}`)).toHaveCount(0);
+  await expect(page.getByRole('button', { exact: true, name: `Select ${missingDeviceLabel}` })).toHaveCount(0);
+
+  await page.evaluate(
+    ([storageKey, deviceId, deviceLabel]) =>
+      window.sessionStorage.setItem(
+        storageKey,
+        JSON.stringify({ scope: 'perDevice', device: deviceLabel, deviceId, browser: 'Chrome' })
+      ),
+    [manageTargetSelectionStorageKey, missingDeviceId, selectedDeviceLabel]
+  );
+  await page.reload();
+  await expect(page.getByText('Browser target: No device selected').first()).toBeVisible({
+    timeout: portalShellReadyTimeoutMs,
+  });
+  await expect(page.getByText(`Browser target: ${selectedDeviceLabel}`)).toHaveCount(0);
+
+  await page.evaluate((storageKey) => window.sessionStorage.removeItem(storageKey), manageTargetSelectionStorageKey);
+  await page.reload();
 }
 
 async function assertCopyButton(page: Page, commandResult: Locator, eventName: string): Promise<void> {

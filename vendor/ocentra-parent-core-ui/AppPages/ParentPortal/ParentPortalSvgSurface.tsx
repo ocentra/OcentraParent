@@ -4174,44 +4174,13 @@ function reportSelectedSlotValue(slots: readonly DeviceSlot[], selection: Manage
   return reportSelectedSlot(slots, selection)?.value;
 }
 
-function storedManageTargetSelectionSlot(
-  slots: readonly DeviceSlot[],
-  selection: ManageTargetSelection
-): DeviceSlot | null {
-  if (selection.scope !== 'perDevice' || reportSelectedSlot(slots, selection)) return null;
-  const deviceId = selection.deviceId.trim();
-  const deviceLabel = selection.device.trim();
-  if (deviceId.length === 0 && deviceLabel.length === 0) return null;
-  const slotValue =
-    deviceId.length > 0 ? deviceId : `stored-manage-target-${assetKey(deviceLabel) || slots.length + 1}`;
-  const deviceName = deviceLabel.length > 0 ? deviceLabel : deviceId;
-  return {
-    value: slotValue,
-    label: deviceName,
-    status: 'offline',
-    slotIndex: slots.length,
-    device: {
-      id: slotValue,
-      name: deviceName,
-      status: 'offline',
-      portalEligible: true,
-    },
-  };
-}
-
-function withStoredManageTargetSelectionSlot(
-  slots: readonly DeviceSlot[],
-  selection: ManageTargetSelection
-): readonly DeviceSlot[] {
-  const storedSlot = storedManageTargetSelectionSlot(slots, selection);
-  return storedSlot ? [...slots, storedSlot] : slots;
-}
-
 function slotMatchesManageTargetSelection(slot: DeviceSlot, selection: ManageTargetSelection): boolean {
-  return (
-    (selection.deviceId.length > 0 && slot.value === selection.deviceId) ||
-    (selection.device.length > 0 && (slot.label === selection.device || slot.device?.name === selection.device))
-  );
+  const deviceId = selection.deviceId.trim();
+  if (deviceId.length > 0) {
+    return slot.value === deviceId;
+  }
+  const deviceLabel = selection.device.trim();
+  return deviceLabel.length > 0 && (slot.label === deviceLabel || slot.device?.name === deviceLabel);
 }
 
 function reportDeviceSelectionAvailable(slots: readonly DeviceSlot[], selection: ManageTargetSelection): boolean {
@@ -10270,10 +10239,7 @@ function ManageWorkspacePanel({
   const workspaceScopeValues = targetOptions.some((option) => option.id === 'portal')
     ? FAMILY_DEVICE_SCOPE_VALUES
     : undefined;
-  const workspaceSelectionSlots = useMemo(
-    () => withStoredManageTargetSelectionSlot(runtimeDeviceSlots, sharedTargetSelection),
-    [runtimeDeviceSlots, sharedTargetSelection]
-  );
+  const workspaceSelectionSlots = runtimeDeviceSlots;
   const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() =>
     sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection)
   );
@@ -11395,10 +11361,7 @@ function ManageControlPanel({
   );
   const reportScopeValue = targetSelection.scope === 'perDevice' ? 'device' : 'family';
   const reportFamilyScope = reportScopeValue !== 'device';
-  const reportSelectionSlots = useMemo(
-    () => withStoredManageTargetSelectionSlot(runtimeDeviceSlots, targetSelection),
-    [runtimeDeviceSlots, targetSelection]
-  );
+  const reportSelectionSlots = runtimeDeviceSlots;
   const reportSlots = useMemo(
     () => (reportSelectionSlots.length > 0 ? reportSelectionSlots : reportPlanSeatSlots(reportPlanSeatLimit)),
     [reportPlanSeatLimit, reportSelectionSlots]
