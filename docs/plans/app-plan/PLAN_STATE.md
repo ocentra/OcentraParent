@@ -19,7 +19,8 @@
 - Audit date: 2026-08-29.
 - Authoritative code/test inventory: [CODE_AUDIT.md](CODE_AUDIT.md).
 - Graph coverage: **95/95 reviewed workpack maps**.
-- Bounded Phase 1: **79 complete, 16 incomplete**.
+- Bounded Phase 1: **81 source/test-complete, 12 owner/dependency-blocked, and
+  2 validation/proof-only**.
 - Phase 2 focused tests/Enforcer: not run for this plan-wide audit.
 - Phase 3 proof: not regenerated.
 
@@ -58,11 +59,13 @@ revalidates the canonical scheduler bridge read model before writing atomic
 records. Invalid source rows/counts/claims remain rejected; provider delivery,
 retry workers, quiet-hours timers, child delivery, and UI remain unclaimed.
 
-The 14 remaining Phase 1 gaps are WP06, WP16, WP17, WP18, WP19, WP20, WP25,
-WP26, WP48, WP49, WP63, WP64, WP65, and WP102. WP62's bounded source and real
-behavioral test roots are now reviewed; focused execution and proof remain. WP26 is a tests-only performance
-harness gap. WP102 is a route-only shared-dependency validation gap. Neither
-requires new App production source.
+The 12 remaining production-code, expected-test, owner, or dependency gaps are
+WP06, WP16, WP17, WP18, WP19, WP20, WP25, WP48, WP49, WP63, WP64, and WP65.
+Their graph dependencies and owner boundaries remain authoritative; blocked
+rows are not permission to fabricate adapters, providers, or legacy packages.
+WP26 is a proof/performance-harness phase row and WP102 is a route-only shared-
+dependency validation row. Neither requires new App production source in the
+source-writing phase.
 
 ## Production reachability audit (2026-08-29)
 
@@ -163,7 +166,7 @@ The table is the current per-workpack runtime truth; historical `Complete`,
 | 99 | Status-read-model parent-surface handoff projection exists. | No parent-surface action. |
 | 100 | Parent-surface read-model handoff projection exists. | No live service/portal consumer. |
 | 101 | Terminal parent-surface read-model projection exists. | Pure model; not live composition. |
-| 102 | No current production implementation matches the documented service handoff. | Must be implemented or explicitly retired/merged into WP103; no speculative wrapper. |
+| 102 | The redundant parent-domain packet is retired; the live typed route is owned by WP101/WP103. | No App-local implementation is required; validate the shared route in the owning test phase and do not add a speculative wrapper. |
 | 103 | Agent service timer read-model builder/report is reachable through activity APIs. | Status/read model only; no source-gated app policy scheduler caller. |
 | 104 | Agent service emits the typed timer parent-surface event/report. | Event transport does not create app policy authority. |
 | 105 | Timer read-API command/report routing is reachable. | No native-app compiler-to-timer composition. |

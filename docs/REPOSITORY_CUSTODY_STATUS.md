@@ -1,7 +1,7 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-29 during one-tree local consolidation, based on canonical
-`ee5ac2dadb512f0da93237158a454d0ae7ecf6dd` (short `ee5ac2dad`). This
+Snapshot: 2026-08-29 during one-tree local consolidation, based on source/test
+checkpoint `08e5dc3c7ba3e14d4995c3b4e16353a719d55ed9` (short `08e5dc3c7`). This
 supersedes the retained 2026-08-28, 2026-08-25, 2026-08-24, 2026-08-23,
 2026-08-19, and 2026-08-18 snapshots below. The prior
 `2e45967151ab57710480c52338aeb7f7d7726b43`,
@@ -18,17 +18,21 @@ claim. Refresh Git ancestry and patch identity before deleting any ref.
 The single local integration location remains
 `E:\OcentraWorktrees\lanes\eventing-wp09-production`, branch
 `codex/eventing-wp09-production`, now clean at
-`ee5ac2dadb512f0da93237158a454d0ae7ecf6dd`. It is `154` commits ahead of the
+`08e5dc3c7ba3e14d4995c3b4e16353a719d55ed9`. It is `198` commits ahead of the
 live remote head `325bd31507dbb41ebeea66bf92a95fcf5a21a3b7`. Nothing in this
 snapshot was pushed, tested, proved, submitted to CI, or merged.
 
 The regenerated graph still contains `24` plans and `692` workpacks. Its
-derived states at this snapshot are `242` planned, `203` blocked, `4` ready,
-`3` active, `239` validation, and `1` done. The four READY rows do not identify
-missing source work: App/Game WP197 and Child iOS WP06 already have their real
-production and behavioral-test source; Child WP01 and the migrated Data/AI UI
-row are route-only and explicitly require no code. Their validation, proof,
-checklist, CI, and release work remains later.
+derived states at this snapshot are `227` planned, `216` blocked, `5` ready,
+`3` active, `240` validation, and `1` done. Code/test topology satisfies
+`643/692` expectations. The other `49` rows include `44` blocked, `2` planned,
+and `3` validation rows; none is READY or implementation-authorized. All `134`
+implementation-authorized workpacks satisfy their declared code/test topology.
+The five READY rows do not identify a legal missing-source packet: App/Game
+WP197 and Child iOS WP06 already have real production and behavioral-test
+source; Child WP01 and the migrated Data/AI UI row require no code; App/Game
+WP203 is owner-blocked on a real Windows policy adapter and service caller.
+Their execution, proof, checklist, CI, and release work remains later.
 
 The current source-order blocker is external and must not be replaced with a
 caller-minted token, boolean, DTO, mock, or no-op provider. Protected Custody
@@ -42,7 +46,8 @@ decision. The next conditional missing-source rows are Child WP05 after Child
 WP10, and Data WP09/WP10 after Account WP05/WP05A; none is legal to fabricate
 now.
 
-The complete current local branch/worktree inventory is:
+The most recent full local branch/worktree inventory, captured at the earlier
+`ee5ac2dad` checkpoint and not re-enumerated by this source-gate refresh, is:
 
 - `346` local `codex/*` heads; `345` were audited after excluding the retained
   archive-upstream Data WP05 branch;
@@ -83,10 +88,12 @@ Protected Custody, Screen WP32, Setup, and V0.8 residuals. No remote branch is
 authorized for deletion until promotion, a fresh archive, open-PR and Enforcer
 checks, and an exact post-promotion drift audit.
 
-No product source or test file was changed by this custody refresh. The next
-phase remains production/test-source completion where legal; test execution,
-Enforcer validation, proof, pre-commit, the single PR/CI run, and promotion
-through `develop` to `main` remain deliberately later.
+No product source or test file was changed by this custody refresh. The legal
+source/test-writing queue is exhausted: missing topology remains only on
+blocked, planned, or validation rows without implementation authorization.
+The next ordered phase is focused test execution and repair, then focused and
+repo-wide Enforcer validation, proof, normal pre-commit, the single PR/CI run,
+and promotion through `develop` to `main`.
 
 ## Live one-tree consolidation — 2026-08-28
 

@@ -4,26 +4,31 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 `PLAN_INDEX.md`; it does not replace plan-local workpacks, proof roots, or
 checklists.
 
-Current source-consolidation inventory: 2026-08-28, the single local canonical
+Current source-consolidation checkpoint: 2026-08-29, the single local canonical
 tree is `E:\OcentraWorktrees\lanes\eventing-wp09-production`, branch
-`codex/eventing-wp09-production`, at
-`2e45967151ab57710480c52338aeb7f7d7726b43` (short `2e4596715`). Its remote PR
+`codex/eventing-wp09-production`, at source/test checkpoint
+`08e5dc3c7ba3e14d4995c3b4e16353a719d55ed9` (short `08e5dc3c7`). Its remote PR
 head remains the older `325bd31507dbb41ebeea66bf92a95fcf5a21a3b7`; the local
-source wave has not been pushed, promoted to `develop`/`main`, tested, proved,
-or presented as pre-commit/CI complete. Exact custody and promotion state is in
-`docs/REPOSITORY_CUSTODY_STATUS.md`.
+source wave has not been pushed, promoted to `develop`/`main`, broadly tested,
+proved, or presented as pre-commit/CI complete. Exact custody and promotion
+state is in `docs/REPOSITORY_CUSTODY_STATUS.md`.
 
 The older `1abe4dfc96fd1429fe9eb5d499294cd6f99f4c6f` source-consolidation
 sections below are historical snapshots unless explicitly superseded by the
 2026-08-25 census. They are retained for custody traceability and are not
 current completion evidence.
 
-## Live code-and-test source wave — 2026-08-28
+## Live code-and-test source gate — 2026-08-29
 
 The graph currently imports 24 plans / 692 workpacks. Live file topology now
-satisfies 631 workpack expectations; 61 still have at least one guaranteed
-missing mapped production or expected-test root. This improves the consolidated
-baseline from 625/692 without claiming semantic completion for the 631 rows.
+satisfies 643 workpack expectations; 49 still have at least one guaranteed
+missing mapped production or expected-test root. All 49 unsatisfied rows are
+outside the current implementation-authorized set: 44 are blocked, two are
+planned, and three are already in validation. None is READY. All 134
+implementation-authorized workpacks satisfy their declared code/test topology.
+This is the source/test-writing gate, not semantic product completion: mapped
+presence still does not prove production reachability, test success, proof,
+review, CI, or merge.
 
 Reviewed packets currently integrated into the one tree include Payment WP01,
 Child WP06, App/Game WP189/WP191/WP197, Data Custody WP01, Protected Custody
@@ -36,10 +41,15 @@ Account current-authority fixture/runtime owner and Device Trust binding owner,
 respectively, do not exist; direct SQL, DTO, or caller-supplied substitutes are
 forbidden.
 
-Three Luna lanes continue distinct implementation-authorized workpacks. Source
-and test source are consolidated locally as each packet passes semantic review;
-test execution, broad Enforcer validation, proof regeneration, normal
-pre-commit, the single PR/CI run, and promotion remain later ordered phases.
+The final READY audit found no remaining honest source packet: App/Game WP197
+and Child iOS WP06 already contain their production and real behavioral-test
+source; Child WP01 and the migrated Data/AI UI workpack require no product code;
+App/Game WP203 still lacks a Windows-owned policy adapter and service caller and
+must not be replaced with a shell, mock, or fabricated authority. The legal
+source/test-writing queue is therefore exhausted at this checkpoint. Focused
+test execution and repair is the next ordered phase, followed by focused
+Enforcer checks, repo-wide validation, proof, normal pre-commit, one PR/CI path,
+and promotion.
 
 ## Completion operating contract - 2026-08-17
 

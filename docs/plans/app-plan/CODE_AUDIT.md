@@ -23,8 +23,10 @@ release-ready. Those are Phase 2 and Phase 3.
 - 95/95 workpacks have reviewed code/test topology in the engineering graph.
 - 81/95 have no remaining source/test-writing gap in their bounded Phase 1
   scope. Many are intentionally narrow contract or handoff packets.
-- 14/95 retain a concrete production-code, expected-test, owner, or
-  shared-validation gap.
+- 12/95 retain a concrete production-code, expected-test, owner, or dependency
+  gap: WP06, WP16-WP20, WP25, WP48-WP49, and WP63-WP65.
+- 2/95 are later-phase-only rows rather than source gaps: WP26 owns the missing
+  performance/proof harness and WP102 owns shared WP101/WP103 validation.
 - Real Windows inventory, process, foreground, recurring service capture,
   encrypted journal/SQLite projection, source-status rows, scoped owned-process
   time-limit execution, and several Rust/service/portal read models exist.
@@ -66,7 +68,7 @@ release-ready. Those are Phase 2 and Phase 3.
 | WP23 AI classifier digest boundary | Evidence refs, digest/confidence bounds, evidence-only authority, serialization, and negative tests exist. | **Complete for Phase 1** | Provider execution/quality is outside this boundary. |
 | WP24 Platform extension routing | Coordination-only routing correctly keeps unsupported platform actions manual-required. | **Complete for bounded Phase 1** | Platform owners must supply real adapters/proof. |
 | WP25 Install/uninstall approval handoff | Historical handoff wording exists, but no modern production owner/caller composes install/uninstall approval evidence. | **Incomplete / owner-blocked** | Store/package-manager interception, approval UX, and platform-specific custody require a modern owner seam; no legacy package recreation is authorized. |
-| WP26 Performance/service health | Capture cadence/limits and degraded states have ordinary tests; the retired `packages/parent-domain` roots have no manifest or caller and are not production gaps. | **Incomplete, tests-only** | The specified 1k-app, 500-process, 100k-observation, 1k-policy, and 500-row portal performance/load harnesses do not exist. |
+| WP26 Performance/service health | Capture cadence/limits and degraded states have ordinary tests; the retired `packages/parent-domain` roots have no manifest or caller and are not production gaps. | **Phase 2/3 only; no source-writing gap** | The specified performance/load proof harness is absent and belongs to later execution/proof, not product-source implementation. |
 | WP27 E2E/manual proof artifacts | Proof-routing packet owns no product source. | **Complete for bounded Phase 1** | Phase 3 scenarios remain to be generated. |
 | WP28 Rollout/PR gate | Coordination-only rollout packet owns no product source. | **Complete for bounded Phase 1** | It cannot close until Phase 2/3 acceptance is complete. |
 | WP29 Rust evidence/identity parity | Shared Rust evidence, identity, merge, AI digest shapes and protocol tests exist. | **Complete for Phase 1** | Runtime enrichment is separately owned. |
@@ -168,6 +170,7 @@ live evidence -> durable review/risk state -> policy compiler/runtime
 -> remaining source-freshness surfaces
 ```
 
-Phase 2 must run focused tests and Enforcer only after the 16 incomplete rows are
-closed or explicitly reduced. Phase 3 then regenerates proof from a clean
-checkout; historical ignored proof is not a substitute.
+The implementation-authorized source queue is exhausted. Phase 2 now runs
+focused tests and repairs for the written source while the 12 owner/dependency-
+blocked rows remain explicit and fail closed. Phase 3 then regenerates proof
+from a clean checkout; historical ignored proof is not a substitute.

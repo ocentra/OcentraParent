@@ -7,9 +7,12 @@ Code-first detail: [CODE_AUDIT.md](CODE_AUDIT.md)
 
 - 95/95 graph-imported workpacks reviewed and mapped.
 - 81/95 have no remaining source/test-writing gap in their bounded scope.
-- 14/95 retain a concrete code, expected-test, owner, or shared-validation gap:
-  `WP06`, `WP16`, `WP17`, `WP18`, `WP19`, `WP20`, `WP25`, `WP26`,
-  `WP48`, `WP49`, `WP63`, `WP64`, `WP65`, and `WP102`.
+- 12/95 retain a concrete code, expected-test, owner, or dependency gap:
+  `WP06`, `WP16`, `WP17`, `WP18`, `WP19`, `WP20`, `WP25`, `WP48`,
+  `WP49`, `WP63`, `WP64`, and `WP65`.
+- WP26 and WP102 are later-phase-only rows: performance/proof harness execution
+  and shared WP101/WP103 route validation, respectively. Neither needs a new
+  App production-source packet.
 - Focused tests and Enforcer were not rerun for this inventory; proof was not
   regenerated. This is Phase 1 source/test-writing truth only.
 
