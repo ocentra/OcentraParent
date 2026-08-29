@@ -59,7 +59,7 @@ function assertGeneratedContract(module) {
   const readModel = structuredClone(module.GeneratedChildIosEntitlementCapabilityReadModel);
   assertEqual(module.ChildIosEntitlementCapabilityContractRuntime.SchemaVersion, proofMode, 'generated schema version');
   assertEqual(readModel.schemaVersion, proofMode, 'read model schema version');
-  assertEqual(readModel.bundleId, 'ca.ocentra.parent.agent', 'read model bundle identifier');
+  assertEqual(readModel.bundleId, 'ca.ocentra.child.agent', 'read model bundle identifier');
   assertEqual(readModel.surfaceProofs.length, 15, 'surface proof count');
   assertEqual(readModel.packageLifecycleProofs.length, 13, 'package lifecycle proof count');
   assertEqual(readModel.protocolBridgeProof.externalTransportState, 'not-implemented', 'external transport state');
@@ -85,12 +85,12 @@ function assertGeneratedContract(module) {
 }
 
 async function assertIosSourceProof(readModel) {
-  const project = await readRepoFile('platforms/ios/OcentraParentAgent.xcodeproj/project.pbxproj');
-  const plist = await readRepoFile('platforms/ios/OcentraParentAgent/Info.plist');
-  const statusView = await readRepoFile('platforms/ios/OcentraParentAgent/AgentStatusViewController.swift');
+  const project = await readRepoFile('platforms/ios/OcentraChildAgent.xcodeproj/project.pbxproj');
+  const plist = await readRepoFile('platforms/ios/OcentraChildAgent/Info.plist');
+  const statusView = await readRepoFile('platforms/ios/OcentraChildAgent/AgentStatusViewController.swift');
   const buildScript = await readRepoFile('scripts/release/ios/build-simulator-app.sh');
 
-  assertTextIncludes(project, 'OcentraParentAgent.app', 'iOS app product target');
+  assertTextIncludes(project, 'OcentraChildAgent.app', 'iOS app product target');
   assertTextIncludes(project, `PRODUCT_BUNDLE_IDENTIFIER = ${readModel.bundleId}`, 'bundle identifier');
   assertTextIncludes(plist, '<key>CFBundleIdentifier</key>', 'Info.plist bundle identifier');
   assertTextIncludes(plist, '<key>LSRequiresIPhoneOS</key>', 'Info.plist iPhone requirement');
@@ -123,9 +123,9 @@ async function assertIosSourceProof(readModel) {
   }
   proofLabels.push('ios-scaffold.entitlement-source-proof');
   return {
-    project: 'platforms/ios/OcentraParentAgent.xcodeproj/project.pbxproj',
-    infoPlist: 'platforms/ios/OcentraParentAgent/Info.plist',
-    statusView: 'platforms/ios/OcentraParentAgent/AgentStatusViewController.swift',
+    project: 'platforms/ios/OcentraChildAgent.xcodeproj/project.pbxproj',
+    infoPlist: 'platforms/ios/OcentraChildAgent/Info.plist',
+    statusView: 'platforms/ios/OcentraChildAgent/AgentStatusViewController.swift',
     simulatorBuildScript: 'scripts/release/ios/build-simulator-app.sh',
   };
 }
