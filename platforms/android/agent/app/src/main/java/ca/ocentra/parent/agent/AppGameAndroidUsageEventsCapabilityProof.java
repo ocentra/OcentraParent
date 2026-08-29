@@ -12,6 +12,8 @@ public final class AppGameAndroidUsageEventsCapabilityProof {
     public static final String EVENT_COLLECTION_STATE = "count-only-runtime-preflight";
     public static final String REPLAY_CONSUMER_STATE = "child-runtime-service-consumer";
     public static final String FIELD_USAGE_EVENTS_BRIDGE_STATE = "usageEventsBridgeState";
+    public static final String FIELD_CHILD_RUNTIME_SERVICE_CONSUMER_REACHABLE =
+        "childRuntimeServiceConsumerReachable";
     public static final String COMMAND_USAGE_EVENTS_CAPABILITY_GET =
         "app-game.android.usage-events.capability.get";
     public static final String COMMAND_USAGE_EVENTS_REPLAY_BOUNDARY_GET =
@@ -32,7 +34,7 @@ public final class AppGameAndroidUsageEventsCapabilityProof {
         status.putString("permissionState", PERMISSION_STATE);
         status.putString("eventCollectionState", EVENT_COLLECTION_STATE);
         status.putString("replayConsumerState", REPLAY_CONSUMER_STATE);
-        status.putBoolean("childRuntimeServiceConsumerReachable", true);
+        status.putBoolean(FIELD_CHILD_RUNTIME_SERVICE_CONSUMER_REACHABLE, true);
         status.putStringArray(
             "commands",
             new String[] {
