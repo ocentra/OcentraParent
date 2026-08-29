@@ -43,10 +43,13 @@ pub(super) async fn read_retry_journal_state(
     }
     Ok(match (before.first(), completed.first()) {
         (None, None) => RetryJournalState::Empty,
-        (Some(before), Some(completed)) => RetryJournalState::Complete {
-            before: (*before).clone(),
-            completed: (*completed).clone(),
-        },
+        (Some(before), Some(completed)) if before.sequence < completed.sequence => {
+            RetryJournalState::Complete {
+                before: (*before).clone(),
+                completed: (*completed).clone(),
+            }
+        }
+        (Some(_), Some(_)) => return Err(EnforcementRetryRecoveryError::ReconciliationRequired),
         _ => RetryJournalState::Incomplete,
     })
 }
