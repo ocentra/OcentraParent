@@ -18,6 +18,15 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 ## Source-review truth reconciliation - 2026-08-29
 
+The later canonical source review at `f5aa596eb` reconciles the 220 imported
+rows to 181 bounded source/test-complete, 20 no-code/reference, and 19 concrete
+gaps. WP10 source/tests, WP58, WP60/WP62 (`f5aa596eb`), WP64/WP65, and
+WP189/WP191 are complete for bounded source/test writing. WP16 retains partial
+state-matrix depth at `04f3b8b5c` but lacks a service-backed hostile-row
+Playwright fixture; WP27's scale harness remains owner-blocked; WP159 retains
+the shared renderer/service metadata owner gap; and WP204's three test roots
+remain blocked on FD/process custody. This does not claim tests, proof, or DONE.
+
 Canonical reviewed integration: WP120 source/tests `edaf153f8`; WP150 durable
 outbox source/tests `4d6d8c3f1`; WP163/WP164 dashboard test depth `712704a38`.
 WP165-WP220 are modern source/test audits only, not DONE or runtime proof.
@@ -34,9 +43,9 @@ proof-runner wording remains mapping debt, not product ownership.
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **173** have current production source plus expected checked-in tests for their
+- **181** have current production source plus expected checked-in tests for their
   bounded scope; **20** are reviewed no-code coordination/proof/reference
-  packets; **27** retain a concrete production-code or expected-test gap.
+  packets; **19** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -132,7 +141,7 @@ discrepancy remains stale and is not completion evidence.
 
 | Workpacks | Reachable production caller and material effect | Remaining production gap / authority boundary |
 | --- | --- | --- |
-| WP01-WP16 | `service_runtime` starts recurring Windows capture; agent-core sources inventory, process, foreground, launcher, and app/game observations; encrypted journal/SQLite and activity-surface read models persist and expose evidence. WP10's accepted source shares one process snapshot and generation-safe process identity across launcher and foreground capture while retaining the generic window identity. Canonical `51d9819a9` adds the six mapped real test roots for launcher/candidate separation, generation identity, foreground joins, PID reuse, invalid ingest, and no-false-known-game behavior. The production portal route imports the tracked vendor surface and renders WP16's dashboard, source status, capability matrix, and evidence drawer. | WP10 test execution and retained proof are open; live launcher manifest/catalog crawling and the external publisher/classifier proof owner remain absent. WP16 lacks its focused intent/state/hostile-metadata test family, and its Game budgets tile remains `policy proof pending` because no budget row reaches the service read model. Identity merge, richer subscriptions, and non-Windows acquisition remain absent. Existing read models are evidence, not policy or control. |
+| WP01-WP16 | `service_runtime` starts recurring Windows capture; agent-core sources inventory, process, foreground, launcher, and app/game observations; encrypted journal/SQLite and activity-surface read models persist and expose evidence. WP10's accepted source shares one process snapshot and generation-safe process identity across launcher and foreground capture while retaining the generic window identity. Canonical `51d9819a9` adds the six mapped real test roots for launcher/candidate separation, generation identity, foreground joins, PID reuse, invalid ingest, and no-false-known-game behavior. The production portal route imports the tracked vendor surface and renders WP16's dashboard, source status, capability matrix, and evidence drawer. | WP10 source/test writing is complete; execution and retained proof remain open. Live launcher manifest/catalog crawling and the external publisher/classifier proof owner remain absent. WP16 has partial exported intent/state-matrix depth at `04f3b8b5c`; the remaining honest gap is a service-backed hostile/long-row Playwright layout with a clean-console fixture. Its Game budgets tile remains `policy proof pending` because no budget row reaches the service read model. Identity merge, richer subscriptions, and non-Windows acquisition remain absent. Existing read models are evidence, not policy or control. |
 | WP17 | Rust typed unknown-candidate producer and Eventing request/response/expiry/replay lifecycle are callable only inside app-game-core. | No service composition feeds a parent approval request into child delivery or an adapter. |
 | WP18-WP20 | Rust game-budget, policy-target compiler, and time-budget evaluator compositions consume bounded stored summaries and remain dry-run. | No parent-authored live rule/context producer, service evaluator caller, scheduler/timer runtime, or enforcement handoff. |
 | WP21-WP22 | Controlled child-UX tokens/outbox contracts exist; the timer command path validates current session evidence and can attempt Windows termination by PID/name. | No child delivery/UI/provider runtime. Timer authority is narrow: executable path, process start time, and owner-SID hardening are not carried into this PID/name path; the authenticated native termination resolver is a separate unused path. |
@@ -142,7 +151,7 @@ discrepancy remains stale and is not completion evidence.
 | WP49, WP177 | `app_game_policy_readiness_sources` calls risk detection and the protocol → service → parent-runtime readiness row path is reachable. | This is readiness/status only. It does not invoke the compiler/evaluator with parent-authored policy or authorize an adapter. |
 | WP51 | The evaluator is a Rust library consumed by app-game-core dry-run composition. | No external service/runtime caller supplies trusted policy context. |
 | WP52-WP54, WP56 | Policy-readiness, notification intent, portal, and notification service read-model builders are reachable projections. | No authority, provider delivery, child delivery, receipt, or enforcement effect follows from these rows. |
-| WP58-WP62, WP64-WP65 | Local outbox, scheduler, audit-history, provider/preference preflight, and status bridges validate and project persisted rows; missing or unsafe input remains manual-required/unavailable. | No production scheduler writer/runtime, provider credentials, preference mutation, delivery, receipt, or child runtime caller exists. |
+| WP58-WP62, WP64-WP65 | Local outbox, scheduler, audit-history, provider/preference preflight, and status bridges validate and project persisted rows; missing or unsafe input remains manual-required/unavailable. Canonical `f5aa596eb` adds WP60/WP62 behavioral tests; WP58/WP64/WP65 source/tests are also complete for bounded review. | No production scheduler writer/runtime, provider credentials, preference mutation, delivery, receipt, or child runtime caller exists. |
 | WP63, WP66-WP70 | WP63's split source-panel intent groups App use/Game freshness rows and the mounted SVG surface renders its metrics; canonical `ca8c1ae76` supplies its WP48-owned shared behavioral test; the remaining parent-surface intent/renderer/read-model and policy-preview handoffs are callable projections. | The shared test is unexecuted. These projections do not create policy authority, live notification delivery, timer execution, or adapter execution. |
 | WP73-WP76 | Source-gated freshness/preview read models can consume the existing activity summaries. | No source-gated policy scheduler or evaluator execution consumes them. |
 | WP78-WP108 | Timer handoff, persistence, rollback, readiness, service event/read API, and parent-surface chains are implemented as typed/status projections. | No parent-authored policy-to-scheduler runtime or durable live timer delivery is wired through the chain. |

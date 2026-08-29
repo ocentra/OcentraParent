@@ -16,6 +16,14 @@
 
 ## Truth reconciliation checkpoint - 2026-08-29
 
+Canonical `f5aa596eb` reconciles 220 imported rows to 181 bounded
+source/test-complete, 20 no-code/reference, and 19 concrete gaps. WP10, WP58,
+WP60/WP62, WP64/WP65, and WP189/WP191 are source/test-complete; WP16 partial
+state-matrix depth remains blocked on a service-backed hostile-row Playwright
+fixture, WP27 on an honest scale harness owner, WP159 on shared renderer/service
+metadata ownership, and WP204 on three FD/process-custody test roots. No tests,
+proof, or DONE claims follow.
+
 WP120, WP150, WP163/WP164, and WP165-WP220 have source-review dispositions in
 `CODE_AUDIT.md`; these are not DONE/proof claims. Open blockers are WP167 ->
 WP168 supersession, WP193/WP203 Windows authority samplers, WP195/WP205 proof
