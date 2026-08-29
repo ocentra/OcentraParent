@@ -117,6 +117,22 @@ fn audit_history_bridge_rejects_tampered_refs_claims_and_identities(
     Ok(())
 }
 
+#[test]
+fn audit_history_serializer_rejects_tampered_read_model(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut model =
+        build_app_game_notification_audit_history_bridge(audit_options(), source_bridge()?)?;
+    model.production_durable_history_claimed = true;
+
+    let error = serialize_app_game_notification_audit_history_jsonl(&model)
+        .err()
+        .expect("tampered audit-history read model must not serialize");
+    assert!(error
+        .to_string()
+        .contains("app_game.notification_audit_history.read_model"));
+    Ok(())
+}
+
 fn assert_source_rejected(source: AppGameNotificationLocalOutboxBridgeReadModel) {
     let error = build_app_game_notification_audit_history_bridge(audit_options(), source)
         .err()

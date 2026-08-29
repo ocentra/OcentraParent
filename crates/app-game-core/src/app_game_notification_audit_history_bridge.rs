@@ -140,6 +140,12 @@ pub fn validate_app_game_notification_audit_history_read_model(
 pub fn serialize_app_game_notification_audit_history_jsonl(
     read_model: &AppGameNotificationAuditHistoryReadModel,
 ) -> Result<String, serde_json::Error> {
+    validate_app_game_notification_audit_history_read_model(read_model).map_err(|error| {
+        serde_json::Error::io(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            error.to_string(),
+        ))
+    })?;
     let lines = read_model
         .entries
         .iter()
