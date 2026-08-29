@@ -439,6 +439,28 @@ fn timer_parent_surface_status_read_model_parent_surface_handoff_only_expands_pa
                 .to_string()
         ]
     );
+    assert_eq!(
+        parent_surface_handoff.rows[0]
+            .source_response_consumer_parent_surface_status_read_model_handoff_row_id,
+        "service-readiness-row-app"
+    );
+    assert_eq!(
+        parent_surface_handoff.rows[0].inherited_parent_surface_status_read_model_proof_refs,
+        vec![
+            "future-app-game-timer-service-readiness-response-consumer-parent-surface-status-read-model-proof"
+                .to_string()
+        ]
+    );
+    assert_eq!(
+        parent_surface_handoff.rows[0].parent_surface_status_read_model_ref,
+        "future-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-proof"
+    );
+    assert!(!parent_surface_handoff.rows[0].parent_surface_status_implemented);
+    assert!(!parent_surface_handoff.rows[0].parent_surface_status_read_model_implemented);
+    assert!(!parent_surface_handoff.rows[0]
+        .parent_surface_status_read_model_parent_surface_implemented);
+    assert!(!parent_surface_handoff.rows[0].parent_surface_rendered);
+    assert!(!parent_surface_handoff.rows[0].raw_private_source_rows_included);
     assert!(parent_surface_handoff.rows[1]
         .required_parent_surface_proof_refs
         .is_empty());
