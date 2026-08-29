@@ -97,6 +97,56 @@ fn active_timer_state_recovers_and_cancels_with_original_identity() -> TestResul
 }
 
 #[test]
+fn persisted_recovery_state_remains_consistent_across_restart_cycles() -> TestResult {
+    let outcome = ok(
+        evaluate_enforcement_boundary(boundary_input()),
+        enforcement::TEST_TIMER_EVENT_ID,
+    )?;
+    let state = some(
+        active_timer_state_from_outcome(&outcome, policy::TEST_EVALUATED_AT),
+        enforcement::TEST_TIMER_STATE_ID,
+    )?;
+
+    let recovered = restart_recovered_timer_outcome(
+        &state,
+        transition_ids_at("2026-05-20T20:50:00.000Z", "-recovered"),
+    );
+    let recovered_state = some(
+        active_timer_state_from_outcome(&recovered, "2026-05-20T20:50:00.000Z"),
+        enforcement::TEST_TIMER_STATE_ID,
+    )?;
+    let recovered_serialized = ok(
+        serde_json::to_string(&recovered_state),
+        enforcement::TEST_TIMER_STATE_ID,
+    )?;
+    let recovered_state: EnforcementActiveTimerState = ok(
+        serde_json::from_str(&recovered_serialized),
+        enforcement::TEST_TIMER_STATE_ID,
+    )?;
+    assert!(active_timer_state_is_consistent(&recovered_state));
+    assert_eq!(
+        recovered_state.result.started_at,
+        "2026-05-20T20:50:00.000Z"
+    );
+
+    let recovered_again = restart_recovered_timer_outcome(
+        &recovered_state,
+        transition_ids_at("2026-05-20T20:55:00.000Z", "-recovered-again"),
+    );
+    let recovered_again_state = some(
+        active_timer_state_from_outcome(&recovered_again, "2026-05-20T20:55:00.000Z"),
+        enforcement::TEST_TIMER_STATE_ID,
+    )?;
+    assert!(active_timer_state_is_consistent(&recovered_again_state));
+    assert_eq!(
+        recovered_again_state.result.started_at,
+        "2026-05-20T20:55:00.000Z"
+    );
+
+    Ok(())
+}
+
+#[test]
 fn persisted_active_timer_state_rejects_cross_record_identity_mutation() -> TestResult {
     let state = active_state()?;
     assert!(active_timer_state_is_consistent(&state));
@@ -108,6 +158,34 @@ fn persisted_active_timer_state_rejects_cross_record_identity_mutation() -> Test
     let mut mismatched_timer = state;
     mismatched_timer.timer_event.action_id.push("-other");
     assert!(!active_timer_state_is_consistent(&mismatched_timer));
+
+    Ok(())
+}
+
+#[test]
+fn persisted_active_timer_state_rejects_corrupt_clock_relationships() -> TestResult {
+    let state = active_state()?;
+    assert!(active_timer_state_is_consistent(&state));
+
+    let mut malformed_requested_at = state.clone();
+    malformed_requested_at.action.requested_at = "not-a-timestamp".to_string();
+    assert!(!active_timer_state_is_consistent(&malformed_requested_at));
+
+    let mut missing_expiry = state.clone();
+    missing_expiry.action.expires_at = None;
+    assert!(!active_timer_state_is_consistent(&missing_expiry));
+
+    let mut inverted_expiry = state.clone();
+    inverted_expiry.action.expires_at = Some(policy::TEST_EVALUATED_AT.to_string());
+    assert!(!active_timer_state_is_consistent(&inverted_expiry));
+
+    let mut mismatched_schedule = state.clone();
+    mismatched_schedule.timer_event.scheduled_at = policy::TEST_EXPIRES_AT.to_string();
+    assert!(!active_timer_state_is_consistent(&mismatched_schedule));
+
+    let mut malformed_stored_at = state;
+    malformed_stored_at.stored_at = "not-a-timestamp".to_string();
+    assert!(!active_timer_state_is_consistent(&malformed_stored_at));
 
     Ok(())
 }
@@ -327,11 +405,15 @@ fn boundary_input() -> EnforcementBoundaryInput {
 }
 
 fn transition_ids() -> EnforcementTimerTransitionIds {
+    transition_ids_at(policy::TEST_EVALUATED_AT, "")
+}
+
+fn transition_ids_at(observed_at: &str, suffix: &str) -> EnforcementTimerTransitionIds {
     EnforcementTimerTransitionIds {
-        result_id: enforcement::TEST_RESULT_ID.to_string(),
-        audit_event_id: enforcement::TEST_AUDIT_EVENT_ID.to_string(),
-        timer_event_id: enforcement::TEST_TIMER_EVENT_ID.to_string(),
-        observed_at: policy::TEST_EVALUATED_AT.to_string(),
+        result_id: format!("{}{}", enforcement::TEST_RESULT_ID, suffix),
+        audit_event_id: format!("{}{}", enforcement::TEST_AUDIT_EVENT_ID, suffix),
+        timer_event_id: format!("{}{}", enforcement::TEST_TIMER_EVENT_ID, suffix),
+        observed_at: observed_at.to_string(),
     }
 }
 
