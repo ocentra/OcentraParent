@@ -36,11 +36,10 @@ fn path_shape_rejects_relative_uri_and_parent_traversal_forms() {
         Err(PathSecurityError::UnsafePath)
     ));
 
-    let traversal = if cfg!(windows) {
-        PathBuf::from(r"C:\ProgramData\Ocentra\..\custody.sqlite")
-    } else {
-        PathBuf::from("/var/lib/ocentra/../custody.sqlite")
-    };
+    let traversal = std::env::current_dir()
+        .expect("the test worktree must exist")
+        .join("..")
+        .join("custody.sqlite");
     assert!(matches!(
         validation::components(&traversal),
         Err(PathSecurityError::UnsafePath)

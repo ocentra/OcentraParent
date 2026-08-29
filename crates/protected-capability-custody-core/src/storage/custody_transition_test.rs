@@ -72,7 +72,7 @@ fn transition_accepts_only_sequential_ambiguous_and_terminal_edges() -> Result<(
 fn transition_rejects_replay_nonmonotonic_watermark_and_wrong_edge() -> Result<(), StorageError> {
     let binding = binding(1).map_err(|_| StorageError::Tampered)?;
     let prepared = record(&binding, SealedState::Prepared, 1, 3, 4, 5, 1)?;
-    let replay = record(&binding, SealedState::CommitAmbiguous, 1, 3, 4, 6, 2)?;
+    let replay = record(&binding, SealedState::Prepared, 1, 3, 4, 6, 2)?;
     let regressed_watermark = record(&binding, SealedState::CommitAmbiguous, 2, 3, 4, 5, 2)?;
     let skipped_terminal = record(&binding, SealedState::Committed, 3, 3, 4, 7, 3)?;
 
