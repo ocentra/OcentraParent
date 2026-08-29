@@ -12,7 +12,7 @@ use super::fixtures::{
     TEST_TARGET,
 };
 use crate::{
-    DispatchMode, DomainEvent, EventBus, EventJournal, EventQueuePolicy, EventingError,
+    DispatchMode, DomainEvent, EventBus, EventClock, EventJournal, EventQueuePolicy, EventingError,
     HandlerExecutionPolicy, JournalAppend, JournalPolicy, JournalSelector, ManualEventClock,
     QueueDisposition, QueueOverflowPolicy, StoredEventEnvelope,
 };

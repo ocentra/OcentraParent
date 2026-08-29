@@ -108,7 +108,7 @@ fn receive_payload(
         Ok(RequestCompletionSignal::Response(payload)) => Ok(payload),
         Ok(RequestCompletionSignal::TimedOut) => Err(registration.timeout_error()),
         Ok(RequestCompletionSignal::Cancelled) | Err(_) => {
-            registration.cancelled_error()
+            Err(registration.cancelled_error())
         }
     }
 }
