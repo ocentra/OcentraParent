@@ -2881,6 +2881,61 @@
         "docs/engineering-graph/code-map.json"
       ],
       "reason": "Reviewed production source and the six mapped real Rust test roots exist for launcher/candidate separation, generation identity, foreground joins, PID reuse, invalid ingest, and no-false-known-game behavior. Live launcher manifest/catalog crawling and the external publisher/classifier proof owner remain external runtime gaps; no hard predecessor, execution, proof, READY, or DONE claim is made."
+    },
+    {
+      "id": "WP-tracking-plan-08-android-foreground-location-adapter",
+      "hardDependencies": [],
+      "reason": "Exact source review found the Rust location validation and child-runtime event consumer, but no Android foreground location producer, permission-aware platform bridge, or Android behavioral test source. The next source slice is independently authorable within WP08 and has no hard code-writing predecessor; this review clears only the migration gate and does not claim implementation, platform authority, execution, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-tracking-plan-09-android-background-location-and-geofence-adapter",
+      "hardDependencies": [],
+      "reason": "Exact source review found the Rust geofence/runtime event consumer and real transition tests, while the Android tree contains only proof-harness code and no permission-aware background location, system geofence, restart custody, Rust ingress, or Android behavioral tests. The next WP09 platform slice has no hard code-writing predecessor; this review clears only the migration gate and claims no implementation, platform authority, execution, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-tracking-plan-10-android-battery-connectivity-and-status-adapter",
+      "hardDependencies": [],
+      "reason": "Exact source review found the Rust battery, connectivity, status, and degraded-reason evaluator with real tests, but no Android producer or bridge feeding those inputs and no Android behavioral coverage. The next WP10 platform slice has no hard code-writing predecessor; this review clears only the migration gate and claims no implementation, provider authority, execution, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-tracking-plan-11-ios-core-location-foreground-adapter",
+      "hardDependencies": [],
+      "reason": "Exact source review found the Rust location/status consumer boundary and negative tests, but no iOS Core Location foreground producer, authorization mapping, Rust handoff, or XCTest coverage. The next WP11 platform slice has no hard code-writing predecessor; this review clears only the migration gate and claims no implementation, Core Location authority, execution, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-tracking-plan-12-ios-background-region-significant-change-adapter",
+      "hardDependencies": [],
+      "reason": "Exact source review found the Rust location/geofence consumer boundary and real transition tests, but no iOS Always-authorization, region/significant-change/visit producer, relaunch custody, Rust handoff, or XCTest coverage. The next WP12 platform slice has no hard code-writing predecessor; this review clears only the migration gate and claims no implementation, background authority, execution, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md",
+        "docs/engineering-graph/code-map.json"
+      ]
     }
   ],
   "edges": [
