@@ -20,6 +20,15 @@ Status: canonical source identity corrected; expected tests, workflows, signing,
 - provisioning, signing, supervision, launch, recovery, and store limits;
 - manual-required states for unsupported child service behavior.
 
+## Tracking boundary
+
+WP06 owns the canonical iOS child package and capability-only truth. It does
+not own Core Location foreground/background semantics or a tracking transport.
+Tracking WP11/WP12 may add only their routed Swift adapter roots after Child
+WP10 supplies trusted child startup/ingress and Tracking WP40 supplies trusted
+durable tracking ingress. A local file/JSON handoff with no owner consumer is
+not an implementation.
+
 ## Live source truth
 
 Rust-owned capability/limit contracts, generated/thin TypeScript edges, contract tests, and a focused proof runner exist. They correctly model capability-only, no-daemon, no-parity, provisioning/signing/supervision/manual-required states.

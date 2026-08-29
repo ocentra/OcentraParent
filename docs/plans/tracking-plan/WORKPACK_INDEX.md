@@ -42,8 +42,8 @@ gap and 19 retain concrete production-code or expected-test gaps.
 | blocked | [WP08 Android Foreground Location Adapter](workpacks/08-android-foreground-location-adapter.md)                           |  4,407 | waits for reviewed Child WP05 Android package/bridge |
 | blocked | [WP09 Android Background Location And Geofence Adapter](workpacks/09-android-background-location-and-geofence-adapter.md) |  4,584 | waits for reviewed Child WP05 Android package/bridge and Tracking WP40 ingress |
 | blocked | [WP10 Android Battery Connectivity And Status Adapter](workpacks/10-android-battery-connectivity-and-status-adapter.md)   |  5,010 | waits for reviewed Child WP05 Android package/bridge |
-| open    | [WP11 iOS Core Location Foreground Adapter](workpacks/11-ios-core-location-foreground-adapter.md)                         |  5,789 | 9/15 checked; 6 open  |
-| open    | [WP12 iOS Background Region Significant-Change Adapter](workpacks/12-ios-background-region-significant-change-adapter.md) |  6,259 | 9/15 checked; 6 open  |
+| blocked | [WP11 iOS Core Location Foreground Adapter](workpacks/11-ios-core-location-foreground-adapter.md)                         |  5,789 | waits for reviewed Child WP06 package, Child WP10 trusted ingress, and Tracking WP40 |
+| blocked | [WP12 iOS Background Region Significant-Change Adapter](workpacks/12-ios-background-region-significant-change-adapter.md) |  6,259 | waits for reviewed Child WP06, Child WP10, and Tracking WP40 |
 | open    | [WP13 Desktop Location And Presence Hint Model](workpacks/13-desktop-location-and-presence-hint-model.md)                 |  3,311 | 6/11 checked; 5 open  |
 | open    | [WP14 Geofence Rule Model](workpacks/14-geofence-rule-model.md)                                                           |  3,274 | 6/10 checked; 4 open  |
 | open    | [WP15 Geofence Transition Engine](workpacks/15-geofence-transition-engine.md)                                             |  3,584 | 5/11 checked; 6 open  |
@@ -97,6 +97,12 @@ source lanes. The Android package, JNI bridge, service lifecycle, and platform
 test boundary belong to Child Runtime Distribution WP05 after its WP10 trusted
 startup handoff. WP08 and WP10 consume that reviewed implementation; WP09 also
 waits for the reviewed durable tracking ingress owned by WP40.
+
+2026-08-29 iOS owner correction: WP11-WP12 were false-positive
+`code-and-tests` rows because neutral Rust model files were mapped as adapter
+code. The canonical Child WP06 app is capability-only and exposes no tracking
+handoff. WP11-WP12 now wait for Child WP06, Child WP10, and Tracking WP40, and
+their code map names the missing Swift adapter/handoff and real XCTest roots.
 
 ## Selection rules
 

@@ -10,7 +10,7 @@
 
 ## Source-wave order
 
-- [ ] WP06: replace the actual iOS parent product/project/bundle/release identity with the canonical child capability-package identity while preserving every no-daemon/manual-required limit.
+- [ ] WP06: preserve the canonical child capability-package identity and every no-daemon/manual-required limit while closing its own smoke/workflow/signing/device/store gaps. Do not absorb Tracking WP11/WP12 Core Location behavior.
 - [ ] WP10: after the graph confirms reviewed Device Trust WP01 implementation, compose current trust into shipped child startup, own authenticated external ingress and health, and connect the typed handoff/update consumer. Do not add a reverse dependency on Setup WP07.
 - [ ] WP02: finish the Windows package/runtime identity and installed child startup boundary against WP10.
 - [ ] WP03: finish the macOS child package identity, lifecycle source, and signing/notarization ownership against WP10.
@@ -22,6 +22,10 @@
 - [ ] WP11: add the executable aggregate source gate only after WP01-WP10 production source exists.
 
 WP06 and WP10 are the first disjoint source packets. WP02-WP05 may proceed in parallel only after the reviewed WP10 implementation roots exist. WP07, WP08, WP09, and WP11 remain ordered downstream.
+
+Tracking WP11/WP12 consume WP06's package identity only after WP10 trusted
+startup/ingress and Tracking WP40 durable ingress are reviewed. They must not
+turn WP06 into a daemon or add an unconsumed Swift file/JSON handoff.
 
 ## Expected test-source wave after production source
 

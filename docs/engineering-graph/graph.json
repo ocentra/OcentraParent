@@ -29900,25 +29900,43 @@
       "title": "WP11 iOS Core Location Foreground Adapter",
       "path": "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md",
       "parent": "PLAN-tracking-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+        "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
+      ],
+      "state": "blocked",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/ios/tests/child_foreground_location_runtime.test.mjs"
+          ]
+        },
         "dependencyReview": {
-          "hardDependencies": [],
+          "hardDependencies": [
+            "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+            "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+            "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
+          ],
           "evidence": [
             "docs/plans/tracking-plan/PLAN_STATE.md",
             "docs/plans/tracking-plan/CODE_AUDIT.md",
             "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md",
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md",
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md",
+            "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Exact source review found the Rust location/status consumer boundary and negative tests, but no iOS Core Location foreground producer, authorization mapping, Rust handoff, or XCTest coverage. The next WP11 platform slice has no hard code-writing predecessor; this review clears only the migration gate and claims no implementation, Core Location authority, execution, proof, READY, or DONE."
+          "reason": "Exact source review found only neutral Rust location/status consumer contracts. The canonical Child WP06 iOS app is capability-only, Child WP10 trusted startup/ingress is not composed, and Tracking WP40 trusted durable ingress is not implemented. WP11 must consume all three reviewed owners before adding the routed Swift Core Location producer/handoff and real XCTest runtime coverage; it may not add a dead local file/JSON bridge. This review claims no implementation, Core Location authority, execution, proof, READY, or DONE."
         }
       },
       "completion": {
@@ -29932,6 +29950,11 @@
           "proof": [],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
+        },
+        "expected": {
+          "tests": [
+            "platforms/ios/tests/child_foreground_location_runtime.test.mjs"
+          ]
         }
       }
     },
@@ -29941,25 +29964,43 @@
       "title": "WP12 iOS Background Region Significant-Change Adapter",
       "path": "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md",
       "parent": "PLAN-tracking-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+        "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
+      ],
+      "state": "blocked",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/ios/tests/child_background_location_runtime.test.mjs"
+          ]
+        },
         "dependencyReview": {
-          "hardDependencies": [],
+          "hardDependencies": [
+            "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+            "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+            "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
+          ],
           "evidence": [
             "docs/plans/tracking-plan/PLAN_STATE.md",
             "docs/plans/tracking-plan/CODE_AUDIT.md",
             "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md",
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md",
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md",
+            "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Exact source review found the Rust location/geofence consumer boundary and real transition tests, but no iOS Always-authorization, region/significant-change/visit producer, relaunch custody, Rust handoff, or XCTest coverage. The next WP12 platform slice has no hard code-writing predecessor; this review clears only the migration gate and claims no implementation, background authority, execution, proof, READY, or DONE."
+          "reason": "Exact source review found only neutral Rust geofence/status consumer contracts. The canonical Child WP06 iOS app is capability-only, and Child WP10 trusted startup/ingress and Tracking WP40 durable ingress are not composed. WP12 may add the routed Always/region/significant-change producer/handoff and real XCTest/device coverage only after those reviewed owners; it may not treat a background-mode declaration or dead local file/JSON bridge as implementation. This review claims no implementation, background authority, execution, proof, READY, or DONE."
         }
       },
       "completion": {
@@ -29973,6 +30014,11 @@
           "proof": [],
           "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
           "adr": []
+        },
+        "expected": {
+          "tests": [
+            "platforms/ios/tests/child_background_location_runtime.test.mjs"
+          ]
         }
       }
     },
@@ -35957,6 +36003,72 @@
       "to": "WP-v0-8-enforcement-control-plan-20-rollout-docs-ci-pr-gate",
       "kind": "contains",
       "confidence": "structural"
+    },
+    {
+      "from": "WP-tracking-plan-11-ios-core-location-foreground-adapter",
+      "to": "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
+      ],
+      "reason": "The foreground adapter must run inside the canonical child iOS package; neutral Rust models are not a platform producer."
+    },
+    {
+      "from": "WP-tracking-plan-11-ios-core-location-foreground-adapter",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Foreground observations require current trusted child startup and authenticated ingress; the iOS capability app supplies neither."
+    },
+    {
+      "from": "WP-tracking-plan-11-ios-core-location-foreground-adapter",
+      "to": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
+      ],
+      "reason": "A real foreground product slice must deliver the Core Location observation through trusted durable tracking ingress instead of a dead local handoff."
+    },
+    {
+      "from": "WP-tracking-plan-12-ios-background-region-significant-change-adapter",
+      "to": "WP-child-agent-runtime-distribution-plan-06-child-ios-agent-capability-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/06-child-ios-agent-capability-package.md"
+      ],
+      "reason": "The background adapter must run inside the canonical child iOS package; a background-mode declaration alone is not implementation."
+    },
+    {
+      "from": "WP-tracking-plan-12-ios-background-region-significant-change-adapter",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Background and relaunch observations require current trusted child startup and authenticated ingress."
+    },
+    {
+      "from": "WP-tracking-plan-12-ios-background-region-significant-change-adapter",
+      "to": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
+      ],
+      "reason": "Background, significant-change, region, and relaunch delivery require durable trusted tracking ingress and restart recovery."
     },
     {
       "from": "WP-protected-capability-custody-foundation-plan-02-windows-enrollment-owner-handoff",

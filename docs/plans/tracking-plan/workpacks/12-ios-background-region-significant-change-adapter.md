@@ -30,6 +30,31 @@ visits, background modes, low-power, and terminated/relaunch states.
 iOS background/region behavior is claimed only with real-device proof and
 degraded/manual-required states where behavior is unavailable.
 
+## Source Route Correction (2026-08-29)
+
+This workpack is blocked for source work. It consumes the canonical Child WP06
+iOS package, Child WP10 trusted child startup/ingress, and Tracking WP40 durable
+tracking ingress. The current app is capability-only; it
+has no Always-authorization, region, significant-change, visit, relaunch, or
+typed Rust/transport handoff implementation.
+
+The neutral `tracking-core` geofence/status models and their tests are
+consumer contracts, not iOS background adapter implementation. The routed
+missing roots are:
+
+- `platforms/ios/OcentraChildAgent/Tracking/ChildBackgroundLocationAdapter.swift`
+- `platforms/ios/OcentraChildAgent/Tracking/ChildTrackingLocationIngress.swift`
+- `platforms/ios/OcentraChildAgentUITests/ChildBackgroundLocationRuntimeUITests.swift`
+- `platforms/ios/tests/child_background_location_runtime.test.mjs`
+
+Do not add a dead local file/JSON handoff, background-mode declaration without
+runtime delivery, or simulator-only assertion presented as physical-device
+background proof. The eventual XCTest/device source must cover authorization,
+registration, denial, delivery, relaunch/currentness, and fail-closed degraded
+states through the real application boundary.
+The Node test root must invoke the real XCTest/device target; source-text
+inspection or a fixture-only substitute is not acceptable.
+
 ## Tests And Proof
 
 Proof root: `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/`
@@ -119,7 +144,8 @@ This workpack can be assigned independently, implemented against the owning doma
 - docs/plans/tracking-plan/implementation-checklist.md
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
 - `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/`
-- Implementation paths listed by the worker before editing.
+- The routed Swift adapter/handoff and XCTest roots listed above, only after
+  Child WP06, Child WP10, and Tracking WP40 are reviewed.
 
 ## Manual-Required Gaps
 

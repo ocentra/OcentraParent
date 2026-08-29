@@ -53,6 +53,14 @@ notification, AI-provider, custody, platform, and portal-shell authority.
   owned by Child Runtime Distribution WP05 after its WP10 trusted startup
   handoff. WP09 additionally depends on the reviewed durable ingress in WP40.
   No Tracking workpack may invent a parallel Android service or dead handoff.
+- The 2026-08-29 iOS route audit found the same topology error in WP11-WP12:
+  neutral Rust location/status/geofence models were being counted as iOS
+  adapter implementation even though no Core Location producer, child-package
+  handoff, or XCTest runtime coverage exists. Child Runtime Distribution WP06
+  owns the canonical capability-only iOS app, Child WP10 owns trusted child
+  startup/ingress, and Tracking WP40 owns trusted durable tracking ingress.
+  WP11-WP12 must consume those reviewed owners and must not add a dead Swift
+  JSON/file handoff or claim the neutral Rust models as platform code.
 
 ## Current owners
 
@@ -89,6 +97,11 @@ child-agent-runtime-distribution WP05:
   shipped Android package, JNI bridge, service lifecycle, and platform-test
   boundary consumed by Tracking WP08-WP10 after reviewed implementation.
 
+child-agent-runtime-distribution WP06 + WP10:
+  canonical capability-only iOS child package plus the future trusted child
+  startup/ingress boundary consumed by Tracking WP11-WP12. WP06 alone is not a
+  Core Location runtime or transport.
+
 portal-domain / apps/portal:
   presentation of Rust-owned/generated tracking snapshots.
 ```
@@ -111,7 +124,9 @@ portal-domain / apps/portal:
 - WP07: production retention/custody execution.
 - WP08-WP10: real Android tracking adapters after Child WP10 -> Child WP05;
   WP09 also waits for WP40 durable ingress.
-- WP11-WP13: real iOS and desktop adapters.
+- WP11-WP12: real iOS Core Location adapters after Child WP06, Child WP10, and
+  Tracking WP40.
+- WP13: real desktop presence-hint adapters.
 - WP20: concrete Places/POI provider.
 - WP22: durable parent-defined place database.
 - WP24: selected AI provider routing/execution.

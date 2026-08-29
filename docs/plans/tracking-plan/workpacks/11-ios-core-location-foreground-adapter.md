@@ -30,6 +30,31 @@ claiming background behavior.
 iOS foreground location evidence is schema-valid, permission-labeled,
 freshness-labeled, and degraded when unavailable.
 
+## Source Route Correction (2026-08-29)
+
+This workpack is blocked for source work. The canonical
+`platforms/ios/OcentraChildAgent` application is owned by Child Runtime
+Distribution WP06 and is deliberately capability-only. It has no Core Location
+producer or Rust/transport handoff. Child WP10 must first provide trusted child
+startup/ingress, and Tracking WP40 must provide the trusted durable tracking
+ingress that receives platform observations.
+
+The neutral `tracking-core` location/status models and their tests are
+consumer contracts, not iOS adapter implementation. The routed missing roots
+are:
+
+- `platforms/ios/OcentraChildAgent/Tracking/ChildForegroundLocationAdapter.swift`
+- `platforms/ios/OcentraChildAgent/Tracking/ChildTrackingLocationIngress.swift`
+- `platforms/ios/OcentraChildAgentUITests/ChildForegroundLocationRuntimeUITests.swift`
+- `platforms/ios/tests/child_foreground_location_runtime.test.mjs`
+
+Do not add a local JSON/SharedPreferences/file handoff, caller-minted identity,
+or presentation-only status row. The eventual XCTest source must exercise the
+real application/Core Location boundary and preserve denied, restricted,
+services-disabled, stale, and no-background-claim behavior.
+The Node test root must invoke the real XCTest target; source-text inspection
+or a fixture-only substitute is not acceptable.
+
 ## Tests And Proof
 
 Proof root: `output/tracking-plan-proof/11-ios-core-location-foreground-adapter/`
@@ -104,7 +129,8 @@ This workpack can be assigned independently, implemented against the owning doma
 - docs/plans/tracking-plan/implementation-checklist.md
 - scripts/test/tracking-plan-ios-simulator-proof.mjs
 - `output/tracking-plan-proof/11-ios-core-location-foreground-adapter/`
-- Implementation paths listed by the worker before editing.
+- The routed Swift adapter/handoff and XCTest roots listed above, only after
+  Child WP06, Child WP10, and Tracking WP40 are reviewed.
 
 ## Manual-Required Gaps
 

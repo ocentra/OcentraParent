@@ -40,8 +40,10 @@ Use [CODE_AUDIT.md](CODE_AUDIT.md) for the 2026-08-15 source/test result and
    outbox/receipt boundary and escalation/quiet-hours/ack timer lifecycle.
 6. **WP22 then WP07 persistence/custody**: replace the in-memory place store and
    transformation-only retention path with durable, restart-safe execution.
-7. **WP11-WP12 iOS adapters**: foreground/background/region lifecycle code
-   with real platform tests after its package/runtime owner is routed.
+7. **Child WP06 + Child WP10 + WP40, then WP11-WP12 iOS adapters**:
+   consume the canonical capability-only iOS package, trusted child
+   startup/ingress, and trusted durable tracking ingress before adding
+   foreground/background/region lifecycle code and real XCTest coverage.
 8. **WP20 and WP24 providers**: concrete POI provider and selected AI provider
    routing with redaction, timeout, retry, and receipt tests.
 9. **WP28-WP30 and WP39 product composition**: durable live/missing-device
@@ -63,6 +65,9 @@ Use [CODE_AUDIT.md](CODE_AUDIT.md) for the 2026-08-15 source/test result and
 - No production Android/iOS tracking adapter exists. Android acquisition is
   blocked on the reviewed Child WP10 -> Child WP05 package/bridge chain; WP09
   also waits for reviewed WP40 ingress.
+- The current iOS child app is capability-only and has no Core Location source
+  or Rust/transport handoff. WP11-WP12 are blocked on Child WP06, Child WP10,
+  and WP40; neutral tracking-core evaluators are not iOS implementation.
 - No durable notification/escalation lifecycle exists.
 - No concrete POI or tracking AI provider execution route exists.
 - Old `tracking-domain` and tracking proof-script routes are stale/absent.

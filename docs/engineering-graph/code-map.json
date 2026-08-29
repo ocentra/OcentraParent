@@ -4944,21 +4944,27 @@
     },
     "WP-tracking-plan-11-ios-core-location-foreground-adapter": {
       "planSlug": "tracking-plan",
+      "expectedTestRoots": [
+        "platforms/ios/tests/child_foreground_location_runtime.test.mjs"
+      ],
       "roots": [
-        "crates/tracking-core/src/status.rs",
-        "crates/tracking-core/src/location_validation.rs",
-        "crates/tracking-core/tests/unit/status.rs",
-        "crates/tracking-core/tests/schema-negative/location_validation.rs"
-      ]
+        "platforms/ios/OcentraChildAgent/Tracking/ChildForegroundLocationAdapter.swift",
+        "platforms/ios/OcentraChildAgent/Tracking/ChildTrackingLocationIngress.swift",
+        "platforms/ios/OcentraChildAgentUITests/ChildForegroundLocationRuntimeUITests.swift"
+      ],
+      "note": "Source missing and dependency-blocked: neutral Rust location/status models are consumer contracts, not iOS adapter code. The routed Swift Core Location producer, trusted ingress handoff, and real XCTest runtime root do not exist."
     },
     "WP-tracking-plan-12-ios-background-region-significant-change-adapter": {
       "planSlug": "tracking-plan",
+      "expectedTestRoots": [
+        "platforms/ios/tests/child_background_location_runtime.test.mjs"
+      ],
       "roots": [
-        "crates/tracking-core/src/status.rs",
-        "crates/tracking-core/src/geofence.rs",
-        "crates/tracking-core/tests/unit/status.rs",
-        "crates/tracking-core/tests/unit/geofence.rs"
-      ]
+        "platforms/ios/OcentraChildAgent/Tracking/ChildBackgroundLocationAdapter.swift",
+        "platforms/ios/OcentraChildAgent/Tracking/ChildTrackingLocationIngress.swift",
+        "platforms/ios/OcentraChildAgentUITests/ChildBackgroundLocationRuntimeUITests.swift"
+      ],
+      "note": "Source missing and dependency-blocked: neutral Rust geofence/status models are consumer contracts, not iOS background adapter code. The routed Always/region/significant-change producer, trusted ingress handoff, and real XCTest/device runtime root do not exist."
     },
     "WP-tracking-plan-13-desktop-location-and-presence-hint-model": {
       "planSlug": "tracking-plan",
