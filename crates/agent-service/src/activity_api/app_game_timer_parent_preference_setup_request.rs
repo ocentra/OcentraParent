@@ -14,17 +14,19 @@ pub struct AppGameTimerSetupStorePath(pub PathBuf);
 pub async fn build_activity_app_game_timer_parent_preference_setup_request_report(
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
-    build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path_support(
+    build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path(
         command,
         AppGameTimerSetupStorePath(activity_db_path().into()),
     )
     .await
 }
 
-#[cfg(test)]
-pub(super) async fn build_activity_app_game_timer_parent_preference_setup_request_report_for_test(
+pub(super) async fn build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path(
     command: AgentCommandEnvelope,
     store_path: AppGameTimerSetupStorePath,
 ) -> AgentEventEnvelope {
-    build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path_support(command, store_path).await
+    build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path_support(
+        command, store_path,
+    )
+    .await
 }

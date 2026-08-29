@@ -101,7 +101,8 @@ pub(crate) fn append_setup_outbox_record(
         .lines()
         .filter(|line| !line.trim().is_empty())
         .map(|existing_line| {
-            let existing_record: Value = serde_json::from_str(existing_line).map_err(|_error| ())?;
+            let existing_record: Value =
+                serde_json::from_str(existing_line).map_err(|_error| ())?;
             let existing_object = existing_record.as_object().ok_or(())?;
             let existing_record_id = existing_object
                 .get(constants::field::APP_GAME_PARENT_PREFERENCE_SETUP_OUTBOX_RECORD_ID)
