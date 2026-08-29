@@ -33,24 +33,26 @@ platform enforcement, provider delivery, and child-device delivery unclaimed.
   enforcement, Device Owner/Profile Owner, or Play policy proof.
 - No broad blocking or Android package action execution.
 
-## Files
+## Current source and test roots
 
 - `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java`
-- `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java`
-- `packages/parent-domain/src/app-game-android-usage-events-count-sample.ts`
-- `packages/parent-domain/tests/app-game-android-usage-events-count-sample.test.ts`
-- `scripts/test/app-game-android-usage-events-count-sample-proof.mjs`
+- `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java`
+- `platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java`
 
-## Validation
+Canonical `f2d485b20` uses real Robolectric AppOps and UsageStats shadows to add
+in-window/out-of-window events, reduce three events to two foreground events,
+persist/read back the count snapshot, and prove the app-private store contains
+exactly the six expected durable keys. No package/activity row is retained.
+Historical `packages/parent-domain` and proof-runner paths are retired.
 
-- `cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-usage-events-count-sample`
-- `cmd /c node --check scripts/test/app-game-android-usage-events-count-sample-proof.mjs`
-- `cmd /c node scripts/test/app-game-android-usage-events-count-sample-proof.mjs`
+## Validation state
 
-## Done Criteria
+The real Java behavior test is written but was not executed in this
+code/test-source phase. No physical grant/sample proof was produced.
 
-- Android package source reduces UsageEvents to counts only.
-- MainActivity surfaces sample state without raw UsageEvents data.
-- Parent-domain rejects raw storage, dispatch, enforcement, child delivery, and
-  mismatched count claims.
-- Android package build proof confirms the count-only sampler compiles.
+## Remaining completion criteria
+
+- Execute the focused Java test in the later validation wave.
+- Retain a physical count-only UsageEvents sample without raw row custody.
+- Keep dispatch, enforcement, provider delivery, and child-device delivery
+  unclaimed.

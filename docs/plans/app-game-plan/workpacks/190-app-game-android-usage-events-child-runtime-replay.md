@@ -40,14 +40,15 @@ from its bounded worker, publishes synchronized immutable status, and waits
 for bounded worker shutdown before closing native composition. The launcher
 activity now binds to that service and polls a redacted status projection, so
 the production consumer is reachable from an existing app lifecycle; it does
-not claim device delivery or enforcement. Tests and proof remain absent.
+not claim device delivery or enforcement. Canonical `a45575cfa` adds real JVM
+restart/currentness/corruption tests and a physical-device instrumentation path
+that grants UsageStats through Android AppOps, consumes a real owner-produced
+snapshot, proves duplicate/older rejection, and accepts a newer generation.
 
 ## Validation
 
-Source-only validation ran the focused Android Java compile (excluding the
-unavailable `cargo-ndk` bridge task), architecture policy, Enforcer
-source-shape, no-test-doubles, validation-bypass, and diff checks. No tests or
-proof harnesses were written or executed.
+The real JVM and instrumentation test sources are written but were not
+executed in this code/test-source phase. No proof harness was run or retained.
 
 ## Proof
 
@@ -66,7 +67,7 @@ Source packet semantics:
 Not proved:
 
 - Raw UsageEvents row storage or raw package/activity data.
-- Focused tests and retained proof artifacts.
+- Test execution and retained proof artifacts.
 - Android child-device delivery.
 - Device Owner/Profile Owner authority.
 - Hide/suspend/uninstall block, lock task, managed configuration, Play policy,

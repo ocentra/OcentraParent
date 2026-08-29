@@ -34,14 +34,14 @@ action rows before adapter dispatch when owner authority is absent. It records
 that owner provisioning and a `DeviceAdminReceiver` are not wired; no caller
 can mint owner authority. The launcher activity binds to the child service
 and renders the redacted authority preflight state without creating authority.
-Tests and proof remain absent.
+Canonical `50c9964e0` adds real Robolectric behavior coverage for null context,
+the default unprovisioned `DevicePolicyManager`, all five blocked actions,
+redacted gaps, and non-claims.
 
 ## Validation
 
-Source-only validation ran the focused Android Java compile (excluding the
-unavailable `cargo-ndk` bridge task), architecture policy, Enforcer
-source-shape, no-test-doubles, validation-bypass, and diff checks. No tests or
-physical-device proof were written or executed.
+The focused Java test source is written but was not executed in this
+code/test-source phase. No physical-device or retained proof was produced.
 
 ## Proof
 

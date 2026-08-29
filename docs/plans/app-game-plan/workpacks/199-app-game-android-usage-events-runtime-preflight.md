@@ -35,25 +35,27 @@ enforcement, or child-device delivery are claimed.
   managed configuration, adapter dispatch, platform enforcement, provider
   delivery, or child-device delivery claim.
 
-## Files
+## Current source and test roots
 
 - `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java`
-- `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/MainActivity.java`
-- `packages/parent-domain/src/app-game-android-usage-events-runtime-preflight.ts`
-- `packages/parent-domain/tests/app-game-android-usage-events-runtime-preflight.test.ts`
-- `scripts/test/app-game-android-usage-events-runtime-preflight-proof.mjs`
+- `platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflightTest.java`
 
-## Validation
+Canonical `3dde089a6` makes readiness require both granted UsageStats AppOps and
+a visible `UsageStatsManager`. Null/malformed contexts, AppOps/service/query
+failures, and interrupted iteration fail closed without raw data or authority
+claims. The focused Robolectric test covers denied, unavailable, malformed,
+redacted, and non-claim behavior. WP200 owns the count-specific positive sample
+coverage. Historical `packages/parent-domain` and `scripts/test/app-game-*`
+paths are retired and must not be recreated.
 
-- `cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-android-usage-events-runtime-preflight`
-- `cmd /c node --check scripts/test/app-game-android-usage-events-runtime-preflight-proof.mjs`
-- `cmd /c node scripts/test/app-game-android-usage-events-runtime-preflight-proof.mjs`
+## Validation state
 
-## Done Criteria
+The focused Java behavior test is written but was not executed in this
+code/test-source phase. No physical UsageStats grant/sample proof was produced.
 
-- Android package source checks UsageStats AppOps and service visibility.
-- MainActivity surfaces the preflight state without raw UsageEvents data.
-- Parent-domain keeps runtime collection blocked until runtime sample proof
-  exists.
-- Android package build proof confirms the preflight compiles while UsageStats
-  remains settings-grant-required.
+## Remaining completion criteria
+
+- Execute the focused preflight and WP200 count tests in the validation wave.
+- Retain a real package/grant sample proof without raw UsageEvents custody.
+- Keep adapter dispatch, enforcement, provider delivery, and child-device
+  delivery unclaimed.

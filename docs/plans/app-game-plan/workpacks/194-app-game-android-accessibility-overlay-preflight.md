@@ -35,15 +35,15 @@ persists state through a bounded, coalescing worker with settings-read,
 pending, and durable-write failures kept distinct. The accessibility service is
 exported for the Android system binding contract, while the no-context status
 path reports no runtime or durable readiness. The launcher activity renders the
-redacted preflight from the child service lifecycle. Tests and proof remain
-absent.
+redacted preflight from the child service lifecycle. Canonical `7339e7476`
+adds real Robolectric coverage for global/own-component settings, bound event
+state, interruption versus unbind/destroy lifecycle, malformed/partial/future
+durable records, restart readback, and redaction.
 
 ## Validation
 
-Source-only validation ran the focused Android Java compile (excluding the
-unavailable `cargo-ndk` bridge task), architecture policy, Enforcer
-source-shape, no-test-doubles, validation-bypass, and diff checks. No tests or
-physical-device proof were written or executed.
+The focused Java test source is written but was not executed in this
+code/test-source phase. No physical-device or retained proof was produced.
 
 ## Proof
 

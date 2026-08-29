@@ -35,18 +35,18 @@ The source phase adds the Android production boundary at:
 The preflight checks the real child APK identity, reads only count-only
 `UsageEvents` rows, and commits a generation/timestamped count snapshot to
 app-private storage. The manifest declares the Android special permission
-needed for the AppOps grant path. The legacy parent activity starts with an
-explicitly unavailable status and schedules the query and persistence on a
-bounded worker with lifecycle cancellation; it never performs the UsageEvents
-query or replay commit on the UI thread. Parent-domain replay projection,
-tests, and proof remain absent.
+needed for the AppOps grant path. The manifest-declared child composition
+service consumes and revalidates that durable snapshot. Canonical
+`a45575cfa` adds real JVM durable replay coverage and physical-device
+instrumentation for grant, currentness, duplicate/older rejection, and newer
+acceptance. The remaining workpack blocker is the stated parent-runtime
+visibility boundary: no typed Android-to-Rust/parent ingress consumes this
+local status.
 
 ## Validation
 
-Source-only validation ran the focused Android Java compile (excluding the
-unavailable `cargo-ndk` bridge task), architecture policy, Enforcer
-source-shape, no-test-doubles, validation-bypass, and diff checks. No tests or
-proof harnesses were written or executed.
+The focused JVM and instrumentation tests are written but were not executed in
+the code/test-source phase. No proof harness was run or retained.
 
 ## Proof
 
@@ -64,8 +64,8 @@ Source packet semantics:
 
 Not proved:
 
-- Parent-domain replay projection and runtime proof.
-- Focused tests and retained proof artifacts.
+- Typed Android-to-Rust/parent replay projection and runtime proof.
+- Test execution and retained proof artifacts.
 - Raw UsageEvents row storage or raw package/activity data.
 - Android child runtime replay consumer.
 - Device Owner/Profile Owner authority.

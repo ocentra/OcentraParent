@@ -191,7 +191,9 @@ agent-service + parent-runtime-core + apps/portal:
 
 platforms/android/agent:
   Tracked Android UsageEvents, Accessibility, delivery, receipt, and notification
-  sources. Focused tracked App/Game Java tests are still missing where CODE_AUDIT says so.
+  sources. WP190/WP192/WP194/WP198/WP199/WP200/WP201/WP202 now have focused real
+  Java test source integrated or reviewed; the tests remain unexecuted, and
+  CODE_AUDIT retains exact ingress, physical-authority, proof, and later-workpack gaps.
 
 packages/schema-domain:
   Generated validation/decoder edges only. The removed activity-domain,

@@ -5951,26 +5951,47 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — WP198 capability source and real test are integrated; grant, execution, physical proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "possibly done"
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProofTest.java"
+          ]
+        },
+        "stateOverride": {
+          "reason": "Canonical bb83a0aef contains the package capability source and focused exact-bundle/topology/redaction/non-claim test source. The test is unexecuted; settings grant, physical proof, enforcement, delivery, CI, checklist acceptance, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/198-app-game-android-usage-events-capability-proof.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed package capability/topology source and exact-bundle behavior test at canonical bb83a0aef. No execution, settings grant, physical proof, checklist acceptance, READY, or DONE is asserted.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/198-app-game-android-usage-events-capability-proof.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/198-app-game-android-usage-events-capability-proof.md"
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProofTest.java"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -5978,6 +5999,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/198-app-game-android-usage-events-capability-proof"
+          ],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProofTest.java"
           ]
         }
       }
@@ -5994,26 +6018,48 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — WP199 fail-closed runtime preflight and real test are integrated; execution, physical sample proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "possibly done"
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflightTest.java"
+          ]
+        },
+        "stateOverride": {
+          "reason": "Canonical 3dde089a6 contains fail-closed AppOps plus UsageStats readiness and focused malformed/denied/unavailable/redaction behavior tests. The test is unexecuted; physical sample proof, CI, checklist acceptance, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/199-app-game-android-usage-events-runtime-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed fail-closed runtime-preflight source and real malformed/denied/unavailable/redaction behavior test at canonical 3dde089a6. No execution, physical sample proof, checklist acceptance, READY, or DONE is asserted.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/199-app-game-android-usage-events-runtime-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/199-app-game-android-usage-events-runtime-preflight.md"
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsCapabilityProof.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflightTest.java"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -6021,6 +6067,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/199-app-game-android-usage-events-runtime-preflight"
+          ],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflightTest.java"
           ]
         }
       }
@@ -6073,26 +6122,47 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — WP200 count-only source and real durable behavior test are integrated; execution, physical sample proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "possibly done"
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java"
+          ]
+        },
+        "stateOverride": {
+          "reason": "Canonical f2d485b20 contains real Robolectric AppOps/UsageStats count reduction plus exact durable-key/readback behavior tests without raw data custody. The test is unexecuted; physical grant/sample proof, CI, checklist acceptance, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/200-app-game-android-usage-events-count-sample.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed count-only source and real AppOps/UsageStats/durable-key behavior test at canonical f2d485b20. No execution, physical sample proof, checklist acceptance, READY, or DONE is asserted.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/200-app-game-android-usage-events-count-sample.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/200-app-game-android-usage-events-count-sample.md"
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -6100,6 +6170,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/200-app-game-android-usage-events-count-sample"
+          ],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java"
           ]
         }
       }
@@ -6116,17 +6189,17 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — no owned source/test gap; Samsung S9 install, launch, AppOps, redacted UI proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "possibly done"
+        "stateOverride": {
+          "reason": "Independent review at canonical f2d485b20 found the manifest package/runtime topology and WP190/WP200 behavioral prerequisites complete. WP201 is physical-proof-only; Samsung S9 Wi-Fi ADB install/launch, AppOps state, redacted UI capture, checklist acceptance, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/201-app-game-android-usage-events-package-runtime-proof.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -9304,24 +9377,55 @@
       "path": "docs/plans/app-game-plan/workpacks/188-app-game-android-usage-events-replay.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "Blocked — local Android replay and tests are written; typed Android-to-Rust/parent visibility ingress, execution, proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java"
+          ]
+        },
+        "stateOverride": {
+          "reason": "Canonical a45575cfa contains the local durable count-only replay, child consumer, JVM restart/currentness tests, and real-device instrumentation source. WP188's stated parent-runtime visibility intent still has no typed Android-to-Rust/parent ingress owner, so local source/test presence must not be promoted to implementation completion. Tests are unexecuted; proof, CI, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/CODE_AUDIT.md",
+            "docs/plans/app-game-plan/workpacks/188-app-game-android-usage-events-replay.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed local Android replay implementation and real test topology through canonical a45575cfa. This evidence is deliberately insufficient for WP188 completion because the typed Android-to-Rust/parent visibility ingress is absent; tests are unexecuted and proof/checklist evidence remains open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/188-app-game-android-usage-events-replay.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/188-app-game-android-usage-events-replay.md"
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsChildRuntimeReplay.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -9329,6 +9433,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/188-app-game-android-usage-events-replay"
+          ],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java"
           ]
         }
       }
@@ -9432,24 +9539,55 @@
       "path": "docs/plans/app-game-plan/workpacks/190-app-game-android-usage-events-child-runtime-replay.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "Validation — WP190 production and real test source are integrated; execution, delivery, enforcement, proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java"
+          ]
+        },
+        "stateOverride": {
+          "reason": "Canonical a45575cfa contains the reachable manifest child replay consumer plus real JVM and physical-device instrumentation test source. No test was executed and no proof was retained; delivery, enforcement, CI, checklist acceptance, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/190-app-game-android-usage-events-child-runtime-replay.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed production and real test source at canonical a45575cfa. No test execution, delivery/enforcement proof, retained proof, checklist acceptance, READY, or DONE is asserted.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/190-app-game-android-usage-events-child-runtime-replay.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/190-app-game-android-usage-events-child-runtime-replay.md"
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsChildRuntimeReplay.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsRuntimePreflight.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayStore.java"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -9457,6 +9595,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/190-app-game-android-usage-events-child-runtime-replay"
+          ],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidUsageEventsReplayTest.java"
           ]
         }
       }
@@ -9547,24 +9688,53 @@
       "path": "docs/plans/app-game-plan/workpacks/192-app-game-android-authority-preflight.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "Validation — WP192 fail-closed authority preflight and real test source are integrated; execution, enrollment, physical proof, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAuthorityPreflightTest.java"
+          ]
+        },
+        "stateOverride": {
+          "reason": "Canonical 50c9964e0 contains real DevicePolicyManager fail-closed source and focused authority-state behavior tests. No test was executed and no physical owner enrollment/proof exists; execution, CI, checklist acceptance, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/192-app-game-android-authority-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed fail-closed DevicePolicyManager source and real test topology at canonical 50c9964e0. No execution, owner enrollment, physical proof, checklist acceptance, READY, or DONE is asserted.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/192-app-game-android-authority-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/192-app-game-android-authority-preflight.md"
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAuthorityPreflight.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAuthorityPreflightTest.java"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -9572,6 +9742,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/192-app-game-android-authority-preflight"
+          ],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAuthorityPreflightTest.java"
           ]
         }
       }
@@ -9619,24 +9792,53 @@
       "path": "docs/plans/app-game-plan/workpacks/194-app-game-android-accessibility-overlay-preflight.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "Validation — WP194 Accessibility preflight/runtime and real test source are integrated; execution, physical proof, overlay delivery, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeServiceTest.java"
+          ]
+        },
+        "stateOverride": {
+          "reason": "Canonical 7339e7476 contains strict Accessibility settings/lifecycle/durable-state source and focused Robolectric behavior tests. Tests are unexecuted; physical service enablement/event proof, overlay execution, child delivery, CI, checklist acceptance, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/194-app-game-android-accessibility-overlay-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed Accessibility production and real test source at canonical 7339e7476. No execution, physical service/event proof, overlay delivery, checklist acceptance, READY, or DONE is asserted.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/194-app-game-android-accessibility-overlay-preflight.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/194-app-game-android-accessibility-overlay-preflight.md"
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentActivity.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeServiceTest.java"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -9644,6 +9846,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/194-app-game-android-accessibility-overlay-preflight"
+          ],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeServiceTest.java"
           ]
         }
       }
@@ -9691,24 +9896,52 @@
       "path": "docs/plans/app-game-plan/workpacks/202-app-game-android-accessibility-runtime-proof.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "Validation — WP202 runtime and real test source are integrated; execution, physical event proof, overlay delivery, and completion remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeServiceTest.java"
+          ]
+        },
+        "stateOverride": {
+          "reason": "Canonical 7339e7476 contains the manifest-declared Accessibility runtime and focused settings/lifecycle/privacy/durable-state/restart test source. The test is unexecuted; physical service/event proof, overlay execution, delivery, CI, checklist acceptance, READY, and DONE remain open.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/202-app-game-android-accessibility-runtime-proof.md",
+            "docs/engineering-graph/code-map.json"
+          ]
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed manifest runtime and real lifecycle/privacy/durable-state/restart test source at canonical 7339e7476. No execution, physical service/event proof, overlay delivery, checklist acceptance, READY, or DONE is asserted.",
+          "evidence": [
+            "docs/plans/app-game-plan/workpacks/202-app-game-android-accessibility-runtime-proof.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "requirements": ["implementation", "tests"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/app-game-plan/workpacks/202-app-game-android-accessibility-runtime-proof.md"
+            "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeService.java",
+            "platforms/android/agent/app/src/main/java/ca/ocentra/child/agent/ChildAgentCompositionService.java"
           ],
-          "tests": ["docs/plans/app-game-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeServiceTest.java"
+          ],
           "proof": [],
           "checklist": ["docs/plans/app-game-plan/implementation-checklist.md"],
           "adr": []
@@ -9716,6 +9949,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/202-app-game-android-accessibility-runtime-proof"
+          ],
+          "tests": [
+            "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidAccessibilityRuntimeServiceTest.java"
           ]
         }
       }

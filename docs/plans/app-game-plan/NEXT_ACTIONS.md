@@ -52,8 +52,11 @@ writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 3. WP16 and WP159: remaining cohesive dashboard/source UI and hostile/large
    metadata tests. WP48/WP63's shared focused source is already canonical and
    awaits execution/proof only.
-4. WP188-WP202, WP204: Android replay/test closure and Linux foreground
-   acquisition.
+4. WP188 is owner-blocked on typed Android-to-Rust/parent ingress. WP190,
+   WP192, WP194, WP198, WP200, WP201, and WP202 have bounded real source/test
+   coverage integrated or reviewed but unexecuted. Continue with the
+   WP191-dependent WP204 Linux test packet; do not revive retired
+   parent-domain/proof-runner ownership.
 5. WP207 and WP211-WP222: Android child-runtime durability, receipt, delivery,
    notification, action, and focused test closure.
 6. WP27 load/performance harnesses; WP102 implement-or-retire decision.
