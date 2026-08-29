@@ -12,40 +12,47 @@
 
 # Native Apps Plan Next Actions
 
-The code-first audit is complete for all 95 workpacks. Use
+The code-first audit is complete for all 95 workpacks as of 2026-08-29. Use
 [CODE_AUDIT.md](CODE_AUDIT.md) and the engineering graph; do not route from
 legacy package/script paths embedded in old workpack prose.
 
 ## Phase 1 implementation order
 
-1. **WP18 + WP49 — compiler/routing foundation**
+1. **WP06 — complete the Windows installed-app adapter**
+   - Add a real owner-backed known-path/executable metadata,
+     publisher/signature/hash, and permission-limited adapter seam; bounded
+     inventory source remains incomplete for those requirements.
+2. **WP18 + WP49 — compiler/routing foundation**
    - Implement one Rust-owned native app policy compiler and category/risk/AI
      candidate routing path.
    - Require evidence freshness, device/local-user binding, schedule/authority
      refs, dry-run semantics, and fail-closed manual-required hard actions.
    - Add focused positive and stale/wrong-device/missing-proof/no-adapter tests.
-2. **WP16 + WP17 — durable review/risk production**
+3. **WP16 + WP17 — durable review/risk production**
    - Produce new/unknown/risk candidates from authoritative inventory/runtime
      evidence.
    - Add one-shot/persistent approval, expiry/replay, restart, and parent/child
      lifecycle tests.
-3. **WP19 + WP20 — runtime and child UX**
+4. **WP25 — install/uninstall approval handoff ownership**
+   - Assign a modern package-manager interception and approval-handoff owner;
+     do not recreate retired package paths or caller-mint authority.
+5. **WP19 + WP20 — runtime and child UX**
    - Compose sessions, schedules, bonus/allow-once state, timer lifecycle, and
      child warning/request delivery with restart tests.
-4. **WP62-WP65 — notification preference and delivery status**
+6. **WP62-WP65 — notification preference and delivery status**
    - WP59's scheduler bridge, WP60's metadata-only audit-history bridge, WP61's
      persisted provider-preflight bridge, and WP62's preference-preflight
      bridge plus real behavioral test source are reviewed. Implement the real
      WP64/WP65 status producers and preference owner next. Durable history/query,
      quiet-hours, retry/dead-letter, provider delivery, focused execution, and
      retained proof remain separate boundaries.
-5. **WP15 + WP48 + WP63 — parent product surface**
-   - Render inventory/running/foreground/session and source freshness states,
-     evidence drill-in, empty/stale/degraded/manual states, and malicious/large
-     metadata tests.
-6. **WP26 — performance harnesses**
+7. **WP48 + WP63 — remaining parent product surface**
+   - Render source-kind freshness, capability, and evidence states with
+     empty/stale/degraded/manual and malicious/large-metadata coverage. WP15
+     already owns the route-gated inventory/session dashboard.
+8. **WP26 — performance harnesses**
    - Add the specified inventory/process/replay/policy/portal scale tests.
-7. **WP102 — shared-route validation**
+9. **WP102 — shared-route validation**
    - Keep the retired parent-domain packet absent and validate the existing
      WP101-to-WP103 Rust route during the owning test phase.
 

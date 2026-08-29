@@ -16,10 +16,10 @@
 ## Current state
 
 - Plan status: **Phase 1 audited; implementation incomplete**.
-- Audit date: 2026-08-15.
+- Audit date: 2026-08-29.
 - Authoritative code/test inventory: [CODE_AUDIT.md](CODE_AUDIT.md).
 - Graph coverage: **95/95 reviewed workpack maps**.
-- Bounded Phase 1: **80 complete, 15 incomplete**.
+- Bounded Phase 1: **79 complete, 16 incomplete**.
 - Phase 2 focused tests/Enforcer: not run for this plan-wide audit.
 - Phase 3 proof: not regenerated.
 
@@ -38,10 +38,11 @@ WP49 now consumes Rust risk detection into the service policy-readiness
 surface as an explicit manual-required category/risk routing row. Compiler
 service consumption remains deferred until a parent-authored rule/device/user
 context is available; no enforcement claim is made.
-WP15 now hydrates the existing portal app/game dashboard from the local
-agent-service app-use and games read models through the parent runtime bridge;
-the production slice is unvalidated and tests/proof/checklist closure remain
-deferred.
+WP15 now mounts an inline parent-route app inventory/session dashboard from the
+existing typed activity intent; bounded production and real rendered test
+source is complete at canonical `65be97f13`. The route gate plus capability and
+evidence details are covered; focused execution, proof/checklist closure, and
+physical UI proof remain deferred.
 WP48’s existing source-freshness dashboard ownership is reconciled to the
 vendor portal implementation. WP63 now renders its existing typed source
 panel sections beside capability and evidence panels; both remain unvalidated
@@ -55,13 +56,13 @@ revalidates the canonical scheduler bridge read model before writing atomic
 records. Invalid source rows/counts/claims remain rejected; provider delivery,
 retry workers, quiet-hours timers, child delivery, and UI remain unclaimed.
 
-The remaining Phase 1 gaps are WP15, WP16, WP17, WP18, WP19, WP20, WP26,
-WP48, WP49, WP63, WP64, WP65, and WP102. WP62's bounded source and real
+The 16 remaining Phase 1 gaps are WP06, WP16, WP17, WP18, WP19, WP20, WP25,
+WP26, WP48, WP49, WP63, WP64, WP65, WP66, WP67, and WP102. WP62's bounded source and real
 behavioral test roots are now reviewed; focused execution and proof remain. WP26 is a tests-only performance
 harness gap. WP102 is a route-only shared-dependency validation gap. Neither
 requires new App production source.
 
-## Production reachability audit (2026-08-16)
+## Production reachability audit (2026-08-29)
 
 This audit separates shipped runtime reachability from the Phase 1 source/test
 inventory above. A contract, projection, checked row, proof panel, or focused
@@ -77,7 +78,7 @@ The table is the current per-workpack runtime truth; historical `Complete`,
 | 03 | Snapshot/gap documentation only. | No runtime entrypoint. |
 | 04 | Agent protocol identity shapes are consumed by inventory/read-model projection. | Identity enrichment is not an app policy/control decision. |
 | 05 | `agent-core::activity_store_app_game` creates typed inventory rows used by service capture/read models. | Inventory model does not authorize policy or action. |
-| 06 | `agent-service::activity_capture::spawn_startup_activity_capture` calls the Windows inventory source and persists journal/SQLite events. | Windows-only source; no non-Windows provider. |
+| 06 | `agent-service::activity_capture::spawn_startup_activity_capture` calls the bounded Windows inventory source and persists journal/SQLite events. | Known-path/executable metadata, publisher/signature/hash evidence, and a permission-limited adapter owner are absent; the source cannot claim full Windows installed-app inventory authority. |
 | 07 | The same startup capture calls the Windows Store/AppX package source and persists package events. | Store lifecycle/approval interception is absent. |
 | 08 | Startup capture calls the `sysinfo` process source and persists runtime rows. | Process presence is not policy classification or control authority. |
 | 09 | Startup capture calls the Windows foreground-window source and persists redacted foreground rows. | Foreground evidence does not itself authorize an action. |
@@ -86,7 +87,7 @@ The table is the current per-workpack runtime truth; historical `Complete`,
 | 12 | `ActivityStore` sessionization/rollups feed the app-game service read model. | No policy schedule or allow-once consumer. |
 | 13 | Startup capture persists app/process/foreground/launcher events through journal/SQLite ingest. | No approval/risk lifecycle is attached to ingest. |
 | 14 | Agent service activity APIs/websocket reports expose the app-game read model. | Read-model/report effect only; no parent policy runtime. |
-| 15 | Parent runtime loads app-use/games snapshots for `AppGameSessions`; portal has generated fields and proof panels. | No cohesive portal consumer for inventory/running/foreground/session/evidence/risk surfaces. |
+| 15 | Parent runtime loads app-use/games snapshots for `AppGameSessions`; the portal mounts a route-gated inline dashboard for summary, inventory/running/foreground/session rollups, capability, and evidence details. | Focused execution, visual/layout/performance acceptance, and physical UI proof remain; the dashboard does not create policy or control authority. |
 | 16 | Approval types/reducer/persistence functions exist in `app-game-core`. | No production caller opens an unknown-app request, expiry, replay, or parent response. |
 | 17 | Service policy-readiness derives category-risk counts by calling `detect_app_game_risk_candidate` on persisted inventory. | Detector output is a manual/readiness row only; no durable candidate or policy route. |
 | 18 | Compiler is called only inside the app-game risk-routing/detection module. | No shipped caller supplies parent rule, device, user, schedule, and trusted adapter context. |
@@ -96,7 +97,7 @@ The table is the current per-workpack runtime truth; historical `Complete`,
 | 22 | Coordination/proof routing only. | No product source. |
 | 23 | Generic child-runtime AI handoff exists; no app-specific classifier caller. | Digest/evidence boundary does not produce app control. |
 | 24 | Coordination/platform routing only. | Unsupported platform actions remain manual-required. |
-| 25 | Handoff/readiness shapes can describe install evidence. | No production package-manager interception or approval UX caller. |
+| 25 | Historical handoff/readiness wording can describe install evidence. | No modern production owner/caller composes package-manager interception, approval custody, or install/uninstall UI; retired package paths must not be recreated. |
 | 26 | No product caller; performance scope only. | Required load/performance harness is deferred. |
 | 27 | Manual-proof routing only. | No product source. |
 | 28 | Rollout/PR coordination only. | No product source. |
@@ -184,7 +185,7 @@ The table is the current per-workpack runtime truth; historical `Complete`,
   portal rows must remain manual/status projections.
 - The graph reports mapped `code-and-tests` roots and Phase 1 validation states,
   but no workpack completion contract has reviewed implementation/test/proof/
-  checklist evidence. The 80/15 Phase 1 split is bounded source/test topology,
+  checklist evidence. The 79/16 Phase 1 split is bounded source/test topology,
   not live runtime completion.
 - Historical package owners (`packages/activity-domain`,
   `packages/parent-domain`, `packages/agent-protocol-domain`, and
@@ -192,11 +193,12 @@ The table is the current per-workpack runtime truth; historical `Complete`,
   ownership is Rust-first through `agent-core`, `agent-service`, protocol, and
   generated bridge surfaces.
 
-No legal source slice is unblocked by this audit. The next real dependency
-slice remains WP18/WP49 only after a parent-authored rule/device/user context
-producer and policy-runtime owner are identified; then WP16/WP17 approval/risk
-durability, WP19/WP20 schedule/child delivery, and WP62-WP65 provider/preference
-status can be composed without promoting DTO-only or proof-only seams.
+The next legal source work begins with assigning WP06's Windows adapter owner
+and WP25's modern package-manager approval owner. WP18/WP49 still requires a
+parent-authored rule/device/user context producer and policy-runtime owner;
+then WP16/WP17 approval/risk durability, WP19/WP20 schedule/child delivery,
+and WP62-WP65 provider/preference status can be composed without promoting
+DTO-only or proof-only seams.
 
 ## Current ownership
 
@@ -230,10 +232,11 @@ migration history.
 ## Product truth
 
 The Windows evidence spine is real through service capture and local
-journal/SQLite read models. The product is not release-ready because durable
-review/risk state, the native-app policy compiler/runtime composition, child
-request UX, notification delivery/history, and complete parent
-inventory/freshness surfaces are not written.
+journal/SQLite read models, and WP15 now mounts the bounded parent
+inventory/session dashboard. The product is not release-ready because complete
+Windows adapter authority, durable review/risk state, native-app policy
+compiler/runtime composition, child request UX, notification delivery/history,
+and the remaining source-freshness surfaces are not written.
 
 WP74-WP101 are mostly typed, tested no-claim projections. Their production
 call-site inventory does not show live agent-service composition, so they must
@@ -241,13 +244,15 @@ not be promoted as runtime policy/timer support.
 
 ## Next implementation frontier
 
-1. WP18/WP49 compiler and category/risk routing.
-2. WP16/WP17 durable unknown/new-app review and live risk candidates.
-3. WP19/WP20 time-budget runtime composition and child UX.
-4. WP62-WP65 notification preference/status pipeline.
-5. WP15/WP48/WP63 parent inventory/freshness UI.
-6. WP26 load/performance harnesses; no App product source is missing.
-7. WP102 shared WP101/WP103 validation; keep the retired parent-domain packet
+1. WP06 Windows installed-app adapter authority and metadata completion.
+2. WP18/WP49 compiler and category/risk routing.
+3. WP16/WP17 durable unknown/new-app review and live risk candidates.
+4. WP25 modern install/uninstall approval-handoff ownership.
+5. WP19/WP20 time-budget runtime composition and child UX.
+6. WP62-WP65 notification preference/status pipeline.
+7. WP48/WP63 remaining source-freshness UI.
+8. WP26 load/performance harnesses; no additional App product source is missing.
+9. WP102 shared WP101/WP103 validation; keep the retired parent-domain packet
    absent.
 
 ## Completion boundary

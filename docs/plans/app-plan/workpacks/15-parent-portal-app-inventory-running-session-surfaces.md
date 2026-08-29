@@ -6,11 +6,17 @@ Sources: [UI/UX guide](../ui-ux-requirements-guide.md),
 
 ## Where We Are
 
-Portal currently has live activity and policy-preview surfaces. A polished app
-inventory, running, foreground, unknown, risk, capability, and evidence-detail
-dashboard is not product-complete. The existing app/game dashboard intent is a
-projection consumer, but its parent route snapshot was not hydrating app-use
-and games read models from the local service.
+Portal currently has live activity and policy-preview surfaces. The bounded
+source/test slice now mounts an inline app inventory/session dashboard in the
+parent route, consuming the existing typed app/game dashboard intent from
+service-backed read models. Product/runtime/physical UI completion is not
+claimed.
+
+Current source/test reconciliation (2026-08-29): canonical `65be97f13`
+provides the route-gated production mount and real rendered ready/unavailable
+behavior coverage, including capability and evidence details. Existing intent
+tests cover normal, stale, degraded, manual-required, unknown/risk, evidence,
+and hostile/long metadata states.
 
 ## Where We Want To Be
 

@@ -12,7 +12,7 @@
 
 # Native Apps Plan Workpack Index
 
-Audit date: 2026-08-15. All 95 imported workpacks have reviewed code/test
+Audit date: 2026-08-29. All 95 imported workpacks have reviewed code/test
 topology. `Complete` means no source/test-writing gap in the workpack's bounded
 scope; it does not mean tests, Enforcer, proof, CI, or product acceptance are
 complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
@@ -24,7 +24,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [03 current app snapshot and gap map](workpacks/03-current-app-snapshot-and-gap-map.md) | Complete, docs-only |
 | [04 app identity model](workpacks/04-app-identity-model.md) | Complete |
 | [05 installed app inventory model](workpacks/05-installed-app-inventory-model.md) | Complete |
-| [06 windows installed app inventory adapter](workpacks/06-windows-installed-app-inventory-adapter.md) | Complete |
+| [06 windows installed app inventory adapter](workpacks/06-windows-installed-app-inventory-adapter.md) | Incomplete — bounded inventory source exists; known-path/executable metadata, publisher/signature/hash, and permission adapter owner remain open |
 | [07 windows store uwp appx inventory adapter](workpacks/07-windows-store-uwp-appx-inventory-adapter.md) | Complete |
 | [08 windows process runtime evidence adapter](workpacks/08-windows-process-runtime-evidence-adapter.md) | Complete |
 | [09 windows foreground app evidence adapter](workpacks/09-windows-foreground-app-evidence-adapter.md) | Complete |
@@ -33,7 +33,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [12 app sessionization and duration engine](workpacks/12-app-sessionization-and-duration-engine.md) | Complete |
 | [13 journal and sqlite app ingest](workpacks/13-journal-and-sqlite-app-ingest.md) | Complete |
 | [14 app read models and service events](workpacks/14-app-read-models-and-service-events.md) | Complete |
-| [15 parent portal app inventory running session surfaces](workpacks/15-parent-portal-app-inventory-running-session-surfaces.md) | **Incomplete** |
+| [15 parent portal app inventory running session surfaces](workpacks/15-parent-portal-app-inventory-running-session-surfaces.md) | Complete for bounded source/test scope; runtime/physical UI proof remains open |
 | [16 new app and unknown app approval flow](workpacks/16-new-app-and-unknown-app-approval-flow.md) | **Incomplete** |
 | [17 risk app detection](workpacks/17-risk-app-detection.md) | **Incomplete** |
 | [18 policy target compiler for app rules](workpacks/18-policy-target-compiler-for-app-rules.md) | **Incomplete** |
@@ -43,7 +43,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [22 broad blocking proof gates](workpacks/22-broad-blocking-proof-gates.md) | Complete, coordination-only |
 | [23 app ai classifier digest boundary](workpacks/23-app-ai-classifier-digest-boundary.md) | Complete |
 | [24 platform extension checklist and proof routing](workpacks/24-platform-extension-checklist-and-proof-routing.md) | Complete, coordination-only |
-| [25 install and uninstall approval handoff](workpacks/25-install-and-uninstall-approval-handoff.md) | Complete, bounded handoff |
+| [25 install and uninstall approval handoff](workpacks/25-install-and-uninstall-approval-handoff.md) | Incomplete — no modern install/uninstall approval-handoff owner/caller |
 | [26 performance and service health](workpacks/26-performance-and-service-health.md) | **Incomplete, tests-only harness gap; no production-source gap** |
 | [27 e2e and manual proof artifacts](workpacks/27-e2e-and-manual-proof-artifacts.md) | Complete, proof-routing only |
 | [28 rollout checklist and pr gate](workpacks/28-rollout-checklist-and-pr-gate.md) | Complete, coordination-only |

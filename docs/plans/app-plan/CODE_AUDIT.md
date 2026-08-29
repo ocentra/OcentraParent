@@ -1,9 +1,9 @@
 # Native Apps Plan Code/Test Audit
 
-Date: 2026-08-15
-Audited branch baseline: `codex/app-plan-code-audit` at `2b79285f0`
-Integrated baseline: `main` at `eb4e66a79`; tree-equal `develop` back-sync at
-`4ece51528` through PRs `#706`, `#707`, and `#708`.
+Date: 2026-08-29
+Audited canonical baseline: `codex/eventing-wp09-production` at `65be97f13`.
+Historical branch, PR, and proof notes are context only; this source/test
+reconciliation makes no current CI, `develop`, or `main` integration claim.
 
 ## Authority
 
@@ -21,9 +21,10 @@ release-ready. Those are Phase 2 and Phase 3.
 ## Result
 
 - 95/95 workpacks have reviewed code/test topology in the engineering graph.
-- 81/95 have no remaining source/test-writing gap in their bounded Phase 1
+- 79/95 have no remaining source/test-writing gap in their bounded Phase 1
   scope. Many are intentionally narrow contract or handoff packets.
-- 14/95 retain a concrete production-code or expected-test gap.
+- 16/95 retain a concrete production-code, expected-test, owner, or
+  shared-validation gap.
 - Real Windows inventory, process, foreground, recurring service capture,
   encrypted journal/SQLite projection, source-status rows, scoped owned-process
   time-limit execution, and several Rust/service/portal read models exist.
@@ -45,7 +46,7 @@ release-ready. Those are Phase 2 and Phase 3.
 | WP03 Current snapshot/gap map | The live source/call-site gaps are recorded in `current-app-snapshot.md` and here. | **Complete for bounded Phase 1** | None in this docs-only scope. |
 | WP04 App identity model | `AppGameIdentity`, merge proof, evidence identity validation, and focused protocol tests are written. | **Complete for Phase 1** | Live enrichment quality is a later product concern. |
 | WP05 Installed inventory model | Typed inventory rows, category candidates, identity/capability states, and focused tests are written. | **Complete for Phase 1** | Platform acquisition is owned by WP06/WP07/WP41-WP46. |
-| WP06 Windows installed inventory adapter | Real bounded Start Menu inventory source, journal events, service capture, and real-filesystem tests exist. | **Complete for Phase 1** | Phase 2 must rerun focused Windows tests. |
+| WP06 Windows installed inventory adapter | Real bounded Start Menu/registry/launcher inventory source, journal events, service capture, and real-filesystem tests exist. | **Incomplete** | Known-path/executable metadata, publisher/signature/hash evidence, and permission-limited/adapter-error adapter ownership are not shipped. |
 | WP07 Windows Store/UWP/AppX adapter | Real manifest/package source, identity matching, journal/service capture, and focused tests exist. | **Complete for Phase 1** | Store lifecycle and physical-host proof remain later. |
 | WP08 Windows process runtime adapter | Real `sysinfo` process snapshots, opaque path refs, journal/service capture, and focused tests exist. | **Complete for Phase 1** | Process presence remains distinct from foreground/content. |
 | WP09 Windows foreground adapter | Real active-window source, redacted refs, journal/service capture, and focused tests exist. | **Complete for Phase 1** | Physical-host proof remains Phase 3. |
@@ -54,7 +55,7 @@ release-ready. Those are Phase 2 and Phase 3.
 | WP12 Sessionization/duration | Runtime and foreground sessionization, daily rollups, ordering logic, and unit tests are written. | **Complete for Phase 1** | Phase 2 must rerun replay/order tests. |
 | WP13 Journal/SQLite ingest | Inventory/runtime/foreground/launcher journal records, SQLite projection, validation, and tests are written. | **Complete for Phase 1** | Proof/corruption runs are later. |
 | WP14 Read models/service events | App-use/game read models, service payloads/reports, source rows, and focused service tests exist. | **Complete for Phase 1** | Downstream product surfaces remain separately owned. |
-| WP15 Portal inventory/running/session surfaces | Service rows and several App/Game proof panels exist. | **Incomplete** | No cohesive parent surface renders installed inventory, running, foreground, recent sessions, rollups, unknown/risk cards, evidence drill-in, and malicious/long metadata states with the expected tests. |
+| WP15 Portal inventory/running/session surfaces | Service rows hydrate the typed activity intent and the parent route mounts a route-gated inline App inventory/session dashboard with real rendered behavior coverage at canonical `65be97f13`; capability and evidence details remain fail-closed projections. | **Complete for bounded Phase 1 source/test scope** | Focused execution, visual snapshot/layout/performance acceptance, physical UI proof, and broader product/runtime completion remain open. |
 | WP16 New/unknown approval flow | Approval authority/request/decision/action-result DTOs and projection tests exist. | **Incomplete** | No production candidate creator, durable one-shot/persistent approval lifecycle, replay/expiry owner, parent/child UI, or integrated tests exist. |
 | WP17 Risk app detection | Taxonomy and classifier-result evidence shapes exist. | **Incomplete** | The former detector/catalog implementation is gone; no live known/unknown risk classifier, enrichment path, or focused detector matrix exists. |
 | WP18 Policy target compiler | Generated target/request/decision schemas and drift tests exist. | **Incomplete** | There is no current compiler algorithm or tests for proof gating, stale/wrong-device rejection, dry-run, and manual-required hard actions. |
@@ -64,7 +65,7 @@ release-ready. Those are Phase 2 and Phase 3.
 | WP22 Broad-blocking proof gates | Coordination/no-claim packet correctly leaves broad controls manual-required. | **Complete for bounded Phase 1** | Phase 3 platform proof is still absent. |
 | WP23 AI classifier digest boundary | Evidence refs, digest/confidence bounds, evidence-only authority, serialization, and negative tests exist. | **Complete for Phase 1** | Provider execution/quality is outside this boundary. |
 | WP24 Platform extension routing | Coordination-only routing correctly keeps unsupported platform actions manual-required. | **Complete for bounded Phase 1** | Platform owners must supply real adapters/proof. |
-| WP25 Install/uninstall approval handoff | The bounded handoff can cite inventory/install/uninstall/tamper evidence without inventing adapter authority. | **Complete for bounded Phase 1** | Store/package-manager interception and approval UX are adjacent product work. |
+| WP25 Install/uninstall approval handoff | Historical handoff wording exists, but no modern production owner/caller composes install/uninstall approval evidence. | **Incomplete / owner-blocked** | Store/package-manager interception, approval UX, and platform-specific custody require a modern owner seam; no legacy package recreation is authorized. |
 | WP26 Performance/service health | Capture cadence/limits and degraded states have ordinary tests; the retired `packages/parent-domain` roots have no manifest or caller and are not production gaps. | **Incomplete, tests-only** | The specified 1k-app, 500-process, 100k-observation, 1k-policy, and 500-row portal performance/load harnesses do not exist. |
 | WP27 E2E/manual proof artifacts | Proof-routing packet owns no product source. | **Complete for bounded Phase 1** | Phase 3 scenarios remain to be generated. |
 | WP28 Rollout/PR gate | Coordination-only rollout packet owns no product source. | **Complete for bounded Phase 1** | It cannot close until Phase 2/3 acceptance is complete. |
@@ -147,10 +148,12 @@ release-ready. Those are Phase 2 and Phase 3.
 4. WP62-WP65: implement provider/preference ownership and status,
    provider/preference preflight, and status producers already expected by the
    WP66/WP67 parent surface.
-5. WP15 + WP48 + WP63: finish the cohesive inventory/running/foreground/session
-   and source-freshness parent UI with security/large-metadata tests.
-6. WP26: add the specified load/performance harnesses.
-7. WP102: validate the shared WP101/WP103 route in its owning test phase; no
+5. WP25: assign a modern package-manager approval-handoff owner before adding
+   install/uninstall interception or UI.
+6. WP48 + WP63: finish the source-freshness parent UI and its
+   empty/stale/degraded/security/large-metadata tests.
+7. WP26: add the specified load/performance harnesses.
+8. WP102: validate the shared WP101/WP103 route in its owning test phase; no
    App-local implementation packet remains.
 
 ## Release interpretation
@@ -162,9 +165,9 @@ missing chain is:
 ```text
 live evidence -> durable review/risk state -> policy compiler/runtime
 -> child request UX -> durable notification delivery/history
--> complete parent inventory/freshness surfaces
+-> remaining source-freshness surfaces
 ```
 
-Phase 2 must run focused tests and Enforcer only after the 15 writing gaps are
+Phase 2 must run focused tests and Enforcer only after the 16 incomplete rows are
 closed or explicitly reduced. Phase 3 then regenerates proof from a clean
 checkout; historical ignored proof is not a substitute.
