@@ -115,7 +115,7 @@ fn app_game_policy_readiness_payload_reports_service_counts_with_source_dispatch
     assert!(decoded.category_routing_ready);
     assert!(decoded.unknown_review_required);
     assert!(decoded.manual_review_required);
-    assert!(decoded.adapter_dispatch_claimed);
+    assert!(!decoded.adapter_dispatch_claimed);
     assert_eq!(decoded.evidence_claim_row_count, 1);
     assert_eq!(decoded.identity_row_count, 1);
     assert_eq!(decoded.approval_authority_row_count, 1);

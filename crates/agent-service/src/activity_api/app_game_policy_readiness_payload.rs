@@ -1,7 +1,4 @@
 use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
-use ocentra_parent_agent_protocol::app_game_authority_classifier::{
-    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
-};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::AppGamePolicyReadinessReadModel;
@@ -43,8 +40,6 @@ pub fn app_game_policy_readiness_from_service_model(
     let capability_status = policy_readiness_status(&model, policy_evaluation_ready)
         .0
         .to_string();
-    let adapter_dispatch_claimed = adapter_dispatch_claimed(&model);
-
     AppGamePolicyReadinessReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         generated_at: model.generated_at,
@@ -55,7 +50,7 @@ pub fn app_game_policy_readiness_from_service_model(
         category_routing_ready,
         unknown_review_required,
         manual_review_required,
-        adapter_dispatch_claimed,
+        adapter_dispatch_claimed: false,
         evidence_claim_row_count: model.evidence_claim_rows.len() as u64,
         identity_row_count: model.identity_rows.len() as u64,
         approval_authority_row_count: model.approval_authority_rows.len() as u64,
@@ -66,15 +61,6 @@ pub fn app_game_policy_readiness_from_service_model(
         unknown_review_row_count,
         rows,
     }
-}
-
-fn adapter_dispatch_claimed(model: &AppGameServiceReadModel) -> bool {
-    model.approval_action_result_rows.iter().any(|row| {
-        row.result_status == APP_GAME_CONTROL_ACTION_STATUS_ENFORCED
-            && row.enforcement_result.as_ref().is_some_and(|result| {
-                result.status == APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED
-            })
-    })
 }
 
 pub fn app_game_policy_readiness_payload(
