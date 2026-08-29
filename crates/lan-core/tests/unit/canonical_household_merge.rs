@@ -235,7 +235,7 @@ fn production_valid_revoke_decision_marks_canonical_device_revoked() {
     let model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
         discovered_devices: vec![discovery_device(
             "lan-device-revoke",
-            Some("revoke-child"),
+            Some("revoked-child"),
             "Revoked child device",
             Some("revoked-child.local"),
             Some("192.168.1.55"),
