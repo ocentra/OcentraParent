@@ -12956,6 +12956,159 @@
         "docs/plans/app-game-plan/workpacks/95-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.md",
         "docs/engineering-graph/code-map.json"
       ]
+    },
+    {
+      "id": "WP-app-game-plan-96-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the current Rust parent-surface read-model handoff and real required/blocked/no-claim contract coverage. It has no shipped service/parent/portal caller; runtime composition and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/96-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-97-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the Rust parent-surface status handoff and real behavioral coverage. Retired parent-domain roots are not restored; no production consumer/runtime effect or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/97-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-98-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the Rust parent-surface status read-model handoff and real contract tests. It remains a bounded projection without a shipped product caller or retained proof.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/98-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface_status.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the Rust parent-surface handoff. Canonical c9557e040 adds real assertions for row identity, inherited refs, status-model binding, false implementation/render flags, and private-row exclusion. No product caller or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-103-timer-service-read-model-handoff",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/contract/app_game_timer_parent_surface_read_model_tests.rs",
+        "crates/agent-service/tests/unit/app_game_timer_parent_surface_payload_tests.rs"
+      ],
+      "reason": "Reviewed the live Rust protocol/service read-model owner, WebSocket command caller, parent-runtime consumer, strict protocol tests, and real service payload tests. Timer/provider/adapter effects and proof remain separate.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/103-timer-service-read-model-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-104-timer-service-event-handoff",
+      "implementation": ["crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs"],
+      "tests": ["crates/agent-service/tests/unit/app_game_timer_parent_surface_service_tests.rs"],
+      "reason": "Reviewed the service-owned timer parent-surface event report path and real command/event/fail-closed service tests. It emits a read-model event only; no scheduler or enforcement effect is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/104-timer-service-event-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-105-timer-service-read-api-handoff",
+      "implementation": [
+        "crates/agent-service/src/activity_api.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs"
+      ],
+      "tests": ["crates/agent-service/tests/unit/app_game_timer_parent_surface_service_tests.rs"],
+      "reason": "Reviewed the registered agent-service read API, WebSocket command dispatch, payload builder, and real ready/state-ref/missing-store behavior tests. No timer execution or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/105-timer-service-read-api-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-106-timer-service-read-api-response-handoff",
+      "implementation": ["crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs"],
+      "tests": ["crates/agent-service/tests/unit/app_game_timer_parent_surface_payload_tests.rs"],
+      "reason": "Reviewed the typed service read-API response builder, strict payload validation, and real payload behavior tests. It remains status/read-model output and does not claim scheduler or adapter execution.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/106-timer-service-read-api-response-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-107-timer-service-read-api-response-consumer-handoff",
+      "implementation": ["crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/app_game.rs"],
+      "tests": ["crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests.rs"],
+      "reason": "Reviewed the real parent-runtime consumer of the agent-service timer read model, including fail-closed consumability checks and parent bridge integration tests. Portal rendering/effects and proof remain downstream.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/107-timer-service-read-api-response-consumer-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-108-timer-service-read-api-response-consumer-parent-surface-handoff",
+      "implementation": ["apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx"],
+      "tests": ["apps/portal/tests/unit/app-game-timer-parent-surface-panel.test.ts"],
+      "reason": "Reviewed the live portal timer parent-surface panel and real behavior tests. Canonical b02e51362 adds coverage through the mounted App/Game proof-panel renderer rather than testing the component in isolation. Timer/provider/adapter effects and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/108-timer-service-read-api-response-consumer-parent-surface-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-109-timer-parent-surface-service-read-model",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_action_results.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_action_results_projection.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_timer.rs",
+        "apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/contract/app_game_timer_parent_surface_read_model_tests.rs",
+        "crates/agent-service/tests/unit/app_game_timer_parent_surface_payload_tests.rs",
+        "crates/agent-service/tests/unit/app_game_timer_parent_surface_service_tests.rs",
+        "apps/portal/tests/unit/app-game-timer-parent-surface-panel.test.ts"
+      ],
+      "reason": "Reviewed the live protocol, service command/payload/action-result, parent-runtime snapshot, and portal timer read-model chain with real strict contract, service, and UI tests. It exposes fail-closed status/actions but does not prove timer or adapter execution.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/109-timer-parent-surface-service-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-110-timer-parent-surface-portal-renderer",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_action_results.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_action_results_projection.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_timer.rs",
+        "apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/contract/app_game_timer_parent_surface_read_model_tests.rs",
+        "crates/agent-service/tests/unit/app_game_timer_parent_surface_payload_tests.rs",
+        "crates/agent-service/tests/unit/app_game_timer_parent_surface_service_tests.rs",
+        "apps/portal/tests/unit/app-game-timer-parent-surface-panel.test.ts"
+      ],
+      "reason": "Reviewed the mounted timer parent-surface renderer, its Rust-backed service/parent composition, and real ready/blocked/manual/absent/action/no-claim tests. Live provider, scheduler, adapter effects, execution, and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/110-timer-parent-surface-portal-renderer.md",
+        "docs/engineering-graph/code-map.json"
+      ]
     }
   ],
   "proofOverrides": [

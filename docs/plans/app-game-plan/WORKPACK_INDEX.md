@@ -29,15 +29,16 @@ coverage, but none is an authenticated child-runtime receipt. Follow the
 WP207 -> WP208 -> WP209 -> WP210 -> WP211 -> WP216 -> WP217 -> WP220 -> WP221
 -> WP222 source order; do not schedule duplicate marker tests.
 
-Rust-first source review (2026-08-29): WP51-WP86 and WP88-WP95 now have
+Rust-first source review (2026-08-29): WP51-WP86 and WP88-WP110 now have
 reviewed current Rust/source ownership and real checked-in behavioral tests for
 their bounded projection/contract scope. This is not runtime completion: the
 timer/service chain still lacks a parent-authored policy scheduler, live timer
 runtime, durable writer, provider/child delivery, adapter effect, executed
 tests, or proof. WP87 is explicitly still open: a proposed read-model packet
 was rejected because its output had no production caller and could not feed
-WP88 without manual reconstruction. Do not recreate retired
-`packages/parent-domain` owners or count that rejected dead DTO as code.
+WP88 without manual reconstruction. WP102 is a reviewed no-code supersession
+whose service owner is WP103. Do not recreate retired `packages/parent-domain`
+owners or count the rejected WP87 dead DTO as code.
 
 | Status             | Workpack                                                                                                                                                                                                                                                                                                                      |  Size | Boxes                 |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----: | --------------------- |

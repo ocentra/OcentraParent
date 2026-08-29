@@ -68,12 +68,13 @@ harnesses and WP24's owner-blocked live classifier/provider producer. Work from
    receipt proof -> WP216 intake -> WP217 durable queue -> WP220-WP222
    notification/action/request queue. WP212 and WP214 focused package-local
    tests are canonical, but no downstream marker helper is runtime completion.
-6. WP74-WP86 and WP88-WP95 use the current Rust-first projection/contract
-   owners and checked-in real tests; do not restore their retired
-   `packages/parent-domain` paths. Their next honest work is a real production
-   scheduler/runtime/consumer owner, not another proof DTO. WP87 remains open:
-   `bd448a2d1` was rejected because its new read model had only a test caller
-   and could not feed WP88 without manual reconstruction.
+6. WP74-WP86 and WP88-WP110 use the current Rust-first
+   projection/service/parent-runtime/portal owners and checked-in real tests;
+   WP102 is a reviewed no-code supersession by WP103. Do not restore their
+   retired `packages/parent-domain` paths. Their next honest work is a real
+   production scheduler/runtime/provider owner, not another proof DTO. WP87
+   remains open: `bd448a2d1` was rejected because its new read model had only a
+   test caller and could not feed WP88 without manual reconstruction.
 7. WP27 load/performance harnesses; WP102's no-code supersession decision is
    already recorded, so do not recreate its retired intermediate.
 

@@ -50,13 +50,16 @@ production classifier/provider producer. WP27 still lacks its specified scale,
 replay, and portal-load harnesses. No tests in this checkpoint were executed;
 trusted policy/provider authority, proof, CI, READY, and DONE remain open.
 
-## WP51-WP95 Rust-first code-and-test-source checkpoint — 2026-08-29
+## WP51-WP110 Rust-first code-and-test-source checkpoint — 2026-08-29
 
 The source-first review now records current Rust/source ownership and real
-checked-in behavioral test source for WP51-WP86 and WP88-WP95. Canonical
+checked-in behavioral test source for WP51-WP86 and WP88-WP110. Canonical
 `849fbe074` adds the missing WP51 evaluator terminal branches,
 `4a122d4ef` adds the WP82 scheduler-persistence fail-closed assertions, and
-`d02e0fcda` adds the WP89 protocol read-model no-claim assertions. The
+`d02e0fcda` adds the WP89 protocol read-model no-claim assertions.
+`c9557e040` closes WP99 boundary assertions, while `b02e51362` exercises WP108
+through the mounted renderer. WP102 is an explicit no-code supersession whose
+real service/read-model owner is WP103. The
 historical `packages/parent-domain` paths in these workpacks are retired and
 must not be recreated as parallel product truth.
 
