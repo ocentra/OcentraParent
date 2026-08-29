@@ -30,6 +30,20 @@ async fn timeout_attempt(attempts: Arc<AtomicUsize>) -> Result<(), EventingError
     Ok(())
 }
 
+#[test]
+fn handler_execution_policy_rejects_zero_timeout_and_attempts() {
+    assert!(matches!(
+        HandlerExecutionPolicy::new(Some(Duration::ZERO), 1),
+        Err(EventingError::InvalidHandlerPolicy { reason })
+            if reason == "timeout must be greater than zero"
+    ));
+    assert!(matches!(
+        HandlerExecutionPolicy::new(None, 0),
+        Err(EventingError::InvalidHandlerPolicy { reason })
+            if reason == "max_attempts must be greater than zero"
+    ));
+}
+
 #[tokio::test]
 async fn retry_policy_retries_failed_attempt_and_reports_trace_fields() {
     let bus = EventBus::with_handler_policy(
