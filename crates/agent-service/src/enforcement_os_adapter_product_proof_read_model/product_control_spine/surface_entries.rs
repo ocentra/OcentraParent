@@ -3,6 +3,10 @@ use ocentra_parent_agent_protocol::constants::v08_cross_platform_enforcement_cap
 use ocentra_parent_agent_protocol::constants::v08_enforcement_product_control_spine as spine;
 use ocentra_parent_agent_protocol::constants::v08_os_adapter_product_proof as os_proof;
 use ocentra_parent_agent_protocol::enforcement_browser_domain_adapter_proof::V08BrowserDomainAdapterProofReadModel;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformAdapterExecutionState;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformCapabilityStatus;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityClaimState;
+use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofEntry;
 use ocentra_parent_agent_protocol::enforcement_cross_platform_capability_proof::V08CrossPlatformEnforcementCapabilityProofReadModel;
 use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAdapterProductProofReadModel;
 use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlCapabilityName;
@@ -88,7 +92,7 @@ fn app_time_limit_entry(
     os_product: &V08OsAdapterProductProofReadModel,
     generated_at: &GeneratedAtText,
 ) -> V08EnforcementProductControlSpineEntry {
-    expect_cross(
+    let cross_entry = expect_cross(
         cross_platform,
         ProofEntryId(cross_proof::ENTRY_ID_WINDOWS_APP_TIME_LIMIT),
     );
@@ -96,25 +100,131 @@ fn app_time_limit_entry(
         os_product,
         ProofEntryId(os_proof::ENTRY_ID_APP_TIME_LIMIT_LIFECYCLE),
     );
-    linked_entry(LinkedEntrySpec {
-        entry_id: spine::ENTRY_ID_APP_TIME_LIMIT,
-        surface: V08EnforcementProductControlSurface::WindowsAppTimeLimitLifecycle,
-        surface_kind: V08EnforcementProductControlSurfaceKind::AppGame,
-        capability: V08EnforcementProductControlCapabilityName::AppTimeLimit,
-        product_claim_state: V08EnforcementProductControlClaimState::ImplementedBoundary,
-        adapter_execution_state: V08EnforcementProductControlExecutionState::ExecutesRealService,
-        device_policy_state: V08EnforcementProductControlDevicePolicyState::ControlCapable,
-        parent_visible_actions: &[
+    let (capability_status, product_claim_state, adapter_execution_state, device_policy_state) =
+        product_states_from_cross_entry(cross_entry);
+    let parent_visible_actions = if product_claim_state
+        == V08EnforcementProductControlClaimState::ImplementedBoundary
+        && adapter_execution_state
+            == V08EnforcementProductControlExecutionState::ExecutesRealService
+    {
+        vec![
             V08EnforcementProductControlParentAction::Observe,
             V08EnforcementProductControlParentAction::TimeLimit,
             V08EnforcementProductControlParentAction::AskParent,
-        ],
-        linked_proof_commands: &[spine::COMMAND_WINDOWS_TIMER_PROOF],
-        linked_proof_artifacts: &[spine::ARTIFACT_WINDOWS_TIMER_PROOF],
-        claim_boundary: os_proof::CLAIM_APP_TIME_LIMIT,
-        fallback_behavior: os_proof::FALLBACK_APP_TIME_LIMIT,
-        generated_at: generated_at.0.as_str(),
-    })
+        ]
+    } else {
+        vec![V08EnforcementProductControlParentAction::ReportOnly]
+    };
+
+    V08EnforcementProductControlSpineEntry {
+        schema_version: cross_entry.schema_version.clone(),
+        entry_id: spine::ENTRY_ID_APP_TIME_LIMIT.to_string(),
+        surface: V08EnforcementProductControlSurface::WindowsAppTimeLimitLifecycle,
+        surface_kind: V08EnforcementProductControlSurfaceKind::AppGame,
+        platform: cross_entry.platform,
+        capability: V08EnforcementProductControlCapabilityName::AppTimeLimit,
+        capability_status,
+        product_claim_state,
+        adapter_execution_state,
+        device_policy_state,
+        parent_visible_actions,
+        linked_proof_commands: cross_entry.linked_proof_commands.clone(),
+        linked_proof_artifacts: cross_entry.linked_proof_artifacts.clone(),
+        manual_proof_requirements: cross_entry.manual_proof_requirements.clone(),
+        claim_boundary: cross_entry.claim_boundary.clone(),
+        fallback_behavior: cross_entry.fallback_behavior.clone(),
+        broad_app_blocking_claimed: false,
+        network_domain_blocking_claimed: false,
+        managed_exact_url_blocking_claimed: false,
+        unmanaged_exact_url_claimed: false,
+        tamper_resistance_claimed: false,
+        notification_delivery_claimed: false,
+        last_checked_at: generated_at.0.to_string(),
+    }
+}
+
+fn product_states_from_cross_entry(
+    cross_entry: &V08CrossPlatformEnforcementCapabilityProofEntry,
+) -> (
+    V08EnforcementProductControlCapabilityStatus,
+    V08EnforcementProductControlClaimState,
+    V08EnforcementProductControlExecutionState,
+    V08EnforcementProductControlDevicePolicyState,
+) {
+    (
+        product_capability_status(cross_entry.capability_status),
+        product_claim_state(cross_entry.product_claim_state),
+        product_execution_state(cross_entry.adapter_execution_state),
+        product_device_policy_state(cross_entry.product_claim_state),
+    )
+}
+
+fn product_capability_status(
+    status: V08CrossPlatformCapabilityStatus,
+) -> V08EnforcementProductControlCapabilityStatus {
+    match status {
+        V08CrossPlatformCapabilityStatus::Implemented =>
+            V08EnforcementProductControlCapabilityStatus::Implemented,
+        V08CrossPlatformCapabilityStatus::ManualRequired =>
+            V08EnforcementProductControlCapabilityStatus::ManualRequired,
+        V08CrossPlatformCapabilityStatus::Supported
+        | V08CrossPlatformCapabilityStatus::PreviewScaffold
+        | V08CrossPlatformCapabilityStatus::Scaffold
+        | V08CrossPlatformCapabilityStatus::Unavailable
+        | V08CrossPlatformCapabilityStatus::Planned
+        | V08CrossPlatformCapabilityStatus::NotImplemented =>
+            V08EnforcementProductControlCapabilityStatus::NotImplemented,
+    }
+}
+
+fn product_claim_state(
+    state: V08CrossPlatformEnforcementCapabilityClaimState,
+) -> V08EnforcementProductControlClaimState {
+    match state {
+        V08CrossPlatformEnforcementCapabilityClaimState::ImplementedBoundary =>
+            V08EnforcementProductControlClaimState::ImplementedBoundary,
+        V08CrossPlatformEnforcementCapabilityClaimState::ManualRequired =>
+            V08EnforcementProductControlClaimState::ManualRequired,
+        V08CrossPlatformEnforcementCapabilityClaimState::Scaffold
+        | V08CrossPlatformEnforcementCapabilityClaimState::Unavailable =>
+            V08EnforcementProductControlClaimState::Unavailable,
+        V08CrossPlatformEnforcementCapabilityClaimState::Planned
+        | V08CrossPlatformEnforcementCapabilityClaimState::NotClaimed =>
+            V08EnforcementProductControlClaimState::NotClaimed,
+    }
+}
+
+fn product_execution_state(
+    state: V08CrossPlatformAdapterExecutionState,
+) -> V08EnforcementProductControlExecutionState {
+    match state {
+        V08CrossPlatformAdapterExecutionState::ExecutesRealService =>
+            V08EnforcementProductControlExecutionState::ExecutesRealService,
+        V08CrossPlatformAdapterExecutionState::ReturnsManualRequired =>
+            V08EnforcementProductControlExecutionState::ReturnsManualRequired,
+        V08CrossPlatformAdapterExecutionState::ReturnsUnavailable =>
+            V08EnforcementProductControlExecutionState::ReturnsUnavailable,
+        V08CrossPlatformAdapterExecutionState::ScaffoldOnly
+        | V08CrossPlatformAdapterExecutionState::NotInvoked =>
+            V08EnforcementProductControlExecutionState::NotInvoked,
+    }
+}
+
+fn product_device_policy_state(
+    state: V08CrossPlatformEnforcementCapabilityClaimState,
+) -> V08EnforcementProductControlDevicePolicyState {
+    match state {
+        V08CrossPlatformEnforcementCapabilityClaimState::ImplementedBoundary =>
+            V08EnforcementProductControlDevicePolicyState::ControlCapable,
+        V08CrossPlatformEnforcementCapabilityClaimState::ManualRequired =>
+            V08EnforcementProductControlDevicePolicyState::ManualRequired,
+        V08CrossPlatformEnforcementCapabilityClaimState::Scaffold
+        | V08CrossPlatformEnforcementCapabilityClaimState::Unavailable =>
+            V08EnforcementProductControlDevicePolicyState::Unavailable,
+        V08CrossPlatformEnforcementCapabilityClaimState::Planned
+        | V08CrossPlatformEnforcementCapabilityClaimState::NotClaimed =>
+            V08EnforcementProductControlDevicePolicyState::NotClaimed,
+    }
 }
 
 fn managed_browser_entry(
