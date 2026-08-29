@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Process;
 
 public final class AppGameAndroidUsageEventsRuntimePreflight {
+    private static final String USAGE_STATS_SERVICE_VISIBLE = "service-visible";
+    private static final String USAGE_STATS_SERVICE_UNAVAILABLE = "service-unavailable";
     public static final String SCHEMA_VERSION = "app-game-android-usage-events-runtime-preflight";
     public static final String PACKAGE_ID = "ca.ocentra.child.agent";
     public static final String NATIVE_BRIDGE_CLASS =
@@ -54,7 +56,7 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
         status.putString("nativeBridgeClass", NATIVE_BRIDGE_CLASS);
         status.putString(FIELD_PERMISSION_CHECK_STATE, PERMISSION_CHECK_UNAVAILABLE);
         status.putString(FIELD_RUNTIME_COLLECTION_STATE, COLLECTION_BLOCKED);
-        status.putString("usageStatsServiceState", "service-unavailable");
+        status.putString("usageStatsServiceState", USAGE_STATS_SERVICE_UNAVAILABLE);
         status.putString(FIELD_SAMPLE_STATE, SAMPLE_UNAVAILABLE);
         status.putLong("sampleLookbackMillis", DEFAULT_SAMPLE_LOOKBACK_MILLIS);
         status.putInt(FIELD_SAMPLE_EVENT_COUNT, 0);
@@ -92,6 +94,17 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
     }
 
     public static Bundle createRuntimePreflightBundle(Context context) {
+        if (context == null) {
+            return createUnavailableRuntimePreflightBundle();
+        }
+        try {
+            return createRuntimePreflightBundleOnContext(context);
+        } catch (RuntimeException error) {
+            return createUnavailableRuntimePreflightBundle();
+        }
+    }
+
+    private static Bundle createRuntimePreflightBundleOnContext(Context context) {
         String permissionState = usageStatsPermissionState(context);
         Bundle status = createBaseBundle(context, permissionState);
         CountOnlySample sample = collectCountOnlySample(context, permissionState);
@@ -129,12 +142,13 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
 
     private static Bundle createBaseBundle(Context context, String permissionState) {
         Bundle status = new Bundle();
+        String serviceState = usageStatsServiceState(context);
         status.putString("schemaVersion", SCHEMA_VERSION);
         status.putString("packageId", context.getPackageName());
         status.putString("nativeBridgeClass", NATIVE_BRIDGE_CLASS);
         status.putString(FIELD_PERMISSION_CHECK_STATE, permissionState);
-        status.putString(FIELD_RUNTIME_COLLECTION_STATE, runtimeCollectionState(permissionState));
-        status.putString("usageStatsServiceState", usageStatsServiceState(context));
+        status.putString(FIELD_RUNTIME_COLLECTION_STATE, runtimeCollectionState(permissionState, serviceState));
+        status.putString("usageStatsServiceState", serviceState);
         status.putStringArray("commands", new String[] { COMMAND_RUNTIME_PREFLIGHT_GET });
         status.putStringArray("events", new String[] { EVENT_RUNTIME_PREFLIGHT_REPORTED });
         status.putStringArray("proofRefs", new String[0]);
@@ -157,11 +171,14 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
     }
 
     private static String usageStatsPermissionState(Context context) {
-        Object appOpsService = context.getSystemService(Context.APP_OPS_SERVICE);
-        if (!(appOpsService instanceof AppOpsManager)) {
+        if (context == null) {
             return PERMISSION_CHECK_UNAVAILABLE;
         }
         try {
+            Object appOpsService = context.getSystemService(Context.APP_OPS_SERVICE);
+            if (!(appOpsService instanceof AppOpsManager)) {
+                return PERMISSION_CHECK_UNAVAILABLE;
+            }
             AppOpsManager appOpsManager = (AppOpsManager) appOpsService;
             int mode = appOpsManager.checkOpNoThrow(
                 AppOpsManager.OPSTR_GET_USAGE_STATS,
@@ -174,27 +191,44 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
         }
     }
 
-    private static String runtimeCollectionState(String permissionState) {
-        return PERMISSION_GRANTED.equals(permissionState) ? COLLECTION_READY_FOR_PROOF : COLLECTION_BLOCKED;
+    private static String runtimeCollectionState(String permissionState, String serviceState) {
+        return PERMISSION_GRANTED.equals(permissionState) &&
+            USAGE_STATS_SERVICE_VISIBLE.equals(serviceState) ?
+            COLLECTION_READY_FOR_PROOF : COLLECTION_BLOCKED;
     }
 
     private static String usageStatsServiceState(Context context) {
-        Object service = context.getSystemService(Context.USAGE_STATS_SERVICE);
-        return service instanceof UsageStatsManager ? "service-visible" : "service-unavailable";
+        if (context == null) {
+            return USAGE_STATS_SERVICE_UNAVAILABLE;
+        }
+        try {
+            Object service = context.getSystemService(Context.USAGE_STATS_SERVICE);
+            return service instanceof UsageStatsManager ?
+                USAGE_STATS_SERVICE_VISIBLE : USAGE_STATS_SERVICE_UNAVAILABLE;
+        } catch (RuntimeException error) {
+            return USAGE_STATS_SERVICE_UNAVAILABLE;
+        }
     }
 
     private static CountOnlySample collectCountOnlySample(Context context, String permissionState) {
         if (!PERMISSION_GRANTED.equals(permissionState)) {
             return new CountOnlySample(SAMPLE_PERMISSION_REQUIRED, 0L, 0L, false);
         }
-        Object service = context.getSystemService(Context.USAGE_STATS_SERVICE);
-        if (!(service instanceof UsageStatsManager)) {
+        try {
+            Object service = context.getSystemService(Context.USAGE_STATS_SERVICE);
+            if (!(service instanceof UsageStatsManager)) {
+                return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
+            }
+            return countUsageEvents((UsageStatsManager) service);
+        } catch (RuntimeException error) {
             return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
         }
-        return countUsageEvents((UsageStatsManager) service);
     }
 
     private static CountOnlySample countUsageEvents(UsageStatsManager usageStatsManager) {
+        if (usageStatsManager == null) {
+            return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
+        }
         if (Thread.currentThread().isInterrupted()) {
             return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
         }
@@ -209,21 +243,25 @@ public final class AppGameAndroidUsageEventsRuntimePreflight {
         if (usageEvents == null || Thread.currentThread().isInterrupted()) {
             return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
         }
-        UsageEvents.Event event = new UsageEvents.Event();
-        long totalEventCount = 0L;
-        long foregroundEventCount = 0L;
-        while (usageEvents.hasNextEvent()) {
-            if (Thread.currentThread().isInterrupted()) {
-                return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
+        try {
+            UsageEvents.Event event = new UsageEvents.Event();
+            long totalEventCount = 0L;
+            long foregroundEventCount = 0L;
+            while (usageEvents.hasNextEvent()) {
+                if (Thread.currentThread().isInterrupted()) {
+                    return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
+                }
+                usageEvents.getNextEvent(event);
+                totalEventCount = incrementCount(totalEventCount);
+                if (isForegroundEvent(event)) {
+                    foregroundEventCount = incrementCount(foregroundEventCount);
+                }
             }
-            usageEvents.getNextEvent(event);
-            totalEventCount = incrementCount(totalEventCount);
-            if (isForegroundEvent(event)) {
-                foregroundEventCount = incrementCount(foregroundEventCount);
-            }
+            String sampleState = totalEventCount > 0 ? SAMPLE_OBSERVED : SAMPLE_EMPTY;
+            return new CountOnlySample(sampleState, totalEventCount, foregroundEventCount, true);
+        } catch (RuntimeException error) {
+            return new CountOnlySample(SAMPLE_UNAVAILABLE, 0L, 0L, false);
         }
-        String sampleState = totalEventCount > 0 ? SAMPLE_OBSERVED : SAMPLE_EMPTY;
-        return new CountOnlySample(sampleState, totalEventCount, foregroundEventCount, true);
     }
 
     private static boolean isForegroundEvent(UsageEvents.Event event) {
