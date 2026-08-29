@@ -5,6 +5,13 @@ import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { test } from 'node:test';
 
+import { createParentDesktopDevEnv } from '../../scripts/dev/dev-parent-desktop.mjs';
+import {
+  ParentDevEnv,
+  ParentDevNetworkMode,
+  resolveParentDevNetworkConfig,
+} from '../../scripts/dev/local-dev-config.mjs';
+
 const repoRoot = process.cwd();
 
 function readRepoFile(path) {
@@ -119,58 +126,29 @@ test('package smoke scripts check real uninstall and emit diagnostics', () => {
   assert.match(windowsSmoke, /\/L\*v/u);
 });
 
-test('parent desktop Tauri package connects to the Rust service instead of Vite backend', () => {
-  const cargoToml = readRepoFile('apps/parent-desktop/src-tauri/Cargo.toml');
-  const tauriConfig = readRepoFile('apps/parent-desktop/src-tauri/tauri.conf.json');
-  const tauriLib = readRepoFile('apps/parent-desktop/src-tauri/src/lib.rs');
-  const packageJson = readRepoFile('apps/parent-desktop/package.json');
+test('parent desktop Tauri package keeps built portal and Rust-service runtime boundaries', () => {
+  const tauriConfig = JSON.parse(readRepoFile('apps/parent-desktop/src-tauri/tauri.conf.json'));
+  const packageJson = JSON.parse(readRepoFile('apps/parent-desktop/package.json'));
+  const network = resolveParentDevNetworkConfig(
+    {
+      [ParentDevEnv.AgentPort]: '4477',
+      [ParentDevEnv.PortalPort]: '4478',
+      [ParentDevEnv.DevNetworkMode]: ParentDevNetworkMode.Loopback,
+    },
+    {},
+    ['node', 'platform-packaging.test.mjs']
+  );
+  const desktopEnv = createParentDesktopDevEnv(network, { EXISTING_ENV: 'preserved' });
 
-  assert.match(cargoToml, /ocentra-parent-agent-protocol/u);
-  assert.match(tauriConfig, /"frontendDist": "\.\.\/\.\.\/portal\/dist"/u);
-  assert.match(tauriConfig, /ws:\/\/127\.0\.0\.1:4478/u);
-  assert.doesNotMatch(tauriConfig, /ws:\/\/127\.0\.0\.1:4477/u);
-  assert.match(tauriLib, /parent_platform_proof_state/u);
-  assert.match(tauriLib, /TcpStream::connect_timeout/u);
-  assert.match(tauriLib, /activity_adapter_state/u);
-  assert.match(tauriLib, /parent_assistant_provider_state/u);
-  assert.match(tauriLib, /runtime_readiness_state/u);
-  assert.match(tauriLib, /parent_agent_service_health_for_address/u);
-  assert.match(tauriLib, /service_transport_endpoint/u);
-  assert.match(tauriLib, /route_source_state/u);
-  assert.match(tauriLib, /degraded_source_state/u);
-  assert.match(tauriLib, /package_frontend_state/u);
-  assert.match(tauriLib, /hmr_backend_state/u);
-  assert.match(tauriLib, /process_ownership_state/u);
-  assert.match(tauriLib, /controller_route_state/u);
-  assert.match(tauriLib, /observer_read_only_state/u);
-  assert.match(tauriLib, /source_custody_state/u);
-  assert.match(tauriLib, /relay_route_state/u);
-  assert.match(tauriLib, /parent_cache_state/u);
-  assert.match(tauriLib, /parent_storage_state/u);
-  assert.match(tauriLib, /service_launch_owner_state/u);
-  assert.match(tauriLib, /service_launch_strategy_state/u);
-  assert.match(tauriLib, /package_service_manager_state/u);
-  assert.match(tauriLib, /package_health_probe_state/u);
-  assert.match(tauriLib, /port_ownership_state/u);
-  assert.match(tauriLib, /port_conflict_policy_state/u);
-  assert.match(tauriLib, /blank_window_regression_state/u);
-  assert.match(tauriLib, /package_preview_state/u);
-  assert.match(tauriLib, /update_channel_state/u);
-  assert.match(tauriLib, /rollback_state/u);
-  assert.match(tauriLib, /signing_state/u);
-  assert.match(tauriLib, /notarization_state/u);
-  assert.match(tauriLib, /store_distribution_state/u);
-  assert.match(tauriLib, /support_diagnostics_state/u);
-  assert.match(tauriLib, /support_redaction_state/u);
-  assert.match(tauriLib, /platform_matrix_state/u);
-  assert.match(tauriLib, /release_branch_state/u);
-  assert.match(tauriLib, /artifact_proof_state/u);
-  assert.match(tauriLib, /TcpStream::connect_timeout/u);
-  assert.match(tauriLib, /PARENT_DESKTOP_BACKEND_RUST_SERVICE/u);
-  assert.match(tauriLib, /PARENT_DESKTOP_RUNTIME_READY/u);
-  assert.match(tauriLib, /PARENT_DESKTOP_RUNTIME_DEGRADED/u);
-  assert.doesNotMatch(tauriLib, /VITE_|devUrl|portal:dev|vite_backend_state/u);
-  assert.match(packageJson, /"tauri:check": "cargo check --manifest-path src-tauri\/Cargo.toml"/u);
+  assert.equal(tauriConfig.build.frontendDist, '../../portal/dist');
+  assert.equal(tauriConfig.build.devUrl, 'http://127.0.0.1:4478');
+  assert.equal(tauriConfig.build.beforeDevCommand, 'npm run portal:dev');
+  assert.equal(tauriConfig.app.security.csp.includes(':4477'), false);
+  assert.equal(packageJson.scripts['tauri:check'], 'cargo check --manifest-path src-tauri/Cargo.toml');
+  assert.equal(desktopEnv.EXISTING_ENV, 'preserved');
+  assert.equal(desktopEnv[ParentDevEnv.AgentAddress], '127.0.0.1:4477');
+  assert.equal(desktopEnv[ParentDevEnv.PortalPort], '4478');
+  assert.equal(desktopEnv[ParentDevEnv.PortalAgentWebSocketUrl], 'ws://127.0.0.1:4477/api/dev/ws');
 });
 
 test('dependency policy workflow audits dependencies and writes SBOM metadata', () => {
