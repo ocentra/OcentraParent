@@ -62,6 +62,10 @@ name = "integration_policy_control_runtime_flow_intent"
 path = "tests/integration/policy_control_runtime_flow_intent.rs"
 
 [[test]]
+name = "integration_device_trust_handoff"
+path = "tests/integration/device_trust_handoff.rs"
+
+[[test]]
 name = "unit_identity"
 path = "tests/unit/identity.rs"
 
