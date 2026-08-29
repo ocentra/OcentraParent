@@ -29,7 +29,7 @@ describe('ndjson log file writer', () => {
           suiteType: 'unit',
         },
         'file-key' as never,
-        'summary-line\n' as never
+        '{"schemaVersion":1,"type":"log","scope":"parent-test","runId":"file-key","runType":"single","suiteType":"unit","testName":"summary","timestamp":1,"level":"info","source":null,"context":null,"message":"summary-line","data":null,"file":null,"filePath":null,"line":null,"column":null,"correlationId":null,"tags":[],"stack":null,"origin":"test","environment":null}\n' as never
       );
 
       writeLogEntry(
