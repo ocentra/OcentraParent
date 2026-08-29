@@ -8,10 +8,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.app.AppOpsManager;
 import android.app.Application;
+import android.app.usage.UsageEvents;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Process;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +23,12 @@ import org.junit.runner.RunWith;
 
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowAppOpsManager;
+import org.robolectric.shadows.ShadowUsageStatsManager;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 @RunWith(RobolectricTestRunner.class)
 public final class AppGameAndroidUsageEventsReplayTest {
@@ -144,6 +154,137 @@ public final class AppGameAndroidUsageEventsReplayTest {
     }
 
     @Test
+    public void usageEventsReductionCountsOnlyInWindowAndPersistsCountOnlySnapshot() {
+        Application application = application();
+        AppOpsManager appOpsManager = (AppOpsManager) application.getSystemService(
+            Context.APP_OPS_SERVICE
+        );
+        UsageStatsManager usageStatsManager = (UsageStatsManager) application.getSystemService(
+            Context.USAGE_STATS_SERVICE
+        );
+        assertNotNull(appOpsManager);
+        assertNotNull(usageStatsManager);
+
+        ShadowAppOpsManager shadowAppOpsManager = Shadows.shadowOf(appOpsManager);
+        ShadowUsageStatsManager shadowUsageStatsManager = Shadows.shadowOf(usageStatsManager);
+        long now = System.currentTimeMillis();
+        try {
+            ShadowUsageStatsManager.reset();
+            ShadowAppOpsManager.reset();
+            shadowAppOpsManager.setMode(
+                AppOpsManager.OPSTR_GET_USAGE_STATS,
+                Process.myUid(),
+                application.getPackageName(),
+                AppOpsManager.MODE_ALLOWED
+            );
+            addUsageEvent(
+                shadowUsageStatsManager,
+                "com.example.inside.foreground",
+                "InsideForeground",
+                now - 1000L,
+                UsageEvents.Event.MOVE_TO_FOREGROUND
+            );
+            addUsageEvent(
+                shadowUsageStatsManager,
+                "com.example.inside.resumed",
+                "InsideResumed",
+                now - 2000L,
+                UsageEvents.Event.ACTIVITY_RESUMED
+            );
+            addUsageEvent(
+                shadowUsageStatsManager,
+                "com.example.inside.paused",
+                "InsidePaused",
+                now - 3000L,
+                UsageEvents.Event.ACTIVITY_PAUSED
+            );
+            addUsageEvent(
+                shadowUsageStatsManager,
+                "com.example.outside.old",
+                "OutsideOld",
+                now - AppGameAndroidUsageEventsRuntimePreflight.DEFAULT_SAMPLE_LOOKBACK_MILLIS -
+                    1000L,
+                UsageEvents.Event.MOVE_TO_FOREGROUND
+            );
+
+            Bundle status = AppGameAndroidUsageEventsRuntimePreflight.createRuntimePreflightBundle(
+                application
+            );
+            assertEquals(
+                AppGameAndroidUsageEventsRuntimePreflight.PERMISSION_GRANTED,
+                status.getString(
+                    AppGameAndroidUsageEventsRuntimePreflight.FIELD_PERMISSION_CHECK_STATE
+                )
+            );
+            assertEquals(
+                AppGameAndroidUsageEventsRuntimePreflight.SAMPLE_OBSERVED,
+                status.getString(AppGameAndroidUsageEventsRuntimePreflight.FIELD_SAMPLE_STATE)
+            );
+            assertEquals(
+                3L,
+                status.getLong(
+                    AppGameAndroidUsageEventsRuntimePreflight.FIELD_SAMPLE_EVENT_COUNT_LONG
+                )
+            );
+            assertEquals(
+                2L,
+                status.getLong(
+                    AppGameAndroidUsageEventsRuntimePreflight.FIELD_FOREGROUND_EVENT_COUNT_LONG
+                )
+            );
+            assertEquals(
+                AppGameAndroidUsageEventsRuntimePreflight.DURABLE_REPLAY_PERSISTED,
+                status.getString(
+                    AppGameAndroidUsageEventsRuntimePreflight.FIELD_DURABLE_REPLAY_STATE
+                )
+            );
+            assertTrue(status.getBoolean(
+                AppGameAndroidUsageEventsRuntimePreflight.FIELD_REPLAY_CURRENT
+            ));
+            assertEquals(
+                3L,
+                status.getLong(AppGameAndroidUsageEventsRuntimePreflight.FIELD_REPLAY_EVENT_COUNT)
+            );
+            assertEquals(
+                2L,
+                status.getLong(
+                    AppGameAndroidUsageEventsRuntimePreflight.FIELD_REPLAY_FOREGROUND_EVENT_COUNT
+                )
+            );
+
+            AppGameAndroidUsageEventsReplayStore.Snapshot snapshot =
+                AppGameAndroidUsageEventsReplayStore.read(application);
+            assertNotNull(snapshot);
+            assertEquals(3L, snapshot.eventCount);
+            assertEquals(2L, snapshot.foregroundEventCount);
+            assertEquals(
+                AppGameAndroidUsageEventsRuntimePreflight.SAMPLE_OBSERVED,
+                snapshot.sampleState
+            );
+            SharedPreferences preferences = application.getSharedPreferences(
+                REPLAY_PREFERENCES,
+                Context.MODE_PRIVATE
+            );
+            assertEquals(
+                new HashSet<>(Arrays.asList(
+                    HAS_SNAPSHOT,
+                    SAMPLE_STATE,
+                    EVENT_COUNT,
+                    FOREGROUND_EVENT_COUNT,
+                    OBSERVED_AT,
+                    GENERATION
+                )),
+                preferences.getAll().keySet()
+            );
+            assertRedactedAndUnclaimed(status);
+        } finally {
+            ShadowUsageStatsManager.reset();
+            ShadowAppOpsManager.reset();
+            clearDurableState();
+        }
+    }
+
+    @Test
     public void malformedOrPartialDurableStateIsRejected() {
         Context context = application();
         SharedPreferences preferences = context.getSharedPreferences(
@@ -243,6 +384,23 @@ public final class AppGameAndroidUsageEventsReplayTest {
 
     private static Application application() {
         return RuntimeEnvironment.getApplication();
+    }
+
+    private static void addUsageEvent(
+        ShadowUsageStatsManager usageStatsManager,
+        String packageName,
+        String className,
+        long timestamp,
+        int eventType
+    ) {
+        usageStatsManager.addEvent(
+            ShadowUsageStatsManager.EventBuilder.buildEvent()
+                .setPackage(packageName)
+                .setClass(className)
+                .setTimeStamp(timestamp)
+                .setEventType(eventType)
+                .build()
+        );
     }
 
     private static void assertRedactedAndUnclaimed(Bundle status) {
