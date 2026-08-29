@@ -195,4 +195,75 @@ describe('app-game dashboard platform capability intent', () => {
     expect(JSON.stringify(dashboard)).not.toContain('rawPlatformDiagnostics');
     log.logInfo('app-game platform adapter remains unavailable', getStackTrace(), { adapterExecuted: 0 }, false);
   });
+
+  it('keeps hostile long metadata in the exported state matrix without unsafe promotion', () => {
+    const longHostileName = `${'<script>alert(1)</script>'.repeat(20)}${'x'.repeat(400)}`;
+    const snapshot: ParentRouteLiveActivitySnapshot = {
+      activityAppUseReadModel: {
+        ok: true,
+        state: 'ready',
+        value: {
+          rows: [
+            {
+              rowId: 'app-hostile-1',
+              appName: longHostileName,
+              deviceId: 'device-1',
+              state: 'unknown-review-candidate',
+              productKind: 'native-app',
+              classificationState: 'unknown',
+              inventoryState: 'installed',
+              runtimeState: 'running',
+              foregroundState: 'foreground',
+              capabilityStatus: 'manual-required',
+              lastObservedAt: '2026-08-28T12:00:00Z',
+              launchCount: 2,
+              inventoryRowCount: 1,
+              runningRowCount: 1,
+              foregroundRowCount: 1,
+              evidence: [{ evidenceId: 'evidence-1' }],
+            },
+          ],
+        },
+      },
+      activityGamesReadModel: {
+        ok: true,
+        state: 'ready',
+        value: {
+          rows: [
+            {
+              rowId: 'game-launcher-1',
+              displayName: 'Launcher-only game',
+              deviceId: 'device-1',
+              state: 'launcher-only',
+              productKind: 'native-game',
+              classificationState: 'launcher-only',
+              inventoryState: 'installed',
+              runtimeState: 'not-running',
+              foregroundState: 'not-foreground',
+              capabilityStatus: 'ready',
+              lastObservedAt: '2026-08-28T12:00:00Z',
+              sessionCount: 0,
+              inventoryRowCount: 1,
+              launcherRowCount: 1,
+              evidence: [],
+            },
+          ],
+        },
+      },
+    };
+
+    const dashboard = dashboardForSnapshot(snapshot);
+    const hostileRow = dashboard.appRows[0];
+    const launcherRow = dashboard.gameRows[0];
+
+    expect(hostileRow.label).toBe(longHostileName);
+    expect(hostileRow.unknownApproval).toBe(true);
+    expect(hostileRow.manualRequired).toBe(true);
+    expect(hostileRow.foregroundCount).toBe(1);
+    expect(hostileRow.tone).toBe('red');
+    expect(launcherRow.launcherOnly).toBe(true);
+    expect(launcherRow.foregroundCount).toBe(0);
+    expect(JSON.stringify(dashboard)).not.toContain('providerDispatchTarget');
+    expect(JSON.stringify(dashboard)).not.toContain('rawPlatformDiagnostics');
+  });
 });
