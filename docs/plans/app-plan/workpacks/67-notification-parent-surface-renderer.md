@@ -27,7 +27,7 @@ preference mutation, or runtime service production behavior.
   policy evaluator execution, broad app blocking, mobile UI, or platform
   support.
 
-## Code-pass status
+## Source/test status
 
 The existing parent-runtime notification panel now consumes the joined
 parent-surface intent rows emitted in the agent-service notification-readiness
@@ -35,15 +35,14 @@ payload. The existing Portal App/Game Sessions renderer displays redacted
 surface, provider, preference, quiet-hours, drill-in, audit, and manual-proof
 metadata. Older payloads without a joined intent retain the typed provider/
 preference boundary fallback; no live provider or parent mutation is claimed.
-The workpack remains unvalidated with tests/proof/checklist deferred.
+Real rendered tests cover route gating, unavailable state, typed status rows,
+hostile/long metadata escaping, and distinct status cards. Bounded source/test
+writing is complete; focused execution, proof, and checklist review remain.
 
 ## Proof
 
 - `apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx`
-- `apps/portal/src/app-game-notification-parent-surface-panel.ts`
-- `apps/portal/tests/app-game-notification-parent-surface-panel.test.ts`
-- `scripts/test/app-game-notification-parent-surface-ui-proof.mjs`
-- `test-results/app-game-notification-parent-surface-ui-proof/proof.json`
+- `apps/portal/tests/unit/app-game-notification-parent-surface-panel.test.ts`
 - `output/app-plan-proof/67-notification-parent-surface-renderer/`
 - `output/app-game-plan-proof/67-notification-parent-surface-renderer/`
 

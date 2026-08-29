@@ -21,9 +21,9 @@ release-ready. Those are Phase 2 and Phase 3.
 ## Result
 
 - 95/95 workpacks have reviewed code/test topology in the engineering graph.
-- 79/95 have no remaining source/test-writing gap in their bounded Phase 1
+- 81/95 have no remaining source/test-writing gap in their bounded Phase 1
   scope. Many are intentionally narrow contract or handoff packets.
-- 16/95 retain a concrete production-code, expected-test, owner, or
+- 14/95 retain a concrete production-code, expected-test, owner, or
   shared-validation gap.
 - Real Windows inventory, process, foreground, recurring service capture,
   encrypted journal/SQLite projection, source-status rows, scoped owned-process
@@ -101,8 +101,8 @@ release-ready. Those are Phase 2 and Phase 3.
 | WP63 Source panel polish | Generated source rows exist. | **Incomplete** | The portal source-status panel/polish and its focused UI tests are absent. |
 | WP64 Provider status handoff | Provider-status input DTOs exist inside the parent-surface model. | **Incomplete** | No builder/producer derives provider status from attempts/receipts and no dedicated tests prove the handoff. |
 | WP65 Preference status handoff | Preference-status input DTOs exist inside the parent-surface model. | **Incomplete** | No builder/producer derives preference status from durable settings/delivery outcomes and no dedicated tests prove it. |
-| WP66 Notification parent-surface intent | Redacted provider/preference status projection, no-claim flags, mismatch negatives, and generated drift test exist. | **Complete for Phase 1** | Its upstream WP64/WP65 producers remain missing. |
-| WP67 Notification renderer | Parent-runtime snapshot and portal renderer show Rust-owned readiness/manual states with focused tests. | **Complete for Phase 1** | Provider delivery and preference mutation remain false. |
+| WP66 Notification parent-surface intent | Redacted provider/preference status projection, no-claim flags, family/cardinality mismatch negatives, generated parity, and real Rust contract tests exist. | **Complete for bounded Phase 1 source/test scope** | Its upstream WP64/WP65 producers remain missing; focused execution and proof are open. |
+| WP67 Notification renderer | The App/Game Sessions route renders Rust-owned readiness/manual states; real tests cover routing, unavailable state, hostile/long metadata escaping, and distinct status cards. | **Complete for bounded Phase 1 source/test scope** | Provider delivery and preference mutation remain false; focused execution and proof are open. |
 | WP74 Source freshness policy consumption | Canonical generated contract validates app inventory/runtime/foreground freshness, app/game separation, evidence refs, and manual-required fallback with tests. | **Complete for bounded Phase 1** | No policy runtime/enforcement claim. |
 | WP75 Source freshness preview gate | Rust gate builder and contract negatives are written. | **Complete for bounded Phase 1** | No service/portal/runtime claim. |
 | WP76 Source-gated preview read model | Rust redacted projection and tests are written. | **Complete for bounded Phase 1** | No service/portal/runtime claim. |

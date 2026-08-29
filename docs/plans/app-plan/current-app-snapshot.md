@@ -6,11 +6,10 @@ Code-first detail: [CODE_AUDIT.md](CODE_AUDIT.md)
 ## Phase 1 totals
 
 - 95/95 graph-imported workpacks reviewed and mapped.
-- 79/95 have no remaining source/test-writing gap in their bounded scope.
-- 16/95 retain a concrete code, expected-test, owner, or shared-validation gap:
+- 81/95 have no remaining source/test-writing gap in their bounded scope.
+- 14/95 retain a concrete code, expected-test, owner, or shared-validation gap:
   `WP06`, `WP16`, `WP17`, `WP18`, `WP19`, `WP20`, `WP25`, `WP26`,
-  `WP48`, `WP49`, `WP63`, `WP64`, `WP65`, `WP66`, `WP67`, and
-  `WP102`.
+  `WP48`, `WP49`, `WP63`, `WP64`, `WP65`, and `WP102`.
 - Focused tests and Enforcer were not rerun for this inventory; proof was not
   regenerated. This is Phase 1 source/test-writing truth only.
 

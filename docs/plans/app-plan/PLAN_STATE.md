@@ -47,17 +47,19 @@ WP48’s existing source-freshness dashboard ownership is reconciled to the
 vendor portal implementation. WP63 now renders its existing typed source
 panel sections beside capability and evidence panels; both remain unvalidated
 with tests/proof/checklist deferred. WP64/WP65 now emit and consume typed
-provider/preference status boundaries; WP66 joins them through the canonical
-parent-surface builder and WP67 renders the joined rows with a legacy fallback.
-All four remain unvalidated with tests/proof/checklist deferred.
+provider/preference status boundaries. WP66 joins them through the canonical
+parent-surface builder with real Rust contract tests, and WP67 renders the
+joined rows with route/unavailable/hostile-metadata behavior coverage. WP64/
+WP65 source/test gaps remain; WP66/WP67 need focused execution, proof, and
+checklist review rather than more bounded source/test writing.
 
 Code-pass note (2026-08-16): WP59’s public scheduler persistence boundary now
 revalidates the canonical scheduler bridge read model before writing atomic
 records. Invalid source rows/counts/claims remain rejected; provider delivery,
 retry workers, quiet-hours timers, child delivery, and UI remain unclaimed.
 
-The 16 remaining Phase 1 gaps are WP06, WP16, WP17, WP18, WP19, WP20, WP25,
-WP26, WP48, WP49, WP63, WP64, WP65, WP66, WP67, and WP102. WP62's bounded source and real
+The 14 remaining Phase 1 gaps are WP06, WP16, WP17, WP18, WP19, WP20, WP25,
+WP26, WP48, WP49, WP63, WP64, WP65, and WP102. WP62's bounded source and real
 behavioral test roots are now reviewed; focused execution and proof remain. WP26 is a tests-only performance
 harness gap. WP102 is a route-only shared-dependency validation gap. Neither
 requires new App production source.
@@ -185,7 +187,7 @@ The table is the current per-workpack runtime truth; historical `Complete`,
   portal rows must remain manual/status projections.
 - The graph reports mapped `code-and-tests` roots and Phase 1 validation states,
   but no workpack completion contract has reviewed implementation/test/proof/
-  checklist evidence. The 79/16 Phase 1 split is bounded source/test topology,
+  checklist evidence. The 81/14 Phase 1 split is bounded source/test topology,
   not live runtime completion.
 - Historical package owners (`packages/activity-domain`,
   `packages/parent-domain`, `packages/agent-protocol-domain`, and

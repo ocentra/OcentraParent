@@ -79,8 +79,8 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [63 source freshness source panel polish](workpacks/63-source-freshness-source-panel-polish.md) | **Incomplete** |
 | [64 notification provider status handoff](workpacks/64-notification-provider-status-handoff.md) | **Incomplete** |
 | [65 notification preference status handoff](workpacks/65-notification-preference-status-handoff.md) | **Incomplete** |
-| [66 notification parent surface intent](workpacks/66-notification-parent-surface-intent.md) | **Production code drafted; expected tests/validation deferred** |
-| [67 notification parent surface renderer](workpacks/67-notification-parent-surface-renderer.md) | **Production code drafted; expected tests/validation deferred** |
+| [66 notification parent surface intent](workpacks/66-notification-parent-surface-intent.md) | **Bounded source/test complete; focused validation and proof open** |
+| [67 notification parent surface renderer](workpacks/67-notification-parent-surface-renderer.md) | **Bounded source/test complete; focused validation and proof open** |
 | [74 source freshness policy consumption](workpacks/74-source-freshness-policy-consumption.md) | Complete, bounded contract |
 | [75 source freshness preview gate](workpacks/75-source-freshness-preview-gate.md) | Complete, bounded projection |
 | [76 source gated policy preview read model](workpacks/76-source-gated-policy-preview-read-model.md) | Complete, bounded projection |
