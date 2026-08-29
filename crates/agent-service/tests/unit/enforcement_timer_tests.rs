@@ -151,7 +151,10 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
         Some(constants::enforcement::TEST_PARENT_ACTION_REFERENCE_ID)
     );
     assert_eq!(recovered_audit.journal_sequence, Some("3".to_string()));
-    assert_eq!(recovered_again_audit.journal_sequence, Some("4".to_string()));
+    assert_eq!(
+        recovered_again_audit.journal_sequence,
+        Some("4".to_string())
+    );
     assert_eq!(audit.journal_sequence, Some("5".to_string()));
 
     Ok(())
@@ -247,7 +250,7 @@ async fn timer_recovery_reports_recovery_needed_for_invalid_persisted_state() ->
     );
 
     let mut state = read_state(&paths)?;
-    state.result.action_id.push("-other");
+    state.result.action_id.push_str("-other");
     let serialized = test_ok(
         serde_json::to_string(&state),
         constants::error::AGENT_EVENT_SERIALIZES,
@@ -379,7 +382,7 @@ fn recover_command() -> AgentCommandEnvelope {
 }
 
 fn recover_command_with_suffix(suffix: &str) -> AgentCommandEnvelope {
-    let mut payload = timer_payload();
+    let mut payload = timer_payload().into_inner();
     payload.remove(constants::field::REQUESTED_AT);
     payload.insert(
         constants::field::ENFORCEMENT_RESULT_ID.to_string(),
@@ -393,7 +396,8 @@ fn recover_command_with_suffix(suffix: &str) -> AgentCommandEnvelope {
         constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
         LogFieldValue::String(format!(
             "{}-recover{}",
-            constants::enforcement::TEST_AUDIT_EVENT_ID, suffix
+            constants::enforcement::TEST_AUDIT_EVENT_ID,
+            suffix
         )),
     );
     payload.insert(
@@ -411,7 +415,7 @@ fn recover_command_with_suffix(suffix: &str) -> AgentCommandEnvelope {
         source: portal_peer(),
         target: target(),
         command: AgentCommandName::AgentEnforcementTimerRecover,
-        payload,
+        payload: payload.into(),
     }
 }
 
