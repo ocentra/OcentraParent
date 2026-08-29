@@ -11,6 +11,8 @@ export const AppGameTimerParentSurfacePanelFixture: ParentAppGameTimerParentSurf
     { label: 'Audit runtime', value: 'Ready' },
     { label: 'Rollback runtime', value: 'Ready' },
     { label: 'Session duration', value: '15 min from stored evidence' },
+    { label: 'Control action results', value: '1' },
+    { label: 'Control action result refs', value: 'action-result-app-game-1' },
     { label: PortalDetails.ProductClaim, value: 'Timer runtime remains Rust-owned.' },
   ],
   parentActionRows: [],
