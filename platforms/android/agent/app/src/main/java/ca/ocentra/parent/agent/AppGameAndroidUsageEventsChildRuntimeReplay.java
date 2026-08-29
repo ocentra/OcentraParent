@@ -305,7 +305,6 @@ public final class AppGameAndroidUsageEventsChildRuntimeReplay {
             "openGaps",
             new String[] {
                 "android-child-device-delivery-not-proved",
-                "android-usage-events-replay-test-not-written",
                 "android-platform-enforcement-not-proved",
                 "android-cross-process-replay-custody-not-proved"
             }
