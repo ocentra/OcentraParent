@@ -9,6 +9,7 @@ import {
   sendAppGameTimerParentPreferenceSetupAction,
   shouldRenderAppGameTimerParentSurfaceRoute,
 } from '../../src/AppGameTimerParentSurfaceRoutePanel';
+import { renderAppGameProofPanel } from '../../src/portal-proof-panels-app-game-renderers';
 import { AppGameTimerParentSurfacePanelFixture } from '../fixtures/app-game/app-game-timer-parent-surface-panel-fixture';
 
 const PreferenceSetupPayload: ParentUiActionPayload = {
@@ -64,6 +65,25 @@ describe('app-game timer parent-surface portal route panel', () => {
     expect(html).toContain('Session duration</dt><dd>15 min from stored evidence');
     expect(html).toContain('Session duration</dt><dd>15 min');
     expect(html).toContain('Evidence source</dt><dd>stored journal rows');
+  });
+
+  it('renders through the mounted App/Game proof-panel renderer', () => {
+    const html = renderToStaticMarkup(
+      renderAppGameProofPanel({
+        actions: GuardedPortalRenderActions,
+        activePanel: 'app-game-timer-parent-surface',
+        commandEnabled: true,
+        appGameNotificationParentSurfacePanel: null,
+        appGamePolicyReadinessPanel: null,
+        appGamePlatformProofStatusPanel: null,
+        appGameChildRuntimeTransportReceiptPanel: null,
+        appGameAdapterDispatchPanel: null,
+        appGameTimerParentSurfacePanel: AppGameTimerParentSurfacePanelFixture,
+      })
+    );
+
+    expect(html).toContain('App/game timer parent surface');
+    expect(html).toContain('Study Timer');
   });
 
   it('withholds parent preference controls when the Rust-owned action is unavailable', () => {
