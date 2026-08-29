@@ -158,6 +158,8 @@ mod app_game_child_runtime_transport_receipt_payload;
 mod app_game_timer_parent_preference_setup_request;
 #[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request_outbox.rs"]
 mod app_game_timer_parent_preference_setup_request_outbox;
+#[path = "app_game_timer_parent_preference_setup_request_tests.rs"]
+mod app_game_timer_parent_preference_setup_request_tests;
 #[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request_persistence.rs"]
 mod app_game_timer_parent_preference_setup_request_persistence;
 #[path = "../support/app_game_timer_parent_preference_setup_request_status.rs"]
