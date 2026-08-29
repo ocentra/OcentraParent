@@ -15937,7 +15937,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Production code drafted; expected tests/validation deferred**",
+        "statusText": "**Bounded source/test complete; focused validation and proof open**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -15973,7 +15973,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Production code drafted; expected tests/validation deferred**",
+        "statusText": "**Bounded source/test complete; focused validation and proof open**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
