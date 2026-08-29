@@ -10303,15 +10303,15 @@
       "path": "docs/plans/app-game-plan/workpacks/189-app-game-linux-foreground-capture-readiness.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "validation",
+        "statusText": "source-and-test source reviewed",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
+        "needsReview": true,
         "plannedSourceExpectation": {
           "source": "docs/engineering-graph/code-map.json",
           "roots": [
@@ -10883,11 +10883,11 @@
         "WP-app-game-plan-191-app-game-linux-foreground-source-preflight"
       ],
       "state": "blocked",
-      "lifecycleState": "validation",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "validation",
+        "statusText": "validation / owner blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
