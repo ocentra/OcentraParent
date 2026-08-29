@@ -57,8 +57,12 @@ writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
    coverage integrated or reviewed but unexecuted. Continue with the
    WP191-dependent WP204 Linux test packet; do not revive retired
    parent-domain/proof-runner ownership.
-5. WP207 and WP211-WP222: Android child-runtime durability, receipt, delivery,
-   notification, action, and focused test closure.
+5. Android child-runtime source order is now explicit: WP207 durable
+   authenticated writer -> WP208 typed transport/receipt boundary -> WP209
+   service ingestion -> WP210 parent surface -> WP211/WP212/WP214/WP215
+   receipt proof -> WP216 intake -> WP217 durable queue -> WP220-WP222
+   notification/action/request queue. WP212 and WP214 focused package-local
+   tests are canonical, but no downstream marker helper is runtime completion.
 6. WP27 load/performance harnesses; WP102 implement-or-retire decision.
 
 Do not schedule a no-code/proof packet as implementation work, and do not

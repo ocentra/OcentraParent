@@ -1,5 +1,10 @@
 # WP220 App/Game Android Child Runtime Local Notification Proof
 
+> **Current status (2026-08-29): BLOCKED / NO-CHANGE.** The helper posts a
+> fixed notification and marker from legacy undeclared `MainActivity`; the
+> launched child activity/service neither consumes App/Game notices nor owns an
+> authenticated target/currentness/receipt path.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -28,6 +33,11 @@ trip, adapter dispatch, broad blocking, platform enforcement, or raw private
 source-row custody.
 
 ## Implementation
+
+No honest notification test exists until WP207, WP216, and WP217 compose a
+durable authenticated delivery and queue into the launched child service.
+Direct helper tests would prove only static notification/marker behavior. The
+legacy TypeScript/proof-runner list below is historical.
 
 - Added
   `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalNotificationProof.java`.

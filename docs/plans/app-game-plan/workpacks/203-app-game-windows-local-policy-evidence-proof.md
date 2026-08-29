@@ -1,5 +1,11 @@
 # WP203 App/Game Windows Local Policy Evidence Proof
 
+> **Current status (2026-08-29): BLOCKED / NO-CHANGE.** Current Rust status
+> models can represent Windows policy evidence, but no shipped AppLocker,
+> AppIDSvc, or Device Guard adapter/caller obtains it. The legacy
+> `packages/parent-domain` implementation and proof runner named below are not
+> in the tracked tree.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -26,6 +32,12 @@ Device Guard/App Control state without storing raw policy XML, executable
 paths, publisher rules, or private policy details.
 
 ## Implementation
+
+Current production truth: the agent protocol/service/parent/portal path carries
+conservative proof rows and tests their serialization and rendering. It does
+not query Windows policy state. A real Windows-owned adapter, service caller,
+bounded redacted evidence contract, and behavior tests must exist before this
+workpack can claim its sampling intent.
 
 - Added
   `packages/parent-domain/src/app-game-windows-local-policy-evidence-proof.ts`.

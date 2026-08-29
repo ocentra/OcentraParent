@@ -1,5 +1,10 @@
 # WP214 App/Game Android Child Runtime Local Receipt Ack Proof
 
+> **Current status (2026-08-29): package-local behavior covered; external ACK
+> semantics BLOCKED.** Canonical `e4c147fee` fails closed on null context and
+> adds real Robolectric ACK write/readback, receiver-filtering, storage-failure,
+> and non-claim tests.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -26,6 +31,11 @@ runtime transport execution, service receipt ingestion, provider delivery,
 platform delivery channel execution, adapter dispatch, or platform enforcement.
 
 ## Implementation
+
+The current Java helper proves only a same-package marker. Unknown, replayed,
+mismatched, stale, or wrong-target external acknowledgements cannot exist until
+WP208-WP210 provide the typed transport, service ingestion, and parent surface.
+The legacy TypeScript/proof-runner list below is historical.
 
 - Extended
   `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java`

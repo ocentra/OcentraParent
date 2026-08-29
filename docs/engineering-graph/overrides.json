@@ -2957,6 +2957,188 @@
         "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
         "docs/engineering-graph/code-map.json"
       ]
+    },
+    {
+      "id": "WP-app-game-plan-196-app-game-apple-ci-platform-proof-preflight",
+      "hardDependencies": [],
+      "reason": "Current Rust protocol/service/parent/portal status source and real tests represent conservative macOS/iOS CI-required rows. No Apple adapter execution is claimed; entitlement, device, provisioning, rollback, audit, and physical/CI proof remain external later-phase gates.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/196-app-game-apple-ci-platform-proof-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-203-app-game-windows-local-policy-evidence-proof",
+      "hardDependencies": [],
+      "reason": "Current Rust status models can represent Windows policy evidence, but no shipped AppLocker, AppIDSvc, or Device Guard adapter/caller samples it. The retired TypeScript/proof-runner path is absent. This review records the missing owner route and claims no implementation, execution, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/203-app-game-windows-local-policy-evidence-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-205-app-game-platform-proof-status-runtime-detail-refs",
+      "hardDependencies": [],
+      "reason": "The Rust protocol/service/parent bridge and portal status panel preserve proof refs, gaps, and nonclaims with real tests. They do not fabricate Android, Windows, or Linux proof; upstream platform evidence and execution remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/205-app-game-platform-proof-status-runtime-detail-refs.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-207-app-game-child-device-runtime-writer",
+      "hardDependencies": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff"
+      ],
+      "reason": "Exact caller review found no durable authenticated child-device writer. Device Trust WP01 must expose a trusted current child binding, then Child Runtime WP10 must compose that binding into startup plus authenticated ingress and durable handoff/replay. The parent-local caller-populated outbox, DTOs, JNI start/health/stop surface, and Android marker files are not a writer. This review claims no implementation, tests, execution, proof, READY, or DONE.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/207-app-game-child-device-runtime-writer.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-208-app-game-child-runtime-transport-receipt-boundary",
+      "hardDependencies": [
+        "WP-app-game-plan-207-app-game-child-device-runtime-writer"
+      ],
+      "reason": "The typed transport/receipt boundary must consume WP207's durable authenticated child writer. Existing receipt DTO/read-model source does not provide target/currentness or transport ownership and cannot independently authorize runtime delivery.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/208-app-game-child-runtime-transport-receipt-boundary.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service",
+      "hardDependencies": [
+        "WP-app-game-plan-208-app-game-child-runtime-transport-receipt-boundary"
+      ],
+      "reason": "Service ingestion must consume the reviewed typed transport/receipt boundary; status payloads and marker files are not authenticated service receipt ingestion.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/209-app-game-child-runtime-transport-receipt-service.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-210-app-game-child-runtime-transport-receipt-parent-surface",
+      "hardDependencies": [
+        "WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service"
+      ],
+      "reason": "The parent surface may project only receipts accepted by the authenticated service owner; existing read models cannot create or validate receipt authority.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/210-app-game-child-runtime-transport-receipt-parent-surface.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-211-app-game-android-child-runtime-transport-receipt-proof",
+      "hardDependencies": [
+        "WP-app-game-plan-210-app-game-child-runtime-transport-receipt-parent-surface"
+      ],
+      "reason": "The checked-in Java helper writes package-local marker files, while the launched child activity/service has no receipt ingress. WP207-WP210 must provide durable authenticated writer, typed transport, service ingestion, and parent surface before Android runtime receipt tests are legal.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/211-app-game-android-child-runtime-transport-receipt-proof.md",
+        "docs/plans/app-game-plan/PLAN_STATE.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-212-app-game-android-child-runtime-local-receipt-proof",
+      "hardDependencies": [
+        "WP-app-game-plan-211-app-game-android-child-runtime-transport-receipt-proof"
+      ],
+      "reason": "Canonical 0505bdd61 adds real package-local receipt behavior tests, but same-app files and broadcasts are not authenticated service receipts. WP211 remains the runtime dependency; no execution, proof, READY, or DONE is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/212-app-game-android-child-runtime-local-receipt-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-214-app-game-android-child-runtime-local-receipt-ack-proof",
+      "hardDependencies": [
+        "WP-app-game-plan-212-app-game-android-child-runtime-local-receipt-proof"
+      ],
+      "reason": "Canonical e4c147fee adds fail-closed package-local ACK source and real tests. Unknown, replayed, mismatched, stale, and wrong-target external ACK behavior remains unavailable until WP208-WP210 compose the real transport/service/parent route.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/214-app-game-android-child-runtime-local-receipt-ack-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-215-app-game-android-child-runtime-local-receipt-channel-proof",
+      "hardDependencies": [
+        "WP-app-game-plan-214-app-game-android-child-runtime-local-receipt-ack-proof"
+      ],
+      "reason": "Canonical WP212/WP214 tests cover honest package-local filtering/readback/tamper/failure behavior. The launched child service never invokes the receiver and transport remains NOT_IMPLEMENTED, so the live channel stays dependency-blocked.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/215-app-game-android-child-runtime-local-receipt-channel-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-216-app-game-android-child-runtime-local-delivery-intake-proof",
+      "hardDependencies": [
+        "WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service"
+      ],
+      "reason": "Existing Android code validates only a static action and writes package-local markers; no launched authenticated delivery consumer exists. WP207-WP209 are hard source prerequisites and marker tests are not accepted as delivery evidence.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/216-app-game-android-child-runtime-local-delivery-intake-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-217-app-game-android-child-runtime-local-delivery-queue-proof",
+      "hardDependencies": [
+        "WP-app-game-plan-216-app-game-android-child-runtime-local-delivery-intake-proof"
+      ],
+      "reason": "A durable delivery queue must consume authenticated intake from the launched child runtime. Fixed package-local queue/drain markers have no identity, ordering, retry, restart, idempotency, or receipt custody and are not accepted as implementation.",
+      "evidence": [
+        "docs/plans/app-game-plan/CODE_AUDIT.md",
+        "docs/plans/app-game-plan/workpacks/217-app-game-android-child-runtime-local-delivery-queue-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-220-app-game-android-child-runtime-local-notification-proof",
+      "hardDependencies": [
+        "WP-app-game-plan-217-app-game-android-child-runtime-local-delivery-queue-proof"
+      ],
+      "reason": "Only legacy undeclared MainActivity invokes the fixed notification/marker helper. A real launched child-service notification requires the authenticated writer, intake, and durable queue; direct static-helper tests would be theater.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/220-app-game-android-child-runtime-local-notification-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-221-app-game-android-child-runtime-local-notification-action-proof",
+      "hardDependencies": [
+        "WP-app-game-plan-220-app-game-android-child-runtime-local-notification-proof"
+      ],
+      "reason": "The current static action has no owner-issued request identity, target/currentness, replay/idempotency, durable receipt, or live producer/consumer. It remains blocked on the reviewed writer/intake/queue/notification chain.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/221-app-game-android-child-runtime-local-notification-action-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-222-app-game-android-child-runtime-local-notification-request-queue-proof",
+      "hardDependencies": [
+        "WP-app-game-plan-221-app-game-android-child-runtime-local-notification-action-proof"
+      ],
+      "reason": "The current helper overwrites fixed queue/drain markers and has no request identity/payload, ordering, retry, restart-safe custody, idempotency, durable receipt, or live service consumer. It remains blocked on the full upstream chain.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/222-app-game-android-child-runtime-local-notification-request-queue-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
     }
   ],
   "edges": [
@@ -10150,6 +10332,188 @@
       ],
       "reason": "WP204 is test/contract-only: its active-window proof consumes WP191's typed foreground-source/preflight boundary and owns no production roots.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-207-app-game-child-device-runtime-writer",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/207-app-game-child-device-runtime-writer.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP207 requires a trusted current child-device binding from Device Trust WP01 before any durable writer may target a child runtime; local outbox fields and Android marker files are not authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-207-app-game-child-device-runtime-writer",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/207-app-game-child-device-runtime-writer.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP207 requires Child Runtime WP10 to compose the trusted device binding into startup, authenticated ingress, and durable handoff/replay before App/Game can own delivery writes.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-208-app-game-child-runtime-transport-receipt-boundary",
+      "to": "WP-app-game-plan-207-app-game-child-device-runtime-writer",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/207-app-game-child-device-runtime-writer.md",
+        "docs/plans/app-game-plan/workpacks/208-app-game-child-runtime-transport-receipt-boundary.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "The typed receipt boundary must consume WP207's durable authenticated child writer; DTOs and read models cannot independently create target or transport authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service",
+      "to": "WP-app-game-plan-208-app-game-child-runtime-transport-receipt-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/208-app-game-child-runtime-transport-receipt-boundary.md",
+        "docs/plans/app-game-plan/workpacks/209-app-game-child-runtime-transport-receipt-service.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "The receipt service must consume the reviewed typed receipt boundary; status payloads and package-local markers are not authenticated receipt ingestion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-210-app-game-child-runtime-transport-receipt-parent-surface",
+      "to": "WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/209-app-game-child-runtime-transport-receipt-service.md",
+        "docs/plans/app-game-plan/workpacks/210-app-game-child-runtime-transport-receipt-parent-surface.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "The parent surface may project only receipts accepted by the authenticated receipt service and cannot mint receipt authority from local read-model state.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-211-app-game-android-child-runtime-transport-receipt-proof",
+      "to": "WP-app-game-plan-210-app-game-child-runtime-transport-receipt-parent-surface",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/210-app-game-child-runtime-transport-receipt-parent-surface.md",
+        "docs/plans/app-game-plan/workpacks/211-app-game-android-child-runtime-transport-receipt-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Android runtime receipt proof requires the complete authenticated writer, receipt boundary, service, and parent projection chain; a package-local marker does not satisfy it.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-212-app-game-android-child-runtime-local-receipt-proof",
+      "to": "WP-app-game-plan-211-app-game-android-child-runtime-transport-receipt-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/211-app-game-android-child-runtime-transport-receipt-proof.md",
+        "docs/plans/app-game-plan/workpacks/212-app-game-android-child-runtime-local-receipt-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP212's reviewed package-local behavior remains subordinate to WP211's authenticated runtime receipt boundary and does not independently establish transport receipt truth.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-214-app-game-android-child-runtime-local-receipt-ack-proof",
+      "to": "WP-app-game-plan-212-app-game-android-child-runtime-local-receipt-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/212-app-game-android-child-runtime-local-receipt-proof.md",
+        "docs/plans/app-game-plan/workpacks/214-app-game-android-child-runtime-local-receipt-ack-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP214 extends the package-local receipt behavior with a local acknowledgment but cannot establish external ACK identity, target, replay, or currentness without the upstream receipt path.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-215-app-game-android-child-runtime-local-receipt-channel-proof",
+      "to": "WP-app-game-plan-214-app-game-android-child-runtime-local-receipt-ack-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/214-app-game-android-child-runtime-local-receipt-ack-proof.md",
+        "docs/plans/app-game-plan/workpacks/215-app-game-android-child-runtime-local-receipt-channel-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "The local receipt channel can be reviewed only after its receipt and acknowledgment primitives; the launched child service still needs the authenticated runtime owner before completion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-216-app-game-android-child-runtime-local-delivery-intake-proof",
+      "to": "WP-app-game-plan-209-app-game-child-runtime-transport-receipt-service",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/209-app-game-child-runtime-transport-receipt-service.md",
+        "docs/plans/app-game-plan/workpacks/216-app-game-android-child-runtime-local-delivery-intake-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Android delivery intake requires the authenticated writer and receipt service path; accepting a static action and writing a marker is not delivery ingestion.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-217-app-game-android-child-runtime-local-delivery-queue-proof",
+      "to": "WP-app-game-plan-216-app-game-android-child-runtime-local-delivery-intake-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/216-app-game-android-child-runtime-local-delivery-intake-proof.md",
+        "docs/plans/app-game-plan/workpacks/217-app-game-android-child-runtime-local-delivery-queue-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "A durable delivery queue must consume authenticated intake; fixed overwrite markers have no request identity, ordering, retry, restart, idempotency, or receipt custody.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-220-app-game-android-child-runtime-local-notification-proof",
+      "to": "WP-app-game-plan-217-app-game-android-child-runtime-local-delivery-queue-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/217-app-game-android-child-runtime-local-delivery-queue-proof.md",
+        "docs/plans/app-game-plan/workpacks/220-app-game-android-child-runtime-local-notification-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "A notification must be driven by a durable authenticated delivery queue in the launched child service; direct static-helper invocation is not runtime proof.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-221-app-game-android-child-runtime-local-notification-action-proof",
+      "to": "WP-app-game-plan-220-app-game-android-child-runtime-local-notification-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/220-app-game-android-child-runtime-local-notification-proof.md",
+        "docs/plans/app-game-plan/workpacks/221-app-game-android-child-runtime-local-notification-action-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "The notification action requires an owner-issued notification request and live producer/consumer; static actions and markers cannot provide identity, currentness, replay, or durable receipt.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-app-game-plan-222-app-game-android-child-runtime-local-notification-request-queue-proof",
+      "to": "WP-app-game-plan-221-app-game-android-child-runtime-local-notification-action-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/221-app-game-android-child-runtime-local-notification-action-proof.md",
+        "docs/plans/app-game-plan/workpacks/222-app-game-android-child-runtime-local-notification-request-queue-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "The notification request queue consumes the owner-issued action boundary; fixed queue and drain markers do not preserve request payload, ordering, retry, restart, idempotency, or receipt truth.",
+      "implementationGate": "reviewed-implementation"
     }
   ],
   "stateOverrides": [
@@ -10514,9 +10878,117 @@
         "docs/plans/app-game-plan/workpacks/202-app-game-android-accessibility-runtime-proof.md",
         "docs/engineering-graph/code-map.json"
       ]
+    },
+    {
+      "id": "WP-app-game-plan-196-app-game-apple-ci-platform-proof-preflight",
+      "state": "validation",
+      "reason": "Current Rust/service/parent/portal source and real tests preserve conservative macOS/iOS CI-required rows. Execution and external Apple CI/device/provisioning proof remain open.",
+      "statusText": "Validation — bounded Apple status source/test reviewed; external CI/device/provisioning proof open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/196-app-game-apple-ci-platform-proof-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-205-app-game-platform-proof-status-runtime-detail-refs",
+      "state": "validation",
+      "reason": "Current Rust/service/parent/portal source and real tests preserve runtime detail refs and nonclaims without fabricating upstream platform evidence. Execution, upstream evidence, and proof remain open.",
+      "statusText": "Validation — bounded status-ref model source/test reviewed; upstream platform evidence and proof open.",
+      "needsReview": false,
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/205-app-game-platform-proof-status-runtime-detail-refs.md",
+        "docs/engineering-graph/code-map.json"
+      ]
     }
   ],
   "completionEvidenceOverrides": [
+    {
+      "id": "WP-app-game-plan-196-app-game-apple-ci-platform-proof-preflight",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_adapter_host_capabilities.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
+        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
+        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
+        "crates/agent-service/tests/unit/app_game_adapter_host_capabilities.rs",
+        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts"
+      ],
+      "reason": "Reviewed bounded Apple-platform CI-required status source and real tests. No Apple adapter execution, device/provisioning authority, retained proof, checklist acceptance, READY, or DONE is asserted.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/196-app-game-apple-ci-platform-proof-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-205-app-game-platform-proof-status-runtime-detail-refs",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_platform_proof_status.rs",
+        "crates/agent-service/src/activity_api/app_game_platform_proof_status_payload.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_platform.rs",
+        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/contract/app_game_platform_proof_status_tests.rs",
+        "crates/agent-service/tests/unit/app_game_platform_proof_status_payload_tests.rs",
+        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts"
+      ],
+      "reason": "Reviewed bounded proof-ref status model and real tests. Upstream platform evidence, execution, retained proof, checklist acceptance, READY, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/205-app-game-platform-proof-status-runtime-detail-refs.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-212-app-game-android-child-runtime-local-receipt-proof",
+      "implementation": [
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java"
+      ],
+      "tests": [
+        "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProofTest.java"
+      ],
+      "reason": "Reviewed canonical package-local receipt behavior and real tests at 0505bdd61. This evidence is intentionally narrow and does not satisfy authenticated service receipt, execution, proof, checklist, READY, or DONE.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/212-app-game-android-child-runtime-local-receipt-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-214-app-game-android-child-runtime-local-receipt-ack-proof",
+      "implementation": [
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java"
+      ],
+      "tests": [
+        "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalReceiptAckProofTest.java"
+      ],
+      "reason": "Reviewed canonical fail-closed package-local ACK source and real tests at e4c147fee. External ACK authenticity/replay/currentness, execution, proof, checklist, READY, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/214-app-game-android-child-runtime-local-receipt-ack-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-215-app-game-android-child-runtime-local-receipt-channel-proof",
+      "implementation": [
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java"
+      ],
+      "tests": [
+        "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProofTest.java",
+        "platforms/android/agent/app/src/test/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeLocalReceiptAckProofTest.java"
+      ],
+      "reason": "Reviewed bounded package-local channel behavior through the canonical WP212/WP214 tests. Live child-service invocation, transport execution, proof, checklist, READY, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/215-app-game-android-child-runtime-local-receipt-channel-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
     {
       "id": "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model",
       "implementation": [

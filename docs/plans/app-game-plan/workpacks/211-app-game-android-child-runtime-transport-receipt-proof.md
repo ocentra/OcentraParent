@@ -1,5 +1,11 @@
 # WP211 App/Game Android Child Runtime Transport Receipt Proof
 
+> **Current status (2026-08-29): BLOCKED.** The checked-in Java helper writes
+> package-local marker files, but the launched `ChildAgentActivity` and
+> `ChildAgentCompositionService` have no transport/receipt ingress. Legacy
+> `MainActivity` is not manifest-launched, so its rendering is not production
+> reachability.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -24,6 +30,12 @@ This makes the child app expose parent-safe transport-channel, receipt-store,
 and receipt-ack states without claiming runtime transport execution.
 
 ## Implementation
+
+Current source preserves explicit non-claims, but it is not an authenticated
+receipt. WP207-WP210 must first provide the durable writer, typed transport,
+service ingestion, and parent surface. Only then can Android receipt tests
+cover target/currentness/correlation/replay/restart rather than marker-file
+behavior.
 
 - Added
   `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeTransportReceiptProof.java`.

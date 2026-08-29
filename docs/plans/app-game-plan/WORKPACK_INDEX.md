@@ -22,6 +22,13 @@ production-code or expected-test gap. Historical `checked` labels below are
 document checkbox state, not implementation truth. Use
 [CODE_AUDIT.md](CODE_AUDIT.md) before selecting work.
 
+Runtime-truth correction (2026-08-29): WP203 and WP207/WP211/WP216/WP220-WP222
+remain owner-blocked despite checked-in status/marker helpers. WP212 and WP214
+now have real package-local Robolectric coverage, and WP215 reuses that channel
+coverage, but none is an authenticated child-runtime receipt. Follow the
+WP207 -> WP208 -> WP209 -> WP210 -> WP211 -> WP216 -> WP217 -> WP220 -> WP221
+-> WP222 source order; do not schedule duplicate marker tests.
+
 | Status             | Workpack                                                                                                                                                                                                                                                                                                                      |  Size | Boxes                 |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----: | --------------------- |
 | validation         | [10 Launcher Evidence And Game Candidate Model](workpacks/10-launcher-evidence-and-game-candidate-model.md)                                                                                                                                                                                                                   | 3,263 | production source and six mapped real test roots written; execution, proof, external launcher/classifier owners, and checklist closeout open |

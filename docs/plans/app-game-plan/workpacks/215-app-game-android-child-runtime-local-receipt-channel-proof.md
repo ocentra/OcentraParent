@@ -1,5 +1,11 @@
 # WP215 App/Game Android Child Runtime Local Receipt Channel Proof
 
+> **Current status (2026-08-29): package-local behavior covered; live channel
+> BLOCKED.** The non-exported receiver and canonical WP212/WP214 Robolectric
+> tests cover action filtering, marker readback/tamper, null context, and
+> storage failure. The launched child runtime never invokes this receiver and
+> reports transport `NOT_IMPLEMENTED`.
+
 <!-- agent-capsule -->
 
 > Agent Capsule
@@ -28,6 +34,12 @@ delivery, platform delivery outside the package, adapter dispatch, platform
 enforcement, or raw private row custody.
 
 ## Implementation
+
+No additional marker test is useful. WP207-WP209 must supply the authenticated
+writer, typed transport boundary, and service ingestion before this channel can
+be composed into `ChildAgentCompositionService`. The historical
+`MainActivity`, TypeScript, and proof-runner list below is not current runtime
+ownership.
 
 - Added
   `platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AppGameAndroidChildRuntimeReceiptReceiver.java`.

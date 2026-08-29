@@ -38,6 +38,21 @@ None of these nine tests has been executed in the code-first phase. Live Linux
 foreground-tool/process custody, active capture authority, proof, CI, READY,
 and DONE remain open.
 
+## Android child-runtime receipt/notification correction — 2026-08-29
+
+Canonical `0505bdd61` and `e4c147fee` add real package-local receipt and ACK
+behavior tests plus null-context fail-closed handling. They do not create an
+authenticated child receipt. The current `ChildAgentActivity` and
+`ChildAgentCompositionService` have no App/Game delivery, receipt, notification,
+or request-queue consumer; legacy `MainActivity` is not manifest-launched.
+
+The reviewed production order is WP207 -> WP208 -> WP209 -> WP210 -> WP211,
+then WP216 -> WP217 -> WP220 -> WP221 -> WP222. WP212/WP214/WP215 may retain
+their bounded package-local behavior coverage, but all runtime receipt,
+delivery, notification, action, and request claims remain blocked until that
+owner chain is composed. Do not count static marker files, fixed broadcasts, or
+proof DTOs as implementation.
+
 ## WP197 source integration checkpoint — 2026-08-25
 
 The Linux Docker host preflight source is integrated in the canonical tree
