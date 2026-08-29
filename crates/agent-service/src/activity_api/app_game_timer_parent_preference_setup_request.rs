@@ -20,3 +20,10 @@ pub async fn build_activity_app_game_timer_parent_preference_setup_request_repor
     )
     .await
 }
+
+pub(super) async fn build_activity_app_game_timer_parent_preference_setup_request_report_for_test(
+    command: AgentCommandEnvelope,
+    store_path: AppGameTimerSetupStorePath,
+) -> AgentEventEnvelope {
+    build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path_support(command, store_path).await
+}

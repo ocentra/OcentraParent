@@ -25,16 +25,16 @@ use ocentra_parent_agent_protocol::transport::{
     AgentPeerRole, AgentRoute,
 };
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
-use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 use crate::test_invariants::{
     require_json_decode, require_log_string_field, require_ok, require_some, serialize_test_json,
 };
 use crate::test_text::TestText;
 
 use super::{
-    app_game_child_runtime_transport_receipt_payload::app_game_child_runtime_transport_receipt_read_model_from_service_model,
+    build_timer_preference_report,
+    build_timer_preference_report_for_store_path,
+    child_runtime_receipt_read_model_from_service_model,
     app_game_timer_parent_preference_setup_request::{
-        build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path,
         AppGameTimerSetupStorePath,
     },
     app_game_timer_parent_preference_setup_request_outbox::append_setup_outbox_record,
@@ -46,7 +46,7 @@ const PERSISTED_SETUP_EVENT_COUNT: u64 = 14;
 async fn app_game_timer_parent_preference_setup_request_command_returns_accepted_boundary_result() {
     let body = serialize_test_json(&command_envelope());
     let event =
-        handle_local_command_text_for_test(crate::test_text::TestText::from_display(body)).await;
+        build_timer_preference_report(command_envelope()).await;
     let result = request_payload(&crate::test_invariants::log_field(
         &event.payload,
         constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST,
@@ -114,11 +114,11 @@ async fn app_game_timer_parent_preference_setup_request_command_returns_accepted
 
 #[tokio::test]
 async fn app_game_timer_parent_preference_setup_request_persists_action_result_row() {
-    let store_path = temp_path(constants::activity_store::TEST_STORE_SUFFIX);
+    let store_path = temp_path(TestText::from_display(constants::activity_store::TEST_STORE_SUFFIX));
     cleanup_path(&store_path);
 
     let event =
-        build_activity_app_game_timer_parent_preference_setup_request_report_for_store_path(
+        build_timer_preference_report_for_store_path(
             command_envelope(),
             AppGameTimerSetupStorePath(store_path.clone()),
         )
@@ -251,7 +251,7 @@ fn assert_persisted_action_result_model(model: &AppGameServiceReadModel) {
         .is_none());
 
     let receipt_model =
-        app_game_child_runtime_transport_receipt_read_model_from_service_model(model.clone());
+        child_runtime_receipt_read_model_from_service_model(model.clone());
 
     assert_eq!(receipt_model.returned, 1);
     assert_eq!(receipt_model.manual_required_count, 1);
@@ -1058,7 +1058,6 @@ async fn setup_outbox_concurrent_distinct_records_are_complete() {
 }
 
 async fn accepted_result() -> AppGameTimerParentPreferenceSetupRequestResult {
-    let body = serialize_test_json(&command_envelope());
-    let event = handle_local_command_text_for_test(TestText::from_display(body)).await;
+    let event = build_timer_preference_report(command_envelope()).await;
     request_payload(&crate::test_invariants::log_field(&event.payload, constants::field::APP_GAME_TIMER_PARENT_PREFERENCE_SETUP_REQUEST, constants::error::AGENT_EVENT_SERIALIZES))
 }

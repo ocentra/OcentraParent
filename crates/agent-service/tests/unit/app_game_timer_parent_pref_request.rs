@@ -167,6 +167,28 @@ mod app_game_timer_parent_preference_setup_request_persistence;
 #[path = "../support/app_game_timer_parent_preference_setup_request_status.rs"]
 mod app_game_timer_parent_preference_setup_request_status;
 
+use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
+use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentEventEnvelope};
+
+pub(crate) fn child_runtime_receipt_read_model_from_service_model(
+    model: AppGameServiceReadModel,
+) -> ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::AppGameChildRuntimeTransportReceiptReadModel {
+    app_game_child_runtime_transport_receipt_payload::app_game_child_runtime_transport_receipt_read_model_from_service_model_for_test(model)
+}
+
+pub(crate) async fn build_timer_preference_report(
+    command: AgentCommandEnvelope,
+) -> AgentEventEnvelope {
+    app_game_timer_parent_preference_setup_request::build_activity_app_game_timer_parent_preference_setup_request_report(command).await
+}
+
+pub(crate) async fn build_timer_preference_report_for_store_path(
+    command: AgentCommandEnvelope,
+    store_path: app_game_timer_parent_preference_setup_request::AppGameTimerSetupStorePath,
+) -> AgentEventEnvelope {
+    app_game_timer_parent_preference_setup_request::build_activity_app_game_timer_parent_preference_setup_request_report_for_test(command, store_path).await
+}
+
 #[cfg(test)]
 mod clippy_linkage {
     use super::*;
