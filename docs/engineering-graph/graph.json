@@ -13321,22 +13321,15 @@
       "path": "docs/plans/app-plan/workpacks/06-windows-installed-app-inventory-adapter.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Incomplete — bounded inventory source exists; known-path/executable metadata, publisher/signature/hash, and permission adapter owner remain open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "Complete"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13703,11 +13696,11 @@
       "parent": "PLAN-app-plan",
       "dependsOn": ["WP-app-game-plan-15-read-models-and-service-events"],
       "state": "blocked",
-      "lifecycleState": "planned",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -13722,7 +13715,14 @@
             "docs/engineering-graph/code-map.json"
           ],
           "reason": "Real portal consumer roots exist; shared read models feed the projection, while dedicated inventory/running/risk/evidence UI tests remain open."
-        }
+        },
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete for bounded source/test scope; runtime/physical UI proof remains open"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14174,22 +14174,15 @@
       "path": "docs/plans/app-plan/workpacks/25-install-and-uninstall-approval-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "Incomplete — no modern install/uninstall approval-handoff owner/caller",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "Complete, bounded handoff"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
