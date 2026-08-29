@@ -1,13 +1,10 @@
-use ocentra_entitlement_core::{
+use ocentra_entitlement_core::entitlement_snapshot::{
     checked_effective_child_device_limit, EntitlementSnapshotDerivationError,
 };
 
 #[test]
 fn derives_starter_plus_paid_and_referral_seats() {
-    assert_eq!(
-        checked_effective_child_device_limit(1, 2, 3),
-        Ok(6)
-    );
+    assert_eq!(checked_effective_child_device_limit(1, 2, 3), Ok(6));
 }
 
 #[test]

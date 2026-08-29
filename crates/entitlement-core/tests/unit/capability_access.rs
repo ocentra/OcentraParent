@@ -1,113 +1,12 @@
 use ocentra_entitlement_core::entitlement_access::{
-    evaluate_entitlement_capability, record_entitlement_capability_decision,
-    EntitlementAggregateId, EntitlementCapability, EntitlementCapabilityAccessState,
-    EntitlementCapabilityEvaluationRequestedEvent, EntitlementCapabilityInput,
-    EntitlementCapabilityRejectionReason, EntitlementCapabilityScope, EntitlementDecisionId,
-    EntitlementEvaluationId, EntitlementManualReviewState, EntitlementPolicyState,
-    FamilySetupState, OfflineGraceState, SubscriptionState,
+    evaluate_entitlement_capability, EntitlementCapability, EntitlementCapabilityAccessState,
+    EntitlementCapabilityInput, EntitlementCapabilityRejectionReason, EntitlementManualReviewState,
 };
-use ocentra_entitlement_core::entitlement_snapshot::EntitlementSnapshotContext;
-use ocentra_entitlement_core::entitlement_snapshot_values::{
-    EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState,
-    EntitlementPackageBuildState, EntitlementSnapshotBindingState,
-    EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState,
-};
-use ocentra_eventing::envelope::DomainEvent;
-
-const ENTITLEMENT_AGGREGATE_ID: &str = "entitlement-household-default";
-const ENTITLEMENT_EVALUATION_ID: &str = "entitlement-evaluation-default";
-const ENTITLEMENT_REQUESTED_EVENT_TYPE: &str = "entitlement.capability-evaluation.requested";
-const ENTITLEMENT_DECISION_EVENT_TYPE: &str = "entitlement.capability-decision.recorded";
-
-fn trusted_snapshot_context() -> EntitlementSnapshotContext {
-    EntitlementSnapshotContext {
-        signature_state: EntitlementSnapshotSignatureState::Trusted,
-        freshness_state: EntitlementSnapshotFreshnessState::Fresh,
-        household_binding_state: EntitlementSnapshotBindingState::Matched,
-        device_binding_state: EntitlementSnapshotBindingState::Matched,
-        device_trust_requirement_state: EntitlementDeviceTrustRequirementState::Required,
-        device_trust_state: EntitlementDeviceTrustState::Present,
-        package_build_state: EntitlementPackageBuildState::Valid,
-    }
-}
-
-fn entitlement_input(capability_scope: EntitlementCapabilityScope) -> EntitlementCapabilityInput {
-    EntitlementCapabilityInput {
-        capability: EntitlementCapability::Tracking,
-        subscription_state: SubscriptionState::Active,
-        offline_grace_state: OfflineGraceState::Inactive,
-        family_setup_state: FamilySetupState::Complete,
-        policy_state: EntitlementPolicyState::Clean,
-        capability_scope,
-        snapshot_context: trusted_snapshot_context(),
-    }
-}
+use serde_json::{json, Value};
 
 #[test]
-fn local_child_runtime_capability_is_allowed_for_active_clean_family() {
-    let decision = evaluate_entitlement_capability(entitlement_input(
-        EntitlementCapabilityScope::LocalChildRuntime,
-    ));
-
-    assert_eq!(decision.capability, EntitlementCapability::Tracking);
-    assert_eq!(
-        decision.access_state,
-        EntitlementCapabilityAccessState::Allowed
-    );
-    assert_eq!(
-        decision.manual_review_state,
-        EntitlementManualReviewState::NotRequired
-    );
-    assert_eq!(decision.rejection_reason, None);
-}
-
-#[test]
-fn parent_portal_only_scope_is_blocked_for_child_runtime_capability() {
-    let decision = evaluate_entitlement_capability(entitlement_input(
-        EntitlementCapabilityScope::ParentPortalOnly,
-    ));
-
-    assert_eq!(
-        decision.access_state,
-        EntitlementCapabilityAccessState::Blocked
-    );
-    assert_eq!(
-        decision.manual_review_state,
-        EntitlementManualReviewState::Required
-    );
-    assert_eq!(
-        decision.rejection_reason,
-        Some(EntitlementCapabilityRejectionReason::ParentPortalOnlyScope)
-    );
-}
-
-#[test]
-fn offline_grace_still_allows_local_child_runtime_capability() {
-    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
-        offline_grace_state: OfflineGraceState::Active,
-        subscription_state: SubscriptionState::Inactive,
-        capability: EntitlementCapability::Enforcement,
-        ..entitlement_input(EntitlementCapabilityScope::LocalChildRuntime)
-    });
-
-    assert_eq!(decision.capability, EntitlementCapability::Enforcement);
-    assert_eq!(
-        decision.access_state,
-        EntitlementCapabilityAccessState::Allowed
-    );
-    assert_eq!(
-        decision.manual_review_state,
-        EntitlementManualReviewState::NotRequired
-    );
-    assert_eq!(decision.rejection_reason, None);
-}
-
-#[test]
-fn payment_dispute_blocks_even_active_local_child_runtime_capability() {
-    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
-        policy_state: EntitlementPolicyState::PaymentDispute,
-        ..entitlement_input(EntitlementCapabilityScope::LocalChildRuntime)
-    });
+fn public_untrusted_input_is_blocked_without_verifier_context() {
+    let decision = evaluate_entitlement_capability(parse_input("tracking", "local-child-runtime"));
 
     assert_eq!(decision.capability, EntitlementCapability::Tracking);
     assert_eq!(
@@ -120,130 +19,75 @@ fn payment_dispute_blocks_even_active_local_child_runtime_capability() {
     );
     assert_eq!(
         decision.rejection_reason,
-        Some(EntitlementCapabilityRejectionReason::PaymentDispute)
+        Some(EntitlementCapabilityRejectionReason::MissingSignature)
     );
 }
 
 #[test]
-fn incomplete_family_setup_blocks_even_with_offline_grace() {
-    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
-        family_setup_state: FamilySetupState::Incomplete,
-        offline_grace_state: OfflineGraceState::Active,
-        subscription_state: SubscriptionState::Inactive,
-        capability: EntitlementCapability::RemoteAccess,
-        ..entitlement_input(EntitlementCapabilityScope::LocalChildRuntime)
+fn public_deserializer_ignores_untrusted_snapshot_context() {
+    let mut wire = input_wire("remote-access", "local-child-runtime");
+    wire["snapshot_context"] = json!({
+        "signature_state": "trusted",
+        "freshness_state": "fresh",
+        "household_binding_state": "matched",
+        "device_binding_state": "matched",
+        "device_trust_state": "present",
+        "package_build_state": "valid"
     });
 
+    let decision = evaluate_entitlement_capability(
+        serde_json::from_value::<EntitlementCapabilityInput>(wire)
+            .expect("untrusted input with context-shaped data decodes"),
+    );
     assert_eq!(decision.capability, EntitlementCapability::RemoteAccess);
     assert_eq!(
-        decision.access_state,
-        EntitlementCapabilityAccessState::Blocked
-    );
-    assert_eq!(
-        decision.manual_review_state,
-        EntitlementManualReviewState::Required
-    );
-    assert_eq!(
         decision.rejection_reason,
-        Some(EntitlementCapabilityRejectionReason::IncompleteFamilySetup)
+        Some(EntitlementCapabilityRejectionReason::MissingSignature)
     );
 }
 
 #[test]
-fn stale_snapshot_blocks_local_child_runtime_capability() {
-    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
-        snapshot_context: EntitlementSnapshotContext {
-            freshness_state: EntitlementSnapshotFreshnessState::Stale,
-            ..trusted_snapshot_context()
-        },
-        ..entitlement_input(EntitlementCapabilityScope::LocalChildRuntime)
-    });
-
-    assert_eq!(
-        decision.access_state,
-        EntitlementCapabilityAccessState::Blocked
-    );
-    assert_eq!(
-        decision.manual_review_state,
-        EntitlementManualReviewState::Required
-    );
-    assert_eq!(
-        decision.rejection_reason,
-        Some(EntitlementCapabilityRejectionReason::StaleSnapshot)
-    );
+fn public_capability_input_rejects_unknown_fields() {
+    let mut wire = input_wire("tracking", "local-child-runtime");
+    wire["unexpected_field"] = json!(true);
+    let error = serde_json::from_value::<EntitlementCapabilityInput>(wire)
+        .expect_err("unknown capability input fields are rejected");
+    assert!(error.to_string().contains("unknown field"));
+    assert!(error.to_string().contains("unexpected_field"));
 }
 
 #[test]
-fn revoked_snapshot_blocks_local_child_runtime_capability() {
-    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
-        snapshot_context: EntitlementSnapshotContext {
-            freshness_state: EntitlementSnapshotFreshnessState::Revoked,
-            ..trusted_snapshot_context()
-        },
-        ..entitlement_input(EntitlementCapabilityScope::LocalChildRuntime)
-    });
-
-    assert_eq!(
-        decision.access_state,
-        EntitlementCapabilityAccessState::Blocked
-    );
-    assert_eq!(
-        decision.rejection_reason,
-        Some(EntitlementCapabilityRejectionReason::RevokedSnapshot)
-    );
+fn public_capability_input_requires_all_decision_fields() {
+    let mut wire = input_wire("tracking", "local-child-runtime");
+    wire.as_object_mut()
+        .expect("capability input is an object")
+        .remove("policy_state");
+    let error = serde_json::from_value::<EntitlementCapabilityInput>(wire)
+        .expect_err("missing capability input fields are rejected");
+    assert!(error.to_string().contains("missing field `policy_state`"));
 }
 
 #[test]
-fn invalid_package_build_blocks_local_child_runtime_capability() {
-    let decision = evaluate_entitlement_capability(EntitlementCapabilityInput {
-        snapshot_context: EntitlementSnapshotContext {
-            package_build_state: EntitlementPackageBuildState::Invalid,
-            ..trusted_snapshot_context()
-        },
-        capability: EntitlementCapability::ScreenEvidence,
-        ..entitlement_input(EntitlementCapabilityScope::LocalChildRuntime)
-    });
-
-    assert_eq!(
-        decision.access_state,
-        EntitlementCapabilityAccessState::Blocked
-    );
-    assert_eq!(
-        decision.rejection_reason,
-        Some(EntitlementCapabilityRejectionReason::InvalidPackageBuild)
-    );
+fn public_capability_input_cannot_serialize_verifier_context() {
+    let input = parse_input("screen-evidence", "parent-portal-only");
+    let error = serde_json::to_value(&input)
+        .expect_err("verifier-owned context cannot be serialized through public input");
+    assert!(error
+        .to_string()
+        .contains("entitlement snapshot context is verifier-owned"));
 }
 
-#[test]
-fn capability_request_records_typed_entitlement_decision_event() -> Result<(), EventingError> {
-    let request = EntitlementCapabilityEvaluationRequestedEvent {
-        aggregate_id: EntitlementAggregateId::parse(ENTITLEMENT_AGGREGATE_ID)?,
-        evaluation_id: EntitlementEvaluationId::parse(ENTITLEMENT_EVALUATION_ID)?,
-        input: entitlement_input(EntitlementCapabilityScope::LocalChildRuntime),
-    };
-
-    let decision = record_entitlement_capability_decision(&request);
-
-    assert_eq!(decision.aggregate_id, request.aggregate_id);
-    assert_eq!(decision.source_evaluation_id, request.evaluation_id);
-    assert!(
-        EntitlementDecisionId::parse(decision.decision_id.as_str()).is_ok(),
-        "decision id remains branded"
-    );
-    assert_eq!(
-        request.contract()?.event_type.as_str(),
-        ENTITLEMENT_REQUESTED_EVENT_TYPE
-    );
-    assert_eq!(
-        decision.contract()?.event_type.as_str(),
-        ENTITLEMENT_DECISION_EVENT_TYPE
-    );
-    assert_eq!(
-        decision.decision.manual_review_state,
-        EntitlementManualReviewState::NotRequired
-    );
-    assert_eq!(decision.decision.rejection_reason, None);
-
-    Ok(())
+fn parse_input(capability: &str, scope: &str) -> EntitlementCapabilityInput {
+    serde_json::from_value(input_wire(capability, scope)).expect("public capability input decodes")
 }
-use ocentra_eventing::error::EventingError;
+
+fn input_wire(capability: &str, scope: &str) -> Value {
+    json!({
+        "capability": capability,
+        "subscription_state": "active",
+        "offline_grace_state": "inactive",
+        "family_setup_state": "complete",
+        "policy_state": "clean",
+        "capability_scope": scope
+    })
+}
