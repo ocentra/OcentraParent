@@ -179,3 +179,26 @@ fn malformed_mac_is_rejected() {
         Some(false)
     );
 }
+
+#[test]
+fn all_zero_mac_is_rejected_as_malformed() {
+    let assessment = assess_mac_address(Some("00:00:00:00:00:00"));
+
+    assert_eq!(
+        assessment.map(|assessment| assessment.disposition()),
+        Some(LanMacIdentityDisposition::RejectedMalformed)
+    );
+    assert!(normalize_scan_mac_address("00:00:00:00:00:00").is_none());
+}
+
+#[test]
+fn compact_and_dotted_mac_forms_normalize_to_one_identity() {
+    assert_eq!(
+        normalize_scan_mac_address("54271e97c331"),
+        Some("54-27-1e-97-c3-31".to_string())
+    );
+    assert_eq!(
+        normalize_scan_mac_address("5427.1e97.c331"),
+        Some("54-27-1e-97-c3-31".to_string())
+    );
+}
