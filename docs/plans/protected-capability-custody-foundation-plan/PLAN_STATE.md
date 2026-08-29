@@ -293,34 +293,36 @@ operational owner work that must follow it:
   the broker/protocol handshake. The three expected test roots are checked in
   but unexecuted; the owner-bound caller, proof, operational enrollment, READY,
   and DONE remain open.
-- **WP05 Account Issuer Key and Store Custody** has independently reviewed
-  bounded production source integrated through canonical `f6d6dcf542ff` for
-  Account WP09. WP01's `Seal`/`Rotate`/`Revoke`/`Recover` protocol
-  actions and opaque prepared token are not signer/store authority. The new
-  Account-owned `crates/account-issuer-owner` is statically linked into the
-  existing broker and absorbs issuer/key-registry/outbox/delivery/startup,
-  recovery, signing, and typed RPC mechanics. The broker mounts it for service
-  lifetime and retains protected signer custody; family-core retains
-  `VerifiedAccountIdentityAuthority`, the authority repository/source of truth,
-  and one opaque `BEGIN IMMEDIATE` transaction/currentness host. The existing
-  family-owned handoff contract remains a separate historical/input boundary
-  and is never embedded, re-signed, or duplicated inside P-256 v2. The owner receives opaque Account-specific
-  transaction and signer capabilities, never raw path, SQL, generic signer,
-  second SQLite connection, or `custody.sqlite` access. WP05 uses the reviewed
-  WP01 edge plus implementation-independent WP02/WP03/WP04 edges, so normal
-  derived state remains blocked.
+- **WP05 Account Issuer Key and Store Custody** is reopened. Current-v2 source
+  already provides typed protected RPC, `crates/account-issuer-owner`, the
+  family-owned single SQLite currentness/receipt transaction, TPM-native P-256
+  signing, restart/outbox substrate, Parent facade, and seven real
+  Protected/Account test roots. That topology is not reviewed completion.
+  `BrokerAuthorizedClientTranscript` is minted and revalidated in Protected
+  core but dropped by the broker peer before Account dispatch;
+  `AccountIssuerOwner::authorize_protected_request` and the fixed Account mount
+  intentionally remain unavailable because no owner-issued Account admission
+  exists. The earlier reviewed-implementation evidence is withdrawn.
 
-  The graph maps 140 production files across the route, with 128 exact files
-  retained as reviewed implementation evidence; the remaining mapped paths are
-  shared/historical integration roots and manifests. The reviewed files span
-  the Account owner, family transaction/currentness
-  host, protected core/protocol/client/broker, Windows FFI/provisioner, Parent
-  Runtime facade, schema, and Cloudflare verifier/storage composition. The
-  final repairs close durable reservation/idempotency, restart reconciliation,
-  exact service/receipt/outbox lineage, owner admission, signer custody, and
-  bounded v2 time arithmetic. This is implementation evidence only: all eight
-  expected tests are absent, and no proof, pre-commit, CI, PR, READY, DONE, or
-  deployed owner/provider/runtime claim is made.
+  The exact source packet is private transcript-to-Account composition. WP02
+  must establish the immutable external Account issuer service/key-lineage
+  binding, WP03 supplies hardware monotonic currentness, and WP04 supplies the
+  retained OS peer/session transcript. WP05 preserves that opaque transcript,
+  derives a one-shot non-cloneable request-scoped Account admission, consumes
+  it in `account-issuer-owner`, and delegates Account currentness to the single
+  family transaction facade. It must bind peer/session provenance,
+  correlation/idempotency, Account/service binding, current public key,
+  enrollment/authority/session generations, currentness, and revocation, and
+  invalidate on any drift with restart reconciliation.
+
+  Public raw fields/constructors, booleans, closures, static keys, environment
+  authority, caller selectors, a family-to-Protected dependency cycle, a
+  second Account database, and direct `custody.sqlite` access are rejected.
+  Family-core retains `VerifiedAccountIdentityAuthority` and Account source of
+  truth. The seven Protected/Account test roots are present but unexecuted and
+  cannot prove a positive admission until the owner seam exists. Proof,
+  pre-commit, CI, PR, READY, DONE, deployment, and operational provider claims
+  remain open.
 
   The selected issuer is a self-contained TPM-native ECDSA P-256 inner and
   outer v2: producer ocentra.account-authority-producer.v2, inner domain
@@ -358,11 +360,11 @@ operational owner work that must follow it:
   precheck; sha2 is only for key-ID hashing, with no new p256/ecdsa dependency.
   Pinned windows-sys 0.61.2 API availability is implementation evidence only,
   not provider, ACL, provisioning, runtime, test, or proof evidence.
-  Unsupported TPM/manual enrollment fails closed. The reviewed source now
+  Unsupported TPM/manual enrollment fails closed. The durable substrate
   binds `service_binding_id` through registry, reservation, receipt, outbox,
   acknowledgement, and recovery queries. External attestation, rotation and
   recovery ceremonies, provider/ACL deployment, production composition, all
-  eight tests, proof, and DONE remain open.
+  seven tests, proof, and DONE remain open.
 
 The graph records these as phase-specific implementation routing only. WP02,
 WP03, WP04, WP05, and WP01 remain open for tests, runtime callers, proof, and

@@ -2,108 +2,125 @@
 
 > **Plan:** Account Identity Family
 > **Workpack:** WP09
-> **Status:** planned implementation-only adapter and real test-source wave; the durable issuer core plus reviewed Protected Custody WP04/WP05 boundaries are present, while production composition, Cloudflare consumer, execution, proof, and normal completion remain open.
+> **Status:** BLOCKED / NO-CHANGE until Protected Custody WP05 supplies the
+> owner-issued Account admission consumed by the current-v2 family lifecycle.
 
 ## Agent capsule
 
 - Route: Account Identity Family WP09 only.
-- Own the Account-side issuer, signing-key custody, public-key registry, authenticated producer binding, and startup recovery boundary.
-- Consume the sealed wire contract owned by WP08; do not duplicate its schema or wire authority.
-- Do not edit or claim Cloudflare, Device Trust, Account WP02, or Account WP05A source.
+- Consume the sealed current-v2 Account authority and one reviewed Protected
+  owner admission; do not manufacture either.
+- Do not revive the retired legacy signer/delivery/runtime adapter files.
+- Do not edit Cloudflare, Protected Custody, Device Trust, Account WP02, or
+  Account WP05A source from this workpack.
 
 ## Goal
 
-Provide the missing Account-owned durable issuer and authenticated producer handoff needed by Cloudflare WP06 without transferring Account authority to Cloudflare or allowing callers to select signing keys.
+Compose the existing family-owned current-v2 issuer lifecycle with the real
+Protected Account owner after Protected WP05 has authenticated the broker
+request. Then hand the already signed bounded wire to the Cloudflare WP06
+consumer without transferring Account authority or signing-key selection to
+Cloudflare.
 
-## Ownership
+## Current production truth - 2026-08-29
 
-WP09 owns durable Account issuer/key lineage and signing semantics, monotonic versioned public-key registration and revocation, the authenticated Account producer service-binding adapter, Account-side startup reload and recovery, and the typed handoff over WP08's existing sealed wire contract. Secret key material and protected signing admission remain in Protected Custody WP01.
+The modern v2 family lifecycle is already present. The key API is
+`AccountIdentityAuthorityIssuerClient::issue_current_authority_with_account_owner_admission`;
+it coordinates the family-owned authority/currentness repository with a
+request-scoped signer callback. The real P-256 signer is in
+`crates/account-issuer-owner/src/signing.rs`, and the protected broker has a
+typed Account issuer RPC path.
 
-WP08 remains the owner of the canonical sealed Account authority and wire contract. Protected Custody WP01 owns the isolated broker/client, authenticated OS IPC, and protected key/admission custody that the Account signer must consume; WP09 must not replace it with in-process DPAPI, caller-selected keys, mutex/file-lock custody, or a private parallel broker. Cloudflare WP06 owns its private consumer, D1/DO/KV persistence, migration, and Cloudflare-side storage proof. WP09 does not own Cloudflare files, Worker bindings, migrations, provider verification, Device Trust, Account WP02 authority, or Account WP05A effect fencing.
+The call path is deliberately unavailable today:
 
-## Reviewed source and expected-test boundary
+- `AccountIssuerOwner::authorize_protected_request` fails closed because no
+  OS-enrolled Account admission exists;
+- the fixed Account issuer mount returns unavailable;
+- Protected core mints and revalidates `BrokerAuthorizedClientTranscript`, but
+  the broker peer drops it before Account execution;
+- the enrollment record binds OS peer/process/token/image/service/TPM state but
+  no Account/service/current-key lineage;
+- the family admission has private fields and no public constructor, and a
+  family-to-Protected dependency would create a crate cycle;
+- no production delivery owner or `deliver_next_pending` caller exists.
 
-The existing shared integration root crates/family-identity-core/src/lib.rs is retained in the graph roots union only. It is not a planned implementation root for WP09.
+These are owner/dependency blockers, not missing family DTOs.
 
-The planned implementation roots now exist and were independently reviewed:
+## Current-v2 owned roots
 
-- crates/family-identity-core/src/account_identity_authority_issuer.rs
-- crates/family-identity-core/src/account_identity_authority_issuer_key_custody.rs
-- crates/family-identity-core/src/account_identity_authority_issuer_key_registry.rs
-- crates/family-identity-core/src/account_identity_authority_issuer_service_binding.rs
-- crates/family-identity-core/src/account_identity_authority_issuer_startup.rs
+The graph maps the actual family lifecycle rather than the retired legacy
+facade names:
 
-Expected test roots:
+```text
+crates/family-identity-core/src/account_identity_authority_issuer_client.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_api.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_api_issue_signer_flow.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_currentness.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_key.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_owner_admission.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_startup.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_transaction.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_transaction_outbox.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_transaction_receipt.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_transaction_recovery.rs
+crates/family-identity-core/src/account_identity_authority_issuer_client_types.rs
+crates/family-identity-core/src/account_identity_authority_issuer_outbox_claim.rs
+crates/family-identity-core/src/account_identity_authority_issuer_outbox_reconcile.rs
+```
 
-- crates/family-identity-core/tests/contract/account_identity_authority_issuer.rs
-- crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_custody.rs
-- crates/family-identity-core/tests/unit/account_identity_authority_issuer_key_registry.rs
-- crates/family-identity-core/tests/unit/account_identity_authority_issuer_startup.rs
+The current real family contract test root is:
 
-The integrated packet also owns private helper modules for transactional currentness, delivery/outbox custody, registry lineage/receipts/row and schema validation, transport encoding, and durable startup reconciliation. The graph maps those actual helper roots rather than hiding them behind the five public module roots.
+```text
+crates/family-identity-core/tests/contract/account_identity_authority_issuer_transport.rs
+```
 
-The coherent production packet still requires these planned roots:
+It proves typed and fail-closed family behavior only. It cannot prove positive
+Protected admission, operational signing, broker composition, Cloudflare
+delivery, restart recovery across both owners, or runtime reachability.
 
-- crates/family-identity-core/src/account_identity_authority_issuer_protected_signer.rs
-- crates/family-identity-core/src/account_identity_authority_issuer_cloudflare_delivery.rs
-- crates/family-identity-core/src/account_identity_authority_issuer_runtime.rs
+## Retired legacy route
 
-The existing four expected tests plus these runtime/adapter tests remain absent:
+The old planned files
+`account_identity_authority_issuer_protected_signer.rs`,
+`account_identity_authority_issuer_cloudflare_delivery.rs`, and
+`account_identity_authority_issuer_runtime.rs`, plus their seven legacy test
+paths, are retired. The rejected `d496f08a` packet wrapped a caller-supplied
+signer and added unimplemented owner ports with no production caller. Recreating
+those names would add dead scaffolding, not close the current-v2 owner seam.
 
-- crates/family-identity-core/tests/unit/account_identity_authority_issuer_protected_signer.rs
-- crates/family-identity-core/tests/contract/account_identity_authority_issuer_cloudflare_delivery.rs
-- crates/family-identity-core/tests/integration/account_identity_authority_issuer_runtime.rs
+## Dependency and source order
 
-No Cloudflare consumer/mount, test execution, proof, checklist acceptance, READY, or DONE claim is made by this route.
+```text
+Protected WP01 foundation
+-> Protected WP02 external Enrollment/SCM/TPM plus Account service/key binding
+-> Protected WP03 hardware monotonic currentness
+-> Protected WP04 retained broker peer/session transcript
+-> Protected WP05 private transcript-to-Account admission and owner consumption
+-> Account WP08 sealed authority/currentness contract
+-> Account WP09 family lifecycle composition
+-> Cloudflare WP06 authenticated delivery/current-key/D1 consumer
+```
 
-## Reviewed production result
+Protected WP05 is a hard implementation prerequisite, not merely a completion
+dependency. WP09 remains blocked until that seam is independently reviewed.
+Cloudflare WP06 remains downstream of WP09 and owns its current-v2 consumer,
+current-key registry/D1 custody, migration, route composition, and tests.
 
-Independent P0/P1 review accepted the source integrated through `4f6245e51`:
+## Non-negotiable boundary
 
-- issuer keys and public-key lineage are SQLite-owned, versioned, monotonic, and validated at startup;
-- issue/claim/ack/reconcile operations bind the current household authority, service identity, key generation, outer wire metadata, inner sealed authority, receipt, and signature;
-- currentness and mutation occur under `BEGIN IMMEDIATE`, while outbox expiry/supersession is scoped to the exact household;
-- expired or superseded rows become terminal, and a claim or acknowledgement cannot silently cross an external-delivery gap without revalidation;
-- the handoff remains an Account-owned outbox/wire boundary. A shipped Cloudflare private consumer and runtime mount are still missing.
+WP09 must not add public raw fields or constructors, booleans, closures,
+environment/header authority, static keys, caller-selected Account/key/generation
+values, a second Account database, a family-to-Protected crate cycle, a mock
+owner, or an in-memory signer. Missing or stale admission remains unavailable.
 
-Focused formatting, library compilation, architecture, Enforcer source-shape/no-test-doubles/validation-bypass, exact claim guard, and diff checks passed before canonical integration. This is implementation evidence only.
+## Exit conditions
 
-Live caller review after integration found no implementation of `AccountIdentityIssuerSignerAdapter`, `AccountIdentityIssuerServiceBindingAuthenticator`, or `AccountIdentityIssuerDeliveryOwnerAdapter`, and no production call to `deliver_next_pending`. All installation and delivery methods are crate-private, and the delivery attempt exposes the wire but not an authenticated current public-key registry record that a Cloudflare consumer can use. The accepted files are therefore a durable fail-closed core, not a complete producer adapter or runtime. The graph keeps WP09 implementation open until the protected signer, authenticated Cloudflare delivery packet/ack path, and production lifecycle caller exist.
+WP09 may resume only after Protected WP05 exposes the reviewed opaque
+request-scoped Account owner capability without widening its trust boundary.
+Exit then requires a shipped lifecycle caller, exact admission/currentness/key
+binding, restart and revocation behavior, real focused tests, retained proof,
+checklist acceptance, pre-commit, CI, review, and normal merge. No READY or DONE
+claim follows from current source-file presence.
 
-The later source attempt at `d496f08a7f5feca35d5d1479e983566924e3801c`
-does not close those gaps and is rejected from consolidation. Its
-`AccountIdentityIssuerProtectedSigner` only wraps a caller-supplied signer
-trait object; it does not call the Protected Custody broker/client. Its sealed
-Cloudflare owner port has no shipped implementor or constructible owner
-response, and the added runtime has no production caller. That is dormant
-adapter scaffolding, not protected signing or authenticated delivery. The
-current-key-record binding introduced in the same packet can be reconsidered
-only with a real protected signer, Cloudflare consumer, and production
-composition; the branch must not be merged or cherry-picked wholesale.
-
-## Dependency route
-
-WP09 has four direct source-order prerequisites: Account WP08, Protected
-Custody WP01, Protected Custody WP04, and Protected Custody WP05. WP08 supplies
-the reviewed sealed Account contract; WP01 supplies the neutral foundation;
-WP04 supplies the reviewed retained fixed-pipe process/token transport; and
-WP05 supplies the reviewed Account issuer-owner, protected signing, and broker
-RPC boundary. These reviewed implementations authorize only the missing WP09
-adapter/runtime and expected-test source wave. Normal completion still requires
-their operational gates. WP09 has no dependency on Account WP02, Account WP05A,
-Device Trust WP01 or WP03, or Cloudflare source.
-
-Cloudflare WP06 retains its direct WP08 dependency and adds WP09 as an additional reviewed-implementation prerequisite for the durable issuer/key custody and authenticated producer binding. This does not transfer Account ownership or claim Cloudflare runtime readiness.
-
-## Acceptance and non-claims
-
-- Durable custody must be authoritative, recoverable, monotonic, and versioned; caller-selected keys are not acceptable.
-- Public-key registration and revocation must be authenticated and tied to the durable issuer boundary.
-- The producer adapter must authenticate the Account service binding and use WP08's existing sealed wire contract.
-- Startup reload and recovery must be explicit and durable; mock, no-op, process-global, or in-memory custody is not an implementation.
-- The mapped tests and retained proof must cover custody, registry/revocation, authenticated handoff, and startup recovery before normal completion.
-- No Cloudflare source, duplicated schema/wire, provider readiness, runtime readiness, READY, or DONE is claimed here.
-
-## Proof boundary
-
-Expected retained proof root: docs/proof/account-identity-family-plan/09-account-issuer-key-custody-and-cloudflare-handoff/.
+Expected retained proof root:
+`docs/proof/account-identity-family-plan/09-account-issuer-key-custody-and-cloudflare-handoff/`.

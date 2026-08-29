@@ -388,20 +388,21 @@ Cloudflare service binding, so the verifier cannot be mounted to production
 mutation composition. The six expected tests, migration execution, focused
 validation, retained proof, deployment, and normal `DONE` remain open.
 
-## 2026-08-24 Account WP09 live-caller correction
+## 2026-08-29 current-v2 Account delivery correction
 
-The preceding 2026-08-19 dependency statement is superseded. Account WP09 now
-has a durable SQLite issuer/key-registry/outbox core integrated at canonical
-`4f6245e51`, but a live source and caller trace found no implementation of its
-protected signer, service-binding authenticator, or delivery owner and no
-production call to `deliver_next_pending`. The delivery attempt also does not
-carry an authenticated current public-key registry record to Cloudflare.
+The preceding legacy producer-route wording is superseded. Cloudflare already
+contains the P-256 issuer-v2 verifier, producer-v2 contract/transport,
+caller/runtime, D1 issuer-v2/store/writer, migration 0008, and one real negative
+test. The old unversioned issuer transport/key-registry/runtime file names are
+retired; recreating them would duplicate the live v2 authority boundary.
 
-Cloudflare WP06 therefore remains implementation-blocked on Account WP09 and
-still lacks three production roots of its own: the private issuer outer-wire
-transport, current-key registry consumer, and runtime mount into the existing
-caller/writer boundary. The graph maps those roots and nine expected tests as
-missing and removes the earlier implementation-complete overrides for both
-workpacks. The existing inner-wire verifier, D1 writer, and manual-required
-runtime remain fail closed. No migration, test, proof, deployment, runtime
-readiness, READY, or DONE claim follows from the durable core.
+WP06 remains implementation-blocked on Protected WP05 -> Account WP09. The
+broker currently drops its authorized transcript before Account execution,
+Account authorization/fixed mount remain fail-closed, and Cloudflare receives
+no owner-authenticated one-shot delivery or exact current public-key record.
+The internal shared-secret route is not Account authority. After upstream
+review, WP06 owns completion of the existing v2 hosts, registration of the
+current test, and eight remaining unit/integration roots covering currentness,
+rotation/revocation, restart/CAS, migration, and runtime reachability. No
+migration, test, proof, deployment, runtime readiness, READY, or DONE claim is
+made.

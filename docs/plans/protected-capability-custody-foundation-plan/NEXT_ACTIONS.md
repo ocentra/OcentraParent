@@ -76,19 +76,20 @@
    identity, handshake redesign, external-owner implementation, or runtime
    readiness claim is authorized. The three transport tests, owner-bound
    caller, operational dependencies, proof, and DONE remain open.
-5. Preserve the independently reviewed WP05 source integrated through
-   `f6d6dcf542ff`. Its 128 exact implementation files close the Account-owned
-   owner/repository, durable reservation/idempotency and recovery, exact
-   service/receipt/outbox lineage, typed protected RPC, CNG P-256 signer,
-   Parent facade, schema, and Cloudflare original-byte verifier source shape.
-   Do not reopen that source merely because operational dependencies or tests
-   are absent; reopen it only for a concrete code defect found by review.
-6. After the repository-wide production-source phase stabilizes, write WP05's
-   eight expected test roots as one test phase covering owner/repository
-   transactions, protocol/client/broker RPC, CNG P-256 custody, family handoff,
-   Parent composition, and Cloudflare verification. Keep external WP02/WP03/
-   WP04 owner/provider/ACL/runtime absence fail-closed and explicit; tests must
-   not invent an owner, signer, service identity, or deployment success.
+5. Reopen WP05 for the exact P0 live-call defect: preserve the still-current
+   `BrokerAuthorizedClientTranscript` through broker Account dispatch, derive
+   one opaque non-cloneable request-scoped Account admission from the external
+   enrollment/service/key-lineage owner, and consume it in
+   `account-issuer-owner` plus the single family transaction facade. The fixed
+   mount and `authorize_protected_request` must remain fail-closed until this
+   path is real. Do not add raw fields, booleans, closures, caller selectors,
+   static keys, a second database, or a family-to-Protected crate cycle.
+6. Complete the seven existing Protected/Account test roots for transcript
+   retention, correlation/idempotency, currentness/generation drift,
+   revocation, restart reconciliation, and owner unavailability. They are
+   present but unexecuted. Cloudflare current-v2 tests belong to Cloudflare
+   WP06. Keep WP02/WP03/WP04 operational absence fail-closed; tests must not
+   invent an owner, signer, service identity, or deployment success.
 7. Keep Parent WP12 installer-only and package-focused. No package success may
    mint protected authority. Tests, proof, validation, and DONE remain later
    gates for every split row.

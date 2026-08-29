@@ -19,7 +19,7 @@
 ```text
 Plan route: upgraded
 Execution-grade workpacks: WP01 has a provider/custody proof pack plus the retained narrow D1 storage-adapter proof at `docs/proof/account-identity-family-plan/01-auth-provider-decision/06-account-identity-storage-adapter-proof.md`; WP08 has a tracked durable Rust-authority manifest under `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`; WP02, WP03, WP04, WP05, and WP07 have prior proof roots on disk; WP05's implementation phase is explicitly blocked on the missing Account WP05A durable multi-owner effect coordinator/recovery owner (while WP05 remains the base authority consumer); WP06 is reopened for final aggregation after WP08 plus Cloudflare WP06/WP08 handoffs
-Implementation: reviewed source provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, durable authority and session custody, target-aware WP02 resolution, a strict WP04 SQLite invite/recovery repository, and WP09 durable issuer/key-registry/outbox core custody. Reviewed Protected Custody WP04 fixed-pipe transport and WP05 Account issuer-owner source now authorize the missing WP09 protected signer, binding, delivery, runtime, and seven expected test roots; WP09 remains fail-closed and unreachable until that packet is written and composed. WP05's runtime composer and opaque receipt are also only a fail-closed base authority-consumer boundary; the Account WP05A durable multi-owner coordinator, owner participants, and typed handoff remain missing. Data Custody WP08 confirmation staging/consume depends on that WP05A-owned handoff. Cloudflare retains the D1 current-authority read adapter and ordered Account/Payment migration source, but its private WP09 outer-wire/key-registry consumer, mutation composition, higher authority, expected tests, deployment/migration execution, proof, and DONE remain open
+Implementation: reviewed source provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, durable authority and session custody, target-aware WP02 resolution, a strict WP04 SQLite invite/recovery repository, and the current-v2 WP09 family issuer lifecycle. WP09 is implementation-blocked because Protected WP05 drops the broker transcript before Account dispatch and its Account authorization/fixed mount remain fail-closed; the earlier legacy signer/delivery/runtime route and seven tests are retired. WP05's runtime composer and opaque receipt are also only a fail-closed base authority-consumer boundary; the Account WP05A durable multi-owner coordinator, owner participants, and typed handoff remain missing. Data Custody WP08 confirmation staging/consume depends on that WP05A-owned handoff. Cloudflare retains current-v2 verifier/store/migration source but lacks authenticated Account delivery/current-key composition, expected tests, deployment/migration execution, proof, and DONE
 Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP08 uses its tracked durable manifest rather than ignored raw output; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent unless a selected workpack explicitly requires them
 PR-ready: false
 ```
@@ -355,7 +355,8 @@ blocked and no implementation, READY, or DONE claim is made.
 ```text
 WP01 provider decision and custody boundary
 WP08 Rust-owned schema, sealed authority, and local repository/CAS
-    (Account WP09 issuer/key custody, authenticated producer binding, and startup reload/recovery || WP02 target-aware actor/target action authority)
+    (Protected WP01 -> WP02 -> WP03 -> WP04 -> WP05 owner admission
+     -> Account WP09 family lifecycle || WP02 target-aware actor/target action authority)
 Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider caller
 Device Trust WP03 live Account/Device Trust ceremony composition
 Cloudflare WP08 runner/proof
@@ -369,9 +370,25 @@ WP06 security proof and route gate
 
 WP06 is last because it consumes proof from every earlier workpack.
 
-## 2026-08-24 Account WP09 issuer/key custody and Cloudflare handoff
+## 2026-08-29 Account WP09 current-v2 owner correction
 
-Account WP09's independently reviewed durable core is integrated through canonical `4f6245e51`. It provides SQLite-owned issuer/key lineage, strict startup schema and row validation, private binding/delivery interfaces, durable receipt/wire outbox custody, exact current-authority checks, and household-scoped reconciliation over WP08's sealed wire. A post-integration live caller trace found zero implementations of the signer, binding-authenticator, or delivery-owner traits and zero production calls to `deliver_next_pending`; Cloudflare also cannot obtain an authenticated current key record or consume the outer wire. The signer must consume the reviewed Protected Custody WP04 fixed-pipe transport and WP05 Account issuer-owner/protected-signing boundary rather than recreate key custody in Account. Those source-order gates now authorize the three missing production adapter/runtime roots and seven expected test roots; normal operational completion still requires the upstream DONE gates. No complete producer adapter, executed test, proof, checklist acceptance, runtime readiness, READY, or DONE claim is made. Cloudflare WP06 remains blocked on reviewed WP09 implementation; Account WP02, WP05A, and Device Trust remain separate authorities.
+The family-owned current-v2 issue/currentness/receipt/outbox lifecycle is
+source-present, but live-call review withdraws the prior implementation route.
+`BrokerAuthorizedClientTranscript` is discarded before Account execution,
+`AccountIssuerOwner::authorize_protected_request` intentionally fails closed,
+the fixed Account mount is unavailable, and no owner-issued Account admission
+can be constructed without widening private fields or creating a crate cycle.
+Protected WP05 must first preserve the transcript and consume immutable
+WP02/WP03 enrollment/currentness truth through one opaque request-scoped
+admission. Only then may WP09 compose the existing family lifecycle.
+
+The legacy family protected-signer/Cloudflare-delivery/runtime files and seven
+tests are retired; the current real family contract test remains mapped.
+Cloudflare WP06 owns current-v2 delivery, current-key/D1 custody, migration,
+runtime mounting, and its own test packet after WP09. No positive admission,
+production caller, executed test, proof, checklist acceptance, runtime
+readiness, READY, or DONE claim is made. Account WP02, WP05A, and Device Trust
+remain separate authorities.
 ## 2026-08-18 multi-owner effect-fence routing correction
 
 The earlier Account-only CAS wording is retired as an implementation route.

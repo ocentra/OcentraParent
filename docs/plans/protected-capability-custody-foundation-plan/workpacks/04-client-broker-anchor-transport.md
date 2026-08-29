@@ -21,6 +21,11 @@ dependency remains `reviewed-implementation`; WP02, WP03, and Parent WP12 are
 `implementation-independent` for source phase only. Normal derived state and
 completion remain blocked until those operational predecessors are DONE.
 
+The transport does mint and revalidate `BrokerAuthorizedClientTranscript`, but
+the current Account issuer peer path drops that opaque transcript before owner
+dispatch. Preserving and consuming it as an Account-bound admission is WP05
+composition work. WP04 must not reinterpret OS provenance as Account identity.
+
 ## Corrected source truth — 2026-08-26
 
 The original 21 production roots remain present and registered, and this route
@@ -64,6 +69,11 @@ This is reviewed production-and-test-source truth only. It does not establish ex
 enrollment, a protected monotonic provider, an owner-bound parent caller,
 operational readiness, test results, proof, READY, or DONE. No broader
 handshake, identity, enrollment, or provider work is authorized by this route.
+
+The existing transcript is nevertheless a required input to WP05. The broker
+peer must pass the still-valid opaque value into that private composition; it
+must not replace it with a boolean, request field, process ID, SID, or a newly
+public constructor.
 
 ## Expected production roots
 
@@ -149,4 +159,6 @@ currentness/fatal-drift handling described above are source-integrated. External
 enrollment, monotonic provider availability, package/lifecycle invocation, and
 operational anchor state remain upstream owner work. Account issuer
 signing/store authority is the distinct typed WP05 contract; lifecycle
-operation bytes and `OpaquePreparedToken` are not a substitute.
+operation bytes and `OpaquePreparedToken` are not a substitute. The current
+peer path's discarded transcript is therefore an explicit WP05 blocker, not a
+claim that WP04 owns or can mint Account authorization.

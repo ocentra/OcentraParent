@@ -34,19 +34,19 @@ identity, public proof construction, or fake authority.
 | blocked / source-order route only; no implementation authorization while external owner is absent | [02 Windows Enrollment Owner Handoff](workpacks/02-windows-enrollment-owner-handoff.md) | Protected Enrollment/SCM/TPM owner transaction and provisioner handoff | P0 security/platform | External OEM/firmware/MDM authority is a prerequisite. The fixed transaction, owner caller, and two expected test roots are absent; no caller-minted enrollment or READY/DONE route is authorized. |
 | blocked / implementation route remains separate from operational readiness | [03 Monotonic Anti-Rollback Provider](workpacks/03-monotonic-anti-rollback-provider.md) | Core Windows monotonic provider and platform anti-rollback boundary | P0 security/persistence | WP01 and the WP02 owner transaction remain prerequisites. The TPM NV counter test is absent; disk, SQLite, or caller counters cannot substitute for hardware-backed currentness. |
 | validation / code-and-test source complete; normal completion dependency-gated | [04 Client Broker Anchor Transport](workpacks/04-client-broker-anchor-transport.md) | Protected client admission, fixed pipe, OS-derived broker anchor, fresh broker platform-session state, listener-lifetime currentness, and three typed test roots | P0 security/IPC | Internal currentness repairs are integrated at `e0a410368` and test source at `597098eea`. WP01/WP02/WP03 and Parent WP12 remain hard completion prerequisites; the tests are unexecuted and the real owner-bound caller, operational enrollment/anchor, proof, and DONE remain absent. |
-| blocked / independently reviewed bounded source; tests and operational closure open | [05 Account Issuer Key and Store Custody](workpacks/05-account-issuer-key-and-store-custody.md) | Account-owned TPM-native ECDSA P-256 v2 self-contained inner/outer issuer owner and typed broker boundary; 140 production files mapped / 128 exact implementation references reviewed through canonical `f6d6dcf542ff` | P0 security/cryptography/persistence | Durable issue reservation/idempotency, recovery reconciliation, exact service/receipt/outbox lineage, owner admission, signer custody, typed protocol/client/broker/Parent composition, bounded v2 time, CNG P-256, and Cloudflare original-byte verification are source-present. Service-specific ACL provisioning and the external WP02/WP03/WP04 owner/provider/runtime path remain operationally blocked. All eight expected tests, proof, pre-commit, CI, PR, READY, and DONE remain open. |
+| implementation route reopened / P0 owner-admission seam missing | [05 Account Issuer Key and Store Custody](workpacks/05-account-issuer-key-and-store-custody.md) | Current-v2 Account owner, typed broker RPC, family currentness transaction, P-256 signer, and seven real Protected/Account test roots are present, but the broker drops its authorized transcript before Account dispatch | P0 security/cryptography/persistence | Preserve/revalidate the opaque transcript, derive a one-shot Account-bound admission from externally enrolled service/key-lineage truth, and consume it in `account-issuer-owner`. The fixed mount and authorization still fail closed. Tests are unexecuted; proof, pre-commit, CI, PR, READY, and DONE remain open. |
 
 WP02 has no implementation authorization until the external OEM/firmware/MDM
-owner transaction is available. WP04's bounded internal currentness repair and
-typed test source are integrated; WP05 bounded source is reviewed and
-integrated, while its operational completion remains dependency-gated.
-Their implementation-independent edges do not alter normal completion, which
-remains blocked on the operational predecessors. WP05 does not open a second
-Account database connection or merge with `custody.sqlite`: the broker mounts
-the owner for service lifetime and retains protected signer custody,
-family-core retains the Account authority and single transaction host, and the
-owner crate receives opaque Account-specific capabilities. No row above is
-READY or DONE evidence.
+owner transaction and immutable Account issuer service/key-lineage binding are
+available. WP04's bounded currentness repair and typed test source are
+integrated, but its opaque authorized transcript is currently discarded before
+Account execution. WP05 is reopened for that private handoff and admission
+composition. Its implementation-independent edges do not alter normal
+completion, which remains blocked on the operational predecessors. WP05 must
+not open a second Account database connection or merge with `custody.sqlite`:
+family-core retains Account authority and the single transaction host, while
+the owner crate receives only opaque request-scoped capabilities. No row above
+is READY or DONE evidence.
 
 ## Ownership and dependency rules
 

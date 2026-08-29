@@ -27,17 +27,26 @@ Use this index to select exactly one workpack.
 | blocked / planned source route / owner-specific fencing and recovery absent | [WP05A Runtime Effect Fencing Coordinator](workpacks/05-runtime-effect-fencing-coordinator.md) | New routing workpack; coordinator/recovery plus private Account participant and remote-view/remote-control capability/lease reservation adapters are absent; it consumes the WP08-owned transaction-scoped Account seam and Protected Custody WP01 outcome without duplicating Account, Device Trust, or step-up truth | `MULTI_OWNER_EFFECT_FENCING_DECISION.md`, `PLAN_STATE.md`, `Protected Custody WP01` | `output/account-identity-family-plan-proof/05-runtime-effect-fencing-coordinator/` |
 | complete | [WP07 Parent Account Family Setup UI](workpacks/07-parent-account-family-setup-ui.md) | 13/13 | `docs/expectations/portal.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/` |
 | open | [WP06 Security Proof And Route Gate](workpacks/06-security-proof-and-route-gate.md) | 14/18 | all prior workpack proof roots, including WP08 | `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/` |
-| planned / implementation-only adapter and test-source wave authorized / runtime and proof open | [WP09 Account Issuer Key Custody And Cloudflare Handoff](workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md) | Canonical `4f6245e51` integrates durable issuer/key lineage, startup validation, and receipt/wire outbox core; reviewed Protected Custody WP04/WP05 source now permits the missing protected signer, binding, delivery, runtime, and seven expected test roots to be written without waiting for proof | `PLAN_STATE.md`, WP08 sealed transport contract, Protected Custody WP04/WP05, `docs/engineering-graph/code-map.json` | `docs/proof/account-identity-family-plan/09-account-issuer-key-custody-and-cloudflare-handoff/` |
+| blocked / current-v2 family substrate present / Protected owner admission missing | [WP09 Account Issuer Key Custody And Cloudflare Handoff](workpacks/09-account-issuer-key-custody-and-cloudflare-handoff.md) | The current family issuer lifecycle and one real contract test are present. Protected WP05 still drops the broker transcript and cannot authorize or mount the Account owner, so the obsolete legacy adapter/runtime roots and seven tests are retired rather than recreated. | `PLAN_STATE.md`, WP08 sealed transport contract, Protected Custody WP02-WP05, `docs/engineering-graph/code-map.json` | `docs/proof/account-identity-family-plan/09-account-issuer-key-custody-and-cloudflare-handoff/` |
 
 ## Default execution order
 
 ```text
-WP01 -> Account WP08 -> (Protected Custody WP01 -> Account WP09 issuer/key custody || Account WP02 target authority) -> Cloudflare WP06 writer/caller -> Device Trust WP03 ceremony -> Account WP05A multi-owner fence (remote view/control reservations) -> Cloudflare WP08 -> WP03 -> WP04 -> WP05 -> WP07 -> Account WP06
+WP01 -> Account WP08 -> (Protected WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> Account WP09 || Account WP02 target authority) -> Cloudflare WP06 writer/caller -> Device Trust WP03 ceremony -> Account WP05A multi-owner fence (remote view/control reservations) -> Cloudflare WP08 -> WP03 -> WP04 -> WP05 -> WP07 -> Account WP06
 ```
 
 ## WP09 route state
 
-WP09's Account-owned durable issuer core is independently reviewed and integrated through canonical `4f6245e51`. It owns monotonic public-key registry/revocation, strict startup validation/recovery, household-scoped receipt/wire outbox custody, and the typed handoff over WP08's existing sealed contract. Its direct source-order prerequisites are Account WP08, Protected Custody WP01, reviewed fixed-pipe transport in Protected WP04, and the reviewed Account issuer owner in Protected WP05. Those implementation boundaries now exist, so the missing Account signer/binding/delivery/runtime adapters and seven expected test roots are implementation-authorized. Cloudflare's consumer and all runtime validation, proof, READY, and DONE claims remain open.
+WP09's current-v2 family issuer lifecycle is source-present, but it has no legal
+owner admission. Protected core mints and revalidates the broker transcript;
+the peer drops it before Account dispatch, and Protected WP05's owner
+authorization and fixed Account mount remain fail-closed. WP09 is therefore
+implementation-blocked on Protected WP05. Its old protected-signer,
+Cloudflare-delivery, and runtime file names plus seven legacy tests are retired
+because recreating them would add dead ports. After WP05 review, WP09 may
+compose the existing family lifecycle; Cloudflare WP06 then owns delivery,
+current-key/D1 custody, migration, and its tests. Runtime, validation, proof,
+READY, and DONE remain open.
 
 ## WP08 verification state
 

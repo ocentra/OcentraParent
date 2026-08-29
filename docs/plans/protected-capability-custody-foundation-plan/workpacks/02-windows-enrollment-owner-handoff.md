@@ -15,7 +15,10 @@
 Define the one protected Enrollment/SCM/TPM owner transaction needed after the
 neutral WP01 foundation. The transaction is dependent on an external
 OEM/firmware/MDM owner that can authorize `TPM_RH_PLATFORM` and the associated
-NV/SCM/registry enrollment. That authority is not present in this checkout.
+NV/SCM/registry enrollment. It must also establish the immutable Account issuer
+service-binding and current-key-lineage anchor consumed by WP05; request fields
+or later broker code cannot invent that binding. That authority is not present
+in this checkout.
 
 ## Ownership and fail-closed boundary
 
@@ -27,6 +30,11 @@ contradictory, stale, revoked, or unavailable owner state remains
 `ExternalProvisioningRequired`/manual-required and cannot be reported as
 protected readiness.
 
+The external record may bind the fixed Account issuer service and protected
+key-generation/currentness anchor. It must not carry caller-selected household,
+member, device, key, or provider claims. Those remain Account-owned runtime
+truth and are resolved only after protected admission.
+
 ## Current feasibility audit
 
 The checkout contains only fixed constants/read-only preflight, CNG
@@ -35,8 +43,9 @@ Registry/SCM read-only observation. It does not contain the hard P0 owner
 transaction for `TPM2_NV_DefineSpace`/`TPM2_NV_UndefineSpace` codecs and
 allowlist, the `TPM_RH_PLATFORM` hierarchy owner ceremony, protected Registry
 write/ACL transaction, fixed SCM create/config/security/delete transaction,
-enrolled generation, or independent current observations. TBS, LocalSystem,
-or process elevation is not the platform owner.
+enrolled generation, Account issuer service/key-lineage binding, or independent
+current observations. TBS, LocalSystem, or process elevation is not the
+platform owner.
 
 This is **ACCEPT-for-source-design only**. No honest executable WP02 source
 packet is authorized until the external OEM/firmware/MDM owner is available;
@@ -71,5 +80,6 @@ valid evidence.
 WP02 has a hard WP01 foundation dependency and no implementation authorization
 while the external owner is absent. It remains blocked, with source, tests,
 proof, and DONE open. Exit requires the external owner transaction, real
-production composition, focused validation, the two expected test roots, and
+production composition, the immutable Account issuer service/key-lineage
+binding needed by WP05, focused validation, the two expected test roots, and
 retained proof; graph topology alone cannot promote the route.

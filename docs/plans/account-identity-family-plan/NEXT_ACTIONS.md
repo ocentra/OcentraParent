@@ -43,7 +43,9 @@ accepted WP08 schema + sealed authority + local repository/CAS
      (remote-view/remote-control capability and controller-lease reservations;
       consume the existing WP08 Account repository/read/CAS seam)
   -> Data Custody WP08 confirmation staging/consume may consume the typed Account handoff
-  -> Cloudflare WP06 authoritative D1 writer/currentness/revocation/CAS and provider-to-Account caller
+  -> Protected WP01 -> WP02 -> WP03 -> WP04 -> WP05 Account owner admission
+  -> Account WP09 current-v2 family lifecycle composition
+  -> Cloudflare WP06 authenticated delivery/current-key/D1 consumer
   -> Device Trust WP03 RegisterLanSignerAnchor actor/target composition
   -> mount reviewed WP04 repository behind real identity/membership/support/Data owners and write its six expected test roots
   -> complete WP05 Device Trust/remote/export/delete step-up consumers
@@ -58,10 +60,11 @@ The Rust-only producer transport is source-present at `c5ed3ce5c` and mapped
 to WP08. It is not a public authority factory: issuance is crate-private,
 authority-bearing fields come from `VerifiedAccountIdentityAuthority`, and
 missing signer/key custody returns typed unavailable. The next source owner is
-an authenticated Account producer adapter and durable signer/key registry;
-Cloudflare must not consume D1 rows, Firebase claims, request headers, or a
-serialized handoff as authority. Expected parser/canonical/signature/time
-tests remain unwritten and no proof or completion claim is made.
+Protected WP05, which must preserve the authorized broker transcript and
+consume externally enrolled Account service/key-lineage truth through an
+opaque request-scoped admission. Cloudflare must not consume D1 rows, Firebase
+claims, request headers, or a serialized handoff as authority. No proof or
+completion claim is made.
 
 Source packets must be reachable from a shipped caller, derive trust from owned
 state, keep terminal transitions monotonic, and fail closed. A new DTO, enum, or
@@ -69,10 +72,10 @@ test-only constructor with no production caller is not progress.
 
 PR #607 is closed without merge. Do not rebase its TypeScript Cloudflare
 adapter/D1-test-double slice into this plan. Start with Rust-owned account
-schema authority. Then route the contract through Account WP09 issuer/key
-custody and authenticated producer binding, then hand the contract to
-Cloudflare WP06 for D1/DO/KV persistence/migration and Cloudflare WP08 for
-runner/integration proof.
+schema authority. Route Protected WP02-WP05 first, then compose the existing
+Account WP09 lifecycle, then hand the signed result to Cloudflare WP06 for
+current-key/D1 persistence/migration and Cloudflare WP08 for runner/integration
+proof.
 
 ### 0. WP08 Rust Schema And Account Authority
 
@@ -90,20 +93,15 @@ explicit handoff to Cloudflare WP06 then WP08; no worker-runtime claim
 
 ### 0b. WP09 Account Issuer Key Custody And Cloudflare Handoff
 
-Reviewed core result: canonical `4f6245e51` contains durable issuer/key lineage,
-strict startup recovery, and a household-scoped receipt/wire outbox over the
-typed WP08 handoff. The reviewed Protected Custody WP04 fixed-pipe transport and
-WP05 Account issuer-owner now provide the source boundary that Account must
-consume without recreating in-process key custody. Live caller tracing found no protected signer,
-binding authenticator, delivery-owner implementation, or production lifecycle
-caller. Write the coherent Account-owned adapter/runtime packet now; it must
-deliver the outer wire plus an authenticated current public-key record and
-accept only an exactly bound Cloudflare acknowledgement. Cloudflare WP06 then
-owns its private consumer/mount. The later test wave must write all seven
-expected custody/registry/adapter/runtime roots before focused execution. Retained proof
-comes only after code and tests converge. Do not add Account WP02, Account WP05A,
-Device Trust, or Cloudflare source ownership here, duplicate the WP08 schema/wire
-contract, permit caller-selected keys, or use mock/no-op/in-memory custody.
+Current-v2 family issuance/currentness source is present, but WP09 is blocked
+on Protected WP05. Do not write the retired legacy protected-signer,
+Cloudflare-delivery, runtime adapters, or their seven tests. First complete the
+private broker transcript -> Account admission -> `account-issuer-owner` seam
+under Protected WP05. After independent review, WP09 may compose its existing
+family lifecycle and shipped caller; Cloudflare WP06 then owns delivery,
+current-key/D1 custody, migration, and its tests. Do not add public admission
+fields, caller-selected keys, mock/no-op/in-memory custody, a second Account
+database, or a family-to-Protected dependency cycle.
 
 ### 1. WP01 Auth Provider Decision
 
