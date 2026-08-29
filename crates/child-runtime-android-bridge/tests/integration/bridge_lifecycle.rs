@@ -4,6 +4,7 @@ use ocentra_child_runtime::service::{ChildAgentReadiness, ChildAgentServiceError
 use ocentra_child_runtime_android::ffi::runtime::{
     ChildRuntimeAndroidBridge, ChildRuntimeAndroidBridgeError,
 };
+use ocentra_child_runtime_android::READINESS_TRUST_BINDING_MANUAL_REQUIRED;
 
 #[test]
 fn bridge_starts_and_reopens_the_real_child_service_and_rejects_a_file_root(
@@ -13,7 +14,10 @@ fn bridge_starts_and_reopens_the_real_child_service_and_rejects_a_file_root(
 
     let bridge = ChildRuntimeAndroidBridge::start(&durable_root)?;
     let health = bridge.health()?;
-    assert_eq!(health.readiness, ChildAgentReadiness::Ready);
+    assert_eq!(
+        health.readiness,
+        ChildAgentReadiness::TrustBindingManualRequired
+    );
     assert_eq!(health.domain_flow_count, 7);
     assert_eq!(health.durable_root, durable_root);
     assert!(health.durable_root.join("tombstones").is_dir());
@@ -21,7 +25,10 @@ fn bridge_starts_and_reopens_the_real_child_service_and_rejects_a_file_root(
 
     let reopened = ChildRuntimeAndroidBridge::start(&health.durable_root)?;
     let reopened_health = reopened.health()?;
-    assert_eq!(reopened_health.readiness, ChildAgentReadiness::Ready);
+    assert_eq!(
+        reopened_health.readiness,
+        ChildAgentReadiness::TrustBindingManualRequired
+    );
     assert_eq!(reopened_health.domain_flow_count, 7);
     assert_eq!(reopened_health.durable_root, health.durable_root);
     drop(reopened);
@@ -63,7 +70,11 @@ fn handles_are_unique_and_a_stale_owner_cannot_stop_a_reopened_service(
     ));
     assert_eq!(
         ocentra_child_runtime_android::ffi::bridge_health::readiness(second),
-        ocentra_child_runtime_android::READINESS_READY
+        READINESS_TRUST_BINDING_MANUAL_REQUIRED
+    );
+    assert_eq!(
+        ocentra_child_runtime_android::ffi::bridge_lifecycle::last_error(),
+        "child service identity binding requires manual setup"
     );
     assert!(ocentra_child_runtime_android::ffi::bridge_lifecycle::stop(
         second
@@ -77,7 +88,11 @@ fn handles_are_unique_and_a_stale_owner_cannot_stop_a_reopened_service(
     ));
     assert_eq!(
         ocentra_child_runtime_android::ffi::bridge_health::readiness(reopened),
-        ocentra_child_runtime_android::READINESS_READY
+        READINESS_TRUST_BINDING_MANUAL_REQUIRED
+    );
+    assert_eq!(
+        ocentra_child_runtime_android::ffi::bridge_lifecycle::last_error(),
+        "child service identity binding requires manual setup"
     );
     assert!(ocentra_child_runtime_android::ffi::bridge_lifecycle::stop(
         reopened
