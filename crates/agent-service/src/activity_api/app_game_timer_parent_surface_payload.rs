@@ -206,13 +206,13 @@ fn timer_parent_surface_rows(model: &AppGameServiceReadModel) -> Vec<AppGameTime
             push_evidence(&mut evidence, platform_evidence.clone());
             push_evidence(&mut evidence, approval_evidence.clone());
 
-            timer_parent_surface_row(TimerParentSurfaceRowSpec {
+            Some(timer_parent_surface_row(TimerParentSurfaceRowSpec {
                 row_id: identity.identity_id.clone(),
                 target_domain,
                 timer_surface_state_index,
                 row_count: evidence.len() as u64,
                 evidence,
-            })
+            }))
         })
         .collect();
     let has_rows = !rows.is_empty();
