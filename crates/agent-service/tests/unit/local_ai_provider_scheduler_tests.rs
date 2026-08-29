@@ -78,6 +78,139 @@ async fn unavailable_runtime_does_not_execute_provider_closure() {
     );
 }
 
+#[tokio::test]
+async fn aborting_active_generation_releases_lane_and_status() {
+    let scheduler = Arc::new(LocalAiProviderSchedulerRuntime::new());
+    let holder_started = Arc::new(Notify::new());
+    let holder = {
+        let scheduler = Arc::clone(&scheduler);
+        let runtime = ready_runtime();
+        let holder_started = Arc::clone(&holder_started);
+        tokio::spawn(async move {
+            scheduler
+                .run_generation_job(
+                    LocalAiProviderSchedulerJobClass::ParentReport,
+                    runtime,
+                    || async move {
+                        holder_started.notify_one();
+                        tokio::time::sleep(Duration::from_secs(3600)).await;
+                        completed_result(constants::local_ai_runtime::SCHEDULER_JOB_PARENT_REPORT)
+                    },
+                )
+                .await
+        })
+    };
+
+    holder_started.notified().await;
+    let running_status = scheduler.status_snapshot();
+    assert_eq!(
+        running_status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Running
+    );
+    assert_eq!(
+        running_status.current_job_class,
+        Some(LocalAiProviderSchedulerJobClass::ParentReport)
+    );
+
+    holder.abort();
+    assert!(holder.await.is_err());
+
+    let recovered_status = scheduler.status_snapshot();
+    assert_eq!(
+        recovered_status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Idle
+    );
+    assert_eq!(recovered_status.current_job_class, None);
+    assert_eq!(recovered_status.queue.total(), 0);
+    assert!(!recovered_status.duplicate_runtime_blocked);
+
+    let result = scheduler
+        .run_generation_job(
+            LocalAiProviderSchedulerJobClass::ChildSafety,
+            ready_runtime(),
+            || async {
+                completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY)
+            },
+        )
+        .await;
+    assert_eq!(result.generation_state, LocalAiGenerationState::Complete);
+    assert_idle_singleton_scheduler_status(&scheduler);
+}
+
+#[tokio::test]
+async fn aborting_queued_generation_removes_queue_state_and_preserves_lane() {
+    let scheduler = Arc::new(LocalAiProviderSchedulerRuntime::new());
+    let holder_started = Arc::new(Notify::new());
+    let release_holder = Arc::new(Notify::new());
+    let observed_jobs = Arc::new(TokioMutex::new(Vec::new()));
+    let holder = spawn_observed_job(
+        Arc::clone(&scheduler),
+        ready_runtime(),
+        LocalAiProviderSchedulerJobClass::ParentReport,
+        constants::local_ai_runtime::SCHEDULER_JOB_PARENT_REPORT,
+        Arc::clone(&observed_jobs),
+        Some(Arc::clone(&holder_started)),
+        Some(Arc::clone(&release_holder)),
+    );
+    holder_started.notified().await;
+
+    let queued_invoked = Arc::new(AtomicBool::new(false));
+    let queued = {
+        let scheduler = Arc::clone(&scheduler);
+        let queued_invoked = Arc::clone(&queued_invoked);
+        tokio::spawn(async move {
+            scheduler
+                .run_generation_job(
+                    LocalAiProviderSchedulerJobClass::ParentAssistant,
+                    ready_runtime(),
+                    || async move {
+                        queued_invoked.store(true, Ordering::SeqCst);
+                        completed_result(
+                            constants::local_ai_runtime::SCHEDULER_JOB_PARENT_ASSISTANT,
+                        )
+                    },
+                )
+                .await
+        })
+    };
+
+    wait_until_scheduler_status(&scheduler, |status| {
+        status.queue.parent_assistant_queued == 1
+    })
+    .await;
+    queued.abort();
+    assert!(queued.await.is_err());
+
+    let cancelled_status = scheduler.status_snapshot();
+    assert_eq!(
+        cancelled_status.lifecycle_state,
+        LocalAiProviderSchedulerLifecycle::Running
+    );
+    assert_eq!(
+        cancelled_status.current_job_class,
+        Some(LocalAiProviderSchedulerJobClass::ParentReport)
+    );
+    assert_eq!(cancelled_status.queue.parent_assistant_queued, 0);
+    assert_eq!(cancelled_status.queue.total(), 0);
+    assert!(cancelled_status.duplicate_runtime_blocked);
+    assert!(!queued_invoked.load(Ordering::SeqCst));
+
+    release_holder.notify_one();
+    assert_completed_generation(holder.await);
+
+    let result = scheduler
+        .run_generation_job(
+            LocalAiProviderSchedulerJobClass::ChildSafety,
+            ready_runtime(),
+            || async {
+                completed_result(constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY)
+            },
+        )
+        .await;
+    assert_eq!(result.generation_state, LocalAiGenerationState::Complete);
+    assert_idle_singleton_scheduler_status(&scheduler);
+}
+
 #[test]
 fn runtime_lane_bounds_pending_jobs_and_removes_cancelled_waiters() {
     let mut queue = LocalAiProviderRuntimeLaneQueue::new();

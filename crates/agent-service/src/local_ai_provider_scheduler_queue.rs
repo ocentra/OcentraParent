@@ -117,6 +117,22 @@ impl LocalAiProviderRuntimeLaneQueue {
             .collect()
     }
 
+    pub(crate) fn cancel_waiter(&mut self, waiter: &LocalAiProviderRuntimeLaneWaiter) {
+        self.waiters
+            .retain(|queued| queued.sequence != waiter.sequence);
+        self.remove_cancelled_waiters();
+    }
+
+    pub(crate) fn is_idle(&self) -> bool {
+        !self.running
+    }
+
+    pub(crate) fn notify_next_waiter(&self) {
+        if let Some(next_index) = self.next_waiter_index() {
+            self.waiters[next_index].notify.notify_one();
+        }
+    }
+
     fn next_waiter_index(&self) -> Option<usize> {
         let candidates = if self.priority_streak >= MAX_PRIORITY_STREAK_BEFORE_BACKGROUND {
             let background = self
@@ -145,6 +161,17 @@ impl LocalAiProviderRuntimeLaneQueue {
 }
 
 impl LocalAiProviderRuntimeLaneWaiter {
+    pub(crate) fn is_admitted(&self) -> bool {
+        self.admitted.load(Ordering::Acquire)
+    }
+
+    pub(crate) fn cancel(&self) {
+        if !self.is_admitted() {
+            self.cancelled.store(true, Ordering::Release);
+            self.notify.notify_waiters();
+        }
+    }
+
     pub(crate) fn notify_if_lane_idle(&self) {
         if self.lane_idle_on_queue {
             self.notify.notify_one();
@@ -154,10 +181,7 @@ impl LocalAiProviderRuntimeLaneWaiter {
 
 impl Drop for LocalAiProviderRuntimeLaneWaiter {
     fn drop(&mut self) {
-        if !self.admitted.load(Ordering::Acquire) {
-            self.cancelled.store(true, Ordering::Release);
-            self.notify.notify_waiters();
-        }
+        self.cancel();
     }
 }
 
