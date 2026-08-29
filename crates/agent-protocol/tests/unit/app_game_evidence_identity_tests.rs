@@ -349,7 +349,7 @@ fn app_game_evidence_claim_serializes_inventory_without_use_claims() {
     };
 
     let serialized =
-        serde_json::to_value(claim).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(claim.clone()).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(serialized["claimId"], APP_GAME_TEST_EVIDENCE_CLAIM_ID);
@@ -375,6 +375,10 @@ fn app_game_evidence_claim_serializes_inventory_without_use_claims() {
         APP_GAME_TEST_LAUNCHER_SOURCE_REF
     );
     assert!(serialized["processIdentity"].is_null());
+
+    let parsed = serde_json::from_value::<AppGameEvidenceClaim>(serialized)
+        .expect("valid inventory evidence claim round-trips through serde");
+    assert_eq!(parsed, claim);
 }
 
 #[test]
@@ -447,6 +451,84 @@ fn app_game_ai_classification_digest_serializes_classify_only_handoff() {
         APP_GAME_TEST_RUNTIME_EVIDENCE_ID
     );
     assert!(serialized["unavailableReason"].is_null());
+}
+
+#[test]
+fn app_game_evidence_claim_rejects_unlinked_promotions_and_use_claims() {
+    let mut display_only = inventory_evidence_claim();
+    display_only.identity_strength = APP_GAME_IDENTITY_STRENGTH_DISPLAY_NAME_ONLY.to_string();
+    display_only.confidence = 0.8;
+    display_only.inventory_entry_id = None;
+    display_only.launcher_ref = None;
+    display_only.catalog_ref = None;
+    assert!(serde_json::to_value(display_only)
+        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
+        .is_err());
+
+    let mut inventory_as_runtime = inventory_evidence_claim();
+    inventory_as_runtime.runtime_state = APP_GAME_RUNTIME_RUNNING.to_string();
+    inventory_as_runtime.foreground_state = APP_GAME_FOREGROUND_FOREGROUND.to_string();
+    assert!(serde_json::to_value(inventory_as_runtime)
+        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
+        .is_err());
+
+    let mut launcher_as_game = launcher_evidence_claim();
+    launcher_as_game.classification_state = APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string();
+    assert!(serde_json::to_value(launcher_as_game)
+        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
+        .is_err());
+}
+
+#[test]
+fn app_game_evidence_claim_rejects_unknown_states_and_blank_evidence_refs() {
+    let mut unknown_state = inventory_evidence_claim();
+    unknown_state.claim_kind = "caller-defined-claim".to_string();
+    assert!(serde_json::to_value(unknown_state)
+        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
+        .is_err());
+
+    let mut blank_evidence = inventory_evidence_claim();
+    blank_evidence.evidence = vec![ActivityEvidenceRef {
+        evidence_id: " \t".to_string(),
+        kind: ActivityEvidenceKind::JournalEntry,
+        digest: None,
+        uri: None,
+    }];
+    assert!(serde_json::to_value(blank_evidence)
+        .and_then(serde_json::from_value::<AppGameEvidenceClaim>)
+        .is_err());
+}
+
+fn inventory_evidence_claim() -> AppGameEvidenceClaim {
+    AppGameEvidenceClaim {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        claim_id: APP_GAME_TEST_EVIDENCE_CLAIM_ID.to_string(),
+        observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        claim_kind: APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY.to_string(),
+        observation_mode: APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN.to_string(),
+        display_name: APP_GAME_TEST_DISPLAY_LABEL.to_string(),
+        identity_strength: APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED.to_string(),
+        classification_state: APP_GAME_CLASSIFICATION_KNOWN_GAME.to_string(),
+        catalog_ready_state: APP_GAME_CATALOG_READY.to_string(),
+        runtime_state: APP_GAME_RUNTIME_NOT_CLAIMED.to_string(),
+        foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_string(),
+        inventory_entry_id: Some(APP_GAME_TEST_LAUNCHER_SOURCE_REF.to_string()),
+        process_identity: None,
+        launcher_ref: Some(APP_GAME_TEST_LAUNCHER_REF.to_string()),
+        catalog_ref: Some(APP_GAME_TEST_CATALOG_REF.to_string()),
+        confidence: 0.88,
+        evidence: Vec::new(),
+    }
+}
+
+fn launcher_evidence_claim() -> AppGameEvidenceClaim {
+    let mut claim = inventory_evidence_claim();
+    claim.claim_id = "claim-launcher-candidate".to_string();
+    claim.claim_kind = APP_GAME_EVIDENCE_CLAIM_KIND_LAUNCHER.to_string();
+    claim.observation_mode = APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST.to_string();
+    claim.identity_strength = APP_GAME_IDENTITY_STRENGTH_LAUNCHER_CLAIMED.to_string();
+    claim.classification_state = APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE.to_string();
+    claim
 }
 
 fn deterministic_game_identity() -> AppGameIdentity {

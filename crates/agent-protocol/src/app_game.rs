@@ -424,6 +424,28 @@ struct AppGameIdentityMergeProofWire {
     evidence: Vec<AppGameEvidenceRefWire>,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct AppGameEvidenceClaimWire {
+    schema_version: u16,
+    claim_id: String,
+    observed_at: String,
+    claim_kind: String,
+    observation_mode: String,
+    display_name: String,
+    identity_strength: String,
+    classification_state: String,
+    catalog_ready_state: String,
+    runtime_state: String,
+    foreground_state: String,
+    inventory_entry_id: Option<String>,
+    process_identity: Option<String>,
+    launcher_ref: Option<String>,
+    catalog_ref: Option<String>,
+    confidence: f64,
+    evidence: Vec<AppGameEvidenceRefWire>,
+}
+
 impl<'de> Deserialize<'de> for AppGameIdentity {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -456,6 +478,36 @@ impl<'de> Deserialize<'de> for AppGameIdentityMergeProof {
         };
         merge.validate().map_err(D::Error::custom)?;
         Ok(merge)
+    }
+}
+
+impl<'de> Deserialize<'de> for AppGameEvidenceClaim {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = AppGameEvidenceClaimWire::deserialize(deserializer)?;
+        let claim = Self {
+            schema_version: wire.schema_version,
+            claim_id: wire.claim_id,
+            observed_at: wire.observed_at,
+            claim_kind: wire.claim_kind,
+            observation_mode: wire.observation_mode,
+            display_name: wire.display_name,
+            identity_strength: wire.identity_strength,
+            classification_state: wire.classification_state,
+            catalog_ready_state: wire.catalog_ready_state,
+            runtime_state: wire.runtime_state,
+            foreground_state: wire.foreground_state,
+            inventory_entry_id: wire.inventory_entry_id,
+            process_identity: wire.process_identity,
+            launcher_ref: wire.launcher_ref,
+            catalog_ref: wire.catalog_ref,
+            confidence: wire.confidence,
+            evidence: wire.evidence.into_iter().map(Into::into).collect(),
+        };
+        claim.validate().map_err(D::Error::custom)?;
+        Ok(claim)
     }
 }
 
@@ -627,6 +679,175 @@ impl AppGameIdentityMergeProof {
     }
 }
 
+impl AppGameEvidenceClaim {
+    fn validate(&self) -> Result<(), &'static str> {
+        if self.schema_version != APP_GAME_SCHEMA_VERSION {
+            return Err("app game evidence claim schema version is unsupported");
+        }
+        validate_non_blank(&self.claim_id, "app game evidence claim id must not be empty")?;
+        validate_non_blank(
+            &self.observed_at,
+            "app game evidence claim observed-at must not be empty",
+        )?;
+        validate_known(
+            &self.claim_kind,
+            &[
+                APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY,
+                APP_GAME_EVIDENCE_CLAIM_KIND_RUNTIME,
+                APP_GAME_EVIDENCE_CLAIM_KIND_FOREGROUND,
+                APP_GAME_EVIDENCE_CLAIM_KIND_LAUNCHER,
+                APP_GAME_EVIDENCE_CLAIM_KIND_SESSION,
+                APP_GAME_EVIDENCE_CLAIM_KIND_CATALOG,
+                APP_GAME_EVIDENCE_CLAIM_KIND_AI_DIGEST,
+            ],
+            "app game evidence claim kind is unsupported",
+        )?;
+        validate_known(
+            &self.observation_mode,
+            &[
+                APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW,
+                APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT,
+                APP_GAME_OBSERVATION_MODE_PROCESS_START,
+                APP_GAME_OBSERVATION_MODE_PROCESS_EXIT,
+                APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN,
+                APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST,
+            ],
+            "app game evidence claim observation mode is unsupported",
+        )?;
+        validate_non_blank(
+            &self.display_name,
+            "app game evidence claim display name must not be empty",
+        )?;
+        validate_known(
+            &self.identity_strength,
+            &[
+                APP_GAME_IDENTITY_STRENGTH_DISPLAY_NAME_ONLY,
+                APP_GAME_IDENTITY_STRENGTH_WEAK,
+                APP_GAME_IDENTITY_STRENGTH_OBSERVED_PROCESS,
+                APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED,
+                APP_GAME_IDENTITY_STRENGTH_LAUNCHER_CLAIMED,
+                APP_GAME_IDENTITY_STRENGTH_PLATFORM_MANAGED,
+                APP_GAME_IDENTITY_STRENGTH_CHILD_GAME_PROOF,
+            ],
+            "app game evidence claim identity strength is unsupported",
+        )?;
+        validate_known(
+            &self.classification_state,
+            &[
+                APP_GAME_CLASSIFICATION_KNOWN_APP,
+                APP_GAME_CLASSIFICATION_KNOWN_GAME,
+                APP_GAME_CLASSIFICATION_KNOWN_LAUNCHER,
+                APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE,
+                APP_GAME_CLASSIFICATION_POSSIBLY_GAME,
+                APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+                APP_GAME_CLASSIFICATION_PERMISSION_LIMITED,
+                APP_GAME_CLASSIFICATION_UNSUPPORTED_PLATFORM,
+                APP_GAME_CLASSIFICATION_STALE,
+                APP_GAME_CLASSIFICATION_ADAPTER_ERROR,
+            ],
+            "app game evidence claim classification state is unsupported",
+        )?;
+        validate_known(
+            &self.catalog_ready_state,
+            &[
+                APP_GAME_CATALOG_READY,
+                APP_GAME_CATALOG_UNAVAILABLE,
+                APP_GAME_CATALOG_NOT_LOADED,
+                APP_GAME_CATALOG_STALE,
+                APP_GAME_CATALOG_PERMISSION_LIMITED,
+            ],
+            "app game evidence claim catalog state is unsupported",
+        )?;
+        validate_known(
+            &self.runtime_state,
+            &[
+                APP_GAME_RUNTIME_RUNNING,
+                APP_GAME_RUNTIME_NOT_RUNNING,
+                APP_GAME_RUNTIME_NOT_CLAIMED,
+                APP_GAME_RUNTIME_UNKNOWN,
+                APP_GAME_RUNTIME_PERMISSION_LIMITED,
+                APP_GAME_RUNTIME_UNAVAILABLE,
+                APP_GAME_RUNTIME_DEGRADED,
+                APP_GAME_RUNTIME_STALE,
+                APP_GAME_RUNTIME_ADAPTER_ERROR,
+            ],
+            "app game evidence claim runtime state is unsupported",
+        )?;
+        validate_known(
+            &self.foreground_state,
+            &[
+                APP_GAME_FOREGROUND_FOREGROUND,
+                APP_GAME_FOREGROUND_BACKGROUND,
+                APP_GAME_FOREGROUND_UNKNOWN,
+                APP_GAME_FOREGROUND_PERMISSION_LIMITED,
+                APP_GAME_FOREGROUND_DEGRADED,
+                APP_GAME_FOREGROUND_ADAPTER_ERROR,
+                APP_GAME_FOREGROUND_NOT_CLAIMED,
+            ],
+            "app game evidence claim foreground state is unsupported",
+        )?;
+        validate_optional_non_blank(&self.inventory_entry_id)?;
+        validate_optional_non_blank(&self.process_identity)?;
+        validate_optional_non_blank(&self.launcher_ref)?;
+        validate_optional_non_blank(&self.catalog_ref)?;
+        validate_confidence(self.confidence, "app game evidence claim confidence")?;
+        validate_evidence_ref_values(&self.evidence)?;
+
+        if self.identity_strength == APP_GAME_IDENTITY_STRENGTH_DISPLAY_NAME_ONLY
+            && (self.confidence > 0.3
+                || self.inventory_entry_id.is_some()
+                || self.process_identity.is_some()
+                || self.launcher_ref.is_some()
+                || self.catalog_ref.is_some())
+        {
+            return Err("display-name-only app game evidence must remain weak and unlinked");
+        }
+        if self.claim_kind == APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY
+            && (self.runtime_state != APP_GAME_RUNTIME_NOT_CLAIMED
+                || self.foreground_state != APP_GAME_FOREGROUND_NOT_CLAIMED)
+        {
+            return Err("inventory evidence must not claim runtime or foreground use");
+        }
+        if self.claim_kind == APP_GAME_EVIDENCE_CLAIM_KIND_LAUNCHER
+            && self.classification_state == APP_GAME_CLASSIFICATION_KNOWN_GAME
+            && self.identity_strength != APP_GAME_IDENTITY_STRENGTH_CHILD_GAME_PROOF
+        {
+            return Err("launcher evidence must cite child-game proof before known-game classification");
+        }
+        Ok(())
+    }
+}
+
+fn validate_confidence(value: f64, field: &'static str) -> Result<(), &'static str> {
+    if value.is_finite() && (0.0..=1.0).contains(&value) {
+        Ok(())
+    } else {
+        Err(field)
+    }
+}
+
+fn validate_known(value: &str, allowed: &[&str], error: &'static str) -> Result<(), &'static str> {
+    if allowed.contains(&value) {
+        Ok(())
+    } else {
+        Err(error)
+    }
+}
+
+fn validate_non_blank(value: &str, error: &'static str) -> Result<(), &'static str> {
+    if is_blank(value) {
+        Err(error)
+    } else {
+        Ok(())
+    }
+}
+
+fn validate_optional_non_blank(value: &Option<String>) -> Result<(), &'static str> {
+    value.as_deref().map_or(Ok(()), |value| {
+        validate_non_blank(value, "app game optional reference must not be empty")
+    })
+}
+
 fn validate_evidence_refs(
     evidence: &[ActivityEvidenceRef],
     empty_message: &'static str,
@@ -639,6 +860,37 @@ fn validate_evidence_refs(
         .any(|reference| is_blank(&reference.evidence_id))
     {
         return Err("app game evidence ref id must not be empty");
+    }
+    if evidence.iter().any(|reference| {
+        reference
+            .digest
+            .as_deref()
+            .is_some_and(|value| value.trim().is_empty())
+            || reference
+                .uri
+                .as_deref()
+                .is_some_and(|value| value.trim().is_empty())
+    }) {
+        return Err("app game evidence ref values must not be empty");
+    }
+    Ok(())
+}
+
+fn validate_evidence_ref_values(evidence: &[ActivityEvidenceRef]) -> Result<(), &'static str> {
+    if evidence.iter().any(|reference| is_blank(&reference.evidence_id)) {
+        return Err("app game evidence ref id must not be empty");
+    }
+    if evidence.iter().any(|reference| {
+        reference
+            .digest
+            .as_deref()
+            .is_some_and(|value| value.trim().is_empty())
+            || reference
+                .uri
+                .as_deref()
+                .is_some_and(|value| value.trim().is_empty())
+    }) {
+        return Err("app game evidence ref values must not be empty");
     }
     Ok(())
 }
@@ -734,7 +986,7 @@ impl From<AppGameEvidenceRefWire> for ActivityEvidenceRef {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppGameEvidenceClaim {
     pub schema_version: u16,
