@@ -4,6 +4,7 @@ use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::dns::types::*;
 use ocentra_network_evidence::fixtures::dns_query_pcap_fixture;
 use ocentra_network_evidence::flow::*;
+use ocentra_network_evidence::pcap::{parse_pcap_packets, PcapReplayError};
 
 #[test]
 fn flow_aggregation_merges_reverse_direction_into_single_session() {
@@ -93,6 +94,21 @@ fn flow_aggregation_uses_pcap_parser_packet_metadata() {
     assert_eq!(summary.sessions[0].key.protocol, NetworkFlowProtocol::Udp);
     assert_eq!(summary.sessions[0].packet_count, 1);
     assert_eq!(summary.sessions[0].initiator_to_responder_bytes, 64);
+}
+
+#[test]
+fn pcap_replay_rejects_truncated_and_unsupported_capture_headers() {
+    assert_eq!(
+        parse_pcap_packets(&[0xd4, 0xc3, 0xb2]),
+        Err(PcapReplayError::TruncatedGlobalHeader)
+    );
+
+    let mut unsupported_magic = vec![0_u8; 24];
+    unsupported_magic[..4].copy_from_slice(&[0, 1, 2, 3]);
+    assert_eq!(
+        parse_pcap_packets(&unsupported_magic),
+        Err(PcapReplayError::UnsupportedMagic([0, 1, 2, 3]))
+    );
 }
 
 fn flow_packet(
