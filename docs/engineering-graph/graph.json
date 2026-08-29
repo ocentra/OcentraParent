@@ -5842,7 +5842,7 @@
             "docs/plans/app-game-plan/workpacks/197-app-game-linux-docker-host-preflight.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "WP197 Rust source is integrated through 5bfb2f6f3 from source packet 23c08da016. Six expected agent-service focused test roots are absent; the old packages/parent-domain mapping is stale. No test execution, proof, runtime readiness, READY, or DONE is claimed."
+          "reason": "WP197 Rust source is integrated through 5bfb2f6f3 from source packet 23c08da016, and canonical 6eb1785c3 contains all six expected real agent-service test roots. The old packages/parent-domain mapping and unintegrated f36c64ea packet are superseded by identical canonical final blobs. No test execution, proof, live owner-bound Docker capability, runtime readiness, or DONE is claimed."
         },
         "completionEvidenceOverride": {
           "reason": "Independent source review accepted the bounded Linux Docker CLI, daemon, context and object inventory preflight, protected path checks, cleanup supervision, cache, and parent-safe read-model routing. Canonical 6eb1785c3 contains all six exact deterministic real test roots, but none has been executed in this code-first phase. The packet retains redaction and makes no dispatch, enforcement, provider, child, private-diagnostics, proof, CI, READY, or DONE claim; this is implementation-only routing evidence.",
@@ -10912,7 +10912,7 @@
           ]
         },
         "completionEvidenceOverride": {
-          "reason": "A live production trace confirms service-backed sourceStatusRows flow into the WP48-owned dashboard intent. WP48 owns the shared apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts parity packet; WP63 consumes it for panel assertions. Route, SVG, bridge, and mounted-surface roots remain outside WP48 and WP63 implementation ownership, with WP16 retaining the broader surface packet. The focused test is absent and no validation, proof, policy, adapter, READY, or DONE claim is made.",
+          "reason": "A live production trace confirms service-backed sourceStatusRows flow into the WP48-owned dashboard intent. Canonical ca8c1ae76 adds the shared real apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts packet with fresh/manual, unavailable, stale, degraded, hostile-metadata, evidence, and redaction behavior; WP63 consumes the same test for panel assertions. Route, SVG, bridge, and mounted-surface roots remain outside WP48 and WP63 implementation ownership, with WP16 retaining the broader surface packet. The test is unexecuted and no proof, policy, adapter, READY, or DONE claim is made.",
           "evidence": [
             "docs/plans/app-game-plan/CODE_AUDIT.md",
             "docs/plans/app-game-plan/workpacks/48-portal-source-freshness-surface.md",
@@ -11033,8 +11033,15 @@
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
+        "plannedSourceExpectation": {
+          "source": "docs/engineering-graph/code-map.json",
+          "roots": [],
+          "testRoots": [
+            "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"
+          ]
+        },
         "completionEvidenceOverride": {
-          "reason": "A live production trace confirms the WP63-owned source-panel intent groups app-use/game rows. WP63 depends on WP48 for the dashboard source-row seam and the shared apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts packet; it does not claim that test, the dashboard intent, route, SVG, bridge, or mounted-surface roots. The focused test is absent and the shallow route scaffold does not cover fresh/manual/degraded grouping or hostile metadata. No validation, proof, runtime authority, READY, or DONE claim is made.",
+          "reason": "A live production trace confirms the WP63-owned source-panel intent groups app-use/game rows. WP63 depends on WP48 for the dashboard source-row seam and consumes WP48's canonical ca8c1ae76 shared behavioral test, which covers fresh/manual, unavailable, stale, degraded, hostile-metadata, evidence, and redaction behavior. Mapping that expected test does not transfer ownership of the test, dashboard intent, route, SVG, bridge, or mounted surface. The test is unexecuted and no proof, runtime authority, READY, or DONE claim is made.",
           "evidence": [
             "docs/plans/app-game-plan/CODE_AUDIT.md",
             "docs/plans/app-game-plan/workpacks/63-source-freshness-source-panel-polish.md",
@@ -11060,6 +11067,9 @@
         "expected": {
           "proof": [
             "output/app-game-plan-proof/63-source-freshness-source-panel-polish"
+          ],
+          "tests": [
+            "apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"
           ]
         }
       }

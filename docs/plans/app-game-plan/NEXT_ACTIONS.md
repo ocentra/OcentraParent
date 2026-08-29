@@ -49,8 +49,9 @@ writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
    `bae505ce8`, and `8355613d8`; production
    history persistence, retry/quiet-hours workers, and provider delivery remain
    later runtime boundaries.
-3. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large
-   metadata tests.
+3. WP16 and WP159: remaining cohesive dashboard/source UI and hostile/large
+   metadata tests. WP48/WP63's shared focused source is already canonical and
+   awaits execution/proof only.
 4. WP188-WP202, WP204: Android replay/test closure and Linux foreground
    acquisition.
 5. WP207 and WP211-WP222: Android child-runtime durability, receipt, delivery,

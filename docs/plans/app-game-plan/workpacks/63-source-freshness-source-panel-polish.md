@@ -70,11 +70,13 @@ because the dedicated source panel is not yet a rendered parent-visible surface.
 - `ParentPortalSvgSurface.tsx` now renders those source-panel metrics in the
   mounted App/Game Sessions dashboard; the old "not yet rendered" wording is
   stale.
-- The named `apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`
-  is absent. The shallow route scaffold does not prove grouping, degraded or
-  manual-required semantics, or hostile/long metadata.
-- Production source is present; expected-test writing, focused execution,
-  proof, checklist acceptance, READY, and DONE remain open.
+- Canonical `ca8c1ae76` adds the named real
+  `apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`. It drives
+  the exported dashboard/source-panel intent and covers fresh/manual,
+  unavailable, stale, degraded, hostile-metadata, evidence, and redaction
+  behavior without inspecting source text or minting backend authority.
+- Production and expected test source are present. Focused execution, proof,
+  checklist acceptance, READY, and DONE remain open.
 
 ## Graph ownership correction — 2026-08-25
 
@@ -82,7 +84,7 @@ WP63 owns only
 `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts`.
 It consumes WP48's dashboard source-row seam and the single-owner focused test
 through the reviewed `WP63 -> WP48` dependency. WP63 does not claim
-`apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts`, the
-dashboard intent, bridge, live-activity state, SVG surface, portal surface,
-route, or route-scaffold roots. This metadata correction does not add source,
-tests, proof, READY, or DONE.
+the dashboard intent, bridge, live-activity state, SVG surface, portal surface,
+route, or route-scaffold roots. The graph maps WP48's shared focused test as
+WP63's expected executable coverage without transferring ownership. This
+metadata correction does not claim test execution, proof, READY, or DONE.

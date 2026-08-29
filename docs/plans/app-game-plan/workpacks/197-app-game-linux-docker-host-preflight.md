@@ -43,8 +43,9 @@ and `crates/agent-service/src/activity_api/` (the preflight, cleanup, process,
 path, output, state, supervisor, and wait modules), with service-runtime and
 websocket report/admission wiring.
 
-The following expected focused test roots are not present and must be written
-as one test wave before execution:
+Canonical `6eb1785c3` contains the following expected real focused test roots.
+The older unintegrated `f36c64ea` packet has identical final source/test blobs
+and is superseded; its unrelated stale tree changes must not be integrated:
 
 - `crates/agent-service/tests/unit/app_game_linux_docker_host_preflight.rs`
 - `crates/agent-service/tests/unit/app_game_linux_docker_host_preflight_parser_tests.rs`
@@ -55,11 +56,11 @@ as one test wave before execution:
 
 ## Validation
 
-Focused validation is deferred until the six expected Rust test roots exist;
-then select the smallest `cargo test` targets for `agent-service` and
+Focused validation is deferred until the source/test-writing phase closes.
+Then select the smallest `cargo test` targets for `agent-service` and
 `agent-protocol`, plus architecture and Enforcer checks for the touched source.
-No test, proof, pre-commit, CI, or PR result is claimed by this source
-checkpoint.
+No test execution, proof, pre-commit, CI, or PR result is claimed by this
+source checkpoint.
 
 ## Done Criteria
 

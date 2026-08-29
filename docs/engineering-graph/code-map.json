@@ -7662,7 +7662,9 @@
     },
     "WP-app-game-plan-63-source-freshness-source-panel-polish": {
       "planSlug": "app-game-plan",
-      "roots": ["vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts"]
+      "roots": ["vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts"],
+      "expectedTestRoots": ["apps/portal/tests/activity-ui-app-game-dashboard-intent.test.ts"],
+      "note": "WP63 owns only the source-panel intent. The mapped behavioral test is single-owned by WP48 but is also the exact executable consumer coverage named by WP63; sharing it here records test topology without transferring production ownership."
     },
     "WP-app-game-plan-64-notification-provider-status-handoff": {
       "planSlug": "app-game-plan",
