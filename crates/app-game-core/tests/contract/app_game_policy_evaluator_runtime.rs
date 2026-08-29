@@ -159,6 +159,55 @@ fn policy_evaluator_runtime_rejects_compiler_failure_and_duration_overflow() {
     );
 }
 
+#[test]
+fn policy_evaluator_runtime_preserves_compiler_manual_required_terminal_state() {
+    let mut input = base_input(AppGamePolicyCompilerRequestedAction::Warn);
+    input.compilation.decision.outcome_state =
+        AppGamePolicyCompilerOutcomeState::ManualRequired;
+
+    let decision = evaluate_app_game_policy_runtime(&input);
+
+    assert_eq!(decision.state, AppGamePolicyRuntimeDecisionState::ManualRequired);
+    assert_eq!(
+        decision.reason,
+        AppGamePolicyRuntimeDecisionReason::CompilerManualRequired
+    );
+    assert_eq!(decision.consumed_seconds, 0);
+    assert_eq!(decision.effective_budget_seconds, 0);
+    assert_eq!(decision.adapter_dispatch_state, AppGamePolicyRuntimeAdapterDispatchState::NotDispatched);
+}
+
+#[test]
+fn policy_evaluator_runtime_observes_outside_schedule_without_budget_action() {
+    let mut input = base_input(AppGamePolicyCompilerRequestedAction::TimeLimit);
+    input.schedule_state = AppGamePolicyScheduleState::OutsideWindow;
+    input.timer_ref = Some(timer_ref("timer-outside-window"));
+
+    let decision = evaluate_app_game_policy_runtime(&input);
+
+    assert_eq!(decision.state, AppGamePolicyRuntimeDecisionState::Observe);
+    assert_eq!(
+        decision.reason,
+        AppGamePolicyRuntimeDecisionReason::OutsideSchedule
+    );
+    assert_eq!(decision.consumed_seconds, 90);
+    assert_eq!(decision.effective_budget_seconds, 120);
+    assert_eq!(decision.timer_ref, None);
+}
+
+#[test]
+fn policy_evaluator_runtime_keeps_unsupported_exceeded_action_manual_required() {
+    let input = base_input(AppGamePolicyCompilerRequestedAction::BlockLaunch);
+    let decision = evaluate_app_game_policy_runtime(&input);
+
+    assert_eq!(decision.state, AppGamePolicyRuntimeDecisionState::ManualRequired);
+    assert_eq!(
+        decision.reason,
+        AppGamePolicyRuntimeDecisionReason::CompilerManualRequired
+    );
+    assert_eq!(decision.adapter_dispatch_state, AppGamePolicyRuntimeAdapterDispatchState::NotDispatched);
+}
+
 fn base_input(action: AppGamePolicyCompilerRequestedAction) -> AppGamePolicyEvaluatorInput {
     AppGamePolicyEvaluatorInput {
         compilation: compile_app_game_policy_target(compile_request(action), compiler_context()),
