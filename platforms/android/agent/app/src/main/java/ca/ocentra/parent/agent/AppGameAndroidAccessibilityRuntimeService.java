@@ -117,7 +117,6 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
     @Override
     public void onInterrupt() {
         synchronized (STATE_LOCK) {
-            processServiceConnected = false;
             requestStatePersistenceLocked(getApplicationContext());
         }
     }
@@ -222,19 +221,78 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
         if (stateLoaded || context == null) {
             return;
         }
-        SharedPreferences preferences = context.getSharedPreferences(STATE_PREFERENCES, Context.MODE_PRIVATE);
-        if (!preferences.getBoolean(PREF_HAS_STATE, false)) {
-            stateLoaded = true;
+        try {
+            SharedPreferences preferences = context.getSharedPreferences(STATE_PREFERENCES, Context.MODE_PRIVATE);
+            boolean hasState = preferences.getBoolean(PREF_HAS_STATE, false);
+            boolean hasAnyStateField = preferences.contains(PREF_EVENT_COUNT)
+                || preferences.contains(PREF_LAST_OBSERVED_AT)
+                || preferences.contains(PREF_ENABLED_SERVICE_COUNT)
+                || preferences.contains(PREF_SERVICE_ENABLED);
+            if (!hasState && !hasAnyStateField) {
+                stateLoaded = true;
+                persistedVersion = stateVersion;
+                durableState = DURABLE_STATE_NOT_AVAILABLE;
+                return;
+            }
+            if (!hasState
+                || !preferences.contains(PREF_EVENT_COUNT)
+                || !preferences.contains(PREF_LAST_OBSERVED_AT)
+                || !preferences.contains(PREF_ENABLED_SERVICE_COUNT)
+                || !preferences.contains(PREF_SERVICE_ENABLED)) {
+                resetAfterInvalidPersistedState();
+                return;
+            }
+            long persistedEventCount = preferences.getLong(PREF_EVENT_COUNT, 0L);
+            long persistedLastObservedAt = preferences.getLong(PREF_LAST_OBSERVED_AT, 0L);
+            int persistedEnabledServiceCount = preferences.getInt(PREF_ENABLED_SERVICE_COUNT, 0);
+            boolean persistedServiceEnabled = preferences.getBoolean(PREF_SERVICE_ENABLED, false);
+            if (!isValidPersistedState(
+                persistedEventCount,
+                persistedLastObservedAt,
+                persistedEnabledServiceCount,
+                persistedServiceEnabled
+            )) {
+                resetAfterInvalidPersistedState();
+                return;
+            }
+            observedWindowStateEventCount = persistedEventCount;
+            lastObservedAt = persistedLastObservedAt;
+            enabledServiceCount = persistedEnabledServiceCount;
+            serviceEnabled = persistedServiceEnabled;
             persistedVersion = stateVersion;
-            durableState = DURABLE_STATE_NOT_AVAILABLE;
-            return;
+            durableState = DURABLE_STATE_PERSISTED;
+            stateLoaded = true;
+        } catch (RuntimeException error) {
+            resetAfterInvalidPersistedState();
         }
-        observedWindowStateEventCount = Math.max(0L, preferences.getLong(PREF_EVENT_COUNT, 0L));
-        lastObservedAt = Math.max(0L, preferences.getLong(PREF_LAST_OBSERVED_AT, 0L));
-        enabledServiceCount = Math.max(0, preferences.getInt(PREF_ENABLED_SERVICE_COUNT, 0));
-        serviceEnabled = preferences.getBoolean(PREF_SERVICE_ENABLED, false);
+    }
+
+    private static boolean isValidPersistedState(
+        long persistedEventCount,
+        long persistedLastObservedAt,
+        int persistedEnabledServiceCount,
+        boolean persistedServiceEnabled
+    ) {
+        if (persistedEventCount < 0L || persistedLastObservedAt < 0L || persistedEnabledServiceCount < 0) {
+            return false;
+        }
+        if (persistedLastObservedAt > System.currentTimeMillis() + 5000L) {
+            return false;
+        }
+        if ((persistedEventCount == 0L) != (persistedLastObservedAt == 0L)) {
+            return false;
+        }
+        return !persistedServiceEnabled || persistedEnabledServiceCount > 0;
+    }
+
+    private static void resetAfterInvalidPersistedState() {
+        observedWindowStateEventCount = 0L;
+        lastObservedAt = 0L;
+        enabledServiceCount = 0;
+        serviceEnabled = false;
         persistedVersion = stateVersion;
-        durableState = DURABLE_STATE_PERSISTED;
+        persistenceRetryRequired = true;
+        durableState = DURABLE_STATE_WRITE_FAILED;
         stateLoaded = true;
     }
 
@@ -245,6 +303,11 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
             return;
         }
         try {
+            boolean accessibilityEnabled = Settings.Secure.getInt(
+                context.getContentResolver(),
+                Settings.Secure.ACCESSIBILITY_ENABLED,
+                0
+            ) == 1;
             String enabledServices = Settings.Secure.getString(
                 context.getContentResolver(),
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
@@ -268,6 +331,7 @@ public final class AppGameAndroidAccessibilityRuntimeService extends Accessibili
                     serviceEnabled |= ownService.equals(enabledComponent);
                 }
             }
+            serviceEnabled = accessibilityEnabled && serviceEnabled;
             settingsAvailable = true;
             settingsReadState = SETTINGS_READ_AVAILABLE;
         } catch (RuntimeException error) {
