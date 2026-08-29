@@ -29,7 +29,7 @@ pub const APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_UNAVAILABLE: &str =
     "minimal-alert:capability-unavailable";
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AppGameNotificationReadinessRow {
     pub schema_version: u16,
     pub row_id: String,
@@ -42,7 +42,7 @@ pub struct AppGameNotificationReadinessRow {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AppGameNotificationReadinessReadModel {
     pub schema_version: u16,
     pub generated_at: String,
