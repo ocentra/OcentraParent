@@ -61,10 +61,6 @@ name = "app_game_activity_read_models"
 path = "tests/unit/app_game_activity_read_models.rs"
 
 [[test]]
-name = "app_game_source_status"
-path = "tests/unit/app_game_source_status_tests.rs"
-
-[[test]]
 name = "app_game_timer_parent_pref_request"
 path = "tests/unit/app_game_timer_parent_pref_request.rs"
 

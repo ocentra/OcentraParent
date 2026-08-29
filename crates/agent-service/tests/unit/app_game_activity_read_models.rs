@@ -171,6 +171,8 @@ mod app_game_timer_parent_surface_payload;
 
 #[path = "app_game_activity_read_models_clippy_linkage_tests.rs"]
 mod app_game_activity_read_models_clippy_linkage_tests;
+#[path = "app_game_source_status_tests.rs"]
+mod app_game_source_status_tests;
 #[path = "app_game_adapter_dispatch_preflight_payload_tests.rs"]
 mod app_game_adapter_dispatch_preflight_payload_tests;
 #[path = "app_game_adapter_dispatch_result_payload_tests.rs"]
