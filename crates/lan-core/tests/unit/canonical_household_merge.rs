@@ -230,6 +230,79 @@ fn different_parent_assigned_child_ids_do_not_auto_merge_even_when_mdns_instance
 }
 
 #[test]
+fn production_valid_revoke_decision_marks_canonical_device_revoked() {
+    let canonical_device_id = "lan-child-profile-revokedchild";
+    let model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
+        discovered_devices: vec![discovery_device(
+            "lan-device-revoke",
+            Some("revoke-child"),
+            "Revoked child device",
+            Some("revoked-child.local"),
+            Some("192.168.1.55"),
+            Some("02:00:00:00:00:55"),
+            vec![LanDiscoveryEvidenceSource::WindowsNeighborTable],
+        )],
+        household_device_decisions: vec![household_revoke_decision(canonical_device_id)],
+        ..lan_input(Vec::new())
+    });
+
+    let device = model
+        .canonical_household_devices
+        .iter()
+        .find(|device| device.canonical_device_id == canonical_device_id)
+        .expect("the production revoke target should remain in the canonical read model");
+    assert_eq!(
+        device.discovery_state,
+        LanPairingProductionDiscoveryState::Revoked
+    );
+    assert_eq!(device.trust_state, LanPairingTrustState::Revoked);
+    assert!(!device.enrollable);
+    assert_eq!(device.route_id, None);
+    assert!(device.network_identity.evidence_records.iter().any(|record| {
+        record.evidence_kind == LanDiscoveryEvidenceKind::ParentDecision
+            && record.value == constants::lan_pairing::HOUSEHOLD_ACTION_REVOKE
+            && record.confidence == LanDiscoveryEvidenceConfidence::Rejected
+    }));
+}
+
+#[test]
+fn revoke_without_runtime_revocation_timestamp_is_ignored() {
+    let canonical_device_id = "lan-child-profile-invalidrevokechild";
+    let model = build_lan_add_device_read_model(LanAddDeviceReadModelInput {
+        discovered_devices: vec![discovery_device(
+            "lan-device-invalid-revoke",
+            Some("invalid-revoke-child"),
+            "Invalid revoke device",
+            Some("invalid-revoke.local"),
+            Some("192.168.1.56"),
+            Some("02:00:00:00:00:56"),
+            vec![LanDiscoveryEvidenceSource::WindowsNeighborTable],
+        )],
+        household_device_decisions: vec![LanHouseholdDeviceDecision {
+            revoked_at: None,
+            ..household_revoke_decision(canonical_device_id)
+        }],
+        ..lan_input(Vec::new())
+    });
+
+    let device = model
+        .canonical_household_devices
+        .iter()
+        .find(|device| device.canonical_device_id == canonical_device_id)
+        .expect("the invalid revoke target should remain in the canonical read model");
+    assert_ne!(
+        device.discovery_state,
+        LanPairingProductionDiscoveryState::Revoked
+    );
+    assert_ne!(device.trust_state, LanPairingTrustState::Revoked);
+    assert!(device
+        .network_identity
+        .evidence_records
+        .iter()
+        .all(|record| record.evidence_kind != LanDiscoveryEvidenceKind::ParentDecision));
+}
+
+#[test]
 fn weak_hostname_overlap_stays_separate_and_keeps_weak_evidence() {
     let model = build_lan_add_device_read_model(lan_input(vec![
         discovery_device(
@@ -924,5 +997,22 @@ fn household_assignment_decision(
         parent_actor_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
         decided_at: "2026-06-26T10:00:10Z".to_string(),
         revoked_at: None,
+    }
+}
+
+fn household_revoke_decision(
+    canonical_device_id: impl std::fmt::Display,
+) -> LanHouseholdDeviceDecision {
+    LanHouseholdDeviceDecision {
+        schema_version: constants::lan_pairing::SCHEMA_VERSION,
+        action_id: "household-action-revoke-valid".to_string(),
+        action_kind: LanHouseholdDeviceActionKind::Revoke,
+        canonical_device_id: canonical_device_id.to_string(),
+        child_profile_id: None,
+        display_name: None,
+        device_kind: None,
+        parent_actor_id: constants::lan_pairing::PARENT_DEVICE_ID.to_string(),
+        decided_at: "2026-06-26T10:00:10Z".to_string(),
+        revoked_at: Some("2026-06-26T10:00:20Z".to_string()),
     }
 }

@@ -6,17 +6,19 @@ mod evidence;
 mod fields;
 
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-    LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
+    LanCanonicalHouseholdDevice, LanHouseholdDeviceActionKind, LanHouseholdDeviceDecision,
 };
 
 pub(super) fn apply_household_device_decisions(
     devices: &mut [LanCanonicalHouseholdDevice],
     decisions: &[LanHouseholdDeviceDecision],
 ) {
-    for decision in decisions
-        .iter()
-        .filter(|decision| decision.revoked_at.is_none())
-    {
+    for decision in decisions.iter().filter(|decision| {
+        match &decision.action_kind {
+            LanHouseholdDeviceActionKind::Revoke => decision.revoked_at.is_some(),
+            _ => decision.revoked_at.is_none(),
+        }
+    }) {
         let Some(device) = devices
             .iter_mut()
             .find(|device| device.canonical_device_id == decision.canonical_device_id)

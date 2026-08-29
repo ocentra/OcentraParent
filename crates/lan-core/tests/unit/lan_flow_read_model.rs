@@ -233,7 +233,7 @@ fn household_revoke_decision_records_audit_evidence_and_blocks_control() {
         device_kind: Some(constants::lan_pairing::HOUSEHOLD_DEVICE_KIND_UNKNOWN.to_string()),
         parent_actor_id: "parent-1".to_string(),
         decided_at: "2026-06-26T10:01:00Z".to_string(),
-        revoked_at: None,
+        revoked_at: Some("2026-06-26T10:01:20Z".to_string()),
     }];
 
     let model = build_lan_add_device_read_model(input);
