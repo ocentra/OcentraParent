@@ -1,7 +1,7 @@
 use serde_json::Value;
 
-use super::super::LocalNetworkInterfaceClassification;
 use super::{record_text_any, record_text_values_any, INTERFACE_NAME_KEYS};
+use crate::network_inventory_hardware::LocalNetworkInterfaceClassification;
 
 pub(super) fn interface_classification_hint(
     record: &Value,

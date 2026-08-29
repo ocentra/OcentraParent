@@ -8,9 +8,11 @@ use super::super::{
 };
 use super::{LanPassiveDiscoveryUdpListener, LanPassiveDiscoveryUdpReceiveBatch};
 
+#[path = "../udp_multicast/deadline.rs"]
+mod deadline;
 mod errors;
 mod listener;
-mod deadline;
+#[path = "../udp_multicast/timeout_guard.rs"]
 mod timeout_guard;
 
 pub(super) fn collect_udp_multicast_passive_packets(

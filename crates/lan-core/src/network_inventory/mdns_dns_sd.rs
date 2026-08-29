@@ -146,3 +146,7 @@ pub fn passive_mdns_dns_sd_summary(payload: &[u8]) -> Option<String> {
 pub fn passive_mdns_dns_sd_device_id(payload: &[u8]) -> Option<String> {
     accumulator::passive_mdns_dns_sd_device_id(payload)
 }
+
+pub fn discovery_from_single_packet(payload: &[u8]) -> Option<MdnsDnsSdDiscovery> {
+    accumulator::discovery_from_single_packet(payload)
+}
