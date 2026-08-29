@@ -100,7 +100,7 @@ fn unsupported_timezone_stays_blocking_until_a_timezone_owner_is_available() -> 
         conflicts[0].precedence_state,
         PolicyConflictPrecedenceState::ManualRequired
     );
-    assert_eq!(conflicts[0].reason_code.as_str(), "timezone-boundary");
+    assert_eq!(conflicts[0].reason_code.as_str(), "timezone-boundary-conflict");
     assert_conflict_tracks_source_context(&conflicts[0], &document);
     assert!(has_blocking_policy_conflicts(&conflicts));
     Ok(())
