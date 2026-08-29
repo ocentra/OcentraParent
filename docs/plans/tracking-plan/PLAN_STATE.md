@@ -47,6 +47,12 @@ notification, AI-provider, custody, platform, and portal-shell authority.
   [CODE_AUDIT.md](CODE_AUDIT.md). Historical checklist/proof state remains
   non-authoritative; tests, proof, platform execution, provider delivery, and
   runtime composition are deferred or manual-required as listed there.
+- The 2026-08-29 Android source audit corrected WP08-WP10 ownership. Tracking
+  owns the foreground/background/geofence/status semantics, but the shipped
+  Android package, JNI bridge, service lifecycle, and platform-test roots are
+  owned by Child Runtime Distribution WP05 after its WP10 trusted startup
+  handoff. WP09 additionally depends on the reviewed durable ingress in WP40.
+  No Tracking workpack may invent a parallel Android service or dead handoff.
 
 ## Current owners
 
@@ -79,6 +85,10 @@ WP40 composition owner:
   journal configuration, startup replay, and idempotent ActivityStore projection.
   This owner is routed but not implemented in the current checkout.
 
+child-agent-runtime-distribution WP05:
+  shipped Android package, JNI bridge, service lifecycle, and platform-test
+  boundary consumed by Tracking WP08-WP10 after reviewed implementation.
+
 portal-domain / apps/portal:
   presentation of Rust-owned/generated tracking snapshots.
 ```
@@ -99,7 +109,9 @@ portal-domain / apps/portal:
 ## Open runtime gaps
 
 - WP07: production retention/custody execution.
-- WP08-WP13: real Android, iOS, and desktop adapters.
+- WP08-WP10: real Android tracking adapters after Child WP10 -> Child WP05;
+  WP09 also waits for WP40 durable ingress.
+- WP11-WP13: real iOS and desktop adapters.
 - WP20: concrete Places/POI provider.
 - WP22: durable parent-defined place database.
 - WP24: selected AI provider routing/execution.

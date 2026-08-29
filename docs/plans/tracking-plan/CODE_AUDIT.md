@@ -28,7 +28,8 @@ absent; WP40 now records the required route without claiming implementation.
 | WP01-WP02 | Plan/source reconciliation only | Documentation scope; no product entrypoint or runtime effect. |
 | WP03-WP06 | `agent-protocol` contracts and `tracking-core` validation/status decisions | Typed inputs and fail-closed model decisions exist; no platform capture caller. |
 | WP07 | `agent-service` retention-settings write plus `tracking-core` transforms | Settings/value transformations only; no production cleanup/export worker or end-to-end custody path. |
-| WP08-WP13 | Neutral `tracking-core` location/status/geofence logic and portal manual/unsupported states | No Android/iOS/desktop acquisition or lifecycle caller; platform claims remain manual-required. |
+| WP08-WP10 | Neutral `tracking-core` location/status/geofence logic | No Android acquisition or lifecycle caller. Android package/JNI/service/test ownership routes through reviewed Child WP10 -> Child WP05; WP09 also consumes reviewed WP40 durable ingress. |
+| WP11-WP13 | Neutral `tracking-core` location/status/geofence logic and portal manual/unsupported states | No iOS/desktop acquisition or lifecycle caller; platform claims remain manual-required. |
 | WP14-WP19 | `tracking-core` geofence, schedule, acknowledgement, check-in, and provider-abstraction functions | Process-local decisions only; no durable runtime/provider owner. |
 | WP20 | `tracking-core` nearby-place abstraction/generated placeholder | No concrete POI/HTTP provider, credential boundary, or delivery caller. |
 | WP21 | `tracking-core` local taxonomy/ambiguity model | Value classification only; no provider-backed product effect. |
@@ -70,9 +71,9 @@ provider delivery, or product readiness.
 | WP05 Device status model | Rust device status covers freshness, heartbeat, sync, battery, connectivity, radio, backlog, and explicit service states with focused tests. | **Complete for Phase 1** | OS collection belongs to platform adapters. |
 | WP06 Permission/capability model | Rust capability evaluation distinguishes foreground/background, approximate-only, denied, restricted, unsupported, unavailable, and manual-required states with tests. | **Complete for Phase 1** | OS permission acquisition belongs to platform adapters. |
 | WP07 Retention/custody | Rust delete/export transformations, a local settings file, SQLite read-model tombstones, service write responses, and tests exist. | **Incomplete** | There is no production tracking evidence-store cleanup/export worker, atomic/concurrent settings-store hardening, or end-to-end delete propagation across journal/projection/UI. |
-| WP08 Android foreground adapter | Neutral location/status validation can consume Android-shaped observations. | **Incomplete** | No Android Fused Location/foreground service production adapter or platform integration test exists. |
-| WP09 Android background/geofence adapter | Neutral geofence/capability logic and tests exist. | **Incomplete** | No Android background permission/system geofence registration, delivery, restart, or denial-path adapter/test exists. |
-| WP10 Android battery/connectivity/status adapter | Neutral battery/connectivity/status evaluation is tested. | **Incomplete** | No Android OS battery/connectivity collector or live status-to-runtime integration test exists. |
+| WP08 Android foreground adapter | Neutral location/status validation can consume Android-shaped observations. | **Blocked / incomplete** | No Android Fused Location producer or platform integration test exists. Package/JNI/service/test ownership is Child WP05 after reviewed Child WP10, not an independent Tracking lane. |
+| WP09 Android background/geofence adapter | Neutral geofence/capability logic and tests exist. | **Blocked / incomplete** | No Android background permission/system geofence registration, delivery, restart, or denial-path adapter/test exists. It must consume reviewed Child WP05 and reviewed WP40 durable ingress. |
+| WP10 Android battery/connectivity/status adapter | Neutral battery/connectivity/status evaluation is tested. | **Blocked / incomplete** | No Android OS battery/connectivity collector or live status-to-runtime integration test exists. Package/JNI/service/test ownership is Child WP05 after reviewed Child WP10. |
 | WP11 iOS foreground adapter | Neutral location/status validation can represent iOS capability states. | **Incomplete** | No Core Location foreground adapter, authorization flow, or simulator/device integration test exists. |
 | WP12 iOS background/region adapter | Neutral geofence/capability logic exists. | **Incomplete** | No iOS Always/region/significant-change registration, relaunch delivery, denial, or lifecycle integration test exists. |
 | WP13 Desktop presence hints | The UI and status model preserve manual/unsupported states. | **Incomplete** | No Windows/macOS/Linux presence-hint adapter or test proves hint provenance while forbidding precise-location claims. |
@@ -109,18 +110,22 @@ provider delivery, or product readiness.
 
 ## Highest-impact implementation order after Phase 1
 
-1. WP40: trusted tracking runtime ingress and durable journal composition. This
+1. Child WP10 -> Child WP05: trusted startup first, then the shipped Android
+   package/JNI/service lifecycle and real platform-test owner.
+2. WP40: trusted tracking runtime ingress and durable journal composition. This
    is the missing production owner required before WP37.
-2. WP37: durable tracking journal replay and idempotent SQLite projection. This
+3. WP08/WP10 consume reviewed Child WP05; WP09 consumes reviewed Child WP05
+   plus reviewed WP40. No parallel Android service or dead handoff is legal.
+4. WP37: durable tracking journal replay and idempotent SQLite projection. This
    consumes WP40 and turns the already-written WP35/WP36 event flows into
    restart-safe product state.
-3. WP38 and WP27: durable notification outbox/receipt plus escalation timer and
+5. WP38 and WP27: durable notification outbox/receipt plus escalation timer and
    acknowledgement lifecycle.
-4. WP22 and WP07: durable parent-defined places and evidence retention/custody
+6. WP22 and WP07: durable parent-defined places and evidence retention/custody
    execution.
-5. WP08-WP12: real platform acquisition adapters and lifecycle tests.
-6. WP20/WP24: real POI and AI provider routing boundaries.
-7. WP28-WP30/WP39: live/missing-device runtime composition and complete
+7. WP11-WP12: real iOS acquisition adapters and lifecycle tests.
+8. WP20/WP24: real POI and AI provider routing boundaries.
+9. WP28-WP30/WP39: live/missing-device runtime composition and complete
    parent/child product surfaces.
 
 ## Phase boundary

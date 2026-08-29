@@ -29914,25 +29914,29 @@
       "title": "WP08 Android Foreground Location Adapter",
       "path": "docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md",
       "parent": "PLAN-tracking-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"
+      ],
+      "state": "blocked",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "dependencyReview": {
-          "hardDependencies": [],
+          "hardDependencies": [
+            "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"
+          ],
           "evidence": [
             "docs/plans/tracking-plan/PLAN_STATE.md",
             "docs/plans/tracking-plan/CODE_AUDIT.md",
             "docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Exact source review found the Rust location validation and child-runtime event consumer, but no Android foreground location producer, permission-aware platform bridge, or Android behavioral test source. The next source slice is independently authorable within WP08 and has no hard code-writing predecessor; this review clears only the migration gate and does not claim implementation, platform authority, execution, proof, READY, or DONE."
+          "reason": "Exact source review found the neutral Rust location validation and child-runtime event consumer, but the shipped Android package, JNI bridge, service lifecycle, and platform test owner belong to Child Runtime Distribution WP05. WP08 may consume that reviewed implementation; it may not create Android package or bridge code independently. This review claims no implementation, platform authority, execution, proof, READY, or DONE."
         }
       },
       "completion": {
@@ -29955,25 +29959,31 @@
       "title": "WP09 Android Background Location And Geofence Adapter",
       "path": "docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md",
       "parent": "PLAN-tracking-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+        "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
+      ],
+      "state": "blocked",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "dependencyReview": {
-          "hardDependencies": [],
+          "hardDependencies": [
+            "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+            "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
+          ],
           "evidence": [
             "docs/plans/tracking-plan/PLAN_STATE.md",
             "docs/plans/tracking-plan/CODE_AUDIT.md",
             "docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Exact source review found the Rust geofence/runtime event consumer and real transition tests, while the Android tree contains only proof-harness code and no permission-aware background location, system geofence, restart custody, Rust ingress, or Android behavioral tests. The next WP09 platform slice has no hard code-writing predecessor; this review clears only the migration gate and claims no implementation, platform authority, execution, proof, READY, or DONE."
+          "reason": "Exact source review found the neutral Rust geofence/runtime contracts and transition tests, while the Android package/JNI/service lifecycle owner belongs to Child Runtime Distribution WP05 and the durable typed tracking ingress belongs to Tracking WP40. WP09 must consume both reviewed implementations; it may not invent a SharedPreferences handoff, dead JNI port, or separate Android service. This review claims no implementation, platform authority, execution, proof, READY, or DONE."
         }
       },
       "completion": {
@@ -29996,25 +30006,29 @@
       "title": "WP10 Android Battery Connectivity And Status Adapter",
       "path": "docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md",
       "parent": "PLAN-tracking-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"
+      ],
+      "state": "blocked",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "dependencyReview": {
-          "hardDependencies": [],
+          "hardDependencies": [
+            "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package"
+          ],
           "evidence": [
             "docs/plans/tracking-plan/PLAN_STATE.md",
             "docs/plans/tracking-plan/CODE_AUDIT.md",
             "docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Exact source review found the Rust battery, connectivity, status, and degraded-reason evaluator with real tests, but no Android producer or bridge feeding those inputs and no Android behavioral coverage. The next WP10 platform slice has no hard code-writing predecessor; this review clears only the migration gate and claims no implementation, provider authority, execution, proof, READY, or DONE."
+          "reason": "Exact source review found the neutral Rust battery, connectivity, status, and degraded-reason evaluator with real tests, but the Android producer, JNI bridge, service lifecycle, and platform test owner belong to Child Runtime Distribution WP05. WP10 may consume that reviewed implementation; it may not create an unconsumed Android collector independently. This review claims no implementation, provider authority, execution, proof, READY, or DONE."
         }
       },
       "completion": {
@@ -37512,6 +37526,58 @@
         "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md"
       ],
       "reason": "Domain compilers must consume the active authoritative policy source owned by WP01; deterministic compiler library code alone cannot establish a production source-to-compiler path."
+    },
+    {
+      "from": "WP-tracking-plan-08-android-foreground-location-adapter",
+      "to": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Tracking WP08 consumes the shipped Android package, JNI bridge, service lifecycle, and platform test boundary owned by Child Runtime Distribution WP05.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-tracking-plan-09-android-background-location-and-geofence-adapter",
+      "to": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Tracking WP09 consumes the shipped Android package, JNI bridge, service lifecycle, and platform test boundary owned by Child Runtime Distribution WP05.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-tracking-plan-09-android-background-location-and-geofence-adapter",
+      "to": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
+      ],
+      "reason": "Tracking WP09 needs the reviewed durable typed tracking ingress before Android background and geofence observations can have a shipped, restart-safe consumer.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-tracking-plan-10-android-battery-connectivity-and-status-adapter",
+      "to": "WP-child-agent-runtime-distribution-plan-05-child-android-agent-package",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+      ],
+      "reason": "Tracking WP10 consumes the shipped Android package, JNI bridge, service lifecycle, and platform test boundary owned by Child Runtime Distribution WP05.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",

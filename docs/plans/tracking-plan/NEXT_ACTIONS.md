@@ -15,12 +15,19 @@ Use [CODE_AUDIT.md](CODE_AUDIT.md) for the 2026-08-15 source/test result and
 
 ## Dependency-first order
 
-1. **WP40 trusted runtime ingress and journal composition**: establish the
+1. **Child WP10 then Child WP05 Android owner chain**: finish the reviewed
+   trusted startup handoff, then the shipped Android package, JNI bridge,
+   service lifecycle, and real platform-test boundary. Tracking must consume
+   this owner; it must not add a parallel Android service or dead handoff.
+2. **WP40 trusted runtime ingress and journal composition**: establish the
    missing shipped child/service owner for trusted tracking ingress, canonical
    event-to-journal mapping, durable key/path configuration, startup recovery,
    and idempotent ActivityStore projection. WP40 is a route/workpack only;
    implementation and tests have not started.
-2. **WP37 durable journal replay/projection**: connect the existing WP35/WP36
+3. **WP08/WP10, then WP09 Android tracking adapters**: foreground location and
+   battery/connectivity/status consume reviewed Child WP05. Background
+   location/geofence consumes reviewed Child WP05 plus reviewed WP40 ingress.
+4. **WP37 durable journal replay/projection**: connect the existing WP35/WP36
    tracking event flows to durable append, restart replay, and idempotent SQLite
    projection. This remains the highest unblocker, but is currently blocked at
    composition: `TrackingRuntimeEventFlow::new`/the parent check-in flow use an
@@ -29,17 +36,17 @@ Use [CODE_AUDIT.md](CODE_AUDIT.md) for the 2026-08-15 source/test result and
    event mapping, durable journal key/path configuration, startup replay, and
    projection wiring after WP40 exists; do not add a dead constructor or
    synthetic adapter here.
-3. **WP38 then WP27 notification/escalation**: add the durable notification
+5. **WP38 then WP27 notification/escalation**: add the durable notification
    outbox/receipt boundary and escalation/quiet-hours/ack timer lifecycle.
-4. **WP22 then WP07 persistence/custody**: replace the in-memory place store and
+6. **WP22 then WP07 persistence/custody**: replace the in-memory place store and
    transformation-only retention path with durable, restart-safe execution.
-5. **WP08-WP12 platform adapters**: Android foreground/background/geofence and
-   iOS foreground/background/region lifecycle code with real platform tests.
-6. **WP20 and WP24 providers**: concrete POI provider and selected AI provider
+7. **WP11-WP12 iOS adapters**: foreground/background/region lifecycle code
+   with real platform tests after its package/runtime owner is routed.
+8. **WP20 and WP24 providers**: concrete POI provider and selected AI provider
    routing with redaction, timeout, retry, and receipt tests.
-7. **WP28-WP30 and WP39 product composition**: durable live/missing-device
+9. **WP28-WP30 and WP39 product composition**: durable live/missing-device
    lifecycle plus complete parent/child UI and event-to-portal restart proof.
-8. **WP33 verifier restoration**: restore or deliberately replace the absent
+10. **WP33 verifier restoration**: restore or deliberately replace the absent
    tracked aggregate `scripts/test/tracking-*.mjs` proof contract after code and
    focused tests are green.
 
@@ -53,7 +60,9 @@ Use [CODE_AUDIT.md](CODE_AUDIT.md) for the 2026-08-15 source/test result and
 - No shipped tracking-event-to-`ActivityEvent` mapping or durable journal
   composition owner exists. WP40 is now the explicit dependency blocker;
   WP37 is not a legal code-only slice until WP40 is implemented.
-- No production Android/iOS tracking adapter exists.
+- No production Android/iOS tracking adapter exists. Android acquisition is
+  blocked on the reviewed Child WP10 -> Child WP05 package/bridge chain; WP09
+  also waits for reviewed WP40 ingress.
 - No durable notification/escalation lifecycle exists.
 - No concrete POI or tracking AI provider execution route exists.
 - Old `tracking-domain` and tracking proof-script routes are stale/absent.

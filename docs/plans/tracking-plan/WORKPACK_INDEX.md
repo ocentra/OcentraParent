@@ -39,9 +39,9 @@ gap and 19 retain concrete production-code or expected-test gaps.
 | open    | [WP05 Device Status Model](workpacks/05-device-status-model.md)                                                           |  3,236 | 6/10 checked; 4 open  |
 | open    | [WP06 Permission And Capability Status Model](workpacks/06-permission-and-capability-status-model.md)                     |  3,446 | 6/10 checked; 4 open  |
 | open    | [WP07 Retention And Custody Model](workpacks/07-retention-and-custody-model.md)                                           |  7,236 | 18/23 checked; 5 open |
-| open    | [WP08 Android Foreground Location Adapter](workpacks/08-android-foreground-location-adapter.md)                           |  4,407 | 3/13 checked; 10 open |
-| open    | [WP09 Android Background Location And Geofence Adapter](workpacks/09-android-background-location-and-geofence-adapter.md) |  4,584 | 3/14 checked; 11 open |
-| open    | [WP10 Android Battery Connectivity And Status Adapter](workpacks/10-android-battery-connectivity-and-status-adapter.md)   |  5,010 | 7/13 checked; 6 open  |
+| blocked | [WP08 Android Foreground Location Adapter](workpacks/08-android-foreground-location-adapter.md)                           |  4,407 | waits for reviewed Child WP05 Android package/bridge |
+| blocked | [WP09 Android Background Location And Geofence Adapter](workpacks/09-android-background-location-and-geofence-adapter.md) |  4,584 | waits for reviewed Child WP05 Android package/bridge and Tracking WP40 ingress |
+| blocked | [WP10 Android Battery Connectivity And Status Adapter](workpacks/10-android-battery-connectivity-and-status-adapter.md)   |  5,010 | waits for reviewed Child WP05 Android package/bridge |
 | open    | [WP11 iOS Core Location Foreground Adapter](workpacks/11-ios-core-location-foreground-adapter.md)                         |  5,789 | 9/15 checked; 6 open  |
 | open    | [WP12 iOS Background Region Significant-Change Adapter](workpacks/12-ios-background-region-significant-change-adapter.md) |  6,259 | 9/15 checked; 6 open  |
 | open    | [WP13 Desktop Location And Presence Hint Model](workpacks/13-desktop-location-and-presence-hint-model.md)                 |  3,311 | 6/11 checked; 5 open  |
@@ -81,8 +81,8 @@ contracts/process-local flows, while WP37-WP39 retain durability,
  routed owner for the missing trusted runtime/journal composition; it is not
  implemented.
 
-2026-08-16 production reachability note: all workpack rows remain `open` for
-this production-code phase. WP03-WP06, WP14-WP19, WP21, WP23, WP25-WP26, and
+2026-08-16 production reachability note: workpack rows remained `open` for
+that production-code pass. WP03-WP06, WP14-WP19, WP21, WP23, WP25-WP26, and
 WP34-WP36 describe real typed/model or process-local code, not shipped
  capture, durability, provider delivery, or product completion. WP37 is blocked
  behind the new WP40 composition route because no shipped owner composes
@@ -91,6 +91,12 @@ WP34-WP36 describe real typed/model or process-local code, not shipped
 downstream blocked. See [CODE_AUDIT.md](CODE_AUDIT.md) for the per-workpack
 caller/effect/gap map. Historical checked boxes and proof packets remain
 non-authoritative.
+
+2026-08-29 Android owner correction: WP08-WP10 are not independent platform
+source lanes. The Android package, JNI bridge, service lifecycle, and platform
+test boundary belong to Child Runtime Distribution WP05 after its WP10 trusted
+startup handoff. WP08 and WP10 consume that reviewed implementation; WP09 also
+waits for the reviewed durable tracking ingress owned by WP40.
 
 ## Selection rules
 
