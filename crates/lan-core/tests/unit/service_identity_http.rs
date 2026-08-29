@@ -87,6 +87,39 @@ fn probe_response_parser_rejects_traversal_references_and_invalid_header_text() 
 }
 
 #[test]
+fn probe_response_parser_strips_nested_title_markup_before_weak_evidence_application() {
+    let body = "<html><head><title>Trusted <span>Panel\u{0007}\n</span><script>alert(1)</script></title></head><body>ok</body></html>";
+    let response = format!(
+        "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: {}\r\n\r\n{}",
+        body.len(),
+        body
+    );
+
+    let observation = parse_probe_observation(response.as_bytes(), None).value_or_unreachable();
+    let title = observation.title.clone().value_or_unreachable();
+    assert_eq!(title, "Trusted Panel alert(1)");
+    assert!(!title.contains('<'));
+    assert!(!title.contains('>'));
+
+    let mut device = bounded_probe_devices().into_iter().next().value_or_unreachable();
+    apply_service_identity_probe(&mut device, observation);
+
+    assert_eq!(
+        device.agent_status.as_deref(),
+        Some(constants::lan_pairing::SERVICE_IDENTITY_PROBE_AGENT_STATUS)
+    );
+    assert_eq!(device.platform, constants::lan_pairing::PLATFORM_UNKNOWN);
+    assert!(device.hostname.is_none());
+    assert!(device
+        .service_identity_probe_evidence
+        .iter()
+        .any(|evidence| {
+            evidence.evidence_kind == LanServiceIdentityProbeEvidenceKind::HtmlTitle
+                && evidence.value == title
+        }));
+}
+
+#[test]
 fn probe_response_parser_normalizes_backslash_references() {
     let observation = parse_probe_observation(
         b"HTTP/1.1 200 OK\r\nLink: <\\metadata\\service-desc>; rel=\"service-desc\"\r\nContent-Length: 0\r\n\r\n",

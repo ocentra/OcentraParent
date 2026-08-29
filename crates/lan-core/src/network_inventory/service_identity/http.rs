@@ -48,10 +48,8 @@ pub fn extract_html_title(body: &[u8]) -> Option<String> {
     let title_start = lower.find("<title")?;
     let tag_end = body[title_start..].find('>')? + title_start + 1;
     let title_end = lower[tag_end..].find("</title>")? + tag_end;
-    sanitize_probe_text(
-        body[tag_end..title_end].trim(),
-        SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES,
-    )
+    let title = xml::strip_xml_tags(body[tag_end..title_end].trim());
+    sanitize_probe_text(&title, SERVICE_IDENTITY_PROBE_MAX_TEXT_BYTES)
 }
 
 pub fn parse_certificate_subject(certificate_der: &CertificateDer<'_>) -> Option<String> {
