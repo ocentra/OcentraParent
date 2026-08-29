@@ -11,6 +11,8 @@ use serde_json::{Map, Value};
 
 use super::app_game_timer_parent_preference_setup_request::AppGameTimerSetupStorePath;
 
+const OUTBOX_LOCK_EXTENSION: &str = "lock";
+
 pub(crate) struct SetupOutboxPath(PathBuf);
 
 struct SetupOutboxTextRef<'a>(&'a str);
@@ -76,7 +78,7 @@ pub(crate) fn append_setup_outbox_record(
         .filter(|record_id| !record_id.is_empty() && *record_id == record_id.trim())
         .ok_or(())?;
     let line = serde_json::to_string(&record).map_err(|_error| ())?;
-    let lock_path = outbox_path.0.with_extension("lock");
+    let lock_path = outbox_path.0.with_extension(OUTBOX_LOCK_EXTENSION);
     let lock_file = OpenOptions::new()
         .create(true)
         .read(true)
