@@ -33,40 +33,6 @@ function Assert-Equal {
     }
 }
 
-function Assert-Matches {
-    param(
-        [Parameter(Mandatory)]
-        [string]$Text,
-
-        [Parameter(Mandatory)]
-        [string]$Pattern,
-
-        [Parameter(Mandatory)]
-        [string]$Description
-    )
-
-    if ($Text -notmatch $Pattern) {
-        throw "$Description did not match '$Pattern'."
-    }
-}
-
-function Assert-DoesNotMatch {
-    param(
-        [Parameter(Mandatory)]
-        [string]$Text,
-
-        [Parameter(Mandatory)]
-        [string]$Pattern,
-
-        [Parameter(Mandatory)]
-        [string]$Description
-    )
-
-    if ($Text -match $Pattern) {
-        throw "$Description unexpectedly matched '$Pattern'."
-    }
-}
-
 function Assert-Throws {
     param(
         [Parameter(Mandatory)]
@@ -116,14 +82,21 @@ function New-TestToolchainProvenance {
     }
 }
 
+# Load the checked-in WiX authoring as structured XML. This exercises the
+# authoring boundary without treating PowerShell/XML source text as runtime
+# evidence or claiming that an MSI has been executed.
 $wixSourcePath = Join-Path $repoRoot 'scripts\release\windows\parent-protected-custody.wxs'
-$wixSource = [System.IO.File]::ReadAllText($wixSourcePath)
-$buildSource = [System.IO.File]::ReadAllText((Join-Path $packageRoot 'build-package.ps1'))
-$wrapperSource = [System.IO.File]::ReadAllText((Join-Path $repoRoot 'scripts\release\windows\build-parent-protected-custody-package.ps1'))
+$wix = [System.Xml.XmlDocument]::new()
+$wix.PreserveWhitespace = $true
+$wix.Load($wixSourcePath)
+$package = $wix.SelectSingleNode('/*[local-name()="Wix"]/*[local-name()="Package"]')
+if ($null -eq $package) {
+    throw 'Protected custody WiX authoring has no Package element.'
+}
 
-# Parse and exercise the same exact row-set comparator used by the MSI
-# validator. The fixture is intentionally a normalized row, not an MSI
-# database or a claim that MSI execution has been proven here.
+# Exercise the same exact row-set comparator used by the MSI validator. The
+# fixture is intentionally a normalized row, not an MSI database or a claim
+# that MSI execution has been proven here.
 $rowFields = @('Action', 'Condition', 'Sequence')
 $row = [pscustomobject]@{
     Action = 'RunProtectedProvisioner'
@@ -137,8 +110,6 @@ Assert-Throws {
     Assert-ExactMsiRowSet -Rows @($row) -Fields $rowFields -ExpectedSignatures @($expectedRow) -Description 'mutated MSI sequence fixture'
 } 'MSI sequence mutation' 'unexpected or duplicate row'
 
-$wix = [xml]$wixSource
-$package = $wix.Wix.Package
 Assert-Equal $package.Name 'Ocentra Parent Protected Capability Custody' 'MSI package name'
 Assert-Equal $package.Manufacturer 'Ocentra' 'MSI manufacturer'
 Assert-Equal $package.UpgradeCode 'A1BA5AA2-F5DB-4B97-9889-4BB4DBF52B3C' 'MSI upgrade code'
@@ -155,12 +126,13 @@ Assert-Equal $customAction[0].Impersonate 'no' 'protected provisioner custom act
 Assert-Equal $customAction[0].Return 'check' 'protected provisioner custom action failure policy'
 Assert-Equal $customAction[0].HideTarget 'yes' 'protected provisioner custom action target hiding'
 
-$sequenceAction = @($package.InstallExecuteSequence.Custom | Where-Object { $_.Action -ceq 'RunProtectedProvisioner' })
+$sequenceAction = @($package.SelectNodes('./*[local-name()="InstallExecuteSequence"]/*[local-name()="Custom"][@Action="RunProtectedProvisioner"]'))
 Assert-Equal $sequenceAction.Count 1 'protected provisioner sequence count'
 Assert-Equal $sequenceAction[0].Before 'StartServices' 'protected provisioner service ordering'
 Assert-Equal $sequenceAction[0].Condition 'NOT REMOVE~="ALL"' 'protected provisioner uninstall condition'
 
-$components = @($wix.Wix.Fragment.ComponentGroup.Component) + @($wix.Wix.Fragment.Component)
+$components = @($wix.SelectNodes('/*[local-name()="Wix"]/*[local-name()="Fragment"]/*[local-name()="ComponentGroup"]/*[local-name()="Component"]')) +
+    @($wix.SelectNodes('/*[local-name()="Wix"]/*[local-name()="Fragment"]/*[local-name()="Component"]'))
 $brokerComponent = @($components | Where-Object { $_.Id -ceq 'ProtectedBrokerService' })[0]
 $provisionerComponent = @($components | Where-Object { $_.Id -ceq 'ProtectedProvisioner' })[0]
 $brokerService = @($brokerComponent.ServiceInstall)[0]
@@ -170,6 +142,7 @@ Assert-Equal $brokerService.Account 'LocalSystem' 'broker service account'
 Assert-Equal $brokerService.Start 'auto' 'broker service start mode'
 Assert-Equal $brokerService.ErrorControl 'critical' 'broker service error policy'
 Assert-Equal $brokerControl.Remove 'uninstall' 'broker service uninstall control'
+Assert-Equal $brokerControl.Stop 'both' 'broker service stop control'
 Assert-Equal $provisionerComponent.File.Name 'ocentra-protected-capability-custody-provisioner.exe' 'provisioner payload name'
 
 $registryValues = @($components | Where-Object { $null -ne $_.RegistryKey } | ForEach-Object { $_.RegistryKey.RegistryValue } | Where-Object { $_.Name -ceq 'package-boundary' })
@@ -178,16 +151,34 @@ foreach ($registryValue in $registryValues) {
     Assert-Equal $registryValue.Value 'parent-protected-custody-v1' 'package-boundary registry value'
 }
 
-Assert-DoesNotMatch $wixSource '(?i)authValue' 'WiX source raw authValue boundary'
-Assert-DoesNotMatch $wixSource '(?i)<RegistryValue[^>]+authority-v1' 'WiX source protected authority mutation'
-Assert-Matches $wixSource 'Enrollment\\authority-v1' 'WiX source external enrollment boundary documentation'
-Assert-Matches $buildSource "zero-argument owner-approved provisioner" 'build manifest zero-argument provisioner boundary'
-Assert-Matches $buildSource "deprovisioning = 'Manual-required external WP02 owner path; uninstall never invokes deprovisioning implicitly" 'build manifest deprovisioning ownership'
-Assert-Matches $buildSource "signing = 'manual-required'" 'build manifest signing boundary'
-Assert-Matches $buildSource "'manual-required'" 'build manifest manual-required state'
-Assert-DoesNotMatch $buildSource '(?i)authValue\s*=' 'build source raw authValue transport'
-Assert-Matches $wrapperSource 'build-package\.ps1' 'top-level package wrapper delegation'
-Assert-DoesNotMatch $wrapperSource '(?i)authValue|Enrollment\\authority-v1' 'top-level package wrapper authority transport'
+foreach ($componentId in @('ProtectedCustodyDataDirectory', 'ProtectedRegistryRoot', 'ProtectedRegistryIdentity')) {
+    $component = @($components | Where-Object { $_.Id -ceq $componentId })[0]
+    Assert-Equal $component.Permanent 'yes' "$componentId permanent lifecycle boundary"
+}
+Assert-Equal $sequenceAction[0].Condition 'NOT REMOVE~="ALL"' 'protected provisioner uninstall exclusion'
+
+# Inspect only the parsed XML attributes. Protected authority names and raw
+# authorization values must not be authored as installer data, regardless of
+# comments or formatting in the source document.
+$wixAttributes = @($wix.SelectNodes('//*') | ForEach-Object { $_.Attributes } | ForEach-Object { $_.Name; $_.Value })
+foreach ($forbiddenInstallerToken in @('authValue', 'authority-v1', 'Enrollment')) {
+    if (@($wixAttributes | Where-Object { [string]$_ -match [System.Text.RegularExpressions.Regex]::Escape($forbiddenInstallerToken) }).Count -gt 0) {
+        throw "WiX authoring contains forbidden protected authority token '$forbiddenInstallerToken' as installer data."
+    }
+}
+
+$authorityInputContract = [ordered]@{
+    brokerBinarySha256 = (('ab' * 32) -join '')
+    provisionerBinarySha256 = (('ab' * 32) -join '')
+    sourceHashes = [ordered]@{ 'parent-protected-custody.wxs' = (('ab' * 32) -join '') }
+    anchoredInputHashes = [ordered]@{ 'Cargo.lock' = (('ab' * 32) -join '') }
+    commandFingerprints = [ordered]@{ dotnet = 'C:\toolchain\dotnet.exe||C:\toolchain\dotnet.exe|' + (('ab' * 32) -join '') }
+    toolchainProvenance = New-TestToolchainProvenance
+    authValue = 'must-not-be-accepted'
+}
+Assert-Throws {
+    Get-PackagePublicationInputContract -InputContract $authorityInputContract
+} 'caller-supplied protected authority input' 'unexpected or missing field'
 
 $canonicalDatabasePath = 'C:\ProgramData\Ocentra\OcentraParent\protected-capability-custody\custody.sqlite'
 Assert-Equal (Get-RegistryId -CanonicalDatabasePath $canonicalDatabasePath) '2cc753a30323ee51ee0301439996c5e4077fe49d3a31250ee75b32b6ecd1baf7' 'owner-approved fixed registry identity'
