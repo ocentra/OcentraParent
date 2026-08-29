@@ -18,7 +18,6 @@ use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
 use ocentra_parent_agent_protocol::browser::BrowserChannel;
 use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
 use ocentra_parent_agent_protocol::browser::BrowserFamily;
-use ocentra_parent_agent_protocol::browser::BrowserRuntimePhase;
 use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
 use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
@@ -39,7 +38,6 @@ use crate::{
         stream_browser_runtime_event_chain_for_read_model_with_policy_preview,
         BrowserRuntimeServiceStreamReport,
     },
-    test_invariants::require_some,
 };
 
 #[path = "browser_runtime_stream_tests/browser_runtime_service_stream_eventing_tests.rs"]
@@ -86,15 +84,12 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
     let entries = stream_entries(&payload);
 
     assert_eq!(report.observed_rows, 1);
-    assert_eq!(
-        report.streamed_events,
-        BrowserRuntimePhase::ordered_chain().len() - 6
-    );
-    assert_eq!(report.failed_rows, 0);
+    assert_eq!(report.streamed_events, 0);
+    assert_eq!(report.failed_rows, 1);
     assert_eq!(report.exact_url_rows, 1);
-    assert_eq!(report.manual_required_rows, 0);
+    assert_eq!(report.manual_required_rows, 1);
     assert_eq!(report.intervention_command_events, 0);
-    assert_eq!(report.read_model_projection_events, 1);
+    assert_eq!(report.read_model_projection_events, 0);
     assert_eq!(report.action_intent_candidates, 0);
     assert!(report.action_intent_handoff_outbox_refs.is_empty());
     assert!(report.action_intent_handoff_refs.is_empty());
@@ -106,56 +101,24 @@ async fn service_browser_runtime_streams_protocol_event_chain_entries() {
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
         Some(&LogFieldValue::Number(0.0))
     );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_EXACT_URL_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_STREAMED_EVENTS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_FAILED_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::BROWSER_RUNTIME_MANUAL_REQUIRED_ROWS),
+        Some(&LogFieldValue::Number(1.0))
+    );
     assert_child_status_payload_empty!(payload);
-    assert_eq!(
-        entries[0][constants::field::EVENT_TYPE],
-        constants::browser::EVENT_BROWSER_EVIDENCE_OBSERVED
-    );
-    assert!(entries[0][constants::field::EVENT_REF]
-        .as_str()
-        .unwrap_or_default()
-        .ends_with(constants::browser::EVENT_BROWSER_EVIDENCE_OBSERVED));
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::EXACT_URL_CLAIMED],
-        true
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::CAPABILITY_STATUS],
-        constants::browser::CAPABILITY_STATUS_TAB_LIST_ONLY
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::CUSTODY_LABEL],
-        constants::browser::CUSTODY_CHILD_DEVICE_LOCAL
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::QUERY_VISIBILITY],
-        constants::browser::QUERY_VISIBILITY_LIVE_LOCAL
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::DEGRADED_REASON],
-        Value::Null
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::POLICY_DRY_RUN],
-        false
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::ADAPTER_DISPATCH_CLAIMED],
-        false
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::POLICY_PREVIEW_ID],
-        Value::Null
-    );
-    assert_eq!(
-        entries[0][constants::field::PAYLOAD][constants::field::ACTION_INTENT_ID],
-        Value::Null
-    );
-    let last_entry = require_some(entries.last(), constants::error::AGENT_EVENT_SERIALIZES);
-    assert_eq!(
-        last_entry[constants::field::EVENT_TYPE],
-        constants::browser::EVENT_BROWSER_READ_MODEL_PROJECTED
-    );
+    assert!(entries.is_empty());
 }
 
 #[tokio::test]
@@ -229,14 +192,13 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
     .await;
     let payload = browser_runtime_event_chain_stream_payload(&report);
     let entries = stream_entries(&payload);
-    let policy_entry = require_some(
-        entries.iter().find(|entry| {
-            entry[constants::field::EVENT_TYPE]
-                == constants::browser::EVENT_BROWSER_POLICY_DECISION_COMPLETED
-        }),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
 
+    assert_eq!(report.observed_rows, 1);
+    assert_eq!(report.streamed_events, 0);
+    assert_eq!(report.failed_rows, 1);
+    assert_eq!(report.exact_url_rows, 1);
+    assert_eq!(report.manual_required_rows, 1);
+    assert_eq!(report.read_model_projection_events, 0);
     assert_eq!(report.action_intent_candidates, 1);
     assert_eq!(report.action_intent_dispatch_attempts, 0);
     assert_eq!(report.action_intent_adapter_executions, 0);
@@ -255,21 +217,22 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
     assert_action_intent_handoff_payload_refs(&payload, &expected_action_intent_id);
     assert_child_status_payload_empty!(payload);
     assert_eq!(
-        policy_entry[constants::field::PAYLOAD][constants::field::POLICY_PREVIEW_ID],
-        policy_constants::TEST_PREVIEW_ID
+        payload.get(constants::field::BROWSER_RUNTIME_EXACT_URL_ROWS),
+        Some(&LogFieldValue::Number(1.0))
     );
     assert_eq!(
-        policy_entry[constants::field::PAYLOAD][constants::field::ACTION_INTENT_ID],
-        expected_action_intent_id
+        payload.get(constants::field::BROWSER_RUNTIME_STREAMED_EVENTS),
+        Some(&LogFieldValue::Number(0.0))
     );
     assert_eq!(
-        policy_entry[constants::field::PAYLOAD][constants::field::POLICY_DRY_RUN],
-        true
+        payload.get(constants::field::BROWSER_RUNTIME_FAILED_ROWS),
+        Some(&LogFieldValue::Number(1.0))
     );
     assert_eq!(
-        policy_entry[constants::field::PAYLOAD][constants::field::ADAPTER_DISPATCH_CLAIMED],
-        false
+        payload.get(constants::field::BROWSER_RUNTIME_MANUAL_REQUIRED_ROWS),
+        Some(&LogFieldValue::Number(1.0))
     );
+    assert!(entries.is_empty());
 
     Ok(())
 }

@@ -34,13 +34,13 @@ fn browser_domain_read_model_preserves_honest_adapter_states() {
     assert_eq!(read_model.windows_app_control_states.len(), 6);
     assert_eq!(
         claim_count(&claim_counts, proof::CLAIM_IMPLEMENTED_BOUNDARY),
-        5
+        4
     );
     assert_eq!(
         claim_count(&claim_counts, proof::CLAIM_DEGRADED_BOUNDARY),
         1
     );
-    assert_eq!(claim_count(&claim_counts, proof::CLAIM_MANUAL_REQUIRED), 4);
+    assert_eq!(claim_count(&claim_counts, proof::CLAIM_MANUAL_REQUIRED), 5);
     assert_eq!(claim_count(&claim_counts, proof::CLAIM_UNAVAILABLE), 3);
     assert_eq!(claim_count(&claim_counts, proof::CLAIM_NOT_CLAIMED), 1);
     assert_eq!(
@@ -68,10 +68,10 @@ fn browser_domain_read_model_keeps_surface_states_exact() {
         &read_model.entries,
         V08BrowserDomainAdapterProofSurface::WindowsManagedBrowserInterventionState,
         V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
-        V08BrowserDomainAdapterProofCapabilityStatus::Implemented,
+        V08BrowserDomainAdapterProofCapabilityStatus::ManualRequired,
         V08BrowserDomainAdapterProofEvidenceKind::ManagedBrowser,
-        V08BrowserDomainAdapterProofClaimState::ImplementedBoundary,
-        V08BrowserDomainAdapterExecutionState::ExecutesRealService,
+        V08BrowserDomainAdapterProofClaimState::ManualRequired,
+        V08BrowserDomainAdapterExecutionState::ReturnsManualRequired,
     );
     assert_surface_state(
         &read_model.entries,

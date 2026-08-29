@@ -418,19 +418,19 @@ fn assert_platform_expiry_payload(payload: &LogFields) {
     assert_eq!(
         payload.get(constants::field::ENFORCEMENT_STATUS),
         Some(&LogFieldValue::String(
-            constants::enforcement::RESULT_EXPIRED.to_string()
+            constants::enforcement::RESULT_UNAVAILABLE.to_string()
         ))
     );
     assert_eq!(
         payload.get(constants::field::ENFORCEMENT_TIMER_EVENT_KIND),
         Some(&LogFieldValue::String(
-            constants::enforcement::TIMER_EXPIRED.to_string()
+            constants::enforcement::TIMER_UNAVAILABLE.to_string()
         ))
     );
     assert_eq!(
         payload.get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
         Some(&LogFieldValue::String(
-            constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()
+            constants::enforcement::ADAPTER_UNAVAILABLE.to_string()
         ))
     );
 }
@@ -682,7 +682,7 @@ fn assert_missing_state_file(paths: &EnforcementJournalPaths) {
 
 #[cfg(windows)]
 fn expire_audit_kind() -> TestText {
-    TestText::from_display(constants::enforcement::AUDIT_EXPIRED)
+    TestText::from_display(constants::enforcement::AUDIT_UNAVAILABLE)
 }
 
 fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {

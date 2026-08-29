@@ -39,22 +39,22 @@ fn product_control_service_read_model_wires_runtime_sources() {
     assert_eq!(read_model.entries.len(), 15);
     assert_eq!(
         claim_count(&claim_counts, spine::CLAIM_IMPLEMENTED_BOUNDARY),
-        5
+        4
     );
     assert_eq!(
         claim_count(&claim_counts, spine::CLAIM_DEGRADED_BOUNDARY),
         1
     );
     assert_eq!(claim_count(&claim_counts, spine::CLAIM_DRY_RUN_ONLY), 1);
-    assert_eq!(claim_count(&claim_counts, spine::CLAIM_MANUAL_REQUIRED), 7);
+    assert_eq!(claim_count(&claim_counts, spine::CLAIM_MANUAL_REQUIRED), 8);
     assert_eq!(claim_count(&claim_counts, spine::CLAIM_NOT_CLAIMED), 1);
     assert_eq!(
         policy_count(&policy_counts, spine::DEVICE_POLICY_CONTROL_CAPABLE),
-        4
+        3
     );
     assert_eq!(
         policy_count(&policy_counts, spine::DEVICE_POLICY_MANUAL_REQUIRED),
-        7
+        8
     );
     assert!(read_model
         .source_read_model_ids

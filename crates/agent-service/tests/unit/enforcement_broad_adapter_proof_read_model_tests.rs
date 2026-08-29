@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::constants::enforcement_broad_adapter_proof as proof;
+use ocentra_parent_agent_protocol::constants::v08_browser_domain_adapter_proof as browser_proof;
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeClaimState;
 use ocentra_parent_agent_protocol::enforcement_broad_adapter_proof::V08BroadAdapterRuntimeEvidenceState;
@@ -99,7 +100,7 @@ fn broad_adapter_proof_read_model_keeps_surface_outcomes_exact() {
         .contains(&proof::REQUIREMENT_ROLLBACK.to_string()));
     assert!(managed_browser
         .manual_proof_requirements
-        .contains(&proof::REQUIREMENT_ROLLBACK.to_string()));
+        .contains(&browser_proof::REQUIREMENT_ROLLBACK.to_string()));
     assert_surface_state(
         &read_model.entries,
         V08BroadAdapterRuntimeSurface::WindowsNetworkDomainRuntimeGate,

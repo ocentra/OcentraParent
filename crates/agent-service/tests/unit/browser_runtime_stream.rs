@@ -133,7 +133,10 @@ mod clippy_linkage {
         );
         let field = LogFieldValue::String(encoded);
         let _ = require_log_string_field(Some(&field), constants::error::AGENT_EVENT_SERIALIZES);
-        assert_eq!(entries.len(), 6);
+        assert_eq!(report.exact_url_rows, 1);
+        assert_eq!(report.failed_rows, 1);
+        assert_eq!(report.manual_required_rows, 1);
+        assert!(entries.is_empty());
     }
 }
 

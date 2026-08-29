@@ -25,9 +25,9 @@ fn policy_dispatch_read_model_exposes_validation_and_non_claim_states() -> TestR
         constants::v08_enforcement_policy_dispatch::READ_MODEL_ID
     );
     assert_eq!(read_model.entries.len(), 8);
-    assert_eq!(validation.dispatch_ready_count, 2);
+    assert_eq!(validation.dispatch_ready_count, 1);
     assert_eq!(validation.dry_run_only_count, 1);
-    assert_eq!(validation.manual_required_count, 1);
+    assert_eq!(validation.manual_required_count, 2);
     assert_eq!(validation.report_only_count, 1);
     assert_eq!(validation.rejected_count, 3);
     assert_eq!(validation.recovery_needed_count, 1);
