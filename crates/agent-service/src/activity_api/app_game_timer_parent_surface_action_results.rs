@@ -1,7 +1,6 @@
 use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
-    AppGameControlActionResult, APP_GAME_CONTROL_ACTION_STATUS_ENFORCED,
-    APP_GAME_CONTROL_POLICY_KIND_GAME, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
+    AppGameControlActionResult, APP_GAME_CONTROL_POLICY_KIND_GAME,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::AppGameTimerParentSurfaceChildUxLocalArtifactRecord;
@@ -251,8 +250,8 @@ fn child_ux_parent_surface_intent_record(
         parent_preference_mutation_claimed: false,
         provider_delivery_claimed: false,
         child_delivery_claimed: false,
-        adapter_dispatch_claimed: record.adapter_dispatch_claimed,
-        platform_enforcement_claimed: record.platform_enforcement_claimed,
+        adapter_dispatch_claimed: false,
+        platform_enforcement_claimed: false,
         raw_private_source_rows_included: false,
     }
 }
@@ -298,8 +297,8 @@ fn child_ux_parent_preference_setup_record(
         notification_rule_mutation_claimed: false,
         provider_delivery_claimed: false,
         child_delivery_claimed: false,
-        adapter_dispatch_claimed: record.adapter_dispatch_claimed,
-        platform_enforcement_claimed: record.platform_enforcement_claimed,
+        adapter_dispatch_claimed: false,
+        platform_enforcement_claimed: false,
         raw_private_source_rows_included: false,
     }
 }
@@ -312,12 +311,6 @@ fn child_ux_local_artifact_row_is_ready(row: &AppGameControlActionResult) -> boo
 fn child_ux_local_artifact_record(
     row: &AppGameControlActionResult,
 ) -> AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
-    let adapter_dispatch_claimed = row.result_status == APP_GAME_CONTROL_ACTION_STATUS_ENFORCED;
-    let platform_enforcement_claimed = row
-        .enforcement_result
-        .as_ref()
-        .is_some_and(|result| result.status == APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED);
-
     AppGameTimerParentSurfaceChildUxLocalArtifactRecord {
         schema_version: APP_GAME_SCHEMA_VERSION,
         artifact_reference_id: child_ux_local_artifact_reference_id(&ChildUxReferenceId(
@@ -330,8 +323,8 @@ fn child_ux_local_artifact_record(
         child_status_reference_ids: row.request.child_status_references.clone(),
         child_delivery_claimed: false,
         notification_delivery_claimed: false,
-        adapter_dispatch_claimed,
-        platform_enforcement_claimed,
+        adapter_dispatch_claimed: false,
+        platform_enforcement_claimed: false,
         raw_private_source_rows_included: false,
     }
 }

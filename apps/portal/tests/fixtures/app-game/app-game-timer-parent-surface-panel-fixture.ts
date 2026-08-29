@@ -20,6 +20,21 @@ export const AppGameTimerParentSurfacePanelFixture: ParentAppGameTimerParentSurf
   ],
   parentActionRows: [],
   parentPreferenceSetupRows: [],
+  localHandoffArtifactRows: [
+    {
+      title: 'action-result-app-game-1',
+      details: [
+        { label: 'Target', value: 'Native app' },
+        { label: 'Child reason refs', value: 'reason-app-game-1' },
+        { label: 'Child status refs', value: 'status-app-game-1' },
+        { label: 'Delivery', value: 'Not claimed' },
+        { label: 'Notification delivery', value: 'Not claimed' },
+        { label: 'Adapter dispatch', value: 'Not claimed' },
+        { label: 'Platform state', value: 'Not claimed' },
+        { label: 'Raw private source rows', value: 'Not claimed' },
+      ],
+    },
+  ],
   rows: [
     {
       title: 'Study Timer',

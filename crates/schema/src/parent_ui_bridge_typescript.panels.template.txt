@@ -167,6 +167,7 @@ export interface ParentAppGameTimerParentSurfacePanelSnapshot {
   readonly summaryDetails: readonly ParentAppGamePanelDetailSnapshot[];
   readonly parentActionRows: readonly ParentAppGamePanelRowSnapshot[];
   readonly parentPreferenceSetupRows: readonly ParentAppGameActionRowSnapshot[];
+  readonly localHandoffArtifactRows: readonly ParentAppGamePanelRowSnapshot[];
   readonly rows: readonly ParentAppGamePanelRowSnapshot[];
   readonly emptyMessage: string;
   readonly productClaim: string;

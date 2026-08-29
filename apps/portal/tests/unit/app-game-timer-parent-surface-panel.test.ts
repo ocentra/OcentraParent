@@ -68,6 +68,12 @@ describe('app-game timer parent-surface portal route panel', () => {
     expect(html).toContain('Control action result refs</dt><dd>action-result-app-game-1');
     expect(html).toContain('Child UX handoff ready</dt><dd>1');
     expect(html).toContain('Child UX handoff blocked</dt><dd>0');
+    expect(html).toContain('action-result-app-game-1');
+    expect(html).toContain('Child reason refs</dt><dd>reason-app-game-1');
+    expect(html).toContain('Child status refs</dt><dd>status-app-game-1');
+    expect(html).toContain('Raw private source rows</dt><dd>Not claimed');
+    expect(html).toContain('Delivery</dt><dd>Not claimed');
+    expect(html).toContain('Notification delivery</dt><dd>Not claimed');
     expect(html).toContain(
       'Child UX handoff refs</dt><dd>app-game-child-ux-local-handoff-action-result-app-game-1'
     );

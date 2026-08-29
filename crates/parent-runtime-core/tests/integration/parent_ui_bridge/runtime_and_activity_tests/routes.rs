@@ -182,6 +182,21 @@ fn app_game_timer_parent_surface_response_consumer_fails_closed_on_invalid_rows(
         app_game_timer_parent_surface_response_with_unowned_runtime_claim(),
         app_game_timer_parent_surface_response_with_unowned_adapter_dispatch_claim(),
         app_game_timer_parent_surface_response_with_unowned_platform_enforcement_claim(),
+        nested_claim_violation("artifact", "adapterDispatchClaimed"),
+        nested_claim_violation("artifact", "platformEnforcementClaimed"),
+        nested_claim_violation("intent", "adapterDispatchClaimed"),
+        nested_claim_violation("intent", "platformEnforcementClaimed"),
+        nested_claim_violation("preference", "adapterDispatchClaimed"),
+        nested_claim_violation("preference", "platformEnforcementClaimed"),
+        local_artifact_mismatch("childUxHandoffReadyCount"),
+        local_artifact_mismatch("childUxLocalHandoffArtifactRecordCount"),
+        local_artifact_mismatch("childUxLocalHandoffArtifactReferenceIds"),
+        local_artifact_invalid_record("sourceResultId"),
+        local_artifact_invalid_record("artifactReferenceId"),
+        local_artifact_invalid_record("childReasonReferenceIds"),
+        local_artifact_invalid_record("childStatusReferenceIds"),
+        local_artifact_duplicate_refs("childReasonReferenceIds"),
+        local_artifact_duplicate_refs("childStatusReferenceIds"),
     ] {
         let mut responses = app_game_route_load_response_events();
         replace_timer_parent_surface_response(&mut responses, response);
@@ -200,6 +215,33 @@ fn app_game_timer_parent_surface_response_consumer_fails_closed_on_invalid_rows(
         assert_eq!(panel["parentActionRows"], json!([]));
         assert_eq!(panel["parentPreferenceSetupRows"], json!([]));
     }
+}
+
+#[test]
+fn app_game_timer_parent_surface_response_consumer_renders_local_artifact_record() {
+    let mut responses = app_game_route_load_response_events();
+    replace_timer_parent_surface_response(
+        &mut responses,
+        app_game_timer_parent_surface_response_with_local_artifact(),
+    );
+    let (address, capture) = start_local_server_with_capture_responses(responses);
+    let value = with_agent_addr(&address, || {
+        local_route_snapshot_json(
+            ParentRouteId::AppGameSessions,
+            TestContext("valid local artifact response serializes"),
+        )
+    });
+    assert_app_game_route_load_requests(&capture);
+    let row = &value["liveActivity"]["appGameTimerParentSurfacePanel"]["localHandoffArtifactRows"][0];
+    assert_eq!(row["title"], json!("result-1"));
+    assert_panel_detail_value(&row["details"], TestLabel("Target"), TestValue("Native app"));
+    assert_panel_detail_value(&row["details"], TestLabel("Child reason refs"), TestValue("reason-1"));
+    assert_panel_detail_value(&row["details"], TestLabel("Child status refs"), TestValue("status-1"));
+    assert_panel_detail_value(&row["details"], TestLabel("Delivery"), TestValue("Not claimed"));
+    assert_panel_detail_value(&row["details"], TestLabel("Notification delivery"), TestValue("Not claimed"));
+    assert_panel_detail_value(&row["details"], TestLabel("Adapter dispatch"), TestValue("Not claimed"));
+    assert_panel_detail_value(&row["details"], TestLabel("Platform state"), TestValue("Not claimed"));
+    assert_panel_detail_value(&row["details"], TestLabel("Raw private source rows"), TestValue("Not claimed"));
 }
 
 #[test]

@@ -1572,6 +1572,7 @@ pub struct ParentAppGameTimerParentSurfacePanelSnapshot {
     pub summary_details: Vec<ParentAppGamePanelDetailSnapshot>,
     pub parent_action_rows: Vec<ParentAppGamePanelRowSnapshot>,
     pub parent_preference_setup_rows: Vec<ParentAppGameActionRowSnapshot>,
+    pub local_handoff_artifact_rows: Vec<ParentAppGamePanelRowSnapshot>,
     pub rows: Vec<ParentAppGamePanelRowSnapshot>,
     pub empty_message: String,
     pub product_claim: String,

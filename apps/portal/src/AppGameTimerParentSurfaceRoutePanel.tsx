@@ -76,6 +76,9 @@ export function AppGameTimerParentSurfaceRoutePanel({
               row={row}
             />
           ))}
+          {resolvedPanel.localHandoffArtifactRows.map((row, index) => (
+            <AppGameTimerParentSurfaceRowCard key={`${String(row.title)}:local-artifact:${index}`} row={row} />
+          ))}
           {resolvedPanel.rows.length === 0 ? (
             <AppGameTimerParentSurfaceEmptyCard panel={resolvedPanel} />
           ) : (

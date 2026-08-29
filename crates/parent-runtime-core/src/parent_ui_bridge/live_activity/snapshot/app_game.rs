@@ -175,12 +175,47 @@ fn app_game_timer_parent_surface_read_model_is_consumable(
         return false;
     }
 
+    let artifact_records = &read_model.child_ux_local_handoff_artifact_records;
+    if read_model.child_ux_local_handoff_artifact_record_count != artifact_records.len() as u64
+        || read_model.child_ux_local_handoff_artifact_record_count
+            != read_model.child_ux_local_handoff_artifact_reference_ids.len() as u64
+        || read_model.child_ux_local_handoff_artifact_record_count
+            != read_model.child_ux_handoff_ready_count
+        || read_model.child_ux_local_handoff_artifact_skipped_count
+            != read_model.child_ux_handoff_blocked_count
+    {
+        return false;
+    }
+    let mut artifact_ids = std::collections::HashSet::new();
+    for (record, reference_id) in artifact_records
+        .iter()
+        .zip(read_model.child_ux_local_handoff_artifact_reference_ids.iter())
+    {
+        if record.schema_version != APP_GAME_SCHEMA_VERSION
+            || record.source_result_id.trim().is_empty()
+            || record.artifact_reference_id.trim().is_empty()
+            || !matches!(record.target_domain.as_str(), APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_APP | APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME)
+            || record.child_reason_reference_ids.is_empty()
+            || record.child_status_reference_ids.is_empty()
+            || record.child_reason_reference_ids.iter().any(|id| id.trim().is_empty())
+            || record.child_status_reference_ids.iter().any(|id| id.trim().is_empty())
+            || has_duplicate_refs(&record.child_reason_reference_ids)
+            || has_duplicate_refs(&record.child_status_reference_ids)
+            || reference_id != &record.artifact_reference_id
+            || !artifact_ids.insert(record.artifact_reference_id.as_str())
+        {
+            return false;
+        }
+    }
+
     if !read_model
         .child_ux_local_handoff_artifact_records
         .iter()
         .all(|record| {
             !record.child_delivery_claimed
                 && !record.notification_delivery_claimed
+                && !record.adapter_dispatch_claimed
+                && !record.platform_enforcement_claimed
                 && !record.raw_private_source_rows_included
         })
         || !read_model
@@ -192,6 +227,8 @@ fn app_game_timer_parent_surface_read_model_is_consumable(
                     && !record.parent_preference_mutation_claimed
                     && !record.provider_delivery_claimed
                     && !record.child_delivery_claimed
+                    && !record.adapter_dispatch_claimed
+                    && !record.platform_enforcement_claimed
                     && !record.raw_private_source_rows_included
             })
         || !read_model
@@ -204,6 +241,8 @@ fn app_game_timer_parent_surface_read_model_is_consumable(
                     && !record.notification_rule_mutation_claimed
                     && !record.provider_delivery_claimed
                     && !record.child_delivery_claimed
+                    && !record.adapter_dispatch_claimed
+                    && !record.platform_enforcement_claimed
                     && !record.raw_private_source_rows_included
             })
     {
@@ -275,4 +314,9 @@ fn app_game_timer_parent_surface_read_model_is_consumable(
         APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL
     };
     read_model.capability_status == expected_status
+}
+
+fn has_duplicate_refs(refs: &[String]) -> bool {
+    let mut seen = std::collections::HashSet::new();
+    refs.iter().any(|reference| !seen.insert(reference.as_str()))
 }

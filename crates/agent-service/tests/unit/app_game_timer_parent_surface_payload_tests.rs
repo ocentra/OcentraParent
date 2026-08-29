@@ -401,8 +401,8 @@ fn assert_child_ux_parent_surface_intent_visibility(decoded: &AppGameTimerParent
     assert!(!parent_surface_record.parent_preference_mutation_claimed);
     assert!(!parent_surface_record.provider_delivery_claimed);
     assert!(!parent_surface_record.child_delivery_claimed);
-    assert!(parent_surface_record.adapter_dispatch_claimed);
-    assert!(parent_surface_record.platform_enforcement_claimed);
+    assert!(!parent_surface_record.adapter_dispatch_claimed);
+    assert!(!parent_surface_record.platform_enforcement_claimed);
     assert!(!parent_surface_record.raw_private_source_rows_included);
 }
 
@@ -453,8 +453,8 @@ fn assert_child_ux_parent_preference_setup_visibility(
     assert!(!setup_record.notification_rule_mutation_claimed);
     assert!(!setup_record.provider_delivery_claimed);
     assert!(!setup_record.child_delivery_claimed);
-    assert!(setup_record.adapter_dispatch_claimed);
-    assert!(setup_record.platform_enforcement_claimed);
+    assert!(!setup_record.adapter_dispatch_claimed);
+    assert!(!setup_record.platform_enforcement_claimed);
     assert!(!setup_record.raw_private_source_rows_included);
 }
 
@@ -478,8 +478,8 @@ fn assert_child_ux_local_artifact_record_visibility(decoded: &AppGameTimerParent
     );
     assert!(!artifact_record.child_delivery_claimed);
     assert!(!artifact_record.notification_delivery_claimed);
-    assert!(artifact_record.adapter_dispatch_claimed);
-    assert!(artifact_record.platform_enforcement_claimed);
+    assert!(!artifact_record.adapter_dispatch_claimed);
+    assert!(!artifact_record.platform_enforcement_claimed);
     assert!(!artifact_record.raw_private_source_rows_included);
 }
 
