@@ -4,6 +4,7 @@ use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 mod packet;
 
 use crate::lan_pairing::LanMdnsAdvertisementPlatformSupport;
+use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanChildMdnsAdvertisement, LanMdnsTxtRecord, LanParentMdnsAdvertisement,
 };
@@ -56,7 +57,10 @@ pub fn parent_instance(advertisement: &LanParentMdnsAdvertisement) -> LanMdnsAdv
     LanMdnsAdvertisementInstance {
         service_type: advertisement.service_type.clone(),
         instance_name: format!("{label}.{}", advertisement.service_type),
-        txt_records: advertisement.txt_records.clone(),
+        txt_records: instance_txt_records(
+            advertisement.advertisement_id.as_str(),
+            advertisement.txt_records.as_slice(),
+        ),
     }
 }
 
@@ -65,8 +69,28 @@ pub fn child_instance(advertisement: &LanChildMdnsAdvertisement) -> LanMdnsAdver
     LanMdnsAdvertisementInstance {
         service_type: advertisement.service_type.clone(),
         instance_name: format!("{label}.{}", advertisement.service_type),
-        txt_records: advertisement.txt_records.clone(),
+        txt_records: instance_txt_records(
+            advertisement.advertisement_id.as_str(),
+            advertisement.txt_records.as_slice(),
+        ),
     }
+}
+
+fn instance_txt_records(
+    advertisement_id: &str,
+    contract_txt_records: &[LanMdnsTxtRecord],
+) -> Vec<LanMdnsTxtRecord> {
+    let advertisement_id_key = constants::lan_pairing::MDNS_ADVERTISEMENT_ID_FIELD;
+    let mut txt_records = contract_txt_records
+        .iter()
+        .filter(|record| !record.key.eq_ignore_ascii_case(advertisement_id_key))
+        .cloned()
+        .collect::<Vec<_>>();
+    txt_records.push(LanMdnsTxtRecord {
+        key: advertisement_id_key.to_string(),
+        value: advertisement_id.to_string(),
+    });
+    txt_records
 }
 
 pub fn send_advertisements(
