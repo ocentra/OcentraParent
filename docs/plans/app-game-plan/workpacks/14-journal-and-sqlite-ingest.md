@@ -69,10 +69,21 @@ daily rollup rows. It also proves invalid inventory-use claims are rejected
 before persistence and duplicate runtime observations do not double count
 duration.
 
-Still open:
+Current source/test review (2026-08-29):
+
+- the shipped capture path appends typed app/game events to the encrypted
+  `ActivityJournal`, ingests them transactionally into SQLite, and projects the
+  stored read model;
+- registered behavioral tests cover invalid-row rejection,
+  duplicate/idempotent ingestion, persisted restart replay, SQLite rollback,
+  tamper/ciphertext rejection, and retry without duplicate journal append;
+- corrupt journal input fails closed. Automatic quarantine/recovery remains a
+  deferred custody policy and must not be invented in this workpack.
+
+Still open beyond this source/test slice:
 
 - live source adapters appending production rows;
 - service events and portal app/game read models;
 - policy/action/approval integration;
-- journal corruption/recovery and persisted restart proof;
+- current focused execution and retained proof refresh;
 - live platform authority and broad blocking proof.

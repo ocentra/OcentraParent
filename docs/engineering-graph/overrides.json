@@ -11628,7 +11628,15 @@
         "crates/provisioning-core/src/provisioning_install/family_pairing.rs",
         "crates/provisioning-core/src/provisioning_install/family_recovery.rs"
       ],
-      "reason": "Independent P0/P1 source review accepted the WP04 implementation topology at integrated source 1101f37f8: exactly 59 production implementation files cover the strict durable invite/recovery repository, current-authority validation, monotonic clock/rate/replay custody, private owner receipts, and typed handoff boundary. Expected repository/handoff tests, external identity/membership/support/Data adapters, focused execution, proof, PR readiness, CI, and DONE remain open; this evidence is implementation-only and does not promote WP04 to READY or DONE.",
+      "tests": [
+        "crates/family-identity-core/tests/unit/invite_recovery_repository.rs",
+        "crates/family-identity-core/tests/unit/invite_recovery_repository_schema.rs",
+        "crates/family-identity-core/tests/unit/invite_recovery_repository_security.rs",
+        "crates/family-identity-core/tests/unit/recovery_owner_ack_ops.rs",
+        "crates/family-identity-core/tests/integration/invite_recovery_repository.rs",
+        "crates/family-identity-core/tests/contract/recovery_data_custody_handoff.rs"
+      ],
+      "reason": "The 2026-08-29 source/test audit confirms the previously reviewed WP04 implementation plus all six expected repository/handoff test roots and private production receipt-input tests. Atomic invite/recovery custody, current-authority validation, monotonic clock/rate/replay controls, strict SQLite validation, private owner receipts, concurrency/restart/security behavior, and typed handoff are present. No non-test identity/membership/support/provider/Data adapter caller is composed; focused execution, dependency closure, proof, precommit, CI, and DONE remain open.",
       "evidence": [
         "docs/plans/account-identity-family-plan/PLAN_STATE.md",
         "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md",
@@ -11846,6 +11854,271 @@
       "reason": "Reviewed manifest runtime and real lifecycle/privacy/durable-state/restart test source at canonical 7339e7476. No execution, physical service/event proof, overlay delivery, checklist acceptance, READY, or DONE is asserted.",
       "evidence": [
         "docs/plans/app-game-plan/workpacks/202-app-game-android-accessibility-runtime-proof.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-13-sessionization-and-duration-engine",
+      "implementation": [
+        "crates/agent-protocol/src/app_game.rs",
+        "crates/agent-protocol/src/app_game_authority_classifier.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_sessionization.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_sessionization_lifecycle.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_sessionization_observation.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_sessionization_foreground.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_session_rollups.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_session_time.rs",
+        "crates/agent-service/src/activity_capture/app_game.rs"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/unit/app_game_tests.rs",
+        "crates/agent-protocol/tests/unit/app_game_evidence_identity_tests.rs",
+        "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_sessionization_tests.rs",
+        "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
+      ],
+      "reason": "Reviewed the deterministic stored-evidence session reducer, SQLite/ActivityStore callers, service projections, and registered behavioral tests for start/continuation/closure, foreground bounds, replay/order/PID generation, restart stability, rollups, and duplicate replay. Live platform authority, focused execution, retained proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/13-sessionization-and-duration-engine.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-14-journal-and-sqlite-ingest",
+      "implementation": [
+        "crates/agent-protocol/src/app_game.rs",
+        "crates/agent-protocol/src/app_game_authority_classifier.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_event.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_validation.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_launcher_validation.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model_sqlite.rs",
+        "crates/agent-service/src/activity_capture/app_game.rs"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/unit/app_game_tests.rs",
+        "crates/agent-protocol/tests/unit/app_game_evidence_identity_tests.rs",
+        "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_protocol_rows_tests.rs",
+        "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
+      ],
+      "reason": "Reviewed the encrypted ActivityJournal to transactional SQLite to read-model path and registered tests for invalid-row rejection, idempotent ingestion, persisted restart replay, rollback, tamper/ciphertext rejection, and retry without duplicate append. Automatic corruption quarantine policy, focused execution, retained proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/14-journal-and-sqlite-ingest.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-lan-plan-21-contract-boundary-and-domain-schemas",
+      "implementation": [
+        "crates/family-identity-core/src/family_identity.rs",
+        "crates/family-identity-core/src/family_identity/household_authority_handoff.rs",
+        "crates/family-identity-core/src/family_identity_setup_records.rs"
+      ],
+      "tests": [
+        "crates/family-identity-core/tests/contract/family_identity_contracts.rs",
+        "crates/family-identity-core/tests/unit/setup_lifecycle.rs"
+      ],
+      "reason": "Reviewed the Rust-owned household/role contract family, constructors, validation, serde round trips, rejection behavior, and handoff tests. No external production caller currently supplies owner-issued capability authority; runtime composition, focused execution, proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/lan-plan/workpacks/21-contract-boundary-and-domain-schemas.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-01-contract-boundary-and-effect-schemas",
+      "implementation": [
+        "packages/schema-domain/src/app-runtime-decision.ts",
+        "crates/app-core/src/runtime_decision.rs",
+        "crates/app-core/src/runtime_ids.rs"
+      ],
+      "tests": [
+        "packages/schema-domain/tests/contract/app-runtime-decision.test.ts",
+        "crates/app-core/tests/contract/runtime_decision.rs",
+        "crates/app-core/tests/invariant/runtime_decision.rs"
+      ],
+      "reason": "Reviewed the canonical strict TypeScript and Rust runtime-decision boundary plus real contract/invariant tests, including weak evidence, manual-required states, exact keys, legacy/version rejection, and identifier invariants. The bounded slice previously merged; broader app-plan product paths, current retained proof/checklist acceptance, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-41-live-windows-inventory-source",
+      "implementation": [
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_inventory_source.rs"
+      ],
+      "tests": [
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_inventory_source_tests.rs"
+      ],
+      "reason": "Reviewed the bounded Windows Start Menu shortcut inventory source, opaque path references, service capture caller, journal/SQLite projection, and real temp-shortcut/limit/nonclaim behavior tests. Live proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/41-live-windows-inventory-source.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-42-service-windows-inventory-capture-bridge",
+      "implementation": [
+        "crates/agent-service/src/activity_capture/app_game.rs",
+        "crates/agent-service/src/activity_capture/capture_events.rs"
+      ],
+      "tests": [
+        "crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"
+      ],
+      "reason": "Reviewed the shipped service caller that captures bounded shortcut inventory into the typed journal/SQLite read model and its registered behavioral test. Runtime/foreground authority, retained proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/42-service-windows-inventory-capture-bridge.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-43-live-windows-store-package-source",
+      "implementation": [
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_store_package_source.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_store_package_manifest.rs"
+      ],
+      "tests": [
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_store_package_source_tests.rs"
+      ],
+      "reason": "Reviewed the bounded Windows Store manifest inventory source, opaque package/path references, journal/SQLite projection, and real manifest/rejection/nonclaim tests. Retained proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/43-live-windows-store-package-source.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-44-service-windows-store-package-capture-bridge",
+      "implementation": [
+        "crates/agent-service/src/activity_capture/app_game.rs",
+        "crates/agent-service/src/activity_capture/capture_events.rs"
+      ],
+      "tests": [
+        "crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"
+      ],
+      "reason": "Reviewed the shipped service capture path for Windows Store package evidence into the typed journal/SQLite read model and its registered behavioral test. Retained proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/44-service-windows-store-package-capture-bridge.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-45-live-windows-registry-inventory-source",
+      "implementation": [
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_registry_source.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_registry_live.rs"
+      ],
+      "tests": [
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_windows_registry_source_tests.rs"
+      ],
+      "reason": "Reviewed the bounded HKLM/HKCU uninstall-registry inventory reader, opaque registry/install/uninstall references, hidden-system filtering, journal/SQLite projection, and real registry-fixture behavior tests. Retained proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/45-live-windows-registry-inventory-source.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-46-service-windows-registry-capture-bridge",
+      "implementation": [
+        "crates/agent-service/src/activity_capture/app_game.rs",
+        "crates/agent-service/src/activity_capture/capture_events.rs"
+      ],
+      "tests": [
+        "crates/agent-service/tests/unit/activity_capture_inventory_tests.rs"
+      ],
+      "reason": "Reviewed the shipped service capture path for registry inventory into the typed journal/SQLite read model and its registered behavioral test. Retained proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/46-service-windows-registry-capture-bridge.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-47-backend-source-freshness-read-model",
+      "implementation": [
+        "crates/agent-protocol/src/activity_surface/source_status.rs",
+        "crates/agent-service/src/activity_surface_read_models/app_use/source.rs"
+      ],
+      "tests": [
+        "crates/agent-service/tests/unit/app_game_source_status_tests.rs"
+      ],
+      "reason": "Reviewed source-kind grouping, latest-observation/capability/evidence projection, app-versus-launcher boundaries, real service/WebSocket consumers, and registered grouping/permission-state tests. Retained proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/47-backend-source-freshness-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-53-notification-intent-contract",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_notification_readiness.rs"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/contract/app_game_notification_readiness_tests.rs",
+        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
+      ],
+      "reason": "Reviewed the strict notification-readiness DTO after canonical integration 8f31c4065 plus real valid-roundtrip and top-level/nested unknown-field rejection tests. This is a representation boundary only; no provider, scheduler, adapter, UI, child-delivery, focused execution, proof, checklist, CI, or DONE claim is made.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/53-notification-intent-contract.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-15-read-models-and-service-events",
+      "implementation": [
+        "crates/agent-protocol/src/app_game.rs",
+        "crates/agent-core/src/activity_store.rs",
+        "crates/agent-core/src/activity_store_app_game.rs",
+        "crates/agent-service/src/activity_surface_store.rs",
+        "crates/agent-service/src/activity_surface_adapter.rs"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/unit/app_game_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game/app_game_journal_sqlite_protocol_rows_tests.rs",
+        "crates/agent-service/tests/unit/app_game_activity_read_models.rs",
+        "crates/agent-service/tests/unit/activity_surface_main_backed_adapter_tests.rs"
+      ],
+      "reason": "Reviewed the typed protocol model, ActivityStore/SQLite read-model path, shipped service loader/projection and command routing, plus real serialization, replay, duplicate/rejection, fail-closed/offline, and dispatcher tests. Dedicated approval/action models, live subscriptions, focused execution, proof, checklist acceptance, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/15-read-models-and-service-events.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-56-notification-service-read-model",
+      "implementation": [
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/rows.rs"
+      ],
+      "tests": [
+        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
+      ],
+      "reason": "Reviewed the fail-closed service derivation integrated at 74361ec32 and registered behavior tests. Generic evidence/authority/completed-action rows no longer fabricate time-limit, approval-request, or ready suspicious intents; only explicit unknown classifications produce exact-evidence manual review. Delivery/UI/runtime claims remain false; focused execution, proof, checklist, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/56-notification-service-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-plan-58-notification-local-outbox-bridge",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_notification_readiness.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_classification.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_mapping.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_validation.rs",
+        "crates/app-game-core/src/app_game_child_ux_outbox_store.rs",
+        "crates/agent-service/src/activity_api.rs"
+      ],
+      "tests": [
+        "crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs"
+      ],
+      "reason": "Reviewed the fail-closed notification-readiness to local-outbox mapping, atomic persistence, deterministic JSONL round trip, idempotency/conflict rejection, exact-evidence validation, and registered behavioral tests. Shipped runtime currently stops at the readiness report and has no production caller for this bridge; composing durable outbox runtime is explicitly downstream scope. Focused execution, proof, checklist, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/58-notification-local-outbox-bridge.md",
         "docs/engineering-graph/code-map.json"
       ]
     }

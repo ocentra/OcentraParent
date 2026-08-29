@@ -776,7 +776,7 @@
         "crates/provisioning-core/src/provisioning_install/family_recovery.rs",
         "crates/provisioning-core/tests/unit/readiness_flow.rs"
       ],
-      "note": "WP04 durable invite/recovery custody source is independently reviewed and rebased onto the consolidation line. Atomic current-authority validation, monotonic clock/rate/replay custody, strict SQLite schema validation, private owner receipts, and typed recovery handoff are present. Shipped runtime/provider/membership/support/Data adapters, all six expected repository and handoff test roots, focused execution, proof, precommit, CI, and DONE remain open."
+      "note": "WP04 durable invite/recovery custody source and all six expected repository/handoff test roots are independently reviewed on the consolidation line. Atomic current-authority validation, monotonic clock/rate/replay custody, strict SQLite validation, private owner receipts, typed recovery handoff, restart/concurrency/security tests, and private receipt-input tests are present. Shipped runtime/provider/membership/support/Data adapters, focused execution, proof, precommit, CI, and DONE remain open."
     },
     "WP-account-identity-family-plan-05-device-ownership-authz": {
       "planSlug": "account-identity-family-plan",
@@ -3118,7 +3118,8 @@
         "crates/agent-protocol/src/app_game_notification_readiness.rs",
         "crates/agent-protocol/tests/contract/app_game_notification_readiness_tests.rs",
         "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
-      ]
+      ],
+      "note": "Reviewed strict Rust notification-readiness DTO and real serde/unknown-field contract tests. The contract represents readiness states but does not mint runtime intent authority or delivery/UI claims."
     },
     "WP-app-plan-54-policy-readiness-portal-renderer": {
       "planSlug": "app-plan",
@@ -3133,7 +3134,8 @@
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload",
         "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
-      ]
+      ],
+      "note": "Reviewed fail-closed service derivation and registered behavioral tests. Generic evidence/authority/action rows do not fabricate time-limit or approval intents; explicit unknown classifications are manual-required with exact evidence, and delivery/UI/runtime claims remain false."
     },
     "WP-app-plan-58-notification-local-outbox-bridge": {
       "planSlug": "app-plan",

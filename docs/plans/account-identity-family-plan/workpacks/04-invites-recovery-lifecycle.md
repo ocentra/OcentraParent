@@ -206,7 +206,9 @@ current source boundary. The public repository methods are runtime seams, not
 runtime authority: production identity-proof, membership, support, provider,
 and Data Custody owners still have no shipped composition caller.
 
-Expected test source still missing:
+### Current reviewed test-source delta (2026-08-29)
+
+All six expected repository and handoff test roots are now present:
 
 - `crates/family-identity-core/tests/unit/invite_recovery_repository.rs`;
 - `crates/family-identity-core/tests/unit/invite_recovery_repository_schema.rs`;
@@ -215,13 +217,18 @@ Expected test source still missing:
 - `crates/family-identity-core/tests/integration/invite_recovery_repository.rs`;
 - `crates/family-identity-core/tests/contract/recovery_data_custody_handoff.rs`.
 
-Those tests must cover concurrent issue/redeem/claim, restart and lease replay,
-clock rollback/forward-skew edges, malformed SQLite state, wrong authority and
-receipt identity, terminal monotonicity, constrained support recovery, and
-typed correlated Data Custody retry. Source review is not WP04 completion.
-The external test targets must exercise real owner-adapter contracts; do not
-widen crate-private repository mutations or add a test-only authority seam just
-to make these paths callable.
+The tests exercise the real crate-owned repository boundary for atomic
+issue/redeem/claim behavior, restart and lease replay, clock rollback and
+forward-skew edges, strict SQLite state, wrong authority and receipt identity,
+terminal monotonicity, constrained support recovery, and typed correlated Data
+Custody handoff. The private production receipt-input tests are also present.
+
+This is reviewed source and test topology, not WP04 completion. No non-test
+production caller currently composes the identity, membership, support,
+provider, owner-receipt, or Data Custody adapters. Focused execution, retained
+proof, dependency closure, pre-commit, CI, and DONE remain open. Do not widen
+crate-private mutations or add a caller-mintable authority seam to bridge those
+owner gaps.
 
 The remote packet `ac03afee3a` is rejected/quarantined: it allowed callers to
 supply `Verified`, same-family, abuse, timing, and owner-approval facts; public

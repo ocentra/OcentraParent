@@ -11,10 +11,20 @@
 
 Cross-record the shared app/game WP56 service read model for native app control:
 the Rust service exposes a dedicated notification readiness command/event that
-derives native app time-limit, approval-request, suspicious-unknown,
-manual-required, and unavailable notification intent readiness from the existing
-app/game service read model without claiming provider delivery, parent UI, child
-delivery, policy execution, broad app blocking, or platform support.
+derives only readiness supported by explicit signals in the existing app/game
+service read model without claiming provider delivery, parent UI, child delivery,
+policy execution, broad app blocking, or platform support.
+
+## Current Source/Test Review (2026-08-29)
+
+`AppGameServiceReadModel` has no time-limit evaluation or pending-approval
+signal. The service therefore no longer fabricates time-limit-exceeded or
+approval-request ready intents from generic evidence, identity, authority, or
+completed-action row presence. Explicit `unknownProcess`, `possiblyGame`, and
+`launcherGameCandidate` source rows produce `suspicious-unknown` only as
+manual-required with their exact unknown evidence. Known evidence without an
+owned intent signal stays manual-required. Registered behavioral tests cover
+both boundaries, and every delivery/UI/runtime claim remains false.
 
 ## In Scope
 
