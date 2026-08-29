@@ -11,11 +11,16 @@ final class ChildCapabilityIdentityUITests: XCTestCase {
     }
 
     func testCapabilityStatusReportsObservedFailClosedRuntimeStates() {
+        XCTAssertEqual(app.bundleID, "ca.ocentra.child.agent")
+        XCTAssertEqual(app.label, "Ocentra Child Agent")
+
         let statusView = app.textViews["child-ios-capability-status"]
         XCTAssertTrue(statusView.waitForExistence(timeout: 10))
 
         let rendered = (statusView.value as? String) ?? statusView.label
         XCTAssertFalse(rendered.isEmpty)
+        XCTAssertTrue(rendered.contains("product=OcentraChildAgent"))
+        XCTAssertTrue(rendered.contains("bundle-id=ca.ocentra.child.agent"))
         XCTAssertTrue(rendered.contains("service-mode=capability-only"))
         XCTAssertTrue(rendered.contains("launch-availability=manual-required"))
         XCTAssertTrue(rendered.contains("recovery=not-implemented"))
