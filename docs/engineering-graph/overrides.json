@@ -12518,6 +12518,444 @@
         "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md",
         "docs/engineering-graph/code-map.json"
       ]
+    },
+    {
+      "id": "WP-app-game-plan-51-policy-evaluator-runtime-breadth",
+      "implementation": [
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime_budget.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime_decision.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime_preflight.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime_types.rs"
+      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_policy_evaluator_runtime.rs"],
+      "reason": "Reviewed the Rust policy evaluator and real production-library callers. Canonical 849fbe074 adds missing compiler-manual, outside-schedule observe, and unsupported-hard-action non-dispatch tests. Service persistence, notification/child runtime, adapter execution, test execution, and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/51-policy-evaluator-runtime-breadth.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-52-policy-readiness-service-read-model",
+      "implementation": [
+        "crates/app-game-core/src/app_game_policy_target_compiler.rs",
+        "crates/app-game-core/src/app_game_policy_preview_handoff.rs",
+        "crates/app-game-core/src/app_game_source_freshness_preview_gate.rs",
+        "crates/app-game-core/src/app_game_source_gated_policy_preview.rs",
+        "crates/agent-protocol/src/app_game_policy_readiness.rs",
+        "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
+        "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx"
+      ],
+      "tests": [
+        "crates/app-game-core/tests/contract/app_game_policy_target_compiler.rs",
+        "crates/app-game-core/tests/contract/app_game_policy_preview_handoff.rs",
+        "crates/app-game-core/tests/contract/app_game_source_freshness_preview_gate.rs",
+        "crates/app-game-core/tests/contract/app_game_source_gated_policy_preview.rs",
+        "crates/agent-protocol/tests/contract/app_game_policy_readiness_tests.rs",
+        "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
+        "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts"
+      ],
+      "reason": "Reviewed the compiler/source-gate to protocol, service, WebSocket, and portal readiness chain plus real contract/service/UI negatives. It is readiness/status only; no trusted policy provider or adapter execution is claimed. Tests/proof remain unexecuted.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/52-policy-readiness-service-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-53-notification-intent-contract",
+      "implementation": ["crates/agent-protocol/src/app_game_notification_readiness.rs"],
+      "tests": [
+        "crates/agent-protocol/tests/contract/app_game_notification_readiness_tests.rs",
+        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
+      ],
+      "reason": "Reviewed the strict notification-readiness contract and real serde/unknown-field/service tests. The boundary does not mint runtime intent, provider, UI, or delivery authority; execution and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/53-notification-intent-contract.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-54-policy-readiness-portal-renderer",
+      "implementation": [
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx"
+      ],
+      "tests": ["apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts"],
+      "reason": "Reviewed the mounted AppGameSessions readiness panel and real ready/manual/unavailable/non-ready behavior tests. Live policy authority, test execution, proof, CI, and DONE remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/54-policy-readiness-portal-renderer.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-58-notification-local-outbox-bridge",
+      "implementation": [
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_classification.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_mapping.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_validation.rs",
+        "crates/app-game-core/src/app_game_child_ux_outbox_store.rs"
+      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs"],
+      "reason": "Reviewed the fail-closed readiness-to-local-outbox bridge, atomic persistence, deterministic JSONL, idempotency/conflict/tamper rejection, and real contract tests. No shipped production caller composes the bridge; execution and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/58-notification-local-outbox-bridge.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-59-notification-scheduler-bridge",
+      "implementation": [
+        "crates/app-game-core/src/app_game_notification_scheduler_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_scheduler_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_scheduler_bridge_read_model_validation.rs",
+        "crates/app-game-core/src/app_game_child_ux_scheduler.rs",
+        "crates/app-game-core/src/app_game_child_ux_scheduler_store.rs"
+      ],
+      "tests": [
+        "crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs",
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
+      ],
+      "reason": "Reviewed linked scheduling, private persistence/reopen, replay/idempotency/conflict/tamper behavior, manual/unavailable gating, and explicit non-claims. No production scheduler runtime exists; execution/proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/59-notification-scheduler-bridge.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-60-notification-audit-history-bridge",
+      "implementation": ["crates/app-game-core/src/app_game_notification_audit_history_bridge.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs"],
+      "reason": "Reviewed whole-model audit-history validation before serialization plus tampered-history rejection. No trusted durable history owner/runtime caller exists; tests, proof, and CI remain unexecuted.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/60-notification-audit-history-bridge.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-61-notification-provider-preflight",
+      "implementation": [
+        "crates/app-game-core/src/app_game_notification_provider_preflight_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_provider_preflight_bridge_types.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/scheduler.rs"
+      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_notification_provider_preflight_bridge.rs"],
+      "reason": "Reviewed persisted scheduler custody validation, deterministic provider/credential/smoke refs, manual/unavailable mapping, shipped service consumption, false-claim guards, and real bridge tests. Provider credentials/runtime/delivery and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/61-notification-provider-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-62-notification-preference-preflight",
+      "implementation": [
+        "crates/app-game-core/src/app_game_notification_preference_preflight_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_preference_preflight_bridge_types.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/scheduler.rs"
+      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs"],
+      "reason": "Reviewed persisted scheduler verification, preference/manual/unavailable mapping, deterministic requirement refs, tamper/unsafe rejection, shipped service consumption, and explicit non-claims. No preference owner/runtime/delivery exists; execution/proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/62-notification-preference-preflight.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-64-notification-provider-status-handoff",
+      "implementation": [
+        "crates/app-game-core/src/app_game_notification_provider_preflight_bridge.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/scheduler.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/status_models.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/preflight_entries.rs"
+      ],
+      "reason": "Reviewed the service-owned verified WP59/WP61 provider-status mapping and fail-closed missing/malformed/symlink/mismatch behavior. Exact service composition tests remain blocked because the crate-private entrypoint derives a process-global activity path and exposes no owner-approved injectable store seam; underlying WP59/WP61 tests exist, but WP64 test evidence is not claimed. Provider delivery, proof, and runtime remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-65-notification-preference-status-handoff",
+      "implementation": [
+        "crates/app-game-core/src/app_game_notification_preference_preflight_bridge.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/scheduler.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/status_models.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/preflight_entries.rs"
+      ],
+      "reason": "Reviewed the paired WP59/WP62 preference-status mapping, identity/ref preservation, manual/unavailable states, and explicit delivery/preference/UI/runtime non-claims. Exact service composition tests need an owner-approved injectable store seam and are not claimed; preference runtime/durability/proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-66-notification-parent-surface-intent",
+      "implementation": [
+        "crates/app-game-core/src/app_game_notification_parent_surface_intent.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/surface.rs"
+      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"],
+      "reason": "Reviewed the Rust parent-surface intent, service pairing/identity/count validation, manual/unavailable mapping, refs/redaction, and real family/count/non-claim tests. Provider/preference runtime and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/66-notification-parent-surface-intent.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-67-notification-parent-surface-renderer",
+      "implementation": [
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_notification.rs",
+        "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx",
+        "apps/portal/src/portal-proof-panels-app-game-renderers.tsx"
+      ],
+      "tests": ["apps/portal/tests/unit/app-game-notification-parent-surface-panel.test.ts"],
+      "reason": "Reviewed the mounted Rust-backed notification surface renderer and real populated/missing/route/ref/non-runtime UI behavior tests. The stale retired TS proof path is corrected to the live TSX owner; execution/proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/67-notification-parent-surface-renderer.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-68-notification-live-parent-surface-read-model",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_notification_readiness.rs",
+        "crates/app-game-core/src/app_game_notification_parent_surface_intent.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_notification.rs",
+        "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/contract/app_game_notification_readiness_tests.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs",
+        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs",
+        "apps/portal/tests/unit/app-game-notification-parent-surface-panel.test.ts"
+      ],
+      "reason": "Reviewed the command decode, service payload, parent-runtime projection, mounted portal surface, and real Rust/UI behavior tests. The historical parent-domain paths are retired; provider/delivery authority, execution, and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/68-notification-live-parent-surface-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-70-policy-preview-handoff",
+      "implementation": [
+        "crates/agent-protocol/src/app_game_notification_readiness.rs",
+        "crates/app-game-core/src/app_game_notification_parent_surface_intent.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_notification.rs",
+        "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx"
+      ],
+      "tests": [
+        "crates/agent-protocol/tests/contract/app_game_notification_readiness_tests.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs",
+        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs",
+        "apps/portal/tests/unit/app-game-notification-parent-surface-panel.test.ts"
+      ],
+      "reason": "Reviewed the current Rust-first notification policy-preview handoff through protocol, service, parent-runtime, and mounted portal projection with real contract/service/UI tests. It remains a readiness projection: no trusted policy authority, timer execution, provider delivery, or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/70-policy-preview-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-74-source-freshness-policy-consumption",
+      "implementation": [
+        "crates/schema/src/app_game_source_freshness_policy_consumption.rs",
+        "packages/schema-domain/src/app-game-source-freshness-policy-consumption.ts"
+      ],
+      "tests": ["crates/schema/tests/contract/app_game_source_freshness_policy_consumption.rs"],
+      "reason": "Reviewed the Rust-owned freshness policy contract, generated TypeScript edge, and real contract coverage. No production scheduler/evaluator consumes it and no runtime or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/74-source-freshness-policy-consumption.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-75-source-freshness-preview-gate",
+      "implementation": ["crates/app-game-core/src/app_game_source_freshness_preview_gate.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_freshness_preview_gate.rs"],
+      "reason": "Reviewed the fail-closed Rust freshness preview gate and its real contract tests. It does not schedule or execute policy and has no production evaluator caller; execution and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/75-source-freshness-preview-gate.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-76-source-gated-policy-preview-read-model",
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview.rs",
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_helpers.rs"
+      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview.rs"],
+      "reason": "Reviewed the Rust source-gated preview read model, helper invariants, and real contract tests. Historical parent-domain roots are retired; no live scheduler/evaluator execution or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/76-source-gated-policy-preview-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-78-source-gated-policy-preview-timer-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "reason": "Reviewed the typed Rust timer handoff and real contract coverage. The handoff is projection-only and has no live timer runtime, scheduler writer, or proof.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/78-source-gated-policy-preview-timer-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-79-source-gated-policy-preview-timer-status",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview.rs"],
+      "reason": "Reviewed timer-status projection in the Rust source-gated preview model and its real fail-closed tests. No timer scheduling/runtime or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/79-source-gated-policy-preview-timer-status.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-81-source-gated-policy-preview-timer-runtime-readiness",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "reason": "Reviewed the Rust timer runtime-readiness projection, explicit non-claims, and real contract coverage. It does not create a runtime or scheduler.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/81-source-gated-policy-preview-timer-runtime-readiness.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-82-source-gated-policy-preview-timer-scheduler-persistence",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "reason": "Reviewed the fail-closed scheduler-persistence readiness projection. Canonical 4a122d4ef adds exact real assertions that persistence proof remains required, unclaimed, unscheduled, and non-executing. Runtime persistence and proof remain open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/82-source-gated-policy-preview-timer-scheduler-persistence.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-83-source-gated-policy-preview-timer-audit-rollback-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "reason": "Reviewed audit/rollback reference handoff and real contract non-claim coverage. No audit writer, rollback executor, timer runtime, or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/83-source-gated-policy-preview-timer-audit-rollback-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-84-source-gated-policy-preview-timer-audit-rollback-read-model",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "reason": "Reviewed the bounded audit/rollback read-model projection and real contract tests. It remains status-only with no durable audit or rollback runtime.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/84-source-gated-policy-preview-timer-audit-rollback-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-85-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "reason": "Reviewed the Rust parent-surface intent projection for audit/rollback readiness and real fail-closed tests. No parent-authored authority, execution, or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/85-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-86-source-gated-policy-preview-timer-service-readiness-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "reason": "Reviewed the Rust service-readiness handoff, proof-ref propagation, and real contract tests. Service runtime/read API, timer execution, and proof remain unclaimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/86-source-gated-policy-preview-timer-service-readiness-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-88-source-gated-policy-preview-timer-service-readiness-protocol-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_chain.rs"],
+      "reason": "Reviewed the Rust protocol handoff and its real proof-required/blocked/non-claim tests. WP87 still lacks a live composable read-model output, so this bounded handoff remains test-composed rather than a production runtime chain.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/88-source-gated-policy-preview-timer-service-readiness-protocol-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-89-source-gated-policy-preview-timer-service-readiness-protocol-read-model",
+      "implementation": [
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough.rs",
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"
+      ],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the Rust protocol read-model builder. Canonical d02e0fcda adds exact public-behavior assertions for required no-claim markers and false runtime/API/adapter/private-row flags. No production caller or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/89-source-gated-policy-preview-timer-service-readiness-protocol-read-model.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-90-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the existing Rust protocol-command handoff and real proof-required/blocked/non-claim coverage. Retired parent-domain roots are not recreated; no production caller or runtime command is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/90-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-91-source-gated-policy-preview-timer-service-readiness-service-handler-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the existing Rust service-handler handoff and no-claim behavior. Retired TypeScript ownership is not restored; no shipped service handler/runtime caller or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/91-source-gated-policy-preview-timer-service-readiness-service-handler-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-92-source-gated-policy-preview-timer-service-readiness-read-api-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the Rust read-API handoff and behavioral contract coverage for required and blocked rows. No shipped read API/runtime caller exists and retained proof remains open.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/92-source-gated-policy-preview-timer-service-readiness-read-api-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-93-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the Rust read-API response handoff and real required-row plus omission coverage. Historical TypeScript roots are retired; no production response consumer/runtime caller or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/93-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-94-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/protocol.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the Rust response-consumer handoff and its real required/blocked/no-claim contract coverage. Retired parent-domain roots are not restored; no production response consumer or proof is claimed.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/94-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
+      "id": "WP-app-game-plan-95-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff",
+      "implementation": ["crates/app-game-core/src/app_game_source_gated_policy_preview_timer_followthrough/parent_surface.rs"],
+      "tests": ["crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_followthrough.rs"],
+      "reason": "Reviewed the Rust response-consumer parent-surface handoff and real contract coverage. It is a bounded status projection with no live response consumer, parent runtime effect, or proof claim.",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/95-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ]
     }
   ],
   "proofOverrides": [

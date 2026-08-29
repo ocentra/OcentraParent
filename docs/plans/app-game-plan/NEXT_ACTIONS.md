@@ -49,9 +49,11 @@ harnesses and WP24's owner-blocked live classifier/provider producer. Work from
 2. WP62-WP65: preference owners and receipt-backed status. WP59's scheduler
    bridge, WP60's metadata-only audit-history bridge, WP61's persisted
    provider-preflight bridge, and WP62's preference-preflight source plus real
-   tests are reviewed; production history persistence, real preference/status
-   owners, retry/quiet-hours workers, provider delivery, execution, and proof
-   remain later boundaries.
+   tests are reviewed. WP64/WP65 service composition is also reviewed, but
+   exact service-level tests remain blocked on a crate-private process-global
+   activity path with no owner-approved injectable store seam. Production
+   history persistence, real preference/status owners, retry/quiet-hours
+   workers, provider delivery, execution, and proof remain later boundaries.
 3. WP16 and WP159: remaining cohesive dashboard/source UI and hostile/large
    metadata tests. WP48/WP63's shared focused source is already canonical and
    awaits execution/proof only.
@@ -66,7 +68,14 @@ harnesses and WP24's owner-blocked live classifier/provider producer. Work from
    receipt proof -> WP216 intake -> WP217 durable queue -> WP220-WP222
    notification/action/request queue. WP212 and WP214 focused package-local
    tests are canonical, but no downstream marker helper is runtime completion.
-6. WP27 load/performance harnesses; WP102 implement-or-retire decision.
+6. WP74-WP86 and WP88-WP95 use the current Rust-first projection/contract
+   owners and checked-in real tests; do not restore their retired
+   `packages/parent-domain` paths. Their next honest work is a real production
+   scheduler/runtime/consumer owner, not another proof DTO. WP87 remains open:
+   `bd448a2d1` was rejected because its new read model had only a test caller
+   and could not feed WP88 without manual reconstruction.
+7. WP27 load/performance harnesses; WP102's no-code supersession decision is
+   already recorded, so do not recreate its retired intermediate.
 
 Do not schedule a no-code/proof packet as implementation work, and do not
 recreate the removed legacy TypeScript owners named in old workpacks.

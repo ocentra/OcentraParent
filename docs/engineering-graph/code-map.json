@@ -7600,6 +7600,7 @@
     "WP-app-game-plan-54-policy-readiness-portal-renderer": {
       "planSlug": "app-game-plan",
       "roots": [
+        "apps/portal/src/ParentPortalRoute.tsx",
         "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts"
       ]
@@ -7634,6 +7635,7 @@
         "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
         "crates/app-game-core/src/app_game_notification_scheduler_bridge.rs",
         "crates/app-game-core/src/app_game_notification_scheduler_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_scheduler_bridge_read_model_validation.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_types.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_store.rs",
@@ -7680,7 +7682,8 @@
         "crates/app-game-core/src/app_game_notification_preference_preflight_bridge_types.rs",
         "crates/app-game-core/src/app_game_notification_scheduler_bridge_read_model_validation.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_types.rs",
-        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs"
       ]
     },
     "WP-app-game-plan-63-source-freshness-source-panel-polish": {
@@ -7695,6 +7698,9 @@
         "crates/app-game-core/src/app_game_notification_provider_preflight_bridge.rs",
         "crates/app-game-core/src/app_game_notification_provider_preflight_bridge_types.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/scheduler.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/status_models.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/preflight_entries.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/logic.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/scheduler_runtime.rs",
         "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"
@@ -7706,6 +7712,9 @@
         "crates/app-game-core/src/app_game_notification_preference_preflight_bridge.rs",
         "crates/app-game-core/src/app_game_notification_preference_preflight_bridge_types.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/scheduler.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/status_models.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/boundary/preflight_entries.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/logic.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/scheduler_runtime.rs",
         "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"

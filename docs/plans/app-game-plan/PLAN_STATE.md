@@ -50,6 +50,25 @@ production classifier/provider producer. WP27 still lacks its specified scale,
 replay, and portal-load harnesses. No tests in this checkpoint were executed;
 trusted policy/provider authority, proof, CI, READY, and DONE remain open.
 
+## WP51-WP95 Rust-first code-and-test-source checkpoint — 2026-08-29
+
+The source-first review now records current Rust/source ownership and real
+checked-in behavioral test source for WP51-WP86 and WP88-WP95. Canonical
+`849fbe074` adds the missing WP51 evaluator terminal branches,
+`4a122d4ef` adds the WP82 scheduler-persistence fail-closed assertions, and
+`d02e0fcda` adds the WP89 protocol read-model no-claim assertions. The
+historical `packages/parent-domain` paths in these workpacks are retired and
+must not be recreated as parallel product truth.
+
+This checkpoint is not runtime completion. The chain still stops before a
+parent-authored policy scheduler, live timer/runtime writer, provider or child
+delivery, adapter effect, executed test suite, retained proof, CI, or DONE.
+WP64/WP65 still lack an owner-approved injectable service store seam for exact
+composition tests. WP87 remains a real source gap: proposed commit
+`bd448a2d1` was rejected because it created a test-only read-model DTO with no
+production caller and no direct conversion into WP88's input. That packet was
+not integrated and is not completion evidence.
+
 ## Android child-runtime receipt/notification correction — 2026-08-29
 
 Canonical `0505bdd61` and `e4c147fee` add real package-local receipt and ACK
@@ -174,17 +193,19 @@ remain deferred.
   bridge construction and persistence reject malformed source rows, mismatched
   bridge/entry/alert identities, provider or scheduler claims, and non-local
   delivery state before writing the canonical local outbox.
-- This is code drafted only. Tests, validation, Enforcer gates, retained proof,
-  and broad completion are deferred; provider delivery, scheduler runtime,
-  service composition, UI, child delivery, and adapter dispatch remain outside
-  WP58.
+- Its real contract tests now have reviewed source coverage for validation,
+  persistence, idempotency, conflict, and tamper behavior. No production caller
+  composes the bridge; test execution, retained proof, provider delivery,
+  scheduler runtime, service composition, UI, child delivery, and adapter
+  dispatch remain outside WP58.
 
 - WP60 now has a consolidated Rust-owned fail-closed validator for the projected
   notification audit-history read model in
   `crates/app-game-core/src/app_game_notification_audit_history_bridge.rs`.
-  This is code-drafted and unvalidated: tests, retained proof, durable
-  production history/query, provider delivery/receipts, and runtime composition
-  remain open. It does not claim WP60 DONE.
+  Real tamper and serialization tests are checked in and source-reviewed.
+  Test execution, retained proof, durable production history/query, provider
+  delivery/receipts, and runtime composition remain open. It does not claim
+  WP60 DONE.
 
 - WP64/WP65 now have an agent-service-owned composition boundary that loads and
   verifies a service-owned WP59 scheduler bridge plus its private scheduler
@@ -194,8 +215,10 @@ remain deferred.
   invalid/manual-required or unavailable status. This is a consumer-only seam;
   no production scheduler writer/runtime composition is claimed. Delivery,
   preference mutation, timer execution, UI, child delivery, enforcement,
-  durability, tests, and proof remain open; these workpacks are code-drafted and
-  not DONE.
+  durability, and proof remain open. Exact service-level composition tests also
+  remain open because the crate-private entrypoint derives a process-global
+  activity path and exposes no owner-approved injectable store seam; underlying
+  WP59/WP61/WP62 behavioral tests do not substitute for that missing seam.
 
 ## Scope
 

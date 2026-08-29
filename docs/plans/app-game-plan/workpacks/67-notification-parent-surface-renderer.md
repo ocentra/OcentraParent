@@ -46,8 +46,9 @@ are visible without claiming notification delivery or preference mutation.
 ## Proof
 
 - `apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx`
-- `apps/portal/src/app-game-notification-parent-surface-panel.ts`
-- `apps/portal/tests/app-game-notification-parent-surface-panel.test.ts`
+- `crates/parent-runtime-core/src/parent_ui_bridge/app_game_notification.rs`
+- `crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests.rs`
+- `apps/portal/tests/unit/app-game-notification-parent-surface-panel.test.ts`
 - `scripts/test/app-game-notification-parent-surface-ui-proof.mjs`
 - `test-results/app-game-notification-parent-surface-ui-proof/proof.json`
 - `output/app-game-plan-proof/67-notification-parent-surface-renderer/`
