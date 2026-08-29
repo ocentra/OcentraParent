@@ -7,7 +7,9 @@ use crate::app_game_unknown_approval_types::{
     AppGameUnknownApprovalError, AppGameUnknownApprovalPersistenceState,
     AppGameUnknownApprovalSnapshot, AppGameUnknownApprovalStatus,
 };
-use crate::app_game_unknown_approval_validation::{invalid_transition, require_refs, require_text};
+use crate::app_game_unknown_approval_validation::{
+    invalid_transition, require_refs, require_text, validate_optional_refs,
+};
 
 pub(crate) fn apply_parent_response(
     current: &AppGameUnknownApprovalSnapshot,
@@ -28,6 +30,14 @@ pub(crate) fn apply_parent_response(
         return invalid_transition("expected parent response transition");
     };
     validate_common_response(current, event, actor_ref, evidence_refs, audit_ref)?;
+    validate_optional_refs(
+        child_reason_refs,
+        "app_game.unknown_approval.child_reason_refs",
+    )?;
+    validate_optional_refs(
+        child_status_refs,
+        "app_game.unknown_approval.child_status_refs",
+    )?;
     if current.status == AppGameUnknownApprovalStatus::AwaitingChildReason
         && child_reason_refs.is_empty()
     {

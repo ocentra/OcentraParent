@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use ocentra_app_game_core::app_game_unknown_approval::{
     load_app_game_unknown_approval, persist_app_game_unknown_approval_expiry,
     persist_app_game_unknown_approval_request, persist_app_game_unknown_parent_response,
-    produce_app_game_unknown_candidate,
+    produce_app_game_unknown_candidate, produce_app_game_unknown_candidate_from_inventory,
 };
 use ocentra_app_game_core::app_game_unknown_approval_types::{
     AppGameUnknownAdapterCapabilityState, AppGameUnknownAdapterDispatchState,
@@ -19,6 +19,14 @@ use ocentra_eventing::ids::{
     SourceComponent, SourceService,
 };
 use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
+use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameInventoryCategoryCandidate, AppGameInventoryEvidenceRow, APP_GAME_CATALOG_NOT_LOADED,
+    APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT,
+    APP_GAME_INVENTORY_STATE_INSTALLED, APP_GAME_INVENTORY_SOURCE_PORTABLE_APP,
+    APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE, APP_GAME_RUNTIME_NOT_CLAIMED,
+    APP_GAME_FOREGROUND_NOT_CLAIMED, APP_GAME_SCHEMA_VERSION,
+};
 
 static TEST_PATH_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 
@@ -56,6 +64,80 @@ fn unknown_candidate_producer_preserves_weak_game_classification_and_requires_ev
         AppGameUnknownClassification::PossibleGame,
     );
     assert_invalid_transition(&produce_app_game_unknown_candidate(incompatible));
+    Ok(())
+}
+
+#[test]
+fn inventory_unknown_app_producer_preserves_row_evidence_and_subject(
+) -> Result<(), AppGameUnknownApprovalError> {
+    let row = AppGameInventoryEvidenceRow {
+        schema_version: APP_GAME_SCHEMA_VERSION,
+        inventory_entry_id: String::from("inventory-unknown-1"),
+        observed_at: String::from("2026-08-15T00:00:01Z"),
+        source_kind: APP_GAME_INVENTORY_SOURCE_PORTABLE_APP.to_owned(),
+        source_ref: String::from("portable-source-ref-1"),
+        custody_state: APP_GAME_INVENTORY_CUSTODY_LOCAL_AGENT.to_owned(),
+        product_kind: APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE.to_owned(),
+        display_label: String::from("Unknown app"),
+        identity_id: None,
+        package_id: None,
+        bundle_id: None,
+        app_user_model_id: None,
+        desktop_entry_id: None,
+        executable_path_ref: None,
+        launcher_ref: None,
+        launcher_app_id: None,
+        launcher_manifest_id: None,
+        store_id: None,
+        catalog_ref: None,
+        inventory_state: APP_GAME_INVENTORY_STATE_INSTALLED.to_owned(),
+        classification_state: APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS.to_owned(),
+        catalog_ready_state: APP_GAME_CATALOG_NOT_LOADED.to_owned(),
+        capability_status: ocentra_parent_agent_protocol::app_game::APP_GAME_CAPABILITY_STATUS_AVAILABLE
+            .to_owned(),
+        confidence: 0.2,
+        category_candidates: vec![AppGameInventoryCategoryCandidate {
+            category_kind: ocentra_parent_agent_protocol::app_game::APP_GAME_INVENTORY_CATEGORY_UNKNOWN
+                .to_owned(),
+            confidence: 0.2,
+            catalog_ref: Some(String::from("category-candidate-1")),
+            evidence: Vec::new(),
+        }],
+        runtime_state: APP_GAME_RUNTIME_NOT_CLAIMED.to_owned(),
+        foreground_state: APP_GAME_FOREGROUND_NOT_CLAIMED.to_owned(),
+        running_duration_ms: 0,
+        foreground_duration_ms: 0,
+        evidence: vec![ActivityEvidenceRef {
+            evidence_id: String::from("inventory-evidence-1"),
+            kind: ActivityEvidenceKind::LocalDbRow,
+            digest: None,
+            uri: None,
+        }],
+    };
+
+    let candidate = produce_app_game_unknown_candidate_from_inventory(
+        &row,
+        ocentra_app_game_core::app_game_unknown_approval_types::AppGameUnknownInventoryCandidateContext {
+            candidate_id: String::from("candidate-inventory-1"),
+            device_ref: String::from("device-1"),
+            local_user_ref: String::from("local-user-1"),
+            observed_at_epoch_ms: OBSERVED_AT,
+        },
+    )?
+    .ok_or(AppGameUnknownApprovalError::InvalidTransition {
+        reason: "unknown inventory row did not produce a candidate",
+    })?;
+
+    assert_eq!(candidate.candidate_id, "candidate-inventory-1");
+    assert_eq!(candidate.subject_ref, row.inventory_entry_id);
+    assert_eq!(candidate.kind, AppGameUnknownCandidateKind::PortableExecutable);
+    assert_eq!(candidate.source, AppGameUnknownCandidateSource::Inventory);
+    assert_eq!(candidate.classification, AppGameUnknownClassification::UnknownApp);
+    assert_eq!(candidate.evidence_refs, vec![String::from("inventory-evidence-1")]);
+    assert_eq!(
+        candidate.category_candidate_ref,
+        Some(String::from("category-candidate-1"))
+    );
     Ok(())
 }
 
@@ -223,6 +305,25 @@ async fn ask_child_follow_up_requires_reason_refs_and_conflicting_replay_fails(
     let _cleanup = JournalCleanup(path.clone());
     let journal = NdjsonEventJournal::new(path);
     open_request(&journal, "request-4").await?;
+    let mut blank_status = response_input(
+        "request-4",
+        "response-blank-status-4",
+        AppGameUnknownParentResponse::AskChildWhy,
+        AppGameUnknownAdapterCapabilityState::Unproven,
+    );
+    blank_status.child_status_refs = vec![String::new()];
+    let blank_status_result = persist_app_game_unknown_parent_response(
+        &journal,
+        metadata("event-blank-status-4", "correlation-4")?,
+        blank_status,
+    )
+    .await;
+    assert!(matches!(
+        blank_status_result,
+        Err(AppGameUnknownApprovalError::InvalidField {
+            field: "app_game.unknown_approval.child_status_refs"
+        })
+    ));
     let asked = persist_app_game_unknown_parent_response(
         &journal,
         metadata("event-ask-4", "correlation-4")?,
@@ -251,6 +352,26 @@ async fn ask_child_follow_up_requires_reason_refs_and_conflicting_replay_fails(
     )
     .await;
     assert_invalid_transition(&missing_reason);
+
+    let mut blank_reason = response_input(
+        "request-4",
+        "response-blank-reason-4",
+        AppGameUnknownParentResponse::AllowTarget,
+        AppGameUnknownAdapterCapabilityState::Unproven,
+    );
+    blank_reason.child_reason_refs = vec![String::new()];
+    let blank_reason_result = persist_app_game_unknown_parent_response(
+        &journal,
+        metadata("event-blank-reason-4", "correlation-4")?,
+        blank_reason,
+    )
+    .await;
+    assert!(matches!(
+        blank_reason_result,
+        Err(AppGameUnknownApprovalError::InvalidField {
+            field: "app_game.unknown_approval.child_reason_refs"
+        })
+    ));
 
     let mut with_reason = response_input(
         "request-4",
