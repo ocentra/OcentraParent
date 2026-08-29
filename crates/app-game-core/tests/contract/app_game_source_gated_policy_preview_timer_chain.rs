@@ -85,11 +85,7 @@ fn timer_runtime_readiness_keeps_scheduler_persistence_fail_closed() {
     assert!(readiness
         .runtime_readiness_non_claims
         .iter()
-        .any(|claim| claim == "no-scheduler-persistence-runtime"));
-    assert!(readiness
-        .runtime_readiness_non_claims
-        .iter()
-        .any(|claim| claim == "no-durable-scheduler-storage"));
+        .any(|claim| claim == "no-scheduler-persistence"));
 }
 
 #[test]

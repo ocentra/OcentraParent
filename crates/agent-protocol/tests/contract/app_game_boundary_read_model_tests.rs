@@ -4,7 +4,9 @@ use super::{
     APP_GAME_BOUNDARY_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     APP_GAME_BOUNDARY_READ_MODEL_STATUS_NO_ROWS, APP_GAME_SCHEMA_VERSION,
 };
-use super::{AppGameHealthStatus, AppGamePerformanceHealthReadModel};
+use ocentra_parent_agent_protocol::app_game_boundary_read_model::{
+    AppGameHealthStatus, AppGamePerformanceHealthReadModel,
+};
 use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]

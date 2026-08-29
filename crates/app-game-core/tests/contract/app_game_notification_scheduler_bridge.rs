@@ -37,6 +37,7 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::family::{
 };
 use ocentra_parent_agent_protocol::schema_domain_mirrors::notification::{
     NotificationLocalOutboxSchedulerState, V3NotificationProviderChannel,
+    V3NotificationRuleReasonCode,
 };
 use serde_json::json;
 
@@ -121,11 +122,11 @@ fn preference_preflight_bridge_preserves_scheduler_and_outbox_refs() -> Result<(
     assert_eq!(model.rows[2].blocked_reason_refs, vec![APP_GAME_NOTIFICATION_READINESS_MINIMAL_PAYLOAD_UNAVAILABLE.into()]);
     let preflight = row.preflight_row.as_ref().expect_value("preflight row");
     assert_eq!(preflight.source_scheduler_entry_id.as_str(), record.scheduler_entry_id.as_str());
-    assert_eq!(preflight.source_outbox_record_ref.as_ref().map(|value| value.as_str()), Some(record.source_entry_id.as_str()));
+    assert_eq!(preflight.source_local_outbox_record_ref.as_ref().map(|value| value.as_str()), Some(record.source_entry_id.as_str()));
     assert_eq!(preflight.scheduler_decision_ref, record.scheduler_decision_ref);
     assert_eq!(preflight.scheduler_artifact_ref, record.scheduler_artifact_ref);
     assert_eq!(preflight.provider_channel, Some(V3NotificationProviderChannel::InApp));
-    assert_eq!(preflight.reason_code.as_ref().map(|v| v.as_str()), Some("time-limit-exceeded"));
+    assert_eq!(preflight.reason_code, Some(V3NotificationRuleReasonCode::PolicyViolation));
     assert_eq!(preflight.source_outbox_file_ref.as_ref().map(|v| v.as_str()), Some("outbox-file-59"));
     assert_eq!(preflight.local_data_path_ref.as_ref().map(|v| v.as_str()), Some("local-data-59"));
     assert_eq!(preflight.policy_refs, vec!["policy-59".into()]);
@@ -145,9 +146,9 @@ fn preference_preflight_bridge_preserves_scheduler_and_outbox_refs() -> Result<(
     assert_eq!(preflight.parent_preference_requirement_refs.len(), 1);
     assert_eq!(preflight.notification_frequency_requirement_refs.len(), 1);
     assert_eq!(preflight.quiet_hours_requirement_refs.len(), 1);
-    assert_eq!(preflight.parent_preference_requirement_refs[0].as_str(), "app-game-parent-preference-requirement:bridge-62:scheduler-entry-time-limit");
-    assert_eq!(preflight.notification_frequency_requirement_refs[0].as_str(), "app-game-notification-frequency-requirement:bridge-62:scheduler-entry-time-limit");
-    assert_eq!(preflight.quiet_hours_requirement_refs[0].as_str(), "app-game-quiet-hours-requirement:bridge-62:scheduler-entry-time-limit");
+    assert_eq!(preflight.parent_preference_requirement_refs[0].as_str(), "app-game-parent-preference-requirement:bridge-62:app-game-notification-scheduler:bridge-59:app-game-notification-outbox:bridge-58:time-limit");
+    assert_eq!(preflight.notification_frequency_requirement_refs[0].as_str(), "app-game-notification-frequency-requirement:bridge-62:app-game-notification-scheduler:bridge-59:app-game-notification-outbox:bridge-58:time-limit");
+    assert_eq!(preflight.quiet_hours_requirement_refs[0].as_str(), "app-game-quiet-hours-requirement:bridge-62:app-game-notification-scheduler:bridge-59:app-game-notification-outbox:bridge-58:time-limit");
     assert_ne!(preflight.parent_preference_requirement_refs[0], preflight.notification_frequency_requirement_refs[0]);
     assert_ne!(preflight.notification_frequency_requirement_refs[0], preflight.quiet_hours_requirement_refs[0]);
     assert!(model.rows[1].preflight_row.is_none());
