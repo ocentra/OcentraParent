@@ -18,8 +18,39 @@ export const AppGameTimerParentSurfacePanelFixture: ParentAppGameTimerParentSurf
     { label: 'Child UX handoff refs', value: 'app-game-child-ux-local-handoff-action-result-app-game-1' },
     { label: PortalDetails.ProductClaim, value: 'Timer runtime remains Rust-owned.' },
   ],
-  parentActionRows: [],
-  parentPreferenceSetupRows: [],
+  parentActionRows: [
+    {
+      title: 'Child UX parent action',
+      details: [
+        { label: 'Action result ref', value: 'action-result-app-game-1' },
+        { label: 'Child reason refs', value: 'reason-app-game-1' },
+        { label: 'Child status refs', value: 'status-app-game-1' },
+        { label: 'Manual action', value: 'Manual required' },
+        { label: 'Delivery', value: 'Not claimed' },
+        { label: 'Adapter dispatch', value: 'Not claimed' },
+        { label: 'Platform state', value: 'Not claimed' },
+      ],
+      actionLabel: null,
+      actionPayload: null,
+    },
+  ],
+  parentPreferenceSetupRows: [
+    {
+      title: 'Parent preference setup',
+      details: [
+        { label: 'Target', value: 'Native app' },
+        { label: 'Draft status', value: 'Manual required' },
+        { label: 'Parent preference refs', value: 'preference-setup-app-game-1' },
+        { label: 'Mutation', value: 'Not claimed' },
+        { label: 'Notification delivery', value: 'Not claimed' },
+        { label: 'Adapter dispatch', value: 'Not claimed' },
+        { label: 'Child delivery', value: 'Not claimed' },
+        { label: 'Platform state', value: 'Not claimed' },
+      ],
+      actionLabel: null,
+      actionPayload: null,
+    },
+  ],
   localHandoffArtifactRows: [
     {
       title: 'action-result-app-game-1',

@@ -335,6 +335,25 @@ fn app_game_timer_parent_preference_setup_action_results_project_into_live_activ
         detail.label == "Provider delivery aggregate status"
             && detail.value.starts_with("Manual provider setup required")
     }));
+    let details = serialize_json(
+        &command_result_projection.details,
+        TestContext("command-result projection details serialize"),
+    );
+    for (label, value) in [
+        ("Provider delivery receipt-required refs", "app-game-parent-preference-setup-provider-receipt-required::request-1"),
+        ("Provider delivery receipt-required status", "Required"),
+        ("Provider delivery receipt-pending refs", "app-game-parent-preference-setup-provider-receipt-pending::request-1"),
+        ("Provider delivery receipt-pending status", "Pending"),
+        ("Provider delivery aggregate status", "Manual provider setup required; local outbox, queue, and receipt tracking are recorded."),
+        ("Provider delivery next action", "Configure provider adapter and credential proof before external delivery."),
+        ("Provider delivery proof state", "Local durable outbox, provider queue, receipt-required, pending, and ingested refs are visible."),
+        ("Provider delivery no-claim boundary", "Provider delivery execution and external provider receipt ingestion are not claimed."),
+        ("Adapter dispatch", "Not claimed"),
+        ("Platform state", "Not claimed"),
+        ("Child delivery", "Not claimed"),
+    ] {
+        assert_panel_detail_value(&details, TestLabel(label), TestValue(value));
+    }
 
     let app_game_timer_live_activity = require_result_live_activity(
         &app_game_timer_result,
