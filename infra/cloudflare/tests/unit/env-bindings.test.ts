@@ -212,11 +212,13 @@ describe('env validation', () => {
   });
 
   it('rejects an unclassified environment instead of treating it as a safe test/live mode', () => {
+    const previewValue = 'csrf-preview-token';
+
     assert.ok(
       validateEnv(
         createEnv({
           ENVIRONMENT: 'preview',
-          INTERACTIVE_CSRF_TOKEN: 'csrf-preview-token',
+          INTERACTIVE_CSRF_TOKEN: previewValue,
         })
       ).includes('ENVIRONMENT must be one of local, test, development, production')
     );
